@@ -84,7 +84,6 @@
     </Compile>
     <Compile Include="ResultWrapper.cs" />
     <Compile Include="UnitTestDataSource.cs" />
-    <Compile Include="UnitTestDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />

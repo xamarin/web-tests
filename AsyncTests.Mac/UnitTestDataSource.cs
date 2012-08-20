@@ -41,19 +41,22 @@ namespace AsyncTests.Mac {
 	public class UnitTestDataSource : NSOutlineViewDataSource {
 		ResultWrapper root;
 
-		public UnitTestDataSource (UnitTestDelegate unitTestDelegate)
+		public UnitTestDataSource (UnitTestRunnerController controller)
 		{
-			this.Delegate = unitTestDelegate;
-
-			root = Delegate.Root;
-			Delegate.ChangedEvent += (sender, e) => {
-				root = e.Root;
-			};
+			this.Controller = controller;
 		}
 
-		public UnitTestDelegate Delegate {
+		public UnitTestRunnerController Controller {
 			get;
 			private set;
+		}
+
+		internal void SetResult (TestResultCollection result)
+		{
+			if (result != null)
+				root = new ResultWrapper (result);
+			else
+				root = null;
 		}
 
 		enum ColumnTag {

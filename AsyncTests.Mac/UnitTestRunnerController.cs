@@ -64,8 +64,7 @@ namespace AsyncTests.Mac {
 		// Shared initialization code
 		void Initialize ()
 		{
-			unitTestDelegate = new UnitTestDelegate ();
-			unitTestDataSource = new UnitTestDataSource (unitTestDelegate);
+			dataSource = new UnitTestDataSource (this);
 
 			repeatCount = 1;
 			categoryArray = new NSMutableArray ();
@@ -85,15 +84,14 @@ namespace AsyncTests.Mac {
 			}
 		}
 
-		public UnitTestDelegate Delegate {
-			get { return unitTestDelegate; }
+		internal UnitTestDataSource DataSource {
+			get { return dataSource; }
 		}
 
 		public override void AwakeFromNib ()
 		{
 			base.AwakeFromNib ();
-			ResultArea.DataSource = unitTestDataSource;
-			Delegate.ChangedEvent += (sender, e) => ResultArea.ReloadData ();
+			ResultArea.DataSource = dataSource;
 		}
 
 		bool isRunning;
@@ -101,8 +99,8 @@ namespace AsyncTests.Mac {
 		int selectedCategory;
 		ITestCategory[] categories;
 		NSMutableArray categoryArray;
-		UnitTestDelegate unitTestDelegate;
-		UnitTestDataSource unitTestDataSource;
+		UnitTestDataSource dataSource;
+
 		const string kIsRunning = "IsRunning";
 		const string kRepeatCount = "RepeatCount";
 		const string kCategories = "Categories";
@@ -214,7 +212,9 @@ namespace AsyncTests.Mac {
 
 				var category = categories [SelectedCategory];
 
-				Delegate.Clear ();
+				DataSource.SetResult (null);
+				ResultArea.ReloadData ();
+
 				var suite = await TestSuite.Create (assembly);
 				Status.StringValue = string.Format ("Got testsuite: {0} fixtures, {1} tests.",
 				                                    suite.CountFixtures, suite.CountTests);
@@ -231,8 +231,10 @@ namespace AsyncTests.Mac {
 						break;
 					CheckStatus ();
 				}
-				Delegate.SetResult (task.Result);
+
+				DataSource.SetResult (task.Result);
 				Status.StringValue = "Done";
+				ResultArea.ReloadData ();
 			} catch (Exception ex) {
 				Status.StringValue = string.Format ("ERROR: {0}", ex.Message);
 				Debug.Fail (string.Format ("ERROR: {0}", ex));
