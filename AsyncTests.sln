@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncTests.Framework", "AsyncTests.Framework\AsyncTests.Framework.csproj", "{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncTests.Mac", "AsyncTests.Mac\AsyncTests.Mac.csproj", "{8ABD808F-F05F-4FBF-B86B-CD270F1FCFB0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+		AppStore|Any CPU = AppStore|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8ABD808F-F05F-4FBF-B86B-CD270F1FCFB0}.AppStore|Any CPU.ActiveCfg = AppStore|Any CPU
+		{8ABD808F-F05F-4FBF-B86B-CD270F1FCFB0}.AppStore|Any CPU.Build.0 = AppStore|Any CPU
+		{8ABD808F-F05F-4FBF-B86B-CD270F1FCFB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8ABD808F-F05F-4FBF-B86B-CD270F1FCFB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8ABD808F-F05F-4FBF-B86B-CD270F1FCFB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8ABD808F-F05F-4FBF-B86B-CD270F1FCFB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = AsyncTests.Framework\AsyncTests.Framework.csproj
+	EndGlobalSection
+EndGlobal
