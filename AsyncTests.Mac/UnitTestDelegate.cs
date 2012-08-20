@@ -30,7 +30,7 @@ using System;
 using AsyncTests.Framework;
 using MonoMac.Foundation;
 
-namespace MonoMac.CFNetwork.Test.UnitTests {
+namespace AsyncTests.Mac {
 
 	public class UnitTestDelegate {
 		ResultWrapper root;

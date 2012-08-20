@@ -29,9 +29,9 @@
 using System;
 using System.Collections.Generic;
 using MonoMac.Foundation;
-using AsyncTests.Framework;
 
-namespace MonoMac.CFNetwork.Test.UnitTests {
+namespace AsyncTests.Mac {
+	using Framework;
 
 	[Register ("ResultWrapper")]
 	internal class ResultWrapper : NSObject {

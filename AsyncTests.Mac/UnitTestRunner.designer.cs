@@ -6,7 +6,7 @@
 //
 using MonoMac.Foundation;
 
-namespace MonoMac.CFNetwork.Test.Views
+namespace AsyncTests.Mac
 {
 	[Register ("UnitTestRunnerController")]
 	partial class UnitTestRunnerController

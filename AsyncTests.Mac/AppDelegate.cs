@@ -8,16 +8,21 @@ namespace AsyncTests.Mac
 {
 	public partial class AppDelegate : NSApplicationDelegate
 	{
-		MainWindowController mainWindowController;
-		
+		UnitTestRunnerController unitTestController;
+
 		public AppDelegate ()
 		{
 		}
 
+		public override bool ApplicationShouldTerminateAfterLastWindowClosed (NSApplication sender)
+		{
+			return true;
+		}
+
 		public override void FinishedLaunching (NSObject notification)
 		{
-			mainWindowController = new MainWindowController ();
-			mainWindowController.Window.MakeKeyAndOrderFront (this);
+			unitTestController = new UnitTestRunnerController ();
+			unitTestController.Window.MakeKeyAndOrderFront (this);
 		}
 	}
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 
-namespace MonoMac.CFNetwork.Test.Views {
+namespace AsyncTests.Mac {
 
 	public partial class UnitTestRunner : MonoMac.AppKit.NSWindow {
 		#region Constructors

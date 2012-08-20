@@ -36,12 +36,8 @@ using System.Threading.Tasks;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 using AsyncTests.Framework;
-using AsyncTests.HttpClientTests.Addin;
-using AsyncTests.HttpClientTests.Test;
 
-namespace MonoMac.CFNetwork.Test.Views {
-
-	using UnitTests;
+namespace AsyncTests.Mac {
 
 	public partial class UnitTestRunnerController : NSWindowController {
 		#region Constructors
@@ -68,6 +64,9 @@ namespace MonoMac.CFNetwork.Test.Views {
 		// Shared initialization code
 		void Initialize ()
 		{
+			unitTestDelegate = new UnitTestDelegate ();
+			unitTestDataSource = new UnitTestDataSource (unitTestDelegate);
+
 			repeatCount = 1;
 			categoryArray = new NSMutableArray ();
 
@@ -87,12 +86,13 @@ namespace MonoMac.CFNetwork.Test.Views {
 		}
 
 		public UnitTestDelegate Delegate {
-			get { return AppDelegate.UnitTestDelegate; }
+			get { return unitTestDelegate; }
 		}
 
 		public override void AwakeFromNib ()
 		{
 			base.AwakeFromNib ();
+			ResultArea.DataSource = unitTestDataSource;
 			Delegate.ChangedEvent += (sender, e) => ResultArea.ReloadData ();
 		}
 
@@ -101,6 +101,8 @@ namespace MonoMac.CFNetwork.Test.Views {
 		int selectedCategory;
 		ITestCategory[] categories;
 		NSMutableArray categoryArray;
+		UnitTestDelegate unitTestDelegate;
+		UnitTestDataSource unitTestDataSource;
 		const string kIsRunning = "IsRunning";
 		const string kRepeatCount = "RepeatCount";
 		const string kCategories = "Categories";
@@ -177,7 +179,7 @@ namespace MonoMac.CFNetwork.Test.Views {
 
 		partial void Run (NSObject sender)
 		{
-			Run ();
+			// Run ();
 		}
 
 		partial void Stop (NSObject sender)
@@ -197,15 +199,13 @@ namespace MonoMac.CFNetwork.Test.Views {
 
 		CancellationTokenSource cts;
 
-		async Task Run ()
+		async Task Run (Assembly assembly)
 		{
 			lock (this) {
 				if (cts != null)
 					return;
 				cts = new CancellationTokenSource ();
 			}
-
-			var assembly = typeof (Simple).Assembly;
 
 			try {
 				IsRunning = true;
@@ -214,7 +214,6 @@ namespace MonoMac.CFNetwork.Test.Views {
 				var category = categories [SelectedCategory];
 
 				Delegate.Clear ();
-				await AppDelegate.Instance.StartServer ();
 				var suite = await TestSuite.Create (assembly);
 				Status.StringValue = string.Format ("Got testsuite: {0} fixtures, {1} tests.",
 				                                    suite.CountFixtures, suite.CountTests);

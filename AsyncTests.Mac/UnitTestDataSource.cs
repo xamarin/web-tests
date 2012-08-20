@@ -35,28 +35,25 @@ using MonoMac.CoreGraphics;
 using MonoMac.AppKit;
 using AsyncTests.Framework;
 
-namespace MonoMac.CFNetwork.Test.UnitTests {
+namespace AsyncTests.Mac {
 
 	[Register ("UnitTestDataSource")]
 	public class UnitTestDataSource : NSOutlineViewDataSource {
 		ResultWrapper root;
 
-		public UnitTestDataSource ()
+		public UnitTestDataSource (UnitTestDelegate unitTestDelegate)
 		{
-			Initialize ();
-		}
+			this.Delegate = unitTestDelegate;
 
-		public UnitTestDataSource (IntPtr handler)
-		{
-			Initialize ();
-		}
-
-		void Initialize ()
-		{
-			root = AppDelegate.UnitTestDelegate.Root;
-			AppDelegate.UnitTestDelegate.ChangedEvent += (sender, e) => {
+			root = Delegate.Root;
+			Delegate.ChangedEvent += (sender, e) => {
 				root = e.Root;
 			};
+		}
+
+		public UnitTestDelegate Delegate {
+			get;
+			private set;
 		}
 
 		enum ColumnTag {

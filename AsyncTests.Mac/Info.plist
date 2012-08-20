@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>xamarin.AsyncTests.Mac</string>
+	<string>com.yourcompany.AsyncTests.Mac</string>
 	<key>CFBundleName</key>
 	<string>AsyncTests.Mac</string>
 	<key>CFBundleVersion</key>
