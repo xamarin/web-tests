@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncTests.Mac", "AsyncTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncTests.Framework", "AsyncTests.Framework\AsyncTests.Framework.csproj", "{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncTests.Sample", "AsyncTests.Sample\AsyncTests.Sample.csproj", "{50F3B858-C105-4599-8B52-81372E172F47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -12,6 +14,12 @@ Global
 		AppStore|x86 = AppStore|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{50F3B858-C105-4599-8B52-81372E172F47}.AppStore|x86.ActiveCfg = Debug|Any CPU
+		{50F3B858-C105-4599-8B52-81372E172F47}.AppStore|x86.Build.0 = Debug|Any CPU
+		{50F3B858-C105-4599-8B52-81372E172F47}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{50F3B858-C105-4599-8B52-81372E172F47}.Debug|x86.Build.0 = Debug|Any CPU
+		{50F3B858-C105-4599-8B52-81372E172F47}.Release|x86.ActiveCfg = Release|Any CPU
+		{50F3B858-C105-4599-8B52-81372E172F47}.Release|x86.Build.0 = Release|Any CPU
 		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.AppStore|x86.ActiveCfg = Debug|x86
 		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.AppStore|x86.Build.0 = Debug|x86
 		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.Debug|x86.ActiveCfg = Debug|x86

@@ -101,12 +101,9 @@
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>AsyncTests.Framework</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Build\Intermediates\AsyncTests.Mac.build\MonoMac\AsyncTests.Mac.build\AsyncTests.Mac-all-target-headers.hmap" />
-    <BundleResource Include="Build\Intermediates\AsyncTests.Mac.build\MonoMac\AsyncTests.Mac.build\AsyncTests.Mac-generated-files.hmap" />
-    <BundleResource Include="Build\Intermediates\AsyncTests.Mac.build\MonoMac\AsyncTests.Mac.build\AsyncTests.Mac-own-target-headers.hmap" />
-    <BundleResource Include="Build\Intermediates\AsyncTests.Mac.build\MonoMac\AsyncTests.Mac.build\AsyncTests.Mac-project-headers.hmap" />
-    <BundleResource Include="Build\Intermediates\AsyncTests.Mac.build\MonoMac\AsyncTests.Mac.build\AsyncTests.Mac.hmap" />
+    <ProjectReference Include="..\AsyncTests.Sample\AsyncTests.Sample.csproj">
+      <Project>{50F3B858-C105-4599-8B52-81372E172F47}</Project>
+      <Name>AsyncTests.Sample</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

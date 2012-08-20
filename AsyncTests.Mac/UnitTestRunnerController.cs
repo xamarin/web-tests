@@ -179,7 +179,8 @@ namespace AsyncTests.Mac {
 
 		partial void Run (NSObject sender)
 		{
-			// Run ();
+			var assembly = typeof (AsyncTests.Sample.SimpleTest).Assembly;
+			Run (assembly);
 		}
 
 		partial void Stop (NSObject sender)
