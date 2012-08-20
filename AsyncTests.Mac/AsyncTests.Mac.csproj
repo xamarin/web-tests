@@ -84,11 +84,13 @@
     </Compile>
     <Compile Include="ResultWrapper.cs" />
     <Compile Include="UnitTestDataSource.cs" />
+    <Compile Include="UnitTestRunnerDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
     <InterfaceDefinition Include="MainMenu.xib" />
     <InterfaceDefinition Include="UnitTestRunner.xib" />
+    <InterfaceDefinition Include="Resources\UnitTestRunnerDelegate.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -104,5 +106,12 @@
       <Project>{50F3B858-C105-4599-8B52-81372E172F47}</Project>
       <Name>AsyncTests.Sample</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Build\Intermediates\AsyncTests.Mac.build\MonoMac\AsyncTests.Mac.build\AsyncTests.Mac-all-target-headers.hmap" />
+    <BundleResource Include="Build\Intermediates\AsyncTests.Mac.build\MonoMac\AsyncTests.Mac.build\AsyncTests.Mac-generated-files.hmap" />
+    <BundleResource Include="Build\Intermediates\AsyncTests.Mac.build\MonoMac\AsyncTests.Mac.build\AsyncTests.Mac-own-target-headers.hmap" />
+    <BundleResource Include="Build\Intermediates\AsyncTests.Mac.build\MonoMac\AsyncTests.Mac.build\AsyncTests.Mac-project-headers.hmap" />
+    <BundleResource Include="Build\Intermediates\AsyncTests.Mac.build\MonoMac\AsyncTests.Mac.build\AsyncTests.Mac.hmap" />
   </ItemGroup>
 </Project>

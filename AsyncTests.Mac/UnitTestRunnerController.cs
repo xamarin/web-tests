@@ -65,6 +65,7 @@ namespace AsyncTests.Mac {
 		void Initialize ()
 		{
 			dataSource = new UnitTestDataSource (this);
+			unitTestDelegate = new UnitTestRunnerDelegate ();
 
 			repeatCount = 1;
 			categoryArray = new NSMutableArray ();
@@ -92,6 +93,7 @@ namespace AsyncTests.Mac {
 		{
 			base.AwakeFromNib ();
 			ResultArea.DataSource = dataSource;
+			ResultArea.Delegate = unitTestDelegate;
 		}
 
 		bool isRunning;
@@ -100,6 +102,7 @@ namespace AsyncTests.Mac {
 		ITestCategory[] categories;
 		NSMutableArray categoryArray;
 		UnitTestDataSource dataSource;
+		UnitTestRunnerDelegate unitTestDelegate;
 
 		const string kIsRunning = "IsRunning";
 		const string kRepeatCount = "RepeatCount";

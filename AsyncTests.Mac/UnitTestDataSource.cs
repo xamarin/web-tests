@@ -59,14 +59,6 @@ namespace AsyncTests.Mac {
 				root = null;
 		}
 
-		enum ColumnTag {
-			Name = 1,
-			State,
-			Count,
-			Errors,
-			Warnings
-		}
-
 		#region NSOutlineViewDataSource implementation
 
 		public override int GetChildrenCount (NSOutlineView outlineView, NSObject item)
@@ -90,72 +82,9 @@ namespace AsyncTests.Mac {
 				return false;
 		}
 
-		NSColor ColorForResult (TestResult result)
-		{
-			switch (result.Status) {
-			case TestStatus.Success:
-				return NSColor.Blue;
-			case TestStatus.Error:
-				return NSColor.Red;
-			case TestStatus.Warning:
-				return NSColor.Brown;
-			default:
-				return NSColor.Gray;
-			}
-		}
-
-		string StateForResult (TestResult result)
-		{
-			switch (result.Status) {
-			case TestStatus.Success:
-				return "Pass";
-			case TestStatus.Error:
-				return "Fail";
-			case TestStatus.Warning:
-				return "Warning";
-			default:
-				return string.Empty;
-			}
-		}
-
 		public override NSObject GetObjectValue (NSOutlineView outlineView, NSTableColumn forTableColumn, NSObject byItem)
 		{
-			var wrapper = (ResultWrapper)byItem;
-			var tag = (ColumnTag)forTableColumn.DataCell.Tag;
-
-			var result = wrapper.Item as TestResult;
-			if (result == null) {
-				if (tag == ColumnTag.Name)
-					return (NSString)wrapper.Item.Name;
-				else
-					return null;
-			}
-
-			switch (tag) {
-			case ColumnTag.Name:
-				var label = new NSTextFieldCell (result.Name);
-				label.TextColor = ColorForResult (result);
-				label.Font = forTableColumn.DataCell.Font;
-				return label;
-
-			case ColumnTag.State:
-				// FIXME: NSAttributedString doesn't seem to work.
-				label = new NSTextFieldCell (StateForResult (result));
-				label.TextColor = ColorForResult (result);
-				label.Font = forTableColumn.DataCell.Font;
-				return label;
-
-			case ColumnTag.Count:
-				return (NSNumber)result.TotalSuccess;
-
-			case ColumnTag.Errors:
-				return (NSNumber)result.TotalErrors;
-
-			case ColumnTag.Warnings:
-				return (NSNumber)result.TotalWarnings;
-			}
-
-			return null;
+			return byItem;
 		}
 
 		#endregion
