@@ -1,0 +1,499 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5B2B72221896AD5500E2AFAF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B2B72211896AD5500E2AFAF /* Foundation.framework */; };
+		5B2B72271896AD5500E2AFAF /* ManagedNetstat.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5B2B72261896AD5500E2AFAF /* ManagedNetstat.h */; };
+		5B2B72291896AD5500E2AFAF /* ManagedNetstat.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B2B72281896AD5500E2AFAF /* ManagedNetstat.m */; };
+		5B2B72301896AD5500E2AFAF /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B2B722F1896AD5500E2AFAF /* XCTest.framework */; };
+		5B2B72311896AD5500E2AFAF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B2B72211896AD5500E2AFAF /* Foundation.framework */; };
+		5B2B72331896AD5500E2AFAF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B2B72321896AD5500E2AFAF /* UIKit.framework */; };
+		5B2B72361896AD5500E2AFAF /* libManagedNetstat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B2B721E1896AD5500E2AFAF /* libManagedNetstat.a */; };
+		5B2B723C1896AD5500E2AFAF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5B2B723A1896AD5500E2AFAF /* InfoPlist.strings */; };
+		5B2B723E1896AD5500E2AFAF /* ManagedNetstatTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B2B723D1896AD5500E2AFAF /* ManagedNetstatTests.m */; };
+		5B2B725C1896AD6A00E2AFAF /* inet.c in Sources */ = {isa = PBXBuildFile; fileRef = 5B2B72481896AD6A00E2AFAF /* inet.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5B2B72341896AD5500E2AFAF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5B2B72161896AD5500E2AFAF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5B2B721D1896AD5500E2AFAF;
+			remoteInfo = ManagedNetstat;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5B2B721C1896AD5500E2AFAF /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				5B2B72271896AD5500E2AFAF /* ManagedNetstat.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		5B2B721E1896AD5500E2AFAF /* libManagedNetstat.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libManagedNetstat.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B2B72211896AD5500E2AFAF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		5B2B72251896AD5500E2AFAF /* ManagedNetstat-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ManagedNetstat-Prefix.pch"; sourceTree = "<group>"; };
+		5B2B72261896AD5500E2AFAF /* ManagedNetstat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ManagedNetstat.h; sourceTree = "<group>"; };
+		5B2B72281896AD5500E2AFAF /* ManagedNetstat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ManagedNetstat.m; sourceTree = "<group>"; };
+		5B2B722E1896AD5500E2AFAF /* ManagedNetstatTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ManagedNetstatTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B2B722F1896AD5500E2AFAF /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		5B2B72321896AD5500E2AFAF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		5B2B72391896AD5500E2AFAF /* ManagedNetstatTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ManagedNetstatTests-Info.plist"; sourceTree = "<group>"; };
+		5B2B723B1896AD5500E2AFAF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		5B2B723D1896AD5500E2AFAF /* ManagedNetstatTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ManagedNetstatTests.m; sourceTree = "<group>"; };
+		5B2B72481896AD6A00E2AFAF /* inet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = inet.c; sourceTree = "<group>"; };
+		5B2B724B1896AD6A00E2AFAF /* in_pcb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = in_pcb.h; sourceTree = "<group>"; };
+		5B2B724C1896AD6A00E2AFAF /* ip_var.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ip_var.h; sourceTree = "<group>"; };
+		5B2B724D1896AD6A00E2AFAF /* tcp_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tcp_timer.h; sourceTree = "<group>"; };
+		5B2B724E1896AD6A00E2AFAF /* tcp_var.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tcp_var.h; sourceTree = "<group>"; };
+		5B2B724F1896AD6A00E2AFAF /* tcpip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tcpip.h; sourceTree = "<group>"; };
+		5B2B72501896AD6A00E2AFAF /* route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = route.h; sourceTree = "<group>"; };
+		5B2B72511896AD6A00E2AFAF /* socketvar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socketvar.h; sourceTree = "<group>"; };
+		5B2B72531896AD6A00E2AFAF /* netstat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = netstat.h; sourceTree = "<group>"; };
+		5B2B72551896AD6A00E2AFAF /* if_classq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = if_classq.h; sourceTree = "<group>"; };
+		5B2B72561896AD6A00E2AFAF /* if_llreach.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = if_llreach.h; sourceTree = "<group>"; };
+		5B2B72571896AD6A00E2AFAF /* in_pcb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = in_pcb.h; sourceTree = "<group>"; };
+		5B2B72581896AD6A00E2AFAF /* pktsched.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pktsched.h; sourceTree = "<group>"; };
+		5B2B72591896AD6A00E2AFAF /* socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socket.h; sourceTree = "<group>"; };
+		5B2B725A1896AD6A00E2AFAF /* socketvar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socketvar.h; sourceTree = "<group>"; };
+		5B2B725B1896AD6A00E2AFAF /* tcp_var.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tcp_var.h; sourceTree = "<group>"; };
+		5B2B725E1896AE6000E2AFAF /* native-netstat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "native-netstat.h"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5B2B721B1896AD5500E2AFAF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B2B72221896AD5500E2AFAF /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B2B722B1896AD5500E2AFAF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B2B72301896AD5500E2AFAF /* XCTest.framework in Frameworks */,
+				5B2B72361896AD5500E2AFAF /* libManagedNetstat.a in Frameworks */,
+				5B2B72331896AD5500E2AFAF /* UIKit.framework in Frameworks */,
+				5B2B72311896AD5500E2AFAF /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5B2B72151896AD5500E2AFAF = {
+			isa = PBXGroup;
+			children = (
+				5B2B72471896AD6A00E2AFAF /* Apple */,
+				5B2B72231896AD5500E2AFAF /* ManagedNetstat */,
+				5B2B72371896AD5500E2AFAF /* ManagedNetstatTests */,
+				5B2B72201896AD5500E2AFAF /* Frameworks */,
+				5B2B721F1896AD5500E2AFAF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5B2B721F1896AD5500E2AFAF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5B2B721E1896AD5500E2AFAF /* libManagedNetstat.a */,
+				5B2B722E1896AD5500E2AFAF /* ManagedNetstatTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5B2B72201896AD5500E2AFAF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5B2B72211896AD5500E2AFAF /* Foundation.framework */,
+				5B2B722F1896AD5500E2AFAF /* XCTest.framework */,
+				5B2B72321896AD5500E2AFAF /* UIKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5B2B72231896AD5500E2AFAF /* ManagedNetstat */ = {
+			isa = PBXGroup;
+			children = (
+				5B2B725E1896AE6000E2AFAF /* native-netstat.h */,
+				5B2B72261896AD5500E2AFAF /* ManagedNetstat.h */,
+				5B2B72281896AD5500E2AFAF /* ManagedNetstat.m */,
+				5B2B72241896AD5500E2AFAF /* Supporting Files */,
+			);
+			path = ManagedNetstat;
+			sourceTree = "<group>";
+		};
+		5B2B72241896AD5500E2AFAF /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				5B2B72251896AD5500E2AFAF /* ManagedNetstat-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		5B2B72371896AD5500E2AFAF /* ManagedNetstatTests */ = {
+			isa = PBXGroup;
+			children = (
+				5B2B723D1896AD5500E2AFAF /* ManagedNetstatTests.m */,
+				5B2B72381896AD5500E2AFAF /* Supporting Files */,
+			);
+			path = ManagedNetstatTests;
+			sourceTree = "<group>";
+		};
+		5B2B72381896AD5500E2AFAF /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				5B2B72391896AD5500E2AFAF /* ManagedNetstatTests-Info.plist */,
+				5B2B723A1896AD5500E2AFAF /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		5B2B72471896AD6A00E2AFAF /* Apple */ = {
+			isa = PBXGroup;
+			children = (
+				5B2B72481896AD6A00E2AFAF /* inet.c */,
+				5B2B72491896AD6A00E2AFAF /* Kernel */,
+				5B2B72531896AD6A00E2AFAF /* netstat.h */,
+				5B2B72541896AD6A00E2AFAF /* Xnu */,
+			);
+			name = Apple;
+			path = ../Apple;
+			sourceTree = "<group>";
+		};
+		5B2B72491896AD6A00E2AFAF /* Kernel */ = {
+			isa = PBXGroup;
+			children = (
+				5B2B724A1896AD6A00E2AFAF /* netinet */,
+				5B2B72501896AD6A00E2AFAF /* route.h */,
+				5B2B72511896AD6A00E2AFAF /* socketvar.h */,
+			);
+			path = Kernel;
+			sourceTree = "<group>";
+		};
+		5B2B724A1896AD6A00E2AFAF /* netinet */ = {
+			isa = PBXGroup;
+			children = (
+				5B2B724B1896AD6A00E2AFAF /* in_pcb.h */,
+				5B2B724C1896AD6A00E2AFAF /* ip_var.h */,
+				5B2B724D1896AD6A00E2AFAF /* tcp_timer.h */,
+				5B2B724E1896AD6A00E2AFAF /* tcp_var.h */,
+				5B2B724F1896AD6A00E2AFAF /* tcpip.h */,
+			);
+			path = netinet;
+			sourceTree = "<group>";
+		};
+		5B2B72541896AD6A00E2AFAF /* Xnu */ = {
+			isa = PBXGroup;
+			children = (
+				5B2B72551896AD6A00E2AFAF /* if_classq.h */,
+				5B2B72561896AD6A00E2AFAF /* if_llreach.h */,
+				5B2B72571896AD6A00E2AFAF /* in_pcb.h */,
+				5B2B72581896AD6A00E2AFAF /* pktsched.h */,
+				5B2B72591896AD6A00E2AFAF /* socket.h */,
+				5B2B725A1896AD6A00E2AFAF /* socketvar.h */,
+				5B2B725B1896AD6A00E2AFAF /* tcp_var.h */,
+			);
+			path = Xnu;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5B2B721D1896AD5500E2AFAF /* ManagedNetstat */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5B2B72411896AD5500E2AFAF /* Build configuration list for PBXNativeTarget "ManagedNetstat" */;
+			buildPhases = (
+				5B2B721A1896AD5500E2AFAF /* Sources */,
+				5B2B721B1896AD5500E2AFAF /* Frameworks */,
+				5B2B721C1896AD5500E2AFAF /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ManagedNetstat;
+			productName = ManagedNetstat;
+			productReference = 5B2B721E1896AD5500E2AFAF /* libManagedNetstat.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		5B2B722D1896AD5500E2AFAF /* ManagedNetstatTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5B2B72441896AD5500E2AFAF /* Build configuration list for PBXNativeTarget "ManagedNetstatTests" */;
+			buildPhases = (
+				5B2B722A1896AD5500E2AFAF /* Sources */,
+				5B2B722B1896AD5500E2AFAF /* Frameworks */,
+				5B2B722C1896AD5500E2AFAF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5B2B72351896AD5500E2AFAF /* PBXTargetDependency */,
+			);
+			name = ManagedNetstatTests;
+			productName = ManagedNetstatTests;
+			productReference = 5B2B722E1896AD5500E2AFAF /* ManagedNetstatTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5B2B72161896AD5500E2AFAF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = Xamarin;
+			};
+			buildConfigurationList = 5B2B72191896AD5500E2AFAF /* Build configuration list for PBXProject "ManagedNetstat" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 5B2B72151896AD5500E2AFAF;
+			productRefGroup = 5B2B721F1896AD5500E2AFAF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5B2B721D1896AD5500E2AFAF /* ManagedNetstat */,
+				5B2B722D1896AD5500E2AFAF /* ManagedNetstatTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5B2B722C1896AD5500E2AFAF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B2B723C1896AD5500E2AFAF /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5B2B721A1896AD5500E2AFAF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B2B72291896AD5500E2AFAF /* ManagedNetstat.m in Sources */,
+				5B2B725C1896AD6A00E2AFAF /* inet.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B2B722A1896AD5500E2AFAF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B2B723E1896AD5500E2AFAF /* ManagedNetstatTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5B2B72351896AD5500E2AFAF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5B2B721D1896AD5500E2AFAF /* ManagedNetstat */;
+			targetProxy = 5B2B72341896AD5500E2AFAF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		5B2B723A1896AD5500E2AFAF /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5B2B723B1896AD5500E2AFAF /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		5B2B723F1896AD5500E2AFAF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		5B2B72401896AD5500E2AFAF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		5B2B72421896AD5500E2AFAF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				DSTROOT = /tmp/ManagedNetstat.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ManagedNetstat/ManagedNetstat-Prefix.pch";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = ../Apple/Kernel;
+			};
+			name = Debug;
+		};
+		5B2B72431896AD5500E2AFAF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				DSTROOT = /tmp/ManagedNetstat.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ManagedNetstat/ManagedNetstat-Prefix.pch";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = ../Apple/Kernel;
+			};
+			name = Release;
+		};
+		5B2B72451896AD5500E2AFAF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ManagedNetstat/ManagedNetstat-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "ManagedNetstatTests/ManagedNetstatTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		5B2B72461896AD5500E2AFAF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ManagedNetstat/ManagedNetstat-Prefix.pch";
+				INFOPLIST_FILE = "ManagedNetstatTests/ManagedNetstatTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5B2B72191896AD5500E2AFAF /* Build configuration list for PBXProject "ManagedNetstat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5B2B723F1896AD5500E2AFAF /* Debug */,
+				5B2B72401896AD5500E2AFAF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5B2B72411896AD5500E2AFAF /* Build configuration list for PBXNativeTarget "ManagedNetstat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5B2B72421896AD5500E2AFAF /* Debug */,
+				5B2B72431896AD5500E2AFAF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5B2B72441896AD5500E2AFAF /* Build configuration list for PBXNativeTarget "ManagedNetstatTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5B2B72451896AD5500E2AFAF /* Debug */,
+				5B2B72461896AD5500E2AFAF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5B2B72161896AD5500E2AFAF /* Project object */;
+}
