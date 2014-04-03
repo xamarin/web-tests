@@ -160,11 +160,7 @@ namespace Xamarin.WebTests.Server
 
 		public virtual HttpWebRequest CreateRequest (Uri uri)
 		{
-			var request = (HttpWebRequest)HttpWebRequest.Create (uri);
-			// throws NotImplementedException on Mono.
-			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-				request.ContinueTimeout = 30000;
-			return request;
+			return (HttpWebRequest)HttpWebRequest.Create (uri);
 		}
 
 		public HttpWebRequest CreateRequest (Listener listener)

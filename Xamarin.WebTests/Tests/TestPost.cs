@@ -151,7 +151,12 @@ namespace Xamarin.WebTests.Tests
 				response.Close ();
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
-				Console.Error.WriteLine ("RUN - GOT WEB ERROR: {0} {1}", handler, response.StatusCode);
+				using (var reader = new StreamReader (response.GetResponseStream ())) {
+					var content = reader.ReadToEnd ();
+					Console.Error.WriteLine ("RUN - GOT WEB ERROR: {0} {1}\n{2}", handler, response.StatusCode, content);
+					Assert.Fail ("{0}: {1}", handler, content);
+				}
+				response.Close ();
 				throw;
 			} catch (Exception ex) {
 				Console.Error.WriteLine ("RUN - GOT EXCEPTION: {0}", ex);
