@@ -121,31 +121,16 @@ namespace Xamarin.WebTests.Tests
 
 		public IEnumerable<Handler> BrokenTests ()
 		{
-			var post = new PostHandler () {
-				Description = "Chunked post", Body = "Hello Chunked World!", Mode = TransferMode.Chunked, Flags = RequestFlags.Redirected
-			};
-			var redirect = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect) { Description = post.Description };
-			yield return redirect;
+			yield break;
 		}
 
-		[Test]
-		[Category ("Repeat")]
-		public void Repeat ()
-		{
-			for (int i = 0; i < 50; i++) {
-				foreach (var handler in BrokenTests ())
-					Run (handler);
-			}
-		}
-
-		[Category ("Test")]
+		[Category ("NotWorking")]
 		[TestCaseSource ("BrokenTests")]
 		public void Work (Handler handler)
 		{
 			DoRun (handler);
 		}
 
-		[Category ("Work")]
 		[TestCaseSource ("GetPostTests")]
 		[TestCaseSource ("GetDeleteTests")]
 		[TestCaseSource ("GetRedirectTests")]
@@ -159,16 +144,21 @@ namespace Xamarin.WebTests.Tests
 			Console.Error.WriteLine ("RUN: {0}", handler);
 
 			var request = handler.CreateRequest (listener);
-			var response = (HttpWebResponse)request.GetResponse ();
 
 			try {
-				Console.WriteLine ("GOT RESPONSE: {0}", response.StatusCode);
-				Console.WriteLine ("TEST POST DONE: {0} {1}", handler.Task.IsCompleted, handler.Task.IsFaulted);
-			} finally {
+				var response = (HttpWebResponse)request.GetResponse ();
+				Console.Error.WriteLine ("RUN - GOT RESPONSE: {0} {1}", handler, response.StatusCode);
 				response.Close ();
+			} catch (WebException wexc) {
+				var response = (HttpWebResponse)wexc.Response;
+				Console.Error.WriteLine ("RUN - GOT WEB ERROR: {0} {1}", handler, response.StatusCode);
+				throw;
+			} catch (Exception ex) {
+				Console.Error.WriteLine ("RUN - GOT EXCEPTION: {0}", ex);
+				throw;
+			} finally {
+				Console.Error.WriteLine ("RUN DONE: {0}", handler);
 			}
-
-			Console.Error.WriteLine ("RUN DONE: {0}", handler);
 		}
 	}
 }

@@ -7,13 +7,10 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
 		Release|x86 = Release|x86
-		NUnit|x86 = NUnit|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Debug|x86.ActiveCfg = Debug|x86
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Debug|x86.Build.0 = Debug|x86
-		{E93E8622-665B-44D6-B36A-89C93B5B3532}.NUnit|x86.ActiveCfg = NUnit|x86
-		{E93E8622-665B-44D6-B36A-89C93B5B3532}.NUnit|x86.Build.0 = NUnit|x86
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Release|x86.ActiveCfg = Release|x86
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
