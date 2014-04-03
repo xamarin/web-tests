@@ -1,0 +1,15 @@
+Xamarin Web and Http Tests
+==========================
+
+* NetworkTools: iOS 'netstat' library and sample app which creates many concurrent
+  http requests to test connection reuse under heavy load.
+
+* Xamarin.WebTests: NUnitLite unit test project for the web/http stack.
+
+* Xamarin.WebTests.iOS: same for iOS.
+
+* Xamarin.WebTests.Android: same for Android.
+
+The tests require the NUnitLite NuGet package, before running them the first time, you
+need to open the solution in Xamarin Studio, right-click "References" and select
+"Restore NuGet Packages".
