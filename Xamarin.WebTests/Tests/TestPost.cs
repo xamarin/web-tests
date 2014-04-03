@@ -121,7 +121,14 @@ namespace Xamarin.WebTests.Tests
 
 		public IEnumerable<Handler> BrokenTests ()
 		{
-			yield break;
+			var post = new PostHandler {
+				Description = "Chunked post",
+				Body = "Hello chunked world",
+				Mode = TransferMode.Chunked,
+				Flags = RequestFlags.Redirected
+			};
+			var redirect = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
+			yield return redirect;
 		}
 
 		[Category ("NotWorking")]
