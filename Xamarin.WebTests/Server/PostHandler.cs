@@ -249,6 +249,11 @@ namespace Xamarin.WebTests.Server
 			}
 
 			Debug (0, "BODY", body);
+			if (Body != null && !Body.Equals (body)) {
+				WriteError (connection, "Invalid body");
+				return false;
+			}
+
 			return true;
 		}
 
