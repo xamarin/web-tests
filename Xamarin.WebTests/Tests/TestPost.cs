@@ -125,17 +125,47 @@ namespace Xamarin.WebTests.Tests
 				Description = "Chunked post",
 				Body = "Hello chunked world",
 				Mode = TransferMode.Chunked,
-				Flags = RequestFlags.Redirected
+				Flags = RequestFlags.Redirected,
+				AllowWriteStreamBuffering = false
 			};
 			var redirect = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
 			yield return redirect;
 		}
 
+		[Category ("Martin")]
 		[Category ("NotWorking")]
 		[TestCaseSource ("BrokenTests")]
 		public void Work (Handler handler)
 		{
-			DoRun (handler);
+			DoRun (handler, HttpStatusCode.TemporaryRedirect, true);
+		}
+
+		[Test]
+		public void RedirectAsGetNoBuffering ()
+		{
+			var post = new PostHandler {
+				Description = "Chunked post",
+				Body = "Hello chunked world",
+				Mode = TransferMode.Chunked,
+				Flags = RequestFlags.RedirectedAsGet,
+				AllowWriteStreamBuffering = false
+			};
+			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
+			DoRun (redirect);
+		}
+
+		[Test]
+		public void RedirectNoBuffering ()
+		{
+			var post = new PostHandler {
+				Description = "Chunked post",
+				Body = "Hello chunked world",
+				Mode = TransferMode.Chunked,
+				Flags = RequestFlags.Redirected,
+				AllowWriteStreamBuffering = false
+			};
+			var redirect = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
+			DoRun (redirect, HttpStatusCode.TemporaryRedirect, true);
 		}
 
 		[TestCaseSource ("GetPostTests")]
@@ -146,7 +176,7 @@ namespace Xamarin.WebTests.Tests
 			DoRun (handler);
 		}
 
-		void DoRun (Handler handler)
+		void DoRun (Handler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK, bool expectException = false)
 		{
 			Console.Error.WriteLine ("RUN: {0}", handler);
 
@@ -155,12 +185,21 @@ namespace Xamarin.WebTests.Tests
 			try {
 				var response = (HttpWebResponse)request.GetResponse ();
 				Console.Error.WriteLine ("RUN - GOT RESPONSE: {0} {1}", handler, response.StatusCode);
+				Assert.AreEqual (expectedStatus, response.StatusCode, "status code");
+				Assert.IsFalse (expectException, "success status");
 				response.Close ();
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
+				if (expectException) {
+					Assert.AreEqual (expectedStatus, response.StatusCode, "error status code");
+					response.Close ();
+					return;
+				}
+
 				using (var reader = new StreamReader (response.GetResponseStream ())) {
 					var content = reader.ReadToEnd ();
-					Console.Error.WriteLine ("RUN - GOT WEB ERROR: {0} {1}\n{2}", handler, response.StatusCode, content);
+					Console.Error.WriteLine ("RUN - GOT WEB ERROR: {0} {1} {2}\n{3}\n{4}", handler,
+						wexc.Status, response.StatusCode, content, wexc);
 					Assert.Fail ("{0}: {1}", handler, content);
 				}
 				response.Close ();
