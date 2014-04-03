@@ -119,27 +119,6 @@ namespace Xamarin.WebTests.Tests
 			}
 		}
 
-		public IEnumerable<Handler> BrokenTests ()
-		{
-			var post = new PostHandler {
-				Description = "Chunked post",
-				Body = "Hello chunked world",
-				Mode = TransferMode.Chunked,
-				Flags = RequestFlags.Redirected,
-				AllowWriteStreamBuffering = false
-			};
-			var redirect = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
-			yield return redirect;
-		}
-
-		[Category ("Martin")]
-		[Category ("NotWorking")]
-		[TestCaseSource ("BrokenTests")]
-		public void Work (Handler handler)
-		{
-			DoRun (handler, HttpStatusCode.TemporaryRedirect, true);
-		}
-
 		[Test]
 		public void RedirectAsGetNoBuffering ()
 		{
