@@ -165,6 +165,29 @@ namespace Xamarin.WebTests.Tests
 				Console.Error.WriteLine ("RUN DONE: {0}", handler);
 			}
 		}
+
+		[Test]
+		public void Test18750 ()
+		{
+			var post = new PostHandler {
+				Description = "First post",
+				Body = "var1=value&var2=value2",
+				Flags = RequestFlags.RedirectedAsGet
+			};
+			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
+
+			var uri = redirect.RegisterRequest (listener);
+
+			var wc = new WebClient ();
+			var res = wc.UploadString (uri, post.Body);
+			Console.WriteLine (res);
+
+			var secondPost = new PostHandler {
+				Description = "Second post", Body = "Should send this"
+			};
+
+			DoRun (secondPost);
+		}
 	}
 }
 
