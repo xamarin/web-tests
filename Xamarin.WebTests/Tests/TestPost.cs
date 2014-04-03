@@ -107,7 +107,7 @@ namespace Xamarin.WebTests.Tests
 			foreach (var code in new [] { HttpStatusCode.Moved, HttpStatusCode.Found, HttpStatusCode.TemporaryRedirect }) {
 				foreach (var post in GetPostTests ()) {
 					var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
-					var hasBody = post.Body != null;
+					var hasBody = post.Body != null || ((post.Flags & RequestFlags.ExplicitlySetLength) != 0) || (post.Mode == TransferMode.ContentLength);
 
 					if ((hasBody || !isWindows) && (code == HttpStatusCode.MovedPermanently || code == HttpStatusCode.Found))
 						post.Flags = RequestFlags.RedirectedAsGet;
