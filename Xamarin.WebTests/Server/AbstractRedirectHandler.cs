@@ -1,5 +1,5 @@
 ﻿//
-// RedirectHandler.cs
+// AbstractRedirectHandler.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,40 +25,45 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
-using System.Text;
-using System.Globalization;
 
 namespace Xamarin.WebTests.Server
 {
 	using Framework;
 
-	public class RedirectHandler : AbstractRedirectHandler
+	public abstract class AbstractRedirectHandler : Handler
 	{
-		public HttpStatusCode Code {
+		public Handler Target {
 			get;
 			private set;
 		}
 
-		public RedirectHandler (Handler target, HttpStatusCode code)
-			: base (target)
+		protected AbstractRedirectHandler (Handler target)
 		{
-			Code = code;
+			Target = target;
 
-			if (!IsRedirectStatus (code))
-				throw new InvalidOperationException ();
+			if ((target.Flags & RequestFlags.SendContinue) != 0)
+				Flags |= RequestFlags.SendContinue;
+			else
+				Flags &= ~RequestFlags.SendContinue;
 		}
 
-		static bool IsRedirectStatus (HttpStatusCode code)
+		public override HttpWebRequest CreateRequest (Uri uri)
 		{
-			var icode = (int)code;
-			return icode == 301 || icode == 302 || icode == 303 || icode == 307;
+			return Target.CreateRequest (uri);
 		}
 
-		protected override bool HandleRedirect (Connection connection, RequestFlags effectiveFlags)
+		protected abstract bool HandleRedirect (Connection connection, RequestFlags effectiveFlags);
+
+		protected override bool DoHandleRequest (Connection connection, RequestFlags effectiveFlags)
 		{
-			var targetUri = Target.RegisterRequest (connection.Server);
-			WriteRedirect (connection, (int)Code, targetUri);
-			return true;
+			var sendContinue = (effectiveFlags & RequestFlags.SendContinue) != 0;
+			var postHandler = Target as PostHandler;
+			if (!sendContinue && postHandler != null) {
+				if (!postHandler.HandlePostRequest (connection))
+					return false;
+			}
+
+			return HandleRedirect (connection, effectiveFlags);
 		}
 	}
 }

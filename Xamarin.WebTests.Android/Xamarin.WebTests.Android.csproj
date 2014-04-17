@@ -82,6 +82,12 @@
       <Link>Tests\TestPost.cs</Link>
     </Compile>
     <Compile Include="WebTestInstrumentation.cs" />
+    <Compile Include="..\Xamarin.WebTests\Server\AuthenticationHandler.cs">
+      <Link>Server\AuthenticationHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\AbstractRedirectHandler.cs">
+      <Link>Server\AbstractRedirectHandler.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

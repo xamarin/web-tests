@@ -135,6 +135,12 @@
     <Compile Include="..\Xamarin.WebTests\Tests\TestPost.cs">
       <Link>Tests\TestPost.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\AuthenticationHandler.cs">
+      <Link>Server\AuthenticationHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\AbstractRedirectHandler.cs">
+      <Link>Server\AbstractRedirectHandler.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

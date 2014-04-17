@@ -79,6 +79,11 @@ namespace Xamarin.WebTests.Server
 			return new Uri (uri, path);
 		}
 
+		public void RegisterHandler (string path, Handler handler)
+		{
+			handlers.Add (path, handler);
+		}
+
 		public Uri Uri {
 			get { return uri; }
 		}

@@ -1,5 +1,5 @@
 ﻿//
-// RedirectHandler.cs
+// AuthenticatedPostHandler.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,40 +25,49 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
-using System.Text;
-using System.Globalization;
 
 namespace Xamarin.WebTests.Server
 {
 	using Framework;
 
-	public class RedirectHandler : AbstractRedirectHandler
+	public class AuthenticationHandler : AbstractRedirectHandler
 	{
-		public HttpStatusCode Code {
-			get;
-			private set;
-		}
-
-		public RedirectHandler (Handler target, HttpStatusCode code)
+		public AuthenticationHandler (Handler target)
 			: base (target)
 		{
-			Code = code;
-
-			if (!IsRedirectStatus (code))
-				throw new InvalidOperationException ();
-		}
-
-		static bool IsRedirectStatus (HttpStatusCode code)
-		{
-			var icode = (int)code;
-			return icode == 301 || icode == 302 || icode == 303 || icode == 307;
 		}
 
 		protected override bool HandleRedirect (Connection connection, RequestFlags effectiveFlags)
 		{
-			var targetUri = Target.RegisterRequest (connection.Server);
-			WriteRedirect (connection, (int)Code, targetUri);
+			string authHeader;
+			if (connection.Headers.TryGetValue ("Authorization", out authHeader)) {
+				if (!authHeader.Equals ("Basic eGFtYXJpbjptb25rZXk=")) {
+					WriteError (connection, "Invalid Authorization header!");
+					return false;
+				}
+
+				WriteSuccess (connection);
+				return true;
+			}
+
+			var handler = new AuthenticationHandler (Target);
+			connection.Server.RegisterHandler (connection.RequestUri.AbsolutePath, handler);
+			WriteUnauthorized (connection);
 			return true;
+		}
+
+		protected void WriteUnauthorized (Connection connection)
+		{
+			connection.ResponseWriter.WriteLine ("HTTP/1.1 401 Unauthorized");
+			connection.ResponseWriter.WriteLine ("WWW-Authenticate: Basic");
+			connection.ResponseWriter.WriteLine ();
+		}
+
+		public override HttpWebRequest CreateRequest (Uri uri)
+		{
+			var request = base.CreateRequest (uri);
+			request.Credentials = new NetworkCredential ("xamarin", "monkey");
+			return request;
 		}
 	}
 }
