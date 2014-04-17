@@ -45,6 +45,8 @@ namespace Xamarin.WebTests.Server
 				Flags |= RequestFlags.SendContinue;
 			else
 				Flags &= ~RequestFlags.SendContinue;
+
+			Description = string.Format ("{0}: {1}", GetType ().Name, target.Description);
 		}
 
 		public override HttpWebRequest CreateRequest (Uri uri)
@@ -59,7 +61,7 @@ namespace Xamarin.WebTests.Server
 			var sendContinue = (effectiveFlags & RequestFlags.SendContinue) != 0;
 			var postHandler = Target as PostHandler;
 			if (!sendContinue && postHandler != null) {
-				if (!postHandler.HandlePostRequest (connection))
+				if (!postHandler.HandlePostRequest (connection, effectiveFlags))
 					return false;
 			}
 

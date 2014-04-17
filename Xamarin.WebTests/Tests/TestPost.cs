@@ -214,17 +214,12 @@ namespace Xamarin.WebTests.Tests
 			DoRun (secondPost);
 		}
 
-		[Test]
 		[Category ("Martin")]
-		public void TestAuthenticated ()
+		[TestCaseSource ("GetPostTests")]
+		[TestCaseSource ("GetDeleteTests")]
+		public void TestAuthenticated (Handler handler)
 		{
-			var post = new PostHandler {
-				Description = "Authenticated POST", Body = "Hello Boston"
-			};
-
-			var auth = new AuthenticationHandler (post);
-
-			DoRun (auth);
+			DoRun (new AuthenticationHandler (handler));
 		}
 	}
 }

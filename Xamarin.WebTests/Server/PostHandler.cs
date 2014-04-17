@@ -133,12 +133,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		internal bool HandlePostRequest (Connection connection)
-		{
-			return HandlePostRequest (connection, RequestFlags.None);
-		}
-
-		bool HandlePostRequest (Connection connection, RequestFlags effectiveFlags)
+		internal bool HandlePostRequest (Connection connection, RequestFlags effectiveFlags)
 		{
 			Debug (0, "HANDLE POST", connection.Path, connection.Method, effectiveFlags);
 

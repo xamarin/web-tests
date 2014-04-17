@@ -51,6 +51,8 @@ namespace Xamarin.WebTests.Server
 			}
 
 			var handler = new AuthenticationHandler (Target);
+			handler.Flags |= RequestFlags.Redirected;
+
 			connection.Server.RegisterHandler (connection.RequestUri.AbsolutePath, handler);
 			WriteUnauthorized (connection);
 			return true;
