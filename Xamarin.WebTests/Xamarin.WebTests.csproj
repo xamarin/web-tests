@@ -36,6 +36,9 @@
     <Reference Include="nunitlite">
       <HintPath>packages\NUnitLite.1.0.0\lib\net45\nunitlite.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Security">
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />

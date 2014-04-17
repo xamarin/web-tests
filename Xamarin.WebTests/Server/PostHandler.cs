@@ -240,6 +240,14 @@ namespace Xamarin.WebTests.Server
 			}
 
 			Debug (0, "BODY", body);
+			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
+				if (!string.IsNullOrEmpty (body)) {
+					WriteError (connection, "Must not send a body with this request.");
+					return false;
+				}
+				return true;
+			}
+
 			if (Body != null && !Body.Equals (body)) {
 				WriteError (connection, "Invalid body");
 				return false;

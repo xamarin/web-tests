@@ -219,13 +219,20 @@ namespace Xamarin.WebTests.Tests
 			DoRun (secondPost);
 		}
 
-		[Category ("Martin")]
 		[TestCaseSource ("GetHelloWorldTest")]
 		[TestCaseSource ("GetPostTests")]
 		[TestCaseSource ("GetDeleteTests")]
-		public void TestAuthenticated (Handler handler)
+		public void TestBasicAuthentication (Handler handler)
 		{
-			DoRun (new AuthenticationHandler (handler));
+			DoRun (new AuthenticationHandler (AuthenticationType.Basic, handler));
+		}
+
+		[TestCaseSource ("GetHelloWorldTest")]
+		[TestCaseSource ("GetPostTests")]
+		[TestCaseSource ("GetDeleteTests")]
+		public void TestNTLM (Handler handler)
+		{
+			DoRun (new AuthenticationHandler (AuthenticationType.NTLM, handler));
 		}
 	}
 }

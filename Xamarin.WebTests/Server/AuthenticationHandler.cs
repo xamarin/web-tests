@@ -25,40 +25,95 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using Mono.Security.Protocol.Ntlm;
 
 namespace Xamarin.WebTests.Server
 {
 	using Framework;
 
+	public enum AuthenticationType {
+		Basic,
+		NTLM
+	}
+
 	public class AuthenticationHandler : AbstractRedirectHandler
 	{
-		public AuthenticationHandler (Handler target)
+		public AuthenticationType AuthenticationType {
+			get;
+			private set;
+		}
+
+		public AuthenticationHandler (AuthenticationType type, Handler target)
 			: base (target)
 		{
+			AuthenticationType = type;
 		}
+
+		bool haveChallenge;
 
 		protected override void WriteResponse (Connection connection, RequestFlags effectiveFlags)
 		{
+			var handler = new AuthenticationHandler (AuthenticationType, Target);
+
 			string authHeader;
-			if (connection.Headers.TryGetValue ("Authorization", out authHeader)) {
-				if (!authHeader.Equals ("Basic eGFtYXJpbjptb25rZXk="))
-					WriteError (connection, "Invalid Authorization header!");
-				else
-					WriteSuccess (connection);
+			if (!connection.Headers.TryGetValue ("Authorization", out authHeader)) {
+				if (AuthenticationType == AuthenticationType.NTLM)
+					handler.Flags |= RequestFlags.NoBody;
+				WriteUnauthorized (connection, handler, AuthenticationType.ToString ());
 				return;
 			}
 
-			var handler = new AuthenticationHandler (Target);
-			handler.Flags |= RequestFlags.Redirected;
+			int pos = authHeader.IndexOf (' ');
+			var mode = authHeader.Substring (0, pos);
+			var arg = authHeader.Substring (pos + 1);
 
-			connection.Server.RegisterHandler (connection.RequestUri.AbsolutePath, handler);
-			WriteUnauthorized (connection);
+			if (!mode.Equals (AuthenticationType.ToString ())) {
+				WriteError (connection, "Invalid authentication scheme: {0}", mode);
+				return;
+			}
+
+			if (mode.Equals ("Basic")) {
+				if (arg.Equals ("eGFtYXJpbjptb25rZXk="))
+					WriteSuccess (connection);
+				else
+					WriteError (connection, "Invalid Basic Authentication header");
+				return;
+			} else if (!mode.Equals ("NTLM")) {
+				WriteError (connection, "Invalid authentication scheme: {0}", mode);
+				return;
+			}
+
+			var bytes = Convert.FromBase64String (arg);
+
+			if (haveChallenge) {
+				// FIXME: We don't actually check the result.
+				var message = new Type3Message (bytes);
+				if (message.Type != 3)
+					throw new InvalidOperationException ();
+
+				WriteSuccess (connection);
+			} else {
+				var message = new Type1Message (bytes);
+				if (message.Type != 1)
+					throw new InvalidOperationException ();
+
+				var type2 = new Type2Message ();
+				var token = "NTLM " + Convert.ToBase64String (type2.GetBytes ());
+
+				handler.haveChallenge = true;
+				// handler.Flags |= RequestFlags.NoBody;
+
+				WriteUnauthorized (connection, handler, token);
+			}
 		}
 
-		protected void WriteUnauthorized (Connection connection)
+		protected void WriteUnauthorized (Connection connection, Handler handler, string token)
 		{
+			handler.Flags |= RequestFlags.Redirected;
+			connection.Server.RegisterHandler (connection.RequestUri.AbsolutePath, handler);
+
 			connection.ResponseWriter.WriteLine ("HTTP/1.1 401 Unauthorized");
-			connection.ResponseWriter.WriteLine ("WWW-Authenticate: Basic");
+			connection.ResponseWriter.WriteLine ("WWW-Authenticate: {0}", token);
 			connection.ResponseWriter.WriteLine ();
 		}
 

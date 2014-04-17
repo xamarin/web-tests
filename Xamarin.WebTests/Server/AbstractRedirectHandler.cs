@@ -56,7 +56,6 @@ namespace Xamarin.WebTests.Server
 
 		protected internal override bool HandleRequest (Connection connection, RequestFlags effectiveFlags)
 		{
-			var sendContinue = (effectiveFlags & RequestFlags.SendContinue) != 0;
 			if (!Target.HandleRequest (connection, effectiveFlags))
 				return false;
 
