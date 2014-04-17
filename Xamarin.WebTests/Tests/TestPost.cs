@@ -52,6 +52,11 @@ namespace Xamarin.WebTests.Tests
 			listener.Stop ();
 		}
 
+		public IEnumerable<Handler> GetHelloWorldTest ()
+		{
+			yield return new HelloWorldHandler ();
+		}
+
 		public IEnumerable<PostHandler> GetPostTests ()
 		{
 			yield return new PostHandler () {
@@ -215,6 +220,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[Category ("Martin")]
+		[TestCaseSource ("GetHelloWorldTest")]
 		[TestCaseSource ("GetPostTests")]
 		[TestCaseSource ("GetDeleteTests")]
 		public void TestAuthenticated (Handler handler)
