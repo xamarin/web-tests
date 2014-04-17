@@ -37,17 +37,15 @@ namespace Xamarin.WebTests.Server
 		{
 		}
 
-		protected override bool HandleRedirect (Connection connection, RequestFlags effectiveFlags)
+		protected override void WriteResponse (Connection connection, RequestFlags effectiveFlags)
 		{
 			string authHeader;
 			if (connection.Headers.TryGetValue ("Authorization", out authHeader)) {
-				if (!authHeader.Equals ("Basic eGFtYXJpbjptb25rZXk=")) {
+				if (!authHeader.Equals ("Basic eGFtYXJpbjptb25rZXk="))
 					WriteError (connection, "Invalid Authorization header!");
-					return false;
-				}
-
-				WriteSuccess (connection);
-				return true;
+				else
+					WriteSuccess (connection);
+				return;
 			}
 
 			var handler = new AuthenticationHandler (Target);
@@ -55,7 +53,6 @@ namespace Xamarin.WebTests.Server
 
 			connection.Server.RegisterHandler (connection.RequestUri.AbsolutePath, handler);
 			WriteUnauthorized (connection);
-			return true;
 		}
 
 		protected void WriteUnauthorized (Connection connection)

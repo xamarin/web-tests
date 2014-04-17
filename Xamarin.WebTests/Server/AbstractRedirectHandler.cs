@@ -54,18 +54,13 @@ namespace Xamarin.WebTests.Server
 			return Target.CreateRequest (uri);
 		}
 
-		protected abstract bool HandleRedirect (Connection connection, RequestFlags effectiveFlags);
-
-		protected override bool DoHandleRequest (Connection connection, RequestFlags effectiveFlags)
+		protected internal override bool HandleRequest (Connection connection, RequestFlags effectiveFlags)
 		{
 			var sendContinue = (effectiveFlags & RequestFlags.SendContinue) != 0;
-			var postHandler = Target as PostHandler;
-			if (!sendContinue && postHandler != null) {
-				if (!postHandler.HandlePostRequest (connection, effectiveFlags))
-					return false;
-			}
+			if (!Target.HandleRequest (connection, effectiveFlags))
+				return false;
 
-			return HandleRedirect (connection, effectiveFlags);
+			return true;
 		}
 	}
 }

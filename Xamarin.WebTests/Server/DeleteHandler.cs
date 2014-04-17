@@ -47,18 +47,19 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected override bool DoHandleRequest (Connection connection, RequestFlags effectiveFlags)
+		protected internal override bool HandleRequest (Connection connection, RequestFlags effectiveFlags)
 		{
 			if (!connection.Method.Equals ("DELETE")) {
 				WriteError (connection, "Wrong method: {0}", connection.Method);
 				return false;
 			}
 
-			if (!CheckRequest (connection))
-				return false;
+			return CheckRequest (connection);
+		}
 
+		protected override void WriteResponse (Connection connection, RequestFlags effectiveFlags)
+		{
 			WriteSuccess (connection);
-			return true;
 		}
 
 		bool CheckRequest (Connection connection)

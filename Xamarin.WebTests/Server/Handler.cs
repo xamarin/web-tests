@@ -135,7 +135,9 @@ namespace Xamarin.WebTests.Server
 			try {
 				Debug (0, "HANDLE REQUEST");
 				DumpHeaders (connection);
-				var success = DoHandleRequest (connection, Flags);
+				var success = HandleRequest (connection, Flags);
+				if (success)
+					WriteResponse (connection, Flags);
 				Debug (0, "HANDLE REQUEST DONE", success);
 				tcs.SetResult (success);
 			} catch (Exception ex) {
@@ -145,7 +147,9 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected abstract bool DoHandleRequest (Connection connection, RequestFlags effectiveFlags);
+		protected abstract void WriteResponse (Connection connection, RequestFlags effectiveFlags);
+
+		protected internal abstract bool HandleRequest (Connection connection, RequestFlags effectiveFlags);
 
 		internal Uri RegisterRequest (Listener listener)
 		{
