@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>Xamarin.WebTests.iOS</string>
+	<string>XamarinWebTestsiOS</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.your-company.Xamarin.WebTests.iOS</string>
+	<string>com.xamarin.XamarinWebTestsiOS</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
@@ -13,7 +13,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>
-	<string>7.0</string>
+	<string>5.0</string>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
