@@ -162,6 +162,12 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
+		internal virtual void Reset ()
+		{
+			hasRequest = false;
+			tcs = new TaskCompletionSource<bool> ();
+		}
+
 		public virtual HttpWebRequest CreateRequest (Uri uri)
 		{
 			return (HttpWebRequest)HttpWebRequest.Create (uri);

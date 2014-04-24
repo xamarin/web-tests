@@ -38,6 +38,7 @@ namespace Xamarin.WebTests.Server
 		TcpListener listener;
 		TaskCompletionSource<bool> tcs;
 		Dictionary<string,Handler> handlers;
+		List<Handler> allHandlers;
 		Uri uri;
 
 		static int nextId;
@@ -47,6 +48,7 @@ namespace Xamarin.WebTests.Server
 			listener = new TcpListener (address, port);
 			uri = new Uri (string.Format ("http://{0}:{1}/", address, port));
 			handlers = new Dictionary<string, Handler> ();
+			allHandlers = new List<Handler> ();
 			listener.Start ();
 
 			listener.BeginAcceptSocket (AcceptSocketCB, null);
@@ -70,18 +72,23 @@ namespace Xamarin.WebTests.Server
 			} catch {
 				;
 			}
+
+			foreach (var handler in allHandlers)
+				handler.Reset ();
 		}
 
 		public Uri RegisterHandler (Handler handler)
 		{
 			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
 			handlers.Add (path, handler);
+			allHandlers.Add (handler);
 			return new Uri (uri, path);
 		}
 
 		public void RegisterHandler (string path, Handler handler)
 		{
 			handlers.Add (path, handler);
+			allHandlers.Add (handler);
 		}
 
 		public Uri Uri {
