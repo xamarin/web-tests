@@ -346,14 +346,19 @@ namespace Xamarin.WebTests.Server
 				break;
 			}
 
+			return request;
+		}
+
+		public override void SendRequest (HttpWebRequest request)
+		{
+			base.SendRequest (request);
+
 			if (Body != null) {
 				using (var stream = request.GetRequestStream ()) {
 					if (!string.IsNullOrEmpty (Body))
 						WriteBody (stream, Body);
 				}
 			}
-
-			return request;
 		}
 
 		void WriteBody (Stream writer, string body)

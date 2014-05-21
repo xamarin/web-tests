@@ -54,6 +54,11 @@ namespace Xamarin.WebTests.Server
 			return Target.CreateRequest (uri);
 		}
 
+		public override void SendRequest (HttpWebRequest request)
+		{
+			Target.SendRequest (request);
+		}
+
 		protected internal override bool HandleRequest (Connection connection, RequestFlags effectiveFlags)
 		{
 			if (!Target.HandleRequest (connection, effectiveFlags))

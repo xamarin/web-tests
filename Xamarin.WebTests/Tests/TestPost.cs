@@ -166,6 +166,8 @@ namespace Xamarin.WebTests.Tests
 
 			var request = handler.CreateRequest (listener);
 
+			handler.SendRequest (request);
+
 			try {
 				var response = (HttpWebResponse)request.GetResponse ();
 				Console.Error.WriteLine ("RUN - GOT RESPONSE: {0} {1}", handler, response.StatusCode);

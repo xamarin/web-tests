@@ -173,6 +173,10 @@ namespace Xamarin.WebTests.Server
 			return (HttpWebRequest)HttpWebRequest.Create (uri);
 		}
 
+		public virtual void SendRequest (HttpWebRequest request)
+		{
+		}
+
 		public HttpWebRequest CreateRequest (Listener listener)
 		{
 			var uri = RegisterRequest (listener);
