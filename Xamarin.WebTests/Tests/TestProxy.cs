@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
@@ -41,17 +42,40 @@ namespace Xamarin.WebTests.Tests
 		ProxyTestRunner simpleRunner;
 		ProxyTestRunner authRunner;
 		ProxyTestRunner ntlmAuthRunner;
+		ProxyTestRunner unauthRunner;
+
+		static IPAddress GetAddress ()
+		{
+			try {
+				var hostname = Dns.GetHostName ();
+				var hostent = Dns.GetHostEntry (hostname);
+				foreach (var address in hostent.AddressList) {
+					if (address.AddressFamily == AddressFamily.InterNetwork)
+						return address;
+				}
+			} catch {
+				;
+			}
+
+			return IPAddress.Loopback;
+		}
 
 		public TestProxy ()
 		{
-			simpleRunner = new ProxyTestRunner (new IPEndPoint (IPAddress.Loopback, 9999), new IPEndPoint (IPAddress.Loopback, 9998));
-			authRunner = new ProxyTestRunner (new IPEndPoint (IPAddress.Loopback, 9997), new IPEndPoint (IPAddress.Loopback, 9996)) {
+			// MS ignores all proxy request for local connections.
+			IPAddress address = GetAddress ();
+
+			simpleRunner = new ProxyTestRunner (new IPEndPoint (address, 9999), new IPEndPoint (address, 9998));
+			authRunner = new ProxyTestRunner (new IPEndPoint (address, 9997), new IPEndPoint (address, 9996)) {
 				AuthenticationType = AuthenticationType.Basic,
 				Credentials = new NetworkCredential ("xamarin", "monkey")
 			};
-			ntlmAuthRunner = new ProxyTestRunner (new IPEndPoint (IPAddress.Loopback, 9995), new IPEndPoint (IPAddress.Loopback, 9994)) {
+			ntlmAuthRunner = new ProxyTestRunner (new IPEndPoint (address, 9995), new IPEndPoint (address, 9994)) {
 				AuthenticationType = AuthenticationType.NTLM,
 				Credentials = new NetworkCredential ("xamarin", "monkey")
+			};
+			unauthRunner = new ProxyTestRunner (new IPEndPoint (address, 9993), new IPEndPoint (address, 9992)) {
+				AuthenticationType = AuthenticationType.Basic
 			};
 		}
 
@@ -61,6 +85,7 @@ namespace Xamarin.WebTests.Tests
 			simpleRunner.Start ();
 			authRunner.Start ();
 			ntlmAuthRunner.Start ();
+			unauthRunner.Start ();
 		}
 
 		[TestFixtureTearDown]
@@ -69,6 +94,7 @@ namespace Xamarin.WebTests.Tests
 			simpleRunner.Stop ();
 			authRunner.Stop ();
 			ntlmAuthRunner.Stop ();
+			unauthRunner.Stop ();
 		}
 
 		static IEnumerable<Handler> GetAllTests ()
@@ -97,6 +123,13 @@ namespace Xamarin.WebTests.Tests
 		public void ProxyNTLM (Handler handler)
 		{
 			ntlmAuthRunner.Run (handler);
+		}
+
+		[Test]
+		public void TestUnauthenticated ()
+		{
+			var handler = new HelloWorldHandler ();
+			unauthRunner.Run (handler, HttpStatusCode.ProxyAuthenticationRequired);
 		}
 	}
 }

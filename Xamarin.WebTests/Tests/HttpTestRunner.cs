@@ -43,7 +43,12 @@ namespace Xamarin.WebTests.Tests
 
 		protected abstract HttpWebRequest CreateRequest (Handler handler);
 
-		public void Run (Handler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK, bool expectException = false)
+		public void Run (Handler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK)
+		{
+			Run (handler, expectedStatus, expectedStatus != HttpStatusCode.OK);
+		}
+
+		public void Run (Handler handler, HttpStatusCode expectedStatus, bool expectException)
 		{
 			Console.Error.WriteLine ("RUN: {0}", handler);
 
