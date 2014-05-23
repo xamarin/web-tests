@@ -70,8 +70,10 @@ namespace Xamarin.WebTests.Server
 
 		public HttpResponse HandleAuthentication (HttpRequest request, string authHeader)
 		{
-			if (authHeader == null)
+			if (authHeader == null) {
+				haveChallenge = false;
 				return OnUnauthenticated (request, AuthenticationType.ToString (), AuthenticationType == AuthenticationType.NTLM);
+			}
 
 			int pos = authHeader.IndexOf (' ');
 			var mode = authHeader.Substring (0, pos);

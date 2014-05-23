@@ -40,12 +40,17 @@ namespace Xamarin.WebTests.Tests
 	{
 		ProxyTestRunner simpleRunner;
 		ProxyTestRunner authRunner;
+		ProxyTestRunner ntlmAuthRunner;
 
 		public TestProxy ()
 		{
 			simpleRunner = new ProxyTestRunner (new IPEndPoint (IPAddress.Loopback, 9999), new IPEndPoint (IPAddress.Loopback, 9998));
 			authRunner = new ProxyTestRunner (new IPEndPoint (IPAddress.Loopback, 9997), new IPEndPoint (IPAddress.Loopback, 9996)) {
 				AuthenticationType = AuthenticationType.Basic,
+				Credentials = new NetworkCredential ("xamarin", "monkey")
+			};
+			ntlmAuthRunner = new ProxyTestRunner (new IPEndPoint (IPAddress.Loopback, 9995), new IPEndPoint (IPAddress.Loopback, 9994)) {
+				AuthenticationType = AuthenticationType.NTLM,
 				Credentials = new NetworkCredential ("xamarin", "monkey")
 			};
 		}
@@ -55,6 +60,7 @@ namespace Xamarin.WebTests.Tests
 		{
 			simpleRunner.Start ();
 			authRunner.Start ();
+			ntlmAuthRunner.Start ();
 		}
 
 		[TestFixtureTearDown]
@@ -62,6 +68,7 @@ namespace Xamarin.WebTests.Tests
 		{
 			simpleRunner.Stop ();
 			authRunner.Stop ();
+			ntlmAuthRunner.Stop ();
 		}
 
 		static IEnumerable<Handler> GetAllTests ()
@@ -74,19 +81,22 @@ namespace Xamarin.WebTests.Tests
 				yield return new AuthenticationHandler (AuthenticationType.NTLM, handler);
 		}
 
-		[Category ("Martin")]
 		[TestCaseSource ("GetAllTests")]
 		public void Simple (Handler handler)
 		{
 			simpleRunner.Run (handler);
 		}
 
-		[Category ("Martin")]
 		[TestCaseSource ("GetAllTests")]
 		public void ProxyAuth (Handler handler)
 		{
 			authRunner.Run (handler);
 		}
 
+		[TestCaseSource ("GetAllTests")]
+		public void ProxyNTLM (Handler handler)
+		{
+			ntlmAuthRunner.Run (handler);
+		}
 	}
 }
