@@ -110,24 +110,14 @@ namespace Xamarin.WebTests.Server
 		{
 			Debug (0, "RESPONSE", status, message, body);
 
-			connection.ResponseWriter.WriteLine ("HTTP/1.1 {0} {1}", status, message);
-			connection.ResponseWriter.WriteLine ("Content-Type: text/plain");
-			if (body != null) {
-				connection.ResponseWriter.WriteLine ("Content-Length: {0}", body.Length);
-				connection.ResponseWriter.WriteLine ("");
-				connection.ResponseWriter.WriteLine (body);
-			} else {
-				connection.ResponseWriter.WriteLine ("");
-			}
+			connection.WriteSimpleResponse (status, message, body);
 		}
 
 		protected void WriteRedirect (Connection connection, int code, Uri uri)
 		{
 			Debug (0, "REDIRECT", code, uri);
 
-			connection.ResponseWriter.WriteLine ("HTTP/1.1 {0}", code);
-			connection.ResponseWriter.WriteLine ("Location: {0}", uri);
-			connection.ResponseWriter.WriteLine ();
+			connection.WriteRedirect (code, uri);
 		}
 
 		public void HandleRequest (HttpConnection connection)
@@ -147,7 +137,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected abstract void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags);
+		protected abstract internal void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags);
 
 		protected internal abstract bool HandleRequest (HttpConnection connection, RequestFlags effectiveFlags);
 

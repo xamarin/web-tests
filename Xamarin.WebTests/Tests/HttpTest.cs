@@ -61,6 +61,8 @@ namespace Xamarin.WebTests.Tests
 					return;
 				}
 
+				Console.Error.WriteLine ("GOT WEB EXCEPTION: {0}", wexc);
+
 				using (var reader = new StreamReader (response.GetResponseStream ())) {
 					var content = reader.ReadToEnd ();
 					Console.Error.WriteLine ("RUN - GOT WEB ERROR: {0} {1} {2}\n{3}\n{4}", handler,

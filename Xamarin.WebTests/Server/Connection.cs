@@ -154,6 +154,36 @@ namespace Xamarin.WebTests.Server
 			writer.Flush ();
 			stream.Close ();
 		}
+
+		internal void WriteSimpleResponse (int status, string message, string body)
+		{
+			ResponseWriter.WriteLine ("HTTP/1.1 {0} {1}", status, message);
+			ResponseWriter.WriteLine ("Content-Type: text/plain");
+			if (body != null) {
+				ResponseWriter.WriteLine ("Content-Length: {0}", body.Length);
+				ResponseWriter.WriteLine ("");
+				ResponseWriter.WriteLine (body);
+			} else {
+				ResponseWriter.WriteLine ("");
+			}
+		}
+
+		internal void WriteRedirect (int code, Uri uri)
+		{
+			ResponseWriter.WriteLine ("HTTP/1.1 {0}", code);
+			ResponseWriter.WriteLine ("Location: {0}", uri);
+			ResponseWriter.WriteLine ();
+		}
+
+		internal void WriteSuccess (string body = null)
+		{
+			WriteSimpleResponse (200, "OK", body);
+		}
+
+		internal void WriteError (string message, params object[] args)
+		{
+			WriteSimpleResponse (500, "ERROR", string.Format (message, args));
+		}
 	}
 }
 

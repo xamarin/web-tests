@@ -152,7 +152,7 @@ namespace Xamarin.WebTests.Server
 			return CheckTransferMode (connection, effectiveFlags);
 		}
 
-		protected override void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags)
+		protected internal override void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags)
 		{
 			WriteSuccess (connection);
 		}

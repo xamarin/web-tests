@@ -88,6 +88,9 @@
     <Compile Include="..\Xamarin.WebTests\Server\AuthenticationHandler.cs">
       <Link>Server\AuthenticationHandler.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\AuthenticationManager.cs">
+      <Link>Server\AuthenticationManager.cs</Link>
+    </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\AbstractRedirectHandler.cs">
       <Link>Server\AbstractRedirectHandler.cs</Link>
     </Compile>

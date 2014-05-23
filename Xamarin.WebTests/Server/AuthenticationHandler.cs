@@ -31,90 +31,68 @@ namespace Xamarin.WebTests.Server
 {
 	using Framework;
 
-	public enum AuthenticationType {
-		Basic,
-		NTLM
-	}
-
 	public class AuthenticationHandler : AbstractRedirectHandler
 	{
-		public AuthenticationType AuthenticationType {
-			get;
-			private set;
-		}
-
 		public AuthenticationHandler (AuthenticationType type, Handler target)
 			: base (target)
 		{
-			AuthenticationType = type;
+			manager = new HttpAuthManager (type, target);
 		}
 
-		bool haveChallenge;
-
-		protected override void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags)
+		AuthenticationHandler (HttpAuthManager manager)
+			: base (manager.Target)
 		{
-			var handler = new AuthenticationHandler (AuthenticationType, Target);
+			this.manager = manager;
+		}
 
-			string authHeader;
-			if (!connection.Headers.TryGetValue ("Authorization", out authHeader)) {
-				if (AuthenticationType == AuthenticationType.NTLM)
+		class HttpAuthManager : AuthenticationManager
+		{
+			public HttpConnection Connection;
+			public readonly Handler Target;
+
+			public HttpAuthManager (AuthenticationType type, Handler target)
+				: base (type)
+			{
+				Target = target;
+			}
+
+			protected override void OnError (string message)
+			{
+				Connection.WriteError (message);
+			}
+
+			protected override void OnUnauthenticated (string token, bool omitBody)
+			{
+				var handler = new AuthenticationHandler (this);
+				if (omitBody)
 					handler.Flags |= RequestFlags.NoBody;
-				WriteUnauthorized (connection, handler, AuthenticationType.ToString ());
-				return;
-			}
-
-			int pos = authHeader.IndexOf (' ');
-			var mode = authHeader.Substring (0, pos);
-			var arg = authHeader.Substring (pos + 1);
-
-			if (!mode.Equals (AuthenticationType.ToString ())) {
-				WriteError (connection, "Invalid authentication scheme: {0}", mode);
-				return;
-			}
-
-			if (mode.Equals ("Basic")) {
-				if (arg.Equals ("eGFtYXJpbjptb25rZXk="))
-					WriteSuccess (connection);
-				else
-					WriteError (connection, "Invalid Basic Authentication header");
-				return;
-			} else if (!mode.Equals ("NTLM")) {
-				WriteError (connection, "Invalid authentication scheme: {0}", mode);
-				return;
-			}
-
-			var bytes = Convert.FromBase64String (arg);
-
-			if (haveChallenge) {
-				// FIXME: We don't actually check the result.
-				var message = new Type3Message (bytes);
-				if (message.Type != 3)
-					throw new InvalidOperationException ();
-
-				WriteSuccess (connection);
-			} else {
-				var message = new Type1Message (bytes);
-				if (message.Type != 1)
-					throw new InvalidOperationException ();
-
-				var type2 = new Type2Message ();
-				var token = "NTLM " + Convert.ToBase64String (type2.GetBytes ());
-
-				handler.haveChallenge = true;
-				// handler.Flags |= RequestFlags.NoBody;
-
-				WriteUnauthorized (connection, handler, token);
+				handler.Flags |= RequestFlags.Redirected;
+				Connection.Server.RegisterHandler (Connection.RequestUri.AbsolutePath, handler);
+	
+				Connection.ResponseWriter.WriteLine ("HTTP/1.1 401 Unauthorized");
+				Connection.ResponseWriter.WriteLine ("WWW-Authenticate: {0}", token);
+				Connection.ResponseWriter.WriteLine ();
 			}
 		}
 
-		protected void WriteUnauthorized (HttpConnection connection, Handler handler, string token)
-		{
-			handler.Flags |= RequestFlags.Redirected;
-			connection.Server.RegisterHandler (connection.RequestUri.AbsolutePath, handler);
+		readonly HttpAuthManager manager;
 
-			connection.ResponseWriter.WriteLine ("HTTP/1.1 401 Unauthorized");
-			connection.ResponseWriter.WriteLine ("WWW-Authenticate: {0}", token);
-			connection.ResponseWriter.WriteLine ();
+		protected internal override bool HandleRequest (HttpConnection connection, RequestFlags effectiveFlags)
+		{
+			string authHeader;
+			if (!connection.Headers.TryGetValue ("Authorization", out authHeader))
+				authHeader = null;
+
+			manager.Connection = connection;
+			if (!manager.HandleAuthentication (authHeader))
+				return false;
+
+			return Target.HandleRequest (connection, effectiveFlags);
+		}
+
+		protected internal override void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags)
+		{
+			Target.WriteResponse (connection, effectiveFlags);
 		}
 
 		public override HttpWebRequest CreateRequest (Uri uri)

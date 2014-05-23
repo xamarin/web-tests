@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.Server
 			return CheckRequest (connection);
 		}
 
-		protected override void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags)
+		protected internal override void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags)
 		{
 			WriteSuccess (connection);
 		}
