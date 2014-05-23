@@ -1,5 +1,5 @@
 ﻿//
-// TestAuthentication.cs
+// SimpleHttpTest.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,56 +24,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
 using System.Net;
-using System.Collections;
-using System.Collections.Generic;
-using NUnit.Framework;
 
 namespace Xamarin.WebTests.Tests
 {
 	using Server;
-	using Framework;
 
-	[TestFixture]
-	public class TestAuthentication
+	public class SimpleHttpTestRunner : HttpTestRunner
 	{
-		SimpleHttpTestRunner runner;
+		HttpListener listener;
 
-		[TestFixtureSetUp]
-		public void Start ()
-		{
-			runner = new SimpleHttpTestRunner ();
-			runner.Start ();
+		public HttpListener Listener {
+			get { return listener; }
 		}
 
-		[TestFixtureTearDown]
-		public void Stop ()
+		public override void Start ()
 		{
-			runner.Stop ();
-			runner = null;
+			listener = new HttpListener (IPAddress.Loopback, 9999);
 		}
 
-		public static IEnumerable<Handler> GetAllTests ()
+		public override void Stop ()
 		{
-			return TestPost.GetAllTests ();
+			listener.Stop ();
 		}
 
-		void Run (Handler handler)
+		protected override HttpWebRequest CreateRequest (Handler handler)
 		{
-			runner.Run (handler);
-		}
-
-		[TestCaseSource ("GetAllTests")]
-		public void TestBasicAuthentication (Handler handler)
-		{
-			Run (new AuthenticationHandler (AuthenticationType.Basic, handler));
-		}
-
-		[TestCaseSource ("GetAllTests")]
-		public void TestNTLM (Handler handler)
-		{
-			Run (new AuthenticationHandler (AuthenticationType.NTLM, handler));
+			return handler.CreateRequest (listener);
 		}
 	}
 }

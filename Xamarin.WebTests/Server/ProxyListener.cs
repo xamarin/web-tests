@@ -35,6 +35,7 @@ namespace Xamarin.WebTests.Server
 	public class ProxyListener : Listener
 	{
 		readonly HttpListener target;
+		ProxyAuthManager authManager;
 
 		public ProxyListener (HttpListener target, IPAddress address, int port)
 			: base (address, port)
@@ -42,10 +43,29 @@ namespace Xamarin.WebTests.Server
 			this.target = target;
 		}
 
+		public ProxyListener (HttpListener target, IPAddress address, int port, AuthenticationType authType)
+			: this (target, address, port)
+		{
+			if (authType != AuthenticationType.None)
+				authManager = new ProxyAuthManager (authType);
+		}
+
 		protected override void HandleConnection (Socket socket)
 		{
 			var connection = new Connection (socket);
 			var request = connection.ReadRequest ();
+
+			if (authManager != null) {
+				string authHeader;
+				if (!request.Headers.TryGetValue ("Proxy-Authorization", out authHeader))
+					authHeader = null;
+				var response = authManager.HandleAuthentication (request, authHeader);
+				if (response != null) {
+					request.ReadBody ();
+					connection.WriteResponse (response);
+					return;
+				}
+			}
 
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			targetSocket.Connect (target.Uri.Host, target.Uri.Port);
@@ -54,6 +74,20 @@ namespace Xamarin.WebTests.Server
 			targetConnection.HandleRequest (request);
 
 			targetConnection.Close ();
+		}
+
+		class ProxyAuthManager : AuthenticationManager
+		{
+			public ProxyAuthManager (AuthenticationType type)
+				: base (type)
+			{ }
+
+			protected override HttpResponse OnUnauthenticated (HttpRequest request, string token, bool omitBody)
+			{
+				var response = new HttpResponse (HttpStatusCode.ProxyAuthenticationRequired);
+				response.AddHeader ("Proxy-Authenticate", token);
+				return response;
+			}
 		}
 	}
 }

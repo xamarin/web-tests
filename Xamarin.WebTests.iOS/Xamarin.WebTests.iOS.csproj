@@ -136,9 +136,6 @@
     <Compile Include="..\Xamarin.WebTests\Tests\TestPost.cs">
       <Link>Tests\TestPost.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests\Tests\HttpTest.cs">
-      <Link>Tests\HttpTest.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\AuthenticationManager.cs">
       <Link>Server\AuthenticationManager.cs</Link>
     </Compile>
@@ -154,6 +151,12 @@
     <Compile Include="..\Xamarin.WebTests\Server\HttpListener.cs">
       <Link>Server\HttpListener.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\ProxyListener.cs">
+      <Link>Server\ProxyListener.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\ProxyConnection.cs">
+      <Link>Server\ProxyConnection.cs</Link>
+    </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\HttpMessage.cs">
       <Link>Server\HttpMessage.cs</Link>
     </Compile>
@@ -162,6 +165,15 @@
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\HttpResponse.cs">
       <Link>Server\HttpResponse.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\HttpTestRunner.cs">
+      <Link>Tests\HttpTestRunner.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\SimpleHttpTestRunner.cs">
+      <Link>Tests\SimpleHttpTestRunner.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\ProxyTestRunner.cs">
+      <Link>Tests\ProxyTestRunner.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

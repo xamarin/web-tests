@@ -58,7 +58,6 @@
     <Compile Include="Server\Listener.cs" />
     <Compile Include="Server\ProxyListener.cs" />
     <Compile Include="Tests\TestProxy.cs" />
-    <Compile Include="Tests\HttpTest.cs" />
     <Compile Include="Server\HttpConnection.cs" />
     <Compile Include="Server\ProxyConnection.cs" />
     <Compile Include="Tests\TestAuthentication.cs" />
@@ -66,6 +65,9 @@
     <Compile Include="Server\HttpMessage.cs" />
     <Compile Include="Server\HttpRequest.cs" />
     <Compile Include="Server\HttpResponse.cs" />
+    <Compile Include="Tests\HttpTestRunner.cs" />
+    <Compile Include="Tests\SimpleHttpTestRunner.cs" />
+    <Compile Include="Tests\ProxyTestRunner.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

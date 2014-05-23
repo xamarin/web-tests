@@ -1,5 +1,5 @@
 ﻿//
-// TestAuthentication.cs
+// ProxyTestRunner.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,56 +24,60 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
 using System.Net;
-using System.Collections;
-using System.Collections.Generic;
-using NUnit.Framework;
 
 namespace Xamarin.WebTests.Tests
 {
 	using Server;
-	using Framework;
 
-	[TestFixture]
-	public class TestAuthentication
+	public class ProxyTestRunner : HttpTestRunner
 	{
-		SimpleHttpTestRunner runner;
+		IPEndPoint endpoint, proxyEndpoint;
+		AuthenticationType authType = AuthenticationType.None;
+		HttpListener httpListener;
+		ProxyListener proxyListener;
 
-		[TestFixtureSetUp]
-		public void Start ()
+		public ProxyTestRunner (IPEndPoint endpoint, IPEndPoint proxyEndpoint)
 		{
-			runner = new SimpleHttpTestRunner ();
-			runner.Start ();
+			this.endpoint = endpoint;
+			this.proxyEndpoint = proxyEndpoint;
 		}
 
-		[TestFixtureTearDown]
-		public void Stop ()
-		{
-			runner.Stop ();
-			runner = null;
+		public AuthenticationType AuthenticationType {
+			get { return authType; }
+			set { authType = value; }
 		}
 
-		public static IEnumerable<Handler> GetAllTests ()
-		{
-			return TestPost.GetAllTests ();
+		public ICredentials Credentials {
+			get; set;
 		}
 
-		void Run (Handler handler)
+		public override void Start ()
 		{
-			runner.Run (handler);
+			httpListener = new HttpListener (endpoint.Address, endpoint.Port);
+			proxyListener = new ProxyListener (httpListener, proxyEndpoint.Address, proxyEndpoint.Port, authType);
 		}
 
-		[TestCaseSource ("GetAllTests")]
-		public void TestBasicAuthentication (Handler handler)
+		public override void Stop ()
 		{
-			Run (new AuthenticationHandler (AuthenticationType.Basic, handler));
+			proxyListener.Stop ();
+			httpListener.Stop ();
 		}
 
-		[TestCaseSource ("GetAllTests")]
-		public void TestNTLM (Handler handler)
+		IWebProxy CreateProxy ()
 		{
-			Run (new AuthenticationHandler (AuthenticationType.NTLM, handler));
+			var proxy = new WebProxy (proxyListener.Uri, false);
+			if (Credentials != null)
+				proxy.Credentials = Credentials;
+			return proxy;
+		}
+
+		protected override HttpWebRequest CreateRequest (Handler handler)
+		{
+			var request = handler.CreateRequest (httpListener);
+			request.Proxy = CreateProxy ();
+			return request;
 		}
 	}
 }
+

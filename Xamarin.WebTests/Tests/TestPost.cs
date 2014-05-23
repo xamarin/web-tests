@@ -36,25 +36,22 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 
 	[TestFixture]
-	public class TestPost : HttpTest
+	public class TestPost
 	{
-		HttpListener listener;
+		SimpleHttpTestRunner runner;
 
 		[TestFixtureSetUp]
 		public void Start ()
 		{
-			listener = new HttpListener (IPAddress.Loopback, 9999);
+			runner = new SimpleHttpTestRunner ();
+			runner.Start ();
 		}
 
 		[TestFixtureTearDown]
 		public void Stop ()
 		{
-			listener.Stop ();
-		}
-
-		protected override HttpWebRequest CreateRequest (Handler handler)
-		{
-			return handler.CreateRequest (listener);
+			runner.Stop ();
+			runner = null;
 		}
 
 		public static IEnumerable<Handler> GetHelloWorldTests ()
@@ -167,6 +164,11 @@ namespace Xamarin.WebTests.Tests
 			Run (redirect, HttpStatusCode.TemporaryRedirect, true);
 		}
 
+		void Run (Handler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK, bool expectException = false)
+		{
+			runner.Run (handler, expectedStatus, expectException);
+		}
+
 		[TestCaseSource ("GetPostTests")]
 		[TestCaseSource ("GetDeleteTests")]
 		[TestCaseSource ("GetRedirectTests")]
@@ -185,7 +187,7 @@ namespace Xamarin.WebTests.Tests
 			};
 			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
 
-			var uri = redirect.RegisterRequest (listener);
+			var uri = redirect.RegisterRequest (runner.Listener);
 
 			var wc = new WebClient ();
 			var res = wc.UploadString (uri, post.Body);

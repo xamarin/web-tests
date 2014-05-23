@@ -36,58 +36,57 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 
 	[TestFixture]
-	public class TestProxy : HttpTest
+	public class TestProxy
 	{
-		HttpListener httpListener;
-		ProxyListener proxyListener;
+		ProxyTestRunner simpleRunner;
+		ProxyTestRunner authRunner;
+
+		public TestProxy ()
+		{
+			simpleRunner = new ProxyTestRunner (new IPEndPoint (IPAddress.Loopback, 9999), new IPEndPoint (IPAddress.Loopback, 9998));
+			authRunner = new ProxyTestRunner (new IPEndPoint (IPAddress.Loopback, 9997), new IPEndPoint (IPAddress.Loopback, 9996)) {
+				AuthenticationType = AuthenticationType.Basic,
+				Credentials = new NetworkCredential ("xamarin", "monkey")
+			};
+		}
 
 		[TestFixtureSetUp]
 		public void Start ()
 		{
-			httpListener = new HttpListener (IPAddress.Loopback, 9999);
-			proxyListener = new ProxyListener (httpListener, IPAddress.Loopback, 9998);
+			simpleRunner.Start ();
+			authRunner.Start ();
 		}
 
 		[TestFixtureTearDown]
 		public void Stop ()
 		{
-			proxyListener.Stop ();
-			httpListener.Stop ();
+			simpleRunner.Stop ();
+			authRunner.Stop ();
 		}
 
-		IWebProxy CreateProxy ()
+		static IEnumerable<Handler> GetAllTests ()
 		{
-			return new WebProxy (proxyListener.Uri, false);
+			foreach (var handler in TestPost.GetAllTests ())
+				yield return handler;
+			foreach (var handler in TestPost.GetAllTests ())
+				yield return new AuthenticationHandler (AuthenticationType.Basic, handler);
+			foreach (var handler in TestPost.GetAllTests ())
+				yield return new AuthenticationHandler (AuthenticationType.NTLM, handler);
 		}
 
-		public static IEnumerable<Handler> GetAllTests ()
-		{
-			return TestPost.GetAllTests ();
-		}
-
-		protected override HttpWebRequest CreateRequest (Handler handler)
-		{
-			var request = handler.CreateRequest (httpListener);
-			request.Proxy = CreateProxy ();
-			return request;
-		}
-
+		[Category ("Martin")]
 		[TestCaseSource ("GetAllTests")]
-		public void ProxyPost (Handler handler)
+		public void Simple (Handler handler)
 		{
-			Run (handler);
+			simpleRunner.Run (handler);
 		}
 
+		[Category ("Martin")]
 		[TestCaseSource ("GetAllTests")]
-		public void TestBasicAuthentication (Handler handler)
+		public void ProxyAuth (Handler handler)
 		{
-			Run (new AuthenticationHandler (AuthenticationType.Basic, handler));
+			authRunner.Run (handler);
 		}
 
-		[TestCaseSource ("GetAllTests")]
-		public void TestNTLM (Handler handler)
-		{
-			Run (new AuthenticationHandler (AuthenticationType.NTLM, handler));
-		}
 	}
 }

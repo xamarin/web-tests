@@ -30,6 +30,7 @@ using Mono.Security.Protocol.Ntlm;
 namespace Xamarin.WebTests.Server
 {
 	public enum AuthenticationType {
+		None,
 		Basic,
 		NTLM
 	}

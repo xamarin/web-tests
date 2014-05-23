@@ -35,11 +35,15 @@ namespace Xamarin.WebTests.Tests
 	using Server;
 	using Framework;
 
-	public abstract class HttpTest
+	public abstract class HttpTestRunner
 	{
+		public abstract void Start ();
+
+		public abstract void Stop ();
+
 		protected abstract HttpWebRequest CreateRequest (Handler handler);
 
-		protected void Run (Handler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK, bool expectException = false)
+		public void Run (Handler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK, bool expectException = false)
 		{
 			Console.Error.WriteLine ("RUN: {0}", handler);
 
