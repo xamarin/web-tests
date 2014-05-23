@@ -55,39 +55,36 @@ namespace Xamarin.WebTests.Server
 
 		bool haveChallenge;
 
-		void OnError (string format, params object[] args)
+		HttpResponse OnError (string format, params object[] args)
 		{
-			OnError (string.Format (format, args));
+			return OnError (string.Format (format, args));
 		}
 
-		protected abstract void OnError (string message);
-
-		protected abstract void OnUnauthenticated (string token, bool omitBody);
-
-		public bool HandleAuthentication (string authHeader)
+		protected virtual HttpResponse OnError (string message)
 		{
-			if (authHeader == null) {
-				OnUnauthenticated (AuthenticationType.ToString (), AuthenticationType == AuthenticationType.NTLM);
-				return false;
-			}
+			return HttpResponse.CreateError (message);
+		}
+
+		protected abstract HttpResponse OnUnauthenticated (HttpRequest request, string token, bool omitBody);
+
+		public HttpResponse HandleAuthentication (HttpRequest request, string authHeader)
+		{
+			if (authHeader == null)
+				return OnUnauthenticated (request, AuthenticationType.ToString (), AuthenticationType == AuthenticationType.NTLM);
 
 			int pos = authHeader.IndexOf (' ');
 			var mode = authHeader.Substring (0, pos);
 			var arg = authHeader.Substring (pos + 1);
 
-			if (!mode.Equals (AuthenticationType.ToString ())) {
-				OnError ("Invalid authentication scheme: {0}", mode);
-				return false;
-			}
+			if (!mode.Equals (AuthenticationType.ToString ()))
+				return OnError ("Invalid authentication scheme: {0}", mode);
 
 			if (mode.Equals ("Basic")) {
 				if (arg.Equals ("eGFtYXJpbjptb25rZXk="))
-					return true;
-				OnError ("Invalid Basic Authentication header");
-				return false;
+					return null;
+				return OnError ("Invalid Basic Authentication header");
 			} else if (!mode.Equals ("NTLM")) {
-				OnError ("Invalid authentication scheme: {0}", mode);
-				return false;
+				return OnError ("Invalid authentication scheme: {0}", mode);
 			}
 
 			var bytes = Convert.FromBase64String (arg);
@@ -98,7 +95,7 @@ namespace Xamarin.WebTests.Server
 				if (message.Type != 3)
 					throw new InvalidOperationException ();
 
-				return true;
+				return null;
 			} else {
 				var message = new Type1Message (bytes);
 				if (message.Type != 1)
@@ -109,8 +106,7 @@ namespace Xamarin.WebTests.Server
 
 				haveChallenge = true;
 
-				OnUnauthenticated (token, false);
-				return false;
+				return OnUnauthenticated (request, token, false);
 			}
 		}
 	}

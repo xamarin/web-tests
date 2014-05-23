@@ -45,16 +45,13 @@ namespace Xamarin.WebTests.Server
 		protected override void HandleConnection (Socket socket)
 		{
 			var connection = new Connection (socket);
-			connection.ReadRequest (target.Uri);
-
-			var requestUri = connection.RequestUri;
-			Console.WriteLine ("PROXY: {0}", requestUri);
+			var request = connection.ReadRequest ();
 
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			targetSocket.Connect (requestUri.Host, requestUri.Port);
+			targetSocket.Connect (target.Uri.Host, target.Uri.Port);
 
 			var targetConnection = new ProxyConnection (targetSocket, connection);
-			targetConnection.HandleRequest ();
+			targetConnection.HandleRequest (request);
 
 			targetConnection.Close ();
 		}

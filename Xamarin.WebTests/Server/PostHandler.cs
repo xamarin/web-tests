@@ -133,47 +133,29 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected internal override bool HandleRequest (HttpConnection connection, RequestFlags effectiveFlags)
+		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			Debug (0, "HANDLE POST", connection.Path, connection.Method, effectiveFlags);
+			Debug (0, "HANDLE POST", request.Path, request.Method, effectiveFlags);
 
 			if ((effectiveFlags & RequestFlags.RedirectedAsGet) != 0) {
-				if (!connection.Method.Equals ("GET")) {
-					WriteError (connection, "Wrong method: {0}", connection.Method);
-					return false;
-				}
+				if (!request.Method.Equals ("GET"))
+					return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
 			} else {
-				if (!connection.Method.Equals ("POST") && !connection.Method.Equals ("PUT")) {
-					WriteError (connection, "Wrong method: {0}", connection.Method);
-					return false;
-				}
+				if (!request.Method.Equals ("POST") && !request.Method.Equals ("PUT"))
+					return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
 			}
 
-			return CheckTransferMode (connection, effectiveFlags);
-		}
-
-		protected internal override void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags)
-		{
-			WriteSuccess (connection);
-		}
-
-		bool CheckTransferMode (Connection connection, RequestFlags effectiveFlags)
-		{
-			var haveContentLength = connection.Headers.ContainsKey ("Content-Length");
-			var haveTransferEncoding = connection.Headers.ContainsKey ("Transfer-Encoding");
+			var haveContentLength = request.Headers.ContainsKey ("Content-Length");
+			var haveTransferEncoding = request.Headers.ContainsKey ("Transfer-Encoding");
 
 			if ((effectiveFlags & RequestFlags.RedirectedAsGet) != 0) {
-				if (haveContentLength) {
-					WriteError (connection, "Content-Length header not allowed");
-					return false;
-				}
+				if (haveContentLength)
+					return HttpResponse.CreateError ("Content-Length header not allowed");
 
-				if (haveTransferEncoding) {
-					WriteError (connection, "Transfer-Encoding header not allowed");
-					return false;
-				}
+				if (haveTransferEncoding)
+					return HttpResponse.CreateError ("Transfer-Encoding header not allowed");
 
-				return true;
+				return HttpResponse.CreateSuccess ();
 			}
 
 			string body;
@@ -181,143 +163,71 @@ namespace Xamarin.WebTests.Server
 			switch (Mode) {
 			case TransferMode.Default:
 				if (Body != null) {
-					if (!haveContentLength) {
-						WriteError (connection, "Missing Content-Length");
-						return false;
-					}
+					if (!haveContentLength)
+						return HttpResponse.CreateError ("Missing Content-Length");
 
-					body = ReadBody (connection, false, effectiveFlags);
+					body = ReadBody (connection, request, effectiveFlags);
 					break;
 				} else {
-					if (haveContentLength) {
-						WriteError (connection, "Content-Length header not allowed");
-						return false;
-					}
+					if (haveContentLength)
+						return HttpResponse.CreateError ("Content-Length header not allowed");
 
-					return true;
+					return HttpResponse.CreateSuccess ();
 				}
 
 			case TransferMode.ContentLength:
-				if (!haveContentLength) {
-					WriteError (connection, "Missing Content-Length");
-					return false;
-				}
+				if (!haveContentLength)
+					return HttpResponse.CreateError ("Missing Content-Length");
 
-				if (haveTransferEncoding) {
-					WriteError (connection, "Transfer-Encoding header not allowed");
-					return false;
-				}
+				if (haveTransferEncoding)
+					return HttpResponse.CreateError ("Transfer-Encoding header not allowed");
 
-				body = ReadBody (connection, false, effectiveFlags);
+				body = ReadBody (connection, request, effectiveFlags);
 				break;
 
 			case TransferMode.Chunked:
 				if ((effectiveFlags & RequestFlags.Redirected) != 0)
 					goto case TransferMode.ContentLength;
 
-				if (haveContentLength) {
-					WriteError (connection, "Content-Length header not allowed");
-					return false;
-				}
+				if (haveContentLength)
+					return HttpResponse.CreateError ("Content-Length header not allowed");
 
-				if (!haveTransferEncoding) {
-					WriteError (connection, "Missing Transfer-Encoding header");
-					return false;
-				}
+				if (!haveTransferEncoding)
+					return HttpResponse.CreateError ("Missing Transfer-Encoding header");
 
-				var transferEncoding = connection.Headers ["Transfer-Encoding"];
-				if (!string.Equals (transferEncoding, "chunked", StringComparison.InvariantCultureIgnoreCase)) {
-					WriteError (connection, "Invalid Transfer-Encoding header: '{0}'", transferEncoding);
-					return false;
-				}
+				var transferEncoding = request.Headers ["Transfer-Encoding"];
+				if (!string.Equals (transferEncoding, "chunked", StringComparison.InvariantCultureIgnoreCase))
+					return HttpResponse.CreateError ("Invalid Transfer-Encoding header: '{0}'", transferEncoding);
 
-				body = ReadBody (connection, true, effectiveFlags);
+				body = ReadBody (connection, request, effectiveFlags);
 				break;
 
 			default:
-				WriteError (connection, "Unknown TransferMode: '{0}'", Mode);
-				return false;
+				return HttpResponse.CreateError ("Unknown TransferMode: '{0}'", Mode);
 			}
 
 			Debug (0, "BODY", body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
-				if (!string.IsNullOrEmpty (body)) {
-					WriteError (connection, "Must not send a body with this request.");
-					return false;
-				}
-				return true;
+				if (!string.IsNullOrEmpty (body))
+					return HttpResponse.CreateError ("Must not send a body with this request.");
+				return HttpResponse.CreateSuccess ();
 			}
 
-			if (Body != null && !Body.Equals (body)) {
-				WriteError (connection, "Invalid body");
-				return false;
-			}
+			if (Body != null && !Body.Equals (body))
+				return HttpResponse.CreateError ("Invalid body");
 
-			return true;
+			return HttpResponse.CreateSuccess ();
 		}
 
-		string ReadBody (Connection connection, bool chunked, RequestFlags effectiveFlags)
+		string ReadBody (Connection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			if ((effectiveFlags & RequestFlags.SendContinue) != 0)
-				WriteSimpleResponse (connection, 100, "CONTINUE", null);
-
-			return chunked ? ReadChunkedBody (connection) : ReadStaticBody (connection);
-		}
-
-		string ReadStaticBody (Connection connection)
-		{
-			var length = int.Parse (connection.Headers ["Content-Length"]);
-
-			var chunkSize = ReadChunkSize ?? length;
-			var minDelay = ReadChunkMinDelay ?? 0;
-			var maxDelay = ReadChunkMaxDelay ?? 0;
-
-			var random = new Random ();
-			var delayRange = maxDelay - minDelay;
-
-			var buffer = new char [length];
-			int offset = 0;
-			while (offset < length) {
-				int delay = minDelay + random.Next (delayRange);
-				Thread.Sleep (delay);
-
-				var size = Math.Min (length - offset, chunkSize);
-				int ret = connection.RequestReader.Read (buffer, offset, size);
-				if (ret <= 0)
-					throw new InvalidOperationException ();
-
-				offset += ret;
-			}
-
-			return new string (buffer);
-		}
-
-		string ReadChunkedBody (Connection connection)
-		{
-			if (connection.Headers.ContainsKey ("Content-Length"))
+			connection.ReadChunkSize = ReadChunkSize;
+			connection.ReadChunkMinDelay = ReadChunkMinDelay;
+			connection.ReadChunkMaxDelay = ReadChunkMaxDelay;
+			var body = request.ReadBody ();
+			if (body == null)
 				throw new InvalidOperationException ();
-
-			var body = new StringBuilder ();
-
-			do {
-				var header = connection.RequestReader.ReadLine ();
-				var length = int.Parse (header, NumberStyles.HexNumber);
-				if (length == 0)
-					break;
-
-				var buffer = new char [length];
-				var ret = connection.RequestReader.Read (buffer, 0, length);
-				if (ret != length)
-					throw new InvalidOperationException ();
-
-				var empty = connection.RequestReader.ReadLine ();
-				if (!string.IsNullOrEmpty (empty))
-					throw new InvalidOperationException ();
-
-				body.Append (buffer);
-			} while (true);
-
-			return body.ToString ();
+			return body;
 		}
 
 		public override HttpWebRequest CreateRequest (Uri uri)

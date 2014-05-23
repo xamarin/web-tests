@@ -74,16 +74,6 @@ namespace Xamarin.WebTests.Server
 			tcs = new TaskCompletionSource<bool> ();
 		}
 
-		protected void WriteError (Connection connection, string message, params object[] args)
-		{
-			WriteSimpleResponse (connection, 500, "ERROR", string.Format (message, args));
-		}
-
-		protected void WriteSuccess (Connection connection, string body = null)
-		{
-			WriteSimpleResponse (connection, 200, "OK", body);
-		}
-
 		protected void Debug (int level, string message, params object[] args)
 		{
 			if (DebugLevel < level)
@@ -97,49 +87,36 @@ namespace Xamarin.WebTests.Server
 			Console.Error.WriteLine (sb.ToString ());
 		}
 
-		protected void DumpHeaders (Connection connection)
+		protected void DumpHeaders (HttpMessage message)
 		{
 			if (DebugLevel < 2)
 				return;
-			foreach (var header in connection.Headers) {
+			foreach (var header in message.Headers) {
 				Console.Error.WriteLine ("  {0} = {1}", header.Key, header.Value);
 			}
 		}
 
-		protected void WriteSimpleResponse (Connection connection, int status, string message, string body)
-		{
-			Debug (0, "RESPONSE", status, message, body);
-
-			connection.WriteSimpleResponse (status, message, body);
-		}
-
-		protected void WriteRedirect (Connection connection, int code, Uri uri)
-		{
-			Debug (0, "REDIRECT", code, uri);
-
-			connection.WriteRedirect (code, uri);
-		}
-
-		public void HandleRequest (HttpConnection connection)
+		public void HandleRequest (HttpConnection connection, HttpRequest request)
 		{
 			try {
 				Debug (0, "HANDLE REQUEST");
-				DumpHeaders (connection);
-				var success = HandleRequest (connection, Flags);
-				if (success)
-					WriteResponse (connection, Flags);
-				Debug (0, "HANDLE REQUEST DONE", success);
-				tcs.SetResult (success);
+				DumpHeaders (request);
+				var response = HandleRequest (connection, request, Flags);
+				if (response == null)
+					response = HttpResponse.CreateSuccess ();
+				request.ReadBody ();
+				connection.WriteResponse (response);
+				Debug (0, "HANDLE REQUEST DONE", response);
+				tcs.SetResult (response.IsSuccess);
 			} catch (Exception ex) {
 				Debug (0, "HANDLE REQUEST EX", ex);
-				WriteError (connection, "Caught unhandled exception", ex);
+				var response = HttpResponse.CreateError ("Caught unhandled exception", ex);
+				connection.WriteResponse (response);
 				tcs.SetException (ex);
 			}
 		}
 
-		protected abstract internal void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags);
-
-		protected internal abstract bool HandleRequest (HttpConnection connection, RequestFlags effectiveFlags);
+		protected internal abstract HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags);
 
 		internal Uri RegisterRequest (HttpListener listener)
 		{

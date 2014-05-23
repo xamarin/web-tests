@@ -59,23 +59,15 @@ namespace Xamarin.WebTests.Tests
 
 		public static IEnumerable<Handler> GetAllTests ()
 		{
-			yield return new PostHandler () {
-				Description = "Content-Length",
-				Body = "Hello Known World!",
-				Mode = TransferMode.ContentLength
-			};
-			// return TestPost.GetAllTests ();
-			// return TestPost.GetPostTests ();
+			return TestPost.GetAllTests ();
 		}
 
-		// [Category ("Martin")]
-		// [TestCaseSource ("GetAllTests")]
+		[TestCaseSource ("GetAllTests")]
 		public void TestBasicAuthentication (Handler handler)
 		{
 			Run (new AuthenticationHandler (AuthenticationType.Basic, handler));
 		}
 
-		[Category ("Martin")]
 		[TestCaseSource ("GetAllTests")]
 		public void TestNTLM (Handler handler)
 		{

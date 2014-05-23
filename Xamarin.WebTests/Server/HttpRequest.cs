@@ -1,5 +1,5 @@
 ﻿//
-// Listener.cs
+// HttpRequest.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,59 +25,56 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using System.Globalization;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Server
 {
-	public class HttpListener : Listener
+	public class HttpRequest : HttpMessage
 	{
-		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
-		List<Handler> allHandlers = new List<Handler> ();
-
-		static int nextId;
-
-		public HttpListener (IPAddress address, int port)
-			: base (address, port)
+		public HttpRequest (Connection connection, StreamReader reader)
+			: base (connection, reader)
 		{
 		}
 
-		protected override void OnStop ()
-		{
-			foreach (var handler in allHandlers)
-				handler.Reset ();
-
-			base.OnStop ();
+		public string Method {
+			get; private set;
 		}
 
-		public Uri RegisterHandler (Handler handler)
-		{
-			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
-			handlers.Add (path, handler);
-			allHandlers.Add (handler);
-			return new Uri (Uri, path);
+		public string Path {
+			get; private set;
 		}
 
-		public void RegisterHandler (string path, Handler handler)
+		protected override void Read ()
 		{
-			handlers.Add (path, handler);
-			allHandlers.Add (handler);
+			var header = reader.ReadLine ();
+			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
+			if (fields.Length != 3) {
+				Console.Error.WriteLine ("GOT INVALID HTTP REQUEST: {0}", header);
+				throw new InvalidOperationException ();
+			}
+
+			Method = fields [0];
+			Path = fields [1].StartsWith ("/") ? fields [1] : new Uri (fields [1]).AbsolutePath;
+			Protocol = fields [2];
+
+			if (!Protocol.Equals ("HTTP/1.1") && !Protocol.Equals ("HTTP/1.0"))
+				throw new InvalidOperationException ();
+
+			ReadHeaders ();
 		}
 
-		protected override void HandleConnection (Socket socket)
+		public void Write (StreamWriter writer)
 		{
-			var connection = new HttpConnection (this, socket);
-			var request = connection.ReadRequest ();
+			writer.WriteLine ("{0} {1} {2}", Method, Path, Protocol);
+			WriteHeaders (writer);
+		}
 
-			var path = request.Path;
-			var handler = handlers [path];
-			handlers.Remove (path);
-
-			handler.HandleRequest (connection, request);
-
-			connection.Close ();
+		public override string ToString ()
+		{
+			return string.Format ("[HttpRequest: Method={0}, Path={1}]", Method, Path);
 		}
 	}
 }

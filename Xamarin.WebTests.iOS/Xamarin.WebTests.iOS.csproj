@@ -154,6 +154,15 @@
     <Compile Include="..\Xamarin.WebTests\Server\HttpListener.cs">
       <Link>Server\HttpListener.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\HttpMessage.cs">
+      <Link>Server\HttpMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\HttpRequest.cs">
+      <Link>Server\HttpRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\HttpResponse.cs">
+      <Link>Server\HttpResponse.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

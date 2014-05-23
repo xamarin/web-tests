@@ -100,6 +100,7 @@ namespace Xamarin.WebTests.Server
 				HandleConnection (socket);
 				t.SetResult (true);
 			} catch (Exception ex) {
+				Console.Error.WriteLine ("ACCEPT SOCKET EX: {0}", ex);
 				t.SetException (ex);
 			} finally {
 				socket.Close ();

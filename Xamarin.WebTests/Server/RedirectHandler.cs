@@ -54,10 +54,14 @@ namespace Xamarin.WebTests.Server
 			return icode == 301 || icode == 302 || icode == 303 || icode == 307;
 		}
 
-		protected internal override void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags)
+		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
+			var response = Target.HandleRequest (connection, request, effectiveFlags);
+			if (response != null && !response.IsSuccess)
+				return response;
+
 			var targetUri = Target.RegisterRequest (connection.Server);
-			WriteRedirect (connection, (int)Code, targetUri);
+			return HttpResponse.CreateRedirect (Code, targetUri);
 		}
 	}
 }

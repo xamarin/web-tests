@@ -38,7 +38,6 @@ namespace Xamarin.WebTests.Server
 		NetworkStream stream;
 		StreamReader reader;
 		StreamWriter writer;
-		Dictionary<string,string> headers;
 
 		public Connection (Socket socket)
 		{
@@ -47,142 +46,52 @@ namespace Xamarin.WebTests.Server
 			reader = new StreamReader (stream);
 			writer = new StreamWriter (stream);
 			writer.AutoFlush = true;
-			headers = new Dictionary<string, string> ();
 		}
 
-		protected Connection (Socket socket, string method, string path, string protocol)
-			: this (socket)
-		{
-			Method = method;
-			Path = path;
-			Protocol = protocol;
+		public int? ReadChunkSize {
+			get; set;
 		}
 
-		public string Method {
-			get; private set;
+		public int? ReadChunkMinDelay {
+			get; set;
 		}
 
-		public string Path {
-			get; private set;
+		public int? ReadChunkMaxDelay {
+			get; set;
 		}
 
-		public string Protocol {
-			get; private set;
-		}
-
-		public int StatusCode {
-			get; private set;
-		}
-
-		public string StatusMessage {
-			get; private set;
-		}
-
-		public Uri RequestUri {
-			get; private set;
-		}
-
-		public StreamReader RequestReader {
+		protected StreamReader RequestReader {
 			get { return reader; }
 		}
 
-		public StreamWriter ResponseWriter {
+		protected StreamWriter ResponseWriter {
 			get { return writer; }
 		}
 
-		public IDictionary<string,string> Headers {
-			get { return headers; }
+		public HttpRequest ReadRequest ()
+		{
+			return new HttpRequest (this, reader);
 		}
 
-		public void ReadRequest (Uri serverUri)
+		protected HttpResponse ReadResponse ()
 		{
-			var header = reader.ReadLine ();
-			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
-			if (fields.Length != 3) {
-				Console.Error.WriteLine ("GOT INVALID HTTP REQUEST: {0}", header);
-				throw new InvalidOperationException ();
-			}
-
-			Method = fields [0];
-			Path = fields [1];
-			RequestUri = new Uri (serverUri, Path);
-			Protocol = fields [2];
-
-			if (!Protocol.Equals ("HTTP/1.1") && !Protocol.Equals ("HTTP/1.0"))
-				throw new InvalidOperationException ();
-
-			ReadHeaders ();
+			return new HttpResponse (this, reader);
 		}
 
-		public void ReadResponse ()
+		protected void WriteRequest (HttpRequest request)
 		{
-			var header = reader.ReadLine ();
-			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
-			if (fields.Length < 2 || fields.Length > 3) {
-				Console.Error.WriteLine ("GOT INVALID HTTP REQUEST: {0}", header);
-				throw new InvalidOperationException ();
-			}
-
-			Protocol = fields [0];
-			StatusCode = int.Parse (fields [1]);
-			StatusMessage = fields.Length == 3 ? fields [2] : string.Empty;
-
-			if (!Protocol.Equals ("HTTP/1.1") && !Protocol.Equals ("HTTP/1.0"))
-				throw new InvalidOperationException ();
-
-			ReadHeaders ();
+			request.Write (writer);
 		}
 
-		protected void ReadHeaders ()
+		public void WriteResponse (HttpResponse response)
 		{
-			string line;
-			while ((line = reader.ReadLine ()) != null) {
-				if (string.IsNullOrEmpty (line))
-					break;
-				var pos = line.IndexOf (':');
-				if (pos < 0)
-					throw new InvalidOperationException ();
-
-				var headerName = line.Substring (0, pos);
-				var headerValue = line.Substring (pos + 1).Trim ();
-				headers.Add (headerName, headerValue);
-			}
+			response.Write (writer);
 		}
 
 		public void Close ()
 		{
 			writer.Flush ();
 			stream.Close ();
-		}
-
-		internal void WriteSimpleResponse (int status, string message, string body)
-		{
-			ResponseWriter.WriteLine ("HTTP/1.1 {0} {1}", status, message);
-			ResponseWriter.WriteLine ("Content-Type: text/plain");
-			if (body != null) {
-				ResponseWriter.WriteLine ("Content-Length: {0}", body.Length);
-				ResponseWriter.WriteLine ("");
-				ResponseWriter.WriteLine (body);
-			} else {
-				ResponseWriter.WriteLine ("");
-			}
-		}
-
-		internal void WriteRedirect (int code, Uri uri)
-		{
-			ResponseWriter.WriteLine ("HTTP/1.1 {0}", code);
-			ResponseWriter.WriteLine ("Location: {0}", uri);
-			ResponseWriter.WriteLine ();
-		}
-
-		internal void WriteSuccess (string body = null)
-		{
-			WriteSimpleResponse (200, "OK", body);
-		}
-
-		internal void WriteError (string message, params object[] args)
-		{
-			WriteSimpleResponse (500, "ERROR", string.Format (message, args));
 		}
 	}
 }

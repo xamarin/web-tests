@@ -47,65 +47,32 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected internal override bool HandleRequest (HttpConnection connection, RequestFlags effectiveFlags)
+		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			if (!connection.Method.Equals ("DELETE")) {
-				WriteError (connection, "Wrong method: {0}", connection.Method);
-				return false;
-			}
+			if (!request.Method.Equals ("DELETE"))
+				return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
 
-			return CheckRequest (connection);
-		}
-
-		protected internal override void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags)
-		{
-			WriteSuccess (connection);
-		}
-
-		bool CheckRequest (Connection connection)
-		{
 			string value;
-			var hasLength = connection.Headers.TryGetValue ("Content-Length", out value);
+			var hasLength = request.Headers.TryGetValue ("Content-Length", out value);
 			var hasExplicitLength = (Flags & RequestFlags.ExplicitlySetLength) != 0;
 
 			if (hasLength) {
 				var length = int.Parse (value);
 
-				if (Body != null)
-					return ReadStaticBody (connection, length);
-				else if (hasExplicitLength) {
-					if (length != 0) {
-						WriteError (connection, "Content-Length must be zero");
-						return false;
-					}
+				if (Body != null) {
+					request.ReadBody ();
+					return HttpResponse.CreateSuccess ();
+				} else if (hasExplicitLength) {
+					if (length != 0)
+						return HttpResponse.CreateError ("Content-Length must be zero");
 				} else {
-					WriteError (connection, "Content-Length not allowed.");
-					return false;
+					return HttpResponse.CreateError ("Content-Length not allowed.");
 				}
 			} else if (hasExplicitLength || Body != null) {
-				WriteError (connection, "Missing Content-Length");
-				return false;
+				return HttpResponse.CreateError ("Missing Content-Length");
 			}
 
-			return true;
-		}
-
-		bool ReadStaticBody (Connection connection, int length)
-		{
-			var buffer = new char [length];
-			int offset = 0;
-			while (offset < length) {
-				var size = Math.Min (length - offset, 4096);
-				int ret = connection.RequestReader.Read (buffer, offset, size);
-				if (ret <= 0) {
-					WriteError (connection, "Failed to read body.");
-					return false;
-				}
-
-				offset += ret;
-			}
-
-			return true;
+			return HttpResponse.CreateSuccess ();
 		}
 
 		public override HttpWebRequest CreateRequest (Uri uri)

@@ -47,7 +47,6 @@ namespace Xamarin.WebTests.Server
 
 		class HttpAuthManager : AuthenticationManager
 		{
-			public HttpConnection Connection;
 			public readonly Handler Target;
 
 			public HttpAuthManager (AuthenticationType type, Handler target)
@@ -56,43 +55,38 @@ namespace Xamarin.WebTests.Server
 				Target = target;
 			}
 
-			protected override void OnError (string message)
+			protected override HttpResponse OnError (string message)
 			{
-				Connection.WriteError (message);
+				return HttpResponse.CreateError (message);
 			}
 
-			protected override void OnUnauthenticated (string token, bool omitBody)
+			protected override HttpResponse OnUnauthenticated (HttpRequest request, string token, bool omitBody)
 			{
 				var handler = new AuthenticationHandler (this);
 				if (omitBody)
 					handler.Flags |= RequestFlags.NoBody;
 				handler.Flags |= RequestFlags.Redirected;
-				Connection.Server.RegisterHandler (Connection.RequestUri.AbsolutePath, handler);
-	
-				Connection.ResponseWriter.WriteLine ("HTTP/1.1 401 Unauthorized");
-				Connection.ResponseWriter.WriteLine ("WWW-Authenticate: {0}", token);
-				Connection.ResponseWriter.WriteLine ();
+				((HttpConnection)request.Connection).Server.RegisterHandler (request.Path, handler);
+
+				var response = new HttpResponse (HttpStatusCode.Unauthorized);
+				response.AddHeader ("WWW-Authenticate", token);
+				return response;
 			}
 		}
 
 		readonly HttpAuthManager manager;
 
-		protected internal override bool HandleRequest (HttpConnection connection, RequestFlags effectiveFlags)
+		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
 			string authHeader;
-			if (!connection.Headers.TryGetValue ("Authorization", out authHeader))
+			if (!request.Headers.TryGetValue ("Authorization", out authHeader))
 				authHeader = null;
 
-			manager.Connection = connection;
-			if (!manager.HandleAuthentication (authHeader))
-				return false;
+			var response = manager.HandleAuthentication (request, authHeader);
+			if (response != null)
+				return response;
 
-			return Target.HandleRequest (connection, effectiveFlags);
-		}
-
-		protected internal override void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags)
-		{
-			Target.WriteResponse (connection, effectiveFlags);
+			return Target.HandleRequest (connection, request, effectiveFlags);
 		}
 
 		public override HttpWebRequest CreateRequest (Uri uri)

@@ -100,6 +100,15 @@
     <Compile Include="..\Xamarin.WebTests\Server\Listener.cs">
       <Link>Server\Listener.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\HttpMessage.cs">
+      <Link>Server\HttpMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\HttpRequest.cs">
+      <Link>Server\HttpRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\HttpResponse.cs">
+      <Link>Server\HttpResponse.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
