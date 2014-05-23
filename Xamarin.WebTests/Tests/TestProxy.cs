@@ -60,24 +60,9 @@ namespace Xamarin.WebTests.Tests
 			return new WebProxy (proxyListener.Uri, false);
 		}
 
-		public static IEnumerable<Handler> GetHelloWorldTests ()
+		public static IEnumerable<Handler> GetAllTests ()
 		{
-			return TestPost.GetHelloWorldTests ();
-		}
-
-		public static IEnumerable<Handler> GetPostTests ()
-		{
-			return TestPost.GetPostTests ();
-		}
-
-		public static IEnumerable<Handler> GetDeleteTests ()
-		{
-			return TestPost.GetDeleteTests ();
-		}
-
-		public static IEnumerable<Handler> GetRedirectTests ()
-		{
-			return TestPost.GetRedirectTests ();
+			return TestPost.GetAllTests ();
 		}
 
 		protected override HttpWebRequest CreateRequest (Handler handler)
@@ -87,10 +72,7 @@ namespace Xamarin.WebTests.Tests
 			return request;
 		}
 
-		[TestCaseSource ("GetHelloWorldTests")]
-		[TestCaseSource ("GetPostTests")]
-		[TestCaseSource ("GetDeleteTests")]
-		[TestCaseSource ("GetRedirectTests")]
+		[TestCaseSource ("GetAllTests")]
 		public void ProxyPost (Handler handler)
 		{
 			Run (handler);

@@ -57,39 +57,18 @@ namespace Xamarin.WebTests.Tests
 			return handler.CreateRequest (listener);
 		}
 
-		public static IEnumerable<Handler> GetHelloWorldTests ()
+		public static IEnumerable<Handler> GetAllTests ()
 		{
-			return TestPost.GetHelloWorldTests ();
+			return TestPost.GetAllTests ();
 		}
 
-		public static IEnumerable<PostHandler> GetPostTests ()
-		{
-			return TestPost.GetPostTests ();
-		}
-
-		public static IEnumerable<Handler> GetDeleteTests ()
-		{
-			return TestPost.GetDeleteTests ();
-		}
-
-		public static IEnumerable<Handler> GetRedirectTests ()
-		{
-			return TestPost.GetRedirectTests ();
-		}
-
-		[TestCaseSource ("GetHelloWorldTests")]
-		[TestCaseSource ("GetPostTests")]
-		[TestCaseSource ("GetDeleteTests")]
-		[TestCaseSource ("GetRedirectTests")]
+		[TestCaseSource ("GetAllTests")]
 		public void TestBasicAuthentication (Handler handler)
 		{
 			Run (new AuthenticationHandler (AuthenticationType.Basic, handler));
 		}
 
-		[TestCaseSource ("GetHelloWorldTest")]
-		[TestCaseSource ("GetPostTests")]
-		[TestCaseSource ("GetDeleteTests")]
-		[TestCaseSource ("GetRedirectTests")]
+		[TestCaseSource ("GetAllTests")]
 		public void TestNTLM (Handler handler)
 		{
 			Run (new AuthenticationHandler (AuthenticationType.NTLM, handler));

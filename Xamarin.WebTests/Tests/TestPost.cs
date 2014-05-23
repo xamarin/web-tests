@@ -129,6 +129,16 @@ namespace Xamarin.WebTests.Tests
 			}
 		}
 
+		public static IEnumerable<Handler> GetAllTests ()
+		{
+			var list = new List<Handler> ();
+			list.AddRange (GetHelloWorldTests ());
+			list.AddRange (GetPostTests ());
+			list.AddRange (GetDeleteTests ());
+			list.AddRange (GetRedirectTests ());
+			return list;
+		}
+
 		[Test]
 		public void RedirectAsGetNoBuffering ()
 		{
