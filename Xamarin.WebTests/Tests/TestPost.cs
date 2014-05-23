@@ -36,7 +36,7 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 
 	[TestFixture]
-	public class TestPost
+	public class TestPost : HttpTest
 	{
 		Listener listener;
 
@@ -52,12 +52,17 @@ namespace Xamarin.WebTests.Tests
 			listener.Stop ();
 		}
 
-		public IEnumerable<Handler> GetHelloWorldTest ()
+		protected override HttpWebRequest CreateRequest (Handler handler)
+		{
+			return handler.CreateRequest (listener);
+		}
+
+		public static IEnumerable<Handler> GetHelloWorldTests ()
 		{
 			yield return new HelloWorldHandler ();
 		}
 
-		public IEnumerable<PostHandler> GetPostTests ()
+		public static IEnumerable<PostHandler> GetPostTests ()
 		{
 			yield return new PostHandler () {
 				Description = "No body"
@@ -90,7 +95,7 @@ namespace Xamarin.WebTests.Tests
 			};
 		}
 
-		public IEnumerable<Handler> GetDeleteTests ()
+		public static IEnumerable<Handler> GetDeleteTests ()
 		{
 			yield return new DeleteHandler ();
 			yield return new DeleteHandler () {
@@ -107,7 +112,7 @@ namespace Xamarin.WebTests.Tests
 			};
 		}
 
-		public IEnumerable<Handler> GetRedirectTests ()
+		public static IEnumerable<Handler> GetRedirectTests ()
 		{
 			foreach (var code in new [] { HttpStatusCode.Moved, HttpStatusCode.Found, HttpStatusCode.TemporaryRedirect }) {
 				foreach (var post in GetPostTests ()) {
@@ -135,7 +140,7 @@ namespace Xamarin.WebTests.Tests
 				AllowWriteStreamBuffering = false
 			};
 			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
-			DoRun (redirect);
+			Run (redirect);
 		}
 
 		[Test]
@@ -149,53 +154,15 @@ namespace Xamarin.WebTests.Tests
 				AllowWriteStreamBuffering = false
 			};
 			var redirect = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
-			DoRun (redirect, HttpStatusCode.TemporaryRedirect, true);
+			Run (redirect, HttpStatusCode.TemporaryRedirect, true);
 		}
 
 		[TestCaseSource ("GetPostTests")]
 		[TestCaseSource ("GetDeleteTests")]
 		[TestCaseSource ("GetRedirectTests")]
-		public void Run (Handler handler)
+		public void PostTests (Handler handler)
 		{
-			DoRun (handler);
-		}
-
-		void DoRun (Handler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK, bool expectException = false)
-		{
-			Console.Error.WriteLine ("RUN: {0}", handler);
-
-			var request = handler.CreateRequest (listener);
-
-			handler.SendRequest (request);
-
-			try {
-				var response = (HttpWebResponse)request.GetResponse ();
-				Console.Error.WriteLine ("RUN - GOT RESPONSE: {0} {1}", handler, response.StatusCode);
-				Assert.AreEqual (expectedStatus, response.StatusCode, "status code");
-				Assert.IsFalse (expectException, "success status");
-				response.Close ();
-			} catch (WebException wexc) {
-				var response = (HttpWebResponse)wexc.Response;
-				if (expectException) {
-					Assert.AreEqual (expectedStatus, response.StatusCode, "error status code");
-					response.Close ();
-					return;
-				}
-
-				using (var reader = new StreamReader (response.GetResponseStream ())) {
-					var content = reader.ReadToEnd ();
-					Console.Error.WriteLine ("RUN - GOT WEB ERROR: {0} {1} {2}\n{3}\n{4}", handler,
-						wexc.Status, response.StatusCode, content, wexc);
-					Assert.Fail ("{0}: {1}", handler, content);
-				}
-				response.Close ();
-				throw;
-			} catch (Exception ex) {
-				Console.Error.WriteLine ("RUN - GOT EXCEPTION: {0}", ex);
-				throw;
-			} finally {
-				Console.Error.WriteLine ("RUN DONE: {0}", handler);
-			}
+			Run (handler);
 		}
 
 		[Test]
@@ -218,23 +185,7 @@ namespace Xamarin.WebTests.Tests
 				Description = "Second post", Body = "Should send this"
 			};
 
-			DoRun (secondPost);
-		}
-
-		[TestCaseSource ("GetHelloWorldTest")]
-		[TestCaseSource ("GetPostTests")]
-		[TestCaseSource ("GetDeleteTests")]
-		public void TestBasicAuthentication (Handler handler)
-		{
-			DoRun (new AuthenticationHandler (AuthenticationType.Basic, handler));
-		}
-
-		[TestCaseSource ("GetHelloWorldTest")]
-		[TestCaseSource ("GetPostTests")]
-		[TestCaseSource ("GetDeleteTests")]
-		public void TestNTLM (Handler handler)
-		{
-			DoRun (new AuthenticationHandler (AuthenticationType.NTLM, handler));
+			Run (secondPost);
 		}
 	}
 }

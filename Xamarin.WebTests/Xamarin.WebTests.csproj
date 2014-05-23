@@ -55,6 +55,8 @@
     <Compile Include="Framework\RequestFlags.cs" />
     <Compile Include="Server\AbstractRedirectHandler.cs" />
     <Compile Include="Server\AuthenticationHandler.cs" />
+    <Compile Include="Tests\HttpTest.cs" />
+    <Compile Include="Tests\TestAuthentication.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

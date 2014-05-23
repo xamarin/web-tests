@@ -78,6 +78,9 @@
     <Compile Include="..\Xamarin.WebTests\Server\RedirectHandler.cs">
       <Link>Server\RedirectHandler.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\HttpTest.cs">
+      <Link>Tests\HttpTest.cs</Link>
+    </Compile>
     <Compile Include="..\Xamarin.WebTests\Tests\TestPost.cs">
       <Link>Tests\TestPost.cs</Link>
     </Compile>
