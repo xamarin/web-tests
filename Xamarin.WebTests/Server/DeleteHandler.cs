@@ -116,14 +116,19 @@ namespace Xamarin.WebTests.Server
 			if (Flags == RequestFlags.ExplicitlySetLength)
 				request.ContentLength = Body != null ? Body.Length : 0;
 
+			return request;
+		}
+
+		public override void SendRequest (HttpWebRequest request)
+		{
+			base.SendRequest (request);
+
 			if (Body != null) {
 				using (var writer = new StreamWriter (request.GetRequestStream ())) {
 					if (!string.IsNullOrEmpty (Body))
 						writer.Write (Body);
 				}
 			}
-
-			return request;
 		}
 	}
 }
