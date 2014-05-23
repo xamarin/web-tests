@@ -56,8 +56,11 @@
     <Compile Include="Server\AuthenticationHandler.cs" />
     <Compile Include="Server\HttpListener.cs" />
     <Compile Include="Server\Listener.cs" />
+    <Compile Include="Server\ProxyListener.cs" />
+    <Compile Include="Tests\TestProxy.cs" />
     <Compile Include="Tests\HttpTest.cs" />
     <Compile Include="Server\HttpConnection.cs" />
+    <Compile Include="Server\ProxyConnection.cs" />
     <Compile Include="Tests\TestAuthentication.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
