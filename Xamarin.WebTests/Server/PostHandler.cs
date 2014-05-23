@@ -137,6 +137,9 @@ namespace Xamarin.WebTests.Server
 		{
 			Debug (0, "HANDLE POST", request.Path, request.Method, effectiveFlags);
 
+			if (request.Headers.ContainsKey ("X-Mono-Redirected"))
+				effectiveFlags |= RequestFlags.Redirected;
+
 			if ((effectiveFlags & RequestFlags.RedirectedAsGet) != 0) {
 				if (!request.Method.Equals ("GET"))
 					return HttpResponse.CreateError ("Wrong method: {0}", request.Method);

@@ -55,6 +55,9 @@ namespace Xamarin.WebTests.Server
 			var connection = new Connection (socket);
 			var request = connection.ReadRequest ();
 
+			var remoteAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
+			request.AddHeader ("X-Forwarded-For", remoteAddress);
+
 			if (authManager != null) {
 				string authHeader;
 				if (!request.Headers.TryGetValue ("Proxy-Authorization", out authHeader))
@@ -65,6 +68,9 @@ namespace Xamarin.WebTests.Server
 					connection.WriteResponse (response);
 					return;
 				}
+
+				// HACK: Mono rewrites chunked requests into non-chunked.
+				request.AddHeader ("X-Mono-Redirected", "true");
 			}
 
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
