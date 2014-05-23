@@ -133,7 +133,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected internal override bool HandleRequest (Connection connection, RequestFlags effectiveFlags)
+		protected internal override bool HandleRequest (HttpConnection connection, RequestFlags effectiveFlags)
 		{
 			Debug (0, "HANDLE POST", connection.Path, connection.Method, effectiveFlags);
 
@@ -152,7 +152,7 @@ namespace Xamarin.WebTests.Server
 			return CheckTransferMode (connection, effectiveFlags);
 		}
 
-		protected override void WriteResponse (Connection connection, RequestFlags effectiveFlags)
+		protected override void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags)
 		{
 			WriteSuccess (connection);
 		}

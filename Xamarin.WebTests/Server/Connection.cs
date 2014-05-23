@@ -35,16 +35,13 @@ namespace Xamarin.WebTests.Server
 {
 	public class Connection
 	{
-		Listener server;
 		NetworkStream stream;
 		StreamReader reader;
 		StreamWriter writer;
 		Dictionary<string,string> headers;
 
-		public Connection (Listener server, Socket socket)
+		public Connection (Socket socket)
 		{
-			this.server = server;
-
 			stream = new NetworkStream (socket);
 
 			reader = new StreamReader (stream);
@@ -53,8 +50,12 @@ namespace Xamarin.WebTests.Server
 			headers = new Dictionary<string, string> ();
 		}
 
-		public Listener Server {
-			get { return server; }
+		protected Connection (Socket socket, string method, string path, string protocol)
+			: this (socket)
+		{
+			Method = method;
+			Path = path;
+			Protocol = protocol;
 		}
 
 		public string Method {
@@ -62,6 +63,18 @@ namespace Xamarin.WebTests.Server
 		}
 
 		public string Path {
+			get; private set;
+		}
+
+		public string Protocol {
+			get; private set;
+		}
+
+		public int StatusCode {
+			get; private set;
+		}
+
+		public string StatusMessage {
 			get; private set;
 		}
 
@@ -81,9 +94,8 @@ namespace Xamarin.WebTests.Server
 			get { return headers; }
 		}
 
-		public void ReadHeaders ()
+		public void ReadRequest (Uri serverUri)
 		{
-			string line;
 			var header = reader.ReadLine ();
 			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
 			if (fields.Length != 3) {
@@ -93,12 +105,37 @@ namespace Xamarin.WebTests.Server
 
 			Method = fields [0];
 			Path = fields [1];
-			RequestUri = new Uri (server.Uri, Path);
-			var proto = fields [2];
+			RequestUri = new Uri (serverUri, Path);
+			Protocol = fields [2];
 
-			if (!proto.Equals ("HTTP/1.1") && !proto.Equals ("HTTP/1.0"))
+			if (!Protocol.Equals ("HTTP/1.1") && !Protocol.Equals ("HTTP/1.0"))
 				throw new InvalidOperationException ();
 
+			ReadHeaders ();
+		}
+
+		public void ReadResponse ()
+		{
+			var header = reader.ReadLine ();
+			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
+			if (fields.Length < 2 || fields.Length > 3) {
+				Console.Error.WriteLine ("GOT INVALID HTTP REQUEST: {0}", header);
+				throw new InvalidOperationException ();
+			}
+
+			Protocol = fields [0];
+			StatusCode = int.Parse (fields [1]);
+			StatusMessage = fields.Length == 3 ? fields [2] : string.Empty;
+
+			if (!Protocol.Equals ("HTTP/1.1") && !Protocol.Equals ("HTTP/1.0"))
+				throw new InvalidOperationException ();
+
+			ReadHeaders ();
+		}
+
+		protected void ReadHeaders ()
+		{
+			string line;
 			while ((line = reader.ReadLine ()) != null) {
 				if (string.IsNullOrEmpty (line))
 					break;

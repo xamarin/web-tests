@@ -32,26 +32,24 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Server
 {
-	public class Listener
+	public abstract class Listener
 	{
 		bool abortRequested;
 		TcpListener listener;
 		TaskCompletionSource<bool> tcs;
-		Dictionary<string,Handler> handlers;
-		List<Handler> allHandlers;
 		Uri uri;
-
-		static int nextId;
 
 		public Listener (IPAddress address, int port)
 		{
 			listener = new TcpListener (address, port);
 			uri = new Uri (string.Format ("http://{0}:{1}/", address, port));
-			handlers = new Dictionary<string, Handler> ();
-			allHandlers = new List<Handler> ();
 			listener.Start ();
 
 			listener.BeginAcceptSocket (AcceptSocketCB, null);
+		}
+
+		public Uri Uri {
+			get { return uri; }
 		}
 
 		public void Stop ()
@@ -73,26 +71,11 @@ namespace Xamarin.WebTests.Server
 				;
 			}
 
-			foreach (var handler in allHandlers)
-				handler.Reset ();
+			OnStop ();
 		}
 
-		public Uri RegisterHandler (Handler handler)
+		protected virtual void OnStop ()
 		{
-			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
-			handlers.Add (path, handler);
-			allHandlers.Add (handler);
-			return new Uri (uri, path);
-		}
-
-		public void RegisterHandler (string path, Handler handler)
-		{
-			handlers.Add (path, handler);
-			allHandlers.Add (handler);
-		}
-
-		public Uri Uri {
-			get { return uri; }
 		}
 
 		void AcceptSocketCB (IAsyncResult ar)
@@ -128,20 +111,6 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		void HandleConnection (Socket socket)
-		{
-			var connection = new Connection (this, socket);
-			connection.ReadHeaders ();
-
-			var path = connection.RequestUri.AbsolutePath;
-			var handler = handlers [path];
-			handlers.Remove (path);
-
-			handler.HandleRequest (connection);
-
-			connection.Close ();
-		}
-
+		protected abstract void HandleConnection (Socket socket);
 	}
 }
-

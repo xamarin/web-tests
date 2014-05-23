@@ -130,7 +130,7 @@ namespace Xamarin.WebTests.Server
 			connection.ResponseWriter.WriteLine ();
 		}
 
-		public void HandleRequest (Connection connection)
+		public void HandleRequest (HttpConnection connection)
 		{
 			try {
 				Debug (0, "HANDLE REQUEST");
@@ -147,11 +147,11 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected abstract void WriteResponse (Connection connection, RequestFlags effectiveFlags);
+		protected abstract void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags);
 
-		protected internal abstract bool HandleRequest (Connection connection, RequestFlags effectiveFlags);
+		protected internal abstract bool HandleRequest (HttpConnection connection, RequestFlags effectiveFlags);
 
-		internal Uri RegisterRequest (Listener listener)
+		internal Uri RegisterRequest (HttpListener listener)
 		{
 			lock (this) {
 				if (hasRequest)
@@ -177,7 +177,7 @@ namespace Xamarin.WebTests.Server
 		{
 		}
 
-		public HttpWebRequest CreateRequest (Listener listener)
+		public HttpWebRequest CreateRequest (HttpListener listener)
 		{
 			var uri = RegisterRequest (listener);
 			return CreateRequest (uri);

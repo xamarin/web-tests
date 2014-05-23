@@ -51,7 +51,7 @@ namespace Xamarin.WebTests.Server
 
 		bool haveChallenge;
 
-		protected override void WriteResponse (Connection connection, RequestFlags effectiveFlags)
+		protected override void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags)
 		{
 			var handler = new AuthenticationHandler (AuthenticationType, Target);
 
@@ -107,7 +107,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected void WriteUnauthorized (Connection connection, Handler handler, string token)
+		protected void WriteUnauthorized (HttpConnection connection, Handler handler, string token)
 		{
 			handler.Flags |= RequestFlags.Redirected;
 			connection.Server.RegisterHandler (connection.RequestUri.AbsolutePath, handler);

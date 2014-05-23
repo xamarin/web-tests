@@ -1,5 +1,5 @@
 ﻿//
-// AbstractRedirectHandler.cs
+// HttpConnection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,47 +24,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
+using System.Net.Sockets;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Server
 {
-	using Framework;
-
-	public abstract class AbstractRedirectHandler : Handler
+	public class HttpConnection : Connection
 	{
-		public Handler Target {
-			get;
-			private set;
+		public HttpListener Server {
+			get; private set;
 		}
 
-		protected AbstractRedirectHandler (Handler target)
+		public HttpConnection (HttpListener server, Socket socket)
+			: base (socket)
 		{
-			Target = target;
-
-			if ((target.Flags & RequestFlags.SendContinue) != 0)
-				Flags |= RequestFlags.SendContinue;
-			else
-				Flags &= ~RequestFlags.SendContinue;
-
-			Description = string.Format ("{0}: {1}", GetType ().Name, target.Description);
-		}
-
-		public override HttpWebRequest CreateRequest (Uri uri)
-		{
-			return Target.CreateRequest (uri);
-		}
-
-		public override void SendRequest (HttpWebRequest request)
-		{
-			Target.SendRequest (request);
-		}
-
-		protected internal override bool HandleRequest (HttpConnection connection, RequestFlags effectiveFlags)
-		{
-			if (!Target.HandleRequest (connection, effectiveFlags))
-				return false;
-
-			return true;
+			Server = server;
 		}
 	}
 }

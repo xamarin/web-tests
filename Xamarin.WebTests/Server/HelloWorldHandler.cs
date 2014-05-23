@@ -31,7 +31,7 @@ namespace Xamarin.WebTests.Server
 
 	public class HelloWorldHandler : Handler
 	{
-		protected internal override bool HandleRequest (Connection connection, RequestFlags effectiveFlags)
+		protected internal override bool HandleRequest (HttpConnection connection, RequestFlags effectiveFlags)
 		{
 			if (!connection.Method.Equals ("GET")) {
 				WriteError (connection, "Wrong method: {0}", connection.Method);
@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.Server
 			return true;
 		}
 
-		protected override void WriteResponse (Connection connection, RequestFlags effectiveFlags)
+		protected override void WriteResponse (HttpConnection connection, RequestFlags effectiveFlags)
 		{
 			WriteSuccess (connection, "Hello World!");
 		}

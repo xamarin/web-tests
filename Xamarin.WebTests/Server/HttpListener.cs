@@ -1,5 +1,5 @@
 ﻿//
-// AbstractRedirectHandler.cs
+// Listener.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,47 +24,60 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
+using System.Net.Sockets;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Server
 {
-	using Framework;
-
-	public abstract class AbstractRedirectHandler : Handler
+	public class HttpListener : Listener
 	{
-		public Handler Target {
-			get;
-			private set;
+		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
+		List<Handler> allHandlers = new List<Handler> ();
+
+		static int nextId;
+
+		public HttpListener (IPAddress address, int port)
+			: base (address, port)
+		{
 		}
 
-		protected AbstractRedirectHandler (Handler target)
+		protected override void OnStop ()
 		{
-			Target = target;
+			foreach (var handler in allHandlers)
+				handler.Reset ();
 
-			if ((target.Flags & RequestFlags.SendContinue) != 0)
-				Flags |= RequestFlags.SendContinue;
-			else
-				Flags &= ~RequestFlags.SendContinue;
-
-			Description = string.Format ("{0}: {1}", GetType ().Name, target.Description);
+			base.OnStop ();
 		}
 
-		public override HttpWebRequest CreateRequest (Uri uri)
+		public Uri RegisterHandler (Handler handler)
 		{
-			return Target.CreateRequest (uri);
+			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
+			handlers.Add (path, handler);
+			allHandlers.Add (handler);
+			return new Uri (Uri, path);
 		}
 
-		public override void SendRequest (HttpWebRequest request)
+		public void RegisterHandler (string path, Handler handler)
 		{
-			Target.SendRequest (request);
+			handlers.Add (path, handler);
+			allHandlers.Add (handler);
 		}
 
-		protected internal override bool HandleRequest (HttpConnection connection, RequestFlags effectiveFlags)
+		protected override void HandleConnection (Socket socket)
 		{
-			if (!Target.HandleRequest (connection, effectiveFlags))
-				return false;
+			var connection = new HttpConnection (this, socket);
+			connection.ReadRequest (Uri);
 
-			return true;
+			var path = connection.RequestUri.AbsolutePath;
+			var handler = handlers [path];
+			handlers.Remove (path);
+
+			handler.HandleRequest (connection);
+
+			connection.Close ();
 		}
 	}
 }

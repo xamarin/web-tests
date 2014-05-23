@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Server\Listener.cs" />
     <Compile Include="Server\Connection.cs" />
     <Compile Include="Server\Handler.cs" />
     <Compile Include="Server\HelloWorldHandler.cs" />
@@ -55,7 +54,10 @@
     <Compile Include="Framework\RequestFlags.cs" />
     <Compile Include="Server\AbstractRedirectHandler.cs" />
     <Compile Include="Server\AuthenticationHandler.cs" />
+    <Compile Include="Server\HttpListener.cs" />
+    <Compile Include="Server\Listener.cs" />
     <Compile Include="Tests\HttpTest.cs" />
+    <Compile Include="Server\HttpConnection.cs" />
     <Compile Include="Tests\TestAuthentication.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -38,12 +38,12 @@ namespace Xamarin.WebTests.Tests
 	[TestFixture]
 	public class TestPost : HttpTest
 	{
-		Listener listener;
+		HttpListener listener;
 
 		[TestFixtureSetUp]
 		public void Start ()
 		{
-			listener = new Listener (IPAddress.Loopback, 9999);
+			listener = new HttpListener (IPAddress.Loopback, 9999);
 		}
 
 		[TestFixtureTearDown]

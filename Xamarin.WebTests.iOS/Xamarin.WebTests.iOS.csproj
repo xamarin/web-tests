@@ -115,6 +115,9 @@
     <Compile Include="..\Xamarin.WebTests\Server\Connection.cs">
       <Link>Server\Connection.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\HttpConnection.cs">
+      <Link>Server\HttpConnection.cs</Link>
+    </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\DeleteHandler.cs">
       <Link>Server\DeleteHandler.cs</Link>
     </Compile>
@@ -123,9 +126,6 @@
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\HelloWorldHandler.cs">
       <Link>Server\HelloWorldHandler.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\Listener.cs">
-      <Link>Server\Listener.cs</Link>
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\PostHandler.cs">
       <Link>Server\PostHandler.cs</Link>
@@ -144,6 +144,12 @@
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\AbstractRedirectHandler.cs">
       <Link>Server\AbstractRedirectHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\Listener.cs">
+      <Link>Server\Listener.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Server\HttpListener.cs">
+      <Link>Server\HttpListener.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
