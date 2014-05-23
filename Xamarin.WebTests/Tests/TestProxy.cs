@@ -77,5 +77,17 @@ namespace Xamarin.WebTests.Tests
 		{
 			Run (handler);
 		}
+
+		[TestCaseSource ("GetAllTests")]
+		public void TestBasicAuthentication (Handler handler)
+		{
+			Run (new AuthenticationHandler (AuthenticationType.Basic, handler));
+		}
+
+		[TestCaseSource ("GetAllTests")]
+		public void TestNTLM (Handler handler)
+		{
+			Run (new AuthenticationHandler (AuthenticationType.NTLM, handler));
+		}
 	}
 }
