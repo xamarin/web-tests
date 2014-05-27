@@ -38,16 +38,16 @@ namespace Xamarin.WebTests.Server
 		ProxyAuthManager authManager;
 
 		public ProxyListener (HttpListener target, IPAddress address, int port, AuthenticationType authType)
-			: base (address, port)
+			: base (address, port, false)
 		{
 			this.target = target;
 			if (authType != AuthenticationType.None)
 				authManager = new ProxyAuthManager (authType);
 		}
 
-		protected override void HandleConnection (Socket socket)
+		protected override void HandleConnection (Socket socket, Stream stream)
 		{
-			var connection = new Connection (socket);
+			var connection = new Connection (stream);
 			var request = connection.ReadRequest ();
 
 			var remoteAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
@@ -71,7 +71,8 @@ namespace Xamarin.WebTests.Server
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			targetSocket.Connect (target.Uri.Host, target.Uri.Port);
 
-			var targetConnection = new ProxyConnection (targetSocket, connection);
+			var targetStream = new NetworkStream (targetSocket);
+			var targetConnection = new ProxyConnection (targetStream, connection);
 			targetConnection.HandleRequest (request);
 
 			targetConnection.Close ();

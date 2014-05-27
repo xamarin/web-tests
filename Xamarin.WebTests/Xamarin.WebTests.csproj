@@ -65,9 +65,11 @@
     <Compile Include="Server\HttpMessage.cs" />
     <Compile Include="Server\HttpRequest.cs" />
     <Compile Include="Server\HttpResponse.cs" />
-    <Compile Include="Tests\HttpTestRunner.cs" />
-    <Compile Include="Tests\SimpleHttpTestRunner.cs" />
     <Compile Include="Tests\ProxyTestRunner.cs" />
+    <Compile Include="Tests\TestRunner.cs" />
+    <Compile Include="Tests\HttpTestRunner.cs" />
+    <Compile Include="Tests\HttpsTestRunner.cs" />
+    <Compile Include="Tests\TestSsl.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -77,5 +79,10 @@
     <Folder Include="Framework\" />
     <Folder Include="Server\" />
     <Folder Include="Tests\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="cert.pfx">
+      <Link>Server\cert.pfx</Link>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 ﻿//
-// Connection.cs
+// TestSsl.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,71 +27,47 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using NUnit.Framework;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Tests
 {
-	public class Connection
+	using Server;
+	using Framework;
+
+	[TestFixture]
+	public class TestSsl
 	{
-		Stream stream;
-		StreamReader reader;
-		StreamWriter writer;
+		HttpsTestRunner runner;
 
-		public Connection (Stream stream)
+		public TestSsl ()
 		{
-			this.stream = stream;
-			reader = new StreamReader (stream);
-			writer = new StreamWriter (stream);
-			writer.AutoFlush = true;
+			runner = new HttpsTestRunner ();
 		}
 
-		public int? ReadChunkSize {
-			get; set;
-		}
-
-		public int? ReadChunkMinDelay {
-			get; set;
-		}
-
-		public int? ReadChunkMaxDelay {
-			get; set;
-		}
-
-		protected StreamReader RequestReader {
-			get { return reader; }
-		}
-
-		protected StreamWriter ResponseWriter {
-			get { return writer; }
-		}
-
-		public HttpRequest ReadRequest ()
+		[TestFixtureSetUp]
+		public void Start ()
 		{
-			return new HttpRequest (this, reader);
+			runner.Start ();
 		}
 
-		protected HttpResponse ReadResponse ()
+		[TestFixtureTearDown]
+		public void Stop ()
 		{
-			return new HttpResponse (this, reader);
+			runner.Stop ();
 		}
 
-		protected void WriteRequest (HttpRequest request)
+		static IEnumerable<Handler> GetAllTests ()
 		{
-			request.Write (writer);
+			yield return new HelloWorldHandler ();
 		}
 
-		public void WriteResponse (HttpResponse response)
+		[Category ("Martin")]
+		[TestCaseSource ("GetAllTests")]
+		public void Simple (Handler handler)
 		{
-			response.Write (writer);
-		}
-
-		public void Close ()
-		{
-			writer.Flush ();
-			stream.Close ();
+			runner.Run (handler);
 		}
 	}
 }
-

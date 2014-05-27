@@ -39,8 +39,8 @@ namespace Xamarin.WebTests.Server
 
 		static int nextId;
 
-		public HttpListener (IPAddress address, int port)
-			: base (address, port)
+		public HttpListener (IPAddress address, int port, bool ssl = false)
+			: base (address, port, ssl)
 		{
 		}
 
@@ -66,9 +66,9 @@ namespace Xamarin.WebTests.Server
 			allHandlers.Add (handler);
 		}
 
-		protected override void HandleConnection (Socket socket)
+		protected override void HandleConnection (Socket socket, Stream stream)
 		{
-			var connection = new HttpConnection (this, socket);
+			var connection = new HttpConnection (this, stream);
 			var request = connection.ReadRequest ();
 
 			var path = request.Path;

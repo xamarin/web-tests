@@ -166,14 +166,20 @@
     <Compile Include="..\Xamarin.WebTests\Server\HttpResponse.cs">
       <Link>Server\HttpResponse.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\TestRunner.cs">
+      <Link>Tests\TestRunner.cs</Link>
+    </Compile>
     <Compile Include="..\Xamarin.WebTests\Tests\HttpTestRunner.cs">
       <Link>Tests\HttpTestRunner.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests\Tests\SimpleHttpTestRunner.cs">
-      <Link>Tests\SimpleHttpTestRunner.cs</Link>
+    <Compile Include="..\Xamarin.WebTests\Tests\HttpsTestRunner.cs">
+      <Link>Tests\HttpTestsRunner.cs</Link>
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Tests\ProxyTestRunner.cs">
       <Link>Tests\ProxyTestRunner.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\TestSsl.cs">
+      <Link>Tests\TestSsl.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

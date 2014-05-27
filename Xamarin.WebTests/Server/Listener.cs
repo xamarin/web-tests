@@ -26,9 +26,12 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Net.Sockets;
+using System.Net.Security;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.Server
 {
@@ -37,12 +40,39 @@ namespace Xamarin.WebTests.Server
 		bool abortRequested;
 		TcpListener listener;
 		TaskCompletionSource<bool> tcs;
+		bool ssl;
 		Uri uri;
 
-		public Listener (IPAddress address, int port)
+		static X509Certificate2 cert;
+
+		static Listener ()
 		{
+			// openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days XXX
+			// openssl pkcs12 -export -in cert.pem -inkey key.pem -out cert.pfx
+			using (var stream = GetResourceStream ("cert.pfx")) {
+				var buffer = new byte [stream.Length];
+				var ret = stream.Read (buffer, 0, buffer.Length);
+				if (ret != buffer.Length)
+					throw new InvalidOperationException ();
+				cert = new X509Certificate2 (buffer, "monkey", X509KeyStorageFlags.Exportable);
+			}
+
+			ServicePointManager.ServerCertificateValidationCallback = (o,c,chain,errors) => {
+				return c.GetCertHashString ().Equals (cert.GetCertHashString ());
+			};
+		}
+
+		static Stream GetResourceStream (string name)
+		{
+			var asm = Assembly.GetExecutingAssembly ();
+			return asm.GetManifestResourceStream ("Xamarin.WebTests.Server." + name);
+		}
+
+		public Listener (IPAddress address, int port, bool ssl)
+		{
+			this.ssl = ssl;
 			listener = new TcpListener (address, port);
-			uri = new Uri (string.Format ("http://{0}:{1}/", address, port));
+			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", address, port));
 			listener.Start ();
 
 			listener.BeginAcceptSocket (AcceptSocketCB, null);
@@ -112,6 +142,23 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected abstract void HandleConnection (Socket socket);
+		Stream CreateStream (Socket socket)
+		{
+			var stream = new NetworkStream (socket);
+			if (!ssl)
+				return stream;
+
+			var authStream = new SslStream (stream);
+			authStream.AuthenticateAsServer (cert);
+			return authStream;
+		}
+
+		void HandleConnection (Socket socket)
+		{
+			var stream = CreateStream (socket);
+			HandleConnection (socket, stream);
+		}
+
+		protected abstract void HandleConnection (Socket socket, Stream stream);
 	}
 }

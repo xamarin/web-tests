@@ -1,5 +1,5 @@
 ﻿//
-// SimpleHttpTest.cs
+// HttpsTestRunner.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -30,7 +30,7 @@ namespace Xamarin.WebTests.Tests
 {
 	using Server;
 
-	public class SimpleHttpTestRunner : HttpTestRunner
+	public class HttpsTestRunner : TestRunner
 	{
 		HttpListener listener;
 
@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.Tests
 
 		public override void Start ()
 		{
-			listener = new HttpListener (IPAddress.Loopback, 9999);
+			listener = new HttpListener (IPAddress.Loopback, 9999, true);
 		}
 
 		public override void Stop ()

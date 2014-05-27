@@ -30,7 +30,7 @@ namespace Xamarin.WebTests.Tests
 {
 	using Server;
 
-	public class ProxyTestRunner : HttpTestRunner
+	public class ProxyTestRunner : TestRunner
 	{
 		IPEndPoint endpoint, proxyEndpoint;
 		AuthenticationType authType = AuthenticationType.None;

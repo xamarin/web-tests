@@ -1,5 +1,5 @@
 ﻿//
-// HttpTest.cs
+// SimpleHttpTest.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,69 +24,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
 using System.Net;
-using System.Collections;
-using System.Collections.Generic;
-using NUnit.Framework;
 
 namespace Xamarin.WebTests.Tests
 {
 	using Server;
-	using Framework;
 
-	public abstract class HttpTestRunner
+	public class HttpTestRunner : TestRunner
 	{
-		public abstract void Start ();
+		HttpListener listener;
 
-		public abstract void Stop ();
-
-		protected abstract HttpWebRequest CreateRequest (Handler handler);
-
-		public void Run (Handler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK)
-		{
-			Run (handler, expectedStatus, expectedStatus != HttpStatusCode.OK);
+		public HttpListener Listener {
+			get { return listener; }
 		}
 
-		public void Run (Handler handler, HttpStatusCode expectedStatus, bool expectException)
+		public override void Start ()
 		{
-			Console.Error.WriteLine ("RUN: {0}", handler);
+			listener = new HttpListener (IPAddress.Loopback, 9999);
+		}
 
-			var request = CreateRequest (handler);
+		public override void Stop ()
+		{
+			listener.Stop ();
+		}
 
-			handler.SendRequest (request);
-
-			try {
-				var response = (HttpWebResponse)request.GetResponse ();
-				Console.Error.WriteLine ("RUN - GOT RESPONSE: {0} {1}", handler, response.StatusCode);
-				Assert.AreEqual (expectedStatus, response.StatusCode, "status code");
-				Assert.IsFalse (expectException, "success status");
-				response.Close ();
-			} catch (WebException wexc) {
-				var response = (HttpWebResponse)wexc.Response;
-				if (expectException) {
-					Assert.AreEqual (expectedStatus, response.StatusCode, "error status code");
-					response.Close ();
-					return;
-				}
-
-				Console.Error.WriteLine ("GOT WEB EXCEPTION: {0}", wexc);
-
-				using (var reader = new StreamReader (response.GetResponseStream ())) {
-					var content = reader.ReadToEnd ();
-					Console.Error.WriteLine ("RUN - GOT WEB ERROR: {0} {1} {2}\n{3}\n{4}", handler,
-						wexc.Status, response.StatusCode, content, wexc);
-					Assert.Fail ("{0}: {1}", handler, content);
-				}
-				response.Close ();
-				throw;
-			} catch (Exception ex) {
-				Console.Error.WriteLine ("RUN - GOT EXCEPTION: {0}", ex);
-				throw;
-			} finally {
-				Console.Error.WriteLine ("RUN DONE: {0}", handler);
-			}
+		protected override HttpWebRequest CreateRequest (Handler handler)
+		{
+			return handler.CreateRequest (listener);
 		}
 	}
 }
-

@@ -38,12 +38,12 @@ namespace Xamarin.WebTests.Tests
 	[TestFixture]
 	public class TestAuthentication
 	{
-		SimpleHttpTestRunner runner;
+		HttpTestRunner runner;
 
 		[TestFixtureSetUp]
 		public void Start ()
 		{
-			runner = new SimpleHttpTestRunner ();
+			runner = new HttpTestRunner ();
 			runner.Start ();
 		}
 
