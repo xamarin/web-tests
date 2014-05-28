@@ -94,8 +94,8 @@ namespace Xamarin.WebTests.Server
 		protected void WriteHeaders (StreamWriter writer)
 		{
 			foreach (var entry in Headers)
-				writer.WriteLine ("{0}: {1}", entry.Key, entry.Value);
-			writer.WriteLine ();
+				writer.Write ("{0}: {1}\r\n", entry.Key, entry.Value);
+			writer.Write ("\r\n");
 		}
 
 		public string ReadBody ()

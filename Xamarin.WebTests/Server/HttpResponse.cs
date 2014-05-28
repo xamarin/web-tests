@@ -51,7 +51,7 @@ namespace Xamarin.WebTests.Server
 			IsSuccess = status == HttpStatusCode.OK;
 
 			if (body != null) {
-				AddHeader ("Content-Length", body.Length);
+				AddHeader ("Content-Length", body.Length + 2);
 				AddHeader ("Content-Type", "text/plain");
 				Body = body;
 			}
@@ -89,11 +89,12 @@ namespace Xamarin.WebTests.Server
 		public void Write (StreamWriter writer)
 		{
 			var message = StatusMessage ?? ((HttpStatusCode)StatusCode).ToString ();
-			writer.WriteLine ("{0} {1} {2}", Protocol, (int)StatusCode, message);
+			writer.Write ("{0} {1} {2}\r\n", Protocol, (int)StatusCode, message);
 			WriteHeaders (writer);
 
 			if (Body != null)
-				writer.WriteLine (Body);
+				writer.Write (Body + "\r\n");
+			writer.Flush ();
 		}
 
 		public static HttpResponse CreateSimple (HttpStatusCode status, string body = null)
