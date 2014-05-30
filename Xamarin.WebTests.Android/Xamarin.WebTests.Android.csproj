@@ -146,4 +146,10 @@
     <Folder Include="Server\" />
     <Folder Include="Tests\" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\Xamarin.WebTests\cert.pfx">
+      <Link>Server\cert.pfx</Link>
+      <LogicalName>Xamarin.WebTests.Server.cert.pfx</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
