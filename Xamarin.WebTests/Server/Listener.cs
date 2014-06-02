@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Threading;
 using System.Reflection;
 using System.Net.Sockets;
 using System.Net.Security;
@@ -40,6 +41,7 @@ namespace Xamarin.WebTests.Server
 		bool abortRequested;
 		TcpListener listener;
 		TaskCompletionSource<bool> tcs;
+		CancellationTokenSource cts;
 		bool ssl;
 		Uri uri;
 
@@ -92,13 +94,16 @@ namespace Xamarin.WebTests.Server
 				if (tcs != null)
 					task = tcs.Task;
 				listener.Stop ();
+				if (cts != null)
+					cts.Cancel ();
 			}
 
 			try {
 				if (task != null)
 					task.Wait ();
-			} catch {
-				;
+			} catch (Exception ex) {
+				Console.Error.WriteLine ("STOP EX: {0}", ex);
+				throw;
 			}
 
 			OnStop ();
@@ -124,6 +129,8 @@ namespace Xamarin.WebTests.Server
 				if (abortRequested)
 					return;
 				t = tcs = new TaskCompletionSource<bool> ();
+				cts = new CancellationTokenSource ();
+				cts.Token.Register (() => socket.Close ());
 			}
 
 			try {
@@ -133,9 +140,13 @@ namespace Xamarin.WebTests.Server
 				Console.Error.WriteLine ("ACCEPT SOCKET EX: {0}", ex);
 				t.SetException (ex);
 			} finally {
-				socket.Close ();
+				try {
+					socket.Close ();
+				} catch {
+				}
 				lock (this) {
 					tcs = null;
+					cts = null;
 					if (!abortRequested)
 						listener.BeginAcceptSocket (AcceptSocketCB, null);
 				}
@@ -153,12 +164,38 @@ namespace Xamarin.WebTests.Server
 			return authStream;
 		}
 
+		bool IsStillConnected (Socket socket, StreamReader reader)
+		{
+			try {
+				if (!socket.Poll (-1, SelectMode.SelectRead))
+					return false;
+				return socket.Available > 0 && !reader.EndOfStream;
+			} catch {
+				return false;
+			}
+		}
+
 		void HandleConnection (Socket socket)
 		{
 			var stream = CreateStream (socket);
-			HandleConnection (socket, stream);
+			var reader = new StreamReader (stream);
+			var writer = new StreamWriter (stream);
+			writer.AutoFlush = true;
+
+			while (!abortRequested) {
+				var reuseConnection = HandleConnection (socket, reader, writer);
+				if (!reuseConnection)
+					break;
+
+				bool connectionAvailable = IsStillConnected (socket, reader);
+				if (!connectionAvailable && !abortRequested)
+					throw new InvalidOperationException ("Expecting another connection, but socket has been shut down.");
+			}
+
+			stream.Close ();
+			socket.Close ();
 		}
 
-		protected abstract void HandleConnection (Socket socket, Stream stream);
+		protected abstract bool HandleConnection (Socket socket, StreamReader reader, StreamWriter writer);
 	}
 }

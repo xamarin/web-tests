@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Threading;
@@ -35,16 +36,13 @@ namespace Xamarin.WebTests.Server
 {
 	public class Connection
 	{
-		Stream stream;
 		StreamReader reader;
 		StreamWriter writer;
 
-		public Connection (Stream stream)
+		public Connection (StreamReader reader, StreamWriter writer)
 		{
-			this.stream = stream;
-			reader = new StreamReader (stream);
-			writer = new StreamWriter (stream);
-			writer.AutoFlush = true;
+			this.reader = reader;
+			this.writer = writer;
 		}
 
 		public int? ReadChunkSize {
@@ -90,7 +88,6 @@ namespace Xamarin.WebTests.Server
 		public void Close ()
 		{
 			writer.Flush ();
-			stream.Close ();
 		}
 	}
 }

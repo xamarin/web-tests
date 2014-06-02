@@ -66,18 +66,16 @@ namespace Xamarin.WebTests.Server
 			allHandlers.Add (handler);
 		}
 
-		protected override void HandleConnection (Socket socket, Stream stream)
+		protected override bool HandleConnection (Socket socket, StreamReader reader, StreamWriter writer)
 		{
-			var connection = new HttpConnection (this, stream);
+			var connection = new HttpConnection (this, reader, writer);
 			var request = connection.ReadRequest ();
 
 			var path = request.Path;
 			var handler = handlers [path];
 			handlers.Remove (path);
 
-			handler.HandleRequest (connection, request);
-
-			connection.Close ();
+			return handler.HandleRequest (connection, request);
 		}
 	}
 }

@@ -31,12 +31,14 @@ namespace Xamarin.WebTests.Server
 
 	public class HelloWorldHandler : Handler
 	{
+		static int next_id;
+
 		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
 			if (!request.Method.Equals ("GET"))
 				return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
 
-			return HttpResponse.CreateSuccess ("Hello World!");
+			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
 		}
 	}
 }

@@ -40,7 +40,8 @@ namespace Xamarin.WebTests.Tests
 
 		public override void Start ()
 		{
-			listener = new HttpListener (IPAddress.Loopback, 9999, true);
+			var address = GetAddress ();
+			listener = new HttpListener (address, 9999, true);
 		}
 
 		public override void Stop ()

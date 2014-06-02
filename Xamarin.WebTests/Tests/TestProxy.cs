@@ -44,26 +44,10 @@ namespace Xamarin.WebTests.Tests
 		ProxyTestRunner ntlmAuthRunner;
 		ProxyTestRunner unauthRunner;
 
-		static IPAddress GetAddress ()
-		{
-			try {
-				var hostname = Dns.GetHostName ();
-				var hostent = Dns.GetHostEntry (hostname);
-				foreach (var address in hostent.AddressList) {
-					if (address.AddressFamily == AddressFamily.InterNetwork)
-						return address;
-				}
-			} catch {
-				;
-			}
-
-			return IPAddress.Loopback;
-		}
-
 		public TestProxy ()
 		{
 			// MS ignores all proxy request for local connections.
-			IPAddress address = GetAddress ();
+			IPAddress address = TestRunner.GetAddress ();
 
 			simpleRunner = new ProxyTestRunner (new IPEndPoint (address, 9999), new IPEndPoint (address, 9998));
 			authRunner = new ProxyTestRunner (new IPEndPoint (address, 9997), new IPEndPoint (address, 9996)) {

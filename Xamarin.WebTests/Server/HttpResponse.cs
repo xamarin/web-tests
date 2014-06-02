@@ -40,28 +40,47 @@ namespace Xamarin.WebTests.Server
 		}
 
 		public bool IsSuccess {
-			get; private set;
+			get { return StatusCode == HttpStatusCode.OK; }
 		}
+
+		public bool? KeepAlive {
+			get { return keepAlive; }
+			set {
+				if (responseWritten)
+					throw new InvalidOperationException ();
+				if (!value.HasValue)
+					throw new InvalidOperationException ();
+				keepAlive = value.Value;
+			}
+		}
+
+		bool? keepAlive;
+		bool responseWritten;
 
 		public HttpResponse (HttpStatusCode status, string body = null)
 		{
 			Protocol = "HTTP/1.1";
 			StatusCode = status;
 			StatusMessage = status.ToString ();
-			IsSuccess = status == HttpStatusCode.OK;
-
-			if (body != null) {
-				AddHeader ("Content-Length", body.Length + 2);
-				AddHeader ("Content-Type", "text/plain");
-				Body = body;
-			}
-
-			AddHeader ("Connection", "close");
+			Body = body;
 		}
 
 		public HttpResponse (Connection connection, StreamReader reader)
 			: base (connection, reader)
 		{
+		}
+
+		void CheckHeaders ()
+		{
+			if (Body != null) {
+				if (!Headers.ContainsKey ("Content-Length"))
+					AddHeader ("Content-Length", Body.Length + 2);
+				if (!Headers.ContainsKey ("Content-Type"))
+					AddHeader ("Content-Type", "text/plain");
+			}
+
+			if (!Headers.ContainsKey ("Connection") && KeepAlive.HasValue)
+				AddHeader ("Connection", KeepAlive.Value ? "keep-alive" : "close");
 		}
 
 		protected override void Read ()
@@ -88,6 +107,9 @@ namespace Xamarin.WebTests.Server
 
 		public void Write (StreamWriter writer)
 		{
+			CheckHeaders ();
+			responseWritten = true;
+
 			var message = StatusMessage ?? ((HttpStatusCode)StatusCode).ToString ();
 			writer.Write ("{0} {1} {2}\r\n", Protocol, (int)StatusCode, message);
 			WriteHeaders (writer);

@@ -36,7 +36,7 @@ namespace Xamarin.WebTests.Server
 
 	public abstract class Handler
 	{
-		static int debugLevel = 2;
+		static int debugLevel = 5;
 
 		public static int DebugLevel {
 			get { return debugLevel; }
@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.Server
 			tcs = new TaskCompletionSource<bool> ();
 		}
 
-		protected void Debug (int level, string message, params object[] args)
+		public void Debug (int level, string message, params object[] args)
 		{
 			if (DebugLevel < level)
 				return;
@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		public void HandleRequest (HttpConnection connection, HttpRequest request)
+		public bool HandleRequest (HttpConnection connection, HttpRequest request)
 		{
 			try {
 				Debug (0, "HANDLE REQUEST");
@@ -104,15 +104,19 @@ namespace Xamarin.WebTests.Server
 				var response = HandleRequest (connection, request, Flags);
 				if (response == null)
 					response = HttpResponse.CreateSuccess ();
+				if (!response.KeepAlive.HasValue && ((Flags & RequestFlags.KeepAlive) != 0))
+					response.KeepAlive = true;
 				request.ReadBody ();
 				connection.WriteResponse (response);
 				Debug (0, "HANDLE REQUEST DONE", response);
 				tcs.SetResult (response.IsSuccess);
+				return response.KeepAlive ?? false;
 			} catch (Exception ex) {
 				Debug (0, "HANDLE REQUEST EX", ex);
 				var response = HttpResponse.CreateError ("Caught unhandled exception", ex);
 				connection.WriteResponse (response);
 				tcs.SetException (ex);
+				return false;
 			}
 		}
 

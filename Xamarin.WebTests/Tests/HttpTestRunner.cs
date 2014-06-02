@@ -40,7 +40,8 @@ namespace Xamarin.WebTests.Tests
 
 		public override void Start ()
 		{
-			listener = new HttpListener (IPAddress.Loopback, 9999);
+			var address = GetAddress ();
+			listener = new HttpListener (address, 9999);
 		}
 
 		public override void Stop ()
@@ -50,7 +51,9 @@ namespace Xamarin.WebTests.Tests
 
 		protected override HttpWebRequest CreateRequest (Handler handler)
 		{
-			return handler.CreateRequest (listener);
+			var request = handler.CreateRequest (listener);
+			request.KeepAlive = true;
+			return request;
 		}
 	}
 }

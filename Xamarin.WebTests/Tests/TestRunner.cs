@@ -26,6 +26,8 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
+using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
@@ -43,6 +45,22 @@ namespace Xamarin.WebTests.Tests
 
 		protected abstract HttpWebRequest CreateRequest (Handler handler);
 
+		public static IPAddress GetAddress ()
+		{
+			try {
+				var hostname = Dns.GetHostName ();
+				var hostent = Dns.GetHostEntry (hostname);
+				foreach (var address in hostent.AddressList) {
+					if (address.AddressFamily == AddressFamily.InterNetwork)
+						return address;
+				}
+			} catch {
+				;
+			}
+
+			return IPAddress.Loopback;
+		}
+
 		public void Run (Handler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK)
 		{
 			Run (handler, expectedStatus, expectedStatus != HttpStatusCode.OK);
@@ -50,7 +68,7 @@ namespace Xamarin.WebTests.Tests
 
 		public void Run (Handler handler, HttpStatusCode expectedStatus, bool expectException)
 		{
-			Console.Error.WriteLine ("RUN: {0}", handler);
+			handler.Debug (0, "RUN");
 
 			var request = CreateRequest (handler);
 
@@ -58,9 +76,15 @@ namespace Xamarin.WebTests.Tests
 
 			try {
 				var response = (HttpWebResponse)request.GetResponse ();
-				Console.Error.WriteLine ("RUN - GOT RESPONSE: {0} {1}", handler, response.StatusCode);
+				handler.Debug (0, "GOT RESPONSE", response.StatusCode, response.StatusDescription);
 				Assert.AreEqual (expectedStatus, response.StatusCode, "status code");
 				Assert.IsFalse (expectException, "success status");
+
+				using (var reader = new StreamReader (response.GetResponseStream ())) {
+					var content = reader.ReadToEnd ();
+					handler.Debug (5, "GOT RESPONSE BODY", content);
+				}
+
 				response.Close ();
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
@@ -84,7 +108,7 @@ namespace Xamarin.WebTests.Tests
 				Console.Error.WriteLine ("RUN - GOT EXCEPTION: {0}", ex);
 				throw;
 			} finally {
-				Console.Error.WriteLine ("RUN DONE: {0}", handler);
+				handler.Debug (0, "RUN DONE");
 			}
 		}
 	}

@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Threading;
 using System.Net.Sockets;
 using System.Collections;
 using System.Collections.Generic;
@@ -41,14 +42,10 @@ namespace Xamarin.WebTests.Tests
 	{
 		HttpsTestRunner runner;
 
-		public TestSsl ()
-		{
-			runner = new HttpsTestRunner ();
-		}
-
 		[TestFixtureSetUp]
 		public void Start ()
 		{
+			runner = new HttpsTestRunner ();
 			runner.Start ();
 		}
 
@@ -56,10 +53,16 @@ namespace Xamarin.WebTests.Tests
 		public void Stop ()
 		{
 			runner.Stop ();
+			runner = null;
 		}
 
 		static IEnumerable<Handler> GetAllTests ()
 		{
+			yield return new HelloWorldHandler ();
+			yield return new HelloWorldHandler ();
+			yield return new HelloWorldHandler ();
+			yield return new HelloWorldHandler ();
+			yield return new HelloWorldHandler ();
 			yield return new HelloWorldHandler ();
 		}
 
@@ -67,6 +70,7 @@ namespace Xamarin.WebTests.Tests
 		[TestCaseSource ("GetAllTests")]
 		public void Simple (Handler handler)
 		{
+			handler.Flags |= RequestFlags.KeepAlive;
 			runner.Run (handler);
 		}
 	}

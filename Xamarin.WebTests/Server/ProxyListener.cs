@@ -45,9 +45,9 @@ namespace Xamarin.WebTests.Server
 				authManager = new ProxyAuthManager (authType);
 		}
 
-		protected override void HandleConnection (Socket socket, Stream stream)
+		protected override bool HandleConnection (Socket socket, StreamReader reader, StreamWriter writer)
 		{
-			var connection = new Connection (stream);
+			var connection = new Connection (reader, writer);
 			var request = connection.ReadRequest ();
 
 			var remoteAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
@@ -61,7 +61,7 @@ namespace Xamarin.WebTests.Server
 				if (response != null) {
 					request.ReadBody ();
 					connection.WriteResponse (response);
-					return;
+					return false;
 				}
 
 				// HACK: Mono rewrites chunked requests into non-chunked.
@@ -71,11 +71,19 @@ namespace Xamarin.WebTests.Server
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			targetSocket.Connect (target.Uri.Host, target.Uri.Port);
 
-			var targetStream = new NetworkStream (targetSocket);
-			var targetConnection = new ProxyConnection (targetStream, connection);
-			targetConnection.HandleRequest (request);
+			using (var targetStream = new NetworkStream (targetSocket)) {
+				var targetReader = new StreamReader (targetStream);
+				var targetWriter = new StreamWriter (targetStream);
+				targetWriter.AutoFlush = true;
 
-			targetConnection.Close ();
+				var targetConnection = new ProxyConnection (connection, targetReader, targetWriter);
+				targetConnection.HandleRequest (request);
+
+				targetConnection.Close ();
+			}
+
+			targetSocket.Close ();
+			return false;
 		}
 
 		class ProxyAuthManager : AuthenticationManager

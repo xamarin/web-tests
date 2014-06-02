@@ -62,6 +62,8 @@ namespace Xamarin.WebTests.Tests
 		{
 			proxyListener.Stop ();
 			httpListener.Stop ();
+			proxyListener = null;
+			httpListener = null;
 		}
 
 		IWebProxy CreateProxy ()
