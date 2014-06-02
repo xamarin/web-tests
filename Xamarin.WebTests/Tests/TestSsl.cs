@@ -56,7 +56,7 @@ namespace Xamarin.WebTests.Tests
 			runner = null;
 		}
 
-		static IEnumerable<Handler> GetAllTests ()
+		static IEnumerable<Handler> GetSimpleTests ()
 		{
 			yield return new HelloWorldHandler ();
 			yield return new HelloWorldHandler ();
@@ -66,11 +66,23 @@ namespace Xamarin.WebTests.Tests
 			yield return new HelloWorldHandler ();
 		}
 
-		[TestCaseSource ("GetAllTests")]
+		static IEnumerable<Handler> GetAllTests ()
+		{
+			return TestPost.GetAllTests ();
+		}
+
+		[TestCaseSource ("GetSimpleTests")]
 		public void Simple (Handler handler)
 		{
 			handler.Flags |= RequestFlags.KeepAlive;
 			runner.Run (handler);
 		}
+
+		[TestCaseSource ("GetAllTests")]
+		public void All (Handler handler)
+		{
+			runner.Run (handler);
+		}
+
 	}
 }
