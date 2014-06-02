@@ -75,5 +75,17 @@ namespace Xamarin.WebTests.Tests
 		{
 			Run (new AuthenticationHandler (AuthenticationType.NTLM, handler));
 		}
+
+		[Test]
+		public void MustClearAuthOnRedirect ()
+		{
+			var target = new HelloWorldHandler ();
+			var targetAuth = new AuthenticationHandler (AuthenticationType.ForceNone, target);
+
+			var redirect = new RedirectHandler (targetAuth, HttpStatusCode.Redirect);
+			var authHandler = new AuthenticationHandler (AuthenticationType.Basic, redirect);
+
+			Run (authHandler);
+		}
 	}
 }

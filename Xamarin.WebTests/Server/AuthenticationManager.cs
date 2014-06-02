@@ -32,7 +32,8 @@ namespace Xamarin.WebTests.Server
 	public enum AuthenticationType {
 		None,
 		Basic,
-		NTLM
+		NTLM,
+		ForceNone
 	}
 
 	public enum AuthenticationState {
@@ -70,6 +71,13 @@ namespace Xamarin.WebTests.Server
 
 		public HttpResponse HandleAuthentication (HttpRequest request, string authHeader)
 		{
+			if (AuthenticationType == AuthenticationType.ForceNone) {
+				// Must not contain any auth header
+				if (authHeader == null)
+					return null;
+				return OnError ("Must not contain any auth header.");
+			}
+
 			if (authHeader == null) {
 				haveChallenge = false;
 				return OnUnauthenticated (request, AuthenticationType.ToString (), AuthenticationType == AuthenticationType.NTLM);
