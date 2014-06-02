@@ -109,6 +109,7 @@ namespace Xamarin.WebTests.Server
 				request.ReadBody ();
 				connection.WriteResponse (response);
 				Debug (0, "HANDLE REQUEST DONE", response);
+				DumpHeaders (response);
 				tcs.SetResult (response.IsSuccess);
 				return response.KeepAlive ?? false;
 			} catch (Exception ex) {

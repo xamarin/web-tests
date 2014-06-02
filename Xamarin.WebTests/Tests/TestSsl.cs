@@ -66,7 +66,6 @@ namespace Xamarin.WebTests.Tests
 			yield return new HelloWorldHandler ();
 		}
 
-		[Category ("Martin")]
 		[TestCaseSource ("GetAllTests")]
 		public void Simple (Handler handler)
 		{
