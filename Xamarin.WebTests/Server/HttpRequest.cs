@@ -68,7 +68,7 @@ namespace Xamarin.WebTests.Server
 
 		public void Write (StreamWriter writer)
 		{
-			writer.WriteLine ("{0} {1} {2}", Method, Path, Protocol);
+			writer.Write ("{0} {1} {2}\r\n", Method, Path, Protocol);
 			WriteHeaders (writer);
 		}
 

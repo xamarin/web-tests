@@ -79,8 +79,8 @@ namespace Xamarin.WebTests.Server
 					AddHeader ("Content-Type", "text/plain");
 			}
 
-			if (!Headers.ContainsKey ("Connection") && KeepAlive.HasValue)
-				AddHeader ("Connection", KeepAlive.Value ? "keep-alive" : "close");
+			if (!Headers.ContainsKey ("Connection"))
+				AddHeader ("Connection", (KeepAlive ?? false) ? "keep-alive" : "close");
 		}
 
 		protected override void Read ()

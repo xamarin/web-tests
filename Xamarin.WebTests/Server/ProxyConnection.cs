@@ -58,6 +58,8 @@ namespace Xamarin.WebTests.Server
 		void CopyResponse ()
 		{
 			var response = ReadResponse ();
+			response.SetHeader ("Connection", "close");
+			response.SetHeader ("Proxy-Connection", "close");
 			proxy.WriteResponse (response);
 		}
 	}

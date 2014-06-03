@@ -55,6 +55,14 @@ namespace Xamarin.WebTests.Server
 			headers.Add (header, value.ToString ());
 		}
 
+		public void SetHeader (string header, object value)
+		{
+			if (headers.ContainsKey (header))
+				headers [header] = value.ToString ();
+			else
+				headers.Add (header, value.ToString ());
+		}
+
 		bool hasBody;
 		string body;
 
@@ -190,7 +198,7 @@ namespace Xamarin.WebTests.Server
 			string value;
 			if (Headers.TryGetValue ("Content-Length", out value)) {
 				var body = ReadStaticBody (int.Parse (value));
-				writer.WriteLine (body);
+				writer.Write (body);
 			} else if (Headers.TryGetValue ("Transfer-Encoding", out value)) {
 				if (!value.Equals ("chunked"))
 					throw new InvalidOperationException ();
