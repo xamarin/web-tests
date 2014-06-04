@@ -61,9 +61,17 @@ namespace Xamarin.WebTests.Framework
 
 		public HttpResponse (HttpStatusCode status, string body = null)
 		{
-			Protocol = "HTTP/1.1";
+			Protocol = HttpProtocol.Http11;
 			StatusCode = status;
 			StatusMessage = status.ToString ();
+			Body = body;
+		}
+
+		public HttpResponse (HttpStatusCode status, HttpProtocol protocol, string statusMessage, string body = null)
+		{
+			Protocol = protocol;
+			StatusCode = status;
+			StatusMessage = statusMessage;
 			Body = body;
 		}
 
@@ -88,19 +96,15 @@ namespace Xamarin.WebTests.Framework
 		protected override void Read ()
 		{
 			var header = reader.ReadLine ();
-			Console.WriteLine ("READ RESPONSE: {0}", header);
 			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
 			if (fields.Length < 2 || fields.Length > 3) {
 				Console.Error.WriteLine ("GOT INVALID HTTP REQUEST: {0}", header);
 				throw new InvalidOperationException ();
 			}
 
-			Protocol = fields [0];
+			Protocol = ProtocolFromString (fields [0]);
 			StatusCode = (HttpStatusCode)int.Parse (fields [1]);
 			StatusMessage = fields.Length == 3 ? fields [2] : string.Empty;
-
-			if (!Protocol.Equals ("HTTP/1.1") && !Protocol.Equals ("HTTP/1.0"))
-				throw new InvalidOperationException ();
 
 			ReadHeaders ();
 
@@ -113,7 +117,7 @@ namespace Xamarin.WebTests.Framework
 			responseWritten = true;
 
 			var message = StatusMessage ?? ((HttpStatusCode)StatusCode).ToString ();
-			writer.Write ("{0} {1} {2}\r\n", Protocol, (int)StatusCode, message);
+			writer.Write ("{0} {1} {2}\r\n", ProtocolToString (Protocol), (int)StatusCode, message);
 			WriteHeaders (writer);
 
 			if (Body != null)

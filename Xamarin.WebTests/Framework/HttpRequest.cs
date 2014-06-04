@@ -60,17 +60,14 @@ namespace Xamarin.WebTests.Framework
 
 			Method = fields [0];
 			Path = fields [1].StartsWith ("/") ? fields [1] : new Uri (fields [1]).AbsolutePath;
-			Protocol = fields [2];
-
-			if (!Protocol.Equals ("HTTP/1.1") && !Protocol.Equals ("HTTP/1.0"))
-				throw new InvalidOperationException ();
+			Protocol = ProtocolFromString (fields [2]);
 
 			ReadHeaders ();
 		}
 
 		public void Write (StreamWriter writer)
 		{
-			writer.Write ("{0} {1} {2}\r\n", Method, Path, Protocol);
+			writer.Write ("{0} {1} {2}\r\n", Method, Path, ProtocolToString (Protocol));
 			WriteHeaders (writer);
 		}
 

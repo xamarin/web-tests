@@ -45,28 +45,25 @@ namespace Xamarin.WebTests.Tests
 		ProxyTestRunner ntlmAuthRunner;
 		ProxyTestRunner unauthRunner;
 
-		public TestProxy ()
+		[TestFixtureSetUp]
+		public void Start ()
 		{
 			// MS ignores all proxy request for local connections.
 			IPAddress address = TestRunner.GetAddress ();
 
-			simpleRunner = new ProxyTestRunner (new IPEndPoint (address, 9999), new IPEndPoint (address, 9998));
-			authRunner = new ProxyTestRunner (new IPEndPoint (address, 9997), new IPEndPoint (address, 9996)) {
+			simpleRunner = new ProxyTestRunner (address, 9999, 9998);
+			authRunner = new ProxyTestRunner (address, 9997, 9996) {
 				AuthenticationType = AuthenticationType.Basic,
 				Credentials = new NetworkCredential ("xamarin", "monkey")
 			};
-			ntlmAuthRunner = new ProxyTestRunner (new IPEndPoint (address, 9995), new IPEndPoint (address, 9994)) {
+			ntlmAuthRunner = new ProxyTestRunner (address, 9995, 9994) {
 				AuthenticationType = AuthenticationType.NTLM,
 				Credentials = new NetworkCredential ("xamarin", "monkey")
 			};
-			unauthRunner = new ProxyTestRunner (new IPEndPoint (address, 9993), new IPEndPoint (address, 9992)) {
+			unauthRunner = new ProxyTestRunner (address, 9993, 9992) {
 				AuthenticationType = AuthenticationType.Basic
 			};
-		}
 
-		[TestFixtureSetUp]
-		public void Start ()
-		{
 			simpleRunner.Start ();
 			authRunner.Start ();
 			ntlmAuthRunner.Start ();

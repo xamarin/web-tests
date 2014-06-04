@@ -34,9 +34,14 @@ namespace Xamarin.WebTests.Framework
 {
 	using Server;
 
+	public enum HttpProtocol {
+		Http10,
+		Http11
+	}
+
 	public abstract class HttpMessage
 	{
-		public string Protocol {
+		public HttpProtocol Protocol {
 			get; protected set;
 		}
 
@@ -81,6 +86,26 @@ namespace Xamarin.WebTests.Framework
 			this.connection = connection;
 			this.reader = reader;
 			Read ();
+		}
+
+		internal static HttpProtocol ProtocolFromString (string proto)
+		{
+			if (proto.Equals ("HTTP/1.0", StringComparison.InvariantCultureIgnoreCase))
+				return HttpProtocol.Http10;
+			else if (proto.Equals ("HTTP/1.1", StringComparison.InvariantCultureIgnoreCase))
+				return HttpProtocol.Http11;
+			else
+				throw new InvalidOperationException ();
+		}
+
+		internal static string ProtocolToString (HttpProtocol proto)
+		{
+			if (proto == HttpProtocol.Http10)
+				return "HTTP/1.0";
+			else if (proto == HttpProtocol.Http11)
+				return "HTTP/1.1";
+			else
+				throw new InvalidOperationException ();
 		}
 
 		protected abstract void Read ();

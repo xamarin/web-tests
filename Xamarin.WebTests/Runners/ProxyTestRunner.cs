@@ -45,6 +45,11 @@ namespace Xamarin.WebTests.Runners
 			this.proxyEndpoint = proxyEndpoint;
 		}
 
+		public ProxyTestRunner (IPAddress address, int port, int proxyPort)
+			: this (new IPEndPoint (address, port), new IPEndPoint (address,proxyPort))
+		{
+		}
+
 		public AuthenticationType AuthenticationType {
 			get { return authType; }
 			set { authType = value; }
