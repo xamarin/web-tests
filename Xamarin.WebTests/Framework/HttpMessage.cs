@@ -30,8 +30,10 @@ using System.Threading;
 using System.Globalization;
 using System.Collections.Generic;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Framework
 {
+	using Server;
+
 	public abstract class HttpMessage
 	{
 		public string Protocol {

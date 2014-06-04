@@ -30,9 +30,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
+	using Server;
 
 	public abstract class Handler
 	{

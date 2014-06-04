@@ -32,9 +32,9 @@ using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 
-namespace Xamarin.WebTests.Tests
+namespace Xamarin.WebTests.Runners
 {
-	using Server;
+	using Handlers;
 	using Framework;
 
 	public abstract class TestRunner

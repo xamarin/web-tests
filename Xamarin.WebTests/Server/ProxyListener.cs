@@ -32,6 +32,8 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Server
 {
+	using Framework;
+
 	public class ProxyListener : Listener
 	{
 		readonly HttpListener target;

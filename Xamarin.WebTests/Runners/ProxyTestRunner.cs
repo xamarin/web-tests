@@ -26,8 +26,10 @@
 using System;
 using System.Net;
 
-namespace Xamarin.WebTests.Tests
+namespace Xamarin.WebTests.Runners
 {
+	using Framework;
+	using Handlers;
 	using Server;
 
 	public class ProxyTestRunner : TestRunner

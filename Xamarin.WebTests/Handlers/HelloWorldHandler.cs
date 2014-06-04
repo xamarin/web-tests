@@ -25,9 +25,10 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
+	using Server;
 
 	public class HelloWorldHandler : Handler
 	{

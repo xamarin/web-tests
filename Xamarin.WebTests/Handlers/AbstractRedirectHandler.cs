@@ -1,5 +1,5 @@
 ﻿//
-// HttpsTestRunner.cs
+// AbstractRedirectHandler.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -26,32 +26,38 @@
 using System;
 using System.Net;
 
-namespace Xamarin.WebTests.Tests
+namespace Xamarin.WebTests.Handlers
 {
-	using Server;
+	using Framework;
 
-	public class HttpsTestRunner : TestRunner
+	public abstract class AbstractRedirectHandler : Handler
 	{
-		HttpListener listener;
-
-		public HttpListener Listener {
-			get { return listener; }
+		public Handler Target {
+			get;
+			private set;
 		}
 
-		public override void Start ()
+		protected AbstractRedirectHandler (Handler target)
 		{
-			var address = GetAddress ();
-			listener = new HttpListener (address, 9999, true);
+			Target = target;
+
+			if ((target.Flags & RequestFlags.SendContinue) != 0)
+				Flags |= RequestFlags.SendContinue;
+			else
+				Flags &= ~RequestFlags.SendContinue;
+
+			Description = string.Format ("{0}: {1}", GetType ().Name, target.Description);
 		}
 
-		public override void Stop ()
+		public override HttpWebRequest CreateRequest (Uri uri)
 		{
-			listener.Stop ();
+			return Target.CreateRequest (uri);
 		}
 
-		protected override HttpWebRequest CreateRequest (Handler handler)
+		public override void SendRequest (HttpWebRequest request)
 		{
-			return handler.CreateRequest (listener);
+			Target.SendRequest (request);
 		}
 	}
 }
+

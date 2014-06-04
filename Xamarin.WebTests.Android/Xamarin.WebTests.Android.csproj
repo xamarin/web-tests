@@ -63,34 +63,10 @@
     <Compile Include="..\Xamarin.WebTests\Server\HttpConnection.cs">
       <Link>Server\HttpConnection.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\DeleteHandler.cs">
-      <Link>Server\DeleteHandler.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\Handler.cs">
-      <Link>Server\Handler.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\HelloWorldHandler.cs">
-      <Link>Server\HelloWorldHandler.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\PostHandler.cs">
-      <Link>Server\PostHandler.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\RedirectHandler.cs">
-      <Link>Server\RedirectHandler.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests\Tests\TestPost.cs">
       <Link>Tests\TestPost.cs</Link>
     </Compile>
     <Compile Include="WebTestInstrumentation.cs" />
-    <Compile Include="..\Xamarin.WebTests\Server\AuthenticationHandler.cs">
-      <Link>Server\AuthenticationHandler.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\AuthenticationManager.cs">
-      <Link>Server\AuthenticationManager.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\AbstractRedirectHandler.cs">
-      <Link>Server\AbstractRedirectHandler.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\HttpListener.cs">
       <Link>Server\HttpListener.cs</Link>
     </Compile>
@@ -103,29 +79,53 @@
     <Compile Include="..\Xamarin.WebTests\Server\ProxyConnection.cs">
       <Link>Server\ProxyConnection.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\HttpMessage.cs">
-      <Link>Server\HttpMessage.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\HttpRequest.cs">
-      <Link>Server\HttpRequest.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\HttpResponse.cs">
-      <Link>Server\HttpResponse.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Tests\TestRunner.cs">
-      <Link>Tests\TestRunner.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Tests\HttpTestRunner.cs">
-      <Link>Tests\HttpTestRunner.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Tests\HttpsTestRunner.cs">
-      <Link>Tests\HttpTestsRunner.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Tests\ProxyTestRunner.cs">
-      <Link>Tests\ProxyTestRunner.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests\Tests\TestSsl.cs">
       <Link>Tests\TestSsl.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\AbstractRedirectHandler.cs">
+      <Link>Handlers\AbstractRedirectHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\AuthenticationHandler.cs">
+      <Link>Handlers\AuthenticationHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\DeleteHandler.cs">
+      <Link>Handlers\DeleteHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\Handler.cs">
+      <Link>Handlers\Handler.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\HelloWorldHandler.cs">
+      <Link>Handlers\HelloWorldHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\PostHandler.cs">
+      <Link>Handlers\PostHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\RedirectHandler.cs">
+      <Link>Handlers\RedirectHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Runners\HttpTestRunner.cs">
+      <Link>Runners\HttpTestRunner.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Runners\HttpsTestRunner.cs">
+      <Link>Runners\HttpsTestRunner.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Runners\ProxyTestRunner.cs">
+      <Link>Runners\ProxyTestRunner.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Runners\TestRunner.cs">
+      <Link>Runners\TestRunner.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\AuthenticationManager.cs">
+      <Link>Framework\AuthenticationManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\HttpMessage.cs">
+      <Link>Framework\HttpMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\HttpRequest.cs">
+      <Link>Framework\HttpRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\HttpResponse.cs">
+      <Link>Framework\HttpResponse.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -145,6 +145,8 @@
     <Folder Include="Framework\" />
     <Folder Include="Server\" />
     <Folder Include="Tests\" />
+    <Folder Include="Handlers\" />
+    <Folder Include="Runners\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\Xamarin.WebTests\cert.pfx">

@@ -35,6 +35,8 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Server
 {
+	using Framework;
+
 	public class ProxyConnection : Connection
 	{
 		Connection proxy;

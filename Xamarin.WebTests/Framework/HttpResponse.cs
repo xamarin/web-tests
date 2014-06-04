@@ -27,8 +27,10 @@ using System;
 using System.IO;
 using System.Net;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Framework
 {
+	using Server;
+
 	public class HttpResponse : HttpMessage
 	{
 		public HttpStatusCode StatusCode {

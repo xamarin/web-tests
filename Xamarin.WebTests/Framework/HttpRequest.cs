@@ -1,5 +1,5 @@
 ﻿//
-// AbstractRedirectHandler.cs
+// HttpRequest.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,39 +24,59 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Globalization;
+using System.Collections.Generic;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Framework
 {
-	using Framework;
+	using Server;
 
-	public abstract class AbstractRedirectHandler : Handler
+	public class HttpRequest : HttpMessage
 	{
-		public Handler Target {
-			get;
-			private set;
+		public HttpRequest (Connection connection, StreamReader reader)
+			: base (connection, reader)
+		{
 		}
 
-		protected AbstractRedirectHandler (Handler target)
-		{
-			Target = target;
-
-			if ((target.Flags & RequestFlags.SendContinue) != 0)
-				Flags |= RequestFlags.SendContinue;
-			else
-				Flags &= ~RequestFlags.SendContinue;
-
-			Description = string.Format ("{0}: {1}", GetType ().Name, target.Description);
+		public string Method {
+			get; private set;
 		}
 
-		public override HttpWebRequest CreateRequest (Uri uri)
-		{
-			return Target.CreateRequest (uri);
+		public string Path {
+			get; private set;
 		}
 
-		public override void SendRequest (HttpWebRequest request)
+		protected override void Read ()
 		{
-			Target.SendRequest (request);
+			var header = reader.ReadLine ();
+			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
+			if (fields.Length != 3) {
+				Console.Error.WriteLine ("GOT INVALID HTTP REQUEST: {0}", header);
+				throw new InvalidOperationException ();
+			}
+
+			Method = fields [0];
+			Path = fields [1].StartsWith ("/") ? fields [1] : new Uri (fields [1]).AbsolutePath;
+			Protocol = fields [2];
+
+			if (!Protocol.Equals ("HTTP/1.1") && !Protocol.Equals ("HTTP/1.0"))
+				throw new InvalidOperationException ();
+
+			ReadHeaders ();
+		}
+
+		public void Write (StreamWriter writer)
+		{
+			writer.Write ("{0} {1} {2}\r\n", Method, Path, Protocol);
+			WriteHeaders (writer);
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[HttpRequest: Method={0}, Path={1}]", Method, Path);
 		}
 	}
 }

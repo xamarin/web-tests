@@ -34,6 +34,8 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Server
 {
+	using Framework;
+
 	public class Connection
 	{
 		StreamReader reader;

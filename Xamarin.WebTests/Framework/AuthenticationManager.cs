@@ -27,7 +27,7 @@ using System;
 using System.Net;
 using Mono.Security.Protocol.Ntlm;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Framework
 {
 	public enum AuthenticationType {
 		None,

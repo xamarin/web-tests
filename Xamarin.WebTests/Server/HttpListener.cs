@@ -32,6 +32,8 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Server
 {
+	using Handlers;
+
 	public class HttpListener : Listener
 	{
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();

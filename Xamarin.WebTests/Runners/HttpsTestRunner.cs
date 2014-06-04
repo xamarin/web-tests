@@ -1,5 +1,5 @@
 ﻿//
-// RedirectHandler.cs
+// HttpsTestRunner.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,40 +25,34 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
-using System.Text;
-using System.Globalization;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Runners
 {
-	using Framework;
+	using Server;
+	using Handlers;
 
-	public class RedirectHandler : AbstractRedirectHandler
+	public class HttpsTestRunner : TestRunner
 	{
-		public HttpStatusCode Code {
-			get;
-			private set;
+		HttpListener listener;
+
+		public HttpListener Listener {
+			get { return listener; }
 		}
 
-		public RedirectHandler (Handler target, HttpStatusCode code)
-			: base (target)
+		public override void Start ()
 		{
-			Code = code;
-
-			if (!IsRedirectStatus (code))
-				throw new InvalidOperationException ();
+			var address = GetAddress ();
+			listener = new HttpListener (address, 9999, true);
 		}
 
-		static bool IsRedirectStatus (HttpStatusCode code)
+		public override void Stop ()
 		{
-			var icode = (int)code;
-			return icode == 301 || icode == 302 || icode == 303 || icode == 307;
+			listener.Stop ();
 		}
 
-		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		protected override HttpWebRequest CreateRequest (Handler handler)
 		{
-			var targetUri = Target.RegisterRequest (connection.Server);
-			return HttpResponse.CreateRedirect (Code, targetUri);
+			return handler.CreateRequest (listener);
 		}
 	}
 }
-

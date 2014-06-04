@@ -27,9 +27,10 @@ using System;
 using System.Net;
 using Mono.Security.Protocol.Ntlm;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
+	using Server;
 
 	public class AuthenticationHandler : AbstractRedirectHandler
 	{

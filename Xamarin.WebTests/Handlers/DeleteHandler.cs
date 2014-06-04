@@ -31,9 +31,10 @@ using System.Threading;
 using System.Globalization;
 using System.Collections.Generic;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
+	using Server;
 
 	public class DeleteHandler : Handler
 	{

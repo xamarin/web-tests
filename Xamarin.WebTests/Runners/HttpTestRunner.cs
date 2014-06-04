@@ -1,5 +1,5 @@
 ﻿//
-// HttpRequest.cs
+// SimpleHttpTest.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,58 +24,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Text;
-using System.Threading;
-using System.Globalization;
-using System.Collections.Generic;
+using System.Net;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Runners
 {
-	public class HttpRequest : HttpMessage
+	using Server;
+	using Handlers;
+
+	public class HttpTestRunner : TestRunner
 	{
-		public HttpRequest (Connection connection, StreamReader reader)
-			: base (connection, reader)
+		HttpListener listener;
+
+		public HttpListener Listener {
+			get { return listener; }
+		}
+
+		public override void Start ()
 		{
+			var address = GetAddress ();
+			listener = new HttpListener (address, 9999);
 		}
 
-		public string Method {
-			get; private set;
-		}
-
-		public string Path {
-			get; private set;
-		}
-
-		protected override void Read ()
+		public override void Stop ()
 		{
-			var header = reader.ReadLine ();
-			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
-			if (fields.Length != 3) {
-				Console.Error.WriteLine ("GOT INVALID HTTP REQUEST: {0}", header);
-				throw new InvalidOperationException ();
-			}
-
-			Method = fields [0];
-			Path = fields [1].StartsWith ("/") ? fields [1] : new Uri (fields [1]).AbsolutePath;
-			Protocol = fields [2];
-
-			if (!Protocol.Equals ("HTTP/1.1") && !Protocol.Equals ("HTTP/1.0"))
-				throw new InvalidOperationException ();
-
-			ReadHeaders ();
+			listener.Stop ();
 		}
 
-		public void Write (StreamWriter writer)
+		protected override HttpWebRequest CreateRequest (Handler handler)
 		{
-			writer.Write ("{0} {1} {2}\r\n", Method, Path, Protocol);
-			WriteHeaders (writer);
-		}
-
-		public override string ToString ()
-		{
-			return string.Format ("[HttpRequest: Method={0}, Path={1}]", Method, Path);
+			var request = handler.CreateRequest (listener);
+			request.KeepAlive = true;
+			return request;
 		}
 	}
 }
-
