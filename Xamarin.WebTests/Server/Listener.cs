@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Reflection;
 using System.Net.Sockets;
@@ -130,7 +131,7 @@ namespace Xamarin.WebTests.Server
 					return;
 				t = tcs = new TaskCompletionSource<bool> ();
 				cts = new CancellationTokenSource ();
-				cts.Token.Register (() => socket.Close ());
+				cts.Token.Register (() => Close (socket));
 			}
 
 			try {
@@ -140,16 +141,24 @@ namespace Xamarin.WebTests.Server
 				Console.Error.WriteLine ("ACCEPT SOCKET EX: {0}", ex);
 				t.SetException (ex);
 			} finally {
-				try {
-					socket.Close ();
-				} catch {
-				}
+				Close (socket);
 				lock (this) {
 					tcs = null;
 					cts = null;
 					if (!abortRequested)
 						listener.BeginAcceptSocket (AcceptSocketCB, null);
 				}
+			}
+		}
+
+		void Close (Socket socket)
+		{
+			try {
+				socket.Shutdown (SocketShutdown.Both);
+			} catch {
+				;
+			} finally {
+				socket.Close ();
 			}
 		}
 
@@ -178,8 +187,8 @@ namespace Xamarin.WebTests.Server
 		void HandleConnection (Socket socket)
 		{
 			var stream = CreateStream (socket);
-			var reader = new StreamReader (stream);
-			var writer = new StreamWriter (stream);
+			var reader = new StreamReader (stream, Encoding.ASCII);
+			var writer = new StreamWriter (stream, Encoding.ASCII);
 			writer.AutoFlush = true;
 
 			while (!abortRequested) {
@@ -191,9 +200,6 @@ namespace Xamarin.WebTests.Server
 				if (!connectionAvailable && !abortRequested)
 					throw new InvalidOperationException ("Expecting another connection, but socket has been shut down.");
 			}
-
-			stream.Close ();
-			socket.Close ();
 		}
 
 		protected abstract bool HandleConnection (Socket socket, StreamReader reader, StreamWriter writer);

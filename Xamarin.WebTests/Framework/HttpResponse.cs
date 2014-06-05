@@ -89,7 +89,7 @@ namespace Xamarin.WebTests.Framework
 					AddHeader ("Content-Type", "text/plain");
 			}
 
-			if (!Headers.ContainsKey ("Connection"))
+			if (Protocol == HttpProtocol.Http11 && !Headers.ContainsKey ("Connection"))
 				AddHeader ("Connection", (KeepAlive ?? false) ? "keep-alive" : "close");
 		}
 

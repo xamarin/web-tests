@@ -59,9 +59,13 @@ namespace Xamarin.WebTests.Runners
 			get; set;
 		}
 
+		public bool UseSSL {
+			get; set;
+		}
+
 		public override void Start ()
 		{
-			httpListener = new HttpListener (endpoint.Address, endpoint.Port);
+			httpListener = new HttpListener (endpoint.Address, endpoint.Port, UseSSL);
 			proxyListener = new ProxyListener (httpListener, proxyEndpoint.Address, proxyEndpoint.Port, authType);
 		}
 

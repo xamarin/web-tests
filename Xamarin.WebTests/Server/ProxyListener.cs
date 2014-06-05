@@ -27,7 +27,9 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Server
@@ -70,6 +72,11 @@ namespace Xamarin.WebTests.Server
 				request.AddHeader ("X-Mono-Redirected", "true");
 			}
 
+			if (request.Method.Equals ("CONNECT")) {
+				CreateTunnel (connection, socket, reader, writer, request);
+				return false;
+			}
+
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			targetSocket.Connect (target.Uri.Host, target.Uri.Port);
 
@@ -86,6 +93,81 @@ namespace Xamarin.WebTests.Server
 
 			targetSocket.Close ();
 			return false;
+		}
+
+		IPEndPoint GetConnectEndpoint (HttpRequest request)
+		{
+			var pos = request.Path.IndexOf (':');
+			if (pos < 0)
+				return new IPEndPoint (IPAddress.Parse (request.Path), 443);
+
+			var address = IPAddress.Parse (request.Path.Substring (0, pos));
+			var port = int.Parse (request.Path.Substring (pos + 1));
+			return new IPEndPoint (address, port);
+		}
+
+		void CreateTunnel (Connection connection, Socket socket, StreamReader reader, StreamWriter writer, HttpRequest request)
+		{
+			var targetEndpoint = GetConnectEndpoint (request);
+			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			targetSocket.Connect (targetEndpoint);
+			targetSocket.NoDelay = true;
+
+			var connectionEstablished = new HttpResponse (HttpStatusCode.OK, HttpProtocol.Http10, "Connection established");
+			connectionEstablished.Write (writer);
+
+			RunTunnel (socket, targetSocket);
+			targetSocket.Close ();
+		}
+
+		void RunTunnel (Socket input, Socket output)
+		{
+			bool doneSending = false;
+			bool doneReading = false;
+			while (!doneSending || !doneReading) {
+				var readList = new List<Socket> ();
+				if (!doneSending)
+					readList.Add (input);
+				if (!doneReading)
+					readList.Add (output);
+
+				Socket.Select (readList, null, null, -1);
+
+				if (readList.Contains (input)) {
+					if (!Copy (input, output))
+						doneSending = true;
+				}
+
+				if (readList.Contains (output)) {
+					if (Copy (output, input))
+						continue;
+
+					doneReading = true;
+					while (!doneSending && Copy (input, output)) {
+						;
+					}
+					break;
+				}
+			}
+		}
+
+		bool Copy (Socket input, Socket output)
+		{
+			var buffer = new byte [4096];
+			var ret = input.Receive (buffer);
+			if (ret == 0) {
+				try {
+					output.Shutdown (SocketShutdown.Send);
+				} catch {
+					;
+				}
+				return false;
+			}
+
+			var ret2 = output.Send (buffer, ret, SocketFlags.None);
+			if (ret2 != ret)
+				throw new InvalidOperationException ();
+			return true;
 		}
 
 		class ProxyAuthManager : AuthenticationManager

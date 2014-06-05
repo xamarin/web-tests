@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.Handlers
 
 	public abstract class Handler
 	{
-		static int debugLevel = 2;
+		static int debugLevel = 0;
 
 		public static int DebugLevel {
 			get { return debugLevel; }
@@ -100,7 +100,7 @@ namespace Xamarin.WebTests.Handlers
 		public bool HandleRequest (HttpConnection connection, HttpRequest request)
 		{
 			try {
-				Debug (0, "HANDLE REQUEST");
+				Debug (1, "HANDLE REQUEST");
 				DumpHeaders (request);
 				var response = HandleRequest (connection, request, Flags);
 				if (response == null)
@@ -109,7 +109,7 @@ namespace Xamarin.WebTests.Handlers
 					response.KeepAlive = true;
 				request.ReadBody ();
 				connection.WriteResponse (response);
-				Debug (0, "HANDLE REQUEST DONE", response);
+				Debug (1, "HANDLE REQUEST DONE", response);
 				DumpHeaders (response);
 				tcs.SetResult (response.IsSuccess);
 				return response.KeepAlive ?? false;

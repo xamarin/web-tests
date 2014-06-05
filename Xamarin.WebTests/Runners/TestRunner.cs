@@ -76,7 +76,7 @@ namespace Xamarin.WebTests.Runners
 
 			try {
 				var response = (HttpWebResponse)request.GetResponse ();
-				handler.Debug (0, "GOT RESPONSE", response.StatusCode, response.StatusDescription);
+				handler.Debug (1, "GOT RESPONSE", response.StatusCode, response.StatusDescription);
 				Assert.AreEqual (expectedStatus, response.StatusCode, "status code");
 				Assert.IsFalse (expectException, "success status");
 

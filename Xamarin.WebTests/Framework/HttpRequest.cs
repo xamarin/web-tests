@@ -59,8 +59,11 @@ namespace Xamarin.WebTests.Framework
 			}
 
 			Method = fields [0];
-			Path = fields [1].StartsWith ("/") ? fields [1] : new Uri (fields [1]).AbsolutePath;
 			Protocol = ProtocolFromString (fields [2]);
+			if (Method.Equals ("CONNECT"))
+				Path = fields [1];
+			else
+				Path = fields [1].StartsWith ("/") ? fields [1] : new Uri (fields [1]).AbsolutePath;
 
 			ReadHeaders ();
 		}

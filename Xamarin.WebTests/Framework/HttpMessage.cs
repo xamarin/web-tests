@@ -126,6 +126,12 @@ namespace Xamarin.WebTests.Framework
 			}
 		}
 
+		internal void DumpHeaders ()
+		{
+			foreach (var entry in Headers)
+				Console.WriteLine ("{0}: {1}", entry.Key, entry.Value);
+		}
+
 		protected void WriteHeaders (StreamWriter writer)
 		{
 			foreach (var entry in Headers)
