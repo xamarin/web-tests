@@ -39,6 +39,15 @@
     <ConsolePause>false</ConsolePause>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug-Alpha|x86' ">
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x86\Debug-Alpha</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <AndroidLinkMode>None</AndroidLinkMode>
+    <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
+    <PlatformTarget>x86</PlatformTarget>
+    <DefineConstants>DEBUG;ALPHA</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Xml" />

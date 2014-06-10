@@ -44,7 +44,9 @@ namespace Xamarin.WebTests.Tests
 		ProxyTestRunner authRunner;
 		ProxyTestRunner ntlmAuthRunner;
 		ProxyTestRunner unauthRunner;
+		#if ALPHA
 		ProxyTestRunner sslRunner;
+		#endif
 
 		[TestFixtureSetUp]
 		public void Start ()
@@ -64,15 +66,18 @@ namespace Xamarin.WebTests.Tests
 			unauthRunner = new ProxyTestRunner (address, 9993, 9992) {
 				AuthenticationType = AuthenticationType.Basic
 			};
+
+			#if ALPHA
 			sslRunner = new ProxyTestRunner (address, 9991, 9990) {
 				UseSSL = true
 			};
+			sslRunner.Start ();
+			#endif
 
 			simpleRunner.Start ();
 			authRunner.Start ();
 			ntlmAuthRunner.Start ();
 			unauthRunner.Start ();
-			sslRunner.Start ();
 		}
 
 		[TestFixtureTearDown]
@@ -82,7 +87,9 @@ namespace Xamarin.WebTests.Tests
 			authRunner.Stop ();
 			ntlmAuthRunner.Stop ();
 			unauthRunner.Stop ();
+			#if ALPHA
 			sslRunner.Start ();
+			#endif
 		}
 
 		static IEnumerable<Handler> GetAllTests ()
@@ -120,10 +127,12 @@ namespace Xamarin.WebTests.Tests
 			unauthRunner.Run (handler, HttpStatusCode.ProxyAuthenticationRequired);
 		}
 
+		#if ALPHA
 		[TestCaseSource ("GetAllTests")]
 		public void TestSSL (Handler handler)
 		{
 			sslRunner.Run (handler);
 		}
+		#endif
 	}
 }

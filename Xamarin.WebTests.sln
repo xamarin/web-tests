@@ -17,6 +17,7 @@ Global
 		Release|iPhone = Release|iPhone
 		Ad-Hoc|iPhone = Ad-Hoc|iPhone
 		AppStore|iPhone = AppStore|iPhone
+		Debug-Alpha|x86 = Debug-Alpha|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{2DCEC9B6-7D70-43C2-B24E-864D1041B894}.Ad-Hoc|iPhone.ActiveCfg = Ad-Hoc|iPhone
@@ -29,6 +30,8 @@ Global
 		{2DCEC9B6-7D70-43C2-B24E-864D1041B894}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
 		{2DCEC9B6-7D70-43C2-B24E-864D1041B894}.Debug|x86.ActiveCfg = Debug|iPhoneSimulator
 		{2DCEC9B6-7D70-43C2-B24E-864D1041B894}.Debug|x86.Build.0 = Debug|iPhoneSimulator
+		{2DCEC9B6-7D70-43C2-B24E-864D1041B894}.Debug-Alpha|x86.ActiveCfg = Debug-Alpha|iPhoneSimulator
+		{2DCEC9B6-7D70-43C2-B24E-864D1041B894}.Debug-Alpha|x86.Build.0 = Debug-Alpha|iPhoneSimulator
 		{2DCEC9B6-7D70-43C2-B24E-864D1041B894}.Release|iPhone.ActiveCfg = Release|iPhone
 		{2DCEC9B6-7D70-43C2-B24E-864D1041B894}.Release|iPhone.Build.0 = Release|iPhone
 		{2DCEC9B6-7D70-43C2-B24E-864D1041B894}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
@@ -45,6 +48,8 @@ Global
 		{7F3FD89E-D021-4BEB-B586-4AFB7FD4886F}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
 		{7F3FD89E-D021-4BEB-B586-4AFB7FD4886F}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{7F3FD89E-D021-4BEB-B586-4AFB7FD4886F}.Debug|x86.Build.0 = Debug|Any CPU
+		{7F3FD89E-D021-4BEB-B586-4AFB7FD4886F}.Debug-Alpha|x86.ActiveCfg = Debug-Alpha|x86
+		{7F3FD89E-D021-4BEB-B586-4AFB7FD4886F}.Debug-Alpha|x86.Build.0 = Debug-Alpha|x86
 		{7F3FD89E-D021-4BEB-B586-4AFB7FD4886F}.Release|iPhone.ActiveCfg = Release|Any CPU
 		{7F3FD89E-D021-4BEB-B586-4AFB7FD4886F}.Release|iPhone.Build.0 = Release|Any CPU
 		{7F3FD89E-D021-4BEB-B586-4AFB7FD4886F}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
@@ -61,6 +66,8 @@ Global
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Debug|iPhoneSimulator.Build.0 = Debug|x86
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Debug|x86.ActiveCfg = Debug|x86
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Debug|x86.Build.0 = Debug|x86
+		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Debug-Alpha|x86.ActiveCfg = Debug-Alpha|x86
+		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Debug-Alpha|x86.Build.0 = Debug-Alpha|x86
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Release|iPhone.ActiveCfg = Release|x86
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Release|iPhone.Build.0 = Release|x86
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Release|iPhoneSimulator.ActiveCfg = Release|x86
