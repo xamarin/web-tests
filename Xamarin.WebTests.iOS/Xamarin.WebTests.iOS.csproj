@@ -209,6 +209,12 @@
     <Compile Include="..\Xamarin.WebTests\Runners\TestRunner.cs">
       <Link>Runners\TestRunner.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\TestAuthentication.cs">
+      <Link>Tests\TestAuthentication.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\TestProxy.cs">
+      <Link>Tests\TestProxy.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
