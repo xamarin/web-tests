@@ -47,12 +47,17 @@ namespace Xamarin.WebTests.Tests
 		#if ALPHA
 		ProxyTestRunner sslRunner;
 		#endif
+		bool noNetwork;
 
 		[TestFixtureSetUp]
 		public void Start ()
 		{
 			// MS ignores all proxy request for local connections.
 			IPAddress address = TestRunner.GetAddress ();
+			if (IPAddress.IsLoopback (address)) {
+				noNetwork = true;
+				return;
+			}
 
 			simpleRunner = new ProxyTestRunner (address, 9999, 9998);
 			authRunner = new ProxyTestRunner (address, 9997, 9996) {
@@ -83,6 +88,8 @@ namespace Xamarin.WebTests.Tests
 		[TestFixtureTearDown]
 		public void Stop ()
 		{
+			if (noNetwork)
+				return;
 			simpleRunner.Stop ();
 			authRunner.Stop ();
 			ntlmAuthRunner.Stop ();
@@ -92,8 +99,10 @@ namespace Xamarin.WebTests.Tests
 			#endif
 		}
 
-		static IEnumerable<Handler> GetAllTests ()
+		IEnumerable<Handler> GetAllTests ()
 		{
+			if (IPAddress.IsLoopback (TestRunner.GetAddress ()))
+				yield break;
 			foreach (var handler in TestPost.GetAllTests ())
 				yield return handler;
 			foreach (var handler in TestPost.GetAllTests ())
@@ -102,27 +111,42 @@ namespace Xamarin.WebTests.Tests
 				yield return new AuthenticationHandler (AuthenticationType.NTLM, handler);
 		}
 
+		[Test]
+		public void CheckNetwork ()
+		{
+			if (noNetwork)
+				Assert.Fail ("TestProxy needs networking access; all proxy tests will be ignored.");
+		}
+
 		[TestCaseSource ("GetAllTests")]
 		public void Simple (Handler handler)
 		{
+			if (noNetwork)
+				return;
 			simpleRunner.Run (handler);
 		}
 
 		[TestCaseSource ("GetAllTests")]
 		public void ProxyAuth (Handler handler)
 		{
+			if (noNetwork)
+				return;
 			authRunner.Run (handler);
 		}
 
 		[TestCaseSource ("GetAllTests")]
 		public void ProxyNTLM (Handler handler)
 		{
+			if (noNetwork)
+				return;
 			ntlmAuthRunner.Run (handler);
 		}
 
 		[Test]
 		public void TestUnauthenticated ()
 		{
+			if (noNetwork)
+				return;
 			var handler = new HelloWorldHandler ();
 			unauthRunner.Run (handler, HttpStatusCode.ProxyAuthenticationRequired);
 		}

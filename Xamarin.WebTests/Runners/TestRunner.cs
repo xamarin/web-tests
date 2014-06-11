@@ -51,7 +51,7 @@ namespace Xamarin.WebTests.Runners
 				var hostname = Dns.GetHostName ();
 				var hostent = Dns.GetHostEntry (hostname);
 				foreach (var address in hostent.AddressList) {
-					if (address.AddressFamily == AddressFamily.InterNetwork)
+					if (address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback (address))
 						return address;
 				}
 			} catch {
