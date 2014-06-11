@@ -110,6 +110,11 @@ namespace Xamarin.WebTests.Runners
 				response.Close ();
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
+				if (response == null) {
+					Assert.Fail ("{0}: Got WebException will null response: {1}", handler, wexc);
+					throw;
+				}
+
 				if (expectException) {
 					Assert.AreEqual (expectedStatus, response.StatusCode, "error status code");
 					response.Close ();
