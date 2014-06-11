@@ -108,7 +108,7 @@ namespace Xamarin.WebTests.Runners
 
 			var request = CreateRequest (handler);
 
-			Debug (0, handler, "RUN #1", request.RequestUri);
+			Debug (1, handler, "RUN #1", request.RequestUri);
 
 			handler.SendRequest (request);
 
@@ -127,6 +127,7 @@ namespace Xamarin.WebTests.Runners
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
 				if (response == null) {
+					Debug (0, handler, "RUN - GOT WEB EXCEPTION WITH NULL RESPONSE", wexc);
 					Assert.Fail ("{0}:{1}: Got WebException will null response: {2}", this, handler, wexc);
 					throw;
 				}
@@ -137,18 +138,15 @@ namespace Xamarin.WebTests.Runners
 					return;
 				}
 
-				Console.Error.WriteLine ("GOT WEB EXCEPTION: {0}", wexc);
-
 				using (var reader = new StreamReader (response.GetResponseStream ())) {
 					var content = reader.ReadToEnd ();
-					Console.Error.WriteLine ("RUN - GOT WEB ERROR: {0} {1} {2}\n{3}\n{4}", handler,
-						wexc.Status, response.StatusCode, content, wexc);
+					Debug (0, handler, "RUN - GOT WEB EXCEPTION", wexc.Status, response.StatusCode, content, wexc);
 					Assert.Fail ("{0}: {1}", handler, content);
 				}
 				response.Close ();
 				throw;
 			} catch (Exception ex) {
-				Console.Error.WriteLine ("RUN - GOT EXCEPTION: {0}", ex);
+				Debug (0, handler, "RUN - GOT EXCEPTION", ex);
 				throw;
 			} finally {
 				Debug (0, handler, "RUN DONE");
