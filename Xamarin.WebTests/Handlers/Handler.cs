@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.Handlers
 
 	public abstract class Handler
 	{
-		static int debugLevel = 0;
+		static int debugLevel = 10;
 
 		public static int DebugLevel {
 			get { return debugLevel; }
