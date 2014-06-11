@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
@@ -45,15 +46,36 @@ namespace Xamarin.WebTests.Runners
 
 		protected abstract HttpWebRequest CreateRequest (Handler handler);
 
+		static IPAddress address;
+
 		public static IPAddress GetAddress ()
 		{
+			if (address == null)
+				address = LookupAddress ();
+			return address;
+		}
+
+		static IPAddress LookupAddress ()
+		{
 			try {
+				#if __IOS__
+				var interfaces = NetworkInterface.GetAllNetworkInterfaces ();
+				foreach (var iface in interfaces) {
+					if (iface.NetworkInterfaceType != NetworkInterfaceType.Ethernet && iface.NetworkInterfaceType != NetworkInterfaceType.Wireless80211)
+						continue;
+					foreach (var address in iface.GetIPProperties ().UnicastAddresses) {
+						if (address.Address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback (address.Address))
+							return address.Address;
+					}
+				}
+				#else
 				var hostname = Dns.GetHostName ();
 				var hostent = Dns.GetHostEntry (hostname);
 				foreach (var address in hostent.AddressList) {
 					if (address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback (address))
 						return address;
 				}
+				#endif
 			} catch {
 				;
 			}
