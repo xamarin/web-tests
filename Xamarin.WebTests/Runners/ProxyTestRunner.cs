@@ -97,6 +97,11 @@ namespace Xamarin.WebTests.Runners
 			request.Proxy = CreateProxy ();
 			return request;
 		}
+
+		protected override string MyToString ()
+		{
+			return string.Format ("SSL={0}, AuthenticationType={1}", UseSSL, AuthenticationType);
+		}
 	}
 }
 

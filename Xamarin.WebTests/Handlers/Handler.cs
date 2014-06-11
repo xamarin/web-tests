@@ -75,7 +75,7 @@ namespace Xamarin.WebTests.Handlers
 			tcs = new TaskCompletionSource<bool> ();
 		}
 
-		public void Debug (int level, string message, params object[] args)
+		protected void Debug (int level, string message, params object[] args)
 		{
 			if (DebugLevel < level)
 				return;
