@@ -42,9 +42,9 @@ namespace Xamarin.WebTests.Tests
 	{
 		ProxyTestRunner simpleRunner;
 		ProxyTestRunner authRunner;
+		#if ALPHA
 		ProxyTestRunner ntlmAuthRunner;
 		ProxyTestRunner unauthRunner;
-		#if ALPHA
 		ProxyTestRunner sslRunner;
 		#endif
 		bool noNetwork;
@@ -64,15 +64,19 @@ namespace Xamarin.WebTests.Tests
 				AuthenticationType = AuthenticationType.Basic,
 				Credentials = new NetworkCredential ("xamarin", "monkey")
 			};
+
+			#if ALPHA
 			ntlmAuthRunner = new ProxyTestRunner (address, 9995, 9994) {
 				AuthenticationType = AuthenticationType.NTLM,
 				Credentials = new NetworkCredential ("xamarin", "monkey")
 			};
+			ntlmAuthRunner.Start ();
+
 			unauthRunner = new ProxyTestRunner (address, 9993, 9992) {
 				AuthenticationType = AuthenticationType.Basic
 			};
+			unauthRunner.Start ();
 
-			#if ALPHA
 			sslRunner = new ProxyTestRunner (address, 9991, 9990) {
 				UseSSL = true
 			};
@@ -81,8 +85,6 @@ namespace Xamarin.WebTests.Tests
 
 			simpleRunner.Start ();
 			authRunner.Start ();
-			ntlmAuthRunner.Start ();
-			unauthRunner.Start ();
 		}
 
 		[TestFixtureTearDown]
@@ -92,9 +94,9 @@ namespace Xamarin.WebTests.Tests
 				return;
 			simpleRunner.Stop ();
 			authRunner.Stop ();
+			#if ALPHA
 			ntlmAuthRunner.Stop ();
 			unauthRunner.Stop ();
-			#if ALPHA
 			sslRunner.Start ();
 			#endif
 		}
@@ -107,8 +109,10 @@ namespace Xamarin.WebTests.Tests
 				yield return handler;
 			foreach (var handler in TestPost.GetAllTests ())
 				yield return new AuthenticationHandler (AuthenticationType.Basic, handler);
+			#if ALPHA
 			foreach (var handler in TestPost.GetAllTests ())
 				yield return new AuthenticationHandler (AuthenticationType.NTLM, handler);
+			#endif
 		}
 
 		[Test]
@@ -134,6 +138,7 @@ namespace Xamarin.WebTests.Tests
 			authRunner.Run (handler);
 		}
 
+		#if ALPHA
 		[TestCaseSource ("GetAllTests")]
 		public void ProxyNTLM (Handler handler)
 		{
@@ -151,7 +156,6 @@ namespace Xamarin.WebTests.Tests
 			unauthRunner.Run (handler, HttpStatusCode.ProxyAuthenticationRequired);
 		}
 
-		#if ALPHA
 		[TestCaseSource ("GetAllTests")]
 		public void TestSSL (Handler handler)
 		{

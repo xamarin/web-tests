@@ -71,11 +71,13 @@ namespace Xamarin.WebTests.Tests
 			Run (new AuthenticationHandler (AuthenticationType.Basic, handler));
 		}
 
+		#if ALPHA
 		[TestCaseSource ("GetAllTests")]
 		public void TestNTLM (Handler handler)
 		{
 			Run (new AuthenticationHandler (AuthenticationType.NTLM, handler));
 		}
+		#endif
 
 		[Test]
 		public void MustClearAuthOnRedirect ()
