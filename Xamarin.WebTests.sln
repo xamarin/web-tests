@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.iOS", "Xam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Android", "Xamarin.WebTests.Android\Xamarin.WebTests.Android.csproj", "{7F3FD89E-D021-4BEB-B586-4AFB7FD4886F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoTouch.NUnitLite", "external\Touch.Unit\NUnitLite\MonoTouch.NUnitLite.csproj", "{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -56,6 +58,24 @@ Global
 		{7F3FD89E-D021-4BEB-B586-4AFB7FD4886F}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{7F3FD89E-D021-4BEB-B586-4AFB7FD4886F}.Release|x86.ActiveCfg = Release|Any CPU
 		{7F3FD89E-D021-4BEB-B586-4AFB7FD4886F}.Release|x86.Build.0 = Release|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Ad-Hoc|iPhone.ActiveCfg = Release|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Ad-Hoc|iPhone.Build.0 = Release|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.AppStore|iPhone.ActiveCfg = Release|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.AppStore|iPhone.Build.0 = Release|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Debug|x86.Build.0 = Debug|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Debug-Alpha|x86.ActiveCfg = Debug|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Debug-Alpha|x86.Build.0 = Debug|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Release|iPhone.Build.0 = Release|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Release|x86.ActiveCfg = Release|Any CPU
+		{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}.Release|x86.Build.0 = Release|Any CPU
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Ad-Hoc|iPhone.ActiveCfg = Debug|x86
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Ad-Hoc|iPhone.Build.0 = Debug|x86
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.AppStore|iPhone.ActiveCfg = Debug|x86
@@ -76,7 +96,7 @@ Global
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Xamarin.WebTests\Xamarin.WebTests.csproj
+		StartupItem = Xamarin.WebTests.iOS\Xamarin.WebTests.iOS.csproj
 		Policies = $0
 		$0.DotNetNamingPolicy = $1
 		$1.DirectoryNamespaceAssociation = PrefixedFlat

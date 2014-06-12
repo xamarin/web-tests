@@ -116,7 +116,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="monotouch" />
-    <Reference Include="MonoTouch.NUnitLite" />
     <Reference Include="Mono.Security" />
   </ItemGroup>
   <ItemGroup>
@@ -222,5 +221,11 @@
       <Link>Server\cert.pfx</Link>
       <LogicalName>Xamarin.WebTests.Server.cert.pfx</LogicalName>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\external\Touch.Unit\NUnitLite\MonoTouch.NUnitLite.csproj">
+      <Project>{9A9B24AF-1103-43D4-8EC0-9EC0155322FC}</Project>
+      <Name>MonoTouch.NUnitLite</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
