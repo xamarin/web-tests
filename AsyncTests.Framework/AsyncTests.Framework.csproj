@@ -31,15 +31,12 @@
     <Compile Include="AsyncTests.Framework\TestContext.cs" />
     <Compile Include="AsyncTests.Framework\TestError.cs" />
     <Compile Include="AsyncTests.Framework\TestFixture.cs" />
-    <Compile Include="AsyncTests.Framework\TestResult.cs" />
     <Compile Include="AsyncTests.Framework\TestResultCollection.cs" />
-    <Compile Include="AsyncTests.Framework\TestResultItem.cs" />
     <Compile Include="AsyncTests.Framework\TestResultText.cs" />
     <Compile Include="AsyncTests.Framework\TestSuccess.cs" />
     <Compile Include="AsyncTests.Framework\TestSuite.cs" />
     <Compile Include="AsyncTests.Framework\AsyncTestAttribute.cs" />
     <Compile Include="AsyncTests.Framework\AsyncTestFixtureAttribute.cs" />
-    <Compile Include="AsyncTests.Framework\TestResultWithErrors.cs" />
     <Compile Include="AsyncTests.Framework\TestErrorException.cs" />
     <Compile Include="AsyncTests.Framework\ResultVisitor.cs" />
     <Compile Include="AsyncTests.Framework\TestCategoryAttribute.cs" />
@@ -75,6 +72,9 @@
     <Compile Include="AsyncTests.Framework\IAsyncTestFixture.cs" />
     <Compile Include="AsyncTests.Framework.Internal\RepeatedTestHost.cs" />
     <Compile Include="AsyncTests.Framework.Internal\TestCaseInvoker.cs" />
+    <Compile Include="AsyncTests.Framework\TestResult.cs" />
+    <Compile Include="AsyncTests.Framework\TestIgnored.cs" />
+    <Compile Include="AsyncTests.Framework\TestResultItem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

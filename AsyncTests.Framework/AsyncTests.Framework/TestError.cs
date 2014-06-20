@@ -32,7 +32,8 @@ using System.Xml;
 
 namespace AsyncTests.Framework {
 
-	public class TestError : TestResult {
+	public class TestError : TestResult
+	{
 		public Exception Error {
 			get;
 			private set;
@@ -47,7 +48,7 @@ namespace AsyncTests.Framework {
 		}
 
 		public TestError (string message, Exception error)
-			: base (null)
+			: base (TestStatus.Error)
 		{
 			this.Error = error;
 
@@ -63,43 +64,12 @@ namespace AsyncTests.Framework {
 
 		#region implemented abstract members of TestResult
 
-		public override TestStatus Status {
-			get { return TestStatus.Error; }
-		}
-
-		#endregion
-
-		#region implemented abstract members of TestResultItem
-
-		public override bool HasChildren {
-			get { return Count > 0; }
-		}
-
-		public override int Count {
-			get { return items.Count; }
-		}
-
-		public override TestResultItem this [int index] {
-			get { return items [index]; }
-		}
-
 		public override void Accept (ResultVisitor visitor)
 		{
 			visitor.Visit (this);
 		}
 
 		#endregion
-
-		#region IXmlSerializable implementation
-
-		public override void WriteXml (XmlWriter writer)
-		{
-			base.WriteXml (writer);
-			writer.WriteAttributeString ("Exception", Error.ToString ());
-		}
-
-		#endregion
-
 	}
 }
 

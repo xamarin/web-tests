@@ -33,6 +33,7 @@ namespace AsyncTests.Framework {
 	public enum TestStatus {
 		Success,
 		Ignored,
+		Message,
 		Warning,
 		Error
 	}

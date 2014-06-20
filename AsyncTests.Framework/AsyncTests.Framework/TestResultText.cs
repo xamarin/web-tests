@@ -30,25 +30,19 @@ using System;
 
 namespace AsyncTests.Framework {
 
-	public class TestResultText : TestResultItem {
+	public class TestResultText : TestResultItem
+	{
 		public TestResultText (string text)
-			: base (text)
 		{
+			Text = text;
 		}
 
-		#region implemented abstract members of TestResultItem
-
-		public override bool HasChildren {
-			get { return false; }
+		public string Text {
+			get;
+			private set;
 		}
 
-		public override int Count {
-			get { return 0; }
-		}
-
-		public override TestResultItem this [int index] {
-			get { throw new InvalidOperationException (); }
-		}
+		#region implemented abstract members of TestResult
 
 		public override void Accept (ResultVisitor visitor)
 		{

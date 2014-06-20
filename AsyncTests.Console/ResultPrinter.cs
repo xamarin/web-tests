@@ -11,6 +11,8 @@ namespace AsyncTests.ConsoleRunner {
 	public class ResultPrinter : ResultVisitor {
 		TextWriter writer;
 		Stack<string> names;
+		int totalErrors;
+		int totalSuccess;
 		int id;
 
 		public ResultPrinter (TextWriter writer)
@@ -22,12 +24,14 @@ namespace AsyncTests.ConsoleRunner {
 		public static void Print (TextWriter writer, TestResultCollection result)
 		{
 			writer.WriteLine ();
-			writer.WriteLine ("Total: {0} tests, {1} passed, {2} errors.",
-			                  result.Count, result.TotalSuccess, result.TotalErrors);
-			writer.WriteLine ();
 
 			var printer = new ResultPrinter (writer);
 			printer.Visit (result);
+
+			writer.WriteLine ();
+			writer.WriteLine ("Total: {0} tests, {1} passed, {2} errors.",
+				result.Count, printer.totalSuccess, printer.totalErrors);
+			writer.WriteLine ();
 		}
 
 		string GetName ()
@@ -65,11 +69,12 @@ namespace AsyncTests.ConsoleRunner {
 
 		public override void Visit (TestSuccess node)
 		{
-			;
+			totalSuccess++;
 		}
 
 		public override void Visit (TestError node)
 		{
+			totalErrors++;
 			writer.WriteLine ("{0}) {1}\n{2}\n", ++id, GetName (), node.Error);
 		}
 
@@ -78,17 +83,12 @@ namespace AsyncTests.ConsoleRunner {
 			writer.WriteLine ("{0}) {1}\n{2}\n", ++id, GetName (), node);
 		}
 
-		public override void Visit (TestResultWithErrors node)
+		public override void Visit (TestIgnored node)
 		{
-			for (int i = 0; i < node.Count; i++) {
-				var item = node [i];
-				PushName (item);
-				item.Accept (this);
-				PopName (item);
-			}
+			writer.WriteLine ("{0}) {1}\n{2}", ++id, GetName (), node);
 		}
-		#endregion
 
+		#endregion
 	}
 }
 

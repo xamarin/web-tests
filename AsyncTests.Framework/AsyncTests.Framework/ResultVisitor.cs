@@ -30,7 +30,8 @@ using System;
 
 namespace AsyncTests.Framework {
 
-	public abstract class ResultVisitor {
+	public abstract class ResultVisitor
+	{
 		public abstract void Visit (TestResultCollection node);
 
 		public abstract void Visit (TestResultText node);
@@ -39,8 +40,8 @@ namespace AsyncTests.Framework {
 
 		public abstract void Visit (TestError node);
 
-		public abstract void Visit (TestResultWithErrors node);
-
 		public abstract void Visit (TestWarning node);
+
+		public abstract void Visit (TestIgnored node);
 	}
 }

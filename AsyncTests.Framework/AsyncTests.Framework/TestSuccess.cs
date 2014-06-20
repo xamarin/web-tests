@@ -33,31 +33,11 @@ namespace AsyncTests.Framework {
 	public class TestSuccess : TestResult
 	{
 		public TestSuccess ()
-			: base (null)
+			: base (TestStatus.Success)
 		{
 		}
 
 		#region implemented abstract members of TestResult
-
-		public override TestStatus Status {
-			get { return TestStatus.Success; }
-		}
-
-		#endregion
-
-		#region implemented abstract members of TestResultItem
-
-		public override bool HasChildren {
-			get { return false; }
-		}
-
-		public override int Count {
-			get { return 0; }
-		}
-
-		public override TestResultItem this [int index] {
-			get { throw new InvalidOperationException (); }
-		}
 
 		public override void Accept (ResultVisitor visitor)
 		{

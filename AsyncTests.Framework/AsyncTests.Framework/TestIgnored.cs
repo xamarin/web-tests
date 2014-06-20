@@ -1,5 +1,5 @@
 ﻿//
-// TestResultItem.cs
+// TestIgnored.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,47 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 
 namespace AsyncTests.Framework
 {
-	public abstract class TestResultItem
+	public class TestIgnored : TestResult
 	{
-		public string Name {
-			get;
-			protected set;
-		}
-
-		List<TestResultItem> children = new List<TestResultItem> ();
-
-		public virtual void AddChild (TestResultItem child)
+		public TestIgnored ()
+			: base (TestStatus.Ignored)
 		{
-			children.Add (child);
 		}
 
-		public void AddMessage (string format, params object[] args)
+		#region implemented abstract members of TestResult
+
+		public override void Accept (ResultVisitor visitor)
 		{
-			AddChild (new TestResultText (string.Format (format, args)));
+			visitor.Visit (this);
 		}
 
-		public void AddWarnings (IEnumerable<TestWarning> warnings)
-		{
-			children.AddRange (warnings);
-		}
-
-		public bool HasChildren {
-			get { return children.Count > 0; }
-		}
-
-		public int Count {
-			get { return children.Count; }
-		}
-
-		public TestResultItem this [int index] {
-			get { return children [index]; }
-		}
-
-		public abstract void Accept (ResultVisitor visitor);
+		#endregion
 	}
 }
 

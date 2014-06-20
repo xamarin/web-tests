@@ -29,97 +29,32 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 
 namespace AsyncTests.Framework {
 
-	public class TestResultCollection : TestResult, IXmlSerializable {
-		List<TestResult> children = new List<TestResult> ();
-		List<TestResultText> messages = new List<TestResultText> ();
-
-		public void AddChild (TestResult child)
+	public class TestResultCollection : TestResult
+	{
+		public TestResultCollection ()
+			: this (null)
 		{
-			children.Add (child);
-		}
-
-		public void AddMessage (string format, params object[] args)
-		{
-			AddMessage (new TestResultText (string.Format (format, args)));
-		}
-
-		public void AddMessage (TestResultText message)
-		{
-			messages.Add (message);
-		}
-
-		public void AddWarnings (IEnumerable<TestWarning> warnings)
-		{
-			children.AddRange (warnings);
-		}
-
-		public override TestStatus Status {
-			get {
-				return TotalErrors == 0 ? TestStatus.Success : TestStatus.Error;
-			}
-		}
-
-		public override bool HasChildren {
-			get { return children.Count > 0; }
-		}
-
-		public override int Count {
-			get { return children.Count; }
-		}
-
-		public override int TotalSuccess {
-			get { return children.Sum (child => child.TotalSuccess); }
-		}
-
-		public override int TotalWarnings {
-			get { return children.Sum (child => child.TotalWarnings); }
-		}
-
-		public override int TotalErrors {
-			get { return children.Sum (child => child.TotalErrors); }
-		}
-
-		public override TestResultItem this [int index] {
-			get { return children [index]; }
 		}
 
 		public TestResultCollection (string name)
-			: base (name)
+			: base (TestStatus.Success, name)
 		{
 		}
 
-		public TestResultCollection ()
-			: base (null)
+		public override void AddChild (TestResultItem child)
 		{
+			var result = child as TestResult;
+			if (result != null && result.Status == TestStatus.Error)
+				Status = TestStatus.Error;
+			base.AddChild (child);
 		}
 
 		public override void Accept (ResultVisitor visitor)
 		{
 			visitor.Visit (this);
 		}
-
-		#region IXmlSerializable implementation
-
-		public override void WriteXml (XmlWriter writer)
-		{
-			base.WriteXml (writer);
-			writer.WriteAttributeString ("Status", Status.ToString ());
-			writer.WriteAttributeString ("TotalSuccess", TotalSuccess.ToString ());
-			writer.WriteAttributeString ("TotalErrors", TotalErrors.ToString ());
-
-			foreach (var child in children) {
-				writer.WriteStartElement (child.GetType ().Name);
-				child.WriteXml (writer);
-				writer.WriteEndElement ();
-			}
-		}
-
-		#endregion
 	}
 }

@@ -1,5 +1,5 @@
 //
-// AsyncTests.Framework.TestResult
+// AsyncTests.Framework.TestResultItem
 //
 // Authors:
 //      Martin Baulig (martin.baulig@gmail.com)
@@ -27,33 +27,21 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 using System;
+using System.Collections.Generic;
 
-namespace AsyncTests.Framework {
-
-	public abstract class TestResult : TestResultItem {
-		protected TestResult (string name)
-			: base (name)
-		{
-		}
-
-		public TestResult ()
-		{
-		}
-
-		public abstract TestStatus Status {
+namespace AsyncTests.Framework
+{
+	public abstract class TestResult : TestResultItem
+	{
+		public TestStatus Status {
 			get;
+			protected set;
 		}
 
-		public virtual int TotalSuccess {
-			get { return Status == TestStatus.Success ? 1 : 0; }
-		}
-
-		public virtual int TotalWarnings {
-			get { return Status == TestStatus.Warning ? 1 : 0; }
-		}
-
-		public virtual int TotalErrors {
-			get { return Status == TestStatus.Error ? 1 : 0; }
+		protected TestResult (TestStatus status, string name = null)
+		{
+			Status = status;
+			Name = name;
 		}
 	}
 }
