@@ -28,6 +28,7 @@
 //
 using System;
 using System.Linq;
+using SD = System.Diagnostics;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -42,24 +43,24 @@ namespace AsyncTests.Framework {
 		List<TestWarning> warnings;
 		List<IDisposable> disposables;
 
-		public TestSuite Suite {
-			get;
-			private set;
+		public int DebugLevel {
+			get; set;
 		}
 
-		internal TestContext (TestSuite suite)
+		public void Debug (int level, string message, params object[] args)
 		{
-			Suite = suite;
+			if (level <= DebugLevel)
+				Log (message, args);
 		}
 
 		public void Log (string message, params object[] args)
 		{
-			Suite.Log (message, args);
+			SD.Debug.WriteLine (string.Format (message, args), "TestSuite");
 		}
 
 		public void LogError (TestError error)
 		{
-			Suite.Log (error.ToString ());
+			Log (error.ToString ());
 		}
 
 		internal void ClearErrors ()

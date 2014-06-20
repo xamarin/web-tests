@@ -61,7 +61,7 @@ namespace AsyncTests.Framework {
 			Name = name;
 		}
 
-		internal abstract TestInvoker Resolve ();
+		internal abstract TestInvoker Resolve (TestContext context);
 
 		public Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken)
 		{

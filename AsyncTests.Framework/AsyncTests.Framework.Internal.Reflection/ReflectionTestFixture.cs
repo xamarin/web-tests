@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
@@ -114,7 +115,7 @@ namespace AsyncTests.Framework.Internal.Reflection
 					continue;
 
 				if (categories.Contains (category.Name)) {
-					suite.Log ("Duplicate [{0}] in {1}.", category.Name, fullName);
+					Debug.WriteLine ("Duplicate [{0}] in {1}.", category.Name, fullName);
 					continue;
 				}
 
@@ -139,15 +140,15 @@ namespace AsyncTests.Framework.Internal.Reflection
 
 		public override Task<TestResult> Run (TestContext context, CancellationToken cancellationToken)
 		{
-			var invoker = CreateInvoker ();
+			var invoker = CreateInvoker (context);
 			return invoker.Invoke (context, cancellationToken);
 		}
 
-		TestInvoker CreateInvoker ()
+		TestInvoker CreateInvoker (TestContext context)
 		{
 			var invoker = new TestFixtureInvoker (this);
 			var selected = Filter ();
-			invoker.Resolve (selected);
+			invoker.Resolve (context, selected);
 
 			if (Repeat != null) {
 				var repeatHost = new RepeatedTestHost (Repeat);

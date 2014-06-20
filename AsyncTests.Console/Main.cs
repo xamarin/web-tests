@@ -36,7 +36,8 @@ namespace AsyncTests.ConsoleRunner
 		static async Task Run (Assembly assembly)
 		{
 			var suite = await TestSuite.Create (assembly);
-			var results = await suite.Run (CancellationToken.None);
+			var context = new TestContext ();
+			var results = await suite.Run (context, CancellationToken.None);
 			WriteResults (results);
 		}
 

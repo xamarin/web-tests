@@ -93,9 +93,9 @@ namespace AsyncTests.Framework.Internal.Reflection
 			return categories.Contains (category);
 		}
 
-		internal override TestInvoker Resolve ()
+		internal override TestInvoker Resolve (TestContext context)
 		{
-			Fixture.Suite.Log ("RESOLVE: {0}", Name);
+			context.Debug (5, "RESOLVE: {0}", Name);
 
 			TestInvoker invoker = new ReflectionTestInvoker (this);
 
@@ -150,7 +150,7 @@ namespace AsyncTests.Framework.Internal.Reflection
 				invoker = parameter.CreateInvoker (invoker);
 			}
 
-			Fixture.Suite.Log ("RESOLVE: {0} {1}", Name, invoker);
+			context.Debug (5, "RESOLVE: {0} {1}", Name, invoker);
 
 			return invoker;
 		}
@@ -166,7 +166,7 @@ namespace AsyncTests.Framework.Internal.Reflection
 			var instance = context.Instance;
 			var parameters = Method.GetParameters ();
 
-			context.Log ("INVOKE: {0} {1} {2}", Name, Method, instance);
+			context.Debug (5, "INVOKE: {0} {1} {2}", Name, Method, instance);
 
 			for (int index = parameters.Length - 1; index >= 0; index--) {
 				var param = parameters [index];

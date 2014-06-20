@@ -92,7 +92,7 @@ namespace AsyncTests.Framework.Internal
 
 		internal TestInvoker CreateInvoker (TestInvoker inner)
 		{
-			return new AggregatedTestInvoker (inner.Name, TestFlags.None, this, inner);
+			return new AggregatedTestInvoker (inner.Name, Flags, this, inner);
 		}
 	}
 }

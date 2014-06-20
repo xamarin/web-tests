@@ -43,10 +43,10 @@ namespace AsyncTests.Framework.Internal
 			Fixture = fixture;
 		}
 
-		public void Resolve (IEnumerable<TestCase> selectedTests)
+		public void Resolve (TestContext context, IEnumerable<TestCase> selectedTests)
 		{
 			foreach (var test in selectedTests) {
-				var invoker = test.Resolve ();
+				var invoker = test.Resolve (context);
 				InnerTestInvokers.Add (invoker);
 			}
 		}

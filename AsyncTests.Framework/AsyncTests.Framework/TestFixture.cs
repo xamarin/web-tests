@@ -92,12 +92,6 @@ namespace AsyncTests.Framework
 			}
 		}
 
-		public Task<TestResult> Run (CancellationToken cancellationToken)
-		{
-			var context = new TestContext (Suite);
-			return Run (context, cancellationToken);
-		}
-
 		public abstract Task<TestResult> Run (TestContext context, CancellationToken cancellationToken);
 
 		internal abstract Task InitializeInstance (TestContext context, CancellationToken cancellationToken);

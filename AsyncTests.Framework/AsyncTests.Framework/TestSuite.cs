@@ -124,25 +124,25 @@ namespace AsyncTests.Framework {
 			private set;
 		}
 
-		public Task<TestResultCollection> Run (CancellationToken cancellationToken)
+		public Task<TestResultCollection> Run (TestContext context, CancellationToken cancellationToken)
 		{
-			return Run (1, cancellationToken);
+			return Run (context, 1, cancellationToken);
 		}
 
-		public async Task<TestResultCollection> Run (int repeatCount, CancellationToken cancellationToken)
+		public async Task<TestResultCollection> Run (TestContext context, int repeatCount, CancellationToken cancellationToken)
 		{
 			var result = new TestResultCollection (Name);
 
 			if (repeatCount == 1) {
 				CurrentIteration = MaxIterations = 1;
-				await DoRun (result, cancellationToken);
+				await DoRun (context, result, cancellationToken);
 			} else {
 				MaxIterations = repeatCount;
 				for (CurrentIteration = 0; CurrentIteration < repeatCount; CurrentIteration++) {
 					var name = string.Format ("{0} (iteration {1})", Name, CurrentIteration + 1);
 					var iteration = new TestResultCollection (name);
 					result.AddChild (iteration);
-					await DoRun (iteration, cancellationToken);
+					await DoRun (context, iteration, cancellationToken);
 				}
 			}
 
@@ -151,23 +151,18 @@ namespace AsyncTests.Framework {
 			return result;
 		}
 
-		async Task DoRun (TestResultCollection result, CancellationToken cancellationToken)
+		async Task DoRun (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
 		{
 			foreach (var fixture in fixtures) {
 				if (TestFilter != null && !TestFilter.Filter (fixture))
 					continue;
 				try {
-					result.AddChild (await fixture.Run (cancellationToken));
+					result.AddChild (await fixture.Run (context, cancellationToken));
 				} catch (Exception ex) {
-					Log ("Test fixture {0} failed: {1}", fixture.Name, ex);
+					context.Log ("Test fixture {0} failed: {1}", fixture.Name, ex);
 					result.AddChild (new TestError (fixture.Name, "Test fixture failed", ex));
 				}
 			}
-		}
-
-		protected internal void Log (string message, params object[] args)
-		{
-			Debug.WriteLine (string.Format (message, args), "TestSuite");
 		}
 
 		public event EventHandler<StatusMessageEventArgs> StatusMessageEvent;

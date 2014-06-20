@@ -69,7 +69,7 @@ namespace AsyncTests.Framework.Internal
 
 		async Task<bool> SetUp (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
 		{
-			context.Log ("SetUp {0}: {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
+			context.Debug (3, "SetUp({0}): {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
 
 			try {
 				if (Host != null)
@@ -85,7 +85,7 @@ namespace AsyncTests.Framework.Internal
 
 		async Task<bool> ReuseInstance (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
 		{
-			context.Log ("ReuseInstance {0}: {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
+			context.Debug (3, "ReuseInstance({0}): {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
 
 			try {
 				var parameterizedHost = Host as ParameterizedTestHost;
@@ -103,7 +103,7 @@ namespace AsyncTests.Framework.Internal
 		async Task<bool> InvokeInner (TestContext context, TestResultCollection result, TestInvoker invoker, CancellationToken cancellationToken)
 		{
 			var name = string.Format ("{0} / {1}", Name, invoker.Name);
-			context.Log ("Running {0}: {1} {2}", name, Print (Host), invoker);
+			context.Debug (3, "Running({0}): {1} {2}", name, Print (Host), invoker);
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
@@ -120,7 +120,7 @@ namespace AsyncTests.Framework.Internal
 
 		async Task<bool> TearDown (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
 		{
-			context.Log ("TearDown {0}: {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
+			context.Debug (3, "TearDown({0}): {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
 
 			try {
 				if (Host != null)
@@ -136,25 +136,19 @@ namespace AsyncTests.Framework.Internal
 			
 		public sealed override async Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken)
 		{
-			context.Log ("THE INVOKE: {0} {1}", this, InnerTestInvokers.Count);
-
 			if (InnerTestInvokers.Count == 0)
 				return new TestSuccess (Name, true);
 
 			var result = new TestResultCollection (Name);
 
-			if (!await SetUp (context, result, cancellationToken)) {
-				context.Log ("THE INVOKE FAILED: {0}", this);
+			if (!await SetUp (context, result, cancellationToken))
 				return result;
-			}
 
 			bool success = true;
 			var innerRunners = new LinkedList<TestInvoker> (InnerTestInvokers);
 			var current = innerRunners.First;
 
 			while (success && current != null) {
-				context.Log ("THE INVOKE LOOP: {0}", current.Value);
-
 				if (cancellationToken.IsCancellationRequested)
 					break;
 
@@ -171,8 +165,6 @@ namespace AsyncTests.Framework.Internal
 			}
 
 			success &= await TearDown (context, result, cancellationToken);
-
-			context.Log ("THE INVOKE DONE: {0} {1}", this, result);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			return result;
