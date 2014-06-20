@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// ReflectionTestRunner.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Framework.Internal.Reflection
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	class ReflectionTestInvoker : TestInvoker
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public ReflectionTestCase Test {
+			get;
+			private set;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public ReflectionTestInvoker (ReflectionTestCase test)
+			: base (test.Name)
+		{
+			Test = test;
+		}
+
+		public override Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken)
+		{
+			return Test.Invoke (context, cancellationToken);
+		}
 	}
 }
 

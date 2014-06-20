@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// ReflectionTestHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,14 +27,34 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Framework.Internal
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	class FixtureTestHost : TestHost
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public TestFixture Fixture {
+			get;
+			private set;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public FixtureTestHost (TestFixture fixture)
+		{
+			Fixture = fixture;
+		}
+
+		protected override TestInstance CreateInstance (TestContext context)
+		{
+			return new TestFixtureInstance (this);
+		}
+
+		protected override Task Initialize (TestContext context, CancellationToken cancellationToken)
+		{
+			return Fixture.InitializeInstance (context, cancellationToken);
+		}
+
+		protected override Task Destroy (TestContext context, CancellationToken cancellationToken)
+		{
+			return Fixture.DestroyInstance (context, cancellationToken);
+		}
 	}
 }
 

@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// ParameterizedTestInstance.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Framework.Internal
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	abstract class ParameterizedTestInstance : TestInstance
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public ParameterizedTestInstance (ParameterizedTestHost host, TestInstance parent)
+			: base (host, parent)
+		{
+			ParameterType = host.ParameterType;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public TypeInfo ParameterType {
+			get;
+			private set;
+		}
+
+		public abstract Task Initialize (TestContext context, CancellationToken cancellationToken);
+
+		public abstract object Current {
+			get;
+		}
+
+		public abstract bool HasNext ();
+
+		public abstract Task MoveNext (TestContext context, CancellationToken cancellationTOken);
+
+		public abstract Task Destroy (TestContext context, CancellationToken cancellationToken);
 	}
 }
-

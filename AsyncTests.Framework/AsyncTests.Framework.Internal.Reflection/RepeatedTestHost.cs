@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// RepeatedTestHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Framework.Internal.Reflection
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	class RepeatedTestHost : ParameterAttributeTestHost
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
-
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public RepeatedTestHost (RepeatAttribute repeat)
+			: base (typeof (int).GetTypeInfo (), repeat)
+		{
+		}
 	}
 }
 

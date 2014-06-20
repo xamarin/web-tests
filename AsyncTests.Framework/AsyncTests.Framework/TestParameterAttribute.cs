@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// TestParameterAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AsyncTests.Framework
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	[AttributeUsage (AttributeTargets.Parameter, AllowMultiple = true)]
+	public class TestParameterAttribute : TestParameterSourceAttribute
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public string Filter {
+			get;
+			private set;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public TestFlags Flags {
+			get;
+			private set;
+		}
+
+		public TestParameterAttribute (string filter, TestFlags flags = TestFlags.None)
+			: this (null, filter, flags)
+		{
+		}
+
+		public TestParameterAttribute (Type sourceType = null, string filter = null, TestFlags flags = TestFlags.None)
+			: base (sourceType)
+		{
+			Filter = filter;
+			Flags = flags;
+		}
+
+		string Print (object value)
+		{
+			return value != null ? value.ToString () : "<null>";
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[TestParameterAttribute: SourceType={0}, Filter={1}, Flags={2}]",
+				Print (SourceType), Print (Filter), Flags);
+		}
 	}
 }
 

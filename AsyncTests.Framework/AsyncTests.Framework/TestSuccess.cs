@@ -31,15 +31,23 @@ using System;
 namespace AsyncTests.Framework {
 
 	public class TestSuccess : TestResult {
+		readonly TestStatus status;
+
 		public TestSuccess (string name)
+			: this (name, false)
+		{
+		}
+
+		public TestSuccess (string name, bool ignored)
 			: base (name)
 		{
+			status = ignored ? TestStatus.Ignored : TestStatus.Success;
 		}
 
 		#region implemented abstract members of TestResult
 
 		public override TestStatus Status {
-			get { return TestStatus.Success; }
+			get { return status; }
 		}
 
 		#endregion

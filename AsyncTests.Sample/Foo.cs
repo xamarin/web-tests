@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// Foo.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Sample
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	public class Foo : IFoo
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public string Name {
+			get;
+			private set;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public Foo (string name)
+		{
+			Name = name;
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[Foo: Name={0}]", Name);
+		}
 	}
 }
 

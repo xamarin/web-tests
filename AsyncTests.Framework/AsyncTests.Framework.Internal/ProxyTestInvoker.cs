@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// ProxyTestRunner.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,14 +27,25 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Framework.Internal
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	class ProxyTestInvoker : TestInvoker
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public TestInvoker Inner {
+			get;
+			private set;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public ProxyTestInvoker (TestInvoker inner, string name)
+			: base (name)
+		{
+			Inner = inner;
+		}
+
+		public override Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken)
+		{
+			return Inner.Invoke (context, cancellationToken);
+		}
 	}
 }
 

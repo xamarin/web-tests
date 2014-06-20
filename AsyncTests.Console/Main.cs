@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
-using AsyncTests.HttpClientAddin;
 using NDesk.Options;
 
 namespace AsyncTests.ConsoleRunner
@@ -22,20 +21,10 @@ namespace AsyncTests.ConsoleRunner
 			Debug.AutoFlush = true;
 			Debug.Listeners.Add (new ConsoleTraceListener ());
 
-			bool server = false;
-			string prefix = "http://localhost:8088/";
-			var p = new OptionSet ().
-				Add ("server", v => server = true).Add ("prefix=", v => prefix = v).
-					Add ("xml", v => xml = true);
+			var p = new OptionSet ().Add ("xml", v => xml = true);
 			p.Parse (args);
 
-			var asm = typeof(AsyncTests.HttpClientTests.Simple).Assembly;
-
-			if (server) {
-				Server.Start (asm, prefix).Wait ();
-				Thread.Sleep (Timeout.Infinite);
-				return;
-			}
+			var asm = typeof(AsyncTests.Sample.SimpleTest).Assembly;
 
 			try {
 				Run (asm).Wait ();

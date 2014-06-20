@@ -32,41 +32,5 @@ namespace AsyncTests.Framework {
 
 	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
 	public class AsyncTestAttribute : Attribute {
-		int timeout = -1;
-		int? repeat;
-		bool? reuseContext;
-		ThreadingMode mode = ThreadingMode.Default;
-
-		public int Timeout {
-			get { return timeout; }
-			set { timeout = value; }
-		}
-
-		/*
-		 * Whether to reuse the same TestContext for all test cases
-		 * in this test suite.
-		 */
-		public bool ReuseContext {
-			get { return reuseContext ?? true; }
-			set { reuseContext = value; }
-		}
-
-		internal bool? ReuseContext_internal {
-			get { return reuseContext; }
-		}
-
-		public int Repeat {
-			get { return repeat ?? 1; }
-			set { repeat = value; }
-		}
-
-		internal int? Repeat_internal {
-			get { return repeat; }
-		}
-
-		public ThreadingMode ThreadingMode {
-			get { return mode; }
-			set { mode = value; }
-		}
 	}
 }

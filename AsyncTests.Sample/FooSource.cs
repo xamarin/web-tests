@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// FooSource.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Sample
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
-	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+	using Framework;
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+	public class FooSource : ITestParameterSource<IFoo>
+	{
+		public IEnumerable<IFoo> GetParameters (TestContext context, string filter)
+		{
+			if (!string.IsNullOrEmpty (filter)) {
+				yield return new Foo ("Hello " + filter);
+				yield break;
+			}
+
+			yield return new Foo ("Hello Boston");
+			yield return new Foo ("Hello San Francisco");
+		}
 	}
 }
 

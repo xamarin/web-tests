@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// ParameterAttributeHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Framework.Internal.Reflection
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	class ParameterAttributeTestHost : ParameterizedTestHost
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public TestParameterSourceAttribute Attribute {
+			get;
+			private set;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public string Filter {
+			get;
+			private set;
+		}
+
+		public ParameterAttributeTestHost (TypeInfo type, TestParameterSourceAttribute attr)
+			: base (type)
+		{
+			Attribute = attr;
+
+			var paramAttr = attr as TestParameterAttribute;
+			if (paramAttr != null) {
+				Flags = paramAttr.Flags;
+				Filter = paramAttr.Filter;
+			}
+		}
+
+		protected override TestInstance CreateInstance (TestContext context)
+		{
+			var instanceType = typeof(ParameterSourceInstance<>).GetTypeInfo ();
+			var genericInstance = instanceType.MakeGenericType (ParameterType.AsType ());
+			return (ParameterizedTestInstance)Activator.CreateInstance (
+				genericInstance, this, context.Instance, Attribute.SourceType, Filter);
+		}
 	}
 }
 

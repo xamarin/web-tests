@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// TestHostAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AsyncTests.Framework
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Parameter, AllowMultiple = false)]
+	public class TestHostAttribute : Attribute
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public Type HostType {
+			get;
+			private set;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public TestFlags Flags {
+			get;
+			private set;
+		}
+
+		public TestHostAttribute (Type type, TestFlags flags = TestFlags.None)
+		{
+			HostType = type;
+			Flags = flags;
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[TestHostAttribute: Type={0}, Flags={1}]", HostType, Flags);
+		}
 	}
 }
 

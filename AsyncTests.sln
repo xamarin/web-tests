@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncTests.Mac", "AsyncTests.Mac\AsyncTests.Mac.csproj", "{E107629B-3980-498C-85FC-69B22781843F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncTests.Framework", "AsyncTests.Framework\AsyncTests.Framework.csproj", "{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncTests.Sample", "AsyncTests.Sample\AsyncTests.Sample.csproj", "{50F3B858-C105-4599-8B52-81372E172F47}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncTests.Console", "AsyncTests.Console\AsyncTests.Console.csproj", "{7FF093FE-C185-4BD9-9C56-F5EF8F8F2CBA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,20 +20,20 @@ Global
 		{50F3B858-C105-4599-8B52-81372E172F47}.Debug|x86.Build.0 = Debug|Any CPU
 		{50F3B858-C105-4599-8B52-81372E172F47}.Release|x86.ActiveCfg = Release|Any CPU
 		{50F3B858-C105-4599-8B52-81372E172F47}.Release|x86.Build.0 = Release|Any CPU
+		{7FF093FE-C185-4BD9-9C56-F5EF8F8F2CBA}.AppStore|x86.ActiveCfg = Debug|x86
+		{7FF093FE-C185-4BD9-9C56-F5EF8F8F2CBA}.AppStore|x86.Build.0 = Debug|x86
+		{7FF093FE-C185-4BD9-9C56-F5EF8F8F2CBA}.Debug|x86.ActiveCfg = Debug|x86
+		{7FF093FE-C185-4BD9-9C56-F5EF8F8F2CBA}.Debug|x86.Build.0 = Debug|x86
+		{7FF093FE-C185-4BD9-9C56-F5EF8F8F2CBA}.Release|x86.ActiveCfg = Release|x86
+		{7FF093FE-C185-4BD9-9C56-F5EF8F8F2CBA}.Release|x86.Build.0 = Release|x86
 		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.AppStore|x86.ActiveCfg = Debug|x86
 		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.AppStore|x86.Build.0 = Debug|x86
-		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.Debug|x86.ActiveCfg = Debug|x86
-		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.Debug|x86.Build.0 = Debug|x86
+		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.Debug|x86.Build.0 = Debug|Any CPU
 		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.Release|x86.ActiveCfg = Debug|x86
 		{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}.Release|x86.Build.0 = Debug|x86
-		{E107629B-3980-498C-85FC-69B22781843F}.AppStore|x86.ActiveCfg = AppStore|x86
-		{E107629B-3980-498C-85FC-69B22781843F}.AppStore|x86.Build.0 = AppStore|x86
-		{E107629B-3980-498C-85FC-69B22781843F}.Debug|x86.ActiveCfg = Debug|x86
-		{E107629B-3980-498C-85FC-69B22781843F}.Debug|x86.Build.0 = Debug|x86
-		{E107629B-3980-498C-85FC-69B22781843F}.Release|x86.ActiveCfg = Release|x86
-		{E107629B-3980-498C-85FC-69B22781843F}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = AsyncTests.Mac\AsyncTests.Mac.csproj
+		StartupItem = AsyncTests.Console\AsyncTests.Console.csproj
 	EndGlobalSection
 EndGlobal

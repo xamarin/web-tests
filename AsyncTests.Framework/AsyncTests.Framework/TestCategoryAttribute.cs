@@ -27,36 +27,19 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 using System;
-using Mono.Addins;
 
 namespace AsyncTests.Framework {
 
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public abstract class TestCategoryAttribute : Attribute, ITestCategory {
-		public virtual string Name {
-			get {
-				var name = GetType ().Name;
-				if (name.EndsWith ("Attribute"))
-					name = name.Substring (0, name.Length - 9);
-				return name;
-			}
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
+	public sealed class TestCategoryAttribute : Attribute {
+		public string Name {
+			get;
+			private set;
 		}
 
-		/*
-		 * Must explicitly select this category to run it.
-		 */
-		public virtual bool Explicit {
-			get { return true; }
-		}
-
-		public virtual bool IsEnabled (ITestRunner runner)
+		public TestCategoryAttribute (string name)
 		{
-			return true;
-		}
-
-		public bool IsEnabled (TestCase test)
-		{
-			return test.Categories.Contains (this);
+			Name = name;
 		}
 	}
 }

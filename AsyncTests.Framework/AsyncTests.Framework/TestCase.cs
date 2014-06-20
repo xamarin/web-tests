@@ -32,38 +32,17 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using NUnit.Framework;
 
 namespace AsyncTests.Framework {
+	using Internal;
 
-	public sealed class TestCase {
-		public TestFixture Fixture {
+	public abstract class TestCase {
+		public abstract TestFlags Flags {
 			get;
-			private set;
 		}
 
-		public AsyncTestAttribute Attribute {
+		public abstract IEnumerable<TestWarning> Warnings {
 			get;
-			private set;
-		}
-
-		public IList<TestCategoryAttribute> Categories {
-			get;
-			private set;
-		}
-
-		public IList<TestWarning> Warnings {
-			get;
-			private set;
-		}
-
-		public TestConfiguration Configuration {
-			get { return config; }
-		}
-
-		public MethodInfo Method {
-			get;
-			private set;
 		}
 
 		public string Name {
@@ -71,89 +50,83 @@ namespace AsyncTests.Framework {
 			private set;
 		}
 
-		public bool IsEnabled {
-			get { return !disabled; }
+		public abstract bool IsEnabled (string category);
+
+		public abstract TypeInfo ExpectedExceptionType {
+			get;
 		}
 
-		TestConfiguration config;
-		bool disabled;
-
-		public TestCase (TestFixture fixture, AsyncTestAttribute attr, MethodInfo method)
+		public TestCase (string name)
 		{
-			this.Fixture = fixture;
-			this.Attribute = attr;
-			this.Method = method;
-			this.Name = method.Name;
-
-			IDictionary<Type, TestCategoryAttribute> categories;
-			IList<TestWarning> warnings;
-
-			TestFixture.Resolve (
-				fixture.Suite, fixture, method, out categories,
-				out warnings, out config, out disabled);
-
-			Categories = categories.Values.ToList ().AsReadOnly ();
-			Warnings = warnings;
-
+			Name = name;
 		}
 
-		internal void Log (string message, params object[] args)
+		internal abstract TestInvoker Resolve ();
+
+		public Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken)
 		{
-			Fixture.Log (message, args);
+			if (ExpectedExceptionType != null)
+				return ExpectingException (context, ExpectedExceptionType, cancellationToken);
+			else
+				return ExpectingSuccess (context, cancellationToken);
 		}
 
-		public async Task<TestResult> Run (TestContext context, CancellationToken cancellationToken)
+		protected abstract object InvokeInner (TestContext context, CancellationToken cancellationToken);
+
+		protected Task<TestResult> ExpectingSuccess (TestContext context, CancellationToken cancellationToken)
 		{
-			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-			if (Attribute.Timeout > 0)
-				cts.CancelAfter (Attribute.Timeout);
-
-			var oldConfig = context.Configuration;
-
+			object retval;
 			try {
-				context.Configuration = Configuration;
-
-				var attr = Method.GetCustomAttribute<ExpectedExceptionAttribute> ();
-				TestResult result;
-				if (attr != null)
-					result = await ExpectingException (context, attr.ExceptionType, cts.Token);
-				else
-					result = await ExpectingSuccess (context, cts.Token);
-				if (!context.HasWarnings)
-					return result;
-				var collection = new TestResultCollection (result.Name);
-				collection.AddChild (result);
-				collection.AddWarnings (context.Warnings);
-				return collection;
+				retval = InvokeInner (context, cancellationToken);
 			} catch (Exception ex) {
-				Log ("Test {0} failed: {1}", Name, ex);
-				return new TestError (Name, null, ex);
-			} finally {
-				context.Configuration = oldConfig;
+				return Task.FromResult<TestResult> (new TestError (Name, "Test failed", ex));
 			}
+
+			var tresult = retval as Task<TestResult>;
+			if (tresult != null)
+				return tresult;
+
+			var task = retval as Task;
+			if (task == null)
+				return Task.FromResult<TestResult> (new TestSuccess (Name));
+
+			return Task.Factory.ContinueWhenAny<TestResult> (new Task[] { task }, t => {
+				if (t.IsFaulted)
+					return new TestError (Name, "Test failed", t.Exception);
+				else if (t.IsCanceled)
+					return new TestError (Name, "Test cancelled", t.Exception);
+				else if (t.IsCompleted)
+					return new TestSuccess (Name);
+				throw new InvalidOperationException ();
+			});
 		}
 
-		async Task<TestResult> ExpectingSuccess (TestContext context,
-		                                         CancellationToken cancellationToken)
-		{
-			await context.Invoke (this, cancellationToken);
-			return new TestSuccess (Name);
-		}
-
-		async Task<TestResult> ExpectingException (TestContext context, Type type,
-		                                           CancellationToken cancellationToken)
+		protected async Task<TestResult> ExpectingException (TestContext context, TypeInfo expectedException,
+			CancellationToken cancellationToken)
 		{
 			try {
-				await context.Invoke (this, cancellationToken);
-				var message = string.Format ("Expected an exception of type {0}", type);
+				var retval = InvokeInner (context, cancellationToken);
+				var rtask = retval as Task<TestResult>;
+				if (rtask != null) {
+					var result = await rtask;
+					var terror = result as TestError;
+					if (terror != null)
+						throw terror.Error;
+				} else {
+					var task = retval as Task;
+					if (task != null)
+						await task;
+				}
+
+				var message = string.Format ("Expected an exception of type {0}", expectedException);
 				return new TestError (Name, message, new AssertionException (message));
 			} catch (Exception ex) {
 				if (ex is TargetInvocationException)
 					ex = ((TargetInvocationException)ex).InnerException;
-				if (type.IsAssignableFrom (ex.GetType ()))
+				if (expectedException.IsAssignableFrom (ex.GetType ().GetTypeInfo ()))
 					return new TestSuccess (Name);
 				var message = string.Format ("Expected an exception of type {0}, but got {1}",
-				                             type, ex.GetType ());
+					expectedException, ex.GetType ());
 				return new TestError (Name, message, new AssertionException (message, ex));
 			}
 		}

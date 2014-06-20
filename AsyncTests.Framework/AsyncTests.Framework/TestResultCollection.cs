@@ -43,7 +43,7 @@ namespace AsyncTests.Framework {
 			children.Add (child);
 		}
 
-		public void AddWarnings (IList<TestWarning> warnings)
+		public void AddWarnings (IEnumerable<TestWarning> warnings)
 		{
 			children.AddRange (warnings);
 		}

@@ -61,6 +61,11 @@ namespace AsyncTests.ConsoleRunner {
 			writer.WriteLine ("{0}) {1}\n{2}\n", ++id, GetName (), node.Error);
 		}
 
+		public override void Visit (TestWarning node)
+		{
+			writer.WriteLine ("{0}) {1}\n{2}\n", ++id, GetName (), node);
+		}
+
 		public override void Visit (TestResultWithErrors node)
 		{
 			for (int i = 0; i < node.Count; i++) {

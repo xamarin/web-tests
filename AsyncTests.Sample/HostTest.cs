@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// HostTest.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,14 +27,56 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Sample
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
-	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+	using Framework;
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+	// [AsyncTestFixture]
+	public class HostTest
+	{
+		[TestHost (typeof (MyHost))]
+		public class MyInstance : ITestInstance
+		{
+			public string Hello {
+				get;
+				private set;
+			}
+
+			public MyInstance (string hello)
+			{
+				Hello = hello;
+			}
+
+			public override string ToString ()
+			{
+				return string.Format ("[MyInstance: Hello={0}]", Hello);
+			}
+		}
+
+		public class MyHost : ITestHost<MyInstance>
+		{
+			public async Task<MyInstance> Initialize (TestContext context, CancellationToken cancellationToken)
+			{
+				var instance = new MyInstance ("Berlin");
+				context.Log ("INITIALIZE: {0}!", instance);
+				await Task.Delay (2500);
+				context.Log ("INITIALIZE DONE: {0}!", instance);
+				return instance;
+			}
+
+			public async Task Destroy (TestContext context, MyInstance instance, CancellationToken cancellationToken)
+			{
+				context.Log ("DESTROY: {0}!", instance);
+				await Task.Delay (2500);
+				context.Log ("DESTROY DONE: {0}!", instance);
+			}
+		}
+
+		[AsyncTest]
+		public void Test (TestContext context, [Repeat (3)] int outer, MyInstance instance, [Repeat (10)] int iteration)
+		{
+			context.Log ("TEST: {0} {1} {2}", instance, outer, iteration);
+		}
 	}
 }
 

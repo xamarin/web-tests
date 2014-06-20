@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// RepeatAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace AsyncTests.Framework
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, AllowMultiple = false)]
+	public sealed class RepeatAttribute : TestParameterAttribute
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public int Count {
+			get;
+			private set;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public RepeatAttribute (int count, TestFlags flags = TestFlags.None)
+			: base (typeof (RepeatedTestSource), count.ToString (), flags)
+		{
+			Count = count;
+		}
+
+		class RepeatedTestSource : ITestParameterSource<int>
+		{
+			public IEnumerable<int> GetParameters (TestContext context, string filter)
+			{
+				int count = int.Parse (filter);
+				for (int i = 0; i < count; i++)
+					yield return i;
+			}
+		}
 	}
 }
 

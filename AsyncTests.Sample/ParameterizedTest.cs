@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// ParameterizedTest.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Sample
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
-	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+	using Framework;
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+	// [AsyncTestFixture]
+	public class ParameterizedTest : ITestParameterSource<Foo>
+	{
+		public IEnumerable<Foo> GetParameters (TestContext context, string filter)
+		{
+			if (filter != null)
+				yield return new Foo (filter);
+			else
+				yield return new Foo ("Chicago");
+		}
+
+		[AsyncTest]
+		public void Hello (TestContext context, [TestParameter (typeof (HelloSource))] string hello)
+		{
+			context.Log ("HELLO: {0}", hello);
+		}
+
+		[AsyncTest]
+		public void HelloIFoo (TestContext context, IFoo foo)
+		{
+			context.Log ("HELLO IFOO: {0}", foo);
+		}
+
+		[AsyncTest]
+		public void HelloFoo (TestContext context, [TestParameter ("New York")] Foo foo, [TestParameter] Foo bar)
+		{
+			context.Log ("HELLO FOO: {0} {1}", foo, bar);
+		}
+
+		[AsyncTest]
+		public void Repeat (TestContext context, [Repeat (10)] int index)
+		{
+			context.Log ("REPEAT: {0}", index);
+		}
+
+		[Repeat (5)]
+		[AsyncTest]
+		public void SimpleRepeat (TestContext context)
+		{
+			context.Log ("SIMPLE REPEAT");
+		}
 	}
 }
-

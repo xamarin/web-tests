@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// CustomHostAttributeHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Framework.Internal.Reflection
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	class CustomHostAttributeTestHost : ParameterizedTestHost
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public TestHostAttribute Attribute {
+			get;
+			private set;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public CustomHostAttributeTestHost (TypeInfo type, TestHostAttribute attr)
+			: base (type)
+		{
+			Attribute = attr;
+			Flags = attr.Flags;
+		}
+
+		protected override TestInstance CreateInstance (TestContext context)
+		{
+			var instanceType = typeof(CustomTestInstance<>).GetTypeInfo ();
+			var genericInstance = instanceType.MakeGenericType (ParameterType.AsType ());
+			return (ParameterizedTestInstance)Activator.CreateInstance (
+				genericInstance, this, context.Instance, Attribute.HostType);
+		}
 	}
 }
 

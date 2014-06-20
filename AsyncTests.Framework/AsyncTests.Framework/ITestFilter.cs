@@ -1,5 +1,5 @@
 //
-// AsyncTests.Framework.Simple.SimpleTestFramework
+// AsyncTests.Framework.ITestCategoryFilter
 //
 // Authors:
 //      Martin Baulig (martin.baulig@gmail.com)
@@ -27,32 +27,14 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 using System;
-using System.Reflection;
-using System.Collections.Generic;
-using NUnit.Framework;
-using Mono.Addins;
 
-namespace AsyncTests.Framework.Simple {
+namespace AsyncTests.Framework {
 
-	[Extension]
-	public class SimpleTestFramework : ITestFramework {
-		static SimpleTestRunner runner = new SimpleTestRunner ();
+	public interface ITestFilter
+	{
+		bool Filter (TestFixture fixture);
 
-		public Type FixtureAttributeType {
-			get { return typeof (AsyncTestFixtureAttribute); }
-		}
-
-		public Type TestAttributeType {
-			get { return typeof (AsyncTestAttribute); }
-		}
-
-		public Type ContextType {
-			get { return typeof (SimpleTestContext); }
-		}
-
-		public ITestRunner[] GetTestRunners (TestFixture fixture)
-		{
-			return new ITestRunner[] { runner };
-		}
+		bool Filter (TestCase test);
 	}
 }
+

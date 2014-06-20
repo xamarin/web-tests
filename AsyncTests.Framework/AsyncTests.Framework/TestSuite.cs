@@ -33,65 +33,31 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
-using System.Configuration;
 using System.Collections.Generic;
-using Mono.Addins;
-
-[assembly:AddinRoot ("AsyncTests", "0.1")]
 
 namespace AsyncTests.Framework {
+	using Internal;
+	using Internal.Reflection;
 
 	public class TestSuite {
-		Assembly assembly;
 		List<TestFixture> fixtures;
-		static readonly ITestFramework[] frameworks;
-		static readonly ITestHost[] hosts;
-		static readonly ITestCategory[] categories;
-		static readonly ITestCategoryFilter[] filters;
-		static readonly Configuration config;
 
-		static TestSuite ()
+		TestSuite (string name)
 		{
-			AddinManager.Initialize ();
-			AddinManager.Registry.Update ();
-
-			frameworks = AddinManager.GetExtensionObjects<ITestFramework> () ?? new ITestFramework[0];
-			hosts = AddinManager.GetExtensionObjects<ITestHost> () ?? new ITestHost[0];
-			categories = AddinManager.GetExtensionObjects<ITestCategory> () ?? new ITestCategory[0];
-
-			filters = categories.Where (category => category is ITestCategoryFilter).
-				Select (x => (ITestCategoryFilter)x).ToArray ();
-
-			config = ConfigurationManager.OpenExeConfiguration (ConfigurationUserLevel.PerUserRoamingAndLocal);
-		}
-
-		TestSuite (Assembly assembly)
-		{
-			this.assembly = assembly;
-		}
-
-		public Assembly Assembly {
-			get { return assembly; }
-		}
-
-		public static Configuration Configuration {
-			get { return config; }
+			Name = name;
 		}
 
 		public string Name {
-			get { return assembly.GetName ().Name; }
+			get;
+			private set;
 		}
 
-		public static ITestCategory[] Categories {
-			get { return categories; }
-		}
-
-		internal static ITestCategoryFilter[] CategoryFilters {
-			get { return filters; }
+		public ITestFilter TestFilter {
+			get; set;
 		}
 
 		public IList<TestFixture> Fixtures {
-			get { return fixtures.AsReadOnly (); }
+			get { return fixtures; }
 		}
 
 		public int CountFixtures {
@@ -102,83 +68,40 @@ namespace AsyncTests.Framework {
 			get { return fixtures.Sum (fixture => fixture.CountTests); }
 		}
 
-		internal static bool Filter (TestCase test, ITestRunner runner, ITestCategory category)
+		internal bool Filter (TestCase test)
 		{
-			if (!test.IsEnabled || !category.IsEnabled (test) || !runner.IsEnabled (test))
-				return false;
-			if (test.Categories.Where (c => !c.Equals (category)).Any (c => c.Explicit))
-				return false;
-			return filters.Where (f => !f.Equals (category)).All (f => f.Filter (test));
-		}
-
-		public static T GetConfiguration<T> () where T : TestConfiguration
-		{
-			return (T)GetConfiguration (typeof (T));
-		}
-
-		internal static TestConfiguration GetConfiguration (Type type)
-		{
-			var name = type.FullName;
-			var section = (TestConfiguration)config.GetSection (name);
-			config.Save (ConfigurationSaveMode.Modified);
-			ConfigurationManager.RefreshSection (name);
-
-			if (section == null) {
-				section = (TestConfiguration)Activator.CreateInstance (type);
-				config.Sections.Add (name, section);
-				config.Save (ConfigurationSaveMode.Modified);
-				ConfigurationManager.RefreshSection (name);
-			}
-
-			return section;
+			if (TestFilter != null)
+				return TestFilter.Filter (test);
+			return true;
 		}
 
 		public static Task<TestSuite> Create (Assembly assembly)
 		{
 			var tcs = new TaskCompletionSource<TestSuite> ();
 
-			ThreadPool.QueueUserWorkItem (_ => {
+			Task.Factory.StartNew (() => {
 				try {
-					var suite = new TestSuite (assembly);
-					suite.DoResolve ();
+					var suite = new TestSuite (assembly.FullName);
+					suite.DoResolve (assembly);
 					tcs.SetResult (suite);
 				} catch (Exception ex) {
 					tcs.SetException (ex);
 				}
-			}
-			);
+			});
 
 			return tcs.Task;
 		}
 
-		void DoResolve ()
+		void DoResolve (Assembly assembly)
 		{
 			fixtures = new List<TestFixture> ();
-			foreach (var framework in frameworks) {
-				if (!IsEqualOrSubclassOf<AsyncTestFixtureAttribute> (framework.FixtureAttributeType)) {
-					Log ("Framework '{0}' has invalid FixtureAttributeType '{1}'",
-					     framework.GetType ().FullName, framework.FixtureAttributeType.FullName);
+			foreach (var type in assembly.ExportedTypes) {
+				var tinfo = type.GetTypeInfo ();
+				var attr = tinfo.GetCustomAttribute<AsyncTestFixtureAttribute> (true);
+				if (attr == null)
 					continue;
-				}
-				if (!IsEqualOrSubclassOf<AsyncTestAttribute> (framework.TestAttributeType)) {
-					Log ("Framework '{0}' has invalid FixtureAttributeType '{1}'",
-					     framework.GetType ().FullName, framework.TestAttributeType.FullName);
-					continue;
-				}
-				if (!IsEqualOrSubclassOf<TestContext> (framework.ContextType)) {
-					Log ("Framework '{0}' has invalid ContextType '{1}'",
-					     framework.GetType ().FullName, framework.ContextType.FullName);
-					continue;
-				}
 
-				foreach (var type in assembly.GetExportedTypes ()) {
-					var attr = (AsyncTestFixtureAttribute)type.GetCustomAttribute (
-						framework.FixtureAttributeType, false);
-					if ((attr == null) || attr.GetType ().IsSubclassOf (framework.FixtureAttributeType))
-						continue;
-
-					fixtures.Add (new TestFixture (this, framework, attr, type));
-				}
+				fixtures.Add (new ReflectionTestFixture (this, attr, tinfo));
 			}
 
 			foreach (var fixture in fixtures) {
@@ -186,7 +109,7 @@ namespace AsyncTests.Framework {
 			}
 		}
 
-		bool IsEqualOrSubclassOf<T> (Type type)
+		bool IsEqualOrSubclassOf<T> (TypeInfo type)
 		{
 			return type.Equals (typeof (T)) || type.IsSubclassOf (typeof (T));
 		}
@@ -201,46 +124,26 @@ namespace AsyncTests.Framework {
 			private set;
 		}
 
-		public static ITestCategory AllTests = new AllTestsCategory ();
-
 		public Task<TestResultCollection> Run (CancellationToken cancellationToken)
 		{
-			return Run (AllTests, 1, cancellationToken);
+			return Run (1, cancellationToken);
 		}
 
-		public async Task<TestResultCollection> Run (ITestCategory category, int repeatCount,
-		                                             CancellationToken cancellationToken)
+		public async Task<TestResultCollection> Run (int repeatCount, CancellationToken cancellationToken)
 		{
 			var result = new TestResultCollection (Name);
 
-			try {
-				for (int i = 0; i < hosts.Length; i++)
-					await hosts [i].SetUp (this);
-			} catch (Exception ex) {
-				Log ("SetUp failed: {0}", ex);
-				result.AddChild (new TestError (Name, "SetUp failed", ex));
-				return result;
-			}
-
 			if (repeatCount == 1) {
 				CurrentIteration = MaxIterations = 1;
-				await DoRun (category, result, cancellationToken);
+				await DoRun (result, cancellationToken);
 			} else {
 				MaxIterations = repeatCount;
 				for (CurrentIteration = 0; CurrentIteration < repeatCount; CurrentIteration++) {
 					var name = string.Format ("{0} (iteration {1})", Name, CurrentIteration + 1);
 					var iteration = new TestResultCollection (name);
 					result.AddChild (iteration);
-					await DoRun (category, iteration, cancellationToken);
+					await DoRun (iteration, cancellationToken);
 				}
-			}
-
-			try {
-				for (int i = 0; i < hosts.Length; i++)
-					await hosts [i].TearDown (this);
-			} catch (Exception ex) {
-				Log ("TearDown failed: {0}", ex);
-				result.AddChild (new TestError (Name, "TearDown failed", ex));
 			}
 
 			OnStatusMessageEvent ("Test suite finished.");
@@ -248,14 +151,13 @@ namespace AsyncTests.Framework {
 			return result;
 		}
 
-		async Task DoRun (ITestCategory category, TestResultCollection result,
-		                  CancellationToken cancellationToken)
+		async Task DoRun (TestResultCollection result, CancellationToken cancellationToken)
 		{
 			foreach (var fixture in fixtures) {
-				if (!fixture.IsEnabled (category))
+				if (TestFilter != null && !TestFilter.Filter (fixture))
 					continue;
 				try {
-					result.AddChild (await fixture.Run (category, cancellationToken));
+					result.AddChild (await fixture.Run (cancellationToken));
 				} catch (Exception ex) {
 					Log ("Test fixture {0} failed: {1}", fixture.Name, ex);
 					result.AddChild (new TestError (fixture.Name, "Test fixture failed", ex));

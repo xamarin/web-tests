@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// TestInstance.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,14 +27,25 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Framework.Internal
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	abstract class TestInstance
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public TestHost Host {
+			get;
+			private set;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public TestInstance Parent {
+			get;
+			private set;
+		}
+
+		protected TestInstance (TestHost host, TestInstance parent)
+		{
+			Host = host;
+			Parent = parent;
+		}
 	}
 }
 

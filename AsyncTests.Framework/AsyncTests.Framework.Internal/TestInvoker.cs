@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// TestRunner.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,14 +27,26 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Framework.Internal
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	abstract class TestInvoker
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public string Name {
+			get;
+			private set;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		protected TestInvoker (string name)
+		{
+			Name = name;
+		}
+
+		public abstract Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken);
+
+		public override string ToString ()
+		{
+			return string.Format ("[{0}: Name={1}]", GetType ().Name, Name);
+		}
 	}
 }
 

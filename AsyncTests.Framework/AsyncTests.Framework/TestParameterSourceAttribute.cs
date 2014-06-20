@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// TestParameterSourceAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AsyncTests.Framework
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
+	public class TestParameterSourceAttribute : Attribute
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public Type SourceType {
+			get;
+			private set;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public TestParameterSourceAttribute (Type sourceType)
+		{
+			SourceType = sourceType;
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[TestParameterAttribute: SourceType={0}]", SourceType);
+		}
 	}
 }
 

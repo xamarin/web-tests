@@ -33,63 +33,39 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using NUnit.Framework;
-using NUnit.Framework.Constraints;
-using NUnit.Framework.SyntaxHelpers;
 
 namespace AsyncTests.Framework {
-	public abstract class TestContext : IDisposable {
+	using Internal;
+
+	public class TestContext : IDisposable {
 		List<TestError> errors;
 		List<TestWarning> warnings;
 		List<IDisposable> disposables;
-		int countAssertions;
 
-		public TestFixture Fixture {
+		public TestSuite Suite {
 			get;
 			private set;
 		}
 
-		internal object Instance {
-			get;
-			private set;
-		}
-
-		public ThreadingMode ThreadingMode {
-			get;
-			internal set;
-		}
-
-		public TestConfiguration Configuration {
-			get;
-			internal set;
-		}
-
-		protected TestContext (TestFixture fixture, object instance)
+		internal TestContext (TestSuite suite)
 		{
-			this.Fixture = fixture;
-			this.Instance = instance;
-			ThreadingMode = ThreadingMode.Default;
+			Suite = suite;
 		}
 
-		public virtual void Log (string message, params object[] args)
+		public void Log (string message, params object[] args)
 		{
-			Fixture.Log (message, args);
+			Suite.Log (message, args);
 		}
 
-		public T GetConfiguration<T> ()
-			where T : TestConfiguration
+		public void LogError (TestError error)
 		{
-			var message = string.Format ("GetConfiguration({0})", typeof (T).FullName);
-			Assert (Configuration, Is.Not.Null, "GetConfiguration({0})", message);
-			Assert (Configuration, Is.InstanceOfType (typeof (T)), message);
-			return (T)Configuration;
+			Suite.Log (error.ToString ());
 		}
 
 		internal void ClearErrors ()
 		{
 			errors = null;
 			warnings = null;
-			countAssertions = 0;
 		}
 
 		internal void AddError (string name, Exception error)
@@ -105,7 +81,7 @@ namespace AsyncTests.Framework {
 
 		internal IList<TestError> Errors {
 			get {
-				return HasErrors ? errors.AsReadOnly () : null;
+				return HasErrors ? errors : null;
 			}
 		}
 
@@ -115,7 +91,7 @@ namespace AsyncTests.Framework {
 
 		public IList<TestWarning> Warnings {
 			get {
-				return HasWarnings ? warnings.AsReadOnly () : null;
+				return HasWarnings ? warnings : null;
 			}
 		}
 
@@ -126,33 +102,13 @@ namespace AsyncTests.Framework {
 			throw new TestErrorException (message, errors.ToArray ());
 		}
 
-		protected internal Task Invoke (TestCase test, CancellationToken cancellationToken)
-		{
-			object[] args;
-			if (test.Method.GetParameters ().Length == 1)
-				args = new object[] { this };
-			else
-				args = new object[] { this, cancellationToken };
-			return Invoke_internal (test.Name, test.Method, Instance, args);
+		#region Internal
+
+		internal TestInstance Instance {
+			get; set;
 		}
 
-		protected internal async Task Invoke_internal (string name, MethodInfo method,
-		                                               object instance, object[] args)
-		{
-			ClearErrors ();
-
-			try {
-				var retval = method.Invoke (instance, args);
-
-				var task = retval as Task;
-				if (task != null)
-					await task;
-			} finally {
-				AutoDispose ();
-			}
-
-			CheckErrors (name);
-		}
+		#endregion
 
 		#region Assertions
 
@@ -168,92 +124,6 @@ namespace AsyncTests.Framework {
 		public bool AlwaysFatal {
 			get;
 			set;
-		}
-
-		public bool Expect (object actual, Constraint constraint)
-		{
-			return Expect (false, actual, constraint, null, null);
-		}
-
-		public bool Expect (object actual, Constraint constraint, string message)
-		{
-			return Expect (false, actual, constraint, message, null);
-		}
-
-		public bool Expect (object actual, Constraint constraint,
-		                    string message, params object[] args)
-		{
-			return Expect (false, actual, constraint, message, args);
-		}
-
-		public bool Expect (bool fatal, object actual, Constraint constraint,
-		                    string message, params object[] args)
-		{
-			if (constraint.Matches (actual)) {
-				++countAssertions;
-				return true;
-			}
-			using (var writer = new TextMessageWriter (message, args)) {
-				constraint.WriteMessageTo (writer);
-				var error = new AssertionException (writer.ToString ());
-				string text = string.Empty;;
-				if ((message != null) && (message != string.Empty)) {
-					if (args != null)
-						text = string.Format (message, args);
-					else
-						text = message;
-				}
-				AddError (text, error);
-				if (AlwaysFatal || fatal)
-					throw error;
-				return false;
-			}
-		}
-
-		public void Assert (object actual, Constraint constraint)
-		{
-			Expect (true, actual, constraint, null, null);
-		}
-
-		public void Assert (object actual, Constraint constraint, string message)
-		{
-			Expect (true, actual, constraint, message, null);
-		}
-
-		public void Assert (object actual, Constraint constraint,
-		                    string message, params object[] args)
-		{
-			Expect (true, actual, constraint, message, args);
-		}
-
-		public bool Expect (bool condition, string message, params object[] args)
-		{
-			return Expect (false, condition, Is.True, message, args);
-		}
-
-		public bool Expect (bool condition, string message)
-		{
-			return Expect (false, condition, Is.True, message, null);
-		}
-
-		public bool Expect (bool condition)
-		{
-			return Expect (false, condition, Is.True, null, null);
-		}
-
-		public void Assert (bool condition, string message, params object[] args)
-		{
-			Expect (true, condition, Is.True, message, args);
-		}
-
-		public void Assert (bool condition, string message)
-		{
-			Expect (true, condition, Is.True, message, null);
-		}
-
-		public void Assert (bool condition)
-		{
-			Expect (true, condition, Is.True, null, null);
 		}
 
 		public void Warning (string message, params object[] args)
@@ -281,7 +151,7 @@ namespace AsyncTests.Framework {
 			disposables.Add (disposable);
 		}
 
-		void AutoDispose ()
+		public void AutoDispose ()
 		{
 			if (disposables == null)
 				return;
@@ -306,8 +176,9 @@ namespace AsyncTests.Framework {
 			GC.SuppressFinalize (this);
 		}
 
-		protected virtual void Dispose (bool disposing)
+		void Dispose (bool disposing)
 		{
+			AutoDispose ();
 		}
 
 		#endregion

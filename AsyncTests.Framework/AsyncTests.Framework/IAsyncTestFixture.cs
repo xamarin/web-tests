@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// IAsyncTestFixture.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -29,12 +29,11 @@ using System.Threading.Tasks;
 
 namespace AsyncTests.Framework
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	public interface IAsyncTestFixture
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		Task SetUp (TestContext context, CancellationToken cancellationToken);
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		Task TearDown (TestContext context, CancellationToken cancellationToken);
 	}
 }
 

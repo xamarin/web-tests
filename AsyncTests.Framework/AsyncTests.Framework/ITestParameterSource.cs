@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// ITestParameterSource.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace AsyncTests.Framework
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	public interface ITestParameterSource
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+	}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+	public interface ITestParameterSource<T> : ITestParameterSource
+	{
+		IEnumerable<T> GetParameters (TestContext context, string filter);
 	}
 }
 

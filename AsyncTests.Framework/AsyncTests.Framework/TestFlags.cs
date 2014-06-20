@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// RepeatFlags.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AsyncTests.Framework
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	[Flags]
+	public enum TestFlags
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
-
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		None = 0,
+		ContinueOnError = 1
 	}
 }
 

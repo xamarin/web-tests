@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// TestFixtureInvoker.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncTests.Framework
+namespace AsyncTests.Framework.Internal
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	class TestFixtureInvoker : AggregatedTestInvoker
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public TestFixture Fixture {
+			get;
+			private set;
+		}
 
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public TestFixtureInvoker (TestFixture fixture)
+			: base (fixture.Name, TestFlags.ContinueOnError, new FixtureTestHost (fixture))
+		{
+			Fixture = fixture;
+		}
+
+		public void Resolve (IEnumerable<TestCase> selectedTests)
+		{
+			foreach (var test in selectedTests) {
+				var invoker = test.Resolve ();
+				InnerTestInvokers.Add (invoker);
+			}
+		}
 	}
 }
 
