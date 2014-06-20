@@ -38,7 +38,7 @@ namespace AsyncTests.Framework
 {
 	using Internal;
 
-	public abstract class TestFixture
+	public abstract class TestFixture : TestCase
 	{
 		public TestSuite Suite {
 			get;
@@ -50,21 +50,9 @@ namespace AsyncTests.Framework
 			private set;
 		}
 
-		public abstract IList<string> Categories {
-			get;
-		}
-
-		public abstract IList<TestWarning> Warnings {
-			get;
-		}
-
 		public TypeInfo Type {
 			get;
 			private set;
-		}
-
-		public string Name {
-			get { return Type.Name; }
 		}
 
 		public abstract int CountTests {
@@ -76,6 +64,7 @@ namespace AsyncTests.Framework
 		}
 
 		internal TestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)
+			: base (type.Name)
 		{
 			this.Suite = suite;
 			this.Attribute = attr;
@@ -91,8 +80,6 @@ namespace AsyncTests.Framework
 				result.AddWarnings (test.Warnings);
 			}
 		}
-
-		public abstract Task<TestResult> Run (TestContext context, CancellationToken cancellationToken);
 
 		internal abstract Task InitializeInstance (TestContext context, CancellationToken cancellationToken);
 

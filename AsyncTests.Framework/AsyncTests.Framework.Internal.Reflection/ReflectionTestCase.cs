@@ -34,10 +34,6 @@ namespace AsyncTests.Framework.Internal.Reflection
 {
 	class ReflectionTestCase : TestCase
 	{
-		public override TestFlags Flags {
-			get { return flags; }
-		}
-
 		public ReflectionTestFixture Fixture {
 			get;
 			private set;
@@ -53,7 +49,7 @@ namespace AsyncTests.Framework.Internal.Reflection
 			private set;
 		}
 
-		public IList<string> Categories {
+		public override IEnumerable<string> Categories {
 			get { return categories; }
 		}
 
@@ -65,7 +61,10 @@ namespace AsyncTests.Framework.Internal.Reflection
 			get { return repeat; }
 		}
 
-		TestFlags flags;
+		public TypeInfo ExpectedExceptionType {
+			get { return expectedExceptionType; }
+		}
+
 		IList<string> categories;
 		IList<TestWarning> warnings;
 		RepeatAttribute repeat;
@@ -78,7 +77,6 @@ namespace AsyncTests.Framework.Internal.Reflection
 			Fixture = fixture;
 			Attribute = attr;
 			Method = method;
-			flags = TestFlags.None;
 
 			ReflectionTestFixture.Resolve (
 				fixture.Suite, fixture, method, out repeat, out categories, out warnings);
@@ -86,11 +84,6 @@ namespace AsyncTests.Framework.Internal.Reflection
 			expectedException = method.GetCustomAttribute<ExpectedExceptionAttribute> ();
 			if (expectedException != null)
 				expectedExceptionType = expectedException.ExceptionType.GetTypeInfo ();
-		}
-
-		public override bool IsEnabled (string category)
-		{
-			return categories.Contains (category);
 		}
 
 		internal override TestInvoker Resolve (TestContext context)
@@ -155,11 +148,15 @@ namespace AsyncTests.Framework.Internal.Reflection
 			return invoker;
 		}
 
-		public override TypeInfo ExpectedExceptionType {
-			get { return expectedExceptionType; }
+		public override Task<TestResult> Run (TestContext context, CancellationToken cancellationToken)
+		{
+			if (ExpectedExceptionType != null)
+				return ExpectingException (context, ExpectedExceptionType, cancellationToken);
+			else
+				return ExpectingSuccess (context, cancellationToken);
 		}
 
-		protected override object InvokeInner (TestContext context, CancellationToken cancellationToken)
+		object InvokeInner (TestContext context, CancellationToken cancellationToken)
 		{
 			var args = new LinkedList<object> ();
 
@@ -207,6 +204,64 @@ namespace AsyncTests.Framework.Internal.Reflection
 				throw new InvalidOperationException ();
 
 			return Method.Invoke (thisInstance, args.ToArray ());
+		}
+
+		Task<TestResult> ExpectingSuccess (TestContext context, CancellationToken cancellationToken)
+		{
+			object retval;
+			try {
+				retval = InvokeInner (context, cancellationToken);
+			} catch (Exception ex) {
+				return Task.FromResult<TestResult> (new TestError (Name, "Test failed", ex));
+			}
+
+			var tresult = retval as Task<TestResult>;
+			if (tresult != null)
+				return tresult;
+
+			var task = retval as Task;
+			if (task == null)
+				return Task.FromResult<TestResult> (new TestSuccess (Name));
+
+			return Task.Factory.ContinueWhenAny<TestResult> (new Task[] { task }, t => {
+				if (t.IsFaulted)
+					return new TestError (Name, "Test failed", t.Exception);
+				else if (t.IsCanceled)
+					return new TestError (Name, "Test cancelled", t.Exception);
+				else if (t.IsCompleted)
+					return new TestSuccess (Name);
+				throw new InvalidOperationException ();
+			});
+		}
+
+		async Task<TestResult> ExpectingException (TestContext context, TypeInfo expectedException,
+			CancellationToken cancellationToken)
+		{
+			try {
+				var retval = InvokeInner (context, cancellationToken);
+				var rtask = retval as Task<TestResult>;
+				if (rtask != null) {
+					var result = await rtask;
+					var terror = result as TestError;
+					if (terror != null)
+						throw terror.Error;
+				} else {
+					var task = retval as Task;
+					if (task != null)
+						await task;
+				}
+
+				var message = string.Format ("Expected an exception of type {0}", expectedException);
+				return new TestError (Name, message, new AssertionException (message));
+			} catch (Exception ex) {
+				if (ex is TargetInvocationException)
+					ex = ((TargetInvocationException)ex).InnerException;
+				if (expectedException.IsAssignableFrom (ex.GetType ().GetTypeInfo ()))
+					return new TestSuccess (Name);
+				var message = string.Format ("Expected an exception of type {0}, but got {1}",
+					expectedException, ex.GetType ());
+				return new TestError (Name, message, new AssertionException (message, ex));
+			}
 		}
 	}
 }

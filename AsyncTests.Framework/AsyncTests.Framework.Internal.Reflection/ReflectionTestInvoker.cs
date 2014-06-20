@@ -45,7 +45,7 @@ namespace AsyncTests.Framework.Internal.Reflection
 
 		public override Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken)
 		{
-			return Test.Invoke (context, cancellationToken);
+			return Test.Run (context, cancellationToken);
 		}
 	}
 }

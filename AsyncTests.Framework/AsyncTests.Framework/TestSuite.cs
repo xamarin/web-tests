@@ -52,10 +52,6 @@ namespace AsyncTests.Framework {
 			private set;
 		}
 
-		public ITestFilter TestFilter {
-			get; set;
-		}
-
 		public IList<TestFixture> Fixtures {
 			get { return fixtures; }
 		}
@@ -66,13 +62,6 @@ namespace AsyncTests.Framework {
 
 		public int CountTests {
 			get { return fixtures.Sum (fixture => fixture.CountTests); }
-		}
-
-		internal bool Filter (TestCase test)
-		{
-			if (TestFilter != null)
-				return TestFilter.Filter (test);
-			return true;
 		}
 
 		public static Task<TestSuite> Create (Assembly assembly)
@@ -114,35 +103,18 @@ namespace AsyncTests.Framework {
 			return type.Equals (typeof (T)) || type.IsSubclassOf (typeof (T));
 		}
 
-		internal int CurrentIteration {
-			get;
-			private set;
-		}
-
-		internal int MaxIterations {
-			get;
-			private set;
-		}
-
-		public Task<TestResultCollection> Run (TestContext context, CancellationToken cancellationToken)
-		{
-			return Run (context, 1, cancellationToken);
-		}
-
-		public async Task<TestResultCollection> Run (TestContext context, int repeatCount, CancellationToken cancellationToken)
+		public async Task<TestResultCollection> Run (TestContext context, CancellationToken cancellationToken)
 		{
 			var result = new TestResultCollection (Name);
 
-			if (repeatCount == 1) {
-				CurrentIteration = MaxIterations = 1;
-				await DoRun (context, result, cancellationToken);
+			if (context.Repeat == 0) {
+				await Run (context, result, cancellationToken);
 			} else {
-				MaxIterations = repeatCount;
-				for (CurrentIteration = 0; CurrentIteration < repeatCount; CurrentIteration++) {
-					var name = string.Format ("{0} (iteration {1})", Name, CurrentIteration + 1);
-					var iteration = new TestResultCollection (name);
-					result.AddChild (iteration);
-					await DoRun (context, iteration, cancellationToken);
+				for (int iteration = 0; iteration < context.Repeat; iteration++) {
+					var name = string.Format ("{0} (iteration {1})", Name, iteration + 1);
+					var child = new TestResultCollection (name);
+					result.AddChild (child);
+					await Run (context, child, cancellationToken);
 				}
 			}
 
@@ -151,10 +123,10 @@ namespace AsyncTests.Framework {
 			return result;
 		}
 
-		async Task DoRun (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
+		async Task Run (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
 		{
 			foreach (var fixture in fixtures) {
-				if (TestFilter != null && !TestFilter.Filter (fixture))
+				if (!context.Filter (fixture))
 					continue;
 				try {
 					result.AddChild (await fixture.Run (context, cancellationToken));

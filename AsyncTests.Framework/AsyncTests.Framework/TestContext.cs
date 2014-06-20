@@ -63,6 +63,21 @@ namespace AsyncTests.Framework {
 			Log (error.ToString ());
 		}
 
+		public int Repeat {
+			get; set;
+		}
+
+		public ITestFilter TestFilter {
+			get; set;
+		}
+
+		internal bool Filter (TestCase test)
+		{
+			if (TestFilter != null)
+				return TestFilter.Filter (test);
+			return true;
+		}
+
 		internal void ClearErrors ()
 		{
 			errors = null;

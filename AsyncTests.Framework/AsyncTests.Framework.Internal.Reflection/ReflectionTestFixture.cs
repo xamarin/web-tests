@@ -40,11 +40,11 @@ namespace AsyncTests.Framework.Internal.Reflection
 		IList<TestWarning> warnings;
 		RepeatAttribute repeat;
 
-		public override IList<string> Categories {
+		public override IEnumerable<string> Categories {
 			get { return categories; }
 		}
 
-		public override IList<TestWarning> Warnings {
+		public override IEnumerable<TestWarning> Warnings {
 			get { return warnings; }
 		}
 
@@ -140,14 +140,14 @@ namespace AsyncTests.Framework.Internal.Reflection
 
 		public override Task<TestResult> Run (TestContext context, CancellationToken cancellationToken)
 		{
-			var invoker = CreateInvoker (context);
+			var invoker = Resolve (context);
 			return invoker.Invoke (context, cancellationToken);
 		}
 
-		TestInvoker CreateInvoker (TestContext context)
+		internal override TestInvoker Resolve (TestContext context)
 		{
 			var invoker = new TestFixtureInvoker (this);
-			var selected = Filter ();
+			var selected = Filter (context);
 			invoker.Resolve (context, selected);
 
 			if (Repeat != null) {
@@ -174,9 +174,9 @@ namespace AsyncTests.Framework.Internal.Reflection
 				await fixtureInstance.TearDown (context, cancellationToken);
 		}
 
-		internal IEnumerable<ReflectionTestCase> Filter ()
+		internal IEnumerable<ReflectionTestCase> Filter (TestContext context)
 		{
-			return tests.Where (t => Suite.Filter (t));
+			return tests.Where (t => context.Filter (t));
 		}
 	}
 }
