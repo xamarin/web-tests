@@ -35,14 +35,26 @@ namespace AsyncTests.ConsoleRunner {
 			return string.Join (".", names.ToArray ());
 		}
 
+		void PushName (TestResultItem item)
+		{
+			if (item.Name != null)
+				names.Push (item.Name);
+		}
+
+		void PopName (TestResultItem item)
+		{
+			if (item.Name != null)
+				names.Pop ();
+		}
+
 		#region implemented abstract members of ResultVisitor
 		public override void Visit (TestResultCollection node)
 		{
 			for (int i = 0; i < node.Count; i++) {
 				var item = node [i];
-				names.Push (item.Name);
+				PushName (item);
 				item.Accept (this);
-				names.Pop ();
+				PopName (item);
 			}
 		}
 
@@ -70,9 +82,9 @@ namespace AsyncTests.ConsoleRunner {
 		{
 			for (int i = 0; i < node.Count; i++) {
 				var item = node [i];
-				names.Push (item.Name);
+				PushName (item);
 				item.Accept (this);
-				names.Pop ();
+				PopName (item);
 			}
 		}
 		#endregion

@@ -55,9 +55,7 @@
     <Compile Include="AsyncTests.Framework.Internal.Reflection\ReflectionTestCase.cs" />
     <Compile Include="AsyncTests.Framework.Internal.Reflection\ReflectionTestFixture.cs" />
     <Compile Include="AsyncTests.Framework.Internal\TestInvoker.cs" />
-    <Compile Include="AsyncTests.Framework.Internal\ProxyTestInvoker.cs" />
     <Compile Include="AsyncTests.Framework.Internal\AggregatedTestInvoker.cs" />
-    <Compile Include="AsyncTests.Framework.Internal.Reflection\ReflectionTestInvoker.cs" />
     <Compile Include="AsyncTests.Framework\ITestParameterSource.cs" />
     <Compile Include="AsyncTests.Framework\TestParameterAttribute.cs" />
     <Compile Include="AsyncTests.Framework.Internal\ParameterizedTestHost.cs" />
@@ -76,6 +74,7 @@
     <Compile Include="AsyncTests.Framework.Internal\TestFixtureInvoker.cs" />
     <Compile Include="AsyncTests.Framework\IAsyncTestFixture.cs" />
     <Compile Include="AsyncTests.Framework.Internal\RepeatedTestHost.cs" />
+    <Compile Include="AsyncTests.Framework.Internal\TestCaseInvoker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

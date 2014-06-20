@@ -67,7 +67,7 @@ namespace AsyncTests.Framework.Internal.Reflection
 		TypeInfo expectedExceptionType;
 
 		public ReflectionTestCase (ReflectionTestFixture fixture, AsyncTestAttribute attr, MethodInfo method)
-			: base (method.Name)
+			: base (method.DeclaringType.Name + "." + method.Name)
 		{
 			Fixture = fixture;
 			Attribute = attr;
@@ -85,7 +85,7 @@ namespace AsyncTests.Framework.Internal.Reflection
 		{
 			context.Debug (5, "RESOLVE: {0}", Name);
 
-			TestInvoker invoker = new ReflectionTestInvoker (this);
+			TestInvoker invoker = new TestCaseInvoker (this);
 
 			var parameterHosts = new List<TestHost> ();
 			if (Attribute.Repeat != 0)
@@ -207,7 +207,7 @@ namespace AsyncTests.Framework.Internal.Reflection
 			try {
 				retval = InvokeInner (context, cancellationToken);
 			} catch (Exception ex) {
-				return Task.FromResult<TestResult> (new TestError (Name, "Test failed", ex));
+				return Task.FromResult<TestResult> (new TestError (ex));
 			}
 
 			var tresult = retval as Task<TestResult>;
@@ -216,15 +216,15 @@ namespace AsyncTests.Framework.Internal.Reflection
 
 			var task = retval as Task;
 			if (task == null)
-				return Task.FromResult<TestResult> (new TestSuccess (Name));
+				return Task.FromResult<TestResult> (new TestSuccess ());
 
 			return Task.Factory.ContinueWhenAny<TestResult> (new Task[] { task }, t => {
 				if (t.IsFaulted)
-					return new TestError (Name, "Test failed", t.Exception);
+					return new TestError ("Test failed", t.Exception);
 				else if (t.IsCanceled)
-					return new TestError (Name, "Test cancelled", t.Exception);
+					return new TestError ("Test cancelled", t.Exception);
 				else if (t.IsCompleted)
-					return new TestSuccess (Name);
+					return new TestSuccess ();
 				throw new InvalidOperationException ();
 			});
 		}
@@ -247,15 +247,15 @@ namespace AsyncTests.Framework.Internal.Reflection
 				}
 
 				var message = string.Format ("Expected an exception of type {0}", expectedException);
-				return new TestError (Name, message, new AssertionException (message));
+				return new TestError (message, new AssertionException (message));
 			} catch (Exception ex) {
 				if (ex is TargetInvocationException)
 					ex = ((TargetInvocationException)ex).InnerException;
 				if (expectedException.IsAssignableFrom (ex.GetType ().GetTypeInfo ()))
-					return new TestSuccess (Name);
+					return new TestSuccess ();
 				var message = string.Format ("Expected an exception of type {0}, but got {1}",
 					expectedException, ex.GetType ());
-				return new TestError (Name, message, new AssertionException (message, ex));
+				return new TestError (message, new AssertionException (message, ex));
 			}
 		}
 	}

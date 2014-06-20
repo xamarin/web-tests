@@ -30,24 +30,17 @@ using System;
 
 namespace AsyncTests.Framework {
 
-	public class TestSuccess : TestResult {
-		readonly TestStatus status;
-
-		public TestSuccess (string name)
-			: this (name, false)
+	public class TestSuccess : TestResult
+	{
+		public TestSuccess ()
+			: base (null)
 		{
-		}
-
-		public TestSuccess (string name, bool ignored)
-			: base (name)
-		{
-			status = ignored ? TestStatus.Ignored : TestStatus.Success;
 		}
 
 		#region implemented abstract members of TestResult
 
 		public override TestStatus Status {
-			get { return status; }
+			get { return TestStatus.Success; }
 		}
 
 		#endregion

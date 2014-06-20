@@ -41,8 +41,13 @@ namespace AsyncTests.Framework {
 		List<TestResultText> items;
 		string fullText;
 
-		public TestError (string name, string message, Exception error)
-			: base (name)
+		public TestError (Exception error)
+			: this (null, error)
+		{
+		}
+
+		public TestError (string message, Exception error)
+			: base (null)
 		{
 			this.Error = error;
 

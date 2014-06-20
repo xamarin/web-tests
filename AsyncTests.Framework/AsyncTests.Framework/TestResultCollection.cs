@@ -37,10 +37,21 @@ namespace AsyncTests.Framework {
 
 	public class TestResultCollection : TestResult, IXmlSerializable {
 		List<TestResult> children = new List<TestResult> ();
+		List<TestResultText> messages = new List<TestResultText> ();
 
 		public void AddChild (TestResult child)
 		{
 			children.Add (child);
+		}
+
+		public void AddMessage (string format, params object[] args)
+		{
+			AddMessage (new TestResultText (string.Format (format, args)));
+		}
+
+		public void AddMessage (TestResultText message)
+		{
+			messages.Add (message);
 		}
 
 		public void AddWarnings (IEnumerable<TestWarning> warnings)
@@ -84,7 +95,7 @@ namespace AsyncTests.Framework {
 		}
 
 		public TestResultCollection ()
-			: base ("TestResults")
+			: base (null)
 		{
 		}
 

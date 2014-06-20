@@ -7,7 +7,7 @@ namespace AsyncTests.Sample
 {
 	using Framework;
 
-	[AsyncTestFixture(Repeat = 3)]
+	[AsyncTestFixture]
 	public class SimpleTest : IAsyncTestFixture
 	{
 		int id;

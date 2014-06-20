@@ -132,7 +132,7 @@ namespace AsyncTests.Framework {
 					result.AddChild (await fixture.Run (context, cancellationToken));
 				} catch (Exception ex) {
 					context.Log ("Test fixture {0} failed: {1}", fixture.Name, ex);
-					result.AddChild (new TestError (fixture.Name, "Test fixture failed", ex));
+					result.AddChild (new TestError ("Test fixture failed", ex));
 				}
 			}
 		}

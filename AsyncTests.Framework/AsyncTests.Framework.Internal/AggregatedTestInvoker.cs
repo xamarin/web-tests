@@ -76,7 +76,7 @@ namespace AsyncTests.Framework.Internal
 					await Host.CreateInstance (context, cancellationToken);
 				return true;
 			} catch (Exception ex) {
-				var error = new TestError (Name, "SetUp failed", ex);
+				var error = new TestError ("SetUp failed", ex);
 				context.LogError (error);
 				result.AddChild (error);
 				return false;
@@ -93,7 +93,7 @@ namespace AsyncTests.Framework.Internal
 					await parameterizedHost.ReuseInstance (context, cancellationToken);
 				return true;
 			} catch (Exception ex) {
-				var error = new TestError (Name, "ReuseInstance failed", ex);
+				var error = new TestError ("ReuseInstance failed", ex);
 				context.LogError (error);
 				result.AddChild (error);
 				return false;
@@ -102,7 +102,7 @@ namespace AsyncTests.Framework.Internal
 
 		async Task<bool> InvokeInner (TestContext context, TestResultCollection result, TestInvoker invoker, CancellationToken cancellationToken)
 		{
-			var name = string.Format ("{0} / {1}", Name, invoker.Name);
+			var name = string.Format ("{0}[{1}]", Name, context.PrintInstance ());
 			context.Debug (3, "Running({0}): {1} {2}", name, Print (Host), invoker);
 
 			try {
@@ -111,7 +111,7 @@ namespace AsyncTests.Framework.Internal
 				result.AddChild (inner);
 				return ContinueOnError || inner.Status != TestStatus.Error;
 			} catch (Exception ex) {
-				var error = new TestError (name, "Test failed", ex);
+				var error = new TestError ("Test failed", ex);
 				context.LogError (error);
 				result.AddChild (error);
 				return ContinueOnError;
@@ -127,7 +127,7 @@ namespace AsyncTests.Framework.Internal
 					await Host.DestroyInstance (context, cancellationToken);
 				return true;
 			} catch (Exception ex) {
-				var error = new TestError (Name, "TearDown failed", ex);
+				var error = new TestError ("TearDown failed", ex);
 				context.LogError (error);
 				result.AddChild (error);
 				return false;
@@ -137,12 +137,16 @@ namespace AsyncTests.Framework.Internal
 		public sealed override async Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken)
 		{
 			if (InnerTestInvokers.Count == 0)
-				return new TestSuccess (Name, true);
+				return new TestSuccess ();
 
-			var result = new TestResultCollection (Name);
+			var oldResult = context.CurrentResult;
+			var result = new TestResultCollection ();
+			context.CurrentResult = result;
 
-			if (!await SetUp (context, result, cancellationToken))
+			if (!await SetUp (context, result, cancellationToken)) {
+				context.CurrentResult = oldResult;
 				return result;
+			}
 
 			bool success = true;
 			var innerRunners = new LinkedList<TestInvoker> (InnerTestInvokers);
@@ -156,16 +160,25 @@ namespace AsyncTests.Framework.Internal
 				if (!success)
 					break;
 
-				var invoker = current.Value;
-				success = await InvokeInner (context, result, invoker, cancellationToken);
-
+				var innerResult = result;
 				var parameterizedHost = Host as ParameterizedTestHost;
+				if (parameterizedHost != null) {
+					var parameterizedInstance = (ParameterizedTestInstance)context.Instance;
+					var innerName = string.Format ("<{0}>", parameterizedInstance.Current);
+					innerResult = new TestResultCollection (innerName);
+					result.AddChild (innerResult);
+				}
+
+				var invoker = current.Value;
+				success = await InvokeInner (context, innerResult, invoker, cancellationToken);
+
 				if (parameterizedHost == null || !parameterizedHost.CanReuseInstance (context))
 					current = current.Next;
 			}
 
 			success &= await TearDown (context, result, cancellationToken);
 
+			context.CurrentResult = oldResult;
 			cancellationToken.ThrowIfCancellationRequested ();
 			return result;
 		}

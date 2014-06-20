@@ -27,6 +27,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 using System;
+using System.Text;
 using System.Linq;
 using SD = System.Diagnostics;
 using System.Reflection;
@@ -39,23 +40,29 @@ namespace AsyncTests.Framework {
 	using Internal;
 
 	public class TestContext : IDisposable {
+		int debugLevel = DefaultDebugLevel;
 		List<TestError> errors;
 		List<TestWarning> warnings;
 		List<IDisposable> disposables;
 
+		const int DefaultDebugLevel = 0;
+
 		public int DebugLevel {
-			get; set;
+			get { return debugLevel; }
+			set { debugLevel = value; }
 		}
 
-		public void Debug (int level, string message, params object[] args)
+		public void Debug (int level, string format, params object[] args)
 		{
 			if (level <= DebugLevel)
-				Log (message, args);
+				SD.Debug.WriteLine (format, args);
 		}
 
-		public void Log (string message, params object[] args)
+		public void Log (string format, params object[] args)
 		{
-			SD.Debug.WriteLine (string.Format (message, args), "TestSuite");
+			var message = string.Format (format, args);
+			SD.Debug.WriteLine (message);
+			CurrentResult.AddMessage (new TestResultText (message));
 		}
 
 		public void LogError (TestError error)
@@ -88,7 +95,7 @@ namespace AsyncTests.Framework {
 		{
 			if (errors == null)
 				errors = new List<TestError> ();
-			errors.Add (new TestError (name, null, error));
+			errors.Add (new TestError (name, error));
 		}
 
 		public bool HasErrors {
@@ -122,6 +129,29 @@ namespace AsyncTests.Framework {
 
 		internal TestInstance Instance {
 			get; set;
+		}
+
+		internal TestResultCollection CurrentResult {
+			get; set;
+		}
+
+		public string PrintInstance ()
+		{
+			var sb = new StringBuilder ();
+			if (CurrentResult != null && !string.IsNullOrEmpty (CurrentResult.Name))
+				sb.Append (CurrentResult.Name);
+
+			for (var instance = Instance; instance != null; instance = instance.Parent) {
+				var parameterizedInstance = instance as ParameterizedTestInstance;
+				if (parameterizedInstance == null)
+					continue;
+
+				if (sb.Length > 0)
+					sb.Append (".");
+				sb.AppendFormat ("<{0}>", parameterizedInstance.Current);
+			}
+
+			return sb.ToString ();
 		}
 
 		#endregion

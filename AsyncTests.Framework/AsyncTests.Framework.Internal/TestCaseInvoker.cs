@@ -28,24 +28,34 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncTests.Framework.Internal.Reflection
+namespace AsyncTests.Framework.Internal
 {
-	class ReflectionTestInvoker : TestInvoker
+	class TestCaseInvoker : TestInvoker
 	{
-		public ReflectionTestCase Test {
+		public TestCase Test {
 			get;
 			private set;
 		}
 
-		public ReflectionTestInvoker (ReflectionTestCase test)
+		public TestCaseInvoker (TestCase test)
 			: base (test.Name)
 		{
 			Test = test;
 		}
 
-		public override Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken)
+		public override async Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken)
 		{
-			return Test.Run (context, cancellationToken);
+			var oldResult = context.CurrentResult;
+			var result = new TestResultCollection (Test.Name);
+
+			try {
+				context.CurrentResult = result;
+				var inner = await Test.Run (context, cancellationToken);
+				result.AddChild (inner);
+				return result;
+			} finally {
+				context.CurrentResult = oldResult;
+			}
 		}
 	}
 }

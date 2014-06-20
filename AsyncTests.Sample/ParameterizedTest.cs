@@ -54,9 +54,11 @@ namespace AsyncTests.Sample
 		}
 
 		[AsyncTest]
-		public void HelloFoo (TestContext context, [TestParameter ("New York")] Foo foo, [TestParameter] Foo bar)
+		public void HelloFoo (TestContext context, [Repeat (20)] int index, [TestParameter ("New York")] Foo foo, [TestParameter] Foo bar)
 		{
-			context.Log ("HELLO FOO: {0} {1}", foo, bar);
+			context.Log ("HELLO FOO: {0} {1} {2}", context.PrintInstance (), foo, bar);
+			if (index > 5)
+				throw new NotSupportedException ();
 		}
 
 		[AsyncTest]
