@@ -28,7 +28,7 @@ using System.Collections.Generic;
 
 namespace AsyncTests.Framework
 {
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Parameter, AllowMultiple = false)]
 	public sealed class RepeatAttribute : TestParameterAttribute
 	{
 		public int Count {
@@ -42,13 +42,19 @@ namespace AsyncTests.Framework
 			Count = count;
 		}
 
-		class RepeatedTestSource : ITestParameterSource<int>
+		internal class RepeatedTestSource : ITestParameterSource<int>
 		{
 			public IEnumerable<int> GetParameters (TestContext context, string filter)
 			{
 				int count = int.Parse (filter);
-				for (int i = 0; i < count; i++)
-					yield return i;
+				if (count < 0) {
+					int index = 0;
+					while (true)
+						yield return index++;
+				} else {
+					for (int i = 0; i < count; i++)
+						yield return i;
+				}
 			}
 		}
 	}

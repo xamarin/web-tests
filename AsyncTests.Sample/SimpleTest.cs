@@ -7,8 +7,7 @@ namespace AsyncTests.Sample
 {
 	using Framework;
 
-	[Repeat (3, TestFlags.ContinueOnError)]
-	[AsyncTestFixture]
+	[AsyncTestFixture(Repeat = 3)]
 	public class SimpleTest : IAsyncTestFixture
 	{
 		int id;
@@ -42,8 +41,7 @@ namespace AsyncTests.Sample
 			throw new NotSupportedException ();
 		}
 
-		[AsyncTest]
-		[Repeat (10, TestFlags.None)]
+		[AsyncTest(Repeat = 10)]
 		public void Hello (TestContext context)
 		{
 			Debug.WriteLine ("HELLO: {0}", id);

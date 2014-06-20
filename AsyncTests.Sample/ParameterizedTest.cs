@@ -30,7 +30,7 @@ namespace AsyncTests.Sample
 {
 	using Framework;
 
-	// [AsyncTestFixture]
+	[AsyncTestFixture]
 	public class ParameterizedTest : ITestParameterSource<Foo>
 	{
 		public IEnumerable<Foo> GetParameters (TestContext context, string filter)
@@ -65,8 +65,7 @@ namespace AsyncTests.Sample
 			context.Log ("REPEAT: {0}", index);
 		}
 
-		[Repeat (5)]
-		[AsyncTest]
+		[AsyncTest(Repeat = 5)]
 		public void SimpleRepeat (TestContext context)
 		{
 			context.Log ("SIMPLE REPEAT");

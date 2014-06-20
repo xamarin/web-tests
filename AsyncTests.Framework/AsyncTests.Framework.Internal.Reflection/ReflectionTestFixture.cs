@@ -38,7 +38,6 @@ namespace AsyncTests.Framework.Internal.Reflection
 		List<ReflectionTestCase> tests;
 		IList<string> categories;
 		IList<TestWarning> warnings;
-		RepeatAttribute repeat;
 
 		public override IEnumerable<string> Categories {
 			get { return categories; }
@@ -56,14 +55,10 @@ namespace AsyncTests.Framework.Internal.Reflection
 			get { return tests.ToArray (); }
 		}
 
-		public RepeatAttribute Repeat {
-			get { return repeat; }
-		}
-
 		public ReflectionTestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)
 			: base (suite, attr, type)
 		{
-			Resolve (suite, null, type, out repeat, out categories, out warnings);
+			Resolve (suite, null, type, out categories, out warnings);
 		}
 
 		public override bool Resolve ()
@@ -84,7 +79,7 @@ namespace AsyncTests.Framework.Internal.Reflection
 		}
 
 		internal static void Resolve (
-			TestSuite suite, TestFixture parent, MemberInfo member, out RepeatAttribute repeat,
+			TestSuite suite, TestFixture parent, MemberInfo member,
 			out IList<string> categories, out IList<TestWarning> warnings)
 		{
 			warnings = new List<TestWarning> ();
@@ -104,8 +99,6 @@ namespace AsyncTests.Framework.Internal.Reflection
 			} else {
 				fullName = member.ToString ();
 			}
-
-			repeat = member.GetCustomAttribute<RepeatAttribute> ();
 
 			var attrs = member.GetCustomAttributes (typeof(TestCategoryAttribute), false);
 
@@ -150,8 +143,8 @@ namespace AsyncTests.Framework.Internal.Reflection
 			var selected = Filter (context);
 			invoker.Resolve (context, selected);
 
-			if (Repeat != null) {
-				var repeatHost = new RepeatedTestHost (Repeat);
+			if (Attribute.Repeat != 0) {
+				var repeatHost = new RepeatedTestHost (Attribute.Repeat, TestFlags.ContinueOnError);
 				return repeatHost.CreateInvoker (invoker);
 			}
 

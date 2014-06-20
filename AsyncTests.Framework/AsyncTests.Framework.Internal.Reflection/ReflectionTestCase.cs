@@ -57,17 +57,12 @@ namespace AsyncTests.Framework.Internal.Reflection
 			get { return warnings; }
 		}
 
-		public RepeatAttribute Repeat {
-			get { return repeat; }
-		}
-
 		public TypeInfo ExpectedExceptionType {
 			get { return expectedExceptionType; }
 		}
 
 		IList<string> categories;
 		IList<TestWarning> warnings;
-		RepeatAttribute repeat;
 		ExpectedExceptionAttribute expectedException;
 		TypeInfo expectedExceptionType;
 
@@ -79,7 +74,7 @@ namespace AsyncTests.Framework.Internal.Reflection
 			Method = method;
 
 			ReflectionTestFixture.Resolve (
-				fixture.Suite, fixture, method, out repeat, out categories, out warnings);
+				fixture.Suite, fixture, method, out categories, out warnings);
 
 			expectedException = method.GetCustomAttribute<ExpectedExceptionAttribute> ();
 			if (expectedException != null)
@@ -93,8 +88,8 @@ namespace AsyncTests.Framework.Internal.Reflection
 			TestInvoker invoker = new ReflectionTestInvoker (this);
 
 			var parameterHosts = new List<TestHost> ();
-			if (Repeat != null)
-				parameterHosts.Add (new RepeatedTestHost (Repeat));
+			if (Attribute.Repeat != 0)
+				parameterHosts.Add (new RepeatedTestHost (Attribute.Repeat));
 
 			var parameters = Method.GetParameters ();
 			for (int i = parameters.Length - 1; i >= 0; i--) {

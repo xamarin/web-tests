@@ -32,5 +32,9 @@ namespace AsyncTests.Framework {
 
 	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
 	public class AsyncTestAttribute : Attribute {
+		public int Repeat {
+			get; set;
+		}
 	}
+
 }

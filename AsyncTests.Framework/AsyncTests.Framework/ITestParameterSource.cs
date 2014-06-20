@@ -28,11 +28,7 @@ using System.Collections.Generic;
 
 namespace AsyncTests.Framework
 {
-	public interface ITestParameterSource
-	{
-	}
-
-	public interface ITestParameterSource<T> : ITestParameterSource
+	public interface ITestParameterSource<T>
 	{
 		IEnumerable<T> GetParameters (TestContext context, string filter);
 	}

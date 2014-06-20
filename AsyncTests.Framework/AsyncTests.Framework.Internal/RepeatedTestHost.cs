@@ -28,13 +28,26 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncTests.Framework.Internal.Reflection
+namespace AsyncTests.Framework.Internal
 {
-	class RepeatedTestHost : ParameterAttributeTestHost
+	class RepeatedTestHost : ParameterizedTestHost
 	{
-		public RepeatedTestHost (RepeatAttribute repeat)
-			: base (typeof (int).GetTypeInfo (), repeat)
+		public int Count {
+			get;
+			private set;
+		}
+
+		public RepeatedTestHost (int count, TestFlags flags = TestFlags.None)
+			: base (typeof (int).GetTypeInfo ())
 		{
+			Count = count;
+			Flags = flags;
+		}
+
+		protected override TestInstance CreateInstance (TestContext context)
+		{
+			return new ParameterSourceInstance<int> (
+				this, context.Instance, typeof(RepeatAttribute.RepeatedTestSource), Count.ToString ());
 		}
 	}
 }
