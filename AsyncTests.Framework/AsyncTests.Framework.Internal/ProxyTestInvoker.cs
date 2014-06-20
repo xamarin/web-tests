@@ -1,5 +1,5 @@
 ﻿//
-// ReflectionTestRunner.cs
+// ProxyTestInvoker.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,28 +24,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsyncTests.Framework.Internal
 {
-	class TestCaseInvoker : TestInvoker
+	class ProxyTestInvoker : TestInvoker
 	{
-		public TestCase Test {
+		public TestInvoker InnerInvoker {
 			get;
 			private set;
 		}
 
-		public TestCaseInvoker (TestCase test)
-			: base (test.Name)
+		public ProxyTestInvoker (string name, TestInvoker inner)
+			: base (name)
 		{
-			Test = test;
+			InnerInvoker = inner;
 		}
 
-		public override Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken)
+		public override async Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken)
 		{
-			return Test.Run (context, cancellationToken);
+			var oldResult = context.CurrentResult;
+			var result = new TestResultCollection (Name);
+
+			try {
+				context.CurrentResult = result;
+				var inner = await InnerInvoker.Invoke (context, cancellationToken);
+				result.AddChild (inner);
+				return result;
+			} finally {
+				context.CurrentResult = oldResult;
+			}
 		}
 	}
 }

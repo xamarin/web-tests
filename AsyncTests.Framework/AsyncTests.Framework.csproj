@@ -75,6 +75,7 @@
     <Compile Include="AsyncTests.Framework\TestResult.cs" />
     <Compile Include="AsyncTests.Framework\TestIgnored.cs" />
     <Compile Include="AsyncTests.Framework\TestResultItem.cs" />
+    <Compile Include="AsyncTests.Framework.Internal\ProxyTestInvoker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

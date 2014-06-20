@@ -36,7 +36,7 @@ namespace AsyncTests.ConsoleRunner {
 
 		string GetName ()
 		{
-			return string.Join (".", names.ToArray ());
+			return string.Join (".", names.Reverse ().ToArray ());
 		}
 
 		void PushName (TestResultItem item)

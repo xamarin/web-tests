@@ -137,21 +137,20 @@ namespace AsyncTests.Framework {
 
 		public string PrintInstance ()
 		{
-			var sb = new StringBuilder ();
-			if (CurrentResult != null && !string.IsNullOrEmpty (CurrentResult.Name))
-				sb.Append (CurrentResult.Name);
+			var parameters = new LinkedList<string> ();
 
 			for (var instance = Instance; instance != null; instance = instance.Parent) {
 				var parameterizedInstance = instance as ParameterizedTestInstance;
 				if (parameterizedInstance == null)
 					continue;
 
-				if (sb.Length > 0)
-					sb.Append (".");
-				sb.AppendFormat ("<{0}>", parameterizedInstance.Current);
+				parameters.AddFirst (string.Format ("<{0}>", parameterizedInstance.Current));
 			}
 
-			return sb.ToString ();
+			if (CurrentResult != null && !string.IsNullOrEmpty (CurrentResult.Name))
+				parameters.AddFirst (CurrentResult.Name);
+
+			return string.Join (".", parameters);
 		}
 
 		#endregion

@@ -83,9 +83,8 @@ namespace AsyncTests.Framework.Internal.Reflection
 
 		internal override TestInvoker Resolve (TestContext context)
 		{
-			context.Debug (5, "RESOLVE: {0}", Name);
-
 			TestInvoker invoker = new TestCaseInvoker (this);
+			invoker = new AggregatedTestInvoker (Name, TestFlags.None, null, invoker);
 
 			var parameterHosts = new List<TestHost> ();
 			if (Attribute.Repeat != 0)
@@ -138,9 +137,7 @@ namespace AsyncTests.Framework.Internal.Reflection
 				invoker = parameter.CreateInvoker (invoker);
 			}
 
-			context.Debug (5, "RESOLVE: {0} {1}", Name, invoker);
-
-			return invoker;
+			return new ProxyTestInvoker (Name, invoker);
 		}
 
 		public override Task<TestResult> Run (TestContext context, CancellationToken cancellationToken)

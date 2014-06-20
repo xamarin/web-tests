@@ -72,5 +72,12 @@ namespace AsyncTests.Sample
 		{
 			context.Log ("SIMPLE REPEAT");
 		}
+
+		[AsyncTest]
+		public void RepeatedError ([Repeat (5, TestFlags.ContinueOnError)] int index, TestContext context)
+		{
+			context.Log ("REPEATED ERROR: {0}", index);
+			throw new NotSupportedException ();
+		}
 	}
 }
