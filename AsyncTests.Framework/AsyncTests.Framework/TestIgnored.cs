@@ -29,9 +29,8 @@ namespace AsyncTests.Framework
 {
 	public class TestIgnored : TestResult
 	{
-		public TestIgnored ()
-			: base (TestStatus.Ignored)
-		{
+		public override TestStatus Status {
+			get { return TestStatus.Ignored; }
 		}
 
 		#region implemented abstract members of TestResult

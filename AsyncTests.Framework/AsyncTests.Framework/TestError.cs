@@ -34,6 +34,15 @@ namespace AsyncTests.Framework {
 
 	public class TestError : TestResult
 	{
+		public override TestStatus Status {
+			get { return TestStatus.Error; }
+		}
+
+		public override bool HasErrors ()
+		{
+			return true;
+		}
+
 		public Exception Error {
 			get;
 			private set;
@@ -48,7 +57,6 @@ namespace AsyncTests.Framework {
 		}
 
 		public TestError (string message, Exception error)
-			: base (TestStatus.Error)
 		{
 			this.Error = error;
 

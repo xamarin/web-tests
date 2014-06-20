@@ -32,9 +32,8 @@ namespace AsyncTests.Framework {
 
 	public class TestSuccess : TestResult
 	{
-		public TestSuccess ()
-			: base (TestStatus.Success)
-		{
+		public override TestStatus Status {
+			get { return TestStatus.Success; }
 		}
 
 		#region implemented abstract members of TestResult

@@ -171,12 +171,16 @@ namespace AsyncTests.Framework.Internal
 
 				var invoker = current.Value;
 				success = await InvokeInner (context, innerResult, invoker, cancellationToken);
+				context.Debug (5, "TEST: {0} {1} {2}", this, Flags, success);
+				if (!success)
+					break;
 
 				if (parameterizedHost == null || !parameterizedHost.CanReuseInstance (context))
 					current = current.Next;
 			}
 
-			success &= await TearDown (context, result, cancellationToken);
+			if (!await TearDown (context, result, cancellationToken))
+				success = false;
 
 			context.CurrentResult = oldResult;
 			cancellationToken.ThrowIfCancellationRequested ();

@@ -64,7 +64,7 @@ namespace AsyncTests.ConsoleRunner {
 
 		public override void Visit (TestResultText node)
 		{
-			;
+			writer.WriteLine ("{0}) {1}:\n{2}\n", ++id, GetName (), node.Text);
 		}
 
 		public override void Visit (TestSuccess node)
@@ -75,17 +75,17 @@ namespace AsyncTests.ConsoleRunner {
 		public override void Visit (TestError node)
 		{
 			totalErrors++;
-			writer.WriteLine ("{0}) {1}\n{2}\n", ++id, GetName (), node.Error);
+			writer.WriteLine ("{0}) {1}:\n{2}\n", ++id, GetName (), node.Error);
 		}
 
 		public override void Visit (TestWarning node)
 		{
-			writer.WriteLine ("{0}) {1}\n{2}\n", ++id, GetName (), node);
+			writer.WriteLine ("{0}) {1}:\n{2}\n", ++id, GetName (), node);
 		}
 
 		public override void Visit (TestIgnored node)
 		{
-			writer.WriteLine ("{0}) {1}\n{2}", ++id, GetName (), node);
+			writer.WriteLine ("{0}) {1} - ignored\n", ++id, GetName ());
 		}
 
 		#endregion

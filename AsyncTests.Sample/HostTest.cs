@@ -31,7 +31,7 @@ namespace AsyncTests.Sample
 {
 	using Framework;
 
-	// [AsyncTestFixture]
+	[AsyncTestFixture]
 	public class HostTest
 	{
 		[TestHost (typeof (MyHost))]
@@ -75,7 +75,7 @@ namespace AsyncTests.Sample
 		[AsyncTest]
 		public void Test (TestContext context, [Repeat (3)] int outer, MyInstance instance, [Repeat (10)] int iteration)
 		{
-			context.Log ("TEST: {0} {1} {2}", instance, outer, iteration);
+			context.Log ("TEST: {0} {1} {2}", outer, instance, iteration);
 		}
 	}
 }

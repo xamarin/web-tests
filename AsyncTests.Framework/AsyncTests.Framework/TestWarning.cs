@@ -32,8 +32,11 @@ namespace AsyncTests.Framework {
 
 	public class TestWarning : TestResult
 	{
+		public override TestStatus Status {
+			get { return TestStatus.Warning; }
+		}
+
 		public TestWarning (string text)
-			: base (TestStatus.Warning)
 		{
 			Text = text;
 		}

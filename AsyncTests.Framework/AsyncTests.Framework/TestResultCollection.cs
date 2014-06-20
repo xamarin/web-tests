@@ -35,21 +35,16 @@ namespace AsyncTests.Framework {
 	public class TestResultCollection : TestResult
 	{
 		public TestResultCollection ()
-			: this (null)
 		{
 		}
 
 		public TestResultCollection (string name)
-			: base (TestStatus.Success, name)
 		{
+			Name = name;
 		}
 
-		public override void AddChild (TestResultItem child)
-		{
-			var result = child as TestResult;
-			if (result != null && result.Status == TestStatus.Error)
-				Status = TestStatus.Error;
-			base.AddChild (child);
+		public override TestStatus Status {
+			get { return HasErrors () ? TestStatus.Error : TestStatus.Success; }
 		}
 
 		public override void Accept (ResultVisitor visitor)

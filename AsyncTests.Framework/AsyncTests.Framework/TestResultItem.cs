@@ -37,7 +37,7 @@ namespace AsyncTests.Framework
 
 		List<TestResultItem> children = new List<TestResultItem> ();
 
-		public virtual void AddChild (TestResultItem child)
+		public void AddChild (TestResultItem child)
 		{
 			children.Add (child);
 		}
@@ -62,6 +62,16 @@ namespace AsyncTests.Framework
 
 		public TestResultItem this [int index] {
 			get { return children [index]; }
+		}
+
+		public virtual bool HasErrors ()
+		{
+			foreach (var child in children) {
+				if (child.HasErrors ())
+					return true;
+			}
+
+			return false;
 		}
 
 		public abstract void Accept (ResultVisitor visitor);

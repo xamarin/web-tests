@@ -33,15 +33,8 @@ namespace AsyncTests.Framework
 {
 	public abstract class TestResult : TestResultItem
 	{
-		public TestStatus Status {
+		public abstract TestStatus Status {
 			get;
-			protected set;
-		}
-
-		protected TestResult (TestStatus status, string name = null)
-		{
-			Status = status;
-			Name = name;
 		}
 	}
 }
