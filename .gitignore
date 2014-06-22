@@ -7,3 +7,4 @@ Build
 TestResults
 
 *.userprefs
+/packages/
