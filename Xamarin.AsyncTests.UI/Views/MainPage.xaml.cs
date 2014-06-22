@@ -24,7 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 ﻿using System;
+using System.Linq;
+using System.ComponentModel;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.Forms;
@@ -41,6 +44,7 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		CancellationTokenSource cancelCts;
+		TestResultCollection result;
 
 		public MainPage (TestApp app)
 		{
@@ -53,6 +57,9 @@ namespace Xamarin.AsyncTests.UI
 			StopButton.Clicked += (sender, e) => cancelCts.Cancel ();
 
 			app.AssemblyLoadedEvent += (sender, e) => RunButton.IsEnabled = true;
+
+			result = new TestResultCollection ();
+			List.ItemsSource = result.Children;
 		}
 
 		async void Run ()
@@ -62,8 +69,10 @@ namespace Xamarin.AsyncTests.UI
 			StopButton.IsEnabled = true;
 			Message ("Running ...");
 			try {
-				await App.Run (cancelCts.Token);
-				Message ("Done running!");
+				result.Clear ();
+				var retval = await App.Run (cancelCts.Token);
+				DisplayResult (retval);
+				Message ("Done.");
 			} catch (TaskCanceledException) {
 				Message ("Canceled!");
 			} catch (OperationCanceledException) {
@@ -76,6 +85,11 @@ namespace Xamarin.AsyncTests.UI
 				cancelCts = null;
 				RunButton.IsEnabled = true;
 			}
+		}
+
+		void DisplayResult (TestResultCollection collection)
+		{
+			result.AddChild (collection, true);
 		}
 
 		internal void Message (string format, params object[] args)

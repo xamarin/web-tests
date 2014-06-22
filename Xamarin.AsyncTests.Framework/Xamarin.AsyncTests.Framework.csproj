@@ -32,7 +32,6 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestError.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestFixture.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestResultCollection.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestResultText.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSuccess.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\AsyncTestAttribute.cs" />
@@ -74,7 +73,6 @@
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\TestCaseInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestResult.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestIgnored.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestResultItem.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\ProxyTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCaseCollection.cs" />
   </ItemGroup>

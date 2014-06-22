@@ -39,13 +39,13 @@ namespace Xamarin.AsyncTests.ConsoleRunner {
 			return string.Join (".", names.Reverse ().ToArray ());
 		}
 
-		void PushName (TestResultItem item)
+		void PushName (TestResult item)
 		{
 			if (item.Name != null)
 				names.Push (item.Name);
 		}
 
-		void PopName (TestResultItem item)
+		void PopName (TestResult item)
 		{
 			if (item.Name != null)
 				names.Pop ();
@@ -54,17 +54,11 @@ namespace Xamarin.AsyncTests.ConsoleRunner {
 		#region implemented abstract members of ResultVisitor
 		public override void Visit (TestResultCollection node)
 		{
-			for (int i = 0; i < node.Count; i++) {
-				var item = node [i];
+			foreach (var item in node.Children) {
 				PushName (item);
 				item.Accept (this);
 				PopName (item);
 			}
-		}
-
-		public override void Visit (TestResultText node)
-		{
-			writer.WriteLine ("{0}) {1}:\n{2}\n", ++id, GetName (), node.Text);
 		}
 
 		public override void Visit (TestSuccess node)
@@ -75,7 +69,7 @@ namespace Xamarin.AsyncTests.ConsoleRunner {
 		public override void Visit (TestError node)
 		{
 			totalErrors++;
-			writer.WriteLine ("{0}) {1}:\n{2}\n", ++id, GetName (), node.Error);
+			writer.WriteLine ("{0}) {1}: {2}\n{3}\n", ++id, GetName (), node.Message, node.Error);
 		}
 
 		public override void Visit (TestWarning node)

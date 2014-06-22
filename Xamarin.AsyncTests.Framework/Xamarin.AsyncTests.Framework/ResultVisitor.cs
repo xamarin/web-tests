@@ -34,8 +34,6 @@ namespace Xamarin.AsyncTests.Framework {
 	{
 		public abstract void Visit (TestResultCollection node);
 
-		public abstract void Visit (TestResultText node);
-
 		public abstract void Visit (TestSuccess node);
 
 		public abstract void Visit (TestError node);

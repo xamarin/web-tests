@@ -29,6 +29,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Xamarin.AsyncTests.Framework {
 
@@ -45,6 +46,65 @@ namespace Xamarin.AsyncTests.Framework {
 
 		public override TestStatus Status {
 			get { return HasErrors () ? TestStatus.Error : TestStatus.Success; }
+		}
+
+		ObservableCollection<TestResult> children = new ObservableCollection<TestResult> ();
+		ObservableCollection<string> messages = new ObservableCollection<string> ();
+
+		bool HasErrors ()
+		{
+			foreach (var child in children) {
+				if (child.Status == TestStatus.Error)
+					return true;
+			}
+
+			return false;
+		}
+
+		public bool HasChildren {
+			get { return children.Count > 0; }
+		}
+
+		public int Count {
+			get { return children.Count; }
+		}
+
+		public ObservableCollection<TestResult> Children {
+			get { return children; }
+		}
+
+		public ObservableCollection<string> Messages {
+			get { return messages; }
+		}
+
+		public void AddMessage (string format, params object[] args)
+		{
+			messages.Add (string.Format (format, args));
+		}
+
+		public void AddWarnings (IEnumerable<TestWarning> warnings)
+		{
+			foreach (var warning in warnings)
+				children.Add (warning);
+		}
+
+		public void AddChild (TestResult result, bool flatten = false)
+		{
+			var collection = result as TestResultCollection;
+			if (collection == null || !flatten || collection.Name != null) {
+				children.Add (result);
+				return;
+			}
+
+			foreach (var child in collection.Children) {
+				AddChild (child, flatten);
+			}
+		}
+
+		public void Clear ()
+		{
+			children.Clear ();
+			messages.Clear ();
 		}
 
 		public override void Accept (ResultVisitor visitor)

@@ -104,7 +104,7 @@ namespace Xamarin.AsyncTests.Framework {
 
 		public async Task<TestResultCollection> Run (TestContext context, CancellationToken cancellationToken)
 		{
-			var result = new TestResultCollection (Name);
+			var result = new TestResultCollection ();
 
 			if (context.Repeat == 0) {
 				await Run (context, result, cancellationToken);

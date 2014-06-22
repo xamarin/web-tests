@@ -38,18 +38,15 @@ namespace Xamarin.AsyncTests.Framework {
 			get { return TestStatus.Error; }
 		}
 
-		public override bool HasErrors ()
-		{
-			return true;
+		public string Message {
+			get;
+			private set;
 		}
 
 		public Exception Error {
 			get;
 			private set;
 		}
-
-		List<TestResultText> items;
-		string fullText;
 
 		public TestError (Exception error)
 			: this (null, error)
@@ -58,16 +55,8 @@ namespace Xamarin.AsyncTests.Framework {
 
 		public TestError (string message, Exception error)
 		{
-			this.Error = error;
-
-			items = new List<TestResultText> ();
-			if (message != null)
-				fullText = message + ": " + error.ToString ();
-			else
-				fullText = error.ToString ();
-
-			foreach (var line in fullText.Split ('\n'))
-				items.Add (new TestResultText (line));
+			Message = message;
+			Error = error;
 		}
 
 		#region implemented abstract members of TestResult

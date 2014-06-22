@@ -31,10 +31,17 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	public abstract class TestResult : TestResultItem
+	public abstract class TestResult
 	{
+		public string Name {
+			get;
+			protected set;
+		}
+
 		public abstract TestStatus Status {
 			get;
 		}
+
+		public abstract void Accept (ResultVisitor visitor);
 	}
 }
