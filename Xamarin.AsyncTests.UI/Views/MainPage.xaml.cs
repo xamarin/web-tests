@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
@@ -38,15 +40,42 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		CancellationTokenSource cancelCts;
+
 		public MainPage (TestApp app)
 		{
 			App = app;
 
 			InitializeComponent ();
 
-			RunButton.Clicked += (object sender, EventArgs e) => {
-				Label.Text = "Running!";
-			};
+			RunButton.Clicked += (sender, e) => Run ();
+
+			StopButton.Clicked += (sender, e) => cancelCts.Cancel ();
+
+			app.AssemblyLoadedEvent += (sender, e) => RunButton.IsEnabled = true;
+		}
+
+		async void Run ()
+		{
+			cancelCts = new CancellationTokenSource ();
+			RunButton.IsEnabled = false;
+			StopButton.IsEnabled = true;
+			Message ("Running ...");
+			try {
+				await App.Run (cancelCts.Token);
+				Message ("Done running!");
+			} catch (TaskCanceledException) {
+				Message ("Canceled!");
+			} catch (OperationCanceledException) {
+				Message ("Canceled!");
+			} catch (Exception ex) {
+				Message ("ERROR: {0}", ex.Message);
+			} finally {
+				StopButton.IsEnabled = false;
+				cancelCts.Dispose ();
+				cancelCts = null;
+				RunButton.IsEnabled = true;
+			}
 		}
 
 		internal void Message (string format, params object[] args)

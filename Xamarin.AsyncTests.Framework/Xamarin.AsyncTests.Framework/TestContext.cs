@@ -62,7 +62,8 @@ namespace Xamarin.AsyncTests.Framework {
 		{
 			var message = string.Format (format, args);
 			SD.Debug.WriteLine (message);
-			CurrentResult.AddChild (new TestResultText (message));
+			if (CurrentResult != null)
+				CurrentResult.AddChild (new TestResultText (message));
 		}
 
 		public void LogError (TestError error)

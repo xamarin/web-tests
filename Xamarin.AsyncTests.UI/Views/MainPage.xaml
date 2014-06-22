@@ -4,8 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="Xamarin.AsyncTests.UI.MainPage">
 
-    <StackLayout Spacing="20">
-    	<Button x:Name="RunButton" Text="Run" />
+    <StackLayout Spacing="20" Orientation="Vertical">
+
+        <StackLayout Spacing="20" Orientation="Horizontal">
+            <Button x:Name="RunButton" Text="Run" IsEnabled="false" />
+            <Button x:Name="StopButton" Text="Stop" IsEnabled="false" />
+        </StackLayout>
 
     	<ListView x:Name="ResultView">
     	</ListView>

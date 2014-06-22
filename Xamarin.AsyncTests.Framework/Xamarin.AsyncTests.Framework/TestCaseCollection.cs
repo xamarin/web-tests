@@ -72,6 +72,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override Task<TestResult> Run (TestContext context, CancellationToken cancellationToken)
 		{
+			var invoker = Resolve (context);
 			return invoker.Invoke (context, cancellationToken);
 		}
 

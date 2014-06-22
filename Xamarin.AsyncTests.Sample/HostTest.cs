@@ -59,7 +59,7 @@ namespace Xamarin.AsyncTests.Sample
 			{
 				var instance = new MyInstance ("Berlin");
 				context.Log ("INITIALIZE: {0}!", instance);
-				await Task.Delay (2500);
+				await Task.Delay (2500, cancellationToken);
 				context.Log ("INITIALIZE DONE: {0}!", instance);
 				return instance;
 			}
@@ -67,7 +67,7 @@ namespace Xamarin.AsyncTests.Sample
 			public async Task Destroy (TestContext context, MyInstance instance, CancellationToken cancellationToken)
 			{
 				context.Log ("DESTROY: {0}!", instance);
-				await Task.Delay (2500);
+				await Task.Delay (2500, cancellationToken);
 				context.Log ("DESTROY DONE: {0}!", instance);
 			}
 		}

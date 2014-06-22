@@ -71,6 +71,20 @@ namespace Xamarin.AsyncTests.UI
 			MainPage.Message ("Loading {0}", name);
 			var test = await TestSuite.LoadAssembly (assembly);
 			MainPage.Message ("Successfully loaded {0} tests from {1}.", test.Count, name);
+			OnAssemblyLoaded (assembly);
+		}
+
+		protected void OnAssemblyLoaded (Assembly assembly)
+		{
+			if (AssemblyLoadedEvent != null)
+				AssemblyLoadedEvent (this, assembly);
+		}
+
+		public event EventHandler<Assembly> AssemblyLoadedEvent;
+
+		public Task Run (CancellationToken cancellationToken)
+		{
+			return TestSuite.Run (Context, cancellationToken);
 		}
 	}
 }
