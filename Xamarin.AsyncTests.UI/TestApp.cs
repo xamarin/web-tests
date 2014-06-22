@@ -24,22 +24,53 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
 {
-	public class App
+	using Framework;
+
+	public class TestApp
 	{
-		public static Page GetMainPage ()
-		{	
-			return new ContentPage { 
-				Content = new Label {
-					Text = "Hello, Forms !",
-					VerticalOptions = LayoutOptions.CenterAndExpand,
-					HorizontalOptions = LayoutOptions.CenterAndExpand,
-				},
-			};
+		public TestSuite TestSuite {
+			get;
+			private set;
+		}
+
+		public TestContext Context {
+			get;
+			private set;
+		}
+
+		public MainPage MainPage {
+			get;
+			private set;
+		}
+
+		public Page Root {
+			get;
+			private set;
+		}
+
+		public TestApp (string name)
+		{
+			TestSuite = new TestSuite (name);
+			Context = new TestContext ();
+
+			MainPage = new MainPage (this);
+			Root = new NavigationPage (MainPage);
+		}
+
+		public async void LoadAssembly (Assembly assembly)
+		{
+			var name = assembly.GetName ().Name;
+			MainPage.Message ("Loading {0}", name);
+			var test = await TestSuite.LoadAssembly (assembly);
+			MainPage.Message ("Successfully loaded {0} tests from {1}.", test.Count, name);
 		}
 	}
 }
-

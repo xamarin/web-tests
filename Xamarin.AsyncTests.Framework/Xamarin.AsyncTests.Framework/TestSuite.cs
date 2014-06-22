@@ -40,11 +40,13 @@ namespace Xamarin.AsyncTests.Framework {
 	using Internal.Reflection;
 
 	public class TestSuite {
-		List<TestFixture> fixtures;
+		TestCaseCollection tests;
 
-		TestSuite (string name)
+		public TestSuite (string name)
 		{
 			Name = name;
+
+			tests = new TestCaseCollection (name);
 		}
 
 		public string Name {
@@ -52,27 +54,23 @@ namespace Xamarin.AsyncTests.Framework {
 			private set;
 		}
 
-		public IList<TestFixture> Fixtures {
-			get { return fixtures; }
+		public IList<TestCase> Tests {
+			get { return tests.Tests; }
 		}
 
 		public int CountFixtures {
-			get { return fixtures.Count; }
+			get { return tests.Count; }
 		}
 
-		public int CountTests {
-			get { return fixtures.Sum (fixture => fixture.CountTests); }
-		}
-
-		public static Task<TestSuite> Create (Assembly assembly)
+		public Task<TestCaseCollection> LoadAssembly (Assembly assembly)
 		{
-			var tcs = new TaskCompletionSource<TestSuite> ();
+			var tcs = new TaskCompletionSource<TestCaseCollection> ();
 
 			Task.Factory.StartNew (() => {
 				try {
-					var suite = new TestSuite (assembly.FullName);
-					suite.DoResolve (assembly);
-					tcs.SetResult (suite);
+					var collection = DoLoadAssembly (assembly);
+					tests.Add (collection);
+					tcs.SetResult (collection);
 				} catch (Exception ex) {
 					tcs.SetException (ex);
 				}
@@ -81,21 +79,22 @@ namespace Xamarin.AsyncTests.Framework {
 			return tcs.Task;
 		}
 
-		void DoResolve (Assembly assembly)
+		TestCaseCollection DoLoadAssembly (Assembly assembly)
 		{
-			fixtures = new List<TestFixture> ();
+			var collection = new TestCaseCollection (assembly.GetName ().Name);
+
 			foreach (var type in assembly.ExportedTypes) {
 				var tinfo = type.GetTypeInfo ();
 				var attr = tinfo.GetCustomAttribute<AsyncTestFixtureAttribute> (true);
 				if (attr == null)
 					continue;
 
-				fixtures.Add (new ReflectionTestFixture (this, attr, tinfo));
+				var fixture = new ReflectionTestFixture (this, attr, tinfo);
+				fixture.Resolve ();
+				collection.Add (fixture);
 			}
 
-			foreach (var fixture in fixtures) {
-				fixture.Resolve ();
-			}
+			return collection;
 		}
 
 		bool IsEqualOrSubclassOf<T> (TypeInfo type)
@@ -125,7 +124,7 @@ namespace Xamarin.AsyncTests.Framework {
 
 		async Task Run (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
 		{
-			foreach (var fixture in fixtures) {
+			foreach (var fixture in tests.Tests) {
 				if (!context.Filter (fixture))
 					continue;
 				try {

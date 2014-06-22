@@ -1,5 +1,5 @@
 ﻿//
-// AppDelegate.cs
+// MainPage.xaml.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -23,50 +23,35 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
-
 using Xamarin.Forms;
 
-namespace Xamarin.AsyncTests.iOS
-{
+namespace Xamarin.AsyncTests.UI
+{	
 	using Framework;
-	using Sample;
-	using UI;
 
-	// The UIApplicationDelegate for the application. This class is responsible for launching the
-	// User Interface of the application, as well as listening (and optionally responding) to
-	// application events from iOS.
-	[Register ("AppDelegate")]
-	public partial class AppDelegate : UIApplicationDelegate
-	{
-		// class-level declarations
-		UIWindow window;
-		TestApp test;
+	public partial class MainPage : ContentPage
+	{	
+		public TestApp App {
+			get;
+			private set;
+		}
 
-		//
-		// This method is invoked when the application has loaded and is ready to run. In this
-		// method you should instantiate the window, load the UI into it and then make the window
-		// visible.
-		//
-		// You have 17 seconds to return from this method, or iOS will terminate your application.
-		//
-		public override bool FinishedLaunching (UIApplication app, NSDictionary options)
+		public MainPage (TestApp app)
 		{
-			Xamarin.Forms.Forms.Init ();
+			App = app;
 
-			test = new TestApp ("Sample Tests");
-			test.LoadAssembly (typeof(SimpleTest).Assembly);
+			InitializeComponent ();
 
-			window = new UIWindow (UIScreen.MainScreen.Bounds);
-			window.RootViewController =  test.Root.CreateViewController ();
-			window.MakeKeyAndVisible ();
-			
-			return true;
+			RunButton.Clicked += (object sender, EventArgs e) => {
+				Label.Text = "Running!";
+			};
+		}
+
+		internal void Message (string format, params object[] args)
+		{
+			Label.Text = string.Format (format, args);
 		}
 	}
 }

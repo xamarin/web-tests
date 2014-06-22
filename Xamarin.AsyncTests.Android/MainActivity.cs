@@ -7,11 +7,14 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 
-using Xamarin.AsyncTests.UI;
 using Xamarin.Forms.Platform.Android;
 
 namespace Xamarin.AsyncTests.Android
 {
+	using Framework;
+	using Sample;
+	using UI;
+
 	[Activity (Label = "Xamarin.AsyncTests.Android", MainLauncher = true)]
 	public class MainActivity : AndroidActivity
 	{
@@ -21,9 +24,11 @@ namespace Xamarin.AsyncTests.Android
 
 			Xamarin.Forms.Forms.Init (this, bundle);
 
-			SetPage (App.GetMainPage ());
+			var test = new TestApp ("Simple Tests");
+			test.LoadAssembly (typeof(SimpleTest).Assembly);
+
+			SetPage (test.Root);
 		}
 	}
 }
-
 

@@ -78,5 +78,13 @@
       <Project>{4A28C314-01ED-43DD-A08E-8EB842E25294}</Project>
       <Name>Xamarin.AsyncTests.UI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
+      <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
+      <Name>Xamarin.AsyncTests.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xamarin.AsyncTests.Sample\Xamarin.AsyncTests.Sample.csproj">
+      <Project>{50F3B858-C105-4599-8B52-81372E172F47}</Project>
+      <Name>Xamarin.AsyncTests.Sample</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

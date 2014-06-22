@@ -136,6 +136,6 @@ Global
 		{D7CF5417-F032-4688-918C-D9C13466B2AB}.Release|x86.Build.0 = Release|iPhoneSimulator
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Xamarin.AsyncTests.Console\Xamarin.AsyncTests.Console.csproj
+		StartupItem = Xamarin.AsyncTests.iOS\Xamarin.AsyncTests.iOS.csproj
 	EndGlobalSection
 EndGlobal
