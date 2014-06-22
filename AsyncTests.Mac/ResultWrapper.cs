@@ -30,7 +30,7 @@ using System;
 using System.Collections.Generic;
 using MonoMac.Foundation;
 
-namespace AsyncTests.Mac {
+namespace Xamarin.AsyncTests.Mac {
 	using Framework;
 
 	[Register ("ResultWrapper")]

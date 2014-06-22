@@ -5,7 +5,7 @@ using System.Linq;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 
-namespace AsyncTests.Mac {
+namespace Xamarin.AsyncTests.Mac {
 
 	public partial class UnitTestRunner : MonoMac.AppKit.NSWindow {
 		#region Constructors

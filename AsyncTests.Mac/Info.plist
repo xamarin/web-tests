@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.AsyncTests.Mac</string>
+	<string>com.yourcompany.Xamarin.AsyncTests.Mac</string>
 	<key>CFBundleName</key>
-	<string>AsyncTests.Mac</string>
+	<string>Xamarin.AsyncTests.Mac</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSMinimumSystemVersion</key>

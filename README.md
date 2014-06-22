@@ -1,2 +1,2 @@
-AsyncTests
+Xamarin.AsyncTests
 ==========

@@ -4,7 +4,7 @@ using MonoMac.Foundation;
 using MonoMac.AppKit;
 using MonoMac.ObjCRuntime;
 
-namespace AsyncTests.Mac
+namespace Xamarin.AsyncTests.Mac
 {
 	public partial class AppDelegate : NSApplicationDelegate
 	{

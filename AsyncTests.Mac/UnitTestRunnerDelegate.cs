@@ -2,7 +2,7 @@ using System;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 
-namespace AsyncTests.Mac
+namespace Xamarin.AsyncTests.Mac
 {
 	using Framework;
 

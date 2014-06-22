@@ -6,7 +6,7 @@
 //
 using MonoMac.Foundation;
 
-namespace AsyncTests.Mac
+namespace Xamarin.AsyncTests.Mac
 {
 	[Register ("UnitTestRunnerController")]
 	partial class UnitTestRunnerController

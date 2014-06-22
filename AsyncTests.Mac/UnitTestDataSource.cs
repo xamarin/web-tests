@@ -33,9 +33,9 @@ using MonoMac.Foundation;
 using MonoMac.CoreText;
 using MonoMac.CoreGraphics;
 using MonoMac.AppKit;
-using AsyncTests.Framework;
+using Xamarin.AsyncTests.Framework;
 
-namespace AsyncTests.Mac {
+namespace Xamarin.AsyncTests.Mac {
 
 	[Register ("UnitTestDataSource")]
 	public class UnitTestDataSource : NSOutlineViewDataSource {

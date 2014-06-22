@@ -35,9 +35,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
-using AsyncTests.Framework;
+using Xamarin.AsyncTests.Framework;
 
-namespace AsyncTests.Mac {
+namespace Xamarin.AsyncTests.Mac {
 
 	public partial class UnitTestRunnerController : NSWindowController {
 		#region Constructors
@@ -180,7 +180,7 @@ namespace AsyncTests.Mac {
 
 		partial void Run (NSObject sender)
 		{
-			var assembly = typeof (AsyncTests.Sample.SimpleTest).Assembly;
+			var assembly = typeof (Xamarin.AsyncTests.Sample.SimpleTest).Assembly;
 			Run (assembly);
 		}
 
