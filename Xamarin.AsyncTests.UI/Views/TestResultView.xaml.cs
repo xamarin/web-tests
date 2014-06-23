@@ -33,12 +33,6 @@ namespace Xamarin.AsyncTests.UI
 
 	public partial class TestResultView : ContentView
 	{
-		public TestResult Result {
-			get {
-				return (TestResult)BindingContext;
-			}
-		}
-
 		public TestResultView ()
 		{
 			InitializeComponent ();
@@ -46,12 +40,9 @@ namespace Xamarin.AsyncTests.UI
 
 		protected override void OnBindingContextChanged ()
 		{
-			SetResult (Result);
+			SetResult ((TestResult)BindingContext);
 			base.OnBindingContextChanged ();
 		}
-
-		public static readonly BindableProperty ResultProperty =
-			BindableProperty.Create<TestResultView,TestResult> (view => view.Result, null);
 
 		void SetResult (TestResult result)
 		{

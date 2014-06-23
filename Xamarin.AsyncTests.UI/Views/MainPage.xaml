@@ -12,7 +12,7 @@
             <Button x:Name="StopButton" Text="Stop" IsEnabled="false" />
         </StackLayout>
 
-        <local:TestResultView Result="{Binding Result}" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" />
+        <local:TestResultView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" />
 
     	<Label x:Name="Label" Font="12" Text="Hello" VerticalOptions="End" />
 

@@ -6,7 +6,7 @@
     x:Class="Xamarin.AsyncTests.UI.TestResultPage">
 
     <ContentPage.Content>
-        <local:TestResultView Result="{Binding Result}" />
+        <local:TestResultView />
     </ContentPage.Content>
 
 </ContentPage>
