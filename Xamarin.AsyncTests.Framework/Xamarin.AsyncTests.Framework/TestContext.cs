@@ -41,8 +41,7 @@ namespace Xamarin.AsyncTests.Framework {
 
 	public class TestContext : IDisposable {
 		int debugLevel = DefaultDebugLevel;
-		List<TestError> errors;
-		List<TestWarning> warnings;
+		List<TestResult> warnings;
 		List<IDisposable> disposables;
 
 		const int DefaultDebugLevel = 0;
@@ -66,11 +65,6 @@ namespace Xamarin.AsyncTests.Framework {
 				CurrentResult.AddMessage (message);
 		}
 
-		public void LogError (TestError error)
-		{
-			Log (error.ToString ());
-		}
-
 		public int Repeat {
 			get; set;
 		}
@@ -86,44 +80,14 @@ namespace Xamarin.AsyncTests.Framework {
 			return true;
 		}
 
-		internal void ClearErrors ()
-		{
-			errors = null;
-			warnings = null;
-		}
-
-		internal void AddError (string name, Exception error)
-		{
-			if (errors == null)
-				errors = new List<TestError> ();
-			errors.Add (new TestError (name, error));
-		}
-
-		public bool HasErrors {
-			get { return errors != null; }
-		}
-
-		internal IList<TestError> Errors {
-			get {
-				return HasErrors ? errors : null;
-			}
-		}
-
 		public bool HasWarnings {
 			get { return warnings != null; }
 		}
 
-		public IList<TestWarning> Warnings {
+		public IList<TestResult> Warnings {
 			get {
 				return HasWarnings ? warnings : null;
 			}
-		}
-
-		internal void CheckErrors (string message)
-		{
-			if (errors == null)
-				return;
-			throw new TestErrorException (message, errors.ToArray ());
 		}
 
 		#region Internal
@@ -136,22 +100,23 @@ namespace Xamarin.AsyncTests.Framework {
 			get; set;
 		}
 
-		public string PrintInstance ()
+		internal TestNameBuilder CurrentTestName {
+			get; set;
+		}
+
+		public TestName GetCurrentTestName ()
 		{
-			var parameters = new LinkedList<string> ();
+			return CurrentTestName.GetName ();
+		}
 
-			for (var instance = Instance; instance != null; instance = instance.Parent) {
-				var parameterizedInstance = instance as ParameterizedTestInstance;
-				if (parameterizedInstance == null)
-					continue;
+		public TestResult CreateTestResult (TestStatus status, string message = null)
+		{
+			return new TestResult (GetCurrentTestName (), status, message);
+		}
 
-				parameters.AddFirst (string.Format ("<{0}>", parameterizedInstance.Current));
-			}
-
-			if (CurrentResult != null && !string.IsNullOrEmpty (CurrentResult.Name))
-				parameters.AddFirst (CurrentResult.Name);
-
-			return string.Join (".", parameters);
+		public TestResult CreateTestResult (Exception error, string message = null)
+		{
+			return new TestResult (GetCurrentTestName (), error, message);
 		}
 
 		#endregion
@@ -180,8 +145,8 @@ namespace Xamarin.AsyncTests.Framework {
 		public void Warning (string message)
 		{
 			if (warnings == null)
-				warnings = new List<TestWarning> ();
-			warnings.Add (new TestWarning (message));
+				warnings = new List<TestResult> ();
+			warnings.Add (CreateTestResult (TestStatus.Warning, message));
 		}
 
 		#endregion
@@ -205,7 +170,7 @@ namespace Xamarin.AsyncTests.Framework {
 				try {
 					disposable.Dispose ();
 				} catch (Exception ex) {
-					AddError ("Auto-dispose failed", ex);
+					Log ("Auto-dispose failed: {0}", ex);
 				}
 			}
 			disposables = null;

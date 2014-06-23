@@ -14,7 +14,7 @@
             <Label Text="{Binding Message}" Font="10" VerticalOptions="CenterAndExpand" />
         </ScrollView>
 
-        <ListView x:Name="List" IsEnabled="false" IsVisible="false" RowHeight="20">
+        <ListView x:Name="List" IsEnabled="false" IsVisible="false" RowHeight="25">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>

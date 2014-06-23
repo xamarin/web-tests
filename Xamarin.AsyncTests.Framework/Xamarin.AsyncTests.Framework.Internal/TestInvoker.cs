@@ -41,7 +41,8 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			Name = name;
 		}
 
-		public abstract Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken);
+		public abstract Task<bool> Invoke (TestContext context, TestResultCollection result,
+			CancellationToken cancellationToken);
 
 		public override string ToString ()
 		{

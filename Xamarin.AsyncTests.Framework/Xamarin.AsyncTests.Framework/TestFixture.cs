@@ -73,14 +73,6 @@ namespace Xamarin.AsyncTests.Framework
 
 		public abstract bool Resolve ();
 
-		void AddWarnings (TestResultCollection result)
-		{
-			result.AddWarnings (Warnings);
-			foreach (var test in Tests) {
-				result.AddWarnings (test.Warnings);
-			}
-		}
-
 		internal abstract Task InitializeInstance (TestContext context, CancellationToken cancellationToken);
 
 		internal abstract Task DestroyInstance (TestContext context, CancellationToken cancellationToken);

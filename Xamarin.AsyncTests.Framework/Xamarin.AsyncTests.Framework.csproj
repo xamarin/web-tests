@@ -29,18 +29,12 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestContext.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestError.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestFixture.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestResultCollection.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestSuccess.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\AsyncTestAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\AsyncTestFixtureAttribute.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestErrorException.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\ResultVisitor.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCategoryAttribute.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestWarningAttribute.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestWarning.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestStatus.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\AssertionException.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ExpectedExceptionAttribute.cs" />
@@ -72,9 +66,10 @@
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\RepeatedTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\TestCaseInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestResult.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestIgnored.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\ProxyTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCaseCollection.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestName.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestNameBuilder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

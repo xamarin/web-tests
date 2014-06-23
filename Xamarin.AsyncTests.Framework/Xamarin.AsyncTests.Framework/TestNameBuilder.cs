@@ -1,5 +1,5 @@
 ﻿//
-// TestResultView.cs
+// TestNameBuilder.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,67 +24,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
-using Xamarin.Forms;
+using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests.Framework
 {
-	using Framework;
-
-	public class TestResultModel
+	public class TestNameBuilder
 	{
-		public TestResult Result {
-			get;
-			private set;
-		}
+		Stack<string> parts = new Stack<string> ();
+		Stack<KeyValuePair<string,string>> parameters = new Stack<KeyValuePair<string, string>> ();
 
-		public TestResultModel (TestResult result)
+		public TestName GetName ()
 		{
-			Result = result;
+			var name = string.Join (".", parts);
+			return new TestName (name, parameters.ToArray ());
 		}
 
-		public string Status {
-			get { return Result.Status.ToString (); }
+		public void PushName (string part)
+		{
+			parts.Push (part);
 		}
 
-		public virtual string DetailedStatus {
-			get { return Status; }
+		public void PopName ()
+		{
+			parts.Pop ();
 		}
 
-		public string Name {
-			get { return Result.Name != null ? Result.Name.FullName : "<null>"; }
+		public void PushParameter (string key, object value)
+		{
+			parameters.Push (new KeyValuePair<string, string> (key, Print (value)));
 		}
 
-		public Color Color {
-			get {
-				switch (Result.Status) {
-				case TestStatus.Warning:
-					return Color.Yellow;
-				case TestStatus.Error:
-					return Color.Red;
-				case TestStatus.Success:
-					return Color.Green;
-				default:
-					return Color.Black;
-				}
-			}
+		public void PopParameter ()
+		{
+			parameters.Pop ();
 		}
 
-		public bool HasMessage {
-			get {
-				return !string.IsNullOrEmpty (Result.Message);
-			}
+		string Print (object value)
+		{
+			return value != null ? value.ToString () : "<null>";
 		}
 
-		public string Message {
-			get {
-				if (Result.Error == null)
-					return Result.Message;
-				else if (Result.Message != null)
-					return Result.Message + ": " + Result.Error.ToString ();
-				else
-					return Result.Error.ToString ();
-			}
+		public string GetFullName ()
+		{
+			return GetName ().FullName;
 		}
 	}
 }

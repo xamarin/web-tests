@@ -42,10 +42,6 @@ namespace Xamarin.AsyncTests.Framework {
 			get;
 		}
 
-		public abstract IEnumerable<TestWarning> Warnings {
-			get;
-		}
-
 		public string Name {
 			get;
 			private set;
@@ -63,6 +59,7 @@ namespace Xamarin.AsyncTests.Framework {
 
 		internal abstract TestInvoker Resolve (TestContext context);
 
-		public abstract Task<TestResult> Run (TestContext context, CancellationToken cancellationToken);
+		public abstract Task<bool> Run (TestContext context, TestResultCollection result,
+			CancellationToken cancellationToken);
 	}
 }

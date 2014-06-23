@@ -1,5 +1,5 @@
 ﻿//
-// TestIgnored.cs
+// TestName.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,23 +24,61 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Text;
+using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	public class TestIgnored : TestResult
+	public class TestName
 	{
-		public override TestStatus Status {
-			get { return TestStatus.Ignored; }
+		public string Name {
+			get;
+			private set;
 		}
 
-		#region implemented abstract members of TestResult
+		public KeyValuePair<string,string>[] Parameters {
+			get;
+			private set;
+		}
 
-		public override void Accept (ResultVisitor visitor)
+		public TestName (string name, params KeyValuePair<string,string>[] parameters)
 		{
-			visitor.Visit (this);
+			Name = name;
+			Parameters = parameters;
 		}
 
-		#endregion
+		string fullName;
+		public string FullName {
+			get {
+				if (fullName == null)
+					fullName = GetFullName ();
+				return fullName;
+			}
+		}
+
+		string GetFullName ()
+		{
+			if (Parameters == null || Parameters.Length == 0)
+				return Name;
+			var sb = new StringBuilder (Name);
+			sb.Append ("(");
+			for (int i = 0; i < Parameters.Length; i++) {
+				if (i > 0)
+					sb.Append (",");
+				if (!string.IsNullOrEmpty (Parameters [i].Key)) {
+					sb.Append (Parameters [i].Key);
+					sb.Append ("=");
+				}
+				sb.Append (Parameters [i].Value);
+			}
+			sb.Append (")");
+			return sb.ToString ();
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[{0}]", FullName);
+		}
 	}
 }
 

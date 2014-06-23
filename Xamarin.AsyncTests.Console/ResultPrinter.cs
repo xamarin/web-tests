@@ -8,7 +8,7 @@ namespace Xamarin.AsyncTests.ConsoleRunner {
 
 	using Framework;
 
-	public class ResultPrinter : ResultVisitor {
+	public class ResultPrinter {
 		TextWriter writer;
 		Stack<string> names;
 		int totalErrors;
@@ -30,7 +30,7 @@ namespace Xamarin.AsyncTests.ConsoleRunner {
 
 			writer.WriteLine ();
 			writer.WriteLine ("Total: {0} tests, {1} passed, {2} errors.",
-				result.Count, printer.totalSuccess, printer.totalErrors);
+				result.Children.Count, printer.totalSuccess, printer.totalErrors);
 			writer.WriteLine ();
 		}
 
@@ -42,7 +42,7 @@ namespace Xamarin.AsyncTests.ConsoleRunner {
 		void PushName (TestResult item)
 		{
 			if (item.Name != null)
-				names.Push (item.Name);
+				names.Push (item.Name.Name);
 		}
 
 		void PopName (TestResult item)
@@ -51,38 +51,42 @@ namespace Xamarin.AsyncTests.ConsoleRunner {
 				names.Pop ();
 		}
 
-		#region implemented abstract members of ResultVisitor
-		public override void Visit (TestResultCollection node)
+		public void Visit (TestResult node)
+		{
+			var collection = node as TestResultCollection;
+			if (collection != null)
+				VisitCollection (collection);
+			else
+				VisitSimple (node);
+		}
+	
+		void VisitCollection (TestResultCollection node)
 		{
 			foreach (var item in node.Children) {
 				PushName (item);
-				item.Accept (this);
+				Visit (item);
 				PopName (item);
 			}
 		}
 
-		public override void Visit (TestSuccess node)
+		void VisitSimple (TestResult node)
 		{
-			totalSuccess++;
+			switch (node.Status) {
+			case TestStatus.Success:
+				totalSuccess++;
+				break;
+			case TestStatus.Error:
+				totalErrors++;
+				writer.WriteLine ("{0}) {1}: {2}\n{3}\n", ++id, GetName (), node.Message, node.Error);
+				break;
+			case TestStatus.Warning:
+				writer.WriteLine ("{0}) {1}:\n{2}\n", ++id, GetName (), node);
+				break;
+			case TestStatus.Ignored:
+				writer.WriteLine ("{0}) {1} - ignored\n", ++id, GetName ());
+				break;
+			}
 		}
-
-		public override void Visit (TestError node)
-		{
-			totalErrors++;
-			writer.WriteLine ("{0}) {1}: {2}\n{3}\n", ++id, GetName (), node.Message, node.Error);
-		}
-
-		public override void Visit (TestWarning node)
-		{
-			writer.WriteLine ("{0}) {1}:\n{2}\n", ++id, GetName (), node);
-		}
-
-		public override void Visit (TestIgnored node)
-		{
-			writer.WriteLine ("{0}) {1} - ignored\n", ++id, GetName ());
-		}
-
-		#endregion
 	}
 }
 

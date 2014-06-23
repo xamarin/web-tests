@@ -106,15 +106,21 @@ namespace Xamarin.AsyncTests.Framework {
 		{
 			var result = new TestResultCollection ();
 
-			if (context.Repeat == 0) {
-				await Run (context, result, cancellationToken);
-			} else {
-				for (int iteration = 0; iteration < context.Repeat; iteration++) {
-					var name = string.Format ("{0} (iteration {1})", Name, iteration + 1);
-					var child = new TestResultCollection (name);
-					result.AddChild (child);
-					await Run (context, child, cancellationToken);
+			try {
+				context.CurrentTestName = new TestNameBuilder ();
+
+				if (context.Repeat == 0) {
+					await Run (context, result, cancellationToken);
+				} else {
+					for (int iteration = 0; iteration < context.Repeat; iteration++) {
+						context.CurrentTestName.PushParameter ("$iteration", iteration + 1);
+						var child = new TestResultCollection (context.GetCurrentTestName ());
+						result.AddChild (child);
+						await Run (context, child, cancellationToken);
+					}
 				}
+			} finally {
+				context.CurrentTestName = null;
 			}
 
 			OnStatusMessageEvent ("Test suite finished.");
@@ -128,10 +134,10 @@ namespace Xamarin.AsyncTests.Framework {
 				if (!context.Filter (fixture))
 					continue;
 				try {
-					result.AddChild (await fixture.Run (context, cancellationToken));
+					await fixture.Run (context, result, cancellationToken);
 				} catch (Exception ex) {
 					context.Log ("Test fixture {0} failed: {1}", fixture.Name, ex);
-					result.AddChild (new TestError ("Test fixture failed", ex));
+					result.AddChild (context.CreateTestResult (ex));
 				}
 			}
 		}

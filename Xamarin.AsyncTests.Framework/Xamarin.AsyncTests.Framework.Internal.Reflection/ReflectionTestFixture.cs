@@ -37,14 +37,9 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 	{
 		List<ReflectionTestCase> tests;
 		IList<string> categories;
-		IList<TestWarning> warnings;
 
 		public override IEnumerable<string> Categories {
 			get { return categories; }
-		}
-
-		public override IEnumerable<TestWarning> Warnings {
-			get { return warnings; }
 		}
 
 		public override int CountTests {
@@ -58,7 +53,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 		public ReflectionTestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)
 			: base (suite, attr, type)
 		{
-			Resolve (suite, null, type, out categories, out warnings);
+			Resolve (suite, null, type, out categories);
 		}
 
 		public override bool Resolve ()
@@ -79,10 +74,8 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 		}
 
 		internal static void Resolve (
-			TestSuite suite, TestFixture parent, MemberInfo member,
-			out IList<string> categories, out IList<TestWarning> warnings)
+			TestSuite suite, TestFixture parent, MemberInfo member, out IList<string> categories)
 		{
-			warnings = new List<TestWarning> ();
 			categories = new List<string> ();
 
 			if (parent != null) {
@@ -114,27 +107,13 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 				categories.Add (category.Name);
 			}
-
-			var wattrs = member.GetCustomAttributes (typeof(TestWarningAttribute), false);
-
-			foreach (var obj in wattrs) {
-				var attr = obj as TestWarningAttribute;
-				if (attr == null)
-					continue;
-
-				string message;
-				if (member is MethodInfo)
-					message = member.Name + ": " + attr.Message;
-				else
-					message = attr.Message;
-				warnings.Add (new TestWarning (message));
-			}
 		}
 
-		public override Task<TestResult> Run (TestContext context, CancellationToken cancellationToken)
+		public override Task<bool> Run (
+			TestContext context, TestResultCollection result, CancellationToken cancellationToken)
 		{
 			var invoker = Resolve (context);
-			return invoker.Invoke (context, cancellationToken);
+			return invoker.Invoke (context, result, cancellationToken);
 		}
 
 		internal override TestInvoker Resolve (TestContext context)

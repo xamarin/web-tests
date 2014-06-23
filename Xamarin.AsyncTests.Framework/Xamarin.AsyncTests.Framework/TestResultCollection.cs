@@ -28,6 +28,7 @@
 //
 using System;
 using System.Linq;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -36,38 +37,21 @@ namespace Xamarin.AsyncTests.Framework {
 	public class TestResultCollection : TestResult
 	{
 		public TestResultCollection ()
+			: this (null)
 		{
 		}
 
-		public TestResultCollection (string name)
+		public TestResultCollection (TestName name)
+			: base (name, TestStatus.Ignored)
 		{
-			Name = name;
+			messages = new ObservableCollection<string> ();
+			((INotifyPropertyChanged)messages).PropertyChanged += (sender, e) => OnMessagesChanged ();
+			children = new ObservableCollection<TestResult> ();
+			((INotifyPropertyChanged)children).PropertyChanged += (sender, e) => OnChildrenChanged ();
 		}
 
-		public override TestStatus Status {
-			get { return HasErrors () ? TestStatus.Error : TestStatus.Success; }
-		}
-
-		ObservableCollection<TestResult> children = new ObservableCollection<TestResult> ();
-		ObservableCollection<string> messages = new ObservableCollection<string> ();
-
-		bool HasErrors ()
-		{
-			foreach (var child in children) {
-				if (child.Status == TestStatus.Error)
-					return true;
-			}
-
-			return false;
-		}
-
-		public bool HasChildren {
-			get { return children.Count > 0; }
-		}
-
-		public int Count {
-			get { return children.Count; }
-		}
+		ObservableCollection<TestResult> children;
+		ObservableCollection<string> messages;
 
 		public ObservableCollection<TestResult> Children {
 			get { return children; }
@@ -77,12 +61,32 @@ namespace Xamarin.AsyncTests.Framework {
 			get { return messages; }
 		}
 
+		void OnMessagesChanged ()
+		{
+			OnPropertyChanged ("Messages");
+		}
+
+		void OnChildrenChanged ()
+		{
+			if (children.Count == 0)
+				Status = TestStatus.Ignored;
+			else {
+				var hasErrors = children.Any (child => child.Status == TestStatus.Error);
+				if (hasErrors)
+					Status = TestStatus.Error;
+				else if (Status == TestStatus.Ignored)
+					Status = TestStatus.Success;
+			}
+
+			OnPropertyChanged ("Children");
+		}
+
 		public void AddMessage (string format, params object[] args)
 		{
 			messages.Add (string.Format (format, args));
 		}
 
-		public void AddWarnings (IEnumerable<TestWarning> warnings)
+		public void AddWarnings (IEnumerable<TestResult> warnings)
 		{
 			foreach (var warning in warnings)
 				children.Add (warning);
@@ -92,6 +96,7 @@ namespace Xamarin.AsyncTests.Framework {
 		{
 			var collection = result as TestResultCollection;
 			if (collection == null || !flatten || collection.Name != null) {
+				result.PropertyChanged += (sender, e) => OnChildrenChanged ();
 				children.Add (result);
 				return;
 			}
@@ -105,11 +110,6 @@ namespace Xamarin.AsyncTests.Framework {
 		{
 			children.Clear ();
 			messages.Clear ();
-		}
-
-		public override void Accept (ResultVisitor visitor)
-		{
-			visitor.Visit (this);
 		}
 	}
 }

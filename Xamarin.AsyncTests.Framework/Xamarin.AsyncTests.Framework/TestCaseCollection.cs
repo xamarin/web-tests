@@ -70,21 +70,16 @@ namespace Xamarin.AsyncTests.Framework
 			return invoker;
 		}
 
-		public override Task<TestResult> Run (TestContext context, CancellationToken cancellationToken)
+		public override Task<bool> Run (
+			TestContext context, TestResultCollection result, CancellationToken cancellationToken)
 		{
 			var invoker = Resolve (context);
-			return invoker.Invoke (context, cancellationToken);
+			return invoker.Invoke (context, result, cancellationToken);
 		}
 
 		public override IEnumerable<string> Categories {
 			get {
 				return tests.SelectMany (t => t.Categories);
-			}
-		}
-
-		public override IEnumerable<TestWarning> Warnings {
-			get {
-				return tests.SelectMany (t => t.Warnings);
 			}
 		}
 

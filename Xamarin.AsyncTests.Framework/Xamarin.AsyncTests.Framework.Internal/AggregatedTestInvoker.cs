@@ -71,15 +71,19 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		{
 			context.Debug (3, "SetUp({0}): {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
 
+			if (Host == null)
+				return true;
+
 			try {
-				if (Host != null)
-					await Host.CreateInstance (context, cancellationToken);
+				context.CurrentTestName.PushName ("SetUp");
+				await Host.CreateInstance (context, cancellationToken);
 				return true;
 			} catch (Exception ex) {
-				var error = new TestError ("SetUp failed", ex);
-				context.LogError (error);
+				var error = context.CreateTestResult (ex);
 				result.AddChild (error);
 				return false;
+			} finally {
+				context.CurrentTestName.PopName ();
 			}
 		}
 
@@ -87,32 +91,33 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		{
 			context.Debug (3, "ReuseInstance({0}): {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
 
+			var parameterizedHost = Host as ParameterizedTestHost;
+			if (parameterizedHost == null)
+				return true;
+
 			try {
-				var parameterizedHost = Host as ParameterizedTestHost;
-				if (parameterizedHost != null)
-					await parameterizedHost.ReuseInstance (context, cancellationToken);
+				context.CurrentTestName.PushName ("ReuseInstance");
+				await parameterizedHost.ReuseInstance (context, cancellationToken);
 				return true;
 			} catch (Exception ex) {
-				var error = new TestError ("ReuseInstance failed", ex);
-				context.LogError (error);
+				var error = context.CreateTestResult (ex);
 				result.AddChild (error);
 				return false;
+			} finally {
+				context.CurrentTestName.PopName ();
 			}
 		}
 
 		async Task<bool> InvokeInner (TestContext context, TestResultCollection result, TestInvoker invoker, CancellationToken cancellationToken)
 		{
-			var name = string.Format ("{0}[{1}]", Name, context.PrintInstance ());
-			context.Debug (3, "Running({0}): {1} {2}", name, Print (Host), invoker);
+			context.Debug (3, "Running({0}): {1} {2}", context.CurrentTestName.GetFullName (), Print (Host), invoker);
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				var inner = await invoker.Invoke (context, cancellationToken);
-				result.AddChild (inner);
-				return ContinueOnError || inner.Status != TestStatus.Error;
+				var success = await invoker.Invoke (context, result, cancellationToken);
+				return success || ContinueOnError;
 			} catch (Exception ex) {
-				var error = new TestError ("Test failed", ex);
-				context.LogError (error);
+				var error = context.CreateTestResult (ex);
 				result.AddChild (error);
 				return ContinueOnError;
 			}
@@ -122,31 +127,32 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		{
 			context.Debug (3, "TearDown({0}): {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
 
+			if (Host == null)
+				return true;
+
 			try {
-				if (Host != null)
-					await Host.DestroyInstance (context, cancellationToken);
+				context.CurrentTestName.PushName ("TearDown");
+				await Host.DestroyInstance (context, cancellationToken);
 				return true;
 			} catch (Exception ex) {
-				var error = new TestError ("TearDown failed", ex);
-				context.LogError (error);
+				var error = context.CreateTestResult (ex);
 				result.AddChild (error);
 				return false;
+			} finally {
+				context.CurrentTestName.PopName ();
 			}
 		}
 			
-		public sealed override async Task<TestResult> Invoke (TestContext context, CancellationToken cancellationToken)
+		public sealed override async Task<bool> Invoke (
+			TestContext context, TestResultCollection result, CancellationToken cancellationToken)
 		{
 			if (InnerTestInvokers.Count == 0)
-				return new TestSuccess ();
+				return true;
 
 			var oldResult = context.CurrentResult;
-			var result = new TestResultCollection ();
-			context.CurrentResult = result;
 
-			if (!await SetUp (context, result, cancellationToken)) {
-				context.CurrentResult = oldResult;
-				return result;
-			}
+			if (!await SetUp (context, result, cancellationToken))
+				return false;
 
 			bool success = true;
 			var innerRunners = new LinkedList<TestInvoker> (InnerTestInvokers);
@@ -164,14 +170,18 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				var parameterizedHost = Host as ParameterizedTestHost;
 				if (parameterizedHost != null) {
 					var parameterizedInstance = (ParameterizedTestInstance)context.Instance;
-					var innerName = string.Format ("<{0}>", parameterizedInstance.Current);
-					innerResult = new TestResultCollection (innerName);
+					context.CurrentTestName.PushParameter (null, parameterizedInstance.Current);
+					innerResult = new TestResultCollection (context.GetCurrentTestName ());
 					result.AddChild (innerResult);
 				}
 
 				var invoker = current.Value;
 				success = await InvokeInner (context, innerResult, invoker, cancellationToken);
 				context.Debug (5, "TEST: {0} {1} {2}", this, Flags, success);
+
+				if (parameterizedHost != null)
+					context.CurrentTestName.PopParameter ();
+
 				if (!success)
 					break;
 
@@ -182,9 +192,8 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			if (!await TearDown (context, result, cancellationToken))
 				success = false;
 
-			context.CurrentResult = oldResult;
 			cancellationToken.ThrowIfCancellationRequested ();
-			return result;
+			return success;
 		}
 
 		public override string ToString ()

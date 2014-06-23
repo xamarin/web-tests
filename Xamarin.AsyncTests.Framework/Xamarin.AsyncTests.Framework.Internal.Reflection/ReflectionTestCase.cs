@@ -53,16 +53,11 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			get { return categories; }
 		}
 
-		public override IEnumerable<TestWarning> Warnings {
-			get { return warnings; }
-		}
-
 		public TypeInfo ExpectedExceptionType {
 			get { return expectedExceptionType; }
 		}
 
 		IList<string> categories;
-		IList<TestWarning> warnings;
 		ExpectedExceptionAttribute expectedException;
 		TypeInfo expectedExceptionType;
 
@@ -73,8 +68,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			Attribute = attr;
 			Method = method;
 
-			ReflectionTestFixture.Resolve (
-				fixture.Suite, fixture, method, out categories, out warnings);
+			ReflectionTestFixture.Resolve (fixture.Suite, fixture, method, out categories);
 
 			expectedException = method.GetCustomAttribute<ExpectedExceptionAttribute> ();
 			if (expectedException != null)
@@ -140,7 +134,21 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			return new ProxyTestInvoker (Name, invoker);
 		}
 
-		public override Task<TestResult> Run (TestContext context, CancellationToken cancellationToken)
+		public override async Task<bool> Run (
+			TestContext context, TestResultCollection result, CancellationToken cancellationToken)
+		{
+			try {
+				var inner = await Run (context, cancellationToken);
+				result.AddChild (inner);
+				return inner.Status != TestStatus.Error;
+			} catch (Exception ex) {
+				var error = context.CreateTestResult (ex);
+				result.AddChild (error);
+				return false;
+			}
+		}
+
+		Task<TestResult> Run (TestContext context, CancellationToken cancellationToken)
 		{
 			if (ExpectedExceptionType != null)
 				return ExpectingException (context, ExpectedExceptionType, cancellationToken);
@@ -204,7 +212,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			try {
 				retval = InvokeInner (context, cancellationToken);
 			} catch (Exception ex) {
-				return Task.FromResult<TestResult> (new TestError (ex));
+				return Task.FromResult<TestResult> (context.CreateTestResult (ex));
 			}
 
 			var tresult = retval as Task<TestResult>;
@@ -213,15 +221,15 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 			var task = retval as Task;
 			if (task == null)
-				return Task.FromResult<TestResult> (new TestSuccess ());
+				return Task.FromResult<TestResult> (context.CreateTestResult (TestStatus.Success));
 
 			return Task.Factory.ContinueWhenAny<TestResult> (new Task[] { task }, t => {
 				if (t.IsFaulted)
-					return new TestError ("Test failed", t.Exception);
+					return context.CreateTestResult (t.Exception, "Test failed");
 				else if (t.IsCanceled)
-					return new TestError ("Test cancelled", t.Exception);
+					return context.CreateTestResult (t.Exception, "Test cancelled");
 				else if (t.IsCompleted)
-					return new TestSuccess ();
+					return context.CreateTestResult (TestStatus.Success);
 				throw new InvalidOperationException ();
 			});
 		}
@@ -234,9 +242,8 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				var rtask = retval as Task<TestResult>;
 				if (rtask != null) {
 					var result = await rtask;
-					var terror = result as TestError;
-					if (terror != null)
-						throw terror.Error;
+					if (result.Error != null)
+						throw result.Error;
 				} else {
 					var task = retval as Task;
 					if (task != null)
@@ -244,15 +251,15 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				}
 
 				var message = string.Format ("Expected an exception of type {0}", expectedException);
-				return new TestError (message, new AssertionException (message));
+				return context.CreateTestResult (new AssertionException (message), message);
 			} catch (Exception ex) {
 				if (ex is TargetInvocationException)
 					ex = ((TargetInvocationException)ex).InnerException;
 				if (expectedException.IsAssignableFrom (ex.GetType ().GetTypeInfo ()))
-					return new TestSuccess ();
+					return context.CreateTestResult (TestStatus.Success);
 				var message = string.Format ("Expected an exception of type {0}, but got {1}",
 					expectedException, ex.GetType ());
-				return new TestError (message, new AssertionException (message, ex));
+				return context.CreateTestResult (new AssertionException (message, ex), message);
 			}
 		}
 	}
