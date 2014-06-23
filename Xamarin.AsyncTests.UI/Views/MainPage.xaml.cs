@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		CancellationTokenSource cancelCts;
-		TestResultCollection result;
+		ObservableCollection<TestResultView> resultCollection;
 
 		public MainPage (TestApp app)
 		{
@@ -58,8 +58,9 @@ namespace Xamarin.AsyncTests.UI
 
 			app.AssemblyLoadedEvent += (sender, e) => RunButton.IsEnabled = true;
 
-			result = new TestResultCollection ();
-			List.ItemsSource = result.Children;
+			resultCollection = new ObservableCollection<TestResultView> ();
+			List.ItemsSource = resultCollection;
+			List.ItemSelected += (sender, e) => ItemSelected ((TestResultView)e.SelectedItem);
 		}
 
 		async void Run ()
@@ -69,9 +70,9 @@ namespace Xamarin.AsyncTests.UI
 			StopButton.IsEnabled = true;
 			Message ("Running ...");
 			try {
-				result.Clear ();
-				var retval = await App.Run (cancelCts.Token);
-				DisplayResult (retval);
+				resultCollection.Clear ();
+				var result = await App.Run (cancelCts.Token);
+				AddTestResult (result);
 				Message ("Done.");
 			} catch (TaskCanceledException) {
 				Message ("Canceled!");
@@ -87,9 +88,22 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		void DisplayResult (TestResultCollection collection)
+		void AddTestResult (TestResult result)
 		{
-			result.AddChild (collection, true);
+			var collection = result as TestResultCollection;
+			if (collection == null || collection.Name != null) {
+				resultCollection.Add (new TestResultView (result));
+				return;
+			}
+
+			foreach (var child in collection.Children) {
+				AddTestResult (child);
+			}
+		}
+
+		void ItemSelected (TestResultView item)
+		{
+			Message ("SELECTED: {0}", item.Name);
 		}
 
 		internal void Message (string format, params object[] args)

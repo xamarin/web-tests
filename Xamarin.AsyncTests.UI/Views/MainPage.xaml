@@ -18,7 +18,7 @@
                         <ViewCell.View>
                             <StackLayout Orientation="Horizontal">
 
-                                <Label Text="{Binding Name}"
+                                <Label Text="{Binding Name}" TextColor="{Binding Color}"
                                        HorizontalOptions="FillAndExpand" />
 
                             </StackLayout>
