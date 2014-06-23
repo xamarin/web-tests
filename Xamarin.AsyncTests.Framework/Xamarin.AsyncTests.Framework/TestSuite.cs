@@ -104,10 +104,9 @@ namespace Xamarin.AsyncTests.Framework {
 
 		public async Task<TestResultCollection> Run (TestContext context, CancellationToken cancellationToken)
 		{
-			var result = new TestResultCollection ();
-
 			try {
 				context.CurrentTestName = new TestNameBuilder ();
+				var result = new TestResultCollection (context.GetCurrentTestName ());
 
 				if (context.Repeat == 0) {
 					await Run (context, result, cancellationToken);
@@ -119,13 +118,11 @@ namespace Xamarin.AsyncTests.Framework {
 						await Run (context, child, cancellationToken);
 					}
 				}
+
+				return result;
 			} finally {
 				context.CurrentTestName = null;
 			}
-
-			OnStatusMessageEvent ("Test suite finished.");
-
-			return result;
 		}
 
 		async Task Run (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
@@ -139,42 +136,6 @@ namespace Xamarin.AsyncTests.Framework {
 					context.Log ("Test fixture {0} failed: {1}", fixture.Name, ex);
 					result.AddChild (context.CreateTestResult (ex));
 				}
-			}
-		}
-
-		public event EventHandler<StatusMessageEventArgs> StatusMessageEvent;
-
-		protected internal void OnStatusMessageEvent (string message, params object[] args)
-		{
-			OnStatusMessageEvent (new StatusMessageEventArgs (string.Format (message, args)));
-		}
-
-		protected void OnStatusMessageEvent (StatusMessageEventArgs args)
-		{
-			if (StatusMessageEvent != null)
-				StatusMessageEvent (this, args);
-		}
-
-		public class StatusMessageEventArgs : EventArgs {
-			public string Message {
-				get;
-				private set;
-			}
-
-			public Exception Error {
-				get;
-				private set;
-			}
-
-			public StatusMessageEventArgs (string message)
-			{
-				this.Message = message;
-			}
-
-			public StatusMessageEventArgs (string message, Exception error)
-			{
-				this.Message = message;
-				this.Error = error;
 			}
 		}
 	}

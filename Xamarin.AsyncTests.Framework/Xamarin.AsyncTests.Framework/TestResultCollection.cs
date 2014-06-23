@@ -36,6 +36,7 @@ namespace Xamarin.AsyncTests.Framework {
 
 	public class TestResultCollection : TestResult
 	{
+		[Obsolete]
 		public TestResultCollection ()
 			: this (null)
 		{

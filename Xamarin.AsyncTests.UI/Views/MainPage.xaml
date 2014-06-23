@@ -2,7 +2,14 @@
 <ContentPage
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.MainPage">
+
+    <ContentPage.Resources>
+    	<ResourceDictionary>
+            <local:TestResultConverter x:Key="converter" />
+    	</ResourceDictionary>
+    </ContentPage.Resources>
 
     <StackLayout Spacing="20" Orientation="Vertical">
 
@@ -18,7 +25,8 @@
                         <ViewCell.View>
                             <StackLayout Orientation="Horizontal">
 
-                                <Label Text="{Binding Name}" TextColor="{Binding Color}"
+                                <Label Text="{Binding Name, Converter={StaticResource converter}}"
+                                       TextColor="{Binding Status, Converter={StaticResource converter}}"
                                        HorizontalOptions="FillAndExpand" />
 
                             </StackLayout>

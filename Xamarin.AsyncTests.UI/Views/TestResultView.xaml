@@ -2,16 +2,25 @@
 <ContentPage
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.TestResultView">
+
+    <ContentPage.Resources>
+    	<ResourceDictionary>
+            <local:TestResultConverter x:Key="converter" />
+    	</ResourceDictionary>
+    </ContentPage.Resources>
 
     <StackLayout Spacing="10" Orientation="Vertical">
 
-        <Label Text="{Binding Name}" />
-        <Label Text="{Binding Status}" TextColor="{Binding Color}" />
-        <Label Text="{Binding DetailedStatus}" />
+        <Label Text="{Binding Name, Converter={StaticResource converter}}" />
+        <Label Text="{Binding Status, Converter={StaticResource converter}}"
+               TextColor="{Binding Color, Converter={StaticResource converter}}" />
+        <!-- <Label Text="{Binding DetailedStatus}" /> -->
 
-        <ScrollView Orientation="Vertical" VerticalOptions="FillAndExpand" IsVisible="{Binding HasMessage}">
-            <Label Text="{Binding Message}" Font="10" VerticalOptions="CenterAndExpand" />
+        <ScrollView Orientation="Vertical" VerticalOptions="FillAndExpand"
+                    IsVisible="{Binding Error, Converter={StaticResource converter}, ConverterParameter='not-null'}">
+            <Label Text="{Binding Error, Converter={StaticResource converter}}" Font="10" VerticalOptions="CenterAndExpand" />
         </ScrollView>
 
         <ListView x:Name="List" IsEnabled="false" IsVisible="false" RowHeight="25">
@@ -21,7 +30,8 @@
                         <ViewCell.View>
                             <StackLayout Orientation="Horizontal">
 
-                                <Label Text="{Binding Name}" TextColor="{Binding Color}"
+                                <Label Text="{Binding Name, Converter={StaticResource converter}}"
+                                       TextColor="{Binding Status, Converter={StaticResource converter}}"
                                        HorizontalOptions="FillAndExpand" />
 
                             </StackLayout>

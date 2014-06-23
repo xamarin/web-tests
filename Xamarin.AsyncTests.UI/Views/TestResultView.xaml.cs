@@ -33,28 +33,28 @@ namespace Xamarin.AsyncTests.UI
 
 	public partial class TestResultView : ContentPage
 	{
-		public TestResultModel Model {
+		public TestResult Result {
 			get;
 			private set;
 		}
 
-		public TestResultView (TestResultModel model)
+		public TestResultView (TestResult result)
 		{
-			Model = model;
+			Result = result;
 
 			InitializeComponent ();
-			BindingContext = Model;
+			BindingContext = Result;
 
-			var collection = model as TestResultCollectionModel;
+			var collection = result as TestResultCollection;
 			if (collection != null) {
 				List.ItemsSource = collection.Children;
-				List.ItemSelected += (sender, e) => ItemSelected ((TestResultModel)e.SelectedItem);
+				List.ItemSelected += (sender, e) => ItemSelected ((TestResult)e.SelectedItem);
 				List.IsEnabled = true;
 				List.IsVisible = true;
 			}
 		}
 
-		void ItemSelected (TestResultModel model)
+		void ItemSelected (TestResult model)
 		{
 			Navigation.PushAsync (new TestResultView (model));
 		}
