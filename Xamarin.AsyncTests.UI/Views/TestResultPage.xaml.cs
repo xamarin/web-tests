@@ -1,5 +1,5 @@
 ﻿//
-// TestResultView.xaml.cs
+// TestResultPage.xaml.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -31,47 +31,20 @@ namespace Xamarin.AsyncTests.UI
 {	
 	using Framework;
 
-	public partial class TestResultView : ContentView
+	public partial class TestResultPage : ContentPage
 	{
 		public TestResult Result {
-			get {
-				return (TestResult)BindingContext;
-			}
+			get;
+			private set;
 		}
 
-		public TestResultView ()
+		public TestResultPage (TestResult result)
 		{
+			Result = result;
+
 			InitializeComponent ();
-		}
 
-		protected override void OnBindingContextChanged ()
-		{
-			SetResult (Result);
-			base.OnBindingContextChanged ();
-		}
-
-		public static readonly BindableProperty ResultProperty =
-			BindableProperty.Create<TestResultView,TestResult> (view => view.Result, null);
-
-		void SetResult (TestResult result)
-		{
-			if (result == null) {
-				List.IsEnabled = false;
-				List.IsVisible = false;
-			}
-
-			var collection = result as TestResultCollection;
-			if (collection != null) {
-				List.ItemsSource = collection.Children;
-				List.ItemSelected += (sender, e) => ItemSelected ((TestResult)e.SelectedItem);
-				List.IsEnabled = true;
-				List.IsVisible = true;
-			}
-		}
-
-		void ItemSelected (TestResult model)
-		{
-			Navigation.PushAsync (new TestResultPage (model));
+			BindingContext = result;
 		}
 	}
 }

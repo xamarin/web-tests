@@ -43,6 +43,10 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public TestResult Result {
+			get { return resultCollection; }
+		}
+
 		CancellationTokenSource cancelCts;
 		TestResultCollection resultCollection;
 
@@ -59,8 +63,7 @@ namespace Xamarin.AsyncTests.UI
 			app.AssemblyLoadedEvent += (sender, e) => RunButton.IsEnabled = true;
 
 			resultCollection = new TestResultCollection ();
-			List.ItemsSource = resultCollection.Children;
-			List.ItemSelected += (sender, e) => ItemSelected ((TestResult)e.SelectedItem);
+			BindingContext = Result;
 		}
 
 		async void Run ()
@@ -86,12 +89,6 @@ namespace Xamarin.AsyncTests.UI
 				cancelCts = null;
 				RunButton.IsEnabled = true;
 			}
-		}
-
-		void ItemSelected (TestResult result)
-		{
-			Message ("SELECTED: {0}", result.Name);
-			Navigation.PushAsync (new TestResultView (result));
 		}
 
 		internal void Message (string format, params object[] args)

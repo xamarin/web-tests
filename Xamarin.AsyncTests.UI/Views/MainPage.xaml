@@ -5,12 +5,6 @@
     xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.MainPage">
 
-    <ContentPage.Resources>
-    	<ResourceDictionary>
-            <local:TestResultConverter x:Key="converter" />
-    	</ResourceDictionary>
-    </ContentPage.Resources>
-
     <StackLayout Spacing="20" Orientation="Vertical">
 
         <StackLayout Spacing="20" Orientation="Horizontal">
@@ -18,23 +12,7 @@
             <Button x:Name="StopButton" Text="Stop" IsEnabled="false" />
         </StackLayout>
 
-        <ListView x:Name="List" IsEnabled="true" IsVisible="true" RowHeight="25">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <ViewCell>
-                        <ViewCell.View>
-                            <StackLayout Orientation="Horizontal">
-
-                                <Label Text="{Binding Name, Converter={StaticResource converter}}"
-                                       TextColor="{Binding Status, Converter={StaticResource converter}}"
-                                       HorizontalOptions="FillAndExpand" />
-
-                            </StackLayout>
-                        </ViewCell.View>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <local:TestResultView Result="{Binding Result}" />
 
     	<Label x:Name="Label" Text="Hello" />
 
