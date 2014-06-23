@@ -1,5 +1,5 @@
 ﻿//
-// TestResultView.cs
+// TestResultView.xaml.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -23,74 +23,40 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
-{
+{	
 	using Framework;
 
-	public class TestResultModel
+	public partial class TestResultView : ContentPage
 	{
-		public TestResult Result {
+		public TestResultModel Model {
 			get;
 			private set;
 		}
 
-		public TestResultModel (TestResult result)
+		public TestResultView (TestResultModel model)
 		{
-			Result = result;
-		}
+			Model = model;
 
-		public string Status {
-			get { return Result.Status.ToString (); }
-		}
+			InitializeComponent ();
+			BindingContext = Model;
 
-		public virtual string DetailedStatus {
-			get { return Status; }
-		}
-
-		public string Name {
-			get { return string.IsNullOrEmpty (Result.Name) ? "<null>" : Result.Name; }
-		}
-
-		public Color Color {
-			get {
-				switch (Result.Status) {
-				case TestStatus.Warning:
-					return Color.Yellow;
-				case TestStatus.Error:
-					return Color.Red;
-				case TestStatus.Success:
-					return Color.Green;
-				default:
-					return Color.Black;
-				}
+			var collection = model as TestResultCollectionModel;
+			if (collection != null) {
+				List.ItemsSource = collection.Children;
+				List.ItemSelected += (sender, e) => ItemSelected ((TestResultModel)e.SelectedItem);
+				List.IsEnabled = true;
+				List.IsVisible = true;
 			}
 		}
 
-		public bool HasMessage {
-			get {
-				return Result is TestWarning || Result is TestError;
-			}
-		}
-
-		public string Message {
-			get {
-				var warning = Result as TestWarning;
-				if (warning != null)
-					return warning.Text;
-
-				var error = Result as TestError;
-				if (error == null)
-					return string.Empty;
-
-				if (error.Message != null)
-					return error.Message + ": " + error.Error.ToString ();
-				else
-					return error.Error.ToString ();
-			}
+		void ItemSelected (TestResultModel model)
+		{
+			Navigation.PushAsync (new TestResultView (model));
 		}
 	}
 }

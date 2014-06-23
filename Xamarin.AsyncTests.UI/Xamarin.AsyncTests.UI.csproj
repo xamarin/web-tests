@@ -38,6 +38,10 @@
     </Compile>
     <Compile Include="TestApp.cs" />
     <Compile Include="Models\TestResultModel.cs" />
+    <Compile Include="Views\TestResultView.xaml.cs">
+      <DependentUpon>TestResultView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Models\TestResultCollectionModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="../packages/Xamarin.Forms.1.0.6186/build/portable-win+net45+wp80+MonoAndroid10+MonoTouch10/Xamarin.Forms.targets" />
@@ -58,6 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\TestResultView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>
