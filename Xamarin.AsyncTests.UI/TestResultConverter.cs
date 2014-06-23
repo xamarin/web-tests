@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Text;
 using System.Reflection;
 using System.Globalization;
 using Xamarin.Forms;
@@ -42,26 +44,18 @@ namespace Xamarin.AsyncTests.UI
 				switch ((string)parameter) {
 				case "not-null":
 					return value != null;
+				case "test-summary":
+					return GetTestSummary ((TestResult)value);
 				default:
 					throw new InvalidOperationException ();
 				}
 			}
 
 			if (value is TestStatus) {
-				if (targetType.Equals (typeof(Color))) {
-					switch ((TestStatus)value) {
-					case TestStatus.Warning:
-						return Color.Yellow;
-					case TestStatus.Error:
-						return Color.Red;
-					case TestStatus.Success:
-						return Color.Green;
-					default:
-						return Color.Black;
-					}
-				} else if (targetType.Equals (typeof(string))) {
+				if (targetType.Equals (typeof(Color)))
+					return GetColorForStatus ((TestStatus)value);
+				else if (targetType.Equals (typeof(string)))
 					return value.ToString ();
-				}
 			} else if (value is TestName) {
 				var name = (TestName)value;
 				if (string.IsNullOrEmpty (name.FullName))
@@ -81,6 +75,39 @@ namespace Xamarin.AsyncTests.UI
 		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			throw new NotImplementedException ();
+		}
+
+		string GetTestSummary (TestResult result)
+		{
+			var collection = result as TestResultCollection;
+			if (collection == null)
+				return result.Message;
+
+			var numSuccess = collection.Children.Count (t => t.Status == TestStatus.Success);
+			var numWarnings = collection.Children.Count (t => t.Status == TestStatus.Warning);
+			var numErrors = collection.Children.Count (t => t.Status == TestStatus.Error);
+
+			var sb = new StringBuilder ();
+			sb.AppendFormat ("{0} tests passed", numSuccess);
+			if (numWarnings > 0)
+				sb.AppendFormat (", {0} warnings", numWarnings);
+			if (numErrors > 0)
+				sb.AppendFormat (", {0} errors", numErrors);
+			return sb.ToString ();
+		}
+
+		Color GetColorForStatus (TestStatus status)
+		{
+			switch (status) {
+			case TestStatus.Warning:
+				return Color.Yellow;
+			case TestStatus.Error:
+				return Color.Red;
+			case TestStatus.Success:
+				return Color.Green;
+			default:
+				return Color.Black;
+			}
 		}
 
 		#endregion

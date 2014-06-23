@@ -35,12 +35,13 @@ namespace Xamarin.AsyncTests.ConsoleRunner
 
 		static async Task Run (Assembly assembly)
 		{
-			var suite = new TestSuite (assembly.FullName);
+			var suite = new TestSuite ();
 			await suite.LoadAssembly (assembly);
 
 			var context = new TestContext ();
-			var results = await suite.Run (context, CancellationToken.None);
-			WriteResults (results);
+			var result = new TestResultCollection ();
+			await suite.Run (context, result, CancellationToken.None);
+			WriteResults (result);
 		}
 
 		static void WriteResults (TestResultCollection results)

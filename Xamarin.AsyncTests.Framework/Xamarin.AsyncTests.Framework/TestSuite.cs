@@ -42,16 +42,9 @@ namespace Xamarin.AsyncTests.Framework {
 	public class TestSuite {
 		TestCaseCollection tests;
 
-		public TestSuite (string name)
+		public TestSuite ()
 		{
-			Name = name;
-
-			tests = new TestCaseCollection (name);
-		}
-
-		public string Name {
-			get;
-			private set;
+			tests = new TestCaseCollection ();
 		}
 
 		public IList<TestCase> Tests {
@@ -102,30 +95,27 @@ namespace Xamarin.AsyncTests.Framework {
 			return type.Equals (typeof (T)) || type.IsSubclassOf (typeof (T));
 		}
 
-		public async Task<TestResultCollection> Run (TestContext context, CancellationToken cancellationToken)
+		public async Task Run (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
 		{
 			try {
 				context.CurrentTestName = new TestNameBuilder ();
-				var result = new TestResultCollection (context.GetCurrentTestName ());
 
 				if (context.Repeat == 0) {
-					await Run (context, result, cancellationToken);
+					await RunInner (context, result, cancellationToken);
 				} else {
 					for (int iteration = 0; iteration < context.Repeat; iteration++) {
 						context.CurrentTestName.PushParameter ("$iteration", iteration + 1);
 						var child = new TestResultCollection (context.GetCurrentTestName ());
 						result.AddChild (child);
-						await Run (context, child, cancellationToken);
+						await RunInner (context, child, cancellationToken);
 					}
 				}
-
-				return result;
 			} finally {
 				context.CurrentTestName = null;
 			}
 		}
 
-		async Task Run (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
+		async Task RunInner (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
 		{
 			foreach (var fixture in tests.Tests) {
 				if (!context.Filter (fixture))

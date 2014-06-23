@@ -36,13 +36,7 @@ namespace Xamarin.AsyncTests.Framework {
 
 	public class TestResultCollection : TestResult
 	{
-		[Obsolete]
-		public TestResultCollection ()
-			: this (null)
-		{
-		}
-
-		public TestResultCollection (TestName name)
+		public TestResultCollection (TestName name = null)
 			: base (name, TestStatus.Ignored)
 		{
 			messages = new ObservableCollection<string> ();
@@ -80,6 +74,7 @@ namespace Xamarin.AsyncTests.Framework {
 			}
 
 			OnPropertyChanged ("Children");
+			OnPropertyChanged (".");
 		}
 
 		public void AddMessage (string format, params object[] args)

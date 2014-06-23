@@ -13,17 +13,18 @@
 
     <StackLayout Spacing="10" Orientation="Vertical">
 
-        <Label Text="{Binding Name, Converter={StaticResource converter}}" />
-        <Label Text="{Binding Status, Converter={StaticResource converter}}"
+        <Label Text="{Binding Name, Converter={StaticResource converter}}" Font="12"
+               IsVisible="{Binding Name, Converter={StaticResource converter}, ConverterParameter='not-null'}" />
+        <Label Text="{Binding Status, Converter={StaticResource converter}}" Font="12"
                TextColor="{Binding Status, Converter={StaticResource converter}}" />
-        <!-- <Label Text="{Binding DetailedStatus}" /> -->
+        <Label Text="{Binding ., Converter={StaticResource converter}, ConverterParameter='test-summary'}" Font="12" />
 
         <ScrollView Orientation="Vertical" VerticalOptions="FillAndExpand"
                     IsVisible="{Binding Error, Converter={StaticResource converter}, ConverterParameter='not-null'}">
             <Label Text="{Binding Error, Converter={StaticResource converter}}" Font="10" VerticalOptions="CenterAndExpand" />
         </ScrollView>
 
-        <ListView x:Name="List" IsEnabled="false" IsVisible="false" RowHeight="25">
+        <ListView x:Name="List" IsEnabled="false" IsVisible="false" RowHeight="13">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
@@ -32,7 +33,7 @@
 
                                 <Label Text="{Binding Name, Converter={StaticResource converter}}"
                                        TextColor="{Binding Status, Converter={StaticResource converter}}"
-                                       HorizontalOptions="FillAndExpand" />
+                                       Font="10" HorizontalOptions="FillAndExpand" />
 
                             </StackLayout>
                         </ViewCell.View>

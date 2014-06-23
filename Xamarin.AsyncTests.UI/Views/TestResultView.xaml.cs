@@ -58,7 +58,10 @@ namespace Xamarin.AsyncTests.UI
 			if (result == null) {
 				List.IsEnabled = false;
 				List.IsVisible = false;
+				return;
 			}
+
+			result.PropertyChanged += (sender, e) => OnPropertyChanged ("Result");
 
 			var collection = result as TestResultCollection;
 			if (collection != null) {

@@ -44,11 +44,11 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		public TestResult Result {
-			get { return resultCollection; }
+			get { return result; }
 		}
 
 		CancellationTokenSource cancelCts;
-		TestResultCollection resultCollection;
+		TestResultCollection result;
 
 		public MainPage (TestApp app)
 		{
@@ -62,7 +62,7 @@ namespace Xamarin.AsyncTests.UI
 
 			app.AssemblyLoadedEvent += (sender, e) => RunButton.IsEnabled = true;
 
-			resultCollection = new TestResultCollection ();
+			result = new TestResultCollection ();
 			BindingContext = Result;
 		}
 
@@ -73,9 +73,8 @@ namespace Xamarin.AsyncTests.UI
 			StopButton.IsEnabled = true;
 			Message ("Running ...");
 			try {
-				resultCollection.Clear ();
-				var result = await App.Run (cancelCts.Token);
-				resultCollection.AddChild (result);
+				result.Clear ();
+				await App.Run (result, cancelCts.Token);
 				Message ("Done.");
 			} catch (TaskCanceledException) {
 				Message ("Canceled!");

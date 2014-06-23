@@ -58,7 +58,7 @@ namespace Xamarin.AsyncTests.UI
 
 		public TestApp (string name)
 		{
-			TestSuite = new TestSuite (name);
+			TestSuite = new TestSuite ();
 			Context = new TestContext ();
 
 			MainPage = new MainPage (this);
@@ -82,9 +82,9 @@ namespace Xamarin.AsyncTests.UI
 
 		public event EventHandler<Assembly> AssemblyLoadedEvent;
 
-		public Task<TestResultCollection> Run (CancellationToken cancellationToken)
+		public Task Run (TestResultCollection result, CancellationToken cancellationToken)
 		{
-			return TestSuite.Run (Context, cancellationToken);
+			return TestSuite.Run (Context, result, cancellationToken);
 		}
 	}
 }

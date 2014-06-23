@@ -5,16 +5,16 @@
     xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.MainPage">
 
-    <StackLayout Spacing="20" Orientation="Vertical">
+    <StackLayout Spacing="10" Orientation="Vertical">
 
         <StackLayout Spacing="20" Orientation="Horizontal">
             <Button x:Name="RunButton" Text="Run" IsEnabled="false" />
             <Button x:Name="StopButton" Text="Stop" IsEnabled="false" />
         </StackLayout>
 
-        <local:TestResultView Result="{Binding Result}" />
+        <local:TestResultView Result="{Binding Result}" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" />
 
-    	<Label x:Name="Label" Text="Hello" />
+    	<Label x:Name="Label" Font="12" Text="Hello" VerticalOptions="End" />
 
     </StackLayout>
 </ContentPage>

@@ -38,7 +38,7 @@ namespace Xamarin.AsyncTests.Framework
 		List<TestCase> tests = new List<TestCase> ();
 		TestInvoker invoker;
 
-		public TestCaseCollection (string name)
+		public TestCaseCollection (string name = null)
 			: base (name)
 		{
 		}
