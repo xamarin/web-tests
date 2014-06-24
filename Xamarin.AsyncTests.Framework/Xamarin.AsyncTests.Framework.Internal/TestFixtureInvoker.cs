@@ -38,7 +38,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		}
 
 		public TestFixtureInvoker (TestFixture fixture)
-			: base (fixture.Name, TestFlags.ContinueOnError, new FixtureTestHost (fixture))
+			: base (new FixtureTestHost (fixture))
 		{
 			Fixture = fixture;
 		}
@@ -46,7 +46,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		public void Resolve (TestContext context, IEnumerable<TestCase> selectedTests)
 		{
 			foreach (var test in selectedTests) {
-				var invoker = test.Resolve (context);
+				var invoker = test.CreateInvoker (context);
 				InnerTestInvokers.Add (invoker);
 			}
 		}

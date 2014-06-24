@@ -32,16 +32,20 @@ namespace Xamarin.AsyncTests.Framework.Internal
 {
 	class RepeatedTestHost : ParameterizedTestHost
 	{
+		public string Name {
+			get;
+			private set;
+		}
+
 		public int Count {
 			get;
 			private set;
 		}
 
-		public RepeatedTestHost (int count, TestFlags flags = TestFlags.None)
-			: base ("$repeat", typeof (int).GetTypeInfo ())
+		public RepeatedTestHost (int count, TestFlags flags = TestFlags.None, string name = "$repeat")
+			: base (name, typeof (int).GetTypeInfo (), flags)
 		{
 			Count = count;
-			Flags |= flags;
 		}
 
 		protected override TestInstance CreateInstance (TestContext context)

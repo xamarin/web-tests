@@ -38,6 +38,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 		public FixtureTestHost (TestFixture fixture)
 		{
+			Flags = TestFlags.ContinueOnError;
 			Fixture = fixture;
 		}
 

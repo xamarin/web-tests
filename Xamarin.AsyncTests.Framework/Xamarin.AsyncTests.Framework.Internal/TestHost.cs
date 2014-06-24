@@ -92,7 +92,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 		internal TestInvoker CreateInvoker (TestInvoker inner)
 		{
-			return new AggregatedTestInvoker (inner.Name, Flags, this, inner);
+			return new AggregatedTestInvoker (this, inner);
 		}
 	}
 }

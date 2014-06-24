@@ -31,23 +31,8 @@ namespace Xamarin.AsyncTests.Framework.Internal
 {
 	abstract class TestInvoker
 	{
-		public string Name {
-			get;
-			private set;
-		}
-
-		protected TestInvoker (string name)
-		{
-			Name = name;
-		}
-
 		public abstract Task<bool> Invoke (TestContext context, TestResult result,
 			CancellationToken cancellationToken);
-
-		public override string ToString ()
-		{
-			return string.Format ("[{0}: Name={1}]", GetType ().Name, Name);
-		}
 	}
 }
 

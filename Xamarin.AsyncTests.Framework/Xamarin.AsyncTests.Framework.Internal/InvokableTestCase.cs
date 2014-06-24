@@ -1,5 +1,5 @@
 ﻿//
-// ReflectionTestRunner.cs
+// InvokableTestCase.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,29 +24,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Internal
 {
-	class TestCaseInvoker : TestInvoker
+	class InvokableTestCase : TestCase
 	{
 		public TestCase Test {
 			get;
 			private set;
 		}
 
-		public TestCaseInvoker (TestCase test)
+		public TestInvoker Invoker {
+			get;
+			private set;
+		}
+
+		public override IEnumerable<string> Categories {
+			get {
+				return Test.Categories;
+			}
+		}
+
+		public InvokableTestCase (TestCase test, TestInvoker invoker)
 			: base (test.Name)
 		{
 			Test = test;
+			Invoker = invoker;
 		}
 
-		public override Task<bool> Invoke (
-			TestContext context, TestResult result, CancellationToken cancellationToken)
+		public override TestCase Resolve (TestContext context)
 		{
-			return Test.Run (context, result, cancellationToken);
+			return this;
+		}
+
+		internal override TestInvoker CreateInvoker (TestContext context)
+		{
+			return Invoker;
+		}
+
+		public override Task<bool> Run (TestContext context, TestResult result, CancellationToken cancellationToken)
+		{
+			return Invoker.Invoke (context, result, cancellationToken);
 		}
 	}
 }

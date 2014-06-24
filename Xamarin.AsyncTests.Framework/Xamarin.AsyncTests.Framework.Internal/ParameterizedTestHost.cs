@@ -42,11 +42,11 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			private set;
 		}
 
-		protected ParameterizedTestHost (string name, TypeInfo type)
+		protected ParameterizedTestHost (string name, TypeInfo type, TestFlags flags = TestFlags.Browsable)
 		{
 			ParameterName = name;
 			ParameterType = type;
-			Flags |= TestFlags.Browsable;
+			Flags = flags;
 		}
 
 		public bool CanReuseInstance (TestContext context)

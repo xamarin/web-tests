@@ -36,8 +36,8 @@ namespace Xamarin.AsyncTests.Framework
 
 		public TestName GetName ()
 		{
-			var name = string.Join (".", parts);
-			return new TestName (name, parameters.ToArray ());
+			var name = string.Join (".", parts.Reverse ());
+			return new TestName (name, parameters.Reverse ().ToArray ());
 		}
 
 		public void PushName (string part)

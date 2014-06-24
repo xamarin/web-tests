@@ -52,7 +52,7 @@ namespace Xamarin.AsyncTests.Framework
 					while (true)
 						yield return index++;
 				} else {
-					for (int i = 0; i < count; i++)
+					for (int i = 1; i <= count; i++)
 						yield return i;
 				}
 			}

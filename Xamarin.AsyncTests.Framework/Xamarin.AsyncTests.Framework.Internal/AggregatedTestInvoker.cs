@@ -43,15 +43,33 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			private set;
 		}
 
+		public ParameterizedTestHost ParameterizedHost {
+			get { return Host as ParameterizedTestHost; }
+		}
+
 		public bool ContinueOnError {
 			get { return (Flags & TestFlags.ContinueOnError) != 0; }
 		}
 
-		public AggregatedTestInvoker (string name, TestFlags flags, TestHost host, params TestInvoker[] invokers)
-			: base (name)
+		public bool IsBrowsable {
+			get { return (Flags & (TestFlags.Browsable | TestFlags.FlattenHierarchy)) == TestFlags.Browsable; }
+		}
+
+		public AggregatedTestInvoker (TestFlags flags, params TestInvoker[] invokers)
+			: this (flags, null, invokers)
+		{
+		}
+
+		public AggregatedTestInvoker (TestHost host, params TestInvoker[] invokers)
+			: this (host.Flags, host, invokers)
+		{
+		}
+
+		AggregatedTestInvoker (TestFlags flags, TestHost host, TestInvoker[] invokers)
 		{
 			Flags = flags;
 			Host = host;
+
 			innerTestInvokers = new List<TestInvoker> ();
 			innerTestInvokers.AddRange (invokers);
 		}
@@ -69,7 +87,8 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 		async Task<bool> SetUp (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
-			context.Debug (3, "SetUp({0}): {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
+			context.Debug (3, "SetUp({0}): {1} {2} {3}", context.GetCurrentTestName ().FullName,
+				Print (Host), Flags, Print (context.Instance));
 
 			if (Host == null)
 				return true;
@@ -89,15 +108,15 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 		async Task<bool> ReuseInstance (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
-			context.Debug (3, "ReuseInstance({0}): {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
+			context.Debug (3, "ReuseInstance({0}): {1} {2} {3}", context.GetCurrentTestName ().FullName,
+				Print (Host), Flags, Print (context.Instance));
 
-			var parameterizedHost = Host as ParameterizedTestHost;
-			if (parameterizedHost == null)
+			if (ParameterizedHost == null)
 				return true;
 
 			try {
 				context.CurrentTestName.PushName ("ReuseInstance");
-				await parameterizedHost.ReuseInstance (context, cancellationToken);
+				await ParameterizedHost.ReuseInstance (context, cancellationToken);
 				return true;
 			} catch (Exception ex) {
 				var error = context.CreateTestResult (ex);
@@ -125,7 +144,8 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 		async Task<bool> TearDown (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
-			context.Debug (3, "TearDown({0}): {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
+			context.Debug (3, "TearDown({0}): {1} {2} {3}", context.GetCurrentTestName ().FullName,
+				Print (Host), Flags, Print (context.Instance));
 
 			if (Host == null)
 				return true;
@@ -151,12 +171,6 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 			var oldResult = context.CurrentResult;
 
-			if ((Flags & (TestFlags.Browsable | TestFlags.FlattenHierarchy)) == TestFlags.Browsable) {
-				var child = new TestResult (context.GetCurrentTestName ());
-				result.AddChild (child);
-				result = child;
-			}
-
 			if (!await SetUp (context, result, cancellationToken)) {
 				context.CurrentResult = oldResult;
 				return false;
@@ -175,23 +189,26 @@ namespace Xamarin.AsyncTests.Framework.Internal
 					break;
 
 				var innerResult = result;
-				var parameterizedHost = Host as ParameterizedTestHost;
-				if (parameterizedHost != null) {
+				if (ParameterizedHost != null) {
 					var parameterizedInstance = (ParameterizedTestInstance)context.Instance;
-					context.CurrentTestName.PushParameter (parameterizedHost.ParameterName, parameterizedInstance.Current);
+					context.CurrentTestName.PushParameter (ParameterizedHost.ParameterName, parameterizedInstance.Current);
+					if (IsBrowsable) {
+						innerResult = new TestResult (context.GetCurrentTestName ());
+						result.AddChild (innerResult);
+					}
 				}
 
 				var invoker = current.Value;
 				success = await InvokeInner (context, innerResult, invoker, cancellationToken);
 				context.Debug (5, "TEST: {0} {1} {2}", this, Flags, success);
 
-				if (parameterizedHost != null)
+				if (ParameterizedHost != null)
 					context.CurrentTestName.PopParameter ();
 
 				if (!success)
 					break;
 
-				if (parameterizedHost == null || !parameterizedHost.CanReuseInstance (context))
+				if (ParameterizedHost == null || !ParameterizedHost.CanReuseInstance (context))
 					current = current.Next;
 			}
 

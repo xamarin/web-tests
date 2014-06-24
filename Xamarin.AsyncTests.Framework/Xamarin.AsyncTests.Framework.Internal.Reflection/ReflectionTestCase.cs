@@ -75,10 +75,10 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				expectedExceptionType = expectedException.ExceptionType.GetTypeInfo ();
 		}
 
-		internal override TestInvoker Resolve (TestContext context)
+		internal override TestInvoker CreateInvoker (TestContext context)
 		{
-			TestInvoker invoker = new TestCaseInvoker (this);
-			invoker = new AggregatedTestInvoker (Name, TestFlags.None, null, invoker);
+			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
+			invoker = new AggregatedTestInvoker (TestFlags.None, invoker);
 
 			var parameterHosts = new List<TestHost> ();
 			if (Attribute.Repeat != 0)
@@ -135,7 +135,13 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			return new ProxyTestInvoker (Name, invoker);
 		}
 
-		public override async Task<bool> Run (
+		public override Task<bool> Run (
+			TestContext context, TestResult result, CancellationToken cancellationToken)
+		{
+			throw new InvalidOperationException ();
+		}
+
+		public async Task<bool> Invoke (
 			TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
 			try {

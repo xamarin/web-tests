@@ -36,7 +36,6 @@ namespace Xamarin.AsyncTests.Framework
 	public class TestCaseCollection : TestCase
 	{
 		List<TestCase> tests = new List<TestCase> ();
-		TestInvoker invoker;
 
 		public TestCaseCollection (string name = null)
 			: base (name)
@@ -45,8 +44,6 @@ namespace Xamarin.AsyncTests.Framework
 
 		public void Add (TestCase test)
 		{
-			if (invoker != null)
-				throw new InvalidOperationException ();
 			tests.Add (test);
 		}
 
@@ -60,21 +57,16 @@ namespace Xamarin.AsyncTests.Framework
 
 		#region implemented abstract members of TestCase
 
-		internal override TestInvoker Resolve (TestContext context)
+		internal override TestInvoker CreateInvoker (TestContext context)
 		{
-			if (invoker != null)
-				return invoker;
-
-			var invokers = tests.Select (t => t.Resolve (context)).ToArray ();
-			invoker = new AggregatedTestInvoker (Name, TestFlags.ContinueOnError, null, invokers);
-			return invoker;
+			var invokers = tests.Select (t => t.CreateInvoker (context)).ToArray ();
+			return new AggregatedTestInvoker (TestFlags.ContinueOnError, invokers);
 		}
 
 		public override Task<bool> Run (
 			TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
-			var invoker = Resolve (context);
-			return invoker.Invoke (context, result, cancellationToken);
+			throw new InvalidOperationException ();
 		}
 
 		public override IEnumerable<string> Categories {

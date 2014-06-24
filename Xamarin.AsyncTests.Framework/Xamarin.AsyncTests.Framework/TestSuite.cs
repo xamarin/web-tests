@@ -95,38 +95,18 @@ namespace Xamarin.AsyncTests.Framework {
 			return type.Equals (typeof (T)) || type.IsSubclassOf (typeof (T));
 		}
 
-		public async Task Run (TestContext context, TestResult result, CancellationToken cancellationToken)
+		public TestCase Resolve (TestContext context)
 		{
-			try {
-				context.CurrentTestName = new TestNameBuilder ();
-
-				if (context.Repeat == 0) {
-					await RunInner (context, result, cancellationToken);
-				} else {
-					for (int iteration = 0; iteration < context.Repeat; iteration++) {
-						context.CurrentTestName.PushParameter ("$iteration", iteration + 1);
-						var child = new TestResult (context.GetCurrentTestName ());
-						result.AddChild (child);
-						await RunInner (context, child, cancellationToken);
-					}
-				}
-			} finally {
-				context.CurrentTestName = null;
-			}
+			var resolved = tests.Resolve (context);
+			if (context.Repeat != 0)
+				resolved = resolved.CreateRepeatedTest (context, context.Repeat);
+			return resolved;
 		}
 
-		async Task RunInner (TestContext context, TestResult result, CancellationToken cancellationToken)
+		public Task Run (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
-			foreach (var fixture in tests.Tests) {
-				if (!context.Filter (fixture))
-					continue;
-				try {
-					await fixture.Run (context, result, cancellationToken);
-				} catch (Exception ex) {
-					context.Log ("Test fixture {0} failed: {1}", fixture.Name, ex);
-					result.AddChild (context.CreateTestResult (ex));
-				}
-			}
+			var resolved = Resolve (context);
+			return resolved.Run (context, result, cancellationToken);
 		}
 	}
 }
