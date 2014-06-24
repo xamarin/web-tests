@@ -13,8 +13,12 @@
 
     <StackLayout Spacing="10" Orientation="Vertical">
 
+        <local:TestNameView />
+
+        <!--
         <Label Text="{Binding Name, Converter={StaticResource converter}}" Font="12"
                IsVisible="{Binding Name, Converter={StaticResource converter}, ConverterParameter='not-null'}" />
+         -->
         <Label Text="{Binding Status, Converter={StaticResource converter}}" Font="12"
                TextColor="{Binding Status, Converter={StaticResource converter}}" />
         <Label Text="{Binding ., Converter={StaticResource converter}, ConverterParameter='test-summary'}" Font="12" />

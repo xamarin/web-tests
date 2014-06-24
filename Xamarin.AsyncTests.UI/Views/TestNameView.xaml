@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
+    x:Class="Xamarin.AsyncTests.UI.TestNameView">
+
+    <ContentView.Resources>
+    	<ResourceDictionary>
+            <local:TestResultConverter x:Key="converter" />
+    	</ResourceDictionary>
+    </ContentView.Resources>
+
+    <Frame HasShadow="true" Padding="5"
+           IsVisible="{Binding Name, Converter={StaticResource converter}, ConverterParameter='not-null'}" >
+
+        <StackLayout Orientation="Vertical">
+
+            <Label Text="{Binding Name.Name}" Font="14" />
+
+            <ListView RowHeight="12" ItemsSource="{Binding Name.Parameters}" IsVisible="{Binding Name.HasParameters}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout Orientation="Horizontal">
+
+                                    <Label Text="{Binding ., Converter={StaticResource converter}}"
+                                           Font="10" HorizontalOptions="FillAndExpand" />
+
+                                </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+        </StackLayout>
+
+    </Frame>
+
+</ContentView>
+
