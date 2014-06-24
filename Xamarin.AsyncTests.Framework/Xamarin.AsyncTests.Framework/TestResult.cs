@@ -103,10 +103,7 @@ namespace Xamarin.AsyncTests.Framework
 			this.status = status;
 			this.message = message;
 
-			if (name != null)
-				test = name.CapturedTest;
-			else
-				throw new InvalidOperationException ();
+			test = name.CapturedTest;
 
 			messages = new ObservableCollection<string> ();
 			((INotifyPropertyChanged)messages).PropertyChanged += (sender, e) => OnMessagesChanged ();

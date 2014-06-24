@@ -12,7 +12,9 @@
             <Button x:Name="StopButton" Text="Stop" IsEnabled="false" />
         </StackLayout>
 
-        <local:TestResultView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" />
+        <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <local:TestResultView />
+        </ScrollView>
 
     	<Label x:Name="Label" Font="12" Text="Hello" VerticalOptions="End" />
 

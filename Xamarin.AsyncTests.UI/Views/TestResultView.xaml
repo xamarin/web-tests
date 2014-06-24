@@ -11,7 +11,7 @@
     	</ResourceDictionary>
     </ContentView.Resources>
 
-    <StackLayout Spacing="10" Orientation="Vertical">
+   <StackLayout Spacing="10" Orientation="Vertical" VerticalOptions="FillAndExpand">
 
         <local:TestNameView BindingContext="{Binding Result.Name}" />
 
@@ -19,10 +19,8 @@
                TextColor="{Binding Result.Status, Converter={StaticResource converter}}" />
         <Label Text="{Binding Summary}" Font="12" />
 
-        <ScrollView Orientation="Vertical" VerticalOptions="FillAndExpand"
-                    IsVisible="{Binding Result.Error, Converter={StaticResource converter}, ConverterParameter='not-null'}">
-            <Label Text="{Binding Result.Error, Converter={StaticResource converter}}" Font="10" VerticalOptions="CenterAndExpand" />
-        </ScrollView>
+        <Label Text="{Binding Result.Error, Converter={StaticResource converter}}" Font="10"
+               IsVisible="{Binding Result.Error, Converter={StaticResource converter}, ConverterParameter='not-null'}" />
 
         <ListView x:Name="List"
                   IsVisible="{Binding Result.HasChildren}" ItemsSource="{Binding Result.Children}"
