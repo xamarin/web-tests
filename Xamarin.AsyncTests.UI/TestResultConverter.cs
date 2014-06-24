@@ -45,8 +45,6 @@ namespace Xamarin.AsyncTests.UI
 				switch ((string)parameter) {
 				case "not-null":
 					return value != null;
-				case "test-summary":
-					return GetTestSummary ((TestResult)value);
 				case "not-empty":
 					return !string.IsNullOrEmpty ((string)value);
 				default:
@@ -83,24 +81,6 @@ namespace Xamarin.AsyncTests.UI
 		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			throw new NotImplementedException ();
-		}
-
-		string GetTestSummary (TestResult result)
-		{
-			if (!result.HasChildren || !string.IsNullOrEmpty (result.Message))
-				return result.Message;
-
-			var numSuccess = result.Children.Count (t => t.Status == TestStatus.Success);
-			var numWarnings = result.Children.Count (t => t.Status == TestStatus.Warning);
-			var numErrors = result.Children.Count (t => t.Status == TestStatus.Error);
-
-			var sb = new StringBuilder ();
-			sb.AppendFormat ("{0} tests passed", numSuccess);
-			if (numWarnings > 0)
-				sb.AppendFormat (", {0} warnings", numWarnings);
-			if (numErrors > 0)
-				sb.AppendFormat (", {0} errors", numErrors);
-			return sb.ToString ();
 		}
 
 		Color GetColorForStatus (TestStatus status)

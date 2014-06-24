@@ -33,7 +33,7 @@ namespace Xamarin.AsyncTests.UI
 {	
 	using Framework;
 
-	public partial class TestResultPage : ContentPage, ITestResultModel
+	public partial class TestResultPage : ContentPage
 	{
 		public TestApp App {
 			get;
@@ -41,6 +41,11 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		public TestResult Result {
+			get;
+			private set;
+		}
+
+		public TestResultModel Model {
 			get;
 			private set;
 		}
@@ -54,9 +59,11 @@ namespace Xamarin.AsyncTests.UI
 			App = app;
 			Result = result;
 
+			Model = new TestResultModel (app, result);
+
 			InitializeComponent ();
 
-			BindingContext = this;
+			BindingContext = Model;
 
 			Result.PropertyChanged += (sender, e) => OnPropertyChanged ("Result");
 

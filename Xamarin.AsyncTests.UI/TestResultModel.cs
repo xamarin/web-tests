@@ -1,5 +1,5 @@
 ﻿//
-// MainPage.xaml.cs
+// ITestResultModel.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -23,21 +23,18 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-﻿using System;
+using System;
 using System.Linq;
+using System.Text;
 using System.ComponentModel;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Threading;
-using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
-{	
+{
 	using Framework;
 
-	public partial class MainPage : ContentPage
-	{	
+	public class TestResultModel : INotifyPropertyChanged
+	{
 		public TestApp App {
 			get;
 			private set;
@@ -48,58 +45,59 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestResultModel Model {
-			get;
-			private set;
-		}
-
-		CancellationTokenSource cancelCts;
-
-		public MainPage (TestApp app)
+		public TestResultModel (TestApp app, TestResult result)
 		{
 			App = app;
+			Result = result;
 
-			InitializeComponent ();
-
-			RunButton.Clicked += (sender, e) => Run ();
-
-			StopButton.Clicked += (sender, e) => cancelCts.Cancel ();
-
-			app.AssemblyLoadedEvent += (sender, e) => RunButton.IsEnabled = true;
-
-			Result = new TestResult (new TestName (null));
-			Model = new TestResultModel (app, Result);
-			BindingContext = Model;
+			result.PropertyChanged += (sender, e) => OnResultChanged ();
 		}
 
-		async void Run ()
-		{
-			cancelCts = new CancellationTokenSource ();
-			RunButton.IsEnabled = false;
-			StopButton.IsEnabled = true;
-			Message ("Running ...");
-			try {
-				Result.Clear ();
-				await App.Run (Result, cancelCts.Token);
-				Message ("Done.");
-			} catch (TaskCanceledException) {
-				Message ("Canceled!");
-			} catch (OperationCanceledException) {
-				Message ("Canceled!");
-			} catch (Exception ex) {
-				Message ("ERROR: {0}", ex.Message);
-			} finally {
-				StopButton.IsEnabled = false;
-				cancelCts.Dispose ();
-				cancelCts = null;
-				RunButton.IsEnabled = true;
+		string summary;
+		public string Summary {
+			get {
+				if (summary == null)
+					summary = GetTestSummary (Result);
+				return summary;
 			}
 		}
 
-		internal void Message (string format, params object[] args)
+		void OnResultChanged ()
 		{
-			Label.Text = string.Format (format, args);
+			summary = null;
+			OnPropertyChanged ("Result");
+			OnPropertyChanged ("Summary");
 		}
+
+		static string GetTestSummary (TestResult result)
+		{
+			if (!result.HasChildren || !string.IsNullOrEmpty (result.Message))
+				return result.Message;
+
+			var numSuccess = result.Children.Count (t => t.Status == TestStatus.Success);
+			var numWarnings = result.Children.Count (t => t.Status == TestStatus.Warning);
+			var numErrors = result.Children.Count (t => t.Status == TestStatus.Error);
+
+			var sb = new StringBuilder ();
+			sb.AppendFormat ("{0} tests passed", numSuccess);
+			if (numWarnings > 0)
+				sb.AppendFormat (", {0} warnings", numWarnings);
+			if (numErrors > 0)
+				sb.AppendFormat (", {0} errors", numErrors);
+			return sb.ToString ();
+		}
+
+		#region INotifyPropertyChanged implementation
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged (string propertyName)
+		{
+			if (PropertyChanged != null)
+				PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
+		}
+
+		#endregion
 	}
 }
 

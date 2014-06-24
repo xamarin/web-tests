@@ -40,11 +40,11 @@ namespace Xamarin.AsyncTests.UI
 
 		protected override void OnBindingContextChanged ()
 		{
-			SetResult ((ITestResultModel)BindingContext);
+			SetResult ((TestResultModel)BindingContext);
 			base.OnBindingContextChanged ();
 		}
 
-		void SetResult (ITestResultModel model)
+		void SetResult (TestResultModel model)
 		{
 			if (model == null)
 				return;
