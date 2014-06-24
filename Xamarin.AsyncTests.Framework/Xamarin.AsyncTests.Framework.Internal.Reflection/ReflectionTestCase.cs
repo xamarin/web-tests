@@ -62,7 +62,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 		TypeInfo expectedExceptionType;
 
 		public ReflectionTestCase (ReflectionTestFixture fixture, AsyncTestAttribute attr, MethodInfo method)
-			: base (new TestName (method.DeclaringType.Name + "." + method.Name))
+			: base (new TestName (method.Name))
 		{
 			Fixture = fixture;
 			Attribute = attr;
@@ -75,6 +75,38 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				expectedExceptionType = expectedException.ExceptionType.GetTypeInfo ();
 		}
 
+		internal static bool ResolveParameter (TestContext context, IMemberInfo member, List<TestHost> parameterHosts)
+		{
+			if (typeof(ITestInstance).GetTypeInfo ().IsAssignableFrom (member.Type)) {
+				var hostAttr = member.GetCustomAttribute<TestHostAttribute> ();
+				if (hostAttr == null)
+					hostAttr = member.Type.GetCustomAttribute<TestHostAttribute> ();
+				if (hostAttr == null)
+					throw new InvalidOperationException ();
+
+				parameterHosts.Add (new CustomHostAttributeTestHost (member.Name, member.Type, hostAttr));
+				return true;
+			}
+
+			bool found = false;
+			var paramAttrs = member.GetCustomAttributes<TestParameterSourceAttribute> ();
+			foreach (var paramAttr in paramAttrs) {
+				parameterHosts.Add (new ParameterAttributeTestHost (member.Name, member.Type, paramAttr));
+				found = true;
+			}
+
+			if (found)
+				return true;
+
+			paramAttrs = member.Type.GetCustomAttributes<TestParameterSourceAttribute> ();
+			foreach (var paramAttr in paramAttrs) {
+				parameterHosts.Add (new ParameterAttributeTestHost (member.Name, member.Type, paramAttr));
+				found = true;
+			}
+
+			return found;
+		}
+
 		internal override TestInvoker CreateInvoker (TestContext context)
 		{
 			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
@@ -85,46 +117,16 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 			var parameters = Method.GetParameters ();
 			for (int i = parameters.Length - 1; i >= 0; i--) {
-				var paramName = parameters [i].Name;
 				var paramType = parameters [i].ParameterType;
-				var paramTypeInfo = paramType.GetTypeInfo ();
 
 				if (paramType.Equals (typeof(TestContext)))
 					continue;
 				else if (paramType.Equals (typeof(CancellationToken)))
 					continue;
 
-				if (typeof(ITestInstance).GetTypeInfo ().IsAssignableFrom (paramTypeInfo)) {
-					var hostAttr = parameters [i].GetCustomAttribute<TestHostAttribute> ();
-					if (hostAttr == null)
-						hostAttr = paramTypeInfo.GetCustomAttribute<TestHostAttribute> ();
-					if (hostAttr == null)
-						throw new InvalidOperationException ();
-
-					parameterHosts.Add (new CustomHostAttributeTestHost (paramName, paramTypeInfo, hostAttr));
-					continue;
-				}
-
-				bool found = false;
-				var paramAttrs = parameters [i].GetCustomAttributes<TestParameterSourceAttribute> ();
-				foreach (var paramAttr in paramAttrs) {
-					parameterHosts.Add (new ParameterAttributeTestHost (paramName, paramTypeInfo, paramAttr));
-					found = true;
-				}
-
-				if (found)
-					continue;
-
-				paramAttrs = paramTypeInfo.GetCustomAttributes<TestParameterSourceAttribute> ();
-				foreach (var paramAttr in paramAttrs) {
-					parameterHosts.Add (new ParameterAttributeTestHost (paramName, paramTypeInfo, paramAttr));
-					found = true;
-				}
-
-				if (found)
-					continue;
-
-				throw new InvalidOperationException ();
+				var member = ReflectionHelper.GetParameterInfo (parameters [i]);
+				if (!ResolveParameter (context, member, parameterHosts))
+					throw new InvalidOperationException ();
 			}
 
 			foreach (var parameter in parameterHosts) {

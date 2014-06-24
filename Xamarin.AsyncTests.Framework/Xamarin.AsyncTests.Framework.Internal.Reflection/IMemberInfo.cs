@@ -1,5 +1,5 @@
 ﻿//
-// TestFixtureInvoker.cs
+// IMemberInfo.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,33 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 {
-	class TestFixtureInvoker : AggregatedTestInvoker
+	public interface IMemberInfo
 	{
-		public TestFixture Fixture {
+		string Name {
 			get;
-			private set;
 		}
 
-		[Obsolete]
-		public TestFixtureInvoker (TestFixture fixture)
-			: base (new FixtureTestHost (fixture))
-		{
-			Fixture = fixture;
+		TypeInfo Type {
+			get;
 		}
 
-		public void Resolve (TestContext context, IEnumerable<TestCase> selectedTests)
-		{
-			foreach (var test in selectedTests) {
-				var invoker = test.CreateInvoker (context);
-				InnerTestInvokers.Add (invoker);
-			}
-		}
+		T GetCustomAttribute<T> () where T : Attribute;
+
+		IEnumerable<T> GetCustomAttributes<T> () where T : Attribute;
 	}
 }
 

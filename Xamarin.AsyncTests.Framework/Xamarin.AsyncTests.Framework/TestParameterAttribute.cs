@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	[AttributeUsage (AttributeTargets.Parameter, AllowMultiple = true)]
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = true)]
 	public class TestParameterAttribute : TestParameterSourceAttribute
 	{
 		public string Filter {

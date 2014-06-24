@@ -111,16 +111,24 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 		internal override TestInvoker CreateInvoker (TestContext context)
 		{
-			var invoker = new TestFixtureInvoker (this);
-			var selected = Filter (context);
-			invoker.Resolve (context, selected);
+			var invoker = ReflectionTestFixtureInvoker.Create (context, this);
 
-			if (Attribute.Repeat != 0) {
-				var repeatHost = new RepeatedTestHost (Attribute.Repeat, TestFlags.ContinueOnError);
-				return repeatHost.CreateInvoker (invoker);
+			var parameterHosts = new List<TestHost> ();
+			if (Attribute.Repeat != 0)
+				parameterHosts.Add (new RepeatedTestHost (Attribute.Repeat, TestFlags.Browsable));
+
+			var properties = Type.DeclaredProperties.ToArray ();
+			for (int i = properties.Length - 1; i >= 0; i--) {
+				var member = ReflectionHelper.GetPropertyInfo (properties [i]);
+				if (!ReflectionTestCase.ResolveParameter (context, member, parameterHosts))
+					throw new InvalidOperationException ();
 			}
 
-			return invoker;
+			foreach (var parameter in parameterHosts) {
+				invoker = parameter.CreateInvoker (invoker);
+			}
+
+			return new ProxyTestInvoker (Name.Name, invoker);
 		}
 
 		internal override async Task InitializeInstance (TestContext context, CancellationToken cancellationToken)
@@ -142,6 +150,31 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 		internal IEnumerable<ReflectionTestCase> Filter (TestContext context)
 		{
 			return tests.Where (t => context.Filter (t));
+		}
+
+		class ReflectionTestFixtureInvoker : AggregatedTestInvoker
+		{
+			ReflectionTestFixtureInvoker (FixtureTestHost host)
+				: base (host)
+			{
+			}
+
+			public static TestInvoker Create (TestContext context, ReflectionTestFixture fixture)
+			{
+				var host = new FixtureTestHost (fixture);
+				var selected = fixture.Filter (context);
+				var invoker = new ReflectionTestFixtureInvoker (host);
+				invoker.Resolve (context, selected);
+				return invoker;
+			}
+
+			public void Resolve (TestContext context, IEnumerable<TestCase> selectedTests)
+			{
+				foreach (var test in selectedTests) {
+					var invoker = test.CreateInvoker (context);
+					InnerTestInvokers.Add (invoker);
+				}
+			}
 		}
 	}
 }

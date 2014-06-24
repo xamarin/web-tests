@@ -1,5 +1,5 @@
 ﻿//
-// TestFixtureInvoker.cs
+// ParameterizedTestFixture.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,31 +25,23 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Sample
 {
-	class TestFixtureInvoker : AggregatedTestInvoker
+	using Framework;
+
+	[AsyncTestFixture]
+	public class ParameterizedTestFixture
 	{
-		public TestFixture Fixture {
-			get;
-			private set;
+		[TestParameter (typeof (HelloSource))]
+		public string Hello {
+			get; set;
 		}
 
-		[Obsolete]
-		public TestFixtureInvoker (TestFixture fixture)
-			: base (new FixtureTestHost (fixture))
+		[AsyncTest]
+		public void TestHello (TestContext context)
 		{
-			Fixture = fixture;
-		}
-
-		public void Resolve (TestContext context, IEnumerable<TestCase> selectedTests)
-		{
-			foreach (var test in selectedTests) {
-				var invoker = test.CreateInvoker (context);
-				InnerTestInvokers.Add (invoker);
-			}
+			context.Log ("HELLO: {0}", Hello);
 		}
 	}
 }
