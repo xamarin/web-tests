@@ -151,8 +151,16 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 			var oldResult = context.CurrentResult;
 
-			if (!await SetUp (context, result, cancellationToken))
+			if ((Flags & (TestFlags.Browsable | TestFlags.FlattenHierarchy)) == TestFlags.Browsable) {
+				var child = new TestResultCollection (context.GetCurrentTestName ());
+				result.AddChild (child);
+				result = child;
+			}
+
+			if (!await SetUp (context, result, cancellationToken)) {
+				context.CurrentResult = oldResult;
 				return false;
+			}
 
 			bool success = true;
 			var innerRunners = new LinkedList<TestInvoker> (InnerTestInvokers);
@@ -171,8 +179,6 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				if (parameterizedHost != null) {
 					var parameterizedInstance = (ParameterizedTestInstance)context.Instance;
 					context.CurrentTestName.PushParameter (parameterizedHost.ParameterName, parameterizedInstance.Current);
-					innerResult = new TestResultCollection (context.GetCurrentTestName ());
-					result.AddChild (innerResult);
 				}
 
 				var invoker = current.Value;
@@ -191,6 +197,8 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 			if (!await TearDown (context, result, cancellationToken))
 				success = false;
+
+			context.CurrentResult = oldResult;
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			return success;

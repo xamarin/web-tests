@@ -41,7 +41,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			: base ("$repeat", typeof (int).GetTypeInfo ())
 		{
 			Count = count;
-			Flags = flags;
+			Flags |= flags;
 		}
 
 		protected override TestInstance CreateInstance (TestContext context)

@@ -46,6 +46,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		{
 			ParameterName = name;
 			ParameterType = type;
+			Flags |= TestFlags.Browsable;
 		}
 
 		public bool CanReuseInstance (TestContext context)

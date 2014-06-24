@@ -31,7 +31,9 @@ namespace Xamarin.AsyncTests.Framework
 	public enum TestFlags
 	{
 		None = 0,
-		ContinueOnError = 1
+		ContinueOnError = 1,
+		Browsable = 2,
+		FlattenHierarchy = 4
 	}
 }
 

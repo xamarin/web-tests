@@ -50,7 +50,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 			var paramAttr = attr as TestParameterAttribute;
 			if (paramAttr != null) {
-				Flags = paramAttr.Flags;
+				Flags |= paramAttr.Flags;
 				Filter = paramAttr.Filter;
 			}
 		}

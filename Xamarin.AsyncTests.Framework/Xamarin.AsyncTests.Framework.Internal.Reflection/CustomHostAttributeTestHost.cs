@@ -42,7 +42,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			: base (name, type)
 		{
 			Attribute = attr;
-			Flags = attr.Flags;
+			Flags |= attr.Flags;
 		}
 
 		protected override TestInstance CreateInstance (TestContext context)

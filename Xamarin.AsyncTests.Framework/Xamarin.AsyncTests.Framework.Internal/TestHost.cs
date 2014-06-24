@@ -35,7 +35,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		TestInstance currentInstance;
 
 		public TestFlags Flags {
-			get; set;
+			get; protected set;
 		}
 
 		internal bool HasInstance {
