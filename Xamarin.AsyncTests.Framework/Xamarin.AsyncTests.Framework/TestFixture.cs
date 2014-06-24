@@ -64,7 +64,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		internal TestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)
-			: base (type.Name)
+			: base (new TestName (type.Name))
 		{
 			this.Suite = suite;
 			this.Attribute = attr;

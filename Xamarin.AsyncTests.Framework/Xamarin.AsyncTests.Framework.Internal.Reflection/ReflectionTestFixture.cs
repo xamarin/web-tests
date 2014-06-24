@@ -109,12 +109,6 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			}
 		}
 
-		public override Task<bool> Run (
-			TestContext context, TestResult result, CancellationToken cancellationToken)
-		{
-			throw new InvalidOperationException ();
-		}
-
 		internal override TestInvoker CreateInvoker (TestContext context)
 		{
 			var invoker = new TestFixtureInvoker (this);

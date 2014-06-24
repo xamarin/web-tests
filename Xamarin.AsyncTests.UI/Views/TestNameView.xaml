@@ -12,13 +12,13 @@
     </ContentView.Resources>
 
     <Frame HasShadow="true" Padding="5"
-           IsVisible="{Binding Name, Converter={StaticResource converter}, ConverterParameter='not-null'}" >
+           IsVisible="{Binding Name, Converter={StaticResource converter}, ConverterParameter='not-empty'}" >
 
         <StackLayout Orientation="Vertical">
 
-            <Label Text="{Binding Name.Name}" Font="14" />
+            <Label Text="{Binding Name}" Font="14" />
 
-            <ListView RowHeight="12" ItemsSource="{Binding Name.Parameters}" IsVisible="{Binding Name.HasParameters}">
+            <ListView RowHeight="12" ItemsSource="{Binding Parameters}" IsVisible="{Binding HasParameters}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>

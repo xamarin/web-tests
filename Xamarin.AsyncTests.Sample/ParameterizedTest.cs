@@ -35,10 +35,13 @@ namespace Xamarin.AsyncTests.Sample
 	{
 		public IEnumerable<Foo> GetParameters (TestContext context, string filter)
 		{
-			if (filter != null)
+			if (filter != null) {
 				yield return new Foo (filter);
-			else
+				yield return new Foo ("Orlando");
+			} else {
 				yield return new Foo ("Chicago");
+				yield return new Foo ("Atlanta");
+			}
 		}
 
 		[AsyncTest]
@@ -54,7 +57,7 @@ namespace Xamarin.AsyncTests.Sample
 		}
 
 		[AsyncTest]
-		public void HelloFoo (TestContext context, [Repeat (20)] int index, [TestParameter ("New York")] Foo foo, [TestParameter] Foo bar)
+		public void HelloFoo (TestContext context, [Repeat (20)] int index, [TestParameter ("New York")] Foo foo, [TestParameter (null, TestFlags.None)] Foo bar)
 		{
 			context.Log ("HELLO FOO: {0} {1} {2}", context.GetCurrentTestName (), foo, bar);
 			if (index > 5)
@@ -74,7 +77,7 @@ namespace Xamarin.AsyncTests.Sample
 		}
 
 		[AsyncTest]
-		public void RepeatedError ([Repeat (5, TestFlags.ContinueOnError)] int index, TestContext context)
+		public void RepeatedError ([Repeat (5, TestFlags.ContinueOnError | TestFlags.Browsable)] int index, TestContext context)
 		{
 			context.Log ("REPEATED ERROR: {0}", index);
 			throw new NotSupportedException ();

@@ -47,6 +47,8 @@ namespace Xamarin.AsyncTests.UI
 					return value != null;
 				case "test-summary":
 					return GetTestSummary ((TestResult)value);
+				case "not-empty":
+					return !string.IsNullOrEmpty ((string)value);
 				default:
 					throw new InvalidOperationException ();
 				}

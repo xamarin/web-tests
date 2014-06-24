@@ -13,23 +13,19 @@
 
     <StackLayout Spacing="10" Orientation="Vertical">
 
-        <local:TestNameView />
+        <local:TestNameView BindingContext="{Binding Result.Name}" />
 
-        <!--
-        <Label Text="{Binding Name, Converter={StaticResource converter}}" Font="12"
-               IsVisible="{Binding Name, Converter={StaticResource converter}, ConverterParameter='not-null'}" />
-         -->
-        <Label Text="{Binding Status, Converter={StaticResource converter}}" Font="12"
-               TextColor="{Binding Status, Converter={StaticResource converter}}" />
-        <Label Text="{Binding ., Converter={StaticResource converter}, ConverterParameter='test-summary'}" Font="12" />
+        <Label Text="{Binding Result.Status, Converter={StaticResource converter}}" Font="12"
+               TextColor="{Binding Result.Status, Converter={StaticResource converter}}" />
+        <Label Text="{Binding Result, Converter={StaticResource converter}, ConverterParameter='test-summary'}" Font="12" />
 
         <ScrollView Orientation="Vertical" VerticalOptions="FillAndExpand"
-                    IsVisible="{Binding Error, Converter={StaticResource converter}, ConverterParameter='not-null'}">
-            <Label Text="{Binding Error, Converter={StaticResource converter}}" Font="10" VerticalOptions="CenterAndExpand" />
+                    IsVisible="{Binding Result.Error, Converter={StaticResource converter}, ConverterParameter='not-null'}">
+            <Label Text="{Binding Result.Error, Converter={StaticResource converter}}" Font="10" VerticalOptions="CenterAndExpand" />
         </ScrollView>
 
         <ListView x:Name="List"
-                  IsVisible="{Binding HasChildren}" ItemsSource="{Binding Children}"
+                  IsVisible="{Binding Result.HasChildren}" ItemsSource="{Binding Result.Children}"
                   RowHeight="13">
             <ListView.ItemTemplate>
                 <DataTemplate>

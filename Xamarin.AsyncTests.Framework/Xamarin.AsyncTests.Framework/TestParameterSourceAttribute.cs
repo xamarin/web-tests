@@ -35,9 +35,15 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestParameterSourceAttribute (Type sourceType)
+		public TestFlags Flags {
+			get;
+			private set;
+		}
+
+		public TestParameterSourceAttribute (Type sourceType, TestFlags flags = TestFlags.Browsable)
 		{
 			SourceType = sourceType;
+			Flags = flags;
 		}
 
 		public override string ToString ()

@@ -35,21 +35,15 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestFlags Flags {
-			get;
-			private set;
-		}
-
-		public TestParameterAttribute (string filter, TestFlags flags = TestFlags.None)
+		public TestParameterAttribute (string filter, TestFlags flags = TestFlags.Browsable)
 			: this (null, filter, flags)
 		{
 		}
 
-		public TestParameterAttribute (Type sourceType = null, string filter = null, TestFlags flags = TestFlags.None)
-			: base (sourceType)
+		public TestParameterAttribute (Type sourceType = null, string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (sourceType, flags)
 		{
 			Filter = filter;
-			Flags = flags;
 		}
 
 		string Print (object value)

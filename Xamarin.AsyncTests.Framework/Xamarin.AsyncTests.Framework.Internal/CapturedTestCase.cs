@@ -1,5 +1,5 @@
 ﻿//
-// ReflectionTestRunner.cs
+// CapturedTestCase.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,28 +24,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal.Reflection
+namespace Xamarin.AsyncTests.Framework.Internal
 {
-	class ReflectionTestCaseInvoker : TestInvoker
+	class CapturedTestCase : TestCase
 	{
-		public ReflectionTestCase Test {
+		public CapturedTestInvoker Invoker {
 			get;
 			private set;
 		}
 
-		public ReflectionTestCaseInvoker (ReflectionTestCase test)
-		{
-			Test = test;
+		public override IEnumerable<string> Categories {
+			get { return null; }
 		}
 
-		public override Task<bool> Invoke (
-			TestContext context, TestResult result, CancellationToken cancellationToken)
+		public CapturedTestCase (CapturedTestInvoker invoker)
+			: base (invoker.Name)
 		{
-			return Test.Invoke (context, result, cancellationToken);
+			Invoker = invoker;
+		}
+
+		public override TestCase Resolve (TestContext context)
+		{
+			return this;
+		}
+
+		internal override TestInvoker CreateInvoker (TestContext context)
+		{
+			return Invoker;
+		}
+
+		public override Task<bool> Run (TestContext context, TestResult result, CancellationToken cancellationToken)
+		{
+			return Invoker.Invoke (context, result, cancellationToken);
 		}
 	}
 }

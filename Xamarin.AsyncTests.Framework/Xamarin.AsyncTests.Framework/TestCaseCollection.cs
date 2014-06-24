@@ -37,8 +37,8 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		List<TestCase> tests = new List<TestCase> ();
 
-		public TestCaseCollection (string name = null)
-			: base (name)
+		public TestCaseCollection ()
+			: base (null)
 		{
 		}
 
@@ -61,12 +61,6 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			var invokers = tests.Select (t => t.CreateInvoker (context)).ToArray ();
 			return new AggregatedTestInvoker (TestFlags.ContinueOnError, invokers);
-		}
-
-		public override Task<bool> Run (
-			TestContext context, TestResult result, CancellationToken cancellationToken)
-		{
-			throw new InvalidOperationException ();
 		}
 
 		public override IEnumerable<string> Categories {

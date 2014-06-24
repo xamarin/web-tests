@@ -40,6 +40,7 @@ namespace Xamarin.AsyncTests.Framework
 		TestStatus status = TestStatus.Ignored;
 		string message;
 		Exception error;
+		TestCase test;
 
 		public TestName Name {
 			get { return name; }
@@ -77,6 +78,19 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
+		public TestCase Test {
+			get { return test; }
+			set {
+				test = value;
+				OnPropertyChanged ("Test");
+				OnPropertyChanged ("CanRun");
+			}
+		}
+
+		public bool CanRun {
+			get { return test != null; }
+		}
+
 		public TestResult (TestName name, Exception error, string message = null)
 			: this (name, TestStatus.Error, message)
 		{
@@ -88,6 +102,11 @@ namespace Xamarin.AsyncTests.Framework
 			this.name = name;
 			this.status = status;
 			this.message = message;
+
+			if (name != null)
+				test = name.CapturedTest;
+			else
+				throw new InvalidOperationException ();
 
 			messages = new ObservableCollection<string> ();
 			((INotifyPropertyChanged)messages).PropertyChanged += (sender, e) => OnMessagesChanged ();
@@ -161,6 +180,13 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			if (PropertyChanged != null)
 				PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
+		}
+
+		public void Print (TestContext context)
+		{
+			context.Log ("RESULT: {0} {1}", this, children.Count);
+			foreach (var child in children)
+				context.Log ("  CHILD: {0} {1}", child, child.children.Count);
 		}
 
 		public override string ToString ()

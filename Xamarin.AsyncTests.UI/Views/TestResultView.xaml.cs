@@ -40,21 +40,21 @@ namespace Xamarin.AsyncTests.UI
 
 		protected override void OnBindingContextChanged ()
 		{
-			SetResult ((TestResult)BindingContext);
+			SetResult ((ITestResultModel)BindingContext);
 			base.OnBindingContextChanged ();
 		}
 
-		void SetResult (TestResult result)
+		void SetResult (ITestResultModel model)
 		{
-			if (result != null)
-				result.PropertyChanged += (sender, e) => OnPropertyChanged ("Result");
+			if (model == null)
+				return;
+			model.Result.PropertyChanged += (sender, e) => OnPropertyChanged ("Result");
 
-			List.ItemSelected += (sender, e) => ItemSelected ((TestResult)e.SelectedItem);
-		}
-
-		void ItemSelected (TestResult model)
-		{
-			Navigation.PushAsync (new TestResultPage (model));
+			List.ItemSelected += (sender, e) => {
+				var child = (TestResult)e.SelectedItem;
+				child.Print (model.App.Context);
+				Navigation.PushAsync (new TestResultPage (model.App, child));
+			};
 		}
 	}
 }

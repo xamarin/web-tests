@@ -1,5 +1,5 @@
 ﻿//
-// RepeatAttribute.cs
+// CapturedTestInvoker.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,36 +25,49 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests.Framework.Internal
 {
-	[AttributeUsage (AttributeTargets.Parameter, AllowMultiple = false)]
-	public sealed class RepeatAttribute : TestParameterAttribute
+	class CapturedTestInvoker : TestInvoker
 	{
-		public int Count {
+		public TestName Name {
 			get;
 			private set;
 		}
 
-		public RepeatAttribute (int count, TestFlags flags = TestFlags.Browsable)
-			: base (typeof (RepeatedTestSource), count.ToString (), flags)
-		{
-			Count = count;
+		public TestInvoker Invoker {
+			get;
+			private set;
 		}
 
-		internal class RepeatedTestSource : ITestParameterSource<int>
+		public CapturedTestInvoker (TestName name, TestInvoker invoker)
 		{
-			public IEnumerable<int> GetParameters (TestContext context, string filter)
-			{
-				int count = int.Parse (filter);
-				if (count < 0) {
-					int index = 0;
-					while (true)
-						yield return index++;
-				} else {
-					for (int i = 1; i <= count; i++)
-						yield return i;
-				}
+			Name = name;
+			Invoker = invoker;
+		}
+
+		public override async Task<bool> Invoke (TestContext context, TestResult result, CancellationToken cancellationToken)
+		{
+			var oldInstance = context.Instance;
+			var oldName = context.CurrentTestName;
+
+			try {
+				context.Instance = null;
+				context.Log ("CAPTURED INVOKE #0: {0} {1}", Name, context.GetCurrentTestName ());
+				// context.CurrentTestName = TestNameBuilder.CreateFromName (Name);
+
+				context.Log ("CAPTURED INVOKE: {0} {1}", result, result.Status);
+				var success = await Invoker.Invoke (context, result, cancellationToken);
+				context.Log ("CAPTURED INVOKE DONE: {0} {1}", success, result.Status);
+				return success;
+			} catch (Exception ex) {
+				context.Log ("CAPTURED INVOKE FAILED: {0}", ex);
+				return false;
+			} finally {
+				context.Instance = oldInstance;
+				context.CurrentTestName = oldName;
 			}
 		}
 	}

@@ -32,6 +32,10 @@ namespace Xamarin.AsyncTests.Framework.Internal
 {
 	abstract class ParameterizedTestInstance : TestInstance
 	{
+		public new ParameterizedTestHost Host {
+			get { return (ParameterizedTestHost)base.Host; }
+		}
+
 		public ParameterizedTestInstance (ParameterizedTestHost host, TestInstance parent)
 			: base (host, parent)
 		{
@@ -51,7 +55,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 		public abstract bool HasNext ();
 
-		public abstract Task MoveNext (TestContext context, CancellationToken cancellationTOken);
+		public abstract Task MoveNext (TestContext context, CancellationToken cancellationToken);
 
 		public abstract Task Destroy (TestContext context, CancellationToken cancellationToken);
 	}

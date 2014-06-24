@@ -42,7 +42,7 @@ namespace Xamarin.AsyncTests.Framework {
 			get;
 		}
 
-		public string Name {
+		public TestName Name {
 			get;
 			private set;
 		}
@@ -52,7 +52,7 @@ namespace Xamarin.AsyncTests.Framework {
 			return Categories.Contains (category);
 		}
 
-		public TestCase (string name)
+		public TestCase (TestName name)
 		{
 			Name = name;
 		}
@@ -65,16 +65,26 @@ namespace Xamarin.AsyncTests.Framework {
 
 		internal abstract TestInvoker CreateInvoker (TestContext context);
 
-		public abstract Task<bool> Run (TestContext context, TestResult result,
-			CancellationToken cancellationToken);
+		public virtual Task<bool> Run (TestContext context, TestResult result,
+			CancellationToken cancellationToken)
+		{
+			throw new InvalidOperationException ();
+		}
 
 		public TestCase CreateRepeatedTest (TestContext context, int count)
 		{
 			var invoker = CreateInvoker (context);
 			var repeatHost = new RepeatedTestHost (count, TestFlags.ContinueOnError | TestFlags.Browsable, "$iteration");
 			var repeatInvoker = new AggregatedTestInvoker (repeatHost, invoker);
-			var outerInvoker = new ProxyTestInvoker ("Iteration", repeatInvoker);
+			var outerInvoker = new ProxyTestInvoker (Name, repeatInvoker);
 			return new InvokableTestCase (this, outerInvoker);
+		}
+
+		public TestCase CreateProxy (TestContext context, TestName proxy)
+		{
+			var invoker = CreateInvoker (context);
+			var proxyInvoker = new ProxyTestInvoker (proxy, invoker);
+			return new InvokableTestCase (this, proxyInvoker);
 		}
 	}
 }

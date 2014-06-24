@@ -42,7 +42,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			private set;
 		}
 
-		protected ParameterizedTestHost (string name, TypeInfo type, TestFlags flags = TestFlags.Browsable)
+		protected ParameterizedTestHost (string name, TypeInfo type, TestFlags flags = TestFlags.None)
 		{
 			ParameterName = name;
 			ParameterType = type;

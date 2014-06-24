@@ -36,6 +36,11 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			private set;
 		}
 
+		public TestName TestName {
+			get;
+			private set;
+		}
+
 		public TestInvoker InnerInvoker {
 			get;
 			private set;
@@ -47,13 +52,26 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			InnerInvoker = inner;
 		}
 
+		public ProxyTestInvoker (TestName name, TestInvoker inner)
+		{
+			TestName = name;
+			InnerInvoker = inner;
+		}
+
 		public override async Task<bool> Invoke (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
+			var oldName = context.CurrentTestName;
+
 			try {
-				context.CurrentTestName.PushName (Name);
+				if (TestName != null)
+					context.CurrentTestName = TestNameBuilder.CreateFromName (TestName);
+				if (Name != null)
+					context.CurrentTestName.PushName (Name);
 				return await InnerInvoker.Invoke (context, result, cancellationToken);
 			} finally {
-				context.CurrentTestName.PopName ();
+				if (Name != null)
+					context.CurrentTestName.PopName ();
+				context.CurrentTestName = oldName;
 			}
 		}
 	}

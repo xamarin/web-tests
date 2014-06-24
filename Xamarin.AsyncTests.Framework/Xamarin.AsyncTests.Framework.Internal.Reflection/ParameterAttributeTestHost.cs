@@ -47,12 +47,11 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			: base (name, type)
 		{
 			Attribute = attr;
+			Flags |= attr.Flags;
 
 			var paramAttr = attr as TestParameterAttribute;
-			if (paramAttr != null) {
-				Flags |= paramAttr.Flags;
+			if (paramAttr != null)
 				Filter = paramAttr.Filter;
-			}
 		}
 
 		protected override TestInstance CreateInstance (TestContext context)

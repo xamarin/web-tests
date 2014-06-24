@@ -74,7 +74,7 @@ namespace Xamarin.AsyncTests.Framework {
 
 		TestCaseCollection DoLoadAssembly (Assembly assembly)
 		{
-			var collection = new TestCaseCollection (assembly.GetName ().Name);
+			var collection = new TestCaseCollection ();
 
 			foreach (var type in assembly.ExportedTypes) {
 				var tinfo = type.GetTypeInfo ();

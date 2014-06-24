@@ -169,9 +169,19 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			if (InnerTestInvokers.Count == 0)
 				return true;
 
+			context.Debug (3, "Invoke({0}): {1} {2} {3}", context.GetCurrentTestName ().FullName,
+				Print (Host), Flags, Print (context.Instance));
+
 			var oldResult = context.CurrentResult;
 
-			if (!await SetUp (context, result, cancellationToken)) {
+			var innerResult = result;
+			if (IsBrowsable) {
+				innerResult = new TestResult (context.GetCurrentTestName ());
+				result.AddChild (innerResult);
+				context.CurrentResult = innerResult;
+			}
+
+			if (!await SetUp (context, innerResult, cancellationToken)) {
 				context.CurrentResult = oldResult;
 				return false;
 			}
@@ -181,27 +191,33 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			var current = innerRunners.First;
 
 			while (success && current != null) {
+				var invoker = current.Value;
+
 				if (cancellationToken.IsCancellationRequested)
 					break;
 
-				success = await ReuseInstance (context, result, cancellationToken);
+				success = await ReuseInstance (context, innerResult, cancellationToken);
 				if (!success)
 					break;
 
-				var innerResult = result;
 				if (ParameterizedHost != null) {
 					var parameterizedInstance = (ParameterizedTestInstance)context.Instance;
 					context.CurrentTestName.PushParameter (ParameterizedHost.ParameterName, parameterizedInstance.Current);
-					if (IsBrowsable) {
-						innerResult = new TestResult (context.GetCurrentTestName ());
-						result.AddChild (innerResult);
-					}
 				}
+				var capturedTest = CaptureContext (context, invoker);
+				if (capturedTest != null)
+					context.CurrentTestName.PushCapture (capturedTest);
 
-				var invoker = current.Value;
+				context.Debug (5, "InnerInvoke({0}): {1} {2}", context.GetCurrentTestName ().FullName,
+					IsBrowsable, Host != null);
+
 				success = await InvokeInner (context, innerResult, invoker, cancellationToken);
-				context.Debug (5, "TEST: {0} {1} {2}", this, Flags, success);
 
+				context.Debug (5, "InnerInvoke({0}) done: {1} {2} {3}", context.GetCurrentTestName ().FullName,
+					IsBrowsable, Host != null, success);
+
+				if (capturedTest != null)
+					context.CurrentTestName.PopCapture ();
 				if (ParameterizedHost != null)
 					context.CurrentTestName.PopParameter ();
 
@@ -212,13 +228,39 @@ namespace Xamarin.AsyncTests.Framework.Internal
 					current = current.Next;
 			}
 
-			if (!await TearDown (context, result, cancellationToken))
+			if (!await TearDown (context, innerResult, cancellationToken))
 				success = false;
 
 			context.CurrentResult = oldResult;
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			return success;
+		}
+
+		TestCase CaptureContext (TestContext context, TestInvoker invoker)
+		{
+			if (context.CurrentTestName.IsCaptured || Host is CapturedTestHost || Host == null)
+				return null;
+
+			var capture = CaptureContext (context.GetCurrentTestName (), context.Instance, invoker);
+			if (capture == null)
+				return null;
+
+			return new CapturedTestCase (new CapturedTestInvoker (context.GetCurrentTestName (), capture));
+		}
+
+		static TestInvoker CaptureContext (TestName name, TestInstance instance, TestInvoker invoker)
+		{
+			if (instance.Parent != null)
+				invoker = CaptureContext (name, instance.Parent, invoker);
+
+			var parameterizedInstance = instance as ParameterizedTestInstance;
+			if (parameterizedInstance != null) {
+				var host = new CapturedTestHost (name, parameterizedInstance.Host, parameterizedInstance.Current);
+				return new AggregatedTestInvoker (host, invoker);
+			}
+
+			return new AggregatedTestInvoker (instance.Host, invoker);
 		}
 
 		public override string ToString ()

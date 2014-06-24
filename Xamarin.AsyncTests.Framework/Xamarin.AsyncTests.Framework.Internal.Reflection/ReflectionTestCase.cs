@@ -62,7 +62,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 		TypeInfo expectedExceptionType;
 
 		public ReflectionTestCase (ReflectionTestFixture fixture, AsyncTestAttribute attr, MethodInfo method)
-			: base (method.DeclaringType.Name + "." + method.Name)
+			: base (new TestName (method.DeclaringType.Name + "." + method.Name))
 		{
 			Fixture = fixture;
 			Attribute = attr;
@@ -78,11 +78,10 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 		internal override TestInvoker CreateInvoker (TestContext context)
 		{
 			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
-			invoker = new AggregatedTestInvoker (TestFlags.None, invoker);
 
 			var parameterHosts = new List<TestHost> ();
 			if (Attribute.Repeat != 0)
-				parameterHosts.Add (new RepeatedTestHost (Attribute.Repeat));
+				parameterHosts.Add (new RepeatedTestHost (Attribute.Repeat, TestFlags.Browsable));
 
 			var parameters = Method.GetParameters ();
 			for (int i = parameters.Length - 1; i >= 0; i--) {
@@ -132,13 +131,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				invoker = parameter.CreateInvoker (invoker);
 			}
 
-			return new ProxyTestInvoker (Name, invoker);
-		}
-
-		public override Task<bool> Run (
-			TestContext context, TestResult result, CancellationToken cancellationToken)
-		{
-			throw new InvalidOperationException ();
+			return new ProxyTestInvoker (Name.Name, invoker);
 		}
 
 		public async Task<bool> Invoke (
@@ -267,6 +260,25 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				var message = string.Format ("Expected an exception of type {0}, but got {1}",
 					expectedException, ex.GetType ());
 				return context.CreateTestResult (new AssertionException (message, ex), message);
+			}
+		}
+
+		class ReflectionTestCaseInvoker : TestInvoker
+		{
+			public ReflectionTestCase Test {
+				get;
+				private set;
+			}
+
+			public ReflectionTestCaseInvoker (ReflectionTestCase test)
+			{
+				Test = test;
+			}
+
+			public override Task<bool> Invoke (
+				TestContext context, TestResult result, CancellationToken cancellationToken)
+			{
+				return Test.Invoke (context, result, cancellationToken);
 			}
 		}
 	}

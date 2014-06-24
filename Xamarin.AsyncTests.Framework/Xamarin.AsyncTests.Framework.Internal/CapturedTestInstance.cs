@@ -1,5 +1,5 @@
 ﻿//
-// RepeatAttribute.cs
+// CapturedTestInstance.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,38 +25,49 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests.Framework.Internal
 {
-	[AttributeUsage (AttributeTargets.Parameter, AllowMultiple = false)]
-	public sealed class RepeatAttribute : TestParameterAttribute
+	class CapturedTestInstance : ParameterizedTestInstance
 	{
-		public int Count {
-			get;
-			private set;
+		new public CapturedTestHost Host {
+			get { return (CapturedTestHost)base.Host; }
 		}
 
-		public RepeatAttribute (int count, TestFlags flags = TestFlags.Browsable)
-			: base (typeof (RepeatedTestSource), count.ToString (), flags)
+		public CapturedTestInstance (CapturedTestHost host, TestInstance parent)
+			: base (host, parent)
 		{
-			Count = count;
 		}
 
-		internal class RepeatedTestSource : ITestParameterSource<int>
+		#region implemented abstract members of ParameterizedTestInstance
+
+		public override Task Initialize (TestContext context, CancellationToken cancellationToken)
 		{
-			public IEnumerable<int> GetParameters (TestContext context, string filter)
-			{
-				int count = int.Parse (filter);
-				if (count < 0) {
-					int index = 0;
-					while (true)
-						yield return index++;
-				} else {
-					for (int i = 1; i <= count; i++)
-						yield return i;
-				}
-			}
+			return Task.FromResult<object> (null);
 		}
+
+		public override bool HasNext ()
+		{
+			return false;
+		}
+
+		public override Task MoveNext (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.FromResult<object> (null);
+		}
+
+		public override Task Destroy (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.FromResult<object> (null);
+		}
+
+		public override object Current {
+			get { return Host.CapturedInstance; }
+		}
+
+		#endregion
 	}
 }
 

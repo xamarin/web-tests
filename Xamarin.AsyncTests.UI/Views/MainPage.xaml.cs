@@ -36,7 +36,7 @@ namespace Xamarin.AsyncTests.UI
 {	
 	using Framework;
 
-	public partial class MainPage : ContentPage
+	public partial class MainPage : ContentPage, ITestResultModel
 	{	
 		public TestApp App {
 			get;
@@ -44,11 +44,11 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		public TestResult Result {
-			get { return result; }
+			get;
+			private set;
 		}
 
 		CancellationTokenSource cancelCts;
-		TestResult result;
 
 		public MainPage (TestApp app)
 		{
@@ -62,8 +62,8 @@ namespace Xamarin.AsyncTests.UI
 
 			app.AssemblyLoadedEvent += (sender, e) => RunButton.IsEnabled = true;
 
-			result = new TestResult (null);
-			BindingContext = Result;
+			Result = new TestResult (new TestName (null));
+			BindingContext = (ITestResultModel)this;
 		}
 
 		async void Run ()
@@ -73,8 +73,8 @@ namespace Xamarin.AsyncTests.UI
 			StopButton.IsEnabled = true;
 			Message ("Running ...");
 			try {
-				result.Clear ();
-				await App.Run (result, cancelCts.Token);
+				Result.Clear ();
+				await App.Run (Result, cancelCts.Token);
 				Message ("Done.");
 			} catch (TaskCanceledException) {
 				Message ("Canceled!");

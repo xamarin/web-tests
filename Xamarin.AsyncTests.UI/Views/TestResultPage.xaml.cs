@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xamarin.Forms;
 
@@ -31,20 +33,47 @@ namespace Xamarin.AsyncTests.UI
 {	
 	using Framework;
 
-	public partial class TestResultPage : ContentPage
+	public partial class TestResultPage : ContentPage, ITestResultModel
 	{
+		public TestApp App {
+			get;
+			private set;
+		}
+
 		public TestResult Result {
 			get;
 			private set;
 		}
 
-		public TestResultPage (TestResult result)
+		public bool CanRun {
+			get { return Result.CanRun; }
+		}
+
+		public TestResultPage (TestApp app, TestResult result)
 		{
+			App = app;
 			Result = result;
 
 			InitializeComponent ();
 
-			BindingContext = result;
+			BindingContext = this;
+
+			Result.PropertyChanged += (sender, e) => OnPropertyChanged ("Result");
+
+			RunButton.Clicked += (sender, e) => Run ();
+		}
+
+		static int countReruns;
+
+		async void Run ()
+		{
+			var name = new TestNameBuilder ();
+			name.PushName ("UI-Rerun");
+			name.PushParameter ("$uiTriggeredRerun", ++countReruns);
+
+			var proxyTest = Result.Test.CreateProxy (App.Context, name.GetName ());
+
+			await proxyTest.Run (App.Context, Result, CancellationToken.None);
 		}
 	}
 }
