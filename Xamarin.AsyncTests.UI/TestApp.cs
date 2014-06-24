@@ -82,7 +82,7 @@ namespace Xamarin.AsyncTests.UI
 
 		public event EventHandler<Assembly> AssemblyLoadedEvent;
 
-		public Task Run (TestResultCollection result, CancellationToken cancellationToken)
+		public Task Run (TestResult result, CancellationToken cancellationToken)
 		{
 			return TestSuite.Run (Context, result, cancellationToken);
 		}

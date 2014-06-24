@@ -42,7 +42,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			InnerInvoker = inner;
 		}
 
-		public override async Task<bool> Invoke (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
+		public override async Task<bool> Invoke (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
 			try {
 				context.CurrentTestName.PushName (Name);

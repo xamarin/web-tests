@@ -67,7 +67,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			return obj != null ? obj.ToString () : "<null>";
 		}
 
-		async Task<bool> SetUp (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
+		async Task<bool> SetUp (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
 			context.Debug (3, "SetUp({0}): {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
 
@@ -87,7 +87,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			}
 		}
 
-		async Task<bool> ReuseInstance (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
+		async Task<bool> ReuseInstance (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
 			context.Debug (3, "ReuseInstance({0}): {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
 
@@ -108,7 +108,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			}
 		}
 
-		async Task<bool> InvokeInner (TestContext context, TestResultCollection result, TestInvoker invoker, CancellationToken cancellationToken)
+		async Task<bool> InvokeInner (TestContext context, TestResult result, TestInvoker invoker, CancellationToken cancellationToken)
 		{
 			context.Debug (3, "Running({0}): {1} {2}", context.CurrentTestName.GetFullName (), Print (Host), invoker);
 
@@ -123,7 +123,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			}
 		}
 
-		async Task<bool> TearDown (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
+		async Task<bool> TearDown (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
 			context.Debug (3, "TearDown({0}): {1} {2} {3}", Name, Print (Host), Flags, Print (context.Instance));
 
@@ -144,7 +144,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		}
 			
 		public sealed override async Task<bool> Invoke (
-			TestContext context, TestResultCollection result, CancellationToken cancellationToken)
+			TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
 			if (InnerTestInvokers.Count == 0)
 				return true;
@@ -152,7 +152,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			var oldResult = context.CurrentResult;
 
 			if ((Flags & (TestFlags.Browsable | TestFlags.FlattenHierarchy)) == TestFlags.Browsable) {
-				var child = new TestResultCollection (context.GetCurrentTestName ());
+				var child = new TestResult (context.GetCurrentTestName ());
 				result.AddChild (child);
 				result = child;
 			}

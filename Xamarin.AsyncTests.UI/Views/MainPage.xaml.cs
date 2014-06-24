@@ -48,7 +48,7 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		CancellationTokenSource cancelCts;
-		TestResultCollection result;
+		TestResult result;
 
 		public MainPage (TestApp app)
 		{
@@ -62,7 +62,7 @@ namespace Xamarin.AsyncTests.UI
 
 			app.AssemblyLoadedEvent += (sender, e) => RunButton.IsEnabled = true;
 
-			result = new TestResultCollection ();
+			result = new TestResult (null);
 			BindingContext = Result;
 		}
 

@@ -96,7 +96,7 @@ namespace Xamarin.AsyncTests.Framework {
 			get; set;
 		}
 
-		internal TestResultCollection CurrentResult {
+		internal TestResult CurrentResult {
 			get; set;
 		}
 

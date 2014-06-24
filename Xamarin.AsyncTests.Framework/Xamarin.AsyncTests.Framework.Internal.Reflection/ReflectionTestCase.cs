@@ -136,7 +136,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 		}
 
 		public override async Task<bool> Run (
-			TestContext context, TestResultCollection result, CancellationToken cancellationToken)
+			TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
 			try {
 				var inner = await Run (context, cancellationToken);

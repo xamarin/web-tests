@@ -21,7 +21,7 @@ namespace Xamarin.AsyncTests.ConsoleRunner {
 			names = new Stack<string> ();
 		}
 
-		public static void Print (TextWriter writer, TestResultCollection result)
+		public static void Print (TextWriter writer, TestResult result)
 		{
 			writer.WriteLine ();
 
@@ -53,14 +53,13 @@ namespace Xamarin.AsyncTests.ConsoleRunner {
 
 		public void Visit (TestResult node)
 		{
-			var collection = node as TestResultCollection;
-			if (collection != null)
-				VisitCollection (collection);
+			if (node.HasChildren)
+				VisitCollection (node);
 			else
 				VisitSimple (node);
 		}
 	
-		void VisitCollection (TestResultCollection node)
+		void VisitCollection (TestResult node)
 		{
 			foreach (var item in node.Children) {
 				PushName (item);

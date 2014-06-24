@@ -28,7 +28,9 @@
             <Label Text="{Binding Error, Converter={StaticResource converter}}" Font="10" VerticalOptions="CenterAndExpand" />
         </ScrollView>
 
-        <ListView x:Name="List" IsEnabled="false" IsVisible="false" RowHeight="13">
+        <ListView x:Name="List"
+                  IsVisible="{Binding HasChildren}" ItemsSource="{Binding Children}"
+                  RowHeight="13">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>

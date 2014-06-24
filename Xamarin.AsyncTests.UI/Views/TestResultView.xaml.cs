@@ -46,21 +46,10 @@ namespace Xamarin.AsyncTests.UI
 
 		void SetResult (TestResult result)
 		{
-			if (result == null) {
-				List.IsEnabled = false;
-				List.IsVisible = false;
-				return;
-			}
+			if (result != null)
+				result.PropertyChanged += (sender, e) => OnPropertyChanged ("Result");
 
-			result.PropertyChanged += (sender, e) => OnPropertyChanged ("Result");
-
-			var collection = result as TestResultCollection;
-			if (collection != null) {
-				List.ItemsSource = collection.Children;
-				List.ItemSelected += (sender, e) => ItemSelected ((TestResult)e.SelectedItem);
-				List.IsEnabled = true;
-				List.IsVisible = true;
-			}
+			List.ItemSelected += (sender, e) => ItemSelected ((TestResult)e.SelectedItem);
 		}
 
 		void ItemSelected (TestResult model)

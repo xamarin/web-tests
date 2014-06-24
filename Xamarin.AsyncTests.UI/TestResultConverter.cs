@@ -85,13 +85,12 @@ namespace Xamarin.AsyncTests.UI
 
 		string GetTestSummary (TestResult result)
 		{
-			var collection = result as TestResultCollection;
-			if (collection == null)
+			if (!result.HasChildren || !string.IsNullOrEmpty (result.Message))
 				return result.Message;
 
-			var numSuccess = collection.Children.Count (t => t.Status == TestStatus.Success);
-			var numWarnings = collection.Children.Count (t => t.Status == TestStatus.Warning);
-			var numErrors = collection.Children.Count (t => t.Status == TestStatus.Error);
+			var numSuccess = result.Children.Count (t => t.Status == TestStatus.Success);
+			var numWarnings = result.Children.Count (t => t.Status == TestStatus.Warning);
+			var numErrors = result.Children.Count (t => t.Status == TestStatus.Error);
 
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("{0} tests passed", numSuccess);

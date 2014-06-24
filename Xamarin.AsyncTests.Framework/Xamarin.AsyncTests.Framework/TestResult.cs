@@ -27,8 +27,10 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 using System;
+using System.Linq;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Xamarin.AsyncTests.Framework
 {
@@ -75,19 +77,82 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		public TestResult (TestName name, TestStatus status, string message = null)
+		public TestResult (TestName name, Exception error, string message = null)
+			: this (name, TestStatus.Error, message)
+		{
+			this.error = error;
+		}
+
+		public TestResult (TestName name, TestStatus status = TestStatus.Ignored, string message = null)
 		{
 			this.name = name;
 			this.status = status;
 			this.message = message;
+
+			messages = new ObservableCollection<string> ();
+			((INotifyPropertyChanged)messages).PropertyChanged += (sender, e) => OnMessagesChanged ();
+			children = new ObservableCollection<TestResult> ();
+			((INotifyPropertyChanged)children).PropertyChanged += (sender, e) => OnChildrenChanged ();
 		}
 
-		public TestResult (TestName name, Exception error, string message = null)
+		ObservableCollection<TestResult> children;
+		ObservableCollection<string> messages;
+
+		public bool HasChildren {
+			get { return children.Count > 0; }
+		}
+
+		public ObservableCollection<TestResult> Children {
+			get { return children; }
+		}
+
+		public ObservableCollection<string> Messages {
+			get { return messages; }
+		}
+
+		void OnMessagesChanged ()
 		{
-			this.name = name;
-			this.status = TestStatus.Error;
-			this.error = error;
-			this.message = message;
+			OnPropertyChanged ("Messages");
+		}
+
+		void OnChildrenChanged ()
+		{
+			if (children.Count == 0)
+				Status = TestStatus.Ignored;
+			else {
+				var hasErrors = children.Any (child => child.Status == TestStatus.Error);
+				if (hasErrors)
+					Status = TestStatus.Error;
+				else if (Status == TestStatus.Ignored)
+					Status = TestStatus.Success;
+			}
+
+			OnPropertyChanged ("Children");
+			OnPropertyChanged ("HasChildren");
+			OnPropertyChanged (".");
+		}
+
+		public void AddMessage (string format, params object[] args)
+		{
+			messages.Add (string.Format (format, args));
+		}
+
+		public void AddWarnings (IEnumerable<TestResult> warnings)
+		{
+			foreach (var warning in warnings)
+				children.Add (warning);
+		}
+
+		public void AddChild (TestResult result)
+		{
+			result.PropertyChanged += (sender, e) => OnChildrenChanged ();
+			children.Add (result);
+		}
+
+		public void Clear ()
+		{
+			children.Clear ();
+			messages.Clear ();
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;

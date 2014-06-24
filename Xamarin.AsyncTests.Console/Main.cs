@@ -39,15 +39,15 @@ namespace Xamarin.AsyncTests.ConsoleRunner
 			await suite.LoadAssembly (assembly);
 
 			var context = new TestContext ();
-			var result = new TestResultCollection ();
+			var result = new TestResult (new TestName (assembly.GetName ().Name));
 			await suite.Run (context, result, CancellationToken.None);
 			WriteResults (result);
 		}
 
-		static void WriteResults (TestResultCollection results)
+		static void WriteResults (TestResult results)
 		{
 			if (xml) {
-				var serializer = new XmlSerializer (typeof(TestResultCollection));
+				var serializer = new XmlSerializer (typeof(TestResult));
 				serializer.Serialize (Console.Out, results);
 				Console.WriteLine ();
 			} else {

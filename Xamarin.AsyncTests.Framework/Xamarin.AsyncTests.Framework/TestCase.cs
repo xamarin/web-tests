@@ -59,7 +59,7 @@ namespace Xamarin.AsyncTests.Framework {
 
 		internal abstract TestInvoker Resolve (TestContext context);
 
-		public abstract Task<bool> Run (TestContext context, TestResultCollection result,
+		public abstract Task<bool> Run (TestContext context, TestResult result,
 			CancellationToken cancellationToken);
 	}
 }

@@ -95,7 +95,7 @@ namespace Xamarin.AsyncTests.Framework {
 			return type.Equals (typeof (T)) || type.IsSubclassOf (typeof (T));
 		}
 
-		public async Task Run (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
+		public async Task Run (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
 			try {
 				context.CurrentTestName = new TestNameBuilder ();
@@ -105,7 +105,7 @@ namespace Xamarin.AsyncTests.Framework {
 				} else {
 					for (int iteration = 0; iteration < context.Repeat; iteration++) {
 						context.CurrentTestName.PushParameter ("$iteration", iteration + 1);
-						var child = new TestResultCollection (context.GetCurrentTestName ());
+						var child = new TestResult (context.GetCurrentTestName ());
 						result.AddChild (child);
 						await RunInner (context, child, cancellationToken);
 					}
@@ -115,7 +115,7 @@ namespace Xamarin.AsyncTests.Framework {
 			}
 		}
 
-		async Task RunInner (TestContext context, TestResultCollection result, CancellationToken cancellationToken)
+		async Task RunInner (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
 			foreach (var fixture in tests.Tests) {
 				if (!context.Filter (fixture))

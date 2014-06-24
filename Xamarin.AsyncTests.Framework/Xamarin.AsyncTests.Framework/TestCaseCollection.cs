@@ -71,7 +71,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public override Task<bool> Run (
-			TestContext context, TestResultCollection result, CancellationToken cancellationToken)
+			TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
 			var invoker = Resolve (context);
 			return invoker.Invoke (context, result, cancellationToken);
