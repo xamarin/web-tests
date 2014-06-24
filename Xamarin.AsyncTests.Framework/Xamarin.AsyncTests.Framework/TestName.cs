@@ -69,10 +69,6 @@ namespace Xamarin.AsyncTests.Framework
 			for (int i = 0; i < Parameters.Length; i++) {
 				if (i > 0)
 					sb.Append (",");
-				if (!string.IsNullOrEmpty (Parameters [i].Key)) {
-					sb.Append (Parameters [i].Key);
-					sb.Append ("=");
-				}
 				sb.Append (Parameters [i].Value);
 			}
 			sb.Append (")");

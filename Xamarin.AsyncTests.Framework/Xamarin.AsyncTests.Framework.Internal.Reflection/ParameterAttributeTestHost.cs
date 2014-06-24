@@ -43,8 +43,8 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			private set;
 		}
 
-		public ParameterAttributeTestHost (TypeInfo type, TestParameterSourceAttribute attr)
-			: base (type)
+		public ParameterAttributeTestHost (string name, TypeInfo type, TestParameterSourceAttribute attr)
+			: base (name, type)
 		{
 			Attribute = attr;
 

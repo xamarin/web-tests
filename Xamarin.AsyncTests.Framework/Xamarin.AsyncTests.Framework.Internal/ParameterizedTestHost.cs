@@ -32,13 +32,19 @@ namespace Xamarin.AsyncTests.Framework.Internal
 {
 	abstract class ParameterizedTestHost : TestHost
 	{
+		public string ParameterName {
+			get;
+			private set;
+		}
+
 		public TypeInfo ParameterType {
 			get;
 			private set;
 		}
 
-		protected ParameterizedTestHost (TypeInfo type)
+		protected ParameterizedTestHost (string name, TypeInfo type)
 		{
+			ParameterName = name;
 			ParameterType = type;
 		}
 

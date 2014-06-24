@@ -170,7 +170,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				var parameterizedHost = Host as ParameterizedTestHost;
 				if (parameterizedHost != null) {
 					var parameterizedInstance = (ParameterizedTestInstance)context.Instance;
-					context.CurrentTestName.PushParameter (null, parameterizedInstance.Current);
+					context.CurrentTestName.PushParameter (parameterizedHost.ParameterName, parameterizedInstance.Current);
 					innerResult = new TestResultCollection (context.GetCurrentTestName ());
 					result.AddChild (innerResult);
 				}

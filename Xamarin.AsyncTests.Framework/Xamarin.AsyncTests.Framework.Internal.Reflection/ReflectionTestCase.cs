@@ -86,6 +86,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 			var parameters = Method.GetParameters ();
 			for (int i = parameters.Length - 1; i >= 0; i--) {
+				var paramName = parameters [i].Name;
 				var paramType = parameters [i].ParameterType;
 				var paramTypeInfo = paramType.GetTypeInfo ();
 
@@ -101,14 +102,14 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 					if (hostAttr == null)
 						throw new InvalidOperationException ();
 
-					parameterHosts.Add (new CustomHostAttributeTestHost (paramTypeInfo, hostAttr));
+					parameterHosts.Add (new CustomHostAttributeTestHost (paramName, paramTypeInfo, hostAttr));
 					continue;
 				}
 
 				bool found = false;
 				var paramAttrs = parameters [i].GetCustomAttributes<TestParameterSourceAttribute> ();
 				foreach (var paramAttr in paramAttrs) {
-					parameterHosts.Add (new ParameterAttributeTestHost (paramTypeInfo, paramAttr));
+					parameterHosts.Add (new ParameterAttributeTestHost (paramName, paramTypeInfo, paramAttr));
 					found = true;
 				}
 
@@ -117,7 +118,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 				paramAttrs = paramTypeInfo.GetCustomAttributes<TestParameterSourceAttribute> ();
 				foreach (var paramAttr in paramAttrs) {
-					parameterHosts.Add (new ParameterAttributeTestHost (paramTypeInfo, paramAttr));
+					parameterHosts.Add (new ParameterAttributeTestHost (paramName, paramTypeInfo, paramAttr));
 					found = true;
 				}
 

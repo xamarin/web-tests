@@ -38,7 +38,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		}
 
 		public RepeatedTestHost (int count, TestFlags flags = TestFlags.None)
-			: base (typeof (int).GetTypeInfo ())
+			: base ("$repeat", typeof (int).GetTypeInfo ())
 		{
 			Count = count;
 			Flags = flags;

@@ -38,8 +38,8 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			private set;
 		}
 
-		public CustomHostAttributeTestHost (TypeInfo type, TestHostAttribute attr)
-			: base (type)
+		public CustomHostAttributeTestHost (string name, TypeInfo type, TestHostAttribute attr)
+			: base (name, type)
 		{
 			Attribute = attr;
 			Flags = attr.Flags;
