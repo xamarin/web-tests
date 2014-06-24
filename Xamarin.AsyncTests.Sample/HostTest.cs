@@ -31,7 +31,7 @@ namespace Xamarin.AsyncTests.Sample
 {
 	using Framework;
 
-	// [AsyncTestFixture]
+	[AsyncTestFixture]
 	public class HostTest
 	{
 		[TestHost (typeof (MyHost))]
