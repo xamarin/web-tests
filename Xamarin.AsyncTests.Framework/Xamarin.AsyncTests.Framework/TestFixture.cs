@@ -71,7 +71,7 @@ namespace Xamarin.AsyncTests.Framework
 			this.Type = type;
 		}
 
-		public abstract bool Resolve ();
+		public abstract void Resolve ();
 
 		internal abstract Task InitializeInstance (TestContext context, CancellationToken cancellationToken);
 

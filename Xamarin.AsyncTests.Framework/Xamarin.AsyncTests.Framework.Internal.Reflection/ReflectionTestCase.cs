@@ -60,6 +60,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 		IList<string> categories;
 		ExpectedExceptionAttribute expectedException;
 		TypeInfo expectedExceptionType;
+		List<TestHost> parameterHosts;
 
 		public ReflectionTestCase (ReflectionTestFixture fixture, AsyncTestAttribute attr, MethodInfo method)
 			: base (new TestName (method.Name))
@@ -73,9 +74,11 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			expectedException = method.GetCustomAttribute<ExpectedExceptionAttribute> ();
 			if (expectedException != null)
 				expectedExceptionType = expectedException.ExceptionType.GetTypeInfo ();
+
+			ResolveParameters ();
 		}
 
-		internal static IEnumerable<ParameterizedTestHost> ResolveParameter (TestContext context, IMemberInfo member)
+		internal static IEnumerable<ParameterizedTestHost> ResolveParameter (IMemberInfo member)
 		{
 			if (typeof(ITestInstance).GetTypeInfo ().IsAssignableFrom (member.Type)) {
 				var hostAttr = member.GetCustomAttribute<TestHostAttribute> ();
@@ -119,11 +122,10 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			throw new InvalidOperationException ();
 		}
 
-		internal override TestInvoker CreateInvoker (TestContext context)
+		void ResolveParameters ()
 		{
-			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
+			parameterHosts = new List<TestHost> ();
 
-			var parameterHosts = new List<TestHost> ();
 			if (Attribute.Repeat != 0)
 				parameterHosts.Add (new RepeatedTestHost (Attribute.Repeat, TestFlags.Browsable));
 
@@ -137,8 +139,13 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 					continue;
 
 				var member = ReflectionHelper.GetParameterInfo (parameters [i]);
-				parameterHosts.AddRange (ResolveParameter (context, member));
+				parameterHosts.AddRange (ResolveParameter (member));
 			}
+		}
+
+		internal override TestInvoker CreateInvoker (TestContext context)
+		{
+			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
 
 			foreach (var parameter in parameterHosts) {
 				invoker = parameter.CreateInvoker (invoker);

@@ -37,6 +37,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 	{
 		List<ReflectionTestCase> tests;
 		IList<string> categories;
+		List<TestHost> parameterHosts;
 
 		public override IEnumerable<string> Categories {
 			get { return categories; }
@@ -56,7 +57,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			Resolve (suite, null, type, out categories);
 		}
 
-		public override bool Resolve ()
+		public override void Resolve ()
 		{
 			tests = new List<ReflectionTestCase> ();
 
@@ -70,7 +71,20 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				tests.Add (new ReflectionTestCase (this, attr, method));
 			}
 
-			return true;
+			parameterHosts = new List<TestHost> ();
+
+			if (Attribute.Repeat != 0)
+				parameterHosts.Add (new RepeatedTestHost (Attribute.Repeat, TestFlags.Browsable));
+
+			var properties = Type.DeclaredProperties.ToArray ();
+			for (int i = properties.Length - 1; i >= 0; i--) {
+				var member = ReflectionHelper.GetPropertyInfo (properties [i]);
+
+				foreach (var host in ReflectionTestCase.ResolveParameter (member))
+					parameterHosts.Add (new ReflectionPropertyHost (this, properties [i], host));
+			}
+
+			parameterHosts.Add (new FixtureTestHost (this));
 		}
 
 		internal static void Resolve (
@@ -112,21 +126,6 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 		internal override TestInvoker CreateInvoker (TestContext context)
 		{
 			var invoker = ReflectionTestFixtureInvoker.Create (context, this);
-
-			var parameterHosts = new List<TestHost> ();
-
-			if (Attribute.Repeat != 0)
-				parameterHosts.Add (new RepeatedTestHost (Attribute.Repeat, TestFlags.Browsable));
-
-			var properties = Type.DeclaredProperties.ToArray ();
-			for (int i = properties.Length - 1; i >= 0; i--) {
-				var member = ReflectionHelper.GetPropertyInfo (properties [i]);
-
-				foreach (var host in ReflectionTestCase.ResolveParameter (context, member))
-					parameterHosts.Add (new ReflectionPropertyHost (this, properties [i], host));
-			}
-
-			parameterHosts.Add (new FixtureTestHost (this));
 
 			foreach (var parameter in parameterHosts) {
 				invoker = parameter.CreateInvoker (invoker);
