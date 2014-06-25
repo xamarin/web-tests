@@ -106,17 +106,17 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			}
 		}
 
-		async Task<bool> ReuseInstance (TestContext context, TestResult result, CancellationToken cancellationToken)
+		async Task<bool> MoveNext (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
-			context.Debug (3, "ReuseInstance({0}): {1} {2} {3}", context.GetCurrentTestName ().FullName,
+			context.Debug (3, "MoveNext({0}): {1} {2} {3}", context.GetCurrentTestName ().FullName,
 				Print (Host), Flags, Print (context.Instance));
 
 			if (ParameterizedHost == null)
 				return true;
 
 			try {
-				context.CurrentTestName.PushName ("ReuseInstance");
-				await ParameterizedHost.ReuseInstance (context, cancellationToken);
+				context.CurrentTestName.PushName ("MoveNext");
+				await ParameterizedHost.MoveNext (context, cancellationToken);
 				return true;
 			} catch (Exception ex) {
 				var error = context.CreateTestResult (ex);
@@ -196,7 +196,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				if (cancellationToken.IsCancellationRequested)
 					break;
 
-				success = await ReuseInstance (context, innerResult, cancellationToken);
+				success = await MoveNext (context, innerResult, cancellationToken);
 				if (!success)
 					break;
 
@@ -224,7 +224,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				if (!success)
 					break;
 
-				if (ParameterizedHost == null || !ParameterizedHost.CanReuseInstance (context))
+				if (ParameterizedHost == null || !ParameterizedHost.HasNext (context))
 					current = current.Next;
 			}
 

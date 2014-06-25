@@ -50,40 +50,30 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			Flags = flags;
 		}
 
-		public bool CanReuseInstance (TestContext context)
+		public bool HasNext (TestContext context)
 		{
 			if (!HasInstance)
 				throw new InvalidOperationException ();
 			if (context.Instance != CurrentInstance)
 				throw new InvalidOperationException ();
-			return CanReuse (context);
+			var instance = (ParameterizedTestInstance)context.Instance;
+			return instance.HasNext ();
 		}
 
-		internal Task ReuseInstance (TestContext context, CancellationToken cancellationToken)
+		internal Task MoveNext (TestContext context, CancellationToken cancellationToken)
 		{
 			if (!HasInstance)
 				throw new InvalidOperationException ();
 			if (context.Instance != CurrentInstance)
 				throw new InvalidOperationException ();
-			return Reuse (context, cancellationToken);
+			var instance = (ParameterizedTestInstance)context.Instance;
+			return instance.MoveNext (context, cancellationToken);
 		}
 
 		protected sealed override Task Initialize (TestContext context, CancellationToken cancellationToken)
 		{
 			var instance = (ParameterizedTestInstance)context.Instance;
 			return instance.Initialize (context, cancellationToken);
-		}
-
-		protected bool CanReuse (TestContext context)
-		{
-			var instance = (ParameterizedTestInstance)context.Instance;
-			return instance.HasNext ();
-		}
-
-		protected Task Reuse (TestContext context, CancellationToken cancellationToken)
-		{
-			var instance = (ParameterizedTestInstance)context.Instance;
-			return instance.MoveNext (context, cancellationToken);
 		}
 
 		protected sealed override Task Destroy (TestContext context, CancellationToken cancellationToken)
