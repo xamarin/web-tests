@@ -37,6 +37,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		List<T> parameters;
 		T current;
 		int index;
+		bool hasSource;
 
 		public Type SourceType {
 			get;
@@ -59,10 +60,27 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			Filter = filter;
 		}
 
+		ParameterSourceInstance (ParameterizedTestHost host, TestInstance parent, ITestParameterSource<T> source, string filter)
+			: base (host, parent)
+		{
+			this.source = source;
+			this.hasSource = true;
+			Filter = filter;
+		}
+
+		public static ParameterizedTestInstance CreateFromSource<T> (
+			ParameterizedTestHost host, TestInstance parent, ITestParameterSource<T> source, string filter)
+		{
+			return new ParameterSourceInstance<T> (host, parent, source, filter);
+		}
+
 		ITestParameterSource<T> CreateSource (TestContext context)
 		{
 			if (SourceType != null)
 				return (ITestParameterSource<T>)Activator.CreateInstance (SourceType);
+
+			if (typeof(T).Equals (typeof(bool)))
+				return (ITestParameterSource<T>)new BooleanTestSource ();
 
 			var instance = context.Instance;
 			while (instance != null) {
@@ -76,10 +94,25 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			throw new InvalidOperationException ();
 		}
 
+		public static ITestParameterSource<bool> CreateBoolean ()
+		{
+			return new BooleanTestSource ();
+		}
+
+		class BooleanTestSource : ITestParameterSource<bool>
+		{
+			public IEnumerable<bool> GetParameters (TestContext context, string filter)
+			{
+				yield return false;
+				yield return true;
+			}
+		}
+
 		public override Task Initialize (TestContext context, CancellationToken cancellationToken)
 		{
 			return Task.Run (() => {
-				source = CreateSource (context);
+				if (!hasSource)
+					source = CreateSource (context);
 				parameters = new List<T> (source.GetParameters (context, Filter));
 				index = 0;
 			});
@@ -101,7 +134,8 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		public override Task Destroy (TestContext context, CancellationToken cancellationToken)
 		{
 			return Task.Run (() => {
-				source = null;
+				if (!hasSource)
+					source = null;
 				parameters = null;
 				index = -1;
 			});

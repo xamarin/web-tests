@@ -104,6 +104,15 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				found = true;
 			}
 
+			if (found)
+				return true;
+
+			if (member.Type.AsType ().Equals (typeof(bool))) {
+				var host = new ParameterSourceHost<bool> (member.Name, new BooleanTestSource (), null);
+				parameterHosts.Add (host);
+				found = true;
+			}
+
 			return found;
 		}
 
@@ -281,6 +290,15 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				TestContext context, TestResult result, CancellationToken cancellationToken)
 			{
 				return Test.Invoke (context, result, cancellationToken);
+			}
+		}
+
+		class BooleanTestSource : ITestParameterSource<bool>
+		{
+			public IEnumerable<bool> GetParameters (TestContext context, string filter)
+			{
+				yield return false;
+				yield return true;
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 ﻿//
-// ParameterizedTestFixture.cs
+// ParameterSourceHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,29 +24,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
+using System.Reflection;
 
-namespace Xamarin.AsyncTests.Sample
+namespace Xamarin.AsyncTests.Framework.Internal
 {
-	using Framework;
-
-	[AsyncTestFixture]
-	public class ParameterizedTestFixture
+	class ParameterSourceHost<T> : ParameterizedTestHost
 	{
-		[TestParameter (typeof (HelloSource))]
-		public string Hello {
-			get; set;
+		public string Name {
+			get;
+			private set;
 		}
 
-		[TestParameter]
-		public bool BooleanParam {
-			get; set;
+		public ITestParameterSource<T> Source {
+			get;
+			private set;
 		}
 
-		[AsyncTest]
-		public void TestHello (TestContext context, bool methodBool)
+		public string Filter {
+			get;
+			private set;
+		}
+
+		public ParameterSourceHost (string name, ITestParameterSource<T> source, string filter, TestFlags flags = TestFlags.None)
+			: base (name, typeof (T).GetTypeInfo (), flags)
 		{
-			context.Log ("HELLO: {0} {1} {2}", Hello, methodBool, BooleanParam);
+			Source = source;
+			Filter = filter;
+		}
+
+		protected override TestInstance CreateInstance (TestContext context)
+		{
+			return ParameterSourceInstance<T>.CreateFromSource (this, context.Instance, Source, Filter);
 		}
 	}
 }

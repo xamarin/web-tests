@@ -6,7 +6,7 @@ namespace Xamarin.AsyncTests.Sample
 {
 	using Framework;
 
-	[AsyncTestFixture]
+	// [AsyncTestFixture]
 	public class SimpleTest : IAsyncTestFixture
 	{
 		int id;
