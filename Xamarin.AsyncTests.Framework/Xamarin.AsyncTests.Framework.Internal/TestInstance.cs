@@ -46,6 +46,12 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			Host = host;
 			Parent = parent;
 		}
+
+		public abstract Task Initialize (TestContext context, CancellationToken cancellationToken);
+
+		public abstract Task ReuseInstance (TestContext context, CancellationToken cancellationToken);
+
+		public abstract Task Destroy (TestContext context, CancellationToken cancellationToken);
 	}
 }
 

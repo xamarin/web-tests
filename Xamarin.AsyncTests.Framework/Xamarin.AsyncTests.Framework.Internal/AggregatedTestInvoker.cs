@@ -106,6 +106,26 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			}
 		}
 
+		async Task<bool> ReuseInstance (TestContext context, TestResult result, CancellationToken cancellationToken)
+		{
+			context.Debug (3, "ReuseInstance({0}): {1} {2} {3}", context.GetCurrentTestName ().FullName,
+				Print (Host), Flags, Print (context.Instance));
+
+			try {
+				context.CurrentTestName.PushName ("ReuseInstance");
+				for (var instance = context.Instance; instance != null; instance = instance.Parent) {
+					await instance.ReuseInstance (context, cancellationToken);
+				}
+				return true;
+			} catch (Exception ex) {
+				var error = context.CreateTestResult (ex);
+				result.AddChild (error);
+				return false;
+			} finally {
+				context.CurrentTestName.PopName ();
+			}
+		}
+
 		async Task<bool> MoveNext (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
 			context.Debug (3, "MoveNext({0}): {1} {2} {3}", context.GetCurrentTestName ().FullName,
@@ -126,6 +146,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				context.CurrentTestName.PopName ();
 			}
 		}
+
 
 		async Task<bool> InvokeInner (TestContext context, TestResult result, TestInvoker invoker, CancellationToken cancellationToken)
 		{

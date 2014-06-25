@@ -88,6 +88,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 					throw new InvalidOperationException ();
 
 				yield return new CustomHostAttributeTestHost (member.Name, member.Type, hostAttr);
+				yield break;
 			}
 
 			bool found = false;

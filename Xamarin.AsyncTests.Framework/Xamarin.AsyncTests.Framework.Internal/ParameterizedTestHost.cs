@@ -70,18 +70,6 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			return instance.MoveNext (context, cancellationToken);
 		}
 
-		protected sealed override Task Initialize (TestContext context, CancellationToken cancellationToken)
-		{
-			var instance = (ParameterizedTestInstance)context.Instance;
-			return instance.Initialize (context, cancellationToken);
-		}
-
-		protected sealed override Task Destroy (TestContext context, CancellationToken cancellationToken)
-		{
-			var instance = (ParameterizedTestInstance)context.Instance;
-			return instance.Destroy (context, cancellationToken);
-		}
-
 		public static ParameterizedTestHost CreateBoolean (string name)
 		{
 			var source = CreateBooleanSource ();

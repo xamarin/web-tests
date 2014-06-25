@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Internal
 {
+	[Obsolete]
 	class FixtureTestHost : TestHost
 	{
 		public TestFixture Fixture {
@@ -45,16 +46,6 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		internal override TestInstance CreateInstance (TestContext context)
 		{
 			return new TestFixtureInstance (this);
-		}
-
-		protected override Task Initialize (TestContext context, CancellationToken cancellationToken)
-		{
-			return Fixture.InitializeInstance (context, cancellationToken);
-		}
-
-		protected override Task Destroy (TestContext context, CancellationToken cancellationToken)
-		{
-			return Fixture.DestroyInstance (context, cancellationToken);
 		}
 	}
 }

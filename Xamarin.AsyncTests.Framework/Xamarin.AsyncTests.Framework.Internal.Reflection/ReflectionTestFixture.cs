@@ -140,8 +140,14 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			var fixtureInstance = instance.Instance as IAsyncTestFixture;
 			if (fixtureInstance != null)
 				await fixtureInstance.SetUp (context, cancellationToken);
+		}
 
-			context.Debug (5, "INITIALIZE INSTANCE", instance);
+		internal override async Task ReuseInstance (TestContext context, CancellationToken cancellationToken)
+		{
+			var instance = (TestFixtureInstance)context.Instance;
+			var fixtureInstance = instance.Instance as IAsyncTestFixture;
+			if (fixtureInstance != null)
+				await fixtureInstance.ReuseInstance (context, cancellationToken);
 		}
 
 		internal override async Task DestroyInstance (TestContext context, CancellationToken cancellationToken)

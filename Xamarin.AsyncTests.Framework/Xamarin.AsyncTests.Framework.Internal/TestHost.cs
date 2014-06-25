@@ -60,7 +60,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				currentInstance = instance;
 				parentInstance = context.Instance;
 				context.Instance = instance;
-				await Initialize (context, cancellationToken);
+				await instance.Initialize (context, cancellationToken);
 			} catch {
 				context.Instance = parentInstance;
 				currentInstance = null;
@@ -76,7 +76,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			if (context.Instance != currentInstance)
 				throw new InvalidOperationException ();
 			try {
-				await Destroy (context, cancellationToken);
+				await currentInstance.Destroy (context, cancellationToken);
 			} finally {
 				context.Instance = parentInstance;
 				currentInstance = null;
@@ -85,10 +85,6 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		}
 
 		internal abstract TestInstance CreateInstance (TestContext context);
-
-		protected abstract Task Initialize (TestContext context, CancellationToken cancellationToken);
-
-		protected abstract Task Destroy (TestContext context, CancellationToken cancellationToken);
 
 		internal TestInvoker CreateInvoker (TestInvoker inner)
 		{

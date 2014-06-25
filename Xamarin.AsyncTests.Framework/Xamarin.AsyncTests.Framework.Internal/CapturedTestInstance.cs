@@ -48,6 +48,11 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			return Task.FromResult<object> (null);
 		}
 
+		public override Task ReuseInstance (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.FromResult<object> (null);
+		}
+
 		public override bool HasNext ()
 		{
 			return false;

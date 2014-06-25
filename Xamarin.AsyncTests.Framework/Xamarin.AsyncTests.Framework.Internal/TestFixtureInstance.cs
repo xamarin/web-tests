@@ -32,6 +32,11 @@ namespace Xamarin.AsyncTests.Framework.Internal
 {
 	class TestFixtureInstance : TestInstance
 	{
+		public TestFixture Fixture {
+			get;
+			private set;
+		}
+
 		public object Instance {
 			get;
 			private set;
@@ -40,7 +45,23 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		public TestFixtureInstance (FixtureTestHost host)
 			: base (host, null)
 		{
+			Fixture = host.Fixture;
 			Instance = Activator.CreateInstance (host.Fixture.Type.AsType ());
+		}
+
+		public override Task Initialize (TestContext context, CancellationToken cancellationToken)
+		{
+			return Fixture.InitializeInstance (context, cancellationToken);
+		}
+
+		public override Task ReuseInstance (TestContext context, CancellationToken cancellationToken)
+		{
+			return Fixture.ReuseInstance (context, cancellationToken);
+		}
+
+		public override Task Destroy (TestContext context, CancellationToken cancellationToken)
+		{
+			return Fixture.DestroyInstance (context, cancellationToken);
 		}
 	}
 }

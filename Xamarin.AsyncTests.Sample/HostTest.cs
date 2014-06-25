@@ -31,7 +31,7 @@ namespace Xamarin.AsyncTests.Sample
 {
 	using Framework;
 
-	// [AsyncTestFixture]
+	[AsyncTestFixture]
 	public class HostTest
 	{
 		[TestHost (typeof (MyHost))]
@@ -62,6 +62,13 @@ namespace Xamarin.AsyncTests.Sample
 				await Task.Delay (2500, cancellationToken);
 				context.Log ("INITIALIZE DONE: {0}!", instance);
 				return instance;
+			}
+
+			public async Task ReuseInstance (TestContext context, MyInstance instance, CancellationToken cancellationToken)
+			{
+				context.Log ("REUSE INSTANCE: {0}!", instance);
+				await Task.Delay (500, cancellationToken);
+				context.Log ("REUSE INSTANCE DONE: {0}!", instance);
 			}
 
 			public async Task Destroy (TestContext context, MyInstance instance, CancellationToken cancellationToken)

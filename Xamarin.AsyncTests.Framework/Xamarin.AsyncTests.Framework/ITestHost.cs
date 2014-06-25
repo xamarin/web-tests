@@ -34,6 +34,8 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
 
+		Task ReuseInstance (TestContext context, T instance, CancellationToken cancellationToken);
+
 		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
 	}
 }

@@ -6,7 +6,7 @@ namespace Xamarin.AsyncTests.Sample
 {
 	using Framework;
 
-	// [AsyncTestFixture]
+	[AsyncTestFixture]
 	public class SimpleTest : IAsyncTestFixture
 	{
 		int id;
@@ -17,6 +17,13 @@ namespace Xamarin.AsyncTests.Sample
 			return Task.Run (() => {
 				id = ++next_id;
 				context.Log ("SETUP: {0}", id);
+			});
+		}
+
+		public Task ReuseInstance (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => {
+				context.Log ("REUSE INSTANCE: {0}", id);
 			});
 		}
 

@@ -69,6 +69,12 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			instance = await customHost.Initialize (context, cancellationToken);
 		}
 
+		public override async Task ReuseInstance (TestContext context, CancellationToken cancellationToken)
+		{
+			customHost = GetHost (context);
+			await customHost.ReuseInstance (context, instance, cancellationToken);
+		}
+
 		public override bool HasNext ()
 		{
 			return false;
