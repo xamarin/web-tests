@@ -1,5 +1,5 @@
 ﻿//
-// ParameterSourceHost.cs
+// City.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,38 +24,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Sample
 {
-	class ParameterSourceHost<T> : ParameterizedTestHost
+	public enum City
 	{
-		public string Name {
-			get;
-			private set;
-		}
-
-		public ITestParameterSource<T> Source {
-			get;
-			private set;
-		}
-
-		public string Filter {
-			get;
-			private set;
-		}
-
-		public ParameterSourceHost (string name, ITestParameterSource<T> source, string filter, TestFlags flags = TestFlags.None)
-			: base (name, typeof (T).GetTypeInfo (), flags)
-		{
-			Source = source;
-			Filter = filter;
-		}
-
-		protected override TestInstance CreateInstance (TestContext context)
-		{
-			return ParameterSourceInstance<T>.CreateFromSource (this, context.Instance, Source, Filter);
-		}
+		Boston,
+		Moscow,
+		Berlin,
+		Rome
 	}
 }
 

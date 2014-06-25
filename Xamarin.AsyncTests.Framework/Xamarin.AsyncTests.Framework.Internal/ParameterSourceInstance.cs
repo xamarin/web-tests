@@ -68,7 +68,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			Filter = filter;
 		}
 
-		public static ParameterizedTestInstance CreateFromSource<T> (
+		public static ParameterizedTestInstance CreateFromSource (
 			ParameterizedTestHost host, TestInstance parent, ITestParameterSource<T> source, string filter)
 		{
 			return new ParameterSourceInstance<T> (host, parent, source, filter);
@@ -78,9 +78,10 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		{
 			if (SourceType != null)
 				return (ITestParameterSource<T>)Activator.CreateInstance (SourceType);
-
-			if (typeof(T).Equals (typeof(bool)))
-				return (ITestParameterSource<T>)new BooleanTestSource ();
+			else if (typeof(T).Equals (typeof(bool)))
+				return (ITestParameterSource<T>)ParameterizedTestHost.CreateBooleanSource ();
+			else if (typeof(T).GetTypeInfo ().IsEnum)
+				return (ITestParameterSource<T>)ParameterizedTestHost.CreateEnumSource<T> ();
 
 			var instance = context.Instance;
 			while (instance != null) {
@@ -92,20 +93,6 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			}
 
 			throw new InvalidOperationException ();
-		}
-
-		public static ITestParameterSource<bool> CreateBoolean ()
-		{
-			return new BooleanTestSource ();
-		}
-
-		class BooleanTestSource : ITestParameterSource<bool>
-		{
-			public IEnumerable<bool> GetParameters (TestContext context, string filter)
-			{
-				yield return false;
-				yield return true;
-			}
 		}
 
 		public override Task Initialize (TestContext context, CancellationToken cancellationToken)

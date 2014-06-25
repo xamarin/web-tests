@@ -33,20 +33,25 @@ namespace Xamarin.AsyncTests.Sample
 	[AsyncTestFixture]
 	public class ParameterizedTestFixture
 	{
+		string theHello;
+
 		[TestParameter (typeof (HelloSource))]
 		public string Hello {
-			get; set;
+			get { return theHello; }
+			set {
+				theHello = value;
+			}
 		}
 
-		[TestParameter]
-		public bool BooleanParam {
+		[TestParameter (typeof (HelloSource))]
+		public string Hello2 {
 			get; set;
 		}
 
 		[AsyncTest]
-		public void TestHello (TestContext context, bool methodBool)
+		public void TestHello (TestContext context)
 		{
-			context.Log ("HELLO: {0} {1} {2}", Hello, methodBool, BooleanParam);
+			context.Log ("HELLO: {0} {1}", Hello, Hello2);
 		}
 	}
 }

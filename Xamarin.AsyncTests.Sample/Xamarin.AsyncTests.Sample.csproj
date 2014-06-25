@@ -44,6 +44,7 @@
     <Compile Include="HelloSource.cs" />
     <Compile Include="HostTest.cs" />
     <Compile Include="ParameterizedTestFixture.cs" />
+    <Compile Include="City.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Reflection;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -58,5 +59,6 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		public abstract Task MoveNext (TestContext context, CancellationToken cancellationToken);
 
 		public abstract Task Destroy (TestContext context, CancellationToken cancellationToken);
+
 	}
 }

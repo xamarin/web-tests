@@ -84,7 +84,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			}
 		}
 
-		protected abstract TestInstance CreateInstance (TestContext context);
+		internal abstract TestInstance CreateInstance (TestContext context);
 
 		protected abstract Task Initialize (TestContext context, CancellationToken cancellationToken);
 

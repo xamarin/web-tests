@@ -75,7 +75,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				expectedExceptionType = expectedException.ExceptionType.GetTypeInfo ();
 		}
 
-		internal static bool ResolveParameter (TestContext context, IMemberInfo member, List<TestHost> parameterHosts)
+		internal static IEnumerable<ParameterizedTestHost> ResolveParameter (TestContext context, IMemberInfo member)
 		{
 			if (typeof(ITestInstance).GetTypeInfo ().IsAssignableFrom (member.Type)) {
 				var hostAttr = member.GetCustomAttribute<TestHostAttribute> ();
@@ -84,36 +84,39 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				if (hostAttr == null)
 					throw new InvalidOperationException ();
 
-				parameterHosts.Add (new CustomHostAttributeTestHost (member.Name, member.Type, hostAttr));
-				return true;
+				yield return new CustomHostAttributeTestHost (member.Name, member.Type, hostAttr);
 			}
 
 			bool found = false;
 			var paramAttrs = member.GetCustomAttributes<TestParameterSourceAttribute> ();
 			foreach (var paramAttr in paramAttrs) {
-				parameterHosts.Add (new ParameterAttributeTestHost (member.Name, member.Type, paramAttr));
+				yield return new ParameterAttributeTestHost (member.Name, member.Type, paramAttr);
 				found = true;
 			}
 
 			if (found)
-				return true;
+				yield break;
 
 			paramAttrs = member.Type.GetCustomAttributes<TestParameterSourceAttribute> ();
 			foreach (var paramAttr in paramAttrs) {
-				parameterHosts.Add (new ParameterAttributeTestHost (member.Name, member.Type, paramAttr));
+				yield return new ParameterAttributeTestHost (member.Name, member.Type, paramAttr);
 				found = true;
 			}
 
 			if (found)
-				return true;
+				yield break;
 
 			if (member.Type.AsType ().Equals (typeof(bool))) {
-				var host = new ParameterSourceHost<bool> (member.Name, new BooleanTestSource (), null);
-				parameterHosts.Add (host);
-				found = true;
+				yield return ParameterizedTestHost.CreateBoolean (member.Name);
+				yield break;
 			}
 
-			return found;
+			if (member.Type.IsEnum) {
+				yield return ParameterizedTestHost.CreateEnum (member.Type, member.Name);
+				yield break;
+			}
+
+			throw new InvalidOperationException ();
 		}
 
 		internal override TestInvoker CreateInvoker (TestContext context)
@@ -134,8 +137,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 					continue;
 
 				var member = ReflectionHelper.GetParameterInfo (parameters [i]);
-				if (!ResolveParameter (context, member, parameterHosts))
-					throw new InvalidOperationException ();
+				parameterHosts.AddRange (ResolveParameter (context, member));
 			}
 
 			foreach (var parameter in parameterHosts) {
@@ -199,8 +201,13 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				instance = instance.Parent;
 			}
 
-			if (instance != null && instance.Host is RepeatedTestHost)
+			while (instance != null) {
+				if (instance is TestFixtureInstance)
+					break;
+				else if (!(instance.Host is RepeatedTestHost || instance.Host is ReflectionPropertyHost))
+					throw new InvalidOperationException ();
 				instance = instance.Parent;
+			}
 
 			object thisInstance = null;
 			if (!Method.IsStatic) {
@@ -290,15 +297,6 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				TestContext context, TestResult result, CancellationToken cancellationToken)
 			{
 				return Test.Invoke (context, result, cancellationToken);
-			}
-		}
-
-		class BooleanTestSource : ITestParameterSource<bool>
-		{
-			public IEnumerable<bool> GetParameters (TestContext context, string filter)
-			{
-				yield return false;
-				yield return true;
 			}
 		}
 	}
