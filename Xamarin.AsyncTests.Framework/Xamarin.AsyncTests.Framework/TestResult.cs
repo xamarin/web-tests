@@ -126,6 +126,13 @@ namespace Xamarin.AsyncTests.Framework
 			get { return messages; }
 		}
 
+		public int CountChildrenOfStatus (TestStatus status)
+		{
+			if (children.Count == 0)
+				return Status == status ? 1 : 0;
+			return children.Sum (child => child.CountChildrenOfStatus (status));
+		}
+
 		void OnMessagesChanged ()
 		{
 			OnPropertyChanged ("Messages");

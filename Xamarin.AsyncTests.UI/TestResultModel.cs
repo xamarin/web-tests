@@ -74,9 +74,9 @@ namespace Xamarin.AsyncTests.UI
 			if (!result.HasChildren || !string.IsNullOrEmpty (result.Message))
 				return result.Message;
 
-			var numSuccess = result.Children.Count (t => t.Status == TestStatus.Success);
-			var numWarnings = result.Children.Count (t => t.Status == TestStatus.Warning);
-			var numErrors = result.Children.Count (t => t.Status == TestStatus.Error);
+			var numSuccess = result.CountChildrenOfStatus (TestStatus.Success);
+			var numWarnings = result.CountChildrenOfStatus (TestStatus.Warning);
+			var numErrors = result.CountChildrenOfStatus (TestStatus.Error);
 
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("{0} tests passed", numSuccess);
