@@ -44,16 +44,16 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		public TestResult Result {
-			get;
-			private set;
+			get { return Model.Result; }
 		}
 
 		public TestResultModel Model {
-			get;
-			private set;
+			get { return TestRunner.ResultModel; }
 		}
 
-		CancellationTokenSource cancelCts;
+		public TestRunnerModel TestRunner {
+			get { return App.RootTestRunner; }
+		}
 
 		public MainPage (TestApp app)
 		{
@@ -61,44 +61,9 @@ namespace Xamarin.AsyncTests.UI
 
 			InitializeComponent ();
 
-			RunButton.Clicked += (sender, e) => Run ();
+			BindingContext = TestRunner;
 
-			StopButton.Clicked += (sender, e) => cancelCts.Cancel ();
-
-			app.AssemblyLoadedEvent += (sender, e) => RunButton.IsEnabled = true;
-
-			Result = new TestResult (new TestName (null));
-			Model = new TestResultModel (app, Result);
-			BindingContext = Model;
-		}
-
-		async void Run ()
-		{
-			cancelCts = new CancellationTokenSource ();
-			RunButton.IsEnabled = false;
-			StopButton.IsEnabled = true;
-			Message ("Running ...");
-			try {
-				Result.Clear ();
-				await App.Run (Result, cancelCts.Token);
-				Message ("Done.");
-			} catch (TaskCanceledException) {
-				Message ("Canceled!");
-			} catch (OperationCanceledException) {
-				Message ("Canceled!");
-			} catch (Exception ex) {
-				Message ("ERROR: {0}", ex.Message);
-			} finally {
-				StopButton.IsEnabled = false;
-				cancelCts.Dispose ();
-				cancelCts = null;
-				RunButton.IsEnabled = true;
-			}
-		}
-
-		internal void Message (string format, params object[] args)
-		{
-			Label.Text = string.Format (format, args);
+			Appearing += (sender, e) => App.CurrentTestRunner = App.RootTestRunner;
 		}
 	}
 }

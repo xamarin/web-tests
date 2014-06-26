@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
@@ -38,23 +40,13 @@ namespace Xamarin.AsyncTests.UI
 			InitializeComponent ();
 		}
 
-		protected override void OnBindingContextChanged ()
+		async void OnItemSelected (object sender, SelectedItemChangedEventArgs args)
 		{
-			SetResult ((TestResultModel)BindingContext);
-			base.OnBindingContextChanged ();
-		}
+			var selected = (TestResult)args.SelectedItem;
+			var model = (TestResultModel)BindingContext;
 
-		void SetResult (TestResultModel model)
-		{
-			if (model == null)
-				return;
-			model.Result.PropertyChanged += (sender, e) => OnPropertyChanged ("Result");
-
-			List.ItemSelected += (sender, e) => {
-				var child = (TestResult)e.SelectedItem;
-				child.Print (model.App.Context);
-				Navigation.PushAsync (new TestResultPage (model.App, child));
-			};
+			var page = new TestResultPage (model.App, selected);
+			await Navigation.PushAsync (page);
 		}
 	}
 }

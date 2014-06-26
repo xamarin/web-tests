@@ -179,13 +179,6 @@ namespace Xamarin.AsyncTests.Framework
 				PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
 		}
 
-		public void Print (TestContext context)
-		{
-			context.Log ("RESULT: {0} {1}", this, children.Count);
-			foreach (var child in children)
-				context.Log ("  CHILD: {0} {1}", child, child.children.Count);
-		}
-
 		public override string ToString ()
 		{
 			return string.Format ("[TestResult: Name={0}, Status={1}, Message={2}, Error={3}]", Name, Status, Message, Error);

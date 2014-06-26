@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.ComponentModel;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Threading;
@@ -34,7 +35,7 @@ namespace Xamarin.AsyncTests.UI
 {
 	using Framework;
 
-	public class TestApp
+	public class TestApp : INotifyPropertyChanged
 	{
 		public TestSuite TestSuite {
 			get;
@@ -56,10 +57,63 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public TestResultModel RootTestResult {
+			get;
+			private set;
+		}
+
+		public TestRunnerModel RootTestRunner {
+			get;
+			private set;
+		}
+
+		string statusMessage;
+		public string StatusMessage {
+			get { return statusMessage; }
+			set {
+				statusMessage = value;
+				OnPropertyChanged ("StatusMessage");
+			}
+		}
+
+		TestRunnerModel currentRunner;
+		public TestRunnerModel CurrentTestRunner {
+			get { return currentRunner; }
+			set {
+				currentRunner = value;
+				OnPropertyChanged ("CurrentTestRunner");
+				OnPropertyChanged ("CanRun");
+				OnPropertyChanged ("CanStop");
+			}
+		}
+
+		bool running;
+		public bool IsRunning {
+			get { return running; }
+			set {
+				running = value;
+				OnPropertyChanged ("IsRunning");
+				OnPropertyChanged ("CanStop");
+				OnPropertyChanged ("CanRun");
+			}
+		}
+
+		public bool CanStop {
+			get { return running; }
+		}
+
+		public bool CanRun {
+			get { return !running && CurrentTestRunner.Test != null; }
+		}
+
 		public TestApp (string name)
 		{
 			TestSuite = new TestSuite ();
 			Context = new TestContext ();
+
+			var result = new TestResult (new TestName (null));
+			RootTestResult = new TestResultModel (this, result);
+			RootTestRunner = currentRunner = new TestRunnerModel (this, RootTestResult);
 
 			MainPage = new MainPage (this);
 			Root = new NavigationPage (MainPage);
@@ -68,23 +122,54 @@ namespace Xamarin.AsyncTests.UI
 		public async void LoadAssembly (Assembly assembly)
 		{
 			var name = assembly.GetName ().Name;
-			MainPage.Message ("Loading {0}", name);
+			StatusMessage = string.Format ("Loading {0}", name);
 			var test = await TestSuite.LoadAssembly (assembly);
-			MainPage.Message ("Successfully loaded {0} tests from {1}.", test.Count, name);
-			OnAssemblyLoaded (assembly);
+			RootTestResult.Result.Test = test.Resolve (Context);
+			StatusMessage = string.Format ("Successfully loaded {0} tests from {1}.", test.Count, name);
 		}
 
-		protected void OnAssemblyLoaded (Assembly assembly)
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged (string propertyName)
 		{
-			if (AssemblyLoadedEvent != null)
-				AssemblyLoadedEvent (this, assembly);
+			if (PropertyChanged != null)
+				PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
 		}
 
-		public event EventHandler<Assembly> AssemblyLoadedEvent;
+		CancellationTokenSource cancelCts;
 
-		public Task Run (TestResult result, CancellationToken cancellationToken)
+		internal async void Run ()
 		{
-			return TestSuite.Run (Context, result, cancellationToken);
+			if (!CanRun || IsRunning)
+				return;
+
+			cancelCts = new CancellationTokenSource ();
+			IsRunning = true;
+			StatusMessage = "Running ...";
+
+			try {
+				CurrentTestRunner.ResultModel.Result.Clear ();
+				await CurrentTestRunner.Run (cancelCts.Token);
+				StatusMessage = "Done.";
+			} catch (TaskCanceledException) {
+				StatusMessage = "Canceled!";
+			} catch (OperationCanceledException) {
+				StatusMessage = "Canceled!";
+			} catch (Exception ex) {
+				StatusMessage = string.Format ("ERROR: {0}", ex.Message);
+			} finally {
+				IsRunning = false;
+				cancelCts.Dispose ();
+				cancelCts = null;
+			}
+		}
+
+		internal void Stop ()
+		{
+			if (!IsRunning || cancelCts == null)
+				return;
+
+			cancelCts.Cancel ();
 		}
 	}
 }

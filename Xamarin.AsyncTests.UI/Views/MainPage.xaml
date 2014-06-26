@@ -7,16 +7,11 @@
 
     <StackLayout Spacing="10" Orientation="Vertical">
 
-        <StackLayout Spacing="20" Orientation="Horizontal">
-            <Button x:Name="RunButton" Text="Run" IsEnabled="false" />
-            <Button x:Name="StopButton" Text="Stop" IsEnabled="false" />
-        </StackLayout>
+        <local:TestRunnerControl />
 
         <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
-            <local:TestResultView />
+            <local:TestResultView BindingContext="{Binding ResultModel}" />
         </ScrollView>
-
-    	<Label x:Name="Label" Font="12" Text="Hello" VerticalOptions="End" />
 
     </StackLayout>
 </ContentPage>

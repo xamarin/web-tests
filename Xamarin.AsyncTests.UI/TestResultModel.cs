@@ -33,7 +33,7 @@ namespace Xamarin.AsyncTests.UI
 {
 	using Framework;
 
-	public class TestResultModel : INotifyPropertyChanged
+	public class TestResultModel : BindableObject
 	{
 		public TestApp App {
 			get;
@@ -86,18 +86,6 @@ namespace Xamarin.AsyncTests.UI
 				sb.AppendFormat (", {0} errors", numErrors);
 			return sb.ToString ();
 		}
-
-		#region INotifyPropertyChanged implementation
-
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		protected virtual void OnPropertyChanged (string propertyName)
-		{
-			if (PropertyChanged != null)
-				PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
-		}
-
-		#endregion
 	}
 }
 

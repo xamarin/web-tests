@@ -1,5 +1,5 @@
 ﻿//
-// TestResultPage.xaml.cs
+// TestRunnerControl.xaml.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -23,68 +23,29 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
-{	
-	using Framework;
-
-	public partial class TestResultPage : ContentPage
+{
+	public partial class TestRunnerControl : ContentView
 	{
-		public TestApp App {
-			get;
-			private set;
-		}
-
-		public TestResult Result {
-			get;
-			private set;
-		}
-
-		public TestResultModel Model {
-			get;
-			private set;
-		}
-
-		public TestRunnerModel TestRunner {
-			get;
-			private set;
-		}
-
-		public bool CanRun {
-			get { return Result.CanRun; }
-		}
-
-		public TestResultPage (TestApp app, TestResult result)
+		public TestRunnerControl ()
 		{
-			App = app;
-			Result = result;
-
-			Model = new TestResultModel (app, result);
-			TestRunner = new TestRunnerModel (App, Model);
-
 			InitializeComponent ();
-
-			BindingContext = TestRunner;
-
-			Appearing += (sender, e) => App.CurrentTestRunner = TestRunner;
 		}
 
-		static int countReruns;
-
-		async void Run ()
+		void OnRun (object sender, EventArgs args)
 		{
-			var name = new TestNameBuilder ();
-			name.PushName ("UI-Rerun");
-			name.PushParameter ("$uiTriggeredRerun", ++countReruns);
+			var model = (TestRunnerModel)BindingContext;
+			model.App.Run ();
+		}
 
-			var proxyTest = Result.Test.CreateProxy (App.Context, name.GetName ());
-
-			await proxyTest.Run (App.Context, Result, CancellationToken.None);
+		void OnStop (object sender, EventArgs args)
+		{
+			var model = (TestRunnerModel)BindingContext;
+			model.App.Stop ();
 		}
 	}
 }
