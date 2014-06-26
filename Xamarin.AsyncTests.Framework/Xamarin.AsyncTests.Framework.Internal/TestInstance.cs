@@ -52,6 +52,11 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		public abstract Task ReuseInstance (TestContext context, CancellationToken cancellationToken);
 
 		public abstract Task Destroy (TestContext context, CancellationToken cancellationToken);
+
+		public override string ToString ()
+		{
+			return string.Format ("[{0}: Host={1}, Parent={2}]", GetType ().Name, Host, Parent);
+		}
 	}
 }
 

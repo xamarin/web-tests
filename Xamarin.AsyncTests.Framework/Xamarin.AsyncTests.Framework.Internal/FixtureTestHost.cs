@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 		internal override TestInstance CreateInstance (TestContext context)
 		{
-			return new TestFixtureInstance (this);
+			return new FixtureTestInstance (this);
 		}
 	}
 }

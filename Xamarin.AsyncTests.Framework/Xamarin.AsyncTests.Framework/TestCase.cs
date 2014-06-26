@@ -38,18 +38,9 @@ namespace Xamarin.AsyncTests.Framework {
 
 	public abstract class TestCase
 	{
-		public abstract IEnumerable<string> Categories {
-			get;
-		}
-
 		public TestName Name {
 			get;
 			private set;
-		}
-
-		public bool IsEnabled (string category)
-		{
-			return Categories.Contains (category);
 		}
 
 		public TestCase (TestName name)

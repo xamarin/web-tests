@@ -63,12 +63,6 @@ namespace Xamarin.AsyncTests.Framework
 			return new AggregatedTestInvoker (TestFlags.ContinueOnError, invokers);
 		}
 
-		public override IEnumerable<string> Categories {
-			get {
-				return tests.SelectMany (t => t.Categories);
-			}
-		}
-
 		#endregion
 	}
 }

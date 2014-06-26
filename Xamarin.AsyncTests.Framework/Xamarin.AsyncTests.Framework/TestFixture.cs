@@ -55,12 +55,9 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public abstract int CountTests {
+		public TestCaseCollection Tests {
 			get;
-		}
-
-		public abstract TestCase[] Tests {
-			get;
+			private set;
 		}
 
 		internal TestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)
@@ -69,9 +66,9 @@ namespace Xamarin.AsyncTests.Framework
 			this.Suite = suite;
 			this.Attribute = attr;
 			this.Type = type;
-		}
 
-		public abstract void Resolve ();
+			Tests = new TestCaseCollection ();
+		}
 
 		internal abstract Task InitializeInstance (TestContext context, CancellationToken cancellationToken);
 

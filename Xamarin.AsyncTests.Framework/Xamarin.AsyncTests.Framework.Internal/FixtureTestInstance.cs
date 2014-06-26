@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Internal
 {
-	class TestFixtureInstance : TestInstance
+	class FixtureTestInstance : TestInstance
 	{
 		public TestFixture Fixture {
 			get;
@@ -42,7 +42,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			private set;
 		}
 
-		public TestFixtureInstance (FixtureTestHost host)
+		public FixtureTestInstance (FixtureTestHost host)
 			: base (host, null)
 		{
 			Fixture = host.Fixture;

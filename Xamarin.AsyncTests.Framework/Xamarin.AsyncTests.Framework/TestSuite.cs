@@ -83,7 +83,6 @@ namespace Xamarin.AsyncTests.Framework {
 					continue;
 
 				var fixture = new ReflectionTestFixture (this, attr, tinfo);
-				fixture.Resolve ();
 				collection.Add (fixture);
 			}
 

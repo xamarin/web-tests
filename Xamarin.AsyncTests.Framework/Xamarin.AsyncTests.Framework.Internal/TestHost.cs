@@ -90,6 +90,11 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		{
 			return new AggregatedTestInvoker (this, inner);
 		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[{0}: Flags={1}]", GetType ().Name, Flags);
+		}
 	}
 }
 

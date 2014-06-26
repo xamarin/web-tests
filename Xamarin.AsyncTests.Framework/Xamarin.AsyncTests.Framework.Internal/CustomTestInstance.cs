@@ -53,7 +53,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 			var instance = context.Instance;
 			while (instance != null) {
-				var fixtureInstance = instance as TestFixtureInstance;
+				var fixtureInstance = instance as FixtureTestInstance;
 				if (fixtureInstance != null)
 					return (ITestHost<T>)fixtureInstance.Instance;
 

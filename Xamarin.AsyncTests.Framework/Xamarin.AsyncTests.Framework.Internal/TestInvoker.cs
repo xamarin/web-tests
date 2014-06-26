@@ -33,6 +33,11 @@ namespace Xamarin.AsyncTests.Framework.Internal
 	{
 		public abstract Task<bool> Invoke (TestContext context, TestResult result,
 			CancellationToken cancellationToken);
+
+		public override string ToString ()
+		{
+			return string.Format ("[{0}]", GetType ().Name);
+		}
 	}
 }
 

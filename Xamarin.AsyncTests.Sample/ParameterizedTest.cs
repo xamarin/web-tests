@@ -30,7 +30,7 @@ namespace Xamarin.AsyncTests.Sample
 {
 	using Framework;
 
-	// [AsyncTestFixture]
+	[AsyncTestFixture]
 	public class ParameterizedTest : ITestParameterSource<Foo>
 	{
 		public IEnumerable<Foo> GetParameters (TestContext context, string filter)

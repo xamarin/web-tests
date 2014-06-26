@@ -57,7 +57,6 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				context.Instance = null;
 				context.Log ("CAPTURED INVOKE #0: {0} {1}", Name, context.GetCurrentTestName ());
 				context.CurrentTestName.PushName (Name.Name);
-				// context.CurrentTestName = TestNameBuilder.CreateFromName (Name);
 
 				context.Log ("CAPTURED INVOKE: {0} {1}", result, result.Status);
 				var success = await Invoker.Invoke (context, result, cancellationToken);

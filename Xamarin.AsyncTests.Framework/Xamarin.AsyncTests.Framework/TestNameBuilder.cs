@@ -56,7 +56,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (!string.IsNullOrEmpty (name.Name))
 				builder.PushName (name.Name);
 			if (name.HasParameters) {
-				foreach (var entry in name.Parameters) {
+				foreach (var entry in name.Parameters.Reverse ()) {
 					builder.PushParameter (entry.Key, entry.Value);
 				}
 			}

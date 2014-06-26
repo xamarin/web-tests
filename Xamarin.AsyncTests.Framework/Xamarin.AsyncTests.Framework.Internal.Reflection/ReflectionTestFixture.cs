@@ -35,32 +35,16 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 {
 	class ReflectionTestFixture : TestFixture
 	{
-		List<ReflectionTestCase> tests;
-		IList<string> categories;
 		List<TestHost> parameterHosts;
-
-		public override IEnumerable<string> Categories {
-			get { return categories; }
-		}
-
-		public override int CountTests {
-			get { return tests.Count; }
-		}
-
-		public override TestCase[] Tests {
-			get { return tests.ToArray (); }
-		}
 
 		public ReflectionTestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)
 			: base (suite, attr, type)
 		{
-			Resolve (suite, null, type, out categories);
+			ResolveParameters ();
 		}
 
-		public override void Resolve ()
+		void ResolveParameters ()
 		{
-			tests = new List<ReflectionTestCase> ();
-
 			foreach (var method in Type.DeclaredMethods) {
 				if (method.IsStatic || !method.IsPublic)
 					continue;
@@ -68,7 +52,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				if (attr == null)
 					continue;
 
-				tests.Add (new ReflectionTestCase (this, attr, method));
+				Tests.Add (new ReflectionTestCase (this, attr, method));
 			}
 
 			parameterHosts = new List<TestHost> ();
@@ -87,45 +71,9 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			parameterHosts.Add (new FixtureTestHost (this));
 		}
 
-		internal static void Resolve (
-			TestSuite suite, TestFixture parent, MemberInfo member, out IList<string> categories)
-		{
-			categories = new List<string> ();
-
-			if (parent != null) {
-				foreach (var category in parent.Categories)
-					categories.Add (category);
-			}
-
-			string fullName;
-			if (member is TypeInfo)
-				fullName = ((TypeInfo)member).FullName;
-			else if (member is MethodInfo) {
-				var method = (MethodInfo)member;
-				fullName = method.DeclaringType.FullName + "." + method.Name;
-			} else {
-				fullName = member.ToString ();
-			}
-
-			var attrs = member.GetCustomAttributes (typeof(TestCategoryAttribute), false);
-
-			foreach (var obj in attrs) {
-				var category = obj as TestCategoryAttribute;
-				if (category == null)
-					continue;
-
-				if (categories.Contains (category.Name)) {
-					Debug.WriteLine ("Duplicate [{0}] in {1}.", category.Name, fullName);
-					continue;
-				}
-
-				categories.Add (category.Name);
-			}
-		}
-
 		internal override TestInvoker CreateInvoker (TestContext context)
 		{
-			var invoker = ReflectionTestFixtureInvoker.Create (context, this);
+			var invoker = Tests.CreateInvoker (context);
 
 			foreach (var parameter in parameterHosts) {
 				invoker = parameter.CreateInvoker (invoker);
@@ -136,7 +84,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 		internal override async Task InitializeInstance (TestContext context, CancellationToken cancellationToken)
 		{
-			var instance = (TestFixtureInstance)context.Instance;
+			var instance = (FixtureTestInstance)context.Instance;
 			var fixtureInstance = instance.Instance as IAsyncTestFixture;
 			if (fixtureInstance != null)
 				await fixtureInstance.SetUp (context, cancellationToken);
@@ -144,7 +92,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 		internal override async Task ReuseInstance (TestContext context, CancellationToken cancellationToken)
 		{
-			var instance = (TestFixtureInstance)context.Instance;
+			var instance = (FixtureTestInstance)context.Instance;
 			var fixtureInstance = instance.Instance as IAsyncTestFixture;
 			if (fixtureInstance != null)
 				await fixtureInstance.ReuseInstance (context, cancellationToken);
@@ -152,39 +100,10 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 		internal override async Task DestroyInstance (TestContext context, CancellationToken cancellationToken)
 		{
-			var instance = (TestFixtureInstance)context.Instance;
+			var instance = (FixtureTestInstance)context.Instance;
 			var fixtureInstance = instance.Instance as IAsyncTestFixture;
 			if (fixtureInstance != null)
 				await fixtureInstance.TearDown (context, cancellationToken);
-		}
-
-		internal IEnumerable<ReflectionTestCase> Filter (TestContext context)
-		{
-			return tests.Where (t => context.Filter (t));
-		}
-
-		class ReflectionTestFixtureInvoker : AggregatedTestInvoker
-		{
-			ReflectionTestFixtureInvoker ()
-				: base (TestFlags.None)
-			{
-			}
-
-			public static TestInvoker Create (TestContext context, ReflectionTestFixture fixture)
-			{
-				var selected = fixture.Filter (context);
-				var invoker = new ReflectionTestFixtureInvoker ();
-				invoker.Resolve (context, selected);
-				return invoker;
-			}
-
-			public void Resolve (TestContext context, IEnumerable<TestCase> selectedTests)
-			{
-				foreach (var test in selectedTests) {
-					var invoker = test.CreateInvoker (context);
-					InnerTestInvokers.Add (invoker);
-				}
-			}
 		}
 	}
 }

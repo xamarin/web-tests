@@ -94,10 +94,10 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				return Instance.HasNext ();
 			}
 
-			static TestFixtureInstance GetFixtureInstance (TestContext context)
+			static FixtureTestInstance GetFixtureInstance (TestContext context)
 			{
 				for (var instance = context.Instance; instance != null; instance = instance.Parent) {
-					var fixtureInstance = instance as TestFixtureInstance;
+					var fixtureInstance = instance as FixtureTestInstance;
 					if (fixtureInstance != null)
 						return fixtureInstance;
 				}

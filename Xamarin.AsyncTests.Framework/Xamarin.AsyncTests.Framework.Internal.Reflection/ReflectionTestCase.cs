@@ -49,15 +49,10 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			private set;
 		}
 
-		public override IEnumerable<string> Categories {
-			get { return categories; }
-		}
-
 		public TypeInfo ExpectedExceptionType {
 			get { return expectedExceptionType; }
 		}
 
-		IList<string> categories;
 		ExpectedExceptionAttribute expectedException;
 		TypeInfo expectedExceptionType;
 		List<TestHost> parameterHosts;
@@ -68,8 +63,6 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			Fixture = fixture;
 			Attribute = attr;
 			Method = method;
-
-			ReflectionTestFixture.Resolve (fixture.Suite, fixture, method, out categories);
 
 			expectedException = method.GetCustomAttribute<ExpectedExceptionAttribute> ();
 			if (expectedException != null)
@@ -210,16 +203,20 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			}
 
 			while (instance != null) {
-				if (instance is TestFixtureInstance)
+				if (instance is FixtureTestInstance)
 					break;
-				else if (!(instance.Host is RepeatedTestHost || instance.Host is ReflectionPropertyHost))
+				var host = instance.Host;
+				var capturedHost = host as CapturedTestHost;
+				if (capturedHost != null)
+					host = capturedHost.Parent;
+				if (!(host is RepeatedTestHost || host is ReflectionPropertyHost))
 					throw new InvalidOperationException ();
 				instance = instance.Parent;
 			}
 
 			object thisInstance = null;
 			if (!Method.IsStatic) {
-				var fixtureInstance = instance as TestFixtureInstance;
+				var fixtureInstance = instance as FixtureTestInstance;
 				if (fixtureInstance == null)
 					throw new InvalidOperationException ();
 				thisInstance = fixtureInstance.Instance;

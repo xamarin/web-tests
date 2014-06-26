@@ -190,8 +190,8 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			if (InnerTestInvokers.Count == 0)
 				return true;
 
-			context.Debug (3, "Invoke({0}): {1} {2} {3}", context.GetCurrentTestName ().FullName,
-				Print (Host), Flags, Print (context.Instance));
+			context.Debug (3, "Invoke({0}): {1} {2} {3} {4}", context.GetCurrentTestName ().FullName,
+				Print (Host), Flags, Print (context.Instance), InnerTestInvokers.Count);
 
 			var oldResult = context.CurrentResult;
 
@@ -229,13 +229,13 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				if (capturedTest != null)
 					context.CurrentTestName.PushCapture (capturedTest);
 
-				context.Debug (5, "InnerInvoke({0}): {1} {2}", context.GetCurrentTestName ().FullName,
-					IsBrowsable, Host != null);
+				context.Debug (5, "InnerInvoke({0}): {1} {2} {3} {4}", context.GetCurrentTestName ().FullName,
+					Print (Host), Print (context.Instance), invoker, InnerTestInvokers.Count);
 
 				success = await InvokeInner (context, innerResult, invoker, cancellationToken);
 
-				context.Debug (5, "InnerInvoke({0}) done: {1} {2} {3}", context.GetCurrentTestName ().FullName,
-					IsBrowsable, Host != null, success);
+				context.Debug (5, "InnerInvoke({0}) done: {1} {2} {3} {4}", context.GetCurrentTestName ().FullName,
+					IsBrowsable, Print (Host), Print (context.Instance), success);
 
 				if (capturedTest != null)
 					context.CurrentTestName.PopCapture ();
@@ -264,6 +264,8 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				return null;
 
 			var capture = CaptureContext (context.GetCurrentTestName (), context.Instance, invoker);
+			context.Debug (5, "CaptureContext({0}): {1} {2} {3} -> {4}", context.GetCurrentTestName (),
+				Print (context.Instance), Print (Host), invoker, Print (capture));
 			if (capture == null)
 				return null;
 
@@ -272,14 +274,14 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 		static TestInvoker CaptureContext (TestName name, TestInstance instance, TestInvoker invoker)
 		{
-			if (instance.Parent != null)
-				invoker = CaptureContext (name, instance.Parent, invoker);
-
 			var parameterizedInstance = instance as ParameterizedTestInstance;
 			if (parameterizedInstance != null) {
 				var host = new CapturedTestHost (name, parameterizedInstance.Host, parameterizedInstance.Current);
-				return new AggregatedTestInvoker (host, invoker);
+				invoker = new AggregatedTestInvoker (host, invoker);
 			}
+
+			if (instance.Parent != null)
+				return CaptureContext (name, instance.Parent, invoker);
 
 			return new AggregatedTestInvoker (instance.Host, invoker);
 		}

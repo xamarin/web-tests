@@ -54,13 +54,11 @@
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\TestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\ParameterSourceInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\FixtureTestHost.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework.Internal\TestFixtureInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ITestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ITestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\CustomTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ParameterAttributeTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\CustomHostAttributeTestHost.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework.Internal\TestFixtureInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\IAsyncTestFixture.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\RepeatedTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestResult.cs" />
@@ -76,6 +74,7 @@
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\IMemberInfo.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ReflectionHelper.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ReflectionPropertyHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Internal\FixtureTestInstance.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>
