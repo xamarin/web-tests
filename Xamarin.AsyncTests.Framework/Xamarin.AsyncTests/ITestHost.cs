@@ -1,5 +1,5 @@
 ﻿//
-// AssertionException.cs
+// ITestHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,20 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	public class AssertionException : Exception
+	public interface ITestHost<T>
+		where T : ITestInstance
 	{
-		public AssertionException (string message)
-			: base (message)
-		{
-		}
+		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
 
-		public AssertionException (string message, Exception inner)
-			: base (message, inner)
-		{
-		}
+		Task ReuseInstance (TestContext context, T instance, CancellationToken cancellationToken);
+
+		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
 	}
 }
 

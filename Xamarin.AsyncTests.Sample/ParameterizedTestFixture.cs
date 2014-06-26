@@ -28,8 +28,6 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Sample
 {
-	using Framework;
-
 	[AsyncTestFixture]
 	public class ParameterizedTestFixture
 	{

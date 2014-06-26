@@ -1,5 +1,5 @@
 ﻿//
-// ITestParameterSource.cs
+// IAsyncTestFixture.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,13 +24,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	public interface ITestParameterSource<T>
+	public interface IAsyncTestFixture
 	{
-		IEnumerable<T> GetParameters (TestContext context, string filter);
+		Task SetUp (TestContext context, CancellationToken cancellationToken);
+
+		Task ReuseInstance (TestContext context, CancellationToken cancellationToken);
+
+		Task TearDown (TestContext context, CancellationToken cancellationToken);
 	}
 }
 

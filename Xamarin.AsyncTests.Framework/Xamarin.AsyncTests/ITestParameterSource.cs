@@ -1,5 +1,5 @@
 ﻿//
-// ITestInstance.cs
+// ITestParameterSource.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,11 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	public interface ITestInstance
+	public interface ITestParameterSource<T>
 	{
+		IEnumerable<T> GetParameters (TestContext context, string filter);
 	}
 }
 

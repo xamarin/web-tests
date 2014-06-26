@@ -36,8 +36,10 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework {
-	using Internal;
+namespace Xamarin.AsyncTests
+{
+	using Framework;
+	using Framework.Internal;
 
 	public class TestContext : IDisposable {
 		int debugLevel = DefaultDebugLevel;

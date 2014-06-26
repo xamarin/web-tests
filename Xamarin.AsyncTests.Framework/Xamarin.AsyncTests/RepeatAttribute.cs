@@ -1,5 +1,5 @@
 ﻿//
-// IAsyncTestFixture.cs
+// RepeatAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,18 +24,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	public interface IAsyncTestFixture
+	[AttributeUsage (AttributeTargets.Parameter, AllowMultiple = false)]
+	public sealed class RepeatAttribute : TestParameterAttribute
 	{
-		Task SetUp (TestContext context, CancellationToken cancellationToken);
+		public int Count {
+			get;
+			private set;
+		}
 
-		Task ReuseInstance (TestContext context, CancellationToken cancellationToken);
+		public RepeatAttribute (int count, TestFlags flags = TestFlags.Browsable)
+			: base (typeof (RepeatedTestSource), count.ToString (), flags)
+		{
+			Count = count;
+		}
 
-		Task TearDown (TestContext context, CancellationToken cancellationToken);
+		internal class RepeatedTestSource : ITestParameterSource<int>
+		{
+			public IEnumerable<int> GetParameters (TestContext context, string filter)
+			{
+				int count = int.Parse (filter);
+				if (count < 0) {
+					int index = 0;
+					while (true)
+						yield return index++;
+				} else {
+					for (int i = 1; i <= count; i++)
+						yield return i;
+				}
+			}
+		}
 	}
 }
 

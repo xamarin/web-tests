@@ -1,5 +1,5 @@
 ﻿//
-// ExpectedExceptionAttribute.cs
+// TestHostAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,19 +25,30 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
-	public class ExpectedExceptionAttribute : Attribute
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Parameter, AllowMultiple = false)]
+	public class TestHostAttribute : Attribute
 	{
-		public Type ExceptionType {
+		public Type HostType {
 			get;
 			private set;
 		}
 
-		public ExpectedExceptionAttribute (Type exceptionType)
+		public TestFlags Flags {
+			get;
+			private set;
+		}
+
+		public TestHostAttribute (Type type, TestFlags flags = TestFlags.None)
 		{
-			ExceptionType = exceptionType;
+			HostType = type;
+			Flags = flags;
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[TestHostAttribute: Type={0}, Flags={1}]", HostType, Flags);
 		}
 	}
 }

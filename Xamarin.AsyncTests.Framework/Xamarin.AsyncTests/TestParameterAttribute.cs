@@ -1,5 +1,5 @@
 ﻿//
-// TestParameterSourceAttribute.cs
+// TestParameterAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,30 +25,36 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
-	public class TestParameterSourceAttribute : Attribute
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = true)]
+	public class TestParameterAttribute : TestParameterSourceAttribute
 	{
-		public Type SourceType {
+		public string Filter {
 			get;
 			private set;
 		}
 
-		public TestFlags Flags {
-			get;
-			private set;
-		}
-
-		public TestParameterSourceAttribute (Type sourceType, TestFlags flags = TestFlags.Browsable)
+		public TestParameterAttribute (string filter, TestFlags flags = TestFlags.Browsable)
+			: this (null, filter, flags)
 		{
-			SourceType = sourceType;
-			Flags = flags;
+		}
+
+		public TestParameterAttribute (Type sourceType = null, string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (sourceType, flags)
+		{
+			Filter = filter;
+		}
+
+		string Print (object value)
+		{
+			return value != null ? value.ToString () : "<null>";
 		}
 
 		public override string ToString ()
 		{
-			return string.Format ("[TestParameterAttribute: SourceType={0}]", SourceType);
+			return string.Format ("[TestParameterAttribute: SourceType={0}, Filter={1}, Flags={2}]",
+				Print (SourceType), Print (Filter), Flags);
 		}
 	}
 }

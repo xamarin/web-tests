@@ -1,5 +1,5 @@
 ﻿//
-// RepeatFlags.cs
+// TestParameterSourceAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,15 +25,31 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	[Flags]
-	public enum TestFlags
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
+	public class TestParameterSourceAttribute : Attribute
 	{
-		None = 0,
-		ContinueOnError = 1,
-		Browsable = 2,
-		FlattenHierarchy = 4
+		public Type SourceType {
+			get;
+			private set;
+		}
+
+		public TestFlags Flags {
+			get;
+			private set;
+		}
+
+		public TestParameterSourceAttribute (Type sourceType, TestFlags flags = TestFlags.Browsable)
+		{
+			SourceType = sourceType;
+			Flags = flags;
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[TestParameterAttribute: SourceType={0}]", SourceType);
+		}
 	}
 }
 

@@ -1,5 +1,5 @@
 //
-// Xamarin.AsyncTests.Framework.AsyncTestAttribute
+// Xamarin.AsyncTests.Framework.TestCategoryAttribute
 //
 // Authors:
 //      Martin Baulig (martin.baulig@gmail.com)
@@ -28,13 +28,18 @@
 //
 using System;
 
-namespace Xamarin.AsyncTests.Framework {
+namespace Xamarin.AsyncTests
+{
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
+	public sealed class TestCategoryAttribute : Attribute {
+		public string Name {
+			get;
+			private set;
+		}
 
-	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
-	public class AsyncTestAttribute : Attribute {
-		public int Repeat {
-			get; set;
+		public TestCategoryAttribute (string name)
+		{
+			Name = name;
 		}
 	}
-
 }

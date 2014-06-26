@@ -1,5 +1,5 @@
 ﻿//
-// ITestHost.cs
+// ExpectedExceptionAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,19 +24,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	public interface ITestHost<T>
-		where T : ITestInstance
+	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
+	public class ExpectedExceptionAttribute : Attribute
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
+		public Type ExceptionType {
+			get;
+			private set;
+		}
 
-		Task ReuseInstance (TestContext context, T instance, CancellationToken cancellationToken);
-
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		public ExpectedExceptionAttribute (Type exceptionType)
+		{
+			ExceptionType = exceptionType;
+		}
 	}
 }
 

@@ -1,5 +1,5 @@
 //
-// Xamarin.AsyncTests.Framework.TestCategoryAttribute
+// Xamarin.AsyncTests.Framework.AsyncTestFixtureAttribute
 //
 // Authors:
 //      Martin Baulig (martin.baulig@gmail.com)
@@ -27,19 +27,11 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 using System;
+using System.Threading;
 
-namespace Xamarin.AsyncTests.Framework {
-
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
-	public sealed class TestCategoryAttribute : Attribute {
-		public string Name {
-			get;
-			private set;
-		}
-
-		public TestCategoryAttribute (string name)
-		{
-			Name = name;
-		}
+namespace Xamarin.AsyncTests
+{
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
+	public class AsyncTestFixtureAttribute : AsyncTestAttribute {
 	}
 }

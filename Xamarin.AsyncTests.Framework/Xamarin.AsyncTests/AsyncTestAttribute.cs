@@ -1,5 +1,5 @@
 //
-// Xamarin.AsyncTests.Framework.AsyncTestFixtureAttribute
+// Xamarin.AsyncTests.Framework.AsyncTestAttribute
 //
 // Authors:
 //      Martin Baulig (martin.baulig@gmail.com)
@@ -27,11 +27,14 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 using System;
-using System.Threading;
 
-namespace Xamarin.AsyncTests.Framework {
-
-	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
-	public class AsyncTestFixtureAttribute : AsyncTestAttribute {
+namespace Xamarin.AsyncTests
+{
+	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
+	public class AsyncTestAttribute : Attribute {
+		public int Repeat {
+			get; set;
+		}
 	}
+
 }

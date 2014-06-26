@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Sample
 {
-	using Framework;
-
 	[AsyncTestFixture]
 	public class SimpleTest : IAsyncTestFixture
 	{

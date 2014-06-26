@@ -1,5 +1,5 @@
 ﻿//
-// TestHostAttribute.cs
+// RepeatFlags.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,31 +25,15 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Parameter, AllowMultiple = false)]
-	public class TestHostAttribute : Attribute
+	[Flags]
+	public enum TestFlags
 	{
-		public Type HostType {
-			get;
-			private set;
-		}
-
-		public TestFlags Flags {
-			get;
-			private set;
-		}
-
-		public TestHostAttribute (Type type, TestFlags flags = TestFlags.None)
-		{
-			HostType = type;
-			Flags = flags;
-		}
-
-		public override string ToString ()
-		{
-			return string.Format ("[TestHostAttribute: Type={0}, Flags={1}]", HostType, Flags);
-		}
+		None = 0,
+		ContinueOnError = 1,
+		Browsable = 2,
+		FlattenHierarchy = 4
 	}
 }
 
