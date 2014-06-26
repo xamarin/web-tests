@@ -29,7 +29,6 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Internal
 {
-	[Obsolete]
 	class FixtureTestHost : TestHost
 	{
 		public TestFixture Fixture {
