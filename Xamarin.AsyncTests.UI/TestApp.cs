@@ -113,7 +113,7 @@ namespace Xamarin.AsyncTests.UI
 
 			var result = new TestResult (new TestName (null));
 			RootTestResult = new TestResultModel (this, result);
-			RootTestRunner = currentRunner = new TestRunnerModel (this, RootTestResult);
+			RootTestRunner = currentRunner = new TestRunnerModel (this, RootTestResult, true);
 
 			MainPage = new MainPage (this);
 			Root = new NavigationPage (MainPage);
@@ -148,7 +148,6 @@ namespace Xamarin.AsyncTests.UI
 			StatusMessage = "Running ...";
 
 			try {
-				CurrentTestRunner.ResultModel.Result.Clear ();
 				await CurrentTestRunner.Run (cancelCts.Token);
 				StatusMessage = "Done.";
 			} catch (TaskCanceledException) {

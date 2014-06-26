@@ -49,15 +49,35 @@ namespace Xamarin.AsyncTests.UI
 			get { return ResultModel.Result.Test; }
 		}
 
-		public TestRunnerModel (TestApp app, TestResultModel model)
+		public bool IsRoot {
+			get;
+			private set;
+		}
+
+		public TestRunnerModel (TestApp app, TestResultModel model, bool isRoot)
 		{
 			App = app;
 			ResultModel = model;
+			IsRoot = isRoot;
 		}
+
+		static int countReruns;
 
 		public Task Run (CancellationToken cancellationToken)
 		{
-			return Test.Run (App.Context, ResultModel.Result, cancellationToken);
+			var test = Test;
+
+			if (!IsRoot) {
+				var name = new TestNameBuilder ();
+				name.PushName ("UI-Rerun");
+				name.PushParameter ("$uiTriggeredRerun", ++countReruns);
+
+				test = test.CreateProxy (App.Context, name.GetName ());
+			} else {
+				ResultModel.Result.Clear ();
+			}
+
+			return test.Run (App.Context, ResultModel.Result, cancellationToken);
 		}
 	}
 }

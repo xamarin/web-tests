@@ -45,7 +45,7 @@ namespace Xamarin.AsyncTests.Framework {
 		List<IDisposable> disposables;
 		TestNameBuilder currentTestName = new TestNameBuilder ();
 
-		const int DefaultDebugLevel = 0;
+		const int DefaultDebugLevel = 10;
 
 		public int DebugLevel {
 			get { return debugLevel; }

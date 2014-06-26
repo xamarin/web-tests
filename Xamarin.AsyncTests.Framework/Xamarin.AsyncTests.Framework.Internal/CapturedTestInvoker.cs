@@ -56,6 +56,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			try {
 				context.Instance = null;
 				context.Log ("CAPTURED INVOKE #0: {0} {1}", Name, context.GetCurrentTestName ());
+				context.CurrentTestName.PushName (Name.Name);
 				// context.CurrentTestName = TestNameBuilder.CreateFromName (Name);
 
 				context.Log ("CAPTURED INVOKE: {0} {1}", result, result.Status);
@@ -66,6 +67,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				context.Log ("CAPTURED INVOKE FAILED: {0}", ex);
 				return false;
 			} finally {
+				context.CurrentTestName.PopName ();
 				context.Instance = oldInstance;
 				context.CurrentTestName = oldName;
 			}

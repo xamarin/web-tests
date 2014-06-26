@@ -260,7 +260,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 		TestCase CaptureContext (TestContext context, TestInvoker invoker)
 		{
-			if (context.CurrentTestName.IsCaptured || Host is CapturedTestHost || Host == null)
+			if (context.CurrentTestName.IsCaptured || Host is CapturedTestHost || context.Instance == null)
 				return null;
 
 			var capture = CaptureContext (context.GetCurrentTestName (), context.Instance, invoker);

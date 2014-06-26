@@ -65,7 +65,7 @@ namespace Xamarin.AsyncTests.UI
 			Result = result;
 
 			Model = new TestResultModel (app, result);
-			TestRunner = new TestRunnerModel (App, Model);
+			TestRunner = new TestRunnerModel (App, Model, false);
 
 			InitializeComponent ();
 
