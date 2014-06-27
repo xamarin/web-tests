@@ -34,12 +34,13 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 {
 	class ReflectionTestSuite : TestSuite
 	{
-		List<TestCase> tests;
+		List<ReflectionTest> tests;
+		TestInvoker invoker;
 
 		ReflectionTestSuite (TestName name)
 			: base (name)
 		{
-			tests = new List<TestCase> ();
+			tests = new List<ReflectionTest> ();
 		}
 
 		public override IEnumerable<string> Categories {
@@ -75,12 +76,14 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				var fixture = new ReflectionTestFixture (this, attr, tinfo);
 				tests.Add (fixture);
 			}
+
+			var invokers = tests.Select (t => t.Invoker).ToArray ();
+			invoker = new AggregatedTestInvoker (TestFlags.ContinueOnError, invokers);
 		}
 
-		internal override TestInvoker CreateInvoker ()
+		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
 		{
-			var invokers = tests.Select (t => t.CreateInvoker ()).ToArray ();
-			return new AggregatedTestInvoker (TestFlags.ContinueOnError, invokers);
+			return invoker.Invoke (ctx, null, result, cancellationToken);
 		}
 	}
 }

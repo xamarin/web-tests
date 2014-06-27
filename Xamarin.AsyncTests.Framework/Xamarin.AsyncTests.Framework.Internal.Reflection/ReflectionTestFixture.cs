@@ -60,7 +60,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 					continue;
 
 				var test = new ReflectionTestCase (this, attr, method);
-				aggregatedInvoker.InnerTestInvokers.Add (test.CreateInvoker ());
+				aggregatedInvoker.InnerTestInvokers.Add (test.Invoker);
 				tests.Add (test);
 			}
 

@@ -46,6 +46,10 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			get { return categories; }
 		}
 
+		internal TestInvoker Invoker {
+			get { return invoker; }
+		}
+
 		public ReflectionTest (TestName name, AsyncTestAttribute attr, IMemberInfo member)
 			: base (name)
 		{
@@ -108,9 +112,9 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 		protected abstract TestInvoker Resolve ();
 
-		internal override TestInvoker CreateInvoker ()
+		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
 		{
-			return invoker;
+			return invoker.Invoke (ctx, null, result, cancellationToken);
 		}
 	}
 }

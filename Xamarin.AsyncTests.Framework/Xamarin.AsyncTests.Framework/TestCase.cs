@@ -52,13 +52,6 @@ namespace Xamarin.AsyncTests.Framework {
 			get;
 		}
 
-		internal abstract TestInvoker CreateInvoker ();
-
-		public Task<bool> Run (TestContext ctx, TestResult result,
-			CancellationToken cancellationToken)
-		{
-			var invoker = CreateInvoker ();
-			return invoker.Invoke (ctx, null, result, cancellationToken);
-		}
+		public abstract Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken);
 	}
 }
