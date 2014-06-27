@@ -34,16 +34,16 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 {
 	class ReflectionTestSuite : TestSuite
 	{
-		TestCaseCollection tests;
+		List<TestCase> tests;
 
 		ReflectionTestSuite (TestName name)
 			: base (name)
 		{
-			tests = new TestCaseCollection ();
+			tests = new List<TestCase> ();
 		}
 
 		public override IEnumerable<string> Categories {
-			get { return tests.Tests.SelectMany (test => test.Categories).Distinct (); }
+			get { return tests.SelectMany (test => test.Categories).Distinct (); }
 		}
 
 		public static Task<TestSuite> Create (Assembly assembly)
@@ -79,7 +79,8 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 		internal override TestInvoker CreateInvoker ()
 		{
-			return tests.CreateInvoker ();
+			var invokers = tests.Select (t => t.CreateInvoker ()).ToArray ();
+			return new AggregatedTestInvoker (TestFlags.ContinueOnError, invokers);
 		}
 	}
 }

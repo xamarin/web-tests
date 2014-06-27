@@ -35,8 +35,8 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 {
 	class ReflectionTestFixture : TestFixture
 	{
-		List<TestHost> parameterHosts;
-		IEnumerable<string> categories;
+		readonly IEnumerable<string> categories;
+		readonly TestInvoker invoker;
 
 		public override IEnumerable<string> Categories {
 			get { return categories; }
@@ -45,12 +45,17 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 		public ReflectionTestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)
 			: base (suite, attr, type)
 		{
-			ResolveParameters ();
 			categories = ReflectionTestCase.GetCategories (ReflectionHelper.GetTypeInfo (type));
+
+			invoker = Resolve ();
 		}
 
-		void ResolveParameters ()
+		TestInvoker Resolve ()
 		{
+			var aggregatedInvoker = new AggregatedTestInvoker (TestFlags.ContinueOnError);
+
+			var tests = new List<TestCase> ();
+
 			foreach (var method in Type.DeclaredMethods) {
 				if (method.IsStatic || !method.IsPublic)
 					continue;
@@ -58,10 +63,12 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				if (attr == null)
 					continue;
 
-				Tests.Add (new ReflectionTestCase (this, attr, method));
+				var test = new ReflectionTestCase (this, attr, method);
+				aggregatedInvoker.InnerTestInvokers.Add (test.CreateInvoker ());
+				tests.Add (test);
 			}
 
-			parameterHosts = new List<TestHost> ();
+			var parameterHosts = new List<TestHost> ();
 
 			if (Attribute.Repeat != 0)
 				parameterHosts.Add (new RepeatedTestHost (Attribute.Repeat, TestFlags.Browsable));
@@ -75,17 +82,19 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			}
 
 			parameterHosts.Add (new FixtureTestHost (this));
-		}
 
-		internal override TestInvoker CreateInvoker ()
-		{
-			var invoker = Tests.CreateInvoker ();
+			TestInvoker invoker = aggregatedInvoker;
 
 			foreach (var parameter in parameterHosts) {
 				invoker = parameter.CreateInvoker (invoker);
 			}
 
 			return new ProxyTestInvoker (Name.Name, invoker);
+		}
+
+		internal override TestInvoker CreateInvoker ()
+		{
+			return invoker;
 		}
 	}
 }

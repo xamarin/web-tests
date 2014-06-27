@@ -55,19 +55,12 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		internal TestCaseCollection Tests {
-			get;
-			private set;
-		}
-
 		internal TestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)
 			: base (new TestName (type.Name))
 		{
 			this.Suite = suite;
 			this.Attribute = attr;
 			this.Type = type;
-
-			Tests = new TestCaseCollection ();
 		}
 	}
 }
