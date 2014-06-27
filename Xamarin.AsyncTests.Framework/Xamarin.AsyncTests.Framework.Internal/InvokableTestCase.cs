@@ -49,7 +49,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			Invoker = invoker;
 		}
 
-		internal override TestInvoker CreateInvoker (TestContext context)
+		internal override TestInvoker CreateInvoker ()
 		{
 			return Invoker;
 		}

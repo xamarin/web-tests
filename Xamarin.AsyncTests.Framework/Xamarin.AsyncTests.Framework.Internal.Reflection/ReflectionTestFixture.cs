@@ -71,9 +71,9 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			parameterHosts.Add (new FixtureTestHost (this));
 		}
 
-		internal override TestInvoker CreateInvoker (TestContext context)
+		internal override TestInvoker CreateInvoker ()
 		{
-			var invoker = Tests.CreateInvoker (context);
+			var invoker = Tests.CreateInvoker ();
 
 			foreach (var parameter in parameterHosts) {
 				invoker = parameter.CreateInvoker (invoker);

@@ -57,9 +57,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		#region implemented abstract members of TestCase
 
-		internal override TestInvoker CreateInvoker (TestContext context)
+		internal override TestInvoker CreateInvoker ()
 		{
-			var invokers = tests.Select (t => t.CreateInvoker (context)).ToArray ();
+			var invokers = tests.Select (t => t.CreateInvoker ()).ToArray ();
 			return new AggregatedTestInvoker (TestFlags.ContinueOnError, invokers);
 		}
 

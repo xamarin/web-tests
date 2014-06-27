@@ -137,7 +137,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			}
 		}
 
-		internal override TestInvoker CreateInvoker (TestContext context)
+		internal override TestInvoker CreateInvoker ()
 		{
 			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
 
