@@ -38,9 +38,6 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests
 {
-	using Framework;
-	using Framework.Internal;
-
 	public class TestContext : IDisposable {
 		int debugLevel = DefaultDebugLevel;
 		List<TestResult> warnings;

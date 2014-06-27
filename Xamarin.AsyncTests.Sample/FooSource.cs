@@ -28,8 +28,6 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Sample
 {
-	using Framework;
-
 	public class FooSource : ITestParameterSource<IFoo>
 	{
 		public IEnumerable<IFoo> GetParameters (TestContext context, string filter)

@@ -27,7 +27,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
 	public class TestNameBuilder
 	{

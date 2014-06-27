@@ -88,5 +88,9 @@
       <Project>{50F3B858-C105-4599-8B52-81372E172F47}</Project>
       <Name>Xamarin.AsyncTests.Sample</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
+      <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
+      <Name>Xamarin.AsyncTests</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

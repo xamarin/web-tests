@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Xamarin.AsyncTests</RootNamespace>
+    <AssemblyName>Xamarin.AsyncTests</AssemblyName>
+    <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\Xamarin.AsyncTests.snk</AssemblyOriginatorKeyFile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Xamarin.AsyncTests\AssertionException.cs" />
+    <Compile Include="Xamarin.AsyncTests\AsyncTestAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests\AsyncTestFixtureAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests\ExpectedExceptionAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests\ITestHost.cs" />
+    <Compile Include="Xamarin.AsyncTests\ITestInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests\ITestParameterSource.cs" />
+    <Compile Include="Xamarin.AsyncTests\RepeatAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestCase.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestCategoryAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestContext.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestFlags.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestHostAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestName.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestParameterAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestParameterSourceAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestResult.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestStatus.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestNameBuilder.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+</Project>
