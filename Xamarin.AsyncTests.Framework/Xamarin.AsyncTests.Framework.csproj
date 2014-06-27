@@ -28,7 +28,6 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCase.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestFixture.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestStatus.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\ParameterizedTestInstance.cs" />
@@ -40,7 +39,6 @@
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\TestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\TestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\ParameterSourceInstance.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework.Internal\FixtureTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\CustomTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ParameterAttributeTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\CustomHostAttributeTestHost.cs" />
@@ -73,6 +71,7 @@
     <Compile Include="Xamarin.AsyncTests\TestHostAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\TestCategoryAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ReflectionTestSuite.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ReflectionTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

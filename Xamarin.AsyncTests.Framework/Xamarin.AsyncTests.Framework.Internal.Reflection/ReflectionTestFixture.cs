@@ -33,24 +33,20 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 {
-	class ReflectionTestFixture : TestFixture
+	class ReflectionTestFixture : ReflectionTest
 	{
-		readonly IEnumerable<string> categories;
-		readonly TestInvoker invoker;
-
-		public override IEnumerable<string> Categories {
-			get { return categories; }
+		public TypeInfo Type {
+			get;
+			private set;
 		}
 
 		public ReflectionTestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)
-			: base (suite, attr, type)
+			: base (suite.Name, attr, ReflectionHelper.GetTypeInfo (type))
 		{
-			categories = ReflectionTestCase.GetCategories (ReflectionHelper.GetTypeInfo (type));
-
-			invoker = Resolve ();
+			Type = type;
 		}
 
-		TestInvoker Resolve ()
+		protected override TestInvoker Resolve ()
 		{
 			var aggregatedInvoker = new AggregatedTestInvoker (TestFlags.ContinueOnError);
 
@@ -77,11 +73,11 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			for (int i = properties.Length - 1; i >= 0; i--) {
 				var member = ReflectionHelper.GetPropertyInfo (properties [i]);
 
-				foreach (var host in ReflectionTestCase.ResolveParameter (member))
+				foreach (var host in ReflectionTest.ResolveParameter (member))
 					parameterHosts.Add (new ReflectionPropertyHost (this, properties [i], host));
 			}
 
-			parameterHosts.Add (new FixtureTestHost (this));
+			parameterHosts.Add (new ReflectionTestFixtureHost (this));
 
 			TestInvoker invoker = aggregatedInvoker;
 
@@ -92,9 +88,42 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			return new ProxyTestInvoker (Name.Name, invoker);
 		}
 
-		internal override TestInvoker CreateInvoker ()
+		class ReflectionTestFixtureHost : TestHost
 		{
-			return invoker;
+			public ReflectionTestFixture Fixture {
+				get;
+				private set;
+			}
+
+			public ReflectionTestFixtureHost (ReflectionTestFixture fixture)
+			{
+				Flags = TestFlags.ContinueOnError;
+				Fixture = fixture;
+			}
+
+			internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
+			{
+				return new ReflectionTestFixtureInstance (this);
+			}
+		}
+
+		class ReflectionTestFixtureInstance : FixtureTestInstance
+		{
+			public ReflectionTestFixture Fixture {
+				get;
+				private set;
+			}
+
+			public ReflectionTestFixtureInstance (ReflectionTestFixtureHost host)
+				: base (host)
+			{
+				Fixture = host.Fixture;
+			}
+
+			internal override object CreateInstance ()
+			{
+				return Activator.CreateInstance (Fixture.Type.AsType ());
+			}
 		}
 	}
 }

@@ -32,14 +32,9 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 {
-	class ReflectionTestCase : TestCase
+	class ReflectionTestCase : ReflectionTest
 	{
 		public ReflectionTestFixture Fixture {
-			get;
-			private set;
-		}
-
-		public AsyncTestAttribute Attribute {
 			get;
 			private set;
 		}
@@ -53,84 +48,23 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			get { return expectedExceptionType; }
 		}
 
-		public override IEnumerable<string> Categories {
-			get { return categories; }
-		}
-
-		ExpectedExceptionAttribute expectedException;
-		TypeInfo expectedExceptionType;
-		List<TestHost> parameterHosts;
-		IEnumerable<string> categories;
+		readonly ExpectedExceptionAttribute expectedException;
+		readonly TypeInfo expectedExceptionType;
 
 		public ReflectionTestCase (ReflectionTestFixture fixture, AsyncTestAttribute attr, MethodInfo method)
-			: base (new TestName (method.Name))
+			: base (new TestName (method.Name), attr, ReflectionHelper.GetMethodInfo (method))
 		{
 			Fixture = fixture;
-			Attribute = attr;
 			Method = method;
 
 			expectedException = method.GetCustomAttribute<ExpectedExceptionAttribute> ();
 			if (expectedException != null)
 				expectedExceptionType = expectedException.ExceptionType.GetTypeInfo ();
-
-			ResolveParameters ();
-			categories = GetCategories (ReflectionHelper.GetMethodInfo (method));
 		}
 
-		internal static IEnumerable<ParameterizedTestHost> ResolveParameter (IMemberInfo member)
+		protected override TestInvoker Resolve ()
 		{
-			if (typeof(ITestInstance).GetTypeInfo ().IsAssignableFrom (member.Type)) {
-				var hostAttr = member.GetCustomAttribute<TestHostAttribute> ();
-				if (hostAttr == null)
-					hostAttr = member.Type.GetCustomAttribute<TestHostAttribute> ();
-				if (hostAttr == null)
-					throw new InvalidOperationException ();
-
-				yield return new CustomHostAttributeTestHost (member.Name, member.Type, hostAttr);
-				yield break;
-			}
-
-			bool found = false;
-			var paramAttrs = member.GetCustomAttributes<TestParameterSourceAttribute> ();
-			foreach (var paramAttr in paramAttrs) {
-				yield return new ParameterAttributeTestHost (member.Name, member.Type, paramAttr);
-				found = true;
-			}
-
-			if (found)
-				yield break;
-
-			paramAttrs = member.Type.GetCustomAttributes<TestParameterSourceAttribute> ();
-			foreach (var paramAttr in paramAttrs) {
-				yield return new ParameterAttributeTestHost (member.Name, member.Type, paramAttr);
-				found = true;
-			}
-
-			if (found)
-				yield break;
-
-			if (member.Type.AsType ().Equals (typeof(bool))) {
-				yield return ParameterizedTestHost.CreateBoolean (member.Name);
-				yield break;
-			}
-
-			if (member.Type.IsEnum) {
-				yield return ParameterizedTestHost.CreateEnum (member.Type, member.Name);
-				yield break;
-			}
-
-			throw new InvalidOperationException ();
-		}
-
-		internal static IEnumerable<string> GetCategories (IMemberInfo member)
-		{
-			foreach (var cattr in member.GetCustomAttributes<TestCategoryAttribute> ())
-				yield return cattr.Name;
-		}
-
-		void ResolveParameters ()
-		{
-			parameterHosts = new List<TestHost> ();
+			var parameterHosts = new List<TestHost> ();
 
 			if (Attribute.Repeat != 0)
 				parameterHosts.Add (new RepeatedTestHost (Attribute.Repeat, TestFlags.Browsable));
@@ -147,10 +81,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				var member = ReflectionHelper.GetParameterInfo (parameters [i]);
 				parameterHosts.AddRange (ResolveParameter (member));
 			}
-		}
 
-		internal override TestInvoker CreateInvoker ()
-		{
 			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
 
 			foreach (var parameter in parameterHosts) {
