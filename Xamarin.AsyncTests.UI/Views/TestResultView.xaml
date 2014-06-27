@@ -15,15 +15,15 @@
 
         <local:TestNameView BindingContext="{Binding Result.Name}" />
 
-        <Label Text="{Binding Result.Status, Converter={StaticResource converter}}" Font="12"
+        <Label Text="{Binding Result.Status, Converter={StaticResource converter}}"
                TextColor="{Binding Result.Status, Converter={StaticResource converter}}" />
-        <Label Text="{Binding Summary}" Font="12" />
+        <Label Text="{Binding Summary}" />
 
-        <Label Text="{Binding Result.Error, Converter={StaticResource converter}}" Font="10"
+        <Label Text="{Binding Result.Error, Converter={StaticResource converter}}"
                IsVisible="{Binding Result.Error, Converter={StaticResource converter}, ConverterParameter='not-null'}" />
 
         <ListView IsVisible="{Binding Result.HasChildren}" ItemsSource="{Binding Result.Children}"
-                  ItemSelected="OnItemSelected" RowHeight="13">
+                  ItemSelected="OnItemSelected">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
@@ -32,7 +32,7 @@
 
                                 <Label Text="{Binding Name, Converter={StaticResource converter}}"
                                        TextColor="{Binding Status, Converter={StaticResource converter}}"
-                                       Font="10" HorizontalOptions="FillAndExpand" />
+                                       HorizontalOptions="FillAndExpand" />
 
                             </StackLayout>
                         </ViewCell.View>

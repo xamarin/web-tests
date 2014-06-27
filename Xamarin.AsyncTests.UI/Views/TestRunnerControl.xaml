@@ -11,7 +11,7 @@
             <Button Text="Stop" IsEnabled="{Binding App.CanStop}" Clicked="OnStop" />
         </StackLayout>
 
-    	<Label Font="12" Text="{Binding App.StatusMessage}" VerticalOptions="End" />
+    	<Label Text="{Binding App.StatusMessage}" VerticalOptions="End" />
 
     </StackLayout>
 

@@ -16,9 +16,9 @@
 
         <StackLayout Orientation="Vertical">
 
-            <Label Text="{Binding Name}" Font="14" />
+            <Label Text="{Binding Name}" />
 
-            <ListView RowHeight="12" ItemsSource="{Binding Parameters}" IsVisible="{Binding HasParameters}">
+            <ListView ItemsSource="{Binding Parameters}" IsVisible="{Binding HasParameters}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
@@ -26,7 +26,7 @@
                                 <StackLayout Orientation="Horizontal">
 
                                     <Label Text="{Binding ., Converter={StaticResource converter}}"
-                                           Font="10" HorizontalOptions="FillAndExpand" />
+                                           HorizontalOptions="FillAndExpand" />
 
                                 </StackLayout>
                             </ViewCell.View>
