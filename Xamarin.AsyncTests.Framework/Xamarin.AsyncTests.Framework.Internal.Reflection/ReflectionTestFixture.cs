@@ -81,30 +81,6 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 			return new ProxyTestInvoker (Name.Name, invoker);
 		}
-
-		internal override async Task InitializeInstance (TestContext context, CancellationToken cancellationToken)
-		{
-			var instance = (FixtureTestInstance)context.Instance;
-			var fixtureInstance = instance.Instance as IAsyncTestFixture;
-			if (fixtureInstance != null)
-				await fixtureInstance.SetUp (context, cancellationToken);
-		}
-
-		internal override async Task ReuseInstance (TestContext context, CancellationToken cancellationToken)
-		{
-			var instance = (FixtureTestInstance)context.Instance;
-			var fixtureInstance = instance.Instance as IAsyncTestFixture;
-			if (fixtureInstance != null)
-				await fixtureInstance.ReuseInstance (context, cancellationToken);
-		}
-
-		internal override async Task DestroyInstance (TestContext context, CancellationToken cancellationToken)
-		{
-			var instance = (FixtureTestInstance)context.Instance;
-			var fixtureInstance = instance.Instance as IAsyncTestFixture;
-			if (fixtureInstance != null)
-				await fixtureInstance.TearDown (context, cancellationToken);
-		}
 	}
 }
 

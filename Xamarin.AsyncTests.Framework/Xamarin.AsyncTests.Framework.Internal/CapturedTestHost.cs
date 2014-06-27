@@ -46,9 +46,9 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			CapturedInstance = instance;
 		}
 
-		internal override TestInstance CreateInstance (TestContext context)
+		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
 		{
-			return new CapturedTestInstance (this, context.Instance);
+			return new CapturedTestInstance (this, parent);
 		}
 	}
 }

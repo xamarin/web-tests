@@ -149,10 +149,10 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 		}
 
 		public async Task<bool> Invoke (
-			TestContext context, TestResult result, CancellationToken cancellationToken)
+			TestContext context, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
 			try {
-				var inner = await Run (context, cancellationToken);
+				var inner = await Run (context, instance, cancellationToken);
 				result.AddChild (inner);
 				return inner.Status != TestStatus.Error;
 			} catch (Exception ex) {
@@ -162,19 +162,18 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			}
 		}
 
-		Task<TestResult> Run (TestContext context, CancellationToken cancellationToken)
+		Task<TestResult> Run (TestContext context, TestInstance instance, CancellationToken cancellationToken)
 		{
 			if (ExpectedExceptionType != null)
-				return ExpectingException (context, ExpectedExceptionType, cancellationToken);
+				return ExpectingException (context, instance, ExpectedExceptionType, cancellationToken);
 			else
-				return ExpectingSuccess (context, cancellationToken);
+				return ExpectingSuccess (context, instance, cancellationToken);
 		}
 
-		object InvokeInner (TestContext context, CancellationToken cancellationToken)
+		object InvokeInner (TestContext context, TestInstance instance, CancellationToken cancellationToken)
 		{
 			var args = new LinkedList<object> ();
 
-			var instance = context.Instance;
 			var parameters = Method.GetParameters ();
 
 			context.Debug (5, "INVOKE: {0} {1} {2}", Name, Method, instance);
@@ -229,11 +228,11 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			return Method.Invoke (thisInstance, args.ToArray ());
 		}
 
-		Task<TestResult> ExpectingSuccess (TestContext context, CancellationToken cancellationToken)
+		Task<TestResult> ExpectingSuccess (TestContext context, TestInstance instance, CancellationToken cancellationToken)
 		{
 			object retval;
 			try {
-				retval = InvokeInner (context, cancellationToken);
+				retval = InvokeInner (context, instance, cancellationToken);
 			} catch (Exception ex) {
 				return Task.FromResult<TestResult> (context.CreateTestResult (ex));
 			}
@@ -257,11 +256,11 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			});
 		}
 
-		async Task<TestResult> ExpectingException (TestContext context, TypeInfo expectedException,
-			CancellationToken cancellationToken)
+		async Task<TestResult> ExpectingException (TestContext context, TestInstance instance,
+			TypeInfo expectedException, CancellationToken cancellationToken)
 		{
 			try {
-				var retval = InvokeInner (context, cancellationToken);
+				var retval = InvokeInner (context, instance, cancellationToken);
 				var rtask = retval as Task<TestResult>;
 				if (rtask != null) {
 					var result = await rtask;
@@ -299,9 +298,9 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			}
 
 			public override Task<bool> Invoke (
-				TestContext context, TestResult result, CancellationToken cancellationToken)
+				TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 			{
-				return Test.Invoke (context, result, cancellationToken);
+				return Test.Invoke (ctx, instance, result, cancellationToken);
 			}
 		}
 	}

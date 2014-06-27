@@ -31,60 +31,19 @@ namespace Xamarin.AsyncTests.Framework.Internal
 {
 	abstract class TestHost
 	{
-		TestInstance parentInstance;
-		TestInstance currentInstance;
-
 		public TestFlags Flags {
 			get; protected set;
 		}
 
-		internal bool HasInstance {
-			get { return currentInstance != null; }
-		}
-
-		internal TestInstance CurrentInstance {
-			get {
-				if (currentInstance == null)
-					throw new InvalidOperationException ();
-				return currentInstance;
-			}
-		}
-
-		internal async Task CreateInstance (TestContext context, CancellationToken cancellationToken)
+		internal async Task<TestInstance> CreateInstance (
+			TestContext context, TestInstance parent, CancellationToken cancellationToken)
 		{
-			if (currentInstance != null)
-				throw new InvalidOperationException ();
-
-			var instance = CreateInstance (context);
-			try {
-				currentInstance = instance;
-				parentInstance = context.Instance;
-				context.Instance = instance;
-				await instance.Initialize (context, cancellationToken);
-			} catch {
-				context.Instance = parentInstance;
-				currentInstance = null;
-				parentInstance = null;
-				throw;
-			}
+			var instance = CreateInstance (context, parent);
+			await instance.Initialize (context, cancellationToken);
+			return instance;
 		}
 
-		internal async Task DestroyInstance (TestContext context, CancellationToken cancellationToken)
-		{
-			if (currentInstance == null)
-				throw new InvalidOperationException ();
-			if (context.Instance != currentInstance)
-				throw new InvalidOperationException ();
-			try {
-				await currentInstance.Destroy (context, cancellationToken);
-			} finally {
-				context.Instance = parentInstance;
-				currentInstance = null;
-				parentInstance = null;
-			}
-		}
-
-		internal abstract TestInstance CreateInstance (TestContext context);
+		internal abstract TestInstance CreateInstance (TestContext context, TestInstance parent);
 
 		internal TestInvoker CreateInvoker (TestInvoker inner)
 		{

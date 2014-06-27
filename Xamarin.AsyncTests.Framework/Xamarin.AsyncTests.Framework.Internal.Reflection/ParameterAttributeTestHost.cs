@@ -54,12 +54,12 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				Filter = paramAttr.Filter;
 		}
 
-		internal override TestInstance CreateInstance (TestContext context)
+		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
 		{
 			var instanceType = typeof(ParameterSourceInstance<>).GetTypeInfo ();
 			var genericInstance = instanceType.MakeGenericType (ParameterType.AsType ());
 			return (ParameterizedTestInstance)Activator.CreateInstance (
-				genericInstance, this, context.Instance, Attribute.SourceType, Filter);
+				genericInstance, this, parent, Attribute.SourceType, Filter);
 		}
 	}
 }

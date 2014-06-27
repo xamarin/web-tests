@@ -85,126 +85,132 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			return obj != null ? obj.ToString () : "<null>";
 		}
 
-		async Task<bool> SetUp (TestContext context, TestResult result, CancellationToken cancellationToken)
+		async Task<TestInstance> SetUp (
+			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			context.Debug (3, "SetUp({0}): {1} {2} {3}", context.GetCurrentTestName ().FullName,
-				Print (Host), Flags, Print (context.Instance));
+			ctx.Debug (3, "SetUp({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
+				Print (Host), Flags, Print (instance));
 
 			if (Host == null)
-				return true;
+				return instance;
 
 			try {
-				context.CurrentTestName.PushName ("SetUp");
-				await Host.CreateInstance (context, cancellationToken);
-				return true;
+				ctx.CurrentTestName.PushName ("SetUp");
+				return await Host.CreateInstance (ctx, instance, cancellationToken);
 			} catch (Exception ex) {
-				var error = context.CreateTestResult (ex);
+				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
-				return false;
+				return null;
 			} finally {
-				context.CurrentTestName.PopName ();
+				ctx.CurrentTestName.PopName ();
 			}
 		}
 
-		async Task<bool> ReuseInstance (TestContext context, TestResult result, CancellationToken cancellationToken)
+		async Task<bool> ReuseInstance (
+			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			context.Debug (3, "ReuseInstance({0}): {1} {2} {3}", context.GetCurrentTestName ().FullName,
-				Print (Host), Flags, Print (context.Instance));
+			ctx.Debug (3, "ReuseInstance({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
+				Print (Host), Flags, Print (instance));
 
 			try {
-				context.CurrentTestName.PushName ("ReuseInstance");
-				for (var instance = context.Instance; instance != null; instance = instance.Parent) {
-					await instance.ReuseInstance (context, cancellationToken);
+				ctx.CurrentTestName.PushName ("ReuseInstance");
+				for (var current = instance; current != null; current = current.Parent) {
+					await current.ReuseInstance (ctx, cancellationToken);
 				}
 				return true;
 			} catch (Exception ex) {
-				var error = context.CreateTestResult (ex);
+				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
 				return false;
 			} finally {
-				context.CurrentTestName.PopName ();
+				ctx.CurrentTestName.PopName ();
 			}
 		}
 
-		async Task<bool> MoveNext (TestContext context, TestResult result, CancellationToken cancellationToken)
+		async Task<bool> MoveNext (
+			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			context.Debug (3, "MoveNext({0}): {1} {2} {3}", context.GetCurrentTestName ().FullName,
-				Print (Host), Flags, Print (context.Instance));
+			ctx.Debug (3, "MoveNext({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
+				Print (Host), Flags, Print (instance));
 
-			if (ParameterizedHost == null)
+			var parameterizedInstance = instance as ParameterizedTestInstance;
+			if (parameterizedInstance == null)
 				return true;
 
 			try {
-				context.CurrentTestName.PushName ("MoveNext");
-				await ParameterizedHost.MoveNext (context, cancellationToken);
+				ctx.CurrentTestName.PushName ("MoveNext");
+				await parameterizedInstance.MoveNext (ctx, cancellationToken);
 				return true;
 			} catch (Exception ex) {
-				var error = context.CreateTestResult (ex);
+				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
 				return false;
 			} finally {
-				context.CurrentTestName.PopName ();
+				ctx.CurrentTestName.PopName ();
 			}
 		}
 
-
-		async Task<bool> InvokeInner (TestContext context, TestResult result, TestInvoker invoker, CancellationToken cancellationToken)
+		async Task<bool> InvokeInner (
+			TestContext ctx, TestInstance instance, TestResult result, TestInvoker invoker,
+			CancellationToken cancellationToken)
 		{
-			context.Debug (3, "Running({0}): {1} {2}", context.CurrentTestName.GetFullName (), Print (Host), invoker);
+			ctx.Debug (3, "Running({0}): {1} {2}", ctx.CurrentTestName.GetFullName (), Print (Host), invoker);
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				var success = await invoker.Invoke (context, result, cancellationToken);
+				var success = await invoker.Invoke (ctx, instance, result, cancellationToken);
 				return success || ContinueOnError;
 			} catch (Exception ex) {
-				var error = context.CreateTestResult (ex);
+				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
 				return ContinueOnError;
 			}
 		}
 
-		async Task<bool> TearDown (TestContext context, TestResult result, CancellationToken cancellationToken)
+		async Task<bool> TearDown (
+			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			context.Debug (3, "TearDown({0}): {1} {2} {3}", context.GetCurrentTestName ().FullName,
-				Print (Host), Flags, Print (context.Instance));
-
-			if (Host == null)
-				return true;
+			ctx.Debug (3, "TearDown({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
+				Print (Host), Flags, Print (instance));
 
 			try {
-				context.CurrentTestName.PushName ("TearDown");
-				await Host.DestroyInstance (context, cancellationToken);
+				ctx.CurrentTestName.PushName ("TearDown");
+				await instance.Destroy (ctx, cancellationToken);
 				return true;
 			} catch (Exception ex) {
-				var error = context.CreateTestResult (ex);
+				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
 				return false;
 			} finally {
-				context.CurrentTestName.PopName ();
+				ctx.CurrentTestName.PopName ();
 			}
 		}
 			
 		public sealed override async Task<bool> Invoke (
-			TestContext context, TestResult result, CancellationToken cancellationToken)
+			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
 			if (InnerTestInvokers.Count == 0)
 				return true;
 
-			context.Debug (3, "Invoke({0}): {1} {2} {3} {4}", context.GetCurrentTestName ().FullName,
-				Print (Host), Flags, Print (context.Instance), InnerTestInvokers.Count);
+			ctx.Debug (3, "Invoke({0}): {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
+				Print (Host), Flags, Print (instance), InnerTestInvokers.Count);
 
-			var oldResult = context.CurrentResult;
+			var oldResult = ctx.CurrentResult;
 
 			var innerResult = result;
 			if (IsBrowsable) {
-				innerResult = new TestResult (context.GetCurrentTestName ());
+				innerResult = new TestResult (ctx.GetCurrentTestName ());
 				result.AddChild (innerResult);
-				context.CurrentResult = innerResult;
+				ctx.CurrentResult = innerResult;
 			}
 
-			if (!await SetUp (context, innerResult, cancellationToken)) {
-				context.CurrentResult = oldResult;
-				return false;
+			var innerInstance = instance;
+			if (Host != null) {
+				innerInstance = await SetUp (ctx, instance, innerResult, cancellationToken);
+				if (innerInstance == null) {
+					ctx.CurrentResult = oldResult;
+					return false;
+				}
 			}
 
 			bool success = true;
@@ -217,55 +223,56 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				if (cancellationToken.IsCancellationRequested)
 					break;
 
-				success = await MoveNext (context, innerResult, cancellationToken);
+				success = await MoveNext (ctx, innerInstance, innerResult, cancellationToken);
 				if (!success)
 					break;
 
-				if (ParameterizedHost != null) {
-					var parameterizedInstance = (ParameterizedTestInstance)context.Instance;
-					context.CurrentTestName.PushParameter (ParameterizedHost.ParameterName, parameterizedInstance.Current);
-				}
-				var capturedTest = CaptureContext (context, invoker);
-				if (capturedTest != null)
-					context.CurrentTestName.PushCapture (capturedTest);
-
-				context.Debug (5, "InnerInvoke({0}): {1} {2} {3} {4}", context.GetCurrentTestName ().FullName,
-					Print (Host), Print (context.Instance), invoker, InnerTestInvokers.Count);
-
-				success = await InvokeInner (context, innerResult, invoker, cancellationToken);
-
-				context.Debug (5, "InnerInvoke({0}) done: {1} {2} {3} {4}", context.GetCurrentTestName ().FullName,
-					IsBrowsable, Print (Host), Print (context.Instance), success);
-
-				if (capturedTest != null)
-					context.CurrentTestName.PopCapture ();
+				var parameterizedInstance = innerInstance as ParameterizedTestInstance;
 				if (ParameterizedHost != null)
-					context.CurrentTestName.PopParameter ();
+					ctx.CurrentTestName.PushParameter (ParameterizedHost.ParameterName, parameterizedInstance.Current);
+				var capturedTest = CaptureContext (ctx, innerInstance, invoker);
+				if (capturedTest != null)
+					ctx.CurrentTestName.PushCapture (capturedTest);
+
+				ctx.Debug (5, "InnerInvoke({0}): {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
+					Print (Host), Print (innerInstance), invoker, InnerTestInvokers.Count);
+
+				success = await InvokeInner (ctx, innerInstance, innerResult, invoker, cancellationToken);
+
+				ctx.Debug (5, "InnerInvoke({0}) done: {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
+					IsBrowsable, Print (Host), Print (innerInstance), success);
+
+				if (capturedTest != null)
+					ctx.CurrentTestName.PopCapture ();
+				if (ParameterizedHost != null)
+					ctx.CurrentTestName.PopParameter ();
 
 				if (!success)
 					break;
 
-				if (ParameterizedHost == null || !ParameterizedHost.HasNext (context))
+				if (parameterizedInstance == null || !parameterizedInstance.HasNext ())
 					current = current.Next;
 			}
 
-			if (!await TearDown (context, innerResult, cancellationToken))
-				success = false;
+			if (Host != null) {
+				if (!await TearDown (ctx, innerInstance, innerResult, cancellationToken))
+					success = false;
+			}
 
-			context.CurrentResult = oldResult;
+			ctx.CurrentResult = oldResult;
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			return success;
 		}
 
-		TestCase CaptureContext (TestContext context, TestInvoker invoker)
+		TestCase CaptureContext (TestContext context, TestInstance instance, TestInvoker invoker)
 		{
-			if (context.CurrentTestName.IsCaptured || Host is CapturedTestHost || context.Instance == null)
+			if (context.CurrentTestName.IsCaptured || Host is CapturedTestHost || instance == null)
 				return null;
 
-			var capture = CaptureContext (context.GetCurrentTestName (), context.Instance, invoker);
+			var capture = CaptureContext (context.GetCurrentTestName (), instance, invoker);
 			context.Debug (5, "CaptureContext({0}): {1} {2} {3} -> {4}", context.GetCurrentTestName (),
-				Print (context.Instance), Print (Host), invoker, Print (capture));
+				Print (instance), Print (Host), invoker, Print (capture));
 			if (capture == null)
 				return null;
 

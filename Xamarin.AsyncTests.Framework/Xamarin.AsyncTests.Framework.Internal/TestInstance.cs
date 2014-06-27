@@ -47,6 +47,20 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			Parent = parent;
 		}
 
+		protected FixtureTestInstance GetFixtureInstance ()
+		{
+			TestInstance instance = this;
+			while (instance != null) {
+				var fixtureInstance = instance as FixtureTestInstance;
+				if (fixtureInstance != null)
+					return fixtureInstance;
+
+				instance = instance.Parent;
+			}
+
+			throw new InvalidOperationException ();
+		}
+
 		public abstract Task Initialize (TestContext context, CancellationToken cancellationToken);
 
 		public abstract Task ReuseInstance (TestContext context, CancellationToken cancellationToken);

@@ -51,16 +51,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			if (HostType != null)
 				return (ITestHost<T>)Activator.CreateInstance (HostType);
 
-			var instance = context.Instance;
-			while (instance != null) {
-				var fixtureInstance = instance as FixtureTestInstance;
-				if (fixtureInstance != null)
-					return (ITestHost<T>)fixtureInstance.Instance;
-
-				instance = instance.Parent;
-			}
-
-			throw new InvalidOperationException ();
+			return (ITestHost<T>)GetFixtureInstance ().Instance;
 		}
 
 		public override async Task Initialize (TestContext context, CancellationToken cancellationToken)

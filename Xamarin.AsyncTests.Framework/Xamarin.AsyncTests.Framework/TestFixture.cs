@@ -69,11 +69,5 @@ namespace Xamarin.AsyncTests.Framework
 
 			Tests = new TestCaseCollection ();
 		}
-
-		internal abstract Task InitializeInstance (TestContext context, CancellationToken cancellationToken);
-
-		internal abstract Task ReuseInstance (TestContext context, CancellationToken cancellationToken);
-
-		internal abstract Task DestroyInstance (TestContext context, CancellationToken cancellationToken);
 	}
 }

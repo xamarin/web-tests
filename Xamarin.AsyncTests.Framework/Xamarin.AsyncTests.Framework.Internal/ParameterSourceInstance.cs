@@ -83,16 +83,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			else if (typeof(T).GetTypeInfo ().IsEnum)
 				return (ITestParameterSource<T>)ParameterizedTestHost.CreateEnumSource<T> ();
 
-			var instance = context.Instance;
-			while (instance != null) {
-				var fixtureInstance = instance as FixtureTestInstance;
-				if (fixtureInstance != null)
-					return (ITestParameterSource<T>)fixtureInstance.Instance;
-
-				instance = instance.Parent;
-			}
-
-			throw new InvalidOperationException ();
+			return (ITestParameterSource<T>)GetFixtureInstance ().Instance;
 		}
 
 		public override Task Initialize (TestContext context, CancellationToken cancellationToken)

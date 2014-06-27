@@ -95,10 +95,6 @@ namespace Xamarin.AsyncTests
 
 		#region Internal
 
-		internal TestInstance Instance {
-			get; set;
-		}
-
 		internal TestResult CurrentResult {
 			get; set;
 		}

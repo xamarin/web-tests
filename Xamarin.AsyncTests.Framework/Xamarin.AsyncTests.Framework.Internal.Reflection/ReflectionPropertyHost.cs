@@ -56,10 +56,10 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			Host = host;
 		}
 
-		internal override TestInstance CreateInstance (TestContext context)
+		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
 		{
-			var instance = (ParameterizedTestInstance)Host.CreateInstance (context);
-			return new ReflectionPropertyInstance (this, instance, context.Instance);
+			var instance = (ParameterizedTestInstance)Host.CreateInstance (context, parent);
+			return new ReflectionPropertyInstance (this, instance, parent);
 		}
 
 		class ReflectionPropertyInstance : ParameterizedTestInstance
@@ -94,26 +94,11 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				return Instance.HasNext ();
 			}
 
-			static FixtureTestInstance GetFixtureInstance (TestContext context)
-			{
-				for (var instance = context.Instance; instance != null; instance = instance.Parent) {
-					var fixtureInstance = instance as FixtureTestInstance;
-					if (fixtureInstance != null)
-						return fixtureInstance;
-				}
-
-				return null;
-			}
-
 			public override async Task MoveNext (TestContext context, CancellationToken cancellationToken)
 			{
 				await Instance.MoveNext (context, cancellationToken);
 
-				var fixtureInstance = GetFixtureInstance (context);
-				if (fixtureInstance == null)
-					throw new InvalidOperationException ();
-
-				Host.Property.SetValue (fixtureInstance.Instance, Instance.Current);
+				Host.Property.SetValue (GetFixtureInstance ().Instance, Instance.Current);
 			}
 
 			public override Task Destroy (TestContext context, CancellationToken cancellationToken)

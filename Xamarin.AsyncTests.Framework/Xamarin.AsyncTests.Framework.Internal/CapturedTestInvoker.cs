@@ -48,27 +48,25 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			Invoker = invoker;
 		}
 
-		public override async Task<bool> Invoke (TestContext context, TestResult result, CancellationToken cancellationToken)
+		public override async Task<bool> Invoke (
+			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			var oldInstance = context.Instance;
-			var oldName = context.CurrentTestName;
+			var oldName = ctx.CurrentTestName;
 
 			try {
-				context.Instance = null;
-				context.Log ("CAPTURED INVOKE #0: {0} {1}", Name, context.GetCurrentTestName ());
-				context.CurrentTestName.PushName (Name.Name);
+				ctx.Log ("CAPTURED INVOKE #0: {0} {1}", Name, ctx.GetCurrentTestName ());
+				ctx.CurrentTestName.PushName (Name.Name);
 
-				context.Log ("CAPTURED INVOKE: {0} {1}", result, result.Status);
-				var success = await Invoker.Invoke (context, result, cancellationToken);
-				context.Log ("CAPTURED INVOKE DONE: {0} {1}", success, result.Status);
+				ctx.Log ("CAPTURED INVOKE: {0} {1}", result, result.Status);
+				var success = await Invoker.Invoke (ctx, null, result, cancellationToken);
+				ctx.Log ("CAPTURED INVOKE DONE: {0} {1}", success, result.Status);
 				return success;
 			} catch (Exception ex) {
-				context.Log ("CAPTURED INVOKE FAILED: {0}", ex);
+				ctx.Log ("CAPTURED INVOKE FAILED: {0}", ex);
 				return false;
 			} finally {
-				context.CurrentTestName.PopName ();
-				context.Instance = oldInstance;
-				context.CurrentTestName = oldName;
+				ctx.CurrentTestName.PopName ();
+				ctx.CurrentTestName = oldName;
 			}
 		}
 	}

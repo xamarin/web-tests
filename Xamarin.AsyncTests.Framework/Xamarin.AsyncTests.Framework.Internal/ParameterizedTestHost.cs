@@ -50,26 +50,6 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			Flags = flags;
 		}
 
-		public bool HasNext (TestContext context)
-		{
-			if (!HasInstance)
-				throw new InvalidOperationException ();
-			if (context.Instance != CurrentInstance)
-				throw new InvalidOperationException ();
-			var instance = (ParameterizedTestInstance)context.Instance;
-			return instance.HasNext ();
-		}
-
-		internal Task MoveNext (TestContext context, CancellationToken cancellationToken)
-		{
-			if (!HasInstance)
-				throw new InvalidOperationException ();
-			if (context.Instance != CurrentInstance)
-				throw new InvalidOperationException ();
-			var instance = (ParameterizedTestInstance)context.Instance;
-			return instance.MoveNext (context, cancellationToken);
-		}
-
 		public static ParameterizedTestHost CreateBoolean (string name)
 		{
 			var source = CreateBooleanSource ();
@@ -141,9 +121,9 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				Filter = filter;
 			}
 
-			internal override TestInstance CreateInstance (TestContext context)
+			internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
 			{
-				return ParameterSourceInstance<T>.CreateFromSource (this, context.Instance, Source, Filter);
+				return ParameterSourceInstance<T>.CreateFromSource (this, parent, Source, Filter);
 			}
 		}
 	}
