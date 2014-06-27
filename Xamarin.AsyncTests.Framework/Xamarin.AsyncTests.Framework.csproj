@@ -31,7 +31,6 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestFixture.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestStatus.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\ITestFilter.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\ParameterizedTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ReflectionTestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ReflectionTestFixture.cs" />

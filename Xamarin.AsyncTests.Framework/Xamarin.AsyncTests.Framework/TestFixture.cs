@@ -38,7 +38,7 @@ namespace Xamarin.AsyncTests.Framework
 {
 	using Internal;
 
-	public abstract class TestFixture : TestCase
+	abstract class TestFixture : TestCase
 	{
 		public TestSuite Suite {
 			get;

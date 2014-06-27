@@ -68,17 +68,6 @@ namespace Xamarin.AsyncTests
 				CurrentTestResult.AddMessage (message);
 		}
 
-		public ITestFilter TestFilter {
-			get; set;
-		}
-
-		internal bool Filter (TestCase test)
-		{
-			if (TestFilter != null)
-				return TestFilter.Filter (test);
-			return true;
-		}
-
 		public bool HasWarnings {
 			get { return warnings != null; }
 		}
