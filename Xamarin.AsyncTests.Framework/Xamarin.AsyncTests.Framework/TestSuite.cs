@@ -50,5 +50,42 @@ namespace Xamarin.AsyncTests.Framework {
 		{
 			return ReflectionTestSuite.Create (assembly);
 		}
+
+		public static TestCase CreateRepeatedTest (TestCase test, int count)
+		{
+			var invoker = new TestCaseInvoker (test);
+			var repeatHost = new RepeatedTestHost (count, TestFlags.ContinueOnError | TestFlags.Browsable, "$iteration");
+			var repeatInvoker = new AggregatedTestInvoker (repeatHost, invoker);
+			var outerInvoker = new ProxyTestInvoker (test.Name, repeatInvoker);
+			return new InvokableTestCase (test, outerInvoker);
+		}
+
+		public static TestCase CreateProxy (TestCase test, TestName proxy)
+		{
+			var invoker = new TestCaseInvoker (test);
+			var proxyInvoker = new ProxyTestInvoker (proxy, invoker);
+			return new InvokableTestCase (test, proxyInvoker);
+		}
+
+		class TestCaseInvoker : TestInvoker
+		{
+			public TestCase Test {
+				get;
+				private set;
+			}
+
+			public TestCaseInvoker (TestCase test)
+			{
+				Test = test;
+			}
+
+			public override Task<bool> Invoke (
+				TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+			{
+				if (instance != null)
+					throw new InvalidOperationException ();
+				return Test.Run (ctx, result, cancellationToken);
+			}
+		}
 	}
 }

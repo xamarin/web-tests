@@ -60,21 +60,5 @@ namespace Xamarin.AsyncTests.Framework {
 			var invoker = CreateInvoker ();
 			return invoker.Invoke (ctx, null, result, cancellationToken);
 		}
-
-		public TestCase CreateRepeatedTest (TestContext ctx, int count)
-		{
-			var invoker = CreateInvoker ();
-			var repeatHost = new RepeatedTestHost (count, TestFlags.ContinueOnError | TestFlags.Browsable, "$iteration");
-			var repeatInvoker = new AggregatedTestInvoker (repeatHost, invoker);
-			var outerInvoker = new ProxyTestInvoker (Name, repeatInvoker);
-			return new InvokableTestCase (this, outerInvoker);
-		}
-
-		public TestCase CreateProxy (TestContext ctx, TestName proxy)
-		{
-			var invoker = CreateInvoker ();
-			var proxyInvoker = new ProxyTestInvoker (proxy, invoker);
-			return new InvokableTestCase (this, proxyInvoker);
-		}
 	}
 }
