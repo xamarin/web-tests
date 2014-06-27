@@ -68,10 +68,6 @@ namespace Xamarin.AsyncTests
 				CurrentTestResult.AddMessage (message);
 		}
 
-		public int Repeat {
-			get; set;
-		}
-
 		public ITestFilter TestFilter {
 			get; set;
 		}

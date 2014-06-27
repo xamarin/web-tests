@@ -124,7 +124,7 @@ namespace Xamarin.AsyncTests.UI
 			var name = assembly.GetName ().Name;
 			StatusMessage = string.Format ("Loading {0}", name);
 			var test = await TestSuite.LoadAssembly (assembly);
-			RootTestResult.Result.Test = test.Resolve (Context);
+			RootTestResult.Result.Test = test;
 			StatusMessage = string.Format ("Successfully loaded {0} tests from {1}.", test.Count, name);
 		}
 

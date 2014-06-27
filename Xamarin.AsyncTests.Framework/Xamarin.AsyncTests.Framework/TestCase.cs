@@ -48,18 +48,13 @@ namespace Xamarin.AsyncTests.Framework {
 			Name = name;
 		}
 
-		public virtual TestCase Resolve (TestContext context)
-		{
-			var invoker = CreateInvoker (context);
-			return new InvokableTestCase (this, invoker);
-		}
-
 		internal abstract TestInvoker CreateInvoker (TestContext context);
 
-		public virtual Task<bool> Run (TestContext context, TestResult result,
+		public Task<bool> Run (TestContext ctx, TestResult result,
 			CancellationToken cancellationToken)
 		{
-			throw new InvalidOperationException ();
+			var invoker = CreateInvoker (ctx);
+			return invoker.Invoke (ctx, null, result, cancellationToken);
 		}
 
 		public TestCase CreateRepeatedTest (TestContext context, int count)

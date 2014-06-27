@@ -94,18 +94,9 @@ namespace Xamarin.AsyncTests.Framework {
 			return type.Equals (typeof (T)) || type.IsSubclassOf (typeof (T));
 		}
 
-		public TestCase Resolve (TestContext context)
-		{
-			var resolved = tests.Resolve (context);
-			if (context.Repeat != 0)
-				resolved = resolved.CreateRepeatedTest (context, context.Repeat);
-			return resolved;
-		}
-
 		public Task Run (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
-			var resolved = Resolve (context);
-			return resolved.Run (context, result, cancellationToken);
+			return tests.Run (context, result, cancellationToken);
 		}
 	}
 }
