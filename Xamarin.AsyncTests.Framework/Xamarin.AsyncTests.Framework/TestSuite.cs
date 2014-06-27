@@ -55,6 +55,10 @@ namespace Xamarin.AsyncTests.Framework {
 			get { return tests.Count; }
 		}
 
+		public IEnumerable<string> Categories {
+			get { return tests.Tests.SelectMany (test => test.Categories).Distinct (); }
+		}
+
 		public Task<TestCaseCollection> LoadAssembly (Assembly assembly)
 		{
 			var tcs = new TaskCompletionSource<TestCaseCollection> ();

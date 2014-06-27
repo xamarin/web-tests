@@ -53,9 +53,14 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			get { return expectedExceptionType; }
 		}
 
+		public override IEnumerable<string> Categories {
+			get { return categories; }
+		}
+
 		ExpectedExceptionAttribute expectedException;
 		TypeInfo expectedExceptionType;
 		List<TestHost> parameterHosts;
+		IEnumerable<string> categories;
 
 		public ReflectionTestCase (ReflectionTestFixture fixture, AsyncTestAttribute attr, MethodInfo method)
 			: base (new TestName (method.Name))
@@ -69,6 +74,7 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				expectedExceptionType = expectedException.ExceptionType.GetTypeInfo ();
 
 			ResolveParameters ();
+			categories = GetCategories (ReflectionHelper.GetMethodInfo (method));
 		}
 
 		internal static IEnumerable<ParameterizedTestHost> ResolveParameter (IMemberInfo member)
@@ -114,6 +120,12 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			}
 
 			throw new InvalidOperationException ();
+		}
+
+		internal static IEnumerable<string> GetCategories (IMemberInfo member)
+		{
+			foreach (var cattr in member.GetCustomAttributes<TestCategoryAttribute> ())
+				yield return cattr.Name;
 		}
 
 		void ResolveParameters ()

@@ -55,6 +55,10 @@ namespace Xamarin.AsyncTests.Framework
 			get { return tests; }
 		}
 
+		public override IEnumerable<string> Categories {
+			get { return Tests.SelectMany (test => test.Categories).Distinct (); }
+		}
+
 		#region implemented abstract members of TestCase
 
 		internal override TestInvoker CreateInvoker ()

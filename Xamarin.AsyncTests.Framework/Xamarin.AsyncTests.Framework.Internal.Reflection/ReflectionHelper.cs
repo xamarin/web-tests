@@ -41,6 +41,16 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			return new _PropertyInfo (member);
 		}
 
+		public static IMemberInfo GetMethodInfo (MethodInfo member)
+		{
+			return new _MethodInfo (member);
+		}
+
+		public static IMemberInfo GetTypeInfo (TypeInfo member)
+		{
+			return new _TypeInfo (member);
+		}
+
 		class _ParameterInfo : IMemberInfo
 		{
 			public readonly ParameterInfo Member;
@@ -88,6 +98,64 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 			public TypeInfo Type {
 				get;
 				private set;
+			}
+
+			public T GetCustomAttribute<T> () where T : Attribute
+			{
+				return Member.GetCustomAttribute<T> ();
+			}
+
+			public IEnumerable<T> GetCustomAttributes<T> () where T : Attribute
+			{
+				return Member.GetCustomAttributes<T> ();
+			}
+		}
+
+		class _MethodInfo : IMemberInfo
+		{
+			public readonly MethodInfo Member;
+
+			public _MethodInfo (MethodInfo member)
+			{
+				Member = member;
+				Type = member.ReturnType.GetTypeInfo ();
+			}
+
+			public string Name {
+				get { return Member.Name; }
+			}
+
+			public TypeInfo Type {
+				get;
+				private set;
+			}
+
+			public T GetCustomAttribute<T> () where T : Attribute
+			{
+				return Member.GetCustomAttribute<T> ();
+			}
+
+			public IEnumerable<T> GetCustomAttributes<T> () where T : Attribute
+			{
+				return Member.GetCustomAttributes<T> ();
+			}
+		}
+
+		class _TypeInfo : IMemberInfo
+		{
+			public readonly TypeInfo Member;
+
+			public _TypeInfo (TypeInfo member)
+			{
+				Member = member;
+			}
+
+			public string Name {
+				get { return Member.Name; }
+			}
+
+			public TypeInfo Type {
+				get { return Member; }
 			}
 
 			public T GetCustomAttribute<T> () where T : Attribute

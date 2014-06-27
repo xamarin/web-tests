@@ -36,11 +36,17 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 	class ReflectionTestFixture : TestFixture
 	{
 		List<TestHost> parameterHosts;
+		IEnumerable<string> categories;
+
+		public override IEnumerable<string> Categories {
+			get { return categories; }
+		}
 
 		public ReflectionTestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)
 			: base (suite, attr, type)
 		{
 			ResolveParameters ();
+			categories = ReflectionTestCase.GetCategories (ReflectionHelper.GetTypeInfo (type));
 		}
 
 		void ResolveParameters ()

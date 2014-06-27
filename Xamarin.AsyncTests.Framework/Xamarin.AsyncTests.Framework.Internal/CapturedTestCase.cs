@@ -37,6 +37,12 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			private set;
 		}
 
+		public override IEnumerable<string> Categories {
+			get {
+				throw new NotImplementedException ();
+			}
+		}
+
 		public CapturedTestCase (CapturedTestInvoker invoker)
 			: base (invoker.Name)
 		{

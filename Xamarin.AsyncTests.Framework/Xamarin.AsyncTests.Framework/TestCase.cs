@@ -48,6 +48,10 @@ namespace Xamarin.AsyncTests.Framework {
 			Name = name;
 		}
 
+		public abstract IEnumerable<string> Categories {
+			get;
+		}
+
 		internal abstract TestInvoker CreateInvoker ();
 
 		public Task<bool> Run (TestContext ctx, TestResult result,
