@@ -48,8 +48,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return expectedExceptionType; }
 		}
 
+		internal override TestInvoker Invoker {
+			get { return invoker; }
+		}
+
 		readonly ExpectedExceptionAttribute expectedException;
 		readonly TypeInfo expectedExceptionType;
+		readonly TestInvoker invoker;
 
 		public ReflectionTestCase (ReflectionTestFixture fixture, AsyncTestAttribute attr, MethodInfo method)
 			: base (new TestName (method.Name), attr, ReflectionHelper.GetMethodInfo (method))
@@ -60,9 +65,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			expectedException = method.GetCustomAttribute<ExpectedExceptionAttribute> ();
 			if (expectedException != null)
 				expectedExceptionType = expectedException.ExceptionType.GetTypeInfo ();
+
+			invoker = Resolve ();
 		}
 
-		protected override TestInvoker Resolve ()
+		TestInvoker Resolve ()
 		{
 			var parameterHosts = new List<TestHost> ();
 

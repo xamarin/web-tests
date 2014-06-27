@@ -40,13 +40,21 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public ReflectionTestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)
-			: base (suite.Name, attr, ReflectionHelper.GetTypeInfo (type))
-		{
-			Type = type;
+		internal override TestInvoker Invoker {
+			get { return invoker; }
 		}
 
-		protected override TestInvoker Resolve ()
+		readonly TestInvoker invoker;
+
+		public ReflectionTestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)
+			: base (new TestName (type.Name), attr, ReflectionHelper.GetTypeInfo (type))
+		{
+			Type = type;
+
+			invoker = Resolve ();
+		}
+
+		TestInvoker Resolve ()
 		{
 			var aggregatedInvoker = new AggregatedTestInvoker (TestFlags.ContinueOnError);
 
@@ -103,26 +111,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
 			{
-				return new ReflectionTestFixtureInstance (this);
-			}
-		}
-
-		class ReflectionTestFixtureInstance : FixtureTestInstance
-		{
-			public ReflectionTestFixture Fixture {
-				get;
-				private set;
-			}
-
-			public ReflectionTestFixtureInstance (ReflectionTestFixtureHost host)
-				: base (host)
-			{
-				Fixture = host.Fixture;
-			}
-
-			internal override object CreateInstance ()
-			{
-				return Activator.CreateInstance (Fixture.Type.AsType ());
+				var instance = Activator.CreateInstance (Fixture.Type.AsType ());
+				return new FixtureTestInstance (this, instance);
 			}
 		}
 	}

@@ -35,7 +35,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 	abstract class ReflectionTest : TestCase
 	{
 		readonly IEnumerable<string> categories;
-		readonly TestInvoker invoker;
 
 		public AsyncTestAttribute Attribute {
 			get;
@@ -46,8 +45,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return categories; }
 		}
 
-		internal TestInvoker Invoker {
-			get { return invoker; }
+		internal abstract TestInvoker Invoker {
+			get;
 		}
 
 		public ReflectionTest (TestName name, AsyncTestAttribute attr, IMemberInfo member)
@@ -56,7 +55,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Attribute = attr;
 
 			categories = GetCategories (member);
-			invoker = Resolve ();
 		}
 
 		protected static IEnumerable<ParameterizedTestHost> ResolveParameter (IMemberInfo member)
@@ -110,11 +108,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				yield return cattr.Name;
 		}
 
-		protected abstract TestInvoker Resolve ();
-
 		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
 		{
-			return invoker.Invoke (ctx, null, result, cancellationToken);
+			return Invoker.Invoke (ctx, null, result, cancellationToken);
 		}
 	}
 }
