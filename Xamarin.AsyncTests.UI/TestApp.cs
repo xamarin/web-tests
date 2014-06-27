@@ -108,7 +108,6 @@ namespace Xamarin.AsyncTests.UI
 
 		public TestApp (string name)
 		{
-			TestSuite = new TestSuite ();
 			Context = new TestContext ();
 
 			var result = new TestResult (new TestName (null));
@@ -123,9 +122,9 @@ namespace Xamarin.AsyncTests.UI
 		{
 			var name = assembly.GetName ().Name;
 			StatusMessage = string.Format ("Loading {0}", name);
-			var test = await TestSuite.LoadAssembly (assembly);
-			RootTestResult.Result.Test = test;
-			StatusMessage = string.Format ("Successfully loaded {0} tests from {1}.", test.Count, name);
+			TestSuite = await TestSuite.LoadAssembly (assembly);
+			RootTestResult.Result.Test = TestSuite.Tests;
+			StatusMessage = string.Format ("Successfully loaded {0} tests from {1}.", TestSuite.Tests.Count, name);
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;

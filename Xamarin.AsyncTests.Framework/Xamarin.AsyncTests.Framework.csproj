@@ -74,6 +74,7 @@
     <Compile Include="Xamarin.AsyncTests\TestFlags.cs" />
     <Compile Include="Xamarin.AsyncTests\TestHostAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\TestCategoryAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ReflectionTestSuite.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

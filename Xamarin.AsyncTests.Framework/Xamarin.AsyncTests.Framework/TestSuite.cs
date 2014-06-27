@@ -39,68 +39,28 @@ namespace Xamarin.AsyncTests.Framework {
 	using Internal;
 	using Internal.Reflection;
 
-	public class TestSuite {
-		TestCaseCollection tests;
-
-		public TestSuite ()
-		{
-			tests = new TestCaseCollection ();
+	public abstract class TestSuite
+	{
+		public abstract TestCaseCollection Tests {
+			get;
 		}
 
-		public IList<TestCase> Tests {
-			get { return tests.Tests; }
-		}
-
-		public int CountFixtures {
-			get { return tests.Count; }
+		public abstract int CountFixtures {
+			get;
 		}
 
 		public IEnumerable<string> Categories {
-			get { return tests.Tests.SelectMany (test => test.Categories).Distinct (); }
+			get { return Tests.Tests.SelectMany (test => test.Categories).Distinct (); }
 		}
 
-		public Task<TestCaseCollection> LoadAssembly (Assembly assembly)
+		public static Task<TestSuite> LoadAssembly (Assembly assembly)
 		{
-			var tcs = new TaskCompletionSource<TestCaseCollection> ();
-
-			Task.Factory.StartNew (() => {
-				try {
-					var collection = DoLoadAssembly (assembly);
-					tests.Add (collection);
-					tcs.SetResult (collection);
-				} catch (Exception ex) {
-					tcs.SetException (ex);
-				}
-			});
-
-			return tcs.Task;
-		}
-
-		TestCaseCollection DoLoadAssembly (Assembly assembly)
-		{
-			var collection = new TestCaseCollection ();
-
-			foreach (var type in assembly.ExportedTypes) {
-				var tinfo = type.GetTypeInfo ();
-				var attr = tinfo.GetCustomAttribute<AsyncTestFixtureAttribute> (true);
-				if (attr == null)
-					continue;
-
-				var fixture = new ReflectionTestFixture (this, attr, tinfo);
-				collection.Add (fixture);
-			}
-
-			return collection;
-		}
-
-		bool IsEqualOrSubclassOf<T> (TypeInfo type)
-		{
-			return type.Equals (typeof (T)) || type.IsSubclassOf (typeof (T));
+			return ReflectionTestSuite.Create (assembly);
 		}
 
 		public Task Run (TestContext context, TestResult result, CancellationToken cancellationToken)
 		{
-			return tests.Run (context, result, cancellationToken);
+			return Tests.Run (context, result, cancellationToken);
 		}
 	}
 }
