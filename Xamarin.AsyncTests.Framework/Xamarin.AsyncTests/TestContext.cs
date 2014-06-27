@@ -64,8 +64,8 @@ namespace Xamarin.AsyncTests
 		{
 			var message = string.Format (format, args);
 			SD.Debug.WriteLine (message);
-			if (CurrentResult != null)
-				CurrentResult.AddMessage (message);
+			if (CurrentTestResult != null)
+				CurrentTestResult.AddMessage (message);
 		}
 
 		public int Repeat {
@@ -95,8 +95,9 @@ namespace Xamarin.AsyncTests
 
 		#region Internal
 
-		internal TestResult CurrentResult {
-			get; set;
+		public TestResult CurrentTestResult {
+			get;
+			internal set;
 		}
 
 		internal TestNameBuilder CurrentTestName {

@@ -195,20 +195,20 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			ctx.Debug (3, "Invoke({0}): {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
 				Print (Host), Flags, Print (instance), InnerTestInvokers.Count);
 
-			var oldResult = ctx.CurrentResult;
+			var oldResult = ctx.CurrentTestResult;
 
 			var innerResult = result;
 			if (IsBrowsable) {
 				innerResult = new TestResult (ctx.GetCurrentTestName ());
 				result.AddChild (innerResult);
-				ctx.CurrentResult = innerResult;
+				ctx.CurrentTestResult = innerResult;
 			}
 
 			var innerInstance = instance;
 			if (Host != null) {
 				innerInstance = await SetUp (ctx, instance, innerResult, cancellationToken);
 				if (innerInstance == null) {
-					ctx.CurrentResult = oldResult;
+					ctx.CurrentTestResult = oldResult;
 					return false;
 				}
 			}
@@ -259,7 +259,7 @@ namespace Xamarin.AsyncTests.Framework.Internal
 					success = false;
 			}
 
-			ctx.CurrentResult = oldResult;
+			ctx.CurrentTestResult = oldResult;
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			return success;
