@@ -39,28 +39,16 @@ namespace Xamarin.AsyncTests.Framework {
 	using Internal;
 	using Internal.Reflection;
 
-	public abstract class TestSuite
+	public abstract class TestSuite : TestCase
 	{
-		public abstract TestCaseCollection Tests {
-			get;
-		}
-
-		public abstract int CountFixtures {
-			get;
-		}
-
-		public IEnumerable<string> Categories {
-			get { return Tests.Tests.SelectMany (test => test.Categories).Distinct (); }
+		public TestSuite (TestName name)
+			: base (name)
+		{
 		}
 
 		public static Task<TestSuite> LoadAssembly (Assembly assembly)
 		{
 			return ReflectionTestSuite.Create (assembly);
-		}
-
-		public Task Run (TestContext context, TestResult result, CancellationToken cancellationToken)
-		{
-			return Tests.Run (context, result, cancellationToken);
 		}
 	}
 }

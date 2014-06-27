@@ -36,17 +36,14 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 	{
 		TestCaseCollection tests;
 
-		ReflectionTestSuite ()
+		ReflectionTestSuite (TestName name)
+			: base (name)
 		{
 			tests = new TestCaseCollection ();
 		}
 
-		public override TestCaseCollection Tests {
-			get { return tests; }
-		}
-
-		public override int CountFixtures {
-			get { return tests.Count; }
+		public override IEnumerable<string> Categories {
+			get { return tests.Tests.SelectMany (test => test.Categories).Distinct (); }
 		}
 
 		public static Task<TestSuite> Create (Assembly assembly)
@@ -55,7 +52,8 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 
 			Task.Factory.StartNew (() => {
 				try {
-					var suite = new ReflectionTestSuite ();
+					var name = new TestName (assembly.GetName ().Name);
+					var suite = new ReflectionTestSuite (name);
 					suite.DoLoadAssembly (assembly);
 					tcs.SetResult (suite);
 				} catch (Exception ex) {
@@ -77,6 +75,11 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				var fixture = new ReflectionTestFixture (this, attr, tinfo);
 				tests.Add (fixture);
 			}
+		}
+
+		internal override TestInvoker CreateInvoker ()
+		{
+			return tests.CreateInvoker ();
 		}
 	}
 }

@@ -33,7 +33,7 @@ namespace Xamarin.AsyncTests.Framework
 {
 	using Internal;
 
-	public class TestCaseCollection : TestCase
+	class TestCaseCollection : TestCase
 	{
 		List<TestCase> tests = new List<TestCase> ();
 

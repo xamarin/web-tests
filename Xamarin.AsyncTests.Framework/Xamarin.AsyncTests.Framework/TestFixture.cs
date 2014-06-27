@@ -55,7 +55,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestCaseCollection Tests {
+		internal TestCaseCollection Tests {
 			get;
 			private set;
 		}

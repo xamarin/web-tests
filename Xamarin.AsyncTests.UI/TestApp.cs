@@ -123,8 +123,8 @@ namespace Xamarin.AsyncTests.UI
 			var name = assembly.GetName ().Name;
 			StatusMessage = string.Format ("Loading {0}", name);
 			TestSuite = await TestSuite.LoadAssembly (assembly);
-			RootTestResult.Result.Test = TestSuite.Tests;
-			StatusMessage = string.Format ("Successfully loaded {0} tests from {1}.", TestSuite.Tests.Count, name);
+			RootTestResult.Result.Test = TestSuite;
+			StatusMessage = string.Format ("Successfully loaded {0}.", name);
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
