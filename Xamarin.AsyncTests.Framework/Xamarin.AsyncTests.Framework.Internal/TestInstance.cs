@@ -63,7 +63,9 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 		public abstract Task Initialize (TestContext context, CancellationToken cancellationToken);
 
-		public abstract Task ReuseInstance (TestContext context, CancellationToken cancellationToken);
+		public abstract Task PreRun (TestContext context, CancellationToken cancellationToken);
+
+		public abstract Task PostRun (TestContext context, CancellationToken cancellationToken);
 
 		public abstract Task Destroy (TestContext context, CancellationToken cancellationToken);
 

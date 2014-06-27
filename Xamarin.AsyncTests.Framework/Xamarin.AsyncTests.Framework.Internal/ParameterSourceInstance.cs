@@ -96,7 +96,12 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			});
 		}
 
-		public override Task ReuseInstance (TestContext context, CancellationToken cancellationToken)
+		public override Task PreRun (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.FromResult<object> (null);
+		}
+
+		public override Task PostRun (TestContext context, CancellationToken cancellationToken)
 		{
 			return Task.FromResult<object> (null);
 		}

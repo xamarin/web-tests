@@ -84,9 +84,14 @@ namespace Xamarin.AsyncTests.Framework.Internal.Reflection
 				return Instance.Initialize (context, cancellationToken);
 			}
 
-			public override Task ReuseInstance (TestContext context, CancellationToken cancellationToken)
+			public override Task PreRun (TestContext context, CancellationToken cancellationToken)
 			{
-				return Instance.ReuseInstance (context, cancellationToken);
+				return Instance.PreRun (context, cancellationToken);
+			}
+
+			public override Task PostRun (TestContext context, CancellationToken cancellationToken)
+			{
+				return Instance.PostRun (context, cancellationToken);
 			}
 
 			public override bool HasNext ()

@@ -33,7 +33,9 @@ namespace Xamarin.AsyncTests
 	{
 		Task SetUp (TestContext context, CancellationToken cancellationToken);
 
-		Task ReuseInstance (TestContext context, CancellationToken cancellationToken);
+		Task PreRun (TestContext context, CancellationToken cancellationToken);
+
+		Task PostRun (TestContext context, CancellationToken cancellationToken);
 
 		Task TearDown (TestContext context, CancellationToken cancellationToken);
 	}
