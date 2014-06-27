@@ -1,5 +1,5 @@
 ﻿//
-// CapturedTestHost.cs
+// ParameterAttributeHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,31 +24,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class CapturedTestHost : ParameterizedTestHost
+	class ParameterAttributeTestHost : ParameterizedTestHost
 	{
-		public ParameterizedTestHost Parent {
+		public TestParameterSourceAttribute Attribute {
 			get;
 			private set;
 		}
 
-		public object CapturedInstance {
+		public string Filter {
 			get;
 			private set;
 		}
 
-		public CapturedTestHost (TestName name, ParameterizedTestHost parent, object instance)
-			: base (parent.ParameterName, parent.ParameterType, parent.Flags | TestFlags.FlattenHierarchy)
+		public ParameterAttributeTestHost (string name, TypeInfo type, TestParameterSourceAttribute attr)
+			: base (name, type)
 		{
-			Parent = parent;
-			CapturedInstance = instance;
+			Attribute = attr;
+			Flags |= attr.Flags;
+
+			var paramAttr = attr as TestParameterAttribute;
+			if (paramAttr != null)
+				Filter = paramAttr.Filter;
 		}
 
 		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
 		{
-			return new CapturedTestInstance (this, parent);
+			var instanceType = typeof(ParameterSourceInstance<>).GetTypeInfo ();
+			var genericInstance = instanceType.MakeGenericType (ParameterType.AsType ());
+			return (ParameterizedTestInstance)Activator.CreateInstance (
+				genericInstance, this, parent, Attribute.SourceType, Filter);
 		}
 	}
 }

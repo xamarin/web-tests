@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal.Reflection
+namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	class ReflectionPropertyHost : ParameterizedTestHost
 	{

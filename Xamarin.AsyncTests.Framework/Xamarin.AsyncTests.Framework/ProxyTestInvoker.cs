@@ -1,5 +1,5 @@
 ﻿//
-// TestRunner.cs
+// ProxyTestInvoker.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,16 +27,53 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestInvoker
+	class ProxyTestInvoker : TestInvoker
 	{
-		public abstract Task<bool> Invoke (TestContext context, TestInstance instance,
-			TestResult result, CancellationToken cancellationToken);
+		public string Name {
+			get;
+			private set;
+		}
 
-		public override string ToString ()
+		public TestName TestName {
+			get;
+			private set;
+		}
+
+		public TestInvoker InnerInvoker {
+			get;
+			private set;
+		}
+
+		public ProxyTestInvoker (string name, TestInvoker inner)
 		{
-			return string.Format ("[{0}]", GetType ().Name);
+			Name = name;
+			InnerInvoker = inner;
+		}
+
+		public ProxyTestInvoker (TestName name, TestInvoker inner)
+		{
+			TestName = name;
+			InnerInvoker = inner;
+		}
+
+		public override async Task<bool> Invoke (
+			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+		{
+			var oldName = ctx.CurrentTestName;
+
+			try {
+				if (TestName != null)
+					ctx.CurrentTestName = TestNameBuilder.CreateFromName (TestName);
+				if (Name != null)
+					ctx.CurrentTestName.PushName (Name);
+				return await InnerInvoker.Invoke (ctx, instance, result, cancellationToken);
+			} finally {
+				if (Name != null)
+					ctx.CurrentTestName.PopName ();
+				ctx.CurrentTestName = oldName;
+			}
 		}
 	}
 }

@@ -27,7 +27,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework
 {
 	class CustomTestInstance<T> : ParameterizedTestInstance
 		where T : ITestInstance

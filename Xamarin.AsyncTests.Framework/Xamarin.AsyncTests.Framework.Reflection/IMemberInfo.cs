@@ -27,7 +27,7 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests.Framework.Internal.Reflection
+namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	public interface IMemberInfo
 	{

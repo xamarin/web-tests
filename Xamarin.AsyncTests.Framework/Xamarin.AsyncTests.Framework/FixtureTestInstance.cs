@@ -1,5 +1,5 @@
 ﻿//
-// ProxyTestInvoker.cs
+// ReflectionTestInstance.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,56 +24,53 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework
 {
-	class ProxyTestInvoker : TestInvoker
+	abstract class FixtureTestInstance : TestInstance
 	{
-		public string Name {
+		public object Instance {
 			get;
 			private set;
 		}
 
-		public TestName TestName {
-			get;
-			private set;
-		}
-
-		public TestInvoker InnerInvoker {
-			get;
-			private set;
-		}
-
-		public ProxyTestInvoker (string name, TestInvoker inner)
+		public FixtureTestInstance (TestHost host)
+			: base (host, null)
 		{
-			Name = name;
-			InnerInvoker = inner;
+			Instance = CreateInstance ();
 		}
 
-		public ProxyTestInvoker (TestName name, TestInvoker inner)
+		internal abstract object CreateInstance ();
+
+		public override async Task Initialize (TestContext context, CancellationToken cancellationToken)
 		{
-			TestName = name;
-			InnerInvoker = inner;
+			var instance = Instance as ITestInstance;
+			if (instance != null)
+				await instance.Initialize (context, cancellationToken);
 		}
 
-		public override async Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+		public override async Task PreRun (TestContext context, CancellationToken cancellationToken)
 		{
-			var oldName = ctx.CurrentTestName;
+			var instance = Instance as ITestInstance;
+			if (instance != null)
+				await instance.PreRun (context, cancellationToken);
+		}
 
-			try {
-				if (TestName != null)
-					ctx.CurrentTestName = TestNameBuilder.CreateFromName (TestName);
-				if (Name != null)
-					ctx.CurrentTestName.PushName (Name);
-				return await InnerInvoker.Invoke (ctx, instance, result, cancellationToken);
-			} finally {
-				if (Name != null)
-					ctx.CurrentTestName.PopName ();
-				ctx.CurrentTestName = oldName;
-			}
+		public override async Task PostRun (TestContext context, CancellationToken cancellationToken)
+		{
+			var instance = Instance as ITestInstance;
+			if (instance != null)
+				await instance.PostRun (context, cancellationToken);
+		}
+
+		public override async Task Destroy (TestContext context, CancellationToken cancellationToken)
+		{
+			var instance = Instance as ITestInstance;
+			if (instance != null)
+				await instance.Destroy (context, cancellationToken);
 		}
 	}
 }

@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework
 {
 	class ParameterSourceInstance<T> : ParameterizedTestInstance
 	{

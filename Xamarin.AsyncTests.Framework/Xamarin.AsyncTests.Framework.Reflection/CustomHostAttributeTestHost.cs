@@ -1,5 +1,5 @@
 ﻿//
-// TestInstance.cs
+// CustomHostAttributeHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,54 +24,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	abstract class TestInstance
+	class CustomHostAttributeTestHost : ParameterizedTestHost
 	{
-		public TestHost Host {
+		public TestHostAttribute Attribute {
 			get;
 			private set;
 		}
 
-		public TestInstance Parent {
-			get;
-			private set;
+		public CustomHostAttributeTestHost (string name, TypeInfo type, TestHostAttribute attr)
+			: base (name, type)
+		{
+			Attribute = attr;
+			Flags |= attr.Flags;
 		}
 
-		protected TestInstance (TestHost host, TestInstance parent)
+		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
 		{
-			Host = host;
-			Parent = parent;
-		}
-
-		protected FixtureTestInstance GetFixtureInstance ()
-		{
-			TestInstance instance = this;
-			while (instance != null) {
-				var fixtureInstance = instance as FixtureTestInstance;
-				if (fixtureInstance != null)
-					return fixtureInstance;
-
-				instance = instance.Parent;
-			}
-
-			throw new InvalidOperationException ();
-		}
-
-		public abstract Task Initialize (TestContext context, CancellationToken cancellationToken);
-
-		public abstract Task PreRun (TestContext context, CancellationToken cancellationToken);
-
-		public abstract Task PostRun (TestContext context, CancellationToken cancellationToken);
-
-		public abstract Task Destroy (TestContext context, CancellationToken cancellationToken);
-
-		public override string ToString ()
-		{
-			return string.Format ("[{0}: Host={1}, Parent={2}]", GetType ().Name, Host, Parent);
+			var instanceType = typeof(CustomTestInstance<>).GetTypeInfo ();
+			var genericInstance = instanceType.MakeGenericType (ParameterType.AsType ());
+			return (ParameterizedTestInstance)Activator.CreateInstance (
+				genericInstance, this, parent, Attribute.HostType);
 		}
 	}
 }

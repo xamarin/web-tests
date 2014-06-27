@@ -1,5 +1,5 @@
 ﻿//
-// ReflectionTestSuite.cs
+// InvokableTestCase.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,66 +24,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal.Reflection
+namespace Xamarin.AsyncTests.Framework
 {
-	class ReflectionTestSuite : TestSuite
+	class InvokableTestCase : TestCase
 	{
-		List<ReflectionTest> tests;
-		TestInvoker invoker;
+		public TestCase Test {
+			get;
+			private set;
+		}
 
-		ReflectionTestSuite (TestName name)
-			: base (name)
-		{
-			tests = new List<ReflectionTest> ();
+		public TestInvoker Invoker {
+			get;
+			private set;
 		}
 
 		public override IEnumerable<string> Categories {
-			get { return tests.SelectMany (test => test.Categories).Distinct (); }
+			get { return Test.Categories; }
 		}
 
-		public static Task<TestSuite> Create (Assembly assembly)
+		public InvokableTestCase (TestCase test, TestInvoker invoker)
+			: base (test.Name)
 		{
-			var tcs = new TaskCompletionSource<TestSuite> ();
-
-			Task.Factory.StartNew (() => {
-				try {
-					var name = new TestName (assembly.GetName ().Name);
-					var suite = new ReflectionTestSuite (name);
-					suite.DoLoadAssembly (assembly);
-					tcs.SetResult (suite);
-				} catch (Exception ex) {
-					tcs.SetException (ex);
-				}
-			});
-
-			return tcs.Task;
-		}
-
-		void DoLoadAssembly (Assembly assembly)
-		{
-			foreach (var type in assembly.ExportedTypes) {
-				var tinfo = type.GetTypeInfo ();
-				var attr = tinfo.GetCustomAttribute<AsyncTestFixtureAttribute> (true);
-				if (attr == null)
-					continue;
-
-				var fixture = new ReflectionTestFixture (this, attr, tinfo);
-				tests.Add (fixture);
-			}
-
-			var invokers = tests.Select (t => t.Invoker).ToArray ();
-			invoker = new AggregatedTestInvoker (TestFlags.ContinueOnError, invokers);
+			Test = test;
+			Invoker = invoker;
 		}
 
 		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
 		{
-			return invoker.Invoke (ctx, null, result, cancellationToken);
+			return Invoker.Invoke (ctx, null, result, cancellationToken);
 		}
 	}
 }

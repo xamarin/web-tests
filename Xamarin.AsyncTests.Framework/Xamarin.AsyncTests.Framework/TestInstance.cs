@@ -1,5 +1,5 @@
 ﻿//
-// CapturedTestCase.cs
+// TestInstance.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,34 +24,54 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework
 {
-	class CapturedTestCase : TestCase
+	abstract class TestInstance
 	{
-		public CapturedTestInvoker Invoker {
+		public TestHost Host {
 			get;
 			private set;
 		}
 
-		public override IEnumerable<string> Categories {
-			get {
-				throw new NotImplementedException ();
+		public TestInstance Parent {
+			get;
+			private set;
+		}
+
+		protected TestInstance (TestHost host, TestInstance parent)
+		{
+			Host = host;
+			Parent = parent;
+		}
+
+		protected FixtureTestInstance GetFixtureInstance ()
+		{
+			TestInstance instance = this;
+			while (instance != null) {
+				var fixtureInstance = instance as FixtureTestInstance;
+				if (fixtureInstance != null)
+					return fixtureInstance;
+
+				instance = instance.Parent;
 			}
+
+			throw new InvalidOperationException ();
 		}
 
-		public CapturedTestCase (CapturedTestInvoker invoker)
-			: base (invoker.Name)
-		{
-			Invoker = invoker;
-		}
+		public abstract Task Initialize (TestContext context, CancellationToken cancellationToken);
 
-		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
+		public abstract Task PreRun (TestContext context, CancellationToken cancellationToken);
+
+		public abstract Task PostRun (TestContext context, CancellationToken cancellationToken);
+
+		public abstract Task Destroy (TestContext context, CancellationToken cancellationToken);
+
+		public override string ToString ()
 		{
-			return Invoker.Invoke (ctx, null, result, cancellationToken);
+			return string.Format ("[{0}: Host={1}, Parent={2}]", GetType ().Name, Host, Parent);
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// TestHost.cs
+// CapturedTestInvoker.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,35 +24,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestHost
+	class CapturedTestInvoker : TestInvoker
 	{
-		public TestFlags Flags {
-			get; protected set;
+		public TestName Name {
+			get;
+			private set;
 		}
 
-		internal async Task<TestInstance> CreateInstance (
-			TestContext context, TestInstance parent, CancellationToken cancellationToken)
-		{
-			var instance = CreateInstance (context, parent);
-			await instance.Initialize (context, cancellationToken);
-			return instance;
+		public TestInvoker Invoker {
+			get;
+			private set;
 		}
 
-		internal abstract TestInstance CreateInstance (TestContext context, TestInstance parent);
-
-		internal TestInvoker CreateInvoker (TestInvoker inner)
+		public CapturedTestInvoker (TestName name, TestInvoker invoker)
 		{
-			return new AggregatedTestInvoker (this, inner);
+			Name = name;
+			Invoker = invoker;
 		}
 
-		public override string ToString ()
+		public override async Task<bool> Invoke (
+			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			return string.Format ("[{0}: Flags={1}]", GetType ().Name, Flags);
+			var oldName = ctx.CurrentTestName;
+
+			try {
+				ctx.Log ("CAPTURED INVOKE #0: {0} {1}", Name, ctx.GetCurrentTestName ());
+				ctx.CurrentTestName.PushName (Name.Name);
+
+				ctx.Log ("CAPTURED INVOKE: {0} {1}", result, result.Status);
+				var success = await Invoker.Invoke (ctx, null, result, cancellationToken);
+				ctx.Log ("CAPTURED INVOKE DONE: {0} {1}", success, result.Status);
+				return success;
+			} catch (Exception ex) {
+				ctx.Log ("CAPTURED INVOKE FAILED: {0}", ex);
+				return false;
+			} finally {
+				ctx.CurrentTestName.PopName ();
+				ctx.CurrentTestName = oldName;
+			}
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// RepeatedTestHost.cs
+// CapturedTestInstance.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,35 +24,60 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework
 {
-	class RepeatedTestHost : ParameterizedTestHost
+	class CapturedTestInstance : ParameterizedTestInstance
 	{
-		public string Name {
-			get;
-			private set;
+		new public CapturedTestHost Host {
+			get { return (CapturedTestHost)base.Host; }
 		}
 
-		public int Count {
-			get;
-			private set;
-		}
-
-		public RepeatedTestHost (int count, TestFlags flags = TestFlags.None, string name = "$repeat")
-			: base (name, typeof (int).GetTypeInfo (), flags)
+		public CapturedTestInstance (CapturedTestHost host, TestInstance parent)
+			: base (host, parent)
 		{
-			Count = count;
 		}
 
-		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
+		#region implemented abstract members of ParameterizedTestInstance
+
+		public override Task Initialize (TestContext context, CancellationToken cancellationToken)
 		{
-			return new ParameterSourceInstance<int> (
-				this, parent, typeof(RepeatAttribute.RepeatedTestSource), Count.ToString ());
+			return Task.FromResult<object> (null);
 		}
+
+		public override Task PreRun (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.FromResult<object> (null);
+		}
+
+		public override Task PostRun (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.FromResult<object> (null);
+		}
+
+		public override bool HasNext ()
+		{
+			return false;
+		}
+
+		public override Task MoveNext (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.FromResult<object> (null);
+		}
+
+		public override Task Destroy (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.FromResult<object> (null);
+		}
+
+		public override object Current {
+			get { return Host.CapturedInstance; }
+		}
+
+		#endregion
 	}
 }
 

@@ -1,5 +1,5 @@
 ﻿//
-// CustomHostAttributeHost.cs
+// RepeatedTestHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,32 +25,33 @@
 // THE SOFTWARE.
 using System;
 using System.Reflection;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal.Reflection
+namespace Xamarin.AsyncTests.Framework
 {
-	class CustomHostAttributeTestHost : ParameterizedTestHost
+	class RepeatedTestHost : ParameterizedTestHost
 	{
-		public TestHostAttribute Attribute {
+		public string Name {
 			get;
 			private set;
 		}
 
-		public CustomHostAttributeTestHost (string name, TypeInfo type, TestHostAttribute attr)
-			: base (name, type)
+		public int Count {
+			get;
+			private set;
+		}
+
+		public RepeatedTestHost (int count, TestFlags flags = TestFlags.None, string name = "$repeat")
+			: base (name, typeof (int).GetTypeInfo (), flags)
 		{
-			Attribute = attr;
-			Flags |= attr.Flags;
+			Count = count;
 		}
 
 		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
 		{
-			var instanceType = typeof(CustomTestInstance<>).GetTypeInfo ();
-			var genericInstance = instanceType.MakeGenericType (ParameterType.AsType ());
-			return (ParameterizedTestInstance)Activator.CreateInstance (
-				genericInstance, this, parent, Attribute.HostType);
+			return new ParameterSourceInstance<int> (
+				this, parent, typeof(RepeatAttribute.RepeatedTestSource), Count.ToString ());
 		}
 	}
 }

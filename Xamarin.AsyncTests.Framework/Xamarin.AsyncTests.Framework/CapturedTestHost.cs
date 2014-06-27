@@ -1,5 +1,5 @@
 ﻿//
-// ParameterizedTestInstance.cs
+// CapturedTestHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,36 +24,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework
 {
-	abstract class ParameterizedTestInstance : TestInstance
+	class CapturedTestHost : ParameterizedTestHost
 	{
-		public new ParameterizedTestHost Host {
-			get { return (ParameterizedTestHost)base.Host; }
-		}
-
-		public ParameterizedTestInstance (ParameterizedTestHost host, TestInstance parent)
-			: base (host, parent)
-		{
-			ParameterType = host.ParameterType;
-		}
-
-		public TypeInfo ParameterType {
+		public ParameterizedTestHost Parent {
 			get;
 			private set;
 		}
 
-		public abstract object Current {
+		public object CapturedInstance {
 			get;
+			private set;
 		}
 
-		public abstract bool HasNext ();
+		public CapturedTestHost (TestName name, ParameterizedTestHost parent, object instance)
+			: base (parent.ParameterName, parent.ParameterType, parent.Flags | TestFlags.FlattenHierarchy)
+		{
+			Parent = parent;
+			CapturedInstance = instance;
+		}
 
-		public abstract Task MoveNext (TestContext context, CancellationToken cancellationToken);
+		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
+		{
+			return new CapturedTestInstance (this, parent);
+		}
 	}
 }
+

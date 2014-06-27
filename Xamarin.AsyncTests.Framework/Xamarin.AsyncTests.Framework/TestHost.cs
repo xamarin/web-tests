@@ -1,5 +1,5 @@
 ﻿//
-// ParameterAttributeHost.cs
+// TestHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,42 +24,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal.Reflection
+namespace Xamarin.AsyncTests.Framework
 {
-	class ParameterAttributeTestHost : ParameterizedTestHost
+	abstract class TestHost
 	{
-		public TestParameterSourceAttribute Attribute {
-			get;
-			private set;
+		public TestFlags Flags {
+			get; protected set;
 		}
 
-		public string Filter {
-			get;
-			private set;
-		}
-
-		public ParameterAttributeTestHost (string name, TypeInfo type, TestParameterSourceAttribute attr)
-			: base (name, type)
+		internal async Task<TestInstance> CreateInstance (
+			TestContext context, TestInstance parent, CancellationToken cancellationToken)
 		{
-			Attribute = attr;
-			Flags |= attr.Flags;
-
-			var paramAttr = attr as TestParameterAttribute;
-			if (paramAttr != null)
-				Filter = paramAttr.Filter;
+			var instance = CreateInstance (context, parent);
+			await instance.Initialize (context, cancellationToken);
+			return instance;
 		}
 
-		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
+		internal abstract TestInstance CreateInstance (TestContext context, TestInstance parent);
+
+		internal TestInvoker CreateInvoker (TestInvoker inner)
 		{
-			var instanceType = typeof(ParameterSourceInstance<>).GetTypeInfo ();
-			var genericInstance = instanceType.MakeGenericType (ParameterType.AsType ());
-			return (ParameterizedTestInstance)Activator.CreateInstance (
-				genericInstance, this, parent, Attribute.SourceType, Filter);
+			return new AggregatedTestInvoker (this, inner);
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[{0}: Flags={1}]", GetType ().Name, Flags);
 		}
 	}
 }

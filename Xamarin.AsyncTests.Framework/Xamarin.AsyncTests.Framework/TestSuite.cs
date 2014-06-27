@@ -35,9 +35,9 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests.Framework {
-	using Internal;
-	using Internal.Reflection;
+namespace Xamarin.AsyncTests.Framework
+{
+	using Reflection;
 
 	public abstract class TestSuite : TestCase
 	{

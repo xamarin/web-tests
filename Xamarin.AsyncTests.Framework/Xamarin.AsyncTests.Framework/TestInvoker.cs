@@ -1,5 +1,5 @@
 ﻿//
-// ReflectionTestInstance.cs
+// TestRunner.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,53 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework
 {
-	abstract class FixtureTestInstance : TestInstance
+	abstract class TestInvoker
 	{
-		public object Instance {
-			get;
-			private set;
-		}
+		public abstract Task<bool> Invoke (TestContext context, TestInstance instance,
+			TestResult result, CancellationToken cancellationToken);
 
-		public FixtureTestInstance (TestHost host)
-			: base (host, null)
+		public override string ToString ()
 		{
-			Instance = CreateInstance ();
-		}
-
-		internal abstract object CreateInstance ();
-
-		public override async Task Initialize (TestContext context, CancellationToken cancellationToken)
-		{
-			var instance = Instance as ITestInstance;
-			if (instance != null)
-				await instance.Initialize (context, cancellationToken);
-		}
-
-		public override async Task PreRun (TestContext context, CancellationToken cancellationToken)
-		{
-			var instance = Instance as ITestInstance;
-			if (instance != null)
-				await instance.PreRun (context, cancellationToken);
-		}
-
-		public override async Task PostRun (TestContext context, CancellationToken cancellationToken)
-		{
-			var instance = Instance as ITestInstance;
-			if (instance != null)
-				await instance.PostRun (context, cancellationToken);
-		}
-
-		public override async Task Destroy (TestContext context, CancellationToken cancellationToken)
-		{
-			var instance = Instance as ITestInstance;
-			if (instance != null)
-				await instance.Destroy (context, cancellationToken);
+			return string.Format ("[{0}]", GetType ().Name);
 		}
 	}
 }

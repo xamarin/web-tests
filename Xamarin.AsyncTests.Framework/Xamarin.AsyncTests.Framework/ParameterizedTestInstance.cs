@@ -1,5 +1,5 @@
 ﻿//
-// CapturedTestInstance.cs
+// ParameterizedTestInstance.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,60 +24,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework
 {
-	class CapturedTestInstance : ParameterizedTestInstance
+	abstract class ParameterizedTestInstance : TestInstance
 	{
-		new public CapturedTestHost Host {
-			get { return (CapturedTestHost)base.Host; }
+		public new ParameterizedTestHost Host {
+			get { return (ParameterizedTestHost)base.Host; }
 		}
 
-		public CapturedTestInstance (CapturedTestHost host, TestInstance parent)
+		public ParameterizedTestInstance (ParameterizedTestHost host, TestInstance parent)
 			: base (host, parent)
 		{
+			ParameterType = host.ParameterType;
 		}
 
-		#region implemented abstract members of ParameterizedTestInstance
-
-		public override Task Initialize (TestContext context, CancellationToken cancellationToken)
-		{
-			return Task.FromResult<object> (null);
+		public TypeInfo ParameterType {
+			get;
+			private set;
 		}
 
-		public override Task PreRun (TestContext context, CancellationToken cancellationToken)
-		{
-			return Task.FromResult<object> (null);
+		public abstract object Current {
+			get;
 		}
 
-		public override Task PostRun (TestContext context, CancellationToken cancellationToken)
-		{
-			return Task.FromResult<object> (null);
-		}
+		public abstract bool HasNext ();
 
-		public override bool HasNext ()
-		{
-			return false;
-		}
-
-		public override Task MoveNext (TestContext context, CancellationToken cancellationToken)
-		{
-			return Task.FromResult<object> (null);
-		}
-
-		public override Task Destroy (TestContext context, CancellationToken cancellationToken)
-		{
-			return Task.FromResult<object> (null);
-		}
-
-		public override object Current {
-			get { return Host.CapturedInstance; }
-		}
-
-		#endregion
+		public abstract Task MoveNext (TestContext context, CancellationToken cancellationToken);
 	}
 }
-

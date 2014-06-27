@@ -1,5 +1,5 @@
 ﻿//
-// CapturedTestInvoker.cs
+// CapturedTestCase.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -28,46 +28,30 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Internal
+namespace Xamarin.AsyncTests.Framework
 {
-	class CapturedTestInvoker : TestInvoker
+	class CapturedTestCase : TestCase
 	{
-		public TestName Name {
+		public CapturedTestInvoker Invoker {
 			get;
 			private set;
 		}
 
-		public TestInvoker Invoker {
-			get;
-			private set;
+		public override IEnumerable<string> Categories {
+			get {
+				throw new NotImplementedException ();
+			}
 		}
 
-		public CapturedTestInvoker (TestName name, TestInvoker invoker)
+		public CapturedTestCase (CapturedTestInvoker invoker)
+			: base (invoker.Name)
 		{
-			Name = name;
 			Invoker = invoker;
 		}
 
-		public override async Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
 		{
-			var oldName = ctx.CurrentTestName;
-
-			try {
-				ctx.Log ("CAPTURED INVOKE #0: {0} {1}", Name, ctx.GetCurrentTestName ());
-				ctx.CurrentTestName.PushName (Name.Name);
-
-				ctx.Log ("CAPTURED INVOKE: {0} {1}", result, result.Status);
-				var success = await Invoker.Invoke (ctx, null, result, cancellationToken);
-				ctx.Log ("CAPTURED INVOKE DONE: {0} {1}", success, result.Status);
-				return success;
-			} catch (Exception ex) {
-				ctx.Log ("CAPTURED INVOKE FAILED: {0}", ex);
-				return false;
-			} finally {
-				ctx.CurrentTestName.PopName ();
-				ctx.CurrentTestName = oldName;
-			}
+			return Invoker.Invoke (ctx, null, result, cancellationToken);
 		}
 	}
 }
