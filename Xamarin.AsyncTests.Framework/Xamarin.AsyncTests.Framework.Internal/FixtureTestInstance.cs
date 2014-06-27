@@ -51,30 +51,30 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 		public override async Task Initialize (TestContext context, CancellationToken cancellationToken)
 		{
-			var instance = Instance as IAsyncTestFixture;
+			var instance = Instance as ITestInstance;
 			if (instance != null)
-				await instance.SetUp (context, cancellationToken);
+				await instance.Initialize (context, cancellationToken);
 		}
 
 		public override async Task PreRun (TestContext context, CancellationToken cancellationToken)
 		{
-			var instance = Instance as IAsyncTestFixture;
+			var instance = Instance as ITestInstance;
 			if (instance != null)
 				await instance.PreRun (context, cancellationToken);
 		}
 
 		public override async Task PostRun (TestContext context, CancellationToken cancellationToken)
 		{
-			var instance = Instance as IAsyncTestFixture;
+			var instance = Instance as ITestInstance;
 			if (instance != null)
 				await instance.PostRun (context, cancellationToken);
 		}
 
 		public override async Task Destroy (TestContext context, CancellationToken cancellationToken)
 		{
-			var instance = Instance as IAsyncTestFixture;
+			var instance = Instance as ITestInstance;
 			if (instance != null)
-				await instance.TearDown (context, cancellationToken);
+				await instance.Destroy (context, cancellationToken);
 		}
 	}
 }

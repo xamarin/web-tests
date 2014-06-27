@@ -45,6 +45,35 @@ namespace Xamarin.AsyncTests.Sample
 				Hello = hello;
 			}
 
+			public async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+			{
+				ctx.Log ("INITIALIZE: {0}!", this);
+				await Task.Delay (1500, cancellationToken);
+				ctx.Log ("INITIALIZE DONE: {0}!", this);
+			}
+
+
+			public async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+			{
+				ctx.Log ("PRE RUN: {0}!", this);
+				await Task.Delay (500, cancellationToken);
+				ctx.Log ("PRE RUN DONE: {0}!", this);
+			}
+
+			public async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+			{
+				ctx.Log ("POST RUN: {0}!", this);
+				await Task.Delay (500, cancellationToken);
+				ctx.Log ("POST RUN DONE: {0}!", this);
+			}
+
+			public async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
+			{
+				ctx.Log ("DESTROY: {0}!", this);
+				await Task.Delay (1500, cancellationToken);
+				ctx.Log ("DESTROY DONE: {0}!", this);
+			}
+
 			public override string ToString ()
 			{
 				return string.Format ("[MyInstance: Hello={0}]", Hello);
@@ -53,27 +82,9 @@ namespace Xamarin.AsyncTests.Sample
 
 		public class MyHost : ITestHost<MyInstance>
 		{
-			public async Task<MyInstance> Initialize (TestContext context, CancellationToken cancellationToken)
+			public MyInstance CreateInstance (TestContext context)
 			{
-				var instance = new MyInstance ("Berlin");
-				context.Log ("INITIALIZE: {0}!", instance);
-				await Task.Delay (2500, cancellationToken);
-				context.Log ("INITIALIZE DONE: {0}!", instance);
-				return instance;
-			}
-
-			public async Task ReuseInstance (TestContext context, MyInstance instance, CancellationToken cancellationToken)
-			{
-				context.Log ("REUSE INSTANCE: {0}!", instance);
-				await Task.Delay (500, cancellationToken);
-				context.Log ("REUSE INSTANCE DONE: {0}!", instance);
-			}
-
-			public async Task Destroy (TestContext context, MyInstance instance, CancellationToken cancellationToken)
-			{
-				context.Log ("DESTROY: {0}!", instance);
-				await Task.Delay (2500, cancellationToken);
-				context.Log ("DESTROY DONE: {0}!", instance);
+				return new MyInstance ("Berlin");
 			}
 		}
 

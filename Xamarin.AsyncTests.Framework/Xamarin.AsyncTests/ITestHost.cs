@@ -32,13 +32,7 @@ namespace Xamarin.AsyncTests
 	public interface ITestHost<T>
 		where T : ITestInstance
 	{
-		Task<T> Initialize (TestContext context, CancellationToken cancellationToken);
-
-		Task PreRun (TestContext context, T instance, CancellationToken cancellationToken);
-
-		Task PostRun (TestContext context, T instance, CancellationToken cancellationToken);
-
-		Task Destroy (TestContext context, T instance, CancellationToken cancellationToken);
+		T CreateInstance (TestContext context);
 	}
 }
 

@@ -46,30 +46,25 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			HostType = hostType;
 		}
 
-		ITestHost<T> GetHost (TestContext context)
-		{
-			if (HostType != null)
-				return (ITestHost<T>)Activator.CreateInstance (HostType);
-
-			return (ITestHost<T>)GetFixtureInstance ().Instance;
-		}
-
 		public override async Task Initialize (TestContext context, CancellationToken cancellationToken)
 		{
-			customHost = GetHost (context);
-			instance = await customHost.Initialize (context, cancellationToken);
+			if (HostType != null)
+				customHost = (ITestHost<T>)Activator.CreateInstance (HostType);
+			else
+				customHost = (ITestHost<T>)GetFixtureInstance ().Instance;
+
+			instance = customHost.CreateInstance (context);
+			await instance.Initialize (context, cancellationToken);
 		}
 
 		public override async Task PreRun (TestContext context, CancellationToken cancellationToken)
 		{
-			customHost = GetHost (context);
-			await customHost.PreRun (context, instance, cancellationToken);
+			await instance.PreRun (context, cancellationToken);
 		}
 
 		public override async Task PostRun (TestContext context, CancellationToken cancellationToken)
 		{
-			customHost = GetHost (context);
-			await customHost.PostRun (context, instance, cancellationToken);
+			await instance.PostRun (context, cancellationToken);
 		}
 
 		public override bool HasNext ()
@@ -82,9 +77,9 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			return Task.FromResult<object> (null);
 		}
 
-		public override Task Destroy (TestContext context, CancellationToken cancellationToken)
+		public override async Task Destroy (TestContext context, CancellationToken cancellationToken)
 		{
-			return customHost.Destroy (context, instance, cancellationToken);
+			await instance.Destroy (context, cancellationToken);
 		}
 
 		public override object Current {

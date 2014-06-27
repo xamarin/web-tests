@@ -5,30 +5,37 @@ using System.Threading.Tasks;
 namespace Xamarin.AsyncTests.Sample
 {
 	[AsyncTestFixture]
-	public class SimpleTest : IAsyncTestFixture
+	public class SimpleTest : ITestInstance
 	{
 		int id;
 		static int next_id;
 
-		public Task SetUp (TestContext context, CancellationToken cancellationToken)
+		public Task Initialize (TestContext context, CancellationToken cancellationToken)
 		{
 			return Task.Run (() => {
 				id = ++next_id;
-				context.Log ("SETUP: {0}", id);
+				context.Log ("INITIALIZE: {0}", id);
 			});
 		}
 
-		public Task ReuseInstance (TestContext context, CancellationToken cancellationToken)
+		public Task PreRun (TestContext context, CancellationToken cancellationToken)
 		{
 			return Task.Run (() => {
-				context.Log ("REUSE INSTANCE: {0}", id);
+				context.Log ("PRE RUN: {0}", id);
 			});
 		}
 
-		public Task TearDown (TestContext context, CancellationToken cancellationToken)
+		public Task PostRun (TestContext context, CancellationToken cancellationToken)
 		{
 			return Task.Run (() => {
-				context.Log ("TEAR DOWN: {0}", id);
+				context.Log ("POST RUN: {0}", id);
+			});
+		}
+
+		public Task Destroy (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => {
+				context.Log ("DESTROY: {0}", id);
 			});
 		}
 

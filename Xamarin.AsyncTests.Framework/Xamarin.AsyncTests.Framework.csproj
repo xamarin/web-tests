@@ -64,7 +64,6 @@
     <Compile Include="Xamarin.AsyncTests\AssertionException.cs" />
     <Compile Include="Xamarin.AsyncTests\AsyncTestFixtureAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\ExpectedExceptionAttribute.cs" />
-    <Compile Include="Xamarin.AsyncTests\IAsyncTestFixture.cs" />
     <Compile Include="Xamarin.AsyncTests\TestContext.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestHost.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestInstance.cs" />

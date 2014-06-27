@@ -24,11 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests
 {
 	public interface ITestInstance
 	{
+		Task Initialize (TestContext context, CancellationToken cancellationToken);
+
+		Task PreRun (TestContext context, CancellationToken cancellationToken);
+
+		Task PostRun (TestContext context, CancellationToken cancellationToken);
+
+		Task Destroy (TestContext context, CancellationToken cancellationToken);
 	}
 }
 
