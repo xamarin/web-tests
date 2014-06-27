@@ -35,6 +35,8 @@ namespace Xamarin.AsyncTests.Framework {
 		Ignored,
 		Message,
 		Warning,
-		Error
+		Error,
+		None,
+		Canceled
 	}
 }

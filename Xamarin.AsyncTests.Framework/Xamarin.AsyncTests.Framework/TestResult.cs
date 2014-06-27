@@ -37,7 +37,7 @@ namespace Xamarin.AsyncTests.Framework
 	public class TestResult : INotifyPropertyChanged
 	{
 		TestName name;
-		TestStatus status = TestStatus.Ignored;
+		TestStatus status = TestStatus.None;
 		string message;
 		Exception error;
 		TestCase test;
@@ -52,7 +52,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public TestStatus Status {
 			get { return status; }
-			protected set {
+			set {
 				if (value == status)
 					return;
 				status = value;

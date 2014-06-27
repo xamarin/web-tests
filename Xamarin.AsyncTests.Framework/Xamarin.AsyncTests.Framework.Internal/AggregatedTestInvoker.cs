@@ -91,12 +91,13 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			ctx.Debug (3, "SetUp({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
 				Print (Host), Flags, Print (instance));
 
-			if (Host == null)
-				return instance;
-
 			try {
 				ctx.CurrentTestName.PushName ("SetUp");
+				cancellationToken.ThrowIfCancellationRequested ();
 				return await Host.CreateInstance (ctx, instance, cancellationToken);
+			} catch (OperationCanceledException) {
+				result.Status = TestStatus.Canceled;
+				return null;
 			} catch (Exception ex) {
 				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
@@ -115,9 +116,13 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			try {
 				ctx.CurrentTestName.PushName ("PreRun");
 				for (var current = instance; current != null; current = current.Parent) {
+					cancellationToken.ThrowIfCancellationRequested ();
 					await current.PreRun (ctx, cancellationToken);
 				}
 				return true;
+			} catch (OperationCanceledException) {
+				result.Status = TestStatus.Canceled;
+				return false;
 			} catch (Exception ex) {
 				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
@@ -139,8 +144,12 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 			try {
 				ctx.CurrentTestName.PushName ("MoveNext");
+				cancellationToken.ThrowIfCancellationRequested ();
 				await parameterizedInstance.MoveNext (ctx, cancellationToken);
 				return true;
+			} catch (OperationCanceledException) {
+				result.Status = TestStatus.Canceled;
+				return false;
 			} catch (Exception ex) {
 				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
@@ -160,6 +169,9 @@ namespace Xamarin.AsyncTests.Framework.Internal
 				cancellationToken.ThrowIfCancellationRequested ();
 				var success = await invoker.Invoke (ctx, instance, result, cancellationToken);
 				return success || ContinueOnError;
+			} catch (OperationCanceledException) {
+				result.Status = TestStatus.Canceled;
+				return false;
 			} catch (Exception ex) {
 				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
@@ -176,9 +188,13 @@ namespace Xamarin.AsyncTests.Framework.Internal
 			try {
 				ctx.CurrentTestName.PushName ("PostName");
 				for (var current = instance; current != null; current = current.Parent) {
+					cancellationToken.ThrowIfCancellationRequested ();
 					await current.PostRun (ctx, cancellationToken);
 				}
 				return true;
+			} catch (OperationCanceledException) {
+				result.Status = TestStatus.Canceled;
+				return false;
 			} catch (Exception ex) {
 				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
@@ -196,8 +212,12 @@ namespace Xamarin.AsyncTests.Framework.Internal
 
 			try {
 				ctx.CurrentTestName.PushName ("TearDown");
+				cancellationToken.ThrowIfCancellationRequested ();
 				await instance.Destroy (ctx, cancellationToken);
 				return true;
+			} catch (OperationCanceledException) {
+				result.Status = TestStatus.Canceled;
+				return false;
 			} catch (Exception ex) {
 				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
@@ -212,6 +232,8 @@ namespace Xamarin.AsyncTests.Framework.Internal
 		{
 			if (InnerTestInvokers.Count == 0)
 				return true;
+			if (cancellationToken.IsCancellationRequested)
+				return false;
 
 			ctx.Debug (3, "Invoke({0}): {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
 				Print (Host), Flags, Print (instance), InnerTestInvokers.Count);
@@ -286,9 +308,12 @@ namespace Xamarin.AsyncTests.Framework.Internal
 					success = false;
 			}
 
-			ctx.CurrentTestResult = oldResult;
+			if (cancellationToken.IsCancellationRequested) {
+				innerResult.Status = TestStatus.Canceled;
+				success = false;
+			}
 
-			cancellationToken.ThrowIfCancellationRequested ();
+			ctx.CurrentTestResult = oldResult;
 			return success;
 		}
 
