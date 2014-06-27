@@ -28,8 +28,8 @@
 //
 using System;
 
-namespace Xamarin.AsyncTests.Framework {
-
+namespace Xamarin.AsyncTests
+{
 	public enum TestStatus {
 		Success,
 		Ignored,

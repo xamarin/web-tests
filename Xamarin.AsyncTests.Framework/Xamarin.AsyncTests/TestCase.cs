@@ -33,9 +33,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework {
-	using Internal;
-
+namespace Xamarin.AsyncTests
+{
 	public abstract class TestCase
 	{
 		public TestName Name {

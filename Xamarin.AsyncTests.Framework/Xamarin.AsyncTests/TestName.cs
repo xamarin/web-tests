@@ -27,7 +27,7 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
 	public class TestName
 	{

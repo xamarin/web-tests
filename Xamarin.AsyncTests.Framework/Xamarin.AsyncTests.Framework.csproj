@@ -27,9 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSuite.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestStatus.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\ParameterizedTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ReflectionTestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ReflectionTestFixture.cs" />
@@ -43,9 +41,7 @@
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ParameterAttributeTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\CustomHostAttributeTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\RepeatedTestHost.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestResult.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\ProxyTestInvoker.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestName.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\InvokableTestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\CapturedTestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal\CapturedTestHost.cs" />
@@ -72,6 +68,10 @@
     <Compile Include="Xamarin.AsyncTests\TestCategoryAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ReflectionTestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Internal.Reflection\ReflectionTest.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestCase.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestName.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestStatus.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestResult.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

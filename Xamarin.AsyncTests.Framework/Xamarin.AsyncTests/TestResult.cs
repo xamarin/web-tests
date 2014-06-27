@@ -32,7 +32,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
 	public class TestResult : INotifyPropertyChanged
 	{
