@@ -1,5 +1,5 @@
 ﻿//
-// OptionsModel.cs
+// TestFeatureSelector.xaml.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,26 +24,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
 {
-	public class OptionsModel : BindableObject
+	public partial class TestFeatureSelector : ContentView
 	{
-		public TestApp App {
-			get;
-			private set;
-		}
-
-		public TestFeaturesModel Features {
-			get;
-			private set;
-		}
-
-		public OptionsModel (TestApp app)
+		public TestFeatureSelector ()
 		{
-			App = app;
-			Features = new TestFeaturesModel (App);
+			InitializeComponent ();
 		}
 	}
 }

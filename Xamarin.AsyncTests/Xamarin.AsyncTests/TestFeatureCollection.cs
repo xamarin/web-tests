@@ -24,35 +24,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests
 {
-	public class TestFeatureCollection
+	public class TestFeatureCollection : INotifyPropertyChanged
 	{
-		Dictionary<TestFeature,bool> features;
-
-		public ITestSuite TestSuite {
-			get;
-			private set;
-		}
+		Dictionary<TestFeature,bool> features = new Dictionary<TestFeature, bool> ();
 
 		public IEnumerable<TestFeature> Features {
 			get { return features.Keys; }
 		}
 
-		public TestFeatureCollection (ITestSuite suite)
+		public void AddTestSuite (ITestSuite suite)
 		{
-			TestSuite = suite;
-			Resolve ();
-		}
-
-		void Resolve ()
-		{
-			features = new Dictionary<TestFeature, bool> ();
-			foreach (var feature in TestSuite.Features) {
+			foreach (var feature in suite.Features) {
 				features.Add (feature, feature.Constant ?? false);
 			}
+			OnPropertyChanged ("Features");
 		}
 
 		public bool IsEnabled (TestFeature feature)
@@ -64,6 +54,18 @@ namespace Xamarin.AsyncTests
 		{
 			return feature.Constant == null;
 		}
+
+		#region INotifyPropertyChanged implementation
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged (string propertyName)
+		{
+			if (PropertyChanged != null)
+				PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
+		}
+
+		#endregion
 	}
 }
 

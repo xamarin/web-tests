@@ -1,5 +1,5 @@
 ﻿//
-// OptionsModel.cs
+// TestFeatureModel.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,25 +25,30 @@
 // THE SOFTWARE.
 using System;
 using Xamarin.Forms;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.AsyncTests.UI
 {
-	public class OptionsModel : BindableObject
+	public class TestFeatureModel : BindableObject
 	{
 		public TestApp App {
 			get;
 			private set;
 		}
 
-		public TestFeaturesModel Features {
+		public TestFeature Feature {
 			get;
 			private set;
 		}
 
-		public OptionsModel (TestApp app)
+		public bool IsEnabled {
+			get; set;
+		}
+
+		public TestFeatureModel (TestApp app, TestFeature feature)
 		{
 			App = app;
-			Features = new TestFeaturesModel (App);
+			Feature = feature;
 		}
 	}
 }

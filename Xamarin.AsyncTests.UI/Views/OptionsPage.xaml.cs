@@ -31,18 +31,18 @@ namespace Xamarin.AsyncTests.UI
 {	
 	public partial class OptionsPage : ContentPage
 	{	
-		public TestApp App {
+		public OptionsModel Model {
 			get;
 			private set;
 		}
 
-		public OptionsPage (TestApp app)
+		public OptionsPage (OptionsModel model)
 		{
-			App = app;
+			Model = model;
 
 			InitializeComponent ();
 
-			BindingContext = App.Options;
+			BindingContext = model;
 		}
 	}
 }

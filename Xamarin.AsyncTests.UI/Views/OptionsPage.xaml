@@ -2,9 +2,14 @@
 <ContentPage
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.OptionsPage">
-    <ContentPage.Content>
-        
-    </ContentPage.Content>
-</ContentPage>
 
+    <StackLayout Spacing="10" Orientation="Vertical">
+
+        <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <local:TestFeatureSelector BindingContext="{Binding Features}" />
+        </ScrollView>
+
+    </StackLayout>
+</ContentPage>

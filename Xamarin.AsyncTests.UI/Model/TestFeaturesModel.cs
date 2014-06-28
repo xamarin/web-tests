@@ -1,5 +1,5 @@
 ﻿//
-// OptionsModel.cs
+// TestFeaturesModel.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,26 +24,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.ComponentModel;
+using System.Collections.Generic;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
 {
-	public class OptionsModel : BindableObject
+	public class TestFeaturesModel : BindableObject
 	{
 		public TestApp App {
 			get;
 			private set;
 		}
 
-		public TestFeaturesModel Features {
-			get;
-			private set;
+		List<TestFeatureModel> features;
+		public IList<TestFeatureModel> Features {
+			get { return features; }
 		}
 
-		public OptionsModel (TestApp app)
+		public TestFeaturesModel (TestApp app)
 		{
 			App = app;
-			Features = new TestFeaturesModel (App);
+
+			features = new List<TestFeatureModel> ();
+			app.Context.Features.PropertyChanged += (sender, e) => OnFeaturesChanged ();
+		}
+
+		void OnFeaturesChanged ()
+		{
+			features.Clear ();
+			foreach (var feature in App.Context.Features.Features)
+				features.Add (new TestFeatureModel (App, feature));
+			OnPropertyChanged ("Features");
 		}
 	}
 }

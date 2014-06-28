@@ -128,6 +128,9 @@
     <Compile Include="..\Xamarin.WebTests\Tests\TestProxy.cs">
       <Link>Tests\TestProxy.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\TestSuite.cs">
+      <Link>TestSuite.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xamarin.WebTests\Framework\RequestFlags.cs">

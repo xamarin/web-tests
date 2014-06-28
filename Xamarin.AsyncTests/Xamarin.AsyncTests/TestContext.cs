@@ -43,6 +43,7 @@ namespace Xamarin.AsyncTests
 		List<TestResult> warnings;
 		List<IDisposable> disposables;
 		TestNameBuilder currentTestName = new TestNameBuilder ();
+		TestFeatureCollection features = new TestFeatureCollection ();
 
 		const int DefaultDebugLevel = 10;
 
@@ -84,8 +85,6 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		#region Internal
-
 		public TestResult CurrentTestResult {
 			get;
 			internal set;
@@ -111,7 +110,9 @@ namespace Xamarin.AsyncTests
 			return new TestResult (GetCurrentTestName (), error, message);
 		}
 
-		#endregion
+		public TestFeatureCollection Features {
+			get { return features; }
+		}
 
 		#region Assertions
 
