@@ -62,7 +62,7 @@ namespace Xamarin.WebTests.Async.iOS
 			Xamarin.Forms.Forms.Init ();
 
 			test = new TestApp ("Xamarin Web Tests");
-			test.LoadAssembly (typeof(SimpleTest).Assembly);
+			test.LoadAssembly (typeof(AppDelegate).Assembly);
 
 			window = new UIWindow (UIScreen.MainScreen.Bounds);
 			window.RootViewController =  test.Root.CreateViewController ();

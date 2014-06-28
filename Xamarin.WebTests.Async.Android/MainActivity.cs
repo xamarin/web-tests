@@ -27,7 +27,7 @@ namespace Xamarin.WebTests.Async.Android
 			Xamarin.Forms.Forms.Init (this, bundle);
 
 			var test = new TestApp ("Xamarin Web Tests");
-			test.LoadAssembly (typeof(SimpleTest).Assembly);
+			test.LoadAssembly (typeof(MainActivity).Assembly);
 
 			SetPage (test.Root);
 		}
