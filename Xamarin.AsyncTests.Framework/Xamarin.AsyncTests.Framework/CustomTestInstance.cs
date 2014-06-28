@@ -34,6 +34,7 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		ITestHost<T> customHost;
 		T instance;
+		bool hasNext;
 
 		public Type HostType {
 			get;
@@ -63,6 +64,7 @@ namespace Xamarin.AsyncTests.Framework
 
 			instance = customHost.CreateInstance (context);
 			await instance.Initialize (context, cancellationToken);
+			hasNext = true;
 		}
 
 		public override async Task PreRun (TestContext context, CancellationToken cancellationToken)
@@ -77,11 +79,12 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override bool HasNext ()
 		{
-			return false;
+			return hasNext;
 		}
 
 		public override Task MoveNext (TestContext context, CancellationToken cancellationToken)
 		{
+			hasNext = false;
 			return Task.FromResult<object> (null);
 		}
 

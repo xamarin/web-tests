@@ -264,16 +264,21 @@ namespace Xamarin.AsyncTests.Framework
 			var current = innerRunners.First;
 
 			while (success && current != null) {
+				var parameterizedInstance = innerInstance as ParameterizedTestInstance;
 				var invoker = current.Value;
 
 				if (cancellationToken.IsCancellationRequested)
 					break;
 
+				if (ParameterizedHost != null && !parameterizedInstance.HasNext ()) {
+					current = current.Next;
+					continue;
+				}
+
 				success = await MoveNext (ctx, innerInstance, innerResult, cancellationToken);
 				if (!success)
 					break;
 
-				var parameterizedInstance = innerInstance as ParameterizedTestInstance;
 				if (!IsHidden && ParameterizedHost != null)
 					ctx.CurrentTestName.PushParameter (ParameterizedHost.ParameterName, parameterizedInstance.Current);
 				var capturedTest = CaptureContext (ctx, innerInstance, invoker);
