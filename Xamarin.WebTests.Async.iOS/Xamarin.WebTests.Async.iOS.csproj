@@ -111,6 +111,7 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
+    <Compile Include="Tests\TestGet.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xamarin.WebTests\Framework\RequestFlags.cs">
@@ -210,5 +211,11 @@
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>Xamarin.AsyncTests.Framework</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\Xamarin.WebTests\cert.pfx">
+      <Link>Server\cert.pfx</Link>
+      <LogicalName>Xamarin.WebTests.Server.cert.pfx</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

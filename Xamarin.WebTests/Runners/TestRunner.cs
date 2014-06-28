@@ -30,17 +30,43 @@ using System.Net;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Runners
 {
 	using Handlers;
 	using Framework;
 
-	public abstract class TestRunner
+	public abstract class TestRunner : ITestInstance
 	{
+		#region ITestInstance implementation
+
+		public Task Initialize (Xamarin.AsyncTests.TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => Start ());
+		}
+
+		public Task PreRun (Xamarin.AsyncTests.TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.FromResult<object> (null);
+		}
+
+		public Task PostRun (Xamarin.AsyncTests.TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.FromResult<object> (null);
+		}
+
+		public Task Destroy (Xamarin.AsyncTests.TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => Stop ());
+		}
+
+		#endregion
+
 		public abstract void Start ();
 
 		public abstract void Stop ();
