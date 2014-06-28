@@ -45,16 +45,21 @@
     <Compile Include="Views\TestNameView.xaml.cs">
       <DependentUpon>TestNameView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TestResultModel.cs" />
     <Compile Include="Views\TestRunnerControl.xaml.cs">
       <DependentUpon>TestRunnerControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TestRunnerModel.cs" />
+    <Compile Include="Model\TestRunnerModel.cs" />
+    <Compile Include="Model\TestResultModel.cs" />
+    <Compile Include="Views\OptionsPage.xaml.cs">
+      <DependentUpon>OptionsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Model\OptionsModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="../packages/Xamarin.Forms.1.1.1.6206/build/portable-win+net45+wp80+MonoAndroid10+MonoTouch10/Xamarin.Forms.targets" />
   <ItemGroup>
     <Folder Include="Views\" />
+    <Folder Include="Model\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\MainPage.xaml">
@@ -70,6 +75,9 @@
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TestRunnerControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\OptionsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>

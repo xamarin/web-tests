@@ -1,5 +1,5 @@
 ﻿//
-// TestRunnerControl.xaml.cs
+// OptionsPage.xaml.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -23,35 +23,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
-{
-	public partial class TestRunnerControl : ContentView
-	{
-		public TestRunnerControl ()
+{	
+	public partial class OptionsPage : ContentPage
+	{	
+		public TestApp App {
+			get;
+			private set;
+		}
+
+		public OptionsPage (TestApp app)
 		{
+			App = app;
+
 			InitializeComponent ();
-		}
 
-		void OnRun (object sender, EventArgs args)
-		{
-			var model = (TestRunnerModel)BindingContext;
-			model.App.Run ();
-		}
-
-		void OnStop (object sender, EventArgs args)
-		{
-			var model = (TestRunnerModel)BindingContext;
-			model.App.Stop ();
-		}
-
-		async void OnOptions (object sender, EventArgs args)
-		{
-			var model = (TestRunnerModel)BindingContext;
-			await Navigation.PushAsync (model.App.OptionsPage);
+			BindingContext = App.Options;
 		}
 	}
 }

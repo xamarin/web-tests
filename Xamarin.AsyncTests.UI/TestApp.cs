@@ -106,6 +106,16 @@ namespace Xamarin.AsyncTests.UI
 			get { return !running && CurrentTestRunner.Test != null; }
 		}
 
+		public OptionsModel Options {
+			get;
+			private set;
+		}
+
+		public OptionsPage OptionsPage {
+			get;
+			private set;
+		}
+
 		public TestApp (string name)
 		{
 			Context = new TestContext ();
@@ -116,6 +126,9 @@ namespace Xamarin.AsyncTests.UI
 
 			MainPage = new MainPage (this);
 			Root = new NavigationPage (MainPage);
+
+			Options = new OptionsModel ();
+			OptionsPage = new OptionsPage (this);
 		}
 
 		public async void LoadAssembly (Assembly assembly)

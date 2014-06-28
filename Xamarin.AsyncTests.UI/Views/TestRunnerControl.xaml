@@ -9,6 +9,7 @@
         <StackLayout Spacing="20" Orientation="Horizontal">
             <Button Text="Run" IsEnabled="{Binding App.CanRun}" Clicked="OnRun" />
             <Button Text="Stop" IsEnabled="{Binding App.CanStop}" Clicked="OnStop" />
+            <Button Text="Options" Clicked="OnOptions" />
         </StackLayout>
 
     	<Label Text="{Binding App.StatusMessage}" VerticalOptions="End" />

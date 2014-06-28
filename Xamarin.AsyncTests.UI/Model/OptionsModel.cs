@@ -1,5 +1,5 @@
 ﻿//
-// TestRunnerControl.xaml.cs
+// OptionsModel.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,35 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
 {
-	public partial class TestRunnerControl : ContentView
+	public class OptionsModel : BindableObject
 	{
-		public TestRunnerControl ()
-		{
-			InitializeComponent ();
-		}
-
-		void OnRun (object sender, EventArgs args)
-		{
-			var model = (TestRunnerModel)BindingContext;
-			model.App.Run ();
-		}
-
-		void OnStop (object sender, EventArgs args)
-		{
-			var model = (TestRunnerModel)BindingContext;
-			model.App.Stop ();
-		}
-
-		async void OnOptions (object sender, EventArgs args)
-		{
-			var model = (TestRunnerModel)BindingContext;
-			await Navigation.PushAsync (model.App.OptionsPage);
-		}
 	}
 }
 
