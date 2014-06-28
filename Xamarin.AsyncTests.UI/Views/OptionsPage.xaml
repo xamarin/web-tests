@@ -5,9 +5,19 @@
     xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.OptionsPage">
 
-    <StackLayout Spacing="50" Orientation="Vertical">
+    <StackLayout Spacing="20" Padding="20" Orientation="Vertical">
 
-        <Picker x:Name="Picker" HorizontalOptions="FillAndExpand" />
+        <StackLayout Spacing="30" Orientation="Horizontal">
+            <Switch IsToggled="{Binding Repeat}" />
+            <Label Text="Repeat" VerticalOptions="Center" />
+            <Entry Text="{Binding RepeatCountEntry}" HorizontalOptions="FillAndExpand"
+                   Completed="OnRepeatCountChanged" />
+        </StackLayout>
+
+        <StackLayout Spacing="30" Orientation="Horizontal">
+            <Label Text="Category:" VerticalOptions="Center" />
+            <Picker x:Name="Picker" HorizontalOptions="FillAndExpand" />
+        </StackLayout>
 
         <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
             <local:TestFeatureSelector BindingContext="{Binding Features}" />

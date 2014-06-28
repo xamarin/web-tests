@@ -31,10 +31,21 @@ using Xamarin.Forms;
 namespace Xamarin.AsyncTests.UI
 {	
 	public partial class OptionsPage : ContentPage
-	{	
+	{
 		public OptionsModel Model {
 			get;
 			private set;
+		}
+
+		void OnRepeatCountChanged (object sender, EventArgs args)
+		{
+			int repeatCount;
+			if (!int.TryParse (Model.RepeatCountEntry, out repeatCount)) {
+				Model.RepeatCountEntry = Model.RepeatCount.ToString ();
+				return;
+			}
+
+			Model.RepeatCount = repeatCount;
 		}
 
 		public OptionsPage (OptionsModel model)

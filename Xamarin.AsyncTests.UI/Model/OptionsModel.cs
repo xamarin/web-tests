@@ -50,6 +50,41 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		bool repeat;
+		int repeatCount;
+		string repeatCountEntry;
+
+		public bool Repeat {
+			get { return repeat; }
+			set {
+				if (repeat == value)
+					return;
+				repeat = value;
+				SaveSettings ();
+				OnPropertyChanged ("Repeat");
+			}
+		}
+
+		public int RepeatCount {
+			get { return repeatCount; }
+			set {
+				if (repeatCount == value)
+					return;
+				repeatCount = value;
+				RepeatCountEntry = value.ToString ();
+				SaveSettings ();
+				OnPropertyChanged ("RepeatCount");
+			}
+		}
+
+		public string RepeatCountEntry {
+			get { return repeatCountEntry; }
+			set {
+				repeatCountEntry = value;
+				OnPropertyChanged ("RepeatCountEntry");
+			}
+		}
+
 		public OptionsModel (TestApp app, TestConfiguration config)
 		{
 			App = app;
@@ -57,6 +92,37 @@ namespace Xamarin.AsyncTests.UI
 
 			Features = new TestFeaturesModel (App, Configuration);
 			Categories = new TestCategoriesModel (App, Configuration);
+
+			LoadSettings ();
+		}
+
+		void LoadSettings ()
+		{
+			if (App.Settings == null)
+				return;
+
+			var repeatCountValue = App.Settings.GetValue ("RepeatCount");
+			if (repeatCountValue != null) {
+				repeatCount = int.Parse (repeatCountValue);
+				repeatCountEntry = repeatCount.ToString ();
+			}
+
+			var repeatValue = App.Settings.GetValue ("Repeat");
+			if (repeatValue != null)
+				repeat = bool.Parse (repeatValue);
+
+			OnPropertyChanged ("RepeatCount");
+			OnPropertyChanged ("RepeatCountEntry");
+			OnPropertyChanged ("Repeat");
+		}
+
+		void SaveSettings ()
+		{
+			if (App.Settings == null)
+				return;
+
+			App.Settings.SetValue ("RepeatCount", RepeatCount.ToString ());
+			App.Settings.SetValue ("Repeat", Repeat.ToString ());
 		}
 	}
 }

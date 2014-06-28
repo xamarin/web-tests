@@ -105,6 +105,8 @@ namespace Xamarin.AsyncTests.UI
 				if (index >= 0)
 					selectedIndex = index;
 			}
+
+			OnPropertyChanged ("SelectedIndex");
 		}
 
 		void SaveSettings ()
