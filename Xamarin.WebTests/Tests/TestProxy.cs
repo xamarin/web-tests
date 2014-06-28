@@ -102,15 +102,26 @@ namespace Xamarin.WebTests.Tests
 
 		IEnumerable<ProxyKind> ITestParameterSource<ProxyKind>.GetParameters (TestContext context, string filter)
 		{
-			if (!hasNetwork)
+			if (!context.Configuration.IsEnabled (WebTestFeatures.HasNetwork))
+				yield break;
+
+			if (!context.Configuration.IsEnabled (WebTestFeatures.Proxy))
 				yield break;
 
 			yield return ProxyKind.Simple;
-			yield return ProxyKind.BasicAuth;
-			yield return ProxyKind.NtlmAuth;
-			yield return ProxyKind.Unauthenticated;
 
-			// yield return ProxyKind.SSL;
+			if (context.Configuration.IsEnabled (WebTestFeatures.ProxyAuth)) {
+				yield return ProxyKind.BasicAuth;
+				if (context.Configuration.IsEnabled (WebTestFeatures.NTLM))
+					yield return ProxyKind.NtlmAuth;
+			}
+
+			if (context.Configuration.IsEnabled (WebTestFeatures.Experimental)) {
+				yield return ProxyKind.Unauthenticated;
+
+				if (context.Configuration.IsEnabled (WebTestFeatures.SSL))
+					yield return ProxyKind.SSL;
+			}
 		}
 
 		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (TestContext context, string filter)

@@ -77,7 +77,7 @@
     <Compile Include="Tests\ProxyKind.cs" />
     <Compile Include="Tests\RedirectStatusSource.cs" />
     <Compile Include="Tests\TestGet.cs" />
-    <Compile Include="TestSuite.cs" />
+    <Compile Include="WebTestFeatures.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

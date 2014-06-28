@@ -42,7 +42,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public override IEnumerable<string> Categories {
+		public override IEnumerable<TestCategory> Categories {
 			get { return Test.Categories; }
 		}
 

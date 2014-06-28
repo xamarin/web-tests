@@ -34,14 +34,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	abstract class ReflectionTest : TestCase
 	{
-		readonly IEnumerable<string> categories;
+		readonly IEnumerable<TestCategory> categories;
 
 		public AsyncTestAttribute Attribute {
 			get;
 			private set;
 		}
 
-		public override IEnumerable<string> Categories {
+		public override IEnumerable<TestCategory> Categories {
 			get { return categories; }
 		}
 
@@ -213,10 +213,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 		}
 
-		protected static IEnumerable<string> GetCategories (IMemberInfo member)
+		protected static IEnumerable<TestCategory> GetCategories (IMemberInfo member)
 		{
 			foreach (var cattr in member.GetCustomAttributes<TestCategoryAttribute> ())
-				yield return cattr.Name;
+				yield return cattr.Category;
 		}
 
 		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)

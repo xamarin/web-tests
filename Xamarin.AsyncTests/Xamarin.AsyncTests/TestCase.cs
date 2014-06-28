@@ -47,7 +47,7 @@ namespace Xamarin.AsyncTests
 			Name = name;
 		}
 
-		public abstract IEnumerable<string> Categories {
+		public abstract IEnumerable<TestCategory> Categories {
 			get;
 		}
 

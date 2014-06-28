@@ -48,7 +48,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return configuration; }
 		}
 
-		public override IEnumerable<string> Categories {
+		public override IEnumerable<TestCategory> Categories {
 			get { return tests.SelectMany (test => test.Categories).Distinct (); }
 		}
 

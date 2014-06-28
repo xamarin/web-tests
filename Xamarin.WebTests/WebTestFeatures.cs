@@ -28,17 +28,19 @@ using System.Net;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
 
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.TestSuite))]
+[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures))]
 
 namespace Xamarin.WebTests
 {
 	using Runners;
 
-	public class TestSuite : ITestConfiguration
+	public class WebTestFeatures : ITestConfiguration
 	{
 		public static readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
 		public static readonly TestFeature SSL = new TestFeature ("SSL", "Use SSL", true);
 		public static readonly TestFeature Proxy = new TestFeature ("Proxy", "Proxy Tests", true);
+		public static readonly TestFeature ProxyAuth = new TestFeature ("ProxyAuth", "Proxy Authentication", true);
+		public static readonly TestFeature Experimental = new TestFeature ("Experimental", "Experimental Tests", false);
 
 		public static readonly TestFeature HasNetwork = new TestFeature (
 			"Network", "HasNetwork", () => !IPAddress.IsLoopback (TestRunner.GetAddress ()));
@@ -53,6 +55,9 @@ namespace Xamarin.WebTests
 				yield return NTLM;
 				yield return SSL;
 				yield return Proxy;
+				yield return ProxyAuth;
+				yield return Experimental;
+
 				yield return HasNetwork;
 			}
 		}

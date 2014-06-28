@@ -32,14 +32,14 @@ namespace Xamarin.AsyncTests
 {
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
 	public sealed class TestCategoryAttribute : Attribute {
-		public string Name {
+		public TestCategory Category {
 			get;
 			private set;
 		}
 
-		public TestCategoryAttribute (string name)
+		public TestCategoryAttribute (TestCategory category)
 		{
-			Name = name;
+			Category = category;
 		}
 	}
 }
