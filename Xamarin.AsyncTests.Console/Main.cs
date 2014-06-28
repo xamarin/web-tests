@@ -22,9 +22,15 @@ namespace Xamarin.AsyncTests.ConsoleRunner
 			Debug.Listeners.Add (new ConsoleTraceListener ());
 
 			var p = new OptionSet ().Add ("xml", v => xml = true);
-			p.Parse (args);
+			var remaining = p.Parse (args);
 
-			var asm = typeof(Xamarin.AsyncTests.Sample.SimpleTest).Assembly;
+			Assembly asm;
+			if (remaining.Count == 1)
+				asm = LoadAssembly (remaining [0]);
+			else if (remaining.Count == 0)
+				asm = typeof(Sample.SimpleTest).Assembly;
+			else
+				throw new InvalidOperationException ();
 
 			try {
 				Run (asm).Wait ();
@@ -33,11 +39,17 @@ namespace Xamarin.AsyncTests.ConsoleRunner
 			}
 		}
 
+		static Assembly LoadAssembly (string name)
+		{
+			return Assembly.LoadFile (name);
+		}
+
 		static async Task Run (Assembly assembly)
 		{
 			var suite = await TestSuite.LoadAssembly (assembly);
 
 			var context = new TestContext ();
+			context.DebugLevel = 0;
 			var result = new TestResult (new TestName (assembly.GetName ().Name));
 			await suite.Run (context, result, CancellationToken.None);
 			WriteResults (result);
