@@ -42,7 +42,7 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 
 	[AsyncTestFixture]
-	public class TestProxyAsync : ITestHost<ProxyTestRunner>, ITestParameterSource<Handler>,
+	public class TestProxy : ITestHost<ProxyTestRunner>, ITestParameterSource<Handler>,
 		ITestParameterSource<ProxyKind>, ITestParameterSource<AuthenticationType>
 	{
 		[TestParameter]
@@ -58,7 +58,7 @@ namespace Xamarin.WebTests.Tests
 		readonly IPAddress address;
 		readonly bool hasNetwork;
 
-		public TestProxyAsync ()
+		public TestProxy ()
 		{
 			address = TestRunner.GetAddress ();
 			hasNetwork = !IPAddress.IsLoopback (address);
@@ -115,7 +115,7 @@ namespace Xamarin.WebTests.Tests
 
 		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (TestContext context, string filter)
 		{
-			return TestAuthenticationAsync.GetAuthenticationTypes (context, filter);
+			return TestAuthentication.GetAuthenticationTypes (context, filter);
 		}
 
 		public IEnumerable<Handler> GetParameters (TestContext context, string filter)
@@ -125,7 +125,7 @@ namespace Xamarin.WebTests.Tests
 				return list;
 
 			list.Add (new HelloWorldHandler ());
-			list.AddRange (TestPostAsync.GetParameters (context, filter));
+			list.AddRange (TestPost.GetParameters (context, filter));
 			return list;
 		}
 
@@ -143,7 +143,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task TestAuthentication (
+		public Task RunAuthentication (
 			TestContext ctx, [TestHost] ProxyTestRunner runner, [TestParameter] AuthenticationType authType, 
 			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{

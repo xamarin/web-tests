@@ -112,11 +112,11 @@
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="Tests\TestGet.cs" />
-    <Compile Include="Tests\TestPostAsync.cs" />
     <Compile Include="Tests\RedirectStatusSource.cs" />
-    <Compile Include="Tests\TestAuthenticationAsync.cs" />
-    <Compile Include="Tests\TestProxyAsync.cs" />
     <Compile Include="Tests\ProxyKind.cs" />
+    <Compile Include="Tests\TestAuthentication.cs" />
+    <Compile Include="Tests\TestPost.cs" />
+    <Compile Include="Tests\TestProxy.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xamarin.WebTests\Framework\RequestFlags.cs">
@@ -131,9 +131,6 @@
     <Compile Include="..\Xamarin.WebTests\Server\HttpConnection.cs">
       <Link>Server\HttpConnection.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests\Tests\TestPost.cs">
-      <Link>Tests\TestPost.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\HttpListener.cs">
       <Link>Server\HttpListener.cs</Link>
     </Compile>
@@ -145,9 +142,6 @@
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\ProxyConnection.cs">
       <Link>Server\ProxyConnection.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Tests\TestSsl.cs">
-      <Link>Tests\TestSsl.cs</Link>
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Handlers\AbstractRedirectHandler.cs">
       <Link>Handlers\AbstractRedirectHandler.cs</Link>
@@ -193,9 +187,6 @@
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Framework\HttpResponse.cs">
       <Link>Framework\HttpResponse.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Tests\TestProxy.cs">
-      <Link>Tests\TestProxy.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

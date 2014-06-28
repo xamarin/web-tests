@@ -40,8 +40,8 @@ namespace Xamarin.WebTests.Tests
 	using Handlers;
 	using Framework;
 
-	// [AsyncTestFixture]
-	public class TestAuthenticationAsync : ITestHost<TestRunner>, ITestParameterSource<Handler>, ITestParameterSource<AuthenticationType>
+	[AsyncTestFixture]
+	public class TestAuthentication : ITestHost<TestRunner>, ITestParameterSource<Handler>, ITestParameterSource<AuthenticationType>
 	{
 		[TestParameter (null, TestFlags.Hidden)]
 		public bool UseSSL {
@@ -60,7 +60,7 @@ namespace Xamarin.WebTests.Tests
 
 		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext context, string filter)
 		{
-			return TestPostAsync.GetParameters (context, filter);
+			return TestPost.GetParameters (context, filter);
 		}
 
 		public static IEnumerable<AuthenticationType> GetAuthenticationTypes (TestContext context, string filter)

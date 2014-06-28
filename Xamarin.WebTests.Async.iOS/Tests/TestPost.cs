@@ -41,8 +41,8 @@ namespace Xamarin.WebTests.Tests
 	using Handlers;
 	using Framework;
 
-	// [AsyncTestFixture]
-	public class TestPostAsync : ITestHost<HttpTestRunner>, ITestParameterSource<Handler>
+	[AsyncTestFixture]
+	public class TestPost : ITestHost<HttpTestRunner>, ITestParameterSource<Handler>
 	{
 		[TestParameter]
 		public bool UseSSL {
