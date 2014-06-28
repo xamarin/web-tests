@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.Tests
 	using Handlers;
 	using Framework;
 
-	[AsyncTestFixture]
+	// [AsyncTestFixture]
 	public class TestAuthenticationAsync : ITestHost<TestRunner>, ITestParameterSource<Handler>, ITestParameterSource<AuthenticationType>
 	{
 		[TestParameter (null, TestFlags.Hidden)]
@@ -63,9 +63,14 @@ namespace Xamarin.WebTests.Tests
 			return TestPostAsync.GetParameters (context, filter);
 		}
 
-		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (TestContext context, string filter)
+		public static IEnumerable<AuthenticationType> GetAuthenticationTypes (TestContext context, string filter)
 		{
 			yield return AuthenticationType.Basic;
+		}
+
+		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (TestContext context, string filter)
+		{
+			return GetAuthenticationTypes (context, filter);
 		}
 
 		[AsyncTest]

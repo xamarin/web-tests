@@ -61,15 +61,9 @@ namespace Xamarin.WebTests.Runners
 			get; set;
 		}
 
-		#if ALPHA
 		public bool UseSSL {
 			get; set;
 		}
-		#else
-		public bool UseSSL {
-			get { return false; }
-		}
-		#endif
 
 		public override Task Start (CancellationToken cancellationToken)
 		{

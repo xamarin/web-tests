@@ -115,6 +115,8 @@
     <Compile Include="Tests\TestPostAsync.cs" />
     <Compile Include="Tests\RedirectStatusSource.cs" />
     <Compile Include="Tests\TestAuthenticationAsync.cs" />
+    <Compile Include="Tests\TestProxyAsync.cs" />
+    <Compile Include="Tests\ProxyKind.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xamarin.WebTests\Framework\RequestFlags.cs">
