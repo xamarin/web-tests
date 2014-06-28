@@ -5,7 +5,9 @@
     xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.OptionsPage">
 
-    <StackLayout Spacing="10" Orientation="Vertical">
+    <StackLayout Spacing="50" Orientation="Vertical">
+
+        <Picker x:Name="Picker" HorizontalOptions="FillAndExpand" />
 
         <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
             <local:TestFeatureSelector BindingContext="{Binding Features}" />

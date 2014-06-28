@@ -34,7 +34,7 @@ namespace Xamarin.WebTests
 {
 	using Runners;
 
-	public class TestSuite : ITestSuite
+	public class TestSuite : ITestConfiguration
 	{
 		public static readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
 		public static readonly TestFeature SSL = new TestFeature ("SSL", "Use SSL", true);
@@ -43,6 +43,10 @@ namespace Xamarin.WebTests
 		public static readonly TestFeature HasNetwork = new TestFeature (
 			"Network", "HasNetwork", () => !IPAddress.IsLoopback (TestRunner.GetAddress ()));
 
+		public static readonly TestCategory AllTests = new TestCategory ("All");
+		public static readonly TestCategory NotWorking = new TestCategory ("NotWorking");
+		public static readonly TestCategory WorkCategory = new TestCategory ("Work");
+
 		#region ITestSuite implementation
 		public IEnumerable<TestFeature> Features {
 			get {
@@ -50,6 +54,18 @@ namespace Xamarin.WebTests
 				yield return SSL;
 				yield return Proxy;
 				yield return HasNetwork;
+			}
+		}
+
+		public TestCategory DefaultCategory {
+			get { return AllTests; }
+		}
+
+		public IEnumerable<TestCategory> Categories {
+			get {
+				yield return AllTests;
+				yield return NotWorking;
+				yield return WorkCategory;
 			}
 		}
 		#endregion

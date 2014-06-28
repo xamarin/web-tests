@@ -1,5 +1,5 @@
 ﻿//
-// ITestSuite.cs
+// TestCategory.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,14 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests
 {
-	public interface ITestSuite
+	public class TestCategory
 	{
-		IEnumerable<TestFeature> Features {
+		public string Name {
 			get;
+			private set;
+		}
+
+		public TestCategory (string name)
+		{
+			Name = name;
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[TestCategory: Name={0}]", Name);
 		}
 	}
 }

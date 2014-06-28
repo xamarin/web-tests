@@ -36,7 +36,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 	{
 		List<ReflectionTest> tests;
 		TestInvoker invoker;
-		ITestSuite suite;
+		ITestConfiguration configuration;
 
 		ReflectionTestSuite (TestName name)
 			: base (name)
@@ -44,8 +44,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			tests = new List<ReflectionTest> ();
 		}
 
-		public override ITestSuite Suite {
-			get { return suite; }
+		public override ITestConfiguration Configuration {
+			get { return configuration; }
 		}
 
 		public override IEnumerable<string> Categories {
@@ -87,7 +87,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var suiteAttr = assembly.GetCustomAttribute<AsyncTestSuiteAttribute> ();
 			if (suiteAttr != null)
-				suite = (ITestSuite)Activator.CreateInstance (suiteAttr.Type);
+				configuration = (ITestConfiguration)Activator.CreateInstance (suiteAttr.Type);
 		}
 
 		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)

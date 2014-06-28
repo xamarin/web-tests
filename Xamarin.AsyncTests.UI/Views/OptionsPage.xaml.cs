@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 ﻿using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using Xamarin.Forms;
 
@@ -43,6 +44,33 @@ namespace Xamarin.AsyncTests.UI
 			InitializeComponent ();
 
 			BindingContext = model;
+
+			Picker.SelectedIndexChanged += (sender, e) => {
+				Model.Categories.SelectedIndex = Picker.SelectedIndex;
+			};
+
+			Model.Categories.PropertyChanged += Load;
+		}
+
+		void Load (object sender, PropertyChangedEventArgs args)
+		{
+			switch (args.PropertyName) {
+			case "SelectedItem":
+				Picker.SelectedIndex = Model.Categories.SelectedIndex;
+				break;
+			case "Configuration":
+				Load ();
+				break;
+			}
+		}
+
+		void Load ()
+		{
+			// FIXME: can we also do this with data binding somehow?
+			Picker.Items.Clear ();
+			foreach (var category in Model.Categories.Categories)
+				Picker.Items.Add (category.Name);
+			Picker.SelectedIndex = Model.Categories.SelectedIndex;
 		}
 	}
 }

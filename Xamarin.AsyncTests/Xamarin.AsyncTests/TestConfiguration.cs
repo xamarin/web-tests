@@ -29,20 +29,42 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests
 {
-	public class TestFeatureCollection : INotifyPropertyChanged
+	public class TestConfiguration : INotifyPropertyChanged
 	{
 		Dictionary<TestFeature,bool> features = new Dictionary<TestFeature, bool> ();
+		List<TestCategory> categories = new List<TestCategory> ();
+		TestCategory currentCategory;
 
 		public IEnumerable<TestFeature> Features {
 			get { return features.Keys; }
 		}
 
-		public void AddTestSuite (ITestSuite suite)
+		public IEnumerable<TestCategory> Categories {
+			get { return categories; }
+		}
+
+		public void AddTestSuite (ITestConfiguration config)
 		{
-			foreach (var feature in suite.Features) {
+			foreach (var feature in config.Features) {
 				features.Add (feature, feature.Constant ?? feature.DefaultValue ?? false);
 			}
+			foreach (var category in config.Categories) {
+				categories.Add (category);
+			}
+			currentCategory = config.DefaultCategory;
 			OnPropertyChanged ("Features");
+			OnPropertyChanged ("Categories");
+			OnPropertyChanged ("CurrentCategory");
+		}
+
+		public TestCategory CurrentCategory {
+			get { return currentCategory; }
+			set {
+				if (currentCategory == value)
+					return;
+				currentCategory = value;
+				OnPropertyChanged ("CurrentCategory");
+			}
 		}
 
 		public bool IsEnabled (TestFeature feature)

@@ -60,6 +60,7 @@
     <Compile Include="Model\TestFeaturesModel.cs" />
     <Compile Include="Model\TestFeatureModel.cs" />
     <Compile Include="ISettingsHost.cs" />
+    <Compile Include="Model\TestCategoriesModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="../packages/Xamarin.Forms.1.1.1.6206/build/portable-win+net45+wp80+MonoAndroid10+MonoTouch10/Xamarin.Forms.targets" />

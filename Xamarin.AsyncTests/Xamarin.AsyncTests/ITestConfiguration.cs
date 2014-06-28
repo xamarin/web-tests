@@ -1,5 +1,5 @@
 ﻿//
-// TestFeaturesModel.cs
+// ITestSuite.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,60 +24,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.ComponentModel;
 using System.Collections.Generic;
-using Xamarin.Forms;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests
 {
-	public class TestFeaturesModel : BindableObject
+	public interface ITestConfiguration
 	{
-		public TestApp App {
+		IEnumerable<TestFeature> Features {
 			get;
-			private set;
 		}
 
-		public TestConfiguration Configuration {
+		TestCategory DefaultCategory {
 			get;
-			private set;
 		}
 
-		List<TestFeatureModel> features;
-		public IList<TestFeatureModel> Features {
-			get { return features; }
-		}
-
-		public TestFeaturesModel (TestApp app, TestConfiguration config)
-		{
-			App = app;
-			Configuration = config;
-
-			features = new List<TestFeatureModel> ();
-			Configuration.PropertyChanged += (sender, e) => OnConfigurationChanged ();
-		}
-
-		void OnConfigurationChanged ()
-		{
-			features.Clear ();
-			foreach (var feature in Configuration.Features) {
-				if (feature.CanModify)
-					features.Add (new TestFeatureModel (App, feature));
-			}
-			LoadSettings ();
-			OnPropertyChanged ("Features");
-		}
-
-		void LoadSettings ()
-		{
-			if (App.Settings == null)
-				return;
-			foreach (var feature in features) {
-				if (!feature.Feature.CanModify)
-					continue;
-				var value = App.Settings.GetValue (feature.Path);
-				if (value != null)
-					feature.IsEnabled = bool.Parse (value);
-			}
+		IEnumerable<TestCategory> Categories {
+			get;
 		}
 	}
 }

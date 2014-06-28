@@ -134,7 +134,7 @@ namespace Xamarin.AsyncTests.UI
 			MainPage = new MainPage (this);
 			Root = new NavigationPage (MainPage);
 
-			Options = new OptionsModel (this);
+			Options = new OptionsModel (this, Context.Configuration);
 			OptionsPage = new OptionsPage (Options);
 		}
 
@@ -144,8 +144,8 @@ namespace Xamarin.AsyncTests.UI
 			StatusMessage = string.Format ("Loading {0}", name);
 			TestSuite = await TestSuite.LoadAssembly (assembly);
 			RootTestResult.Result.Test = TestSuite;
-			if (TestSuite.Suite != null)
-				Context.Features.AddTestSuite (TestSuite.Suite);
+			if (TestSuite.Configuration != null)
+				Context.Configuration.AddTestSuite (TestSuite.Configuration);
 			StatusMessage = string.Format ("Successfully loaded {0}.", name);
 		}
 

@@ -35,15 +35,28 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public TestConfiguration Configuration {
+			get;
+			private set;
+		}
+
 		public TestFeaturesModel Features {
 			get;
 			private set;
 		}
 
-		public OptionsModel (TestApp app)
+		public TestCategoriesModel Categories {
+			get;
+			private set;
+		}
+
+		public OptionsModel (TestApp app, TestConfiguration config)
 		{
 			App = app;
-			Features = new TestFeaturesModel (App);
+			Configuration = config;
+
+			Features = new TestFeaturesModel (App, Configuration);
+			Categories = new TestCategoriesModel (App, Configuration);
 		}
 	}
 }
