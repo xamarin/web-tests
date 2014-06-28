@@ -53,13 +53,22 @@ namespace Xamarin.AsyncTests
 
 		public void Debug (int level, string format, params object[] args)
 		{
+			Debug (level, string.Format (format, args));
+		}
+
+		public void Debug (int level, string message)
+		{
 			if (level <= DebugLevel)
-				SD.Debug.WriteLine (format, args);
+				SD.Debug.WriteLine (message);
 		}
 
 		public void Log (string format, params object[] args)
 		{
-			var message = string.Format (format, args);
+			Log (string.Format (format, args));
+		}
+
+		public void Log (string message)
+		{
 			SD.Debug.WriteLine (message);
 			if (CurrentTestResult != null)
 				CurrentTestResult.AddMessage (message);
