@@ -122,7 +122,7 @@ namespace Xamarin.WebTests.Runners
 			return IPAddress.Loopback;
 		}
 
-		protected void Debug (int level, Handler handler, string message, params object[] args)
+		protected void Debug (TestContext ctx, int level, Handler handler, string message, params object[] args)
 		{
 			if (Handler.DebugLevel < level)
 				return;
@@ -132,40 +132,70 @@ namespace Xamarin.WebTests.Runners
 				sb.Append (" ");
 				sb.Append (args [i] != null ? args [i].ToString () : "<null>");
 			}
-			Console.Error.WriteLine (sb.ToString ());
+
+			if (ctx != null)
+				ctx.Debug (level, sb.ToString ());
+			else
+				Console.Error.WriteLine (sb.ToString ());
 		}
 
+		[Obsolete]
 		public void Run (Handler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK)
 		{
 			Run (handler, expectedStatus, expectedStatus != HttpStatusCode.OK);
 		}
 
+		[Obsolete]
 		public void Run (Handler handler, HttpStatusCode expectedStatus, bool expectException)
 		{
-			Debug (0, handler, "RUN");
+			var request = CreateRequest (handler);
+			Run (null, handler, request, expectedStatus, expectException);
+		}
+
+		public async Task Run (
+			TestContext ctx, Handler handler, CancellationToken cancellationToken,
+			HttpStatusCode expectedStatus = HttpStatusCode.OK,
+			bool expectException = false)
+		{
+			Debug (ctx, 0, handler, "RUN");
 
 			var request = CreateRequest (handler);
 
-			Debug (1, handler, "RUN #1", request.RequestUri);
+			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
+			cts.Token.Register (() => request.Abort ());
+
+			var task = Task.Factory.StartNew (() => Run (ctx, handler, request, expectedStatus, expectException));
+			try {
+				await task;
+			} finally {
+				cts.Dispose ();
+			}
+		}
+
+		void Run (
+			TestContext ctx, Handler handler, HttpWebRequest request, HttpStatusCode expectedStatus,
+			bool expectException)
+		{
+			Debug (ctx, 1, handler, "RUN #1", request.RequestUri);
 
 			handler.SendRequest (request);
 
 			try {
 				var response = (HttpWebResponse)request.GetResponse ();
-				Debug (1, handler, "GOT RESPONSE", response.StatusCode, response.StatusDescription);
+				Debug (ctx, 1, handler, "GOT RESPONSE", response.StatusCode, response.StatusDescription);
 				Assert.That (expectedStatus, Is.EqualTo (response.StatusCode), "status code");
 				Assert.That (expectException, Is.False, "success status");
 
 				using (var reader = new StreamReader (response.GetResponseStream ())) {
 					var content = reader.ReadToEnd ();
-					Debug (5, handler, "GOT RESPONSE BODY", content);
+					Debug (ctx, 5, handler, "GOT RESPONSE BODY", content);
 				}
 
 				response.Close ();
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
 				if (response == null) {
-					Debug (0, handler, "RUN - GOT WEB EXCEPTION WITH NULL RESPONSE", wexc);
+					Debug (ctx, 0, handler, "RUN - GOT WEB EXCEPTION WITH NULL RESPONSE", wexc);
 					Assert.Fail ("{0}:{1}: Got WebException will null response: {2}", this, handler, wexc);
 					throw;
 				}
@@ -178,16 +208,16 @@ namespace Xamarin.WebTests.Runners
 
 				using (var reader = new StreamReader (response.GetResponseStream ())) {
 					var content = reader.ReadToEnd ();
-					Debug (0, handler, "RUN - GOT WEB EXCEPTION", wexc.Status, response.StatusCode, content, wexc);
+					Debug (ctx, 0, handler, "RUN - GOT WEB EXCEPTION", wexc.Status, response.StatusCode, content, wexc);
 					Assert.Fail ("{0}: {1}", handler, content);
 				}
 				response.Close ();
 				throw;
 			} catch (Exception ex) {
-				Debug (0, handler, "RUN - GOT EXCEPTION", ex);
+				Debug (ctx, 0, handler, "RUN - GOT EXCEPTION", ex);
 				throw;
 			} finally {
-				Debug (0, handler, "RUN DONE");
+				Debug (ctx, 0, handler, "RUN DONE");
 			}
 		}
 

@@ -26,6 +26,8 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -41,28 +43,45 @@ namespace Xamarin.WebTests.Tests
 	[AsyncTestFixture]
 	public class TestGet : ITestHost<TestRunner>, ITestParameterSource<Handler>
 	{
-		#region ITestHost implementation
-
 		public TestRunner CreateInstance (TestContext context)
 		{
 			return new HttpTestRunner ();
 		}
-
-		#endregion
-
-		#region ITestParameterSource implementation
 
 		public IEnumerable<Handler> GetParameters (TestContext context, string filter)
 		{
 			yield return new HelloWorldHandler ();
 		}
 
-		#endregion
+		class RedirectCodes : ITestParameterSource<HttpStatusCode>
+		{
+			#region ITestParameterSource implementation
+			public IEnumerable<HttpStatusCode> GetParameters (TestContext context, string filter)
+			{
+				yield return HttpStatusCode.Moved;
+				yield return HttpStatusCode.Found;
+				yield return HttpStatusCode.TemporaryRedirect;
+			}
+			#endregion
+		}
 
 		[AsyncTest]
-		public void Run (TestContext ctx, [TestHost (typeof (TestGet))] TestRunner runner, [TestParameter] Handler handler)
+		public Task Run (TestContext ctx, CancellationToken cancellationToken,
+			[TestHost (typeof (TestGet))] TestRunner runner, [TestParameter] Handler handler)
 		{
-			runner.Run (handler);
+			return runner.Run (ctx, handler, cancellationToken);
+		}
+
+		[AsyncTest]
+		public Task Redirect (TestContext ctx, CancellationToken cancellationToken,
+			[TestHost (typeof (TestGet))] TestRunner runner,
+			[TestParameter (typeof (RedirectCodes))] HttpStatusCode code,
+			[TestParameter] Handler handler)
+		{
+			var description = string.Format ("{0}: {1}", code, handler.Description);
+			var redirect = new RedirectHandler (handler, code) { Description = description };
+
+			return runner.Run (ctx, redirect, cancellationToken);
 		}
 	}
 }
