@@ -87,10 +87,6 @@ namespace Xamarin.AsyncTests.Framework
 				return (ITestParameterSource<T>)Activator.CreateInstance (SourceType);
 			else if (UseFixtureInstance)
 				return (ITestParameterSource<T>)GetFixtureInstance ().Instance;
-			else if (typeof(T).Equals (typeof(bool)))
-				return (ITestParameterSource<T>)ParameterizedTestHost.CreateBooleanSource ();
-			else if (typeof(T).GetTypeInfo ().IsEnum)
-				return (ITestParameterSource<T>)ParameterizedTestHost.CreateEnumSource<T> ();
 			else
 				throw new InvalidOperationException ();
 		}

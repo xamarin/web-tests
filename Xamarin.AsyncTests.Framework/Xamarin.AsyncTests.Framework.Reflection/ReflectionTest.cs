@@ -79,10 +79,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (allowImplicit) {
 				if (memberType.AsType ().Equals (typeof(bool))) {
 					useFixtureInstance = false;
-					return null;
+					return typeof(BooleanTestSource).GetTypeInfo ();
 				} else if (memberType.IsEnum) {
 					useFixtureInstance = false;
-					return null;
+					return typeof(EnumTestSource<>).MakeGenericType (memberType.AsType ()).GetTypeInfo ();
 				}
 			}
 
@@ -140,16 +140,77 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				yield break;
 
 			if (member.Type.AsType ().Equals (typeof(bool))) {
-				yield return ParameterizedTestHost.CreateBoolean (member.Name);
+				yield return new ParameterSourceHost<bool> (member.Name, new BooleanTestSource (), null);
 				yield break;
 			}
 
 			if (member.Type.IsEnum) {
-				yield return ParameterizedTestHost.CreateEnum (member.Type, member.Name);
+				yield return CreateEnum (member.Type, member.Name);
 				yield break;
 			}
 
 			throw new InvalidOperationException ();
+		}
+
+		static ParameterizedTestHost CreateEnum (TypeInfo typeInfo, string name)
+		{
+			if (!typeInfo.IsEnum || typeInfo.GetCustomAttribute<FlagsAttribute> () != null)
+				throw new InvalidOperationException ();
+
+			var type = typeInfo.AsType ();
+			var sourceType = typeof(EnumTestSource<>).MakeGenericType (type);
+			var hostType = typeof(ParameterSourceHost<>).MakeGenericType (type);
+
+			var source = Activator.CreateInstance (sourceType);
+			return (ParameterizedTestHost)Activator.CreateInstance (hostType, name, source, null, TestFlags.None);
+		}
+
+		class BooleanTestSource : ITestParameterSource<bool>
+		{
+			public IEnumerable<bool> GetParameters (TestContext context, string filter)
+			{
+				yield return false;
+				yield return true;
+			}
+		}
+
+		class EnumTestSource<T> : ITestParameterSource<T>
+		{
+			public IEnumerable<T> GetParameters (TestContext context, string filter)
+			{
+				foreach (var value in Enum.GetValues (typeof (T)))
+					yield return (T)value;
+			}
+		}
+
+		class ParameterSourceHost<T> : ParameterizedTestHost
+		{
+			public string Name {
+				get;
+				private set;
+			}
+
+			public ITestParameterSource<T> Source {
+				get;
+				private set;
+			}
+
+			public string Filter {
+				get;
+				private set;
+			}
+
+			public ParameterSourceHost (string name, ITestParameterSource<T> source, string filter, TestFlags flags = TestFlags.None)
+				: base (name, typeof (T).GetTypeInfo (), flags)
+			{
+				Source = source;
+				Filter = filter;
+			}
+
+			internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
+			{
+				return ParameterSourceInstance<T>.CreateFromSource (this, parent, Source, Filter);
+			}
 		}
 
 		protected static IEnumerable<string> GetCategories (IMemberInfo member)
