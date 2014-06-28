@@ -33,8 +33,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
-using NUnit.Framework;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Runners
 {
@@ -153,8 +153,8 @@ namespace Xamarin.WebTests.Runners
 			try {
 				var response = (HttpWebResponse)request.GetResponse ();
 				Debug (1, handler, "GOT RESPONSE", response.StatusCode, response.StatusDescription);
-				Assert.AreEqual (expectedStatus, response.StatusCode, "status code");
-				Assert.IsFalse (expectException, "success status");
+				Assert.That (expectedStatus, Is.EqualTo (response.StatusCode), "status code");
+				Assert.That (expectException, Is.False, "success status");
 
 				using (var reader = new StreamReader (response.GetResponseStream ())) {
 					var content = reader.ReadToEnd ();
@@ -171,7 +171,7 @@ namespace Xamarin.WebTests.Runners
 				}
 
 				if (expectException) {
-					Assert.AreEqual (expectedStatus, response.StatusCode, "error status code");
+					Assert.That (expectedStatus, Is.EqualTo (response.StatusCode), "error status code");
 					response.Close ();
 					return;
 				}
