@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectGuid>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Xamarin.AsyncTests.Framework</RootNamespace>
+    <AssemblyName>Xamarin.AsyncTests.Framework</AssemblyName>
+    <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\Xamarin.AsyncTests.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <Optimize>False</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>DEBUG</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\ParameterizedTestInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestInvoker.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\AggregatedTestInvoker.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\ParameterizedTestHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\ParameterSourceInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\CustomTestInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\RepeatedTestHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\ProxyTestInvoker.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\InvokableTestCase.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\CapturedTestCase.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\CapturedTestHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\CapturedTestInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\CapturedTestInvoker.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\FixtureTestInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestSuite.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestCase.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestFixture.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ParameterAttributeTestHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\CustomHostAttributeTestHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\IMemberInfo.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionHelper.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionPropertyHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestSuite.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTest.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="Flat" ResourceNamePolicy="FileFormatDefault" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="Xamarin.AsyncTests.Framework\" />
+    <Folder Include="Xamarin.AsyncTests.Framework.Reflection\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
+      <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
+      <Name>Xamarin.AsyncTests</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

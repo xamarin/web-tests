@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
+    x:Class="Xamarin.AsyncTests.UI.TestResultView">
+
+    <ContentView.Resources>
+    	<ResourceDictionary>
+            <local:TestResultConverter x:Key="converter" />
+    	</ResourceDictionary>
+    </ContentView.Resources>
+
+   <StackLayout Spacing="10" Orientation="Vertical" VerticalOptions="FillAndExpand">
+
+        <local:TestNameView BindingContext="{Binding Result.Name}" />
+
+        <Label Text="{Binding Result.Status, Converter={StaticResource converter}}"
+               TextColor="{Binding Result.Status, Converter={StaticResource converter}}" />
+        <Label Text="{Binding Summary}" />
+
+        <Label Text="{Binding Result.Error, Converter={StaticResource converter}}"
+               IsVisible="{Binding Result.Error, Converter={StaticResource converter}, ConverterParameter='not-null'}" />
+
+        <ListView IsVisible="{Binding Result.HasChildren}" ItemsSource="{Binding Result.Children}"
+                  ItemSelected="OnItemSelected">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <ViewCell.View>
+                            <StackLayout Orientation="Horizontal">
+
+                                <Label Text="{Binding Name, Converter={StaticResource converter}}"
+                                       TextColor="{Binding Status, Converter={StaticResource converter}}"
+                                       HorizontalOptions="FillAndExpand" />
+
+                            </StackLayout>
+                        </ViewCell.View>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+    </StackLayout>
+</ContentView>
+
+    

@@ -1,4 +1,10 @@
-bin/
-obj/
+# Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
+bin
+obj
+Build
+
+# mstest test results
+TestResults
+
 *.userprefs
 /packages/

@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Xamarin.AsyncTests.UI.TestRunnerControl">
+
+    <StackLayout Spacing="5" Orientation="Vertical">
+
+        <StackLayout Spacing="20" Orientation="Horizontal">
+            <Button Text="Run" IsEnabled="{Binding App.CanRun}" Clicked="OnRun" />
+            <Button Text="Stop" IsEnabled="{Binding App.CanStop}" Clicked="OnStop" />
+        </StackLayout>
+
+    	<Label Text="{Binding App.StatusMessage}" VerticalOptions="End" />
+
+    </StackLayout>
+
+</ContentView>
+

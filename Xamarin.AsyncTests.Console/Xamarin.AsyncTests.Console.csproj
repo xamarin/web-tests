@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7FF093FE-C185-4BD9-9C56-F5EF8F8F2CBA}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Xamarin.AsyncTests.Console</RootNamespace>
+    <AssemblyName>Xamarin.AsyncTests.Console</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Main.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="NDeskOptions.cs" />
+    <Compile Include="ResultPrinter.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\Xamarin.AsyncTests.Sample\Xamarin.AsyncTests.Sample.csproj">
+      <Project>{50F3B858-C105-4599-8B52-81372E172F47}</Project>
+      <Name>Xamarin.AsyncTests.Sample</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
+      <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
+      <Name>Xamarin.AsyncTests.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
+      <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
+      <Name>Xamarin.AsyncTests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="NDesk.Options\" />
+  </ItemGroup>
+</Project>
