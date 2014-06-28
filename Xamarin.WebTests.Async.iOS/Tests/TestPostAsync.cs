@@ -104,6 +104,26 @@ namespace Xamarin.WebTests.Tests
 			};
 		}
 
+		public static IEnumerable<Handler> GetParameters (TestContext context, string filter)
+		{
+			if (filter == null) {
+				var list = new List<Handler> ();
+				list.AddRange (GetPostTests ());
+				list.AddRange (GetDeleteTests ());
+				return list;
+			} else if (filter.Equals ("post"))
+				return GetPostTests ();
+			else if (filter.Equals ("delete"))
+				return GetDeleteTests ();
+			else
+				throw new InvalidOperationException ();
+		}
+
+		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext context, string filter)
+		{
+			return GetParameters (context, filter);
+		}
+
 		[AsyncTest]
 		public Task RedirectAsGetNoBuffering (
 			TestContext ctx, [TestHost] HttpTestRunner runner, CancellationToken cancellationToken)
@@ -132,21 +152,6 @@ namespace Xamarin.WebTests.Tests
 			};
 			var handler = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
 			return runner.Run (ctx, handler, cancellationToken, HttpStatusCode.TemporaryRedirect, true);
-		}
-
-		public IEnumerable<Handler> GetParameters (TestContext context, string filter)
-		{
-			if (filter == null) {
-				var list = new List<Handler> ();
-				list.AddRange (GetPostTests ());
-				list.AddRange (GetDeleteTests ());
-				return list;
-			} else if (filter.Equals ("post"))
-				return GetPostTests ();
-			else if (filter.Equals ("delete"))
-				return GetDeleteTests ();
-			else
-				throw new InvalidOperationException ();
 		}
 
 		[AsyncTest]

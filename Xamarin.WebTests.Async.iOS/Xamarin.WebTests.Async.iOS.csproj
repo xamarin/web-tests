@@ -114,6 +114,7 @@
     <Compile Include="Tests\TestGet.cs" />
     <Compile Include="Tests\TestPostAsync.cs" />
     <Compile Include="Tests\RedirectStatusSource.cs" />
+    <Compile Include="Tests\TestAuthenticationAsync.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xamarin.WebTests\Framework\RequestFlags.cs">
@@ -190,9 +191,6 @@
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Framework\HttpResponse.cs">
       <Link>Framework\HttpResponse.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Tests\TestAuthentication.cs">
-      <Link>Tests\TestAuthentication.cs</Link>
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Tests\TestProxy.cs">
       <Link>Tests\TestProxy.cs</Link>
