@@ -25,10 +25,14 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
-using NUnit.Framework;
+
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Tests
 {
@@ -37,28 +41,17 @@ namespace Xamarin.WebTests.Tests
 	using Handlers;
 	using Framework;
 
-	[TestFixture]
-	public class TestPost
+	[AsyncTestFixture]
+	public class TestPost : ITestHost<HttpTestRunner>, ITestParameterSource<Handler>
 	{
-		HttpTestRunner runner;
-
-		[TestFixtureSetUp]
-		public void Start ()
-		{
-			runner = new HttpTestRunner ();
-			runner.Start ();
+		[TestParameter]
+		public bool UseSSL {
+			get; set;
 		}
 
-		[TestFixtureTearDown]
-		public void Stop ()
+		public HttpTestRunner CreateInstance (TestContext context)
 		{
-			runner.Stop ();
-			runner = null;
-		}
-
-		public static IEnumerable<Handler> GetHelloWorldTests ()
-		{
-			yield return new HelloWorldHandler ();
+			return new HttpTestRunner { UseSSL = UseSSL };
 		}
 
 		public static IEnumerable<PostHandler> GetPostTests ()
@@ -111,76 +104,88 @@ namespace Xamarin.WebTests.Tests
 			};
 		}
 
-		public static IEnumerable<Handler> GetRedirectTests ()
+		public static IEnumerable<Handler> GetParameters (TestContext context, string filter)
 		{
-			foreach (var code in new [] { HttpStatusCode.Moved, HttpStatusCode.Found, HttpStatusCode.TemporaryRedirect }) {
-				foreach (var post in GetPostTests ()) {
-					var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
-					var hasBody = post.Body != null || ((post.Flags & RequestFlags.ExplicitlySetLength) != 0) || (post.Mode == TransferMode.ContentLength);
-
-					if ((hasBody || !isWindows) && (code == HttpStatusCode.MovedPermanently || code == HttpStatusCode.Found))
-						post.Flags = RequestFlags.RedirectedAsGet;
-					else
-						post.Flags = RequestFlags.Redirected;
-					post.Description = string.Format ("{0}: {1}", code, post.Description);
-					yield return new RedirectHandler (post, code) { Description = post.Description };
-				}
-			}
+			if (filter == null) {
+				var list = new List<Handler> ();
+				list.Add (new HelloWorldHandler ());
+				list.AddRange (GetPostTests ());
+				list.AddRange (GetDeleteTests ());
+				return list;
+			} else if (filter.Equals ("post"))
+				return GetPostTests ();
+			else if (filter.Equals ("delete"))
+				return GetDeleteTests ();
+			else
+				throw new InvalidOperationException ();
 		}
 
-		public static IEnumerable<Handler> GetAllTests ()
+		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext context, string filter)
 		{
-			var list = new List<Handler> ();
-			list.AddRange (GetHelloWorldTests ());
-			list.AddRange (GetPostTests ());
-			list.AddRange (GetDeleteTests ());
-			list.AddRange (GetRedirectTests ());
-			return list;
+			return GetParameters (context, filter);
 		}
 
-		[Test]
-		public void RedirectAsGetNoBuffering ()
+		[AsyncTest]
+		public Task RedirectAsGetNoBuffering (
+			TestContext ctx, [TestHost] HttpTestRunner runner, CancellationToken cancellationToken)
 		{
 			var post = new PostHandler {
-				Description = "Chunked post",
+				Description = "RedirectAsGetNoBuffering",
 				Body = "Hello chunked world",
 				Mode = TransferMode.Chunked,
 				Flags = RequestFlags.RedirectedAsGet,
 				AllowWriteStreamBuffering = false
 			};
-			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
-			Run (redirect);
+			var handler = new RedirectHandler (post, HttpStatusCode.Redirect);
+			return runner.Run (ctx, handler, cancellationToken);
 		}
 
-		[Test]
-		public void RedirectNoBuffering ()
+		[AsyncTest]
+		public Task RedirectNoBuffering (
+			TestContext ctx, [TestHost] HttpTestRunner runner, CancellationToken cancellationToken)
 		{
 			var post = new PostHandler {
-				Description = "Chunked post",
+				Description = "RedirectNoBuffering",
 				Body = "Hello chunked world",
 				Mode = TransferMode.Chunked,
 				Flags = RequestFlags.Redirected,
 				AllowWriteStreamBuffering = false
 			};
-			var redirect = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
-			Run (redirect, HttpStatusCode.TemporaryRedirect, true);
+			var handler = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
+			return runner.Run (ctx, handler, cancellationToken, HttpStatusCode.TemporaryRedirect, true);
 		}
 
-		void Run (Handler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK, bool expectException = false)
+		[AsyncTest]
+		public Task Run (
+			TestContext ctx, [TestHost] HttpTestRunner runner,
+			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{
-			runner.Run (handler, expectedStatus, expectException);
+			return runner.Run (ctx, handler, cancellationToken);
 		}
 
-		[TestCaseSource ("GetPostTests")]
-		[TestCaseSource ("GetDeleteTests")]
-		[TestCaseSource ("GetRedirectTests")]
-		public void PostTests (Handler handler)
+		[AsyncTest]
+		public Task Redirect (
+			TestContext ctx, [TestHost] HttpTestRunner runner,
+			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
+			[TestParameter ("post")] Handler handler, CancellationToken cancellationToken)
 		{
-			Run (handler);
+			var post = (PostHandler)handler;
+			var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
+			var hasBody = post.Body != null || ((post.Flags & RequestFlags.ExplicitlySetLength) != 0) || (post.Mode == TransferMode.ContentLength);
+
+			if ((hasBody || !isWindows) && (code == HttpStatusCode.MovedPermanently || code == HttpStatusCode.Found))
+				post.Flags = RequestFlags.RedirectedAsGet;
+			else
+				post.Flags = RequestFlags.Redirected;
+			post.Description = string.Format ("{0}: {1}", code, post.Description);
+			var redirect = new RedirectHandler (post, code) { Description = post.Description };
+
+			return runner.Run (ctx, redirect, cancellationToken);
 		}
 
-		[Test]
-		public void Test18750 ()
+		[AsyncTest]
+		public async Task Test18750 (
+			TestContext ctx, [TestHost] HttpTestRunner runner, CancellationToken cancellationToken)
 		{
 			var post = new PostHandler {
 				Description = "First post",
@@ -192,14 +197,14 @@ namespace Xamarin.WebTests.Tests
 			var uri = redirect.RegisterRequest (runner.Listener);
 
 			var wc = new WebClient ();
-			var res = wc.UploadString (uri, post.Body);
-			Console.WriteLine (res);
+			var res = await wc.UploadStringTaskAsync (uri, post.Body);
+			ctx.Debug (0, "Test18750: {0}", res);
 
 			var secondPost = new PostHandler {
 				Description = "Second post", Body = "Should send this"
 			};
 
-			Run (secondPost);
+			await runner.Run (ctx, secondPost, cancellationToken);
 		}
 	}
 }

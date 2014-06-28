@@ -98,7 +98,6 @@
       <HintPath>..\packages\Xamarin.Forms.1.1.1.6206\lib\MonoTouch10\Xamarin.Forms.Xaml.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Security" />
-    <Reference Include="MonoTouch.NUnitLite" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Default-568h%402x.png" />
@@ -111,12 +110,24 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="Tests\TestGet.cs" />
-    <Compile Include="Tests\RedirectStatusSource.cs" />
-    <Compile Include="Tests\ProxyKind.cs" />
-    <Compile Include="Tests\TestAuthentication.cs" />
-    <Compile Include="Tests\TestPost.cs" />
-    <Compile Include="Tests\TestProxy.cs" />
+    <Compile Include="..\Xamarin.WebTests\Tests\ProxyKind.cs">
+      <Link>Tests\ProxyKind.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\RedirectStatusSource.cs">
+      <Link>Tests\RedirectStatusSource.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\TestAuthentication.cs">
+      <Link>Tests\TestAuthentication.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\TestGet.cs">
+      <Link>Tests\TestGet.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\TestPost.cs">
+      <Link>Tests\TestPost.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\TestProxy.cs">
+      <Link>Tests\TestProxy.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xamarin.WebTests\Framework\RequestFlags.cs">
@@ -210,5 +221,8 @@
       <Link>Server\cert.pfx</Link>
       <LogicalName>Xamarin.WebTests.Server.cert.pfx</LogicalName>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Tests\" />
   </ItemGroup>
 </Project>

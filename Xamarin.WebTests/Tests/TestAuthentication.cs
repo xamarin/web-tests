@@ -1,5 +1,5 @@
 ﻿//
-// TestAuthentication.cs
+// TestAuthenticationAsync.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -26,61 +26,65 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
-using NUnit.Framework;
+
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Tests
 {
+	using Server;
 	using Runners;
 	using Handlers;
 	using Framework;
 
-	[TestFixture]
-	public class TestAuthentication
+	[AsyncTestFixture]
+	public class TestAuthentication : ITestHost<TestRunner>, ITestParameterSource<Handler>, ITestParameterSource<AuthenticationType>
 	{
-		HttpTestRunner runner;
-
-		[TestFixtureSetUp]
-		public void Start ()
-		{
-			runner = new HttpTestRunner ();
-			runner.Start ();
+		[TestParameter (null, TestFlags.Hidden)]
+		public bool UseSSL {
+			get; set;
 		}
 
-		[TestFixtureTearDown]
-		public void Stop ()
-		{
-			runner.Stop ();
-			runner = null;
+		[TestParameter (null, TestFlags.Hidden)]
+		public bool ReuseConnection {
+			get; set;
 		}
 
-		public static IEnumerable<Handler> GetAllTests ()
+		public TestRunner CreateInstance (TestContext context)
 		{
-			return TestPost.GetAllTests ();
+			return new HttpTestRunner { UseSSL = UseSSL, ReuseConnection = ReuseConnection };
 		}
 
-		void Run (Handler handler)
+		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext context, string filter)
 		{
-			runner.Run (handler);
+			return TestPost.GetParameters (context, filter);
 		}
 
-		[TestCaseSource ("GetAllTests")]
-		public void TestBasicAuthentication (Handler handler)
+		public static IEnumerable<AuthenticationType> GetAuthenticationTypes (TestContext context, string filter)
 		{
-			Run (new AuthenticationHandler (AuthenticationType.Basic, handler));
+			yield return AuthenticationType.Basic;
 		}
 
-		#if ALPHA
-		[TestCaseSource ("GetAllTests")]
-		public void TestNTLM (Handler handler)
+		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (TestContext context, string filter)
 		{
-			Run (new AuthenticationHandler (AuthenticationType.NTLM, handler));
+			return GetAuthenticationTypes (context, filter);
 		}
-		#endif
 
-		[Test]
-		public void MustClearAuthOnRedirect ()
+		[AsyncTest]
+		public Task Run (
+			TestContext ctx, [TestHost] TestRunner runner, [TestParameter] AuthenticationType authType, 
+			[TestParameter] Handler handler, CancellationToken cancellationToken)
+		{
+			var authHandler = new AuthenticationHandler (authType, handler);
+			return runner.Run (ctx, authHandler, cancellationToken);
+		}
+
+		[AsyncTest]
+		public Task MustClearAuthOnRedirect (
+			TestContext ctx, [TestHost] TestRunner runner, CancellationToken cancellationToken)
 		{
 			var target = new HelloWorldHandler ();
 			var targetAuth = new AuthenticationHandler (AuthenticationType.ForceNone, target);
@@ -88,7 +92,8 @@ namespace Xamarin.WebTests.Tests
 			var redirect = new RedirectHandler (targetAuth, HttpStatusCode.Redirect);
 			var authHandler = new AuthenticationHandler (AuthenticationType.Basic, redirect);
 
-			Run (authHandler);
+			return runner.Run (ctx, authHandler, cancellationToken);
 		}
 	}
 }
+

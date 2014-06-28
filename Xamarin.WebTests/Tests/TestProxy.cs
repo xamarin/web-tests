@@ -1,5 +1,5 @@
 ﻿//
-// TestProxy.cs
+// TestProxyAsync.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,142 +25,135 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
-using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
-using NUnit.Framework;
+
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Tests
 {
+	using Server;
 	using Runners;
 	using Handlers;
 	using Framework;
 
-	[TestFixture]
-	public class TestProxy
+	[AsyncTestFixture]
+	public class TestProxy : ITestHost<ProxyTestRunner>, ITestParameterSource<Handler>,
+		ITestParameterSource<ProxyKind>, ITestParameterSource<AuthenticationType>
 	{
-		ProxyTestRunner simpleRunner;
-		ProxyTestRunner authRunner;
-		#if ALPHA
-		ProxyTestRunner ntlmAuthRunner;
-		ProxyTestRunner unauthRunner;
-		ProxyTestRunner sslRunner;
-		#endif
-		bool noNetwork;
+		[TestParameter]
+		public bool UseSSL {
+			get; set;
+		}
 
-		[TestFixtureSetUp]
-		public void Start ()
+		[TestParameter]
+		public ProxyKind Kind {
+			get; set;
+		}
+
+		readonly IPAddress address;
+		readonly bool hasNetwork;
+
+		public TestProxy ()
 		{
-			// MS ignores all proxy request for local connections.
-			IPAddress address = TestRunner.GetAddress ();
-			if (IPAddress.IsLoopback (address)) {
-				noNetwork = true;
-				return;
+			address = TestRunner.GetAddress ();
+			hasNetwork = !IPAddress.IsLoopback (address);
+		}
+
+		public ProxyTestRunner CreateInstance (TestContext context)
+		{
+			if (!hasNetwork)
+				throw new InvalidOperationException ();
+
+			switch (Kind) {
+			case ProxyKind.Simple:
+				return new ProxyTestRunner (address, 9999, 9998);
+
+			case ProxyKind.BasicAuth:
+				return new ProxyTestRunner (address, 9997, 9996) {
+					AuthenticationType = AuthenticationType.Basic,
+					Credentials = new NetworkCredential ("xamarin", "monkey")
+				};
+
+			case ProxyKind.NtlmAuth:
+				return new ProxyTestRunner (address, 9995, 9994) {
+					AuthenticationType = AuthenticationType.NTLM,
+					Credentials = new NetworkCredential ("xamarin", "monkey")
+				};
+
+			case ProxyKind.Unauthenticated:
+				return new ProxyTestRunner (address, 9993, 9992) {
+					AuthenticationType = AuthenticationType.Basic
+				};
+
+			case ProxyKind.SSL:
+				return new ProxyTestRunner (address, 9991, 9990) {
+					UseSSL = true
+				};
+
+			default:
+				throw new InvalidOperationException ();
 			}
-
-			simpleRunner = new ProxyTestRunner (address, 9999, 9998);
-			authRunner = new ProxyTestRunner (address, 9997, 9996) {
-				AuthenticationType = AuthenticationType.Basic,
-				Credentials = new NetworkCredential ("xamarin", "monkey")
-			};
-
-			#if ALPHA
-			ntlmAuthRunner = new ProxyTestRunner (address, 9995, 9994) {
-				AuthenticationType = AuthenticationType.NTLM,
-				Credentials = new NetworkCredential ("xamarin", "monkey")
-			};
-			ntlmAuthRunner.Start ();
-
-			unauthRunner = new ProxyTestRunner (address, 9993, 9992) {
-				AuthenticationType = AuthenticationType.Basic
-			};
-			unauthRunner.Start ();
-
-			sslRunner = new ProxyTestRunner (address, 9991, 9990) {
-				UseSSL = true
-			};
-			sslRunner.Start ();
-			#endif
-
-			simpleRunner.Start ();
-			authRunner.Start ();
 		}
 
-		[TestFixtureTearDown]
-		public void Stop ()
+		IEnumerable<ProxyKind> ITestParameterSource<ProxyKind>.GetParameters (TestContext context, string filter)
 		{
-			if (noNetwork)
-				return;
-			simpleRunner.Stop ();
-			authRunner.Stop ();
-			#if ALPHA
-			ntlmAuthRunner.Stop ();
-			unauthRunner.Stop ();
-			sslRunner.Start ();
-			#endif
-		}
-
-		IEnumerable<Handler> GetAllTests ()
-		{
-			if (IPAddress.IsLoopback (TestRunner.GetAddress ()))
+			if (!hasNetwork)
 				yield break;
-			foreach (var handler in TestPost.GetAllTests ())
-				yield return handler;
-			foreach (var handler in TestPost.GetAllTests ())
-				yield return new AuthenticationHandler (AuthenticationType.Basic, handler);
-			#if ALPHA
-			foreach (var handler in TestPost.GetAllTests ())
-				yield return new AuthenticationHandler (AuthenticationType.NTLM, handler);
-			#endif
+
+			yield return ProxyKind.Simple;
+			yield return ProxyKind.BasicAuth;
+			yield return ProxyKind.NtlmAuth;
+			yield return ProxyKind.Unauthenticated;
+
+			// yield return ProxyKind.SSL;
 		}
 
-		[Test]
-		public void CheckNetwork ()
+		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (TestContext context, string filter)
 		{
-			if (noNetwork)
-				Assert.Fail ("TestProxy needs networking access; all proxy tests will be ignored.");
+			return TestAuthentication.GetAuthenticationTypes (context, filter);
 		}
 
-		[TestCaseSource ("GetAllTests")]
-		public void Simple (Handler handler)
+		public IEnumerable<Handler> GetParameters (TestContext context, string filter)
 		{
-			if (noNetwork)
-				return;
-			simpleRunner.Run (handler);
+			var list = new List<Handler> ();
+			if (!hasNetwork)
+				return list;
+
+			list.Add (new HelloWorldHandler ());
+			list.AddRange (TestPost.GetParameters (context, filter));
+			return list;
 		}
 
-		[TestCaseSource ("GetAllTests")]
-		public void ProxyAuth (Handler handler)
+		[AsyncTest]
+		public Task Run (
+			TestContext ctx, [TestHost] ProxyTestRunner runner,
+			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{
-			if (noNetwork)
-				return;
-			authRunner.Run (handler);
+			if (Kind == ProxyKind.Unauthenticated)
+				return runner.Run (
+					ctx, handler, cancellationToken,
+					HttpStatusCode.ProxyAuthenticationRequired, true);
+			else
+				return runner.Run (ctx, handler, cancellationToken);
 		}
 
-		#if ALPHA
-		[TestCaseSource ("GetAllTests")]
-		public void ProxyNTLM (Handler handler)
+		[AsyncTest]
+		public Task RunAuthentication (
+			TestContext ctx, [TestHost] ProxyTestRunner runner, [TestParameter] AuthenticationType authType, 
+			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{
-			if (noNetwork)
-				return;
-			ntlmAuthRunner.Run (handler);
+			var authHandler = new AuthenticationHandler (authType, handler);
+			if (Kind == ProxyKind.Unauthenticated)
+				return runner.Run (
+					ctx, authHandler, cancellationToken,
+					HttpStatusCode.ProxyAuthenticationRequired, true);
+			else
+				return runner.Run (ctx, authHandler, cancellationToken);
 		}
-
-		[Test]
-		public void TestUnauthenticated ()
-		{
-			if (noNetwork)
-				return;
-			var handler = new HelloWorldHandler ();
-			unauthRunner.Run (handler, HttpStatusCode.ProxyAuthenticationRequired);
-		}
-
-		[TestCaseSource ("GetAllTests")]
-		public void TestSSL (Handler handler)
-		{
-			sslRunner.Run (handler);
-		}
-		#endif
 	}
 }
