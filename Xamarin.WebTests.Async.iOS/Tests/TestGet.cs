@@ -43,9 +43,17 @@ namespace Xamarin.WebTests.Tests
 	[AsyncTestFixture]
 	public class TestGet : ITestHost<TestRunner>, ITestParameterSource<Handler>
 	{
+		[TestParameter]
+		public bool UseSSL {
+			get; set;
+		}
+
 		public TestRunner CreateInstance (TestContext context)
 		{
-			return new HttpTestRunner ();
+			if (UseSSL)
+				return new HttpsTestRunner ();
+			else
+				return new HttpTestRunner ();
 		}
 
 		public IEnumerable<Handler> GetParameters (TestContext context, string filter)
