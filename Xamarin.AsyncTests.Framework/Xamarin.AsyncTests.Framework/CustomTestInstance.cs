@@ -40,18 +40,26 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public CustomTestInstance (ParameterizedTestHost host, TestInstance parent, Type hostType)
+		public bool UseFixtureInstance {
+			get;
+			private set;
+		}
+
+		public CustomTestInstance (ParameterizedTestHost host, TestInstance parent, Type hostType, bool useFixtureInstance)
 			: base (host, parent)
 		{
 			HostType = hostType;
+			UseFixtureInstance = useFixtureInstance;
 		}
 
 		public override async Task Initialize (TestContext context, CancellationToken cancellationToken)
 		{
-			if (HostType != null)
+			if (UseFixtureInstance)
+				customHost = (ITestHost<T>)GetFixtureInstance ().Instance;
+			else if (HostType != null)
 				customHost = (ITestHost<T>)Activator.CreateInstance (HostType);
 			else
-				customHost = (ITestHost<T>)GetFixtureInstance ().Instance;
+				throw new InvalidOperationException ();
 
 			instance = customHost.CreateInstance (context);
 			await instance.Initialize (context, cancellationToken);

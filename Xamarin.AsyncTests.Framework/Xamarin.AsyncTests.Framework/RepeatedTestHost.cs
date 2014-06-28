@@ -51,7 +51,7 @@ namespace Xamarin.AsyncTests.Framework
 		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
 		{
 			return new ParameterSourceInstance<int> (
-				this, parent, typeof(RepeatAttribute.RepeatedTestSource), Count.ToString ());
+				this, parent, typeof(RepeatAttribute.RepeatedTestSource), false, Count.ToString ());
 		}
 	}
 }

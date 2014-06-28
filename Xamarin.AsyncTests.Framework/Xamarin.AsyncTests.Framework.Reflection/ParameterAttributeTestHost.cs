@@ -38,15 +38,29 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
+		public TypeInfo SourceType {
+			get;
+			private set;
+		}
+
+		public bool UseFixtureInstance {
+			get;
+			private set;
+		}
+
 		public string Filter {
 			get;
 			private set;
 		}
 
-		public ParameterAttributeTestHost (string name, TypeInfo type, TestParameterSourceAttribute attr)
+		public ParameterAttributeTestHost (
+			string name, TypeInfo type, TypeInfo sourceType,
+			bool useFixtureInstance, TestParameterSourceAttribute attr)
 			: base (name, type)
 		{
 			Attribute = attr;
+			SourceType = sourceType;
+			UseFixtureInstance = useFixtureInstance;
 			Flags |= attr.Flags;
 
 			var paramAttr = attr as TestParameterAttribute;
@@ -59,7 +73,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var instanceType = typeof(ParameterSourceInstance<>).GetTypeInfo ();
 			var genericInstance = instanceType.MakeGenericType (ParameterType.AsType ());
 			return (ParameterizedTestInstance)Activator.CreateInstance (
-				genericInstance, this, parent, Attribute.SourceType, Filter);
+				genericInstance, this, parent, SourceType, UseFixtureInstance, Filter);
 		}
 	}
 }

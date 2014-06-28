@@ -57,6 +57,38 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			categories = GetCategories (member);
 		}
 
+		static TypeInfo GetHostType (
+			TypeInfo fixtureType, Type hostType, TypeInfo memberType, Type attrType,
+			bool allowImplicit, out bool useFixtureInstance)
+		{
+			var genericInstance = hostType.GetTypeInfo ().MakeGenericType (memberType.AsType ()).GetTypeInfo ();
+
+			if (attrType != null) {
+				var attrInfo = attrType.GetTypeInfo ();
+				if (!genericInstance.IsAssignableFrom (attrInfo))
+					throw new InvalidOperationException ();
+				useFixtureInstance = false;
+				return attrInfo;
+			}
+
+			if (genericInstance.IsAssignableFrom (fixtureType)) {
+				useFixtureInstance = true;
+				return null;
+			}
+
+			if (allowImplicit) {
+				if (memberType.AsType ().Equals (typeof(bool))) {
+					useFixtureInstance = false;
+					return null;
+				} else if (memberType.IsEnum) {
+					useFixtureInstance = false;
+					return null;
+				}
+			}
+
+			throw new InvalidOperationException ();
+		}
+
 		protected static IEnumerable<ParameterizedTestHost> ResolveParameter (TypeInfo fixtureType, IMemberInfo member)
 		{
 			if (typeof(ITestInstance).GetTypeInfo ().IsAssignableFrom (member.Type)) {
@@ -66,21 +98,26 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (hostAttr == null)
 					throw new InvalidOperationException ();
 
-				TypeInfo hostType = null;
-				if (hostAttr.HostType != null) {
-					hostType = hostAttr.HostType.GetTypeInfo ();
-					if (hostType.IsAssignableFrom (fixtureType))
-						hostType = null;
-				}
+				bool useFixtureInstance;
+				var hostType = GetHostType (
+					fixtureType, typeof(ITestHost<>), member.Type,
+					hostAttr.HostType, false, out useFixtureInstance);
 
-				yield return new CustomHostAttributeTestHost (member.Name, member.Type, hostAttr, hostType);
+				yield return new CustomHostAttributeTestHost (
+					member.Name, member.Type, hostType, useFixtureInstance, hostAttr);
 				yield break;
 			}
 
 			bool found = false;
 			var paramAttrs = member.GetCustomAttributes<TestParameterSourceAttribute> ();
 			foreach (var paramAttr in paramAttrs) {
-				yield return new ParameterAttributeTestHost (member.Name, member.Type, paramAttr);
+				bool useFixtureInstance = false;
+				var sourceType = GetHostType (
+					fixtureType, typeof(ITestParameterSource<>), member.Type,
+					paramAttr.SourceType, true, out useFixtureInstance);
+
+				yield return new ParameterAttributeTestHost (
+					member.Name, member.Type, sourceType, useFixtureInstance, paramAttr);
 				found = true;
 			}
 
@@ -89,7 +126,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			paramAttrs = member.Type.GetCustomAttributes<TestParameterSourceAttribute> ();
 			foreach (var paramAttr in paramAttrs) {
-				yield return new ParameterAttributeTestHost (member.Name, member.Type, paramAttr);
+				bool useFixtureInstance = false;
+				var sourceType = GetHostType (
+					fixtureType, typeof(ITestParameterSource<>), member.Type,
+					paramAttr.SourceType, true, out useFixtureInstance);
+
+				yield return new ParameterAttributeTestHost (
+					member.Name, member.Type, sourceType, useFixtureInstance, paramAttr);
 				found = true;
 			}
 

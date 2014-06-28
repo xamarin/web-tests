@@ -44,6 +44,11 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public bool UseFixtureInstance {
+			get;
+			private set;
+		}
+
 		public string Filter {
 			get;
 			private set;
@@ -53,10 +58,12 @@ namespace Xamarin.AsyncTests.Framework
 			get { return current; }
 		}
 
-		public ParameterSourceInstance (ParameterizedTestHost host, TestInstance parent, Type sourceType, string filter)
+		public ParameterSourceInstance (ParameterizedTestHost host, TestInstance parent,
+			Type sourceType, bool useFixtureInstance, string filter)
 			: base (host, parent)
 		{
 			SourceType = sourceType;
+			UseFixtureInstance = useFixtureInstance;
 			Filter = filter;
 		}
 
@@ -78,12 +85,14 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			if (SourceType != null)
 				return (ITestParameterSource<T>)Activator.CreateInstance (SourceType);
+			else if (UseFixtureInstance)
+				return (ITestParameterSource<T>)GetFixtureInstance ().Instance;
 			else if (typeof(T).Equals (typeof(bool)))
 				return (ITestParameterSource<T>)ParameterizedTestHost.CreateBooleanSource ();
 			else if (typeof(T).GetTypeInfo ().IsEnum)
 				return (ITestParameterSource<T>)ParameterizedTestHost.CreateEnumSource<T> ();
-
-			return (ITestParameterSource<T>)GetFixtureInstance ().Instance;
+			else
+				throw new InvalidOperationException ();
 		}
 
 		public override Task Initialize (TestContext context, CancellationToken cancellationToken)
