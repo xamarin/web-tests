@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests
 		public void AddTestSuite (ITestSuite suite)
 		{
 			foreach (var feature in suite.Features) {
-				features.Add (feature, feature.Constant ?? false);
+				features.Add (feature, feature.Constant ?? feature.DefaultValue ?? false);
 			}
 			OnPropertyChanged ("Features");
 		}
@@ -53,6 +53,24 @@ namespace Xamarin.AsyncTests
 		public bool CanModify (TestFeature feature)
 		{
 			return feature.Constant == null;
+		}
+
+		public void Enable (TestFeature feature)
+		{
+			if (!features [feature]) {
+				if (!CanModify (feature))
+					throw new InvalidOperationException ();
+				features [feature] = true;
+			}
+		}
+
+		public void Disable (TestFeature feature)
+		{
+			if (features [feature]) {
+				if (!CanModify (feature))
+					throw new InvalidOperationException ();
+				features [feature] = false;
+			}
 		}
 
 		#region INotifyPropertyChanged implementation

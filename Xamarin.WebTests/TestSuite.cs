@@ -37,8 +37,8 @@ namespace Xamarin.WebTests
 	public class TestSuite : ITestSuite
 	{
 		public static readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
-		public static readonly TestFeature SSL = new TestFeature ("SSL", "Use SSL");
-		public static readonly TestFeature Proxy = new TestFeature ("Proxy", "Proxy Tests");
+		public static readonly TestFeature SSL = new TestFeature ("SSL", "Use SSL", true);
+		public static readonly TestFeature Proxy = new TestFeature ("Proxy", "Proxy Tests", true);
 
 		public static readonly TestFeature HasNetwork = new TestFeature (
 			"Network", "HasNetwork", () => !IPAddress.IsLoopback (TestRunner.GetAddress ()));

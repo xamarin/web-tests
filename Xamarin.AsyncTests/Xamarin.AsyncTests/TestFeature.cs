@@ -44,10 +44,30 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
-		public TestFeature (string name, string description = null, Func<bool> func = null)
+		public bool? DefaultValue {
+			get;
+			private set;
+		}
+
+		public bool CanModify {
+			get { return Constant == null; }
+		}
+
+		public TestFeature (string name, string description, bool? defaultValue = null)
+			: this (name, description, defaultValue, null)
+		{
+		}
+
+		public TestFeature (string name, string description, Func<bool> func)
+			: this (name, description, null, func)
+		{
+		}
+
+		TestFeature (string name, string description, bool? defaultValue, Func<bool> func)
 		{
 			Name = name;
-			Description = description ?? name;
+			Description = description;
+			DefaultValue = defaultValue;
 
 			if (func != null)
 				Constant = func ();

@@ -42,7 +42,15 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		public bool IsEnabled {
-			get; set;
+			get {
+				return App.Context.Features.IsEnabled (Feature);
+			}
+			set {
+				if (value)
+					App.Context.Features.Enable (Feature);
+				else
+					App.Context.Features.Disable (Feature);
+			}
 		}
 
 		public TestFeatureModel (TestApp app, TestFeature feature)

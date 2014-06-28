@@ -53,8 +53,10 @@ namespace Xamarin.AsyncTests.UI
 		void OnFeaturesChanged ()
 		{
 			features.Clear ();
-			foreach (var feature in App.Context.Features.Features)
-				features.Add (new TestFeatureModel (App, feature));
+			foreach (var feature in App.Context.Features.Features) {
+				if (feature.CanModify)
+					features.Add (new TestFeatureModel (App, feature));
+			}
 			OnPropertyChanged ("Features");
 		}
 	}

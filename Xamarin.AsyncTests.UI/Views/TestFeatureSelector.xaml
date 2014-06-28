@@ -7,16 +7,7 @@
     <ListView ItemsSource="{Binding Features}">
         <ListView.ItemTemplate>
             <DataTemplate>
-                <ViewCell>
-                    <ViewCell.View>
-                        <StackLayout Orientation="Horizontal">
-
-                            <Label Text="{Binding Feature.Name}" />
-                            <Label Text="{Binding Feature.Description}" HorizontalOptions="FillAndExpand" />
-
-                        </StackLayout>
-                    </ViewCell.View>
-                </ViewCell>
+                <SwitchCell Text="{Binding Feature.Description}" On="{Binding IsEnabled}" />
             </DataTemplate>
         </ListView.ItemTemplate>
     </ListView>
