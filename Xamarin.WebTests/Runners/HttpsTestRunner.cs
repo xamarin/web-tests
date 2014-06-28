@@ -33,29 +33,12 @@ namespace Xamarin.WebTests.Runners
 	using Server;
 	using Handlers;
 
-	public class HttpsTestRunner : TestRunner
+	[Obsolete]
+	public class HttpsTestRunner : HttpTestRunner
 	{
-		HttpListener listener;
-
-		public HttpListener Listener {
-			get { return listener; }
-		}
-
-		public override Task Start (CancellationToken cancellationToken)
+		public HttpsTestRunner ()
 		{
-			return Task.Run (() => {
-				listener = new HttpListener (IPAddress.Loopback, 9999, true);
-			});
-		}
-
-		public override Task Stop (CancellationToken cancellationToken)
-		{
-			return Task.Run (() => listener.Stop ());
-		}
-
-		protected override HttpWebRequest CreateRequest (Handler handler)
-		{
-			return handler.CreateRequest (listener);
+			UseSSL = true;
 		}
 	}
 }

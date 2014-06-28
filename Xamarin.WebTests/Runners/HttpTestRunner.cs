@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -41,10 +42,14 @@ namespace Xamarin.WebTests.Runners
 			get { return listener; }
 		}
 
+		public bool UseSSL {
+			get; set;
+		}
+
 		public override Task Start (CancellationToken cancellationToken)
 		{
 			return Task.Run (() => {
-				listener = new HttpListener (IPAddress.Loopback, 9999);
+				listener = new HttpListener (IPAddress.Loopback, 9999, UseSSL);
 			});
 		}
 
@@ -58,6 +63,19 @@ namespace Xamarin.WebTests.Runners
 			var request = handler.CreateRequest (listener);
 			request.KeepAlive = true;
 			return request;
+		}
+
+		protected override string MyToString ()
+		{
+			var sb = new StringBuilder ();
+			if (ReuseConnection)
+				sb.Append ("shared");
+			if (UseSSL) {
+				if (sb.Length > 0)
+					sb.Append (",");
+				sb.Append ("ssl");
+			}
+			return sb.ToString ();
 		}
 	}
 }

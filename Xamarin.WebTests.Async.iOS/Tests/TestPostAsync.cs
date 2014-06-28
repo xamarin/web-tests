@@ -51,10 +51,7 @@ namespace Xamarin.WebTests.Tests
 
 		public TestRunner CreateInstance (TestContext context)
 		{
-			if (UseSSL)
-				return new HttpsTestRunner ();
-			else
-				return new HttpTestRunner ();
+			return new HttpTestRunner { UseSSL = UseSSL };
 		}
 
 		public static IEnumerable<PostHandler> GetPostTests ()
