@@ -59,6 +59,10 @@
     <Compile Include="Xamarin.AsyncTests.Constraints\FalseConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\TrueConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\BasicConstraint.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestFeature.cs" />
+    <Compile Include="Xamarin.AsyncTests\AsyncTestSuiteAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests\ITestSuite.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestFeatureCollection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>
