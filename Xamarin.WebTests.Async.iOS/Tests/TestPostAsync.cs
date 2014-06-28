@@ -42,14 +42,14 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 
 	[AsyncTestFixture]
-	public class TestPostAsync : ITestHost<TestRunner>, ITestParameterSource<Handler>
+	public class TestPostAsync : ITestHost<HttpTestRunner>, ITestParameterSource<Handler>
 	{
 		[TestParameter]
 		public bool UseSSL {
 			get; set;
 		}
 
-		public TestRunner CreateInstance (TestContext context)
+		public HttpTestRunner CreateInstance (TestContext context)
 		{
 			return new HttpTestRunner { UseSSL = UseSSL };
 		}
@@ -104,6 +104,36 @@ namespace Xamarin.WebTests.Tests
 			};
 		}
 
+		[AsyncTest]
+		public Task RedirectAsGetNoBuffering (
+			TestContext ctx, [TestHost] HttpTestRunner runner, CancellationToken cancellationToken)
+		{
+			var post = new PostHandler {
+				Description = "RedirectAsGetNoBuffering",
+				Body = "Hello chunked world",
+				Mode = TransferMode.Chunked,
+				Flags = RequestFlags.RedirectedAsGet,
+				AllowWriteStreamBuffering = false
+			};
+			var handler = new RedirectHandler (post, HttpStatusCode.Redirect);
+			return runner.Run (ctx, handler, cancellationToken);
+		}
+
+		[AsyncTest]
+		public Task RedirectNoBuffering (
+			TestContext ctx, [TestHost] HttpTestRunner runner, CancellationToken cancellationToken)
+		{
+			var post = new PostHandler {
+				Description = "RedirectNoBuffering",
+				Body = "Hello chunked world",
+				Mode = TransferMode.Chunked,
+				Flags = RequestFlags.Redirected,
+				AllowWriteStreamBuffering = false
+			};
+			var handler = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
+			return runner.Run (ctx, handler, cancellationToken, HttpStatusCode.TemporaryRedirect, true);
+		}
+
 		public IEnumerable<Handler> GetParameters (TestContext context, string filter)
 		{
 			if (filter == null) {
@@ -120,17 +150,18 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] TestRunner runner, [TestParameter] Handler handler)
+		public Task Run (
+			TestContext ctx, [TestHost] HttpTestRunner runner,
+			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{
 			return runner.Run (ctx, handler, cancellationToken);
 		}
 
 		[AsyncTest]
-		public Task Redirect (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] TestRunner runner,
+		public Task Redirect (
+			TestContext ctx, [TestHost] HttpTestRunner runner,
 			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
-			[TestParameter ("post")] Handler handler)
+			[TestParameter ("post")] Handler handler, CancellationToken cancellationToken)
 		{
 			var post = (PostHandler)handler;
 			var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
@@ -144,6 +175,30 @@ namespace Xamarin.WebTests.Tests
 			var redirect = new RedirectHandler (post, code) { Description = post.Description };
 
 			return runner.Run (ctx, redirect, cancellationToken);
+		}
+
+		[AsyncTest]
+		public async Task Test18750 (
+			TestContext ctx, [TestHost] HttpTestRunner runner, CancellationToken cancellationToken)
+		{
+			var post = new PostHandler {
+				Description = "First post",
+				Body = "var1=value&var2=value2",
+				Flags = RequestFlags.RedirectedAsGet
+			};
+			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
+
+			var uri = redirect.RegisterRequest (runner.Listener);
+
+			var wc = new WebClient ();
+			var res = await wc.UploadStringTaskAsync (uri, post.Body);
+			ctx.Debug (0, "Test18750: {0}", res);
+
+			var secondPost = new PostHandler {
+				Description = "Second post", Body = "Should send this"
+			};
+
+			await runner.Run (ctx, secondPost, cancellationToken);
 		}
 	}
 }
