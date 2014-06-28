@@ -1,9 +1,3 @@
-[submodule "external/Touch.Unit"]
-	path = external/Touch.Unit
-	url = git@github.com:baulig/Touch.Unit.git
-[submodule "external/NUnitLite"]
-	path = external/NUnitLite
-	url = git://github.com/spouliot/NUnitLite.git
 [submodule "external/AsyncTests"]
 	path = external/AsyncTests
 	url = git@github.com:baulig/AsyncTests.git
