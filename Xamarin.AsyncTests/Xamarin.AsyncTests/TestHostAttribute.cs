@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
-		public TestHostAttribute (Type type, TestFlags flags = TestFlags.None)
+		public TestHostAttribute (Type type = null, TestFlags flags = TestFlags.None)
 		{
 			HostType = type;
 			Flags = flags;
