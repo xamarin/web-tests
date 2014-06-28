@@ -47,7 +47,7 @@ namespace Xamarin.WebTests.Runners
 
 		public Task Initialize (Xamarin.AsyncTests.TestContext context, CancellationToken cancellationToken)
 		{
-			return Task.Run (() => Start ());
+			return Start (cancellationToken);
 		}
 
 		public Task PreRun (Xamarin.AsyncTests.TestContext context, CancellationToken cancellationToken)
@@ -62,14 +62,26 @@ namespace Xamarin.WebTests.Runners
 
 		public Task Destroy (Xamarin.AsyncTests.TestContext context, CancellationToken cancellationToken)
 		{
-			return Task.Run (() => Stop ());
+			return Stop (cancellationToken);
 		}
 
 		#endregion
 
-		public abstract void Start ();
+		public abstract Task Start (CancellationToken cancellationToken);
 
-		public abstract void Stop ();
+		[Obsolete]
+		public void Start ()
+		{
+			Task.Run (() => Start (CancellationToken.None));
+		}
+
+		public abstract Task Stop (CancellationToken cancellationToken);
+
+		[Obsolete]
+		public void Stop ()
+		{
+			Task.Run (() => Stop (CancellationToken.None));
+		}
 
 		protected abstract HttpWebRequest CreateRequest (Handler handler);
 

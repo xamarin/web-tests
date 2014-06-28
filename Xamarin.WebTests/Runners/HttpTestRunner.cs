@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Runners
 {
@@ -39,14 +41,16 @@ namespace Xamarin.WebTests.Runners
 			get { return listener; }
 		}
 
-		public override void Start ()
+		public override Task Start (CancellationToken cancellationToken)
 		{
-			listener = new HttpListener (IPAddress.Loopback, 9999);
+			return Task.Run (() => {
+				listener = new HttpListener (IPAddress.Loopback, 9999);
+			});
 		}
 
-		public override void Stop ()
+		public override Task Stop (CancellationToken cancellationToken)
 		{
-			listener.Stop ();
+			return Task.Run (() => listener.Stop ());
 		}
 
 		protected override HttpWebRequest CreateRequest (Handler handler)

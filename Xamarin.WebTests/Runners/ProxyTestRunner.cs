@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Runners
 {
@@ -69,18 +71,22 @@ namespace Xamarin.WebTests.Runners
 		}
 		#endif
 
-		public override void Start ()
+		public override Task Start (CancellationToken cancellationToken)
 		{
-			httpListener = new HttpListener (endpoint.Address, endpoint.Port, UseSSL);
-			proxyListener = new ProxyListener (httpListener, proxyEndpoint.Address, proxyEndpoint.Port, authType);
+			return Task.Run (() => {
+				httpListener = new HttpListener (endpoint.Address, endpoint.Port, UseSSL);
+				proxyListener = new ProxyListener (httpListener, proxyEndpoint.Address, proxyEndpoint.Port, authType);
+			});
 		}
 
-		public override void Stop ()
+		public override Task Stop (CancellationToken cancellationToken)
 		{
-			proxyListener.Stop ();
-			httpListener.Stop ();
-			proxyListener = null;
-			httpListener = null;
+			return Task.Run (() => {
+				proxyListener.Stop ();
+				httpListener.Stop ();
+				proxyListener = null;
+				httpListener = null;
+			});
 		}
 
 		IWebProxy CreateProxy ()
