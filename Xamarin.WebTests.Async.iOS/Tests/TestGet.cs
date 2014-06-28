@@ -67,18 +67,6 @@ namespace Xamarin.WebTests.Tests
 			yield return new HelloWorldHandler ();
 		}
 
-		class RedirectCodes : ITestParameterSource<HttpStatusCode>
-		{
-			#region ITestParameterSource implementation
-			public IEnumerable<HttpStatusCode> GetParameters (TestContext context, string filter)
-			{
-				yield return HttpStatusCode.Moved;
-				yield return HttpStatusCode.Found;
-				yield return HttpStatusCode.TemporaryRedirect;
-			}
-			#endregion
-		}
-
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
 			[TestHost (typeof (TestGet))] TestRunner runner, [TestParameter] Handler handler)
@@ -88,8 +76,8 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Redirect (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost (typeof (TestGet))] TestRunner runner,
-			[TestParameter (typeof (RedirectCodes))] HttpStatusCode code,
+			[TestHost] TestRunner runner,
+			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
 			[TestParameter] Handler handler)
 		{
 			var description = string.Format ("{0}: {1}", code, handler.Description);

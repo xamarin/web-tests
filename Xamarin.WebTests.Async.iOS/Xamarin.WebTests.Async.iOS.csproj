@@ -112,6 +112,8 @@
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="Tests\TestGet.cs" />
+    <Compile Include="Tests\TestPostAsync.cs" />
+    <Compile Include="Tests\RedirectStatusSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xamarin.WebTests\Framework\RequestFlags.cs">
