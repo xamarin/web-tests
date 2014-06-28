@@ -125,6 +125,26 @@ namespace Xamarin.WebTests.Tests
 		{
 			return runner.Run (ctx, handler, cancellationToken);
 		}
+
+		[AsyncTest]
+		public Task Redirect (TestContext ctx, CancellationToken cancellationToken,
+			[TestHost] TestRunner runner,
+			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
+			[TestParameter ("post")] Handler handler)
+		{
+			var post = (PostHandler)handler;
+			var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
+			var hasBody = post.Body != null || ((post.Flags & RequestFlags.ExplicitlySetLength) != 0) || (post.Mode == TransferMode.ContentLength);
+
+			if ((hasBody || !isWindows) && (code == HttpStatusCode.MovedPermanently || code == HttpStatusCode.Found))
+				post.Flags = RequestFlags.RedirectedAsGet;
+			else
+				post.Flags = RequestFlags.Redirected;
+			post.Description = string.Format ("{0}: {1}", code, post.Description);
+			var redirect = new RedirectHandler (post, code) { Description = post.Description };
+
+			return runner.Run (ctx, redirect, cancellationToken);
+		}
 	}
 }
 
