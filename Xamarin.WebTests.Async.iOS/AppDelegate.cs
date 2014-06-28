@@ -48,6 +48,7 @@ namespace Xamarin.WebTests.Async.iOS
 	{
 		// class-level declarations
 		UIWindow window;
+		SettingsHost settings;
 		TestApp test;
 
 		//
@@ -61,7 +62,9 @@ namespace Xamarin.WebTests.Async.iOS
 		{
 			Xamarin.Forms.Forms.Init ();
 
-			test = new TestApp ("Xamarin Web Tests");
+			settings = new SettingsHost ();
+
+			test = new TestApp (settings, "Xamarin Web Tests");
 			test.LoadAssembly (typeof(AppDelegate).Assembly);
 
 			window = new UIWindow (UIScreen.MainScreen.Bounds);

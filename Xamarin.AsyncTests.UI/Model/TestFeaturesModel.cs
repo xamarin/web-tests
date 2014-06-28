@@ -57,7 +57,21 @@ namespace Xamarin.AsyncTests.UI
 				if (feature.CanModify)
 					features.Add (new TestFeatureModel (App, feature));
 			}
+			LoadSettings ();
 			OnPropertyChanged ("Features");
+		}
+
+		void LoadSettings ()
+		{
+			if (App.Settings == null)
+				return;
+			foreach (var feature in features) {
+				if (!feature.Feature.CanModify)
+					continue;
+				var value = App.Settings.GetValue (feature.Path);
+				if (value != null)
+					feature.IsEnabled = bool.Parse (value);
+			}
 		}
 	}
 }

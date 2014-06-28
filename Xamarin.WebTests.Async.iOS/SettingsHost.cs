@@ -1,5 +1,5 @@
 ﻿//
-// TestFeatureModel.cs
+// SettingsHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,50 +24,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.Forms;
-using Xamarin.AsyncTests;
+using MonoTouch.Foundation;
+using Xamarin.AsyncTests.UI;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.WebTests.Async.iOS
 {
-	public class TestFeatureModel : BindableObject
+	public class SettingsHost : ISettingsHost
 	{
-		public TestApp App {
-			get;
-			private set;
-		}
-
-		public TestFeature Feature {
-			get;
-			private set;
-		}
-
-		public bool IsEnabled {
-			get {
-				return App.Context.Features.IsEnabled (Feature);
-			}
-			set {
-				if (value == IsEnabled)
-					return;
-				if (value)
-					App.Context.Features.Enable (Feature);
-				else
-					App.Context.Features.Disable (Feature);
-				if (App.Settings != null)
-					App.Settings.SetValue (Path, value.ToString ());
-			}
-		}
-
-		public string Path {
-			get;
-			private set;
-		}
-
-		public TestFeatureModel (TestApp app, TestFeature feature)
+		#region ISettingsHost implementation
+		public string GetValue (string name)
 		{
-			App = app;
-			Feature = feature;
-			Path = "/Feature/" + feature.Name;
+			return NSUserDefaults.StandardUserDefaults.StringForKey (name);
 		}
+
+		public void SetValue (string name, string value)
+		{
+			NSUserDefaults.StandardUserDefaults.SetString (value, name);
+			NSUserDefaults.StandardUserDefaults.Synchronize ();
+		}
+		#endregion
 	}
 }
 

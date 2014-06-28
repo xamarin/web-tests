@@ -131,6 +131,7 @@
     <Compile Include="..\Xamarin.WebTests\TestSuite.cs">
       <Link>TestSuite.cs</Link>
     </Compile>
+    <Compile Include="SettingsHost.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xamarin.WebTests\Framework\RequestFlags.cs">

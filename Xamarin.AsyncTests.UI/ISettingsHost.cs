@@ -1,5 +1,5 @@
 ﻿//
-// TestFeatureModel.cs
+// ISettingsHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,50 +24,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.Forms;
-using Xamarin.AsyncTests;
 
 namespace Xamarin.AsyncTests.UI
 {
-	public class TestFeatureModel : BindableObject
+	public interface ISettingsHost
 	{
-		public TestApp App {
-			get;
-			private set;
-		}
+		string GetValue (string name);
 
-		public TestFeature Feature {
-			get;
-			private set;
-		}
-
-		public bool IsEnabled {
-			get {
-				return App.Context.Features.IsEnabled (Feature);
-			}
-			set {
-				if (value == IsEnabled)
-					return;
-				if (value)
-					App.Context.Features.Enable (Feature);
-				else
-					App.Context.Features.Disable (Feature);
-				if (App.Settings != null)
-					App.Settings.SetValue (Path, value.ToString ());
-			}
-		}
-
-		public string Path {
-			get;
-			private set;
-		}
-
-		public TestFeatureModel (TestApp app, TestFeature feature)
-		{
-			App = app;
-			Feature = feature;
-			Path = "/Feature/" + feature.Name;
-		}
+		void SetValue (string name, string value);
 	}
 }
 

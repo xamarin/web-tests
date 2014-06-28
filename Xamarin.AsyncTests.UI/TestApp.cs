@@ -106,6 +106,11 @@ namespace Xamarin.AsyncTests.UI
 			get { return !running && CurrentTestRunner.Test != null; }
 		}
 
+		public ISettingsHost Settings {
+			get;
+			private set;
+		}
+
 		public OptionsModel Options {
 			get;
 			private set;
@@ -116,8 +121,10 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestApp (string name)
+		public TestApp (ISettingsHost settings, string name)
 		{
+			Settings = settings;
+
 			Context = new TestContext ();
 
 			var result = new TestResult (new TestName (null));
