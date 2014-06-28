@@ -38,10 +38,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public CustomHostAttributeTestHost (string name, TypeInfo type, TestHostAttribute attr)
+		public TypeInfo HostType {
+			get;
+			private set;
+		}
+
+		public CustomHostAttributeTestHost (string name, TypeInfo type, TestHostAttribute attr, TypeInfo hostType)
 			: base (name, type)
 		{
 			Attribute = attr;
+			HostType = hostType;
 			Flags |= attr.Flags;
 		}
 
@@ -50,7 +56,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var instanceType = typeof(CustomTestInstance<>).GetTypeInfo ();
 			var genericInstance = instanceType.MakeGenericType (ParameterType.AsType ());
 			return (ParameterizedTestInstance)Activator.CreateInstance (
-				genericInstance, this, parent, Attribute.HostType);
+				genericInstance, this, parent, HostType);
 		}
 	}
 }

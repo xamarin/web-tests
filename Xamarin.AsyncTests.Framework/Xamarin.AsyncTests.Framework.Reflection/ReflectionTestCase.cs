@@ -86,7 +86,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					continue;
 
 				var member = ReflectionHelper.GetParameterInfo (parameters [i]);
-				parameterHosts.AddRange (ResolveParameter (member));
+				parameterHosts.AddRange (ResolveParameter (Fixture.Type, member));
 			}
 
 			TestInvoker invoker = new ReflectionTestCaseInvoker (this);

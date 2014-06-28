@@ -81,7 +81,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			for (int i = properties.Length - 1; i >= 0; i--) {
 				var member = ReflectionHelper.GetPropertyInfo (properties [i]);
 
-				foreach (var host in ReflectionTest.ResolveParameter (member))
+				foreach (var host in ReflectionTest.ResolveParameter (Type, member))
 					parameterHosts.Add (new ReflectionPropertyHost (this, properties [i], host));
 			}
 

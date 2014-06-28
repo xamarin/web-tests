@@ -1,5 +1,5 @@
 ﻿//
-// AggregatedTestRunner2.cs
+// AggregatedTestInvoker.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -138,14 +138,13 @@ namespace Xamarin.AsyncTests.Framework
 			ctx.Debug (3, "MoveNext({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
 				Print (Host), Flags, Print (instance));
 
-			var parameterizedInstance = instance as ParameterizedTestInstance;
-			if (parameterizedInstance == null)
+			if (ParameterizedHost == null)
 				return true;
 
 			try {
 				ctx.CurrentTestName.PushName ("MoveNext");
 				cancellationToken.ThrowIfCancellationRequested ();
-				await parameterizedInstance.MoveNext (ctx, cancellationToken);
+				await ((ParameterizedTestInstance)instance).MoveNext (ctx, cancellationToken);
 				return true;
 			} catch (OperationCanceledException) {
 				result.Status = TestStatus.Canceled;
@@ -299,7 +298,7 @@ namespace Xamarin.AsyncTests.Framework
 				if (!success)
 					break;
 
-				if (parameterizedInstance == null || !parameterizedInstance.HasNext ())
+				if (ParameterizedHost == null || !parameterizedInstance.HasNext ())
 					current = current.Next;
 			}
 

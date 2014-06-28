@@ -57,7 +57,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			categories = GetCategories (member);
 		}
 
-		protected static IEnumerable<ParameterizedTestHost> ResolveParameter (IMemberInfo member)
+		protected static IEnumerable<ParameterizedTestHost> ResolveParameter (TypeInfo fixtureType, IMemberInfo member)
 		{
 			if (typeof(ITestInstance).GetTypeInfo ().IsAssignableFrom (member.Type)) {
 				var hostAttr = member.GetCustomAttribute<TestHostAttribute> ();
@@ -66,7 +66,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (hostAttr == null)
 					throw new InvalidOperationException ();
 
-				yield return new CustomHostAttributeTestHost (member.Name, member.Type, hostAttr);
+				TypeInfo hostType = null;
+				if (hostAttr.HostType != null) {
+					hostType = hostAttr.HostType.GetTypeInfo ();
+					if (hostType.IsAssignableFrom (fixtureType))
+						hostType = null;
+				}
+
+				yield return new CustomHostAttributeTestHost (member.Name, member.Type, hostAttr, hostType);
 				yield break;
 			}
 
