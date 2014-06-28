@@ -92,11 +92,11 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\external\AsyncTests\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
+    <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
       <Name>Xamarin.AsyncTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\external\AsyncTests\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
+    <ProjectReference Include="..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>Xamarin.AsyncTests.Framework</Name>
     </ProjectReference>

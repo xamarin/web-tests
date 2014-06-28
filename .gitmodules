@@ -1,3 +1,0 @@
-[submodule "external/AsyncTests"]
-	path = external/AsyncTests
-	url = git@github.com:baulig/AsyncTests.git
