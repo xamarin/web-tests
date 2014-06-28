@@ -33,7 +33,8 @@ namespace Xamarin.AsyncTests
 		None = 0,
 		ContinueOnError = 1,
 		Browsable = 2,
-		FlattenHierarchy = 4
+		FlattenHierarchy = 4,
+		Hidden = 8
 	}
 }
 

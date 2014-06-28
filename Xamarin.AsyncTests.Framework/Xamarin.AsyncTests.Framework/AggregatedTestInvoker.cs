@@ -55,6 +55,10 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (Flags & (TestFlags.Browsable | TestFlags.FlattenHierarchy)) == TestFlags.Browsable; }
 		}
 
+		public bool IsHidden {
+			get { return (Flags & TestFlags.Hidden) != 0; }
+		}
+
 		public AggregatedTestInvoker (TestFlags flags, params TestInvoker[] invokers)
 			: this (flags, null, invokers)
 		{
@@ -270,7 +274,7 @@ namespace Xamarin.AsyncTests.Framework
 					break;
 
 				var parameterizedInstance = innerInstance as ParameterizedTestInstance;
-				if (ParameterizedHost != null)
+				if (!IsHidden && ParameterizedHost != null)
 					ctx.CurrentTestName.PushParameter (ParameterizedHost.ParameterName, parameterizedInstance.Current);
 				var capturedTest = CaptureContext (ctx, innerInstance, invoker);
 				if (capturedTest != null)
@@ -292,7 +296,7 @@ namespace Xamarin.AsyncTests.Framework
 
 				if (capturedTest != null)
 					ctx.CurrentTestName.PopCapture ();
-				if (ParameterizedHost != null)
+				if (!IsHidden && ParameterizedHost != null)
 					ctx.CurrentTestName.PopParameter ();
 
 				if (!success)
