@@ -43,26 +43,56 @@ namespace Xamarin.WebTests.Runners
 
 	public abstract class TestRunner : ITestInstance
 	{
+		public bool ReuseConnection {
+			get { return reuseConnection; }
+			set {
+				if (initialized)
+					throw new InvalidOperationException ();
+				reuseConnection = value;
+			}
+		}
+
 		#region ITestInstance implementation
 
-		public Task Initialize (Xamarin.AsyncTests.TestContext context, CancellationToken cancellationToken)
+		bool reuseConnection;
+		bool initialized;
+		int started;
+
+		public async Task Initialize (TestContext context, CancellationToken cancellationToken)
 		{
-			return Start (cancellationToken);
+			if (initialized)
+				throw new InvalidOperationException ();
+			initialized = true;
+
+			if (ReuseConnection)
+				await Start (cancellationToken);
 		}
 
-		public Task PreRun (Xamarin.AsyncTests.TestContext context, CancellationToken cancellationToken)
+		public async Task PreRun (TestContext context, CancellationToken cancellationToken)
 		{
-			return Task.FromResult<object> (null);
+			if (!ReuseConnection) {
+				if (started++ == 0)
+					await Start (cancellationToken);
+			}
 		}
 
-		public Task PostRun (Xamarin.AsyncTests.TestContext context, CancellationToken cancellationToken)
+		public async Task PostRun (TestContext context, CancellationToken cancellationToken)
 		{
-			return Task.FromResult<object> (null);
+			if (!ReuseConnection) {
+				if (--started == 0)
+					await Stop (cancellationToken);
+			}
 		}
 
-		public Task Destroy (Xamarin.AsyncTests.TestContext context, CancellationToken cancellationToken)
+		public async Task Destroy (TestContext context, CancellationToken cancellationToken)
 		{
-			return Stop (cancellationToken);
+			if (!initialized)
+				throw new InvalidOperationException ();
+
+			if (ReuseConnection)
+				await Stop (cancellationToken);
+
+			initialized = false;
 		}
 
 		#endregion
