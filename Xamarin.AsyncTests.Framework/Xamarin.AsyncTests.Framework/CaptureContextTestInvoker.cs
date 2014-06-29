@@ -42,7 +42,6 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public CaptureContextTestInvoker (TestHost host, TestInvoker inner)
-			: base (host.Flags)
 		{
 			Host = host;
 			Inner = inner;
