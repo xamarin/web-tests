@@ -111,31 +111,6 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		async Task<bool> PreRun (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
-		{
-			ctx.Debug (3, "PreRun({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
-				Print (Host), Flags, Print (instance));
-
-			try {
-				ctx.CurrentTestName.PushName ("PreRun");
-				for (var current = instance; current != null; current = current.Parent) {
-					cancellationToken.ThrowIfCancellationRequested ();
-					await current.PreRun (ctx, cancellationToken);
-				}
-				return true;
-			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
-				return false;
-			} catch (Exception ex) {
-				var error = ctx.CreateTestResult (ex);
-				result.AddChild (error);
-				return false;
-			} finally {
-				ctx.CurrentTestName.PopName ();
-			}
-		}
-
 		async Task<bool> MoveNext (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
@@ -179,31 +154,6 @@ namespace Xamarin.AsyncTests.Framework
 				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
 				return ContinueOnError;
-			}
-		}
-
-		async Task<bool> PostRun (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
-		{
-			ctx.Debug (3, "PostRun({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
-				Print (Host), Flags, Print (instance));
-
-			try {
-				ctx.CurrentTestName.PushName ("PostName");
-				for (var current = instance; current != null; current = current.Parent) {
-					cancellationToken.ThrowIfCancellationRequested ();
-					await current.PostRun (ctx, cancellationToken);
-				}
-				return true;
-			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
-				return false;
-			} catch (Exception ex) {
-				var error = ctx.CreateTestResult (ex);
-				result.AddChild (error);
-				return false;
-			} finally {
-				ctx.CurrentTestName.PopName ();
 			}
 		}
 
@@ -285,10 +235,6 @@ namespace Xamarin.AsyncTests.Framework
 				if (capturedTest != null)
 					ctx.CurrentTestName.PushCapture (capturedTest);
 
-				success = await PreRun (ctx, innerInstance, innerResult, cancellationToken);
-				if (!success)
-					break;
-
 				ctx.Debug (5, "InnerInvoke({0}): {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
 					Print (Host), Print (innerInstance), invoker, InnerTestInvokers.Count);
 
@@ -296,8 +242,6 @@ namespace Xamarin.AsyncTests.Framework
 
 				ctx.Debug (5, "InnerInvoke({0}) done: {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
 					IsBrowsable, Print (Host), Print (innerInstance), success);
-
-				success &= await PostRun (ctx, innerInstance, innerResult, cancellationToken);
 
 				if (capturedTest != null)
 					ctx.CurrentTestName.PopCapture ();

@@ -96,7 +96,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				parameterHosts.AddRange (ResolveParameter (Fixture.Type, member));
 			}
 
-			return CreateInvoker (new ReflectionTestCaseInvoker (this), parameterHosts);
+			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
+
+			invoker = new PrePostRunTestInvoker (invoker);
+
+			return CreateInvoker (invoker, parameterHosts);
 		}
 
 		public async Task<bool> Invoke (

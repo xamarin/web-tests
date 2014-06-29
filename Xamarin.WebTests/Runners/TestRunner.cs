@@ -70,18 +70,14 @@ namespace Xamarin.WebTests.Runners
 
 		public async Task PreRun (TestContext context, CancellationToken cancellationToken)
 		{
-			if (!ReuseConnection) {
-				if (started++ == 0)
-					await Start (cancellationToken);
-			}
+			if (!ReuseConnection)
+				await Start (cancellationToken);
 		}
 
 		public async Task PostRun (TestContext context, CancellationToken cancellationToken)
 		{
-			if (!ReuseConnection) {
-				if (--started == 0)
-					await Stop (cancellationToken);
-			}
+			if (!ReuseConnection)
+				await Stop (cancellationToken);
 		}
 
 		public async Task Destroy (TestContext context, CancellationToken cancellationToken)

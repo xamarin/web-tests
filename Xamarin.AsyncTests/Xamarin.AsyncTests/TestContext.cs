@@ -75,6 +75,11 @@ namespace Xamarin.AsyncTests
 				CurrentTestResult.AddMessage (message);
 		}
 
+		public string Print (object obj)
+		{
+			return obj != null ? obj.ToString () : "<null>";
+		}
+
 		public bool HasWarnings {
 			get { return warnings != null; }
 		}
