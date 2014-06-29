@@ -83,7 +83,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 
 			var invokers = tests.Select (t => t.Invoker).ToArray ();
-			invoker = new AggregatedTestInvoker (TestFlags.ContinueOnError, invokers);
+			invoker = AggregatedTestInvoker.Create (TestFlags.ContinueOnError, invokers);
 
 			var suiteAttr = assembly.GetCustomAttribute<AsyncTestSuiteAttribute> ();
 			if (suiteAttr != null)

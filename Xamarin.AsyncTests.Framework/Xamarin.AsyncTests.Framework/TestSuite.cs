@@ -59,7 +59,7 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			var invoker = new TestCaseInvoker (test);
 			var repeatHost = new RepeatedTestHost (count, TestFlags.ContinueOnError | TestFlags.Browsable, "$iteration");
-			var repeatInvoker = new AggregatedTestInvoker (repeatHost, invoker);
+			var repeatInvoker = AggregatedTestInvoker.Create (repeatHost, invoker);
 			var outerInvoker = new ProxyTestInvoker (test.Name, repeatInvoker);
 			return new InvokableTestCase (test, outerInvoker);
 		}

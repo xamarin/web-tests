@@ -47,7 +47,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal TestInvoker CreateInvoker (TestInvoker inner)
 		{
-			return new AggregatedTestInvoker (this, inner);
+			return AggregatedTestInvoker.Create (this, inner);
 		}
 
 		public override string ToString ()

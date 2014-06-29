@@ -56,9 +56,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		TestInvoker Resolve ()
 		{
-			var aggregatedInvoker = new AggregatedTestInvoker (TestFlags.ContinueOnError);
-
 			var tests = new List<TestCase> ();
+			var innerInvokers = new List<TestInvoker> ();
 
 			foreach (var method in Type.DeclaredMethods) {
 				if (method.IsStatic || !method.IsPublic)
@@ -68,7 +67,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					continue;
 
 				var test = new ReflectionTestCase (this, attr, method);
-				aggregatedInvoker.InnerTestInvokers.Add (test.Invoker);
+				innerInvokers.Add (test.Invoker);
 				tests.Add (test);
 			}
 
@@ -87,7 +86,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			parameterHosts.Add (new ReflectionTestFixtureHost (this));
 
-			return CreateInvoker (aggregatedInvoker, parameterHosts);
+			TestInvoker invoker = AggregatedTestInvoker.Create (TestFlags.ContinueOnError, innerInvokers.ToArray ());
+
+			return CreateInvoker (invoker, parameterHosts);
 		}
 
 		class ReflectionTestFixtureHost : TestHost

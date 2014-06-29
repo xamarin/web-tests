@@ -56,7 +56,6 @@ namespace Xamarin.WebTests.Runners
 
 		bool reuseConnection;
 		bool initialized;
-		int started;
 
 		public async Task Initialize (TestContext context, CancellationToken cancellationToken)
 		{

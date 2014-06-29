@@ -59,16 +59,6 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (Flags & TestFlags.Hidden) != 0; }
 		}
 
-		public AggregatedTestInvoker (TestFlags flags, params TestInvoker[] invokers)
-			: this (flags, null, invokers)
-		{
-		}
-
-		public AggregatedTestInvoker (TestHost host, params TestInvoker[] invokers)
-			: this (host.Flags, host, invokers)
-		{
-		}
-
 		AggregatedTestInvoker (TestFlags flags, TestHost host, TestInvoker[] invokers)
 		{
 			Flags = flags;
@@ -76,6 +66,24 @@ namespace Xamarin.AsyncTests.Framework
 
 			innerTestInvokers = new List<TestInvoker> ();
 			innerTestInvokers.AddRange (invokers);
+		}
+
+		public static TestInvoker Create (TestFlags flags, params TestInvoker[] invokers)
+		{
+			return Create (flags, null, invokers);
+		}
+
+		public static TestInvoker Create (TestHost host, params TestInvoker[] invokers)
+		{
+			return Create (host.Flags, host, invokers);
+		}
+
+		static TestInvoker Create (TestFlags flags, TestHost host, params TestInvoker[] invokers)
+		{
+			TestInvoker invoker = new AggregatedTestInvoker (flags, host, invokers);
+			if (host != null)
+				invoker = new HostInstanceTestInvoker (host, invoker);
+			return invoker;
 		}
 
 		public IList<TestInvoker> InnerTestInvokers {
@@ -87,28 +95,6 @@ namespace Xamarin.AsyncTests.Framework
 		static string Print (object obj)
 		{
 			return obj != null ? obj.ToString () : "<null>";
-		}
-
-		async Task<TestInstance> SetUp (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
-		{
-			ctx.Debug (3, "SetUp({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
-				Print (Host), Flags, Print (instance));
-
-			try {
-				ctx.CurrentTestName.PushName ("SetUp");
-				cancellationToken.ThrowIfCancellationRequested ();
-				return await Host.CreateInstance (ctx, instance, cancellationToken);
-			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
-				return null;
-			} catch (Exception ex) {
-				var error = ctx.CreateTestResult (ex);
-				result.AddChild (error);
-				return null;
-			} finally {
-				ctx.CurrentTestName.PopName ();
-			}
 		}
 
 		async Task<bool> MoveNext (
@@ -157,29 +143,6 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		async Task<bool> TearDown (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
-		{
-			ctx.Debug (3, "TearDown({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
-				Print (Host), Flags, Print (instance));
-
-			try {
-				ctx.CurrentTestName.PushName ("TearDown");
-				cancellationToken.ThrowIfCancellationRequested ();
-				await instance.Destroy (ctx, cancellationToken);
-				return true;
-			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
-				return false;
-			} catch (Exception ex) {
-				var error = ctx.CreateTestResult (ex);
-				result.AddChild (error);
-				return false;
-			} finally {
-				ctx.CurrentTestName.PopName ();
-			}
-		}
-			
 		public sealed override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
@@ -200,21 +163,12 @@ namespace Xamarin.AsyncTests.Framework
 				ctx.CurrentTestResult = innerResult;
 			}
 
-			var innerInstance = instance;
-			if (Host != null) {
-				innerInstance = await SetUp (ctx, instance, innerResult, cancellationToken);
-				if (innerInstance == null) {
-					ctx.CurrentTestResult = oldResult;
-					return false;
-				}
-			}
-
 			bool success = true;
 			var innerRunners = new LinkedList<TestInvoker> (InnerTestInvokers);
 			var current = innerRunners.First;
 
 			while (success && current != null) {
-				var parameterizedInstance = innerInstance as ParameterizedTestInstance;
+				var parameterizedInstance = instance as ParameterizedTestInstance;
 				var invoker = current.Value;
 
 				if (cancellationToken.IsCancellationRequested)
@@ -225,23 +179,23 @@ namespace Xamarin.AsyncTests.Framework
 					continue;
 				}
 
-				success = await MoveNext (ctx, innerInstance, innerResult, cancellationToken);
+				success = await MoveNext (ctx, instance, innerResult, cancellationToken);
 				if (!success)
 					break;
 
 				if (!IsHidden && ParameterizedHost != null)
 					ctx.CurrentTestName.PushParameter (ParameterizedHost.ParameterName, parameterizedInstance.Current);
-				var capturedTest = CaptureContext (ctx, innerInstance, invoker);
+				var capturedTest = CaptureContext (ctx, instance, invoker);
 				if (capturedTest != null)
 					ctx.CurrentTestName.PushCapture (capturedTest);
 
 				ctx.Debug (5, "InnerInvoke({0}): {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
-					Print (Host), Print (innerInstance), invoker, InnerTestInvokers.Count);
+					Print (Host), Print (instance), invoker, InnerTestInvokers.Count);
 
-				success = await InvokeInner (ctx, innerInstance, innerResult, invoker, cancellationToken);
+				success = await InvokeInner (ctx, instance, innerResult, invoker, cancellationToken);
 
 				ctx.Debug (5, "InnerInvoke({0}) done: {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
-					IsBrowsable, Print (Host), Print (innerInstance), success);
+					IsBrowsable, Print (Host), Print (instance), success);
 
 				if (capturedTest != null)
 					ctx.CurrentTestName.PopCapture ();
@@ -253,11 +207,6 @@ namespace Xamarin.AsyncTests.Framework
 
 				if (ParameterizedHost == null || !parameterizedInstance.HasNext ())
 					current = current.Next;
-			}
-
-			if (Host != null) {
-				if (!await TearDown (ctx, innerInstance, innerResult, cancellationToken))
-					success = false;
 			}
 
 			if (cancellationToken.IsCancellationRequested) {
@@ -288,13 +237,13 @@ namespace Xamarin.AsyncTests.Framework
 			var parameterizedInstance = instance as ParameterizedTestInstance;
 			if (parameterizedInstance != null) {
 				var host = new CapturedTestHost (name, parameterizedInstance.Host, parameterizedInstance.Current);
-				invoker = new AggregatedTestInvoker (host, invoker);
+				invoker = AggregatedTestInvoker.Create (host, invoker);
 			}
 
 			if (instance.Parent != null)
 				return CaptureContext (name, instance.Parent, invoker);
 
-			return new AggregatedTestInvoker (instance.Host, invoker);
+			return AggregatedTestInvoker.Create (instance.Host, invoker);
 		}
 
 		public override string ToString ()

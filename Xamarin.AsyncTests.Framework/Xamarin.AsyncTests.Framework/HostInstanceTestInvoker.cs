@@ -1,5 +1,5 @@
 ﻿//
-// PrePostRunTestInvoker.cs
+// HostInstanceTestInvoker.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,58 +24,62 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class PrePostRunTestInvoker : TestInvoker
+	class HostInstanceTestInvoker : TestInvoker
 	{
+		public TestHost Host {
+			get;
+			private set;
+		}
+
 		public TestInvoker Inner {
 			get;
 			private set;
 		}
 
-		public PrePostRunTestInvoker (TestInvoker inner)
+		public HostInstanceTestInvoker (TestHost host, TestInvoker inner)
 		{
+			Host = host;
 			Inner = inner;
 		}
 
-		async Task<bool> PreRun (
+		async Task<TestInstance> SetUp (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			ctx.Debug (3, "PreRun({0}): {1}", ctx.GetCurrentTestName ().FullName, ctx.Print (instance));
+			ctx.Debug (3, "SetUp({0}): {1} {2}", ctx.GetCurrentTestName ().FullName,
+				ctx.Print (Host), ctx.Print (instance));
 
 			try {
-				ctx.CurrentTestName.PushName ("PreRun");
-				for (var current = instance; current != null; current = current.Parent) {
-					cancellationToken.ThrowIfCancellationRequested ();
-					await current.PreRun (ctx, cancellationToken);
-				}
-				return true;
+				ctx.CurrentTestName.PushName ("SetUp");
+				cancellationToken.ThrowIfCancellationRequested ();
+				return await Host.CreateInstance (ctx, instance, cancellationToken);
 			} catch (OperationCanceledException) {
 				result.Status = TestStatus.Canceled;
-				return false;
+				return null;
 			} catch (Exception ex) {
 				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
-				return false;
+				return null;
 			} finally {
 				ctx.CurrentTestName.PopName ();
 			}
 		}
 
-		async Task<bool> PostRun (
+		async Task<bool> TearDown (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			ctx.Debug (3, "PostRun({0}): {1}", ctx.GetCurrentTestName ().FullName, ctx.Print (instance));
+			ctx.Debug (3, "TearDown({0}): {1} {2}", ctx.GetCurrentTestName ().FullName,
+				ctx.Print (Host), ctx.Print (instance));
 
 			try {
-				ctx.CurrentTestName.PushName ("PostName");
-				for (var current = instance; current != null; current = current.Parent) {
-					cancellationToken.ThrowIfCancellationRequested ();
-					await current.PostRun (ctx, cancellationToken);
-				}
+				ctx.CurrentTestName.PushName ("TearDown");
+				cancellationToken.ThrowIfCancellationRequested ();
+				await instance.Destroy (ctx, cancellationToken);
 				return true;
 			} catch (OperationCanceledException) {
 				result.Status = TestStatus.Canceled;
@@ -92,19 +96,21 @@ namespace Xamarin.AsyncTests.Framework
 		public override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			if (!await PreRun (ctx, instance, result, cancellationToken))
+			var innerInstance = await SetUp (ctx, instance, result, cancellationToken);
+			if (innerInstance == null)
 				return false;
+
 
 			bool success;
 			try {
-				success = await Inner.Invoke (ctx, instance, result, cancellationToken);
+				success = await Inner.Invoke (ctx, innerInstance, result, cancellationToken);
 			} catch (Exception ex) {
 				var error = ctx.CreateTestResult (ex);
 				result.AddChild (error);
 				success = false;
 			}
 
-			if (!await PostRun (ctx, instance, result, cancellationToken))
+			if (!await TearDown (ctx, innerInstance, result, cancellationToken))
 				success = false;
 
 			return success;
