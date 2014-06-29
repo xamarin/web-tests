@@ -57,6 +57,7 @@
     <Compile Include="Xamarin.AsyncTests.Framework\PrePostRunTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\HostInstanceTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ResultGroupTestInvoker.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\CaptureContextTestInvoker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>
