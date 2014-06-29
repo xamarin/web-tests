@@ -77,6 +77,9 @@ namespace Xamarin.AsyncTests.Framework
 		static TestInvoker CreateInnerInvoker (TestHost host, TestInvoker invoker)
 		{
 			invoker = new CaptureContextTestInvoker (host, invoker);
+			var parameterizedHost = host as ParameterizedTestHost;
+			if (parameterizedHost != null)
+				invoker = new ParameterizedTestInvoker (parameterizedHost, invoker);
 			return invoker;
 		}
 
@@ -96,32 +99,6 @@ namespace Xamarin.AsyncTests.Framework
 		static string Print (object obj)
 		{
 			return obj != null ? obj.ToString () : "<null>";
-		}
-
-		async Task<bool> MoveNext (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
-		{
-			ctx.Debug (3, "MoveNext({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
-				Print (Host), Flags, Print (instance));
-
-			if (ParameterizedHost == null)
-				return true;
-
-			try {
-				ctx.CurrentTestName.PushName ("MoveNext");
-				cancellationToken.ThrowIfCancellationRequested ();
-				await ((ParameterizedTestInstance)instance).MoveNext (ctx, cancellationToken);
-				return true;
-			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
-				return false;
-			} catch (Exception ex) {
-				var error = ctx.CreateTestResult (ex);
-				result.AddChild (error);
-				return false;
-			} finally {
-				ctx.CurrentTestName.PopName ();
-			}
 		}
 
 		async Task<bool> InvokeInner (
@@ -166,18 +143,6 @@ namespace Xamarin.AsyncTests.Framework
 				if (cancellationToken.IsCancellationRequested)
 					break;
 
-				if (ParameterizedHost != null && !parameterizedInstance.HasNext ()) {
-					current = current.Next;
-					continue;
-				}
-
-				success = await MoveNext (ctx, instance, result, cancellationToken);
-				if (!success)
-					break;
-
-				if (!IsHidden && ParameterizedHost != null)
-					ctx.CurrentTestName.PushParameter (ParameterizedHost.ParameterName, parameterizedInstance.Current);
-
 				ctx.Debug (5, "InnerInvoke({0}): {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
 					Print (Host), Print (instance), invoker, innerTestInvokers.Count);
 
@@ -186,14 +151,10 @@ namespace Xamarin.AsyncTests.Framework
 				ctx.Debug (5, "InnerInvoke({0}) done: {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
 					Print (Host), Print (instance), success);
 
-				if (!IsHidden && ParameterizedHost != null)
-					ctx.CurrentTestName.PopParameter ();
-
 				if (!success)
 					break;
 
-				if (ParameterizedHost == null || !parameterizedInstance.HasNext ())
-					current = current.Next;
+				current = current.Next;
 			}
 
 			return success;
