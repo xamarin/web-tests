@@ -51,10 +51,6 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (Flags & TestFlags.ContinueOnError) != 0; }
 		}
 
-		public bool IsBrowsable {
-			get { return (Flags & (TestFlags.Browsable | TestFlags.FlattenHierarchy)) == TestFlags.Browsable; }
-		}
-
 		public bool IsHidden {
 			get { return (Flags & TestFlags.Hidden) != 0; }
 		}
@@ -83,6 +79,8 @@ namespace Xamarin.AsyncTests.Framework
 			TestInvoker invoker = new AggregatedTestInvoker (flags, host, invokers);
 			if (host != null)
 				invoker = new HostInstanceTestInvoker (host, invoker);
+			if ((flags & (TestFlags.Browsable | TestFlags.FlattenHierarchy)) == TestFlags.Browsable)
+				invoker = new ResultGroupTestInvoker (invoker);
 			return invoker;
 		}
 
@@ -154,15 +152,6 @@ namespace Xamarin.AsyncTests.Framework
 			ctx.Debug (3, "Invoke({0}): {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
 				Print (Host), Flags, Print (instance), InnerTestInvokers.Count);
 
-			var oldResult = ctx.CurrentTestResult;
-
-			var innerResult = result;
-			if (IsBrowsable) {
-				innerResult = new TestResult (ctx.GetCurrentTestName ());
-				result.AddChild (innerResult);
-				ctx.CurrentTestResult = innerResult;
-			}
-
 			bool success = true;
 			var innerRunners = new LinkedList<TestInvoker> (InnerTestInvokers);
 			var current = innerRunners.First;
@@ -179,7 +168,7 @@ namespace Xamarin.AsyncTests.Framework
 					continue;
 				}
 
-				success = await MoveNext (ctx, instance, innerResult, cancellationToken);
+				success = await MoveNext (ctx, instance, result, cancellationToken);
 				if (!success)
 					break;
 
@@ -192,10 +181,10 @@ namespace Xamarin.AsyncTests.Framework
 				ctx.Debug (5, "InnerInvoke({0}): {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
 					Print (Host), Print (instance), invoker, InnerTestInvokers.Count);
 
-				success = await InvokeInner (ctx, instance, innerResult, invoker, cancellationToken);
+				success = await InvokeInner (ctx, instance, result, invoker, cancellationToken);
 
-				ctx.Debug (5, "InnerInvoke({0}) done: {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
-					IsBrowsable, Print (Host), Print (instance), success);
+				ctx.Debug (5, "InnerInvoke({0}) done: {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
+					Print (Host), Print (instance), success);
 
 				if (capturedTest != null)
 					ctx.CurrentTestName.PopCapture ();
@@ -209,12 +198,6 @@ namespace Xamarin.AsyncTests.Framework
 					current = current.Next;
 			}
 
-			if (cancellationToken.IsCancellationRequested) {
-				innerResult.Status = TestStatus.Canceled;
-				success = false;
-			}
-
-			ctx.CurrentTestResult = oldResult;
 			return success;
 		}
 
