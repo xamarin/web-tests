@@ -31,15 +31,10 @@ using System;
 namespace Xamarin.AsyncTests
 {
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
-	public sealed class TestCategoryAttribute : Attribute {
-		public TestCategory Category {
+	public abstract class TestCategoryAttribute : Attribute
+	{
+		public abstract TestCategory Category {
 			get;
-			private set;
-		}
-
-		public TestCategoryAttribute (TestCategory category)
-		{
-			Category = category;
 		}
 	}
 }

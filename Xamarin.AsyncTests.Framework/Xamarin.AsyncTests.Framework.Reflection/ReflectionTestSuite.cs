@@ -44,12 +44,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			tests = new List<ReflectionTest> ();
 		}
 
-		public override ITestConfiguration Configuration {
-			get { return configuration; }
+		public override ITestFilter Filter {
+			get { return null; }
 		}
 
-		public override IEnumerable<TestCategory> Categories {
-			get { return tests.SelectMany (test => test.Categories).Distinct (); }
+		public override ITestConfiguration Configuration {
+			get { return configuration; }
 		}
 
 		public static Task<TestSuite> Create (Assembly assembly)

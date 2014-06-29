@@ -1,5 +1,5 @@
 ﻿//
-// TestCategory.cs
+// ConditionalTestInvoker.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,26 +24,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.Framework
 {
-	public class TestCategory
+	class ConditionalTestInvoker : TestInvoker
 	{
-		public string Name {
+		public ITestFilter Filter {
 			get;
 			private set;
 		}
 
-		public TestCategory (string name)
-		{
-			Name = name;
+		public TestInvoker Inner {
+			get;
+			private set;
 		}
 
-		public static readonly TestCategory All = new TestCategory ("All");
-
-		public override string ToString ()
+		public ConditionalTestInvoker (ITestFilter filter, TestInvoker inner)
 		{
-			return string.Format ("[TestCategory: Name={0}]", Name);
+			Filter = filter;
+			Inner = inner;
+		}
+
+		public override async Task<bool> Invoke (
+			TestContext context, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+		{
+			if (!Filter.Filter (context)) {
+				if (result.Status == TestStatus.None)
+					result.Status = TestStatus.Ignored;
+				return true;
+			}
+
+			return await Inner.Invoke (context, instance, result, cancellationToken);
 		}
 	}
 }

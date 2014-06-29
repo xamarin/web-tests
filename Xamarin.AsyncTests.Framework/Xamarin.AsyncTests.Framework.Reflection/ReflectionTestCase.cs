@@ -69,6 +69,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			invoker = Resolve ();
 		}
 
+		internal override bool RunFilter (TestContext ctx, out bool enabled)
+		{
+			if (Fixture.RunFilter (ctx, out enabled))
+				return enabled;
+			return base.RunFilter (ctx, out enabled);
+		}
+
 		TestInvoker Resolve ()
 		{
 			var parameterHosts = new List<TestHost> ();
@@ -89,13 +96,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				parameterHosts.AddRange (ResolveParameter (Fixture.Type, member));
 			}
 
-			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
-
-			foreach (var parameter in parameterHosts) {
-				invoker = parameter.CreateInvoker (invoker);
-			}
-
-			return new ProxyTestInvoker (Name.Name, invoker);
+			return CreateInvoker (new ReflectionTestCaseInvoker (this), parameterHosts);
 		}
 
 		public async Task<bool> Invoke (

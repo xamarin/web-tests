@@ -32,17 +32,56 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	abstract class ReflectionTest : TestCase
+	abstract class ReflectionTest : TestCase, ITestFilter
 	{
 		readonly IEnumerable<TestCategory> categories;
+		readonly IEnumerable<TestFeature> features;
 
 		public AsyncTestAttribute Attribute {
 			get;
 			private set;
 		}
 
-		public override IEnumerable<TestCategory> Categories {
-			get { return categories; }
+		public override ITestFilter Filter {
+			get { return this; }
+		}
+
+		bool ITestFilter.Filter (TestContext ctx)
+		{
+			bool enabled;
+			if (!RunFilter (ctx, out enabled))
+				enabled = false;
+			return enabled;
+		}
+
+		internal virtual bool RunFilter (TestContext ctx, out bool enabled)
+		{
+			foreach (var feature in features) {
+				if (!ctx.Configuration.IsEnabled (feature)) {
+					enabled = false;
+					return true;
+				}
+			}
+
+			if (ctx.Configuration.CurrentCategory == TestCategory.All) {
+				enabled = true;
+				return true;
+			}
+
+			if (categories == null) {
+				enabled = false;
+				return false;
+			}
+
+			foreach (var category in categories) {
+				if (ctx.Configuration.CurrentCategory == category) {
+					enabled = true;
+					return true;
+				}
+			}
+
+			enabled = false;
+			return true;
 		}
 
 		internal abstract TestInvoker Invoker {
@@ -55,6 +94,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Attribute = attr;
 
 			categories = GetCategories (member);
+			features = GetFeatures (member);
 		}
 
 		static TypeInfo GetHostType (
@@ -152,6 +192,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			throw new InvalidOperationException ();
 		}
 
+		protected TestInvoker CreateInvoker (TestInvoker invoker, List<TestHost> parameterHosts)
+		{
+			foreach (var parameter in parameterHosts) {
+				invoker = parameter.CreateInvoker (invoker);
+			}
+
+			invoker = new ConditionalTestInvoker (this, invoker);
+
+			return new ProxyTestInvoker (Name.Name, invoker);
+		}
+
 		static ParameterizedTestHost CreateEnum (TypeInfo typeInfo, string name)
 		{
 			if (!typeInfo.IsEnum || typeInfo.GetCustomAttribute<FlagsAttribute> () != null)
@@ -213,10 +264,18 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 		}
 
-		protected static IEnumerable<TestCategory> GetCategories (IMemberInfo member)
+		static IEnumerable<TestCategory> GetCategories (IMemberInfo member)
 		{
-			foreach (var cattr in member.GetCustomAttributes<TestCategoryAttribute> ())
-				yield return cattr.Category;
+			var cattrs = member.GetCustomAttributes<TestCategoryAttribute> ();
+			if (cattrs.Count () == 0)
+				return null;
+			return cattrs.Select (c => c.Category);
+		}
+
+		static IEnumerable<TestFeature> GetFeatures (IMemberInfo member)
+		{
+			foreach (var cattr in member.GetCustomAttributes<TestFeatureAttribute> ())
+				yield return cattr.Feature;
 		}
 
 		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)

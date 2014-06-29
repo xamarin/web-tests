@@ -53,6 +53,7 @@
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionPropertyHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTest.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\ConditionalTestInvoker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

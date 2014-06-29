@@ -42,8 +42,8 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public override IEnumerable<TestCategory> Categories {
-			get { return Test.Categories; }
+		public override ITestFilter Filter {
+			get { return Test.Filter; }
 		}
 
 		public InvokableTestCase (TestCase test, TestInvoker invoker)

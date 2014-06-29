@@ -40,7 +40,8 @@ namespace Xamarin.WebTests.Tests
 	using Handlers;
 	using Framework;
 
-	// [AsyncTestFixture]
+	[Work]
+	[AsyncTestFixture]
 	public class TestGet : ITestHost<TestRunner>, ITestParameterSource<Handler>
 	{
 		[TestParameter (null, TestFlags.Hidden)]

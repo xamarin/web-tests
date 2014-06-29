@@ -34,6 +34,22 @@ namespace Xamarin.WebTests
 {
 	using Runners;
 
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class WorkAttribute : TestCategoryAttribute
+	{
+		public override TestCategory Category {
+			get { return WebTestFeatures.WorkCategory; }
+		}
+	}
+
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class ProxyAttribute : TestFeatureAttribute
+	{
+		public override TestFeature Feature {
+			get { return WebTestFeatures.Proxy; }
+		}
+	}
+
 	public class WebTestFeatures : ITestConfiguration
 	{
 		public static readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
@@ -45,7 +61,6 @@ namespace Xamarin.WebTests
 		public static readonly TestFeature HasNetwork = new TestFeature (
 			"Network", "HasNetwork", () => !IPAddress.IsLoopback (TestRunner.GetAddress ()));
 
-		public static readonly TestCategory AllTests = new TestCategory ("All");
 		public static readonly TestCategory NotWorking = new TestCategory ("NotWorking");
 		public static readonly TestCategory WorkCategory = new TestCategory ("Work");
 
@@ -63,12 +78,12 @@ namespace Xamarin.WebTests
 		}
 
 		public TestCategory DefaultCategory {
-			get { return AllTests; }
+			get { return TestCategory.All; }
 		}
 
 		public IEnumerable<TestCategory> Categories {
 			get {
-				yield return AllTests;
+				yield return TestCategory.All;
 				yield return NotWorking;
 				yield return WorkCategory;
 			}

@@ -87,13 +87,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			parameterHosts.Add (new ReflectionTestFixtureHost (this));
 
-			TestInvoker invoker = aggregatedInvoker;
-
-			foreach (var parameter in parameterHosts) {
-				invoker = parameter.CreateInvoker (invoker);
-			}
-
-			return new ProxyTestInvoker (Name.Name, invoker);
+			return CreateInvoker (aggregatedInvoker, parameterHosts);
 		}
 
 		class ReflectionTestFixtureHost : TestHost

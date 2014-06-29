@@ -1,5 +1,5 @@
 ﻿//
-// TestCategory.cs
+// ITestFilter.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,24 +27,9 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	public class TestCategory
+	public interface ITestFilter
 	{
-		public string Name {
-			get;
-			private set;
-		}
-
-		public TestCategory (string name)
-		{
-			Name = name;
-		}
-
-		public static readonly TestCategory All = new TestCategory ("All");
-
-		public override string ToString ()
-		{
-			return string.Format ("[TestCategory: Name={0}]", Name);
-		}
+		bool Filter (TestContext ctx);
 	}
 }
 

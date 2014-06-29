@@ -103,7 +103,7 @@ namespace Xamarin.AsyncTests.UI
 			if (value != null) {
 				var index = categories.FindIndex (c => c.Name.Equals (value));
 				if (index >= 0)
-					selectedIndex = index;
+					SelectedIndex = index;
 			}
 
 			OnPropertyChanged ("SelectedIndex");

@@ -1,5 +1,5 @@
 ﻿//
-// TestCategory.cs
+// TestFeatureAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,24 +27,11 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	public class TestCategory
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
+	public abstract class TestFeatureAttribute : Attribute
 	{
-		public string Name {
+		public abstract TestFeature Feature {
 			get;
-			private set;
-		}
-
-		public TestCategory (string name)
-		{
-			Name = name;
-		}
-
-		public static readonly TestCategory All = new TestCategory ("All");
-
-		public override string ToString ()
-		{
-			return string.Format ("[TestCategory: Name={0}]", Name);
 		}
 	}
 }
-
