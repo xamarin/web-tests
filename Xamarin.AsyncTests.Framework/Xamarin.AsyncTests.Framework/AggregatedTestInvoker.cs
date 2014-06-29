@@ -31,14 +31,9 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class AggregatedTestInvoker : TestInvoker
+	abstract class AggregatedTestInvoker : TestInvoker
 	{
 		public TestFlags Flags {
-			get;
-			private set;
-		}
-
-		public TestHost Host {
 			get;
 			private set;
 		}
@@ -51,13 +46,9 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (Flags & TestFlags.Hidden) != 0; }
 		}
 
-		AggregatedTestInvoker (TestFlags flags, TestHost host, IEnumerable<TestInvoker> invokers)
+		public AggregatedTestInvoker (TestFlags flags = TestFlags.None)
 		{
 			Flags = flags;
-			Host = host;
-
-			innerTestInvokers = new List<TestInvoker> ();
-			innerTestInvokers.AddRange (invokers);
 		}
 
 		public static TestInvoker Create (TestFlags flags, params TestInvoker[] invokers)
@@ -90,18 +81,11 @@ namespace Xamarin.AsyncTests.Framework
 			return invoker;
 		}
 
-		List<TestInvoker> innerTestInvokers;
-
-		static string Print (object obj)
-		{
-			return obj != null ? obj.ToString () : "<null>";
-		}
-
-		async Task<bool> InvokeInner (
+		protected async Task<bool> InvokeInner (
 			TestContext ctx, TestInstance instance, TestResult result, TestInvoker invoker,
 			CancellationToken cancellationToken)
 		{
-			ctx.Debug (3, "Running({0}): {1} {2}", ctx.CurrentTestName.GetFullName (), Print (Host), invoker);
+			ctx.Debug (3, "Running({0}): {1}", ctx.CurrentTestName.GetFullName (), invoker);
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
@@ -115,49 +99,6 @@ namespace Xamarin.AsyncTests.Framework
 				result.AddChild (error);
 				return ContinueOnError;
 			}
-		}
-
-		public sealed override async Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
-		{
-			if (innerTestInvokers.Count == 0)
-				return true;
-			if (cancellationToken.IsCancellationRequested)
-				return false;
-
-			ctx.Debug (3, "Invoke({0}): {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
-				Print (Host), Flags, Print (instance), innerTestInvokers.Count);
-
-			bool success = true;
-			var innerRunners = new LinkedList<TestInvoker> (innerTestInvokers);
-			var current = innerRunners.First;
-
-			while (success && current != null) {
-				var invoker = current.Value;
-
-				if (cancellationToken.IsCancellationRequested)
-					break;
-
-				ctx.Debug (5, "InnerInvoke({0}): {1} {2} {3} {4}", ctx.GetCurrentTestName ().FullName,
-					Print (Host), Print (instance), invoker, innerTestInvokers.Count);
-
-				success = await InvokeInner (ctx, instance, result, invoker, cancellationToken);
-
-				ctx.Debug (5, "InnerInvoke({0}) done: {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
-					Print (Host), Print (instance), success);
-
-				if (!success)
-					break;
-
-				current = current.Next;
-			}
-
-			return success;
-		}
-
-		public override string ToString ()
-		{
-			return string.Format ("[{0}: Flags={1}, Host={2}]", GetType ().Name, Flags, Host);
 		}
 	}
 }

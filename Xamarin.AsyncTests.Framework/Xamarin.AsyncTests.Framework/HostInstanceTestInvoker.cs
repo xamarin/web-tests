@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class HostInstanceTestInvoker : TestInvoker
+	class HostInstanceTestInvoker : AggregatedTestInvoker
 	{
 		public TestHost Host {
 			get;
@@ -43,6 +43,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public HostInstanceTestInvoker (TestHost host, TestInvoker inner)
+			: base (host.Flags)
 		{
 			Host = host;
 			Inner = inner;
@@ -100,15 +101,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (innerInstance == null)
 				return false;
 
-
-			bool success;
-			try {
-				success = await Inner.Invoke (ctx, innerInstance, result, cancellationToken);
-			} catch (Exception ex) {
-				var error = ctx.CreateTestResult (ex);
-				result.AddChild (error);
-				success = false;
-			}
+			var success = await InvokeInner (ctx, innerInstance, result, Inner, cancellationToken);
 
 			if (!await TearDown (ctx, innerInstance, result, cancellationToken))
 				success = false;

@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class ResultGroupTestInvoker : TestInvoker
+	class ResultGroupTestInvoker : AggregatedTestInvoker
 	{
 		public TestInvoker Inner {
 			get;
@@ -51,10 +51,7 @@ namespace Xamarin.AsyncTests.Framework
 			ctx.CurrentTestResult = innerResult;
 
 			try {
-				return await Inner.Invoke (ctx, instance, innerResult, cancellationToken);
-			} catch (OperationCanceledException) {
-				innerResult.Status = TestStatus.Canceled;
-				return false;
+				return await InvokeInner (ctx, instance, innerResult, Inner, cancellationToken);
 			} finally {
 				ctx.CurrentTestResult = oldResult;
 			}

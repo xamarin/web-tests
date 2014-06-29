@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CaptureContextTestInvoker : TestInvoker
+	class CaptureContextTestInvoker : AggregatedTestInvoker
 	{
 		public TestHost Host {
 			get;
@@ -42,6 +42,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public CaptureContextTestInvoker (TestHost host, TestInvoker inner)
+			: base (host.Flags)
 		{
 			Host = host;
 			Inner = inner;
@@ -83,7 +84,7 @@ namespace Xamarin.AsyncTests.Framework
 				ctx.CurrentTestName.PushCapture (capturedTest);
 
 			try {
-				return await Inner.Invoke (ctx, instance, result, cancellationToken);
+				return await InvokeInner (ctx, instance, result, Inner, cancellationToken);
 			} finally {
 				if (capturedTest != null)
 					ctx.CurrentTestName.PopCapture ();

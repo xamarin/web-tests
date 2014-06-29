@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class PrePostRunTestInvoker : TestInvoker
+	class PrePostRunTestInvoker : AggregatedTestInvoker
 	{
 		public TestInvoker Inner {
 			get;
@@ -95,14 +95,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (!await PreRun (ctx, instance, result, cancellationToken))
 				return false;
 
-			bool success;
-			try {
-				success = await Inner.Invoke (ctx, instance, result, cancellationToken);
-			} catch (Exception ex) {
-				var error = ctx.CreateTestResult (ex);
-				result.AddChild (error);
-				success = false;
-			}
+			var success = await InvokeInner (ctx, instance, result, Inner, cancellationToken);
 
 			if (!await PostRun (ctx, instance, result, cancellationToken))
 				success = false;

@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class ParameterizedTestInvoker : TestInvoker
+	class ParameterizedTestInvoker : AggregatedTestInvoker
 	{
 		public ParameterizedTestHost Host {
 			get;
@@ -42,38 +42,11 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public bool ContinueOnError {
-			get { return (Host.Flags & TestFlags.ContinueOnError) != 0; }
-		}
-
-		public bool IsHidden {
-			get { return (Host.Flags & TestFlags.Hidden) != 0; }
-		}
-
 		public ParameterizedTestInvoker (ParameterizedTestHost host, TestInvoker inner)
+			: base (host.Flags)
 		{
 			Host = host;
 			Inner = inner;
-		}
-
-		async Task<bool> InvokeInner (
-			TestContext ctx, TestInstance instance, TestResult result, TestInvoker invoker,
-			CancellationToken cancellationToken)
-		{
-			ctx.Debug (3, "Running({0}): {1} {2}", ctx.CurrentTestName.GetFullName (), ctx.Print (Host), invoker);
-
-			try {
-				cancellationToken.ThrowIfCancellationRequested ();
-				var success = await invoker.Invoke (ctx, instance, result, cancellationToken);
-				return success || ContinueOnError;
-			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
-				return false;
-			} catch (Exception ex) {
-				var error = ctx.CreateTestResult (ex);
-				result.AddChild (error);
-				return ContinueOnError;
-			}
 		}
 
 		async Task<bool> MoveNext (

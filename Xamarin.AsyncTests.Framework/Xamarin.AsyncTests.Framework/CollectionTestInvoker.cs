@@ -30,46 +30,17 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CollectionTestInvoker : TestInvoker
+	class CollectionTestInvoker : AggregatedTestInvoker
 	{
-		public TestFlags Flags {
-			get;
-			private set;
-		}
-
 		public List<TestInvoker> InnerInvokers {
 			get;
 			private set;
 		}
 
-		public bool ContinueOnError {
-			get { return (Flags & TestFlags.ContinueOnError) != 0; }
-		}
-
 		public CollectionTestInvoker (TestFlags flags, IEnumerable<TestInvoker> invokers)
+			: base (flags)
 		{
-			Flags = flags;
 			InnerInvokers = new List<TestInvoker> (invokers);
-		}
-
-		async Task<bool> InvokeInner (
-			TestContext ctx, TestInstance instance, TestResult result, TestInvoker invoker,
-			CancellationToken cancellationToken)
-		{
-			ctx.Debug (3, "Running({0}): {1}", ctx.CurrentTestName.GetFullName (), invoker);
-
-			try {
-				cancellationToken.ThrowIfCancellationRequested ();
-				var success = await invoker.Invoke (ctx, instance, result, cancellationToken);
-				return success || ContinueOnError;
-			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
-				return false;
-			} catch (Exception ex) {
-				var error = ctx.CreateTestResult (ex);
-				result.AddChild (error);
-				return ContinueOnError;
-			}
 		}
 
 		public sealed override async Task<bool> Invoke (
