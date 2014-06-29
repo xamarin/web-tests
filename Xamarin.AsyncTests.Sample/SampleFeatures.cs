@@ -1,5 +1,5 @@
 ﻿//
-// AppDelegate.cs
+// SampleFeatures.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,49 +25,31 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Xamarin.AsyncTests;
 
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+[assembly: AsyncTestSuite (typeof (Xamarin.AsyncTests.Sample.SampleFeatures))]
 
-using Xamarin.Forms;
-
-namespace Xamarin.AsyncTests.iOS
+namespace Xamarin.AsyncTests.Sample
 {
-	using Framework;
-	using Sample;
-	using UI;
-
-	// The UIApplicationDelegate for the application. This class is responsible for launching the
-	// User Interface of the application, as well as listening (and optionally responding) to
-	// application events from iOS.
-	[Register ("AppDelegate")]
-	public partial class AppDelegate : UIApplicationDelegate
+	public class SampleFeatures : ITestConfiguration
 	{
-		// class-level declarations
-		UIWindow window;
-		TestApp test;
-
-		//
-		// This method is invoked when the application has loaded and is ready to run. In this
-		// method you should instantiate the window, load the UI into it and then make the window
-		// visible.
-		//
-		// You have 17 seconds to return from this method, or iOS will terminate your application.
-		//
-		public override bool FinishedLaunching (UIApplication app, NSDictionary options)
-		{
-			Xamarin.Forms.Forms.Init ();
-
-			test = new TestApp (null, "Sample Tests");
-			test.LoadAssembly (typeof(SimpleTest).Assembly);
-
-			window = new UIWindow (UIScreen.MainScreen.Bounds);
-			window.RootViewController =  test.Root.CreateViewController ();
-			window.MakeKeyAndVisible ();
-			
-			return true;
+		#region ITestConfiguration implementation
+		public IEnumerable<TestFeature> Features {
+			get {
+				yield break;
+			}
 		}
+		public TestCategory DefaultCategory {
+			get {
+				return null;
+			}
+		}
+		public IEnumerable<TestCategory> Categories {
+			get {
+				yield break;
+			}
+		}
+		#endregion
 	}
 }
 

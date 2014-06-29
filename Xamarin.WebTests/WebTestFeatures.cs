@@ -78,12 +78,11 @@ namespace Xamarin.WebTests
 		}
 
 		public TestCategory DefaultCategory {
-			get { return TestCategory.All; }
+			get { return null; }
 		}
 
 		public IEnumerable<TestCategory> Categories {
 			get {
-				yield return TestCategory.All;
 				yield return NotWorking;
 				yield return WorkCategory;
 			}

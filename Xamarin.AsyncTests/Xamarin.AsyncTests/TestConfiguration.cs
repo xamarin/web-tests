@@ -35,6 +35,12 @@ namespace Xamarin.AsyncTests
 		List<TestCategory> categories = new List<TestCategory> ();
 		TestCategory currentCategory;
 
+		public TestConfiguration ()
+		{
+			categories.Add (TestCategory.All);
+			currentCategory = TestCategory.All;
+		}
+
 		public IEnumerable<TestFeature> Features {
 			get { return features.Keys; }
 		}
@@ -51,7 +57,7 @@ namespace Xamarin.AsyncTests
 			foreach (var category in config.Categories) {
 				categories.Add (category);
 			}
-			currentCategory = config.DefaultCategory;
+			currentCategory = config.DefaultCategory ?? TestCategory.All;
 			OnPropertyChanged ("Features");
 			OnPropertyChanged ("Categories");
 			OnPropertyChanged ("CurrentCategory");
