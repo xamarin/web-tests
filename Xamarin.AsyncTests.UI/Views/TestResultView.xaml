@@ -17,7 +17,8 @@
 
         <Label Text="{Binding Result.Status, Converter={StaticResource converter}}"
                TextColor="{Binding Result.Status, Converter={StaticResource converter}}" />
-        <Label Text="{Binding Summary}" />
+        <Label Text="{Binding Result.Message}"
+               IsVisible="{Binding Result.Error, Converter={StaticResource converter}, ConverterParameter='not-empty'}" />
 
         <Label Text="{Binding Result.Error, Converter={StaticResource converter}}"
                IsVisible="{Binding Result.Error, Converter={StaticResource converter}, ConverterParameter='not-null'}" />

@@ -124,13 +124,6 @@ namespace Xamarin.AsyncTests
 			get { return messages; }
 		}
 
-		public int CountChildrenOfStatus (TestStatus status)
-		{
-			if (children.Count == 0)
-				return Status == status ? 1 : 0;
-			return children.Sum (child => child.CountChildrenOfStatus (status));
-		}
-
 		void OnMessagesChanged ()
 		{
 			OnPropertyChanged ("Messages");
@@ -138,19 +131,8 @@ namespace Xamarin.AsyncTests
 
 		void OnChildrenChanged ()
 		{
-			if (children.Count == 0)
-				Status = TestStatus.Ignored;
-			else {
-				var hasErrors = children.Any (child => child.Status == TestStatus.Error);
-				if (hasErrors)
-					Status = TestStatus.Error;
-				else if (Status == TestStatus.Ignored)
-					Status = TestStatus.Success;
-			}
-
 			OnPropertyChanged ("Children");
 			OnPropertyChanged ("HasChildren");
-			OnPropertyChanged (".");
 		}
 
 		public void AddMessage (string format, params object[] args)
@@ -166,7 +148,6 @@ namespace Xamarin.AsyncTests
 
 		public void AddChild (TestResult result)
 		{
-			result.PropertyChanged += (sender, e) => OnChildrenChanged ();
 			children.Add (result);
 		}
 

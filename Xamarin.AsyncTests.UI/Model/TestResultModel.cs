@@ -49,39 +49,6 @@ namespace Xamarin.AsyncTests.UI
 		{
 			App = app;
 			Result = result;
-
-			result.PropertyChanged += (sender, e) => OnResultChanged ();
-		}
-
-		string summary;
-		public string Summary {
-			get {
-				if (summary == null)
-					summary = GetTestSummary (Result);
-				return summary;
-			}
-		}
-
-		void OnResultChanged ()
-		{
-			summary = null;
-			OnPropertyChanged ("Result");
-			OnPropertyChanged ("Summary");
-		}
-
-		static string GetTestSummary (TestResult result)
-		{
-			if (!result.HasChildren || !string.IsNullOrEmpty (result.Message))
-				return result.Message;
-
-			var numSuccess = result.CountChildrenOfStatus (TestStatus.Success);
-			var numErrors = result.CountChildrenOfStatus (TestStatus.Error);
-
-			var sb = new StringBuilder ();
-			sb.AppendFormat ("{0} tests passed", numSuccess);
-			if (numErrors > 0)
-				sb.AppendFormat (", {0} errors", numErrors);
-			return sb.ToString ();
 		}
 	}
 }
