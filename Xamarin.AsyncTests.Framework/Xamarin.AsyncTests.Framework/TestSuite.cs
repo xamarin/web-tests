@@ -86,8 +86,12 @@ namespace Xamarin.AsyncTests.Framework
 			public override Task<bool> Invoke (
 				TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 			{
-				if (instance != null)
-					throw new InvalidOperationException ();
+				while (instance != null) {
+					if (!(instance.Host is RepeatedTestHost))
+						throw new InvalidOperationException ();
+					instance = instance.Parent;
+				}
+
 				return Test.Run (ctx, result, cancellationToken);
 			}
 		}

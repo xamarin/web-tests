@@ -8,6 +8,7 @@
 
         <StackLayout Spacing="20" Orientation="Horizontal">
             <Button Text="Run" IsEnabled="{Binding App.CanRun}" Clicked="OnRun" />
+            <Button Text="Repeat" IsEnabled="{Binding App.CanRun}" Clicked="OnRepeat" />
             <Button Text="Stop" IsEnabled="{Binding App.CanStop}" Clicked="OnStop" />
             <Button Text="Options" Clicked="OnOptions" />
         </StackLayout>

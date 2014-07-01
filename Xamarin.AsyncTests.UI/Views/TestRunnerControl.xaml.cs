@@ -39,7 +39,13 @@ namespace Xamarin.AsyncTests.UI
 		void OnRun (object sender, EventArgs args)
 		{
 			var model = (TestRunnerModel)BindingContext;
-			model.App.Run ();
+			model.App.Run (false);
+		}
+
+		void OnRepeat (object sender, EventArgs args)
+		{
+			var model = (TestRunnerModel)BindingContext;
+			model.App.Run (true);
 		}
 
 		void OnStop (object sender, EventArgs args)

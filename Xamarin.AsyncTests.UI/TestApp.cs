@@ -159,7 +159,7 @@ namespace Xamarin.AsyncTests.UI
 
 		CancellationTokenSource cancelCts;
 
-		internal async void Run ()
+		internal async void Run (bool repeat)
 		{
 			if (!CanRun || IsRunning)
 				return;
@@ -169,7 +169,7 @@ namespace Xamarin.AsyncTests.UI
 			StatusMessage = "Running ...";
 
 			try {
-				await CurrentTestRunner.Run (cancelCts.Token);
+				await CurrentTestRunner.Run (repeat, cancelCts.Token);
 				StatusMessage = "Done.";
 			} catch (TaskCanceledException) {
 				StatusMessage = "Canceled!";

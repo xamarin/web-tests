@@ -63,7 +63,7 @@ namespace Xamarin.AsyncTests.UI
 
 		static int countReruns;
 
-		public Task Run (CancellationToken cancellationToken)
+		public Task Run (bool repeat, CancellationToken cancellationToken)
 		{
 			var test = Test;
 			var result = ResultModel.Result;
@@ -79,6 +79,9 @@ namespace Xamarin.AsyncTests.UI
 			} else {
 				ResultModel.Result.Clear ();
 			}
+
+			if (repeat && App.Options.Repeat)
+				test = TestSuite.CreateRepeatedTest (test, App.Options.RepeatCount);
 
 			return test.Run (App.Context, result, cancellationToken);
 		}
