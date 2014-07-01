@@ -75,13 +75,10 @@ namespace Xamarin.AsyncTests.UI
 				return result.Message;
 
 			var numSuccess = result.CountChildrenOfStatus (TestStatus.Success);
-			var numWarnings = result.CountChildrenOfStatus (TestStatus.Warning);
 			var numErrors = result.CountChildrenOfStatus (TestStatus.Error);
 
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("{0} tests passed", numSuccess);
-			if (numWarnings > 0)
-				sb.AppendFormat (", {0} warnings", numWarnings);
 			if (numErrors > 0)
 				sb.AppendFormat (", {0} errors", numErrors);
 			return sb.ToString ();

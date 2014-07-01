@@ -48,6 +48,13 @@ namespace Xamarin.WebTests.Handlers
 			}
 		}
 
+		public override object Clone ()
+		{
+			var delete = new DeleteHandler ();
+			delete.body = body;
+			return delete;
+		}
+
 		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
 			if (!request.Method.Equals ("DELETE"))

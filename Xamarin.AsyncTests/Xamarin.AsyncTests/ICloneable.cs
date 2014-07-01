@@ -1,5 +1,5 @@
 ﻿//
-// HttpsTestRunner.cs
+// ICloneable.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,21 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Runners
+namespace Xamarin.AsyncTests
 {
-	using Server;
-	using Handlers;
-
-	[Obsolete]
-	public class HttpsTestRunner : HttpTestRunner
+	public interface ICloneable
 	{
-		public HttpsTestRunner ()
-		{
-			UseSSL = true;
-		}
+		object Clone ();
 	}
 }
+

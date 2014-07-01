@@ -33,26 +33,16 @@ namespace Xamarin.AsyncTests
 	{
 		Stack<string> parts = new Stack<string> ();
 		Stack<KeyValuePair<string,string>> parameters = new Stack<KeyValuePair<string, string>> ();
-		Stack<TestCase> captures = new Stack<TestCase> ();
-
-		internal bool IsCaptured {
-			get;
-			private set;
-		}
 
 		public TestName GetName ()
 		{
 			var name = string.Join (".", parts.Reverse ());
-			var retval = new TestName (name, parameters.Reverse ().ToArray ());
-			if (captures.Count > 0)
-				retval.CapturedTest = captures.Peek ();
-			return retval;
+			return new TestName (name, parameters.Reverse ().ToArray ());
 		}
 
 		public static TestNameBuilder CreateFromName (TestName name)
 		{
 			var builder = new TestNameBuilder ();
-			builder.IsCaptured = true;
 			if (!string.IsNullOrEmpty (name.Name))
 				builder.PushName (name.Name);
 			if (name.HasParameters) {
@@ -72,16 +62,6 @@ namespace Xamarin.AsyncTests
 		public void PopName ()
 		{
 			parts.Pop ();
-		}
-
-		internal void PushCapture (TestCase test)
-		{
-			captures.Push (test);
-		}
-
-		internal void PopCapture ()
-		{
-			captures.Pop ();
 		}
 
 		public void PushParameter (string key, object value)

@@ -97,13 +97,11 @@ namespace Xamarin.AsyncTests
 			this.error = error;
 		}
 
-		public TestResult (TestName name, TestStatus status = TestStatus.Ignored, string message = null)
+		public TestResult (TestName name, TestStatus status = TestStatus.None, string message = null)
 		{
 			this.name = name;
 			this.status = status;
 			this.message = message;
-
-			test = name.CapturedTest;
 
 			messages = new ObservableCollection<string> ();
 			((INotifyPropertyChanged)messages).PropertyChanged += (sender, e) => OnMessagesChanged ();

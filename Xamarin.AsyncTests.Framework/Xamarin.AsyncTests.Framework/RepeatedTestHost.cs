@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class RepeatedTestHost : ParameterizedTestHost
+	class RepeatedTestHost : ParameterSourceHost<int>
 	{
 		public string Name {
 			get;
@@ -43,15 +43,9 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public RepeatedTestHost (int count, TestFlags flags = TestFlags.None, string name = "$repeat")
-			: base (name, typeof (int).GetTypeInfo (), flags)
+			: base (name, typeof(RepeatAttribute.RepeatedTestSource), false, count.ToString (), flags)
 		{
 			Count = count;
-		}
-
-		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
-		{
-			return new ParameterSourceInstance<int> (
-				this, parent, typeof(RepeatAttribute.RepeatedTestSource), false, Count.ToString ());
 		}
 	}
 }

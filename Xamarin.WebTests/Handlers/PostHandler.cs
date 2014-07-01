@@ -134,6 +134,21 @@ namespace Xamarin.WebTests.Handlers
 			}
 		}
 
+		public override object Clone ()
+		{
+			var post = new PostHandler ();
+			post.body = body;
+			post.readChunkSize = readChunkSize;
+			post.readChunkMinDelay = readChunkMinDelay;
+			post.readChunkMaxDelay = readChunkMaxDelay;
+			post.writeChunkSize = writeChunkSize;
+			post.writeChunkMinDelay = writeChunkMinDelay;
+			post.writeChunkMaxDelay = writeChunkMaxDelay;
+			post.allowWriteBuffering = allowWriteBuffering;
+			post.mode = mode;
+			return post;
+		}
+
 		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
 			Debug (0, "HANDLE POST", request.Path, request.Method, effectiveFlags);

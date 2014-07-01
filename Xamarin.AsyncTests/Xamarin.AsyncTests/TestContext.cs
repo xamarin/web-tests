@@ -40,7 +40,6 @@ namespace Xamarin.AsyncTests
 {
 	public class TestContext : IDisposable {
 		int debugLevel = DefaultDebugLevel;
-		List<TestResult> warnings;
 		List<IDisposable> disposables;
 		TestNameBuilder currentTestName = new TestNameBuilder ();
 		TestConfiguration configuration = new TestConfiguration ();
@@ -80,16 +79,6 @@ namespace Xamarin.AsyncTests
 			return obj != null ? obj.ToString () : "<null>";
 		}
 
-		public bool HasWarnings {
-			get { return warnings != null; }
-		}
-
-		public IList<TestResult> Warnings {
-			get {
-				return HasWarnings ? warnings : null;
-			}
-		}
-
 		public TestResult CurrentTestResult {
 			get;
 			internal set;
@@ -118,36 +107,6 @@ namespace Xamarin.AsyncTests
 		public TestConfiguration Configuration {
 			get { return configuration; }
 		}
-
-		#region Assertions
-
-		/*
-		 * By default, Exepct() is non-fatal.  Multiple failed expections will be
-		 * collected and a TestErrorException will be thrown when the test method
-		 * returns.
-		 * 
-		 * Use Assert() to immediately abort the test method or set 'AlwaysFatal = true'.
-		 * 
-		 */
-
-		public bool AlwaysFatal {
-			get;
-			set;
-		}
-
-		public void Warning (string message, params object[] args)
-		{
-			Warning (string.Format (message, args));
-		}
-
-		public void Warning (string message)
-		{
-			if (warnings == null)
-				warnings = new List<TestResult> ();
-			warnings.Add (CreateTestResult (TestStatus.Warning, message));
-		}
-
-		#endregion
 
 		#region Disposing
 

@@ -61,13 +61,15 @@ namespace Xamarin.AsyncTests.Framework
 			throw new InvalidOperationException ();
 		}
 
-		public abstract Task Initialize (TestContext context, CancellationToken cancellationToken);
+		public virtual void Initialize (TestContext context)
+		{
+		}
 
-		public abstract Task PreRun (TestContext context, CancellationToken cancellationToken);
+		public virtual void Destroy (TestContext context)
+		{
+		}
 
-		public abstract Task PostRun (TestContext context, CancellationToken cancellationToken);
-
-		public abstract Task Destroy (TestContext context, CancellationToken cancellationToken);
+		public abstract TestHost CaptureContext ();
 
 		public override string ToString ()
 		{

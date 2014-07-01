@@ -30,9 +30,9 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class HostInstanceTestInvoker : AggregatedTestInvoker
+	class HeavyTestInvoker : AggregatedTestInvoker
 	{
-		public TestHost Host {
+		public HeavyTestHost Host {
 			get;
 			private set;
 		}
@@ -42,14 +42,14 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public HostInstanceTestInvoker (TestHost host, TestInvoker inner)
+		public HeavyTestInvoker (HeavyTestHost host, TestInvoker inner)
 			: base (host.Flags)
 		{
 			Host = host;
 			Inner = inner;
 		}
 
-		async Task<TestInstance> SetUp (
+		async Task<HeavyTestInstance> SetUp (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
 			ctx.Debug (3, "SetUp({0}): {1} {2}", ctx.GetCurrentTestName ().FullName,
@@ -58,7 +58,9 @@ namespace Xamarin.AsyncTests.Framework
 			try {
 				ctx.CurrentTestName.PushName ("SetUp");
 				cancellationToken.ThrowIfCancellationRequested ();
-				return await Host.CreateInstance (ctx, instance, cancellationToken);
+				var childInstance = (HeavyTestInstance)Host.CreateInstance (ctx, instance);
+				await childInstance.Initialize (ctx, cancellationToken);
+				return childInstance;
 			} catch (OperationCanceledException) {
 				result.Status = TestStatus.Canceled;
 				return null;
@@ -72,7 +74,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		async Task<bool> TearDown (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+			TestContext ctx, HeavyTestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
 			ctx.Debug (3, "TearDown({0}): {1} {2}", ctx.GetCurrentTestName ().FullName,
 				ctx.Print (Host), ctx.Print (instance));
@@ -101,7 +103,13 @@ namespace Xamarin.AsyncTests.Framework
 			if (innerInstance == null)
 				return false;
 
+			if (!IsHidden && Host.Name != null)
+				ctx.CurrentTestName.PushParameter (Host.Name, innerInstance.Current);
+
 			var success = await InvokeInner (ctx, innerInstance, result, Inner, cancellationToken);
+
+			if (!IsHidden && Host.Name != null)
+				ctx.CurrentTestName.PopParameter ();
 
 			if (!await TearDown (ctx, innerInstance, result, cancellationToken))
 				success = false;

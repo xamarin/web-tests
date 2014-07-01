@@ -49,17 +49,34 @@ namespace Xamarin.AsyncTests.Framework
 			Inner = inner;
 		}
 
-		async Task<bool> MoveNext (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+		ParameterizedTestInstance SetUp (TestContext ctx, TestInstance instance, TestResult result)
+		{
+			ctx.Debug (3, "SetUp({0}): {1} {2}", ctx.GetCurrentTestName ().FullName,
+				ctx.Print (Host), ctx.Print (instance));
+
+			try {
+				ctx.CurrentTestName.PushName ("SetUp");
+				return (ParameterizedTestInstance)Host.CreateInstance (ctx, instance);
+			} catch (OperationCanceledException) {
+				result.Status = TestStatus.Canceled;
+				return null;
+			} catch (Exception ex) {
+				var error = ctx.CreateTestResult (ex);
+				result.AddChild (error);
+				return null;
+			} finally {
+				ctx.CurrentTestName.PopName ();
+			}
+		}
+
+		bool MoveNext (TestContext ctx, TestInstance instance, TestResult result)
 		{
 			ctx.Debug (3, "MoveNext({0}): {1} {2}", ctx.GetCurrentTestName ().FullName,
 				ctx.Print (Host), ctx.Print (instance));
 
 			try {
 				ctx.CurrentTestName.PushName ("MoveNext");
-				cancellationToken.ThrowIfCancellationRequested ();
-				await ((ParameterizedTestInstance)instance).MoveNext (ctx, cancellationToken);
-				return true;
+				return ((ParameterizedTestInstance)instance).MoveNext (ctx);
 			} catch (OperationCanceledException) {
 				result.Status = TestStatus.Canceled;
 				return false;
@@ -75,14 +92,16 @@ namespace Xamarin.AsyncTests.Framework
 		public override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			var parameterizedInstance = (ParameterizedTestInstance)instance;
+			var parameterizedInstance = SetUp (ctx, instance, result);
+			if (parameterizedInstance == null)
+				return false;
 
 			bool success = true;
 			while (success && parameterizedInstance.HasNext ()) {
 				if (cancellationToken.IsCancellationRequested)
 					break;
 
-				success = await MoveNext (ctx, instance, result, cancellationToken);
+				success = MoveNext (ctx, parameterizedInstance, result);
 				if (!success)
 					break;
 
@@ -90,12 +109,12 @@ namespace Xamarin.AsyncTests.Framework
 					ctx.CurrentTestName.PushParameter (Host.ParameterName, parameterizedInstance.Current);
 
 				ctx.Debug (5, "InnerInvoke({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
-					ctx.Print (Host), ctx.Print (instance), Inner);
+					ctx.Print (Host), ctx.Print (parameterizedInstance), Inner);
 
-				success = await InvokeInner (ctx, instance, result, Inner, cancellationToken);
+				success = await InvokeInner (ctx, parameterizedInstance, result, Inner, cancellationToken);
 
 				ctx.Debug (5, "InnerInvoke({0}) done: {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
-					ctx.Print (Host), ctx.Print (instance), success);
+					ctx.Print (Host), ctx.Print (parameterizedInstance), success);
 
 				if (!IsHidden)
 					ctx.CurrentTestName.PopParameter ();

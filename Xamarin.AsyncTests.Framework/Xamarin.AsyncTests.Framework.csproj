@@ -46,8 +46,6 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestFixture.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ParameterAttributeTestHost.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\CustomHostAttributeTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\IMemberInfo.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionHelper.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionPropertyHost.cs" />
@@ -55,11 +53,14 @@
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTest.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ConditionalTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\PrePostRunTestInvoker.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\HostInstanceTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ResultGroupTestInvoker.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\CaptureContextTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ParameterizedTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\CollectionTestInvoker.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\CustomTestHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\HeavyTestInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\HeavyTestHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\HeavyTestInvoker.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\ParameterSourceHost.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

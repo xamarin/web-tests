@@ -30,17 +30,21 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class FixtureTestInstance : TestInstance
+	class FixtureTestInstance : HeavyTestInstance
 	{
 		public object Instance {
 			get;
 			private set;
 		}
 
-		public FixtureTestInstance (TestHost host, object instance)
+		public FixtureTestInstance (HeavyTestHost host, object instance)
 			: base (host, null)
 		{
 			Instance = instance;
+		}
+
+		public override object Current {
+			get { return Instance; }
 		}
 
 		public override async Task Initialize (TestContext context, CancellationToken cancellationToken)

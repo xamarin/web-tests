@@ -33,8 +33,6 @@ namespace Xamarin.AsyncTests
 	public enum TestStatus {
 		Success,
 		Ignored,
-		Message,
-		Warning,
 		Error,
 		None,
 		Canceled

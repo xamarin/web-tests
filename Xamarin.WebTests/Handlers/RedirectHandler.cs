@@ -40,6 +40,11 @@ namespace Xamarin.WebTests.Handlers
 			private set;
 		}
 
+		public override object Clone ()
+		{
+			return new RedirectHandler (Target, Code);
+		}
+
 		public RedirectHandler (Handler target, HttpStatusCode code)
 			: base (target)
 		{

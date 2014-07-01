@@ -66,6 +66,7 @@ namespace Xamarin.AsyncTests.UI
 		public Task Run (CancellationToken cancellationToken)
 		{
 			var test = Test;
+			var result = ResultModel.Result;
 
 			if (!IsRoot) {
 				var name = new TestNameBuilder ();
@@ -73,11 +74,13 @@ namespace Xamarin.AsyncTests.UI
 				name.PushParameter ("$uiTriggeredRerun", ++countReruns);
 
 				test = TestSuite.CreateProxy (test, name.GetName ());
+				result = new TestResult (name.GetName ());
+				ResultModel.Result.AddChild (result);
 			} else {
 				ResultModel.Result.Clear ();
 			}
 
-			return test.Run (App.Context, ResultModel.Result, cancellationToken);
+			return test.Run (App.Context, result, cancellationToken);
 		}
 	}
 }

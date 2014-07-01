@@ -61,21 +61,11 @@ namespace Xamarin.AsyncTests.Framework
 			return Create (host.Flags, host, invokers);
 		}
 
-		static TestInvoker CreateInnerInvoker (TestHost host, TestInvoker invoker)
-		{
-			invoker = new CaptureContextTestInvoker (host, invoker);
-			var parameterizedHost = host as ParameterizedTestHost;
-			if (parameterizedHost != null)
-				invoker = new ParameterizedTestInvoker (parameterizedHost, invoker);
-			return invoker;
-		}
-
 		static TestInvoker Create (TestFlags flags, TestHost host, params TestInvoker[] invokers)
 		{
-			var innerInvokers = invokers.Select (i => CreateInnerInvoker (host, i));
-			TestInvoker invoker = new CollectionTestInvoker (flags, innerInvokers);
+			TestInvoker invoker = new CollectionTestInvoker (flags, invokers);
 			if (host != null)
-				invoker = new HostInstanceTestInvoker (host, invoker);
+				invoker = host.CreateInvoker (invoker);
 			if ((flags & (TestFlags.Browsable | TestFlags.FlattenHierarchy)) == TestFlags.Browsable)
 				invoker = new ResultGroupTestInvoker (invoker);
 			return invoker;

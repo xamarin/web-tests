@@ -32,6 +32,9 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class CapturedTestInstance : ParameterizedTestInstance
 	{
+		bool hasNext;
+		object current;
+
 		new public CapturedTestHost Host {
 			get { return (CapturedTestHost)base.Host; }
 		}
@@ -43,38 +46,31 @@ namespace Xamarin.AsyncTests.Framework
 
 		#region implemented abstract members of ParameterizedTestInstance
 
-		public override Task Initialize (TestContext context, CancellationToken cancellationToken)
+		public override void Initialize (TestContext context)
 		{
-			return Task.FromResult<object> (null);
-		}
-
-		public override Task PreRun (TestContext context, CancellationToken cancellationToken)
-		{
-			return Task.FromResult<object> (null);
-		}
-
-		public override Task PostRun (TestContext context, CancellationToken cancellationToken)
-		{
-			return Task.FromResult<object> (null);
+			current = Host.CapturedInstance;
+			var cloneable = current as ICloneable;
+			if (cloneable != null)
+				current = cloneable.Clone ();
+			hasNext = true;
+			base.Initialize (context);
 		}
 
 		public override bool HasNext ()
 		{
-			return false;
+			return hasNext;
 		}
 
-		public override Task MoveNext (TestContext context, CancellationToken cancellationToken)
+		public override bool MoveNext (TestContext context)
 		{
-			return Task.FromResult<object> (null);
-		}
-
-		public override Task Destroy (TestContext context, CancellationToken cancellationToken)
-		{
-			return Task.FromResult<object> (null);
+			if (!hasNext)
+				return false;
+			hasNext = false;
+			return true;
 		}
 
 		public override object Current {
-			get { return Host.CapturedInstance; }
+			get { return current; }
 		}
 
 		#endregion

@@ -66,6 +66,7 @@
     <Compile Include="Xamarin.AsyncTests\TestConfiguration.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestFilter.cs" />
     <Compile Include="Xamarin.AsyncTests\TestFeatureAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests\ICloneable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

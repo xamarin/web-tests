@@ -97,18 +97,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			features = GetFeatures (member);
 		}
 
-		static TypeInfo GetHostType (
+		static Type GetHostType (
 			TypeInfo fixtureType, Type hostType, TypeInfo memberType, Type attrType,
 			bool allowImplicit, out bool useFixtureInstance)
 		{
 			var genericInstance = hostType.GetTypeInfo ().MakeGenericType (memberType.AsType ()).GetTypeInfo ();
 
 			if (attrType != null) {
-				var attrInfo = attrType.GetTypeInfo ();
-				if (!genericInstance.IsAssignableFrom (attrInfo))
+				if (!genericInstance.IsAssignableFrom (attrType.GetTypeInfo ()))
 					throw new InvalidOperationException ();
-				useFixtureInstance = false;
-				return attrInfo;
+				useFixtureInstance = genericInstance.IsAssignableFrom (fixtureType);
+				return attrType;
 			}
 
 			if (genericInstance.IsAssignableFrom (fixtureType)) {
@@ -119,17 +118,47 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (allowImplicit) {
 				if (memberType.AsType ().Equals (typeof(bool))) {
 					useFixtureInstance = false;
-					return typeof(BooleanTestSource).GetTypeInfo ();
+					return typeof(BooleanTestSource);
 				} else if (memberType.IsEnum) {
 					useFixtureInstance = false;
-					return typeof(EnumTestSource<>).MakeGenericType (memberType.AsType ()).GetTypeInfo ();
+					return typeof(EnumTestSource<>).MakeGenericType (memberType.AsType ());
 				}
 			}
 
 			throw new InvalidOperationException ();
 		}
 
-		protected static IEnumerable<ParameterizedTestHost> ResolveParameter (TypeInfo fixtureType, IMemberInfo member)
+		static TestHost CreateCustomTestHost (TypeInfo fixtureType, IMemberInfo member, TestHostAttribute hostAttr)
+		{
+			bool useFixtureInstance;
+			var hostType = GetHostType (
+				fixtureType, typeof(ITestHost<>), member.Type,
+				hostAttr.HostType, false, out useFixtureInstance);
+
+			var type = typeof(CustomTestHost<>).MakeGenericType (member.Type.AsType ());
+			return (TestHost)Activator.CreateInstance (
+				type, member.Name, hostType, useFixtureInstance);
+		}
+
+		static TestHost CreateParameterAttributeHost (
+			TypeInfo fixtureType, IMemberInfo member, TestParameterSourceAttribute attr)
+		{
+			string filter = null;
+			var paramAttr = attr as TestParameterAttribute;
+			if (paramAttr != null)
+				filter = paramAttr.Filter;
+
+			bool useFixtureInstance = false;
+			var sourceType = GetHostType (
+				fixtureType, typeof(ITestParameterSource<>), member.Type,
+				paramAttr.SourceType, true, out useFixtureInstance);
+
+			var type = typeof(ParameterSourceHost<>).MakeGenericType (member.Type.AsType ());
+			return (TestHost)Activator.CreateInstance (
+					type, member.Name, sourceType, useFixtureInstance, null, paramAttr.Flags);
+		}
+
+		protected static IEnumerable<TestHost> ResolveParameter (TypeInfo fixtureType, IMemberInfo member)
 		{
 			if (typeof(ITestInstance).GetTypeInfo ().IsAssignableFrom (member.Type)) {
 				var hostAttr = member.GetCustomAttribute<TestHostAttribute> ();
@@ -138,26 +167,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (hostAttr == null)
 					throw new InvalidOperationException ();
 
-				bool useFixtureInstance;
-				var hostType = GetHostType (
-					fixtureType, typeof(ITestHost<>), member.Type,
-					hostAttr.HostType, false, out useFixtureInstance);
-
-				yield return new CustomHostAttributeTestHost (
-					member.Name, member.Type, hostType, useFixtureInstance, hostAttr);
+				yield return CreateCustomTestHost (fixtureType, member, hostAttr);
 				yield break;
 			}
 
 			bool found = false;
 			var paramAttrs = member.GetCustomAttributes<TestParameterSourceAttribute> ();
 			foreach (var paramAttr in paramAttrs) {
-				bool useFixtureInstance = false;
-				var sourceType = GetHostType (
-					fixtureType, typeof(ITestParameterSource<>), member.Type,
-					paramAttr.SourceType, true, out useFixtureInstance);
-
-				yield return new ParameterAttributeTestHost (
-					member.Name, member.Type, sourceType, useFixtureInstance, paramAttr);
+				yield return CreateParameterAttributeHost (fixtureType, member, paramAttr);
 				found = true;
 			}
 
@@ -166,13 +183,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			paramAttrs = member.Type.GetCustomAttributes<TestParameterSourceAttribute> ();
 			foreach (var paramAttr in paramAttrs) {
-				bool useFixtureInstance = false;
-				var sourceType = GetHostType (
-					fixtureType, typeof(ITestParameterSource<>), member.Type,
-					paramAttr.SourceType, true, out useFixtureInstance);
-
-				yield return new ParameterAttributeTestHost (
-					member.Name, member.Type, sourceType, useFixtureInstance, paramAttr);
+				yield return CreateParameterAttributeHost (fixtureType, member, paramAttr);
 				found = true;
 			}
 
@@ -180,7 +191,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				yield break;
 
 			if (member.Type.AsType ().Equals (typeof(bool))) {
-				yield return new ParameterSourceHost<bool> (member.Name, new BooleanTestSource (), null);
+				yield return new ParameterSourceHost<bool> (
+					member.Name, typeof (BooleanTestSource), false, null, TestFlags.None);
 				yield break;
 			}
 
@@ -231,36 +243,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			{
 				foreach (var value in Enum.GetValues (typeof (T)))
 					yield return (T)value;
-			}
-		}
-
-		class ParameterSourceHost<T> : ParameterizedTestHost
-		{
-			public string Name {
-				get;
-				private set;
-			}
-
-			public ITestParameterSource<T> Source {
-				get;
-				private set;
-			}
-
-			public string Filter {
-				get;
-				private set;
-			}
-
-			public ParameterSourceHost (string name, ITestParameterSource<T> source, string filter, TestFlags flags = TestFlags.None)
-				: base (name, typeof (T).GetTypeInfo (), flags)
-			{
-				Source = source;
-				Filter = filter;
-			}
-
-			internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
-			{
-				return ParameterSourceInstance<T>.CreateFromSource (this, parent, Source, Filter);
 			}
 		}
 

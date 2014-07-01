@@ -43,22 +43,22 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public ParameterizedTestHost Host {
+		public TestHost Host {
 			get;
 			private set;
 		}
 
-		public ReflectionPropertyHost (ReflectionTestFixture fixture, PropertyInfo prop, ParameterizedTestHost host)
-			: base (host.ParameterName, host.ParameterType, host.Flags)
+		public ReflectionPropertyHost (ReflectionTestFixture fixture, PropertyInfo prop, TestHost host)
+			: base (prop.Name, prop.PropertyType.GetTypeInfo (), host.Flags)
 		{
 			Fixture = fixture;
 			Property = prop;
 			Host = host;
 		}
 
-		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
+		internal override TestInstance CreateInstance (TestInstance parent)
 		{
-			var instance = (ParameterizedTestInstance)Host.CreateInstance (context, parent);
+			var instance = (ParameterizedTestInstance)Host.CreateInstance (parent);
 			return new ReflectionPropertyInstance (this, instance, parent);
 		}
 
@@ -79,19 +79,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				Instance = instance;
 			}
 
-			public override Task Initialize (TestContext context, CancellationToken cancellationToken)
+			public override void Initialize (TestContext context)
 			{
-				return Instance.Initialize (context, cancellationToken);
-			}
-
-			public override Task PreRun (TestContext context, CancellationToken cancellationToken)
-			{
-				return Instance.PreRun (context, cancellationToken);
-			}
-
-			public override Task PostRun (TestContext context, CancellationToken cancellationToken)
-			{
-				return Instance.PostRun (context, cancellationToken);
+				Instance.Initialize (context);
 			}
 
 			public override bool HasNext ()
@@ -99,16 +89,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return Instance.HasNext ();
 			}
 
-			public override async Task MoveNext (TestContext context, CancellationToken cancellationToken)
+			public override bool MoveNext (TestContext context)
 			{
-				await Instance.MoveNext (context, cancellationToken);
+				if (!Instance.MoveNext (context))
+					return false;
 
 				Host.Property.SetValue (GetFixtureInstance ().Instance, Instance.Current);
-			}
-
-			public override Task Destroy (TestContext context, CancellationToken cancellationToken)
-			{
-				return Instance.Destroy (context, cancellationToken);
+				return true;
 			}
 
 			public override object Current {

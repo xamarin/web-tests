@@ -1,5 +1,5 @@
 ﻿//
-// CustomHostAttributeHost.cs
+// HeavyTestHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,47 +24,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Reflection
+namespace Xamarin.AsyncTests.Framework
 {
-	class CustomHostAttributeTestHost : ParameterizedTestHost
+	abstract class HeavyTestHost : TestHost
 	{
-		public TestHostAttribute Attribute {
+		public string Name {
 			get;
 			private set;
 		}
 
-		public TypeInfo HostType {
-			get;
-			private set;
-		}
-
-		public bool UseFixtureInstance {
-			get;
-			private set;
-		}
-
-		public CustomHostAttributeTestHost (
-			string name, TypeInfo type, TypeInfo hostType,
-			bool useFixtureInstance, TestHostAttribute attr)
-			: base (name, type)
+		public HeavyTestHost (string name)
 		{
-			Attribute = attr;
-			HostType = hostType;
-			UseFixtureInstance = useFixtureInstance;
-			Flags |= attr.Flags;
+			Name = name;
 		}
 
-		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
+		internal sealed override TestInvoker CreateInvoker (TestInvoker invoker)
 		{
-			var instanceType = typeof(CustomTestInstance<>).GetTypeInfo ();
-			var genericInstance = instanceType.MakeGenericType (ParameterType.AsType ());
-			return (ParameterizedTestInstance)Activator.CreateInstance (
-				genericInstance, this, parent, HostType, UseFixtureInstance);
+			return new HeavyTestInvoker (this, invoker);
 		}
 	}
 }

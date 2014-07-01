@@ -54,15 +54,14 @@ namespace Xamarin.AsyncTests.Framework
 			var oldName = ctx.CurrentTestName;
 
 			try {
-				ctx.Log ("CAPTURED INVOKE #0: {0} {1}", Name, ctx.GetCurrentTestName ());
 				ctx.CurrentTestName.PushName (Name.Name);
-
-				ctx.Log ("CAPTURED INVOKE: {0} {1}", result, result.Status);
+				ctx.Log ("CapturedInvoke({0})", ctx.GetCurrentTestName ());
 				var success = await Invoker.Invoke (ctx, null, result, cancellationToken);
-				ctx.Log ("CAPTURED INVOKE DONE: {0} {1}", success, result.Status);
+				ctx.Log ("CapturedInvoke({0}) done: {1}", ctx.GetCurrentTestName (), success);
 				return success;
 			} catch (Exception ex) {
-				ctx.Log ("CAPTURED INVOKE FAILED: {0}", ex);
+				ctx.Log ("CapturedInvoke({0}) failed: {1}", ctx.GetCurrentTestName (), ex);
+				result.Error = ex;
 				return false;
 			} finally {
 				ctx.CurrentTestName.PopName ();

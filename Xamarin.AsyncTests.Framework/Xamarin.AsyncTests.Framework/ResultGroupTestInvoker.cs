@@ -46,15 +46,67 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			var oldResult = ctx.CurrentTestResult;
 
-			var innerResult = new TestResult (ctx.GetCurrentTestName ());
+			var name = ctx.GetCurrentTestName ();
+
+			var innerResult = new TestResult (name);
 			result.AddChild (innerResult);
 			ctx.CurrentTestResult = innerResult;
+
+			if (instance != null)
+				innerResult.Test = CaptureContext (name, instance);
 
 			try {
 				return await InvokeInner (ctx, instance, innerResult, Inner, cancellationToken);
 			} finally {
+				result.Status = MergeStatus (result.Status, innerResult.Status);
 				ctx.CurrentTestResult = oldResult;
 			}
+		}
+
+		static TestStatus MergeStatus (TestStatus current, TestStatus child)
+		{
+			switch (current) {
+			case TestStatus.Canceled:
+			case TestStatus.Error:
+				return current;
+
+			case TestStatus.Ignored:
+			case TestStatus.None:
+				return child;
+
+			case TestStatus.Success:
+				if (child == TestStatus.Error || child == TestStatus.Canceled)
+					return child;
+				return current;
+
+			default:
+				throw new InvalidOperationException ();
+			}
+		}
+
+		TestCase CaptureContext (TestName name, TestInstance instance)
+		{
+			TestInvoker invoker = new ResultGroupTestInvoker (Inner);
+			invoker = new PrePostRunTestInvoker (invoker);
+			invoker = CaptureContext (name, instance, invoker);
+			if (invoker == null)
+				return null;
+
+			return new CapturedTestCase (new CapturedTestInvoker (name, invoker));
+		}
+
+		static TestInvoker CaptureContext (TestName name, TestInstance instance, TestInvoker invoker)
+		{
+			if (instance.Host is CapturedTestHost)
+				return null;
+
+			var capturedHost = instance.CaptureContext ();
+			invoker = capturedHost.CreateInvoker (invoker);
+
+			if (instance.Parent != null)
+				return CaptureContext (name, instance.Parent, invoker);
+
+			return invoker;
 		}
 	}
 }

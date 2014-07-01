@@ -29,12 +29,11 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CustomTestInstance<T> : ParameterizedTestInstance
+	class CustomTestInstance<T> : HeavyTestInstance
 		where T : ITestInstance
 	{
 		ITestHost<T> customHost;
 		T instance;
-		bool hasNext;
 
 		public Type HostType {
 			get;
@@ -46,11 +45,15 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public CustomTestInstance (ParameterizedTestHost host, TestInstance parent, Type hostType, bool useFixtureInstance)
+		public CustomTestInstance (CustomTestHost<T> host, TestInstance parent, Type hostType, bool useFixtureInstance)
 			: base (host, parent)
 		{
 			HostType = hostType;
 			UseFixtureInstance = useFixtureInstance;
+		}
+
+		public override object Current {
+			get { return instance; }
 		}
 
 		public override async Task Initialize (TestContext context, CancellationToken cancellationToken)
@@ -64,7 +67,6 @@ namespace Xamarin.AsyncTests.Framework
 
 			instance = customHost.CreateInstance (context);
 			await instance.Initialize (context, cancellationToken);
-			hasNext = true;
 		}
 
 		public override async Task PreRun (TestContext context, CancellationToken cancellationToken)
@@ -77,24 +79,9 @@ namespace Xamarin.AsyncTests.Framework
 			await instance.PostRun (context, cancellationToken);
 		}
 
-		public override bool HasNext ()
-		{
-			return hasNext;
-		}
-
-		public override Task MoveNext (TestContext context, CancellationToken cancellationToken)
-		{
-			hasNext = false;
-			return Task.FromResult<object> (null);
-		}
-
 		public override async Task Destroy (TestContext context, CancellationToken cancellationToken)
 		{
 			await instance.Destroy (context, cancellationToken);
-		}
-
-		public override object Current {
-			get { return instance; }
 		}
 	}
 }

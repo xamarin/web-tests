@@ -35,7 +35,7 @@ namespace Xamarin.WebTests.Handlers
 	using Framework;
 	using Server;
 
-	public abstract class Handler
+	public abstract class Handler : ICloneable
 	{
 		static int debugLevel = 10;
 
@@ -155,6 +155,8 @@ namespace Xamarin.WebTests.Handlers
 			var uri = RegisterRequest (listener);
 			return CreateRequest (uri);
 		}
+
+		public abstract object Clone ();
 
 		public override string ToString ()
 		{

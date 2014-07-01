@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.Tests
 			get; set;
 		}
 
-		public TestRunner CreateInstance (TestContext context)
+		public TestRunner CreateInstance (TestContext ctx)
 		{
 			return new HttpTestRunner { UseSSL = UseSSL, ReuseConnection = ReuseConnection };
 		}

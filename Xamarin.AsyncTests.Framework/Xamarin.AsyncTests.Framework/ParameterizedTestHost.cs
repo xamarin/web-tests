@@ -49,6 +49,16 @@ namespace Xamarin.AsyncTests.Framework
 			ParameterType = type;
 			Flags = flags;
 		}
+
+		internal override TestInvoker CreateInvoker (TestInvoker invoker)
+		{
+			return new ParameterizedTestInvoker (this, invoker);
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[ParameterizedTestHost: ParameterName={0}, ParameterType={1}]", ParameterName, ParameterType);
+		}
 	}
 }
 

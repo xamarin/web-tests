@@ -41,7 +41,6 @@ namespace Xamarin.WebTests.Tests
 	using Handlers;
 	using Framework;
 
-	[Proxy]
 	[AsyncTestFixture]
 	public class TestPost : ITestHost<HttpTestRunner>, ITestParameterSource<Handler>
 	{

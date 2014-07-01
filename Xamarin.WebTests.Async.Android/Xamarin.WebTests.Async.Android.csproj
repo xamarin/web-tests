@@ -142,9 +142,6 @@
     <Compile Include="..\Xamarin.WebTests\Runners\HttpTestRunner.cs">
       <Link>Runners\HttpTestRunner.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests\Runners\HttpsTestRunner.cs">
-      <Link>Runners\HttpsTestRunner.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests\Runners\ProxyTestRunner.cs">
       <Link>Runners\ProxyTestRunner.cs</Link>
     </Compile>

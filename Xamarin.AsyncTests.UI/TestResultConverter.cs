@@ -86,8 +86,6 @@ namespace Xamarin.AsyncTests.UI
 		Color GetColorForStatus (TestStatus status)
 		{
 			switch (status) {
-			case TestStatus.Warning:
-				return Color.Yellow;
 			case TestStatus.Error:
 				return Color.Red;
 			case TestStatus.Success:

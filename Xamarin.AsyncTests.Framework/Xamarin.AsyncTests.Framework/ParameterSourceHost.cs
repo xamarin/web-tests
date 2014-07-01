@@ -1,5 +1,5 @@
 ﻿//
-// ParameterAttributeHost.cs
+// ParameterSourceHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,20 +25,14 @@
 // THE SOFTWARE.
 using System;
 using System.Reflection;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Reflection
+namespace Xamarin.AsyncTests.Framework
 {
-	class ParameterAttributeTestHost : ParameterizedTestHost
+	class ParameterSourceHost<T> : ParameterizedTestHost
 	{
-		public TestParameterSourceAttribute Attribute {
-			get;
-			private set;
-		}
-
-		public TypeInfo SourceType {
+		public Type SourceType {
 			get;
 			private set;
 		}
@@ -53,27 +47,18 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public ParameterAttributeTestHost (
-			string name, TypeInfo type, TypeInfo sourceType,
-			bool useFixtureInstance, TestParameterSourceAttribute attr)
-			: base (name, type)
+		public ParameterSourceHost (
+			string name, Type sourceType, bool useFixtureInstance, string filter, TestFlags flags = TestFlags.None)
+			: base (name, typeof (T).GetTypeInfo (), flags)
 		{
-			Attribute = attr;
 			SourceType = sourceType;
 			UseFixtureInstance = useFixtureInstance;
-			Flags |= attr.Flags;
-
-			var paramAttr = attr as TestParameterAttribute;
-			if (paramAttr != null)
-				Filter = paramAttr.Filter;
+			Filter = filter;
 		}
 
-		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
+		internal override TestInstance CreateInstance (TestInstance parent)
 		{
-			var instanceType = typeof(ParameterSourceInstance<>).GetTypeInfo ();
-			var genericInstance = instanceType.MakeGenericType (ParameterType.AsType ());
-			return (ParameterizedTestInstance)Activator.CreateInstance (
-				genericInstance, this, parent, SourceType, UseFixtureInstance, Filter);
+			return new ParameterSourceInstance<T> (this, parent, SourceType, UseFixtureInstance, Filter);
 		}
 	}
 }

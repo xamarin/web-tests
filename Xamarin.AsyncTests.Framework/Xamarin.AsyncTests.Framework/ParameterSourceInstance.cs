@@ -37,7 +37,6 @@ namespace Xamarin.AsyncTests.Framework
 		List<T> parameters;
 		T current;
 		int index;
-		bool hasSource;
 
 		public Type SourceType {
 			get;
@@ -67,20 +66,6 @@ namespace Xamarin.AsyncTests.Framework
 			Filter = filter;
 		}
 
-		ParameterSourceInstance (ParameterizedTestHost host, TestInstance parent, ITestParameterSource<T> source, string filter)
-			: base (host, parent)
-		{
-			this.source = source;
-			this.hasSource = true;
-			Filter = filter;
-		}
-
-		public static ParameterizedTestInstance CreateFromSource (
-			ParameterizedTestHost host, TestInstance parent, ITestParameterSource<T> source, string filter)
-		{
-			return new ParameterSourceInstance<T> (host, parent, source, filter);
-		}
-
 		ITestParameterSource<T> CreateSource (TestContext context)
 		{
 			if (SourceType != null)
@@ -91,24 +76,20 @@ namespace Xamarin.AsyncTests.Framework
 				throw new InvalidOperationException ();
 		}
 
-		public override Task Initialize (TestContext context, CancellationToken cancellationToken)
+		public override void Initialize (TestContext context)
 		{
-			return Task.Run (() => {
-				if (!hasSource)
-					source = CreateSource (context);
-				parameters = new List<T> (source.GetParameters (context, Filter));
-				index = 0;
-			});
+			base.Initialize (context);
+			source = CreateSource (context);
+			parameters = new List<T> (source.GetParameters (context, Filter));
+			index = 0;
 		}
 
-		public override Task PreRun (TestContext context, CancellationToken cancellationToken)
+		public override void Destroy (TestContext context)
 		{
-			return Task.FromResult<object> (null);
-		}
-
-		public override Task PostRun (TestContext context, CancellationToken cancellationToken)
-		{
-			return Task.FromResult<object> (null);
+			source = null;
+			parameters = null;
+			index = -1;
+			base.Destroy (context);
 		}
 
 		public override bool HasNext ()
@@ -116,22 +97,14 @@ namespace Xamarin.AsyncTests.Framework
 			return index < parameters.Count;
 		}
 
-		public override Task MoveNext (TestContext context, CancellationToken cancellationToken)
+		public override bool MoveNext (TestContext context)
 		{
-			return Task.Run (() => {
-				current = parameters [index];
-				index++;
-			});
-		}
+			if (!HasNext ())
+				return false;
 
-		public override Task Destroy (TestContext context, CancellationToken cancellationToken)
-		{
-			return Task.Run (() => {
-				if (!hasSource)
-					source = null;
-				parameters = null;
-				index = -1;
-			});
+			current = parameters [index];
+			index++;
+			return true;
 		}
 	}
 }

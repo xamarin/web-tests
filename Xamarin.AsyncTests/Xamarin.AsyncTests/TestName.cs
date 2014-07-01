@@ -45,10 +45,6 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
-		internal TestCase CapturedTest {
-			get; set;
-		}
-
 		public TestName (string name, params KeyValuePair<string,string>[] parameters)
 		{
 			Name = name;

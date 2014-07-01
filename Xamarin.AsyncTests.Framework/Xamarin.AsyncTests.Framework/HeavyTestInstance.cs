@@ -1,5 +1,5 @@
 ﻿//
-// HelloWorldBehavior.cs
+// HeavyTestInstance.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,27 +24,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.AsyncTests.Framework
 {
-	using Framework;
-	using Server;
-
-	public class HelloWorldHandler : Handler
+	abstract class HeavyTestInstance : TestInstance
 	{
-		static int next_id;
-
-		public override object Clone ()
-		{
-			return new HelloWorldHandler ();
+		new public HeavyTestHost Host {
+			get { return (HeavyTestHost)base.Host; }
 		}
 
-		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		public HeavyTestInstance (HeavyTestHost host, TestInstance parent)
+			: base (host, parent)
 		{
-			if (!request.Method.Equals ("GET"))
-				return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
+		}
 
-			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
+		public abstract object Current {
+			get;
+		}
+
+		public abstract Task Initialize (TestContext context, CancellationToken cancellationToken);
+
+		public abstract Task PreRun (TestContext context, CancellationToken cancellationToken);
+
+		public abstract Task PostRun (TestContext context, CancellationToken cancellationToken);
+
+		public abstract Task Destroy (TestContext context, CancellationToken cancellationToken);
+
+		public override sealed TestHost CaptureContext ()
+		{
+			return Host;
 		}
 	}
 }

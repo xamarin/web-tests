@@ -1,5 +1,5 @@
 ﻿//
-// HelloWorldBehavior.cs
+// CustomTestHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,27 +24,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.AsyncTests.Framework
 {
-	using Framework;
-	using Server;
-
-	public class HelloWorldHandler : Handler
+	class CustomTestHost<T> : HeavyTestHost
+		where T : ITestInstance
 	{
-		static int next_id;
-
-		public override object Clone ()
-		{
-			return new HelloWorldHandler ();
+		public Type HostType {
+			get;
+			private set;
 		}
 
-		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
-		{
-			if (!request.Method.Equals ("GET"))
-				return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
+		public bool UseFixtureInstance {
+			get;
+			private set;
+		}
 
-			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
+		public CustomTestHost (string name, Type hostType, bool useFixtureInstance)
+			: base (name)
+		{
+			HostType = hostType;
+			UseFixtureInstance = useFixtureInstance;
+		}
+
+		internal override TestInstance CreateInstance (TestInstance parent)
+		{
+			return new CustomTestInstance<T> (this, parent, HostType, UseFixtureInstance);
 		}
 	}
 }

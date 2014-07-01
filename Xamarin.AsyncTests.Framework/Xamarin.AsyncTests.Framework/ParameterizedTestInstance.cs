@@ -54,6 +54,11 @@ namespace Xamarin.AsyncTests.Framework
 
 		public abstract bool HasNext ();
 
-		public abstract Task MoveNext (TestContext context, CancellationToken cancellationToken);
+		public abstract bool MoveNext (TestContext context);
+
+		public sealed override TestHost CaptureContext ()
+		{
+			return new CapturedTestHost (Host, Current);
+		}
 	}
 }

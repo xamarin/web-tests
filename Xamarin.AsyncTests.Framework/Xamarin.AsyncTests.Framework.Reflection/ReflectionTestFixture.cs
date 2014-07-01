@@ -91,7 +91,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return CreateInvoker (invoker, parameterHosts);
 		}
 
-		class ReflectionTestFixtureHost : TestHost
+		class ReflectionTestFixtureHost : HeavyTestHost
 		{
 			public ReflectionTestFixture Fixture {
 				get;
@@ -99,12 +99,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 
 			public ReflectionTestFixtureHost (ReflectionTestFixture fixture)
+				: base (null)
 			{
 				Flags = TestFlags.ContinueOnError;
 				Fixture = fixture;
 			}
 
-			internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
+			internal override TestInstance CreateInstance (TestInstance parent)
 			{
 				var instance = Activator.CreateInstance (Fixture.Type.AsType ());
 				return new FixtureTestInstance (this, instance);

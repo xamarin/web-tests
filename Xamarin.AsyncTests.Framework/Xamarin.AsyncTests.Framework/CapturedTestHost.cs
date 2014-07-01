@@ -39,14 +39,14 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public CapturedTestHost (TestName name, ParameterizedTestHost parent, object instance)
+		public CapturedTestHost (ParameterizedTestHost parent, object instance)
 			: base (parent.ParameterName, parent.ParameterType, parent.Flags | TestFlags.FlattenHierarchy)
 		{
 			Parent = parent;
 			CapturedInstance = instance;
 		}
 
-		internal override TestInstance CreateInstance (TestContext context, TestInstance parent)
+		internal override TestInstance CreateInstance (TestInstance parent)
 		{
 			return new CapturedTestInstance (this, parent);
 		}

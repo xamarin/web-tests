@@ -35,20 +35,16 @@ namespace Xamarin.AsyncTests.Framework
 			get; protected set;
 		}
 
-		internal async Task<TestInstance> CreateInstance (
-			TestContext context, TestInstance parent, CancellationToken cancellationToken)
+		internal TestInstance CreateInstance (TestContext context, TestInstance parent)
 		{
-			var instance = CreateInstance (context, parent);
-			await instance.Initialize (context, cancellationToken);
+			var instance = CreateInstance (parent);
+			instance.Initialize (context);
 			return instance;
 		}
 
-		internal abstract TestInstance CreateInstance (TestContext context, TestInstance parent);
+		internal abstract TestInstance CreateInstance (TestInstance parent);
 
-		internal TestInvoker CreateInvoker (TestInvoker inner)
-		{
-			return AggregatedTestInvoker.Create (this, inner);
-		}
+		internal abstract TestInvoker CreateInvoker (TestInvoker invoker);
 
 		public override string ToString ()
 		{

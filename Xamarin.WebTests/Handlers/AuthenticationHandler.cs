@@ -46,6 +46,11 @@ namespace Xamarin.WebTests.Handlers
 			this.manager = manager;
 		}
 
+		public override object Clone ()
+		{
+			throw new InvalidOperationException ();
+		}
+
 		class HttpAuthManager : AuthenticationManager
 		{
 			public readonly Handler Target;
