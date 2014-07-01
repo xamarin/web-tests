@@ -105,8 +105,7 @@ namespace Xamarin.AsyncTests.Framework
 				if (!success)
 					break;
 
-				if (!IsHidden)
-					ctx.CurrentTestName.PushParameter (Host.ParameterName, parameterizedInstance.Current);
+				ctx.CurrentTestName.PushParameter (Host.ParameterName, parameterizedInstance.Current, IsHidden);
 
 				ctx.Debug (5, "InnerInvoke({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
 					ctx.Print (Host), ctx.Print (parameterizedInstance), Inner);
@@ -116,8 +115,7 @@ namespace Xamarin.AsyncTests.Framework
 				ctx.Debug (5, "InnerInvoke({0}) done: {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
 					ctx.Print (Host), ctx.Print (parameterizedInstance), success);
 
-				if (!IsHidden)
-					ctx.CurrentTestName.PopParameter ();
+				ctx.CurrentTestName.PopParameter ();
 			}
 
 			return success;

@@ -212,6 +212,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			invoker = new ConditionalTestInvoker (this, invoker);
 
+			invoker = new ResultGroupTestInvoker (invoker);
+
 			return new ProxyTestInvoker (Name.Name, invoker);
 		}
 

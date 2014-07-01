@@ -32,7 +32,7 @@ namespace Xamarin.AsyncTests
 	public class TestNameBuilder
 	{
 		Stack<string> parts = new Stack<string> ();
-		Stack<KeyValuePair<string,string>> parameters = new Stack<KeyValuePair<string, string>> ();
+		Stack<TestName.Parameter> parameters = new Stack<TestName.Parameter> ();
 
 		public TestName GetName ()
 		{
@@ -46,8 +46,8 @@ namespace Xamarin.AsyncTests
 			if (!string.IsNullOrEmpty (name.Name))
 				builder.PushName (name.Name);
 			if (name.HasParameters) {
-				foreach (var entry in name.Parameters.Reverse ()) {
-					builder.PushParameter (entry.Key, entry.Value);
+				foreach (var parameter in name.Parameters.Reverse ()) {
+					builder.PushParameter (parameter);
 				}
 			}
 
@@ -64,9 +64,14 @@ namespace Xamarin.AsyncTests
 			parts.Pop ();
 		}
 
-		public void PushParameter (string key, object value)
+		public void PushParameter (string key, object value, bool isHidden = false)
 		{
-			parameters.Push (new KeyValuePair<string, string> (key, Print (value)));
+			parameters.Push (new TestName.Parameter (key, Print (value), isHidden));
+		}
+
+		public void PushParameter (TestName.Parameter parameter)
+		{
+			parameters.Push (parameter);
 		}
 
 		public void PopParameter ()

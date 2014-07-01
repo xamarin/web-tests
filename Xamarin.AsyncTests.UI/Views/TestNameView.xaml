@@ -18,7 +18,7 @@
 
             <Label Text="{Binding Name}" />
 
-            <ListView ItemsSource="{Binding Parameters}" IsVisible="{Binding HasParameters}">
+            <ListView ItemsSource="{Binding VisibleParameters}" IsVisible="{Binding HasParameters}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>

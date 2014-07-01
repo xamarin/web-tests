@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 
@@ -40,12 +41,16 @@ namespace Xamarin.AsyncTests
 			get { return Parameters.Length > 0; }
 		}
 
-		public KeyValuePair<string,string>[] Parameters {
+		public Parameter[] Parameters {
 			get;
 			private set;
 		}
 
-		public TestName (string name, params KeyValuePair<string,string>[] parameters)
+		public IEnumerable<Parameter> VisibleParameters {
+			get { return Parameters.Where (p => !p.IsHidden); }
+		}
+
+		public TestName (string name, params Parameter[] parameters)
 		{
 			Name = name;
 			Parameters = parameters;
@@ -73,6 +78,36 @@ namespace Xamarin.AsyncTests
 			}
 			sb.Append (")");
 			return sb.ToString ();
+		}
+
+		public class Parameter
+		{
+			public string Name {
+				get;
+				private set;
+			}
+
+			public string Value {
+				get;
+				private set;
+			}
+
+			public bool IsHidden {
+				get;
+				private set;
+			}
+
+			public Parameter (string name, string value, bool isHidden = false)
+			{
+				Name = name;
+				Value = value;
+				IsHidden = isHidden;
+			}
+
+			public override string ToString ()
+			{
+				return string.Format ("[Parameter: Name={0}, Value={1}, IsHidden={2}]", Name, Value, IsHidden);
+			}
 		}
 
 		public override string ToString ()

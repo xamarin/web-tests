@@ -66,11 +66,11 @@ namespace Xamarin.AsyncTests.UI
 				if (!targetType.Equals (typeof(string)))
 					throw new InvalidOperationException ();
 				return value.ToString ();
-			} else if (value is KeyValuePair<string,string>) {
-				var kvp = (KeyValuePair<string,string>)value;
-				if (string.IsNullOrEmpty (kvp.Key))
-					return kvp.Value;
-				return kvp.Key + " = " + kvp.Value;
+			} else if (value is TestName.Parameter) {
+				var p = (TestName.Parameter)value;
+				if (string.IsNullOrEmpty (p.Name))
+					return p.Value;
+				return p.Name + " = " + p.Value;
 			} else if (targetType.Equals (typeof(string))) {
 				return value != null ? value.ToString () : "<null>";
 			}
