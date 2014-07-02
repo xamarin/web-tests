@@ -54,6 +54,7 @@ namespace Xamarin.WebTests
 	{
 		public static readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
 		public static readonly TestFeature SSL = new TestFeature ("SSL", "Use SSL", true);
+		public static readonly TestFeature Redirect = new TestFeature ("Redirect", "Redirect Tests", true);
 		public static readonly TestFeature Proxy = new TestFeature ("Proxy", "Proxy Tests", true);
 		public static readonly TestFeature ProxyAuth = new TestFeature ("ProxyAuth", "Proxy Authentication", true);
 		public static readonly TestFeature Experimental = new TestFeature ("Experimental", "Experimental Tests", false);
@@ -69,6 +70,7 @@ namespace Xamarin.WebTests
 			get {
 				yield return NTLM;
 				yield return SSL;
+				yield return Redirect;
 				yield return Proxy;
 				yield return ProxyAuth;
 				yield return Experimental;

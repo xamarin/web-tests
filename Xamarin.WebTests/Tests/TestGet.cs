@@ -65,6 +65,7 @@ namespace Xamarin.WebTests.Tests
 			yield return new HelloWorldHandler ();
 		}
 
+		[Work]
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
 			[TestHost (typeof (TestGet))] TestRunner runner, [TestParameter] Handler handler)
