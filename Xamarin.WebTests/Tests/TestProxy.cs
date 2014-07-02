@@ -47,11 +47,6 @@ namespace Xamarin.WebTests.Tests
 		ITestParameterSource<ProxyKind>, ITestParameterSource<AuthenticationType>
 	{
 		[TestParameter]
-		public bool UseSSL {
-			get; set;
-		}
-
-		[TestParameter]
 		public ProxyKind Kind {
 			get; set;
 		}

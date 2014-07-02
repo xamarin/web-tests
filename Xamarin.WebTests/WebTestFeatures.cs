@@ -88,6 +88,18 @@ namespace Xamarin.WebTests
 			}
 		}
 		#endregion
+
+		public class SelectSSL : ITestParameterSource<bool>
+		{
+			#region ITestParameterSource implementation
+			public IEnumerable<bool> GetParameters (TestContext context, string filter)
+			{
+				yield return false;
+				if (context.Configuration.IsEnabled (SSL))
+					yield return true;
+			}
+			#endregion
+		}
 	}
 }
 

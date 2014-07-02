@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.Tests
 	[AsyncTestFixture]
 	public class TestPost : ITestHost<HttpTestRunner>, ITestParameterSource<Handler>
 	{
-		[TestParameter]
+		[TestParameter (typeof (WebTestFeatures.SelectSSL), null, TestFlags.Hidden)]
 		public bool UseSSL {
 			get; set;
 		}
