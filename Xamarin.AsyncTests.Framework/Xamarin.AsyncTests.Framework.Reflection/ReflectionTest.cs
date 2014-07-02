@@ -155,7 +155,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var type = typeof(ParameterSourceHost<>).MakeGenericType (member.Type.AsType ());
 			return (TestHost)Activator.CreateInstance (
-					type, member.Name, sourceType, useFixtureInstance, null, paramAttr.Flags);
+				type, member.Name, sourceType, useFixtureInstance, filter, paramAttr.Flags);
 		}
 
 		protected static IEnumerable<TestHost> ResolveParameter (TypeInfo fixtureType, IMemberInfo member)
