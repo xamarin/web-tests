@@ -62,6 +62,7 @@ namespace Xamarin.AsyncTests.Framework
 			} catch (Exception ex) {
 				ctx.Log ("CapturedInvoke({0}) failed: {1}", ctx.GetCurrentTestName (), ex);
 				result.Error = ex;
+				ctx.OnTestError (result);
 				return false;
 			} finally {
 				ctx.CurrentTestName.PopName ();

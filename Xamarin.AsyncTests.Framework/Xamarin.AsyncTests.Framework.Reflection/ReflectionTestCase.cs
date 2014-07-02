@@ -108,6 +108,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		public Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
+			ctx.OnTestRunning (ctx.GetCurrentTestName ());
+
 			if (ExpectedExceptionType != null)
 				return ExpectingException (ctx, instance, result, ExpectedExceptionType, cancellationToken);
 			else
@@ -188,24 +190,28 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				retval = InvokeInner (ctx, instance, result, cancellationToken);
 			} catch (Exception ex) {
 				result.Error = ex;
+				ctx.OnTestError (result);
 				return false;
 			}
 
 			var task = retval as Task;
 			if (task == null) {
 				result.Status = TestStatus.Success;
+				ctx.OnTestPassed (result);
 				return true;
 			}
 
 			try {
 				await task;
 				result.Status = TestStatus.Success;
+				ctx.OnTestPassed (result);
 				return true;
 			} catch (OperationCanceledException) {
 				result.Status = TestStatus.Canceled;
 				return false;
 			} catch (Exception ex) {
 				result.Error = ex;
+				ctx.OnTestError (result);
 				return false;
 			}
 		}
@@ -222,17 +228,20 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 				var message = string.Format ("Expected an exception of type {0}", expectedException);
 				result.Error = new AssertionException (message);
+				ctx.OnTestError (result);
 				return false;
 			} catch (Exception ex) {
 				if (ex is TargetInvocationException)
 					ex = ((TargetInvocationException)ex).InnerException;
 				if (expectedException.IsAssignableFrom (ex.GetType ().GetTypeInfo ())) {
 					result.Status = TestStatus.Success;
+					ctx.OnTestPassed (result);
 					return true;
 				}
 				var message = string.Format ("Expected an exception of type {0}, but got {1}",
 					expectedException, ex.GetType ());
 				result.Error = new AssertionException (message, ex);
+				ctx.OnTestError (result);
 				return false;
 			}
 		}

@@ -61,7 +61,7 @@ namespace Xamarin.AsyncTests.UI
 
 			InitializeComponent ();
 
-			BindingContext = TestRunner;
+			BindingContext = app;
 
 			Appearing += (sender, e) => App.CurrentTestRunner = App.RootTestRunner;
 		}

@@ -61,9 +61,18 @@ namespace Xamarin.AsyncTests.UI
 			IsRoot = isRoot;
 		}
 
+		string statusMessage;
+		public string StatusMessage {
+			get { return statusMessage; }
+			set {
+				statusMessage = value;
+				OnPropertyChanged ("StatusMessage");
+			}
+		}
+
 		static int countReruns;
 
-		public Task Run (bool repeat, CancellationToken cancellationToken)
+		public async Task Run (bool repeat, CancellationToken cancellationToken)
 		{
 			var test = Test;
 			var result = ResultModel.Result;
@@ -83,7 +92,16 @@ namespace Xamarin.AsyncTests.UI
 			if (repeat && App.Options.Repeat)
 				test = TestSuite.CreateRepeatedTest (test, App.Options.RepeatCount);
 
-			return test.Run (App.Context, result, cancellationToken);
+			StatusMessage = "Running ...";
+
+			try {
+				await test.Run (App.Context, result, cancellationToken);
+				StatusMessage = "Done.";
+			} catch (OperationCanceledException) {
+				StatusMessage = "Canceled!";
+			} catch (Exception ex) {
+				StatusMessage = string.Format ("ERROR: {0}", ex.Message);
+			}
 		}
 	}
 }

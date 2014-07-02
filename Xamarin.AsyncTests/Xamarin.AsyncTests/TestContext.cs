@@ -108,6 +108,56 @@ namespace Xamarin.AsyncTests
 			get { return configuration; }
 		}
 
+		#region Statistics
+
+		int countTests;
+		int countSuccess;
+		int countErrors;
+
+		public int CountTests {
+			get { return countTests; }
+		}
+
+		public int CountSuccess {
+			get { return countSuccess; }
+		}
+
+		public int CountErrors {
+			get { return countErrors; }
+		}
+
+		public virtual void ResetStatistics ()
+		{
+			countTests = countSuccess = countErrors = 0;
+		}
+
+		public virtual void OnTestRunning (TestName name)
+		{
+			countTests++;
+		}
+
+		public virtual void OnTestPassed (TestResult result)
+		{
+			countSuccess++;
+			OnTestFinished (result);
+		}
+
+		public virtual void OnTestError (TestResult result)
+		{
+			countErrors++;
+			OnTestFinished (result);
+		}
+
+		protected virtual void OnTestFinished (TestResult result)
+		{
+			if (TestFinishedEvent != null)
+				TestFinishedEvent (this, result);
+		}
+
+		public event EventHandler<TestResult> TestFinishedEvent;
+
+		#endregion
+
 		#region Disposing
 
 		public void AutoDispose (IDisposable disposable)

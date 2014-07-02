@@ -126,6 +126,7 @@ namespace Xamarin.AsyncTests.UI
 			Settings = settings;
 
 			Context = new TestContext ();
+			Context.TestFinishedEvent += (sender, e) => OnTestFinished (e);
 
 			var result = new TestResult (new TestName (null));
 			RootTestResult = new TestResultModel (this, result);
@@ -166,17 +167,11 @@ namespace Xamarin.AsyncTests.UI
 
 			cancelCts = new CancellationTokenSource ();
 			IsRunning = true;
-			StatusMessage = "Running ...";
+
+			Context.ResetStatistics ();
 
 			try {
 				await CurrentTestRunner.Run (repeat, cancelCts.Token);
-				StatusMessage = "Done.";
-			} catch (TaskCanceledException) {
-				StatusMessage = "Canceled!";
-			} catch (OperationCanceledException) {
-				StatusMessage = "Canceled!";
-			} catch (Exception ex) {
-				StatusMessage = string.Format ("ERROR: {0}", ex.Message);
 			} finally {
 				IsRunning = false;
 				cancelCts.Dispose ();
@@ -190,6 +185,11 @@ namespace Xamarin.AsyncTests.UI
 				return;
 
 			cancelCts.Cancel ();
+		}
+
+		void OnTestFinished (TestResult result)
+		{
+			StatusMessage = string.Format ("{0} tests passed, {1} errors.", Context.CountSuccess, Context.CountErrors);
 		}
 	}
 }
