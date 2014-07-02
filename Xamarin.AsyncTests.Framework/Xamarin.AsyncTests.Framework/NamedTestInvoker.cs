@@ -1,5 +1,5 @@
 ﻿//
-// ParameterizedTestInvoker.cs
+// NamedTestInvoker.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,15 +24,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class ParameterizedTestInvoker : AggregatedTestInvoker
+	class NamedTestInvoker : AggregatedTestInvoker
 	{
-		public ParameterizedTestHost Host {
+		public NamedTestHost Host {
 			get;
 			private set;
 		}
@@ -42,20 +41,29 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public ParameterizedTestInvoker (ParameterizedTestHost host, TestInvoker inner)
-			: base (host.Flags)
+		public NamedTestInvoker (NamedTestHost host, TestInvoker inner)
 		{
 			Host = host;
 			Inner = inner;
 		}
 
-		ParameterizedTestInstance SetUp (TestContext ctx, TestInstance instance, TestResult result)
+		public static NamedTestInvoker Create (string name, TestInvoker inner)
+		{
+			return new NamedTestInvoker (new NamedTestHost (name), inner);
+		}
+
+		public static NamedTestInvoker Create (TestName name, TestInvoker inner)
+		{
+			return new NamedTestInvoker (new NamedTestHost (name), inner);
+		}
+
+		NamedTestInstance SetUp (TestContext ctx, TestInstance instance, TestResult result)
 		{
 			ctx.Debug (3, "SetUp({0}): {1} {2}", TestInstance.GetTestName (instance),
 				ctx.Print (Host), ctx.Print (instance));
 
 			try {
-				return (ParameterizedTestInstance)Host.CreateInstance (ctx, instance);
+				return (NamedTestInstance)Host.CreateInstance (ctx, instance);
 			} catch (OperationCanceledException) {
 				result.Status = TestStatus.Canceled;
 				return null;
@@ -65,13 +73,14 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		bool MoveNext (TestContext ctx, TestInstance instance, TestResult result)
+		bool TearDown (TestContext ctx, NamedTestInstance instance, TestResult result)
 		{
-			ctx.Debug (3, "MoveNext({0}): {1} {2}", TestInstance.GetTestName (instance),
+			ctx.Debug (3, "TearDown({0}): {1} {2}", TestInstance.GetTestName (instance),
 				ctx.Print (Host), ctx.Print (instance));
 
 			try {
-				return ((ParameterizedTestInstance)instance).MoveNext (ctx);
+				instance.Destroy (ctx);
+				return true;
 			} catch (OperationCanceledException) {
 				result.Status = TestStatus.Canceled;
 				return false;
@@ -84,29 +93,14 @@ namespace Xamarin.AsyncTests.Framework
 		public override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			var parameterizedInstance = SetUp (ctx, instance, result);
-			if (parameterizedInstance == null)
+			var innerInstance = SetUp (ctx, instance, result);
+			if (innerInstance == null)
 				return false;
 
-			bool success = true;
-			while (success && parameterizedInstance.HasNext ()) {
-				if (cancellationToken.IsCancellationRequested)
-					break;
+			var success = await InvokeInner (ctx, innerInstance, result, Inner, cancellationToken);
 
-				success = MoveNext (ctx, parameterizedInstance, result);
-				if (!success)
-					break;
-
-				var name = TestInstance.GetTestName (parameterizedInstance);
-
-				ctx.Debug (5, "InnerInvoke({0}): {1} {2} {3}", name.FullName,
-					ctx.Print (Host), ctx.Print (parameterizedInstance), Inner);
-
-				success = await InvokeInner (ctx, parameterizedInstance, result, Inner, cancellationToken);
-
-				ctx.Debug (5, "InnerInvoke({0}) done: {1} {2} {3}", name.FullName,
-					ctx.Print (Host), ctx.Print (parameterizedInstance), success);
-			}
+			if (!TearDown (ctx, innerInstance, result))
+				success = false;
 
 			return success;
 		}

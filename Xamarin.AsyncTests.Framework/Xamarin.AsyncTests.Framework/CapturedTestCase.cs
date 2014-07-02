@@ -32,7 +32,7 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class CapturedTestCase : TestCase
 	{
-		public CapturedTestInvoker Invoker {
+		public TestInvoker Invoker {
 			get;
 			private set;
 		}
@@ -41,8 +41,8 @@ namespace Xamarin.AsyncTests.Framework
 			get { return null; }
 		}
 
-		public CapturedTestCase (CapturedTestInvoker invoker)
-			: base (invoker.Name)
+		public CapturedTestCase (TestName name, TestInvoker invoker)
+			: base (name)
 		{
 			Invoker = invoker;
 		}

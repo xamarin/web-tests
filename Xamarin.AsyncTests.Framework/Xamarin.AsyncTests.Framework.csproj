@@ -36,12 +36,10 @@
     <Compile Include="Xamarin.AsyncTests.Framework\ParameterSourceInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\CustomTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\RepeatedTestHost.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\ProxyTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\InvokableTestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\CapturedTestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\CapturedTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\CapturedTestInstance.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\CapturedTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\FixtureTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestCase.cs" />
@@ -61,6 +59,9 @@
     <Compile Include="Xamarin.AsyncTests.Framework\HeavyTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\HeavyTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ParameterSourceHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\NamedTestHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\NamedTestInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\NamedTestInvoker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

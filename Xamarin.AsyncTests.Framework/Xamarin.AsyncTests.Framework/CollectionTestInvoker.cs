@@ -51,7 +51,9 @@ namespace Xamarin.AsyncTests.Framework
 			if (cancellationToken.IsCancellationRequested)
 				return false;
 
-			ctx.Debug (3, "Invoke({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
+			var name = TestInstance.GetTestName (instance);
+
+			ctx.Debug (3, "Invoke({0}): {1} {2} {3}", name.FullName,
 				Flags, ctx.Print (instance), InnerInvokers.Count);
 
 			bool success = true;
@@ -59,12 +61,12 @@ namespace Xamarin.AsyncTests.Framework
 				if (cancellationToken.IsCancellationRequested)
 					break;
 
-				ctx.Debug (5, "InnerInvoke({0}): {1} {2} {3}", ctx.GetCurrentTestName ().FullName,
+				ctx.Debug (5, "InnerInvoke({0}): {1} {2} {3}", name.FullName,
 					ctx.Print (instance), invoker, InnerInvokers.Count);
 
 				success = await InvokeInner (ctx, instance, result, invoker, cancellationToken);
 
-				ctx.Debug (5, "InnerInvoke({0}) done: {1} {2}", ctx.GetCurrentTestName ().FullName,
+				ctx.Debug (5, "InnerInvoke({0}) done: {1} {2}", name.FullName,
 					ctx.Print (instance), success);
 
 				if (!success)

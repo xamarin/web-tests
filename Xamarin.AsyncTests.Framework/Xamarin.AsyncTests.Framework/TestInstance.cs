@@ -71,6 +71,20 @@ namespace Xamarin.AsyncTests.Framework
 
 		public abstract TestHost CaptureContext ();
 
+		protected virtual void GetTestName (TestNameBuilder builder)
+		{
+			if (Parent != null)
+				Parent.GetTestName (builder);
+		}
+
+		public static TestName GetTestName (TestInstance instance)
+		{
+			var builder = new TestNameBuilder ();
+			if (instance != null)
+				instance.GetTestName (builder);
+			return builder.GetName ();
+		}
+
 		public override string ToString ()
 		{
 			return string.Format ("[{0}: Host={1}, Parent={2}]", GetType ().Name, Host, Parent);

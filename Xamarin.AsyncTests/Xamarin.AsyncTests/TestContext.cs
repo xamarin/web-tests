@@ -41,7 +41,6 @@ namespace Xamarin.AsyncTests
 	public class TestContext : IDisposable {
 		int debugLevel = DefaultDebugLevel;
 		List<IDisposable> disposables;
-		TestNameBuilder currentTestName = new TestNameBuilder ();
 		TestConfiguration configuration = new TestConfiguration ();
 
 		const int DefaultDebugLevel = 10;
@@ -70,28 +69,11 @@ namespace Xamarin.AsyncTests
 		public void Log (string message)
 		{
 			SD.Debug.WriteLine (message);
-			if (CurrentTestResult != null)
-				CurrentTestResult.AddMessage (message);
 		}
 
 		public string Print (object obj)
 		{
 			return obj != null ? obj.ToString () : "<null>";
-		}
-
-		public TestResult CurrentTestResult {
-			get;
-			internal set;
-		}
-
-		internal TestNameBuilder CurrentTestName {
-			get { return currentTestName; }
-			set { currentTestName = value; }
-		}
-
-		public TestName GetCurrentTestName ()
-		{
-			return CurrentTestName.GetName ();
 		}
 
 		public TestConfiguration Configuration {

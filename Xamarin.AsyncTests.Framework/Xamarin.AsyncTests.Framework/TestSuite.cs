@@ -57,18 +57,16 @@ namespace Xamarin.AsyncTests.Framework
 
 		public static TestCase CreateRepeatedTest (TestCase test, int count)
 		{
-			var invoker = new TestCaseInvoker (test);
 			var repeatHost = new RepeatedTestHost (count, TestFlags.ContinueOnError | TestFlags.Browsable, "$iteration");
-			var repeatInvoker = AggregatedTestInvoker.Create (repeatHost, invoker);
-			var outerInvoker = new ProxyTestInvoker (test.Name, repeatInvoker);
-			return new InvokableTestCase (test, outerInvoker);
+			var invoker = AggregatedTestInvoker.Create (repeatHost, new TestCaseInvoker (test));
+			invoker = NamedTestInvoker.Create (test.Name, invoker);
+			return new InvokableTestCase (test, invoker);
 		}
 
 		public static TestCase CreateProxy (TestCase test, TestName proxy)
 		{
-			var invoker = new TestCaseInvoker (test);
-			var proxyInvoker = new ProxyTestInvoker (proxy, invoker);
-			return new InvokableTestCase (test, proxyInvoker);
+			var invoker = NamedTestInvoker.Create (proxy, new TestCaseInvoker (test));
+			return new InvokableTestCase (test, invoker);
 		}
 
 		class TestCaseInvoker : TestInvoker
@@ -87,7 +85,7 @@ namespace Xamarin.AsyncTests.Framework
 				TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 			{
 				while (instance != null) {
-					if (!(instance.Host is RepeatedTestHost))
+					if (!(instance.Host is RepeatedTestHost || instance.Host is NamedTestHost))
 						throw new InvalidOperationException ();
 					instance = instance.Parent;
 				}

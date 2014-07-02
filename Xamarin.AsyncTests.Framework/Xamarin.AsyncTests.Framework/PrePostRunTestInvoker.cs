@@ -44,10 +44,9 @@ namespace Xamarin.AsyncTests.Framework
 		async Task<bool> PreRun (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			ctx.Debug (3, "PreRun({0}): {1}", ctx.GetCurrentTestName ().FullName, ctx.Print (instance));
+			ctx.Debug (3, "PreRun({0}): {1}", TestInstance.GetTestName (instance), ctx.Print (instance));
 
 			try {
-				ctx.CurrentTestName.PushName ("PreRun");
 				for (var current = instance; current != null; current = current.Parent) {
 					cancellationToken.ThrowIfCancellationRequested ();
 					var heavy = current as HeavyTestInstance;
@@ -61,18 +60,15 @@ namespace Xamarin.AsyncTests.Framework
 			} catch (Exception ex) {
 				result.Error = ex;
 				return false;
-			} finally {
-				ctx.CurrentTestName.PopName ();
 			}
 		}
 
 		async Task<bool> PostRun (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			ctx.Debug (3, "PostRun({0}): {1}", ctx.GetCurrentTestName ().FullName, ctx.Print (instance));
+			ctx.Debug (3, "PostRun({0}): {1}", TestInstance.GetTestName (instance), ctx.Print (instance));
 
 			try {
-				ctx.CurrentTestName.PushName ("PostName");
 				for (var current = instance; current != null; current = current.Parent) {
 					var heavy = current as HeavyTestInstance;
 					if (heavy != null)
@@ -85,8 +81,6 @@ namespace Xamarin.AsyncTests.Framework
 			} catch (Exception ex) {
 				result.Error = ex;
 				return false;
-			} finally {
-				ctx.CurrentTestName.PopName ();
 			}
 		}
 

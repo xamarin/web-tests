@@ -214,7 +214,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			invoker = new ResultGroupTestInvoker (invoker);
 
-			return new ProxyTestInvoker (Name.Name, invoker);
+			invoker = NamedTestInvoker.Create (Name.Name, invoker);
+
+			return invoker;
 		}
 
 		static ParameterizedTestHost CreateEnum (TypeInfo typeInfo, string name)

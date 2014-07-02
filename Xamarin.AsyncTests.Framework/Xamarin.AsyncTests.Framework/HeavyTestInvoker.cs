@@ -52,11 +52,10 @@ namespace Xamarin.AsyncTests.Framework
 		async Task<HeavyTestInstance> SetUp (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			ctx.Debug (3, "SetUp({0}): {1} {2}", ctx.GetCurrentTestName ().FullName,
+			ctx.Debug (3, "SetUp({0}): {1} {2}", TestInstance.GetTestName (instance),
 				ctx.Print (Host), ctx.Print (instance));
 
 			try {
-				ctx.CurrentTestName.PushName ("SetUp");
 				cancellationToken.ThrowIfCancellationRequested ();
 				var childInstance = (HeavyTestInstance)Host.CreateInstance (ctx, instance);
 				await childInstance.Initialize (ctx, cancellationToken);
@@ -67,19 +66,16 @@ namespace Xamarin.AsyncTests.Framework
 			} catch (Exception ex) {
 				result.Error = ex;
 				return null;
-			} finally {
-				ctx.CurrentTestName.PopName ();
 			}
 		}
 
 		async Task<bool> TearDown (
 			TestContext ctx, HeavyTestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			ctx.Debug (3, "TearDown({0}): {1} {2}", ctx.GetCurrentTestName ().FullName,
+			ctx.Debug (3, "TearDown({0}): {1} {2}", TestInstance.GetTestName (instance),
 				ctx.Print (Host), ctx.Print (instance));
 
 			try {
-				ctx.CurrentTestName.PushName ("TearDown");
 				await instance.Destroy (ctx, cancellationToken);
 				return true;
 			} catch (OperationCanceledException) {
@@ -88,8 +84,6 @@ namespace Xamarin.AsyncTests.Framework
 			} catch (Exception ex) {
 				result.Error = ex;
 				return false;
-			} finally {
-				ctx.CurrentTestName.PopName ();
 			}
 		}
 
@@ -100,13 +94,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (innerInstance == null)
 				return false;
 
-			if (!IsHidden && Host.Name != null)
-				ctx.CurrentTestName.PushParameter (Host.Name, innerInstance.Current);
-
 			var success = await InvokeInner (ctx, innerInstance, result, Inner, cancellationToken);
-
-			if (!IsHidden && Host.Name != null)
-				ctx.CurrentTestName.PopParameter ();
 
 			if (!await TearDown (ctx, innerInstance, result, cancellationToken))
 				success = false;

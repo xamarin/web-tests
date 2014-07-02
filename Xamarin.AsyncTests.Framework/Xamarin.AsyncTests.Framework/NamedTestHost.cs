@@ -1,5 +1,5 @@
 ﻿//
-// CapturedTestInvoker.cs
+// NamedTestHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,50 +24,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CapturedTestInvoker : TestInvoker
+	class NamedTestHost : TestHost
 	{
-		public TestName Name {
+		public string Name {
 			get;
 			private set;
 		}
 
-		public TestInvoker Invoker {
+		public TestName TestName {
 			get;
 			private set;
 		}
 
-		public CapturedTestInvoker (TestName name, TestInvoker invoker)
+		public NamedTestHost (string name)
 		{
 			Name = name;
-			Invoker = invoker;
 		}
 
-		public override async Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+		public NamedTestHost (TestName name)
 		{
-			var oldName = ctx.CurrentTestName;
+			TestName = name;
+		}
 
-			try {
-				ctx.CurrentTestName.PushName (Name.Name);
-				ctx.Log ("CapturedInvoke({0})", ctx.GetCurrentTestName ());
-				var success = await Invoker.Invoke (ctx, null, result, cancellationToken);
-				ctx.Log ("CapturedInvoke({0}) done: {1}", ctx.GetCurrentTestName (), success);
-				return success;
-			} catch (Exception ex) {
-				ctx.Log ("CapturedInvoke({0}) failed: {1}", ctx.GetCurrentTestName (), ex);
-				result.Error = ex;
-				ctx.OnTestError (result);
-				return false;
-			} finally {
-				ctx.CurrentTestName.PopName ();
-				ctx.CurrentTestName = oldName;
-			}
+		internal override TestInstance CreateInstance (TestInstance parent)
+		{
+			return new NamedTestInstance (this, parent);
+		}
+
+		internal override TestInvoker CreateInvoker (TestInvoker invoker)
+		{
+			return new NamedTestInvoker (this, invoker);
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[NamedTestHost: Name={0}]", Name);
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// ProxyTestInvoker.cs
+// NamedTestInstance.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,55 +24,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class ProxyTestInvoker : TestInvoker
+	class NamedTestInstance : TestInstance
 	{
-		public string Name {
-			get;
-			private set;
+		new public NamedTestHost Host {
+			get { return (NamedTestHost)base.Host; }
 		}
 
-		public TestName TestName {
-			get;
-			private set;
-		}
-
-		public TestInvoker InnerInvoker {
-			get;
-			private set;
-		}
-
-		public ProxyTestInvoker (string name, TestInvoker inner)
+		public NamedTestInstance (NamedTestHost host, TestInstance parent)
+			: base (host, parent)
 		{
-			Name = name;
-			InnerInvoker = inner;
 		}
 
-		public ProxyTestInvoker (TestName name, TestInvoker inner)
+		public override TestHost CaptureContext ()
 		{
-			TestName = name;
-			InnerInvoker = inner;
+			return Host;
 		}
 
-		public override async Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+		protected override void GetTestName (TestNameBuilder builder)
 		{
-			var oldName = ctx.CurrentTestName;
-
-			try {
-				if (TestName != null)
-					ctx.CurrentTestName = TestNameBuilder.CreateFromName (TestName);
-				if (Name != null)
-					ctx.CurrentTestName.PushName (Name);
-				return await InnerInvoker.Invoke (ctx, instance, result, cancellationToken);
-			} finally {
-				if (Name != null)
-					ctx.CurrentTestName.PopName ();
-				ctx.CurrentTestName = oldName;
+			if (Host.TestName != null)
+				builder.Merge (Host.TestName);
+			else {
+				base.GetTestName (builder);
+				builder.PushName (Host.Name);
 			}
 		}
 	}

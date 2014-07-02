@@ -54,6 +54,17 @@ namespace Xamarin.AsyncTests
 			return builder;
 		}
 
+		public void Merge (TestName name)
+		{
+			if (!string.IsNullOrEmpty (name.Name))
+				PushName (name.Name);
+			if (name.HasParameters) {
+				foreach (var parameter in name.Parameters.Reverse ()) {
+					PushParameter (parameter);
+				}
+			}
+		}
+
 		public void PushName (string part)
 		{
 			parts.Push (part);

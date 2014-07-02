@@ -44,22 +44,16 @@ namespace Xamarin.AsyncTests.Framework
 		public override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			var oldResult = ctx.CurrentTestResult;
-
-			var name = ctx.GetCurrentTestName ();
-
-			var innerResult = new TestResult (name);
+			var innerResult = new TestResult (TestInstance.GetTestName (instance));
 			result.AddChild (innerResult);
-			ctx.CurrentTestResult = innerResult;
 
 			if (instance != null)
-				innerResult.Test = CaptureContext (name, instance);
+				innerResult.Test = CaptureContext (innerResult.Name, instance);
 
 			try {
 				return await InvokeInner (ctx, instance, innerResult, Inner, cancellationToken);
 			} finally {
 				result.Status = MergeStatus (result.Status, innerResult.Status);
-				ctx.CurrentTestResult = oldResult;
 			}
 		}
 
@@ -92,7 +86,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (invoker == null)
 				return null;
 
-			return new CapturedTestCase (new CapturedTestInvoker (name, invoker));
+			return new CapturedTestCase (name, invoker);
 		}
 
 		static TestInvoker CaptureContext (TestName name, TestInstance instance, TestInvoker invoker)

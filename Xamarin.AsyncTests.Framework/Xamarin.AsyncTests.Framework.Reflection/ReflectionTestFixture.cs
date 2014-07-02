@@ -108,7 +108,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			internal override TestInstance CreateInstance (TestInstance parent)
 			{
 				var instance = Activator.CreateInstance (Fixture.Type.AsType ());
-				return new FixtureTestInstance (this, instance);
+				return new FixtureTestInstance (this, instance, parent);
 			}
 		}
 	}

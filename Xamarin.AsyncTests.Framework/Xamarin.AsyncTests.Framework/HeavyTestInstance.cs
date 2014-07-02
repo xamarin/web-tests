@@ -56,6 +56,13 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			return Host;
 		}
+
+		protected override void GetTestName (TestNameBuilder builder)
+		{
+			base.GetTestName (builder);
+			if (Host.Name != null)
+				builder.PushParameter (Host.Name, Current, (Host.Flags & TestFlags.Hidden) != 0);
+		}
 	}
 }
 

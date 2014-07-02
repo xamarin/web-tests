@@ -108,7 +108,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		public Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			ctx.OnTestRunning (ctx.GetCurrentTestName ());
+			ctx.OnTestRunning (TestInstance.GetTestName (instance));
 
 			if (ExpectedExceptionType != null)
 				return ExpectingException (ctx, instance, result, ExpectedExceptionType, cancellationToken);
@@ -144,6 +144,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					continue;
 				}
 
+				var namedInstance = instance as NamedTestInstance;
+				if (namedInstance != null) {
+					instance = instance.Parent;
+					continue;
+				}
+
 				var parameterizedInstance = instance as ParameterizedTestInstance;
 				if (parameterizedInstance == null)
 					throw new InvalidOperationException ();
@@ -162,7 +168,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				var capturedHost = host as CapturedTestHost;
 				if (capturedHost != null)
 					host = capturedHost.Parent;
-				if (!(host is RepeatedTestHost || host is ReflectionPropertyHost))
+				if (!(host is RepeatedTestHost || host is ReflectionPropertyHost || host is NamedTestHost))
 					throw new InvalidOperationException ();
 				instance = instance.Parent;
 			}
