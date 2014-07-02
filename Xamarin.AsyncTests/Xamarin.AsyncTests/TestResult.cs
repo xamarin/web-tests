@@ -155,6 +155,7 @@ namespace Xamarin.AsyncTests
 		{
 			children.Clear ();
 			messages.Clear ();
+			Status = TestStatus.None;
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;

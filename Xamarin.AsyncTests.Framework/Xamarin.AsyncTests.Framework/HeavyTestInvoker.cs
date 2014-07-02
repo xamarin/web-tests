@@ -81,7 +81,6 @@ namespace Xamarin.AsyncTests.Framework
 
 			try {
 				ctx.CurrentTestName.PushName ("TearDown");
-				cancellationToken.ThrowIfCancellationRequested ();
 				await instance.Destroy (ctx, cancellationToken);
 				return true;
 			} catch (OperationCanceledException) {

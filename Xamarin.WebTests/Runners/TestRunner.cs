@@ -94,19 +94,7 @@ namespace Xamarin.WebTests.Runners
 
 		public abstract Task Start (CancellationToken cancellationToken);
 
-		[Obsolete]
-		public void Start ()
-		{
-			Task.Run (() => Start (CancellationToken.None));
-		}
-
 		public abstract Task Stop (CancellationToken cancellationToken);
-
-		[Obsolete]
-		public void Stop ()
-		{
-			Task.Run (() => Stop (CancellationToken.None));
-		}
 
 		protected abstract HttpWebRequest CreateRequest (Handler handler);
 

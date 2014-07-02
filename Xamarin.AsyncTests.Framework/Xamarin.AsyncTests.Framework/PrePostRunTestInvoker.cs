@@ -75,7 +75,6 @@ namespace Xamarin.AsyncTests.Framework
 			try {
 				ctx.CurrentTestName.PushName ("PostName");
 				for (var current = instance; current != null; current = current.Parent) {
-					cancellationToken.ThrowIfCancellationRequested ();
 					var heavy = current as HeavyTestInstance;
 					if (heavy != null)
 						await heavy.PostRun (ctx, cancellationToken);

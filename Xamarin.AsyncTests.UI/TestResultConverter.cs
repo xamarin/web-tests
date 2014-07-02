@@ -90,6 +90,10 @@ namespace Xamarin.AsyncTests.UI
 				return Color.Red;
 			case TestStatus.Success:
 				return Color.Green;
+			case TestStatus.Canceled:
+				return Color.Blue;
+			case TestStatus.Ignored:
+				return Color.Gray;
 			default:
 				return Color.Black;
 			}
