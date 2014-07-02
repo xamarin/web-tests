@@ -48,15 +48,18 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public override async Task<bool> Invoke (
-			TestContext context, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			if (!Filter.Filter (context)) {
+			if (!Filter.Filter (ctx)) {
 				if (result.Status == TestStatus.None)
 					result.Status = TestStatus.Ignored;
+				else
+					result.Status = TestStatus.Canceled;
+				ctx.OnTestIgnored (result);
 				return true;
 			}
 
-			return await Inner.Invoke (context, instance, result, cancellationToken);
+			return await Inner.Invoke (ctx, instance, result, cancellationToken);
 		}
 	}
 }

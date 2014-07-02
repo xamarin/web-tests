@@ -103,6 +103,7 @@ namespace Xamarin.AsyncTests
 		int countTests;
 		int countSuccess;
 		int countErrors;
+		int countIgnored;
 
 		public int CountTests {
 			get { return countTests; }
@@ -116,14 +117,24 @@ namespace Xamarin.AsyncTests
 			get { return countErrors; }
 		}
 
+		public int CountIgnored {
+			get { return countIgnored; }
+		}
+
 		public virtual void ResetStatistics ()
 		{
-			countTests = countSuccess = countErrors = 0;
+			countTests = countSuccess = countErrors = countIgnored = 0;
 		}
 
 		public virtual void OnTestRunning (TestName name)
 		{
 			countTests++;
+		}
+
+		public virtual void OnTestIgnored (TestResult result)
+		{
+			countIgnored++;
+			OnTestFinished (result);
 		}
 
 		public virtual void OnTestPassed (TestResult result)

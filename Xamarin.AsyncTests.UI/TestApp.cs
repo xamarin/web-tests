@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Text;
 using System.ComponentModel;
 using System.Reflection;
 using System.Collections.Generic;
@@ -189,7 +190,13 @@ namespace Xamarin.AsyncTests.UI
 
 		void OnTestFinished (TestResult result)
 		{
-			StatusMessage = string.Format ("{0} tests passed, {1} errors.", Context.CountSuccess, Context.CountErrors);
+			var sb = new StringBuilder ();
+			sb.AppendFormat ("{0} tests passed", Context.CountSuccess);
+			if (Context.CountErrors > 0)
+				sb.AppendFormat (", {0} errors", Context.CountErrors);
+			if (Context.CountIgnored > 0)
+				sb.AppendFormat (", {0} ignored", Context.CountIgnored);
+			StatusMessage = sb.ToString ();
 		}
 	}
 }
