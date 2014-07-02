@@ -9,8 +9,6 @@
 
         <local:TestRunnerControl BindingContext="{Binding RootTestRunner}" />
 
-        <Label Text="{Binding StatusMessage}" HorizontalOptions="FillAndExpand" />
-
         <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
             <local:TestResultView BindingContext="{Binding RootTestResult}" />
         </ScrollView>

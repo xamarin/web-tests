@@ -58,7 +58,7 @@ namespace Xamarin.AsyncTests.UI
 		{
 			var model = (TestRunnerModel)BindingContext;
 			model.ResultModel.Result.Clear ();
-			model.App.Context.ResetStatistics ();
+			model.App.Clear ();
 		}
 
 		async void OnOptions (object sender, EventArgs args)

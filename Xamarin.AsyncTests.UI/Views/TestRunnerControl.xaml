@@ -14,7 +14,7 @@
             <Button Text="Options" Clicked="OnOptions" />
         </StackLayout>
 
-        <Label Text="{Binding StatusMessage}" VerticalOptions="End" />
+        <Label Text="{Binding App.StatusMessage}" VerticalOptions="End" />
 
     </StackLayout>
 

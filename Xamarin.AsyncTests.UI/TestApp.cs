@@ -160,6 +160,7 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		CancellationTokenSource cancelCts;
+		string message;
 
 		internal async void Run (bool repeat)
 		{
@@ -172,9 +173,17 @@ namespace Xamarin.AsyncTests.UI
 			Context.ResetStatistics ();
 
 			try {
+				message = "Running";
+				StatusMessage = GetStatusMessage ();
 				await CurrentTestRunner.Run (repeat, cancelCts.Token);
+				message = "Done";
+			} catch (OperationCanceledException) {
+				message = "Canceled!";
+			} catch (Exception ex) {
+				message = string.Format ("ERROR: {0}", ex.Message);
 			} finally {
 				IsRunning = false;
+				StatusMessage = GetStatusMessage ();
 				cancelCts.Dispose ();
 				cancelCts = null;
 			}
@@ -190,13 +199,29 @@ namespace Xamarin.AsyncTests.UI
 
 		void OnTestFinished (TestResult result)
 		{
+			StatusMessage = GetStatusMessage ();
+		}
+
+		internal void Clear ()
+		{
+			Context.ResetStatistics ();
+			message = null;
+			StatusMessage = GetStatusMessage ();
+		}
+
+		string GetStatusMessage ()
+		{
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("{0} tests passed", Context.CountSuccess);
 			if (Context.CountErrors > 0)
 				sb.AppendFormat (", {0} errors", Context.CountErrors);
 			if (Context.CountIgnored > 0)
 				sb.AppendFormat (", {0} ignored", Context.CountIgnored);
-			StatusMessage = sb.ToString ();
+
+			if (message != null)
+				return string.Format ("{0} ({1})", message, sb);
+			else
+				return sb.ToString ();
 		}
 	}
 }
