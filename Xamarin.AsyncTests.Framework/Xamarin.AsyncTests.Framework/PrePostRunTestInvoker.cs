@@ -59,8 +59,7 @@ namespace Xamarin.AsyncTests.Framework
 				result.Status = TestStatus.Canceled;
 				return false;
 			} catch (Exception ex) {
-				var error = ctx.CreateTestResult (ex);
-				result.AddChild (error);
+				result.Error = ex;
 				return false;
 			} finally {
 				ctx.CurrentTestName.PopName ();
@@ -84,8 +83,7 @@ namespace Xamarin.AsyncTests.Framework
 				result.Status = TestStatus.Canceled;
 				return false;
 			} catch (Exception ex) {
-				var error = ctx.CreateTestResult (ex);
-				result.AddChild (error);
+				result.Error = ex;
 				return false;
 			} finally {
 				ctx.CurrentTestName.PopName ();

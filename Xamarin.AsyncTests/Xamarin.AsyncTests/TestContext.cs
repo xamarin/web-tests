@@ -94,16 +94,6 @@ namespace Xamarin.AsyncTests
 			return CurrentTestName.GetName ();
 		}
 
-		public TestResult CreateTestResult (TestStatus status, string message = null)
-		{
-			return new TestResult (GetCurrentTestName (), status, message);
-		}
-
-		public TestResult CreateTestResult (Exception error, string message = null)
-		{
-			return new TestResult (GetCurrentTestName (), error, message);
-		}
-
 		public TestConfiguration Configuration {
 			get { return configuration; }
 		}

@@ -85,8 +85,13 @@ namespace Xamarin.AsyncTests.Framework
 				result.Status = TestStatus.Canceled;
 				return false;
 			} catch (Exception ex) {
-				var error = ctx.CreateTestResult (ex);
-				result.AddChild (error);
+				if (ContinueOnError) {
+					var error = new TestResult (ctx.GetCurrentTestName (), ex);
+					result.AddChild (error);
+					result.Status = TestStatus.Error;
+				} else {
+					result.Error = ex;
+				}
 				return ContinueOnError;
 			}
 		}
