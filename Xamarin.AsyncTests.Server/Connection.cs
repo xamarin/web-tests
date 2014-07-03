@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Text;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -79,7 +80,7 @@ namespace Xamarin.AsyncTests.Server
 			var command = new SyncConfigurationCommand {
 				Configuration = configuration, FullUpdate = fullUpdate
 			};
-			await SendCommand (command);
+			await SendWithResponse (command);
 		}
 
 		#endregion
@@ -117,6 +118,14 @@ namespace Xamarin.AsyncTests.Server
 			SendCommand (command).Wait ();
 		}
 
+		internal async Task<bool> SendWithResponse (CommandWithResponse command)
+		{
+			var operation = RegisterResponse ();
+			command.ResponseID = operation.ObjectID;
+			await SendCommand (command).ConfigureAwait (false);
+			return await operation.Task.Task;
+		}
+
 		internal static void Debug (string message, params object[] args)
 		{
 			System.Diagnostics.Debug.WriteLine (message, args);
@@ -147,26 +156,43 @@ namespace Xamarin.AsyncTests.Server
 				var content = new UTF8Encoding ().GetString (body, 0, body.Length);
 
 				cancelCts.Token.ThrowIfCancellationRequested ();
-				await HandleCommand (content);
+				HandleCommand (content);
 			}
 		}
 
-		async Task HandleCommand (string formatted)
+		async void HandleCommand (string formatted)
 		{
 			var command = serializer.ReadCommand (formatted);
 
 			cancelCts.Token.ThrowIfCancellationRequested ();
 
-			var commonCommand = command as ICommonCommand;
-			if (commonCommand != null) {
-				await commonCommand.Run (this, cancelCts.Token);
-				return;
+			bool success;
+			string error = null;
+
+			try {
+				var commonCommand = command as ICommonCommand;
+				if (commonCommand != null)
+					await commonCommand.Run (this, cancelCts.Token);
+				else
+					await HandleCommand (command, cancelCts.Token);
+				success = true;
+			} catch (Exception ex) {
+				error = ex.ToString ();
+				success = false;
 			}
 
-			await Run (command, cancelCts.Token);
+			var withResponse = command as CommandWithResponse;
+			if (withResponse == null || withResponse.ResponseID == 0)
+				return;
+
+			var response = new ResponseCommand {
+				ObjectID = withResponse.ResponseID, Success = success, Error = error
+			};
+
+			await SendCommand (response);
 		}
 
-		internal abstract Task Run (Command command, CancellationToken cancellationToken);
+		internal abstract Task HandleCommand (Command command, CancellationToken cancellationToken);
 
 		internal Task Run (MessageCommand command, CancellationToken cancellationToken)
 		{
@@ -207,6 +233,44 @@ namespace Xamarin.AsyncTests.Server
 		protected long GetNextObjectId ()
 		{
 			return ++next_id;
+		}
+
+		Dictionary<long,Operation> operations = new Dictionary<long, Operation> ();
+
+		internal Operation RegisterResponse ()
+		{
+			lock (this) {
+				var objectID = GetNextObjectId ();
+				var operation = new Operation (objectID);
+				operations.Add (objectID, operation);
+				return operation;
+			}
+		}
+
+		internal Task Run (ResponseCommand command, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => {
+				lock (this) {
+					var operation = operations [command.ObjectID];
+					operations.Remove (operation.ObjectID);
+					if (command.Error != null)
+						operation.Task.SetException (new SavedException (command.Error));
+					else
+						operation.Task.SetResult (command.Success);
+				}
+			});
+		}
+
+		internal class Operation
+		{
+			public readonly long ObjectID;
+			public TaskCompletionSource<bool> Task;
+
+			public Operation (long objectID)
+			{
+				ObjectID = objectID;
+				Task = new TaskCompletionSource<bool> ();
+			}
 		}
 	}
 }

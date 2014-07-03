@@ -61,8 +61,10 @@ namespace Xamarin.AsyncTests.Client
 		{
 			var assembly = typeof(Xamarin.WebTests.WebTestFeatures).Assembly;
 			var suite = await TestSuite.LoadAssembly (assembly);
-			if (suite.Configuration != null)
+			if (suite.Configuration != null) {
 				context.Configuration.AddTestSuite (suite.Configuration);
+				await SyncConfiguration (context.Configuration, true);
+			}
 			return suite;
 		}
 
@@ -76,8 +78,9 @@ namespace Xamarin.AsyncTests.Client
 			await Message ("Hello World");
 
 			var suite = await Load ();
+			Debug ("TestSuite loaded: {0}", suite.Name);
 			await TestSuiteLoaded (suite, CancellationToken.None);
-			await SyncConfiguration (context.Configuration, true);
+			Debug ("Two-way handshake complete!");
 		}
 
 		public async Task<TestResult> RunTest (TestSuite suite)
@@ -113,6 +116,7 @@ namespace Xamarin.AsyncTests.Client
 
 		protected override void OnSyncConfiguration (TestConfiguration configuration, bool fullUpdate)
 		{
+			Debug ("SYNC CONFIG: {0}", fullUpdate);
 			Context.Configuration.Merge (configuration, fullUpdate);
 		}
 

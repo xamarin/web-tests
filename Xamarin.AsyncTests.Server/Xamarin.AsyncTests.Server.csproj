@@ -52,6 +52,8 @@
     <Compile Include="SyncConfigurationCommand.cs" />
     <Compile Include="RemoteTestSuite.cs" />
     <Compile Include="TestSuiteLoadedCommand.cs" />
+    <Compile Include="ResponseCommand.cs" />
+    <Compile Include="CommandWithResponse.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

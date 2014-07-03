@@ -1,5 +1,5 @@
 ﻿//
-// SyncConfigurationCommand.cs
+// CommandWithResponse.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -30,34 +30,22 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class SyncConfigurationCommand : CommandWithResponse, ICommonCommand
+	abstract class CommandWithResponse : Command
 	{
-		public TestConfiguration Configuration {
-			get; set;
-		}
-
-		public bool FullUpdate {
+		public long ResponseID {
 			get; set;
 		}
 
 		public override void ReadXml (Serializer serializer, XmlReader reader)
 		{
+			ResponseID = long.Parse (reader.GetAttribute ("ResponseID"));
 			base.ReadXml (serializer, reader);
-			FullUpdate = bool.Parse (reader.GetAttribute ("FullUpdate"));
-			var subReader = reader.ReadSubtree ();
-			Configuration = serializer.ReadConfiguration (subReader);
 		}
 
 		public override void WriteXml (Serializer serializer, XmlWriter writer)
 		{
+			writer.WriteAttributeString ("ResponseID", ResponseID.ToString ());
 			base.WriteXml (serializer, writer);
-			writer.WriteAttributeString ("FullUpdate", FullUpdate.ToString ());
-			serializer.Write (writer, Configuration);
-		}
-
-		public Task Run (Connection connection, CancellationToken cancellationToken)
-		{
-			return connection.Run (this, cancellationToken);
 		}
 	}
 }

@@ -56,7 +56,7 @@ namespace Xamarin.AsyncTests.Server
 		public async Task TestSuiteLoaded (TestSuite suite, CancellationToken cancellationToken)
 		{
 			var command = new TestSuiteLoadedCommand { TestSuite = suite };
-			await SendCommand (command);
+			await SendWithResponse (command);
 		}
 
 		#endregion
@@ -64,7 +64,7 @@ namespace Xamarin.AsyncTests.Server
 		CancellationTokenSource remoteCts;
 		long remoteID;
 
-		internal override Task Run (Command command, CancellationToken cancellationToken)
+		internal override Task HandleCommand (Command command, CancellationToken cancellationToken)
 		{
 			var clientCommand = command as IClientCommand;
 			if (clientCommand == null)

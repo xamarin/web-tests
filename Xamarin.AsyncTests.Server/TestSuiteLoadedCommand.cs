@@ -32,7 +32,7 @@ namespace Xamarin.AsyncTests.Server
 {
 	using Framework;
 
-	class TestSuiteLoadedCommand : Command, IServerCommand
+	class TestSuiteLoadedCommand : CommandWithResponse, IServerCommand
 	{
 		public TestSuite TestSuite {
 			get; set;

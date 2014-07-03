@@ -159,17 +159,16 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		protected override Task OnTestSuiteLoaded (TestSuite suite)
+		protected override async Task OnTestSuiteLoaded (TestSuite suite)
 		{
-			return Task.Run (() => {
-				lock (this) {
-					if (startTcs == null)
-						throw new InvalidOperationException ();
-					var tcs = startTcs;
-					startTcs = null;
-					tcs.SetResult (suite);
-				}
-			});
+			await SyncConfiguration (Context.Configuration, false);
+			lock (this) {
+				if (startTcs == null)
+					throw new InvalidOperationException ();
+				var tcs = startTcs;
+				startTcs = null;
+				tcs.SetResult (suite);
+			}
 		}
 
 		#endregion
