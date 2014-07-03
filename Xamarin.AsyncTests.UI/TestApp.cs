@@ -164,19 +164,13 @@ namespace Xamarin.AsyncTests.UI
 			OptionsPage = new OptionsPage (Options);
 		}
 
+		CancellationTokenSource serverCts;
 		IServerConnection connection;
 		TestServer server;
 
 		internal async Task LoadAssembly (CancellationToken cancellationToken)
 		{
-			if (server != null) {
-				await server.Stop (cancellationToken);
-				server = null;
-			}
-			if (connection != null) {
-				await connection.Close (cancellationToken);
-				connection = null;
-			}
+			StopServer ();
 
 			RootTestResult.Result.Clear ();
 			Clear ();
@@ -191,26 +185,56 @@ namespace Xamarin.AsyncTests.UI
 			OnPropertyChanged ("CanLoad");
 		}
 
-		internal async Task StartServer (CancellationToken cancellationToken)
+		internal async Task StartServer ()
 		{
-			if (connection != null)
-				return;
+			CancellationToken token;
+			lock (this) {
+				if (serverCts != null)
+					return;
+				serverCts = new CancellationTokenSource ();
+				token = serverCts.Token;
+			}
 
-			connection = await ServerHost.Start (cancellationToken);
-			StatusMessage = "Started server!";
-			OnPropertyChanged ("CanLoad");
+			try {
+				connection = await ServerHost.Start (token);
+				OnPropertyChanged ("CanLoad");
+				StatusMessage = "Started server!";
+
+				var stream = await connection.Open (token).ConfigureAwait (false);
+				server = new TestServer (this, stream, connection);
+				StatusMessage = "Got remote connection!";
+				await server.Run ();
+			} catch (OperationCanceledException) {
+				return;
+			} catch (Exception ex) {
+				Context.Log ("SERVER ERROR: {0}", ex);
+			} finally {
+				StopServer ();
+			}
 		}
 
-		internal async Task ClearAll (CancellationToken cancellationToken)
+		void StopServer ()
 		{
+			lock (this) {
+				if (serverCts != null) {
+					serverCts.Cancel ();
+					serverCts.Dispose ();
+				}
+				serverCts = null;
+			}
 			if (server != null) {
-				await server.Stop (cancellationToken);
+				server.Stop ();
 				server = null;
 			}
 			if (connection != null) {
-				await connection.Close (cancellationToken);
+				connection.Close ();
 				connection = null;
 			}
+		}
+
+		internal void ClearAll ()
+		{
+			StopServer ();
 			RootTestResult.Result.Clear ();
 			CurrentTestRunner = RootTestRunner;
 			TestSuite = null;

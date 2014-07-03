@@ -34,7 +34,7 @@ namespace Xamarin.AsyncTests.UI
 	{
 		Task<Stream> Open (CancellationToken cancellationToken);
 
-		Task Close (CancellationToken cancellationToken);
+		void Close ();
 	}
 }
 

@@ -80,7 +80,7 @@ namespace Xamarin.AsyncTests.Server
 			get { return serializer; }
 		}
 
-		protected void Stop ()
+		public virtual void Stop ()
 		{
 			cancelCts.Cancel ();
 		}

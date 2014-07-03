@@ -50,21 +50,11 @@ namespace Xamarin.AsyncTests.UI
 
 		TaskCompletionSource<bool> tcs;
 
-		TestServer (TestApp app, Stream stream, IServerConnection connection)
+		public TestServer (TestApp app, Stream stream, IServerConnection connection)
 			: base (stream)
 		{
 			App = app;
 			Connection = connection;
-		}
-
-		public static async Task<TestServer> Start (TestApp app, CancellationToken cancellationToken)
-		{
-			if (app.ServerHost == null)
-				return null;
-
-			var connection = await app.ServerHost.Start (cancellationToken);
-			var stream = await connection.Open (cancellationToken);
-			return new TestServer (app, stream, connection);
 		}
 
 		public Task Run ()
@@ -80,16 +70,11 @@ namespace Xamarin.AsyncTests.UI
 			return tcs.Task;
 		}
 
-		public async Task Stop (CancellationToken cancellationToken)
+		public override void Stop ()
 		{
 			base.Stop ();
 			try {
-				await tcs.Task;
-			} catch {
-				;
-			}
-			try {
-				await Connection.Close (cancellationToken);
+				Connection.Close ();
 			} catch {
 				;
 			}

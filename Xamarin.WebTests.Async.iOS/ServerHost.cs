@@ -68,7 +68,7 @@ namespace Xamarin.WebTests.Async.iOS
 				return stream;
 			}
 
-			public Task Close (CancellationToken cancellationToken)
+			public void Close ()
 			{
 				try {
 					if (socket != null) {
@@ -92,7 +92,6 @@ namespace Xamarin.WebTests.Async.iOS
 				} catch {
 					;
 				}
-				return Task.FromResult<object> (null);
 			}
 		}
 	}

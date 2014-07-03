@@ -54,9 +54,9 @@ namespace Xamarin.AsyncTests.UI
 			Appearing += (sender, e) => App.CurrentTestRunner = App.RootTestRunner;
 		}
 
-		async void OnClear (object sender, EventArgs args)
+		void OnClear (object sender, EventArgs args)
 		{
-			await App.ClearAll (CancellationToken.None);
+			App.ClearAll ();
 		}
 
 		async void OnOptions (object sender, EventArgs args)
@@ -71,7 +71,7 @@ namespace Xamarin.AsyncTests.UI
 
 		async void OnStartServer (object sender, EventArgs args)
 		{
-			await App.StartServer (CancellationToken.None);
+			await App.StartServer ();
 		}
 	}
 }
