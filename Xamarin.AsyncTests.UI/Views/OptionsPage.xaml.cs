@@ -59,6 +59,9 @@ namespace Xamarin.AsyncTests.UI
 			Picker.SelectedIndexChanged += (sender, e) => {
 				Model.Categories.SelectedIndex = Picker.SelectedIndex;
 			};
+
+			// FIXME: If we do this as a callback, then the app will crash.
+			LoadConfiguration ();
 		}
 
 		void Load (object sender, PropertyChangedEventArgs args)
@@ -77,33 +80,12 @@ namespace Xamarin.AsyncTests.UI
 
 		void LoadConfiguration ()
 		{
-			// FIXME: can we also do this with data binding somehow?
+			// FIXME: Can we also do this with data binding somehow?
 			Picker.BatchBegin ();
-			Picker.SelectedIndex = -1;
-			Picker.Items.Clear ();
 			foreach (var category in Model.Categories.Categories)
 				Picker.Items.Add (category.Name);
 			Picker.SelectedIndex = Model.Categories.SelectedIndex;
 			Picker.BatchCommit ();
-		}
-
-		protected override void OnAppearing ()
-		{
-			Picker.BatchBegin ();
-			Model.Categories.PropertyChanged += Load;
-			LoadConfiguration ();
-			Picker.BatchCommit ();
-			base.OnAppearing ();
-		}
-
-		protected override void OnDisappearing ()
-		{
-			Picker.BatchBegin ();
-			Model.Categories.PropertyChanged -= Load;
-			Picker.SelectedIndex = -1;
-			Picker.Items.Clear ();
-			Picker.BatchCommit ();
-			base.OnDisappearing ();
 		}
 	}
 }

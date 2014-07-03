@@ -61,7 +61,7 @@ namespace Xamarin.AsyncTests.UI
 
 		async void OnOptions (object sender, EventArgs args)
 		{
-			await Navigation.PushAsync (App.OptionsPage);
+			await Navigation.PushAsync (App.GetOptionsPage ());
 		}
 
 		async void OnLoad (object sender, EventArgs args)

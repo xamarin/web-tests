@@ -64,7 +64,7 @@ namespace Xamarin.AsyncTests.UI
 		async void OnOptions (object sender, EventArgs args)
 		{
 			var model = (TestRunnerModel)BindingContext;
-			await Navigation.PushAsync (model.App.OptionsPage);
+			await Navigation.PushAsync (model.App.GetOptionsPage ());
 		}
 	}
 }

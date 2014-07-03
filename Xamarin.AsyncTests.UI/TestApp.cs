@@ -139,11 +139,6 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public OptionsPage OptionsPage {
-			get;
-			private set;
-		}
-
 		public TestApp (ISettingsHost settings, IServerHost server, Assembly assembly)
 		{
 			SettingsHost = settings;
@@ -161,7 +156,11 @@ namespace Xamarin.AsyncTests.UI
 			Root = new NavigationPage (MainPage);
 
 			Options = new OptionsModel (this, Context.Configuration);
-			OptionsPage = new OptionsPage (Options);
+		}
+
+		public OptionsPage GetOptionsPage ()
+		{
+			return new OptionsPage (Options);
 		}
 
 		CancellationTokenSource serverCts;
