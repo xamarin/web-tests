@@ -14,7 +14,7 @@
             <Button Text="Options" Clicked="OnOptions" />
         </StackLayout>
 
-        <Label Text="{Binding StatusMessage}" VerticalOptions="End" />
+        <local:TestRunnerControl BindingContext="{Binding RootTestRunner}" />
 
         <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
             <local:TestResultView BindingContext="{Binding RootTestResult}" />

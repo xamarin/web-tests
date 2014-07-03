@@ -70,21 +70,12 @@ namespace Xamarin.AsyncTests.UI
 			InitializeComponent ();
 
 			BindingContext = TestRunner;
-
-			Appearing += (sender, e) => App.CurrentTestRunner = TestRunner;
 		}
 
-		static int countReruns;
-
-		async void Run ()
+		protected override void OnAppearing ()
 		{
-			var name = new TestNameBuilder ();
-			name.PushName ("UI-Rerun");
-			name.PushParameter ("$uiTriggeredRerun", ++countReruns);
-
-			var proxyTest = TestSuite.CreateProxy (Result.Test, name.GetName ());
-
-			await proxyTest.Run (App.Context, Result, CancellationToken.None);
+			App.CurrentTestRunner = TestRunner;
+			base.OnAppearing ();
 		}
 	}
 }

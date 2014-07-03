@@ -182,6 +182,7 @@ namespace Xamarin.AsyncTests.UI
 				Context.Configuration.AddTestSuite (TestSuite.Configuration);
 			StatusMessage = string.Format ("Successfully loaded {0}.", name);
 			OnPropertyChanged ("CanLoad");
+			OnPropertyChanged ("CanRun");
 		}
 
 		internal async Task StartServer ()

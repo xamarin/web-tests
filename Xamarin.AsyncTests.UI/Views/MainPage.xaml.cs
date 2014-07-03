@@ -50,8 +50,12 @@ namespace Xamarin.AsyncTests.UI
 			InitializeComponent ();
 
 			BindingContext = app;
+		}
 
-			Appearing += (sender, e) => App.CurrentTestRunner = App.RootTestRunner;
+		protected override void OnAppearing ()
+		{
+			App.CurrentTestRunner = App.RootTestRunner;
+			base.OnAppearing ();
 		}
 
 		void OnClear (object sender, EventArgs args)

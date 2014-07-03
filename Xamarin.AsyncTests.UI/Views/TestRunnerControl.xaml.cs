@@ -60,12 +60,6 @@ namespace Xamarin.AsyncTests.UI
 			model.ResultModel.Result.Clear ();
 			model.App.Clear ();
 		}
-
-		async void OnOptions (object sender, EventArgs args)
-		{
-			var model = (TestRunnerModel)BindingContext;
-			await Navigation.PushAsync (model.App.GetOptionsPage ());
-		}
 	}
 }
 
