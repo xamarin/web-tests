@@ -237,6 +237,7 @@ namespace Xamarin.AsyncTests.UI
 			StopServer ();
 			RootTestResult.Result.Clear ();
 			CurrentTestRunner = RootTestRunner;
+			Context.Configuration.Clear ();
 			TestSuite = null;
 			Clear ();
 		}

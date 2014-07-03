@@ -59,29 +59,51 @@ namespace Xamarin.AsyncTests.UI
 			Picker.SelectedIndexChanged += (sender, e) => {
 				Model.Categories.SelectedIndex = Picker.SelectedIndex;
 			};
-
-			Model.Categories.PropertyChanged += Load;
 		}
 
 		void Load (object sender, PropertyChangedEventArgs args)
 		{
+			BatchBegin ();
 			switch (args.PropertyName) {
 			case "SelectedItem":
 				Picker.SelectedIndex = Model.Categories.SelectedIndex;
 				break;
 			case "Configuration":
-				Load ();
+				LoadConfiguration ();
 				break;
 			}
+			BatchCommit ();
 		}
 
-		void Load ()
+		void LoadConfiguration ()
 		{
 			// FIXME: can we also do this with data binding somehow?
+			Picker.BatchBegin ();
+			Picker.SelectedIndex = -1;
 			Picker.Items.Clear ();
 			foreach (var category in Model.Categories.Categories)
 				Picker.Items.Add (category.Name);
 			Picker.SelectedIndex = Model.Categories.SelectedIndex;
+			Picker.BatchCommit ();
+		}
+
+		protected override void OnAppearing ()
+		{
+			Picker.BatchBegin ();
+			Model.Categories.PropertyChanged += Load;
+			LoadConfiguration ();
+			Picker.BatchCommit ();
+			base.OnAppearing ();
+		}
+
+		protected override void OnDisappearing ()
+		{
+			Picker.BatchBegin ();
+			Model.Categories.PropertyChanged -= Load;
+			Picker.SelectedIndex = -1;
+			Picker.Items.Clear ();
+			Picker.BatchCommit ();
+			base.OnDisappearing ();
 		}
 	}
 }

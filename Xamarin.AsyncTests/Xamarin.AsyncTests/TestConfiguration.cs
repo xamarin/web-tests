@@ -63,6 +63,16 @@ namespace Xamarin.AsyncTests
 			OnPropertyChanged ("CurrentCategory");
 		}
 
+		public void Clear ()
+		{
+			currentCategory = TestCategory.All;
+			categories.RemoveAll (c => c != TestCategory.All);
+			features.Clear ();
+			OnPropertyChanged ("Features");
+			OnPropertyChanged ("Categories");
+			OnPropertyChanged ("CurrentCategory");
+		}
+
 		public TestCategory CurrentCategory {
 			get { return currentCategory; }
 			set {
