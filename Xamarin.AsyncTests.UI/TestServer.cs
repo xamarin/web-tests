@@ -43,21 +43,56 @@ namespace Xamarin.AsyncTests.UI
 			get { return App.Context; }
 		}
 
-		TestServer (TestApp app, Stream stream)
+		public IServerConnection Connection {
+			get;
+			private set;
+		}
+
+		TaskCompletionSource<bool> tcs;
+
+		TestServer (TestApp app, Stream stream, IServerConnection connection)
 			: base (stream)
 		{
 			App = app;
+			Connection = connection;
 		}
 
 		public static async Task<TestServer> Start (TestApp app, CancellationToken cancellationToken)
 		{
-			if (app.Server == null)
+			if (app.ServerHost == null)
 				return null;
 
-			var stream = await app.Server.Start (cancellationToken);
-			var server = new TestServer (app, stream);
-			server.Run ();
-			return server;
+			var connection = await app.ServerHost.Start (cancellationToken);
+			var stream = await connection.Open (cancellationToken);
+			return new TestServer (app, stream, connection);
+		}
+
+		public Task Run ()
+		{
+			lock (this) {
+				if (tcs != null)
+					throw new InvalidOperationException ();
+				tcs = new TaskCompletionSource<bool> ();
+			}
+
+			Task.Factory.StartNew (() => MainLoop ());
+
+			return tcs.Task;
+		}
+
+		public async Task Stop (CancellationToken cancellationToken)
+		{
+			base.Stop ();
+			try {
+				await tcs.Task;
+			} catch {
+				;
+			}
+			try {
+				await Connection.Close (cancellationToken);
+			} catch {
+				;
+			}
 		}
 
 		void Debug (string message, params object[] args)

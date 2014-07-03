@@ -1,5 +1,5 @@
 ﻿//
-// TestFeatureModel.cs
+// IServerConnection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,50 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.Forms;
-using Xamarin.AsyncTests;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.UI
 {
-	public class TestFeatureModel : BindableObject
+	public interface IServerConnection
 	{
-		public TestApp App {
-			get;
-			private set;
-		}
+		Task<Stream> Open (CancellationToken cancellationToken);
 
-		public TestFeature Feature {
-			get;
-			private set;
-		}
-
-		public bool IsEnabled {
-			get {
-				return App.Context.Configuration.IsEnabled (Feature);
-			}
-			set {
-				if (value == IsEnabled)
-					return;
-				if (value)
-					App.Context.Configuration.Enable (Feature);
-				else
-					App.Context.Configuration.Disable (Feature);
-				if (App.SettingsHost != null)
-					App.SettingsHost.SetValue (Path, value.ToString ());
-			}
-		}
-
-		public string Path {
-			get;
-			private set;
-		}
-
-		public TestFeatureModel (TestApp app, TestFeature feature)
-		{
-			App = app;
-			Feature = feature;
-			Path = "/Feature/" + feature.Name;
-		}
+		Task Close (CancellationToken cancellationToken);
 	}
 }
 

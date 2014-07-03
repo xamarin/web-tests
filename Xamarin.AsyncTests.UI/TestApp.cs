@@ -38,6 +38,11 @@ namespace Xamarin.AsyncTests.UI
 
 	public class TestApp : INotifyPropertyChanged
 	{
+		public Assembly Assembly {
+			get;
+			private set;
+		}
+
 		public TestSuite TestSuite {
 			get;
 			private set;
@@ -85,6 +90,8 @@ namespace Xamarin.AsyncTests.UI
 				OnPropertyChanged ("CurrentTestRunner");
 				OnPropertyChanged ("CanRun");
 				OnPropertyChanged ("CanStop");
+				OnPropertyChanged ("IsStopped");
+				OnPropertyChanged ("CanLoad");
 			}
 		}
 
@@ -96,6 +103,8 @@ namespace Xamarin.AsyncTests.UI
 				OnPropertyChanged ("IsRunning");
 				OnPropertyChanged ("CanStop");
 				OnPropertyChanged ("CanRun");
+				OnPropertyChanged ("IsStopped");
+				OnPropertyChanged ("CanLoad");
 			}
 		}
 
@@ -107,7 +116,20 @@ namespace Xamarin.AsyncTests.UI
 			get { return !running && CurrentTestRunner.Test != null; }
 		}
 
-		public ISettingsHost Settings {
+		public bool IsStopped {
+			get { return !running; }
+		}
+
+		public bool CanLoad {
+			get { return !running && TestSuite == null && connection == null; }
+		}
+
+		public ISettingsHost SettingsHost {
+			get;
+			private set;
+		}
+
+		public IServerHost ServerHost {
 			get;
 			private set;
 		}
@@ -122,15 +144,11 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public IServerHost Server {
-			get;
-			private set;
-		}
-
-		public TestApp (ISettingsHost settings, IServerHost server, string name)
+		public TestApp (ISettingsHost settings, IServerHost server, Assembly assembly)
 		{
-			Settings = settings;
-			Server = server;
+			SettingsHost = settings;
+			ServerHost = server;
+			Assembly = assembly;
 
 			Context = new TestContext ();
 			Context.TestFinishedEvent += (sender, e) => OnTestFinished (e);
@@ -146,18 +164,57 @@ namespace Xamarin.AsyncTests.UI
 			OptionsPage = new OptionsPage (Options);
 		}
 
-		public async void LoadAssembly (Assembly assembly)
+		IServerConnection connection;
+		TestServer server;
+
+		internal async Task LoadAssembly (CancellationToken cancellationToken)
 		{
-			var name = assembly.GetName ().Name;
+			if (server != null) {
+				await server.Stop (cancellationToken);
+				server = null;
+			}
+			if (connection != null) {
+				await connection.Close (cancellationToken);
+				connection = null;
+			}
+
+			RootTestResult.Result.Clear ();
+			Clear ();
+
+			var name = Assembly.GetName ().Name;
 			StatusMessage = string.Format ("Loading {0}", name);
-			TestSuite = await TestSuite.LoadAssembly (assembly);
+			TestSuite = await TestSuite.LoadAssembly (Assembly);
 			RootTestResult.Result.Test = TestSuite;
 			if (TestSuite.Configuration != null)
 				Context.Configuration.AddTestSuite (TestSuite.Configuration);
 			StatusMessage = string.Format ("Successfully loaded {0}.", name);
+			OnPropertyChanged ("CanLoad");
+		}
 
-			if (Server != null)
-				await TestServer.Start (this, CancellationToken.None);
+		internal async Task StartServer (CancellationToken cancellationToken)
+		{
+			if (connection != null)
+				return;
+
+			connection = await ServerHost.Start (cancellationToken);
+			StatusMessage = "Started server!";
+			OnPropertyChanged ("CanLoad");
+		}
+
+		internal async Task ClearAll (CancellationToken cancellationToken)
+		{
+			if (server != null) {
+				await server.Stop (cancellationToken);
+				server = null;
+			}
+			if (connection != null) {
+				await connection.Close (cancellationToken);
+				connection = null;
+			}
+			RootTestResult.Result.Clear ();
+			CurrentTestRunner = RootTestRunner;
+			TestSuite = null;
+			Clear ();
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -216,10 +273,13 @@ namespace Xamarin.AsyncTests.UI
 			Context.ResetStatistics ();
 			message = null;
 			StatusMessage = GetStatusMessage ();
+			OnPropertyChanged ("CanLoad");
 		}
 
 		string GetStatusMessage ()
 		{
+			if (TestSuite == null)
+				return "No test loaded.";
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("{0} tests passed", Context.CountSuccess);
 			if (Context.CountErrors > 0)

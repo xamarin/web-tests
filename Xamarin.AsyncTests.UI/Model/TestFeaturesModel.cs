@@ -69,12 +69,12 @@ namespace Xamarin.AsyncTests.UI
 
 		void LoadSettings ()
 		{
-			if (App.Settings == null)
+			if (App.SettingsHost == null)
 				return;
 			foreach (var feature in features) {
 				if (!feature.Feature.CanModify)
 					continue;
-				var value = App.Settings.GetValue (feature.Path);
+				var value = App.SettingsHost.GetValue (feature.Path);
 				if (value != null)
 					feature.IsEnabled = bool.Parse (value);
 			}

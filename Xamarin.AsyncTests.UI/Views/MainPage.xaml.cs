@@ -43,18 +43,6 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestResult Result {
-			get { return Model.Result; }
-		}
-
-		public TestResultModel Model {
-			get { return TestRunner.ResultModel; }
-		}
-
-		public TestRunnerModel TestRunner {
-			get { return App.RootTestRunner; }
-		}
-
 		public MainPage (TestApp app)
 		{
 			App = app;
@@ -64,6 +52,26 @@ namespace Xamarin.AsyncTests.UI
 			BindingContext = app;
 
 			Appearing += (sender, e) => App.CurrentTestRunner = App.RootTestRunner;
+		}
+
+		async void OnClear (object sender, EventArgs args)
+		{
+			await App.ClearAll (CancellationToken.None);
+		}
+
+		async void OnOptions (object sender, EventArgs args)
+		{
+			await Navigation.PushAsync (App.OptionsPage);
+		}
+
+		async void OnLoad (object sender, EventArgs args)
+		{
+			await App.LoadAssembly (CancellationToken.None);
+		}
+
+		async void OnStartServer (object sender, EventArgs args)
+		{
+			await App.StartServer (CancellationToken.None);
 		}
 	}
 }

@@ -156,6 +156,7 @@ namespace Xamarin.AsyncTests
 			children.Clear ();
 			messages.Clear ();
 			Status = TestStatus.None;
+			Test = null;
 		}
 
 		public void MergeStatus (TestStatus child)

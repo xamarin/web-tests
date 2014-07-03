@@ -98,16 +98,16 @@ namespace Xamarin.AsyncTests.UI
 
 		void LoadSettings ()
 		{
-			if (App.Settings == null)
+			if (App.SettingsHost == null)
 				return;
 
-			var repeatCountValue = App.Settings.GetValue ("RepeatCount");
+			var repeatCountValue = App.SettingsHost.GetValue ("RepeatCount");
 			if (repeatCountValue != null) {
 				repeatCount = int.Parse (repeatCountValue);
 				repeatCountEntry = repeatCount.ToString ();
 			}
 
-			var repeatValue = App.Settings.GetValue ("Repeat");
+			var repeatValue = App.SettingsHost.GetValue ("Repeat");
 			if (repeatValue != null)
 				repeat = bool.Parse (repeatValue);
 
@@ -118,11 +118,11 @@ namespace Xamarin.AsyncTests.UI
 
 		void SaveSettings ()
 		{
-			if (App.Settings == null)
+			if (App.SettingsHost == null)
 				return;
 
-			App.Settings.SetValue ("RepeatCount", RepeatCount.ToString ());
-			App.Settings.SetValue ("Repeat", Repeat.ToString ());
+			App.SettingsHost.SetValue ("RepeatCount", RepeatCount.ToString ());
+			App.SettingsHost.SetValue ("Repeat", Repeat.ToString ());
 		}
 	}
 }

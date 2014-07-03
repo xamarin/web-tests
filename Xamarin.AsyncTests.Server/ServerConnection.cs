@@ -41,13 +41,13 @@ namespace Xamarin.AsyncTests.Server
 			get;
 		}
 
-		internal override Task Run (Command command)
+		internal override Task Run (Command command, CancellationToken cancellationToken)
 		{
 			var serverCommand = command as IServerCommand;
 			if (serverCommand == null)
 				throw new InvalidOperationException ();
 
-			return serverCommand.Run (this, CancellationToken.None);
+			return serverCommand.Run (this, cancellationToken);
 		}
 
 		internal async Task Run (LoadResultCommand command, CancellationToken cancellationToken)

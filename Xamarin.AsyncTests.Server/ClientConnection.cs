@@ -54,13 +54,13 @@ namespace Xamarin.AsyncTests.Server
 		CancellationTokenSource remoteCts;
 		long remoteID;
 
-		internal override Task Run (Command command)
+		internal override Task Run (Command command, CancellationToken cancellationToken)
 		{
 			var clientCommand = command as IClientCommand;
 			if (clientCommand == null)
 				throw new InvalidOperationException ();
 
-			return clientCommand.Run (this, CancellationToken.None);
+			return clientCommand.Run (this, cancellationToken);
 		}
 
 		internal Task Run (RunTestCommand command, CancellationToken cancellationToken)

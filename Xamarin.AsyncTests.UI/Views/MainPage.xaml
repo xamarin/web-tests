@@ -7,7 +7,14 @@
 
     <StackLayout Spacing="10" Orientation="Vertical">
 
-        <local:TestRunnerControl BindingContext="{Binding RootTestRunner}" />
+        <StackLayout Spacing="20" Orientation="Horizontal">
+            <Button Text="Clear" IsEnabled="{Binding IsStopped}" Clicked="OnClear" />
+            <Button Text="Load" IsEnabled="{Binding CanLoad}" Clicked="OnLoad" />
+            <Button Text="Start Server" IsEnabled="{Binding CanLoad}" Clicked="OnStartServer" />
+            <Button Text="Options" Clicked="OnOptions" />
+        </StackLayout>
+
+        <Label Text="{Binding StatusMessage}" VerticalOptions="End" />
 
         <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
             <local:TestResultView BindingContext="{Binding RootTestResult}" />

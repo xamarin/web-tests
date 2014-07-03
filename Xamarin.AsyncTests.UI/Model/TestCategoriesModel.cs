@@ -96,10 +96,10 @@ namespace Xamarin.AsyncTests.UI
 
 		void LoadSettings ()
 		{
-			if (App.Settings == null)
+			if (App.SettingsHost == null)
 				return;
 
-			var value = App.Settings.GetValue ("CurrentCategory");
+			var value = App.SettingsHost.GetValue ("CurrentCategory");
 			if (value != null) {
 				var index = categories.FindIndex (c => c.Name.Equals (value));
 				if (index >= 0)
@@ -111,11 +111,11 @@ namespace Xamarin.AsyncTests.UI
 
 		void SaveSettings ()
 		{
-			if (App.Settings == null)
+			if (App.SettingsHost == null)
 				return;
 
 			if (selectedIndex >= 0)
-				App.Settings.SetValue ("CurrentCategory", categories [selectedIndex].Name);
+				App.SettingsHost.SetValue ("CurrentCategory", categories [selectedIndex].Name);
 		}
 	}
 }

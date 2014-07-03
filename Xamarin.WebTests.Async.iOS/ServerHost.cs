@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -37,14 +38,62 @@ namespace Xamarin.WebTests.Async.iOS
 {
 	public class ServerHost : IServerHost
 	{
-		public async Task<Stream> Start (CancellationToken cancellationToken)
+		public Task<IServerConnection> Start (CancellationToken cancellationToken)
 		{
-			var listener = new TcpListener (new IPEndPoint (IPAddress.Loopback, 8888));
-			listener.Start ();
+			return Task.Run<IServerConnection> (() => {
+				var listener = new TcpListener (new IPEndPoint (IPAddress.Loopback, 8888));
 
-			var socket = await listener.AcceptSocketAsync ();
-			var stream = new NetworkStream (socket);
-			return stream;
+				listener.Start ();
+				Debug.WriteLine ("Server started: {0}", listener.LocalEndpoint);
+				return new ServerConnection (listener);
+			});
+		}
+
+		class ServerConnection : IServerConnection
+		{
+			TcpListener listener;
+			Socket socket;
+			NetworkStream stream;
+
+			public ServerConnection (TcpListener listener)
+			{
+				this.listener = listener;
+			}
+
+			public async Task<Stream> Open (CancellationToken cancellationToken)
+			{
+				socket = await listener.AcceptSocketAsync ();
+				Debug.WriteLine ("Server accepted connection from {0}.", socket.RemoteEndPoint);
+				stream = new NetworkStream (socket);
+				return stream;
+			}
+
+			public Task Close (CancellationToken cancellationToken)
+			{
+				try {
+					if (socket != null) {
+						socket.Shutdown (SocketShutdown.Both);
+						socket.Dispose ();
+						socket = null;
+					}
+				} catch {
+					;
+				}
+				try {
+					if (stream != null) {
+						stream.Close ();
+						stream = null;
+					}
+				} catch {
+					;
+				}
+				try {
+					listener.Stop ();
+				} catch {
+					;
+				}
+				return Task.FromResult<object> (null);
+			}
 		}
 	}
 }

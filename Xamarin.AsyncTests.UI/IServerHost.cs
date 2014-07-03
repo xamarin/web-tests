@@ -32,7 +32,7 @@ namespace Xamarin.AsyncTests.UI
 {
 	public interface IServerHost
 	{
-		Task<Stream> Start (CancellationToken cancellationToken);
+		Task<IServerConnection> Start (CancellationToken cancellationToken);
 	}
 }
 

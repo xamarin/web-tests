@@ -57,6 +57,11 @@ namespace Xamarin.AsyncTests.Client
 			System.Diagnostics.Debug.WriteLine (message);
 		}
 
+		public void Run ()
+		{
+			MainLoop ();
+		}
+
 		public async Task<TestResult> RunTest ()
 		{
 			var assembly = typeof(Xamarin.AsyncTests.Sample.SimpleTest).Assembly;

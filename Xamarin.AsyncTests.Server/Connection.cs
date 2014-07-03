@@ -35,11 +35,13 @@ namespace Xamarin.AsyncTests.Server
 	{
 		Stream stream;
 		Serializer serializer;
+		CancellationTokenSource cancelCts;
 
 		public Connection (Stream stream)
 		{
 			this.stream = stream;
 			serializer = new Serializer (this);
+			cancelCts = new CancellationTokenSource ();
 		}
 
 		public int DebugLevel {
@@ -78,9 +80,9 @@ namespace Xamarin.AsyncTests.Server
 			get { return serializer; }
 		}
 
-		public void Run ()
+		protected void Stop ()
 		{
-			MainLoop ();
+			cancelCts.Cancel ();
 		}
 
 		public ITestLogger GetLogger ()
@@ -117,7 +119,7 @@ namespace Xamarin.AsyncTests.Server
 			var buffer = new byte [length];
 			int pos = 0;
 			while (pos < length) {
-				var ret = await stream.ReadAsync (buffer, pos, length-pos);
+				var ret = await stream.ReadAsync (buffer, pos, length-pos, cancelCts.Token);
 				if (ret <= 0)
 					throw new InvalidOperationException ();
 				pos += ret;
@@ -125,9 +127,9 @@ namespace Xamarin.AsyncTests.Server
 			return buffer;
 		}
 
-		async void MainLoop ()
+		protected async void MainLoop ()
 		{
-			while (true) {
+			while (!cancelCts.IsCancellationRequested) {
 				var header = await ReadBuffer (4);
 				var len = BitConverter.ToInt32 (header, 0);
 				if (len == 0)
@@ -135,6 +137,8 @@ namespace Xamarin.AsyncTests.Server
 
 				var body = await ReadBuffer (len);
 				var content = new UTF8Encoding ().GetString (body, 0, body.Length);
+
+				cancelCts.Token.ThrowIfCancellationRequested ();
 				await HandleCommand (content);
 			}
 		}
@@ -143,16 +147,18 @@ namespace Xamarin.AsyncTests.Server
 		{
 			var command = serializer.ReadCommand (formatted);
 
+			cancelCts.Token.ThrowIfCancellationRequested ();
+
 			var commonCommand = command as ICommonCommand;
 			if (commonCommand != null) {
-				await commonCommand.Run (this, CancellationToken.None);
+				await commonCommand.Run (this, cancelCts.Token);
 				return;
 			}
 
-			await Run (command);
+			await Run (command, cancelCts.Token);
 		}
 
-		internal abstract Task Run (Command command);
+		internal abstract Task Run (Command command, CancellationToken cancellationToken);
 
 		internal Task Run (MessageCommand command, CancellationToken cancellationToken)
 		{
