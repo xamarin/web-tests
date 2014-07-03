@@ -158,6 +158,28 @@ namespace Xamarin.AsyncTests
 			Status = TestStatus.None;
 		}
 
+		public void MergeStatus (TestStatus child)
+		{
+			switch (status) {
+			case TestStatus.Canceled:
+			case TestStatus.Error:
+				break;
+
+			case TestStatus.Ignored:
+			case TestStatus.None:
+				Status = child;
+				break;
+
+			case TestStatus.Success:
+				if (child == TestStatus.Error || child == TestStatus.Canceled)
+					Status = child;
+				break;
+
+			default:
+				throw new InvalidOperationException ();
+			}
+		}
+
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		protected virtual void OnPropertyChanged (string propertyName)

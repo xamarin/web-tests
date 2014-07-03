@@ -53,28 +53,7 @@ namespace Xamarin.AsyncTests.Framework
 			try {
 				return await InvokeInner (ctx, instance, innerResult, Inner, cancellationToken);
 			} finally {
-				result.Status = MergeStatus (result.Status, innerResult.Status);
-			}
-		}
-
-		static TestStatus MergeStatus (TestStatus current, TestStatus child)
-		{
-			switch (current) {
-			case TestStatus.Canceled:
-			case TestStatus.Error:
-				return current;
-
-			case TestStatus.Ignored:
-			case TestStatus.None:
-				return child;
-
-			case TestStatus.Success:
-				if (child == TestStatus.Error || child == TestStatus.Canceled)
-					return child;
-				return current;
-
-			default:
-				throw new InvalidOperationException ();
+				result.MergeStatus (innerResult.Status);
 			}
 		}
 

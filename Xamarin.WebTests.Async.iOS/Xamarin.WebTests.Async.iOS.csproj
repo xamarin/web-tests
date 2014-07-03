@@ -132,6 +132,7 @@
     <Compile Include="..\Xamarin.WebTests\WebTestFeatures.cs">
       <Link>WebTestFeatures.cs</Link>
     </Compile>
+    <Compile Include="ServerHost.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xamarin.WebTests\Framework\RequestFlags.cs">
@@ -215,6 +216,10 @@
     <ProjectReference Include="..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>Xamarin.AsyncTests.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xamarin.AsyncTests.Server\Xamarin.AsyncTests.Server.csproj">
+      <Project>{584654DF-6888-4B18-AB82-3C773CD45436}</Project>
+      <Name>Xamarin.AsyncTests.Server</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

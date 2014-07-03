@@ -61,6 +61,8 @@
     <Compile Include="Model\TestFeatureModel.cs" />
     <Compile Include="ISettingsHost.cs" />
     <Compile Include="Model\TestCategoriesModel.cs" />
+    <Compile Include="TestServer.cs" />
+    <Compile Include="IServerHost.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="../packages/Xamarin.Forms.1.1.1.6206/build/portable-win+net45+wp80+MonoAndroid10+MonoTouch10/Xamarin.Forms.targets" />
@@ -99,6 +101,10 @@
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
       <Name>Xamarin.AsyncTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xamarin.AsyncTests.Server\Xamarin.AsyncTests.Server.csproj">
+      <Project>{584654DF-6888-4B18-AB82-3C773CD45436}</Project>
+      <Name>Xamarin.AsyncTests.Server</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

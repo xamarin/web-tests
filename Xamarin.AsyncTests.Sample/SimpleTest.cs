@@ -45,7 +45,7 @@ namespace Xamarin.AsyncTests.Sample
 			context.Log ("FIRST: {0}", id);
 		}
 
-		[AsyncTest (Repeat = 3)]
+		// [AsyncTest (Repeat = 3)]
 		public void Second (TestContext context)
 		{
 			context.Log ("SECOND: {0}", id);

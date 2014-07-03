@@ -4,46 +4,51 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <ProjectGuid>{50F3B858-C105-4599-8B52-81372E172F47}</ProjectGuid>
+    <ProjectGuid>{584654DF-6888-4B18-AB82-3C773CD45436}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Xamarin.AsyncTests.Sample</RootNamespace>
-    <AssemblyName>Xamarin.AsyncTests.Sample</AssemblyName>
+    <RootNamespace>Xamarin.AsyncTests.Server</RootNamespace>
+    <AssemblyName>Xamarin.AsyncTests.Server</AssemblyName>
     <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
+    <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>False</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>False</ConsolePause>
+    <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <Optimize>True</Optimize>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>False</ConsolePause>
+    <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="SimpleTest.cs" />
-    <Compile Include="FooSource.cs" />
-    <Compile Include="ParameterizedTest.cs" />
-    <Compile Include="Foo.cs" />
-    <Compile Include="IFoo.cs" />
-    <Compile Include="HelloSource.cs" />
-    <Compile Include="HostTest.cs" />
-    <Compile Include="ParameterizedTestFixture.cs" />
-    <Compile Include="City.cs" />
-    <Compile Include="SampleFeatures.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Command.cs" />
+    <Compile Include="HelloCommand.cs" />
+    <Compile Include="MessageCommand.cs" />
+    <Compile Include="Connection.cs" />
+    <Compile Include="Serializer.cs" />
+    <Compile Include="ServerLogger.cs" />
+    <Compile Include="DebugCommand.cs" />
+    <Compile Include="SetDebugLevelCommand.cs" />
+    <Compile Include="SavedException.cs" />
+    <Compile Include="LoadResultCommand.cs" />
+    <Compile Include="RemoteTestCase.cs" />
+    <Compile Include="RunTestCommand.cs" />
+    <Compile Include="CancelCommand.cs" />
+    <Compile Include="ClientConnection.cs" />
+    <Compile Include="ServerConnection.cs" />
+    <Compile Include="IServerCommand.cs" />
+    <Compile Include="IClientCommand.cs" />
+    <Compile Include="ICommonCommand.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

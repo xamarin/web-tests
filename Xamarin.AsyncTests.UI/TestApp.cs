@@ -122,9 +122,15 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestApp (ISettingsHost settings, string name)
+		public IServerHost Server {
+			get;
+			private set;
+		}
+
+		public TestApp (ISettingsHost settings, IServerHost server, string name)
 		{
 			Settings = settings;
+			Server = server;
 
 			Context = new TestContext ();
 			Context.TestFinishedEvent += (sender, e) => OnTestFinished (e);
@@ -149,6 +155,9 @@ namespace Xamarin.AsyncTests.UI
 			if (TestSuite.Configuration != null)
 				Context.Configuration.AddTestSuite (TestSuite.Configuration);
 			StatusMessage = string.Format ("Successfully loaded {0}.", name);
+
+			if (Server != null)
+				await TestServer.Start (this, CancellationToken.None);
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;

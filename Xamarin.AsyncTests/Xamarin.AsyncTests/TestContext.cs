@@ -50,6 +50,10 @@ namespace Xamarin.AsyncTests
 			set { debugLevel = value; }
 		}
 
+		public ITestLogger Logger {
+			get; set;
+		}
+
 		public void Debug (int level, string format, params object[] args)
 		{
 			Debug (level, string.Format (format, args));
@@ -57,6 +61,8 @@ namespace Xamarin.AsyncTests
 
 		public void Debug (int level, string message)
 		{
+			if (Logger != null)
+				Logger.LogDebug (level, message);
 			if (level <= DebugLevel)
 				SD.Debug.WriteLine (message);
 		}
@@ -69,6 +75,8 @@ namespace Xamarin.AsyncTests
 		public void Log (string message)
 		{
 			SD.Debug.WriteLine (message);
+			if (Logger != null)
+				Logger.LogMessage (message);
 		}
 
 		public string Print (object obj)
