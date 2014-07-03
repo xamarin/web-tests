@@ -19,6 +19,16 @@
             <Picker x:Name="Picker" HorizontalOptions="FillAndExpand" />
         </StackLayout>
 
+        <StackLayout Orientation="Vertical">
+            <StackLayout Spacing="30" Orientation="Horizontal">
+                <Label Text="Remote Server:" />
+            </StackLayout>
+            <StackLayout Spacing="30" Orientation="Horizontal">
+                <Switch IsToggled="{Binding UseServer}" />
+                <Entry Text="{Binding ServerAddress}" HorizontalOptions="FillAndExpand" />
+            </StackLayout>
+        </StackLayout>
+
         <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
             <local:TestFeatureSelector BindingContext="{Binding Features}" />
         </ScrollView>

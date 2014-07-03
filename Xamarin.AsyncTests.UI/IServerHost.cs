@@ -33,6 +33,8 @@ namespace Xamarin.AsyncTests.UI
 	public interface IServerHost
 	{
 		Task<IServerConnection> Start (CancellationToken cancellationToken);
+
+		Task<IServerConnection> Connect (string address, CancellationToken cancellationToken);
 	}
 }
 

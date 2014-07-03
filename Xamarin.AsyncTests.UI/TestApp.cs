@@ -185,7 +185,7 @@ namespace Xamarin.AsyncTests.UI
 			OnPropertyChanged ("CanRun");
 		}
 
-		internal async Task StartServer ()
+		internal async Task ConnectToServer ()
 		{
 			CancellationToken token;
 			lock (this) {
@@ -196,7 +196,7 @@ namespace Xamarin.AsyncTests.UI
 			}
 
 			try {
-				connection = await ServerHost.Start (token);
+				connection = await ServerHost.Connect (Options.ServerAddress, token);
 				OnPropertyChanged ("CanLoad");
 				StatusMessage = "Started server!";
 
@@ -208,6 +208,7 @@ namespace Xamarin.AsyncTests.UI
 				return;
 			} catch (Exception ex) {
 				Context.Log ("SERVER ERROR: {0}", ex);
+				StatusMessage = string.Format ("Server error: {0}", ex.Message);
 			} finally {
 				StopServer ();
 			}

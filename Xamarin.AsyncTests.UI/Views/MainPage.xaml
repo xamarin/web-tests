@@ -10,7 +10,7 @@
         <StackLayout Spacing="20" Orientation="Horizontal">
             <Button Text="Clear" IsEnabled="{Binding IsStopped}" Clicked="OnClear" />
             <Button Text="Load" IsEnabled="{Binding CanLoad}" Clicked="OnLoad" />
-            <Button Text="Start Server" IsEnabled="{Binding CanLoad}" Clicked="OnStartServer" />
+            <Button Text="Connect" IsEnabled="{Binding CanLoad}" Clicked="OnConnect" />
             <Button Text="Options" Clicked="OnOptions" />
         </StackLayout>
 

@@ -73,9 +73,9 @@ namespace Xamarin.AsyncTests.UI
 			await App.LoadAssembly (CancellationToken.None);
 		}
 
-		async void OnStartServer (object sender, EventArgs args)
+		async void OnConnect (object sender, EventArgs args)
 		{
-			await App.StartServer ();
+			await App.ConnectToServer ();
 		}
 	}
 }

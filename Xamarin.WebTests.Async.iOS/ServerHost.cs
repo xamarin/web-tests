@@ -49,6 +49,60 @@ namespace Xamarin.WebTests.Async.iOS
 			});
 		}
 
+		public async Task<IServerConnection> Connect (string address, CancellationToken cancellationToken)
+		{
+			IPEndPoint endpoint;
+			var pos = address.IndexOf (':');
+			if (pos < 0)
+				endpoint = new IPEndPoint (IPAddress.Parse (address), 8888);
+			else {
+				var host = address.Substring (0, pos);
+				var port = int.Parse (address.Substring (pos + 1));
+				endpoint = new IPEndPoint (IPAddress.Parse (host), port);
+			}
+			var client = new TcpClient ();
+			await client.ConnectAsync (endpoint.Address, endpoint.Port);
+			return new ClientConnection (client);
+		}
+
+		class ClientConnection : IServerConnection
+		{
+			TcpClient client;
+			NetworkStream stream;
+
+			public ClientConnection (TcpClient client)
+			{
+				this.client = client;
+			}
+
+			public Task<Stream> Open (CancellationToken cancellationToken)
+			{
+				return Task.Run<Stream> (() => {
+					stream = client.GetStream ();
+					return stream;
+				});
+			}
+
+
+			public void Close ()
+			{
+				try {
+					if (stream != null) {
+						stream.Close ();
+						stream = null;
+					}
+				} catch {
+					;
+				}
+				try {
+					client.Close ();
+				} catch {
+					;
+				}
+			}
+
+		}
+
 		class ServerConnection : IServerConnection
 		{
 			TcpListener listener;

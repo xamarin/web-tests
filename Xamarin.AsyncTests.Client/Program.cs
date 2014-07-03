@@ -67,10 +67,14 @@ namespace Xamarin.AsyncTests.Client
 
 		async Task Run ()
 		{
-			var client = new TcpClient ();
-			await client.ConnectAsync ("127.0.0.1", 8888);
+			var listener = new TcpListener (IPAddress.Any, 8888);
+			listener.Start ();
 
-			var stream = client.GetStream ();
+			var socket = await listener.AcceptSocketAsync ();
+			var stream = new NetworkStream (socket);
+
+			Debug ("Got remote connection from {0}.", socket.RemoteEndPoint);
+
 			var connection = new ConsoleClient (stream);
 			connection.Run ();
 
