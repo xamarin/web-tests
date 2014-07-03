@@ -95,7 +95,10 @@ namespace Xamarin.WebTests.Async.iOS
 					;
 				}
 				try {
-					client.Close ();
+					if (client != null) {
+						client.Close ();
+						client = null;
+					}
 				} catch {
 					;
 				}

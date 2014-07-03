@@ -69,7 +69,19 @@ namespace Xamarin.AsyncTests.UI
 
 			Context.Configuration.PropertyChanged += OnConfigChanged;
 
-			Task.Factory.StartNew (() => MainLoop ());
+			Task.Factory.StartNew (async () => {
+				try {
+					await MainLoop ().ConfigureAwait (false);
+				} catch (Exception ex) {
+					lock (this) {
+						if (startTcs != null) {
+							var tcs = startTcs;
+							startTcs = null;
+							tcs.SetException (ex);
+						}
+					}
+				}
+			});
 
 			return startTcs.Task;
 		}
@@ -77,7 +89,11 @@ namespace Xamarin.AsyncTests.UI
 		public override void Stop ()
 		{
 			Context.Configuration.PropertyChanged -= OnConfigChanged;
-			base.Stop ();
+			try {
+				base.Stop ();
+			} catch {
+				;
+			}
 			try {
 				Connection.Close ();
 			} catch {

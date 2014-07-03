@@ -68,7 +68,9 @@ namespace Xamarin.AsyncTests.Client
 
 		public async void Run ()
 		{
+			#pragma warning disable 4014
 			MainLoop ();
+			#pragma warning restore 4014
 
 			await Hello (CancellationToken.None);
 			await Message ("Hello World");

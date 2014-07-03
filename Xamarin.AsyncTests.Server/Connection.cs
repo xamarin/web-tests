@@ -135,7 +135,7 @@ namespace Xamarin.AsyncTests.Server
 			return buffer;
 		}
 
-		protected async void MainLoop ()
+		protected async Task MainLoop ()
 		{
 			while (!cancelCts.IsCancellationRequested) {
 				var header = await ReadBuffer (4);

@@ -204,7 +204,10 @@ namespace Xamarin.AsyncTests.UI
 				server = new TestServer (this, stream, connection);
 				StatusMessage = "Got remote connection!";
 				TestSuite = await server.Start ();
+				RootTestResult.Result.Test = TestSuite;
 				StatusMessage = string.Format ("Got remote test suite: {0}", TestSuite.Name);
+				OnPropertyChanged ("CanLoad");
+				OnPropertyChanged ("CanRun");
 			} catch (OperationCanceledException) {
 				return;
 			} catch (Exception ex) {
