@@ -31,6 +31,7 @@ using System.ComponentModel;
 
 namespace Xamarin.AsyncTests.UI
 {
+	using Framework;
 	using Server;
 
 	public class TestServer : ServerConnection
@@ -49,7 +50,7 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		TaskCompletionSource<bool> tcs;
+		TaskCompletionSource<TestSuite> startTcs;
 
 		public TestServer (TestApp app, Stream stream, IServerConnection connection)
 			: base (stream)
@@ -58,19 +59,19 @@ namespace Xamarin.AsyncTests.UI
 			Connection = connection;
 		}
 
-		public Task Run ()
+		public Task<TestSuite> Start ()
 		{
 			lock (this) {
-				if (tcs != null)
+				if (startTcs != null)
 					throw new InvalidOperationException ();
-				tcs = new TaskCompletionSource<bool> ();
+				startTcs = new TaskCompletionSource<TestSuite> ();
 			}
 
 			Context.Configuration.PropertyChanged += OnConfigChanged;
 
 			Task.Factory.StartNew (() => MainLoop ());
 
-			return tcs.Task;
+			return startTcs.Task;
 		}
 
 		public override void Stop ()
@@ -81,6 +82,14 @@ namespace Xamarin.AsyncTests.UI
 				Connection.Close ();
 			} catch {
 				;
+			}
+
+			lock (this) {
+				if (startTcs != null) {
+					var tcs = startTcs;
+					startTcs = null;
+					tcs.SetCanceled ();
+				}
 			}
 		}
 
@@ -132,6 +141,19 @@ namespace Xamarin.AsyncTests.UI
 			} finally {
 				suppressConfigChanged = false;
 			}
+		}
+
+		protected override Task OnTestSuiteLoaded (TestSuite suite)
+		{
+			return Task.Run (() => {
+				lock (this) {
+					if (startTcs == null)
+						throw new InvalidOperationException ();
+					var tcs = startTcs;
+					startTcs = null;
+					tcs.SetResult (suite);
+				}
+			});
 		}
 
 		#endregion

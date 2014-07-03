@@ -203,14 +203,13 @@ namespace Xamarin.AsyncTests.UI
 				var stream = await connection.Open (token).ConfigureAwait (false);
 				server = new TestServer (this, stream, connection);
 				StatusMessage = "Got remote connection!";
-				await server.Run ();
+				TestSuite = await server.Start ();
+				StatusMessage = string.Format ("Got remote test suite: {0}", TestSuite.Name);
 			} catch (OperationCanceledException) {
 				return;
 			} catch (Exception ex) {
 				Context.Log ("SERVER ERROR: {0}", ex);
 				StatusMessage = string.Format ("Server error: {0}", ex.Message);
-			} finally {
-				StopServer ();
 			}
 		}
 

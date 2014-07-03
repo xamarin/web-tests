@@ -37,10 +37,6 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public override ITestFilter Filter {
-			get { return null; }
-		}
-
 		public CapturedTestCase (TestName name, TestInvoker invoker)
 			: base (name)
 		{

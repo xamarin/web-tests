@@ -25,11 +25,15 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
+	using Framework;
+
 	public abstract class ClientConnection : Connection
 	{
 		public ClientConnection (Stream stream)
@@ -46,6 +50,12 @@ namespace Xamarin.AsyncTests.Server
 		public async Task LoadResult (TestResult result, CancellationToken cancellationToken)
 		{
 			var command = new LoadResultCommand { Result = result };
+			await SendCommand (command);
+		}
+
+		public async Task TestSuiteLoaded (TestSuite suite, CancellationToken cancellationToken)
+		{
+			var command = new TestSuiteLoadedCommand { TestSuite = suite };
 			await SendCommand (command);
 		}
 
@@ -72,7 +82,7 @@ namespace Xamarin.AsyncTests.Server
 				remoteID = command.ObjectID;
 			}
 
-			var test = Serializer.GetTest (command.ObjectID);
+			var test = GetTest (command.ObjectID);
 			Task.Factory.StartNew (() => RunRemoteTest (command, test, token));
 			return Task.FromResult<object> (null);
 		}
@@ -107,6 +117,46 @@ namespace Xamarin.AsyncTests.Server
 					remoteCts.Cancel ();
 				}
 			});
+		}
+
+		Dictionary<long,TestSuite> suites = new Dictionary<long,TestSuite> ();
+		Dictionary<long,TestCase> tests = new Dictionary<long,TestCase> ();
+
+		internal long RegisterTestSuite (TestSuite suite)
+		{
+			if (suites.ContainsValue (suite))
+				return suites.First (s => s.Value == suite).Key;
+
+			var id = GetNextObjectId ();
+			suites.Add (id, suite);
+			return id;
+		}
+
+		internal TestSuite GetTestSuite (long id)
+		{
+			return suites [id];
+		}
+
+		internal long RegisterTest (TestResult result)
+		{
+			if (result.Test == null)
+				return -1;
+
+			if (tests.ContainsValue (result.Test))
+				return tests.First (e => e.Value == result.Test).Key;
+
+			var objectId = GetNextObjectId ();
+			tests.Add (objectId, result.Test);
+			result.PropertyChanged += (sender, e) => {
+				if (e.PropertyName.Equals ("Test"))
+					tests [objectId] = result.Test;
+			};
+			return objectId;
+		}
+
+		internal TestCase GetTest (long id)
+		{
+			return tests [id];
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// InvokableTestCase.cs
+// TestSuiteLoadedCommand.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,34 +24,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
+using System.Xml;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests.Server
 {
-	class InvokableTestCase : TestCase
+	using Framework;
+
+	class TestSuiteLoadedCommand : Command, IServerCommand
 	{
-		public TestCase Test {
-			get;
-			private set;
+		public TestSuite TestSuite {
+			get; set;
 		}
 
-		public TestInvoker Invoker {
-			get;
-			private set;
-		}
-
-		public InvokableTestCase (TestCase test, TestInvoker invoker)
-			: base (test.Name)
+		public override void ReadXml (Serializer serializer, XmlReader reader)
 		{
-			Test = test;
-			Invoker = invoker;
+			base.ReadXml (serializer, reader);
+			var subReader = reader.ReadSubtree ();
+			TestSuite = serializer.ReadTestSuite (subReader);
 		}
 
-		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
+		public override void WriteXml (Serializer serializer, XmlWriter writer)
 		{
-			return Invoker.Invoke (ctx, null, result, cancellationToken);
+			base.WriteXml (serializer, writer);
+			serializer.Write (writer, TestSuite);
+		}
+
+		public Task Run (ServerConnection connection, CancellationToken cancellationToken)
+		{
+			return connection.Run (this, cancellationToken);
 		}
 	}
 }

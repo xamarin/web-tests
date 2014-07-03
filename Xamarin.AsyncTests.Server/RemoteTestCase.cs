@@ -55,10 +55,6 @@ namespace Xamarin.AsyncTests.Server
 			return await Connection.Run (this, result, cancellationToken).ConfigureAwait (false);
 		}
 
-		public override ITestFilter Filter {
-			get { return null; }
-		}
-
 		#endregion
 	}
 }

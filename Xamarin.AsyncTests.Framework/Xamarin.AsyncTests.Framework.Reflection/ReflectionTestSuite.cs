@@ -44,10 +44,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			tests = new List<ReflectionTest> ();
 		}
 
-		public override ITestFilter Filter {
-			get { return null; }
-		}
-
 		public override ITestConfiguration Configuration {
 			get { return configuration; }
 		}

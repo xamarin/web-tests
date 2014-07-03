@@ -50,12 +50,18 @@
     <Compile Include="IClientCommand.cs" />
     <Compile Include="ICommonCommand.cs" />
     <Compile Include="SyncConfigurationCommand.cs" />
+    <Compile Include="RemoteTestSuite.cs" />
+    <Compile Include="TestSuiteLoadedCommand.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
       <Name>Xamarin.AsyncTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
+      <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
+      <Name>Xamarin.AsyncTests.Framework</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

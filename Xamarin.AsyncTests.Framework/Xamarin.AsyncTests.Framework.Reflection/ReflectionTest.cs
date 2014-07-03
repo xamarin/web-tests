@@ -42,10 +42,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public override ITestFilter Filter {
-			get { return this; }
-		}
-
 		bool ITestFilter.Filter (TestContext ctx)
 		{
 			bool enabled;

@@ -202,6 +202,12 @@ namespace Xamarin.AsyncTests.Server
 		protected abstract void OnDebug (int level, string message);
 
 		protected abstract void OnSyncConfiguration (TestConfiguration configuration, bool fullUpdate);
+
+		static long next_id;
+		protected long GetNextObjectId ()
+		{
+			return ++next_id;
+		}
 	}
 }
 

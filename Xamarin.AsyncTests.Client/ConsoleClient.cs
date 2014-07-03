@@ -73,7 +73,8 @@ namespace Xamarin.AsyncTests.Client
 			await Hello (CancellationToken.None);
 			await Message ("Hello World");
 
-			await Load ();
+			var suite = await Load ();
+			await TestSuiteLoaded (suite, CancellationToken.None);
 			await SyncConfiguration (context.Configuration, true);
 		}
 

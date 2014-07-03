@@ -47,10 +47,6 @@ namespace Xamarin.AsyncTests
 			Name = name;
 		}
 
-		public abstract ITestFilter Filter {
-			get;
-		}
-
 		public abstract Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken);
 	}
 }

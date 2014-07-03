@@ -25,11 +25,15 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
+	using Framework;
+
 	public abstract class ServerConnection : Connection
 	{
 		public ServerConnection (Stream stream)
@@ -116,15 +120,14 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		#region Public API
-
-		#endregion
-
-		#region Server API
+		internal Task Run (TestSuiteLoadedCommand command, CancellationToken cancellationToken)
+		{
+			return OnTestSuiteLoaded (command.TestSuite);
+		}
 
 		protected abstract Task OnLoadResult (TestResult result);
 
-		#endregion
+		protected abstract Task OnTestSuiteLoaded (TestSuite suite);
 	}
 }
 

@@ -1,5 +1,5 @@
 ﻿//
-// InvokableTestCase.cs
+// RemoteTestSuite.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,35 +24,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests.Server
 {
-	class InvokableTestCase : TestCase
+	using Framework;
+
+	class RemoteTestSuite : TestSuite
 	{
-		public TestCase Test {
+		public ServerConnection Connection {
 			get;
 			private set;
 		}
 
-		public TestInvoker Invoker {
+		public long ObjectId {
 			get;
 			private set;
 		}
 
-		public InvokableTestCase (TestCase test, TestInvoker invoker)
-			: base (test.Name)
+		public RemoteTestSuite (TestName name, ServerConnection connection, long objectId)
+			: base (name)
 		{
-			Test = test;
-			Invoker = invoker;
+			Connection = connection;
+			ObjectId = objectId;
 		}
+
+		#region implemented abstract members of TestCase
 
 		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
 		{
-			return Invoker.Invoke (ctx, null, result, cancellationToken);
+			throw new NotImplementedException ();
 		}
+
+		#endregion
+
+		#region implemented abstract members of TestSuite
+
+		public override ITestConfiguration Configuration {
+			get { return null; }
+		}
+
+		#endregion
 	}
 }
 

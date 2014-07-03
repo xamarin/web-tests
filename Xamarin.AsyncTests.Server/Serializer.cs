@@ -33,6 +33,8 @@ using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Server
 {
+	using Framework;
+
 	class Serializer
 	{
 		public Connection Connection {
@@ -156,7 +158,8 @@ namespace Xamarin.AsyncTests.Server
 			Write (writer, result.Name);
 
 			if (result.Test != null) {
-				var objectId = RegisterTest (result);
+				var client = (ClientConnection)Connection;
+				var objectId = client.RegisterTest (result);
 				writer.WriteStartElement ("TestCase");
 				writer.WriteAttributeString ("ObjectID", objectId.ToString ());
 				Write (writer, result.Test.Name);
@@ -223,28 +226,6 @@ namespace Xamarin.AsyncTests.Server
 			var objectId = long.Parse (element.Attribute (XName.Get ("ObjectID")).Value);
 
 			return new RemoteTestCase (name, server, objectId);
-		}
-
-		static long next_id;
-		Dictionary<long,TestCase> tests = new Dictionary<long,TestCase> ();
-
-		long RegisterTest (TestResult result)
-		{
-			if (result.Test == null)
-				return -1;
-
-			var id = ++next_id;
-			tests.Add (id, result.Test);
-			result.PropertyChanged += (sender, e) => {
-				if (e.PropertyName.Equals ("Test"))
-					tests [id] = result.Test;
-			};
-			return id;
-		}
-
-		public TestCase GetTest (long id)
-		{
-			return tests [id];
 		}
 
 		public string Write (TestConfiguration config)
@@ -329,6 +310,52 @@ namespace Xamarin.AsyncTests.Server
 				config.AddFeature (feature, isEnabled);
 			}
 			return config;
+		}
+
+		public string Write (TestSuite suite)
+		{
+			var sb = new StringBuilder ();
+			var settings = new XmlWriterSettings ();
+			settings.OmitXmlDeclaration = true;
+			var writer = XmlWriter.Create (sb, settings);
+			Write (writer, suite);
+			return sb.ToString ();
+		}
+
+		public void Write (XmlWriter writer, TestSuite suite)
+		{
+			writer.WriteStartElement ("TestSuite");
+
+			var client = Connection as ClientConnection;
+			if (client == null)
+				throw new InvalidOperationException ();
+
+			var objectId = client.RegisterTestSuite (suite);
+			writer.WriteAttributeString ("ObjectID", objectId.ToString ());
+
+			Write (writer, suite.Name);
+			writer.WriteEndElement ();
+		}
+
+		public TestSuite ReadTestSuite (XmlReader reader)
+		{
+			var doc = XDocument.Load (reader);
+			var element = doc.Root.Element (XName.Get ("TestSuite"));
+			return ReadTestSuite (element);
+		}
+
+		public TestSuite ReadTestSuite (XElement element)
+		{
+			var server = Connection as ServerConnection;
+			if (server == null)
+				throw new InvalidOperationException ();
+			if (!element.Name.LocalName.Equals ("TestSuite"))
+				throw new InvalidOperationException ();
+
+			var name = ReadName (element.Element (XName.Get ("TestName")));
+			var objectId = long.Parse (element.Attribute (XName.Get ("ObjectID")).Value);
+
+			return new RemoteTestSuite (name, server, objectId);
 		}
 	}
 }
