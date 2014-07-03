@@ -38,7 +38,7 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public long ObjectId {
+		public long ObjectID {
 			get;
 			private set;
 		}
@@ -47,14 +47,14 @@ namespace Xamarin.AsyncTests.Server
 			: base (name)
 		{
 			Connection = connection;
-			ObjectId = objectId;
+			ObjectID = objectId;
 		}
 
 		#region implemented abstract members of TestCase
 
-		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
+		public override async Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException ();
+			return await Connection.RunTest (ObjectID, result, cancellationToken).ConfigureAwait (false);
 		}
 
 		#endregion

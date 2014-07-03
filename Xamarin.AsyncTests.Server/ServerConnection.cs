@@ -57,12 +57,7 @@ namespace Xamarin.AsyncTests.Server
 		internal async Task Run (LoadResultCommand command, CancellationToken cancellationToken)
 		{
 			lock (this) {
-				if (remoteTest != null) {
-					if (command.ObjectID != remoteTest.ObjectID) {
-						Debug ("UNKNOWN RESULT: {0} {1}", command.ObjectID, remoteTest.ObjectID);
-						return;
-					}
-
+				if (remoteTestObjectID > 0) {
 					remoteTcs.SetResult (command.Result);
 					remoteCts.Dispose ();
 					remoteCts = null;
@@ -75,9 +70,9 @@ namespace Xamarin.AsyncTests.Server
 
 		TaskCompletionSource<TestResult> remoteTcs;
 		CancellationTokenSource remoteCts;
-		RemoteTestCase remoteTest;
+		long remoteTestObjectID;
 
-		internal async Task<bool> Run (RemoteTestCase test, TestResult result, CancellationToken cancellationToken)
+		internal async Task<bool> RunTest (long objectID, TestResult result, CancellationToken cancellationToken)
 		{
 			CancellationTokenSource cts;
 			lock (this) {
@@ -85,17 +80,17 @@ namespace Xamarin.AsyncTests.Server
 					throw new InvalidOperationException ();
 				remoteTcs = new TaskCompletionSource<TestResult> ();
 				cts = remoteCts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-				remoteTest = test;
+				remoteTestObjectID = objectID;
 			}
 
 			cts.Token.Register (async () => {
 				Debug ("CANCEL!");
-				var cancelCommand = new CancelCommand { ObjectID = test.ObjectID };
+				var cancelCommand = new CancelCommand { ObjectID = objectID };
 				await SendCommand (cancelCommand);
 				Debug ("DONE SENDING CANCEL");
 			});
 
-			var command = new RunTestCommand { ObjectID = test.ObjectID };
+			var command = new RunTestCommand { ObjectID = objectID };
 			await SendCommand (command);
 
 			Debug ("RUN REMOTE TEST WAITING");
@@ -115,7 +110,7 @@ namespace Xamarin.AsyncTests.Server
 				lock (this) {
 					remoteTcs = null;
 					remoteCts = null;
-					remoteTest = null;
+					remoteTestObjectID = -1;
 				}
 			}
 		}

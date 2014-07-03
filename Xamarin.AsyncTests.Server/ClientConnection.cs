@@ -129,6 +129,7 @@ namespace Xamarin.AsyncTests.Server
 
 			var id = GetNextObjectId ();
 			suites.Add (id, suite);
+			tests.Add (id, suite);
 			return id;
 		}
 

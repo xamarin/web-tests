@@ -52,7 +52,7 @@ namespace Xamarin.AsyncTests.Server
 
 		public override async Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
 		{
-			return await Connection.Run (this, result, cancellationToken).ConfigureAwait (false);
+			return await Connection.RunTest (ObjectID, result, cancellationToken).ConfigureAwait (false);
 		}
 
 		#endregion
