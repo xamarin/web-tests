@@ -34,12 +34,17 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
+		public bool IsBuiltin {
+			get;
+			private set;
+		}
+
 		public TestCategory (string name)
 		{
 			Name = name;
 		}
 
-		public static readonly TestCategory All = new TestCategory ("All");
+		public static readonly TestCategory All = new TestCategory ("All") { IsBuiltin = true };
 
 		public override string ToString ()
 		{

@@ -57,9 +57,24 @@ namespace Xamarin.AsyncTests.Client
 			System.Diagnostics.Debug.WriteLine (message);
 		}
 
-		public void Run ()
+		public async Task<TestSuite> Load ()
+		{
+			var assembly = typeof(Xamarin.AsyncTests.Sample.SimpleTest).Assembly;
+			var suite = await TestSuite.LoadAssembly (assembly);
+			if (suite.Configuration != null)
+				context.Configuration.AddTestSuite (suite.Configuration);
+			return suite;
+		}
+
+		public async void Run ()
 		{
 			MainLoop ();
+
+			await Hello (CancellationToken.None);
+			await Message ("Hello World");
+
+			await Load ();
+			await SyncConfiguration (context.Configuration, true);
 		}
 
 		public async Task<TestResult> RunTest ()
@@ -93,6 +108,11 @@ namespace Xamarin.AsyncTests.Client
 		protected override void OnDebug (int level, string message)
 		{
 			Debug (message);
+		}
+
+		protected override void OnSyncConfiguration (TestConfiguration configuration, bool fullUpdate)
+		{
+			throw new NotImplementedException ();
 		}
 
 		#endregion

@@ -1,5 +1,5 @@
 ﻿//
-// Program.cs
+// SyncConfigurationCommand.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,59 +24,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using SD = System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
+using System.Xml;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Client
+namespace Xamarin.AsyncTests.Server
 {
-	using Framework;
-	using Server;
-
-	class MainClass
+	class SyncConfigurationCommand : Command, ICommonCommand
 	{
-		public static void Main (string[] args)
-		{
-			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
-
-			var main = new MainClass ();
-			var task = main.Run ();
-			task.Wait ();
-			Console.WriteLine ("DONE!");
-			Console.ReadLine ();
+		public TestConfiguration Configuration {
+			get; set;
 		}
 
-		static void Debug (string message, params object[] args)
-		{
-			SD.Debug.WriteLine (message, args);
+		public bool FullUpdate {
+			get; set;
 		}
 
-		static TestResult CreateTestResult ()
+		public override void ReadXml (Serializer serializer, XmlReader reader)
 		{
-			var builder = new TestNameBuilder ();
-			builder.PushName ("Hello");
-			builder.PushParameter ("A", "B");
-			builder.PushParameter ("Foo", "Bar", true);
-			var name = builder.GetName ();
-
-			return new TestResult (name, TestStatus.Success);
+			base.ReadXml (serializer, reader);
+			FullUpdate = bool.Parse (reader.GetAttribute ("FullUpdate"));
+			var subReader = reader.ReadSubtree ();
+			Configuration = serializer.ReadConfiguration (subReader);
 		}
 
-		async Task Run ()
+		public override void WriteXml (Serializer serializer, XmlWriter writer)
 		{
-			var listener = new TcpListener (IPAddress.Any, 8888);
-			listener.Start ();
+			base.WriteXml (serializer, writer);
+			writer.WriteAttributeString ("FullUpdate", FullUpdate.ToString ());
+			serializer.Write (writer, Configuration);
+		}
 
-			var socket = await listener.AcceptSocketAsync ();
-			var stream = new NetworkStream (socket);
-
-			Debug ("Got remote connection from {0}.", socket.RemoteEndPoint);
-
-			var connection = new ConsoleClient (stream);
-			connection.Run ();
+		public Task Run (Connection connection, CancellationToken cancellationToken)
+		{
+			return connection.Run (this, cancellationToken);
 		}
 	}
 }
+

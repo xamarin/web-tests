@@ -246,6 +246,90 @@ namespace Xamarin.AsyncTests.Server
 		{
 			return tests [id];
 		}
+
+		public string Write (TestConfiguration config)
+		{
+			var sb = new StringBuilder ();
+			var settings = new XmlWriterSettings ();
+			settings.OmitXmlDeclaration = true;
+			var writer = XmlWriter.Create (sb, settings);
+			Write (writer, config);
+			return sb.ToString ();
+		}
+
+		public void Write (XmlWriter writer, TestConfiguration config)
+		{
+			writer.WriteStartElement ("TestConfiguration");
+			foreach (var category in config.Categories) {
+				if (category.IsBuiltin)
+					continue;
+				writer.WriteStartElement ("Category");
+				writer.WriteAttributeString ("Name", category.Name);
+				if (category == config.CurrentCategory)
+					writer.WriteAttributeString ("IsCurrent", "true");
+				writer.WriteEndElement ();
+			}
+			foreach (var feature in config.Features) {
+				writer.WriteStartElement ("Feature");
+				writer.WriteAttributeString ("Name", feature.Name);
+				writer.WriteAttributeString ("Description", feature.Description);
+				if (feature.Constant != null)
+					writer.WriteAttributeString ("Constant", feature.Constant.Value.ToString ());
+				if (feature.DefaultValue != null)
+					writer.WriteAttributeString ("DefaultValue", feature.DefaultValue.Value.ToString ());
+				if (feature.CanModify)
+					writer.WriteAttributeString ("IsEnabled", config.IsEnabled (feature).ToString ());
+				writer.WriteEndElement ();
+			}
+			writer.WriteEndElement ();
+		}
+
+		public TestConfiguration ReadConfiguration (XmlReader reader)
+		{
+			var doc = XDocument.Load (reader);
+			var element = doc.Root.Element (XName.Get ("TestConfiguration"));
+			return ReadConfiguration (element);
+		}
+
+		public TestConfiguration ReadConfiguration (XElement element)
+		{
+			if (!element.Name.LocalName.Equals ("TestConfiguration"))
+				throw new InvalidOperationException ();
+
+			var config = new TestConfiguration ();
+			foreach (var item in element.Elements (XName.Get ("Category"))) {
+				var category = new TestCategory (item.Attribute (XName.Get ("Name")).Value);
+				config.AddCategory (category);
+				var current = item.Attribute (XName.Get ("IsCurrent"));
+				if (current != null && bool.Parse (current.Value))
+					config.CurrentCategory = category;
+			}
+			foreach (var item in element.Elements (XName.Get ("Feature"))) {
+				var name = item.Attribute (XName.Get ("Name")).Value;
+				var description = item.Attribute (XName.Get ("Description")).Value;
+				var constant = item.Attribute (XName.Get ("Constant"));
+				var defaultValue = item.Attribute (XName.Get ("DefaultValue"));
+				var enabled = item.Attribute (XName.Get ("IsEnabled"));
+
+				TestFeature feature;
+				if (constant != null) {
+					var constantValue = bool.Parse (constant.Value);
+					feature = new TestFeature (name, description, () => constantValue);
+				} else if (defaultValue != null)
+					feature = new TestFeature (name, description, bool.Parse (defaultValue.Value));
+				else
+					feature = new TestFeature (name, description);
+
+				bool isEnabled;
+				if (enabled != null)
+					isEnabled = bool.Parse (enabled.Value);
+				else
+					isEnabled = feature.Constant ?? feature.DefaultValue ?? false;
+
+				config.AddFeature (feature, isEnabled);
+			}
+			return config;
+		}
 	}
 }
 

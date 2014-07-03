@@ -66,8 +66,40 @@ namespace Xamarin.AsyncTests
 		public void Clear ()
 		{
 			currentCategory = TestCategory.All;
-			categories.RemoveAll (c => c != TestCategory.All);
+			categories.RemoveAll (c => !c.IsBuiltin);
 			features.Clear ();
+			OnPropertyChanged ("Features");
+			OnPropertyChanged ("Categories");
+			OnPropertyChanged ("CurrentCategory");
+		}
+
+		public void AddCategory (TestCategory category)
+		{
+			if (category.IsBuiltin)
+				throw new InvalidOperationException ();
+			categories.Add (category);
+			OnPropertyChanged ("Categories");
+		}
+
+		public void AddFeature (TestFeature feature, bool enabled)
+		{
+			features.Add (feature, enabled);
+			OnPropertyChanged ("Features");
+		}
+
+		public void Merge (TestConfiguration other, bool fullUpdate)
+		{
+			currentCategory = TestCategory.All;
+			categories.RemoveAll (c => !c.IsBuiltin);
+			features.Clear ();
+
+			foreach (var feature in other.features)
+				features.Add (feature.Key, feature.Value);
+			foreach (var category in other.categories) {
+				if (!category.IsBuiltin)
+					categories.Add (category);
+			}
+			currentCategory = other.currentCategory;
 			OnPropertyChanged ("Features");
 			OnPropertyChanged ("Categories");
 			OnPropertyChanged ("CurrentCategory");

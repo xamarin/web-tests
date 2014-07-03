@@ -111,6 +111,11 @@ namespace Xamarin.AsyncTests.UI
 			});
 		}
 
+		protected override void OnSyncConfiguration (TestConfiguration configuration, bool fullUpdate)
+		{
+			Context.Configuration.Merge (configuration, fullUpdate);
+		}
+
 		#endregion
 	}
 }

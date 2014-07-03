@@ -74,6 +74,14 @@ namespace Xamarin.AsyncTests.Server
 			await SendCommand (command);
 		}
 
+		public async Task SyncConfiguration (TestConfiguration configuration, bool fullUpdate)
+		{
+			var command = new SyncConfigurationCommand {
+				Configuration = configuration, FullUpdate = fullUpdate
+			};
+			await SendCommand (command);
+		}
+
 		#endregion
 
 		internal Serializer Serializer {
@@ -180,11 +188,20 @@ namespace Xamarin.AsyncTests.Server
 			return OnHello (cancellationToken);
 		}
 
+		internal Task Run (SyncConfigurationCommand command, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => {
+				OnSyncConfiguration (command.Configuration, command.FullUpdate);
+			});
+		}
+
 		protected abstract Task OnHello (CancellationToken cancellationToken);
 
 		protected abstract void OnMessage (string message);
 
 		protected abstract void OnDebug (int level, string message);
+
+		protected abstract void OnSyncConfiguration (TestConfiguration configuration, bool fullUpdate);
 	}
 }
 

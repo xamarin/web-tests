@@ -49,6 +49,7 @@
     <Compile Include="IServerCommand.cs" />
     <Compile Include="IClientCommand.cs" />
     <Compile Include="ICommonCommand.cs" />
+    <Compile Include="SyncConfigurationCommand.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>
