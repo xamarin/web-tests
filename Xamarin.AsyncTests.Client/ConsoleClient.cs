@@ -59,7 +59,7 @@ namespace Xamarin.AsyncTests.Client
 
 		public async Task<TestSuite> Load ()
 		{
-			var assembly = typeof(Xamarin.AsyncTests.Sample.SimpleTest).Assembly;
+			var assembly = typeof(Xamarin.WebTests.WebTestFeatures).Assembly;
 			var suite = await TestSuite.LoadAssembly (assembly);
 			if (suite.Configuration != null)
 				context.Configuration.AddTestSuite (suite.Configuration);
@@ -77,11 +77,9 @@ namespace Xamarin.AsyncTests.Client
 			await SyncConfiguration (context.Configuration, true);
 		}
 
-		public async Task<TestResult> RunTest ()
+		public async Task<TestResult> RunTest (TestSuite suite)
 		{
-			var assembly = typeof(Xamarin.AsyncTests.Sample.SimpleTest).Assembly;
-			var suite = await TestSuite.LoadAssembly (assembly);
-			var result = new TestResult (new TestName (assembly.FullName));
+			var result = new TestResult (suite.Name);
 			var success = await suite.Run (Context, result, CancellationToken.None);
 			Debug ("DONE RUNNING: {0}", success);
 			return result;
