@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace Xamarin.AsyncTests.UI
 {
@@ -65,6 +66,8 @@ namespace Xamarin.AsyncTests.UI
 				tcs = new TaskCompletionSource<bool> ();
 			}
 
+			Context.Configuration.PropertyChanged += OnConfigChanged;
+
 			Task.Factory.StartNew (() => MainLoop ());
 
 			return tcs.Task;
@@ -72,6 +75,7 @@ namespace Xamarin.AsyncTests.UI
 
 		public override void Stop ()
 		{
+			Context.Configuration.PropertyChanged -= OnConfigChanged;
 			base.Stop ();
 			try {
 				Connection.Close ();
@@ -111,9 +115,23 @@ namespace Xamarin.AsyncTests.UI
 			});
 		}
 
+		bool suppressConfigChanged;
+
+		async void OnConfigChanged (object sender, PropertyChangedEventArgs args)
+		{
+			if (suppressConfigChanged)
+				return;
+			await SyncConfiguration (Context.Configuration, false);
+		}
+
 		protected override void OnSyncConfiguration (TestConfiguration configuration, bool fullUpdate)
 		{
-			Context.Configuration.Merge (configuration, fullUpdate);
+			try {
+				suppressConfigChanged = true;
+				Context.Configuration.Merge (configuration, fullUpdate);
+			} finally {
+				suppressConfigChanged = false;
+			}
 		}
 
 		#endregion

@@ -54,6 +54,7 @@ namespace Xamarin.AsyncTests.UI
 					App.Context.Configuration.Disable (Feature);
 				if (App.SettingsHost != null)
 					App.SettingsHost.SetValue (Path, value.ToString ());
+				OnPropertyChanged ("Feature");
 			}
 		}
 

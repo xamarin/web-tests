@@ -89,20 +89,41 @@ namespace Xamarin.AsyncTests
 
 		public void Merge (TestConfiguration other, bool fullUpdate)
 		{
-			currentCategory = TestCategory.All;
-			categories.RemoveAll (c => !c.IsBuiltin);
-			features.Clear ();
+			if (fullUpdate) {
+				currentCategory = TestCategory.All;
+				categories.RemoveAll (c => !c.IsBuiltin);
+				features.Clear ();
 
-			foreach (var feature in other.features)
-				features.Add (feature.Key, feature.Value);
-			foreach (var category in other.categories) {
-				if (!category.IsBuiltin)
-					categories.Add (category);
+				foreach (var feature in other.features)
+					features.Add (feature.Key, feature.Value);
+				foreach (var category in other.categories) {
+					if (!category.IsBuiltin)
+						categories.Add (category);
+				}
+				currentCategory = other.currentCategory;
+				OnPropertyChanged ("Features");
+				OnPropertyChanged ("Categories");
+				OnPropertyChanged ("CurrentCategory");
+			} else {
+				CurrentCategory = categories.Find (c => c.Name.Equals (other.currentCategory.Name));
+				foreach (var entry in other.features) {
+					var feature = FindFeatureByName (entry.Key.Name);
+					if (features [feature] == entry.Value)
+						continue;
+					features [feature] = entry.Value;
+					OnPropertyChanged ("Feature");
+				}
 			}
-			currentCategory = other.currentCategory;
-			OnPropertyChanged ("Features");
-			OnPropertyChanged ("Categories");
-			OnPropertyChanged ("CurrentCategory");
+		}
+
+		TestFeature FindFeatureByName (string name)
+		{
+			foreach (var entry in features) {
+				if (entry.Key.Name.Equals (name))
+					return entry.Key;
+			}
+
+			throw new InvalidOperationException ();
 		}
 
 		public TestCategory CurrentCategory {
@@ -131,6 +152,7 @@ namespace Xamarin.AsyncTests
 				if (!CanModify (feature))
 					throw new InvalidOperationException ();
 				features [feature] = true;
+				OnPropertyChanged ("Feature");
 			}
 		}
 
@@ -140,6 +162,7 @@ namespace Xamarin.AsyncTests
 				if (!CanModify (feature))
 					throw new InvalidOperationException ();
 				features [feature] = false;
+				OnPropertyChanged ("Feature");
 			}
 		}
 

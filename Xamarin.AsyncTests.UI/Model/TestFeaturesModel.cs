@@ -53,10 +53,21 @@ namespace Xamarin.AsyncTests.UI
 			Configuration = config;
 
 			features = new List<TestFeatureModel> ();
-			Configuration.PropertyChanged += (sender, e) => OnConfigurationChanged ();
+			Configuration.PropertyChanged += (sender, e) => OnConfigurationChanged (sender, e);
 		}
 
-		void OnConfigurationChanged ()
+		void OnConfigurationChanged (object sender, PropertyChangedEventArgs args)
+		{
+			switch (args.PropertyName) {
+			case "Features":
+				ReloadFeature ();
+				break;
+			default:
+				break;
+			}
+		}
+
+		void ReloadFeature ()
 		{
 			features.Clear ();
 			foreach (var feature in Configuration.Features) {
@@ -64,7 +75,6 @@ namespace Xamarin.AsyncTests.UI
 					features.Add (new TestFeatureModel (App, feature));
 			}
 			LoadSettings ();
-			OnPropertyChanged ("Features");
 		}
 
 		void LoadSettings ()

@@ -134,7 +134,7 @@ namespace Xamarin.AsyncTests.UI
 			if (repeatValue != null)
 				repeat = bool.Parse (repeatValue);
 
-			var useServerValue = App.SettingsHost.GetValue ("UseValue");
+			var useServerValue = App.SettingsHost.GetValue ("UseServer");
 			if (useServerValue != null)
 				useServer = bool.Parse (useServerValue);
 

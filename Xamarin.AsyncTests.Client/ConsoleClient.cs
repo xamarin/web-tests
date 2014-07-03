@@ -110,7 +110,7 @@ namespace Xamarin.AsyncTests.Client
 
 		protected override void OnSyncConfiguration (TestConfiguration configuration, bool fullUpdate)
 		{
-			throw new NotImplementedException ();
+			Context.Configuration.Merge (configuration, fullUpdate);
 		}
 
 		#endregion
