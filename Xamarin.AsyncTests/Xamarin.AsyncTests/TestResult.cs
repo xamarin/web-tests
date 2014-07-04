@@ -70,7 +70,7 @@ namespace Xamarin.AsyncTests
 
 		public Exception Error {
 			get { return error; }
-			set {
+			private set {
 				error = value;
 				if (error != null)
 					Status = TestStatus.Error;
@@ -155,6 +155,7 @@ namespace Xamarin.AsyncTests
 		{
 			children.Clear ();
 			messages.Clear ();
+			Error = null;
 			Status = TestStatus.None;
 		}
 
@@ -178,6 +179,24 @@ namespace Xamarin.AsyncTests
 			default:
 				throw new InvalidOperationException ();
 			}
+		}
+
+		public void AddError (Exception exception)
+		{
+			if (error == null) {
+				Error = exception;
+				return;
+			}
+			var list = new List<Exception> ();
+			var aggregated = error as AggregateException;
+			if (aggregated != null) {
+				list.AddRange (aggregated.InnerExceptions);
+				list.Add (exception);
+				Error = new AggregateException (aggregated.Message, list);
+			} else {
+				Error = new AggregateException (exception);
+			}
+			Status = TestStatus.Error;
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;

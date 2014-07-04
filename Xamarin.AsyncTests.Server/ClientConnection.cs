@@ -96,7 +96,7 @@ namespace Xamarin.AsyncTests.Server
 			} catch (OperationCanceledException) {
 				result.Status = TestStatus.Canceled;
 			} catch (Exception ex) {
-				result.Error = ex;
+				result.AddError (ex);
 			}
 
 			var resultCommand = new LoadResultCommand { ObjectID = command.ObjectID, Result = result };

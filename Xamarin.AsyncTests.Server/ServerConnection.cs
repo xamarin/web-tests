@@ -103,7 +103,7 @@ namespace Xamarin.AsyncTests.Server
 				return true;
 			} catch (Exception ex) {
 				Debug ("SEND COMMAND ERROR: {0}", ex);
-				result.Error = ex;
+				result.AddError (ex);
 				return false;
 			} finally {
 				Debug ("RUN REMOTE TEST DONE");

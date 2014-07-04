@@ -60,7 +60,7 @@ namespace Xamarin.AsyncTests.Framework
 				result.Status = TestStatus.Canceled;
 				return null;
 			} catch (Exception ex) {
-				result.Error = ex;
+				result.AddError (ex);
 				return null;
 			}
 		}
@@ -76,7 +76,7 @@ namespace Xamarin.AsyncTests.Framework
 				result.Status = TestStatus.Canceled;
 				return false;
 			} catch (Exception ex) {
-				result.Error = ex;
+				result.AddError (ex);
 				return false;
 			}
 		}

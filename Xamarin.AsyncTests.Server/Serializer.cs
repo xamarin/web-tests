@@ -201,7 +201,7 @@ namespace Xamarin.AsyncTests.Server
 
 			var error = element.Attribute (XName.Get ("Error"));
 			if (error != null)
-				result.Error = new SavedException (error.Value);
+				result.AddError (new SavedException (error.Value));
 
 			var test = element.Element (XName.Get ("TestCase"));
 			if (test != null)
