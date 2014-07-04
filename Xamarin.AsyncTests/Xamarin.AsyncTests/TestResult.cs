@@ -135,6 +135,11 @@ namespace Xamarin.AsyncTests
 			OnPropertyChanged ("HasChildren");
 		}
 
+		public void AddMessage (string message)
+		{
+			messages.Add (message);
+		}
+
 		public void AddMessage (string format, params object[] args)
 		{
 			messages.Add (string.Format (format, args));

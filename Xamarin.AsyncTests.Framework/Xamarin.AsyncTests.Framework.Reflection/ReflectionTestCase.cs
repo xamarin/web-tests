@@ -91,6 +91,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					continue;
 				else if (paramType.Equals (typeof(CancellationToken)))
 					continue;
+				else if (paramType.Equals (typeof(ITestLogger)))
+					continue;
+				else if (paramType.Equals (typeof(TestResult)))
+					continue;
 
 				var member = ReflectionHelper.GetParameterInfo (parameters [i]);
 				parameterHosts.AddRange (ResolveParameter (Fixture.Type, member));
@@ -134,6 +138,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					continue;
 				} else if (paramType.Equals (typeof(TestContext))) {
 					args.AddFirst (ctx);
+					continue;
+				} else if (paramType.Equals (typeof(ITestLogger))) {
+					args.AddFirst (new TestResultLogger (result, ctx.Logger));
+					continue;
+				} else if (paramType.Equals (typeof(TestResult))) {
+					args.AddFirst (result);
 					continue;
 				}
 

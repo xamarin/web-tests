@@ -1,5 +1,5 @@
 ﻿//
-// ServerLogger.cs
+// MessageLogger.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,26 +25,33 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.Server
+namespace Xamarin.AsyncTests.Framework
 {
-	class ServerLogger : ITestLogger
+	class TestResultLogger : ITestLogger
 	{
-		public Connection Connection {
+		public TestResult Result {
 			get;
 			private set;
 		}
 
-		public ServerLogger (Connection connection)
+		public ITestLogger Parent {
+			get;
+			private set;
+		}
+
+		public TestResultLogger (TestResult result, ITestLogger parent = null)
 		{
-			Connection = connection;
+			Result = result;
+			Parent = parent;
 		}
 
 		#region ITestLogger implementation
 
 		public void LogDebug (int level, string message)
 		{
-			if (level <= Connection.DebugLevel)
-				Connection.SendCommandSync (new DebugCommand { Level = level, Message = message });
+			if (Parent != null)
+				Parent.LogDebug (level, message);
+			LogMessage (message);
 		}
 
 		public void LogDebug (int level, string format, params object[] args)
@@ -54,12 +61,12 @@ namespace Xamarin.AsyncTests.Server
 
 		public void LogMessage (string message)
 		{
-			Connection.SendCommandSync (new MessageCommand { Message = message });
+			Result.AddMessage (message);
 		}
 
 		public void LogError (Exception error)
 		{
-			LogMessage (string.Format ("EXCEPTION: {0}", error));
+			Result.AddError (error);
 		}
 
 		#endregion

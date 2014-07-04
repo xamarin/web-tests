@@ -31,7 +31,11 @@ namespace Xamarin.AsyncTests
 	{
 		void LogDebug (int level, string message);
 
+		void LogDebug (int level, string format, params object[] args);
+
 		void LogMessage (string message);
+
+		void LogError (Exception error);
 	}
 }
 
