@@ -50,6 +50,10 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public ServerControlModel ServerControl {
+			get { return App.ServerControl; }
+		}
+
 		bool repeat;
 		int repeatCount;
 		string repeatCountEntry;

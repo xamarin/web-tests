@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Xamarin.AsyncTests.UI.ServerControlView">
+
+    <Frame>
+        <StackLayout Orientation="Vertical">
+            <StackLayout Spacing="10" Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                <Label VerticalOptions="Center" Text="Server:" />
+                <Button Text="Connect" IsEnabled="{Binding ServerControl.CanRun}" Clicked="OnConnect" />
+                <Button Text="Disconnect" IsEnabled="{Binding ServerControl.IsRunning}" Clicked="OnDisconnect" />
+            </StackLayout>
+            <StackLayout Spacing="10" Orientation="Horizontal">
+                <Switch IsToggled="{Binding UseServer}" />
+                <Entry Text="{Binding ServerAddress}" HorizontalOptions="FillAndExpand" />
+            </StackLayout>
+            <Label Text="{Binding ServerControl.StatusMessage}" HorizontalOptions="FillAndExpand" />
+        </StackLayout>
+    </Frame>
+        
+</ContentView>
+

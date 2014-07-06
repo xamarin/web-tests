@@ -139,6 +139,11 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public ServerControlModel ServerControl {
+			get;
+			private set;
+		}
+
 		public TestApp (ISettingsHost settings, IServerHost server, Assembly assembly)
 		{
 			SettingsHost = settings;
@@ -155,6 +160,7 @@ namespace Xamarin.AsyncTests.UI
 			MainPage = new MainPage (this);
 			Root = new NavigationPage (MainPage);
 
+			ServerControl = new ServerControlModel (this);
 			Options = new OptionsModel (this, Context.Configuration);
 		}
 
