@@ -135,7 +135,7 @@ namespace Xamarin.WebTests.Runners
 			return IPAddress.Loopback;
 		}
 
-		protected void Debug (TestContext ctx, int level, Handler handler, string message, params object[] args)
+		protected void Debug (ITestLogger logger, int level, Handler handler, string message, params object[] args)
 		{
 			if (Handler.DebugLevel < level)
 				return;
@@ -146,8 +146,8 @@ namespace Xamarin.WebTests.Runners
 				sb.Append (args [i] != null ? args [i].ToString () : "<null>");
 			}
 
-			if (ctx != null)
-				ctx.Debug (level, sb.ToString ());
+			if (logger != null)
+				logger.LogDebug (level, sb.ToString ());
 			else
 				Console.Error.WriteLine (sb.ToString ());
 		}
@@ -162,22 +162,23 @@ namespace Xamarin.WebTests.Runners
 		public void Run (Handler handler, HttpStatusCode expectedStatus, bool expectException)
 		{
 			var request = CreateRequest (handler);
-			Run (null, handler, request, expectedStatus, expectException);
+			Run (null, null, handler, request, expectedStatus, expectException);
 		}
 
 		public async Task Run (
-			TestContext ctx, Handler handler, CancellationToken cancellationToken,
+			TestContext ctx, ITestLogger logger, Handler handler, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			bool expectException = false)
 		{
-			Debug (ctx, 0, handler, "RUN");
+			Debug (logger, 0, handler, "RUN");
 
 			var request = CreateRequest (handler);
 
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.Token.Register (() => request.Abort ());
 
-			var task = Task.Factory.StartNew (() => Run (ctx, handler, request, expectedStatus, expectException));
+			var task = Task.Factory.StartNew (() => Run (
+				ctx, logger, handler, request, expectedStatus, expectException));
 			try {
 				await task;
 			} finally {
@@ -186,29 +187,29 @@ namespace Xamarin.WebTests.Runners
 		}
 
 		void Run (
-			TestContext ctx, Handler handler, HttpWebRequest request, HttpStatusCode expectedStatus,
-			bool expectException)
+			TestContext ctx, ITestLogger logger, Handler handler, HttpWebRequest request,
+			HttpStatusCode expectedStatus, bool expectException)
 		{
-			Debug (ctx, 1, handler, "RUN #1", request.RequestUri);
+			Debug (logger, 1, handler, "RUN #1", request.RequestUri);
 
 			handler.SendRequest (request);
 
 			try {
 				var response = (HttpWebResponse)request.GetResponse ();
-				Debug (ctx, 1, handler, "GOT RESPONSE", response.StatusCode, response.StatusDescription);
+				Debug (logger, 1, handler, "GOT RESPONSE", response.StatusCode, response.StatusDescription);
 				Assert.That (expectedStatus, Is.EqualTo (response.StatusCode), "status code");
 				Assert.That (expectException, Is.False, "success status");
 
 				using (var reader = new StreamReader (response.GetResponseStream ())) {
 					var content = reader.ReadToEnd ();
-					Debug (ctx, 5, handler, "GOT RESPONSE BODY", content);
+					Debug (logger, 5, handler, "GOT RESPONSE BODY", content);
 				}
 
 				response.Close ();
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
 				if (response == null) {
-					Debug (ctx, 0, handler, "RUN - GOT WEB EXCEPTION WITH NULL RESPONSE", wexc);
+					Debug (logger, 0, handler, "RUN - GOT WEB EXCEPTION WITH NULL RESPONSE", wexc);
 					Assert.Fail ("{0}:{1}: Got WebException will null response: {2}", this, handler, wexc);
 					throw;
 				}
@@ -221,16 +222,16 @@ namespace Xamarin.WebTests.Runners
 
 				using (var reader = new StreamReader (response.GetResponseStream ())) {
 					var content = reader.ReadToEnd ();
-					Debug (ctx, 0, handler, "RUN - GOT WEB EXCEPTION", wexc.Status, response.StatusCode, content, wexc);
+					Debug (logger, 0, handler, "RUN - GOT WEB EXCEPTION", wexc.Status, response.StatusCode, content, wexc);
 					Assert.Fail ("{0}: {1}", handler, content);
 				}
 				response.Close ();
 				throw;
 			} catch (Exception ex) {
-				Debug (ctx, 0, handler, "RUN - GOT EXCEPTION", ex);
+				Debug (logger, 0, handler, "RUN - GOT EXCEPTION", ex);
 				throw;
 			} finally {
-				Debug (ctx, 0, handler, "RUN DONE");
+				Debug (logger, 0, handler, "RUN DONE");
 			}
 		}
 

@@ -138,29 +138,30 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Run (
-			TestContext ctx, [TestHost] ProxyTestRunner runner,
+			TestContext ctx, ITestLogger logger, [TestHost] ProxyTestRunner runner,
 			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{
 			if (Kind == ProxyKind.Unauthenticated)
 				return runner.Run (
-					ctx, handler, cancellationToken,
+					ctx, logger, handler, cancellationToken,
 					HttpStatusCode.ProxyAuthenticationRequired, true);
 			else
-				return runner.Run (ctx, handler, cancellationToken);
+				return runner.Run (ctx, logger, handler, cancellationToken);
 		}
 
 		[AsyncTest]
 		public Task RunAuthentication (
-			TestContext ctx, [TestHost] ProxyTestRunner runner, [TestParameter] AuthenticationType authType, 
-			[TestParameter] Handler handler, CancellationToken cancellationToken)
+			TestContext ctx, ITestLogger logger, [TestHost] ProxyTestRunner runner,
+			[TestParameter] AuthenticationType authType,  [TestParameter] Handler handler,
+			CancellationToken cancellationToken)
 		{
 			var authHandler = new AuthenticationHandler (authType, handler);
 			if (Kind == ProxyKind.Unauthenticated)
 				return runner.Run (
-					ctx, authHandler, cancellationToken,
+					ctx, logger, authHandler, cancellationToken,
 					HttpStatusCode.ProxyAuthenticationRequired, true);
 			else
-				return runner.Run (ctx, authHandler, cancellationToken);
+				return runner.Run (ctx, logger, authHandler, cancellationToken);
 		}
 	}
 }
