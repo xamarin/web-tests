@@ -54,7 +54,7 @@ namespace Xamarin.AsyncTests.UI
 
 		protected override void OnAppearing ()
 		{
-			App.CurrentTestRunner = App.RootTestRunner;
+			App.ServerControl.CurrentTestRunner = App.RootTestRunner;
 			base.OnAppearing ();
 		}
 

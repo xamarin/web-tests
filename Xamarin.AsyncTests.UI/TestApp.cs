@@ -77,18 +77,6 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		TestRunnerModel currentRunner;
-		public TestRunnerModel CurrentTestRunner {
-			get { return currentRunner; }
-			set {
-				currentRunner = value;
-				OnPropertyChanged ("CurrentTestRunner");
-				OnPropertyChanged ("CanRun");
-				OnPropertyChanged ("CanStop");
-				OnPropertyChanged ("IsStopped");
-			}
-		}
-
 		bool running;
 		public bool IsRunning {
 			get { return running; }
@@ -106,7 +94,7 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		public bool CanRun {
-			get { return !running && CurrentTestRunner.Test != null; }
+			get { return !running && ServerControl.CurrentTestRunner.Test != null; }
 		}
 
 		public bool IsStopped {
@@ -149,7 +137,7 @@ namespace Xamarin.AsyncTests.UI
 
 			var result = new TestResult (new TestName (null));
 			RootTestResult = new TestResultModel (this, result);
-			RootTestRunner = currentRunner = new TestRunnerModel (this, RootTestResult, true);
+			RootTestRunner = new TestRunnerModel (this, RootTestResult, true);
 
 			ServerControl = new ServerControlModel (this);
 			ServerControlPage = new ServerControlPage (ServerControl);
@@ -212,7 +200,7 @@ namespace Xamarin.AsyncTests.UI
 			try {
 				message = "Running";
 				StatusMessage = GetStatusMessage ();
-				await CurrentTestRunner.Run (repeat, cancelCts.Token);
+				await ServerControl.CurrentTestRunner.Run (repeat, cancelCts.Token);
 				message = "Done";
 			} catch (OperationCanceledException) {
 				message = "Canceled!";

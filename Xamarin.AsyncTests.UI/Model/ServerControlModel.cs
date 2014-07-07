@@ -112,6 +112,8 @@ namespace Xamarin.AsyncTests.UI
 		{
 			App = app;
 
+			CurrentTestRunner = App.RootTestRunner;
+
 			CanConnect = app.ServerHost != null;
 			CanLoad = true;
 
@@ -271,7 +273,7 @@ namespace Xamarin.AsyncTests.UI
 			}
 
 			App.RootTestResult.Result.Clear ();
-			App.CurrentTestRunner = App.RootTestRunner;
+			CurrentTestRunner = App.RootTestRunner;
 			App.Context.Configuration.Clear ();
 			OnPropertyChanged ("HasTestSuite");
 			CanLoad = true;
@@ -286,6 +288,15 @@ namespace Xamarin.AsyncTests.UI
 
 			if (AutoLoad)
 				await LoadTestSuite ();
+		}
+
+		TestRunnerModel currentRunner;
+		public TestRunnerModel CurrentTestRunner {
+			get { return currentRunner; }
+			set {
+				currentRunner = value;
+				OnPropertyChanged ("CurrentTestRunner");
+			}
 		}
 	}
 }
