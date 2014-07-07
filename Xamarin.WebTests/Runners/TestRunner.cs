@@ -152,19 +152,6 @@ namespace Xamarin.WebTests.Runners
 				Console.Error.WriteLine (sb.ToString ());
 		}
 
-		[Obsolete]
-		public void Run (Handler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK)
-		{
-			Run (handler, expectedStatus, expectedStatus != HttpStatusCode.OK);
-		}
-
-		[Obsolete]
-		public void Run (Handler handler, HttpStatusCode expectedStatus, bool expectException)
-		{
-			var request = CreateRequest (handler);
-			Run (null, null, handler, request, expectedStatus, expectException);
-		}
-
 		public async Task Run (
 			TestContext ctx, ITestLogger logger, Handler handler, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,

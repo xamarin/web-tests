@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.Runners
 		public override Task Start (CancellationToken cancellationToken)
 		{
 			return Task.Run (() => {
-				listener = new HttpListener (IPAddress.Loopback, 9999, UseSSL);
+				listener = new HttpListener (IPAddress.Loopback, 9999, ReuseConnection, UseSSL);
 			});
 		}
 

@@ -41,8 +41,8 @@ namespace Xamarin.WebTests.Server
 
 		static int nextId;
 
-		public HttpListener (IPAddress address, int port, bool ssl = false)
-			: base (address, port, ssl)
+		public HttpListener (IPAddress address, int port, bool reuseConnection, bool ssl)
+			: base (address, port, reuseConnection, ssl)
 		{
 		}
 

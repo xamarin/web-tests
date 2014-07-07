@@ -40,9 +40,10 @@ namespace Xamarin.WebTests.Server
 	public abstract class Listener
 	{
 		bool abortRequested;
-		TcpListener listener;
+		Socket server;
 		TaskCompletionSource<bool> tcs;
 		CancellationTokenSource cts;
+		bool reuseConnection;
 		bool ssl;
 		Uri uri;
 
@@ -71,14 +72,18 @@ namespace Xamarin.WebTests.Server
 			return asm.GetManifestResourceStream ("Xamarin.WebTests.Server." + name);
 		}
 
-		public Listener (IPAddress address, int port, bool ssl)
+		public Listener (IPAddress address, int port, bool reuseConnection, bool ssl)
 		{
 			this.ssl = ssl;
-			listener = new TcpListener (address, port);
-			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", address, port));
-			listener.Start ();
+			this.reuseConnection = reuseConnection;
 
-			listener.BeginAcceptSocket (AcceptSocketCB, null);
+			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", address, port));
+
+			server = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			server.Bind (new IPEndPoint (address, port));
+			server.Listen (1);
+
+			server.BeginAccept (AcceptSocketCB, null);
 		}
 
 		public Uri Uri {
@@ -94,7 +99,8 @@ namespace Xamarin.WebTests.Server
 				abortRequested = true;
 				if (tcs != null)
 					task = tcs.Task;
-				listener.Stop ();
+				Close (server);
+				server = null;
 				if (cts != null)
 					cts.Cancel ();
 			}
@@ -118,7 +124,7 @@ namespace Xamarin.WebTests.Server
 		{
 			Socket socket;
 			try {
-				socket = listener.EndAcceptSocket (ar);
+				socket = server.EndAccept (ar);
 			} catch {
 				if (abortRequested)
 					return;
@@ -136,17 +142,18 @@ namespace Xamarin.WebTests.Server
 
 			try {
 				HandleConnection (socket);
+				Close (socket);
+				socket = null;
 				t.SetResult (true);
 			} catch (Exception ex) {
 				Console.Error.WriteLine ("ACCEPT SOCKET EX: {0}", ex);
 				t.SetException (ex);
 			} finally {
-				Close (socket);
 				lock (this) {
 					tcs = null;
 					cts = null;
-					if (!abortRequested)
-						listener.BeginAcceptSocket (AcceptSocketCB, null);
+					if (!abortRequested && reuseConnection)
+						server.BeginAccept (AcceptSocketCB, null);
 				}
 			}
 		}
@@ -159,6 +166,7 @@ namespace Xamarin.WebTests.Server
 				;
 			} finally {
 				socket.Close ();
+				socket.Dispose ();
 			}
 		}
 
@@ -192,8 +200,8 @@ namespace Xamarin.WebTests.Server
 			writer.AutoFlush = true;
 
 			while (!abortRequested) {
-				var reuseConnection = HandleConnection (socket, reader, writer);
-				if (!reuseConnection)
+				var wantToReuse = HandleConnection (socket, reader, writer);
+				if (!wantToReuse)
 					break;
 
 				bool connectionAvailable = IsStillConnected (socket, reader);

@@ -68,7 +68,7 @@ namespace Xamarin.WebTests.Runners
 		public override Task Start (CancellationToken cancellationToken)
 		{
 			return Task.Run (() => {
-				httpListener = new HttpListener (endpoint.Address, endpoint.Port, UseSSL);
+				httpListener = new HttpListener (endpoint.Address, endpoint.Port, ReuseConnection, UseSSL);
 				proxyListener = new ProxyListener (httpListener, proxyEndpoint.Address, proxyEndpoint.Port, authType);
 			});
 		}
