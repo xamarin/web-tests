@@ -169,10 +169,12 @@ namespace Xamarin.AsyncTests.UI
 					return false;
 				serverCts = new CancellationTokenSource ();
 				token = serverCts.Token;
-				CanLoad = false;
 			}
 
+			UnloadTestSuite ();
+
 			try {
+				CanLoad = false;
 				CanConnect = false;
 				IsConnected = true;
 				connection = await App.ServerHost.Connect (ServerAddress, token);
@@ -217,7 +219,8 @@ namespace Xamarin.AsyncTests.UI
 				connection.Close ();
 				connection = null;
 			}
-			CanLoad = false;
+			UnloadTestSuite ();
+			CanLoad = true;
 			IsConnected = false;
 			CanConnect = App.ServerHost != null;
 			StatusMessage = message ?? "Disconnected.";
@@ -256,10 +259,15 @@ namespace Xamarin.AsyncTests.UI
 				CanLoad = false;
 			}
 
-			if (serverCts == null)
-				suite = await TestSuite.LoadAssembly (App.Assembly);
-			else
-				suite = await server.LoadTestSuite (CancellationToken.None);
+			try {
+				if (serverCts == null)
+					suite = await TestSuite.LoadAssembly (App.Assembly);
+				else
+					suite = await server.LoadTestSuite (CancellationToken.None);
+			} catch (Exception ex) {
+				StatusMessage = string.Format ("Failed to load test suite: {0}", ex.Message);
+				return null;
+			}
 
 			if (suite == null)
 				return null;
@@ -353,6 +361,8 @@ namespace Xamarin.AsyncTests.UI
 			IsRunning = true;
 
 			App.Context.ResetStatistics ();
+
+			App.RootTestResult.Result.AddChild (new TestResult (new TestName ("Hello!")));
 
 			try {
 				await CurrentTestRunner.Run (repeat, cancelCts.Token);

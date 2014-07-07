@@ -14,7 +14,8 @@
             <Button Text="Options" Clicked="OnOptions" />
         </StackLayout>
 
-        <StackLayout Orientation="Vertical" IsVisible="{Binding ServerControl.HasTestSuite}">
+        <StackLayout Orientation="Vertical" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
+                     IsVisible="{Binding ServerControl.HasTestSuite}">
 
             <local:TestRunnerControl BindingContext="{Binding RootTestRunner}" />
 

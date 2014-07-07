@@ -68,20 +68,11 @@ namespace Xamarin.AsyncTests.Client
 			return suite;
 		}
 
-		public async void Run ()
+		public void Run ()
 		{
 			#pragma warning disable 4014
 			MainLoop ();
 			#pragma warning restore 4014
-
-			await Hello (CancellationToken.None);
-			await Message ("Hello World");
-			return;
-
-			var suite = await LoadTestSuite (CancellationToken.None);
-			Debug ("TestSuite loaded: {0}", suite.Name);
-			await TestSuiteLoaded (suite, CancellationToken.None);
-			Debug ("Two-way handshake complete!");
 		}
 
 		public async Task<TestResult> RunTest (TestSuite suite)

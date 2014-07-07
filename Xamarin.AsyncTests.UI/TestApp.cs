@@ -122,14 +122,11 @@ namespace Xamarin.AsyncTests.UI
 
 			MainPage = new MainPage (this);
 			Root = new NavigationPage (MainPage);
+		}
 
-			Task.Factory.StartNew (async () => {
-				try {
-					await ServerControl.Initialize ();
-				} catch {
-					;
-				}
-			});
+		public Task Initialize ()
+		{
+			return ServerControl.Initialize ();
 		}
 
 		public OptionsPage GetOptionsPage ()
@@ -137,18 +134,14 @@ namespace Xamarin.AsyncTests.UI
 			return new OptionsPage (Options);
 		}
 
-		internal async Task LoadAssembly (CancellationToken cancellationToken)
+		internal Task LoadAssembly (CancellationToken cancellationToken)
 		{
-			var suite = await ServerControl.LoadTestSuite ();
-			if (suite == null)
-				return;
-
-			OnPropertyChanged ("CanRun");
+			return ServerControl.LoadTestSuite ();
 		}
 
 		internal void ClearAll ()
 		{
-			ServerControl.UnloadTestSuite ();
+			ServerControl.Disconnect ();
 			Clear ();
 		}
 

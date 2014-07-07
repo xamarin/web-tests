@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -68,11 +70,20 @@ namespace Xamarin.WebTests.Async.iOS
 
 			test = new TestApp (settings, server, typeof(AppDelegate).Assembly);
 
+			ThreadPool.QueueUserWorkItem (_ => Initialize ());
+
 			window = new UIWindow (UIScreen.MainScreen.Bounds);
 			window.RootViewController =  test.Root.CreateViewController ();
 			window.MakeKeyAndVisible ();
 
 			return true;
+		}
+
+		void Initialize ()
+		{
+			InvokeOnMainThread (async () => {
+				await test.Initialize ();
+			});
 		}
 	}
 }

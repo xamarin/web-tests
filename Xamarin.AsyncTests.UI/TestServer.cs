@@ -67,6 +67,7 @@ namespace Xamarin.AsyncTests.UI
 				} catch {
 					;
 				} finally {
+					Context.Configuration.PropertyChanged -= OnConfigChanged;
 					Context.Configuration.Clear ();
 					App.ServerControl.Disconnect ("Server terminated.");
 				}
@@ -120,12 +121,19 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		bool suppressConfigChanged;
+		bool configChanging;
 
 		async void OnConfigChanged (object sender, PropertyChangedEventArgs args)
 		{
-			if (suppressConfigChanged)
-				return;
+			lock (this) {
+				Debug ("ON CONFIG CHANGED: {0} {1}", suppressConfigChanged, configChanging);
+				if (suppressConfigChanged || configChanging)
+					return;
+				configChanging = true;
+			}
 			await SyncConfiguration (Context.Configuration, false);
+			configChanging = false;
+			Debug ("ON CONFIG CHANGED DONE");
 		}
 
 		protected override void OnSyncConfiguration (TestConfiguration configuration, bool fullUpdate)
