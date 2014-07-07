@@ -68,11 +68,9 @@ namespace Xamarin.AsyncTests.Client
 			return suite;
 		}
 
-		public void Run ()
+		public async Task Run ()
 		{
-			#pragma warning disable 4014
-			MainLoop ();
-			#pragma warning restore 4014
+			await MainLoop ();
 		}
 
 		public async Task<TestResult> RunTest (TestSuite suite)

@@ -37,12 +37,15 @@ namespace Xamarin.AsyncTests.Server
 		Stream stream;
 		Serializer serializer;
 		CancellationTokenSource cancelCts;
+		TaskCompletionSource<bool> commandTcs;
+		Queue<QueuedCommand> commandQueue;
 
 		public Connection (Stream stream)
 		{
 			this.stream = stream;
 			serializer = new Serializer (this);
 			cancelCts = new CancellationTokenSource ();
+			commandQueue = new Queue<QueuedCommand> ();
 		}
 
 		public int DebugLevel {
@@ -99,12 +102,59 @@ namespace Xamarin.AsyncTests.Server
 			return new ServerLogger (this);
 		}
 
-		internal async Task SendCommand (Command command)
+		internal Task SendCommand (Command command)
 		{
-			var formatted = serializer.Write (command);
+			var queued = new QueuedCommand (command);
+			lock (this) {
+				if (commandTcs != null) {
+					commandQueue.Enqueue (queued);
+					return queued.Task.Task;
+				}
+				commandTcs = queued.Task;
+			}
+
+			Task.Factory.StartNew (async () => {
+				try {
+					await RunQueue (queued);
+					queued.Task.SetResult (true);
+				} catch (OperationCanceledException) {
+					queued.Task.SetCanceled ();
+				} catch (Exception ex) {
+					queued.Task.SetException (ex);
+				}
+
+				await RunQueue ();
+			});
+
+			return queued.Task.Task;
+		}
+
+		async Task RunQueue ()
+		{
+			while (true) {
+				QueuedCommand command;
+				lock (this) {
+					if (commandQueue.Count == 0) {
+						commandTcs = null;
+						return;
+					}
+					command = commandQueue.Dequeue ();
+					commandTcs = command.Task;
+				}
+
+				await RunQueue (command);
+			}
+		}
+
+		async Task RunQueue (QueuedCommand command)
+		{
+			var formatted = serializer.Write (command.Command);
 			var bytes = new UTF8Encoding ().GetBytes (formatted);
 
 			var header = BitConverter.GetBytes (bytes.Length);
+			if (bytes.Length == 0)
+				throw new InvalidOperationException ();
+
 			await stream.WriteAsync (header, 0, 4).ConfigureAwait (false);
 			await stream.FlushAsync ();
 
@@ -178,6 +228,7 @@ namespace Xamarin.AsyncTests.Server
 				success = true;
 			} catch (Exception ex) {
 				error = ex.ToString ();
+				Debug ("COMMAND FAILED: {0}", ex);
 				success = false;
 			}
 
@@ -189,7 +240,11 @@ namespace Xamarin.AsyncTests.Server
 				ObjectID = withResponse.ResponseID, Success = success, Error = error
 			};
 
-			await SendCommand (response);
+			try {
+				await SendCommand (response);
+			} catch (Exception ex) {
+				Debug ("ERROR WHILE SENDING RESPONSE: {0}", ex);
+			}
 		}
 
 		internal abstract Task HandleCommand (Command command, CancellationToken cancellationToken);
@@ -269,6 +324,18 @@ namespace Xamarin.AsyncTests.Server
 			public Operation (long objectID)
 			{
 				ObjectID = objectID;
+				Task = new TaskCompletionSource<bool> ();
+			}
+		}
+
+		internal class QueuedCommand
+		{
+			public readonly Command Command;
+			public readonly TaskCompletionSource<bool> Task;
+
+			public QueuedCommand (Command command)
+			{
+				Command = command;
 				Task = new TaskCompletionSource<bool> ();
 			}
 		}

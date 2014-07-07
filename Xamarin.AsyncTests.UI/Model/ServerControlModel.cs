@@ -187,6 +187,8 @@ namespace Xamarin.AsyncTests.UI
 				StatusMessage = "Got remote connection!";
 				IsConnected = true;
 
+				await server.Hello (CancellationToken.None);
+
 				CanLoad = true;
 				if (AutoLoad)
 					await LoadTestSuite ();

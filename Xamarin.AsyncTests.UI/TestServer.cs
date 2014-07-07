@@ -64,8 +64,8 @@ namespace Xamarin.AsyncTests.UI
 			Task.Factory.StartNew (async () => {
 				try {
 					await MainLoop ().ConfigureAwait (false);
-				} catch {
-					;
+				} catch (Exception ex) {
+					App.Context.Debug (0, "SERVER ERROR: {0}", ex);
 				} finally {
 					Context.Configuration.PropertyChanged -= OnConfigChanged;
 					Context.Configuration.Clear ();

@@ -52,10 +52,13 @@ namespace Xamarin.AsyncTests.Server
 			var sb = new StringBuilder ();
 			var settings = new XmlWriterSettings ();
 			settings.OmitXmlDeclaration = true;
-			var writer = XmlWriter.Create (sb, settings);
-			writer.WriteStartElement (command.GetType ().FullName);
-			command.WriteXml (this, writer);
-			writer.WriteEndElement ();
+
+			using (var writer = XmlWriter.Create (sb, settings)) {
+				writer.WriteStartElement (command.GetType ().FullName);
+				command.WriteXml (this, writer);
+				writer.WriteEndElement ();
+				writer.Flush ();
+			}
 
 			return sb.ToString ();
 		}
@@ -84,8 +87,12 @@ namespace Xamarin.AsyncTests.Server
 			var sb = new StringBuilder ();
 			var settings = new XmlWriterSettings ();
 			settings.OmitXmlDeclaration = true;
-			var writer = XmlWriter.Create (sb, settings);
-			Write (writer, name);
+
+			using (var writer = XmlWriter.Create (sb, settings)) {
+				Write (writer, name);
+				writer.Flush ();
+			}
+
 			return sb.ToString ();
 		}
 
@@ -142,8 +149,12 @@ namespace Xamarin.AsyncTests.Server
 			var sb = new StringBuilder ();
 			var settings = new XmlWriterSettings ();
 			settings.OmitXmlDeclaration = true;
-			var writer = XmlWriter.Create (sb, settings);
-			Write (writer, result);
+
+			using (var writer = XmlWriter.Create (sb, settings)) {
+				Write (writer, result);
+				writer.Flush ();
+			}
+
 			return sb.ToString ();
 		}
 
@@ -233,8 +244,12 @@ namespace Xamarin.AsyncTests.Server
 			var sb = new StringBuilder ();
 			var settings = new XmlWriterSettings ();
 			settings.OmitXmlDeclaration = true;
-			var writer = XmlWriter.Create (sb, settings);
-			Write (writer, config);
+
+			using (var writer = XmlWriter.Create (sb, settings)) {
+				Write (writer, config);
+				writer.Flush ();
+			}
+
 			return sb.ToString ();
 		}
 
@@ -317,8 +332,12 @@ namespace Xamarin.AsyncTests.Server
 			var sb = new StringBuilder ();
 			var settings = new XmlWriterSettings ();
 			settings.OmitXmlDeclaration = true;
-			var writer = XmlWriter.Create (sb, settings);
-			Write (writer, suite);
+
+			using (var writer = XmlWriter.Create (sb, settings)) {
+				Write (writer, suite);
+				writer.Flush ();
+			}
+
 			return sb.ToString ();
 		}
 
