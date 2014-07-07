@@ -43,7 +43,7 @@ namespace Xamarin.AsyncTests
 		List<IDisposable> disposables;
 		TestConfiguration configuration = new TestConfiguration ();
 
-		const int DefaultDebugLevel = 10;
+		const int DefaultDebugLevel = 0;
 
 		public int DebugLevel {
 			get { return debugLevel; }

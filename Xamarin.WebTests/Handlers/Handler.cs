@@ -29,13 +29,14 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
 	using Server;
 
-	public abstract class Handler : ICloneable
+	public abstract class Handler : Xamarin.AsyncTests.ICloneable
 	{
 		static int debugLevel = 10;
 
@@ -75,25 +76,60 @@ namespace Xamarin.WebTests.Handlers
 			tcs = new TaskCompletionSource<bool> ();
 		}
 
+		public Handler Parent {
+			get;
+			private set;
+		}
+
+		internal void SetParent (Handler parent)
+		{
+			if (Parent != null)
+				throw new InvalidOperationException ();
+			Parent = parent;
+		}
+
+		internal ITestLogger Logger {
+			get; set;
+		}
+
+		ITestLogger GetLogger ()
+		{
+			lock (this) {
+				if (Logger != null)
+					return Logger;
+				if (Parent != null)
+					return Parent.GetLogger ();
+				throw new InvalidOperationException ();
+			}
+		}
+
 		protected void Debug (int level, string message, params object[] args)
 		{
 			if (DebugLevel < level)
 				return;
+			var logger = GetLogger ();
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("{0}: {1}", this, message);
 			for (int i = 0; i < args.Length; i++) {
 				sb.Append (" ");
 				sb.Append (args [i] != null ? args [i].ToString () : "<null>");
 			}
-			Console.Error.WriteLine (sb.ToString ());
+			if (logger != null)
+				logger.LogDebug (level, sb.ToString ());
+			else
+				Console.Error.WriteLine (sb.ToString ());
 		}
 
 		protected void DumpHeaders (HttpMessage message)
 		{
 			if (DebugLevel < 2)
 				return;
+			var logger = GetLogger ();
 			foreach (var header in message.Headers) {
-				Console.Error.WriteLine ("  {0} = {1}", header.Key, header.Value);
+				if (logger != null)
+					logger.LogMessage (string.Format ("  {0} = {1}", header.Key, header.Value));
+				else
+					Console.Error.WriteLine ("  {0} = {1}", header.Key, header.Value);
 			}
 		}
 

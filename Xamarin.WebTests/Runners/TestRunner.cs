@@ -192,9 +192,11 @@ namespace Xamarin.WebTests.Runners
 		{
 			Debug (logger, 1, handler, "RUN #1", request.RequestUri);
 
-			handler.SendRequest (request);
-
 			try {
+				handler.Logger = logger;
+
+				handler.SendRequest (request);
+
 				var response = (HttpWebResponse)request.GetResponse ();
 				Debug (logger, 1, handler, "GOT RESPONSE", response.StatusCode, response.StatusDescription);
 				Assert.That (expectedStatus, Is.EqualTo (response.StatusCode), "status code");
@@ -232,6 +234,7 @@ namespace Xamarin.WebTests.Runners
 				throw;
 			} finally {
 				Debug (logger, 0, handler, "RUN DONE");
+				handler.Logger = null;
 			}
 		}
 

@@ -37,12 +37,14 @@ namespace Xamarin.WebTests.Handlers
 		public AuthenticationHandler (AuthenticationType type, Handler target)
 			: base (target)
 		{
+			target.SetParent (this);
 			manager = new HttpAuthManager (type, target);
 		}
 
 		AuthenticationHandler (HttpAuthManager manager)
 			: base (manager.Target)
 		{
+			SetParent (manager.Target);
 			this.manager = manager;
 		}
 

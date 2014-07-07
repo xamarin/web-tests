@@ -57,9 +57,6 @@ namespace Xamarin.WebTests.Server
 			var remoteAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
 			request.AddHeader ("X-Forwarded-For", remoteAddress);
 
-			Console.Error.Write ("PROXY HANDLE CONNECTION: {0} {1}", remoteAddress, request);
-			request.DumpHeaders ();
-
 			if (authManager != null) {
 				string authHeader;
 				if (!request.Headers.TryGetValue ("Proxy-Authorization", out authHeader))

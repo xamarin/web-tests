@@ -48,6 +48,8 @@ namespace Xamarin.WebTests.Handlers
 		public RedirectHandler (Handler target, HttpStatusCode code)
 			: base (target)
 		{
+			target.SetParent (this);
+
 			Code = code;
 
 			if (!IsRedirectStatus (code))
