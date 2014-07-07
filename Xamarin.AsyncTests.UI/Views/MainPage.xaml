@@ -8,7 +8,7 @@
     <StackLayout Spacing="10" Orientation="Vertical">
 
         <StackLayout Spacing="20" Orientation="Horizontal">
-            <Button Text="Clear" IsEnabled="{Binding IsStopped}" Clicked="OnClear" />
+            <Button Text="Clear" IsEnabled="{Binding ServerControl.IsStopped}" Clicked="OnClear" />
             <Button Text="Load" IsEnabled="{Binding ServerControl.CanLoad}" Clicked="OnLoad" />
             <Button Text="Server" Clicked="OnServer" />
             <Button Text="Options" Clicked="OnOptions" />

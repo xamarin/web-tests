@@ -45,6 +45,10 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public ServerControlModel Server {
+			get { return App.ServerControl; }
+		}
+
 		public TestCase Test {
 			get { return ResultModel.Result.Test; }
 		}

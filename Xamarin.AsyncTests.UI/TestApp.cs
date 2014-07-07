@@ -77,30 +77,6 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		bool running;
-		public bool IsRunning {
-			get { return running; }
-			set {
-				running = value;
-				OnPropertyChanged ("IsRunning");
-				OnPropertyChanged ("CanStop");
-				OnPropertyChanged ("CanRun");
-				OnPropertyChanged ("IsStopped");
-			}
-		}
-
-		public bool CanStop {
-			get { return running; }
-		}
-
-		public bool CanRun {
-			get { return !running && ServerControl.CurrentTestRunner.Test != null; }
-		}
-
-		public bool IsStopped {
-			get { return !running; }
-		}
-
 		public ISettingsHost SettingsHost {
 			get;
 			private set;
@@ -184,42 +160,27 @@ namespace Xamarin.AsyncTests.UI
 				PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
 		}
 
-		CancellationTokenSource cancelCts;
 		string message;
 
 		internal async void Run (bool repeat)
 		{
-			if (!CanRun || IsRunning)
-				return;
-
-			cancelCts = new CancellationTokenSource ();
-			IsRunning = true;
-
-			Context.ResetStatistics ();
-
 			try {
 				message = "Running";
 				StatusMessage = GetStatusMessage ();
-				await ServerControl.CurrentTestRunner.Run (repeat, cancelCts.Token);
+				await ServerControl.Run (repeat);
 				message = "Done";
 			} catch (OperationCanceledException) {
 				message = "Canceled!";
 			} catch (Exception ex) {
 				message = string.Format ("ERROR: {0}", ex.Message);
 			} finally {
-				IsRunning = false;
 				StatusMessage = GetStatusMessage ();
-				cancelCts.Dispose ();
-				cancelCts = null;
 			}
 		}
 
 		internal void Stop ()
 		{
-			if (!IsRunning || cancelCts == null)
-				return;
-
-			cancelCts.Cancel ();
+			ServerControl.Stop ();
 		}
 
 		void OnTestFinished (TestResult result)

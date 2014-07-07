@@ -40,6 +40,8 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		#region Options
+
 		string serverAddress;
 
 		public string ServerAddress {
@@ -108,6 +110,39 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
+		void LoadSettings ()
+		{
+			if (App.SettingsHost == null)
+				return;
+
+			serverAddress = App.SettingsHost.GetValue ("ServerAddress") ?? string.Empty;
+
+			var autoStartValue = App.SettingsHost.GetValue ("AutoStartServer");
+			if (autoStartValue != null)
+				autoStart = bool.Parse (autoStartValue);
+
+			var autoLoadValue = App.SettingsHost.GetValue ("AutoLoadTestSuite");
+			if (autoLoadValue != null)
+				autoLoad = bool.Parse (autoLoadValue);
+
+			OnPropertyChanged ("UseServer");
+			OnPropertyChanged ("ServerAddress");
+			OnPropertyChanged ("AutoStart");
+			OnPropertyChanged ("AutoLoad");
+		}
+
+		void SaveSettings ()
+		{
+			if (App.SettingsHost == null)
+				return;
+
+			App.SettingsHost.SetValue ("ServerAddress", ServerAddress);
+			App.SettingsHost.SetValue ("AutoStartServer", AutoStart.ToString ());
+			App.SettingsHost.SetValue ("AutoLoadTestSuite", AutoLoad.ToString ());
+		}
+
+		#endregion
+
 		public ServerControlModel (TestApp app)
 		{
 			App = app;
@@ -119,6 +154,8 @@ namespace Xamarin.AsyncTests.UI
 
 			LoadSettings ();
 		}
+
+		#region Server
 
 		CancellationTokenSource serverCts;
 		IServerConnection connection;
@@ -148,10 +185,9 @@ namespace Xamarin.AsyncTests.UI
 				StatusMessage = "Got remote connection!";
 				IsConnected = true;
 
+				CanLoad = true;
 				if (AutoLoad)
 					await LoadTestSuite ();
-				else
-					CanLoad = true;
 
 				return true;
 			} catch (OperationCanceledException) {
@@ -187,36 +223,9 @@ namespace Xamarin.AsyncTests.UI
 			StatusMessage = message ?? "Disconnected.";
 		}
 
-		void LoadSettings ()
-		{
-			if (App.SettingsHost == null)
-				return;
+		#endregion
 
-			serverAddress = App.SettingsHost.GetValue ("ServerAddress") ?? string.Empty;
-
-			var autoStartValue = App.SettingsHost.GetValue ("AutoStartServer");
-			if (autoStartValue != null)
-				autoStart = bool.Parse (autoStartValue);
-
-			var autoLoadValue = App.SettingsHost.GetValue ("AutoLoadTestSuite");
-			if (autoLoadValue != null)
-				autoLoad = bool.Parse (autoLoadValue);
-
-			OnPropertyChanged ("UseServer");
-			OnPropertyChanged ("ServerAddress");
-			OnPropertyChanged ("AutoStart");
-			OnPropertyChanged ("AutoLoad");
-		}
-
-		void SaveSettings ()
-		{
-			if (App.SettingsHost == null)
-				return;
-
-			App.SettingsHost.SetValue ("ServerAddress", ServerAddress);
-			App.SettingsHost.SetValue ("AutoStartServer", AutoStart.ToString ());
-			App.SettingsHost.SetValue ("AutoLoadTestSuite", AutoLoad.ToString ());
-		}
+		#region TestSuite
 
 		public TestSuite TestSuite {
 			get { return suite; }
@@ -261,6 +270,7 @@ namespace Xamarin.AsyncTests.UI
 			StatusMessage = string.Format ("Successfully loaded {0}.", suite.Name);
 
 			OnPropertyChanged ("HasTestSuite");
+			OnPropertyChanged ("CanRun");
 			return suite;
 		}
 
@@ -276,8 +286,11 @@ namespace Xamarin.AsyncTests.UI
 			CurrentTestRunner = App.RootTestRunner;
 			App.Context.Configuration.Clear ();
 			OnPropertyChanged ("HasTestSuite");
+			OnPropertyChanged ("CanRun");
 			CanLoad = true;
 		}
+
+		#endregion
 
 		public async Task Initialize ()
 		{
@@ -290,6 +303,8 @@ namespace Xamarin.AsyncTests.UI
 				await LoadTestSuite ();
 		}
 
+		#region Test Runner
+
 		TestRunnerModel currentRunner;
 		public TestRunnerModel CurrentTestRunner {
 			get { return currentRunner; }
@@ -298,6 +313,70 @@ namespace Xamarin.AsyncTests.UI
 				OnPropertyChanged ("CurrentTestRunner");
 			}
 		}
+
+		bool running;
+		public bool IsRunning {
+			get { return running; }
+			set {
+				running = value;
+				OnPropertyChanged ("IsRunning");
+				OnPropertyChanged ("CanStop");
+				OnPropertyChanged ("CanRun");
+				OnPropertyChanged ("IsStopped");
+			}
+		}
+
+		public bool CanStop {
+			get { return running; }
+		}
+
+		public bool CanRun {
+			get { return !running && CurrentTestRunner.Test != null; }
+		}
+
+		public bool IsStopped {
+			get { return !running; }
+		}
+
+		CancellationTokenSource cancelCts;
+
+		internal async Task<bool> Run (bool repeat)
+		{
+			lock (this) {
+				if (!CanRun || IsRunning)
+					return false;
+				if (cancelCts != null)
+					return false;
+			}
+
+			cancelCts = new CancellationTokenSource ();
+			IsRunning = true;
+
+			App.Context.ResetStatistics ();
+
+			try {
+				await CurrentTestRunner.Run (repeat, cancelCts.Token);
+				return true;
+			} finally {
+				IsRunning = false;
+				cancelCts.Dispose ();
+				cancelCts = null;
+			}
+		}
+
+		internal void Stop ()
+		{
+			lock (this) {
+				if (!IsRunning || cancelCts == null)
+					return;
+
+				cancelCts.Cancel ();
+				cancelCts = null;
+			}
+		}
+
+		#endregion
+
 	}
 }
 

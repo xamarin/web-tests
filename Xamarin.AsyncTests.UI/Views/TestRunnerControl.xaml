@@ -7,10 +7,10 @@
     <StackLayout Spacing="5" Orientation="Vertical">
 
         <StackLayout Spacing="20" Orientation="Horizontal">
-            <Button Text="Run" IsEnabled="{Binding App.CanRun}" Clicked="OnRun" />
-            <Button Text="Repeat" IsEnabled="{Binding App.CanRun}" Clicked="OnRepeat" />
-            <Button Text="Stop" IsEnabled="{Binding App.CanStop}" Clicked="OnStop" />
-            <Button Text="Clear Result" IsEnabled="{Binding App.CanRun}" Clicked="OnClear" />
+            <Button Text="Run" IsEnabled="{Binding Server.CanRun}" Clicked="OnRun" />
+            <Button Text="Repeat" IsEnabled="{Binding Server.CanRun}" Clicked="OnRepeat" />
+            <Button Text="Stop" IsEnabled="{Binding Server.CanStop}" Clicked="OnStop" />
+            <Button Text="Clear Result" IsEnabled="{Binding Server.CanRun}" Clicked="OnClear" />
         </StackLayout>
 
         <Label Text="{Binding App.StatusMessage}" VerticalOptions="End" />
