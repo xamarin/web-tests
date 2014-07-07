@@ -115,14 +115,48 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		internal Task Run (TestSuiteLoadedCommand command, CancellationToken cancellationToken)
+		TaskCompletionSource<TestSuite> loadTestSuiteTcs;
+
+		internal async Task Run (TestSuiteLoadedCommand command, CancellationToken cancellationToken)
 		{
-			return OnTestSuiteLoaded (command.TestSuite);
+			await SyncConfiguration (Context.Configuration, false);
+			lock (this) {
+				if (loadTestSuiteTcs == null)
+					throw new InvalidOperationException ();
+				var tcs = loadTestSuiteTcs;
+				loadTestSuiteTcs = null;
+				tcs.SetResult (command.TestSuite);
+			}
 		}
 
 		protected abstract Task OnLoadResult (TestResult result);
 
-		protected abstract Task OnTestSuiteLoaded (TestSuite suite);
+		public async Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
+		{
+			Task<TestSuite> task;
+			lock (this) {
+				if (loadTestSuiteTcs != null)
+					throw new InvalidOperationException ();
+				loadTestSuiteTcs = new TaskCompletionSource<TestSuite> ();
+				task = loadTestSuiteTcs.Task;
+			}
+			var command = new LoadTestSuiteCommand ();
+			await SendWithResponse (command);
+			return await task;
+		}
+
+		public override void Stop ()
+		{
+			lock (this) {
+				if (loadTestSuiteTcs != null) {
+					var tcs = loadTestSuiteTcs;
+					loadTestSuiteTcs = null;
+					tcs.SetCanceled ();
+				}
+			}
+
+			base.Stop ();
+		}
 	}
 }
 

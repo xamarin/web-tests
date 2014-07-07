@@ -54,6 +54,7 @@
     <Compile Include="TestSuiteLoadedCommand.cs" />
     <Compile Include="ResponseCommand.cs" />
     <Compile Include="CommandWithResponse.cs" />
+    <Compile Include="LoadTestSuiteCommand.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

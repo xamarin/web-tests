@@ -119,6 +119,15 @@ namespace Xamarin.AsyncTests.Server
 			});
 		}
 
+		internal async Task Run (LoadTestSuiteCommand command, CancellationToken cancellationToken)
+		{
+			var suite = await LoadTestSuite (cancellationToken);
+			if (suite != null)
+				await TestSuiteLoaded (suite, cancellationToken);
+		}
+
+		protected abstract Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken);
+
 		Dictionary<long,TestSuite> suites = new Dictionary<long,TestSuite> ();
 		Dictionary<long,TestCase> tests = new Dictionary<long,TestCase> ();
 

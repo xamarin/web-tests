@@ -57,7 +57,7 @@ namespace Xamarin.AsyncTests.Client
 			System.Diagnostics.Debug.WriteLine (message);
 		}
 
-		public async Task<TestSuite> Load ()
+		protected override async Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
 		{
 			var assembly = typeof(Xamarin.WebTests.WebTestFeatures).Assembly;
 			var suite = await TestSuite.LoadAssembly (assembly);
@@ -76,8 +76,9 @@ namespace Xamarin.AsyncTests.Client
 
 			await Hello (CancellationToken.None);
 			await Message ("Hello World");
+			return;
 
-			var suite = await Load ();
+			var suite = await LoadTestSuite (CancellationToken.None);
 			Debug ("TestSuite loaded: {0}", suite.Name);
 			await TestSuiteLoaded (suite, CancellationToken.None);
 			Debug ("Two-way handshake complete!");

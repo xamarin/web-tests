@@ -31,6 +31,8 @@ using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
 {
+	using Framework;
+
 	public class ServerControlModel : BindableObject
 	{
 		public TestApp App {
@@ -98,6 +100,7 @@ namespace Xamarin.AsyncTests.UI
 			App = app;
 
 			CanRun = app.ServerHost != null;
+			CanLoad = true;
 
 			LoadSettings ();
 		}
@@ -114,6 +117,7 @@ namespace Xamarin.AsyncTests.UI
 					return;
 				serverCts = new CancellationTokenSource ();
 				token = serverCts.Token;
+				CanLoad = false;
 			}
 
 			try {
@@ -128,6 +132,7 @@ namespace Xamarin.AsyncTests.UI
 				server.Run ();
 				StatusMessage = "Got remote connection!";
 				IsRunning = true;
+				CanLoad = true;
 			} catch (OperationCanceledException) {
 				Disconnect ("Server connection canceled!");
 				return;
@@ -154,6 +159,7 @@ namespace Xamarin.AsyncTests.UI
 				connection.Close ();
 				connection = null;
 			}
+			CanLoad = false;
 			IsRunning = false;
 			CanRun = App.ServerHost != null;
 			StatusMessage = message ?? "Disconnected.";
@@ -181,6 +187,62 @@ namespace Xamarin.AsyncTests.UI
 
 			App.SettingsHost.SetValue ("UseServer", UseServer.ToString ());
 			App.SettingsHost.SetValue ("ServerAddress", ServerAddress);
+		}
+
+		public TestSuite TestSuite {
+			get { return suite; }
+		}
+
+		public bool HasTestSuite {
+			get { return suite != null; }
+		}
+
+		public bool CanLoad {
+			get { return canLoad; }
+			set {
+				if (canLoad == value)
+					return;
+				canLoad = value;
+				OnPropertyChanged ("CanLoad");
+			}
+		}
+
+		bool canLoad;
+		TestSuite suite;
+
+		public async Task<TestSuite> LoadTestSuite ()
+		{
+			lock (this) {
+				if (!canLoad)
+					return null;
+				CanLoad = false;
+			}
+
+			if (serverCts == null)
+				return await LoadLocalAssembly ();
+
+			suite = await server.LoadTestSuite (CancellationToken.None);
+			OnPropertyChanged ("HasTestSuite");
+			return suite;
+		}
+
+		public void UnloadTestSuite ()
+		{
+			lock (this) {
+				if (suite == null)
+					return;
+				suite = null;
+				OnPropertyChanged ("HasTestSuite");
+				CanLoad = true;
+			}
+		}
+
+		async Task<TestSuite> LoadLocalAssembly ()
+		{
+			var name = App.Assembly.GetName ().Name;
+			suite = await TestSuite.LoadAssembly (App.Assembly);
+			OnPropertyChanged ("HasTestSuite");
+			return suite;
 		}
 	}
 }

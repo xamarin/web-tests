@@ -43,11 +43,6 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestSuite TestSuite {
-			get;
-			private set;
-		}
-
 		public TestContext Context {
 			get;
 			private set;
@@ -120,14 +115,6 @@ namespace Xamarin.AsyncTests.UI
 			get { return !running; }
 		}
 
-		public bool CanLoad {
-			get { return !running && TestSuite == null; }
-		}
-
-		public bool HasTestSuite {
-			get { return TestSuite != null; }
-		}
-
 		public ISettingsHost SettingsHost {
 			get;
 			private set;
@@ -166,13 +153,13 @@ namespace Xamarin.AsyncTests.UI
 			RootTestResult = new TestResultModel (this, result);
 			RootTestRunner = currentRunner = new TestRunnerModel (this, RootTestResult, true);
 
-			MainPage = new MainPage (this);
-			Root = new NavigationPage (MainPage);
-
 			ServerControl = new ServerControlModel (this);
 			ServerControlPage = new ServerControlPage (ServerControl);
 
 			Options = new OptionsModel (this, Context.Configuration);
+
+			MainPage = new MainPage (this);
+			Root = new NavigationPage (MainPage);
 		}
 
 		public OptionsPage GetOptionsPage ()
@@ -182,16 +169,14 @@ namespace Xamarin.AsyncTests.UI
 
 		internal async Task LoadAssembly (CancellationToken cancellationToken)
 		{
-			RootTestResult.Result.Clear ();
-			Clear ();
+			var suite = await ServerControl.LoadTestSuite ();
+			if (suite == null)
+				return;
 
-			var name = Assembly.GetName ().Name;
-			StatusMessage = string.Format ("Loading {0}", name);
-			TestSuite = await TestSuite.LoadAssembly (Assembly);
-			RootTestResult.Result.Test = TestSuite;
-			if (TestSuite.Configuration != null)
-				Context.Configuration.AddTestSuite (TestSuite.Configuration);
-			StatusMessage = string.Format ("Successfully loaded {0}.", name);
+			if (suite.Configuration != null)
+				Context.Configuration.AddTestSuite (suite.Configuration);
+			RootTestResult.Result.Test = suite;
+			StatusMessage = string.Format ("Successfully loaded {0}.", suite.Name);
 			OnPropertyChanged ("CanLoad");
 			OnPropertyChanged ("CanRun");
 		}
@@ -201,7 +186,7 @@ namespace Xamarin.AsyncTests.UI
 			RootTestResult.Result.Clear ();
 			CurrentTestRunner = RootTestRunner;
 			Context.Configuration.Clear ();
-			TestSuite = null;
+			ServerControl.UnloadTestSuite ();
 			Clear ();
 		}
 
@@ -266,7 +251,7 @@ namespace Xamarin.AsyncTests.UI
 
 		string GetStatusMessage ()
 		{
-			if (TestSuite == null)
+			if (ServerControl.TestSuite == null)
 				return "No test loaded.";
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("{0} tests passed", Context.CountSuccess);

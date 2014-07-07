@@ -50,8 +50,6 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		TaskCompletionSource<TestSuite> startTcs;
-
 		public TestServer (TestApp app, Stream stream, IServerConnection connection)
 			: base (stream)
 		{
@@ -61,42 +59,18 @@ namespace Xamarin.AsyncTests.UI
 
 		public void Run ()
 		{
+			Context.Configuration.PropertyChanged += OnConfigChanged;
+
 			Task.Factory.StartNew (async () => {
 				try {
 					await MainLoop ().ConfigureAwait (false);
 				} catch {
 					;
 				} finally {
+					Context.Configuration.Clear ();
 					App.ServerControl.Disconnect ("Server terminated.");
 				}
 			});
-		}
-
-		public Task<TestSuite> Start ()
-		{
-			lock (this) {
-				if (startTcs != null)
-					throw new InvalidOperationException ();
-				startTcs = new TaskCompletionSource<TestSuite> ();
-			}
-
-			Context.Configuration.PropertyChanged += OnConfigChanged;
-
-			Task.Factory.StartNew (async () => {
-				try {
-					await MainLoop ().ConfigureAwait (false);
-				} catch (Exception ex) {
-					lock (this) {
-						if (startTcs != null) {
-							var tcs = startTcs;
-							startTcs = null;
-							tcs.SetException (ex);
-						}
-					}
-				}
-			});
-
-			return startTcs.Task;
 		}
 
 		public override void Stop ()
@@ -111,14 +85,6 @@ namespace Xamarin.AsyncTests.UI
 				Connection.Close ();
 			} catch {
 				;
-			}
-
-			lock (this) {
-				if (startTcs != null) {
-					var tcs = startTcs;
-					startTcs = null;
-					tcs.SetCanceled ();
-				}
 			}
 		}
 
@@ -169,18 +135,6 @@ namespace Xamarin.AsyncTests.UI
 				Context.Configuration.Merge (configuration, fullUpdate);
 			} finally {
 				suppressConfigChanged = false;
-			}
-		}
-
-		protected override async Task OnTestSuiteLoaded (TestSuite suite)
-		{
-			await SyncConfiguration (Context.Configuration, false);
-			lock (this) {
-				if (startTcs == null)
-					throw new InvalidOperationException ();
-				var tcs = startTcs;
-				startTcs = null;
-				tcs.SetResult (suite);
 			}
 		}
 
