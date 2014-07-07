@@ -50,10 +50,6 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public ServerControlModel ServerControl {
-			get { return App.ServerControl; }
-		}
-
 		bool repeat;
 		int repeatCount;
 		string repeatCountEntry;
@@ -89,29 +85,6 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		bool useServer;
-		string serverAddress;
-
-		public bool UseServer {
-			get { return useServer; }
-			set {
-				if (useServer == value)
-					return;
-				useServer = value;
-				SaveSettings ();
-				OnPropertyChanged ("UseServer");
-			}
-		}
-
-		public string ServerAddress {
-			get { return serverAddress; }
-			set {
-				serverAddress = value;
-				SaveSettings ();
-				OnPropertyChanged ("ServerAddress");
-			}
-		}
-
 		public OptionsModel (TestApp app, TestConfiguration config)
 		{
 			App = app;
@@ -138,17 +111,9 @@ namespace Xamarin.AsyncTests.UI
 			if (repeatValue != null)
 				repeat = bool.Parse (repeatValue);
 
-			var useServerValue = App.SettingsHost.GetValue ("UseServer");
-			if (useServerValue != null)
-				useServer = bool.Parse (useServerValue);
-
-			serverAddress = App.SettingsHost.GetValue ("ServerAddress") ?? string.Empty;
-
 			OnPropertyChanged ("RepeatCount");
 			OnPropertyChanged ("RepeatCountEntry");
 			OnPropertyChanged ("Repeat");
-			OnPropertyChanged ("UseServer");
-			OnPropertyChanged ("ServerAddress");
 		}
 
 		void SaveSettings ()
@@ -158,8 +123,6 @@ namespace Xamarin.AsyncTests.UI
 
 			App.SettingsHost.SetValue ("RepeatCount", RepeatCount.ToString ());
 			App.SettingsHost.SetValue ("Repeat", Repeat.ToString ());
-			App.SettingsHost.SetValue ("UseServer", UseServer.ToString ());
-			App.SettingsHost.SetValue ("ServerAddress", ServerAddress);
 		}
 	}
 }

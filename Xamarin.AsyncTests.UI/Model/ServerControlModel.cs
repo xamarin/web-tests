@@ -38,6 +38,29 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		bool useServer;
+		string serverAddress;
+
+		public bool UseServer {
+			get { return useServer; }
+			set {
+				if (useServer == value)
+					return;
+				useServer = value;
+				SaveSettings ();
+				OnPropertyChanged ("UseServer");
+			}
+		}
+
+		public string ServerAddress {
+			get { return serverAddress; }
+			set {
+				serverAddress = value;
+				SaveSettings ();
+				OnPropertyChanged ("ServerAddress");
+			}
+		}
+
 		bool canRun;
 		bool isRunning;
 		string statusMessage;
@@ -75,6 +98,8 @@ namespace Xamarin.AsyncTests.UI
 			App = app;
 
 			CanRun = app.ServerHost != null;
+
+			LoadSettings ();
 		}
 
 		CancellationTokenSource serverCts;
@@ -94,12 +119,13 @@ namespace Xamarin.AsyncTests.UI
 			try {
 				CanRun = false;
 				IsRunning = true;
-				connection = await App.ServerHost.Connect (App.Options.ServerAddress, token);
+				connection = await App.ServerHost.Connect (ServerAddress, token);
 				OnPropertyChanged ("CanLoad");
 				StatusMessage = "Started server!";
 
 				var stream = await connection.Open (token).ConfigureAwait (false);
 				server = new TestServer (App, stream, connection);
+				server.Run ();
 				StatusMessage = "Got remote connection!";
 				IsRunning = true;
 			} catch (OperationCanceledException) {
@@ -131,6 +157,30 @@ namespace Xamarin.AsyncTests.UI
 			IsRunning = false;
 			CanRun = App.ServerHost != null;
 			StatusMessage = message ?? "Disconnected.";
+		}
+
+		void LoadSettings ()
+		{
+			if (App.SettingsHost == null)
+				return;
+
+			var useServerValue = App.SettingsHost.GetValue ("UseServer");
+			if (useServerValue != null)
+				useServer = bool.Parse (useServerValue);
+
+			serverAddress = App.SettingsHost.GetValue ("ServerAddress") ?? string.Empty;
+
+			OnPropertyChanged ("UseServer");
+			OnPropertyChanged ("ServerAddress");
+		}
+
+		void SaveSettings ()
+		{
+			if (App.SettingsHost == null)
+				return;
+
+			App.SettingsHost.SetValue ("UseServer", UseServer.ToString ());
+			App.SettingsHost.SetValue ("ServerAddress", ServerAddress);
 		}
 	}
 }

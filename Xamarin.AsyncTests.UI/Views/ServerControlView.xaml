@@ -8,14 +8,14 @@
         <StackLayout Orientation="Vertical">
             <StackLayout Spacing="10" Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                 <Label VerticalOptions="Center" Text="Server:" />
-                <Button Text="Connect" IsEnabled="{Binding ServerControl.CanRun}" Clicked="OnConnect" />
-                <Button Text="Disconnect" IsEnabled="{Binding ServerControl.IsRunning}" Clicked="OnDisconnect" />
+                <Button Text="Connect" IsEnabled="{Binding CanRun}" Clicked="OnConnect" />
+                <Button Text="Disconnect" IsEnabled="{Binding IsRunning}" Clicked="OnDisconnect" />
             </StackLayout>
             <StackLayout Spacing="10" Orientation="Horizontal">
                 <Switch IsToggled="{Binding UseServer}" />
                 <Entry Text="{Binding ServerAddress}" HorizontalOptions="FillAndExpand" />
             </StackLayout>
-            <Label Text="{Binding ServerControl.StatusMessage}" HorizontalOptions="FillAndExpand" />
+            <Label Text="{Binding StatusMessage}" HorizontalOptions="FillAndExpand" />
         </StackLayout>
     </Frame>
         

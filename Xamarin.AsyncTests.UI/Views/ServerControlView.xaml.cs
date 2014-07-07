@@ -38,14 +38,14 @@ namespace Xamarin.AsyncTests.UI
 
 		async void OnConnect (object sender, EventArgs args)
 		{
-			var model = (OptionsModel)BindingContext;
-			await model.ServerControl.Connect ();
+			var model = (ServerControlModel)BindingContext;
+			await model.Connect ();
 		}
 
 		void OnDisconnect (object sender, EventArgs args)
 		{
-			var model = (OptionsModel)BindingContext;
-			model.ServerControl.Disconnect ();
+			var model = (ServerControlModel)BindingContext;
+			model.Disconnect ();
 		}
 	}
 }

@@ -121,7 +121,11 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		public bool CanLoad {
-			get { return !running && TestSuite == null && connection == null; }
+			get { return !running && TestSuite == null; }
+		}
+
+		public bool HasTestSuite {
+			get { return TestSuite != null; }
 		}
 
 		public ISettingsHost SettingsHost {
@@ -144,6 +148,11 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public ServerControlPage ServerControlPage {
+			get;
+			private set;
+		}
+
 		public TestApp (ISettingsHost settings, IServerHost server, Assembly assembly)
 		{
 			SettingsHost = settings;
@@ -161,6 +170,8 @@ namespace Xamarin.AsyncTests.UI
 			Root = new NavigationPage (MainPage);
 
 			ServerControl = new ServerControlModel (this);
+			ServerControlPage = new ServerControlPage (ServerControl);
+
 			Options = new OptionsModel (this, Context.Configuration);
 		}
 
@@ -169,14 +180,8 @@ namespace Xamarin.AsyncTests.UI
 			return new OptionsPage (Options);
 		}
 
-		CancellationTokenSource serverCts;
-		IServerConnection connection;
-		TestServer server;
-
 		internal async Task LoadAssembly (CancellationToken cancellationToken)
 		{
-			StopServer ();
-
 			RootTestResult.Result.Clear ();
 			Clear ();
 
@@ -191,59 +196,8 @@ namespace Xamarin.AsyncTests.UI
 			OnPropertyChanged ("CanRun");
 		}
 
-		internal async Task ConnectToServer ()
-		{
-			CancellationToken token;
-			lock (this) {
-				if (serverCts != null)
-					return;
-				serverCts = new CancellationTokenSource ();
-				token = serverCts.Token;
-			}
-
-			try {
-				connection = await ServerHost.Connect (Options.ServerAddress, token);
-				OnPropertyChanged ("CanLoad");
-				StatusMessage = "Started server!";
-
-				var stream = await connection.Open (token).ConfigureAwait (false);
-				server = new TestServer (this, stream, connection);
-				StatusMessage = "Got remote connection!";
-				TestSuite = await server.Start ();
-				RootTestResult.Result.Test = TestSuite;
-				StatusMessage = string.Format ("Got remote test suite: {0}", TestSuite.Name);
-				OnPropertyChanged ("CanLoad");
-				OnPropertyChanged ("CanRun");
-			} catch (OperationCanceledException) {
-				return;
-			} catch (Exception ex) {
-				Context.Log ("SERVER ERROR: {0}", ex);
-				StatusMessage = string.Format ("Server error: {0}", ex.Message);
-			}
-		}
-
-		void StopServer ()
-		{
-			lock (this) {
-				if (serverCts != null) {
-					serverCts.Cancel ();
-					serverCts.Dispose ();
-				}
-				serverCts = null;
-			}
-			if (server != null) {
-				server.Stop ();
-				server = null;
-			}
-			if (connection != null) {
-				connection.Close ();
-				connection = null;
-			}
-		}
-
 		internal void ClearAll ()
 		{
-			StopServer ();
 			RootTestResult.Result.Clear ();
 			CurrentTestRunner = RootTestRunner;
 			Context.Configuration.Clear ();

@@ -1,5 +1,5 @@
 ﻿//
-// MainPage.xaml.cs
+// ServerControlPage.xaml.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,58 +24,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 ﻿using System;
-using System.Linq;
-using System.ComponentModel;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Threading;
-using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
 {	
-	using Framework;
-
-	public partial class MainPage : ContentPage
+	public partial class ServerControlPage : ContentPage
 	{	
-		public TestApp App {
+		public ServerControlModel Model {
 			get;
 			private set;
 		}
 
-		public MainPage (TestApp app)
+		public ServerControlPage (ServerControlModel model)
 		{
-			App = app;
+			Model = model;
 
 			InitializeComponent ();
 
-			BindingContext = app;
-		}
-
-		protected override void OnAppearing ()
-		{
-			App.CurrentTestRunner = App.RootTestRunner;
-			base.OnAppearing ();
-		}
-
-		void OnClear (object sender, EventArgs args)
-		{
-			App.ClearAll ();
-		}
-
-		async void OnOptions (object sender, EventArgs args)
-		{
-			await Navigation.PushAsync (App.GetOptionsPage ());
-		}
-
-		async void OnLoad (object sender, EventArgs args)
-		{
-			await App.LoadAssembly (CancellationToken.None);
-		}
-
-		async void OnServer (object sender, EventArgs args)
-		{
-			await Navigation.PushAsync (App.ServerControlPage);
+			BindingContext = model;
 		}
 	}
 }

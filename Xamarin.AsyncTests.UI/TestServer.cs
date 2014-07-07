@@ -59,6 +59,19 @@ namespace Xamarin.AsyncTests.UI
 			Connection = connection;
 		}
 
+		public void Run ()
+		{
+			Task.Factory.StartNew (async () => {
+				try {
+					await MainLoop ().ConfigureAwait (false);
+				} catch {
+					;
+				} finally {
+					App.ServerControl.Disconnect ("Server terminated.");
+				}
+			});
+		}
+
 		public Task<TestSuite> Start ()
 		{
 			lock (this) {

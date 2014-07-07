@@ -5,25 +5,23 @@
     xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.OptionsPage">
 
-    <StackLayout Spacing="20" Padding="20" Orientation="Vertical">
+    <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+        <StackLayout Spacing="20" Padding="20" Orientation="Vertical">
 
-        <StackLayout Spacing="30" Orientation="Horizontal">
-            <Switch IsToggled="{Binding Repeat}" />
-            <Label Text="Repeat" VerticalOptions="Center" />
-            <Entry Text="{Binding RepeatCountEntry}" HorizontalOptions="FillAndExpand"
-                   Completed="OnRepeatCountChanged" />
-        </StackLayout>
+            <StackLayout Spacing="30" Orientation="Horizontal">
+                <Switch IsToggled="{Binding Repeat}" />
+                <Label Text="Repeat" VerticalOptions="Center" />
+                <Entry Text="{Binding RepeatCountEntry}" HorizontalOptions="FillAndExpand"
+                       Completed="OnRepeatCountChanged" />
+            </StackLayout>
 
-        <StackLayout Spacing="30" Orientation="Horizontal">
-            <Label Text="Category:" VerticalOptions="Center" />
-            <Picker x:Name="Picker" HorizontalOptions="FillAndExpand" />
-        </StackLayout>
+            <StackLayout Spacing="30" Orientation="Horizontal">
+                <Label Text="Category:" VerticalOptions="Center" />
+                <Picker x:Name="Picker" HorizontalOptions="FillAndExpand" />
+            </StackLayout>
 
-        <local:ServerControlView />
-
-        <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
             <local:TestFeatureSelector BindingContext="{Binding Features}" />
-        </ScrollView>
 
-    </StackLayout>
+        </StackLayout>
+    </ScrollView>
 </ContentPage>
