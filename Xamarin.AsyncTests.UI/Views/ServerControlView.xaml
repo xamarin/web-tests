@@ -8,14 +8,24 @@
         <StackLayout Orientation="Vertical">
             <StackLayout Spacing="10" Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                 <Label VerticalOptions="Center" Text="Server:" />
-                <Button Text="Connect" IsEnabled="{Binding CanRun}" Clicked="OnConnect" />
-                <Button Text="Disconnect" IsEnabled="{Binding IsRunning}" Clicked="OnDisconnect" />
+                <Button Text="Connect" IsEnabled="{Binding CanConnect}" Clicked="OnConnect" />
+                <Button Text="Disconnect" IsEnabled="{Binding IsConnected}" Clicked="OnDisconnect" />
             </StackLayout>
             <StackLayout Spacing="10" Orientation="Horizontal">
-                <Switch IsToggled="{Binding UseServer}" />
                 <Entry Text="{Binding ServerAddress}" HorizontalOptions="FillAndExpand" />
             </StackLayout>
             <Label Text="{Binding StatusMessage}" HorizontalOptions="FillAndExpand" />
+
+            <StackLayout Spacing="30" Orientation="Horizontal">
+                <Switch IsToggled="{Binding AutoStart}" />
+                <Label Text="Auto start server" VerticalOptions="Center" />
+            </StackLayout>
+
+            <StackLayout Spacing="30" Orientation="Horizontal">
+                <Switch IsToggled="{Binding AutoLoad}" />
+                <Label Text="Auto load test suite" VerticalOptions="Center" />
+            </StackLayout>
+
         </StackLayout>
     </Frame>
         

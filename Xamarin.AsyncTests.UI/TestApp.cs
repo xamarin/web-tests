@@ -86,7 +86,6 @@ namespace Xamarin.AsyncTests.UI
 				OnPropertyChanged ("CanRun");
 				OnPropertyChanged ("CanStop");
 				OnPropertyChanged ("IsStopped");
-				OnPropertyChanged ("CanLoad");
 			}
 		}
 
@@ -99,7 +98,6 @@ namespace Xamarin.AsyncTests.UI
 				OnPropertyChanged ("CanStop");
 				OnPropertyChanged ("CanRun");
 				OnPropertyChanged ("IsStopped");
-				OnPropertyChanged ("CanLoad");
 			}
 		}
 
@@ -160,6 +158,14 @@ namespace Xamarin.AsyncTests.UI
 
 			MainPage = new MainPage (this);
 			Root = new NavigationPage (MainPage);
+
+			Task.Factory.StartNew (async () => {
+				try {
+					await ServerControl.Initialize ();
+				} catch {
+					;
+				}
+			});
 		}
 
 		public OptionsPage GetOptionsPage ()
@@ -173,19 +179,11 @@ namespace Xamarin.AsyncTests.UI
 			if (suite == null)
 				return;
 
-			if (suite.Configuration != null)
-				Context.Configuration.AddTestSuite (suite.Configuration);
-			RootTestResult.Result.Test = suite;
-			StatusMessage = string.Format ("Successfully loaded {0}.", suite.Name);
-			OnPropertyChanged ("CanLoad");
 			OnPropertyChanged ("CanRun");
 		}
 
 		internal void ClearAll ()
 		{
-			RootTestResult.Result.Clear ();
-			CurrentTestRunner = RootTestRunner;
-			Context.Configuration.Clear ();
 			ServerControl.UnloadTestSuite ();
 			Clear ();
 		}
@@ -246,7 +244,6 @@ namespace Xamarin.AsyncTests.UI
 			Context.ResetStatistics ();
 			message = null;
 			StatusMessage = GetStatusMessage ();
-			OnPropertyChanged ("CanLoad");
 		}
 
 		string GetStatusMessage ()
