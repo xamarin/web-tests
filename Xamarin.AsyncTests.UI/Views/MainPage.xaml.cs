@@ -58,19 +58,9 @@ namespace Xamarin.AsyncTests.UI
 			base.OnAppearing ();
 		}
 
-		void OnClear (object sender, EventArgs args)
-		{
-			App.ClearAll ();
-		}
-
 		async void OnOptions (object sender, EventArgs args)
 		{
 			await Navigation.PushAsync (App.GetOptionsPage ());
-		}
-
-		async void OnLoad (object sender, EventArgs args)
-		{
-			await App.LoadAssembly (CancellationToken.None);
 		}
 
 		async void OnServer (object sender, EventArgs args)

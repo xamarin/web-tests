@@ -5,6 +5,15 @@
     xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.ServerControlPage">
 
-    <local:ServerControlView />
+    <StackLayout Orientation="Vertical">
+        <Frame>
+            <local:ServerControlView />
+        </Frame>
+
+        <Frame>
+            <local:TestSuiteManagerView BindingContext="{Binding App.TestSuiteManager}" />
+        </Frame>
+    </StackLayout>
+
 </ContentPage>
 

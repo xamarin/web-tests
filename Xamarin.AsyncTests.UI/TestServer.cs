@@ -65,17 +65,18 @@ namespace Xamarin.AsyncTests.UI
 				try {
 					await MainLoop ().ConfigureAwait (false);
 				} catch (Exception ex) {
-					App.Context.Debug (0, "SERVER ERROR: {0}", ex);
+					if (!stopRequested)
+						App.Context.Debug (0, "SERVER ERROR: {0}", ex);
 				} finally {
 					Context.Configuration.PropertyChanged -= OnConfigChanged;
 					Context.Configuration.Clear ();
-					App.ServerControl.Disconnect ("Server terminated.");
 				}
 			});
 		}
 
 		public override void Stop ()
 		{
+			stopRequested = true;
 			Context.Configuration.PropertyChanged -= OnConfigChanged;
 			try {
 				base.Stop ();
@@ -120,6 +121,7 @@ namespace Xamarin.AsyncTests.UI
 			});
 		}
 
+		bool stopRequested;
 		bool suppressConfigChanged;
 		bool configChanging;
 

@@ -8,14 +8,12 @@
     <StackLayout Spacing="10" Orientation="Vertical">
 
         <StackLayout Spacing="20" Orientation="Horizontal">
-            <Button Text="Clear" IsEnabled="{Binding ServerControl.IsStopped}" Clicked="OnClear" />
-            <Button Text="Load" IsEnabled="{Binding ServerControl.CanLoad}" Clicked="OnLoad" />
             <Button Text="Server" Clicked="OnServer" />
             <Button Text="Options" Clicked="OnOptions" />
         </StackLayout>
 
         <StackLayout Orientation="Vertical" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
-                     IsVisible="{Binding ServerControl.HasTestSuite}">
+                     IsVisible="{Binding TestSuiteManager.HasInstance}">
 
             <local:TestRunnerControl BindingContext="{Binding RootTestRunner}" />
 

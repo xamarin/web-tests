@@ -1,5 +1,5 @@
 ﻿//
-// ServerControlView.xaml.cs
+// TestSuiteManagerView.xaml.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -29,9 +29,9 @@ using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
 {
-	public partial class ServerControlView : ContentView
+	public partial class TestSuiteManagerView : ContentView
 	{
-		public ServerControlView ()
+		public TestSuiteManagerView ()
 		{
 			InitializeComponent ();
 		}

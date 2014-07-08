@@ -92,6 +92,16 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public TestSuiteManager TestSuiteManager {
+			get;
+			private set;
+		}
+
+		public ServerManager ServerManager {
+			get;
+			private set;
+		}
+
 		public ServerControlModel ServerControl {
 			get;
 			private set;
@@ -115,8 +125,11 @@ namespace Xamarin.AsyncTests.UI
 			RootTestResult = new TestResultModel (this, result);
 			RootTestRunner = new TestRunnerModel (this, RootTestResult, true);
 
+			ServerManager = new ServerManager (this);
+			TestSuiteManager = new TestSuiteManager (this);
+
 			ServerControl = new ServerControlModel (this);
-			ServerControlPage = new ServerControlPage (ServerControl);
+			ServerControlPage = new ServerControlPage (ServerManager);
 
 			Options = new OptionsModel (this, Context.Configuration);
 
@@ -124,25 +137,9 @@ namespace Xamarin.AsyncTests.UI
 			Root = new NavigationPage (MainPage);
 		}
 
-		public Task Initialize ()
-		{
-			return ServerControl.Initialize ();
-		}
-
 		public OptionsPage GetOptionsPage ()
 		{
 			return new OptionsPage (Options);
-		}
-
-		internal Task LoadAssembly (CancellationToken cancellationToken)
-		{
-			return ServerControl.LoadTestSuite ();
-		}
-
-		internal void ClearAll ()
-		{
-			ServerControl.Disconnect ();
-			Clear ();
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -190,7 +187,7 @@ namespace Xamarin.AsyncTests.UI
 
 		string GetStatusMessage ()
 		{
-			if (ServerControl.TestSuite == null)
+			if (!TestSuiteManager.HasInstance)
 				return "No test loaded.";
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("{0} tests passed", Context.CountSuccess);

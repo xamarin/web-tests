@@ -2,32 +2,30 @@
 <ContentView
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.ServerControlView">
 
-    <Frame>
-        <StackLayout Orientation="Vertical">
-            <StackLayout Spacing="10" Orientation="Horizontal" HorizontalOptions="FillAndExpand">
-                <Label VerticalOptions="Center" Text="Server:" />
-                <Button Text="Connect" IsEnabled="{Binding CanConnect}" Clicked="OnConnect" />
-                <Button Text="Disconnect" IsEnabled="{Binding IsConnected}" Clicked="OnDisconnect" />
-            </StackLayout>
-            <StackLayout Spacing="10" Orientation="Horizontal">
-                <Entry Text="{Binding ServerAddress}" HorizontalOptions="FillAndExpand" />
-            </StackLayout>
-            <Label Text="{Binding StatusMessage}" HorizontalOptions="FillAndExpand" />
-
-            <StackLayout Spacing="30" Orientation="Horizontal">
-                <Switch IsToggled="{Binding AutoStart}" />
-                <Label Text="Auto start server" VerticalOptions="Center" />
-            </StackLayout>
-
-            <StackLayout Spacing="30" Orientation="Horizontal">
-                <Switch IsToggled="{Binding AutoLoad}" />
-                <Label Text="Auto load test suite" VerticalOptions="Center" />
-            </StackLayout>
-
+    <StackLayout Orientation="Vertical">
+        <StackLayout Spacing="10" Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+            <Label VerticalOptions="Center" Text="Server:" />
+            <Button Text="Connect" Command="{Binding Connect}" />
+            <Button Text="Disconnect" Command="{Binding Stop}" />
         </StackLayout>
-    </Frame>
-        
+        <StackLayout Spacing="10" Orientation="Horizontal">
+            <Entry Text="{Binding ServerAddress}" HorizontalOptions="FillAndExpand" />
+        </StackLayout>
+        <Label Text="{Binding StatusMessage}" HorizontalOptions="FillAndExpand" />
+
+        <StackLayout Spacing="30" Orientation="Horizontal">
+            <Switch IsToggled="{Binding AutoStart}" />
+            <Label Text="Auto start server" VerticalOptions="Center" />
+        </StackLayout>
+
+        <StackLayout Spacing="30" Orientation="Horizontal">
+            <Switch IsToggled="{Binding AutoLoad}" />
+            <Label Text="Auto load test suite" VerticalOptions="Center" />
+        </StackLayout>
+    </StackLayout>
+
 </ContentView>
 

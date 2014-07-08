@@ -95,6 +95,13 @@ namespace Xamarin.AsyncTests.Server
 		public virtual void Stop ()
 		{
 			cancelCts.Cancel ();
+
+			lock (this) {
+				foreach (var queued in commandQueue)
+					queued.Task.TrySetCanceled ();
+				foreach (var operation in operations.Values)
+					operation.Task.TrySetCanceled ();
+			}
 		}
 
 		public ITestLogger GetLogger ()

@@ -1,5 +1,5 @@
 ﻿//
-// ServerControlView.xaml.cs
+// ITestSuiteProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
-using Xamarin.Forms;
+using System.Threading;
+using System.Threading.Tasks;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.AsyncTests.UI
 {
-	public partial class ServerControlView : ContentView
+	public interface ITestSuiteProvider
 	{
-		public ServerControlView ()
-		{
-			InitializeComponent ();
+		bool CanLoad {
+			get;
 		}
+
+		Task<TestSuite> Load (CancellationToken cancellationToken);
+
+		Task Unload (CancellationToken cancellationToken);
 	}
 }
 

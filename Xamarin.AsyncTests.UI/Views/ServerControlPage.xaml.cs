@@ -31,18 +31,17 @@ namespace Xamarin.AsyncTests.UI
 {	
 	public partial class ServerControlPage : ContentPage
 	{	
-		public ServerControlModel Model {
+		public ServerManager Manager {
 			get;
 			private set;
 		}
 
-		public ServerControlPage (ServerControlModel model)
+		public ServerControlPage (ServerManager manager)
 		{
-			Model = model;
+			Manager = manager;
+			BindingContext = manager;
 
 			InitializeComponent ();
-
-			BindingContext = model;
 		}
 	}
 }

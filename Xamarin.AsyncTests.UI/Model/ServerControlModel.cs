@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
@@ -40,277 +41,19 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		#region Options
-
-		string serverAddress;
-
-		public string ServerAddress {
-			get { return serverAddress; }
-			set {
-				serverAddress = value;
-				SaveSettings ();
-				OnPropertyChanged ("ServerAddress");
-			}
-		}
-
-		bool canConnect;
-		bool isConnected;
-		string statusMessage;
-
-		public bool CanConnect {
-			get { return canConnect; }
-			set {
-				if (canConnect == value)
-					return;
-				canConnect = value;
-				OnPropertyChanged ("CanConnect");
-			}
-		}
-
-		public bool IsConnected {
-			get { return isConnected; }
-			set {
-				if (isConnected == value)
-					return;
-				isConnected = value;
-				OnPropertyChanged ("IsConnected");
-			}
-		}
-
-		public string StatusMessage {
-			get { return statusMessage; }
-			set {
-				statusMessage = value;
-				OnPropertyChanged ("StatusMessage");
-			}
-		}
-
-		bool autoStart;
-		bool autoLoad;
-
-		public bool AutoStart {
-			get { return autoStart; }
-			set {
-				if (value == autoStart)
-					return;
-				autoStart = value;
-				SaveSettings ();
-				OnPropertyChanged ("AutoStart");
-			}
-		}
-
-		public bool AutoLoad {
-			get { return autoLoad; }
-			set {
-				if (value == autoLoad)
-					return;
-				autoLoad = value;
-				SaveSettings ();
-				OnPropertyChanged ("AutoLoad");
-			}
-		}
-
-		void LoadSettings ()
-		{
-			if (App.SettingsHost == null)
-				return;
-
-			serverAddress = App.SettingsHost.GetValue ("ServerAddress") ?? string.Empty;
-
-			var autoStartValue = App.SettingsHost.GetValue ("AutoStartServer");
-			if (autoStartValue != null)
-				autoStart = bool.Parse (autoStartValue);
-
-			var autoLoadValue = App.SettingsHost.GetValue ("AutoLoadTestSuite");
-			if (autoLoadValue != null)
-				autoLoad = bool.Parse (autoLoadValue);
-
-			OnPropertyChanged ("UseServer");
-			OnPropertyChanged ("ServerAddress");
-			OnPropertyChanged ("AutoStart");
-			OnPropertyChanged ("AutoLoad");
-		}
-
-		void SaveSettings ()
-		{
-			if (App.SettingsHost == null)
-				return;
-
-			App.SettingsHost.SetValue ("ServerAddress", ServerAddress);
-			App.SettingsHost.SetValue ("AutoStartServer", AutoStart.ToString ());
-			App.SettingsHost.SetValue ("AutoLoadTestSuite", AutoLoad.ToString ());
-		}
-
-		#endregion
-
 		public ServerControlModel (TestApp app)
 		{
 			App = app;
 
 			CurrentTestRunner = App.RootTestRunner;
 
-			CanConnect = app.ServerHost != null;
-			CanLoad = true;
-
-			LoadSettings ();
-		}
-
-		#region Server
-
-		CancellationTokenSource serverCts;
-		IServerConnection connection;
-		TestServer server;
-
-		public async Task<bool> Connect ()
-		{
-			CancellationToken token;
-			lock (this) {
-				if (!CanConnect || serverCts != null)
-					return false;
-				serverCts = new CancellationTokenSource ();
-				token = serverCts.Token;
-			}
-
-			UnloadTestSuite ();
-
-			try {
-				CanLoad = false;
-				CanConnect = false;
-				IsConnected = true;
-				connection = await App.ServerHost.Connect (ServerAddress, token);
-				OnPropertyChanged ("CanLoad");
-				StatusMessage = "Started server!";
-
-				var stream = await connection.Open (token).ConfigureAwait (false);
-				server = new TestServer (App, stream, connection);
-				server.Run ();
-				StatusMessage = "Got remote connection!";
-				IsConnected = true;
-
-				await server.Hello (CancellationToken.None);
-
-				CanLoad = true;
-				if (AutoLoad)
-					await LoadTestSuite ();
-
-				return true;
-			} catch (OperationCanceledException) {
-				Disconnect ("Server connection canceled!");
-				return false;
-			} catch (Exception ex) {
-				App.Context.Log ("SERVER ERROR: {0}", ex);
-				Disconnect (string.Format ("Server error: {0}", ex.Message));
-				return false;
-			}
-		}
-
-		public void Disconnect (string message = null)
-		{
-			lock (this) {
-				if (serverCts != null) {
-					serverCts.Cancel ();
-					serverCts.Dispose ();
+			App.TestSuiteManager.PropertyChanged += (sender, e) => {
+				switch (e.PropertyName) {
+				case "HasInstance":
+					OnPropertyChanged ("CanRun");
+					break;
 				}
-				serverCts = null;
-			}
-			if (server != null) {
-				server.Stop ();
-				server = null;
-			}
-			if (connection != null) {
-				connection.Close ();
-				connection = null;
-			}
-			UnloadTestSuite ();
-			CanLoad = true;
-			IsConnected = false;
-			CanConnect = App.ServerHost != null;
-			StatusMessage = message ?? "Disconnected.";
-		}
-
-		#endregion
-
-		#region TestSuite
-
-		public TestSuite TestSuite {
-			get { return suite; }
-		}
-
-		public bool HasTestSuite {
-			get { return suite != null; }
-		}
-
-		public bool CanLoad {
-			get { return canLoad; }
-			set {
-				if (canLoad == value)
-					return;
-				canLoad = value;
-				OnPropertyChanged ("CanLoad");
-			}
-		}
-
-		bool canLoad;
-		TestSuite suite;
-
-		public async Task<TestSuite> LoadTestSuite ()
-		{
-			lock (this) {
-				if (!canLoad)
-					return null;
-				CanLoad = false;
-			}
-
-			try {
-				if (serverCts == null)
-					suite = await TestSuite.LoadAssembly (App.Assembly);
-				else
-					suite = await server.LoadTestSuite (CancellationToken.None);
-			} catch (Exception ex) {
-				StatusMessage = string.Format ("Failed to load test suite: {0}", ex.Message);
-				return null;
-			}
-
-			if (suite == null)
-				return null;
-
-			if (suite.Configuration != null)
-				App.Context.Configuration.AddTestSuite (suite.Configuration);
-			App.RootTestResult.Result.Test = suite;
-			StatusMessage = string.Format ("Successfully loaded {0}.", suite.Name);
-
-			OnPropertyChanged ("HasTestSuite");
-			OnPropertyChanged ("CanRun");
-			return suite;
-		}
-
-		public void UnloadTestSuite ()
-		{
-			lock (this) {
-				if (suite == null)
-					return;
-				suite = null;
-			}
-
-			App.RootTestResult.Result.Clear ();
-			CurrentTestRunner = App.RootTestRunner;
-			App.Context.Configuration.Clear ();
-			OnPropertyChanged ("HasTestSuite");
-			OnPropertyChanged ("CanRun");
-			CanLoad = true;
-		}
-
-		#endregion
-
-		public async Task Initialize ()
-		{
-			if (AutoStart) {
-				if (!await Connect ())
-					return;
-			}
-
-			if (AutoLoad)
-				await LoadTestSuite ();
+			};
 		}
 
 		#region Test Runner
@@ -363,8 +106,6 @@ namespace Xamarin.AsyncTests.UI
 			IsRunning = true;
 
 			App.Context.ResetStatistics ();
-
-			App.RootTestResult.Result.AddChild (new TestResult (new TestName ("Hello!")));
 
 			try {
 				await CurrentTestRunner.Run (repeat, cancelCts.Token);
