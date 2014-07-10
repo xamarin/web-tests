@@ -55,37 +55,6 @@ namespace Xamarin.AsyncTests.UI
 			InitializeComponent ();
 
 			BindingContext = model;
-
-			Picker.SelectedIndexChanged += (sender, e) => {
-				Model.Categories.SelectedIndex = Picker.SelectedIndex;
-			};
-
-			// FIXME: If we do this as a callback, then the app will crash.
-			LoadConfiguration ();
-		}
-
-		void Load (object sender, PropertyChangedEventArgs args)
-		{
-			BatchBegin ();
-			switch (args.PropertyName) {
-			case "SelectedItem":
-				Picker.SelectedIndex = Model.Categories.SelectedIndex;
-				break;
-			case "Configuration":
-				LoadConfiguration ();
-				break;
-			}
-			BatchCommit ();
-		}
-
-		void LoadConfiguration ()
-		{
-			// FIXME: Can we also do this with data binding somehow?
-			Picker.BatchBegin ();
-			foreach (var category in Model.Categories.Categories)
-				Picker.Items.Add (category.Name);
-			Picker.SelectedIndex = Model.Categories.SelectedIndex;
-			Picker.BatchCommit ();
 		}
 	}
 }

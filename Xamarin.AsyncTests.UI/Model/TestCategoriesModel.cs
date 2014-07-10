@@ -70,6 +70,7 @@ namespace Xamarin.AsyncTests.UI
 
 			categories = new List<TestCategory> ();
 			Configuration.PropertyChanged += OnConfigurationChanged;
+			UpdateConfiguration ();
 		}
 
 		void OnConfigurationChanged (object sender, PropertyChangedEventArgs args)
@@ -81,6 +82,11 @@ namespace Xamarin.AsyncTests.UI
 				return;
 			}
 
+			UpdateConfiguration ();
+		}
+
+		void UpdateConfiguration ()
+		{
 			SelectedIndex = -1;
 
 			categories.Clear ();
@@ -103,15 +109,17 @@ namespace Xamarin.AsyncTests.UI
 			if (value != null) {
 				var index = categories.FindIndex (c => c.Name.Equals (value));
 				if (index >= 0)
-					SelectedIndex = index;
+					selectedIndex = index;
+				else if (categories.Count > 0)
+					selectedIndex = 0;
+				else
+					selectedIndex = -1;
 			}
-
-			OnPropertyChanged ("SelectedIndex");
 		}
 
 		void SaveSettings ()
 		{
-			if (App.SettingsHost == null)
+			if (App.SettingsHost == null || !App.TestSuiteManager.HasInstance)
 				return;
 
 			if (selectedIndex >= 0)

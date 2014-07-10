@@ -1,5 +1,5 @@
 ﻿//
-// MainPage.xaml.cs
+// TestCategorySelector.xaml.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -23,49 +23,79 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-﻿using System;
-using System.Linq;
+using System;
 using System.ComponentModel;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Threading;
-using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
-{	
-	using Framework;
+{
+	public partial class TestCategorySelector : ContentView
+	{
+		public TestCategorySelector ()
+		{
+			InitializeComponent ();
 
-	public partial class MainPage : ContentPage
-	{	
-		public TestApp App {
+			Picker.SelectedIndexChanged += OnSelectedIndexChanged;
+		}
+
+		public TestCategoriesModel Model {
 			get;
 			private set;
 		}
 
-		public MainPage (TestApp app)
+		protected override void OnBindingContextChanged ()
 		{
-			App = app;
+			base.OnBindingContextChanged ();
 
-			InitializeComponent ();
+			if (Model != null)
+				Model.PropertyChanged -= OnConfigChanged;
 
-			BindingContext = app;
+			Model = (TestCategoriesModel)BindingContext;
+			if (Model != null)
+				Model.PropertyChanged += OnConfigChanged;
+
+			LoadConfiguration ();
 		}
 
-		protected override void OnAppearing ()
+		bool loadingConfig;
+
+		void OnSelectedIndexChanged (object sender, EventArgs args)
 		{
-			App.ServerControl.CurrentTestRunner = App.RootTestRunner;
-			base.OnAppearing ();
+			if (!loadingConfig && Model != null)
+				Model.SelectedIndex = Picker.SelectedIndex;
 		}
 
-		async void OnOptions (object sender, EventArgs args)
+		void OnConfigChanged (object sender, PropertyChangedEventArgs args)
 		{
-			await Navigation.PushAsync (App.GetOptionsPage ());
+			BatchBegin ();
+			switch (args.PropertyName) {
+			case "SelectedItem":
+				Picker.SelectedIndex = Model.SelectedIndex;
+				break;
+			case "Categories":
+				LoadConfiguration ();
+				break;
+			}
+			BatchCommit ();
 		}
 
-		async void OnServer (object sender, EventArgs args)
+		void LoadConfiguration ()
 		{
-			await Navigation.PushAsync (App.ServerControlPage);
+			loadingConfig = true;
+			Picker.BatchBegin ();
+			Picker.SelectedIndex = -1;
+			Picker.Items.Clear ();
+
+			if (Model != null) {
+				foreach (var category in Model.Categories)
+					Picker.Items.Add (category.Name);
+
+				Picker.SelectedIndex = Model.SelectedIndex;
+			}
+
+			Picker.BatchCommit ();
+			loadingConfig = false;
 		}
 	}
 }

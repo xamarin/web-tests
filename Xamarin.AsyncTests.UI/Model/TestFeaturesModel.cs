@@ -24,8 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
@@ -42,8 +44,8 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		List<TestFeatureModel> features;
-		public IList<TestFeatureModel> Features {
+		ObservableCollection<TestFeatureModel> features;
+		public ObservableCollection<TestFeatureModel> Features {
 			get { return features; }
 		}
 
@@ -52,41 +54,29 @@ namespace Xamarin.AsyncTests.UI
 			App = app;
 			Configuration = config;
 
-			features = new List<TestFeatureModel> ();
+			features = new ObservableCollection<TestFeatureModel> ();
 			Configuration.PropertyChanged += (sender, e) => OnConfigurationChanged (sender, e);
+			ReloadFeatures ();
 		}
 
 		void OnConfigurationChanged (object sender, PropertyChangedEventArgs args)
 		{
 			switch (args.PropertyName) {
 			case "Features":
-				ReloadFeature ();
+				ReloadFeatures ();
 				break;
 			default:
 				break;
 			}
 		}
 
-		void ReloadFeature ()
+		void ReloadFeatures ()
 		{
 			features.Clear ();
-			foreach (var feature in Configuration.Features) {
-				if (feature.CanModify)
-					features.Add (new TestFeatureModel (App, feature));
-			}
-			LoadSettings ();
-		}
-
-		void LoadSettings ()
-		{
-			if (App.SettingsHost == null)
-				return;
-			foreach (var feature in features) {
-				if (!feature.Feature.CanModify)
+			foreach (var feature in Configuration.Features.ToArray ()) {
+				if (!feature.CanModify)
 					continue;
-				var value = App.SettingsHost.GetValue (feature.Path);
-				if (value != null)
-					feature.IsEnabled = bool.Parse (value);
+				features.Add (new TestFeatureModel (App, feature));
 			}
 		}
 	}

@@ -31,9 +31,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Views\MainPage.xaml.cs">
-      <DependentUpon>MainPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="TestApp.cs" />
     <Compile Include="Views\TestResultView.xaml.cs">
       <DependentUpon>TestResultView.xaml</DependentUpon>
@@ -79,6 +76,9 @@
     <Compile Include="Commands\ServerManager.cs" />
     <Compile Include="Commands\CommandProvider.cs" />
     <Compile Include="Commands\Command.cs" />
+    <Compile Include="Views\TestCategorySelector.xaml.cs">
+      <DependentUpon>TestCategorySelector.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="../packages/Xamarin.Forms.1.1.1.6206/build/portable-win+net45+wp80+MonoAndroid10+MonoTouch10/Xamarin.Forms.targets" />
@@ -88,9 +88,6 @@
     <Folder Include="Commands\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Views\MainPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </EmbeddedResource>
     <EmbeddedResource Include="Views\TestResultView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
@@ -116,6 +113,9 @@
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TestSuiteManagerView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\TestCategorySelector.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>

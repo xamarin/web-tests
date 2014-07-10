@@ -95,12 +95,11 @@ namespace Xamarin.AsyncTests.UI
 
 		protected Task OnStop ()
 		{
-			return Task.Run (() => {
-				StatusMessage = "TestSuite unloaded.";
-				App.RootTestResult.Result.Clear ();
-				App.ServerControl.CurrentTestRunner = App.RootTestRunner;
-				App.Context.Configuration.Clear ();
-			});
+			StatusMessage = "TestSuite unloaded.";
+			App.RootTestResult.Result.Clear ();
+			App.ServerControl.CurrentTestRunner = App.RootTestRunner;
+			App.Context.Configuration.Clear ();
+			return Task.FromResult<object> (null);
 		}
 
 		class LoadLocalCommand : Command<TestSuite>

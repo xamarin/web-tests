@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<ContentPage
+<ContentPage Title="Options"
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.OptionsPage">
 
-    <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
-        <StackLayout Spacing="20" Padding="20" Orientation="Vertical">
+    <ScrollView Padding="0,20,0,0" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+        <StackLayout Spacing="20" Padding="20" Orientation="Vertical" VerticalOptions="FillAndExpand">
 
             <StackLayout Spacing="30" Orientation="Horizontal">
                 <Switch IsToggled="{Binding Repeat}" />
@@ -15,10 +15,7 @@
                        Completed="OnRepeatCountChanged" />
             </StackLayout>
 
-            <StackLayout Spacing="30" Orientation="Horizontal">
-                <Label Text="Category:" VerticalOptions="Center" />
-                <Picker x:Name="Picker" HorizontalOptions="FillAndExpand" />
-            </StackLayout>
+            <local:TestCategorySelector BindingContext="{Binding Categories}" />
 
             <local:TestFeatureSelector BindingContext="{Binding Features}" />
 

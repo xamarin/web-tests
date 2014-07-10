@@ -68,6 +68,21 @@ namespace Xamarin.AsyncTests.UI
 			App = app;
 			Feature = feature;
 			Path = "/Feature/" + feature.Name;
+			LoadConfiguration ();
+		}
+
+		void LoadConfiguration ()
+		{
+			if (App.SettingsHost == null)
+				return;
+
+			var value = App.SettingsHost.GetValue (Path);
+			if (value != null) {
+				if (bool.Parse (value))
+					App.Context.Configuration.Enable (Feature);
+				else
+					App.Context.Configuration.Disable (Feature);
+			}
 		}
 	}
 }

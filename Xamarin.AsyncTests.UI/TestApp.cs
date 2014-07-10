@@ -48,7 +48,7 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public MainPage MainPage {
+		public TabbedPage MainPage {
 			get;
 			private set;
 		}
@@ -133,13 +133,13 @@ namespace Xamarin.AsyncTests.UI
 
 			Options = new OptionsModel (this, Context.Configuration);
 
-			MainPage = new MainPage (this);
-			Root = new NavigationPage (MainPage);
-		}
+			MainPage = new TabbedPage ();
 
-		public OptionsPage GetOptionsPage ()
-		{
-			return new OptionsPage (Options);
+			MainPage.Children.Add (ServerControlPage);
+			MainPage.Children.Add (new OptionsPage (Options));
+			MainPage.Children.Add (new TestResultPage (this, RootTestResult.Result));
+
+			Root = MainPage;
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
