@@ -137,6 +137,21 @@ namespace Xamarin.AsyncTests.UI
 			MainPage.Children.Add (resultNav);
 
 			Root = MainPage;
+
+			Initialize ();
+		}
+
+		async void Initialize ()
+		{
+			await Task.Yield ();
+
+			if (ServerManager.AutoStart) {
+				await ServerManager.Connect.Execute ();
+				if (ServerManager.HasInstance)
+					await TestSuiteManager.LoadFromServer.Execute ();
+			} else if (ServerManager.AutoLoad) {
+				await TestSuiteManager.LoadLocal.Execute ();
+			}
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;

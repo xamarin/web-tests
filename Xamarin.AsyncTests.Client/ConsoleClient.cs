@@ -59,6 +59,7 @@ namespace Xamarin.AsyncTests.Client
 
 		protected override async Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
 		{
+			context.Configuration.Clear ();
 			var assembly = typeof(Xamarin.WebTests.WebTestFeatures).Assembly;
 			var suite = await TestSuite.LoadAssembly (assembly);
 			if (suite.Configuration != null) {
@@ -71,13 +72,13 @@ namespace Xamarin.AsyncTests.Client
 		public async Task Run ()
 		{
 			await MainLoop ();
+			context.Configuration.Clear ();
 		}
 
 		public async Task<TestResult> RunTest (TestSuite suite)
 		{
 			var result = new TestResult (suite.Name);
-			var success = await suite.Run (Context, result, CancellationToken.None);
-			Debug ("DONE RUNNING: {0}", success);
+			await suite.Run (Context, result, CancellationToken.None);
 			return result;
 		}
 
@@ -106,7 +107,6 @@ namespace Xamarin.AsyncTests.Client
 
 		protected override void OnSyncConfiguration (TestConfiguration configuration, bool fullUpdate)
 		{
-			Debug ("SYNC CONFIG: {0}", fullUpdate);
 			Context.Configuration.Merge (configuration, fullUpdate);
 		}
 

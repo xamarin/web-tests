@@ -60,6 +60,7 @@ namespace Xamarin.WebTests.Async.iOS
 				var port = int.Parse (address.Substring (pos + 1));
 				endpoint = new IPEndPoint (IPAddress.Parse (host), port);
 			}
+
 			var client = new TcpClient ();
 			await client.ConnectAsync (endpoint.Address, endpoint.Port);
 			return new ClientConnection (client);

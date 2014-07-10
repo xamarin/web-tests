@@ -131,7 +131,7 @@ namespace Xamarin.AsyncTests.UI
 		{
 			await Task.Yield ();
 
-			StatusMessage = "Starting server ...";
+			StatusMessage = "Connecting to server ...";
 
 			connection = await App.ServerHost.Connect (
 				ServerAddress, cancellationToken).ConfigureAwait (false);
