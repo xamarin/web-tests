@@ -36,7 +36,7 @@ namespace Xamarin.AsyncTests.UI
 {
 	public class TestRunner : CommandProvider<TestResult>
 	{
-		readonly RunCommand runCommand;
+		readonly RunSingleCommand runCommand;
 		readonly RepeatCommand repeatCommand;
 		readonly ClearCommand clearCommand;
 
@@ -59,7 +59,7 @@ namespace Xamarin.AsyncTests.UI
 		public TestRunner (TestApp app)
 			: base (app)
 		{
-			runCommand = new RunCommand (this);
+			runCommand = new RunSingleCommand (this);
 			repeatCommand = new RepeatCommand (this);
 			clearCommand = new ClearCommand (this);
 			StatusMessage = "No test loaded.";
@@ -112,7 +112,9 @@ namespace Xamarin.AsyncTests.UI
 
 		void OnClear ()
 		{
-			currentResult.Result.Clear ();
+			var result = currentResult;
+			if (result != null)
+				result.Result.Clear ();
 			message = null;
 			Context.ResetStatistics ();
 			StatusMessage = GetStatusMessage ();
@@ -142,8 +144,7 @@ namespace Xamarin.AsyncTests.UI
 				return sb.ToString ();
 		}
 
-
-		class RunCommand : Command<TestResult>
+		abstract class RunCommand : Command<TestResult>
 		{
 			public readonly TestRunner Runner;
 
@@ -152,47 +153,50 @@ namespace Xamarin.AsyncTests.UI
 			{
 				Runner = runner;
 				AutoStop = true;
+
+				Runner.PropertyChanged += (sender, e) => {
+					switch (e.PropertyName) {
+					case "CurrentTestResult":
+						var result = runner.CurrentTestResult;
+						if (result == null || result.Result.Test == null)
+							CanExecute = false;
+						else
+							CanExecute = true;
+						break;
+					}
+				};
 			}
 
-			#region implemented abstract members of Command
+			internal sealed override Task Stop (CancellationToken cancellationToken)
+			{
+				throw new NotImplementedException ();
+			}
+		}
+
+		class RunSingleCommand : RunCommand
+		{
+			public RunSingleCommand (TestRunner runner)
+				: base (runner)
+			{
+			}
 
 			internal override Task<TestResult> Start (CancellationToken cancellationToken)
 			{
 				return Runner.OnRun (false, cancellationToken);
 			}
-
-			internal override Task Stop (CancellationToken cancellationToken)
-			{
-				throw new NotImplementedException ();
-			}
-
-			#endregion
 		}
 
-		class RepeatCommand : Command<TestResult>
+		class RepeatCommand : RunCommand
 		{
-			public readonly TestRunner Runner;
-
 			public RepeatCommand (TestRunner runner)
-				: base (runner, runner.App.TestSuiteManager)
+				: base (runner)
 			{
-				Runner = runner;
-				AutoStop = true;
 			}
-
-			#region implemented abstract members of Command
 
 			internal override Task<TestResult> Start (CancellationToken cancellationToken)
 			{
 				return Runner.OnRun (true, cancellationToken);
 			}
-
-			internal override Task Stop (CancellationToken cancellationToken)
-			{
-				throw new NotImplementedException ();
-			}
-
-			#endregion
 		}
 
 		class ClearCommand : Command<TestResult>
