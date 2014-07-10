@@ -41,16 +41,10 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		public TestResult Result {
-			get;
-			private set;
+			get { return Model.Result; }
 		}
 
 		public TestResultModel Model {
-			get;
-			private set;
-		}
-
-		public TestRunnerModel TestRunner {
 			get;
 			private set;
 		}
@@ -59,22 +53,19 @@ namespace Xamarin.AsyncTests.UI
 			get { return Result.CanRun; }
 		}
 
-		public TestResultPage (TestApp app, TestResult result)
+		public TestResultPage (TestApp app, TestResultModel model)
 		{
 			App = app;
-			Result = result;
-
-			Model = new TestResultModel (app, result);
-			TestRunner = new TestRunnerModel (App, Model, false);
+			Model = model;
 
 			InitializeComponent ();
 
-			BindingContext = TestRunner;
+			BindingContext = model;
 		}
 
 		protected override void OnAppearing ()
 		{
-			App.ServerControl.CurrentTestRunner = TestRunner;
+			App.TestRunner.CurrentTestResult = Model;
 			base.OnAppearing ();
 		}
 	}

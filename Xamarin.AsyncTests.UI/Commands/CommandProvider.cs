@@ -181,6 +181,18 @@ namespace Xamarin.AsyncTests.UI
 				SetStatusMessage ("Command failed: {0}", ex.Message);
 				startTcs.SetException (ex);
 			}
+
+			lock (this) {
+				if (!command.AutoStop)
+					return;
+				CanStop = false;
+				Instance = null;
+				startTcs = null;
+				cts.Dispose ();
+				cts = null;
+				currentCommand = null;
+				CanStart = true;
+			}
 		}
 
 		internal async override Task ExecuteStop ()

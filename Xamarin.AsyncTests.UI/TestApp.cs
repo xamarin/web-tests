@@ -63,11 +63,6 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestRunnerModel RootTestRunner {
-			get;
-			private set;
-		}
-
 		string statusMessage;
 		public string StatusMessage {
 			get { return statusMessage; }
@@ -102,7 +97,7 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public ServerControlModel ServerControl {
+		public TestRunner TestRunner {
 			get;
 			private set;
 		}
@@ -119,25 +114,27 @@ namespace Xamarin.AsyncTests.UI
 			Assembly = assembly;
 
 			Context = new TestContext ();
-			Context.TestFinishedEvent += (sender, e) => OnTestFinished (e);
 
 			var result = new TestResult (new TestName (null));
-			RootTestResult = new TestResultModel (this, result);
-			RootTestRunner = new TestRunnerModel (this, RootTestResult, true);
+			RootTestResult = new TestResultModel (this, result, true);
 
 			ServerManager = new ServerManager (this);
 			TestSuiteManager = new TestSuiteManager (this);
 
-			ServerControl = new ServerControlModel (this);
 			ServerControlPage = new ServerControlPage (ServerManager);
 
 			Options = new OptionsModel (this, Context.Configuration);
 
+			TestRunner = new TestRunner (this);
+
 			MainPage = new TabbedPage ();
+
+			var resultPage = new TestResultPage (this, RootTestResult);
+			var resultNav = new NavigationPage (resultPage) { Title = resultPage.Title };
 
 			MainPage.Children.Add (ServerControlPage);
 			MainPage.Children.Add (new OptionsPage (Options));
-			MainPage.Children.Add (new TestResultPage (this, RootTestResult.Result));
+			MainPage.Children.Add (resultNav);
 
 			Root = MainPage;
 		}
@@ -148,58 +145,6 @@ namespace Xamarin.AsyncTests.UI
 		{
 			if (PropertyChanged != null)
 				PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
-		}
-
-		string message;
-
-		internal async void Run (bool repeat)
-		{
-			try {
-				message = "Running";
-				StatusMessage = GetStatusMessage ();
-				await ServerControl.Run (repeat);
-				message = "Done";
-			} catch (OperationCanceledException) {
-				message = "Canceled!";
-			} catch (Exception ex) {
-				message = string.Format ("ERROR: {0}", ex.Message);
-			} finally {
-				StatusMessage = GetStatusMessage ();
-			}
-		}
-
-		internal void Stop ()
-		{
-			ServerControl.Stop ();
-		}
-
-		void OnTestFinished (TestResult result)
-		{
-			StatusMessage = GetStatusMessage ();
-		}
-
-		internal void Clear ()
-		{
-			Context.ResetStatistics ();
-			message = null;
-			StatusMessage = GetStatusMessage ();
-		}
-
-		string GetStatusMessage ()
-		{
-			if (!TestSuiteManager.HasInstance)
-				return "No test loaded.";
-			var sb = new StringBuilder ();
-			sb.AppendFormat ("{0} tests passed", Context.CountSuccess);
-			if (Context.CountErrors > 0)
-				sb.AppendFormat (", {0} errors", Context.CountErrors);
-			if (Context.CountIgnored > 0)
-				sb.AppendFormat (", {0} ignored", Context.CountIgnored);
-
-			if (message != null)
-				return string.Format ("{0} ({1})", message, sb);
-			else
-				return sb.ToString ();
 		}
 	}
 }

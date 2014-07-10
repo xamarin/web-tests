@@ -124,6 +124,11 @@ namespace Xamarin.AsyncTests.UI
 		{
 			return Provider.ExecuteStart (this);
 		}
+
+		protected internal bool AutoStop {
+			get;
+			protected set;
+		}
 	}
 }
 

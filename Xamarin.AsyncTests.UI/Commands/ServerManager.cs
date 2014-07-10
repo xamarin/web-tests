@@ -149,18 +149,18 @@ namespace Xamarin.AsyncTests.UI
 			return server;
 		}
 
-		protected Task OnDisconnect (CancellationToken cancellationToken)
+		protected async Task OnDisconnect (CancellationToken cancellationToken)
 		{
-			return Task.Run (() => {
-				if (server != null) {
-					server.Stop ();
-					server = null;
-				}
+			await Task.Yield ();
 
-				App.Context.Configuration.Clear ();
+			if (server != null) {
+				server.Stop ();
+				server = null;
+			}
 
-				StatusMessage = "Stopped server.";
-			});
+			App.Context.Configuration.Clear ();
+
+			StatusMessage = "Stopped server.";
 		}
 
 		#endregion

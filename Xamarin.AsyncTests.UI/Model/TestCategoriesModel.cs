@@ -108,9 +108,10 @@ namespace Xamarin.AsyncTests.UI
 			var value = App.SettingsHost.GetValue ("CurrentCategory");
 			if (value != null) {
 				var index = categories.FindIndex (c => c.Name.Equals (value));
-				if (index >= 0)
+				if (index >= 0) {
 					selectedIndex = index;
-				else if (categories.Count > 0)
+					Configuration.CurrentCategory = categories [selectedIndex];
+				} else if (categories.Count > 0)
 					selectedIndex = 0;
 				else
 					selectedIndex = -1;

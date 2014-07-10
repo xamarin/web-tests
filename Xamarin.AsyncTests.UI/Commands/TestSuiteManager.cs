@@ -97,7 +97,7 @@ namespace Xamarin.AsyncTests.UI
 		{
 			StatusMessage = "TestSuite unloaded.";
 			App.RootTestResult.Result.Clear ();
-			App.ServerControl.CurrentTestRunner = App.RootTestRunner;
+			App.TestRunner.CurrentTestResult = App.RootTestResult;
 			App.Context.Configuration.Clear ();
 			return Task.FromResult<object> (null);
 		}

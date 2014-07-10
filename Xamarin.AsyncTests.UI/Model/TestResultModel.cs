@@ -45,10 +45,16 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestResultModel (TestApp app, TestResult result)
+		public bool IsRoot {
+			get;
+			private set;
+		}
+
+		public TestResultModel (TestApp app, TestResult result, bool isRoot)
 		{
 			App = app;
 			Result = result;
+			IsRoot = isRoot;
 		}
 	}
 }

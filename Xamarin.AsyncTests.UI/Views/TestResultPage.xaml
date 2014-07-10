@@ -5,12 +5,24 @@
     xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.TestResultPage">
 
+    <ContentView.Resources>
+    	<ResourceDictionary>
+            <local:TestResultConverter x:Key="converter" />
+    	</ResourceDictionary>
+    </ContentView.Resources>
+
     <StackLayout Spacing="10" Orientation="Vertical">
 
-        <local:TestRunnerControl />
+        <Frame>
+            <StackLayout Orientation="Vertical">
+                <local:TestRunnerControl BindingContext="{Binding App.TestRunner}" />
+                <Label Text="{Binding Result.Status, Converter={StaticResource converter}}"
+                       TextColor="{Binding Result.Status, Converter={StaticResource converter}}" />
+            </StackLayout>
+        </Frame>
 
         <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
-            <local:TestResultView BindingContext="{Binding ResultModel}" />
+            <local:TestResultView />
         </ScrollView>
 
     </StackLayout>

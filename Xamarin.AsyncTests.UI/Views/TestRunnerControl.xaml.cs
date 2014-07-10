@@ -35,31 +35,6 @@ namespace Xamarin.AsyncTests.UI
 		{
 			InitializeComponent ();
 		}
-
-		void OnRun (object sender, EventArgs args)
-		{
-			var model = (TestRunnerModel)BindingContext;
-			model.App.Run (false);
-		}
-
-		void OnRepeat (object sender, EventArgs args)
-		{
-			var model = (TestRunnerModel)BindingContext;
-			model.App.Run (true);
-		}
-
-		void OnStop (object sender, EventArgs args)
-		{
-			var model = (TestRunnerModel)BindingContext;
-			model.App.Stop ();
-		}
-
-		void OnClear (object sender, EventArgs args)
-		{
-			var model = (TestRunnerModel)BindingContext;
-			model.ResultModel.Result.Clear ();
-			model.App.Clear ();
-		}
 	}
 }
 

@@ -45,7 +45,9 @@ namespace Xamarin.AsyncTests.UI
 			var selected = (TestResult)args.SelectedItem;
 			var model = (TestResultModel)BindingContext;
 
-			var page = new TestResultPage (model.App, selected);
+			var newModel = new TestResultModel (model.App, selected, false);
+
+			var page = new TestResultPage (model.App, newModel);
 			await Navigation.PushAsync (page);
 		}
 	}
