@@ -43,7 +43,6 @@ namespace Xamarin.WebTests.Server
 		Socket server;
 		TaskCompletionSource<bool> tcs;
 		CancellationTokenSource cts;
-		bool reuseConnection;
 		bool ssl;
 		Uri uri;
 
@@ -75,7 +74,6 @@ namespace Xamarin.WebTests.Server
 		public Listener (IPAddress address, int port, bool reuseConnection, bool ssl)
 		{
 			this.ssl = ssl;
-			this.reuseConnection = reuseConnection;
 
 			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", address, port));
 
@@ -152,7 +150,7 @@ namespace Xamarin.WebTests.Server
 				lock (this) {
 					tcs = null;
 					cts = null;
-					if (!abortRequested && reuseConnection)
+					if (!abortRequested)
 						server.BeginAccept (AcceptSocketCB, null);
 				}
 			}
