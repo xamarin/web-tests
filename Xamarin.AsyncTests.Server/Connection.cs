@@ -39,6 +39,7 @@ namespace Xamarin.AsyncTests.Server
 		CancellationTokenSource cancelCts;
 		TaskCompletionSource<bool> commandTcs;
 		Queue<QueuedCommand> commandQueue;
+		bool shutdownRequested;
 
 		public Connection (Stream stream)
 		{
@@ -83,6 +84,12 @@ namespace Xamarin.AsyncTests.Server
 			var command = new SyncConfigurationCommand {
 				Configuration = configuration, FullUpdate = fullUpdate
 			};
+			await SendWithResponse (command);
+		}
+
+		public async Task Shutdown ()
+		{
+			var command = new ShutdownCommand ();
 			await SendWithResponse (command);
 		}
 
@@ -203,7 +210,7 @@ namespace Xamarin.AsyncTests.Server
 
 		protected async Task MainLoop ()
 		{
-			while (!cancelCts.IsCancellationRequested) {
+			while (!shutdownRequested && !cancelCts.IsCancellationRequested) {
 				var header = await ReadBuffer (4);
 				var len = BitConverter.ToInt32 (header, 0);
 				if (len == 0)
@@ -258,17 +265,20 @@ namespace Xamarin.AsyncTests.Server
 
 		internal Task Run (MessageCommand command, CancellationToken cancellationToken)
 		{
-			return Task.Run (() => OnMessage (command.Message));
+			OnMessage (command.Message);
+			return Task.FromResult<object> (null);
 		}
 
 		internal Task Run (DebugCommand command, CancellationToken cancellationToken)
 		{
-			return Task.Run (() => OnDebug (command.Level, command.Message));
+			OnDebug (command.Level, command.Message);
+			return Task.FromResult<object> (null);
 		}
 
 		internal Task Run (SetDebugLevelCommand command, CancellationToken cancellationToken)
 		{
-			return Task.Run (() => DebugLevel = command.Level);
+			DebugLevel = command.Level;
+			return Task.FromResult<object> (null);
 		}
 
 		internal Task Run (HelloCommand command, CancellationToken cancellationToken)
@@ -278,9 +288,14 @@ namespace Xamarin.AsyncTests.Server
 
 		internal Task Run (SyncConfigurationCommand command, CancellationToken cancellationToken)
 		{
-			return Task.Run (() => {
-				OnSyncConfiguration (command.Configuration, command.FullUpdate);
-			});
+			OnSyncConfiguration (command.Configuration, command.FullUpdate);
+			return Task.FromResult<object> (null);
+		}
+
+		internal Task Run (ShutdownCommand command, CancellationToken cancellationToken)
+		{
+			shutdownRequested = true;
+			return Task.FromResult<object> (null);
 		}
 
 		protected abstract Task OnHello (CancellationToken cancellationToken);
@@ -311,16 +326,15 @@ namespace Xamarin.AsyncTests.Server
 
 		internal Task Run (ResponseCommand command, CancellationToken cancellationToken)
 		{
-			return Task.Run (() => {
-				lock (this) {
-					var operation = operations [command.ObjectID];
-					operations.Remove (operation.ObjectID);
-					if (command.Error != null)
-						operation.Task.SetException (new SavedException (command.Error));
-					else
-						operation.Task.SetResult (command.Success);
-				}
-			});
+			lock (this) {
+				var operation = operations [command.ObjectID];
+				operations.Remove (operation.ObjectID);
+				if (command.Error != null)
+					operation.Task.SetException (new SavedException (command.Error));
+				else
+					operation.Task.SetResult (command.Success);
+			}
+			return Task.FromResult<object> (null);
 		}
 
 		internal class Operation

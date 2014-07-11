@@ -152,7 +152,6 @@ namespace Xamarin.AsyncTests.UI
 				: base (runner, runner.App.TestSuiteManager)
 			{
 				Runner = runner;
-				AutoStop = true;
 
 				Runner.PropertyChanged += (sender, e) => {
 					switch (e.PropertyName) {
@@ -165,6 +164,11 @@ namespace Xamarin.AsyncTests.UI
 						break;
 					}
 				};
+			}
+
+			internal override Task<bool> Run (CancellationToken cancellationToken)
+			{
+				return Task.FromResult (false);
 			}
 
 			internal sealed override Task Stop (CancellationToken cancellationToken)
@@ -207,7 +211,6 @@ namespace Xamarin.AsyncTests.UI
 				: base (runner, runner.App.TestSuiteManager)
 			{
 				Runner = runner;
-				AutoStop = true;
 			}
 
 			#region implemented abstract members of Command
@@ -217,6 +220,11 @@ namespace Xamarin.AsyncTests.UI
 				await Task.Yield ();
 				Runner.OnClear ();
 				return null;
+			}
+
+			internal override Task<bool> Run (CancellationToken cancellationToken)
+			{
+				return Task.FromResult (false);
 			}
 
 			internal override Task Stop (CancellationToken cancellationToken)

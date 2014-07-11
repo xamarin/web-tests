@@ -33,6 +33,9 @@ using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
 {
+	using Framework;
+	using Server;
+
 	public class TestSuiteManager : CommandProvider<TestSuite>
 	{
 		readonly LoadLocalCommand loadLocal;
@@ -75,7 +78,7 @@ namespace Xamarin.AsyncTests.UI
 		protected async Task<TestSuite> OnLoadFromServer (CancellationToken cancellationToken)
 		{
 			try {
-				var instance = App.ServerManager.Instance;
+				var instance = App.ServerManager.Instance as TestServer;
 				if (instance == null) {
 					StatusMessage = "Server not started!";
 					return null;
@@ -117,6 +120,11 @@ namespace Xamarin.AsyncTests.UI
 				return Manager.OnLoadLocal (cancellationToken);
 			}
 
+			internal override Task<bool> Run (CancellationToken cancellationToken)
+			{
+				return Task.FromResult (true);
+			}
+
 			internal override Task Stop (CancellationToken cancellationToken)
 			{
 				return Manager.OnStop ();
@@ -136,6 +144,11 @@ namespace Xamarin.AsyncTests.UI
 			internal override Task<TestSuite> Start (CancellationToken cancellationToken)
 			{
 				return Manager.OnLoadFromServer (cancellationToken);
+			}
+
+			internal override Task<bool> Run (CancellationToken cancellationToken)
+			{
+				return Task.FromResult (true);
 			}
 
 			internal override Task Stop (CancellationToken cancellationToken)

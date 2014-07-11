@@ -145,12 +145,10 @@ namespace Xamarin.AsyncTests.UI
 		{
 			await Task.Yield ();
 
-			if (ServerManager.AutoStart) {
-				await ServerManager.Connect.Execute ();
-				if (ServerManager.HasInstance)
-					await TestSuiteManager.LoadFromServer.Execute ();
-			} else if (ServerManager.AutoLoad) {
-				await TestSuiteManager.LoadLocal.Execute ();
+			try {
+				await ServerManager.Initialize ();
+			} catch (Exception ex) {
+				Context.Log ("INITIALIZE EX: {0}", ex);
 			}
 		}
 

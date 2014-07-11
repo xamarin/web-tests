@@ -110,13 +110,11 @@ namespace Xamarin.AsyncTests.Server
 
 		internal Task Run (CancelCommand command, CancellationToken cancellationToken)
 		{
-			return Task.Run (() => {
-				lock (this) {
-					if (remoteCts == null || command.ObjectID != remoteID)
-						return;
+			lock (this) {
+				if (remoteCts != null && command.ObjectID == remoteID)
 					remoteCts.Cancel ();
-				}
-			});
+			}
+			return Task.FromResult<object> (null);
 		}
 
 		internal async Task Run (LoadTestSuiteCommand command, CancellationToken cancellationToken)

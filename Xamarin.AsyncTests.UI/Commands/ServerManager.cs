@@ -33,22 +33,48 @@ using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
 {
+	using Framework;
+	using Server;
+
 	public class ServerManager : CommandProvider<TestServer>
 	{
 		readonly ConnectCommand connectCommand;
+		readonly StartCommand startCommand;
 
 		public Command<TestServer> Connect {
 			get { return connectCommand; }
+		}
+
+		public Command<TestServer> Start {
+			get { return startCommand; }
 		}
 
 		public ServerManager (TestApp app)
 			: base (app)
 		{
 			connectCommand = new ConnectCommand (this);
+			startCommand = new StartCommand (this);
 
 			CanStart = app.ServerHost != null;
 
 			LoadSettings ();
+		}
+
+		internal async Task Initialize ()
+		{
+			if (UseServer) {
+				if (AutoLoad)
+					await App.TestSuiteManager.LoadLocal.Execute ();
+				if (AutoStart)
+					await Start.Execute ();
+				return;
+			} else if (AutoStart) {
+				await Connect.Execute ();
+				if (HasInstance && AutoLoad)
+					await App.TestSuiteManager.LoadFromServer.Execute ();
+			} else if (AutoLoad) {
+				await App.TestSuiteManager.LoadLocal.Execute ();
+			}
 		}
 
 		#region Options
@@ -66,6 +92,7 @@ namespace Xamarin.AsyncTests.UI
 
 		bool autoStart;
 		bool autoLoad;
+		bool useServer;
 
 		public bool AutoStart {
 			get { return autoStart; }
@@ -89,12 +116,27 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
+		public bool UseServer {
+			get { return useServer; }
+			set {
+				if (value == useServer)
+					return;
+				useServer = value;
+				SaveSettings ();
+				OnPropertyChanged ("UseServer");
+			}
+		}
+
 		void LoadSettings ()
 		{
 			if (App.SettingsHost == null)
 				return;
 
 			serverAddress = App.SettingsHost.GetValue ("ServerAddress") ?? string.Empty;
+
+			var useServerValue = App.SettingsHost.GetValue ("UseServer");
+			if (useServerValue != null)
+				useServer = bool.Parse (useServerValue);
 
 			var autoStartValue = App.SettingsHost.GetValue ("AutoStartServer");
 			if (autoStartValue != null)
@@ -115,6 +157,7 @@ namespace Xamarin.AsyncTests.UI
 			if (App.SettingsHost == null)
 				return;
 
+			App.SettingsHost.SetValue ("UseServer", UseServer.ToString ());
 			App.SettingsHost.SetValue ("ServerAddress", ServerAddress);
 			App.SettingsHost.SetValue ("AutoStartServer", AutoStart.ToString ());
 			App.SettingsHost.SetValue ("AutoLoadTestSuite", AutoLoad.ToString ());
@@ -133,34 +176,64 @@ namespace Xamarin.AsyncTests.UI
 
 			StatusMessage = "Connecting to server ...";
 
-			connection = await App.ServerHost.Connect (
-				ServerAddress, cancellationToken).ConfigureAwait (false);
+			connection = await App.ServerHost.Connect (ServerAddress, cancellationToken);
 
-			StatusMessage = "Got remote connection.";
+			SetStatusMessage ("Got remote connection ({0}).", connection.Name);
 
 			var stream = await connection.Open (cancellationToken);
 			server = new TestServer (App, stream, connection);
-			server.Run ();
 
-			await server.Hello (CancellationToken.None);
+			await server.Hello (cancellationToken);
 
-			StatusMessage = "Server running.";
+			SetStatusMessage ("Connected to server ({0}).", connection.Name);
 
 			return server;
 		}
 
-		protected async Task OnDisconnect (CancellationToken cancellationToken)
+		protected Task OnDisconnect (CancellationToken cancellationToken)
 		{
-			await Task.Yield ();
-
 			if (server != null) {
 				server.Stop ();
 				server = null;
+				connection = null;
+			}
+
+			if (connection != null) {
+				connection.Close ();
+				connection = null;
 			}
 
 			App.Context.Configuration.Clear ();
 
 			StatusMessage = "Stopped server.";
+			return Task.FromResult<object> (null);
+		}
+
+		protected async Task<TestServer> OnStart (CancellationToken cancellationToken)
+		{
+			await Task.Yield ();
+
+			StatusMessage = "Starting server ...";
+
+			connection = await App.ServerHost.Start (cancellationToken);
+
+			SetStatusMessage ("Server running ({0})", connection.Name);
+
+			var stream = await connection.Open (cancellationToken);
+			StatusMessage = "Got remote connection!";
+
+			server = new TestServer (App, stream, connection);
+			return server;
+		}
+
+		protected async Task<bool> OnRun (CancellationToken cancellationToken)
+		{
+			if (server != null) {
+				await server.Run (cancellationToken);
+				StatusMessage = "Server finished";
+			}
+
+			return false;
 		}
 
 		#endregion
@@ -178,6 +251,37 @@ namespace Xamarin.AsyncTests.UI
 			internal override Task<TestServer> Start (CancellationToken cancellationToken)
 			{
 				return Manager.OnConnect (cancellationToken);
+			}
+
+			internal override Task<bool> Run (CancellationToken cancellationToken)
+			{
+				return Manager.OnRun (cancellationToken);
+			}
+
+			internal override Task Stop (CancellationToken cancellationToken)
+			{
+				return Manager.OnDisconnect (cancellationToken);
+			}
+		}
+
+		class StartCommand : Command<TestServer>
+		{
+			public readonly ServerManager Manager;
+
+			public StartCommand (ServerManager manager)
+				: base (manager)
+			{
+				Manager = manager;
+			}
+
+			internal override Task<TestServer> Start (CancellationToken cancellationToken)
+			{
+				return Manager.OnStart (cancellationToken);
+			}
+
+			internal override Task<bool> Run (CancellationToken cancellationToken)
+			{
+				return Manager.OnRun (cancellationToken);
 			}
 
 			internal override Task Stop (CancellationToken cancellationToken)

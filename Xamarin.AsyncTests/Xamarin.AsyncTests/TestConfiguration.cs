@@ -108,6 +108,8 @@ namespace Xamarin.AsyncTests
 				CurrentCategory = categories.Find (c => c.Name.Equals (other.currentCategory.Name));
 				foreach (var entry in other.features) {
 					var feature = FindFeatureByName (entry.Key.Name);
+					if (feature == null)
+						continue;
 					if (features [feature] == entry.Value)
 						continue;
 					features [feature] = entry.Value;
@@ -123,7 +125,7 @@ namespace Xamarin.AsyncTests
 					return entry.Key;
 			}
 
-			throw new InvalidOperationException ();
+			return null;
 		}
 
 		public TestCategory CurrentCategory {

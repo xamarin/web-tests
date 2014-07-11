@@ -160,11 +160,11 @@ namespace Xamarin.AsyncTests.UI
 		TaskCompletionSource<T> startTcs;
 		CancellationTokenSource cts;
 
-		internal async Task ExecuteStart (Command<T> command)
+		internal Task ExecuteStart (Command<T> command)
 		{
 			lock (this) {
 				if (startTcs != null || !CanStart || !command.CanExecute)
-					return;
+					return Task.FromResult<object> (null);
 				CanStart = false;
 				CanStop = true;
 				currentCommand = command;
@@ -172,27 +172,32 @@ namespace Xamarin.AsyncTests.UI
 				cts = new CancellationTokenSource ();
 			}
 
-			try {
-				Instance = await command.Start (cts.Token);
-				startTcs.SetResult (Instance);
-			} catch (OperationCanceledException) {
-				startTcs.SetCanceled ();
-			} catch (Exception ex) {
-				SetStatusMessage ("Command failed: {0}", ex.Message);
-				startTcs.SetException (ex);
-			}
+			Task.Factory.StartNew (async () => {
+				try {
+					Instance = await command.Start (cts.Token);
+					startTcs.SetResult (Instance);
+				} catch (OperationCanceledException) {
+					startTcs.SetCanceled ();
+				} catch (Exception ex) {
+					SetStatusMessage ("Command failed: {0}", ex.Message);
+					startTcs.SetException (ex);
+				}
 
-			lock (this) {
-				if (!command.AutoStop)
-					return;
-				CanStop = false;
-				Instance = null;
-				startTcs = null;
-				cts.Dispose ();
-				cts = null;
-				currentCommand = null;
-				CanStart = true;
-			}
+				try {
+					cts.Token.ThrowIfCancellationRequested ();
+					bool running = await command.Run (cts.Token);
+					if (running)
+						return;
+				} catch (OperationCanceledException) {
+					;
+				} catch (Exception ex) {
+					SetStatusMessage ("Command failed: {0}", ex.Message);
+				}
+
+				await ExecuteStop ();
+			}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext ());
+
+			return startTcs.Task;
 		}
 
 		internal async override Task ExecuteStop ()

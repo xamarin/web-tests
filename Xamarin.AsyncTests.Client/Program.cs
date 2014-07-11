@@ -43,10 +43,42 @@ namespace Xamarin.AsyncTests.Client
 			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
 
 			var main = new MainClass ();
-			var task = main.Run ();
-			task.Wait ();
-			Console.WriteLine ("DONE!");
-			Console.ReadLine ();
+			main.Run (args);
+		}
+
+		void Run (string[] args)
+		{
+			if (args.Length == 0) {
+				RunServer ().Wait ();
+				return;
+			}
+
+			switch (args [0]) {
+			case "client":
+				var address = GetEndpoint (args [1]);
+				RunClient (address).Wait ();
+				return;
+			default:
+				Console.Error.WriteLine ("UNKNOWN COMMAND: {0}", args [0]);
+				return;
+			}
+		}
+
+		static IPEndPoint GetEndpoint (string text)
+		{
+			int port;
+			string host;
+			var pos = text.IndexOf (":");
+			if (pos < 0) {
+				host = text;
+				port = 8888;
+			} else {
+				host = text.Substring (0, pos);
+				port = int.Parse (text.Substring (pos + 1));
+			}
+
+			var address = IPAddress.Parse (host);
+			return new IPEndPoint (address, port);
 		}
 
 		static void Debug (string message, params object[] args)
@@ -65,17 +97,17 @@ namespace Xamarin.AsyncTests.Client
 			return new TestResult (name, TestStatus.Success);
 		}
 
-		async Task Run ()
+		async Task RunServer ()
 		{
 			var listener = new TcpListener (IPAddress.Any, 8888);
 			listener.Start ();
 
 			while (true) {
-				await Run (listener);
+				await RunServer (listener);
 			}
 		}
 
-		async Task Run (TcpListener listener)
+		async Task RunServer (TcpListener listener)
 		{
 			Debug ("Server running");
 
@@ -84,10 +116,28 @@ namespace Xamarin.AsyncTests.Client
 
 			Debug ("Got remote connection from {0}.", socket.RemoteEndPoint);
 
-			var connection = new ConsoleClient (stream);
+			var connection = new ConsoleServer (stream);
 			await connection.Run ();
 
 			Debug ("Closed remote connection.");
+		}
+
+		async Task RunClient (IPEndPoint endpoint)
+		{
+			await Task.Yield ();
+
+			var client = new TcpClient ();
+			await client.ConnectAsync (endpoint.Address, endpoint.Port);
+
+			var stream = client.GetStream ();
+			var server = new ConsoleServer (stream);
+			server.Run ();
+
+			await server.Hello (CancellationToken.None);
+
+			await Task.Delay (10000);
+
+			await server.Shutdown ();
 		}
 	}
 }

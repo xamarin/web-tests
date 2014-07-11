@@ -57,21 +57,25 @@ namespace Xamarin.AsyncTests.UI
 			Connection = connection;
 		}
 
-		public void Run ()
+		public async Task Run (CancellationToken cancellationToken)
 		{
 			Context.Configuration.PropertyChanged += OnConfigChanged;
 
-			Task.Factory.StartNew (async () => {
-				try {
-					await MainLoop ().ConfigureAwait (false);
-				} catch (Exception ex) {
-					if (!stopRequested)
-						App.Context.Debug (0, "SERVER ERROR: {0}", ex);
-				} finally {
-					Context.Configuration.PropertyChanged -= OnConfigChanged;
-					Context.Configuration.Clear ();
-				}
+			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
+			cts.Token.Register (() => {
+				stopRequested = true;
+				Stop ();
 			});
+
+			try {
+				await MainLoop ();
+			} catch (Exception ex) {
+				if (!stopRequested)
+					App.Context.Debug (0, "SERVER ERROR: {0}", ex);
+			} finally {
+				Context.Configuration.PropertyChanged -= OnConfigChanged;
+				Context.Configuration.Clear ();
+			}
 		}
 
 		public override void Stop ()
@@ -129,11 +133,15 @@ namespace Xamarin.AsyncTests.UI
 		{
 			lock (this) {
 				Debug ("ON CONFIG CHANGED: {0} {1}", suppressConfigChanged, configChanging);
-				if (suppressConfigChanged || configChanging)
+				if (suppressConfigChanged || configChanging || stopRequested)
 					return;
 				configChanging = true;
 			}
-			await SyncConfiguration (Context.Configuration, false);
+			try {
+				await SyncConfiguration (Context.Configuration, false);
+			} catch {
+				;
+			}
 			configChanging = false;
 			Debug ("ON CONFIG CHANGED DONE");
 		}

@@ -9,9 +9,11 @@
         <StackLayout Spacing="10" Orientation="Horizontal" HorizontalOptions="FillAndExpand">
             <Label VerticalOptions="Center" Text="Server:" />
             <Button Text="Connect" Command="{Binding Connect}" />
+            <Button Text="Start" Command="{Binding Start}" />
             <Button Text="Disconnect" Command="{Binding Stop}" />
         </StackLayout>
         <StackLayout Spacing="10" Orientation="Horizontal">
+            <Switch IsToggled="{Binding UseServer}" />
             <Entry Text="{Binding ServerAddress}" HorizontalOptions="FillAndExpand" />
         </StackLayout>
         <Label Text="{Binding StatusMessage}" HorizontalOptions="FillAndExpand" />

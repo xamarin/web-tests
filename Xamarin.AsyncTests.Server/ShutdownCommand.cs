@@ -1,5 +1,5 @@
 ﻿//
-// IServerConnection.cs
+// ShutdownCommand.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,21 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests.Server
 {
-	public interface IServerConnection
+	class ShutdownCommand : CommandWithResponse, ICommonCommand
 	{
-		string Name {
-			get;
+		public Task Run (Connection connection, CancellationToken cancellationToken)
+		{
+			return connection.Run (this, cancellationToken);
 		}
-
-		Task<Stream> Open (CancellationToken cancellationToken);
-
-		void Close ();
 	}
 }
 

@@ -44,10 +44,6 @@
     <Compile Include="RemoteTestCase.cs" />
     <Compile Include="RunTestCommand.cs" />
     <Compile Include="CancelCommand.cs" />
-    <Compile Include="ClientConnection.cs" />
-    <Compile Include="ServerConnection.cs" />
-    <Compile Include="IServerCommand.cs" />
-    <Compile Include="IClientCommand.cs" />
     <Compile Include="ICommonCommand.cs" />
     <Compile Include="SyncConfigurationCommand.cs" />
     <Compile Include="RemoteTestSuite.cs" />
@@ -55,6 +51,11 @@
     <Compile Include="ResponseCommand.cs" />
     <Compile Include="CommandWithResponse.cs" />
     <Compile Include="LoadTestSuiteCommand.cs" />
+    <Compile Include="ShutdownCommand.cs" />
+    <Compile Include="IServerCommand.cs" />
+    <Compile Include="IClientCommand.cs" />
+    <Compile Include="ServerConnection.cs" />
+    <Compile Include="ClientConnection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

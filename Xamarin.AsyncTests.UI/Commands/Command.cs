@@ -118,16 +118,17 @@ namespace Xamarin.AsyncTests.UI
 
 		internal abstract Task<T> Start (CancellationToken cancellationToken);
 
+		internal abstract Task<bool> Run (CancellationToken cancellationToken);
+
 		internal abstract Task Stop (CancellationToken cancellationToken);
 
-		public override Task Execute ()
+		public override async Task Execute ()
 		{
-			return Provider.ExecuteStart (this);
-		}
-
-		protected internal bool AutoStop {
-			get;
-			protected set;
+			try {
+				await Provider.ExecuteStart (this);
+			} catch {
+				;
+			}
 		}
 	}
 }

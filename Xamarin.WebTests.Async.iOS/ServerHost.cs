@@ -41,7 +41,8 @@ namespace Xamarin.WebTests.Async.iOS
 		public Task<IServerConnection> Start (CancellationToken cancellationToken)
 		{
 			return Task.Run<IServerConnection> (() => {
-				var listener = new TcpListener (new IPEndPoint (IPAddress.Loopback, 8888));
+				var address = Runners.TestRunner.GetAddress ();
+				var listener = new TcpListener (new IPEndPoint (address, 8888));
 
 				listener.Start ();
 				Debug.WriteLine ("Server started: {0}", listener.LocalEndpoint);
@@ -74,6 +75,13 @@ namespace Xamarin.WebTests.Async.iOS
 			public ClientConnection (TcpClient client)
 			{
 				this.client = client;
+
+				Name = client.Client.RemoteEndPoint.ToString ();
+			}
+
+			public string Name {
+				get;
+				private set;
 			}
 
 			public Task<Stream> Open (CancellationToken cancellationToken)
@@ -116,11 +124,22 @@ namespace Xamarin.WebTests.Async.iOS
 			public ServerConnection (TcpListener listener)
 			{
 				this.listener = listener;
+				Name = listener.LocalEndpoint.ToString ();
+			}
+
+			public string Name {
+				get;
+				private set;
 			}
 
 			public async Task<Stream> Open (CancellationToken cancellationToken)
 			{
+				var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
+				cts.Token.Register (() => listener.Stop ());
+
 				socket = await listener.AcceptSocketAsync ();
+				cts.Token.ThrowIfCancellationRequested ();
+
 				Debug.WriteLine ("Server accepted connection from {0}.", socket.RemoteEndPoint);
 				stream = new NetworkStream (socket);
 				return stream;

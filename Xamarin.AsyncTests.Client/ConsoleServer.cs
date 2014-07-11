@@ -33,7 +33,7 @@ namespace Xamarin.AsyncTests.Client
 	using Framework;
 	using Server;
 
-	public class ConsoleClient : ClientConnection
+	public class ConsoleServer : ClientConnection
 	{
 		readonly TestContext context;
 
@@ -41,7 +41,7 @@ namespace Xamarin.AsyncTests.Client
 			get { return context; }
 		}
 
-		public ConsoleClient (Stream stream)
+		public ConsoleServer (Stream stream)
 			: base (stream)
 		{
 			context = new TestContext ();
