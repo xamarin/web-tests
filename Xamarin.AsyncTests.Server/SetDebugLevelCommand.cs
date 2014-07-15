@@ -30,27 +30,22 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class SetDebugLevelCommand : Command, ICommonCommand
+	class SetDebugLevelCommand : Command<string,object>
 	{
-		public int Level {
-			get; set;
+		protected override Serializer<string> ArgumentSerializer {
+			get { return Serializer.String; }
 		}
 
-		public override void ReadXml (Serializer serializer, XmlReader reader)
-		{
-			base.ReadXml (serializer, reader);
-			Level = int.Parse (reader.GetAttribute ("Level"));
+		protected override Serializer<object> ResponseSerializer {
+			get { return null; }
 		}
 
-		public override void WriteXml (Serializer serializer, XmlWriter writer)
+		protected override Task<object> Run (
+			Connection connection, string argument, CancellationToken cancellationToken)
 		{
-			base.WriteXml (serializer, writer);
-			writer.WriteAttributeString ("Level", Level.ToString ());
-		}
-
-		public Task Run (Connection connection, CancellationToken cancellationToken)
-		{
-			return connection.Run (this, cancellationToken);
+			if (argument != null)
+				connection.DebugLevel = int.Parse (argument);
+			return Task.FromResult<object> (null);
 		}
 	}
 }

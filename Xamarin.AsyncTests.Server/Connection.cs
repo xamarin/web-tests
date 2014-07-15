@@ -24,7 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml;
+using System.Xml.Linq;
+using System.Linq;
 using System.Text;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -32,79 +36,86 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
+	using Framework;
+
 	public abstract class Connection
 	{
 		Stream stream;
-		Serializer serializer;
 		CancellationTokenSource cancelCts;
 		TaskCompletionSource<bool> commandTcs;
-		Queue<QueuedCommand> commandQueue;
+		Queue<QueuedMessage> messageQueue;
 		bool shutdownRequested;
+		SettingsBag currentSettings;
 
 		public Connection (Stream stream)
 		{
 			this.stream = stream;
-			serializer = new Serializer (this);
 			cancelCts = new CancellationTokenSource ();
-			commandQueue = new Queue<QueuedCommand> ();
+			messageQueue = new Queue<QueuedMessage> ();
 		}
 
 		public int DebugLevel {
 			get; set;
 		}
 
+		public abstract TestContext Context {
+			get;
+		}
+
 		#region Public Client API
 
-		public async Task Hello (CancellationToken cancellationToken)
+		public async Task LogMessage (string message)
 		{
-			var command = new HelloCommand ();
-			await SendCommand (command);
-		}
-
-		public async Task Debug (int level, string message)
-		{
-			var command = new DebugCommand { Level = level, Message = message };
-			await SendCommand (command);
-		}
-
-		public async Task Message (string message)
-		{
-			var command = new MessageCommand { Message = message };
-			await SendCommand (command);
+			var command = new LogMessageCommand { Argument = message };
+			await command.Send (this);
 		}
 
 		public async Task SetDebugLevel (int level)
 		{
-			var command = new SetDebugLevelCommand { Level = level };
-			await SendCommand (command);
+			var command = new SetDebugLevelCommand { Argument = level.ToString () };
+			await command.Send (this);
 		}
 
-		public async Task SyncConfiguration (TestConfiguration configuration, bool fullUpdate)
+		public Task<SettingsBag> GetSettings (CancellationToken cancellationToken)
 		{
-			var command = new SyncConfigurationCommand {
-				Configuration = configuration, FullUpdate = fullUpdate
-			};
-			await SendWithResponse (command);
+			return new GetSettingsCommand ().Send (this, cancellationToken);
 		}
 
 		public async Task Shutdown ()
 		{
-			var command = new ShutdownCommand ();
-			await SendWithResponse (command);
+			await new ShutdownCommand ().Send (this);
+		}
+
+		public Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
+		{
+			return new LoadTestSuiteCommand ().Send (this, cancellationToken);
+		}
+
+		protected string DumpSettings (SettingsBag settings)
+		{
+			var node = Serializer.Settings.Write (this, settings);
+			var wxs = new XmlWriterSettings ();
+			wxs.Indent = true;
+			using (var writer = new StringWriter ()) {
+				var xml = XmlWriter.Create (writer, wxs);
+				node.WriteTo (xml);
+				xml.Flush ();
+				return writer.ToString ();
+			}
 		}
 
 		#endregion
-
-		internal Serializer Serializer {
-			get { return serializer; }
-		}
 
 		public virtual void Stop ()
 		{
 			cancelCts.Cancel ();
 
 			lock (this) {
-				foreach (var queued in commandQueue)
+				if (currentSettings != null)
+					currentSettings.PropertyChanged -= OnSettingsChanged;
+				currentSettings = null;
+
+				foreach (var queued in messageQueue)
 					queued.Task.TrySetCanceled ();
 				foreach (var operation in operations.Values)
 					operation.Task.TrySetCanceled ();
@@ -116,54 +127,85 @@ namespace Xamarin.AsyncTests.Server
 			return new ServerLogger (this);
 		}
 
-		internal Task SendCommand (Command command)
+		internal async Task<bool> SendCommand (Command command, Response response, CancellationToken cancellationToken)
 		{
-			var queued = new QueuedCommand (command);
+			Task<bool> responseTask = null;
+			if (!command.IsOneWay)
+				responseTask = RegisterResponse (command, response, cancellationToken);
+
+			await SendMessage (command);
+
+			if (responseTask == null)
+				return false;
+
+			return await responseTask;
+		}
+
+		internal async Task SendMessage (Message message)
+		{
+			Task queuedTask;
+			var queued = new QueuedMessage (message);
 			lock (this) {
 				if (commandTcs != null) {
-					commandQueue.Enqueue (queued);
-					return queued.Task.Task;
+					messageQueue.Enqueue (queued);
+					queuedTask = queued.Task.Task;
+				} else {
+					commandTcs = queued.Task;
+					queuedTask = null;
 				}
-				commandTcs = queued.Task;
 			}
 
-			Task.Factory.StartNew (async () => {
-				try {
-					await RunQueue (queued);
-					queued.Task.SetResult (true);
-				} catch (OperationCanceledException) {
-					queued.Task.SetCanceled ();
-				} catch (Exception ex) {
-					queued.Task.SetException (ex);
-				}
+			if (queuedTask == null) {
+				var innerTask = Task.Factory.StartNew (async () => {
+					try {
+						await RunQueue (queued);
+						queued.Task.SetResult (true);
+					} catch (OperationCanceledException) {
+						queued.Task.SetCanceled ();
+					} catch (Exception ex) {
+						queued.Task.SetException (ex);
+					}
 
-				await RunQueue ();
-			});
+					await RunQueue ();
+				});
 
-			return queued.Task.Task;
+				await queued.Task.Task;
+				await innerTask;
+			} else {
+				await queuedTask;
+			}
 		}
 
 		async Task RunQueue ()
 		{
 			while (true) {
-				QueuedCommand command;
+				QueuedMessage message;
 				lock (this) {
-					if (commandQueue.Count == 0) {
+					if (messageQueue.Count == 0) {
 						commandTcs = null;
 						return;
 					}
-					command = commandQueue.Dequeue ();
-					commandTcs = command.Task;
+					message = messageQueue.Dequeue ();
+					commandTcs = message.Task;
 				}
 
-				await RunQueue (command);
+				await RunQueue (message);
 			}
 		}
 
-		async Task RunQueue (QueuedCommand command)
+		async Task RunQueue (QueuedMessage message)
 		{
-			var formatted = serializer.Write (command.Command);
-			var bytes = new UTF8Encoding ().GetBytes (formatted);
+			var doc = message.Message.Write (this);
+
+			var sb = new StringBuilder ();
+			var settings = new XmlWriterSettings ();
+			settings.OmitXmlDeclaration = true;
+
+			using (var writer = XmlWriter.Create (sb, settings)) {
+				doc.WriteTo (writer);
+			}
+
+			var bytes = new UTF8Encoding ().GetBytes (sb.ToString ());
 
 			var header = BitConverter.GetBytes (bytes.Length);
 			if (bytes.Length == 0)
@@ -177,20 +219,12 @@ namespace Xamarin.AsyncTests.Server
 			await stream.FlushAsync ();
 		}
 
-		internal void SendCommandSync (Command command)
+		protected internal static void Debug (string message)
 		{
-			SendCommand (command).Wait ();
+			System.Diagnostics.Debug.WriteLine (message);
 		}
 
-		internal async Task<bool> SendWithResponse (CommandWithResponse command)
-		{
-			var operation = RegisterResponse ();
-			command.ResponseID = operation.ObjectID;
-			await SendCommand (command).ConfigureAwait (false);
-			return await operation.Task.Task;
-		}
-
-		internal static void Debug (string message, params object[] args)
+		protected internal static void Debug (string message, params object[] args)
 		{
 			System.Diagnostics.Debug.WriteLine (message, args);
 		}
@@ -219,92 +253,93 @@ namespace Xamarin.AsyncTests.Server
 				var body = await ReadBuffer (len);
 				var content = new UTF8Encoding ().GetString (body, 0, body.Length);
 
+				var doc = XDocument.Load (new StringReader (content));
+				var element = doc.Root;
+
+				if (element.Name.LocalName.Equals ("Response")) {
+					var objectID = element.Attribute ("ObjectID").Value;
+					var operation = GetResponse (long.Parse (objectID));
+					operation.Response.Read (this, element);
+					operation.Task.SetResult (true);
+					continue;
+				}
+
+				var command = Command.Create (this, element);
+
 				cancelCts.Token.ThrowIfCancellationRequested ();
-				HandleCommand (content);
+
+				if (command.IsOneWay) {
+					await command.Run (this, cancelCts.Token);
+					continue;
+				}
+
+				HandleCommand (command);
 			}
 		}
 
-		async void HandleCommand (string formatted)
+		async void HandleCommand (Command command)
 		{
-			var command = serializer.ReadCommand (formatted);
-
 			cancelCts.Token.ThrowIfCancellationRequested ();
 
-			bool success;
-			string error = null;
+			await Task.Yield ();
 
+			Response response;
 			try {
-				var commonCommand = command as ICommonCommand;
-				if (commonCommand != null)
-					await commonCommand.Run (this, cancelCts.Token);
-				else
-					await HandleCommand (command, cancelCts.Token);
-				success = true;
+				response = await command.Run (this, cancelCts.Token);
 			} catch (Exception ex) {
-				error = ex.ToString ();
-				Debug ("COMMAND FAILED: {0}", ex);
-				success = false;
+				response = new Response {
+					ObjectID = command.ResponseID, Success = false, Error = ex.ToString ()
+				};
 			}
 
-			var withResponse = command as CommandWithResponse;
-			if (withResponse == null || withResponse.ResponseID == 0)
+			if (command.IsOneWay || command.ResponseID == 0 || response == null)
 				return;
 
-			var response = new ResponseCommand {
-				ObjectID = withResponse.ResponseID, Success = success, Error = error
-			};
-
 			try {
-				await SendCommand (response);
+				await SendMessage (response);
 			} catch (Exception ex) {
 				Debug ("ERROR WHILE SENDING RESPONSE: {0}", ex);
 			}
 		}
 
-		internal abstract Task HandleCommand (Command command, CancellationToken cancellationToken);
-
-		internal Task Run (MessageCommand command, CancellationToken cancellationToken)
-		{
-			OnMessage (command.Message);
-			return Task.FromResult<object> (null);
-		}
-
-		internal Task Run (DebugCommand command, CancellationToken cancellationToken)
-		{
-			OnDebug (command.Level, command.Message);
-			return Task.FromResult<object> (null);
-		}
-
-		internal Task Run (SetDebugLevelCommand command, CancellationToken cancellationToken)
-		{
-			DebugLevel = command.Level;
-			return Task.FromResult<object> (null);
-		}
-
-		internal Task Run (HelloCommand command, CancellationToken cancellationToken)
-		{
-			return OnHello (cancellationToken);
-		}
-
-		internal Task Run (SyncConfigurationCommand command, CancellationToken cancellationToken)
-		{
-			OnSyncConfiguration (command.Configuration, command.FullUpdate);
-			return Task.FromResult<object> (null);
-		}
-
-		internal Task Run (ShutdownCommand command, CancellationToken cancellationToken)
+		protected internal virtual void OnShutdown ()
 		{
 			shutdownRequested = true;
-			return Task.FromResult<object> (null);
 		}
 
-		protected abstract Task OnHello (CancellationToken cancellationToken);
-
-		protected abstract void OnMessage (string message);
+		protected internal abstract void OnLogMessage (string message);
 
 		protected abstract void OnDebug (int level, string message);
 
-		protected abstract void OnSyncConfiguration (TestConfiguration configuration, bool fullUpdate);
+		internal SettingsBag OnGetSettings ()
+		{
+			lock (this) {
+				if (currentSettings != null)
+					return currentSettings;
+
+				currentSettings = Context.Settings;
+				if (currentSettings == null)
+					return null;
+
+				currentSettings.PropertyChanged += OnSettingsChanged;
+				return currentSettings;
+			}
+		}
+
+		async void OnSettingsChanged (object sender, PropertyChangedEventArgs e)
+		{
+			if (shutdownRequested || cancelCts.IsCancellationRequested)
+				return;
+
+			await new SyncSettingsCommand { Argument = (SettingsBag)sender }.Send (this);
+		}
+
+		internal void OnSyncSettings (SettingsBag newSettings)
+		{
+			lock (this) {
+				Context.Settings.Merge (newSettings);
+			}
+		}
 
 		static long next_id;
 		protected long GetNextObjectId ()
@@ -314,52 +349,152 @@ namespace Xamarin.AsyncTests.Server
 
 		Dictionary<long,Operation> operations = new Dictionary<long, Operation> ();
 
-		internal Operation RegisterResponse ()
+		internal Task<bool> RegisterResponse (Command command, Response response, CancellationToken cancellationToken)
 		{
+			Operation operation;
 			lock (this) {
 				var objectID = GetNextObjectId ();
-				var operation = new Operation (objectID);
+				operation = new Operation (objectID, response);
 				operations.Add (objectID, operation);
+				command.ResponseID = objectID;
+			}
+
+			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
+			cts.Token.Register (async () => {
+				await new CancelCommand { ObjectID = operation.ObjectID }.Send (this);
+			});
+
+			return operation.Task.Task;
+		}
+
+		Operation GetResponse (long objectID)
+		{
+			lock (this) {
+				var operation = operations [objectID];
+				operations.Remove (operation.ObjectID);
 				return operation;
 			}
 		}
 
-		internal Task Run (ResponseCommand command, CancellationToken cancellationToken)
+		internal void OnCancel (long objectID)
 		{
 			lock (this) {
-				var operation = operations [command.ObjectID];
-				operations.Remove (operation.ObjectID);
-				if (command.Error != null)
-					operation.Task.SetException (new SavedException (command.Error));
-				else
-					operation.Task.SetResult (command.Success);
+				Operation operation;
+				if (!operations.TryGetValue (objectID, out operation))
+					return;
+				operation.Task.TrySetCanceled ();
 			}
-			return Task.FromResult<object> (null);
 		}
 
 		internal class Operation
 		{
 			public readonly long ObjectID;
+			public readonly Response Response;
 			public TaskCompletionSource<bool> Task;
 
-			public Operation (long objectID)
+			public Operation (long objectID, Response response)
 			{
 				ObjectID = objectID;
+				Response = response;
 				Task = new TaskCompletionSource<bool> ();
 			}
 		}
 
-		internal class QueuedCommand
+		internal class QueuedMessage
 		{
-			public readonly Command Command;
+			public readonly Message Message;
 			public readonly TaskCompletionSource<bool> Task;
 
-			public QueuedCommand (Command command)
+			public QueuedMessage (Message message)
 			{
-				Command = command;
+				Message = message;
 				Task = new TaskCompletionSource<bool> ();
 			}
 		}
+
+		protected internal abstract Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken);
+
+		Dictionary<long,object> remoteObjects = new Dictionary<long,object> ();
+
+		internal long RegisterRemoteObject (object obj)
+		{
+			lock (this) {
+				if (remoteObjects.ContainsValue (obj))
+					return remoteObjects.First (e => e.Value == obj).Key;
+
+				var remoteObj = obj as IRemoteObject;
+				if (remoteObj != null)
+					return remoteObj.ObjectID;
+
+				var id = GetNextObjectId ();
+				remoteObjects.Add (id, obj);
+				return id;
+			}
+		}
+
+		internal bool TryGetRemoteObject<T> (long id, out T value)
+			where T : class
+		{
+			lock (this) {
+				object obj;
+				if (!remoteObjects.TryGetValue (id, out obj)) {
+					value = null;
+					return false;
+				}
+
+				value = (T)obj;
+				return true;
+			}
+		}
+
+		internal void UnregisterRemoteObject (object obj)
+		{
+			lock (this) {
+				var remoteObj = obj as IRemoteObject;
+				if (remoteObj != null) {
+					remoteObjects.Remove (remoteObj.ObjectID);
+					return;
+				}
+
+				if (!remoteObjects.ContainsValue (obj))
+					return;
+
+				var id = remoteObjects.First (e => e.Value == obj).Key;
+				remoteObjects.Remove (id);
+			}
+		}
+
+		internal async Task<bool> RunTest (TestCase test, TestResult result, CancellationToken cancellationToken)
+		{
+			var command = new RunTestCommand { Argument = test };
+
+			try {
+				var remoteResult = await command.Send (this, cancellationToken);
+				result.AddChild (remoteResult);
+				result.MergeStatus (remoteResult.Status);
+				return true;
+			} catch (Exception ex) {
+				Debug ("SEND COMMAND ERROR: {0}", ex);
+				result.AddError (ex);
+				return false;
+			}
+		}
+
+		internal async Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken)
+		{
+			var result = new TestResult (test.Name);
+
+			try {
+				await test.Run (Context, result, cancellationToken).ConfigureAwait (false);
+			} catch (OperationCanceledException) {
+				result.Status = TestStatus.Canceled;
+			} catch (Exception ex) {
+				result.AddError (ex);
+			}
+
+			return result;
+		}
+
 	}
 }
 

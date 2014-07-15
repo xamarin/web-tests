@@ -36,7 +36,7 @@ namespace Xamarin.AsyncTests.UI
 {
 	using Framework;
 
-	public class TestApp : INotifyPropertyChanged
+	public class TestApp : TestContext, INotifyPropertyChanged
 	{
 		public Assembly Assembly {
 			get;
@@ -44,8 +44,7 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		public TestContext Context {
-			get;
-			private set;
+			get { return this; }
 		}
 
 		public TabbedPage MainPage {
@@ -107,13 +106,21 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		SettingsBag currentSettings;
+		public override SettingsBag Settings {
+			get { return currentSettings; }
+		}
+
+		internal void SetSettings (SettingsBag settings)
+		{
+			currentSettings = settings;
+		}
+
 		public TestApp (ISettingsHost settings, IServerHost server, Assembly assembly)
 		{
 			SettingsHost = settings;
 			ServerHost = server;
 			Assembly = assembly;
-
-			Context = new TestContext ();
 
 			var result = new TestResult (new TestName (null));
 			RootTestResult = new TestResultModel (this, result, true);
@@ -123,7 +130,7 @@ namespace Xamarin.AsyncTests.UI
 
 			ServerControlPage = new ServerControlPage (ServerManager);
 
-			Options = new OptionsModel (this, Context.Configuration);
+			Options = new OptionsModel (this);
 
 			TestRunner = new TestRunner (this);
 
@@ -137,6 +144,9 @@ namespace Xamarin.AsyncTests.UI
 			MainPage.Children.Add (resultNav);
 
 			Root = MainPage;
+
+			if (settings != null)
+				currentSettings = settings.GetSettings ();
 
 			Initialize ();
 		}
@@ -158,6 +168,10 @@ namespace Xamarin.AsyncTests.UI
 		{
 			if (PropertyChanged != null)
 				PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
+		}
+
+		public override ITestSuite CurrentTestSuite {
+			get { return TestSuiteManager.Instance; }
 		}
 	}
 }

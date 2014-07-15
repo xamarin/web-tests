@@ -32,6 +32,8 @@ namespace Xamarin.AsyncTests.UI
 		string GetValue (string name);
 
 		void SetValue (string name, string value);
+
+		SettingsBag GetSettings ();
 	}
 }
 

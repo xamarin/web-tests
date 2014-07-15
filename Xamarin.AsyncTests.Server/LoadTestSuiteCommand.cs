@@ -29,11 +29,22 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class LoadTestSuiteCommand : CommandWithResponse, IClientCommand
+	using Framework;
+
+	class LoadTestSuiteCommand : Command<object,TestSuite>
 	{
-		public Task Run (ClientConnection connection, CancellationToken cancellationToken)
+		protected override Serializer<object> ArgumentSerializer {
+			get { return null; }
+		}
+
+		protected override Serializer<TestSuite> ResponseSerializer {
+			get { return Serializer.TestSuite; }
+		}
+
+		protected override Task<TestSuite> Run (
+			Connection connection, object argument, CancellationToken cancellationToken)
 		{
-			return connection.Run (this, cancellationToken);
+			return connection.OnLoadTestSuite (cancellationToken);
 		}
 	}
 }

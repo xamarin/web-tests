@@ -29,9 +29,9 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class RemoteTestCase : TestCase
+	class RemoteTestCase : TestCase, IRemoteObject
 	{
-		public ServerConnection Connection {
+		public Connection Connection {
 			get;
 			private set;
 		}
@@ -41,7 +41,7 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public RemoteTestCase (TestName name, ServerConnection connection, long objectId)
+		public RemoteTestCase (TestName name, Connection connection, long objectId)
 			: base (name)
 		{
 			Connection = connection;
@@ -50,9 +50,9 @@ namespace Xamarin.AsyncTests.Server
 
 		#region implemented abstract members of TestCase
 
-		public override async Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
+		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
 		{
-			return await Connection.RunTest (ObjectID, result, cancellationToken).ConfigureAwait (false);
+			return Connection.RunTest (this, result, cancellationToken);
 		}
 
 		#endregion

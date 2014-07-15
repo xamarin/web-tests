@@ -1,5 +1,5 @@
 ﻿//
-// CommandSerializer.cs
+// ParameterSerializer.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,10 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using System.ComponentModel;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -35,347 +33,261 @@ namespace Xamarin.AsyncTests.Server
 {
 	using Framework;
 
-	class Serializer
+	static class Serializer
 	{
-		public Connection Connection {
-			get;
-			private set;
-		}
+		public static readonly Serializer<string> String = new StringSerializer ();
+		public static readonly Serializer<SettingsBag> Settings = new SettingsSerializer ();
+		public static readonly Serializer<TestName> TestName = new TestNameSerializer ();
+		public static readonly Serializer<TestSuite> TestSuite = new TestSuiteSerializer ();
+		public static readonly Serializer<TestCase> TestCase = new TestCaseSerializer ();
+		public static readonly Serializer<TestResult> TestResult = new TestResultSerializer ();
+		public static readonly Serializer<TestConfiguration> Configuration = new ConfigurationSerializer ();
 
-		public Serializer (Connection connection)
+		class SettingsSerializer : Serializer<SettingsBag>
 		{
-			Connection = connection;
-		}
+			public override XElement Write (Connection connection, SettingsBag instance)
+			{
+				var settings = new XElement ("Settings");
 
-		public string Write (Command command)
-		{
-			var sb = new StringBuilder ();
-			var settings = new XmlWriterSettings ();
-			settings.OmitXmlDeclaration = true;
+				foreach (var entry in instance.Settings) {
+					var item = new XElement ("Setting");
+					settings.Add (item);
 
-			using (var writer = XmlWriter.Create (sb, settings)) {
-				writer.WriteStartElement (command.GetType ().FullName);
-				command.WriteXml (this, writer);
-				writer.WriteEndElement ();
-				writer.Flush ();
-			}
-
-			return sb.ToString ();
-		}
-
-		public Command ReadCommand (string formatted)
-		{
-			var reader = XmlReader.Create (new StringReader (formatted));
-
-			var ok = reader.Read ();
-			if (!ok || reader.NodeType != XmlNodeType.Element)
-				throw new InvalidOperationException ();
-
-			var type = Type.GetType (reader.LocalName);
-
-			var command = (Command)Activator.CreateInstance (type);
-			command.ReadXml (this, reader);
-
-			if (reader.Read ())
-				throw new InvalidOperationException ();
-
-			return command;
-		}
-
-		public static string Write (TestName name)
-		{
-			var sb = new StringBuilder ();
-			var settings = new XmlWriterSettings ();
-			settings.OmitXmlDeclaration = true;
-
-			using (var writer = XmlWriter.Create (sb, settings)) {
-				Write (writer, name);
-				writer.Flush ();
-			}
-
-			return sb.ToString ();
-		}
-
-		public static void Write (XmlWriter writer, TestName name)
-		{
-			writer.WriteStartElement ("TestName");
-			writer.WriteAttributeString ("Name", name.Name);
-
-			if (name.HasParameters) {
-				foreach (var parameter in name.Parameters) {
-					writer.WriteStartElement ("Parameter");
-					writer.WriteAttributeString ("Name", parameter.Name);
-					writer.WriteAttributeString ("Value", parameter.Value);
-					writer.WriteAttributeString ("IsHidden", parameter.IsHidden.ToString ());
-					writer.WriteEndElement ();
+					item.SetAttributeValue ("Key", entry.Key);
+					item.SetAttributeValue ("Value", entry.Value);
 				}
+
+				return settings;
 			}
 
-			writer.WriteEndElement ();
+			public override SettingsBag Read (Connection connection, XElement node)
+			{
+				if (!node.Name.LocalName.Equals ("Settings"))
+					throw new InvalidOperationException ();
+
+				var settings = SettingsBag.CreateDefault ();
+				foreach (var element in node.Elements ("Setting")) {
+					var key = element.Attribute ("Key");
+					var value = element.Attribute ("Value");
+					settings.Add (key.Value, value.Value);
+				}
+				return settings;
+			}
 		}
 
-		public static TestName ReadName (string formatted)
+		class StringSerializer : Serializer<string>
 		{
-			var reader = XmlReader.Create (new StringReader (formatted));
-			return ReadName (reader);
-		}
+			public override string Read (Connection connection, XElement node)
+			{
+				if (!node.Name.LocalName.Equals ("Text"))
+					throw new InvalidOperationException ();
 
-		public static TestName ReadName (XmlReader reader)
-		{
-			var doc = XDocument.Load (reader);
-			return ReadName (doc.Root);
-		}
-
-		public static TestName ReadName (XElement element)
-		{
-			if (!element.Name.LocalName.Equals ("TestName"))
-				throw new InvalidOperationException ();
-
-			var builder = new TestNameBuilder ();
-			builder.PushName (element.Attribute (XName.Get ("Name")).Value);
-
-			foreach (var child in element.Elements (XName.Get ("Parameter"))) {
-				var name = child.Attribute (XName.Get ("Name")).Value;
-				var value = child.Attribute (XName.Get ("Value")).Value;
-				var isHidden = bool.Parse (child.Attribute (XName.Get ("IsHidden")).Value);
-				builder.PushParameter (name, value, isHidden);
+				return node.Attribute ("Value").Value;
 			}
 
-			return builder.GetName ();
+			public override XElement Write (Connection connection, string instance)
+			{
+				var element = new XElement ("Text");
+				element.SetAttributeValue ("Value", instance);
+				return element;
+			}
 		}
 
-		public string Write (TestResult result)
+		class TestNameSerializer : Serializer<TestName>
 		{
-			var sb = new StringBuilder ();
-			var settings = new XmlWriterSettings ();
-			settings.OmitXmlDeclaration = true;
+			public override TestName Read (Connection connection, XElement node)
+			{
+				if (!node.Name.LocalName.Equals ("TestName"))
+					throw new InvalidOperationException ();
 
-			using (var writer = XmlWriter.Create (sb, settings)) {
-				Write (writer, result);
-				writer.Flush ();
+				var builder = new TestNameBuilder ();
+				builder.PushName (node.Attribute ("Name").Value);
+
+				foreach (var child in node.Elements ("Parameter")) {
+					var name = child.Attribute ("Name").Value;
+					var value = child.Attribute ("Value").Value;
+					var isHidden = bool.Parse (child.Attribute ("IsHidden").Value);
+					builder.PushParameter (name, value, isHidden);
+				}
+
+				return builder.GetName ();
 			}
 
-			return sb.ToString ();
+			public override XElement Write (Connection connection, TestName instance)
+			{
+				var element = new XElement ("TestName");
+				element.SetAttributeValue ("Name", instance.Name);
+
+				if (instance.HasParameters) {
+					foreach (var parameter in instance.Parameters) {
+						var node = new XElement ("Parameter");
+						element.Add (node);
+
+						node.SetAttributeValue ("Name", parameter.Name);
+						node.SetAttributeValue ("Value", parameter.Value);
+						node.SetAttributeValue ("IsHidden", parameter.IsHidden.ToString ());
+					}
+				}
+
+				return element;
+			}
 		}
 
-		public void Write (XmlWriter writer, TestResult result)
+		class TestSuiteSerializer : Serializer<TestSuite>
 		{
-			writer.WriteStartElement ("TestResult");
-			writer.WriteAttributeString ("Status", result.Status.ToString ());
-			if (result.Message != null)
-				writer.WriteAttributeString ("Message", result.Message);
-			if (result.Error != null)
-				writer.WriteAttributeString ("Error", result.Error.ToString ());
-			Write (writer, result.Name);
+			public override TestSuite Read (Connection connection, XElement node)
+			{
+				if (!node.Name.LocalName.Equals ("TestSuite"))
+					throw new InvalidOperationException ();
 
-			if (result.Test != null) {
-				var client = (ClientConnection)Connection;
-				var objectId = client.RegisterTest (result);
-				writer.WriteStartElement ("TestCase");
-				writer.WriteAttributeString ("ObjectID", objectId.ToString ());
-				Write (writer, result.Test.Name);
-				writer.WriteEndElement ();
+				var objectId = long.Parse (node.Attribute ("ObjectID").Value);
+
+				TestSuite suite;
+				if (connection.TryGetRemoteObject<TestSuite> (objectId, out suite))
+					return suite;
+
+				var name = Serializer.TestName.Read (connection, node.Element ("TestName"));
+				var config = Serializer.Configuration.Read (connection, node.Element ("TestConfiguration"));
+
+				return new RemoteTestSuite (connection, objectId, name, config);
 			}
 
-			foreach (var child in result.Children)
-				Write (writer, child);
+			public override XElement Write (Connection connection, TestSuite instance)
+			{
+				var element = new XElement ("TestSuite");
+				var objectId = connection.RegisterRemoteObject (instance);
+				element.SetAttributeValue ("ObjectID", objectId);
 
-			writer.WriteEndElement ();
+				var name = Serializer.TestName.Write (connection, instance.Name);
+				element.Add (name);
+
+				if (instance.Configuration != null) {
+					var config = Serializer.Configuration.Write (connection, instance.Configuration);
+					element.Add (config);
+				}
+
+				return element;
+			}
 		}
 
-		public TestResult ReadResult (string formatted)
+		class TestCaseSerializer : Serializer<TestCase>
 		{
-			var reader = XmlReader.Create (new StringReader (formatted));
-			return ReadResult (reader);
-		}
+			public override TestCase Read (Connection connection, XElement node)
+			{
+				if (!node.Name.LocalName.Equals ("TestCase"))
+					throw new InvalidOperationException ();
 
-		public TestResult ReadResult (XmlReader reader)
-		{
-			var doc = XDocument.Load (reader);
-			var element = doc.Root.Element (XName.Get ("TestResult"));
-			return ReadResult (element);
-		}
+				var objectId = long.Parse (node.Attribute ("ObjectID").Value);
 
-		public TestResult ReadResult (XElement element)
-		{
-			if (!element.Name.LocalName.Equals ("TestResult"))
-				throw new InvalidOperationException ();
+				TestCase test;
+				if (connection.TryGetRemoteObject<TestCase> (objectId, out test))
+					return test;
 
-			var name = ReadName (element.Element (XName.Get ("TestName")));
-			var status = (TestStatus)Enum.Parse (typeof(TestStatus), element.Attribute (XName.Get ("Status")).Value);
+				var name = Serializer.TestName.Read (connection, node.Element ("TestName"));
 
-			var result = new TestResult (name, status);
-
-			var message = element.Attribute (XName.Get ("Message"));
-			if (message != null)
-				result.Message = message.Value;
-
-			var error = element.Attribute (XName.Get ("Error"));
-			if (error != null)
-				result.AddError (new SavedException (error.Value));
-
-			var test = element.Element (XName.Get ("TestCase"));
-			if (test != null)
-				result.Test = ReadTest (test);
-
-			foreach (var child in element.Elements (XName.Get ("TestResult"))) {
-				result.AddChild (ReadResult (child));
+				return new RemoteTestCase (name, connection, objectId);
 			}
 
-			return result;
+			public override XElement Write (Connection connection, TestCase instance)
+			{
+				var element = new XElement ("TestCase");
+				var objectId = connection.RegisterRemoteObject (instance);
+				element.SetAttributeValue ("ObjectID", objectId);
+
+				var name = Serializer.TestName.Write (connection, instance.Name);
+				element.Add (name);
+				return element;
+			}
 		}
 
-		TestCase ReadTest (XElement element)
+		class TestResultSerializer : Serializer<TestResult>
 		{
-			var server = Connection as ServerConnection;
-			if (server == null)
-				throw new InvalidOperationException ();
-			if (!element.Name.LocalName.Equals ("TestCase"))
-				throw new InvalidOperationException ();
+			public override TestResult Read (Connection connection, XElement node)
+			{
+				if (!node.Name.LocalName.Equals ("TestResult"))
+					throw new InvalidOperationException ();
 
-			var name = ReadName (element.Element (XName.Get ("TestName")));
-			var objectId = long.Parse (element.Attribute (XName.Get ("ObjectID")).Value);
+				var name = Serializer.TestName.Read (connection, node.Element ("TestName"));
+				var status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
 
-			return new RemoteTestCase (name, server, objectId);
-		}
+				var result = new TestResult (name, status);
 
-		public string Write (TestConfiguration config)
-		{
-			var sb = new StringBuilder ();
-			var settings = new XmlWriterSettings ();
-			settings.OmitXmlDeclaration = true;
+				var message = node.Attribute ("Message");
+				if (message != null)
+					result.Message = message.Value;
 
-			using (var writer = XmlWriter.Create (sb, settings)) {
-				Write (writer, config);
-				writer.Flush ();
+				var error = node.Attribute ("Error");
+				if (error != null)
+					result.AddError (new SavedException (error.Value));
+
+				var test = node.Element ("TestCase");
+				if (test != null) {
+					var testcase = Serializer.TestCase.Read (connection, test);
+					result.Test = testcase;
+					result.PropertyChanged += (sender, e) => {
+						if (result.Test == testcase)
+							return;
+						if (result.Test != null)
+							throw new InvalidOperationException ();
+						connection.UnregisterRemoteObject (testcase);
+					};
+				}
+
+				foreach (var child in node.Elements ("TestResult")) {
+					result.AddChild (Read (connection, child));
+				}
+
+				return result;
 			}
 
-			return sb.ToString ();
-		}
+			void OnPropertyChanged (Connection connection, TestResult result, TestCase oldTest)
+			{
+				if (result.Test == oldTest)
+					return;
 
-		public void Write (XmlWriter writer, TestConfiguration config)
-		{
-			writer.WriteStartElement ("TestConfiguration");
-			foreach (var category in config.Categories) {
-				if (category.IsBuiltin)
-					continue;
-				writer.WriteStartElement ("Category");
-				writer.WriteAttributeString ("Name", category.Name);
-				if (category == config.CurrentCategory)
-					writer.WriteAttributeString ("IsCurrent", "true");
-				writer.WriteEndElement ();
-			}
-			foreach (var feature in config.Features) {
-				writer.WriteStartElement ("Feature");
-				writer.WriteAttributeString ("Name", feature.Name);
-				writer.WriteAttributeString ("Description", feature.Description);
-				if (feature.Constant != null)
-					writer.WriteAttributeString ("Constant", feature.Constant.Value.ToString ());
-				if (feature.DefaultValue != null)
-					writer.WriteAttributeString ("DefaultValue", feature.DefaultValue.Value.ToString ());
-				if (feature.CanModify)
-					writer.WriteAttributeString ("IsEnabled", config.IsEnabled (feature).ToString ());
-				writer.WriteEndElement ();
-			}
-			writer.WriteEndElement ();
-		}
-
-		public TestConfiguration ReadConfiguration (XmlReader reader)
-		{
-			var doc = XDocument.Load (reader);
-			var element = doc.Root.Element (XName.Get ("TestConfiguration"));
-			return ReadConfiguration (element);
-		}
-
-		public TestConfiguration ReadConfiguration (XElement element)
-		{
-			if (!element.Name.LocalName.Equals ("TestConfiguration"))
-				throw new InvalidOperationException ();
-
-			var config = new TestConfiguration ();
-			foreach (var item in element.Elements (XName.Get ("Category"))) {
-				var category = new TestCategory (item.Attribute (XName.Get ("Name")).Value);
-				config.AddCategory (category);
-				var current = item.Attribute (XName.Get ("IsCurrent"));
-				if (current != null && bool.Parse (current.Value))
-					config.CurrentCategory = category;
-			}
-			foreach (var item in element.Elements (XName.Get ("Feature"))) {
-				var name = item.Attribute (XName.Get ("Name")).Value;
-				var description = item.Attribute (XName.Get ("Description")).Value;
-				var constant = item.Attribute (XName.Get ("Constant"));
-				var defaultValue = item.Attribute (XName.Get ("DefaultValue"));
-				var enabled = item.Attribute (XName.Get ("IsEnabled"));
-
-				TestFeature feature;
-				if (constant != null) {
-					var constantValue = bool.Parse (constant.Value);
-					feature = new TestFeature (name, description, () => constantValue);
-				} else if (defaultValue != null)
-					feature = new TestFeature (name, description, bool.Parse (defaultValue.Value));
-				else
-					feature = new TestFeature (name, description);
-
-				bool isEnabled;
-				if (enabled != null)
-					isEnabled = bool.Parse (enabled.Value);
-				else
-					isEnabled = feature.Constant ?? feature.DefaultValue ?? false;
-
-				config.AddFeature (feature, isEnabled);
-			}
-			return config;
-		}
-
-		public string Write (TestSuite suite)
-		{
-			var sb = new StringBuilder ();
-			var settings = new XmlWriterSettings ();
-			settings.OmitXmlDeclaration = true;
-
-			using (var writer = XmlWriter.Create (sb, settings)) {
-				Write (writer, suite);
-				writer.Flush ();
 			}
 
-			return sb.ToString ();
+			public override XElement Write (Connection connection, TestResult instance)
+			{
+				var element = new XElement ("TestResult");
+				element.SetAttributeValue ("Status", instance.Status.ToString ());
+
+				if (instance.Message != null)
+					element.SetAttributeValue ("Message", instance.Message);
+				if (instance.Error != null)
+					element.SetAttributeValue ("Error", instance.Error.ToString ());
+
+				element.Add (Serializer.TestName.Write (connection, instance.Name));
+
+				if (instance.Test != null)
+					element.Add (Serializer.TestCase.Write (connection, instance.Test));
+
+				foreach (var child in instance.Children)
+					element.Add (Write (connection, child));
+
+				return element;
+			}
 		}
 
-		public void Write (XmlWriter writer, TestSuite suite)
+		class ConfigurationSerializer : Serializer<TestConfiguration>
 		{
-			writer.WriteStartElement ("TestSuite");
+			public override TestConfiguration Read (Connection connection, XElement node)
+			{
+				return TestConfiguration.ReadFromXml (connection.Context.Settings, node);
+			}
 
-			var client = Connection as ClientConnection;
-			if (client == null)
-				throw new InvalidOperationException ();
-
-			var objectId = client.RegisterTestSuite (suite);
-			writer.WriteAttributeString ("ObjectID", objectId.ToString ());
-
-			Write (writer, suite.Name);
-			writer.WriteEndElement ();
+			public override XElement Write (Connection connection, TestConfiguration instance)
+			{
+				return instance.WriteToXml ();
+			}
 		}
+	}
 
-		public TestSuite ReadTestSuite (XmlReader reader)
-		{
-			var doc = XDocument.Load (reader);
-			var element = doc.Root.Element (XName.Get ("TestSuite"));
-			return ReadTestSuite (element);
-		}
+	abstract class Serializer<T>
+	{
+		public abstract T Read (Connection connection, XElement node);
 
-		public TestSuite ReadTestSuite (XElement element)
-		{
-			var server = Connection as ServerConnection;
-			if (server == null)
-				throw new InvalidOperationException ();
-			if (!element.Name.LocalName.Equals ("TestSuite"))
-				throw new InvalidOperationException ();
-
-			var name = ReadName (element.Element (XName.Get ("TestName")));
-			var objectId = long.Parse (element.Attribute (XName.Get ("ObjectID")).Value);
-
-			return new RemoteTestSuite (name, server, objectId);
-		}
+		public abstract XElement Write (Connection connection, T instance);
 	}
 }
 

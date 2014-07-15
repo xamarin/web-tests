@@ -1,5 +1,5 @@
 ﻿//
-// SyncConfigurationCommand.cs
+// MessageCommand.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -30,34 +30,21 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class SyncConfigurationCommand : CommandWithResponse, ICommonCommand
+	class LogMessageCommand : Command<string,object>
 	{
-		public TestConfiguration Configuration {
-			get; set;
+		protected override Serializer<string> ArgumentSerializer {
+			get { return Serializer.String; }
 		}
 
-		public bool FullUpdate {
-			get; set;
+		protected override Serializer<object> ResponseSerializer {
+			get { return null; }
 		}
 
-		public override void ReadXml (Serializer serializer, XmlReader reader)
+		protected override Task<object> Run (
+			Connection connection, string argument, CancellationToken cancellationToken)
 		{
-			base.ReadXml (serializer, reader);
-			FullUpdate = bool.Parse (reader.GetAttribute ("FullUpdate"));
-			var subReader = reader.ReadSubtree ();
-			Configuration = serializer.ReadConfiguration (subReader);
-		}
-
-		public override void WriteXml (Serializer serializer, XmlWriter writer)
-		{
-			base.WriteXml (serializer, writer);
-			writer.WriteAttributeString ("FullUpdate", FullUpdate.ToString ());
-			serializer.Write (writer, Configuration);
-		}
-
-		public Task Run (Connection connection, CancellationToken cancellationToken)
-		{
-			return connection.Run (this, cancellationToken);
+			connection.OnLogMessage (argument);
+			return Task.FromResult<object> (null);
 		}
 	}
 }

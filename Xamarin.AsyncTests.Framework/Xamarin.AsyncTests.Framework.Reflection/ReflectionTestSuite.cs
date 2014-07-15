@@ -36,7 +36,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 	{
 		List<ReflectionTest> tests;
 		TestInvoker invoker;
-		ITestConfiguration configuration;
+		TestConfiguration configuration;
 
 		ReflectionTestSuite (TestName name)
 			: base (name)
@@ -44,11 +44,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			tests = new List<ReflectionTest> ();
 		}
 
-		public override ITestConfiguration Configuration {
+		public override TestConfiguration Configuration {
 			get { return configuration; }
 		}
 
-		public static Task<TestSuite> Create (Assembly assembly)
+		public static Task<TestSuite> Create (TestContext ctx, Assembly assembly)
 		{
 			var tcs = new TaskCompletionSource<TestSuite> ();
 
@@ -56,7 +56,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				try {
 					var name = new TestName (assembly.GetName ().Name);
 					var suite = new ReflectionTestSuite (name);
-					suite.DoLoadAssembly (assembly);
+					suite.DoLoadAssembly (ctx, assembly);
 					tcs.SetResult (suite);
 				} catch (Exception ex) {
 					tcs.SetException (ex);
@@ -66,7 +66,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return tcs.Task;
 		}
 
-		void DoLoadAssembly (Assembly assembly)
+		void DoLoadAssembly (TestContext ctx, Assembly assembly)
 		{
 			foreach (var type in assembly.ExportedTypes) {
 				var tinfo = type.GetTypeInfo ();
@@ -82,8 +82,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			invoker = AggregatedTestInvoker.Create (TestFlags.ContinueOnError, invokers);
 
 			var suiteAttr = assembly.GetCustomAttribute<AsyncTestSuiteAttribute> ();
-			if (suiteAttr != null)
-				configuration = (ITestConfiguration)Activator.CreateInstance (suiteAttr.Type);
+			if (suiteAttr != null) {
+				var config = (ITestConfiguration)Activator.CreateInstance (suiteAttr.Type);
+				configuration = TestConfiguration.FromTestSuite (ctx.Settings, config);
+			}
 		}
 
 		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)

@@ -34,7 +34,7 @@ namespace Xamarin.AsyncTests.UI
 	using Framework;
 	using Server;
 
-	public class TestServer : ServerConnection
+	public class TestServer : Connection
 	{
 		public TestApp App {
 			get;
@@ -59,29 +59,34 @@ namespace Xamarin.AsyncTests.UI
 
 		public async Task Run (CancellationToken cancellationToken)
 		{
-			Context.Configuration.PropertyChanged += OnConfigChanged;
-
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.Token.Register (() => {
 				stopRequested = true;
 				Stop ();
 			});
 
+			var tcs = new TaskCompletionSource<object> ();
+
+			await Task.Factory.StartNew (async () => {
+				try {
+					await MainLoop ();
+					tcs.SetResult (null);
+				} catch (Exception ex) {
+					tcs.SetException (ex);
+				}
+			}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext ());
+
 			try {
-				await MainLoop ();
+				await tcs.Task;
 			} catch (Exception ex) {
 				if (!stopRequested)
 					App.Context.Debug (0, "SERVER ERROR: {0}", ex);
-			} finally {
-				Context.Configuration.PropertyChanged -= OnConfigChanged;
-				Context.Configuration.Clear ();
 			}
 		}
 
 		public override void Stop ()
 		{
 			stopRequested = true;
-			Context.Configuration.PropertyChanged -= OnConfigChanged;
 			try {
 				base.Stop ();
 			} catch {
@@ -94,21 +99,15 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		void Debug (string message, params object[] args)
+		protected override void OnShutdown ()
 		{
-			System.Diagnostics.Debug.WriteLine (message, args);
+			stopRequested = true;
+			base.OnShutdown ();
 		}
 
 		#region implemented abstract members of ServerConnection
 
-		protected override Task OnLoadResult (TestResult result)
-		{
-			return Task.Run (() => {
-				App.RootTestResult.Result.AddChild (result);
-			});
-		}
-
-		protected override void OnMessage (string message)
+		protected override void OnLogMessage (string message)
 		{
 			Debug ("MESSAGE: {0}", message);
 		}
@@ -118,45 +117,15 @@ namespace Xamarin.AsyncTests.UI
 			Debug ("DEBUG ({0}): {1}", level, message);
 		}
 
-		protected override Task OnHello (CancellationToken cancellationToken)
-		{
-			return Task.Run (() => {
-				Debug ("HELLO WORLD!");
-			});
-		}
-
 		bool stopRequested;
-		bool suppressConfigChanged;
-		bool configChanging;
-
-		async void OnConfigChanged (object sender, PropertyChangedEventArgs args)
-		{
-			lock (this) {
-				Debug ("ON CONFIG CHANGED: {0} {1}", suppressConfigChanged, configChanging);
-				if (suppressConfigChanged || configChanging || stopRequested)
-					return;
-				configChanging = true;
-			}
-			try {
-				await SyncConfiguration (Context.Configuration, false);
-			} catch {
-				;
-			}
-			configChanging = false;
-			Debug ("ON CONFIG CHANGED DONE");
-		}
-
-		protected override void OnSyncConfiguration (TestConfiguration configuration, bool fullUpdate)
-		{
-			try {
-				suppressConfigChanged = true;
-				Context.Configuration.Merge (configuration, fullUpdate);
-			} finally {
-				suppressConfigChanged = false;
-			}
-		}
 
 		#endregion
+
+		protected override async Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken)
+		{
+			await App.TestSuiteManager.LoadLocal.Execute ();
+			return App.TestSuiteManager.Instance;
+		}
 	}
 }
 

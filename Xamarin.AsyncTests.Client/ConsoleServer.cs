@@ -33,9 +33,11 @@ namespace Xamarin.AsyncTests.Client
 	using Framework;
 	using Server;
 
-	public class ConsoleServer : ClientConnection
+	public class ConsoleServer : Connection
 	{
-		readonly TestContext context;
+		readonly ConsoleContext context;
+		TaskCompletionSource<bool> helloTcs;
+		bool shutdownRequested;
 
 		public override TestContext Context {
 			get { return context; }
@@ -44,35 +46,66 @@ namespace Xamarin.AsyncTests.Client
 		public ConsoleServer (Stream stream)
 			: base (stream)
 		{
-			context = new TestContext ();
+			context = new ConsoleContext ();
+			helloTcs = new TaskCompletionSource<bool> ();
 		}
 
-		void Debug (string message, params object[] args)
+		protected override Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken)
 		{
-			Debug (string.Format (message, args));
+			return context.LoadTestSuite (cancellationToken);
 		}
 
-		void Debug (string message)
+		public async Task RunServer ()
 		{
-			System.Diagnostics.Debug.WriteLine (message);
+			var task = Task.Factory.StartNew (async () => {
+				await MainLoop ();
+				context.UnloadTestSuite ();
+			});
+
+			Debug ("Server started.");
+
+			await helloTcs.Task;
+			Debug ("Handshake complete.");
+			await task;
 		}
 
-		protected override async Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
+		public async Task RunClient ()
 		{
-			context.Configuration.Clear ();
-			var assembly = typeof(Xamarin.WebTests.WebTestFeatures).Assembly;
-			var suite = await TestSuite.LoadAssembly (assembly);
-			if (suite.Configuration != null) {
-				context.Configuration.AddTestSuite (suite.Configuration);
-				await SyncConfiguration (context.Configuration, true);
-			}
-			return suite;
-		}
+			var task = Task.Run (async () => {
+				try {
+					await MainLoop ();
+				} catch (Exception ex) {
+					if (shutdownRequested)
+						return;
+					Debug ("MAIN LOOP EX: {0}", ex);
+					throw;
+				} finally {
+					context.UnloadTestSuite ();
+				}
+			});
 
-		public async Task Run ()
-		{
-			await MainLoop ();
-			context.Configuration.Clear ();
+			Debug ("Client started.");
+
+			var settings = await GetSettings (CancellationToken.None);
+			context.MergeSettings (settings);
+
+			Debug ("SETTINGS:\n{0}\n", DumpSettings (context.Settings));
+
+			var suite = await LoadTestSuite (CancellationToken.None);
+			Debug ("GOT TEST SUITE: {0}", suite);
+
+			await Task.Delay (10000);
+
+			Debug ("DONE WAITING");
+
+			await RunTest (suite);
+
+			Debug ("SHUTTING DOWN");
+
+			shutdownRequested = true;
+			await Shutdown ();
+
+			await task;
 		}
 
 		public async Task<TestResult> RunTest (TestSuite suite)
@@ -82,20 +115,15 @@ namespace Xamarin.AsyncTests.Client
 			return result;
 		}
 
-		#region implemented abstract members of ClientConnection
-
-		#endregion
+		protected override void OnShutdown ()
+		{
+			shutdownRequested = true;
+			base.OnShutdown ();
+		}
 
 		#region implemented abstract members of Connection
 
-		protected override Task OnHello (CancellationToken cancellationToken)
-		{
-			return Task.Run (() => {
-				Debug ("HELLO WORLD!");
-			});
-		}
-
-		protected override void OnMessage (string message)
+		protected override void OnLogMessage (string message)
 		{
 			Debug (message);
 		}
@@ -103,11 +131,6 @@ namespace Xamarin.AsyncTests.Client
 		protected override void OnDebug (int level, string message)
 		{
 			Debug (message);
-		}
-
-		protected override void OnSyncConfiguration (TestConfiguration configuration, bool fullUpdate)
-		{
-			Context.Configuration.Merge (configuration, fullUpdate);
 		}
 
 		#endregion

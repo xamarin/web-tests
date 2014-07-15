@@ -146,16 +146,20 @@ namespace Xamarin.AsyncTests.UI
 		{
 		}
 
+		public readonly BindableProperty InstanceProperty = BindableProperty.Create (
+			"Instance", typeof (T), typeof (CommandProvider<T>), null,
+			propertyChanged: (bo, o, n) => ((CommandProvider<T>)bo).OnInstanceChanged ((T)n));
+
 		public T Instance {
-			get { return instance; }
-			set {
-				instance = value;
-				HasInstance = instance != null;
-				OnPropertyChanged ("HasInstance");
-			}
+			get { return (T)GetValue (InstanceProperty); }
+			set { SetValue (InstanceProperty, value); }
 		}
 
-		T instance;
+		protected virtual void OnInstanceChanged (T instance)
+		{
+			HasInstance = instance != null;
+		}
+
 		Command<T> currentCommand;
 		TaskCompletionSource<T> startTcs;
 		CancellationTokenSource cts;

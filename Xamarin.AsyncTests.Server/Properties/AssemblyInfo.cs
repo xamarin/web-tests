@@ -47,6 +47,8 @@ using System.Runtime.CompilerServices;
 // The following attributes are used to specify the signing key for the assembly,
 // if desired. See the Mono documentation for more information about signing.
 
+// [assembly: InternalsVisibleTo ("Xamarin.AsyncTests.Client, PublicKey=0024000004800000940000000602000000240000525341310004000011000000e912509e2434b3e4a7486b5fa61bc82849e54c98df8761ea4017c6b8f49e25c65d79c120e7941c953630525ef6fd666443609ee467f3480991cb46129a5f941feb90bb7e3c87eadf52346887c51d7606c7981fe496399d051d59e37b96fb28cca7922905b94909b171fdf0e380882112a38ccfcfc2e05129bc6e5ee0d0e61bdd")]
+
 //[assembly: AssemblyDelaySign(false)]
 //[assembly: AssemblyKeyFile("")]
 

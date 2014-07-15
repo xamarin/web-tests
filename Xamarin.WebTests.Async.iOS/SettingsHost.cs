@@ -24,23 +24,97 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using MonoTouch.Foundation;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.UI;
 
 namespace Xamarin.WebTests.Async.iOS
 {
-	public class SettingsHost : ISettingsHost
+	public class SettingsHost : SettingsBag, ISettingsHost
 	{
+		const string DictionaryKey = "AppSettings";
+
+		NSDictionary GetDictionary ()
+		{
+			var defaults = NSUserDefaults.StandardUserDefaults;
+			return defaults.DictionaryForKey (DictionaryKey);
+		}
+
 		#region ISettingsHost implementation
 		public string GetValue (string name)
 		{
-			return NSUserDefaults.StandardUserDefaults.StringForKey (name);
+			string value;
+			if (!TryGetValue (name, out value))
+				return null;
+			return value;
 		}
 
-		public void SetValue (string name, string value)
+		public override bool TryGetValue (string name, out string value)
 		{
-			NSUserDefaults.StandardUserDefaults.SetString (value, name);
-			NSUserDefaults.StandardUserDefaults.Synchronize ();
+			var dict = GetDictionary ();
+			if (dict != null) {
+				NSObject obj;
+				if (dict.TryGetValue ((NSString)name, out obj)) {
+					value = (string)(NSString)obj;
+					return true;
+				}
+			}
+
+			value = null;
+			return false;
+		}
+
+		public override void Add (string key, string value)
+		{
+			SetValue (key, value);
+		}
+
+		public override void SetValue (string name, string value)
+		{
+			var defaults = NSUserDefaults.StandardUserDefaults;
+			var dict = defaults.DictionaryForKey (DictionaryKey);
+			if (dict == null)
+				dict = new NSDictionary ();
+			var mutable = (NSMutableDictionary)dict.MutableCopy ();
+			mutable.Add ((NSString)name, (NSString)value);
+			defaults.SetValueForKey (mutable, (NSString)DictionaryKey);
+			defaults.Synchronize ();
+		}
+
+		public override void RemoveValue (string name)
+		{
+			var defaults = NSUserDefaults.StandardUserDefaults;
+			var dict = defaults.DictionaryForKey (DictionaryKey);
+			if (dict == null)
+				dict = new NSDictionary ();
+			var mutable = (NSMutableDictionary)dict.MutableCopy ();
+			mutable.Remove ((NSString)name);
+			defaults.SetValueForKey (mutable, (NSString)DictionaryKey);
+			defaults.Synchronize ();
+		}
+
+		public override IReadOnlyDictionary<string, string> Settings {
+			get {
+				var retval = new Dictionary<string,string> ();
+				var dict = GetDictionary ();
+				if (dict == null)
+					return retval;
+
+				foreach (var entry in dict) {
+					var key = (NSString)entry.Key;
+					var value = (NSString)entry.Value;
+					retval.Add ((string)key, (string)value);
+				}
+
+				return retval;
+			}
+		}
+
+		SettingsBag ISettingsHost.GetSettings ()
+		{
+			return this;
 		}
 		#endregion
 	}

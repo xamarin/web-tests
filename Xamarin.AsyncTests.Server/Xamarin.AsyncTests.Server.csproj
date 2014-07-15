@@ -10,6 +10,8 @@
     <AssemblyName>Xamarin.AsyncTests.Server</AssemblyName>
     <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\Xamarin.AsyncTests.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,30 +34,24 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Command.cs" />
-    <Compile Include="HelloCommand.cs" />
-    <Compile Include="MessageCommand.cs" />
     <Compile Include="Connection.cs" />
-    <Compile Include="Serializer.cs" />
     <Compile Include="ServerLogger.cs" />
-    <Compile Include="DebugCommand.cs" />
     <Compile Include="SetDebugLevelCommand.cs" />
     <Compile Include="SavedException.cs" />
-    <Compile Include="LoadResultCommand.cs" />
     <Compile Include="RemoteTestCase.cs" />
     <Compile Include="RunTestCommand.cs" />
-    <Compile Include="CancelCommand.cs" />
-    <Compile Include="ICommonCommand.cs" />
-    <Compile Include="SyncConfigurationCommand.cs" />
     <Compile Include="RemoteTestSuite.cs" />
-    <Compile Include="TestSuiteLoadedCommand.cs" />
-    <Compile Include="ResponseCommand.cs" />
-    <Compile Include="CommandWithResponse.cs" />
     <Compile Include="LoadTestSuiteCommand.cs" />
     <Compile Include="ShutdownCommand.cs" />
-    <Compile Include="IServerCommand.cs" />
-    <Compile Include="IClientCommand.cs" />
-    <Compile Include="ServerConnection.cs" />
-    <Compile Include="ClientConnection.cs" />
+    <Compile Include="GetSettingsCommand.cs" />
+    <Compile Include="Message.cs" />
+    <Compile Include="Response.cs" />
+    <Compile Include="LogMessageCommand.cs" />
+    <Compile Include="Serializer.cs" />
+    <Compile Include="SyncSettingsCommand.cs" />
+    <Compile Include="IRemoteObject.cs" />
+    <Compile Include="CancelCommand.cs" />
+    <Compile Include="OneWayCommand.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

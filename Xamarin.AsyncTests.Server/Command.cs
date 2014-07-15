@@ -24,7 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using System.Xml;
+using System.Xml.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -32,15 +34,184 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	abstract class Command
+	abstract class Command : Message
 	{
-		public virtual void ReadXml (Serializer serializer, XmlReader reader)
-		{
-			;
+		public virtual bool IsOneWay {
+			get { return false; }
 		}
-		public virtual void WriteXml (Serializer serializer, XmlWriter writer)
+
+		public long ResponseID {
+			get; set;
+		}
+
+		internal static Command Create (Connection connection, XElement node)
 		{
-			;
+			if (!node.Name.LocalName.Equals ("Command"))
+				throw new InvalidOperationException ();
+
+			var typeName = node.Attribute ("Type");
+			var type = Type.GetType (typeName.Value);
+
+			var command = (Command)Activator.CreateInstance (type);
+			command.Read (connection, node);
+
+			return command;
+		}
+
+		public override void Read (Connection connection, XElement node)
+		{
+			base.Read (connection, node);
+
+			if (!IsOneWay)
+				ResponseID = long.Parse (node.Attribute ("ResponseID").Value);
+		}
+
+		public override void Write (Connection connection, XElement node)
+		{
+			base.Write (connection, node);
+
+			node.SetAttributeValue ("Type", GetType ().FullName);
+
+			if (!IsOneWay)
+				node.SetAttributeValue ("ResponseID", ResponseID);
+		}
+
+		public abstract Task<Response> Run (Connection connection, CancellationToken cancellationToken);
+
+		protected virtual string MyToString ()
+		{
+			return null;
+		}
+
+		public override string ToString ()
+		{
+			var my = MyToString ();
+			if (my != null)
+				my = ", " + my;
+			return string.Format ("[{0}: IsOneWay={1}, ResponseID={2}{3}]", GetType ().Name, IsOneWay, ResponseID, my);
+		}
+	}
+
+	abstract class Command<T,U> : Command
+	{
+		public T Argument {
+			get; set;
+		}
+
+		protected abstract Serializer<T> ArgumentSerializer {
+			get;
+		}
+
+		protected abstract Serializer<U> ResponseSerializer {
+			get;
+		}
+
+		public Task<U> Send (Connection connection)
+		{
+			return Send (connection, CancellationToken.None);
+		}
+
+		public async Task<U> Send (Connection connection, CancellationToken cancellationToken)
+		{
+			var response = new CommandResponse (this);
+			await connection.SendCommand (this, response, cancellationToken);
+			Connection.Debug ("DONE SENDING COMMAND: {0}", response.Response);
+			if (response.Error != null)
+				throw new SavedException (response.Error);
+			if (!response.Success)
+				throw new InvalidOperationException ();
+			return response.Response;
+		}
+
+		public override void Read (Connection connection, XElement node)
+		{
+			base.Read (connection, node);
+
+			if (ArgumentSerializer != null) {
+				var argument = node.Element ("Argument");
+				if (argument.Elements ().Count () > 1)
+					throw new InvalidOperationException ();
+				var first = argument.Elements ().First ();
+				Argument = ArgumentSerializer.Read (connection, first);
+			}
+		}
+
+		public override void Write (Connection connection, XElement node)
+		{
+			base.Write (connection, node);
+
+			if (ArgumentSerializer != null) {
+				var element = ArgumentSerializer.Write (connection, Argument);
+				if (element != null) {
+					var argument = new XElement ("Argument");
+					argument.Add (element);
+					node.Add (argument);
+				}
+			}
+		}
+
+		public sealed override async Task<Response> Run (Connection connection, CancellationToken cancellationToken)
+		{
+			var response = new CommandResponse (this);
+
+			try {
+				response.Response = await Run (connection, Argument, cancellationToken);
+				response.Success = true;
+				Connection.Debug ("COMMAND DONE: {0}", response.Response);
+			} catch (Exception ex) {
+				response.Error = ex.ToString ();
+				Connection.Debug ("COMMAND FAILED: {0}", ex);
+			} finally {
+				Connection.Debug ("COMMAND DONE: {0}", this);
+			}
+
+			return response;
+		}
+
+		protected abstract Task<U> Run (Connection connection, T argument, CancellationToken cancellationToken);
+
+		class CommandResponse : Response
+		{
+			public Command<T,U> Command {
+				get;
+				private set;
+			}
+
+			public U Response {
+				get; set;
+			}
+
+			public CommandResponse (Command<T,U> command)
+			{
+				Command = command;
+				ObjectID = command.ResponseID;
+			}
+
+			public override void Read (Connection connection, XElement node)
+			{
+				base.Read (connection, node);
+
+				var response = node.Element ("Response");
+				if (Command.ResponseSerializer != null && response != null) {
+					if (response.Elements ().Count () > 1)
+						throw new InvalidOperationException ();
+					var first = response.Elements ().First ();
+					Response = Command.ResponseSerializer.Read (connection, first);
+				}
+			}
+
+			public override void Write (Connection connection, XElement node)
+			{
+				base.Write (connection, node);
+				if (Command.ResponseSerializer != null) {
+					var element = Command.ResponseSerializer.Write (connection, Response);
+					if (element != null) {
+						var response = new XElement ("Response");
+						response.Add (element);
+						node.Add (response);
+					}
+				}
+			}
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// LoadResultCommand.cs
+// ITestSuite.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,40 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Server
+namespace Xamarin.AsyncTests
 {
-	class LoadResultCommand : Command, IServerCommand
+	public interface ITestSuite
 	{
-		public TestResult Result {
-			get; set;
+		TestCase Test {
+			get;
 		}
 
-		public long ObjectID {
-			get; set;
-		}
-
-		public override void ReadXml (Serializer serializer, XmlReader reader)
-		{
-			base.ReadXml (serializer, reader);
-			ObjectID = long.Parse (reader.GetAttribute ("ObjectID"));
-			var subReader = reader.ReadSubtree ();
-			Result = serializer.ReadResult (subReader);
-		}
-
-		public override void WriteXml (Serializer serializer, XmlWriter writer)
-		{
-			writer.WriteAttributeString ("ObjectID", ObjectID.ToString ());
-			base.WriteXml (serializer, writer);
-			serializer.Write (writer, Result);
-		}
-
-		public Task Run (ServerConnection connection, CancellationToken cancellationToken)
-		{
-			return connection.Run (this, cancellationToken);
+		TestConfiguration Configuration {
+			get;
 		}
 	}
 }

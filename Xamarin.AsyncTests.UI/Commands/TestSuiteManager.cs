@@ -49,6 +49,16 @@ namespace Xamarin.AsyncTests.UI
 			get { return loadFromServer; }
 		}
 
+		public TestFeaturesModel Features {
+			get;
+			private set;
+		}
+
+		public TestCategoriesModel Categories {
+			get;
+			private set;
+		}
+
 		public TestSuiteManager (TestApp app)
 			: base (app)
 		{
@@ -57,15 +67,28 @@ namespace Xamarin.AsyncTests.UI
 
 			StatusMessage = "No TestSuite loaded.";
 			loadLocal.CanExecute = true;
+
+			Features = new TestFeaturesModel (App);
+			Categories = new TestCategoriesModel (App);
+		}
+
+		protected override void OnInstanceChanged (TestSuite instance)
+		{
+			if (instance == null) {
+				Features.Configuration = null;
+				Categories.Configuration = null;
+			} else {
+				Features.Configuration = instance.Configuration;
+				Categories.Configuration = instance.Configuration;
+			}
+			base.OnInstanceChanged (instance);
 		}
 
 		protected async Task<TestSuite> OnLoadLocal (CancellationToken cancellationToken)
 		{
 			try {
 				StatusMessage = "Loading TestSuite ...";
-				var suite = await TestSuite.LoadAssembly (App.Assembly);
-				if (suite.Configuration != null)
-					App.Context.Configuration.AddTestSuite (suite.Configuration);
+				var suite = await TestSuite.LoadAssembly (App.Context, App.Assembly);
 				App.RootTestResult.Result.Test = suite;
 				SetStatusMessage ("Loaded {0}.", suite.Name);
 				return suite;
@@ -85,8 +108,6 @@ namespace Xamarin.AsyncTests.UI
 				}
 				StatusMessage = "Loading TestSuite from server ...";
 				var suite = await instance.LoadTestSuite (cancellationToken);
-				if (suite.Configuration != null)
-					App.Context.Configuration.AddTestSuite (suite.Configuration);
 				App.RootTestResult.Result.Test = suite;
 				SetStatusMessage ("Loaded {0} from server.", suite.Name);
 				return suite;
@@ -101,7 +122,6 @@ namespace Xamarin.AsyncTests.UI
 			StatusMessage = "TestSuite unloaded.";
 			App.RootTestResult.Result.Clear ();
 			App.TestRunner.CurrentTestResult = App.RootTestResult;
-			App.Context.Configuration.Clear ();
 			return Task.FromResult<object> (null);
 		}
 

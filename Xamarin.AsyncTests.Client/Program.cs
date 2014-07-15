@@ -43,20 +43,25 @@ namespace Xamarin.AsyncTests.Client
 			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
 
 			var main = new MainClass ();
-			main.Run (args);
+			try {
+				var task = main.Run (args);
+				task.Wait ();
+			} catch (Exception ex) {
+				Debug ("ERROR: {0}", ex);
+			}
 		}
 
-		void Run (string[] args)
+		async Task Run (string[] args)
 		{
 			if (args.Length == 0) {
-				RunServer ().Wait ();
+				await RunServer ();
 				return;
 			}
 
 			switch (args [0]) {
 			case "client":
 				var address = GetEndpoint (args [1]);
-				RunClient (address).Wait ();
+				await RunClient (address);
 				return;
 			default:
 				Console.Error.WriteLine ("UNKNOWN COMMAND: {0}", args [0]);
@@ -117,7 +122,7 @@ namespace Xamarin.AsyncTests.Client
 			Debug ("Got remote connection from {0}.", socket.RemoteEndPoint);
 
 			var connection = new ConsoleServer (stream);
-			await connection.Run ();
+			await connection.RunServer ();
 
 			Debug ("Closed remote connection.");
 		}
@@ -131,13 +136,7 @@ namespace Xamarin.AsyncTests.Client
 
 			var stream = client.GetStream ();
 			var server = new ConsoleServer (stream);
-			server.Run ();
-
-			await server.Hello (CancellationToken.None);
-
-			await Task.Delay (10000);
-
-			await server.Shutdown ();
+			await server.RunClient ();
 		}
 	}
 }

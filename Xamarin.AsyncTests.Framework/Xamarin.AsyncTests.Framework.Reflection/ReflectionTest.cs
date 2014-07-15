@@ -53,13 +53,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		internal virtual bool RunFilter (TestContext ctx, out bool enabled)
 		{
 			foreach (var feature in features) {
-				if (!ctx.Configuration.IsEnabled (feature)) {
+				if (!ctx.IsEnabled (feature)) {
 					enabled = false;
 					return true;
 				}
 			}
 
-			if (ctx.Configuration.CurrentCategory == TestCategory.All) {
+			if (ctx.CurrentCategory == TestCategory.All) {
 				enabled = true;
 				return true;
 			}
@@ -70,7 +70,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 
 			foreach (var category in categories) {
-				if (ctx.Configuration.CurrentCategory == category) {
+				if (ctx.CurrentCategory == category) {
 					enabled = true;
 					return true;
 				}

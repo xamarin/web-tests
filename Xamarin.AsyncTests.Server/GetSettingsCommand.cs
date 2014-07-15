@@ -1,5 +1,5 @@
 ﻿//
-// DebugCommand.cs
+// GetTestSuiteCommand.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,39 +25,33 @@
 // THE SOFTWARE.
 using System;
 using System.Xml;
+using System.Xml.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class DebugCommand : Command, ICommonCommand
+	using Framework;
+
+	class GetSettingsCommand : Command<object,SettingsBag>
 	{
-		public int Level {
-			get; set;
-		}
-
-		public string Message {
-			get; set;
-		}
-
-		public override void ReadXml (Serializer serializer, XmlReader reader)
+		#region implemented abstract members of Command
+		protected override Task<SettingsBag> Run (Connection connection, object argument, CancellationToken cancellationToken)
 		{
-			base.ReadXml (serializer, reader);
-			Level = int.Parse (reader.GetAttribute ("Level"));
-			Message = reader.GetAttribute ("Message");
+			return Task.FromResult (connection.OnGetSettings ());
 		}
 
-		public override void WriteXml (Serializer serializer, XmlWriter writer)
-		{
-			base.WriteXml (serializer, writer);
-			writer.WriteAttributeString ("Level", Level.ToString ());
-			writer.WriteAttributeString ("Message", Message);
+		protected override Serializer<object> ArgumentSerializer {
+			get { return null; }
 		}
 
-		public Task Run (Connection connection, CancellationToken cancellationToken)
-		{
-			return connection.Run (this, cancellationToken);
+		protected override Serializer<SettingsBag> ResponseSerializer {
+			get { return Serializer.Settings; }
 		}
+
+		#endregion
 	}
 }
 

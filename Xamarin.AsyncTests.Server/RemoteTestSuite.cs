@@ -31,9 +31,9 @@ namespace Xamarin.AsyncTests.Server
 {
 	using Framework;
 
-	class RemoteTestSuite : TestSuite
+	class RemoteTestSuite : TestSuite, IRemoteObject
 	{
-		public ServerConnection Connection {
+		public Connection Connection {
 			get;
 			private set;
 		}
@@ -43,26 +43,29 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public RemoteTestSuite (TestName name, ServerConnection connection, long objectId)
+		TestConfiguration configuration;
+
+		public RemoteTestSuite (Connection connection, long objectId, TestName name, TestConfiguration config)
 			: base (name)
 		{
 			Connection = connection;
 			ObjectID = objectId;
+			this.configuration = config;
 		}
 
 		#region implemented abstract members of TestCase
 
-		public override async Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
+		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
 		{
-			return await Connection.RunTest (ObjectID, result, cancellationToken).ConfigureAwait (false);
+			return Connection.RunTest (this, result, cancellationToken);
 		}
 
 		#endregion
 
 		#region implemented abstract members of TestSuite
 
-		public override ITestConfiguration Configuration {
-			get { return null; }
+		public override TestConfiguration Configuration {
+			get { return configuration; }
 		}
 
 		#endregion

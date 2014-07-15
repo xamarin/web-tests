@@ -38,9 +38,13 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public readonly BindableProperty ConfigurationProperty = BindableProperty.Create (
+			"Configuration", typeof(TestConfiguration), typeof(TestCategoriesModel), null,
+			propertyChanged: (bo, o, n) => ((TestCategoriesModel)bo).UpdateConfiguration ());
+
 		public TestConfiguration Configuration {
-			get;
-			private set;
+			get { return (TestConfiguration)GetValue (ConfigurationProperty); }
+			set { SetValue (ConfigurationProperty, value); }
 		}
 
 		int selectedIndex;
@@ -63,14 +67,10 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		public TestCategoriesModel (TestApp app, TestConfiguration config)
+		public TestCategoriesModel (TestApp app)
 		{
 			App = app;
-			Configuration = config;
-
 			categories = new List<TestCategory> ();
-			Configuration.PropertyChanged += OnConfigurationChanged;
-			UpdateConfiguration ();
 		}
 
 		void OnConfigurationChanged (object sender, PropertyChangedEventArgs args)
@@ -90,11 +90,13 @@ namespace Xamarin.AsyncTests.UI
 			SelectedIndex = -1;
 
 			categories.Clear ();
-			foreach (var category in Configuration.Categories) {
-				categories.Add (category);
+			if (Configuration != null) {
+				foreach (var category in Configuration.Categories) {
+					categories.Add (category);
+				}
+				selectedIndex = categories.IndexOf (Configuration.CurrentCategory);
+				LoadSettings ();
 			}
-			selectedIndex = categories.IndexOf (Configuration.CurrentCategory);
-			LoadSettings ();
 			OnPropertyChanged ("Categories");
 			OnPropertyChanged ("SelectedIndex");
 			OnPropertyChanged ("Configuration");

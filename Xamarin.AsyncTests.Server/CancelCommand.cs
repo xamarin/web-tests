@@ -25,32 +25,35 @@
 // THE SOFTWARE.
 using System;
 using System.Xml;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class CancelCommand : Command, IClientCommand
+	class CancelCommand : OneWayCommand
 	{
 		public long ObjectID {
 			get; set;
 		}
 
-		public override void ReadXml (Serializer serializer, XmlReader reader)
+		public override void Read (Connection connection, XElement node)
 		{
-			base.ReadXml (serializer, reader);
-			ObjectID = long.Parse (reader.GetAttribute ("ObjectID"));
+			base.Read (connection, node);
+
+			ObjectID = long.Parse (node.Attribute ("ObjectID").Value);
 		}
 
-		public override void WriteXml (Serializer serializer, XmlWriter writer)
+		public override void Write (Connection connection, XElement node)
 		{
-			base.WriteXml (serializer, writer);
-			writer.WriteAttributeString ("ObjectID", ObjectID.ToString ());
+			base.Write (connection, node);
+
+			node.SetAttributeValue ("ObjectID", ObjectID);
 		}
 
-		public Task Run (ClientConnection connection, CancellationToken cancellationToken)
+		protected override void Run (Connection connection)
 		{
-			return connection.Run (this, cancellationToken);
+			connection.OnCancel (ObjectID);
 		}
 	}
 }

@@ -35,21 +35,6 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestConfiguration Configuration {
-			get;
-			private set;
-		}
-
-		public TestFeaturesModel Features {
-			get;
-			private set;
-		}
-
-		public TestCategoriesModel Categories {
-			get;
-			private set;
-		}
-
 		bool repeat;
 		int repeatCount;
 		string repeatCountEntry;
@@ -85,13 +70,9 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		public OptionsModel (TestApp app, TestConfiguration config)
+		public OptionsModel (TestApp app)
 		{
 			App = app;
-			Configuration = config;
-
-			Features = new TestFeaturesModel (App, Configuration);
-			Categories = new TestCategoriesModel (App, Configuration);
 
 			LoadSettings ();
 		}

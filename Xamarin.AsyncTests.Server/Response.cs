@@ -1,5 +1,5 @@
 ﻿//
-// HelloCommand.cs
+// Response.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,16 +24,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class HelloCommand : Command, ICommonCommand
+	class Response : Message
 	{
-		public Task Run (Connection connection, CancellationToken cancellationToken)
+		public long ObjectID {
+			get; set;
+		}
+
+		public bool Success {
+			get; set;
+		}
+
+		public string Error {
+			get; set;
+		}
+
+		public override void Write (Connection connection, XElement node)
 		{
-			return connection.Run (this, cancellationToken);
+			base.Write (connection, node);
+			node.SetAttributeValue ("ObjectID", ObjectID);
+			node.SetAttributeValue ("Success", Success);
+			if (Error != null)
+				node.SetAttributeValue ("Error", Error);
+		}
+
+		public override void Read (Connection connection, XElement node)
+		{
+			base.Read (connection, node);
+			ObjectID = long.Parse (node.Attribute ("ObjectID").Value);
+			Success = bool.Parse (node.Attribute ("Success").Value);
+			var errorAttr = node.Attribute ("Error");
+			if (errorAttr != null)
+				Error = errorAttr.Value;
 		}
 	}
 }

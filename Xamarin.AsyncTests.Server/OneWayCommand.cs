@@ -1,5 +1,5 @@
 ﻿//
-// ResponseCommand.cs
+// OneWayCommand.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,46 +25,30 @@
 // THE SOFTWARE.
 using System;
 using System.Xml;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class ResponseCommand : Command, ICommonCommand
+	abstract class OneWayCommand : Command
 	{
-		public long ObjectID {
-			get; set;
-		}
-
-		public bool Success {
-			get; set;
-		}
-
-		public string Error {
-			get; set;
-		}
-
-		public override void ReadXml (Serializer serializer, XmlReader reader)
+		public Task Send (Connection connection)
 		{
-			base.ReadXml (serializer, reader);
-			ObjectID = long.Parse (reader.GetAttribute ("ObjectID"));
-			Success = bool.Parse (reader.GetAttribute ("Success"));
-			Error = reader.GetAttribute ("Error");
+			return connection.SendCommand (this, null, CancellationToken.None);
 		}
 
-		public override void WriteXml (Serializer serializer, XmlWriter writer)
-		{
-			base.WriteXml (serializer, writer);
-			writer.WriteAttributeString ("ObjectID", ObjectID.ToString ());
-			writer.WriteAttributeString ("Success", Success.ToString ());
-			if (Error != null)
-				writer.WriteAttributeString ("Error", Error);
+		public sealed override bool IsOneWay {
+			get { return true; }
 		}
 
-		public Task Run (Connection connection, CancellationToken cancellationToken)
+		public sealed override Task<Response> Run (Connection connection, CancellationToken cancellationToken)
 		{
-			return connection.Run (this, cancellationToken);
+			Run (connection);
+			return Task.FromResult<Response> (null);
 		}
+
+		protected abstract void Run (Connection connection);
 	}
 }
 

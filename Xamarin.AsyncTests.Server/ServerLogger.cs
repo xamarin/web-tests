@@ -41,10 +41,10 @@ namespace Xamarin.AsyncTests.Server
 
 		#region ITestLogger implementation
 
-		public void LogDebug (int level, string message)
+		public async void LogDebug (int level, string message)
 		{
 			if (level <= Connection.DebugLevel)
-				Connection.SendCommandSync (new DebugCommand { Level = level, Message = message });
+				await Connection.LogMessage (message);
 		}
 
 		public void LogDebug (int level, string format, params object[] args)
@@ -52,9 +52,9 @@ namespace Xamarin.AsyncTests.Server
 			LogDebug (level, string.Format (format, args));
 		}
 
-		public void LogMessage (string message)
+		public async void LogMessage (string message)
 		{
-			Connection.SendCommandSync (new MessageCommand { Message = message });
+			await new LogMessageCommand { Argument = message }.Send (Connection);
 		}
 
 		public void LogError (Exception error)

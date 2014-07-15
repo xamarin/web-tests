@@ -38,10 +38,9 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests
 {
-	public class TestContext : IDisposable {
+	public abstract class TestContext : IDisposable {
 		int debugLevel = DefaultDebugLevel;
 		List<IDisposable> disposables;
-		TestConfiguration configuration = new TestConfiguration ();
 
 		const int DefaultDebugLevel = 0;
 
@@ -52,6 +51,14 @@ namespace Xamarin.AsyncTests
 
 		public ITestLogger Logger {
 			get; set;
+		}
+
+		public abstract SettingsBag Settings {
+			get;
+		}
+
+		public abstract ITestSuite CurrentTestSuite {
+			get;
 		}
 
 		public void Debug (int level, string format, params object[] args)
@@ -84,9 +91,18 @@ namespace Xamarin.AsyncTests
 			return obj != null ? obj.ToString () : "<null>";
 		}
 
-		public TestConfiguration Configuration {
-			get { return configuration; }
+		#region Configuration
+
+		public TestCategory CurrentCategory {
+			get { return CurrentTestSuite.Configuration.CurrentCategory; }
 		}
+
+		public bool IsEnabled (TestFeature feature)
+		{
+			return CurrentTestSuite.Configuration.IsEnabled (feature);
+		}
+
+		#endregion
 
 		#region Statistics
 

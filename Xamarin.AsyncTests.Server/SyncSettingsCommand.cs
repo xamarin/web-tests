@@ -1,5 +1,5 @@
 ﻿//
-// IServerCommand.cs
+// SyncSettingsCommand.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,14 +24,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml;
+using System.Xml.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	interface IServerCommand
+	using Framework;
+
+	class SyncSettingsCommand : Command<SettingsBag,object>
 	{
-		Task Run (ServerConnection connection, CancellationToken cancellationToken);
+		#region implemented abstract members of Command
+		protected override Task<object> Run (Connection connection, SettingsBag argument, CancellationToken cancellationToken)
+		{
+			connection.OnSyncSettings (argument);
+			return Task.FromResult<object> (null);
+		}
+
+		protected override Serializer<SettingsBag> ArgumentSerializer {
+			get { return Serializer.Settings; }
+		}
+
+		protected override Serializer<object> ResponseSerializer {
+			get { return null; }
+		}
+
+		#endregion
 	}
 }
 

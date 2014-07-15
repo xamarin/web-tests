@@ -15,9 +15,11 @@
                        Completed="OnRepeatCountChanged" />
             </StackLayout>
 
-            <local:TestCategorySelector BindingContext="{Binding Categories}" />
+            <local:TestCategorySelector BindingContext="{Binding App.TestSuiteManager.Categories}"
+                                        IsVisible="{Binding App.TestSuiteManager.HasInstance}" />
 
-            <local:TestFeatureSelector BindingContext="{Binding Features}" />
+            <local:TestFeatureSelector BindingContext="{Binding App.TestSuiteManager.Features}"
+                                       IsVisible="{Binding App.TestSuiteManager.HasInstance}" />
 
         </StackLayout>
     </ScrollView>

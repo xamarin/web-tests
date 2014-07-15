@@ -1,5 +1,5 @@
 ﻿//
-// TestSuiteLoadedCommand.cs
+// CommandBase.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,35 +25,36 @@
 // THE SOFTWARE.
 using System;
 using System.Xml;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Server
 {
-	using Framework;
-
-	class TestSuiteLoadedCommand : CommandWithResponse, IServerCommand
+	abstract class Message
 	{
-		public TestSuite TestSuite {
-			get; set;
+		protected string GetElementName ()
+		{
+			if (this is Response)
+				return "Response";
+			else
+				return "Command";
 		}
 
-		public override void ReadXml (Serializer serializer, XmlReader reader)
+		public XDocument Write (Connection connection)
 		{
-			base.ReadXml (serializer, reader);
-			var subReader = reader.ReadSubtree ();
-			TestSuite = serializer.ReadTestSuite (subReader);
+			var doc = new XDocument ();
+			var element = new XElement (GetElementName ());
+			doc.Add (element);
+
+			Write (connection, element);
+			return doc;
 		}
 
-		public override void WriteXml (Serializer serializer, XmlWriter writer)
+		public virtual void Write (Connection connection, XElement node)
 		{
-			base.WriteXml (serializer, writer);
-			serializer.Write (writer, TestSuite);
 		}
 
-		public Task Run (ServerConnection connection, CancellationToken cancellationToken)
+		public virtual void Read (Connection connection, XElement node)
 		{
-			return connection.Run (this, cancellationToken);
 		}
 	}
 }

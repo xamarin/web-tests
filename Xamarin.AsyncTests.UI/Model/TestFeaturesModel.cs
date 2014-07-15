@@ -39,9 +39,13 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public readonly BindableProperty ConfigurationProperty = BindableProperty.Create (
+			"Configuration", typeof(TestConfiguration), typeof(TestFeaturesModel), null,
+			propertyChanged: (bo, o, n) => ((TestFeaturesModel)bo).ReloadFeatures ());
+
 		public TestConfiguration Configuration {
-			get;
-			private set;
+			get { return (TestConfiguration)GetValue (ConfigurationProperty); }
+			set { SetValue (ConfigurationProperty, value); }
 		}
 
 		ObservableCollection<TestFeatureModel> features;
@@ -49,34 +53,21 @@ namespace Xamarin.AsyncTests.UI
 			get { return features; }
 		}
 
-		public TestFeaturesModel (TestApp app, TestConfiguration config)
+		public TestFeaturesModel (TestApp app)
 		{
 			App = app;
-			Configuration = config;
-
 			features = new ObservableCollection<TestFeatureModel> ();
-			Configuration.PropertyChanged += (sender, e) => OnConfigurationChanged (sender, e);
-			ReloadFeatures ();
-		}
-
-		void OnConfigurationChanged (object sender, PropertyChangedEventArgs args)
-		{
-			switch (args.PropertyName) {
-			case "Features":
-				ReloadFeatures ();
-				break;
-			default:
-				break;
-			}
 		}
 
 		void ReloadFeatures ()
 		{
 			features.Clear ();
+			if (Configuration == null)
+				return;
 			foreach (var feature in Configuration.Features.ToArray ()) {
 				if (!feature.CanModify)
 					continue;
-				features.Add (new TestFeatureModel (App, feature));
+				features.Add (new TestFeatureModel (App, Configuration, feature));
 			}
 		}
 	}

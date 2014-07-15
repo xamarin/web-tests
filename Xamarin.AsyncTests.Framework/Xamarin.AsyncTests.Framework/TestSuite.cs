@@ -39,20 +39,24 @@ namespace Xamarin.AsyncTests.Framework
 {
 	using Reflection;
 
-	public abstract class TestSuite : TestCase
+	public abstract class TestSuite : TestCase, ITestSuite
 	{
 		public TestSuite (TestName name)
 			: base (name)
 		{
 		}
 
-		public abstract ITestConfiguration Configuration {
+		TestCase ITestSuite.Test {
+			get { return this; }
+		}
+
+		public abstract TestConfiguration Configuration {
 			get;
 		}
 
-		public static Task<TestSuite> LoadAssembly (Assembly assembly)
+		public static Task<TestSuite> LoadAssembly (TestContext ctx, Assembly assembly)
 		{
-			return ReflectionTestSuite.Create (assembly);
+			return ReflectionTestSuite.Create (ctx, assembly);
 		}
 
 		public static TestCase CreateRepeatedTest (TestCase test, int count)

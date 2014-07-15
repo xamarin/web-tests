@@ -183,8 +183,6 @@ namespace Xamarin.AsyncTests.UI
 			var stream = await connection.Open (cancellationToken);
 			server = new TestServer (App, stream, connection);
 
-			await server.Hello (cancellationToken);
-
 			SetStatusMessage ("Connected to server ({0}).", connection.Name);
 
 			return server;
@@ -202,8 +200,6 @@ namespace Xamarin.AsyncTests.UI
 				connection.Close ();
 				connection = null;
 			}
-
-			App.Context.Configuration.Clear ();
 
 			StatusMessage = "Stopped server.";
 			return Task.FromResult<object> (null);

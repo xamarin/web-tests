@@ -30,27 +30,20 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class RunTestCommand : Command, IClientCommand
+	class RunTestCommand : Command<TestCase,TestResult>
 	{
-		public long ObjectID {
-			get; set;
+		protected override Serializer<TestCase> ArgumentSerializer {
+			get { return Serializer.TestCase; }
 		}
 
-		public override void ReadXml (Serializer serializer, XmlReader reader)
-		{
-			base.ReadXml (serializer, reader);
-			ObjectID = long.Parse (reader.GetAttribute ("ObjectID"));
+		protected override Serializer<TestResult> ResponseSerializer {
+			get { return Serializer.TestResult; }
 		}
 
-		public override void WriteXml (Serializer serializer, XmlWriter writer)
+		protected override Task<TestResult> Run (
+			Connection connection, TestCase argument, CancellationToken cancellationToken)
 		{
-			base.WriteXml (serializer, writer);
-			writer.WriteAttributeString ("ObjectID", ObjectID.ToString ());
-		}
-
-		public Task Run (ClientConnection connection, CancellationToken cancellationToken)
-		{
-			return connection.Run (this, cancellationToken);
+			return connection.OnRun (argument, cancellationToken);
 		}
 	}
 }

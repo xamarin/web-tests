@@ -97,7 +97,7 @@ namespace Xamarin.WebTests
 			public IEnumerable<bool> GetParameters (TestContext context, string filter)
 			{
 				yield return false;
-				if (context.Configuration.IsEnabled (SSL))
+				if (context.IsEnabled (SSL))
 					yield return true;
 			}
 			#endregion

@@ -29,11 +29,11 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class ShutdownCommand : CommandWithResponse, ICommonCommand
+	class ShutdownCommand : OneWayCommand
 	{
-		public Task Run (Connection connection, CancellationToken cancellationToken)
+		protected override void Run (Connection connection)
 		{
-			return connection.Run (this, cancellationToken);
+			connection.OnShutdown ();
 		}
 	}
 }

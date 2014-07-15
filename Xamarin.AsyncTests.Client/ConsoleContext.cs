@@ -1,5 +1,5 @@
 ﻿//
-// CommandWithResponse.cs
+// ConsoleContext.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,28 +24,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.WebTests;
 
-namespace Xamarin.AsyncTests.Server
+namespace Xamarin.AsyncTests.Client
 {
-	abstract class CommandWithResponse : Command
+	using Framework;
+
+	public class ConsoleContext : TestContext
 	{
-		public long ResponseID {
-			get; set;
+		TestSuite suite;
+		SettingsBag settings;
+
+		public ConsoleContext ()
+		{
+			settings = SettingsBag.CreateDefault ();
 		}
 
-		public override void ReadXml (Serializer serializer, XmlReader reader)
-		{
-			ResponseID = long.Parse (reader.GetAttribute ("ResponseID"));
-			base.ReadXml (serializer, reader);
+		public override ITestSuite CurrentTestSuite {
+			get { return suite; }
 		}
 
-		public override void WriteXml (Serializer serializer, XmlWriter writer)
+		public override SettingsBag Settings {
+			get { return settings; }
+		}
+
+		public async Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
 		{
-			writer.WriteAttributeString ("ResponseID", ResponseID.ToString ());
-			base.WriteXml (serializer, writer);
+			var assembly = typeof(WebTestFeatures).Assembly;
+			suite = await TestSuite.LoadAssembly (this, assembly);
+			return suite;
+		}
+
+		public void UnloadTestSuite ()
+		{
+			suite = null;
+		}
+
+		internal void MergeSettings (SettingsBag newSettings)
+		{
+			settings.Merge (newSettings);
 		}
 	}
 }
