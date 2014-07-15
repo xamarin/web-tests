@@ -36,16 +36,36 @@ namespace Xamarin.AsyncTests.Server
 	static class Serializer
 	{
 		public static readonly Serializer<string> String = new StringSerializer ();
-		public static readonly Serializer<SettingsBag> Settings = new SettingsSerializer ();
 		public static readonly Serializer<TestName> TestName = new TestNameSerializer ();
 		public static readonly Serializer<TestSuite> TestSuite = new TestSuiteSerializer ();
 		public static readonly Serializer<TestCase> TestCase = new TestCaseSerializer ();
 		public static readonly Serializer<TestResult> TestResult = new TestResultSerializer ();
 		public static readonly Serializer<TestConfiguration> Configuration = new ConfigurationSerializer ();
 
+		static readonly SettingsSerializer settingsSerializer = new SettingsSerializer ();
+
+		public static Serializer<SettingsBag> Settings {
+			get { return settingsSerializer; }
+		}
+
+		internal static SettingsBag ReadSettings (XElement node)
+		{
+			return settingsSerializer.Read (node);
+		}
+
+		internal static XElement WriteSettings (SettingsBag settings)
+		{
+			return settingsSerializer.Write (settings);
+		}
+
 		class SettingsSerializer : Serializer<SettingsBag>
 		{
 			public override XElement Write (Connection connection, SettingsBag instance)
+			{
+				return Write (instance);
+			}
+
+			public XElement Write (SettingsBag instance)
 			{
 				var settings = new XElement ("Settings");
 
@@ -61,6 +81,11 @@ namespace Xamarin.AsyncTests.Server
 			}
 
 			public override SettingsBag Read (Connection connection, XElement node)
+			{
+				return Read (node);
+			}
+
+			public SettingsBag Read (XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("Settings"))
 					throw new InvalidOperationException ();

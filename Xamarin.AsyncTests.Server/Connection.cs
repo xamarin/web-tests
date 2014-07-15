@@ -104,6 +104,16 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
+		public static SettingsBag LoadSettings (XElement node)
+		{
+			return Serializer.ReadSettings (node);
+		}
+
+		public static XElement WriteSettings (SettingsBag settings)
+		{
+			return Serializer.WriteSettings (settings);
+		}
+
 		#endregion
 
 		public virtual void Stop ()

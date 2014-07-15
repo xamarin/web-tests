@@ -43,10 +43,10 @@ namespace Xamarin.AsyncTests.Client
 			get { return context; }
 		}
 
-		public ConsoleServer (Stream stream)
+		public ConsoleServer (ConsoleContext context, Stream stream)
 			: base (stream)
 		{
-			context = new ConsoleContext ();
+			this.context = context;
 			helloTcs = new TaskCompletionSource<bool> ();
 		}
 
@@ -98,7 +98,7 @@ namespace Xamarin.AsyncTests.Client
 
 			Debug ("DONE WAITING");
 
-			await RunTest (suite);
+			// await RunTest (suite);
 
 			Debug ("SHUTTING DOWN");
 
