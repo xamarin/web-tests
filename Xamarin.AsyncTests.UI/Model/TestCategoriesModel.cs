@@ -60,10 +60,8 @@ namespace Xamarin.AsyncTests.UI
 				if (selectedIndex == value)
 					return;
 				selectedIndex = value;
-				if (selectedIndex >= 0) {
+				if (selectedIndex >= 0)
 					Configuration.CurrentCategory = Categories [selectedIndex];
-					SaveSettings ();
-				}
 			}
 		}
 
@@ -71,6 +69,9 @@ namespace Xamarin.AsyncTests.UI
 		{
 			App = app;
 			categories = new List<TestCategory> ();
+
+			app.Settings.PropertyChanged += (sender, e) => LoadSettings ();
+			LoadSettings ();
 		}
 
 		void OnConfigurationChanged (object sender, PropertyChangedEventArgs args)
@@ -104,29 +105,16 @@ namespace Xamarin.AsyncTests.UI
 
 		void LoadSettings ()
 		{
-			if (App.SettingsHost == null)
-				return;
-
-			var value = App.SettingsHost.GetValue ("CurrentCategory");
-			if (value != null) {
-				var index = categories.FindIndex (c => c.Name.Equals (value));
-				if (index >= 0) {
+			var currentCategory = App.Settings.CurrentCategory;
+			if (currentCategory != null) {
+				var index = categories.FindIndex (c => c.Name.Equals (currentCategory));
+				if (index >= 0)
 					selectedIndex = index;
-					Configuration.CurrentCategory = categories [selectedIndex];
-				} else if (categories.Count > 0)
+				else if (categories.Count > 0)
 					selectedIndex = 0;
 				else
 					selectedIndex = -1;
 			}
-		}
-
-		void SaveSettings ()
-		{
-			if (App.SettingsHost == null || !App.TestSuiteManager.HasInstance)
-				return;
-
-			if (selectedIndex >= 0)
-				App.SettingsHost.SetValue ("CurrentCategory", categories [selectedIndex].Name);
 		}
 	}
 }

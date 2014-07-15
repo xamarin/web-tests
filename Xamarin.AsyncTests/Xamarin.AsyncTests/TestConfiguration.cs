@@ -85,16 +85,15 @@ namespace Xamarin.AsyncTests
 				var value = settings.IsFeatureEnabled (feature.Name);
 				if (value == null)
 					continue;
-				features [feature] = value.Value;
+				SetIsEnabled (feature, value.Value);
 			}
 
-			currentCategory = null;
+			TestCategory current = TestCategory.All;
 			foreach (var category in categories) {
 				if (category.Name.Equals (settings.CurrentCategory))
-					currentCategory = category;
+					current = category;
 			}
-			if (currentCategory == null)
-				currentCategory = TestCategory.All;
+			CurrentCategory = current;
 		}
 
 		public static TestConfiguration ReadFromXml (SettingsBag settings, XElement node)
@@ -181,26 +180,15 @@ namespace Xamarin.AsyncTests
 			return feature.Constant == null;
 		}
 
-		public void Enable (TestFeature feature)
+		public void SetIsEnabled (TestFeature feature, bool enabled)
 		{
-			if (!features [feature]) {
-				if (!CanModify (feature))
-					throw new InvalidOperationException ();
-				features [feature] = true;
-				settings.SetIsFeatureEnabled (feature.Name, true);
-				OnPropertyChanged ("Feature");
-			}
-		}
-
-		public void Disable (TestFeature feature)
-		{
-			if (features [feature]) {
-				if (!CanModify (feature))
-					throw new InvalidOperationException ();
-				features [feature] = false;
-				settings.SetIsFeatureEnabled (feature.Name, false);
-				OnPropertyChanged ("Feature");
-			}
+			if (features [feature] == enabled)
+				return;
+			if (!CanModify (feature))
+				throw new InvalidOperationException ();
+			features [feature] = enabled;
+			settings.SetIsFeatureEnabled (feature.Name, enabled);
+			OnPropertyChanged ("Feature");
 		}
 
 		#region INotifyPropertyChanged implementation

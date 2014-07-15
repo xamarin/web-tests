@@ -46,26 +46,17 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		bool isEnabled;
 		public bool IsEnabled {
 			get {
-				return Configuration.IsEnabled (Feature);
+				return isEnabled;
 			}
 			set {
-				if (value == IsEnabled)
+				if (value == isEnabled)
 					return;
-				if (value)
-					Configuration.Enable (Feature);
-				else
-					Configuration.Disable (Feature);
-				if (App.SettingsHost != null)
-					App.SettingsHost.SetValue (Path, value.ToString ());
+				Configuration.SetIsEnabled (Feature, value);
 				OnPropertyChanged ("Feature");
 			}
-		}
-
-		public string Path {
-			get;
-			private set;
 		}
 
 		public TestFeatureModel (TestApp app, TestConfiguration config, TestFeature feature)
@@ -73,22 +64,15 @@ namespace Xamarin.AsyncTests.UI
 			App = app;
 			Configuration = config;
 			Feature = feature;
-			Path = "/Feature/" + feature.Name;
+
+			App.Settings.PropertyChanged += (sender, e) => LoadConfiguration ();
 			LoadConfiguration ();
 		}
 
 		void LoadConfiguration ()
 		{
-			if (App.SettingsHost == null)
-				return;
-
-			var value = App.SettingsHost.GetValue (Path);
-			if (value != null) {
-				if (bool.Parse (value))
-					Configuration.Enable (Feature);
-				else
-					Configuration.Disable (Feature);
-			}
+			isEnabled = Configuration.IsEnabled (Feature);
+			OnPropertyChanged ("IsEnabled");
 		}
 	}
 }

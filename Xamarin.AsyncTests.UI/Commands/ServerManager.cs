@@ -49,14 +49,23 @@ namespace Xamarin.AsyncTests.UI
 			get { return startCommand; }
 		}
 
+		public SettingsBag Settings {
+			get;
+			private set;
+		}
+
 		public ServerManager (TestApp app)
 			: base (app)
 		{
+			Settings = app.Settings;
+
 			connectCommand = new ConnectCommand (this);
 			startCommand = new StartCommand (this);
 
 			CanStart = app.ServerHost != null;
 
+			serverAddress = string.Empty;
+			Settings.PropertyChanged += (sender, e) => LoadSettings ();
 			LoadSettings ();
 		}
 
@@ -85,7 +94,7 @@ namespace Xamarin.AsyncTests.UI
 			get { return serverAddress; }
 			set {
 				serverAddress = value;
-				SaveSettings ();
+				Settings.SetValue ("ServerAddress", value);
 				OnPropertyChanged ("ServerAddress");
 			}
 		}
@@ -100,7 +109,7 @@ namespace Xamarin.AsyncTests.UI
 				if (value == autoStart)
 					return;
 				autoStart = value;
-				SaveSettings ();
+				Settings.SetValue ("AutoStartServer", value.ToString ());
 				OnPropertyChanged ("AutoStart");
 			}
 		}
@@ -111,7 +120,7 @@ namespace Xamarin.AsyncTests.UI
 				if (value == autoLoad)
 					return;
 				autoLoad = value;
-				SaveSettings ();
+				Settings.SetValue ("AutoLoadTestSuite", value.ToString ());
 				OnPropertyChanged ("AutoLoad");
 			}
 		}
@@ -122,45 +131,30 @@ namespace Xamarin.AsyncTests.UI
 				if (value == useServer)
 					return;
 				useServer = value;
-				SaveSettings ();
+				Settings.SetValue ("UseServer", value.ToString ());
 				OnPropertyChanged ("UseServer");
 			}
 		}
 
 		void LoadSettings ()
 		{
-			if (App.SettingsHost == null)
-				return;
+			string value;
+			if (Settings.TryGetValue ("ServerAddress", out value))
+				serverAddress = value;
 
-			serverAddress = App.SettingsHost.GetValue ("ServerAddress") ?? string.Empty;
+			if (Settings.TryGetValue ("UseServer", out value))
+				useServer = bool.Parse (value);
 
-			var useServerValue = App.SettingsHost.GetValue ("UseServer");
-			if (useServerValue != null)
-				useServer = bool.Parse (useServerValue);
+			if (Settings.TryGetValue ("AutoStartServer", out value))
+				autoStart = bool.Parse (value);
 
-			var autoStartValue = App.SettingsHost.GetValue ("AutoStartServer");
-			if (autoStartValue != null)
-				autoStart = bool.Parse (autoStartValue);
-
-			var autoLoadValue = App.SettingsHost.GetValue ("AutoLoadTestSuite");
-			if (autoLoadValue != null)
-				autoLoad = bool.Parse (autoLoadValue);
+			if (Settings.TryGetValue ("AutoLoadTestSuite", out value))
+				autoLoad = bool.Parse (value);
 
 			OnPropertyChanged ("UseServer");
 			OnPropertyChanged ("ServerAddress");
 			OnPropertyChanged ("AutoStart");
 			OnPropertyChanged ("AutoLoad");
-		}
-
-		void SaveSettings ()
-		{
-			if (App.SettingsHost == null)
-				return;
-
-			App.SettingsHost.SetValue ("UseServer", UseServer.ToString ());
-			App.SettingsHost.SetValue ("ServerAddress", ServerAddress);
-			App.SettingsHost.SetValue ("AutoStartServer", AutoStart.ToString ());
-			App.SettingsHost.SetValue ("AutoLoadTestSuite", AutoLoad.ToString ());
 		}
 
 		#endregion

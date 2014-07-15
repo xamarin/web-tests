@@ -38,6 +38,8 @@ namespace Xamarin.AsyncTests.UI
 		bool repeat;
 		int repeatCount;
 		string repeatCountEntry;
+		int logLevel;
+		string logLevelEntry;
 
 		public bool Repeat {
 			get { return repeat; }
@@ -45,7 +47,7 @@ namespace Xamarin.AsyncTests.UI
 				if (repeat == value)
 					return;
 				repeat = value;
-				SaveSettings ();
+				App.Settings.Repeat = value;
 				OnPropertyChanged ("Repeat");
 			}
 		}
@@ -57,7 +59,7 @@ namespace Xamarin.AsyncTests.UI
 					return;
 				repeatCount = value;
 				RepeatCountEntry = value.ToString ();
-				SaveSettings ();
+				App.Settings.RepeatCount = value;
 				OnPropertyChanged ("RepeatCount");
 			}
 		}
@@ -70,40 +72,47 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
+		public int LogLevel {
+			get { return logLevel; }
+			set {
+				if (logLevel == value)
+					return;
+				logLevel = value;
+				logLevelEntry = value.ToString ();
+				App.Settings.LogLevel = value;
+				OnPropertyChanged ("LogLevel");
+			}
+		}
+
+		public string LogLevelEntry {
+			get { return logLevelEntry; }
+			set {
+				logLevelEntry = value;
+				OnPropertyChanged ("LogLevelEntry");
+			}
+		}
+
 		public OptionsModel (TestApp app)
 		{
 			App = app;
 
+			app.Settings.PropertyChanged += (sender, e) => LoadSettings ();
 			LoadSettings ();
 		}
 
 		void LoadSettings ()
 		{
-			if (App.SettingsHost == null)
-				return;
+			repeat = App.Settings.Repeat;
+			repeatCount = App.Settings.RepeatCount;
+			repeatCountEntry = repeatCount.ToString ();
+			logLevel = App.Settings.LogLevel;
+			logLevelEntry = logLevel.ToString ();
 
-			var repeatCountValue = App.SettingsHost.GetValue ("RepeatCount");
-			if (repeatCountValue != null) {
-				repeatCount = int.Parse (repeatCountValue);
-				repeatCountEntry = repeatCount.ToString ();
-			}
-
-			var repeatValue = App.SettingsHost.GetValue ("Repeat");
-			if (repeatValue != null)
-				repeat = bool.Parse (repeatValue);
-
+			OnPropertyChanged ("Repeat");
 			OnPropertyChanged ("RepeatCount");
 			OnPropertyChanged ("RepeatCountEntry");
-			OnPropertyChanged ("Repeat");
-		}
-
-		void SaveSettings ()
-		{
-			if (App.SettingsHost == null)
-				return;
-
-			App.SettingsHost.SetValue ("RepeatCount", RepeatCount.ToString ());
-			App.SettingsHost.SetValue ("Repeat", Repeat.ToString ());
+			OnPropertyChanged ("LogLevel");
+			OnPropertyChanged ("LogLevelEntry");
 		}
 	}
 }

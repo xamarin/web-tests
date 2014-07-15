@@ -71,11 +71,6 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		public ISettingsHost SettingsHost {
-			get;
-			private set;
-		}
-
 		public IServerHost ServerHost {
 			get;
 			private set;
@@ -116,9 +111,9 @@ namespace Xamarin.AsyncTests.UI
 			currentSettings = settings;
 		}
 
-		public TestApp (ISettingsHost settings, IServerHost server, Assembly assembly)
+		public TestApp (SettingsBag settings, IServerHost server, Assembly assembly)
 		{
-			SettingsHost = settings;
+			currentSettings = settings;
 			ServerHost = server;
 			Assembly = assembly;
 
@@ -144,9 +139,6 @@ namespace Xamarin.AsyncTests.UI
 			MainPage.Children.Add (resultNav);
 
 			Root = MainPage;
-
-			if (settings != null)
-				currentSettings = settings.GetSettings ();
 
 			Initialize ();
 		}

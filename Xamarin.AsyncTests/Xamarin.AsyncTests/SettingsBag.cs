@@ -34,6 +34,45 @@ namespace Xamarin.AsyncTests
 {
 	public abstract class SettingsBag : INotifyPropertyChanged
 	{
+		public bool Repeat {
+			get {
+				string value;
+				if (TryGetValue ("Repeat", out value))
+					return bool.Parse (value);
+				return false;
+			}
+			set {
+				SetValue ("Repeat", value.ToString ());
+				OnPropertyChanged ("Repeat");
+			}
+		}
+
+		public int RepeatCount {
+			get {
+				string value;
+				if (TryGetValue ("RepeatCount", out value))
+					return int.Parse (value);
+				return 0;
+			}
+			set {
+				SetValue ("RepeatCount", value.ToString ());
+				OnPropertyChanged ("RepeatCount");
+			}
+		}
+
+		public int LogLevel {
+			get {
+				string value;
+				if (TryGetValue ("LogLevel", out value))
+					return int.Parse (value);
+				return 0;
+			}
+			set {
+				SetValue ("LogLevel", value.ToString ());
+				OnPropertyChanged ("LogLevel");
+			}
+		}
+
 		public bool? IsFeatureEnabled (string name)
 		{
 			var key = "/Feature/" + name;
