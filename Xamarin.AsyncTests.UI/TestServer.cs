@@ -138,12 +138,14 @@ namespace Xamarin.AsyncTests.UI
 
 			Debug ("TEST: {0} {1}", result, App.TestRunner.CanStart);
 
-			if (!App.TestRunner.CanStart)
-				throw new InvalidOperationException ();
-
-			result.Test = test;
 			try {
+				if (!App.TestRunner.CanStart)
+					throw new InvalidOperationException ();
+
+				result.Test = test;
 				await App.TestRunner.Run.Execute ();
+			} catch (Exception ex) {
+				result.AddError (ex);
 			} finally {
 				result.Test = null;
 			}

@@ -115,6 +115,16 @@ namespace Xamarin.AsyncTests.Server
 			return Serializer.WriteSettings (settings);
 		}
 
+		public static TestResult ReadTestResult (XElement node)
+		{
+			return Serializer.TestResult.Read (null, node);
+		}
+
+		public static XElement WriteTestResult (TestResult result)
+		{
+			return Serializer.TestResult.Write (null, result);
+		}
+
 		#endregion
 
 		public virtual void Stop ()

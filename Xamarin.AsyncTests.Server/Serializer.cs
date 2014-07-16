@@ -249,7 +249,7 @@ namespace Xamarin.AsyncTests.Server
 					result.AddError (new SavedException (error.Value));
 
 				var test = node.Element ("TestCase");
-				if (test != null) {
+				if (connection != null && test != null) {
 					var testcase = Serializer.TestCase.Read (connection, test);
 					result.Test = testcase;
 					result.PropertyChanged += (sender, e) => {
@@ -287,7 +287,7 @@ namespace Xamarin.AsyncTests.Server
 
 				element.Add (Serializer.TestName.Write (connection, instance.Name));
 
-				if (instance.Test != null)
+				if (connection != null && instance.Test != null)
 					element.Add (Serializer.TestCase.Write (connection, instance.Test));
 
 				foreach (var child in instance.Children)

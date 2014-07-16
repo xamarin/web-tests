@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Xml;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.WebTests;
@@ -88,27 +90,43 @@ namespace Xamarin.AsyncTests.Client
 
 			await Hello (useServerSettings, CancellationToken.None);
 
-			Debug ("SETTINGS:\n{0}\n", DumpSettings (Context.Settings));
-
 			var suite = await LoadTestSuite (CancellationToken.None);
-			Debug ("GOT TEST SUITE: {0}", suite);
+			Debug ("Got test suite from server: {0}", suite);
 
-			await Task.Delay (10000);
-
-			Debug ("DONE WAITING");
+			await Task.Delay (2500);
 
 			var result = await RunTest (suite);
 
-			Debug ("DONE RUNNING");
+			Debug ("Done running: {0}", result.Status);
+
+			Debug ("RESULT:\n{0}\n", DumpTestResult (result));
 
 			await Task.Delay (10000);
 
-			Debug ("SHUTTING DOWN");
+			Debug ("Shutting down.");
 
 			shutdownRequested = true;
 			await Shutdown ();
 
 			await task;
+		}
+
+		static string Write (XElement node)
+		{
+			var wxs = new XmlWriterSettings ();
+			wxs.Indent = true;
+			using (var writer = new StringWriter ()) {
+				var xml = XmlWriter.Create (writer, wxs);
+				node.WriteTo (xml);
+				xml.Flush ();
+				return writer.ToString ();
+			}
+		}
+
+		static string DumpTestResult (TestResult result)
+		{
+			var node = Connection.WriteTestResult (result);
+			return Write (node);
 		}
 
 		public async Task<TestResult> RunTest (TestSuite suite)
