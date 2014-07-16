@@ -68,6 +68,13 @@ namespace Xamarin.AsyncTests.UI
 			App.TestRunner.CurrentTestResult = Model;
 			base.OnAppearing ();
 		}
+
+		async void OnItemSelected (object sender, SelectedItemChangedEventArgs args)
+		{
+			var selected = (TestResultModel)args.SelectedItem;
+			var page = new TestResultPage (selected.App, selected);
+			await Navigation.PushAsync (page);
+		}
 	}
 }
 

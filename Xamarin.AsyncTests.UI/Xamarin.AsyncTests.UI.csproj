@@ -32,9 +32,6 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestApp.cs" />
-    <Compile Include="Views\TestResultView.xaml.cs">
-      <DependentUpon>TestResultView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="TestResultConverter.cs" />
     <Compile Include="Views\TestResultPage.xaml.cs">
       <DependentUpon>TestResultPage.xaml</DependentUpon>
@@ -87,9 +84,6 @@
     <Folder Include="Commands\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Views\TestResultView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </EmbeddedResource>
     <EmbeddedResource Include="Views\TestResultPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
