@@ -187,7 +187,7 @@ namespace Xamarin.AsyncTests.UI
 
 			internal sealed override Task Stop (CancellationToken cancellationToken)
 			{
-				throw new NotImplementedException ();
+				return Task.FromResult (false);
 			}
 		}
 

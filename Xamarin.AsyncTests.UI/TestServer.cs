@@ -52,7 +52,7 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		public TestServer (TestApp app, Stream stream, IServerConnection connection, bool isServer)
-			: base (app, stream)
+			: base (app, stream, true)
 		{
 			App = app;
 			Connection = connection;

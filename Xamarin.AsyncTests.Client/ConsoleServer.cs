@@ -47,7 +47,7 @@ namespace Xamarin.AsyncTests.Client
 		}
 
 		public ConsoleServer (Program program, Stream stream)
-			: base (program.Context, stream)
+			: base (program.Context, stream, false)
 		{
 			Program = program;
 		}

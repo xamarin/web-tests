@@ -40,15 +40,17 @@ namespace Xamarin.AsyncTests.Server
 
 	public abstract class Connection
 	{
-		Stream stream;
-		TestContext context;
+		readonly Stream stream;
+		readonly TestContext context;
+		readonly bool isServer;
 		CancellationTokenSource cancelCts;
 		TaskCompletionSource<bool> commandTcs;
 		Queue<QueuedMessage> messageQueue;
 		bool shutdownRequested;
 
-		public Connection (TestContext context, Stream stream)
+		public Connection (TestContext context, Stream stream, bool isServer)
 		{
+			this.isServer = isServer;
 			this.context = context;
 			this.stream = stream;
 			cancelCts = new CancellationTokenSource ();
@@ -137,7 +139,7 @@ namespace Xamarin.AsyncTests.Server
 
 				foreach (var queued in messageQueue)
 					queued.Task.TrySetCanceled ();
-				foreach (var operation in operations.Values)
+				foreach (var operation in clientOperations.Values)
 					operation.Task.TrySetCanceled ();
 			}
 		}
@@ -308,22 +310,41 @@ namespace Xamarin.AsyncTests.Server
 
 			await Task.Yield ();
 
+			var token = cancelCts.Token;
+			var responseID = command.IsOneWay ? 0 : command.ResponseID;
+
+			ServerOperation operation = null;
+			lock (this) {
+				if (responseID > 0) {
+					operation = new ServerOperation (command.ResponseID, token);
+					serverOperations.Add (responseID, operation);
+					token = operation.CancelCts.Token;
+				}
+			}
+
 			Response response;
 			try {
-				response = await command.Run (this, cancelCts.Token);
+				response = await command.Run (this, token);
 			} catch (Exception ex) {
 				response = new Response {
 					ObjectID = command.ResponseID, Success = false, Error = ex.ToString ()
 				};
 			}
 
-			if (command.IsOneWay || command.ResponseID == 0 || response == null)
-				return;
-
 			try {
+				if (command.IsOneWay || command.ResponseID == 0 || response == null)
+					return;
+
 				await SendMessage (response);
 			} catch (Exception ex) {
 				Debug ("ERROR WHILE SENDING RESPONSE: {0}", ex);
+			} finally {
+				lock (this) {
+					if (operation != null) {
+						operation.CancelCts.Dispose ();
+						serverOperations.Remove (operation.ObjectID);
+					}
+				}
 			}
 		}
 
@@ -359,18 +380,22 @@ namespace Xamarin.AsyncTests.Server
 		static long next_id;
 		protected long GetNextObjectId ()
 		{
-			return ++next_id;
+			if (isServer)
+				return ++next_id;
+			else
+				return --next_id;
 		}
 
-		Dictionary<long,Operation> operations = new Dictionary<long, Operation> ();
+		Dictionary<long, ClientOperation> clientOperations = new Dictionary<long, ClientOperation> ();
+		Dictionary<long, ServerOperation> serverOperations = new Dictionary<long, ServerOperation> ();
 
 		internal Task<bool> RegisterResponse (Command command, Response response, CancellationToken cancellationToken)
 		{
-			Operation operation;
+			ClientOperation operation;
 			lock (this) {
 				var objectID = GetNextObjectId ();
-				operation = new Operation (objectID, response);
-				operations.Add (objectID, operation);
+				operation = new ClientOperation (objectID, response);
+				clientOperations.Add (objectID, operation);
 				command.ResponseID = objectID;
 			}
 
@@ -391,11 +416,11 @@ namespace Xamarin.AsyncTests.Server
 			return operation.Task.Task;
 		}
 
-		Operation GetResponse (long objectID)
+		ClientOperation GetResponse (long objectID)
 		{
 			lock (this) {
-				var operation = operations [objectID];
-				operations.Remove (operation.ObjectID);
+				var operation = clientOperations [objectID];
+				clientOperations.Remove (operation.ObjectID);
 				return operation;
 			}
 		}
@@ -403,20 +428,32 @@ namespace Xamarin.AsyncTests.Server
 		internal void OnCancel (long objectID)
 		{
 			lock (this) {
-				Operation operation;
-				if (!operations.TryGetValue (objectID, out operation))
+				ServerOperation operation;
+				if (!serverOperations.TryGetValue (objectID, out operation))
 					return;
-				operation.Task.TrySetCanceled ();
+				operation.CancelCts.Cancel ();
 			}
 		}
 
-		internal class Operation
+		class ServerOperation
+		{
+			public readonly long ObjectID;
+			public CancellationTokenSource CancelCts;
+
+			public ServerOperation (long objectId, CancellationToken cancellationToken)
+			{
+				ObjectID = objectId;
+				CancelCts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
+			}
+		}
+
+		class ClientOperation
 		{
 			public readonly long ObjectID;
 			public readonly Response Response;
 			public TaskCompletionSource<bool> Task;
 
-			public Operation (long objectID, Response response)
+			public ClientOperation (long objectID, Response response)
 			{
 				ObjectID = objectID;
 				Response = response;

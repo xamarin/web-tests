@@ -200,7 +200,7 @@ namespace Xamarin.AsyncTests.UI
 					if (running)
 						return;
 				} catch (OperationCanceledException) {
-					;
+					SetStatusMessage ("Command canceled.");
 				} catch (Exception ex) {
 					SetStatusMessage ("Command failed: {0}", ex.Message);
 				}
