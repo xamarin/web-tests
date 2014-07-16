@@ -91,7 +91,12 @@ namespace Xamarin.AsyncTests.UI
 
 		public override void Stop ()
 		{
-			stopRequested = true;
+			lock (this) {
+				if (stopRequested)
+					return;
+				stopRequested = true;
+			}
+
 			try {
 				base.Stop ();
 			} catch {

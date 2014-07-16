@@ -129,6 +129,7 @@ namespace Xamarin.AsyncTests.Server
 
 		public virtual void Stop ()
 		{
+			shutdownRequested = true;
 			cancelCts.Cancel ();
 
 			lock (this) {
@@ -152,12 +153,17 @@ namespace Xamarin.AsyncTests.Server
 			if (!command.IsOneWay)
 				responseTask = RegisterResponse (command, response, cancellationToken);
 
-			await SendMessage (command);
+			try {
+				await SendMessage (command);
 
-			if (responseTask == null)
-				return false;
+				if (responseTask == null)
+					return false;
 
-			return await responseTask;
+				return await responseTask;
+			} catch (Exception ex) {
+				Debug ("SEND COMMAND EX: {0} {1}", command, ex);
+				throw;
+			}
 		}
 
 		internal async Task SendMessage (Message message)
@@ -370,7 +376,16 @@ namespace Xamarin.AsyncTests.Server
 
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.Token.Register (async () => {
-				await new CancelCommand { ObjectID = operation.ObjectID }.Send (this);
+				try {
+					if (shutdownRequested)
+						return;
+					await new CancelCommand { ObjectID = operation.ObjectID }.Send (this);
+				} catch (Exception ex) {
+					if (shutdownRequested)
+						return;
+					Debug ("CANCEL COMMAND EX: {0}", ex);
+					throw;
+				}
 			});
 
 			return operation.Task.Task;

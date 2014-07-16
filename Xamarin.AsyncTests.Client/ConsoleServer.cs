@@ -38,7 +38,6 @@ namespace Xamarin.AsyncTests.Client
 
 	public class ConsoleServer : Connection
 	{
-		TaskCompletionSource<bool> helloTcs;
 		bool shutdownRequested;
 		TestSuite suite;
 
@@ -51,7 +50,6 @@ namespace Xamarin.AsyncTests.Client
 			: base (program.Context, stream)
 		{
 			Program = program;
-			helloTcs = new TaskCompletionSource<bool> ();
 		}
 
 		protected override async Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken)
@@ -77,8 +75,6 @@ namespace Xamarin.AsyncTests.Client
 
 			Debug ("Server started.");
 
-			await helloTcs.Task;
-			Debug ("Handshake complete.");
 			await task;
 		}
 
