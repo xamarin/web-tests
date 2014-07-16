@@ -73,6 +73,32 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public bool HideIgnoredTests {
+			get {
+				string value;
+				if (TryGetValue ("HideIgnoredTests", out value))
+					return bool.Parse (value);
+				return false;
+			}
+			set {
+				SetValue ("HideIgnoredTests", value.ToString ());
+				OnPropertyChanged ("HideIgnoredTests");
+			}
+		}
+
+		public bool HideSuccessfulTests {
+			get {
+				string value;
+				if (TryGetValue ("HideSuccessfulTests", out value))
+					return bool.Parse (value);
+				return false;
+			}
+			set {
+				SetValue ("HideSuccessfulTests", value.ToString ());
+				OnPropertyChanged ("HideSuccessfulTests");
+			}
+		}
+
 		public bool? IsFeatureEnabled (string name)
 		{
 			var key = "/Feature/" + name;

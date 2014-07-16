@@ -81,23 +81,58 @@ namespace Xamarin.AsyncTests.UI
 			};
 
 			Children.CollectionChanged += (sender, e) => {
-				;
 				OnPropertyChanged ("HasChildren");
 			};
+		}
+
+		bool DoFilter (TestResult result)
+		{
+			if (App.Options.HideIgnoredTests) {
+				if (result.Status == TestStatus.Ignored || result.Status == TestStatus.None)
+					return false;
+			}
+			if (App.Options.HideSuccessfulTests && result.Status == TestStatus.Success)
+				return false;
+			return true;
+		}
+
+		bool Filter (TestResult result)
+		{
+			if (DoFilter (result))
+				return true;
+
+			result.PropertyChanged += CheckChildStatus;
+			return false;
+		}
+
+		void CheckChildStatus (object sender, PropertyChangedEventArgs e)
+		{
+			var result = (TestResult)sender;
+
+			if (!DoFilter (result))
+				return;
+
+			result.PropertyChanged -= CheckChildStatus;
+			Children.Add (new TestResultModel (App, result, false));
 		}
 
 		void HandleCollectionChanged (object sender, NotifyCollectionChangedEventArgs e)
 		{
 			switch (e.Action) {
 			case NotifyCollectionChangedAction.Add:
-				foreach (var item in e.NewItems)
-					Children.Add (new TestResultModel (App, (TestResult)item, false));
+				foreach (var item in e.NewItems) {
+					var result = (TestResult)item;
+					if (Filter (result))
+						Children.Add (new TestResultModel (App, result, false));
+				}
 				break;
 
 			default:
 				Children.Clear ();
-				foreach (var child in Result.Children)
-					Children.Add (new TestResultModel (App, child, false));
+				foreach (var child in Result.Children) {
+					if (Filter (child))
+						Children.Add (new TestResultModel (App, child, false));
+				}
 				break;
 			}
 		}

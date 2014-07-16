@@ -15,6 +15,16 @@
                        Completed="OnRepeatCountChanged" />
             </StackLayout>
 
+            <StackLayout Spacing="30" Orientation="Horizontal">
+                <Switch IsToggled="{Binding HideIgnoredTests}" />
+                <Label Text="Hide ignored tests" VerticalOptions="Center" />
+            </StackLayout>
+
+            <StackLayout Spacing="30" Orientation="Horizontal">
+                <Switch IsToggled="{Binding HideSuccessfulTests}" />
+                <Label Text="Hide successful tests" VerticalOptions="Center" />
+            </StackLayout>
+
             <local:TestCategorySelector BindingContext="{Binding App.TestSuiteManager.Categories}"
                                         IsVisible="{Binding App.TestSuiteManager.HasInstance}" />
 

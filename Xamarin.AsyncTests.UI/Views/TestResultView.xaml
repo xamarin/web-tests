@@ -15,9 +15,9 @@
 
         <local:TestNameView BindingContext="{Binding Result.Name}" />
 
-        <Label Text="{Binding Result.Message}"
+        <Label Text="{Binding Result.Message}" Font="Courier"
                IsVisible="{Binding Result.Error, Converter={StaticResource converter}, ConverterParameter='not-null'}" />
-        <Label Text="{Binding Result.Error, Converter={StaticResource converter}}"
+        <Label Text="{Binding Result.Error, Converter={StaticResource converter}}" Font="Courier"
                IsVisible="{Binding Result.Error, Converter={StaticResource converter}, ConverterParameter='not-null'}" />
 
         <ListView IsVisible="{Binding HasChildren}" ItemsSource="{Binding Children}" ItemSelected="OnItemSelected">
