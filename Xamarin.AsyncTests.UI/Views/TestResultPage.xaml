@@ -21,7 +21,7 @@
             <Label Text="{Binding Result.Error, Converter={StaticResource converter}}" Font="Courier"
                    IsVisible="{Binding Result.Error, Converter={StaticResource converter}, ConverterParameter='not-null'}" />
 
-            <ListView IsVisible="{Binding HasChildren}" ItemsSource="{Binding Children}" ItemSelected="OnItemSelected">
+            <ListView x:Name="List" ItemSelected="OnItemSelected">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>

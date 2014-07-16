@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -66,6 +67,10 @@ namespace Xamarin.AsyncTests.UI
 		protected override void OnAppearing ()
 		{
 			App.TestRunner.CurrentTestResult = Model;
+
+			var items = Model.GetChildren ().ToList ();
+			List.IsVisible = items.Count > 0;
+			List.ItemsSource = items;
 			base.OnAppearing ();
 		}
 

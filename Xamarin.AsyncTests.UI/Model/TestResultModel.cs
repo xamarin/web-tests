@@ -57,35 +57,26 @@ namespace Xamarin.AsyncTests.UI
 			get { return TestResultConverter.GetColorForStatus (Result.Status); }
 		}
 
-		public ObservableCollection<TestResultModel> Children {
-			get;
-			private set;
-		}
-
-		public bool HasChildren {
-			get { return Children.Count > 0; }
-		}
-
 		public TestResultModel (TestApp app, TestResult result, bool isRoot)
 		{
 			App = app;
 			Result = result;
 			IsRoot = isRoot;
 
-			Children = new ObservableCollection<TestResultModel> ();
-
-			result.Children.CollectionChanged += HandleCollectionChanged;
-
 			result.PropertyChanged += (sender, e) => {
 				OnPropertyChanged ("StatusColor");
 			};
-
-			Children.CollectionChanged += (sender, e) => {
-				OnPropertyChanged ("HasChildren");
-			};
 		}
 
-		bool DoFilter (TestResult result)
+		public IEnumerable<TestResultModel> GetChildren ()
+		{
+			foreach (var child in Result.Children) {
+				if (Filter (child))
+					yield return new TestResultModel (App, child, false);
+			}
+		}
+
+		bool Filter (TestResult result)
 		{
 			if (App.Options.HideIgnoredTests) {
 				if (result.Status == TestStatus.Ignored || result.Status == TestStatus.None)
@@ -94,47 +85,6 @@ namespace Xamarin.AsyncTests.UI
 			if (App.Options.HideSuccessfulTests && result.Status == TestStatus.Success)
 				return false;
 			return true;
-		}
-
-		bool Filter (TestResult result)
-		{
-			if (DoFilter (result))
-				return true;
-
-			result.PropertyChanged += CheckChildStatus;
-			return false;
-		}
-
-		void CheckChildStatus (object sender, PropertyChangedEventArgs e)
-		{
-			var result = (TestResult)sender;
-
-			if (!DoFilter (result))
-				return;
-
-			result.PropertyChanged -= CheckChildStatus;
-			Children.Add (new TestResultModel (App, result, false));
-		}
-
-		void HandleCollectionChanged (object sender, NotifyCollectionChangedEventArgs e)
-		{
-			switch (e.Action) {
-			case NotifyCollectionChangedAction.Add:
-				foreach (var item in e.NewItems) {
-					var result = (TestResult)item;
-					if (Filter (result))
-						Children.Add (new TestResultModel (App, result, false));
-				}
-				break;
-
-			default:
-				Children.Clear ();
-				foreach (var child in Result.Children) {
-					if (Filter (child))
-						Children.Add (new TestResultModel (App, child, false));
-				}
-				break;
-			}
 		}
 	}
 }
