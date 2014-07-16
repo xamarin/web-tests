@@ -47,12 +47,7 @@ namespace Xamarin.AsyncTests.UI
 			get { return this; }
 		}
 
-		public TabbedPage MainPage {
-			get;
-			private set;
-		}
-
-		public Page Root {
+		public TabbedPage Root {
 			get;
 			private set;
 		}
@@ -96,7 +91,7 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public ServerControlPage ServerControlPage {
+		public MainPage MainPage {
 			get;
 			private set;
 		}
@@ -116,20 +111,18 @@ namespace Xamarin.AsyncTests.UI
 			TestRunner = new TestRunner (this);
 			TestRunner.CurrentTestResult = RootTestResult;
 
-			ServerControlPage = new ServerControlPage (ServerManager);
+			MainPage = new MainPage (ServerManager);
 
 			Options = new OptionsModel (this);
 
-			MainPage = new TabbedPage ();
+			Root = new TabbedPage ();
 
 			var resultPage = new TestResultPage (this, RootTestResult);
 			var resultNav = new NavigationPage (resultPage) { Title = resultPage.Title };
 
-			MainPage.Children.Add (ServerControlPage);
-			MainPage.Children.Add (new OptionsPage (Options));
-			MainPage.Children.Add (resultNav);
-
-			Root = MainPage;
+			Root.Children.Add (MainPage);
+			Root.Children.Add (new OptionsPage (Options));
+			Root.Children.Add (resultNav);
 
 			Initialize ();
 		}

@@ -29,7 +29,7 @@ using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
 {	
-	public partial class ServerControlPage : ContentPage
+	public partial class MainPage : ContentPage
 	{
 		public TestApp App {
 			get { return Manager.App; }
@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public ServerControlPage (ServerManager manager)
+		public MainPage (ServerManager manager)
 		{
 			Manager = manager;
 			BindingContext = manager;
