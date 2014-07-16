@@ -30,7 +30,11 @@ using Xamarin.Forms;
 namespace Xamarin.AsyncTests.UI
 {	
 	public partial class ServerControlPage : ContentPage
-	{	
+	{
+		public TestApp App {
+			get { return Manager.App; }
+		}
+
 		public ServerManager Manager {
 			get;
 			private set;

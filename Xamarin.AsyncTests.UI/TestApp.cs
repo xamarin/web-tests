@@ -113,11 +113,12 @@ namespace Xamarin.AsyncTests.UI
 			ServerManager = new ServerManager (this);
 			TestSuiteManager = new TestSuiteManager (this);
 
+			TestRunner = new TestRunner (this);
+			TestRunner.CurrentTestResult = RootTestResult;
+
 			ServerControlPage = new ServerControlPage (ServerManager);
 
 			Options = new OptionsModel (this);
-
-			TestRunner = new TestRunner (this);
 
 			MainPage = new TabbedPage ();
 

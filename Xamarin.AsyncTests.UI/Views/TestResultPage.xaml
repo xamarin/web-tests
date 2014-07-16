@@ -13,14 +13,6 @@
 
     <StackLayout Spacing="10" Orientation="Vertical">
 
-        <Frame>
-            <StackLayout Orientation="Vertical">
-                <local:TestRunnerControl BindingContext="{Binding App.TestRunner}" />
-                <Label Text="{Binding Result.Status, Converter={StaticResource converter}}"
-                       TextColor="{Binding StatusColor, Converter={StaticResource converter}}" />
-            </StackLayout>
-        </Frame>
-
         <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
             <local:TestResultView />
         </ScrollView>

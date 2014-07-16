@@ -13,8 +13,6 @@
             <Button Text="Clear Result" Command="{Binding Clear}" />
         </StackLayout>
 
-        <Label Text="{Binding StatusMessage}" VerticalOptions="End" />
-
     </StackLayout>
 
 </ContentView>

@@ -91,7 +91,7 @@ namespace Xamarin.AsyncTests.UI
 				StatusMessage = "Loading TestSuite ...";
 				var suite = await TestSuite.LoadAssembly (App.Context, App.Assembly);
 				App.RootTestResult.Result.Test = suite;
-				SetStatusMessage ("Loaded {0}.", suite.Name);
+				StatusMessage = "Loaded local test suite.";
 				return suite;
 			} catch (Exception ex) {
 				SetStatusMessage ("Error loading TestSuite: {0}", ex.Message);
@@ -110,7 +110,7 @@ namespace Xamarin.AsyncTests.UI
 				StatusMessage = "Loading TestSuite from server ...";
 				var suite = await instance.LoadTestSuite (cancellationToken);
 				App.RootTestResult.Result.Test = suite;
-				SetStatusMessage ("Loaded {0} from server.", suite.Name);
+				StatusMessage = "Loaded remote test suite.";
 				return suite;
 			} catch (Exception ex) {
 				SetStatusMessage ("Error loading TestSuite: {0}", ex.Message);

@@ -62,7 +62,6 @@ namespace Xamarin.AsyncTests.UI
 			runCommand = new RunSingleCommand (this);
 			repeatCommand = new RepeatCommand (this);
 			clearCommand = new ClearCommand (this);
-			StatusMessage = "No test loaded.";
 			currentResult = app.RootTestResult;
 
 			Context.TestFinishedEvent += (sender, e) => OnTestFinished (e);
@@ -88,7 +87,7 @@ namespace Xamarin.AsyncTests.UI
 
 			var model = currentResult;
 
-			SetStatusMessage ("Running {0}.", model.Result.Test.Name);
+			App.TestSuiteManager.SetStatusMessage ("Running {0}.", model.Result.Test.Name);
 
 			var test = model.Result.Test;
 			var result = model.Result;
@@ -126,7 +125,7 @@ namespace Xamarin.AsyncTests.UI
 
 		void OnTestFinished (TestResult result)
 		{
-			StatusMessage = GetStatusMessage ();
+			App.TestSuiteManager.StatusMessage = GetStatusMessage ();
 		}
 
 		string GetStatusMessage ()

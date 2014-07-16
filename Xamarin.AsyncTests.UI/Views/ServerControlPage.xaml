@@ -13,6 +13,13 @@
         <Frame>
             <local:TestSuiteManagerView BindingContext="{Binding App.TestSuiteManager}" />
         </Frame>
+
+        <Frame>
+            <StackLayout Orientation="Vertical">
+                <local:TestRunnerControl BindingContext="{Binding App.TestRunner}" />
+            </StackLayout>
+        </Frame>
+
     </StackLayout>
 
 </ContentPage>

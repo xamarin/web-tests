@@ -115,7 +115,7 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		protected void SetStatusMessage (string message, params object[] args)
+		public void SetStatusMessage (string message, params object[] args)
 		{
 			StatusMessage = string.Format (message, args);
 		}
@@ -207,7 +207,8 @@ namespace Xamarin.AsyncTests.UI
 		internal async override Task ExecuteStop ()
 		{
 			try {
-				await currentCommand.Stop (CancellationToken.None);
+				if (currentCommand != null)
+					await currentCommand.Stop (CancellationToken.None);
 			} catch {
 				;
 			}
