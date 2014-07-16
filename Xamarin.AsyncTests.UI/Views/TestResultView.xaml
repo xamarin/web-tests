@@ -20,17 +20,15 @@
         <Label Text="{Binding Result.Error, Converter={StaticResource converter}}"
                IsVisible="{Binding Result.Error, Converter={StaticResource converter}, ConverterParameter='not-null'}" />
 
-        <ListView IsVisible="{Binding Result.HasChildren}" ItemsSource="{Binding Result.Children}"
-                  ItemSelected="OnItemSelected">
+        <ListView IsVisible="{Binding HasChildren}" ItemsSource="{Binding Children}" ItemSelected="OnItemSelected">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
                         <ViewCell.View>
                             <StackLayout Orientation="Horizontal">
 
-                                <Label Text="{Binding Name, Converter={StaticResource converter}}"
-                                       TextColor="{Binding Status, Converter={StaticResource converter}}"
-                                       HorizontalOptions="FillAndExpand" />
+                                <Label Text="{Binding Result.Name, Converter={StaticResource converter}}"
+                                       TextColor="{Binding StatusColor}" HorizontalOptions="FillAndExpand" />
 
                             </StackLayout>
                         </ViewCell.View>

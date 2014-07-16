@@ -83,7 +83,7 @@ namespace Xamarin.AsyncTests.UI
 			throw new NotImplementedException ();
 		}
 
-		Color GetColorForStatus (TestStatus status)
+		internal static Color GetColorForStatus (TestStatus status)
 		{
 			switch (status) {
 			case TestStatus.Error:

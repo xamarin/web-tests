@@ -27,6 +27,9 @@ using System;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
@@ -50,11 +53,53 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public Color StatusColor {
+			get { return TestResultConverter.GetColorForStatus (Result.Status); }
+		}
+
+		public ObservableCollection<TestResultModel> Children {
+			get;
+			private set;
+		}
+
+		public bool HasChildren {
+			get { return Children.Count > 0; }
+		}
+
 		public TestResultModel (TestApp app, TestResult result, bool isRoot)
 		{
 			App = app;
 			Result = result;
 			IsRoot = isRoot;
+
+			Children = new ObservableCollection<TestResultModel> ();
+
+			result.Children.CollectionChanged += HandleCollectionChanged;
+
+			result.PropertyChanged += (sender, e) => {
+				OnPropertyChanged ("StatusColor");
+			};
+
+			Children.CollectionChanged += (sender, e) => {
+				;
+				OnPropertyChanged ("HasChildren");
+			};
+		}
+
+		void HandleCollectionChanged (object sender, NotifyCollectionChangedEventArgs e)
+		{
+			switch (e.Action) {
+			case NotifyCollectionChangedAction.Add:
+				foreach (var item in e.NewItems)
+					Children.Add (new TestResultModel (App, (TestResult)item, false));
+				break;
+
+			default:
+				Children.Clear ();
+				foreach (var child in Result.Children)
+					Children.Add (new TestResultModel (App, child, false));
+				break;
+			}
 		}
 	}
 }

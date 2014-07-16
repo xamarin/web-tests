@@ -42,12 +42,8 @@ namespace Xamarin.AsyncTests.UI
 
 		async void OnItemSelected (object sender, SelectedItemChangedEventArgs args)
 		{
-			var selected = (TestResult)args.SelectedItem;
-			var model = (TestResultModel)BindingContext;
-
-			var newModel = new TestResultModel (model.App, selected, false);
-
-			var page = new TestResultPage (model.App, newModel);
+			var selected = (TestResultModel)args.SelectedItem;
+			var page = new TestResultPage (selected.App, selected);
 			await Navigation.PushAsync (page);
 		}
 	}

@@ -17,7 +17,7 @@
             <StackLayout Orientation="Vertical">
                 <local:TestRunnerControl BindingContext="{Binding App.TestRunner}" />
                 <Label Text="{Binding Result.Status, Converter={StaticResource converter}}"
-                       TextColor="{Binding Result.Status, Converter={StaticResource converter}}" />
+                       TextColor="{Binding StatusColor, Converter={StaticResource converter}}" />
             </StackLayout>
         </Frame>
 
