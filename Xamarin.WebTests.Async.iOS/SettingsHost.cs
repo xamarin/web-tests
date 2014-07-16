@@ -71,7 +71,7 @@ namespace Xamarin.WebTests.Async.iOS
 			SetValue (key, value);
 		}
 
-		public override void SetValue (string name, string value)
+		protected override void DoSetValue (string name, string value)
 		{
 			var defaults = NSUserDefaults.StandardUserDefaults;
 			var dict = defaults.DictionaryForKey (DictionaryKey);
@@ -93,6 +93,7 @@ namespace Xamarin.WebTests.Async.iOS
 			mutable.Remove ((NSString)name);
 			defaults.SetValueForKey (mutable, (NSString)DictionaryKey);
 			defaults.Synchronize ();
+			OnPropertyChanged ("Settings");
 		}
 
 		public override IReadOnlyDictionary<string, string> Settings {

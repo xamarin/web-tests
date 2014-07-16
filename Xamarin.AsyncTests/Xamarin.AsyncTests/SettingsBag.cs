@@ -123,12 +123,24 @@ namespace Xamarin.AsyncTests
 
 		public abstract void RemoveValue (string key);
 
-		public abstract void SetValue (string key, string value);
+		public void SetValue (string key, string value)
+		{
+			string existing;
+			if (TryGetValue (key, out existing)) {
+				if (existing.Equals (value))
+					return;
+			}
+
+			DoSetValue (key, value);
+			OnPropertyChanged ("Settings");
+		}
+
+		protected abstract void DoSetValue (string key, string value);
 
 		public void Merge (SettingsBag provider)
 		{
 			foreach (var entry in provider.Settings) {
-				SetValue (entry.Key, entry.Value);
+				DoSetValue (entry.Key, entry.Value);
 			}
 		}
 
@@ -169,13 +181,12 @@ namespace Xamarin.AsyncTests
 				OnPropertyChanged ("Settings");
 			}
 
-			public override void SetValue (string key, string value)
+			protected override void DoSetValue (string key, string value)
 			{
 				if (settings.ContainsKey (key))
 					settings [key] = value;
 				else
 					settings.Add (key, value);
-				OnPropertyChanged ("Settings");
 			}
 
 			#endregion

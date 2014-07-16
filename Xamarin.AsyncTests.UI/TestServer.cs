@@ -78,7 +78,8 @@ namespace Xamarin.AsyncTests.UI
 				}
 			}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext ());
 
-			await Hello (IsServer, cancellationToken);
+			if (!IsServer)
+				await Hello (IsServer, cancellationToken);
 
 			try {
 				await tcs.Task;

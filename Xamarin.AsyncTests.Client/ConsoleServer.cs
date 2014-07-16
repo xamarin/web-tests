@@ -97,7 +97,11 @@ namespace Xamarin.AsyncTests.Client
 
 			Debug ("DONE WAITING");
 
-			// await RunTest (suite);
+			await RunTest (suite);
+
+			Debug ("DONE RUNNING");
+
+			await Task.Delay (10000);
 
 			Debug ("SHUTTING DOWN");
 
