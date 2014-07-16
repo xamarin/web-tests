@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.WebTests;
 
 namespace Xamarin.AsyncTests.Client
 {
@@ -35,31 +36,28 @@ namespace Xamarin.AsyncTests.Client
 
 	public class ConsoleServer : Connection
 	{
-		readonly ConsoleContext context;
 		TaskCompletionSource<bool> helloTcs;
 		bool shutdownRequested;
 
-		public override TestContext Context {
-			get { return context; }
-		}
-
-		public ConsoleServer (ConsoleContext context, Stream stream)
-			: base (stream)
+		public ConsoleServer (TestContext context, Stream stream)
+			: base (context, stream)
 		{
-			this.context = context;
 			helloTcs = new TaskCompletionSource<bool> ();
 		}
 
-		protected override Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken)
+		protected override async Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken)
 		{
-			return context.LoadTestSuite (cancellationToken);
+			var assembly = typeof(WebTestFeatures).Assembly;
+			var suite = await TestSuite.LoadAssembly (Context, assembly);
+			Context.CurrentTestSuite = suite;
+			return suite;
 		}
 
 		public async Task RunServer ()
 		{
 			var task = Task.Factory.StartNew (async () => {
 				await MainLoop ();
-				context.UnloadTestSuite ();
+				Context.CurrentTestSuite = null;
 			});
 
 			Debug ("Server started.");
@@ -80,16 +78,16 @@ namespace Xamarin.AsyncTests.Client
 					Debug ("MAIN LOOP EX: {0}", ex);
 					throw;
 				} finally {
-					context.UnloadTestSuite ();
+					Context.CurrentTestSuite = null;
 				}
 			});
 
 			Debug ("Client started.");
 
 			var settings = await GetSettings (CancellationToken.None);
-			context.MergeSettings (settings);
+			Context.Settings.Merge (settings);
 
-			Debug ("SETTINGS:\n{0}\n", DumpSettings (context.Settings));
+			Debug ("SETTINGS:\n{0}\n", DumpSettings (Context.Settings));
 
 			var suite = await LoadTestSuite (CancellationToken.None);
 			Debug ("GOT TEST SUITE: {0}", suite);

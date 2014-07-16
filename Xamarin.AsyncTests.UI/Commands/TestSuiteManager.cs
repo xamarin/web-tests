@@ -81,6 +81,7 @@ namespace Xamarin.AsyncTests.UI
 				Features.Configuration = instance.Configuration;
 				Categories.Configuration = instance.Configuration;
 			}
+			App.Context.CurrentTestSuite = instance;
 			base.OnInstanceChanged (instance);
 		}
 

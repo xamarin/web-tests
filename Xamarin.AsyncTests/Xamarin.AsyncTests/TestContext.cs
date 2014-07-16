@@ -38,9 +38,10 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests
 {
-	public abstract class TestContext : IDisposable {
+	public class TestContext : IDisposable {
 		int debugLevel = DefaultDebugLevel;
 		List<IDisposable> disposables;
+		readonly SettingsBag settings;
 
 		const int DefaultDebugLevel = 0;
 
@@ -53,12 +54,17 @@ namespace Xamarin.AsyncTests
 			get; set;
 		}
 
-		public abstract SettingsBag Settings {
-			get;
+		public SettingsBag Settings {
+			get { return settings; }
 		}
 
-		public abstract ITestSuite CurrentTestSuite {
-			get;
+		public ITestSuite CurrentTestSuite {
+			get; set;
+		}
+
+		public TestContext (SettingsBag settings)
+		{
+			this.settings = settings;
 		}
 
 		public void Debug (int level, string format, params object[] args)

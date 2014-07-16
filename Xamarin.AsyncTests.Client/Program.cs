@@ -37,28 +37,11 @@ using NDesk.Options;
 
 namespace Xamarin.AsyncTests.Client
 {
-	using Framework;
 	using Server;
+	using Framework;
 
-	public class ConsoleContext : TestContext
+	public class Program
 	{
-		readonly SettingsBag settings;
-		TestSuite suite;
-
-		public static void Main (string[] args)
-		{
-			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
-
-			var main = new ConsoleContext (args);
-
-			try {
-				var task = main.Run ();
-				task.Wait ();
-			} catch (Exception ex) {
-				Debug ("ERROR: {0}", ex);
-			}
-		}
-
 		public string SettingsFile {
 			get;
 			private set;
@@ -69,13 +52,38 @@ namespace Xamarin.AsyncTests.Client
 			private set;
 		}
 
-		ConsoleContext (string[] args)
+		public SettingsBag Settings {
+			get;
+			private set;
+		}
+
+		public TestContext Context {
+			get;
+			private set;
+		}
+
+		public static void Main (string[] args)
+		{
+			SD.Debug.AutoFlush = true;
+			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
+
+			var program = new Program (args);
+
+			try {
+				var task = program.Run ();
+				task.Wait ();
+			} catch (Exception ex) {
+				Debug ("ERROR: {0}", ex);
+			}
+		}
+
+		Program (string[] args)
 		{
 			var p = new OptionSet ().Add ("settings=", v => SettingsFile = v).Add (
 				"connect=", v => Endpoint = GetEndpoint (v));
 			var remaining = p.Parse (args);
 
-			settings = LoadSettings (SettingsFile);
+			Settings = LoadSettings (SettingsFile);
 
 			Debug ("REMAINING ARGS: {0}", remaining.Count);
 
@@ -84,6 +92,30 @@ namespace Xamarin.AsyncTests.Client
 				Environment.Exit (255);
 				return;
 			}
+
+			Context = new TestContext (Settings);
+		}
+
+		static void Debug (string message, params object[] args)
+		{
+			SD.Debug.WriteLine (message, args);
+		}
+
+		static IPEndPoint GetEndpoint (string text)
+		{
+			int port;
+			string host;
+			var pos = text.IndexOf (":");
+			if (pos < 0) {
+				host = text;
+				port = 8888;
+			} else {
+				host = text.Substring (0, pos);
+				port = int.Parse (text.Substring (pos + 1));
+			}
+
+			var address = IPAddress.Parse (host);
+			return new IPEndPoint (address, port);
 		}
 
 		static SettingsBag LoadSettings (string filename)
@@ -107,55 +139,19 @@ namespace Xamarin.AsyncTests.Client
 				xws.Indent = true;
 
 				using (var xml = XmlTextWriter.Create (writer, xws)) {
-					var node = Connection.WriteSettings (settings);
+					var node = Connection.WriteSettings (Settings);
 					node.WriteTo (xml);
 					xml.Flush ();
 				}
 			}
 		}
 
-		async Task Run ()
+		Task Run ()
 		{
-			if (Endpoint == null) {
-				await RunServer ();
-				return;
-			}
-
-			await RunClient (Endpoint);
-			SaveSettings ();
-		}
-
-		static IPEndPoint GetEndpoint (string text)
-		{
-			int port;
-			string host;
-			var pos = text.IndexOf (":");
-			if (pos < 0) {
-				host = text;
-				port = 8888;
-			} else {
-				host = text.Substring (0, pos);
-				port = int.Parse (text.Substring (pos + 1));
-			}
-
-			var address = IPAddress.Parse (host);
-			return new IPEndPoint (address, port);
-		}
-
-		static void Debug (string message, params object[] args)
-		{
-			SD.Debug.WriteLine (message, args);
-		}
-
-		static TestResult CreateTestResult ()
-		{
-			var builder = new TestNameBuilder ();
-			builder.PushName ("Hello");
-			builder.PushParameter ("A", "B");
-			builder.PushParameter ("Foo", "Bar", true);
-			var name = builder.GetName ();
-
-			return new TestResult (name, TestStatus.Success);
+			if (Endpoint == null)
+				return RunServer ();
+			else
+				return RunClient ();
 		}
 
 		async Task RunServer ()
@@ -177,47 +173,24 @@ namespace Xamarin.AsyncTests.Client
 
 			Debug ("Got remote connection from {0}.", socket.RemoteEndPoint);
 
-			var connection = new ConsoleServer (this, stream);
+			var connection = new ConsoleServer (Context, stream);
 			await connection.RunServer ();
 
 			Debug ("Closed remote connection.");
 		}
 
-		async Task RunClient (IPEndPoint endpoint)
+		async Task RunClient ()
 		{
 			await Task.Yield ();
 
 			var client = new TcpClient ();
-			await client.ConnectAsync (endpoint.Address, endpoint.Port);
+			await client.ConnectAsync (Endpoint.Address, Endpoint.Port);
 
 			var stream = client.GetStream ();
-			var server = new ConsoleServer (this, stream);
+			var server = new ConsoleServer (Context, stream);
 			await server.RunClient ();
 		}
 
-		public override ITestSuite CurrentTestSuite {
-			get { return suite; }
-		}
-
-		public override SettingsBag Settings {
-			get { return settings; }
-		}
-
-		public async Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
-		{
-			var assembly = typeof(WebTestFeatures).Assembly;
-			suite = await TestSuite.LoadAssembly (this, assembly);
-			return suite;
-		}
-
-		public void UnloadTestSuite ()
-		{
-			suite = null;
-		}
-
-		internal void MergeSettings (SettingsBag newSettings)
-		{
-			settings.Merge (newSettings);
-		}
 	}
 }
+

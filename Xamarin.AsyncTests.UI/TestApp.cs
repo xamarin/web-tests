@@ -101,19 +101,9 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		SettingsBag currentSettings;
-		public override SettingsBag Settings {
-			get { return currentSettings; }
-		}
-
-		internal void SetSettings (SettingsBag settings)
-		{
-			currentSettings = settings;
-		}
-
 		public TestApp (SettingsBag settings, IServerHost server, Assembly assembly)
+			: base (settings)
 		{
-			currentSettings = settings;
 			ServerHost = server;
 			Assembly = assembly;
 
@@ -160,10 +150,6 @@ namespace Xamarin.AsyncTests.UI
 		{
 			if (PropertyChanged != null)
 				PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
-		}
-
-		public override ITestSuite CurrentTestSuite {
-			get { return TestSuiteManager.Instance; }
 		}
 	}
 }

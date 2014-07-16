@@ -41,17 +41,13 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public override TestContext Context {
-			get { return App.Context; }
-		}
-
 		public IServerConnection Connection {
 			get;
 			private set;
 		}
 
 		public TestServer (TestApp app, Stream stream, IServerConnection connection)
-			: base (stream)
+			: base (app, stream)
 		{
 			App = app;
 			Connection = connection;

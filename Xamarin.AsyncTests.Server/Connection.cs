@@ -41,14 +41,16 @@ namespace Xamarin.AsyncTests.Server
 	public abstract class Connection
 	{
 		Stream stream;
+		TestContext context;
 		CancellationTokenSource cancelCts;
 		TaskCompletionSource<bool> commandTcs;
 		Queue<QueuedMessage> messageQueue;
 		bool shutdownRequested;
 		SettingsBag currentSettings;
 
-		public Connection (Stream stream)
+		public Connection (TestContext context, Stream stream)
 		{
+			this.context = context;
 			this.stream = stream;
 			cancelCts = new CancellationTokenSource ();
 			messageQueue = new Queue<QueuedMessage> ();
@@ -58,8 +60,8 @@ namespace Xamarin.AsyncTests.Server
 			get; set;
 		}
 
-		public abstract TestContext Context {
-			get;
+		public TestContext Context {
+			get { return context; }
 		}
 
 		#region Public Client API
