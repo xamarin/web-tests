@@ -47,6 +47,11 @@ namespace Xamarin.AsyncTests.Client
 			private set;
 		}
 
+		public string ResultOutput {
+			get;
+			private set;
+		}
+
 		public IPEndPoint Endpoint {
 			get;
 			private set;
@@ -63,6 +68,11 @@ namespace Xamarin.AsyncTests.Client
 		}
 
 		public bool Wait {
+			get;
+			private set;
+		}
+
+		public bool NoRun {
 			get;
 			private set;
 		}
@@ -88,9 +98,12 @@ namespace Xamarin.AsyncTests.Client
 
 		Program (string[] args)
 		{
-			var p = new OptionSet ().Add ("settings=", v => SettingsFile = v).Add (
-				"connect=", v => Endpoint = GetEndpoint (v)).Add (
-					"wait", v => Wait = true);
+			var p = new OptionSet ();
+			p.Add ("settings=", v => SettingsFile = v);
+			p.Add ("connect=", v => Endpoint = GetEndpoint (v));
+			p.Add ("wait", v => Wait = true);
+			p.Add ("norun", v => NoRun = true);
+			p.Add ("result=", v => ResultOutput = v);
 			var remaining = p.Parse (args);
 
 			Settings = LoadSettings (SettingsFile);

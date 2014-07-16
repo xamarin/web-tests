@@ -105,11 +105,14 @@ namespace Xamarin.AsyncTests.Client
 			suite = await LoadTestSuite (CancellationToken.None);
 			Debug ("Got test suite from server: {0}", suite);
 
-			var result = await RunTestSuite (CancellationToken.None);
+			if (!Program.NoRun) {
+				var result = await RunTestSuite (CancellationToken.None);
 
-			Debug ("Done running: {0}", result.Status);
+				Debug ("Done running: {0}", result.Status);
 
-			Debug ("RESULT:\n{0}\n", DumpTestResult (result));
+				if (Program.ResultOutput != null)
+					SaveTestResult (result);
+			}
 
 			if (!Program.Wait) {
 				Debug ("Shutting down.");
@@ -136,6 +139,18 @@ namespace Xamarin.AsyncTests.Client
 		{
 			var node = Connection.WriteTestResult (result);
 			return Write (node);
+		}
+
+		void SaveTestResult (TestResult result)
+		{
+			var wxs = new XmlWriterSettings ();
+			wxs.Indent = true;
+			using (var writer = new StreamWriter (Program.ResultOutput)) {
+				var xml = XmlWriter.Create (writer, wxs);
+				var node = Connection.WriteTestResult (result);
+				node.WriteTo (xml);
+				xml.Flush ();
+			}
 		}
 
 		public async Task<TestResult> RunTest (TestSuite suite)
