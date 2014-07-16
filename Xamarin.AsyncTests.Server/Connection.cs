@@ -129,12 +129,56 @@ namespace Xamarin.AsyncTests.Server
 
 		#endregion
 
+		protected virtual Task Start (CancellationToken cancellationToken)
+		{
+			return Task.FromResult<object> (null);
+		}
+
+		public async Task Run (CancellationToken cancellationToken)
+		{
+			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
+			cts.Token.Register (() => {
+				shutdownRequested = true;
+				Stop ();
+			});
+
+			var tcs = new TaskCompletionSource<object> ();
+
+			TaskScheduler scheduler;
+			if (SynchronizationContext.Current != null)
+				scheduler = TaskScheduler.FromCurrentSynchronizationContext ();
+			else
+				scheduler = TaskScheduler.Current;
+
+			await Task.Factory.StartNew (async () => {
+				try {
+					await MainLoop ();
+					tcs.SetResult (null);
+				} catch (OperationCanceledException) {
+					tcs.SetCanceled ();
+				} catch (Exception ex) {
+					tcs.SetException (ex);
+				}
+			}, CancellationToken.None, TaskCreationOptions.None, scheduler);
+
+			await Start (cancellationToken);
+
+			try {
+				await tcs.Task;
+			} catch (Exception ex) {
+				if (!shutdownRequested)
+					Debug ("SERVER ERROR: {0}", ex);
+			}
+		}
+
 		public virtual void Stop ()
 		{
-			shutdownRequested = true;
-			cancelCts.Cancel ();
-
 			lock (this) {
+				if (shutdownRequested)
+					return;
+				shutdownRequested = true;
+				cancelCts.Cancel ();
+
 				Context.Settings.PropertyChanged -= OnSettingsChanged;
 
 				foreach (var queued in messageQueue)

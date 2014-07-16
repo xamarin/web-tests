@@ -67,6 +67,10 @@ namespace Xamarin.AsyncTests.Client
 			private set;
 		}
 
+		public bool IsServer {
+			get { return Endpoint == null; }
+		}
+
 		public bool Wait {
 			get;
 			private set;
@@ -181,10 +185,8 @@ namespace Xamarin.AsyncTests.Client
 		{
 			var listener = new TcpListener (IPAddress.Any, 8888);
 			listener.Start ();
-
-			while (true) {
-				await RunServer (listener);
-			}
+			await RunServer (listener);
+			listener.Stop ();
 		}
 
 		async Task RunServer (TcpListener listener)
@@ -197,7 +199,7 @@ namespace Xamarin.AsyncTests.Client
 			Debug ("Got remote connection from {0}.", socket.RemoteEndPoint);
 
 			var connection = new ConsoleServer (this, stream);
-			await connection.RunServer ();
+			await connection.Run (CancellationToken.None);
 
 			Debug ("Closed remote connection.");
 		}
@@ -211,7 +213,7 @@ namespace Xamarin.AsyncTests.Client
 
 			var stream = client.GetStream ();
 			var server = new ConsoleServer (this, stream);
-			await server.RunClient ();
+			await server.Run (CancellationToken.None);
 		}
 
 	}

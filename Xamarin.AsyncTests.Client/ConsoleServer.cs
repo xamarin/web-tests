@@ -38,7 +38,6 @@ namespace Xamarin.AsyncTests.Client
 
 	public class ConsoleServer : Connection
 	{
-		bool shutdownRequested;
 		TestSuite suite;
 
 		public Program Program {
@@ -65,39 +64,23 @@ namespace Xamarin.AsyncTests.Client
 			return OnRun (suite, cancellationToken);
 		}
 
-		public async Task RunServer ()
+		protected override async Task Start (CancellationToken cancellationToken)
 		{
-			var task = Task.Factory.StartNew (async () => {
-				await MainLoop ();
-				Context.CurrentTestSuite = null;
-				suite = null;
-			});
-
-			Debug ("Server started.");
-
-			await task;
-		}
-
-		public async Task RunClient ()
-		{
-			var task = Task.Run (async () => {
-				try {
-					await MainLoop ();
-				} catch (Exception ex) {
-					if (shutdownRequested)
-						return;
-					Debug ("MAIN LOOP EX: {0}", ex);
-					throw;
-				} finally {
-					Context.CurrentTestSuite = null;
-					suite = null;
-				}
-			});
-
-			Debug ("Client started.");
-
 			await Hello (Program.UseServerSettings, CancellationToken.None);
 
+			if (!Program.IsServer)
+				await StartClient (cancellationToken);
+
+			if (!Program.IsServer && !Program.Wait) {
+				Debug ("Shutting down.");
+				await Shutdown ();
+			}
+
+			await base.Start (cancellationToken);
+		}
+
+		async Task StartClient (CancellationToken cancellationToken)
+		{
 			suite = await LoadTestSuite (CancellationToken.None);
 			Debug ("Got test suite from server: {0}", suite);
 
@@ -109,14 +92,6 @@ namespace Xamarin.AsyncTests.Client
 				if (Program.ResultOutput != null)
 					SaveTestResult (result);
 			}
-
-			if (!Program.Wait) {
-				Debug ("Shutting down.");
-				shutdownRequested = true;
-				await Shutdown ();
-			}
-
-			await task;
 		}
 
 		static string Write (XElement node)
@@ -154,12 +129,6 @@ namespace Xamarin.AsyncTests.Client
 			var result = new TestResult (suite.Name);
 			await suite.Run (Context, result, CancellationToken.None);
 			return result;
-		}
-
-		protected override void OnShutdown ()
-		{
-			shutdownRequested = true;
-			base.OnShutdown ();
 		}
 
 		#region implemented abstract members of Connection

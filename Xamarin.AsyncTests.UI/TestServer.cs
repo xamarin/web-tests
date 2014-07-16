@@ -59,44 +59,8 @@ namespace Xamarin.AsyncTests.UI
 			IsServer = isServer;
 		}
 
-		public async Task Run (CancellationToken cancellationToken)
-		{
-			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-			cts.Token.Register (() => {
-				stopRequested = true;
-				Stop ();
-			});
-
-			var tcs = new TaskCompletionSource<object> ();
-
-			await Task.Factory.StartNew (async () => {
-				try {
-					await MainLoop ();
-					tcs.SetResult (null);
-				} catch (Exception ex) {
-					tcs.SetException (ex);
-				}
-			}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext ());
-
-			if (!IsServer)
-				await Hello (IsServer, cancellationToken);
-
-			try {
-				await tcs.Task;
-			} catch (Exception ex) {
-				if (!stopRequested)
-					App.Context.Debug (0, "SERVER ERROR: {0}", ex);
-			}
-		}
-
 		public override void Stop ()
 		{
-			lock (this) {
-				if (stopRequested)
-					return;
-				stopRequested = true;
-			}
-
 			try {
 				base.Stop ();
 			} catch {
@@ -107,12 +71,6 @@ namespace Xamarin.AsyncTests.UI
 			} catch {
 				;
 			}
-		}
-
-		protected override void OnShutdown ()
-		{
-			stopRequested = true;
-			base.OnShutdown ();
 		}
 
 		#region implemented abstract members of ServerConnection
@@ -126,8 +84,6 @@ namespace Xamarin.AsyncTests.UI
 		{
 			Debug ("DEBUG ({0}): {1}", level, message);
 		}
-
-		bool stopRequested;
 
 		#endregion
 
