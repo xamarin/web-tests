@@ -63,6 +63,7 @@ namespace Xamarin.AsyncTests.UI
 			repeatCommand = new RepeatCommand (this);
 			clearCommand = new ClearCommand (this);
 			StatusMessage = "No test loaded.";
+			currentResult = app.RootTestResult;
 
 			Context.TestFinishedEvent += (sender, e) => OnTestFinished (e);
 			app.RootTestResult.PropertyChanged += (sender, e) => OnPropertyChanged ("CurrentTestResult");

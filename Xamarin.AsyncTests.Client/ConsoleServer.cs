@@ -41,6 +41,7 @@ namespace Xamarin.AsyncTests.Client
 		TaskCompletionSource<bool> helloTcs;
 		bool shutdownRequested;
 		bool useServerSettings;
+		TestSuite suite;
 
 		public ConsoleServer (TestContext context, Stream stream, bool useServerSettings)
 			: base (context, stream)
@@ -52,9 +53,14 @@ namespace Xamarin.AsyncTests.Client
 		protected override async Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken)
 		{
 			var assembly = typeof(WebTestFeatures).Assembly;
-			var suite = await TestSuite.LoadAssembly (Context, assembly);
+			suite = await TestSuite.LoadAssembly (Context, assembly);
 			Context.CurrentTestSuite = suite;
 			return suite;
+		}
+
+		protected override Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken)
+		{
+			return OnRun (suite, cancellationToken);
 		}
 
 		public async Task RunServer ()
@@ -62,6 +68,7 @@ namespace Xamarin.AsyncTests.Client
 			var task = Task.Factory.StartNew (async () => {
 				await MainLoop ();
 				Context.CurrentTestSuite = null;
+				suite = null;
 			});
 
 			Debug ("Server started.");
@@ -83,6 +90,7 @@ namespace Xamarin.AsyncTests.Client
 					throw;
 				} finally {
 					Context.CurrentTestSuite = null;
+					suite = null;
 				}
 			});
 
@@ -90,12 +98,12 @@ namespace Xamarin.AsyncTests.Client
 
 			await Hello (useServerSettings, CancellationToken.None);
 
-			var suite = await LoadTestSuite (CancellationToken.None);
+			suite = await LoadTestSuite (CancellationToken.None);
 			Debug ("Got test suite from server: {0}", suite);
 
-			await Task.Delay (2500);
+			// await Task.Delay (2500);
 
-			var result = await RunTest (suite);
+			var result = await RunTestSuite (CancellationToken.None);
 
 			Debug ("Done running: {0}", result.Status);
 
@@ -152,21 +160,6 @@ namespace Xamarin.AsyncTests.Client
 		protected override void OnDebug (int level, string message)
 		{
 			Debug (message);
-		}
-
-		protected override async Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken)
-		{
-			var result = new TestResult (test.Name);
-
-			try {
-				await test.Run (Context, result, cancellationToken).ConfigureAwait (false);
-			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
-			} catch (Exception ex) {
-				result.AddError (ex);
-			}
-
-			return result;
 		}
 
 		#endregion

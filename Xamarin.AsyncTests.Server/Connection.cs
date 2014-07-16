@@ -489,11 +489,30 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		protected internal abstract Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken);
+		public Task<TestResult> RunTestSuite (CancellationToken cancellationToken)
+		{
+			return new RunTestSuiteCommand ().Send (this, cancellationToken);
+		}
+
+		protected internal async Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken)
+		{
+			var result = new TestResult (test.Name);
+
+			try {
+				await test.Run (Context, result, cancellationToken).ConfigureAwait (false);
+			} catch (OperationCanceledException) {
+				result.Status = TestStatus.Canceled;
+			} catch (Exception ex) {
+				result.AddError (ex);
+			}
+
+			return result;
+		}
+
+		protected internal abstract Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken);
 
 		protected async Task Hello (bool useServerSettings, CancellationToken cancellationToken)
 		{
-			Debug ("HELLO: {0}", useServerSettings);
 			var hello = new HelloCommand ();
 			if (!useServerSettings)
 				hello.Argument = Context.Settings;
@@ -509,8 +528,6 @@ namespace Xamarin.AsyncTests.Server
 
 		internal SettingsBag OnHello (SettingsBag argument)
 		{
-			Debug ("ON HELLO: {0}", argument != null);
-
 			lock (this) {
 				if (argument == null) {
 					Context.Settings.PropertyChanged += OnSettingsChanged;
