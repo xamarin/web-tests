@@ -68,6 +68,12 @@ namespace Xamarin.AsyncTests.UI
 			app.RootTestResult.PropertyChanged += (sender, e) => OnPropertyChanged ("CurrentTestResult");
 		}
 
+		protected override void OnStatusMessageChanged (string message)
+		{
+			App.TestSuiteManager.StatusMessage = message;
+			base.OnStatusMessageChanged (message);
+		}
+
 		TestResultModel currentResult;
 		public TestResultModel CurrentTestResult {
 			get { return currentResult; }
@@ -87,7 +93,7 @@ namespace Xamarin.AsyncTests.UI
 
 			var model = currentResult;
 
-			App.TestSuiteManager.SetStatusMessage ("Running {0}.", model.Result.Test.Name);
+			SetStatusMessage ("Running {0}.", model.Result.Test.Name);
 
 			var test = model.Result.Test;
 			var result = model.Result;
@@ -108,6 +114,9 @@ namespace Xamarin.AsyncTests.UI
 				test = TestSuite.CreateRepeatedTest (test, App.Options.RepeatCount);
 
 			await test.Run (App.Context, result, cancellationToken);
+
+			StatusMessage = GetStatusMessage ("Done");
+
 			return result;
 		}
 
@@ -125,14 +134,18 @@ namespace Xamarin.AsyncTests.UI
 
 		void OnTestFinished (TestResult result)
 		{
-			App.TestSuiteManager.StatusMessage = GetStatusMessage ();
+			StatusMessage = GetStatusMessage ();
 		}
 
-		string GetStatusMessage ()
+		string GetStatusMessage (string prefix = null)
 		{
 			if (!App.TestSuiteManager.HasInstance)
-				return "No test loaded.";
+				return prefix ?? "No test loaded.";
 			var sb = new StringBuilder ();
+			if (prefix != null) {
+				sb.Append (prefix);
+				sb.Append (": ");
+			}
 			sb.AppendFormat ("{0} tests passed", Context.CountSuccess);
 			if (Context.CountErrors > 0)
 				sb.AppendFormat (", {0} errors", Context.CountErrors);

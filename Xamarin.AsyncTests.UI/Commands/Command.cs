@@ -41,6 +41,7 @@ namespace Xamarin.AsyncTests.UI
 		protected Command (CommandProvider provider)
 		{
 			Provider = provider;
+			CanExecute = true;
 		}
 
 		public static readonly BindableProperty CanExecuteProperty =
@@ -58,6 +59,8 @@ namespace Xamarin.AsyncTests.UI
 				CanExecuteChanged (this, EventArgs.Empty);
 		}
 
+		public abstract bool IsEnabled ();
+
 		public abstract Task Execute ();
 
 		#region ICommand implementation
@@ -66,7 +69,7 @@ namespace Xamarin.AsyncTests.UI
 
 		bool ICommand.CanExecute (object parameter)
 		{
-			return CanExecute;
+			return CanExecute && IsEnabled ();
 		}
 
 		async void ICommand.Execute (object parameter)
@@ -97,23 +100,18 @@ namespace Xamarin.AsyncTests.UI
 			Provider = provider;
 			Parent = parent;
 
-			Update ();
-			Provider.CanStartChanged += (sender, e) => Update ();
+			Provider.CanStartChanged += (sender, e) => OnCanExecuteChanged ();
 			if (Parent != null)
-				Parent.HasInstanceChanged += (sender, e) => Update ();
+				Parent.HasInstanceChanged += (sender, e) => OnCanExecuteChanged ();
 		}
 
-		void Update ()
+		public override bool IsEnabled ()
 		{
-			if (Parent == null) {
-				CanExecute = Provider.CanStart;
-				return;
-			}
-
-			var hasInstance = Parent.HasInstance;
-			CanExecute = hasInstance && Provider.CanStart;
-			if (!hasInstance)
-				Provider.ExecuteStop ();
+			if (!Provider.CanStart)
+				return false;
+			if (Parent != null && !Parent.HasInstance)
+				return false;
+			return true;
 		}
 
 		internal abstract Task<T> Start (CancellationToken cancellationToken);

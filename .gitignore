@@ -8,3 +8,5 @@ TestResults
 
 *.userprefs
 /packages/
+result.xml
+packages.config

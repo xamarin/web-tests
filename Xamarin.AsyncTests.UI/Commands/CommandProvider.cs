@@ -105,17 +105,20 @@ namespace Xamarin.AsyncTests.UI
 
 		public event EventHandler<bool> HasInstanceChanged;
 
-		string statusMessage;
+		public static readonly BindableProperty StatusMessageProperty =
+			BindableProperty.Create ("StatusMessage", typeof(string), typeof(CommandProvider), string.Empty,
+				propertyChanged: (bo, o, n) => ((CommandProvider)bo).OnStatusMessageChanged ((string)n));
+
 		public string StatusMessage {
-			get { return statusMessage; }
-			set {
-				statusMessage = value;
-				App.Context.Debug (0, "{0}: {1}", GetType ().Name, value);
-				OnPropertyChanged ("StatusMessage");
-			}
+			get { return (string)GetValue(StatusMessageProperty); }
+			set { SetValue (StatusMessageProperty, value); }
 		}
 
-		public void SetStatusMessage (string message, params object[] args)
+		protected virtual void OnStatusMessageChanged (string message)
+		{
+		}
+
+		protected void SetStatusMessage (string message, params object[] args)
 		{
 			StatusMessage = string.Format (message, args);
 		}
@@ -127,8 +130,12 @@ namespace Xamarin.AsyncTests.UI
 			public StopCommand (CommandProvider command)
 				: base (command)
 			{
-				CanExecute = command.CanStop;
-				command.CanStopChanged += (sender, e) => CanExecute = e;
+				command.CanStopChanged += (sender, e) => OnCanExecuteChanged ();
+			}
+
+			public override bool IsEnabled ()
+			{
+				return Provider.CanStop;
 			}
 
 			public override Task Execute ()
