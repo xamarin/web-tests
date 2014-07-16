@@ -126,7 +126,9 @@ namespace Xamarin.AsyncTests.Server
 					throw new InvalidOperationException ();
 
 				var builder = new TestNameBuilder ();
-				builder.PushName (node.Attribute ("Name").Value);
+				var nameAttr = node.Attribute ("Name");
+				if (nameAttr != null)
+					builder.PushName (nameAttr.Value);
 
 				foreach (var child in node.Elements ("Parameter")) {
 					var name = child.Attribute ("Name").Value;
@@ -141,7 +143,8 @@ namespace Xamarin.AsyncTests.Server
 			public override XElement Write (Connection connection, TestName instance)
 			{
 				var element = new XElement ("TestName");
-				element.SetAttributeValue ("Name", instance.Name);
+				if (instance.Name != null)
+					element.SetAttributeValue ("Name", instance.Name);
 
 				if (instance.HasParameters) {
 					foreach (var parameter in instance.Parameters) {

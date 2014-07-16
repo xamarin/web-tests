@@ -479,20 +479,7 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		internal async Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken)
-		{
-			var result = new TestResult (test.Name);
-
-			try {
-				await test.Run (Context, result, cancellationToken).ConfigureAwait (false);
-			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
-			} catch (Exception ex) {
-				result.AddError (ex);
-			}
-
-			return result;
-		}
+		protected internal abstract Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken);
 
 		protected async Task Hello (bool useServerSettings, CancellationToken cancellationToken)
 		{

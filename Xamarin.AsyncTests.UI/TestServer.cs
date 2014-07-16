@@ -131,6 +131,27 @@ namespace Xamarin.AsyncTests.UI
 			await App.TestSuiteManager.LoadLocal.Execute ();
 			return App.TestSuiteManager.Instance;
 		}
+
+		protected override async Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken)
+		{
+			var result = App.RootTestResult.Result;
+
+			Debug ("TEST: {0} {1}", result, App.TestRunner.CanStart);
+
+			if (!App.TestRunner.CanStart)
+				throw new InvalidOperationException ();
+
+			result.Test = test;
+			try {
+				await App.TestRunner.Run.Execute ();
+			} finally {
+				result.Test = null;
+			}
+
+			return result;
+		}
+
+
 	}
 }
 

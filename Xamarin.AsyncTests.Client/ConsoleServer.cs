@@ -97,7 +97,7 @@ namespace Xamarin.AsyncTests.Client
 
 			Debug ("DONE WAITING");
 
-			await RunTest (suite);
+			var result = await RunTest (suite);
 
 			Debug ("DONE RUNNING");
 
@@ -134,6 +134,21 @@ namespace Xamarin.AsyncTests.Client
 		protected override void OnDebug (int level, string message)
 		{
 			Debug (message);
+		}
+
+		protected override async Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken)
+		{
+			var result = new TestResult (test.Name);
+
+			try {
+				await test.Run (Context, result, cancellationToken).ConfigureAwait (false);
+			} catch (OperationCanceledException) {
+				result.Status = TestStatus.Canceled;
+			} catch (Exception ex) {
+				result.AddError (ex);
+			}
+
+			return result;
 		}
 
 		#endregion

@@ -115,7 +115,6 @@ namespace Xamarin.AsyncTests.Server
 		{
 			var response = new CommandResponse (this);
 			await connection.SendCommand (this, response, cancellationToken);
-			Connection.Debug ("DONE SENDING COMMAND: {0}", response.Response);
 			if (response.Error != null)
 				throw new SavedException (response.Error);
 			if (!response.Success)
@@ -157,12 +156,9 @@ namespace Xamarin.AsyncTests.Server
 			try {
 				response.Response = await Run (connection, Argument, cancellationToken);
 				response.Success = true;
-				Connection.Debug ("COMMAND DONE: {0}", response.Response);
 			} catch (Exception ex) {
 				response.Error = ex.ToString ();
 				Connection.Debug ("COMMAND FAILED: {0}", ex);
-			} finally {
-				Connection.Debug ("COMMAND DONE: {0}", this);
 			}
 
 			return response;

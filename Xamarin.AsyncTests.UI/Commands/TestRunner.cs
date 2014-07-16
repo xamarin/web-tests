@@ -40,15 +40,15 @@ namespace Xamarin.AsyncTests.UI
 		readonly RepeatCommand repeatCommand;
 		readonly ClearCommand clearCommand;
 
-		public ICommand Run {
+		public Command<TestResult> Run {
 			get { return runCommand; }
 		}
 
-		public ICommand Repeat {
+		public Command<TestResult> Repeat {
 			get { return repeatCommand; }
 		}
 
-		public ICommand Clear {
+		public Command Clear {
 			get { return clearCommand; }
 		}
 
@@ -65,6 +65,7 @@ namespace Xamarin.AsyncTests.UI
 			StatusMessage = "No test loaded.";
 
 			Context.TestFinishedEvent += (sender, e) => OnTestFinished (e);
+			app.RootTestResult.PropertyChanged += (sender, e) => OnPropertyChanged ("CurrentTestResult");
 		}
 
 		TestResultModel currentResult;
@@ -166,7 +167,7 @@ namespace Xamarin.AsyncTests.UI
 				};
 			}
 
-			internal override Task<bool> Run (CancellationToken cancellationToken)
+			internal sealed override Task<bool> Run (CancellationToken cancellationToken)
 			{
 				return Task.FromResult (false);
 			}
@@ -203,14 +204,11 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		class ClearCommand : Command<TestResult>
+		class ClearCommand : RunCommand
 		{
-			public readonly TestRunner Runner;
-
 			public ClearCommand (TestRunner runner)
-				: base (runner, runner.App.TestSuiteManager)
+				: base (runner)
 			{
-				Runner = runner;
 			}
 
 			#region implemented abstract members of Command
@@ -220,16 +218,6 @@ namespace Xamarin.AsyncTests.UI
 				await Task.Yield ();
 				Runner.OnClear ();
 				return null;
-			}
-
-			internal override Task<bool> Run (CancellationToken cancellationToken)
-			{
-				return Task.FromResult (false);
-			}
-
-			internal override Task Stop (CancellationToken cancellationToken)
-			{
-				throw new NotImplementedException ();
 			}
 
 			#endregion
