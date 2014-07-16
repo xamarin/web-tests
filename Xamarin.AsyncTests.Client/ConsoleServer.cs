@@ -40,13 +40,17 @@ namespace Xamarin.AsyncTests.Client
 	{
 		TaskCompletionSource<bool> helloTcs;
 		bool shutdownRequested;
-		bool useServerSettings;
 		TestSuite suite;
 
-		public ConsoleServer (TestContext context, Stream stream, bool useServerSettings)
-			: base (context, stream)
+		public Program Program {
+			get;
+			private set;
+		}
+
+		public ConsoleServer (Program program, Stream stream)
+			: base (program.Context, stream)
 		{
-			this.useServerSettings = useServerSettings;
+			Program = program;
 			helloTcs = new TaskCompletionSource<bool> ();
 		}
 
@@ -96,12 +100,10 @@ namespace Xamarin.AsyncTests.Client
 
 			Debug ("Client started.");
 
-			await Hello (useServerSettings, CancellationToken.None);
+			await Hello (Program.UseServerSettings, CancellationToken.None);
 
 			suite = await LoadTestSuite (CancellationToken.None);
 			Debug ("Got test suite from server: {0}", suite);
-
-			// await Task.Delay (2500);
 
 			var result = await RunTestSuite (CancellationToken.None);
 
@@ -109,12 +111,11 @@ namespace Xamarin.AsyncTests.Client
 
 			Debug ("RESULT:\n{0}\n", DumpTestResult (result));
 
-			await Task.Delay (10000);
-
-			Debug ("Shutting down.");
-
-			shutdownRequested = true;
-			await Shutdown ();
+			if (!Program.Wait) {
+				Debug ("Shutting down.");
+				shutdownRequested = true;
+				await Shutdown ();
+			}
 
 			await task;
 		}

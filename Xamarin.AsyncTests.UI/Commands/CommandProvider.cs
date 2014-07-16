@@ -206,6 +206,12 @@ namespace Xamarin.AsyncTests.UI
 
 		internal async override Task ExecuteStop ()
 		{
+			try {
+				await currentCommand.Stop (CancellationToken.None);
+			} catch {
+				;
+			}
+
 			lock (this) {
 				if (startTcs == null)
 					return;
@@ -216,12 +222,6 @@ namespace Xamarin.AsyncTests.UI
 
 			try {
 				await startTcs.Task;
-			} catch {
-				;
-			}
-
-			try {
-				await currentCommand.Stop (CancellationToken.None);
 			} catch {
 				;
 			}

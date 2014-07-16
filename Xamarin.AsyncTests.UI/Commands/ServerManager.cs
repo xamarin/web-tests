@@ -182,9 +182,14 @@ namespace Xamarin.AsyncTests.UI
 			return server;
 		}
 
-		protected Task OnDisconnect (CancellationToken cancellationToken)
+		protected async Task OnDisconnect (CancellationToken cancellationToken)
 		{
 			if (server != null) {
+				try {
+					await server.Shutdown ();
+				} catch {
+					;
+				}
 				server.Stop ();
 				server = null;
 				connection = null;
@@ -196,7 +201,6 @@ namespace Xamarin.AsyncTests.UI
 			}
 
 			StatusMessage = "Stopped server.";
-			return Task.FromResult<object> (null);
 		}
 
 		protected async Task<TestServer> OnStart (CancellationToken cancellationToken)

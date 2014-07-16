@@ -62,6 +62,15 @@ namespace Xamarin.AsyncTests.Client
 			private set;
 		}
 
+		public bool Wait {
+			get;
+			private set;
+		}
+
+		public bool UseServerSettings {
+			get { return SettingsFile == null; }
+		}
+
 		public static void Main (string[] args)
 		{
 			SD.Debug.AutoFlush = true;
@@ -80,7 +89,8 @@ namespace Xamarin.AsyncTests.Client
 		Program (string[] args)
 		{
 			var p = new OptionSet ().Add ("settings=", v => SettingsFile = v).Add (
-				"connect=", v => Endpoint = GetEndpoint (v));
+				"connect=", v => Endpoint = GetEndpoint (v)).Add (
+					"wait", v => Wait = true);
 			var remaining = p.Parse (args);
 
 			Settings = LoadSettings (SettingsFile);
@@ -173,7 +183,7 @@ namespace Xamarin.AsyncTests.Client
 
 			Debug ("Got remote connection from {0}.", socket.RemoteEndPoint);
 
-			var connection = new ConsoleServer (Context, stream, SettingsFile == null);
+			var connection = new ConsoleServer (this, stream);
 			await connection.RunServer ();
 
 			Debug ("Closed remote connection.");
@@ -187,7 +197,7 @@ namespace Xamarin.AsyncTests.Client
 			await client.ConnectAsync (Endpoint.Address, Endpoint.Port);
 
 			var stream = client.GetStream ();
-			var server = new ConsoleServer (Context, stream, SettingsFile == null);
+			var server = new ConsoleServer (this, stream);
 			await server.RunClient ();
 		}
 
