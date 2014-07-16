@@ -175,7 +175,7 @@ namespace Xamarin.AsyncTests.UI
 			SetStatusMessage ("Got remote connection ({0}).", connection.Name);
 
 			var stream = await connection.Open (cancellationToken);
-			server = new TestServer (App, stream, connection);
+			server = new TestServer (App, stream, connection, false);
 
 			SetStatusMessage ("Connected to server ({0}).", connection.Name);
 
@@ -212,7 +212,7 @@ namespace Xamarin.AsyncTests.UI
 			var stream = await connection.Open (cancellationToken);
 			StatusMessage = "Got remote connection!";
 
-			server = new TestServer (App, stream, connection);
+			server = new TestServer (App, stream, connection, true);
 			return server;
 		}
 

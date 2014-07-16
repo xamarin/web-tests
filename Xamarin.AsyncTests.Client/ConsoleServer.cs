@@ -38,10 +38,12 @@ namespace Xamarin.AsyncTests.Client
 	{
 		TaskCompletionSource<bool> helloTcs;
 		bool shutdownRequested;
+		bool useServerSettings;
 
-		public ConsoleServer (TestContext context, Stream stream)
+		public ConsoleServer (TestContext context, Stream stream, bool useServerSettings)
 			: base (context, stream)
 		{
+			this.useServerSettings = useServerSettings;
 			helloTcs = new TaskCompletionSource<bool> ();
 		}
 
@@ -84,8 +86,7 @@ namespace Xamarin.AsyncTests.Client
 
 			Debug ("Client started.");
 
-			var settings = await GetSettings (CancellationToken.None);
-			Context.Settings.Merge (settings);
+			await Hello (useServerSettings, CancellationToken.None);
 
 			Debug ("SETTINGS:\n{0}\n", DumpSettings (Context.Settings));
 

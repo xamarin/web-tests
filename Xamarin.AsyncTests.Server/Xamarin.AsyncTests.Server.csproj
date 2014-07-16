@@ -52,6 +52,7 @@
     <Compile Include="IRemoteObject.cs" />
     <Compile Include="CancelCommand.cs" />
     <Compile Include="OneWayCommand.cs" />
+    <Compile Include="HelloCommand.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

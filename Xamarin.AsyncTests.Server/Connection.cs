@@ -46,7 +46,6 @@ namespace Xamarin.AsyncTests.Server
 		TaskCompletionSource<bool> commandTcs;
 		Queue<QueuedMessage> messageQueue;
 		bool shutdownRequested;
-		SettingsBag currentSettings;
 
 		public Connection (TestContext context, Stream stream)
 		{
@@ -123,9 +122,7 @@ namespace Xamarin.AsyncTests.Server
 			cancelCts.Cancel ();
 
 			lock (this) {
-				if (currentSettings != null)
-					currentSettings.PropertyChanged -= OnSettingsChanged;
-				currentSettings = null;
+				Context.Settings.PropertyChanged -= OnSettingsChanged;
 
 				foreach (var queued in messageQueue)
 					queued.Task.TrySetCanceled ();
@@ -325,17 +322,7 @@ namespace Xamarin.AsyncTests.Server
 
 		internal SettingsBag OnGetSettings ()
 		{
-			lock (this) {
-				if (currentSettings != null)
-					return currentSettings;
-
-				currentSettings = Context.Settings;
-				if (currentSettings == null)
-					return null;
-
-				currentSettings.PropertyChanged += OnSettingsChanged;
-				return currentSettings;
-			}
+			return Context.Settings;
 		}
 
 		async void OnSettingsChanged (object sender, PropertyChangedEventArgs e)
@@ -507,6 +494,36 @@ namespace Xamarin.AsyncTests.Server
 			return result;
 		}
 
+		protected async Task Hello (bool useServerSettings, CancellationToken cancellationToken)
+		{
+			Debug ("HELLO: {0}", useServerSettings);
+			var hello = new HelloCommand ();
+			if (!useServerSettings)
+				hello.Argument = Context.Settings;
+			var retval = await hello.Send (this, cancellationToken);
+			if (useServerSettings) {
+				if (retval == null)
+					throw new InvalidOperationException ();
+				Context.Settings.Merge (retval);
+				Context.Settings.PropertyChanged += OnSettingsChanged;
+			}
+			Debug ("Handshake complete.");
+		}
+
+		internal SettingsBag OnHello (SettingsBag argument)
+		{
+			Debug ("ON HELLO: {0}", argument != null);
+
+			lock (this) {
+				if (argument == null) {
+					Context.Settings.PropertyChanged += OnSettingsChanged;
+					return Context.Settings;
+				} else {
+					Context.Settings.Merge (argument);
+					return null;
+				}
+			}
+		}
 	}
 }
 

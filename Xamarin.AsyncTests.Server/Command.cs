@@ -127,8 +127,8 @@ namespace Xamarin.AsyncTests.Server
 		{
 			base.Read (connection, node);
 
-			if (ArgumentSerializer != null) {
-				var argument = node.Element ("Argument");
+			var argument = node.Element ("Argument");
+			if (ArgumentSerializer != null && argument != null) {
 				if (argument.Elements ().Count () > 1)
 					throw new InvalidOperationException ();
 				var first = argument.Elements ().First ();
@@ -140,7 +140,7 @@ namespace Xamarin.AsyncTests.Server
 		{
 			base.Write (connection, node);
 
-			if (ArgumentSerializer != null) {
+			if (ArgumentSerializer != null && Argument != null) {
 				var element = ArgumentSerializer.Write (connection, Argument);
 				if (element != null) {
 					var argument = new XElement ("Argument");
@@ -203,7 +203,7 @@ namespace Xamarin.AsyncTests.Server
 			public override void Write (Connection connection, XElement node)
 			{
 				base.Write (connection, node);
-				if (Command.ResponseSerializer != null) {
+				if (Command.ResponseSerializer != null && Response != null) {
 					var element = Command.ResponseSerializer.Write (connection, Response);
 					if (element != null) {
 						var response = new XElement ("Response");

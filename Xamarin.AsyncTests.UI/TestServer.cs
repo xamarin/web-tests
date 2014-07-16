@@ -46,11 +46,17 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestServer (TestApp app, Stream stream, IServerConnection connection)
+		public bool IsServer {
+			get;
+			private set;
+		}
+
+		public TestServer (TestApp app, Stream stream, IServerConnection connection, bool isServer)
 			: base (app, stream)
 		{
 			App = app;
 			Connection = connection;
+			IsServer = isServer;
 		}
 
 		public async Task Run (CancellationToken cancellationToken)
@@ -71,6 +77,8 @@ namespace Xamarin.AsyncTests.UI
 					tcs.SetException (ex);
 				}
 			}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext ());
+
+			await Hello (IsServer, cancellationToken);
 
 			try {
 				await tcs.Task;
