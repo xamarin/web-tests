@@ -42,6 +42,7 @@ namespace Xamarin.AsyncTests.Server
 		public static readonly Serializer<TestResult> TestResult = new TestResultSerializer ();
 		public static readonly Serializer<TestConfiguration> Configuration = new ConfigurationSerializer ();
 		public static readonly Serializer<TestStatistics.StatisticsEventArgs> StatisticsEventArgs = new StatisticsEventArgsSerializer ();
+		public static readonly Serializer<Handshake> Handshake = new HandshakeSerializer ();
 
 		static readonly SettingsSerializer settingsSerializer = new SettingsSerializer ();
 
@@ -341,6 +342,37 @@ namespace Xamarin.AsyncTests.Server
 
 				if (instance.Name != null)
 					element.Add (Serializer.TestName.Write (connection, instance.Name));
+
+				return element;
+			}
+		}
+
+		class HandshakeSerializer : Serializer<Handshake>
+		{
+			public override Handshake Read (Connection connection, XElement node)
+			{
+				if (!node.Name.LocalName.Equals ("Handshake"))
+					throw new InvalidOperationException ();
+
+				var instance = new Handshake ();
+				instance.UseClientTestSuite = bool.Parse (node.Attribute ("UseClientTestSuite").Value);
+				instance.WantStatisticsEvents = bool.Parse (node.Attribute ("WantStatisticsEvents").Value);
+
+				var settings = node.Element ("Settings");
+				if (settings != null)
+					instance.Settings = Serializer.Settings.Read (connection, settings);
+
+				return instance;
+			}
+
+			public override XElement Write (Connection connection, Handshake instance)
+			{
+				var element = new XElement ("Handshake");
+				element.SetAttributeValue ("UseClientTestSuite", instance.UseClientTestSuite);
+				element.SetAttributeValue ("WantStatisticsEvents", instance.WantStatisticsEvents);
+
+				if (instance.Settings != null)
+					element.Add (Serializer.Settings.Write (connection, instance.Settings));
 
 				return element;
 			}

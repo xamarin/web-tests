@@ -112,19 +112,23 @@ namespace Xamarin.AsyncTests.Server
 			return new RunTestSuiteCommand ().Send (this, cancellationToken);
 		}
 
-		protected async Task Hello (bool useServerSettings, CancellationToken cancellationToken)
+		public async Task Hello (bool useClientSettings, bool wantStatistics, CancellationToken cancellationToken)
 		{
-			var hello = new HelloCommand ();
-			if (!useServerSettings)
-				hello.Argument = Context.Settings;
+			var handshake = new Handshake { WantStatisticsEvents = wantStatistics };
+			if (useClientSettings)
+				handshake.Settings = Context.Settings;
+
+			var hello = new HelloCommand { Argument = handshake };
 			var retval = await hello.Send (this, cancellationToken);
-			if (useServerSettings) {
-				if (retval == null)
-					throw new InvalidOperationException ();
-				Context.Settings.Merge (retval);
+
+			if (retval.Settings != null) {
+				Context.Settings.Merge (retval.Settings);
 				Context.Settings.PropertyChanged += OnSettingsChanged;
 			}
-			context.Statistics.StatisticsEvent += OnStatisticsEvent;
+
+			if (wantStatistics)
+				context.Statistics.StatisticsEvent += OnStatisticsEvent;
+
 			Debug ("Handshake complete.");
 		}
 
@@ -202,17 +206,19 @@ namespace Xamarin.AsyncTests.Server
 
 		protected internal abstract Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken);
 
-		internal SettingsBag OnHello (SettingsBag argument)
+		internal Handshake OnHello (Handshake handshake)
 		{
 			lock (this) {
-				Context.Statistics.StatisticsEvent += OnStatisticsEvent;
-				if (argument == null) {
+				if (handshake.WantStatisticsEvents)
+					Context.Statistics.StatisticsEvent += OnStatisticsEvent;
+				if (handshake.Settings == null) {
 					Context.Settings.PropertyChanged += OnSettingsChanged;
-					return Context.Settings;
+					handshake.Settings = Context.Settings;
 				} else {
-					Context.Settings.Merge (argument);
-					return null;
+					Context.Settings.Merge (handshake.Settings);
+					handshake.Settings = null;
 				}
+				return handshake;
 			}
 		}
 

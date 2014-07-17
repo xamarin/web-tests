@@ -67,7 +67,7 @@ namespace Xamarin.AsyncTests.Client
 
 		protected override async Task Start (CancellationToken cancellationToken)
 		{
-			await Hello (Program.UseServerSettings, cancellationToken);
+			await Hello (!Program.UseServerSettings, true, cancellationToken);
 
 			if (Program.LogLevel >= 0)
 				await SetLogLevel (Program.LogLevel, cancellationToken);

@@ -1,5 +1,5 @@
 ﻿//
-// HelloCommand.cs
+// Handshake.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,27 +24,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml;
-using System.Xml.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class HelloCommand : Command<Handshake,Handshake>
+	class Handshake
 	{
-		protected override Serializer<Handshake> ArgumentSerializer {
-			get { return Serializer.Handshake; }
-		}
-		protected override Serializer<Handshake> ResponseSerializer {
-			get { return Serializer.Handshake; }
+		public bool UseClientTestSuite {
+			get; set;
 		}
 
-		protected override Task<Handshake> Run (Connection connection, Handshake argument, CancellationToken cancellationToken)
-		{
-			return Task.FromResult (connection.OnHello (argument));
+		public bool WantStatisticsEvents {
+			get; set;
+		}
+
+		public SettingsBag Settings {
+			get; set;
 		}
 	}
 }
