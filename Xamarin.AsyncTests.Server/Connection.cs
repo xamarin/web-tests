@@ -73,10 +73,10 @@ namespace Xamarin.AsyncTests.Server
 			await command.Send (this);
 		}
 
-		public async Task SetDebugLevel (int level)
+		public async Task SetLogLevel (int level, CancellationToken cancellationToken)
 		{
 			var command = new SetDebugLevelCommand { Argument = level.ToString () };
-			await command.Send (this);
+			await command.Send (this, cancellationToken);
 		}
 
 		public Task<SettingsBag> GetSettings (CancellationToken cancellationToken)

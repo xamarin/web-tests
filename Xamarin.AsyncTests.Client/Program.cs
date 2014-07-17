@@ -67,6 +67,11 @@ namespace Xamarin.AsyncTests.Client
 			private set;
 		}
 
+		public int LogLevel {
+			get;
+			private set;
+		}
+
 		public bool IsServer {
 			get { return Endpoint == null; }
 		}
@@ -76,7 +81,7 @@ namespace Xamarin.AsyncTests.Client
 			private set;
 		}
 
-		public bool NoRun {
+		public bool Run {
 			get;
 			private set;
 		}
@@ -93,7 +98,7 @@ namespace Xamarin.AsyncTests.Client
 			var program = new Program (args);
 
 			try {
-				var task = program.Run ();
+				var task = program.RunMain ();
 				task.Wait ();
 			} catch (Exception ex) {
 				Debug ("ERROR: {0}", ex);
@@ -102,17 +107,18 @@ namespace Xamarin.AsyncTests.Client
 
 		Program (string[] args)
 		{
+			LogLevel = -1;
+
 			var p = new OptionSet ();
 			p.Add ("settings=", v => SettingsFile = v);
 			p.Add ("connect=", v => Endpoint = GetEndpoint (v));
 			p.Add ("wait", v => Wait = true);
-			p.Add ("norun", v => NoRun = true);
+			p.Add ("run", v => Run = true);
 			p.Add ("result=", v => ResultOutput = v);
+			p.Add ("log-level=", v => LogLevel = int.Parse (v));
 			var remaining = p.Parse (args);
 
 			Settings = LoadSettings (SettingsFile);
-
-			Debug ("REMAINING ARGS: {0}", remaining.Count);
 
 			if (remaining.Count > 0) {
 				Console.Error.WriteLine ("Failed to parse command-line args!");
@@ -173,7 +179,7 @@ namespace Xamarin.AsyncTests.Client
 			}
 		}
 
-		Task Run ()
+		Task RunMain ()
 		{
 			if (Endpoint == null)
 				return RunServer ();

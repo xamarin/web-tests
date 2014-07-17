@@ -66,10 +66,22 @@ namespace Xamarin.AsyncTests.Client
 
 		protected override async Task Start (CancellationToken cancellationToken)
 		{
-			await Hello (Program.UseServerSettings, CancellationToken.None);
+			await Hello (Program.UseServerSettings, cancellationToken);
 
-			if (!Program.IsServer)
-				await StartClient (cancellationToken);
+			if (Program.LogLevel >= 0)
+				await SetLogLevel (Program.LogLevel, cancellationToken);
+
+			if (Program.Run) {
+				suite = await LoadTestSuite (cancellationToken);
+				Debug ("Got test suite from server: {0}", suite);
+
+				var result = await RunTestSuite (cancellationToken);
+
+				Debug ("Done running: {0}", result.Status);
+
+				if (Program.ResultOutput != null)
+					SaveTestResult (result);
+			}
 
 			if (!Program.IsServer && !Program.Wait) {
 				Debug ("Shutting down.");
@@ -77,21 +89,6 @@ namespace Xamarin.AsyncTests.Client
 			}
 
 			await base.Start (cancellationToken);
-		}
-
-		async Task StartClient (CancellationToken cancellationToken)
-		{
-			suite = await LoadTestSuite (CancellationToken.None);
-			Debug ("Got test suite from server: {0}", suite);
-
-			if (!Program.NoRun) {
-				var result = await RunTestSuite (CancellationToken.None);
-
-				Debug ("Done running: {0}", result.Status);
-
-				if (Program.ResultOutput != null)
-					SaveTestResult (result);
-			}
 		}
 
 		static string Write (XElement node)
