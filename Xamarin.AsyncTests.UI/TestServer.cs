@@ -89,8 +89,7 @@ namespace Xamarin.AsyncTests.UI
 
 		protected override async Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken)
 		{
-			await App.TestSuiteManager.LoadLocal.Execute ();
-			return App.TestSuiteManager.Instance;
+			throw new NotImplementedException ();
 		}
 
 		protected override async Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken)

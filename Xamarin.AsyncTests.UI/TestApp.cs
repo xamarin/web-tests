@@ -76,12 +76,6 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		[Obsolete]
-		public TestSuiteManager TestSuiteManager {
-			get;
-			private set;
-		}
-
 		public ServerManager ServerManager {
 			get;
 			private set;
@@ -107,7 +101,6 @@ namespace Xamarin.AsyncTests.UI
 			RootTestResult = new TestResultModel (this, result, true);
 
 			ServerManager = new ServerManager (this);
-			TestSuiteManager = new TestSuiteManager (this);
 
 			TestRunner = new TestRunner (this);
 			TestRunner.CurrentTestResult = RootTestResult;

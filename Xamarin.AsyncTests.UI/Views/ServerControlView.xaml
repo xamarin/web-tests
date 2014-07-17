@@ -5,7 +5,7 @@
     xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.ServerControlView">
 
-    <StackLayout Orientation="Vertical">
+    <StackLayout Orientation="Vertical" Spacing="10">
         <StackLayout Spacing="10" Orientation="Horizontal" HorizontalOptions="FillAndExpand">
             <Button Text="Local" Command="{Binding Local}" />
             <Button Text="Connect" Command="{Binding Connect}" />
@@ -16,17 +16,14 @@
             <Switch IsToggled="{Binding UseServer}" />
             <Entry Text="{Binding ServerAddress}" HorizontalOptions="FillAndExpand" />
         </StackLayout>
-        <Label Text="{Binding StatusMessage}" HorizontalOptions="FillAndExpand" />
 
         <StackLayout Spacing="30" Orientation="Horizontal">
             <Switch IsToggled="{Binding AutoStart}" />
             <Label Text="Auto start server" VerticalOptions="Center" />
         </StackLayout>
 
-        <StackLayout Spacing="30" Orientation="Horizontal">
-            <Switch IsToggled="{Binding AutoLoad}" />
-            <Label Text="Auto load test suite" VerticalOptions="Center" />
-        </StackLayout>
+        <Label Text="{Binding StatusMessage}" HorizontalOptions="FillAndExpand" />
+
     </StackLayout>
 
 </ContentView>

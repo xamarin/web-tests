@@ -70,7 +70,6 @@ namespace Xamarin.AsyncTests.UI
 
 		protected override void OnStatusMessageChanged (string message)
 		{
-			App.TestSuiteManager.StatusMessage = message;
 			base.OnStatusMessageChanged (message);
 		}
 

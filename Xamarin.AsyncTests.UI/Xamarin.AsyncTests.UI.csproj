@@ -60,10 +60,6 @@
       <DependentUpon>ServerControlView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ITestSuiteProvider.cs" />
-    <Compile Include="Views\TestSuiteManagerView.xaml.cs">
-      <DependentUpon>TestSuiteManagerView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Commands\TestSuiteManager.cs" />
     <Compile Include="Commands\ServerManager.cs" />
     <Compile Include="Commands\CommandProvider.cs" />
     <Compile Include="Commands\Command.cs" />
@@ -103,9 +99,6 @@
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ServerControlView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\TestSuiteManagerView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TestCategorySelector.xaml">

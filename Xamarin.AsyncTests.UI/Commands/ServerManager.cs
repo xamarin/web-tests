@@ -101,8 +101,6 @@ namespace Xamarin.AsyncTests.UI
 			connectCommand.CanExecute = app.ServerHost != null;
 			startCommand.CanExecute = app.ServerHost != null;
 
-			// CanStart = app.ServerHost != null;
-
 			serverAddress = string.Empty;
 			Settings.PropertyChanged += (sender, e) => LoadSettings ();
 			LoadSettings ();
@@ -110,18 +108,13 @@ namespace Xamarin.AsyncTests.UI
 
 		internal async Task Initialize ()
 		{
-			if (UseServer) {
-				if (AutoLoad)
-					await App.TestSuiteManager.LoadLocal.Execute ();
-				if (AutoStart)
+			if (AutoStart) {
+				if (useServer)
 					await Start.Execute ();
-				return;
-			} else if (AutoStart) {
-				await Connect.Execute ();
-				if (HasInstance && AutoLoad)
-					await App.TestSuiteManager.LoadFromServer.Execute ();
-			} else if (AutoLoad) {
-				await App.TestSuiteManager.LoadLocal.Execute ();
+				else
+					await Connect.Execute ();
+			} else {
+				await Local.Execute ();
 			}
 		}
 
@@ -139,7 +132,6 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		bool autoStart;
-		bool autoLoad;
 		bool useServer;
 
 		public bool AutoStart {
@@ -150,17 +142,6 @@ namespace Xamarin.AsyncTests.UI
 				autoStart = value;
 				Settings.SetValue ("AutoStartServer", value.ToString ());
 				OnPropertyChanged ("AutoStart");
-			}
-		}
-
-		public bool AutoLoad {
-			get { return autoLoad; }
-			set {
-				if (value == autoLoad)
-					return;
-				autoLoad = value;
-				Settings.SetValue ("AutoLoadTestSuite", value.ToString ());
-				OnPropertyChanged ("AutoLoad");
 			}
 		}
 
@@ -187,13 +168,9 @@ namespace Xamarin.AsyncTests.UI
 			if (Settings.TryGetValue ("AutoStartServer", out value))
 				autoStart = bool.Parse (value);
 
-			if (Settings.TryGetValue ("AutoLoadTestSuite", out value))
-				autoLoad = bool.Parse (value);
-
 			OnPropertyChanged ("UseServer");
 			OnPropertyChanged ("ServerAddress");
 			OnPropertyChanged ("AutoStart");
-			OnPropertyChanged ("AutoLoad");
 		}
 
 		#endregion
@@ -221,7 +198,7 @@ namespace Xamarin.AsyncTests.UI
 		protected async Task<bool> OnRun (TestProvider instance, CancellationToken cancellationToken)
 		{
 			var suite = await instance.LoadTestSuite (cancellationToken);
-			SetStatusMessage ("Got test suite.");
+			SetStatusMessage ("Loaded test suite: {0}", instance.Name);
 			TestSuite = suite;
 			return await instance.Run (cancellationToken);
 		}
