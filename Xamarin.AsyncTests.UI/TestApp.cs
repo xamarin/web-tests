@@ -36,7 +36,7 @@ namespace Xamarin.AsyncTests.UI
 {
 	using Framework;
 
-	public class TestApp : TestContext, INotifyPropertyChanged
+	public class TestApp : TestContext
 	{
 		public Assembly Assembly {
 			get;
@@ -130,14 +130,6 @@ namespace Xamarin.AsyncTests.UI
 			} catch (Exception ex) {
 				Context.Log ("INITIALIZE EX: {0}", ex);
 			}
-		}
-
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		protected virtual void OnPropertyChanged (string propertyName)
-		{
-			if (PropertyChanged != null)
-				PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
 		}
 	}
 }

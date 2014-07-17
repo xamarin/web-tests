@@ -35,14 +35,16 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace Xamarin.AsyncTests
 {
-	public class TestContext : IDisposable {
+	public class TestContext : INotifyPropertyChanged, IDisposable {
 		int debugLevel = DefaultDebugLevel;
 		List<IDisposable> disposables;
 		readonly SettingsBag settings;
 		readonly TestStatistics statistics;
+		ITestSuite currentTestSuite;
 
 		const int DefaultDebugLevel = 0;
 
@@ -64,8 +66,13 @@ namespace Xamarin.AsyncTests
 		}
 
 		public ITestSuite CurrentTestSuite {
-			get;
-			internal set;
+			get { return currentTestSuite; }
+			internal set {
+				if (currentTestSuite == value)
+					return;
+				currentTestSuite = value;
+				OnPropertyChanged ("CurrentTestSuite");
+			}
 		}
 
 		public TestContext (SettingsBag settings)
@@ -73,6 +80,14 @@ namespace Xamarin.AsyncTests
 			this.settings = settings;
 			statistics = new TestStatistics ();
 		}
+
+		protected virtual void OnPropertyChanged (string propertyName)
+		{
+			if (PropertyChanged != null)
+				PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
+		}
+
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		public void Debug (int level, string format, params object[] args)
 		{

@@ -63,7 +63,7 @@ namespace Xamarin.AsyncTests.UI
 			BindableProperty.Create ("TestSuite", typeof(TestSuite), typeof(ServerManager), null,
 				propertyChanged: (bo, o, n) => ((ServerManager)bo).OnTestSuiteChanged ((TestSuite)n));
 
-		public TestSuite TestSuite {
+		public ITestSuite TestSuite {
 			get { return (TestSuite)GetValue(TestSuiteProperty); }
 			set { SetValue (TestSuiteProperty, value); }
 		}
@@ -104,6 +104,11 @@ namespace Xamarin.AsyncTests.UI
 			serverAddress = string.Empty;
 			Settings.PropertyChanged += (sender, e) => LoadSettings ();
 			LoadSettings ();
+
+			app.Context.PropertyChanged += (sender, e) => {
+				if (e.PropertyName.Equals ("CurrentTestSuite"))
+					TestSuite = app.Context.CurrentTestSuite;
+			};
 		}
 
 		internal async Task Initialize ()
@@ -113,8 +118,6 @@ namespace Xamarin.AsyncTests.UI
 					await Start.Execute ();
 				else
 					await Connect.Execute ();
-			} else {
-				await Local.Execute ();
 			}
 		}
 
@@ -195,15 +198,15 @@ namespace Xamarin.AsyncTests.UI
 
 		protected async Task<bool> OnRun (TestProvider instance, CancellationToken cancellationToken)
 		{
-			var suite = await instance.LoadTestSuite (cancellationToken);
-			SetStatusMessage ("Loaded test suite: {0}", instance.Name);
-			TestSuite = suite;
+			// var suite = await instance.LoadTestSuite (cancellationToken);
+			// SetStatusMessage ("Loaded test suite: {0}", instance.Name);
+			// TestSuite = suite;
 			return await instance.Run (cancellationToken);
 		}
 
 		protected async Task OnStop (TestProvider instance, CancellationToken cancellationToken)
 		{
-			TestSuite = null;
+			// TestSuite = null;
 			SetStatusMessage ("Server stopped.");
 			await instance.Stop (cancellationToken);
 		}
