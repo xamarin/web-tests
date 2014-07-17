@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests.UI
 
 		internal override Task<bool> Run (CancellationToken cancellationToken)
 		{
-			return Task.FromResult (false);
+			return Task.FromResult (true);
 		}
 
 		internal override Task Stop (CancellationToken cancellationToken)

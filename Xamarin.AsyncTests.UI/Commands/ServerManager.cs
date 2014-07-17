@@ -38,8 +38,13 @@ namespace Xamarin.AsyncTests.UI
 
 	public class ServerManager : CommandProvider<TestProvider>
 	{
+		readonly LocalCommand localCommand;
 		readonly ConnectCommand connectCommand;
 		readonly StartCommand startCommand;
+
+		public Command<TestProvider> Local {
+			get { return localCommand; }
+		}
 
 		public Command<TestProvider> Connect {
 			get { return connectCommand; }
@@ -59,6 +64,7 @@ namespace Xamarin.AsyncTests.UI
 		{
 			Settings = app.Settings;
 
+			localCommand = new LocalCommand (this);
 			connectCommand = new ConnectCommand (this);
 			startCommand = new StartCommand (this);
 
@@ -159,55 +165,63 @@ namespace Xamarin.AsyncTests.UI
 
 		#endregion
 
-		class ConnectCommand : Command<TestProvider>
+		abstract class ServerCommand : Command<TestProvider>
 		{
 			public readonly ServerManager Manager;
 
-			public ConnectCommand (ServerManager manager)
+			public ServerCommand (ServerManager manager)
 				: base (manager)
 			{
 				Manager = manager;
+			}
+
+			internal sealed override Task<bool> Run (TestProvider instance, CancellationToken cancellationToken)
+			{
+				return instance.Run (cancellationToken);
+			}
+
+			internal sealed override Task Stop (TestProvider instance, CancellationToken cancellationToken)
+			{
+				return instance.Stop (cancellationToken);
+			}
+		}
+
+		class LocalCommand : ServerCommand
+		{
+			public LocalCommand (ServerManager manager)
+				: base (manager)
+			{
+			}
+
+			internal override Task<TestProvider> Start (CancellationToken cancellationToken)
+			{
+				return Task.FromResult<TestProvider> (new LocalTestProvider (Manager.App));
+			}
+		}
+
+		class ConnectCommand : ServerCommand
+		{
+			public ConnectCommand (ServerManager manager)
+				: base (manager)
+			{
 			}
 
 			internal override Task<TestProvider> Start (CancellationToken cancellationToken)
 			{
 				return TestProvider.Connect (Manager.App, Manager.ServerAddress, cancellationToken);
 			}
-
-			internal override Task<bool> Run (TestProvider instance, CancellationToken cancellationToken)
-			{
-				return instance.Run (cancellationToken);
-			}
-
-			internal override Task Stop (TestProvider instance, CancellationToken cancellationToken)
-			{
-				return instance.Stop (cancellationToken);
-			}
 		}
 
-		class StartCommand : Command<TestProvider>
+		class StartCommand : ServerCommand
 		{
-			public readonly ServerManager Manager;
-
 			public StartCommand (ServerManager manager)
 				: base (manager)
 			{
-				Manager = manager;
 			}
 
 			internal override Task<TestProvider> Start (CancellationToken cancellationToken)
 			{
 				return TestProvider.StartServer (Manager.App, cancellationToken);
-			}
-
-			internal override Task<bool> Run (TestProvider instance, CancellationToken cancellationToken)
-			{
-				return instance.Run (cancellationToken);
-			}
-
-			internal override Task Stop (TestProvider instance, CancellationToken cancellationToken)
-			{
-				return instance.Stop (cancellationToken);
 			}
 		}
 	}
