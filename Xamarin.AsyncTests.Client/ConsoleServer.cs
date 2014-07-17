@@ -56,7 +56,15 @@ namespace Xamarin.AsyncTests.Client
 			var assembly = typeof(WebTestFeatures).Assembly;
 			suite = await TestSuite.LoadAssembly (Context, assembly);
 			Context.CurrentTestSuite = suite;
+			Context.Statistics.StatisticsEvent += HandleStatisticsEvent;
 			return suite;
+		}
+
+		async void HandleStatisticsEvent (object sender, TestStatistics.StatisticsEventArgs e)
+		{
+			if (e.IsRemote)
+				return;
+			await NotifyStatisticsEvent (e);
 		}
 
 		protected override Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken)

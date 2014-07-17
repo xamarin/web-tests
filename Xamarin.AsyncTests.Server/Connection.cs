@@ -112,7 +112,6 @@ namespace Xamarin.AsyncTests.Server
 			return new RunTestSuiteCommand ().Send (this, cancellationToken);
 		}
 
-
 		protected async Task Hello (bool useServerSettings, CancellationToken cancellationToken)
 		{
 			var hello = new HelloCommand ();
@@ -126,6 +125,11 @@ namespace Xamarin.AsyncTests.Server
 				Context.Settings.PropertyChanged += OnSettingsChanged;
 			}
 			Debug ("Handshake complete.");
+		}
+
+		public async Task NotifyStatisticsEvent (TestStatistics.StatisticsEventArgs args)
+		{
+			await new NotifyStatisticsEventCommand { Argument = args }.Send (this);
 		}
 
 		#endregion
@@ -213,6 +217,12 @@ namespace Xamarin.AsyncTests.Server
 					return null;
 				}
 			}
+		}
+
+		protected internal virtual void OnStatisticsEvent (TestStatistics.StatisticsEventArgs args)
+		{
+			Debug ("ON STATISTICS EVENT: {0}", args);
+			Context.Statistics.HandleStatisticsEvent (args);
 		}
 
 		#endregion
@@ -420,7 +430,7 @@ namespace Xamarin.AsyncTests.Server
 			while (pos < length) {
 				var ret = await stream.ReadAsync (buffer, pos, length-pos, cancelCts.Token);
 				if (ret <= 0)
-					throw new InvalidOperationException ();
+					throw new IOException ("Read failed");
 				pos += ret;
 			}
 			return buffer;

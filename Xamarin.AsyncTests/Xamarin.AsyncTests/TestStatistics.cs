@@ -52,39 +52,50 @@ namespace Xamarin.AsyncTests
 
 		public void Reset ()
 		{
-			countTests = countSuccess = countErrors = countIgnored = 0;
-			OnStatisticsEvent (EventType.Reset);
+			HandleStatisticsEvent (new StatisticsEventArgs { Type = EventType.Reset });
 		}
 
 		public void OnTestRunning (TestName name)
 		{
-			++countTests;
-			OnStatisticsEvent (EventType.Running, name);
+			HandleStatisticsEvent (new StatisticsEventArgs { Type = EventType.Running, Name = name });
 		}
 
 		public void OnTestFinished (TestName name, TestStatus status)
 		{
-			switch (status) {
-			case TestStatus.Success:
-				++countSuccess;
-				break;
-			case TestStatus.Ignored:
-			case TestStatus.None:
-				++countIgnored;
-				break;
-			default:
-				++countErrors;
-				break;
-			}
-
-			OnStatisticsEvent (EventType.Finished, name, status);
+			HandleStatisticsEvent (new StatisticsEventArgs {
+				Type = EventType.Finished, Name = name, Status = status
+			});
 		}
 
-		protected virtual void OnStatisticsEvent (EventType type, TestName name = null, TestStatus status = TestStatus.None)
+		internal void HandleStatisticsEvent (StatisticsEventArgs args)
 		{
-			if (StatisticsEvent == null)
-				return;
-			StatisticsEvent (this, new StatisticsEventArgs { Type = type, Name = name, Status = status });
+			switch (args.Type) {
+			case EventType.Reset:
+				countTests = countSuccess = countErrors = countIgnored = 0;
+				break;
+			case EventType.Running:
+				++countTests;
+				break;
+			case EventType.Finished:
+				switch (args.Status) {
+				case TestStatus.Success:
+					++countSuccess;
+					break;
+				case TestStatus.Ignored:
+				case TestStatus.None:
+					++countIgnored;
+					break;
+				default:
+					++countErrors;
+					break;
+				}
+				break;
+			default:
+				throw new InvalidOperationException ();
+			}
+
+			if (StatisticsEvent != null)
+				StatisticsEvent (this, args);
 		}
 
 		public event EventHandler<StatisticsEventArgs> StatisticsEvent;
@@ -107,6 +118,16 @@ namespace Xamarin.AsyncTests
 
 			public TestStatus Status {
 				get; set;
+			}
+
+			public bool IsRemote {
+				get;
+				internal set;
+			}
+
+			public override string ToString ()
+			{
+				return string.Format ("[StatisticsEventArgs: Type={0}, Name={1}, Status={2}]", Type, Name, Status);
 			}
 		}
 	}

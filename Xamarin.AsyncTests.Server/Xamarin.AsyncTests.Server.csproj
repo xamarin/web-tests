@@ -54,6 +54,7 @@
     <Compile Include="HelloCommand.cs" />
     <Compile Include="RunTestSuiteCommand.cs" />
     <Compile Include="SetLogLevelCommand.cs" />
+    <Compile Include="NotifyStatisticsEventCommand.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

@@ -41,6 +41,7 @@ namespace Xamarin.AsyncTests.Server
 		public static readonly Serializer<TestCase> TestCase = new TestCaseSerializer ();
 		public static readonly Serializer<TestResult> TestResult = new TestResultSerializer ();
 		public static readonly Serializer<TestConfiguration> Configuration = new ConfigurationSerializer ();
+		public static readonly Serializer<TestStatistics.StatisticsEventArgs> StatisticsEventArgs = new StatisticsEventArgsSerializer ();
 
 		static readonly SettingsSerializer settingsSerializer = new SettingsSerializer ();
 
@@ -307,6 +308,41 @@ namespace Xamarin.AsyncTests.Server
 			public override XElement Write (Connection connection, TestConfiguration instance)
 			{
 				return instance.WriteToXml ();
+			}
+		}
+
+		class StatisticsEventArgsSerializer : Serializer<TestStatistics.StatisticsEventArgs>
+		{
+			public override TestStatistics.StatisticsEventArgs Read (Connection connection, XElement node)
+			{
+				if (!node.Name.LocalName.Equals ("TestStatisticsEventArgs"))
+					throw new InvalidOperationException ();
+
+				var instance = new TestStatistics.StatisticsEventArgs ();
+				instance.Type = (TestStatistics.EventType)Enum.Parse (typeof(TestStatistics.EventType), node.Attribute ("Type").Value);
+				instance.Status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
+				instance.IsRemote = true;
+
+				var name = node.Element ("TestName");
+				if (name != null)
+					instance.Name = Serializer.TestName.Read (connection, name);
+
+				return instance;
+			}
+
+			public override XElement Write (Connection connection, TestStatistics.StatisticsEventArgs instance)
+			{
+				if (instance.IsRemote)
+					throw new InvalidOperationException ();
+
+				var element = new XElement ("TestStatisticsEventArgs");
+				element.SetAttributeValue ("Type", instance.Type.ToString ());
+				element.SetAttributeValue ("Status", instance.Status.ToString ());
+
+				if (instance.Name != null)
+					element.Add (Serializer.TestName.Write (connection, instance.Name));
+
+				return element;
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 ﻿//
-// OneWayCommand.cs
+// NotifyStatisticsEventCommand.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,44 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml;
-using System.Xml.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	abstract class OneWayCommand<T> : Command<T,object>
+	class NotifyStatisticsEventCommand : OneWayCommand<TestStatistics.StatisticsEventArgs>
 	{
-		public sealed override bool IsOneWay {
-			get { return true; }
+		protected override Serializer<TestStatistics.StatisticsEventArgs> ArgumentSerializer {
+			get { return Serializer.StatisticsEventArgs; }
 		}
 
-		protected override Serializer<object> ResponseSerializer {
-			get { return null; }
-		}
-
-		protected sealed override Task<object> Run (Connection connection, T argument, CancellationToken cancellationToken)
+		protected override void Run (Connection connection, TestStatistics.StatisticsEventArgs argument)
 		{
-			Run (connection, argument);
-			return Task.FromResult<object> (null);
+			connection.OnStatisticsEvent (argument);
 		}
-
-		protected abstract void Run (Connection connection, T argument);
-	}
-
-	abstract class OneWayCommand : OneWayCommand<object>
-	{
-		protected override Serializer<object> ArgumentSerializer {
-			get { return null; }
-		}
-
-		protected sealed override void Run (Connection connection, object argument)
-		{
-			Run (connection);
-		}
-
-		protected abstract void Run (Connection connection);
 	}
 }
 

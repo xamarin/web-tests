@@ -113,8 +113,12 @@ namespace Xamarin.AsyncTests.Server
 
 		public async Task<U> Send (Connection connection, CancellationToken cancellationToken)
 		{
-			var response = new CommandResponse (this);
+			CommandResponse response = null;
+			if (!IsOneWay)
+				response = new CommandResponse (this);
 			await connection.SendCommand (this, response, cancellationToken);
+			if (IsOneWay)
+				return default(U);
 			if (response.Error != null)
 				throw new SavedException (response.Error);
 			if (!response.Success)
