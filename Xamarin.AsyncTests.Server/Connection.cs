@@ -94,17 +94,130 @@ namespace Xamarin.AsyncTests.Server
 			return new LoadTestSuiteCommand ().Send (this, cancellationToken);
 		}
 
-		protected string DumpSettings (SettingsBag settings)
+		public async Task<bool> RunTest (TestCase test, TestResult result, CancellationToken cancellationToken)
 		{
-			var node = Serializer.Settings.Write (this, settings);
-			var wxs = new XmlWriterSettings ();
-			wxs.Indent = true;
-			using (var writer = new StringWriter ()) {
-				var xml = XmlWriter.Create (writer, wxs);
-				node.WriteTo (xml);
-				xml.Flush ();
-				return writer.ToString ();
+			var command = new RunTestCommand { Argument = test };
+
+			try {
+				var remoteResult = await command.Send (this, cancellationToken);
+				result.AddChild (remoteResult);
+				result.MergeStatus (remoteResult.Status);
+				return true;
+			} catch (Exception ex) {
+				Debug ("SEND COMMAND ERROR: {0}", ex);
+				result.AddError (ex);
+				return false;
 			}
+		}
+
+		public Task<TestResult> RunTestSuite (CancellationToken cancellationToken)
+		{
+			return new RunTestSuiteCommand ().Send (this, cancellationToken);
+		}
+
+
+		protected async Task Hello (bool useServerSettings, CancellationToken cancellationToken)
+		{
+			var hello = new HelloCommand ();
+			if (!useServerSettings)
+				hello.Argument = Context.Settings;
+			var retval = await hello.Send (this, cancellationToken);
+			if (useServerSettings) {
+				if (retval == null)
+					throw new InvalidOperationException ();
+				Context.Settings.Merge (retval);
+				Context.Settings.PropertyChanged += OnSettingsChanged;
+			}
+			Debug ("Handshake complete.");
+		}
+
+		#endregion
+
+		#region Command Handlers
+
+		protected internal virtual void OnShutdown ()
+		{
+			shutdownRequested = true;
+		}
+
+		protected internal abstract void OnLogMessage (string message);
+
+		protected abstract void OnDebug (int level, string message);
+
+		internal SettingsBag OnGetSettings ()
+		{
+			return Context.Settings;
+		}
+
+		async void OnSettingsChanged (object sender, PropertyChangedEventArgs e)
+		{
+			if (shutdownRequested || cancelCts.IsCancellationRequested)
+				return;
+
+			await new SyncSettingsCommand { Argument = (SettingsBag)sender }.Send (this);
+		}
+
+		internal void OnSyncSettings (SettingsBag newSettings)
+		{
+			lock (this) {
+				Context.Settings.Merge (newSettings);
+			}
+		}
+
+		internal void OnCancel (long objectID)
+		{
+			lock (this) {
+				ServerOperation operation;
+				if (!serverOperations.TryGetValue (objectID, out operation))
+					return;
+				operation.CancelCts.Cancel ();
+			}
+		}
+
+		protected internal abstract Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken);
+
+		protected internal async Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken)
+		{
+			var result = new TestResult (test.Name);
+
+			try {
+				await test.Run (Context, result, cancellationToken).ConfigureAwait (false);
+			} catch (OperationCanceledException) {
+				result.Status = TestStatus.Canceled;
+			} catch (Exception ex) {
+				result.AddError (ex);
+			}
+
+			return result;
+		}
+
+		protected internal abstract Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken);
+
+		internal SettingsBag OnHello (SettingsBag argument)
+		{
+			lock (this) {
+				if (argument == null) {
+					Context.Settings.PropertyChanged += OnSettingsChanged;
+					return Context.Settings;
+				} else {
+					Context.Settings.Merge (argument);
+					return null;
+				}
+			}
+		}
+
+		#endregion
+
+		#region Helper Methods
+
+		protected internal static void Debug (string message)
+		{
+			System.Diagnostics.Debug.WriteLine (message);
+		}
+
+		protected internal static void Debug (string message, params object[] args)
+		{
+			System.Diagnostics.Debug.WriteLine (message, args);
 		}
 
 		public static SettingsBag LoadSettings (XElement node)
@@ -128,6 +241,8 @@ namespace Xamarin.AsyncTests.Server
 		}
 
 		#endregion
+
+		#region Start and Stop
 
 		protected virtual Task Start (CancellationToken cancellationToken)
 		{
@@ -188,10 +303,9 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		public ITestLogger GetLogger ()
-		{
-			return new ServerLogger (this);
-		}
+		#endregion
+
+		#region Sending Commands and Main Loop
 
 		internal async Task<bool> SendCommand (Command command, Response response, CancellationToken cancellationToken)
 		{
@@ -212,7 +326,7 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		internal async Task SendMessage (Message message)
+		async Task SendMessage (Message message)
 		{
 			Task queuedTask;
 			var queued = new QueuedMessage (message);
@@ -290,16 +404,6 @@ namespace Xamarin.AsyncTests.Server
 			await stream.FlushAsync ();
 		}
 
-		protected internal static void Debug (string message)
-		{
-			System.Diagnostics.Debug.WriteLine (message);
-		}
-
-		protected internal static void Debug (string message, params object[] args)
-		{
-			System.Diagnostics.Debug.WriteLine (message, args);
-		}
-
 		async Task<byte[]> ReadBuffer (int length)
 		{
 			var buffer = new byte [length];
@@ -313,7 +417,7 @@ namespace Xamarin.AsyncTests.Server
 			return buffer;
 		}
 
-		protected async Task MainLoop ()
+		async Task MainLoop ()
 		{
 			while (!shutdownRequested && !cancelCts.IsCancellationRequested) {
 				var header = await ReadBuffer (4);
@@ -392,37 +496,12 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		protected internal virtual void OnShutdown ()
-		{
-			shutdownRequested = true;
-		}
+		#endregion
 
-		protected internal abstract void OnLogMessage (string message);
-
-		protected abstract void OnDebug (int level, string message);
-
-		internal SettingsBag OnGetSettings ()
-		{
-			return Context.Settings;
-		}
-
-		async void OnSettingsChanged (object sender, PropertyChangedEventArgs e)
-		{
-			if (shutdownRequested || cancelCts.IsCancellationRequested)
-				return;
-
-			await new SyncSettingsCommand { Argument = (SettingsBag)sender }.Send (this);
-		}
-
-		internal void OnSyncSettings (SettingsBag newSettings)
-		{
-			lock (this) {
-				Context.Settings.Merge (newSettings);
-			}
-		}
+		#region Serializer
 
 		static long next_id;
-		protected long GetNextObjectId ()
+		long GetNextObjectId ()
 		{
 			if (isServer)
 				return ++next_id;
@@ -469,16 +548,6 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		internal void OnCancel (long objectID)
-		{
-			lock (this) {
-				ServerOperation operation;
-				if (!serverOperations.TryGetValue (objectID, out operation))
-					return;
-				operation.CancelCts.Cancel ();
-			}
-		}
-
 		class ServerOperation
 		{
 			public readonly long ObjectID;
@@ -505,7 +574,7 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		internal class QueuedMessage
+		class QueuedMessage
 		{
 			public readonly Message Message;
 			public readonly TaskCompletionSource<bool> Task;
@@ -516,8 +585,6 @@ namespace Xamarin.AsyncTests.Server
 				Task = new TaskCompletionSource<bool> ();
 			}
 		}
-
-		protected internal abstract Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken);
 
 		Dictionary<long,object> remoteObjects = new Dictionary<long,object> ();
 
@@ -569,71 +636,7 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		internal async Task<bool> RunTest (TestCase test, TestResult result, CancellationToken cancellationToken)
-		{
-			var command = new RunTestCommand { Argument = test };
-
-			try {
-				var remoteResult = await command.Send (this, cancellationToken);
-				result.AddChild (remoteResult);
-				result.MergeStatus (remoteResult.Status);
-				return true;
-			} catch (Exception ex) {
-				Debug ("SEND COMMAND ERROR: {0}", ex);
-				result.AddError (ex);
-				return false;
-			}
-		}
-
-		public Task<TestResult> RunTestSuite (CancellationToken cancellationToken)
-		{
-			return new RunTestSuiteCommand ().Send (this, cancellationToken);
-		}
-
-		protected internal async Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken)
-		{
-			var result = new TestResult (test.Name);
-
-			try {
-				await test.Run (Context, result, cancellationToken).ConfigureAwait (false);
-			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
-			} catch (Exception ex) {
-				result.AddError (ex);
-			}
-
-			return result;
-		}
-
-		protected internal abstract Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken);
-
-		protected async Task Hello (bool useServerSettings, CancellationToken cancellationToken)
-		{
-			var hello = new HelloCommand ();
-			if (!useServerSettings)
-				hello.Argument = Context.Settings;
-			var retval = await hello.Send (this, cancellationToken);
-			if (useServerSettings) {
-				if (retval == null)
-					throw new InvalidOperationException ();
-				Context.Settings.Merge (retval);
-				Context.Settings.PropertyChanged += OnSettingsChanged;
-			}
-			Debug ("Handshake complete.");
-		}
-
-		internal SettingsBag OnHello (SettingsBag argument)
-		{
-			lock (this) {
-				if (argument == null) {
-					Context.Settings.PropertyChanged += OnSettingsChanged;
-					return Context.Settings;
-				} else {
-					Context.Settings.Merge (argument);
-					return null;
-				}
-			}
-		}
+		#endregion
 	}
 }
 
