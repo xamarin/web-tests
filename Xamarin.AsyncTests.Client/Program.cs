@@ -210,8 +210,8 @@ namespace Xamarin.AsyncTests.Client
 
 			Debug ("Got remote connection from {0}.", socket.RemoteEndPoint);
 
-			var connection = new ConsoleServer (this, stream);
-			await connection.Run (CancellationToken.None);
+			var connection = new ConsoleClient (this, stream);
+			await connection.RunClient (CancellationToken.None);
 
 			Debug ("Closed remote connection.");
 		}
@@ -224,8 +224,10 @@ namespace Xamarin.AsyncTests.Client
 			await client.ConnectAsync (Endpoint.Address, Endpoint.Port);
 
 			var stream = client.GetStream ();
-			var server = new ConsoleServer (this, stream);
-			await server.Run (CancellationToken.None);
+			var server = new ConsoleClient (this, stream);
+			await server.RunClient (CancellationToken.None);
+
+			Debug ("Closed remote connection.");
 		}
 
 	}

@@ -45,11 +45,12 @@ namespace Xamarin.AsyncTests.Server
 		readonly bool isServer;
 		CancellationTokenSource cancelCts;
 		TaskCompletionSource<bool> commandTcs;
+		TaskCompletionSource<object> mainTcs;
 		Queue<QueuedMessage> messageQueue;
 		bool shutdownRequested;
-		TestSuite suite;
+		// TestSuite suite;
 
-		public Connection (TestContext context, Stream stream, bool isServer)
+		internal Connection (TestContext context, Stream stream, bool isServer)
 		{
 			this.isServer = isServer;
 			this.context = context;
@@ -84,11 +85,12 @@ namespace Xamarin.AsyncTests.Server
 
 		public async Task Shutdown ()
 		{
-			suite = null;
+			// suite = null;
 			Context.CurrentTestSuite = null;
 			await new ShutdownCommand ().Send (this);
 		}
 
+		#if FIXME
 		public async Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
 		{
 			if (suite != null)
@@ -97,6 +99,7 @@ namespace Xamarin.AsyncTests.Server
 			await OnTestSuiteLoaded (suite, cancellationToken);
 			return suite;
 		}
+		#endif
 
 		public async Task<bool> RunTest (TestCase test, TestResult result, CancellationToken cancellationToken)
 		{
@@ -117,22 +120,6 @@ namespace Xamarin.AsyncTests.Server
 		public Task<TestResult> RunTestSuite (CancellationToken cancellationToken)
 		{
 			return new RunTestSuiteCommand ().Send (this, cancellationToken);
-		}
-
-		public async Task Hello (Handshake handshake, CancellationToken cancellationToken)
-		{
-			var hello = new HelloCommand { Argument = handshake };
-			var retval = await hello.Send (this, cancellationToken);
-
-			if (retval.Settings != null) {
-				Context.Settings.Merge (retval.Settings);
-				Context.Settings.PropertyChanged += OnSettingsChanged;
-			}
-
-			if (handshake.WantStatisticsEvents)
-				context.Statistics.StatisticsEvent += OnStatisticsEvent;
-
-			Debug ("Handshake complete.");
 		}
 
 		#endregion
@@ -165,12 +152,12 @@ namespace Xamarin.AsyncTests.Server
 			return Context.Settings;
 		}
 
-		async void OnSettingsChanged (object sender, PropertyChangedEventArgs e)
+		internal async Task SyncSettings (SettingsBag settings)
 		{
 			if (shutdownRequested || cancelCts.IsCancellationRequested)
 				return;
 
-			await new SyncSettingsCommand { Argument = (SettingsBag)sender }.Send (this);
+			await new SyncSettingsCommand { Argument = settings }.Send (this);
 		}
 
 		internal void OnSyncSettings (SettingsBag newSettings)
@@ -190,13 +177,7 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		protected internal abstract Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken);
-
-		protected internal virtual Task OnTestSuiteLoaded (TestSuite suite, CancellationToken cancellationToken)
-		{
-			Context.CurrentTestSuite = suite;
-			return Task.FromResult<object> (null);
-		}
+		protected internal abstract Task<TestSuite> GetLocalTestSuite (CancellationToken cancellationToken);
 
 		protected internal async Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken)
 		{
@@ -213,41 +194,9 @@ namespace Xamarin.AsyncTests.Server
 			return result;
 		}
 
-		protected internal virtual Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken)
-		{
-			return OnRun (suite, cancellationToken);
-		}
+		protected internal abstract Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken);
 
-		internal async Task<Handshake> OnHello (Handshake handshake, CancellationToken cancellationToken)
-		{
-			lock (this) {
-				if (handshake.WantStatisticsEvents)
-					Context.Statistics.StatisticsEvent += OnStatisticsEvent;
-				if (handshake.Settings == null) {
-					Context.Settings.PropertyChanged += OnSettingsChanged;
-					handshake.Settings = Context.Settings;
-				} else {
-					Context.Settings.Merge (handshake.Settings);
-					handshake.Settings = null;
-				}
-			}
-
-			if (handshake.TestSuite != null) {
-				await OnTestSuiteLoaded (handshake.TestSuite, cancellationToken);
-				handshake.TestSuite = null;
-			} else {
-				handshake.TestSuite = await OnLoadTestSuite (cancellationToken);
-			}
-
-			return handshake;
-		}
-
-		async void OnStatisticsEvent (object sender, TestStatistics.StatisticsEventArgs e)
-		{
-			if (e.IsRemote)
-				return;
-			await new NotifyStatisticsEventCommand { Argument = e }.Send (this);
-		}
+		internal abstract Task<Handshake> OnHello (Handshake handshake, CancellationToken cancellationToken);
 
 		#endregion
 
@@ -287,20 +236,16 @@ namespace Xamarin.AsyncTests.Server
 
 		#region Start and Stop
 
-		protected virtual Task Start (CancellationToken cancellationToken)
+		public async Task Start (CancellationToken cancellationToken)
 		{
-			return Task.FromResult<object> (null);
-		}
+			lock (this) {
+				if (mainTcs != null)
+					return;
+				mainTcs = new TaskCompletionSource<object> ();
+			}
 
-		public async Task Run (CancellationToken cancellationToken)
-		{
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-			cts.Token.Register (() => {
-				shutdownRequested = true;
-				Stop ();
-			});
-
-			var tcs = new TaskCompletionSource<object> ();
+			cts.Token.Register (() => Stop ());
 
 			TaskScheduler scheduler;
 			if (SynchronizationContext.Current != null)
@@ -311,18 +256,28 @@ namespace Xamarin.AsyncTests.Server
 			await Task.Factory.StartNew (async () => {
 				try {
 					await MainLoop ();
-					tcs.SetResult (null);
+					mainTcs.SetResult (null);
 				} catch (OperationCanceledException) {
-					tcs.SetCanceled ();
+					mainTcs.SetCanceled ();
 				} catch (Exception ex) {
-					tcs.SetException (ex);
+					mainTcs.SetException (ex);
 				}
 			}, CancellationToken.None, TaskCreationOptions.None, scheduler);
 
+			await OnStart (cancellationToken);
+		}
+
+		internal virtual Task OnStart (CancellationToken cancellationToken)
+		{
+			return Task.FromResult<object> (null);
+		}
+
+		public async Task Run (CancellationToken cancellationToken)
+		{
 			await Start (cancellationToken);
 
 			try {
-				await tcs.Task;
+				await mainTcs.Task;
 			} catch (Exception ex) {
 				if (!shutdownRequested)
 					Debug ("SERVER ERROR: {0}", ex);
@@ -336,9 +291,6 @@ namespace Xamarin.AsyncTests.Server
 					return;
 				shutdownRequested = true;
 				cancelCts.Cancel ();
-
-				Context.Settings.PropertyChanged -= OnSettingsChanged;
-				context.Statistics.StatisticsEvent -= OnStatisticsEvent;
 
 				foreach (var queued in messageQueue)
 					queued.Task.TrySetCanceled ();

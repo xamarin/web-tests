@@ -73,7 +73,7 @@ namespace Xamarin.AsyncTests.UI
 		{
 			if (server == null)
 				return null;
-			return await server.LoadTestSuite (cancellationToken);
+			return await server.StartServer (cancellationToken);
 		}
 	}
 }

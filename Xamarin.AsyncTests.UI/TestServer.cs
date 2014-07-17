@@ -34,7 +34,7 @@ namespace Xamarin.AsyncTests.UI
 	using Framework;
 	using Server;
 
-	public class TestServer : Connection
+	public class TestServer : ServerConnection
 	{
 		public TestApp App {
 			get;
@@ -52,7 +52,7 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		public TestServer (TestApp app, Stream stream, IServerConnection connection, bool isServer)
-			: base (app, stream, true)
+			: base (app, stream)
 		{
 			App = app;
 			Connection = connection;
@@ -87,9 +87,9 @@ namespace Xamarin.AsyncTests.UI
 
 		#endregion
 
-		protected override async Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken)
+		protected override Task<TestSuite> GetLocalTestSuite (CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException ();
+			return TestSuite.LoadAssembly (App.Context, App.Assembly);
 		}
 
 		protected override async Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken)

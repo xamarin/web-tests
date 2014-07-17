@@ -36,39 +36,29 @@ namespace Xamarin.AsyncTests.Client
 	using Framework;
 	using Server;
 
-	public class ConsoleServer : Connection
+	public class ConsoleClient : ClientConnection
 	{
 		public Program Program {
 			get;
 			private set;
 		}
 
-		public ConsoleServer (Program program, Stream stream)
-			: base (program.Context, stream, false)
+		public ConsoleClient (Program program, Stream stream)
+			: base (program.Context, stream, program.UseServerSettings, program.UseMyTestSuite)
 		{
 			Program = program;
 			program.Context.Statistics.StatisticsEvent += (sender, e) => OnStatisticsEvent (e);
 		}
 
-		protected override async Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken)
+		protected override async Task<TestSuite> GetLocalTestSuite (CancellationToken cancellationToken)
 		{
 			var assembly = typeof(WebTestFeatures).Assembly;
 			return await TestSuite.LoadAssembly (Context, assembly);
 		}
 
-		protected override async Task Start (CancellationToken cancellationToken)
+		public async Task RunClient (CancellationToken cancellationToken)
 		{
-			var handshake = new Handshake { WantStatisticsEvents = true };
-			if (!Program.UseServerSettings)
-				handshake.Settings = Context.Settings;
-
-			if (Program.UseMyTestSuite)
-				handshake.TestSuite = await OnLoadTestSuite (cancellationToken);
-
-			await Hello (handshake, cancellationToken);
-
-			if (Program.LogLevel >= 0)
-				await SetLogLevel (Program.LogLevel, cancellationToken);
+			await Start (cancellationToken);
 
 			if (Program.Run) {
 				var result = await RunTestSuite (cancellationToken);
@@ -84,7 +74,7 @@ namespace Xamarin.AsyncTests.Client
 				await Shutdown ();
 			}
 
-			await base.Start (cancellationToken);
+			await Run (cancellationToken);
 		}
 
 		static string Write (XElement node)

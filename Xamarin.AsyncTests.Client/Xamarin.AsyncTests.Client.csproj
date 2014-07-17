@@ -37,9 +37,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ConsoleServer.cs" />
     <Compile Include="NDeskOptions.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="ConsoleClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

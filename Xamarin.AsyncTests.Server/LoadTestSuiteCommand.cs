@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.Server
 		protected override Task<TestSuite> Run (
 			Connection connection, object argument, CancellationToken cancellationToken)
 		{
-			return connection.OnLoadTestSuite (cancellationToken);
+			return connection.GetLocalTestSuite (cancellationToken);
 		}
 	}
 }
