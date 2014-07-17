@@ -27,17 +27,19 @@ using System;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class Handshake
-	{
-		public bool UseClientTestSuite {
-			get; set;
-		}
+	using Framework;
 
+	public class Handshake
+	{
 		public bool WantStatisticsEvents {
 			get; set;
 		}
 
 		public SettingsBag Settings {
+			get; set;
+		}
+
+		public TestSuite TestSuite {
 			get; set;
 		}
 	}

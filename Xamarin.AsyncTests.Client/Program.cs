@@ -90,6 +90,11 @@ namespace Xamarin.AsyncTests.Client
 			get { return SettingsFile == null; }
 		}
 
+		public bool UseMyTestSuite {
+			get;
+			private set;
+		}
+
 		public static void Main (string[] args)
 		{
 			SD.Debug.AutoFlush = true;
@@ -116,6 +121,7 @@ namespace Xamarin.AsyncTests.Client
 			p.Add ("run", v => Run = true);
 			p.Add ("result=", v => ResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
+			p.Add ("my-tests", v => UseMyTestSuite = true);
 			var remaining = p.Parse (args);
 
 			Settings = LoadSettings (SettingsFile);

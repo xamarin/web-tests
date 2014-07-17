@@ -38,8 +38,6 @@ namespace Xamarin.AsyncTests.Client
 
 	public class ConsoleServer : Connection
 	{
-		TestSuite suite;
-
 		public Program Program {
 			get;
 			private set;
@@ -55,27 +53,24 @@ namespace Xamarin.AsyncTests.Client
 		protected override async Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken)
 		{
 			var assembly = typeof(WebTestFeatures).Assembly;
-			suite = await TestSuite.LoadAssembly (Context, assembly);
-			Context.CurrentTestSuite = suite;
-			return suite;
-		}
-
-		protected override Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken)
-		{
-			return OnRun (suite, cancellationToken);
+			return await TestSuite.LoadAssembly (Context, assembly);
 		}
 
 		protected override async Task Start (CancellationToken cancellationToken)
 		{
-			await Hello (!Program.UseServerSettings, true, cancellationToken);
+			var handshake = new Handshake { WantStatisticsEvents = true };
+			if (!Program.UseServerSettings)
+				handshake.Settings = Context.Settings;
+
+			if (Program.UseMyTestSuite)
+				handshake.TestSuite = await OnLoadTestSuite (cancellationToken);
+
+			await Hello (handshake, cancellationToken);
 
 			if (Program.LogLevel >= 0)
 				await SetLogLevel (Program.LogLevel, cancellationToken);
 
 			if (Program.Run) {
-				suite = await LoadTestSuite (cancellationToken);
-				Debug ("Got test suite from server: {0}", suite);
-
 				var result = await RunTestSuite (cancellationToken);
 
 				Debug ("Done running: {0}", result.Status);
@@ -120,13 +115,6 @@ namespace Xamarin.AsyncTests.Client
 				node.WriteTo (xml);
 				xml.Flush ();
 			}
-		}
-
-		public async Task<TestResult> RunTest (TestSuite suite)
-		{
-			var result = new TestResult (suite.Name);
-			await suite.Run (Context, result, CancellationToken.None);
-			return result;
 		}
 
 		void OnStatisticsEvent (TestStatistics.StatisticsEventArgs e)

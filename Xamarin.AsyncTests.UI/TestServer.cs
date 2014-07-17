@@ -110,8 +110,6 @@ namespace Xamarin.AsyncTests.UI
 
 			return result;
 		}
-
-
 	}
 }
 

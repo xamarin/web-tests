@@ -355,12 +355,15 @@ namespace Xamarin.AsyncTests.Server
 					throw new InvalidOperationException ();
 
 				var instance = new Handshake ();
-				instance.UseClientTestSuite = bool.Parse (node.Attribute ("UseClientTestSuite").Value);
 				instance.WantStatisticsEvents = bool.Parse (node.Attribute ("WantStatisticsEvents").Value);
 
 				var settings = node.Element ("Settings");
 				if (settings != null)
 					instance.Settings = Serializer.Settings.Read (connection, settings);
+
+				var suite = node.Element ("TestSuite");
+				if (suite != null)
+					instance.TestSuite = Serializer.TestSuite.Read (connection, suite);
 
 				return instance;
 			}
@@ -368,11 +371,13 @@ namespace Xamarin.AsyncTests.Server
 			public override XElement Write (Connection connection, Handshake instance)
 			{
 				var element = new XElement ("Handshake");
-				element.SetAttributeValue ("UseClientTestSuite", instance.UseClientTestSuite);
 				element.SetAttributeValue ("WantStatisticsEvents", instance.WantStatisticsEvents);
 
 				if (instance.Settings != null)
 					element.Add (Serializer.Settings.Write (connection, instance.Settings));
+
+				if (instance.TestSuite != null)
+					element.Add (Serializer.TestSuite.Write (connection, instance.TestSuite));
 
 				return element;
 			}

@@ -47,6 +47,7 @@ namespace Xamarin.AsyncTests.Server
 		TaskCompletionSource<bool> commandTcs;
 		Queue<QueuedMessage> messageQueue;
 		bool shutdownRequested;
+		TestSuite suite;
 
 		public Connection (TestContext context, Stream stream, bool isServer)
 		{
@@ -83,12 +84,18 @@ namespace Xamarin.AsyncTests.Server
 
 		public async Task Shutdown ()
 		{
+			suite = null;
+			Context.CurrentTestSuite = null;
 			await new ShutdownCommand ().Send (this);
 		}
 
-		public Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
+		public async Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
 		{
-			return new LoadTestSuiteCommand ().Send (this, cancellationToken);
+			if (suite != null)
+				return suite;
+			suite = await new LoadTestSuiteCommand ().Send (this, cancellationToken);
+			await OnTestSuiteLoaded (suite, cancellationToken);
+			return suite;
 		}
 
 		public async Task<bool> RunTest (TestCase test, TestResult result, CancellationToken cancellationToken)
@@ -112,12 +119,8 @@ namespace Xamarin.AsyncTests.Server
 			return new RunTestSuiteCommand ().Send (this, cancellationToken);
 		}
 
-		public async Task Hello (bool useClientSettings, bool wantStatistics, CancellationToken cancellationToken)
+		public async Task Hello (Handshake handshake, CancellationToken cancellationToken)
 		{
-			var handshake = new Handshake { WantStatisticsEvents = wantStatistics };
-			if (useClientSettings)
-				handshake.Settings = Context.Settings;
-
 			var hello = new HelloCommand { Argument = handshake };
 			var retval = await hello.Send (this, cancellationToken);
 
@@ -126,7 +129,7 @@ namespace Xamarin.AsyncTests.Server
 				Context.Settings.PropertyChanged += OnSettingsChanged;
 			}
 
-			if (wantStatistics)
+			if (handshake.WantStatisticsEvents)
 				context.Statistics.StatisticsEvent += OnStatisticsEvent;
 
 			Debug ("Handshake complete.");
@@ -189,6 +192,12 @@ namespace Xamarin.AsyncTests.Server
 
 		protected internal abstract Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken);
 
+		protected internal virtual Task OnTestSuiteLoaded (TestSuite suite, CancellationToken cancellationToken)
+		{
+			Context.CurrentTestSuite = suite;
+			return Task.FromResult<object> (null);
+		}
+
 		protected internal async Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken)
 		{
 			var result = new TestResult (test.Name);
@@ -204,9 +213,12 @@ namespace Xamarin.AsyncTests.Server
 			return result;
 		}
 
-		protected internal abstract Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken);
+		protected internal virtual Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken)
+		{
+			return OnRun (suite, cancellationToken);
+		}
 
-		internal Handshake OnHello (Handshake handshake)
+		internal async Task<Handshake> OnHello (Handshake handshake, CancellationToken cancellationToken)
 		{
 			lock (this) {
 				if (handshake.WantStatisticsEvents)
@@ -218,8 +230,16 @@ namespace Xamarin.AsyncTests.Server
 					Context.Settings.Merge (handshake.Settings);
 					handshake.Settings = null;
 				}
-				return handshake;
 			}
+
+			if (handshake.TestSuite != null) {
+				await OnTestSuiteLoaded (handshake.TestSuite, cancellationToken);
+				handshake.TestSuite = null;
+			} else {
+				handshake.TestSuite = await OnLoadTestSuite (cancellationToken);
+			}
+
+			return handshake;
 		}
 
 		async void OnStatisticsEvent (object sender, TestStatistics.StatisticsEventArgs e)

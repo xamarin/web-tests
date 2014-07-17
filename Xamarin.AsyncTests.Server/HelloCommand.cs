@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.Server
 
 		protected override Task<Handshake> Run (Connection connection, Handshake argument, CancellationToken cancellationToken)
 		{
-			return Task.FromResult (connection.OnHello (argument));
+			return connection.OnHello (argument, cancellationToken);
 		}
 	}
 }
