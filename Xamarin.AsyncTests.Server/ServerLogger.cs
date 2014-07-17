@@ -34,16 +34,22 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public ServerLogger (Connection connection)
+		public ITestLogger Parent {
+			get;
+			private set;
+		}
+
+		public ServerLogger (Connection connection, ITestLogger parent)
 		{
 			Connection = connection;
+			Parent = parent;
 		}
 
 		#region ITestLogger implementation
 
 		public async void LogDebug (int level, string message)
 		{
-			if (level <= Connection.DebugLevel)
+			if (level <= Connection.Context.DebugLevel)
 				await Connection.LogMessage (message);
 		}
 

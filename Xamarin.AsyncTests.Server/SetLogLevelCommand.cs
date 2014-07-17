@@ -1,5 +1,5 @@
 ﻿//
-// SetDebugLevelCommand.cs
+// SetLogLevelCommand.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class SetDebugLevelCommand : Command<string,object>
+	class SetLogLevelCommand : Command<string,object>
 	{
 		protected override Serializer<string> ArgumentSerializer {
 			get { return Serializer.String; }
@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.Server
 			Connection connection, string argument, CancellationToken cancellationToken)
 		{
 			if (argument != null)
-				connection.DebugLevel = int.Parse (argument);
+				connection.OnSetLogLevel (int.Parse (argument));
 			return Task.FromResult<object> (null);
 		}
 	}

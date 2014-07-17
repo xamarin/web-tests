@@ -57,10 +57,6 @@ namespace Xamarin.AsyncTests.Server
 			messageQueue = new Queue<QueuedMessage> ();
 		}
 
-		public int DebugLevel {
-			get; set;
-		}
-
 		public TestContext Context {
 			get { return context; }
 		}
@@ -75,7 +71,8 @@ namespace Xamarin.AsyncTests.Server
 
 		public async Task SetLogLevel (int level, CancellationToken cancellationToken)
 		{
-			var command = new SetDebugLevelCommand { Argument = level.ToString () };
+			Context.DebugLevel = level;
+			var command = new SetLogLevelCommand { Argument = level.ToString () };
 			await command.Send (this, cancellationToken);
 		}
 
@@ -143,6 +140,18 @@ namespace Xamarin.AsyncTests.Server
 		protected internal abstract void OnLogMessage (string message);
 
 		protected abstract void OnDebug (int level, string message);
+
+		internal void OnSetLogLevel (int level)
+		{
+			var serverLogger = context.Logger as ServerLogger;
+			if (level < 0) {
+				if (serverLogger != null)
+					context.Logger = serverLogger.Parent;
+			} else if (serverLogger == null) {
+				context.Logger = new ServerLogger (this, context.Logger);
+			}
+			Context.DebugLevel = level;
+		}
 
 		internal SettingsBag OnGetSettings ()
 		{
