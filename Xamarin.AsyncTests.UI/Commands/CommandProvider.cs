@@ -118,7 +118,7 @@ namespace Xamarin.AsyncTests.UI
 		{
 		}
 
-		protected void SetStatusMessage (string message, params object[] args)
+		internal void SetStatusMessage (string message, params object[] args)
 		{
 			StatusMessage = string.Format (message, args);
 		}
@@ -199,8 +199,9 @@ namespace Xamarin.AsyncTests.UI
 					bool running = await command.Run (Instance, cts.Token);
 					if (running)
 						return;
+					StatusMessage = string.Empty;
 				} catch (OperationCanceledException) {
-					SetStatusMessage ("Command canceled.");
+					StatusMessage = string.Empty;
 				} catch (Exception ex) {
 					SetStatusMessage ("Command failed: {0}", ex.Message);
 				}

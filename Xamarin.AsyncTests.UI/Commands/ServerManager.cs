@@ -180,9 +180,10 @@ namespace Xamarin.AsyncTests.UI
 				return instance.Run (cancellationToken);
 			}
 
-			internal sealed override Task Stop (TestProvider instance, CancellationToken cancellationToken)
+			internal sealed override async Task Stop (TestProvider instance, CancellationToken cancellationToken)
 			{
-				return instance.Stop (cancellationToken);
+				Manager.StatusMessage = string.Empty;
+				await instance.Stop (cancellationToken);
 			}
 		}
 
@@ -195,7 +196,7 @@ namespace Xamarin.AsyncTests.UI
 
 			internal override Task<TestProvider> Start (CancellationToken cancellationToken)
 			{
-				return Task.FromResult<TestProvider> (new LocalTestProvider (Manager.App));
+				return Task.FromResult (TestProvider.StartLocal (Manager.App));
 			}
 		}
 

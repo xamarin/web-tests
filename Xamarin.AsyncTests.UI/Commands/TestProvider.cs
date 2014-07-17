@@ -54,12 +54,20 @@ namespace Xamarin.AsyncTests.UI
 			Name = name;
 		}
 
+		public static TestProvider StartLocal (TestApp app)
+		{
+			app.ServerManager.SetStatusMessage ("Loaded locally.");
+			return new LocalTestProvider (app);
+		}
+
 		public static async Task<TestProvider> StartServer (TestApp app, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 
 			var connection = await app.ServerHost.Start (cancellationToken);
+			app.ServerManager.SetStatusMessage ("Server running ({0})", connection.Name);
 			var stream = await connection.Open (cancellationToken);
+			app.ServerManager.SetStatusMessage ("Got remote connection.");
 
 			var server = new TestServer (app, stream, connection, true);
 			return new RemoteTestProvider (app, server, connection);
@@ -71,6 +79,8 @@ namespace Xamarin.AsyncTests.UI
 
 			var connection = await app.ServerHost.Connect (address, cancellationToken);
 			var stream = await connection.Open (cancellationToken);
+			app.ServerManager.SetStatusMessage ("Connected to remote host.");
+
 			var server = new TestServer (app, stream, connection, false);
 			return new RemoteTestProvider (app, server, connection);
 		}
