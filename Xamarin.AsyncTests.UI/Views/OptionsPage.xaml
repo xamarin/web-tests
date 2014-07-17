@@ -25,11 +25,11 @@
                 <Label Text="Hide successful tests" VerticalOptions="Center" />
             </StackLayout>
 
-            <local:TestCategorySelector BindingContext="{Binding App.TestSuiteManager.Categories}"
-                                        IsVisible="{Binding App.TestSuiteManager.HasInstance}" />
+            <local:TestCategorySelector BindingContext="{Binding App.ServerManager.Categories}"
+                                        IsVisible="{Binding App.ServerManager.HasInstance}" />
 
-            <local:TestFeatureSelector BindingContext="{Binding App.TestSuiteManager.Features}"
-                                       IsVisible="{Binding App.TestSuiteManager.HasInstance}" />
+            <local:TestFeatureSelector BindingContext="{Binding App.ServerManager.Features}"
+                                       IsVisible="{Binding App.ServerManager.HasInstance}" />
 
         </StackLayout>
     </ScrollView>

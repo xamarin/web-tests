@@ -144,7 +144,7 @@ namespace Xamarin.AsyncTests.UI
 
 		string GetStatusMessage (string prefix = null)
 		{
-			if (!App.TestSuiteManager.HasInstance)
+			if (App.ServerManager.TestSuite == null)
 				return prefix ?? "No test loaded.";
 			var sb = new StringBuilder ();
 			if (prefix != null) {
@@ -168,7 +168,7 @@ namespace Xamarin.AsyncTests.UI
 			public readonly TestRunner Runner;
 
 			public RunCommand (TestRunner runner)
-				: base (runner, runner.App.TestSuiteManager)
+				: base (runner, runner.App.ServerManager)
 			{
 				Runner = runner;
 

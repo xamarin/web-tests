@@ -76,6 +76,7 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		[Obsolete]
 		public TestSuiteManager TestSuiteManager {
 			get;
 			private set;

@@ -59,6 +59,33 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public static readonly BindableProperty TestSuiteProperty =
+			BindableProperty.Create ("TestSuite", typeof(TestSuite), typeof(ServerManager), null,
+				propertyChanged: (bo, o, n) => ((ServerManager)bo).OnTestSuiteChanged ((TestSuite)n));
+
+		public TestSuite TestSuite {
+			get { return (TestSuite)GetValue(TestSuiteProperty); }
+			set { SetValue (TestSuiteProperty, value); }
+		}
+
+		public static readonly BindableProperty HasTestSuiteProperty =
+			BindableProperty.Create ("HasTestSuite", typeof(bool), typeof(ServerManager), false);
+
+		public bool HasTestSuite {
+			get { return (bool)GetValue (HasTestSuiteProperty); }
+			set { SetValue (HasTestSuiteProperty, value); }
+		}
+
+		public TestFeaturesModel Features {
+			get;
+			private set;
+		}
+
+		public TestCategoriesModel Categories {
+			get;
+			private set;
+		}
+
 		public ServerManager (TestApp app)
 			: base (app)
 		{
@@ -68,7 +95,13 @@ namespace Xamarin.AsyncTests.UI
 			connectCommand = new ConnectCommand (this);
 			startCommand = new StartCommand (this);
 
-			CanStart = app.ServerHost != null;
+			Features = new TestFeaturesModel (App);
+			Categories = new TestCategoriesModel (App);
+
+			connectCommand.CanExecute = app.ServerHost != null;
+			startCommand.CanExecute = app.ServerHost != null;
+
+			// CanStart = app.ServerHost != null;
 
 			serverAddress = string.Empty;
 			Settings.PropertyChanged += (sender, e) => LoadSettings ();
@@ -165,6 +198,41 @@ namespace Xamarin.AsyncTests.UI
 
 		#endregion
 
+		protected void OnTestSuiteChanged (TestSuite suite)
+		{
+			if (suite == null) {
+				Features.Configuration = null;
+				Categories.Configuration = null;
+
+				App.RootTestResult.Result.Clear ();
+				App.TestRunner.CurrentTestResult = App.RootTestResult;
+				App.Context.CurrentTestSuite = null;
+			} else {
+				Features.Configuration = suite.Configuration;
+				Categories.Configuration = suite.Configuration;
+
+				App.RootTestResult.Result.Test = suite;
+				App.Context.CurrentTestSuite = suite;
+			}
+
+			HasTestSuite = suite != null;
+		}
+
+		protected async Task<bool> OnRun (TestProvider instance, CancellationToken cancellationToken)
+		{
+			var suite = await instance.LoadTestSuite (cancellationToken);
+			SetStatusMessage ("Got test suite.");
+			TestSuite = suite;
+			return await instance.Run (cancellationToken);
+		}
+
+		protected async Task OnStop (TestProvider instance, CancellationToken cancellationToken)
+		{
+			TestSuite = null;
+			SetStatusMessage ("Server stopped.");
+			await instance.Stop (cancellationToken);
+		}
+
 		abstract class ServerCommand : Command<TestProvider>
 		{
 			public readonly ServerManager Manager;
@@ -177,13 +245,12 @@ namespace Xamarin.AsyncTests.UI
 
 			internal sealed override Task<bool> Run (TestProvider instance, CancellationToken cancellationToken)
 			{
-				return instance.Run (cancellationToken);
+				return Manager.OnRun (instance, cancellationToken);
 			}
 
-			internal sealed override async Task Stop (TestProvider instance, CancellationToken cancellationToken)
+			internal sealed override Task Stop (TestProvider instance, CancellationToken cancellationToken)
 			{
-				Manager.StatusMessage = string.Empty;
-				await instance.Stop (cancellationToken);
+				return Manager.OnStop (instance, cancellationToken);
 			}
 		}
 

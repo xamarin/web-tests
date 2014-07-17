@@ -36,6 +36,7 @@ namespace Xamarin.AsyncTests.UI
 	using Framework;
 	using Server;
 
+	[Obsolete]
 	public class TestSuiteManager : CommandProvider<TestSuite>
 	{
 		readonly LoadLocalCommand loadLocal;
