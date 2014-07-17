@@ -126,6 +126,7 @@ namespace Xamarin.AsyncTests
 				return value;
 			}
 			set {
+				System.Diagnostics.Debug.WriteLine ("CATEGORY: {0}", value);
 				SetValue ("CurrentCategory", value);
 				OnPropertyChanged ("CurrentCategory");
 			}

@@ -86,8 +86,8 @@ namespace Xamarin.AsyncTests.Client
 			private set;
 		}
 
-		public bool UseServerSettings {
-			get { return SettingsFile == null; }
+		public bool UseMySettings {
+			get { return SettingsFile != null; }
 		}
 
 		public bool UseMyTestSuite {

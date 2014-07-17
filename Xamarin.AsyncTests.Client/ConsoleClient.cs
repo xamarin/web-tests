@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.Client
 		}
 
 		public ConsoleClient (Program program, Stream stream)
-			: base (program.Context, stream, program.UseServerSettings, program.UseMyTestSuite)
+			: base (program.Context, stream, program.UseMySettings, program.UseMyTestSuite)
 		{
 			Program = program;
 			program.Context.Statistics.StatisticsEvent += (sender, e) => OnStatisticsEvent (e);

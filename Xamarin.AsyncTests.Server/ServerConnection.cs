@@ -57,6 +57,8 @@ namespace Xamarin.AsyncTests.Server
 
 		internal override async Task<Handshake> OnHello (Handshake handshake, CancellationToken cancellationToken)
 		{
+			Debug ("Server Handshake: {0}", handshake);
+
 			TestSuite localSuite = null;
 			if (handshake.TestSuite == null)
 				localSuite = await GetLocalTestSuite (cancellationToken);
@@ -64,6 +66,7 @@ namespace Xamarin.AsyncTests.Server
 			lock (this) {
 				if (handshake.WantStatisticsEvents)
 					Context.Statistics.StatisticsEvent += OnStatisticsEvent;
+
 				if (handshake.Settings == null) {
 					Context.Settings.PropertyChanged += OnSettingsChanged;
 					handshake.Settings = Context.Settings;
@@ -83,6 +86,8 @@ namespace Xamarin.AsyncTests.Server
 				Context.CurrentTestSuite = suite;
 				helloTcs.SetResult (suite);
 			}
+
+			Debug ("Server Handshake done: {0}", handshake);
 
 			return handshake;
 		}

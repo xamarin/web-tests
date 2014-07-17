@@ -34,9 +34,8 @@ namespace Xamarin.AsyncTests
 {
 	public class TestConfiguration : INotifyPropertyChanged
 	{
-		Dictionary<TestFeature,bool> features = new Dictionary<TestFeature, bool> ();
-		List<TestCategory> categories = new List<TestCategory> ();
-		TestCategory currentCategory;
+		Dictionary<string,TestFeature> features = new Dictionary<string,TestFeature> ();
+		Dictionary<string,TestCategory> categories = new Dictionary<string,TestCategory> ();
 		SettingsBag settings;
 
 		TestConfiguration (SettingsBag settings)
@@ -44,56 +43,25 @@ namespace Xamarin.AsyncTests
 			this.settings = settings;
 			if (settings == null)
 				throw new InvalidOperationException ();
-			categories.Add (TestCategory.All);
-			currentCategory = TestCategory.All;
+			categories.Add (TestCategory.All.Name, TestCategory.All);
 		}
 
 		public IEnumerable<TestFeature> Features {
-			get { return features.Keys; }
+			get { return features.Values; }
 		}
 
 		public IEnumerable<TestCategory> Categories {
-			get { return categories; }
+			get { return categories.Values; }
 		}
 
 		public static TestConfiguration FromTestSuite (SettingsBag settings, ITestConfiguration config)
 		{
 			var configuration = new TestConfiguration (settings);
-			foreach (var feature in config.Features) {
-				var defaultValue = settings.IsFeatureEnabled (feature.Name);
-				configuration.features.Add (feature, feature.Constant ?? defaultValue ?? false);
-			}
-
-			configuration.currentCategory = null;
-			foreach (var category in config.Categories) {
-				configuration.categories.Add (category);
-				if (category.Name.Equals (settings.CurrentCategory))
-					configuration.currentCategory = category;
-			}
-			if (configuration.currentCategory == null)
-				configuration.currentCategory = config.DefaultCategory ?? TestCategory.All;
+			foreach (var feature in config.Features)
+				configuration.features.Add (feature.Name, feature);
+			foreach (var category in config.Categories)
+				configuration.categories.Add (category.Name, category);
 			return configuration;
-		}
-
-		internal void Update (SettingsBag newSettings)
-		{
-			this.settings = newSettings;
-
-			foreach (var feature in features.Keys.ToArray ()) {
-				if (!feature.CanModify)
-					continue;
-				var value = settings.IsFeatureEnabled (feature.Name);
-				if (value == null)
-					continue;
-				SetIsEnabled (feature, value.Value);
-			}
-
-			TestCategory current = TestCategory.All;
-			foreach (var category in categories) {
-				if (category.Name.Equals (settings.CurrentCategory))
-					current = category;
-			}
-			CurrentCategory = current;
 		}
 
 		public static TestConfiguration ReadFromXml (SettingsBag settings, XElement node)
@@ -106,7 +74,7 @@ namespace Xamarin.AsyncTests
 			var config = new TestConfiguration (settings);
 			foreach (var item in node.Elements ("Category")) {
 				var category = new TestCategory (item.Attribute ("Name").Value);
-				config.categories.Add (category);
+				config.categories.Add (category.Name, category);
 			}
 			foreach (var item in node.Elements ("Feature")) {
 				var name = item.Attribute ("Name").Value;
@@ -123,8 +91,7 @@ namespace Xamarin.AsyncTests
 				else
 					feature = new TestFeature (name, description);
 
-				var value = settings.IsFeatureEnabled (feature.Name);
-				config.features.Add (feature, feature.Constant ?? value ?? false);
+				config.features.Add (feature.Name, feature);
 			}
 			return config;
 		}
@@ -160,11 +127,18 @@ namespace Xamarin.AsyncTests
 		}
 
 		public TestCategory CurrentCategory {
-			get { return currentCategory; }
+			get {
+				var key = settings.CurrentCategory;
+				if (key != null) {
+					TestCategory category;
+					if (categories.TryGetValue (key, out category))
+						return category;
+				}
+				return TestCategory.All;
+			}
 			set {
-				if (currentCategory == value)
+				if (value.Name.Equals (settings.CurrentCategory))
 					return;
-				currentCategory = value;
 				settings.CurrentCategory = value.Name;
 				OnPropertyChanged ("CurrentCategory");
 			}
@@ -172,7 +146,9 @@ namespace Xamarin.AsyncTests
 
 		public bool IsEnabled (TestFeature feature)
 		{
-			return features [feature];
+			if (feature.Constant != null)
+				return feature.Constant.Value;
+			return settings.IsFeatureEnabled (feature.Name) ?? feature.DefaultValue ?? false;
 		}
 
 		public bool CanModify (TestFeature feature)
@@ -182,11 +158,8 @@ namespace Xamarin.AsyncTests
 
 		public void SetIsEnabled (TestFeature feature, bool enabled)
 		{
-			if (features [feature] == enabled)
-				return;
 			if (!CanModify (feature))
 				throw new InvalidOperationException ();
-			features [feature] = enabled;
 			settings.SetIsFeatureEnabled (feature.Name, enabled);
 			OnPropertyChanged ("Feature");
 		}

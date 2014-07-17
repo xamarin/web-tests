@@ -42,6 +42,11 @@ namespace Xamarin.AsyncTests.Server
 		public TestSuite TestSuite {
 			get; set;
 		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[Handshake: WantStatisticsEvents={0}, Settings={1}, TestSuite={2}]", WantStatisticsEvents, Settings, TestSuite);
+		}
 	}
 }
 

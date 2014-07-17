@@ -51,7 +51,7 @@ namespace Xamarin.AsyncTests.Server
 		public ClientConnection (TestContext context, Stream stream, bool useMySettings, bool useMyTests)
 			: base (context, stream, false)
 		{
-			UseMySettings = useMyTests;
+			UseMySettings = UseMySettings;
 			UseMyTestSuite = useMyTests;
 			startTcs = new TaskCompletionSource<TestSuite> ();
 		}
@@ -91,6 +91,8 @@ namespace Xamarin.AsyncTests.Server
 
 		public async Task Hello (Handshake handshake, CancellationToken cancellationToken)
 		{
+			Debug ("Client Handshake: {0}", handshake);
+
 			var hello = new HelloCommand { Argument = handshake };
 			var retval = await hello.Send (this, cancellationToken);
 
@@ -115,7 +117,7 @@ namespace Xamarin.AsyncTests.Server
 				startTcs.SetResult (suite);
 			}
 
-			Debug ("Handshake complete.");
+			Debug ("Client Handshake done: {0}", retval);
 		}
 
 		protected internal override Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken)
