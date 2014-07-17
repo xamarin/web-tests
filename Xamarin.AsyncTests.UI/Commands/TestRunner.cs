@@ -86,6 +86,7 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		static int countReruns;
+		DateTime startTime;
 
 		async Task<TestResult> OnRun (bool repeat, CancellationToken cancellationToken)
 		{
@@ -113,9 +114,13 @@ namespace Xamarin.AsyncTests.UI
 			if (repeat)
 				test = TestSuite.CreateRepeatedTest (test, App.Options.RepeatCount);
 
+			startTime = DateTime.Now;
+
 			await test.Run (App.Context, result, cancellationToken);
 
-			StatusMessage = GetStatusMessage ("Done");
+			var elapsed = DateTime.Now - startTime;
+
+			StatusMessage = GetStatusMessage (string.Format ("Finished in {0} seconds", (int)elapsed.TotalSeconds));
 
 			return result;
 		}
