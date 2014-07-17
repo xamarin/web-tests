@@ -26,10 +26,10 @@
             </StackLayout>
 
             <local:TestCategorySelector BindingContext="{Binding App.ServerManager.Categories}"
-                                        IsVisible="{Binding App.ServerManager.HasInstance}" />
+                                        IsVisible="{Binding App.ServerManager.HasTestSuite}" />
 
             <local:TestFeatureSelector BindingContext="{Binding App.ServerManager.Features}"
-                                       IsVisible="{Binding App.ServerManager.HasInstance}" />
+                                       IsVisible="{Binding App.ServerManager.HasTestSuite}" />
 
         </StackLayout>
     </ScrollView>

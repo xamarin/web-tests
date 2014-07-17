@@ -183,13 +183,11 @@ namespace Xamarin.AsyncTests.UI
 
 				App.RootTestResult.Result.Clear ();
 				App.TestRunner.CurrentTestResult = App.RootTestResult;
-				App.Context.CurrentTestSuite = null;
 			} else {
 				Features.Configuration = suite.Configuration;
 				Categories.Configuration = suite.Configuration;
 
 				App.RootTestResult.Result.Test = suite;
-				App.Context.CurrentTestSuite = suite;
 			}
 
 			HasTestSuite = suite != null;

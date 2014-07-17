@@ -199,9 +199,8 @@ namespace Xamarin.AsyncTests.UI
 					bool running = await command.Run (Instance, cts.Token);
 					if (running)
 						return;
-					StatusMessage = string.Empty;
 				} catch (OperationCanceledException) {
-					StatusMessage = string.Empty;
+					;
 				} catch (Exception ex) {
 					SetStatusMessage ("Command failed: {0}", ex.Message);
 				}

@@ -64,7 +64,8 @@ namespace Xamarin.AsyncTests
 		}
 
 		public ITestSuite CurrentTestSuite {
-			get; set;
+			get;
+			internal set;
 		}
 
 		public TestContext (SettingsBag settings)

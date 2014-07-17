@@ -103,16 +103,16 @@ namespace Xamarin.AsyncTests.Server
 				if (handshake.WantStatisticsEvents)
 					Context.Statistics.StatisticsEvent += OnStatisticsEvent;
 
-				if (retval.TestSuite != null) {
+				if (retval.TestSuite != null)
 					suite = retval.TestSuite;
-					startTcs.SetResult (suite);
-				} else if (handshake.TestSuite != null) {
+				else if (handshake.TestSuite != null)
 					suite = handshake.TestSuite;
-					startTcs.SetResult (suite);
-				} else {
-					startTcs.SetException (new InvalidOperationException ());
+
+				if (suite == null)
 					throw new InvalidOperationException ();
-				}
+
+				Context.CurrentTestSuite = suite;
+				startTcs.SetResult (suite);
 			}
 
 			Debug ("Handshake complete.");
@@ -139,8 +139,15 @@ namespace Xamarin.AsyncTests.Server
 		{
 			Context.Settings.PropertyChanged -= OnSettingsChanged;
 			Context.Statistics.StatisticsEvent -= OnStatisticsEvent;
-
 			base.Stop ();
+		}
+
+		protected internal override void OnShutdown ()
+		{
+			Context.CurrentTestSuite = null;
+			Context.Settings.PropertyChanged -= OnSettingsChanged;
+			Context.Statistics.StatisticsEvent -= OnStatisticsEvent;
+			base.OnShutdown ();
 		}
 	}
 }

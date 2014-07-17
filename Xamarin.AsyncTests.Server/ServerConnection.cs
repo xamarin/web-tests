@@ -80,6 +80,7 @@ namespace Xamarin.AsyncTests.Server
 					handshake.TestSuite = suite;
 				}
 
+				Context.CurrentTestSuite = suite;
 				helloTcs.SetResult (suite);
 			}
 
@@ -100,10 +101,18 @@ namespace Xamarin.AsyncTests.Server
 
 		public override void Stop ()
 		{
+			Context.CurrentTestSuite = null;
 			Context.Settings.PropertyChanged -= OnSettingsChanged;
 			Context.Statistics.StatisticsEvent -= OnStatisticsEvent;
-
 			base.Stop ();
+		}
+
+		protected internal override void OnShutdown ()
+		{
+			Context.CurrentTestSuite = null;
+			Context.Settings.PropertyChanged -= OnSettingsChanged;
+			Context.Statistics.StatisticsEvent -= OnStatisticsEvent;
+			base.OnShutdown ();
 		}
 	}
 }

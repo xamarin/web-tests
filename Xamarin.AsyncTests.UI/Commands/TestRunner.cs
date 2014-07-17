@@ -93,6 +93,8 @@ namespace Xamarin.AsyncTests.UI
 
 			var model = currentResult;
 
+			App.Context.Statistics.Reset ();
+
 			SetStatusMessage ("Running {0}.", model.Result.Test.Name);
 
 			var test = model.Result.Test;
