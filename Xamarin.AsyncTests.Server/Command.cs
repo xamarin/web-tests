@@ -212,6 +212,11 @@ namespace Xamarin.AsyncTests.Server
 					}
 				}
 			}
+
+			public override string ToString ()
+			{
+				return string.Format ("[CommandResponse: Command={0}, Response={1}]", Command, base.ToString ());
+			}
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// TestServer.cs
+// Connection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -44,9 +44,7 @@ namespace Xamarin.AsyncTests.Server
 		readonly TestContext context;
 		readonly bool isServer;
 		CancellationTokenSource cancelCts;
-		TaskCompletionSource<bool> commandTcs;
 		TaskCompletionSource<object> mainTcs;
-		Queue<QueuedMessage> messageQueue;
 		bool shutdownRequested;
 
 		internal Connection (TestContext context, Stream stream, bool isServer)
@@ -55,7 +53,6 @@ namespace Xamarin.AsyncTests.Server
 			this.context = context;
 			this.stream = stream;
 			cancelCts = new CancellationTokenSource ();
-			messageQueue = new Queue<QueuedMessage> ();
 		}
 
 		public TestContext Context {
@@ -284,8 +281,6 @@ namespace Xamarin.AsyncTests.Server
 				shutdownRequested = true;
 				cancelCts.Cancel ();
 
-				foreach (var queued in messageQueue)
-					queued.Task.TrySetCanceled ();
 				foreach (var operation in clientOperations.Values)
 					operation.Task.TrySetCanceled ();
 			}
@@ -314,61 +309,21 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
+		QueuedMessage currentMessage;
+
 		async Task SendMessage (Message message)
 		{
-			Task queuedTask;
 			var queued = new QueuedMessage (message);
-			lock (this) {
-				if (commandTcs != null) {
-					messageQueue.Enqueue (queued);
-					queuedTask = queued.Task.Task;
-				} else {
-					commandTcs = queued.Task;
-					queuedTask = null;
-				}
+
+			while (!shutdownRequested && !cancelCts.IsCancellationRequested) {
+				var old = Interlocked.CompareExchange (ref currentMessage, queued, null);
+				if (old == null)
+					break;
+
+				await old.Task.Task;
 			}
 
-			if (queuedTask == null) {
-				var innerTask = Task.Factory.StartNew (async () => {
-					try {
-						await RunQueue (queued);
-						queued.Task.SetResult (true);
-					} catch (OperationCanceledException) {
-						queued.Task.SetCanceled ();
-					} catch (Exception ex) {
-						queued.Task.SetException (ex);
-					}
-
-					await RunQueue ();
-				});
-
-				await queued.Task.Task;
-				await innerTask;
-			} else {
-				await queuedTask;
-			}
-		}
-
-		async Task RunQueue ()
-		{
-			while (true) {
-				QueuedMessage message;
-				lock (this) {
-					if (messageQueue.Count == 0) {
-						commandTcs = null;
-						return;
-					}
-					message = messageQueue.Dequeue ();
-					commandTcs = message.Task;
-				}
-
-				await RunQueue (message);
-			}
-		}
-
-		async Task RunQueue (QueuedMessage message)
-		{
-			var doc = message.Message.Write (this);
+			var doc = message.Write (this);
 
 			var sb = new StringBuilder ();
 			var settings = new XmlWriterSettings ();
@@ -390,6 +345,12 @@ namespace Xamarin.AsyncTests.Server
 			await stream.WriteAsync (bytes, 0, bytes.Length);
 
 			await stream.FlushAsync ();
+
+			var old2 = Interlocked.CompareExchange (ref currentMessage, null, queued);
+			if (old2 != queued)
+				throw new InvalidOperationException ();
+
+			queued.Task.SetResult (true);
 		}
 
 		async Task<byte[]> ReadBuffer (int length)
@@ -478,6 +439,7 @@ namespace Xamarin.AsyncTests.Server
 				lock (this) {
 					if (operation != null) {
 						operation.CancelCts.Dispose ();
+						operation.CancelCts = null;
 						serverOperations.Remove (operation.ObjectID);
 					}
 				}
