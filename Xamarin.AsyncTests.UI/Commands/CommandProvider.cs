@@ -167,9 +167,9 @@ namespace Xamarin.AsyncTests.UI
 			HasInstance = instance != null;
 		}
 
-		Command<T> currentCommand;
-		TaskCompletionSource<T> startTcs;
-		CancellationTokenSource cts;
+		volatile Command<T> currentCommand;
+		volatile TaskCompletionSource<T> startTcs;
+		volatile CancellationTokenSource cts;
 
 		internal Task ExecuteStart (Command<T> command)
 		{
@@ -184,8 +184,9 @@ namespace Xamarin.AsyncTests.UI
 			}
 
 			Task.Factory.StartNew (async () => {
+				var token = cts.Token;
 				try {
-					Instance = await command.Start (cts.Token);
+					Instance = await command.Start (token);
 					startTcs.SetResult (Instance);
 				} catch (OperationCanceledException) {
 					startTcs.SetCanceled ();
@@ -195,15 +196,10 @@ namespace Xamarin.AsyncTests.UI
 				}
 
 				try {
-					cts.Token.ThrowIfCancellationRequested ();
-					bool running = await command.Run (Instance, cts.Token);
+					token.ThrowIfCancellationRequested ();
+					bool running = await command.Run (Instance, token);
 					if (running)
 						return;
-
-					lock (this) {
-						cts.Dispose ();
-						cts = null;
-					}
 				} catch (OperationCanceledException) {
 					;
 				} catch (Exception ex) {
