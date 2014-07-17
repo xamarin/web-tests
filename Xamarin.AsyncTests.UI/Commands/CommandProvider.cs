@@ -196,7 +196,7 @@ namespace Xamarin.AsyncTests.UI
 
 				try {
 					cts.Token.ThrowIfCancellationRequested ();
-					bool running = await command.Run (cts.Token);
+					bool running = await command.Run (Instance, cts.Token);
 					if (running)
 						return;
 				} catch (OperationCanceledException) {
@@ -213,20 +213,23 @@ namespace Xamarin.AsyncTests.UI
 
 		internal async override Task ExecuteStop ()
 		{
-			try {
-				if (currentCommand != null)
-					await currentCommand.Stop (CancellationToken.None);
-			} catch {
-				;
-			}
-
+			T instance;
 			lock (this) {
 				if (startTcs == null)
 					return;
 				CanStop = false;
+				instance = Instance;
 				Instance = null;
-				cts.Cancel ();
 			}
+
+			try {
+				if (currentCommand != null)
+					await currentCommand.Stop (instance, CancellationToken.None);
+			} catch {
+				;
+			}
+
+			cts.Cancel ();
 
 			try {
 				await startTcs.Task;

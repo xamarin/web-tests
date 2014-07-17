@@ -116,9 +116,9 @@ namespace Xamarin.AsyncTests.UI
 
 		internal abstract Task<T> Start (CancellationToken cancellationToken);
 
-		internal abstract Task<bool> Run (CancellationToken cancellationToken);
+		internal abstract Task<bool> Run (T instance, CancellationToken cancellationToken);
 
-		internal abstract Task Stop (CancellationToken cancellationToken);
+		internal abstract Task Stop (T instance, CancellationToken cancellationToken);
 
 		public override async Task Execute ()
 		{

@@ -36,16 +36,16 @@ namespace Xamarin.AsyncTests.UI
 	using Framework;
 	using Server;
 
-	public class ServerManager : CommandProvider<TestServer>
+	public class ServerManager : CommandProvider<TestProvider>
 	{
 		readonly ConnectCommand connectCommand;
 		readonly StartCommand startCommand;
 
-		public Command<TestServer> Connect {
+		public Command<TestProvider> Connect {
 			get { return connectCommand; }
 		}
 
-		public Command<TestServer> Start {
+		public Command<TestProvider> Start {
 			get { return startCommand; }
 		}
 
@@ -159,80 +159,7 @@ namespace Xamarin.AsyncTests.UI
 
 		#endregion
 
-		#region Server
-
-		TestServer server;
-		IServerConnection connection;
-
-		protected async Task<TestServer> OnConnect (CancellationToken cancellationToken)
-		{
-			await Task.Yield ();
-
-			StatusMessage = "Connecting to server ...";
-
-			connection = await App.ServerHost.Connect (ServerAddress, cancellationToken);
-
-			SetStatusMessage ("Got remote connection ({0}).", connection.Name);
-
-			var stream = await connection.Open (cancellationToken);
-			server = new TestServer (App, stream, connection, false);
-
-			SetStatusMessage ("Connected to server ({0}).", connection.Name);
-
-			return server;
-		}
-
-		protected async Task OnDisconnect (CancellationToken cancellationToken)
-		{
-			if (server != null) {
-				try {
-					await server.Shutdown ();
-				} catch {
-					;
-				}
-				server.Stop ();
-				server = null;
-				connection = null;
-			}
-
-			if (connection != null) {
-				connection.Close ();
-				connection = null;
-			}
-
-			StatusMessage = "Stopped server.";
-		}
-
-		protected async Task<TestServer> OnStart (CancellationToken cancellationToken)
-		{
-			await Task.Yield ();
-
-			StatusMessage = "Starting server ...";
-
-			connection = await App.ServerHost.Start (cancellationToken);
-
-			SetStatusMessage ("Server running ({0})", connection.Name);
-
-			var stream = await connection.Open (cancellationToken);
-			StatusMessage = "Got remote connection!";
-
-			server = new TestServer (App, stream, connection, true);
-			return server;
-		}
-
-		protected async Task<bool> OnRun (CancellationToken cancellationToken)
-		{
-			if (server != null) {
-				await server.Run (cancellationToken);
-				StatusMessage = "Server finished";
-			}
-
-			return false;
-		}
-
-		#endregion
-
-		class ConnectCommand : Command<TestServer>
+		class ConnectCommand : Command<TestProvider>
 		{
 			public readonly ServerManager Manager;
 
@@ -242,23 +169,23 @@ namespace Xamarin.AsyncTests.UI
 				Manager = manager;
 			}
 
-			internal override Task<TestServer> Start (CancellationToken cancellationToken)
+			internal override Task<TestProvider> Start (CancellationToken cancellationToken)
 			{
-				return Manager.OnConnect (cancellationToken);
+				return TestProvider.Connect (Manager.App, Manager.ServerAddress, cancellationToken);
 			}
 
-			internal override Task<bool> Run (CancellationToken cancellationToken)
+			internal override Task<bool> Run (TestProvider instance, CancellationToken cancellationToken)
 			{
-				return Manager.OnRun (cancellationToken);
+				return instance.Run (cancellationToken);
 			}
 
-			internal override Task Stop (CancellationToken cancellationToken)
+			internal override Task Stop (TestProvider instance, CancellationToken cancellationToken)
 			{
-				return Manager.OnDisconnect (cancellationToken);
+				return instance.Stop (cancellationToken);
 			}
 		}
 
-		class StartCommand : Command<TestServer>
+		class StartCommand : Command<TestProvider>
 		{
 			public readonly ServerManager Manager;
 
@@ -268,19 +195,19 @@ namespace Xamarin.AsyncTests.UI
 				Manager = manager;
 			}
 
-			internal override Task<TestServer> Start (CancellationToken cancellationToken)
+			internal override Task<TestProvider> Start (CancellationToken cancellationToken)
 			{
-				return Manager.OnStart (cancellationToken);
+				return TestProvider.StartServer (Manager.App, cancellationToken);
 			}
 
-			internal override Task<bool> Run (CancellationToken cancellationToken)
+			internal override Task<bool> Run (TestProvider instance, CancellationToken cancellationToken)
 			{
-				return Manager.OnRun (cancellationToken);
+				return instance.Run (cancellationToken);
 			}
 
-			internal override Task Stop (CancellationToken cancellationToken)
+			internal override Task Stop (TestProvider instance, CancellationToken cancellationToken)
 			{
-				return Manager.OnDisconnect (cancellationToken);
+				return instance.Stop (cancellationToken);
 			}
 		}
 	}

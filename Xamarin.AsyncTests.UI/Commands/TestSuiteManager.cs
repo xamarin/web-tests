@@ -102,13 +102,17 @@ namespace Xamarin.AsyncTests.UI
 		protected async Task<TestSuite> OnLoadFromServer (CancellationToken cancellationToken)
 		{
 			try {
-				var instance = App.ServerManager.Instance as TestServer;
+				var instance = App.ServerManager.Instance;
 				if (instance == null) {
 					StatusMessage = "Server not started!";
 					return null;
 				}
 				StatusMessage = "Loading TestSuite from server ...";
 				var suite = await instance.LoadTestSuite (cancellationToken);
+				if (suite == null) {
+					StatusMessage = "Failed to load test suite.";
+					return null;
+				}
 				App.RootTestResult.Result.Test = suite;
 				StatusMessage = "Loaded remote test suite.";
 				return suite;
@@ -141,12 +145,12 @@ namespace Xamarin.AsyncTests.UI
 				return Manager.OnLoadLocal (cancellationToken);
 			}
 
-			internal override Task<bool> Run (CancellationToken cancellationToken)
+			internal override Task<bool> Run (TestSuite instance, CancellationToken cancellationToken)
 			{
 				return Task.FromResult (true);
 			}
 
-			internal override Task Stop (CancellationToken cancellationToken)
+			internal override Task Stop (TestSuite instance, CancellationToken cancellationToken)
 			{
 				return Manager.OnStop ();
 			}
@@ -167,12 +171,12 @@ namespace Xamarin.AsyncTests.UI
 				return Manager.OnLoadFromServer (cancellationToken);
 			}
 
-			internal override Task<bool> Run (CancellationToken cancellationToken)
+			internal override Task<bool> Run (TestSuite instance, CancellationToken cancellationToken)
 			{
 				return Task.FromResult (true);
 			}
 
-			internal override Task Stop (CancellationToken cancellationToken)
+			internal override Task Stop (TestSuite instance, CancellationToken cancellationToken)
 			{
 				return Manager.OnStop ();
 			}

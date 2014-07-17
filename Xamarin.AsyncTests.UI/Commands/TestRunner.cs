@@ -185,12 +185,12 @@ namespace Xamarin.AsyncTests.UI
 				};
 			}
 
-			internal sealed override Task<bool> Run (CancellationToken cancellationToken)
+			internal sealed override Task<bool> Run (TestResult result, CancellationToken cancellationToken)
 			{
 				return Task.FromResult (false);
 			}
 
-			internal sealed override Task Stop (CancellationToken cancellationToken)
+			internal sealed override Task Stop (TestResult result, CancellationToken cancellationToken)
 			{
 				return Task.FromResult (false);
 			}
