@@ -141,7 +141,14 @@ namespace Xamarin.AsyncTests
 
 		public bool IsEnabled (TestFeature feature)
 		{
-			return CurrentTestSuite.Configuration.IsEnabled (feature);
+			var suite = currentTestSuite;
+			if (suite == null)
+				return false;
+
+			if (feature.Constant != null)
+				return feature.Constant.Value;
+
+			return settings.IsFeatureEnabled (feature.Name) ?? feature.DefaultValue ?? false;
 		}
 
 		#endregion

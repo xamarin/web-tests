@@ -85,7 +85,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var suiteAttr = assembly.GetCustomAttribute<AsyncTestSuiteAttribute> ();
 			if (suiteAttr != null) {
 				var config = (ITestConfiguration)Activator.CreateInstance (suiteAttr.Type);
-				configuration = TestConfiguration.FromTestSuite (ctx.Settings, config);
+				configuration = TestConfiguration.FromTestSuite (config);
 			}
 		}
 

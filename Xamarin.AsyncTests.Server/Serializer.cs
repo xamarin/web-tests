@@ -303,7 +303,7 @@ namespace Xamarin.AsyncTests.Server
 		{
 			public override TestConfiguration Read (Connection connection, XElement node)
 			{
-				return TestConfiguration.ReadFromXml (connection.Context.Settings, node);
+				return TestConfiguration.ReadFromXml (node);
 			}
 
 			public override XElement Write (Connection connection, TestConfiguration instance)

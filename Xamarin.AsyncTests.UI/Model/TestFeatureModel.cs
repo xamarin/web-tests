@@ -54,7 +54,8 @@ namespace Xamarin.AsyncTests.UI
 			set {
 				if (value == isEnabled)
 					return;
-				Configuration.SetIsEnabled (Feature, value);
+				isEnabled = value;
+				App.Settings.SetIsFeatureEnabled (Feature.Name, value);
 				OnPropertyChanged ("Feature");
 			}
 		}
@@ -71,7 +72,7 @@ namespace Xamarin.AsyncTests.UI
 
 		void LoadConfiguration ()
 		{
-			isEnabled = Configuration.IsEnabled (Feature);
+			isEnabled = App.Settings.IsFeatureEnabled (Feature.Name) ?? Feature.DefaultValue ?? false;
 			OnPropertyChanged ("IsEnabled");
 		}
 	}

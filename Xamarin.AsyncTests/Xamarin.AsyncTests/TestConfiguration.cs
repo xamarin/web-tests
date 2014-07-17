@@ -36,13 +36,9 @@ namespace Xamarin.AsyncTests
 	{
 		Dictionary<string,TestFeature> features = new Dictionary<string,TestFeature> ();
 		Dictionary<string,TestCategory> categories = new Dictionary<string,TestCategory> ();
-		SettingsBag settings;
 
-		TestConfiguration (SettingsBag settings)
+		public TestConfiguration ()
 		{
-			this.settings = settings;
-			if (settings == null)
-				throw new InvalidOperationException ();
 			categories.Add (TestCategory.All.Name, TestCategory.All);
 		}
 
@@ -59,9 +55,9 @@ namespace Xamarin.AsyncTests
 			return categories.TryGetValue (name, out category);
 		}
 
-		public static TestConfiguration FromTestSuite (SettingsBag settings, ITestConfiguration config)
+		public static TestConfiguration FromTestSuite (ITestConfiguration config)
 		{
-			var configuration = new TestConfiguration (settings);
+			var configuration = new TestConfiguration ();
 			foreach (var feature in config.Features)
 				configuration.features.Add (feature.Name, feature);
 			foreach (var category in config.Categories)
@@ -69,14 +65,14 @@ namespace Xamarin.AsyncTests
 			return configuration;
 		}
 
-		public static TestConfiguration ReadFromXml (SettingsBag settings, XElement node)
+		public static TestConfiguration ReadFromXml (XElement node)
 		{
 			if (node == null)
 				return null;
 			if (!node.Name.LocalName.Equals ("TestConfiguration"))
 				throw new InvalidOperationException ();
 
-			var config = new TestConfiguration (settings);
+			var config = new TestConfiguration ();
 			foreach (var item in node.Elements ("Category")) {
 				var category = new TestCategory (item.Attribute ("Name").Value);
 				config.categories.Add (category.Name, category);
@@ -129,24 +125,9 @@ namespace Xamarin.AsyncTests
 			return element;
 		}
 
-		public bool IsEnabled (TestFeature feature)
-		{
-			if (feature.Constant != null)
-				return feature.Constant.Value;
-			return settings.IsFeatureEnabled (feature.Name) ?? feature.DefaultValue ?? false;
-		}
-
 		public bool CanModify (TestFeature feature)
 		{
 			return feature.Constant == null;
-		}
-
-		public void SetIsEnabled (TestFeature feature, bool enabled)
-		{
-			if (!CanModify (feature))
-				throw new InvalidOperationException ();
-			settings.SetIsFeatureEnabled (feature.Name, enabled);
-			OnPropertyChanged ("Feature");
 		}
 
 		#region INotifyPropertyChanged implementation
