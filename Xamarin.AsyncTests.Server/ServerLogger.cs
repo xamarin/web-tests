@@ -60,7 +60,7 @@ namespace Xamarin.AsyncTests.Server
 
 		public async void LogMessage (string message)
 		{
-			await new LogMessageCommand { Argument = message }.Send (Connection);
+			await Connection.LogMessage (message);
 		}
 
 		public void LogError (Exception error)

@@ -30,21 +30,15 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class LogMessageCommand : Command<string,object>
+	class LogMessageCommand : OneWayCommand<string>
 	{
 		protected override Serializer<string> ArgumentSerializer {
 			get { return Serializer.String; }
 		}
 
-		protected override Serializer<object> ResponseSerializer {
-			get { return null; }
-		}
-
-		protected override Task<object> Run (
-			Connection connection, string argument, CancellationToken cancellationToken)
+		protected override void Run (Connection connection, string argument)
 		{
 			connection.OnLogMessage (argument);
-			return Task.FromResult<object> (null);
 		}
 	}
 }

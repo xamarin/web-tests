@@ -48,7 +48,6 @@ namespace Xamarin.AsyncTests.Server
 		TaskCompletionSource<object> mainTcs;
 		Queue<QueuedMessage> messageQueue;
 		bool shutdownRequested;
-		// TestSuite suite;
 
 		internal Connection (TestContext context, Stream stream, bool isServer)
 		{
@@ -68,7 +67,11 @@ namespace Xamarin.AsyncTests.Server
 		public async Task LogMessage (string message)
 		{
 			var command = new LogMessageCommand { Argument = message };
-			await command.Send (this);
+			try {
+				await command.Send (this);
+			} catch {
+				OnSetLogLevel (-1);
+			}
 		}
 
 		public async Task SetLogLevel (int level, CancellationToken cancellationToken)
@@ -85,21 +88,9 @@ namespace Xamarin.AsyncTests.Server
 
 		public async Task Shutdown ()
 		{
-			// suite = null;
 			Context.CurrentTestSuite = null;
 			await new ShutdownCommand ().Send (this);
 		}
-
-		#if FIXME
-		public async Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
-		{
-			if (suite != null)
-				return suite;
-			suite = await new LoadTestSuiteCommand ().Send (this, cancellationToken);
-			await OnTestSuiteLoaded (suite, cancellationToken);
-			return suite;
-		}
-		#endif
 
 		public async Task<bool> RunTest (TestCase test, TestResult result, CancellationToken cancellationToken)
 		{
@@ -129,6 +120,7 @@ namespace Xamarin.AsyncTests.Server
 		protected internal virtual void OnShutdown ()
 		{
 			shutdownRequested = true;
+			OnSetLogLevel (-1);
 		}
 
 		protected internal abstract void OnLogMessage (string message);

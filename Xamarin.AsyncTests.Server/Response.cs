@@ -61,6 +61,11 @@ namespace Xamarin.AsyncTests.Server
 			if (errorAttr != null)
 				Error = errorAttr.Value;
 		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[Response: ObjectID={0}, Success={1}, Error={2}]", ObjectID, Success, Error);
+		}
 	}
 }
 

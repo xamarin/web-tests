@@ -199,6 +199,11 @@ namespace Xamarin.AsyncTests.UI
 					bool running = await command.Run (Instance, cts.Token);
 					if (running)
 						return;
+
+					lock (this) {
+						cts.Dispose ();
+						cts = null;
+					}
 				} catch (OperationCanceledException) {
 					;
 				} catch (Exception ex) {
@@ -229,7 +234,13 @@ namespace Xamarin.AsyncTests.UI
 				;
 			}
 
-			cts.Cancel ();
+			lock (this) {
+				if (cts != null) {
+					cts.Cancel ();
+					cts.Dispose ();
+					cts = null;
+				}
+			}
 
 			try {
 				await startTcs.Task;
@@ -239,8 +250,6 @@ namespace Xamarin.AsyncTests.UI
 
 			lock (this) {
 				startTcs = null;
-				cts.Dispose ();
-				cts = null;
 				currentCommand = null;
 				CanStart = true;
 			}
