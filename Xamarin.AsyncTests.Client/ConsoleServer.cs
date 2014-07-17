@@ -49,6 +49,7 @@ namespace Xamarin.AsyncTests.Client
 			: base (program.Context, stream, false)
 		{
 			Program = program;
+			program.Context.Statistics.StatisticsEvent += (sender, e) => OnStatisticsEvent (e);
 		}
 
 		protected override async Task<TestSuite> OnLoadTestSuite (CancellationToken cancellationToken)
@@ -56,15 +57,7 @@ namespace Xamarin.AsyncTests.Client
 			var assembly = typeof(WebTestFeatures).Assembly;
 			suite = await TestSuite.LoadAssembly (Context, assembly);
 			Context.CurrentTestSuite = suite;
-			Context.Statistics.StatisticsEvent += HandleStatisticsEvent;
 			return suite;
-		}
-
-		async void HandleStatisticsEvent (object sender, TestStatistics.StatisticsEventArgs e)
-		{
-			if (e.IsRemote)
-				return;
-			await NotifyStatisticsEvent (e);
 		}
 
 		protected override Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken)
@@ -134,6 +127,18 @@ namespace Xamarin.AsyncTests.Client
 			var result = new TestResult (suite.Name);
 			await suite.Run (Context, result, CancellationToken.None);
 			return result;
+		}
+
+		void OnStatisticsEvent (TestStatistics.StatisticsEventArgs e)
+		{
+			switch (e.Type) {
+			case TestStatistics.EventType.Running:
+				Debug ("Running {0}.", e.Name);
+				break;
+			case TestStatistics.EventType.Finished:
+				Debug ("Finished {0}: {1}", e.Name, e.Status);
+				break;
+			}
 		}
 
 		#region implemented abstract members of Connection

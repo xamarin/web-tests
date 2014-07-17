@@ -124,12 +124,8 @@ namespace Xamarin.AsyncTests.Server
 				Context.Settings.Merge (retval);
 				Context.Settings.PropertyChanged += OnSettingsChanged;
 			}
+			context.Statistics.StatisticsEvent += OnStatisticsEvent;
 			Debug ("Handshake complete.");
-		}
-
-		public async Task NotifyStatisticsEvent (TestStatistics.StatisticsEventArgs args)
-		{
-			await new NotifyStatisticsEventCommand { Argument = args }.Send (this);
 		}
 
 		#endregion
@@ -209,6 +205,7 @@ namespace Xamarin.AsyncTests.Server
 		internal SettingsBag OnHello (SettingsBag argument)
 		{
 			lock (this) {
+				Context.Statistics.StatisticsEvent += OnStatisticsEvent;
 				if (argument == null) {
 					Context.Settings.PropertyChanged += OnSettingsChanged;
 					return Context.Settings;
@@ -219,10 +216,11 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		protected internal virtual void OnStatisticsEvent (TestStatistics.StatisticsEventArgs args)
+		async void OnStatisticsEvent (object sender, TestStatistics.StatisticsEventArgs e)
 		{
-			Debug ("ON STATISTICS EVENT: {0}", args);
-			Context.Statistics.HandleStatisticsEvent (args);
+			if (e.IsRemote)
+				return;
+			await new NotifyStatisticsEventCommand { Argument = e }.Send (this);
 		}
 
 		#endregion
@@ -314,6 +312,7 @@ namespace Xamarin.AsyncTests.Server
 				cancelCts.Cancel ();
 
 				Context.Settings.PropertyChanged -= OnSettingsChanged;
+				context.Statistics.StatisticsEvent -= OnStatisticsEvent;
 
 				foreach (var queued in messageQueue)
 					queued.Task.TrySetCanceled ();

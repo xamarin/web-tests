@@ -35,7 +35,7 @@ namespace Xamarin.AsyncTests.Server
 
 		protected override void Run (Connection connection, TestStatistics.StatisticsEventArgs argument)
 		{
-			connection.OnStatisticsEvent (argument);
+			connection.Context.Statistics.HandleStatisticsEvent (argument);
 		}
 	}
 }
