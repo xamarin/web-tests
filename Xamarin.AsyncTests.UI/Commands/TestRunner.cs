@@ -64,7 +64,7 @@ namespace Xamarin.AsyncTests.UI
 			clearCommand = new ClearCommand (this);
 			currentResult = app.RootTestResult;
 
-			Context.TestFinishedEvent += (sender, e) => OnTestFinished (e);
+			Context.Statistics.StatisticsEvent += (sender, e) => OnStatisticsEvent (e);
 			app.RootTestResult.PropertyChanged += (sender, e) => OnPropertyChanged ("CurrentTestResult");
 		}
 
@@ -126,13 +126,13 @@ namespace Xamarin.AsyncTests.UI
 			if (result != null)
 				result.Result.Clear ();
 			message = null;
-			Context.ResetStatistics ();
+			Context.Statistics.Reset ();
 			StatusMessage = GetStatusMessage ();
 		}
 
 		string message;
 
-		void OnTestFinished (TestResult result)
+		void OnStatisticsEvent (TestStatistics.StatisticsEventArgs args)
 		{
 			StatusMessage = GetStatusMessage ();
 		}
@@ -146,11 +146,11 @@ namespace Xamarin.AsyncTests.UI
 				sb.Append (prefix);
 				sb.Append (": ");
 			}
-			sb.AppendFormat ("{0} tests passed", Context.CountSuccess);
-			if (Context.CountErrors > 0)
-				sb.AppendFormat (", {0} errors", Context.CountErrors);
-			if (Context.CountIgnored > 0)
-				sb.AppendFormat (", {0} ignored", Context.CountIgnored);
+			sb.AppendFormat ("{0} tests passed", Context.Statistics.CountSuccess);
+			if (Context.Statistics.CountErrors > 0)
+				sb.AppendFormat (", {0} errors", Context.Statistics.CountErrors);
+			if (Context.Statistics.CountIgnored > 0)
+				sb.AppendFormat (", {0} ignored", Context.Statistics.CountIgnored);
 
 			if (message != null)
 				return string.Format ("{0} ({1})", message, sb);

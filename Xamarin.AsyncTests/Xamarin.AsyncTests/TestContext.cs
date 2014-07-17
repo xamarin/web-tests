@@ -42,6 +42,7 @@ namespace Xamarin.AsyncTests
 		int debugLevel = DefaultDebugLevel;
 		List<IDisposable> disposables;
 		readonly SettingsBag settings;
+		readonly TestStatistics statistics;
 
 		const int DefaultDebugLevel = 0;
 
@@ -52,6 +53,10 @@ namespace Xamarin.AsyncTests
 
 		public ITestLogger Logger {
 			get; set;
+		}
+
+		public TestStatistics Statistics {
+			get { return statistics; }
 		}
 
 		public SettingsBag Settings {
@@ -65,6 +70,7 @@ namespace Xamarin.AsyncTests
 		public TestContext (SettingsBag settings)
 		{
 			this.settings = settings;
+			statistics = new TestStatistics ();
 		}
 
 		public void Debug (int level, string format, params object[] args)
@@ -107,67 +113,6 @@ namespace Xamarin.AsyncTests
 		{
 			return CurrentTestSuite.Configuration.IsEnabled (feature);
 		}
-
-		#endregion
-
-		#region Statistics
-
-		int countTests;
-		int countSuccess;
-		int countErrors;
-		int countIgnored;
-
-		public int CountTests {
-			get { return countTests; }
-		}
-
-		public int CountSuccess {
-			get { return countSuccess; }
-		}
-
-		public int CountErrors {
-			get { return countErrors; }
-		}
-
-		public int CountIgnored {
-			get { return countIgnored; }
-		}
-
-		public virtual void ResetStatistics ()
-		{
-			countTests = countSuccess = countErrors = countIgnored = 0;
-		}
-
-		public virtual void OnTestRunning (TestName name)
-		{
-			countTests++;
-		}
-
-		public virtual void OnTestIgnored (TestResult result)
-		{
-			countIgnored++;
-			OnTestFinished (result);
-		}
-
-		public virtual void OnTestPassed (TestResult result)
-		{
-			countSuccess++;
-			OnTestFinished (result);
-		}
-
-		public virtual void OnTestError (TestResult result)
-		{
-			countErrors++;
-			OnTestFinished (result);
-		}
-
-		protected virtual void OnTestFinished (TestResult result)
-		{
-			if (TestFinishedEvent != null)
-				TestFinishedEvent (this, result);
-		}
-
-		public event EventHandler<TestResult> TestFinishedEvent;
 
 		#endregion
 

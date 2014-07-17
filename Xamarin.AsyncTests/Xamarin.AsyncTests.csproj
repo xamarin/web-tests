@@ -70,6 +70,7 @@
     <Compile Include="Xamarin.AsyncTests\ITestLogger.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests\SettingsBag.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestStatistics.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

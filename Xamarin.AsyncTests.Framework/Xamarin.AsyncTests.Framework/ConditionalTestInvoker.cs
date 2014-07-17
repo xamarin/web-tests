@@ -55,7 +55,7 @@ namespace Xamarin.AsyncTests.Framework
 					result.Status = TestStatus.Ignored;
 				else
 					result.Status = TestStatus.Canceled;
-				ctx.OnTestIgnored (result);
+				ctx.Statistics.OnTestFinished (TestInstance.GetTestName (instance), TestStatus.Ignored);
 				return true;
 			}
 
