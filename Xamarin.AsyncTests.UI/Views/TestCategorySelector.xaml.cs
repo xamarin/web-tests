@@ -89,7 +89,7 @@ namespace Xamarin.AsyncTests.UI
 
 			if (Model != null) {
 				foreach (var category in Model.Categories)
-					Picker.Items.Add (category.Name);
+					Picker.Items.Add (category);
 
 				Picker.SelectedIndex = Model.SelectedIndex;
 			}

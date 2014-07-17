@@ -48,9 +48,9 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		int selectedIndex;
-		List<TestCategory> categories;
+		List<string> categories;
 
-		public IList<TestCategory> Categories {
+		public IList<string> Categories {
 			get { return categories; }
 		}
 
@@ -61,14 +61,14 @@ namespace Xamarin.AsyncTests.UI
 					return;
 				selectedIndex = value;
 				if (selectedIndex >= 0)
-					Configuration.CurrentCategory = Categories [selectedIndex];
+					App.Settings.CurrentCategory = Categories [selectedIndex];
 			}
 		}
 
 		public TestCategoriesModel (TestApp app)
 		{
 			App = app;
-			categories = new List<TestCategory> ();
+			categories = new List<string> ();
 
 			app.Settings.PropertyChanged += (sender, e) => LoadSettings ();
 			LoadSettings ();
@@ -77,7 +77,8 @@ namespace Xamarin.AsyncTests.UI
 		void OnConfigurationChanged (object sender, PropertyChangedEventArgs args)
 		{
 			if (args.PropertyName == "CurrentCategory") {
-				SelectedIndex = categories.IndexOf (Configuration.CurrentCategory);
+				LoadSettings ();
+				OnPropertyChanged ("SelectedIndex");
 				return;
 			} else if (args.PropertyName != "Categories") {
 				return;
@@ -88,14 +89,13 @@ namespace Xamarin.AsyncTests.UI
 
 		void UpdateConfiguration ()
 		{
-			SelectedIndex = -1;
+			selectedIndex = -1;
 
 			categories.Clear ();
 			if (Configuration != null) {
 				foreach (var category in Configuration.Categories) {
-					categories.Add (category);
+					categories.Add (category.Name);
 				}
-				selectedIndex = categories.IndexOf (Configuration.CurrentCategory);
 				LoadSettings ();
 			}
 			OnPropertyChanged ("Categories");
@@ -105,9 +105,9 @@ namespace Xamarin.AsyncTests.UI
 
 		void LoadSettings ()
 		{
-			var currentCategory = App.Settings.CurrentCategory;
-			if (currentCategory != null) {
-				var index = categories.FindIndex (c => c.Name.Equals (currentCategory));
+			var key = App.Settings.CurrentCategory;
+			if (key != null) {
+				var index = categories.FindIndex (c => c.Equals (key));
 				if (index >= 0)
 					selectedIndex = index;
 				else if (categories.Count > 0)

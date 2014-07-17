@@ -54,6 +54,11 @@ namespace Xamarin.AsyncTests
 			get { return categories.Values; }
 		}
 
+		public bool TryGetCategory (string name, out TestCategory category)
+		{
+			return categories.TryGetValue (name, out category);
+		}
+
 		public static TestConfiguration FromTestSuite (SettingsBag settings, ITestConfiguration config)
 		{
 			var configuration = new TestConfiguration (settings);
@@ -106,8 +111,6 @@ namespace Xamarin.AsyncTests
 
 				var node = new XElement ("Category");
 				node.SetAttributeValue ("Name", category.Name);
-				if (category == CurrentCategory)
-					node.SetAttributeValue ("IsCurrent", "true");
 				element.Add (node);
 			}
 
@@ -124,24 +127,6 @@ namespace Xamarin.AsyncTests
 			}
 
 			return element;
-		}
-
-		public TestCategory CurrentCategory {
-			get {
-				var key = settings.CurrentCategory;
-				if (key != null) {
-					TestCategory category;
-					if (categories.TryGetValue (key, out category))
-						return category;
-				}
-				return TestCategory.All;
-			}
-			set {
-				if (value.Name.Equals (settings.CurrentCategory))
-					return;
-				settings.CurrentCategory = value.Name;
-				OnPropertyChanged ("CurrentCategory");
-			}
 		}
 
 		public bool IsEnabled (TestFeature feature)

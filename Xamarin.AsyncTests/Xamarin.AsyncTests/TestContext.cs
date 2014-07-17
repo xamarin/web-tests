@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests
 		List<IDisposable> disposables;
 		readonly SettingsBag settings;
 		readonly TestStatistics statistics;
-		ITestSuite currentTestSuite;
+		volatile ITestSuite currentTestSuite;
 
 		const int DefaultDebugLevel = 0;
 
@@ -122,7 +122,21 @@ namespace Xamarin.AsyncTests
 		#region Configuration
 
 		public TestCategory CurrentCategory {
-			get { return CurrentTestSuite.Configuration.CurrentCategory; }
+			get {
+				var suite = currentTestSuite;
+				if (suite == null)
+					return TestCategory.All;
+
+				var key = Settings.CurrentCategory;
+				if (key == null)
+					return TestCategory.All;
+
+				TestCategory category;
+				if (suite.Configuration.TryGetCategory (key, out category))
+					return category;
+
+				return TestCategory.All;
+			}
 		}
 
 		public bool IsEnabled (TestFeature feature)
