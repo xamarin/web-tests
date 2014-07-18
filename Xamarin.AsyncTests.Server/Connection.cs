@@ -146,13 +146,11 @@ namespace Xamarin.AsyncTests.Server
 			if (shutdownRequested || cancelCts.IsCancellationRequested)
 				return;
 
-			Debug ("SYNC SETTINGS!");
 			await new SyncSettingsCommand { Argument = settings }.Send (this);
 		}
 
 		internal void OnSyncSettings (SettingsBag newSettings)
 		{
-			Debug ("ON SYNC SETTINGS!");
 			lock (this) {
 				Context.Settings.Merge (newSettings);
 			}
