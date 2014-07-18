@@ -14,6 +14,12 @@
     <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
         <StackLayout Spacing="10" Orientation="Vertical" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
 
+            <Frame>
+                <StackLayout Orientation="Vertical">
+                    <local:TestRunnerControl BindingContext="{Binding App.TestRunner}" />
+                </StackLayout>
+            </Frame>
+
             <local:TestNameView BindingContext="{Binding Result.Name}" />
 
             <Label Text="{Binding Result.Message}" Font="Courier"
