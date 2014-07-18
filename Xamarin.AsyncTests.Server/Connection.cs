@@ -315,13 +315,15 @@ namespace Xamarin.AsyncTests.Server
 		{
 			var queued = new QueuedMessage (message);
 
-			while (!shutdownRequested && !cancelCts.IsCancellationRequested) {
+			while (!cancelCts.IsCancellationRequested) {
 				var old = Interlocked.CompareExchange (ref currentMessage, queued, null);
 				if (old == null)
 					break;
 
 				await old.Task.Task;
 			}
+
+			cancelCts.Token.ThrowIfCancellationRequested ();
 
 			var doc = message.Write (this);
 
