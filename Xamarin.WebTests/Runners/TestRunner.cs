@@ -149,7 +149,7 @@ namespace Xamarin.WebTests.Runners
 			ctx.LogDebug (level, sb.ToString ());
 		}
 
-		public async Task Run (
+		public async Task<bool> Run (
 			InvocationContext ctx, Handler handler, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			bool expectException = false)
@@ -162,10 +162,18 @@ namespace Xamarin.WebTests.Runners
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.Token.Register (() => request.Abort ());
 
-			var task = Task.Factory.StartNew (() => Run (
-				ctx, handler, request, expectedStatus, expectException));
+			var task = Task.Factory.StartNew (() => {
+				try {
+					Run (ctx, handler, request, expectedStatus, expectException);
+					return true;
+				} catch (Exception ex) {
+					ctx.OnError (ex);
+					return false;
+				}
+			});
+
 			try {
-				await task;
+				return await task;
 			} finally {
 				cts.Dispose ();
 			}

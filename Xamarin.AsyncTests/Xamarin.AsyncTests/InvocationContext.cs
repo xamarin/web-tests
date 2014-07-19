@@ -57,6 +57,13 @@ namespace Xamarin.AsyncTests
 			Result = result;
 		}
 
+		public void OnError (Exception error)
+		{
+			Result.AddError (error);
+			Context.Statistics.OnException (Name, error);
+			Logger.LogError (error);
+		}
+
 		#region ITestLogger implementation
 
 		public void LogDebug (int level, string message)
