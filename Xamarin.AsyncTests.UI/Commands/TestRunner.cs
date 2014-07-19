@@ -39,6 +39,7 @@ namespace Xamarin.AsyncTests.UI
 		readonly RunSingleCommand runCommand;
 		readonly RepeatCommand repeatCommand;
 		readonly ClearCommand clearCommand;
+		readonly RefreshCommand refreshCommand;
 
 		public Command<TestResult> Run {
 			get { return runCommand; }
@@ -52,6 +53,10 @@ namespace Xamarin.AsyncTests.UI
 			get { return clearCommand; }
 		}
 
+		public Command Refresh {
+			get { return refreshCommand; }
+		}
+
 		public TestContext Context {
 			get { return App.Context; }
 		}
@@ -62,6 +67,7 @@ namespace Xamarin.AsyncTests.UI
 			runCommand = new RunSingleCommand (this);
 			repeatCommand = new RepeatCommand (this);
 			clearCommand = new ClearCommand (this);
+			refreshCommand = new RefreshCommand (this);
 			currentResult = app.RootTestResult;
 
 			Context.Statistics.StatisticsEvent += (sender, e) => OnStatisticsEvent (e);
@@ -123,6 +129,8 @@ namespace Xamarin.AsyncTests.UI
 
 			StatusMessage = GetStatusMessage (string.Format ("Finished in {0} seconds", (int)elapsed.TotalSeconds));
 
+			OnRefresh ();
+
 			return result;
 		}
 
@@ -134,7 +142,16 @@ namespace Xamarin.AsyncTests.UI
 			message = null;
 			Context.Statistics.Reset ();
 			StatusMessage = GetStatusMessage ();
+			OnRefresh ();
 		}
+
+		void OnRefresh ()
+		{
+			if (UpdateResultEvent != null)
+				UpdateResultEvent (this, EventArgs.Empty);
+		}
+
+		public event EventHandler UpdateResultEvent;
 
 		string message;
 
@@ -242,6 +259,25 @@ namespace Xamarin.AsyncTests.UI
 			#endregion
 		}
 
+
+		class RefreshCommand : RunCommand
+		{
+			public RefreshCommand (TestRunner runner)
+				: base (runner)
+			{
+			}
+
+			#region implemented abstract members of Command
+
+			internal override async Task<TestResult> Start (CancellationToken cancellationToken)
+			{
+				await Task.Yield ();
+				Runner.OnRefresh ();
+				return null;
+			}
+
+			#endregion
+		}
 
 	}
 }

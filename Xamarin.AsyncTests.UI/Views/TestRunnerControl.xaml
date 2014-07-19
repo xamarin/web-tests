@@ -10,7 +10,8 @@
             <Button Text="Run" Command="{Binding Run}" />
             <Button Text="Repeat" Command="{Binding Repeat}" />
             <Button Text="Stop" Command="{Binding Stop}" />
-            <Button Text="Clear Result" Command="{Binding Clear}" />
+            <Button Text="Clear" Command="{Binding Clear}" />
+            <Button Text="Refresh" Command="{Binding Refresh}" />
         </StackLayout>
 
         <Label Text="{Binding StatusMessage}" HorizontalOptions="FillAndExpand" />

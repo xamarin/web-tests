@@ -62,16 +62,24 @@ namespace Xamarin.AsyncTests.UI
 			InitializeComponent ();
 
 			BindingContext = model;
+
+			App.TestRunner.UpdateResultEvent += (sender, e) => Refresh ();
 		}
 
 		protected override void OnAppearing ()
 		{
 			App.TestRunner.CurrentTestResult = Model;
 
+			Refresh ();
+
+			base.OnAppearing ();
+		}
+
+		void Refresh ()
+		{
 			var items = Model.GetChildren ().ToList ();
 			List.IsVisible = items.Count > 0;
 			List.ItemsSource = items;
-			base.OnAppearing ();
 		}
 
 		async void OnItemSelected (object sender, SelectedItemChangedEventArgs args)
