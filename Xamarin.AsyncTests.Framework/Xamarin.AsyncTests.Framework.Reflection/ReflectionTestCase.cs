@@ -95,6 +95,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					continue;
 				else if (paramType.Equals (typeof(TestResult)))
 					continue;
+				else if (paramType.Equals (typeof(InvocationContext)))
+					continue;
 
 				var member = ReflectionHelper.GetParameterInfo (parameters [i]);
 				parameterHosts.AddRange (ResolveParameter (Fixture.Type, member));
@@ -128,6 +130,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var parameters = Method.GetParameters ();
 
+			var logger = new TestResultLogger (result, ctx.Logger);
+			var ic = new InvocationContext (ctx, logger, TestInstance.GetTestName (instance), result);
+
 			ctx.Debug (5, "INVOKE: {0} {1} {2}", Name, Method, instance);
 
 			for (int index = parameters.Length - 1; index >= 0; index--) {
@@ -141,10 +146,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					args.AddFirst (ctx);
 					continue;
 				} else if (paramType.Equals (typeof(ITestLogger))) {
-					args.AddFirst (new TestResultLogger (result, ctx.Logger));
+					args.AddFirst (logger);
 					continue;
 				} else if (paramType.Equals (typeof(TestResult))) {
 					args.AddFirst (result);
+					continue;
+				} else if (paramType.Equals (typeof(InvocationContext))) {
+					args.AddFirst (ic);
 					continue;
 				}
 
