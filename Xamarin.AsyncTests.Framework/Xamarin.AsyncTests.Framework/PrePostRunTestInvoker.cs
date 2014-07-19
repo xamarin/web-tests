@@ -44,7 +44,8 @@ namespace Xamarin.AsyncTests.Framework
 		async Task<bool> PreRun (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			ctx.Debug (3, "PreRun({0}): {1}", TestInstance.GetTestName (instance), ctx.Print (instance));
+			var name = TestInstance.GetTestName (instance);
+			ctx.Debug (3, "PreRun({0}): {1}", name, ctx.Print (instance));
 
 			try {
 				for (var current = instance; current != null; current = current.Parent) {
@@ -59,6 +60,7 @@ namespace Xamarin.AsyncTests.Framework
 				return false;
 			} catch (Exception ex) {
 				result.AddError (ex);
+				ctx.Statistics.OnException (name, ex);
 				return false;
 			}
 		}
@@ -66,7 +68,8 @@ namespace Xamarin.AsyncTests.Framework
 		async Task<bool> PostRun (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			ctx.Debug (3, "PostRun({0}): {1}", TestInstance.GetTestName (instance), ctx.Print (instance));
+			var name = TestInstance.GetTestName (instance);
+			ctx.Debug (3, "PostRun({0}): {1}", name, ctx.Print (instance));
 
 			try {
 				for (var current = instance; current != null; current = current.Parent) {
@@ -80,6 +83,7 @@ namespace Xamarin.AsyncTests.Framework
 				return false;
 			} catch (Exception ex) {
 				result.AddError (ex);
+				ctx.Statistics.OnException (name, ex);
 				return false;
 			}
 		}

@@ -51,8 +51,8 @@ namespace Xamarin.AsyncTests.Framework
 
 		ParameterizedTestInstance SetUp (TestContext ctx, TestInstance instance, TestResult result)
 		{
-			ctx.Debug (3, "SetUp({0}): {1} {2}", TestInstance.GetTestName (instance),
-				ctx.Print (Host), ctx.Print (instance));
+			var name = TestInstance.GetTestName (instance);
+			ctx.Debug (3, "SetUp({0}): {1} {2}", name, ctx.Print (Host), ctx.Print (instance));
 
 			try {
 				return (ParameterizedTestInstance)Host.CreateInstance (ctx, instance);
@@ -61,14 +61,15 @@ namespace Xamarin.AsyncTests.Framework
 				return null;
 			} catch (Exception ex) {
 				result.AddError (ex);
+				ctx.Statistics.OnException (name, ex);
 				return null;
 			}
 		}
 
 		bool MoveNext (TestContext ctx, TestInstance instance, TestResult result)
 		{
-			ctx.Debug (3, "MoveNext({0}): {1} {2}", TestInstance.GetTestName (instance),
-				ctx.Print (Host), ctx.Print (instance));
+			var name = TestInstance.GetTestName (instance);
+			ctx.Debug (3, "MoveNext({0}): {1} {2}", name, ctx.Print (Host), ctx.Print (instance));
 
 			try {
 				return ((ParameterizedTestInstance)instance).MoveNext (ctx);
@@ -77,6 +78,7 @@ namespace Xamarin.AsyncTests.Framework
 				return false;
 			} catch (Exception ex) {
 				result.AddError (ex);
+				ctx.Statistics.OnException (name, ex);
 				return false;
 			}
 		}

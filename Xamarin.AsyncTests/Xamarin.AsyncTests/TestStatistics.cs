@@ -67,6 +67,11 @@ namespace Xamarin.AsyncTests
 			});
 		}
 
+		public void OnException (TestName name, Exception ex)
+		{
+			OnTestFinished (name, TestStatus.Error);
+		}
+
 		internal void HandleStatisticsEvent (StatisticsEventArgs args)
 		{
 			switch (args.Type) {

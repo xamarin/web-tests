@@ -52,8 +52,8 @@ namespace Xamarin.AsyncTests.Framework
 		async Task<HeavyTestInstance> SetUp (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			ctx.Debug (3, "SetUp({0}): {1} {2}", TestInstance.GetTestName (instance),
-				ctx.Print (Host), ctx.Print (instance));
+			var name = TestInstance.GetTestName (instance);
+			ctx.Debug (3, "SetUp({0}): {1} {2}", name, ctx.Print (Host), ctx.Print (instance));
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
@@ -65,6 +65,7 @@ namespace Xamarin.AsyncTests.Framework
 				return null;
 			} catch (Exception ex) {
 				result.AddError (ex);
+				ctx.Statistics.OnException (name, ex);
 				return null;
 			}
 		}
@@ -72,8 +73,8 @@ namespace Xamarin.AsyncTests.Framework
 		async Task<bool> TearDown (
 			TestContext ctx, HeavyTestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			ctx.Debug (3, "TearDown({0}): {1} {2}", TestInstance.GetTestName (instance),
-				ctx.Print (Host), ctx.Print (instance));
+			var name = TestInstance.GetTestName (instance);
+			ctx.Debug (3, "TearDown({0}): {1} {2}", name, ctx.Print (Host), ctx.Print (instance));
 
 			try {
 				await instance.Destroy (ctx, cancellationToken);
@@ -83,6 +84,7 @@ namespace Xamarin.AsyncTests.Framework
 				return false;
 			} catch (Exception ex) {
 				result.AddError (ex);
+				ctx.Statistics.OnException (name, ex);
 				return false;
 			}
 		}

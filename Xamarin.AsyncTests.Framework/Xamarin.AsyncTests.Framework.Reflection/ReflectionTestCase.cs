@@ -208,7 +208,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				retval = InvokeInner (ctx, instance, result, cancellationToken);
 			} catch (Exception ex) {
 				result.AddError (ex);
-				ctx.Statistics.OnTestFinished (name, TestStatus.Error);
+				ctx.Statistics.OnException (name, ex);
 				return false;
 			}
 
@@ -229,7 +229,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return false;
 			} catch (Exception ex) {
 				result.AddError (ex);
-				ctx.Statistics.OnTestFinished (name, TestStatus.Error);
+				ctx.Statistics.OnException (name, ex);
 				return false;
 			}
 		}

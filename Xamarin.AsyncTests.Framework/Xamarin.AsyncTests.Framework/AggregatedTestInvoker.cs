@@ -75,7 +75,8 @@ namespace Xamarin.AsyncTests.Framework
 			TestContext ctx, TestInstance instance, TestResult result, TestInvoker invoker,
 			CancellationToken cancellationToken)
 		{
-			ctx.Debug (3, "Running({0}): {1}", TestInstance.GetTestName (instance), invoker);
+			var name = TestInstance.GetTestName (instance);
+			ctx.Debug (3, "Running({0}): {1}", name, invoker);
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
@@ -86,6 +87,7 @@ namespace Xamarin.AsyncTests.Framework
 				return false;
 			} catch (Exception ex) {
 				result.AddError (ex);
+				ctx.Statistics.OnException (name, ex);
 				return false;
 			}
 		}
