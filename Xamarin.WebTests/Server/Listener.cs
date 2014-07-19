@@ -209,5 +209,15 @@ namespace Xamarin.WebTests.Server
 		}
 
 		protected abstract bool HandleConnection (Socket socket, StreamReader reader, StreamWriter writer);
+
+		protected void CheckCancellation ()
+		{
+			lock (this) {
+				if (cts != null)
+					cts.Token.ThrowIfCancellationRequested ();
+				if (abortRequested)
+					throw new OperationCanceledException ();
+			}
+		}
 	}
 }

@@ -125,13 +125,15 @@ namespace Xamarin.WebTests.Server
 			bool doneSending = false;
 			bool doneReading = false;
 			while (!doneSending || !doneReading) {
+				CheckCancellation ();
+
 				var readList = new List<Socket> ();
 				if (!doneSending)
 					readList.Add (input);
 				if (!doneReading)
 					readList.Add (output);
 
-				Socket.Select (readList, null, null, -1);
+				Socket.Select (readList, null, null, 500);
 
 				if (readList.Contains (input)) {
 					if (!Copy (input, output))
