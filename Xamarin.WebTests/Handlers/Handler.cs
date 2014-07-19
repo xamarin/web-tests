@@ -38,6 +38,9 @@ namespace Xamarin.WebTests.Handlers
 
 	public abstract class Handler : Xamarin.AsyncTests.ICloneable
 	{
+		static int next_id;
+		public readonly int ID = ++next_id;
+
 		static int debugLevel = 10;
 
 		public static int DebugLevel {
@@ -76,60 +79,32 @@ namespace Xamarin.WebTests.Handlers
 			tcs = new TaskCompletionSource<bool> ();
 		}
 
-		public Handler Parent {
+		public InvocationContext Context {
 			get;
 			private set;
-		}
-
-		internal void SetParent (Handler parent)
-		{
-			if (Parent != null)
-				throw new InvalidOperationException ();
-			Parent = parent;
-		}
-
-		internal ITestLogger Logger {
-			get; set;
-		}
-
-		ITestLogger GetLogger ()
-		{
-			lock (this) {
-				if (Logger != null)
-					return Logger;
-				if (Parent != null)
-					return Parent.GetLogger ();
-				throw new InvalidOperationException ();
-			}
 		}
 
 		protected void Debug (int level, string message, params object[] args)
 		{
 			if (DebugLevel < level)
 				return;
-			var logger = GetLogger ();
+			if (Context == null)
+				throw new InvalidOperationException ();
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("{0}: {1}", this, message);
 			for (int i = 0; i < args.Length; i++) {
 				sb.Append (" ");
 				sb.Append (args [i] != null ? args [i].ToString () : "<null>");
 			}
-			if (logger != null)
-				logger.LogDebug (level, sb.ToString ());
-			else
-				Console.Error.WriteLine (sb.ToString ());
+			Context.LogDebug (level, sb.ToString ());
 		}
 
 		protected void DumpHeaders (HttpMessage message)
 		{
 			if (DebugLevel < 2)
 				return;
-			var logger = GetLogger ();
 			foreach (var header in message.Headers) {
-				if (logger != null)
-					logger.LogMessage (string.Format ("  {0} = {1}", header.Key, header.Value));
-				else
-					Console.Error.WriteLine ("  {0} = {1}", header.Key, header.Value);
+				Context.LogMessage (string.Format ("  {0} = {1}", header.Key, header.Value));
 			}
 		}
 
@@ -160,6 +135,15 @@ namespace Xamarin.WebTests.Handlers
 
 		protected internal abstract HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags);
 
+		public virtual void Register (InvocationContext context)
+		{
+			lock (this) {
+				if (Context != null && Context != context)
+					throw new InvalidOperationException ();
+				Context = context;
+			}
+		}
+
 		internal Uri RegisterRequest (HttpListener listener)
 		{
 			lock (this) {
@@ -173,6 +157,7 @@ namespace Xamarin.WebTests.Handlers
 
 		internal virtual void Reset ()
 		{
+			Context = null;
 			hasRequest = false;
 			tcs = new TaskCompletionSource<bool> ();
 		}

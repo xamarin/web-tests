@@ -67,14 +67,14 @@ namespace Xamarin.WebTests.Tests
 
 		[Work]
 		[AsyncTest]
-		public Task Run (TestContext ctx, ITestLogger logger, CancellationToken cancellationToken,
+		public Task Run (InvocationContext ctx, CancellationToken cancellationToken,
 			[TestHost (typeof (TestGet))] TestRunner runner, [TestParameter] Handler handler)
 		{
-			return runner.Run (ctx, logger, handler, cancellationToken);
+			return runner.Run (ctx, handler, cancellationToken);
 		}
 
 		[AsyncTest]
-		public Task Redirect (TestContext ctx, ITestLogger logger, CancellationToken cancellationToken,
+		public Task Redirect (InvocationContext ctx, CancellationToken cancellationToken,
 			[TestHost] TestRunner runner,
 			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
 			[TestParameter] Handler handler)
@@ -82,7 +82,7 @@ namespace Xamarin.WebTests.Tests
 			var description = string.Format ("{0}: {1}", code, handler.Description);
 			var redirect = new RedirectHandler (handler, code) { Description = description };
 
-			return runner.Run (ctx, logger, redirect, cancellationToken);
+			return runner.Run (ctx, redirect, cancellationToken);
 		}
 	}
 }

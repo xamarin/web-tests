@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Handlers
 {
@@ -47,6 +48,13 @@ namespace Xamarin.WebTests.Handlers
 				Flags &= ~RequestFlags.SendContinue;
 
 			Description = string.Format ("{0}: {1}", GetType ().Name, target.Description);
+		}
+
+		public override void Register (InvocationContext context)
+		{
+			base.Register (context);
+			if (Target.Context == null)
+				Target.Register (context);
 		}
 
 		public override HttpWebRequest CreateRequest (Uri uri)

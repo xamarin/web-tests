@@ -127,7 +127,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task RedirectAsGetNoBuffering (
-			TestContext ctx, ITestLogger logger, [TestHost] HttpTestRunner runner,
+			InvocationContext ctx, [TestHost] HttpTestRunner runner,
 			CancellationToken cancellationToken)
 		{
 			var post = new PostHandler {
@@ -138,12 +138,12 @@ namespace Xamarin.WebTests.Tests
 				AllowWriteStreamBuffering = false
 			};
 			var handler = new RedirectHandler (post, HttpStatusCode.Redirect);
-			return runner.Run (ctx, logger, handler, cancellationToken);
+			return runner.Run (ctx, handler, cancellationToken);
 		}
 
 		[AsyncTest]
 		public Task RedirectNoBuffering (
-			TestContext ctx, ITestLogger logger, [TestHost] HttpTestRunner runner,
+			InvocationContext ctx, [TestHost] HttpTestRunner runner,
 			CancellationToken cancellationToken)
 		{
 			var post = new PostHandler {
@@ -154,20 +154,20 @@ namespace Xamarin.WebTests.Tests
 				AllowWriteStreamBuffering = false
 			};
 			var handler = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
-			return runner.Run (ctx, logger, handler, cancellationToken, HttpStatusCode.TemporaryRedirect, true);
+			return runner.Run (ctx, handler, cancellationToken, HttpStatusCode.TemporaryRedirect, true);
 		}
 
 		[AsyncTest]
 		public Task Run (
-			TestContext ctx, ITestLogger logger, [TestHost] HttpTestRunner runner,
+			InvocationContext ctx, [TestHost] HttpTestRunner runner,
 			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{
-			return runner.Run (ctx, logger, handler, cancellationToken);
+			return runner.Run (ctx, handler, cancellationToken);
 		}
 
 		[AsyncTest]
 		public Task Redirect (
-			TestContext ctx, ITestLogger logger, [TestHost] HttpTestRunner runner,
+			InvocationContext ctx, [TestHost] HttpTestRunner runner,
 			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
 			[TestParameter ("post")] Handler handler, CancellationToken cancellationToken)
 		{
@@ -182,12 +182,12 @@ namespace Xamarin.WebTests.Tests
 			post.Description = string.Format ("{0}: {1}", code, post.Description);
 			var redirect = new RedirectHandler (post, code) { Description = post.Description };
 
-			return runner.Run (ctx, logger, redirect, cancellationToken);
+			return runner.Run (ctx, redirect, cancellationToken);
 		}
 
 		[AsyncTest]
 		public async Task Test18750 (
-			TestContext ctx, ITestLogger logger, [TestHost] HttpTestRunner runner,
+			InvocationContext ctx, [TestHost] HttpTestRunner runner,
 			CancellationToken cancellationToken)
 		{
 			var post = new PostHandler {
@@ -197,23 +197,19 @@ namespace Xamarin.WebTests.Tests
 			};
 			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
 
-			try {
-				redirect.Logger = logger;
+			redirect.Register (ctx);
 
-				var uri = redirect.RegisterRequest (runner.Listener);
+			var uri = redirect.RegisterRequest (runner.Listener);
 
-				var wc = new WebClient ();
-				var res = await wc.UploadStringTaskAsync (uri, post.Body);
-				ctx.Debug (2, "Test18750: {0}", res);
-			} finally {
-				redirect.Logger = null;
-			}
+			var wc = new WebClient ();
+			var res = await wc.UploadStringTaskAsync (uri, post.Body);
+			ctx.LogDebug (2, "Test18750: {0}", res);
 
 			var secondPost = new PostHandler {
 				Description = "Second post", Body = "Should send this"
 			};
 
-			await runner.Run (ctx, logger, secondPost, cancellationToken);
+			await runner.Run (ctx, secondPost, cancellationToken);
 		}
 	}
 }

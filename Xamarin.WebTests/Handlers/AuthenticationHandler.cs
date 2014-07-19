@@ -37,14 +37,12 @@ namespace Xamarin.WebTests.Handlers
 		public AuthenticationHandler (AuthenticationType type, Handler target)
 			: base (target)
 		{
-			target.SetParent (this);
 			manager = new HttpAuthManager (type, target);
 		}
 
 		AuthenticationHandler (HttpAuthManager manager)
 			: base (manager.Target)
 		{
-			SetParent (manager.Target);
 			this.manager = manager;
 		}
 
@@ -71,6 +69,7 @@ namespace Xamarin.WebTests.Handlers
 			protected override HttpResponse OnUnauthenticated (HttpRequest request, string token, bool omitBody)
 			{
 				var handler = new AuthenticationHandler (this);
+				handler.Register (Target.Context);
 				if (omitBody)
 					handler.Flags |= RequestFlags.NoBody;
 				handler.Flags |= RequestFlags.Redirected;
