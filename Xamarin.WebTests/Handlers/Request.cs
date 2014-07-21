@@ -1,5 +1,5 @@
 ﻿//
-// AbstractRedirectHandler.cs
+// IRequest.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,42 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Handlers
 {
-	using Framework;
-
-	public abstract class AbstractRedirectHandler : Handler
+	public abstract class Request
 	{
-		public Handler Target {
-			get;
-			private set;
-		}
+		public abstract Task<Response> Send (CancellationToken cancellationToken);
 
-		protected AbstractRedirectHandler (Handler target)
-		{
-			Target = target;
+		public abstract void SetProxy (IWebProxy proxy);
 
-			if ((target.Flags & RequestFlags.SendContinue) != 0)
-				Flags |= RequestFlags.SendContinue;
-			else
-				Flags &= ~RequestFlags.SendContinue;
-
-			Description = string.Format ("{0}: {1}", GetType ().Name, target.Description);
-		}
-
-		public override void Register (InvocationContext context)
-		{
-			base.Register (context);
-			if (Target.Context == null)
-				Target.Register (context);
-		}
-
-		public override Request CreateRequest (Uri uri)
-		{
-			return Target.CreateRequest (uri);
-		}
+		public abstract void SetCredentials (ICredentials credentials);
 	}
 }
 

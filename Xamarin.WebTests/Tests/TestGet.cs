@@ -40,7 +40,6 @@ namespace Xamarin.WebTests.Tests
 	using Handlers;
 	using Framework;
 
-	[Work]
 	[AsyncTestFixture]
 	public class TestGet : ITestHost<TestRunner>, ITestParameterSource<Handler>
 	{
@@ -65,7 +64,6 @@ namespace Xamarin.WebTests.Tests
 			yield return new HelloWorldHandler ();
 		}
 
-		[Work]
 		[AsyncTest]
 		public Task Run (InvocationContext ctx, CancellationToken cancellationToken,
 			[TestHost (typeof (TestGet))] TestRunner runner, [TestParameter] Handler handler)

@@ -133,6 +133,18 @@
       <Link>WebTestFeatures.cs</Link>
     </Compile>
     <Compile Include="ServerHost.cs" />
+    <Compile Include="..\Xamarin.WebTests\Handlers\Request.cs">
+      <Link>Handlers\Request.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\TraditionalResponse.cs">
+      <Link>Handlers\TraditionalResponse.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\Response.cs">
+      <Link>Handlers\Response.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\TraditionalRequest.cs">
+      <Link>Handlers\TraditionalRequest.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xamarin.WebTests\Framework\RequestFlags.cs">

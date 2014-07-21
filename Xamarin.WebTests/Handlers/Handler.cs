@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Net;
+// using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -162,16 +162,12 @@ namespace Xamarin.WebTests.Handlers
 			tcs = new TaskCompletionSource<bool> ();
 		}
 
-		public virtual HttpWebRequest CreateRequest (Uri uri)
+		public virtual Request CreateRequest (Uri uri)
 		{
-			return (HttpWebRequest)HttpWebRequest.Create (uri);
+			return new TraditionalRequest (uri);
 		}
 
-		public virtual void SendRequest (HttpWebRequest request)
-		{
-		}
-
-		public HttpWebRequest CreateRequest (HttpListener listener)
+		public Request CreateRequest (HttpListener listener)
 		{
 			var uri = RegisterRequest (listener);
 			return CreateRequest (uri);

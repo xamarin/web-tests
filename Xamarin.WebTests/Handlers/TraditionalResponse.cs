@@ -1,5 +1,5 @@
 ﻿//
-// AbstractRedirectHandler.cs
+// TraditionalResponse.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,41 +24,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
+using System.Net;
 
 namespace Xamarin.WebTests.Handlers
 {
-	using Framework;
-
-	public abstract class AbstractRedirectHandler : Handler
+	public class TraditionalResponse : Response
 	{
-		public Handler Target {
-			get;
-			private set;
+		HttpStatusCode code;
+		string body;
+		Exception error;
+
+		public override HttpStatusCode Status {
+			get { return code; }
 		}
 
-		protected AbstractRedirectHandler (Handler target)
-		{
-			Target = target;
-
-			if ((target.Flags & RequestFlags.SendContinue) != 0)
-				Flags |= RequestFlags.SendContinue;
-			else
-				Flags &= ~RequestFlags.SendContinue;
-
-			Description = string.Format ("{0}: {1}", GetType ().Name, target.Description);
+		public override string Body {
+			get { return body; }
 		}
 
-		public override void Register (InvocationContext context)
-		{
-			base.Register (context);
-			if (Target.Context == null)
-				Target.Register (context);
+		public override bool IsSuccess {
+			get { return error == null; }
 		}
 
-		public override Request CreateRequest (Uri uri)
+		public override Exception Error {
+			get { return error; }
+		}
+
+		public TraditionalResponse (TraditionalRequest request, HttpStatusCode code, string body, Exception error)
+			: base (request)
 		{
-			return Target.CreateRequest (uri);
+			this.code = code;
+			this.body = body;
+			this.error = error;
 		}
 	}
 }

@@ -79,6 +79,10 @@
     <Compile Include="Tests\RedirectStatusSource.cs" />
     <Compile Include="Tests\TestGet.cs" />
     <Compile Include="WebTestFeatures.cs" />
+    <Compile Include="Handlers\Request.cs" />
+    <Compile Include="Handlers\TraditionalRequest.cs" />
+    <Compile Include="Handlers\Response.cs" />
+    <Compile Include="Handlers\TraditionalResponse.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

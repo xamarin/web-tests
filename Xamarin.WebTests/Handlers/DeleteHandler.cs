@@ -83,27 +83,17 @@ namespace Xamarin.WebTests.Handlers
 			return HttpResponse.CreateSuccess ();
 		}
 
-		public override HttpWebRequest CreateRequest (Uri uri)
+		public override Request CreateRequest (Uri uri)
 		{
-			var request = base.CreateRequest (uri);
-			request.Method = "DELETE";
+			var traditional = new TraditionalRequest (uri);
+			traditional.Request.Method = "DELETE";
 
 			if (Flags == RequestFlags.ExplicitlySetLength)
-				request.ContentLength = Body != null ? Body.Length : 0;
+				traditional.Request.ContentLength = Body != null ? Body.Length : 0;
 
-			return request;
-		}
+			traditional.Body = body;
 
-		public override void SendRequest (HttpWebRequest request)
-		{
-			base.SendRequest (request);
-
-			if (Body != null) {
-				using (var writer = new StreamWriter (request.GetRequestStream ())) {
-					if (!string.IsNullOrEmpty (Body))
-						writer.Write (Body);
-				}
-			}
+			return traditional;
 		}
 	}
 }

@@ -58,11 +58,9 @@ namespace Xamarin.WebTests.Runners
 			return Task.Run (() => listener.Stop ());
 		}
 
-		protected override HttpWebRequest CreateRequest (Handler handler)
+		protected override Request CreateRequest (Handler handler)
 		{
-			var request = handler.CreateRequest (listener);
-			request.KeepAlive = true;
-			return request;
+			return handler.CreateRequest (listener);
 		}
 
 		protected override string MyToString ()

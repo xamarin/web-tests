@@ -1,5 +1,5 @@
 ﻿//
-// AbstractRedirectHandler.cs
+// Response.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,41 +24,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Handlers
 {
-	using Framework;
-
-	public abstract class AbstractRedirectHandler : Handler
+	public abstract class Response
 	{
-		public Handler Target {
+		public Request Request {
 			get;
 			private set;
 		}
 
-		protected AbstractRedirectHandler (Handler target)
+		public Response (Request request)
 		{
-			Target = target;
-
-			if ((target.Flags & RequestFlags.SendContinue) != 0)
-				Flags |= RequestFlags.SendContinue;
-			else
-				Flags &= ~RequestFlags.SendContinue;
-
-			Description = string.Format ("{0}: {1}", GetType ().Name, target.Description);
+			Request = request;
 		}
 
-		public override void Register (InvocationContext context)
-		{
-			base.Register (context);
-			if (Target.Context == null)
-				Target.Register (context);
+		public abstract HttpStatusCode Status {
+			get;
 		}
 
-		public override Request CreateRequest (Uri uri)
-		{
-			return Target.CreateRequest (uri);
+		public abstract bool IsSuccess {
+			get;
+		}
+
+		public abstract Exception Error {
+			get;
+		}
+
+		public abstract string Body {
+			get;
 		}
 	}
 }

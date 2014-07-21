@@ -39,10 +39,6 @@ namespace Xamarin.WebTests.Handlers
 	public class PostHandler : Handler
 	{
 		string body;
-		int? readChunkSize;
-		int? readChunkMinDelay, readChunkMaxDelay;
-		int? writeChunkSize;
-		int? writeChunkMinDelay, writeChunkMaxDelay;
 		bool? allowWriteBuffering;
 		TransferMode mode = TransferMode.Default;
 
@@ -64,36 +60,6 @@ namespace Xamarin.WebTests.Handlers
 			}
 		}
 
-		public int? ReadChunkSize {
-			get {
-				return readChunkSize;
-			}
-			set {
-				WantToModify ();
-				readChunkSize = value;
-			}
-		}
-
-		public int? ReadChunkMinDelay {
-			get {
-				return readChunkMinDelay;
-			}
-			set {
-				WantToModify ();
-				readChunkMinDelay = value;
-			}
-		}
-
-		public int? ReadChunkMaxDelay {
-			get {
-				return readChunkMaxDelay;
-			}
-			set {
-				WantToModify ();
-				readChunkMaxDelay = value;
-			}
-		}
-
 		public bool? AllowWriteStreamBuffering {
 			get {
 				return allowWriteBuffering;
@@ -104,46 +70,10 @@ namespace Xamarin.WebTests.Handlers
 			}
 		}
 
-		public int? WriteChunkSize {
-			get {
-				return writeChunkSize;
-			}
-			set {
-				WantToModify ();
-				writeChunkSize = value;
-			}
-		}
-
-		public int? WriteChunkMinDelay {
-			get {
-				return writeChunkMinDelay;
-			}
-			set {
-				WantToModify ();
-				writeChunkMinDelay = value;
-			}
-		}
-
-		public int? WriteChunkMaxDelay {
-			get {
-				return writeChunkMaxDelay;
-			}
-			set {
-				WantToModify ();
-				writeChunkMaxDelay = value;
-			}
-		}
-
 		public override object Clone ()
 		{
 			var post = new PostHandler ();
 			post.body = body;
-			post.readChunkSize = readChunkSize;
-			post.readChunkMinDelay = readChunkMinDelay;
-			post.readChunkMaxDelay = readChunkMaxDelay;
-			post.writeChunkSize = writeChunkSize;
-			post.writeChunkMinDelay = writeChunkMinDelay;
-			post.writeChunkMaxDelay = writeChunkMaxDelay;
 			post.allowWriteBuffering = allowWriteBuffering;
 			post.mode = mode;
 			return post;
@@ -240,77 +170,41 @@ namespace Xamarin.WebTests.Handlers
 
 		string ReadBody (Connection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			connection.ReadChunkSize = ReadChunkSize;
-			connection.ReadChunkMinDelay = ReadChunkMinDelay;
-			connection.ReadChunkMaxDelay = ReadChunkMaxDelay;
 			var body = request.ReadBody ();
 			if (body == null)
 				throw new InvalidOperationException ();
 			return body;
 		}
 
-		public override HttpWebRequest CreateRequest (Uri uri)
+		public override Request CreateRequest (Uri uri)
 		{
-			var request = base.CreateRequest (uri);
+			var traditional = new TraditionalRequest (uri);
 
 			if (Body != null)
-				request.ContentType = "text/plain";
-			request.Method = "POST";
+				traditional.Request.ContentType = "text/plain";
+			traditional.Request.Method = "POST";
 
 			if (AllowWriteStreamBuffering != null)
-				request.AllowWriteStreamBuffering = AllowWriteStreamBuffering.Value;
+				traditional.Request.AllowWriteStreamBuffering = AllowWriteStreamBuffering.Value;
 
 			if (((Flags & RequestFlags.ExplicitlySetLength) != 0) && (Mode != TransferMode.ContentLength))
 				throw new InvalidOperationException ();
 
 			switch (Mode) {
 			case TransferMode.Chunked:
-				request.SendChunked = true;
+				traditional.Request.SendChunked = true;
 				break;
 			case TransferMode.ContentLength:
 				if (body == null)
-					request.ContentLength = 0;
+					traditional.Request.ContentLength = 0;
 				else
-					request.ContentLength = body.Length;
+					traditional.Request.ContentLength = body.Length;
 				break;
 			}
 
-			return request;
-		}
+			traditional.Body = Body;
 
-		public override void SendRequest (HttpWebRequest request)
-		{
-			base.SendRequest (request);
-
-			if (Body != null) {
-				using (var stream = request.GetRequestStream ()) {
-					if (!string.IsNullOrEmpty (Body))
-						WriteBody (stream, Body);
-				}
-			}
-		}
-
-		void WriteBody (Stream writer, string body)
-		{
-			var buffer = new UTF8Encoding ().GetBytes (body);
-
-			var length = buffer.Length;
-			var chunkSize = WriteChunkSize ?? length;
-			var minDelay = WriteChunkMinDelay ?? 0;
-			var maxDelay = WriteChunkMaxDelay ?? minDelay;
-
-			var random = new Random ();
-			var delayRange = maxDelay - minDelay;
-
-			int offset = 0;
-			while (offset < length) {
-				int delay = minDelay + random.Next (delayRange);
-				Thread.Sleep (delay);
-
-				var size = Math.Min (length - offset, chunkSize);
-				writer.Write (buffer, offset, size);
-				offset += size;
-			}
+			return traditional;
 		}
 	}
 }

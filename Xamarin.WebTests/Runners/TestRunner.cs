@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.Runners
 
 		public abstract Task Stop (CancellationToken cancellationToken);
 
-		protected abstract HttpWebRequest CreateRequest (Handler handler);
+		protected abstract Request CreateRequest (Handler handler);
 
 		static IPAddress address;
 
@@ -159,73 +159,17 @@ namespace Xamarin.WebTests.Runners
 			handler.Register (ctx);
 			var request = CreateRequest (handler);
 
-			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-			cts.Token.Register (() => request.Abort ());
+			var response = await request.Send (cancellationToken);
 
-			var task = Task.Factory.StartNew (() => {
-				try {
-					Run (ctx, handler, request, expectedStatus, expectException);
-					return true;
-				} catch (Exception ex) {
-					ctx.OnError (ex);
-					return false;
-				}
-			});
+			Debug (ctx, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess);
 
-			try {
-				return await task;
-			} finally {
-				cts.Dispose ();
-			}
-		}
+			Assert.That (expectedStatus, Is.EqualTo (response.Status), "status code");
+			Assert.That (expectException, Is.EqualTo (!response.IsSuccess), "success status");
 
-		void Run (
-			InvocationContext ctx, Handler handler, HttpWebRequest request,
-			HttpStatusCode expectedStatus, bool expectException)
-		{
-			Debug (ctx, 1, handler, "RUN #1", request.RequestUri);
+			if (response.Body != null)
+				Debug (ctx, 5, handler, "GOT RESPONSE BODY", response.Body);
 
-			try {
-				handler.SendRequest (request);
-
-				var response = (HttpWebResponse)request.GetResponse ();
-				Debug (ctx, 1, handler, "GOT RESPONSE", response.StatusCode, response.StatusDescription);
-				Assert.That (expectedStatus, Is.EqualTo (response.StatusCode), "status code");
-				Assert.That (expectException, Is.False, "success status");
-
-				using (var reader = new StreamReader (response.GetResponseStream ())) {
-					var content = reader.ReadToEnd ();
-					Debug (ctx, 5, handler, "GOT RESPONSE BODY", content);
-				}
-
-				response.Close ();
-			} catch (WebException wexc) {
-				var response = (HttpWebResponse)wexc.Response;
-				if (response == null) {
-					Debug (ctx, 0, handler, "RUN - GOT WEB EXCEPTION WITH NULL RESPONSE", wexc);
-					Assert.Fail ("{0}:{1}: Got WebException will null response: {2}", this, handler, wexc);
-					throw;
-				}
-
-				if (expectException) {
-					Assert.That (expectedStatus, Is.EqualTo (response.StatusCode), "error status code");
-					response.Close ();
-					return;
-				}
-
-				using (var reader = new StreamReader (response.GetResponseStream ())) {
-					var content = reader.ReadToEnd ();
-					Debug (ctx, 0, handler, "RUN - GOT WEB EXCEPTION", wexc.Status, response.StatusCode, content, wexc);
-					Assert.Fail ("{0}: {1}", handler, content);
-				}
-				response.Close ();
-				throw;
-			} catch (Exception ex) {
-				Debug (ctx, 0, handler, "RUN - GOT EXCEPTION", ex);
-				throw;
-			} finally {
-				Debug (ctx, 0, handler, "RUN DONE");
-			}
+			return true;
 		}
 
 		protected virtual string MyToString ()

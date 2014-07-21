@@ -92,10 +92,10 @@ namespace Xamarin.WebTests.Runners
 			return proxy;
 		}
 
-		protected override HttpWebRequest CreateRequest (Handler handler)
+		protected override Request CreateRequest (Handler handler)
 		{
 			var request = handler.CreateRequest (httpListener);
-			request.Proxy = CreateProxy ();
+			request.SetProxy (CreateProxy ());
 			return request;
 		}
 
