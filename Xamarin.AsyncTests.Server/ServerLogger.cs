@@ -63,6 +63,11 @@ namespace Xamarin.AsyncTests.Server
 			await Connection.LogMessage (message);
 		}
 
+		public async void LogMessage (string format, params object[] args)
+		{
+			await Connection.LogMessage (string.Format (format, args));
+		}
+
 		public void LogError (Exception error)
 		{
 			LogMessage (string.Format ("EXCEPTION: {0}", error));

@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Text;
+using SD = System.Diagnostics;
 using System.ComponentModel;
 using System.Reflection;
 using System.Collections.Generic;
@@ -36,7 +37,7 @@ namespace Xamarin.AsyncTests.UI
 {
 	using Framework;
 
-	public class TestApp : TestContext
+	public class TestApp : TestContext, ITestLogger
 	{
 		public Assembly Assembly {
 			get;
@@ -97,6 +98,8 @@ namespace Xamarin.AsyncTests.UI
 			ServerHost = server;
 			Assembly = assembly;
 
+			Logger = this;
+
 			var result = new TestResult (new TestName (null));
 			RootTestResult = new TestResultModel (this, result, true);
 
@@ -131,5 +134,34 @@ namespace Xamarin.AsyncTests.UI
 				Context.Log ("INITIALIZE EX: {0}", ex);
 			}
 		}
+
+		#region ITestLogger implementation
+
+		public void LogDebug (int level, string message)
+		{
+			;
+		}
+
+		public void LogDebug (int level, string format, params object[] args)
+		{
+			LogDebug (level, string.Format (format, args));
+		}
+
+		public void LogMessage (string message)
+		{
+			SD.Debug.WriteLine (message);
+		}
+
+		public void LogMessage (string format, params object[] args)
+		{
+			LogMessage (string.Format (format, args));
+		}
+
+		public void LogError (Exception error)
+		{
+			LogMessage ("ERROR: {0}", error);
+		}
+
+		#endregion
 	}
 }

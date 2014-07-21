@@ -81,6 +81,11 @@ namespace Xamarin.AsyncTests
 			Logger.LogMessage (message);
 		}
 
+		public void LogMessage (string message, params object[] args)
+		{
+			Logger.LogMessage (string.Format (message, args));
+		}
+
 		public void LogError (Exception error)
 		{
 			Logger.LogError (error);

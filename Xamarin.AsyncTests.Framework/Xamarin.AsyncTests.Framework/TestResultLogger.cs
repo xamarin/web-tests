@@ -61,7 +61,15 @@ namespace Xamarin.AsyncTests.Framework
 
 		public void LogMessage (string message)
 		{
+			if (Parent != null)
+				Parent.LogMessage (message);
+
 			Result.AddMessage (message);
+		}
+
+		public void LogMessage (string format, params object[] args)
+		{
+			LogMessage (string.Format (format, args));
 		}
 
 		public void LogError (Exception error)
