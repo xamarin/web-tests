@@ -66,22 +66,22 @@ namespace Xamarin.WebTests.Runners
 			get; set;
 		}
 
-		public override Task Start (CancellationToken cancellationToken)
+		public override async Task Start (CancellationToken cancellationToken)
 		{
-			return Task.Run (() => {
-				httpListener = new HttpListener (endpoint.Address, endpoint.Port, ReuseConnection, UseSSL);
-				proxyListener = new ProxyListener (httpListener, proxyEndpoint.Address, proxyEndpoint.Port, authType);
-			});
+			httpListener = new HttpListener (endpoint.Address, endpoint.Port, ReuseConnection, UseSSL);
+			proxyListener = new ProxyListener (httpListener, proxyEndpoint.Address, proxyEndpoint.Port, authType);
+
+			await httpListener.Start ();
+			await proxyListener.Start ();
 		}
 
-		public override Task Stop (CancellationToken cancellationToken)
+		public override async Task Stop (CancellationToken cancellationToken)
 		{
-			return Task.Run (() => {
-				httpListener.Stop ();
-				proxyListener.Stop ();
-				proxyListener = null;
-				httpListener = null;
-			});
+			await httpListener.Stop ();
+			httpListener = null;
+
+			await proxyListener.Stop ();
+			proxyListener = null;
 		}
 
 		IWebProxy CreateProxy ()
