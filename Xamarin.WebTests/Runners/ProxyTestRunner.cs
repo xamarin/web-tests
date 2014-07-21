@@ -77,8 +77,8 @@ namespace Xamarin.WebTests.Runners
 		public override Task Stop (CancellationToken cancellationToken)
 		{
 			return Task.Run (() => {
-				proxyListener.Stop ();
 				httpListener.Stop ();
+				proxyListener.Stop ();
 				proxyListener = null;
 				httpListener = null;
 			});

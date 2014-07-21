@@ -97,15 +97,17 @@ namespace Xamarin.WebTests.Server
 				abortRequested = true;
 				if (tcs != null)
 					task = tcs.Task;
-				Close (server);
-				server = null;
 				if (cts != null)
 					cts.Cancel ();
+				Close (server);
+				server = null;
 			}
 
 			try {
 				if (task != null)
 					task.Wait ();
+			} catch (OperationCanceledException) {
+				Console.Error.WriteLine ("OPERATION CANCELED!");
 			} catch (Exception ex) {
 				Console.Error.WriteLine ("STOP EX: {0}", ex);
 				throw;
@@ -129,20 +131,27 @@ namespace Xamarin.WebTests.Server
 				throw;
 			}
 
+			CancellationToken token;
 			TaskCompletionSource<bool> t;
 			lock (this) {
 				if (abortRequested)
 					return;
 				t = tcs = new TaskCompletionSource<bool> ();
 				cts = new CancellationTokenSource ();
-				cts.Token.Register (() => Close (socket));
+				cts.Token.Register (() => {
+					Console.Error.WriteLine ("CANCEL!");
+					Close (socket);
+				});
+				token = cts.Token;
 			}
 
 			try {
-				HandleConnection (socket);
+				HandleConnection (socket, token);
 				Close (socket);
 				socket = null;
 				t.SetResult (true);
+			} catch (OperationCanceledException) {
+				t.SetCanceled ();
 			} catch (Exception ex) {
 				Console.Error.WriteLine ("ACCEPT SOCKET EX: {0}", ex);
 				t.SetException (ex);
@@ -190,16 +199,16 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		void HandleConnection (Socket socket)
+		void HandleConnection (Socket socket, CancellationToken cancellationToken)
 		{
 			var stream = CreateStream (socket);
 			var reader = new StreamReader (stream, Encoding.ASCII);
 			var writer = new StreamWriter (stream, Encoding.ASCII);
 			writer.AutoFlush = true;
 
-			while (!abortRequested) {
-				var wantToReuse = HandleConnection (socket, reader, writer);
-				if (!wantToReuse)
+			while (!abortRequested && !cancellationToken.IsCancellationRequested) {
+				var wantToReuse = HandleConnection (socket, reader, writer, cancellationToken);
+				if (!wantToReuse || abortRequested || cancellationToken.IsCancellationRequested)
 					break;
 
 				bool connectionAvailable = IsStillConnected (socket, reader);
@@ -208,16 +217,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected abstract bool HandleConnection (Socket socket, StreamReader reader, StreamWriter writer);
-
-		protected void CheckCancellation ()
-		{
-			lock (this) {
-				if (cts != null)
-					cts.Token.ThrowIfCancellationRequested ();
-				if (abortRequested)
-					throw new OperationCanceledException ();
-			}
-		}
+		protected abstract bool HandleConnection (
+			Socket socket, StreamReader reader, StreamWriter writer, CancellationToken cancellationToken);
 	}
 }

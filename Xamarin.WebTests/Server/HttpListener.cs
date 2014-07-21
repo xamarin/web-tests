@@ -28,6 +28,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Server
@@ -68,7 +69,8 @@ namespace Xamarin.WebTests.Server
 			allHandlers.Add (handler);
 		}
 
-		protected override bool HandleConnection (Socket socket, StreamReader reader, StreamWriter writer)
+		protected override bool HandleConnection (
+			Socket socket, StreamReader reader, StreamWriter writer, CancellationToken cancellationToken)
 		{
 			var connection = new HttpConnection (this, reader, writer);
 			var request = connection.ReadRequest ();

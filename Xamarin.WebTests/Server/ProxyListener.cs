@@ -49,7 +49,8 @@ namespace Xamarin.WebTests.Server
 				authManager = new ProxyAuthManager (authType);
 		}
 
-		protected override bool HandleConnection (Socket socket, StreamReader reader, StreamWriter writer)
+		protected override bool HandleConnection (
+			Socket socket, StreamReader reader, StreamWriter writer, CancellationToken cancellationToken)
 		{
 			var connection = new Connection (reader, writer);
 			var request = connection.ReadRequest ();
@@ -73,7 +74,7 @@ namespace Xamarin.WebTests.Server
 			}
 
 			if (request.Method.Equals ("CONNECT")) {
-				CreateTunnel (connection, socket, reader, writer, request);
+				CreateTunnel (connection, socket, reader, writer, request, cancellationToken);
 				return false;
 			}
 
@@ -106,7 +107,9 @@ namespace Xamarin.WebTests.Server
 			return new IPEndPoint (address, port);
 		}
 
-		void CreateTunnel (Connection connection, Socket socket, StreamReader reader, StreamWriter writer, HttpRequest request)
+		void CreateTunnel (
+			Connection connection, Socket socket, StreamReader reader, StreamWriter writer,
+			HttpRequest request, CancellationToken cancellationToken)
 		{
 			var targetEndpoint = GetConnectEndpoint (request);
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -116,17 +119,22 @@ namespace Xamarin.WebTests.Server
 			var connectionEstablished = new HttpResponse (HttpStatusCode.OK, HttpProtocol.Http10, "Connection established");
 			connectionEstablished.Write (writer);
 
-			RunTunnel (socket, targetSocket);
+			try {
+				RunTunnel (socket, targetSocket, cancellationToken);
+			} catch (Exception ex) {
+				System.Diagnostics.Debug.WriteLine ("ERROR: {0}", ex);
+				cancellationToken.ThrowIfCancellationRequested ();
+				throw;
+			}
+
 			targetSocket.Close ();
 		}
 
-		void RunTunnel (Socket input, Socket output)
+		void RunTunnel (Socket input, Socket output, CancellationToken cancellationToken)
 		{
 			bool doneSending = false;
 			bool doneReading = false;
-			while (!doneSending || !doneReading) {
-				CheckCancellation ();
-
+			while (!doneSending || !cancellationToken.IsCancellationRequested) {
 				var readList = new List<Socket> ();
 				if (!doneSending)
 					readList.Add (input);
@@ -135,18 +143,24 @@ namespace Xamarin.WebTests.Server
 
 				Socket.Select (readList, null, null, 500);
 
+				cancellationToken.ThrowIfCancellationRequested ();
+
 				if (readList.Contains (input)) {
 					if (!Copy (input, output))
 						doneSending = true;
 				}
+
+				cancellationToken.ThrowIfCancellationRequested ();
 
 				if (readList.Contains (output)) {
 					if (Copy (output, input))
 						continue;
 
 					doneReading = true;
-					while (!doneSending && Copy (input, output)) {
-						;
+					while (!doneSending) {
+						cancellationToken.ThrowIfCancellationRequested ();
+						if (!Copy (input, output))
+							break;
 					}
 					break;
 				}
