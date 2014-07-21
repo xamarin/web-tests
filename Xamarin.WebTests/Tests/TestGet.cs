@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.Tests
 			get; set;
 		}
 
-		[TestParameter (null, TestFlags.Hidden)]
+		[TestParameter (typeof (WebTestFeatures.SelectReuseConnection), null, TestFlags.Hidden)]
 		public bool ReuseConnection {
 			get; set;
 		}

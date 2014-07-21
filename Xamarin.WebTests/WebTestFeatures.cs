@@ -59,6 +59,8 @@ namespace Xamarin.WebTests
 		public static readonly TestFeature ProxyAuth = new TestFeature ("ProxyAuth", "Proxy Authentication", true);
 		public static readonly TestFeature Experimental = new TestFeature ("Experimental", "Experimental Tests", false);
 
+		public static readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", false);
+
 		public static readonly TestFeature HasNetwork = new TestFeature (
 			"Network", "HasNetwork", () => !IPAddress.IsLoopback (TestRunner.GetAddress ()));
 
@@ -74,6 +76,7 @@ namespace Xamarin.WebTests
 				yield return Proxy;
 				yield return ProxyAuth;
 				yield return Experimental;
+				yield return ReuseConnection;
 
 				yield return HasNetwork;
 			}
@@ -98,6 +101,18 @@ namespace Xamarin.WebTests
 			{
 				yield return false;
 				if (context.IsEnabled (SSL))
+					yield return true;
+			}
+			#endregion
+		}
+
+		public class SelectReuseConnection : ITestParameterSource<bool>
+		{
+			#region ITestParameterSource implementation
+			public IEnumerable<bool> GetParameters (TestContext context, string filter)
+			{
+				yield return false;
+				if (context.IsEnabled (ReuseConnection))
 					yield return true;
 			}
 			#endregion
