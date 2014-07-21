@@ -36,21 +36,32 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public bool MustMatch {
+			get;
+			private set;
+		}
+
 		public TestInvoker Inner {
 			get;
 			private set;
 		}
 
-		public ConditionalTestInvoker (ITestFilter filter, TestInvoker inner)
+		public ConditionalTestInvoker (ITestFilter filter, bool mustMatch, TestInvoker inner)
 		{
 			Filter = filter;
+			MustMatch = mustMatch;
 			Inner = inner;
 		}
 
 		public override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
-			if (!Filter.Filter (ctx)) {
+			bool enabled;
+			var matched = Filter.Filter (ctx, out enabled);
+			if (!matched)
+				enabled = !MustMatch;
+
+			if (!enabled) {
 				if (result.Status == TestStatus.None)
 					result.Status = TestStatus.Ignored;
 				else

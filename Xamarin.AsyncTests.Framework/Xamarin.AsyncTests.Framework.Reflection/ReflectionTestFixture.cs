@@ -44,6 +44,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return invoker; }
 		}
 
+		protected override bool IsFixture {
+			get { return true; }
+		}
+
 		readonly TestInvoker invoker;
 
 		public ReflectionTestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)

@@ -42,15 +42,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		bool ITestFilter.Filter (TestContext ctx)
-		{
-			bool enabled;
-			if (!RunFilter (ctx, out enabled))
-				enabled = false;
-			return enabled;
+		protected abstract bool IsFixture {
+			get;
 		}
 
-		internal virtual bool RunFilter (TestContext ctx, out bool enabled)
+		public virtual bool Filter (TestContext ctx, out bool enabled)
 		{
 			foreach (var feature in features) {
 				if (!ctx.IsEnabled (feature)) {
@@ -206,7 +202,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				invoker = parameter.CreateInvoker (invoker);
 			}
 
-			invoker = new ConditionalTestInvoker (this, invoker);
+			invoker = new ConditionalTestInvoker (this, !IsFixture, invoker);
 
 			invoker = new ResultGroupTestInvoker (invoker);
 

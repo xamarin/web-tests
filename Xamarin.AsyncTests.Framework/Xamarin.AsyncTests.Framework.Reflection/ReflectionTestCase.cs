@@ -52,6 +52,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return invoker; }
 		}
 
+		protected override bool IsFixture {
+			get { return false; }
+		}
+
 		readonly ExpectedExceptionAttribute expectedException;
 		readonly TypeInfo expectedExceptionType;
 		readonly TestInvoker invoker;
@@ -69,11 +73,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			invoker = Resolve ();
 		}
 
-		internal override bool RunFilter (TestContext ctx, out bool enabled)
+		public override bool Filter (TestContext ctx, out bool enabled)
 		{
-			if (Fixture.RunFilter (ctx, out enabled))
+			if (Fixture.Filter (ctx, out enabled))
 				return enabled;
-			return base.RunFilter (ctx, out enabled);
+			return base.Filter (ctx, out enabled);
 		}
 
 		TestInvoker Resolve ()
