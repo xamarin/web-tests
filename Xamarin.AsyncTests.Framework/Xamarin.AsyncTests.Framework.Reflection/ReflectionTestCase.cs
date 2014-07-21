@@ -232,10 +232,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 
 			try {
-				await task;
-				result.Status = TestStatus.Success;
-				ctx.Statistics.OnTestFinished (name, TestStatus.Success);
-				return true;
+				bool ok;
+				var btask = retval as Task<bool>;
+				if (btask != null)
+					ok = await btask;
+				else {
+					await task;
+					ok = true;
+				}
+				result.Status = ok ? TestStatus.Success : TestStatus.Error;
+				ctx.Statistics.OnTestFinished (name, result.Status);
+				return ok;
 			} catch (OperationCanceledException) {
 				result.Status = TestStatus.Canceled;
 				return false;
