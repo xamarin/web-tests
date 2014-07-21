@@ -29,6 +29,8 @@ using Http = System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.Handlers
 {
 	using Server;
@@ -37,12 +39,34 @@ namespace Xamarin.WebTests.Handlers
 	public class HttpClientHandler : Handler
 	{
 		HttpClientOperation operation;
+		string body;
+		string returnBody;
 
 		public HttpClientOperation Operation {
 			get { return operation; }
 			set {
 				WantToModify ();
 				operation = value;
+			}
+		}
+
+		public string Body {
+			get {
+				return body;
+			}
+			set {
+				WantToModify ();
+				body = value;
+			}
+		}
+
+		public string ReturnBody {
+			get {
+				return returnBody;
+			}
+			set {
+				WantToModify ();
+				returnBody = value;
 			}
 		}
 
@@ -55,14 +79,50 @@ namespace Xamarin.WebTests.Handlers
 
 		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			if (!request.Method.Equals ("GET"))
-				return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
+			switch (Operation) {
+			case HttpClientOperation.GetString:
+				if (!request.Method.Equals ("GET"))
+					return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
 
-			return HttpResponse.CreateSuccess (string.Format ("Hello World!"));
+				return HttpResponse.CreateSuccess (string.Format ("Hello World!"));
+
+			case HttpClientOperation.PostString:
+				return HandlePostString (connection, request, effectiveFlags);
+
+			default:
+				return HttpResponse.CreateError ("Invalid operation: {0}", operation);
+			}
+		}
+
+		HttpResponse HandlePostString (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		{
+			var body = request.ReadBody ();
+
+			Debug (0, "BODY", body);
+			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
+				if (!string.IsNullOrEmpty (body))
+					return HttpResponse.CreateError ("Must not send a body with this request.");
+				return HttpResponse.CreateSuccess ();
+			}
+
+			if (Body != null && !Body.Equals (body))
+				return HttpResponse.CreateError ("Invalid body");
+
+			return HttpResponse.CreateSuccess (returnBody);
 		}
 
 		public override Request CreateRequest (Uri uri)
 		{
+			if (Operation == HttpClientOperation.GetString) {
+				if (Body != null)
+					throw new InvalidOperationException ();
+			} else if (Operation == HttpClientOperation.PostString) {
+				if (Body == null)
+					throw new InvalidOperationException ();
+			} else {
+				throw new InvalidOperationException ();
+			}
+
 			return new HttpClientRequest (this, uri);
 		}
 
@@ -81,20 +141,15 @@ namespace Xamarin.WebTests.Handlers
 				Client = new Http.HttpClient (Handler, true);
 			}
 
-			public override async Task<Response> Send (CancellationToken cancellationToken)
+			public override Task<Response> Send (InvocationContext ctx, CancellationToken cancellationToken)
 			{
-				var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-				cts.Token.Register (() => Client.CancelPendingRequests ());
-
-				try {
-					switch (Parent.Operation) {
-					case HttpClientOperation.GetStringAsync:
-						return await GetStringAsync (cts.Token);
-					default:
-						throw new InvalidOperationException ();
-					}
-				} finally {
-					cts.Dispose ();
+				switch (Parent.Operation) {
+				case HttpClientOperation.GetString:
+					return GetString (cancellationToken);
+				case HttpClientOperation.PostString:
+					return PostString (ctx, cancellationToken);
+				default:
+					throw new InvalidOperationException ();
 				}
 			}
 
@@ -107,14 +162,58 @@ namespace Xamarin.WebTests.Handlers
 				Handler.Credentials = credentials;
 			}
 
-			async Task<Response> GetStringAsync (CancellationToken cancellationToken)
+			async Task<Response> GetString (CancellationToken cancellationToken)
 			{
+				var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
+				cts.Token.Register (() => Client.CancelPendingRequests ());
+
 				try {
 					var body = await Client.GetStringAsync (RequestUri);
 					return new SimpleResponse (this, HttpStatusCode.OK, body);
 				} catch (Exception ex) {
 					return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, ex);
+				} finally {
+					cts.Dispose ();
 				}
+			}
+
+			async Task<Response> PostString (InvocationContext ctx, CancellationToken cancellationToken)
+			{
+				var message = new Http.HttpRequestMessage ();
+				message.Method = Http.HttpMethod.Post;
+				message.RequestUri = RequestUri;
+				message.Content = new Http.StringContent (Parent.Body);
+
+				var response = await Client.SendAsync (
+					message, Http.HttpCompletionOption.ResponseContentRead, cancellationToken);
+
+				if (response == null)
+					throw new InvalidOperationException ("Got null response.");
+
+				ctx.LogMessage ("GOT RESPONSE: {0}", response.StatusCode);
+
+				if (!response.IsSuccessStatusCode)
+					return new SimpleResponse (this, response.StatusCode, null);
+
+				string body = null;
+				if (response.Content != null) {
+					body = await response.Content.ReadAsStringAsync ();
+					ctx.LogMessage ("GOT BODY: {0}", body);
+				}
+
+				if (Parent.ReturnBody != null) {
+					if (body == null)
+						throw new InvalidOperationException ("Got null body.");
+
+					body = body.TrimEnd ();
+					if (!body.Equals (Parent.ReturnBody))
+						throw new InvalidOperationException ("Got invalid body.");
+				} else {
+					if (!string.IsNullOrEmpty (body))
+						throw new InvalidOperationException ("Did not expect a body.");
+				}
+
+				return new SimpleResponse (this, response.StatusCode, body);
 			}
 		}
 	}

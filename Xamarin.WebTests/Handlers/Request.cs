@@ -28,11 +28,13 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.Handlers
 {
 	public abstract class Request
 	{
-		public abstract Task<Response> Send (CancellationToken cancellationToken);
+		public abstract Task<Response> Send (InvocationContext ctx, CancellationToken cancellationToken);
 
 		public abstract void SetProxy (IWebProxy proxy);
 

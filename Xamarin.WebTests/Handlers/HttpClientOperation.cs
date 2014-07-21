@@ -29,8 +29,8 @@ namespace Xamarin.WebTests
 {
 	public enum HttpClientOperation
 	{
-		GetStringAsync,
-		SendAsync
+		GetString,
+		PostString
 	}
 }
 

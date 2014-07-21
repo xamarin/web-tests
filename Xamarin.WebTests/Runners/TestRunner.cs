@@ -159,7 +159,7 @@ namespace Xamarin.WebTests.Runners
 			handler.Register (ctx);
 			var request = CreateRequest (handler);
 
-			var response = await request.Send (cancellationToken);
+			var response = await request.Send (ctx, cancellationToken);
 
 			Debug (ctx, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess);
 

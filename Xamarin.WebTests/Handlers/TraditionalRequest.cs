@@ -29,6 +29,8 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.Handlers
 {
 	public class TraditionalRequest : Request
@@ -57,7 +59,7 @@ namespace Xamarin.WebTests.Handlers
 			Request.Proxy = proxy;
 		}
 
-		public override async Task<Response> Send (CancellationToken cancellationToken)
+		public override async Task<Response> Send (InvocationContext ctx, CancellationToken cancellationToken)
 		{
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.Token.Register (() => Request.Abort ());

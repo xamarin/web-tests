@@ -57,7 +57,17 @@ namespace Xamarin.WebTests
 
 		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
-			yield return new HttpClientHandler { Operation = HttpClientOperation.GetStringAsync };
+			yield return new HttpClientHandler {
+				Operation = HttpClientOperation.GetString, Description = "Get string"
+			};
+			yield return new HttpClientHandler {
+				Operation = HttpClientOperation.PostString, Body = "Hello World!",
+				Description = "Post string"
+			};
+			yield return new HttpClientHandler {
+				Operation = HttpClientOperation.PostString, Body = "Hello World!",
+				ReturnBody = "Returned body", Description = "Post string with result"
+			};
 		}
 
 		[AsyncTest]
