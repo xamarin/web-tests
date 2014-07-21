@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Reflection;
@@ -34,15 +35,17 @@ using System.Net.Security;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
+using SD = System.Diagnostics;
 
 namespace Xamarin.WebTests.Server
 {
 	public abstract class Listener
 	{
-		bool abortRequested;
 		Socket server;
-		TaskCompletionSource<bool> tcs;
-		CancellationTokenSource cts;
+		int currentConnections;
+		volatile Exception currentError;
+		volatile TaskCompletionSource<bool> tcs;
+		volatile CancellationTokenSource cts;
 		bool ssl;
 		Uri uri;
 
@@ -80,89 +83,138 @@ namespace Xamarin.WebTests.Server
 			server = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			server.Bind (new IPEndPoint (address, port));
 			server.Listen (1);
-
-			server.BeginAccept (AcceptSocketCB, null);
 		}
 
 		public Uri Uri {
 			get { return uri; }
 		}
 
-		public void Stop ()
+		static void Debug (string message, params object[] args)
 		{
-			Task<bool> task = null;
+			SD.Debug.WriteLine (message, args);
+		}
+
+		public Task Start ()
+		{
 			lock (this) {
-				if (abortRequested)
-					return;
-				abortRequested = true;
-				if (tcs != null)
-					task = tcs.Task;
 				if (cts != null)
-					cts.Cancel ();
-				Close (server);
-				server = null;
+					throw new InvalidOperationException ();
+
+				cts = new CancellationTokenSource ();
+				tcs = new TaskCompletionSource<bool> ();
+			}
+
+			return Task.Run (() => {
+				Listen ();
+			});
+		}
+
+		void Listen ()
+		{
+			var args = new SocketAsyncEventArgs ();
+			args.Completed += (sender, e) => OnAccepted (e);
+
+			Interlocked.Increment (ref currentConnections);
+
+			try {
+				var retval = server.AcceptAsync (args);
+				if (retval)
+					return;
+				throw new InvalidOperationException ();
+			} catch (Exception ex) {
+				OnException (ex);
+				OnFinished ();
+				throw;
+			}
+		}
+
+		void OnException (Exception error)
+		{
+			lock (this) {
+				if (currentError == null) {
+					currentError = error;
+					return;
+				}
+
+				var aggregated = currentError as AggregateException;
+				if (aggregated == null) {
+					currentError = new AggregateException (error);
+					return;
+				}
+
+				var inner = aggregated.InnerExceptions.ToList ();
+				inner.Add (error);
+				currentError = new AggregateException (inner);
+			}
+		}
+
+		void OnAccepted (SocketAsyncEventArgs args)
+		{
+			if (cts.IsCancellationRequested) {
+				OnFinished ();
+				args.Dispose ();
+				return;
+			} else if (args.SocketError != SocketError.Success) {
+				var error = new IOException (string.Format ("Accept failed: {0}", args.SocketError));
+				OnException (error);
+				args.Dispose ();
+				return;
 			}
 
 			try {
-				if (task != null)
-					task.Wait ();
-			} catch (OperationCanceledException) {
-				Console.Error.WriteLine ("OPERATION CANCELED!");
-			} catch (Exception ex) {
-				Console.Error.WriteLine ("STOP EX: {0}", ex);
-				throw;
+				Listen ();
+			} catch {
+				return;
 			}
 
+			var socket = args.AcceptSocket;
+
+			try {
+				HandleConnection (socket, cts.Token);
+				Close (socket);
+			} catch (OperationCanceledException) {
+				;
+			} catch (Exception ex) {
+				OnException (ex);
+			}
+
+			OnFinished ();
+			args.Dispose ();
+		}
+
+		void OnFinished ()
+		{
+			lock (this) {
+				var connections = Interlocked.Decrement (ref currentConnections);
+
+				if (connections > 0)
+					return;
+
+				if (currentError != null)
+					tcs.SetException (currentError);
+				else
+					tcs.SetResult (true);
+			}
+		}
+
+		public async Task Stop ()
+		{
+			cts.Cancel ();
+			if (server.Connected)
+				server.Shutdown (SocketShutdown.Both);
+			server.Close ();
+			await tcs.Task;
 			OnStop ();
+
+			lock (this) {
+				cts.Dispose ();
+				cts = null;
+				tcs = null;
+			}
 		}
 
 		protected virtual void OnStop ()
 		{
-		}
-
-		void AcceptSocketCB (IAsyncResult ar)
-		{
-			Socket socket;
-			try {
-				socket = server.EndAccept (ar);
-			} catch {
-				if (abortRequested)
-					return;
-				throw;
-			}
-
-			CancellationToken token;
-			TaskCompletionSource<bool> t;
-			lock (this) {
-				if (abortRequested)
-					return;
-				t = tcs = new TaskCompletionSource<bool> ();
-				cts = new CancellationTokenSource ();
-				cts.Token.Register (() => {
-					Console.Error.WriteLine ("CANCEL!");
-					Close (socket);
-				});
-				token = cts.Token;
-			}
-
-			try {
-				HandleConnection (socket, token);
-				Close (socket);
-				socket = null;
-				t.SetResult (true);
-			} catch (OperationCanceledException) {
-				t.SetCanceled ();
-			} catch (Exception ex) {
-				Console.Error.WriteLine ("ACCEPT SOCKET EX: {0}", ex);
-				t.SetException (ex);
-			} finally {
-				lock (this) {
-					tcs = null;
-					cts = null;
-					if (!abortRequested)
-						server.BeginAccept (AcceptSocketCB, null);
-				}
-			}
 		}
 
 		void Close (Socket socket)
@@ -206,13 +258,13 @@ namespace Xamarin.WebTests.Server
 			var writer = new StreamWriter (stream, Encoding.ASCII);
 			writer.AutoFlush = true;
 
-			while (!abortRequested && !cancellationToken.IsCancellationRequested) {
+			while (!cancellationToken.IsCancellationRequested) {
 				var wantToReuse = HandleConnection (socket, reader, writer, cancellationToken);
-				if (!wantToReuse || abortRequested || cancellationToken.IsCancellationRequested)
+				if (!wantToReuse || cancellationToken.IsCancellationRequested)
 					break;
 
 				bool connectionAvailable = IsStillConnected (socket, reader);
-				if (!connectionAvailable && !abortRequested)
+				if (!connectionAvailable && !cts.IsCancellationRequested)
 					throw new InvalidOperationException ("Expecting another connection, but socket has been shut down.");
 			}
 		}
