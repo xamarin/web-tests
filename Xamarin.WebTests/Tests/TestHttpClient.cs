@@ -1,5 +1,5 @@
 ﻿//
-// HelloWorldBehavior.cs
+// TestHttpClient.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,33 +24,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections;
+using System.Collections.Generic;
 
-namespace Xamarin.WebTests.Handlers
+using Xamarin.AsyncTests;
+
+namespace Xamarin.WebTests
 {
-	using Framework;
 	using Server;
+	using Runners;
+	using Handlers;
+	using Framework;
 
-	public class HelloWorldHandler : Handler
+	[Work]
+	[AsyncTestFixture]
+	public class TestHttpClient : ITestHost<TestRunner>, ITestParameterSource<Handler>
 	{
-		static int next_id;
-
-		public override object Clone ()
-		{
-			return new HelloWorldHandler ();
+		[TestParameter (typeof (WebTestFeatures.SelectSSL), null, TestFlags.Hidden)]
+		public bool UseSSL {
+			get; set;
 		}
 
-		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		public TestRunner CreateInstance (TestContext context)
 		{
-			if (!request.Method.Equals ("GET"))
-				return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
-
-			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
+			return new HttpTestRunner { UseSSL = UseSSL };
 		}
 
-		public override Request CreateRequest (Uri uri)
+		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
-			return new TraditionalRequest (uri);
+			yield return new HttpClientHandler { Operation = HttpClientOperation.GetStringAsync };
 		}
+
+		[AsyncTest]
+		public Task Run (InvocationContext ctx, CancellationToken cancellationToken,
+			[TestHost (typeof (TestHttpClient))] TestRunner runner, [TestParameter] Handler handler)
+		{
+			return runner.Run (ctx, handler, cancellationToken);
+		}
+
+
 	}
 }
 

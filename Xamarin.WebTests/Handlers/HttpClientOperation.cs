@@ -1,5 +1,5 @@
 ﻿//
-// TraditionalResponse.cs
+// HttpClientOperation.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,39 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
 
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.WebTests
 {
-	public class TraditionalResponse : Response
+	public enum HttpClientOperation
 	{
-		HttpStatusCode code;
-		string body;
-		Exception error;
-
-		public override HttpStatusCode Status {
-			get { return code; }
-		}
-
-		public override string Body {
-			get { return body; }
-		}
-
-		public override bool IsSuccess {
-			get { return error == null; }
-		}
-
-		public override Exception Error {
-			get { return error; }
-		}
-
-		public TraditionalResponse (TraditionalRequest request, HttpStatusCode code, string body, Exception error)
-			: base (request)
-		{
-			this.code = code;
-			this.body = body;
-			this.error = error;
-		}
+		GetStringAsync,
+		SendAsync
 	}
 }
 

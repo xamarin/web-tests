@@ -58,6 +58,7 @@
     <Reference Include="Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainActivity.cs" />
@@ -95,8 +96,17 @@
     <Compile Include="..\Xamarin.WebTests\Handlers\Response.cs">
       <Link>Handlers\Response.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests\Handlers\TraditionalResponse.cs">
-      <Link>Handlers\TraditionalResponse.cs</Link>
+    <Compile Include="..\Xamarin.WebTests\Handlers\SimpleResponse.cs">
+      <Link>Handlers\SimpleResponse.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\TestHttpClient.cs">
+      <Link>Tests\TestHttpClient.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\HttpClientHandler.cs">
+      <Link>Handlers\HttpClientHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\HttpClientOperation.cs">
+      <Link>Handlers\HttpClientOperation.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

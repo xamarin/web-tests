@@ -162,10 +162,7 @@ namespace Xamarin.WebTests.Handlers
 			tcs = new TaskCompletionSource<bool> ();
 		}
 
-		public virtual Request CreateRequest (Uri uri)
-		{
-			return new TraditionalRequest (uri);
-		}
+		public abstract Request CreateRequest (Uri uri);
 
 		public Request CreateRequest (HttpListener listener)
 		{

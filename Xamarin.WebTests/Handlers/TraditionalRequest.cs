@@ -82,7 +82,7 @@ namespace Xamarin.WebTests.Handlers
 			}
 			response.Close ();
 
-			return new TraditionalResponse (this, status, content, error);
+			return new SimpleResponse (this, status, content, error);
 		}
 
 		Response Send ()
@@ -100,11 +100,11 @@ namespace Xamarin.WebTests.Handlers
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
 				if (response == null)
-					return new TraditionalResponse (this, HttpStatusCode.InternalServerError, null, wexc);
+					return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, wexc);
 
 				return FromHttpResponse (response, wexc);
 			} catch (Exception ex) {
-				return new TraditionalResponse (this, HttpStatusCode.InternalServerError, null, ex);
+				return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, ex);
 			}
 		}
 

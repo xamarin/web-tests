@@ -98,6 +98,7 @@
     <Reference Include="Xamarin.Forms.Xaml">
       <HintPath>..\packages\Xamarin.Forms.1.2.1.6229\lib\MonoTouch10\Xamarin.Forms.Xaml.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Default-568h%402x.png" />
@@ -136,14 +137,23 @@
     <Compile Include="..\Xamarin.WebTests\Handlers\Request.cs">
       <Link>Handlers\Request.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests\Handlers\TraditionalResponse.cs">
-      <Link>Handlers\TraditionalResponse.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests\Handlers\Response.cs">
       <Link>Handlers\Response.cs</Link>
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Handlers\TraditionalRequest.cs">
       <Link>Handlers\TraditionalRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\SimpleResponse.cs">
+      <Link>Handlers\SimpleResponse.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Tests\TestHttpClient.cs">
+      <Link>Tests\TestHttpClient.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\HttpClientHandler.cs">
+      <Link>Handlers\HttpClientHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\HttpClientOperation.cs">
+      <Link>Handlers\HttpClientOperation.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
