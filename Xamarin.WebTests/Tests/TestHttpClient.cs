@@ -71,6 +71,12 @@ namespace Xamarin.WebTests
 				ReturnContent = new StringContent ("Returned body"),
 				Description = "Post string with result"
 			};
+			yield return new HttpClientHandler {
+				Operation = HttpClientOperation.PostString,
+				Content = new StringContent ("Hello World!"),
+				ReturnContent = new Bug20583Content (),
+				Description = "Bug #20583"
+			};
 		}
 
 		[AsyncTest]
@@ -78,6 +84,30 @@ namespace Xamarin.WebTests
 			[TestHost (typeof (TestHttpClient))] TestRunner runner, [TestParameter] Handler handler)
 		{
 			return runner.Run (ctx, handler, cancellationToken);
+		}
+
+		class Bug20583Content : HttpContent
+		{
+			#region implemented abstract members of HttpContent
+			public override string AsString ()
+			{
+				return "AAAA";
+			}
+			public override void AddHeadersTo (HttpMessage message)
+			{
+				message.SetHeader ("Transfer-Encoding", "chunked");
+				message.SetHeader ("Content-Type", "text/plain");
+			}
+			public override void WriteTo (StreamWriter writer)
+			{
+				writer.AutoFlush = true;
+				Thread.Sleep (500);
+				writer.Write ("0");
+				Thread.Sleep (500);
+				writer.Write ("4\r\n");
+				writer.Write ("AAAA\r\n0\r\n\r\n\r\n");
+			}
+			#endregion
 		}
 
 
