@@ -39,8 +39,8 @@ namespace Xamarin.WebTests.Handlers
 	public class HttpClientHandler : Handler
 	{
 		HttpClientOperation operation;
-		string body;
-		string returnBody;
+		HttpContent content;
+		HttpContent returnContent;
 
 		public HttpClientOperation Operation {
 			get { return operation; }
@@ -50,23 +50,23 @@ namespace Xamarin.WebTests.Handlers
 			}
 		}
 
-		public string Body {
+		public HttpContent Content {
 			get {
-				return body;
+				return content;
 			}
 			set {
 				WantToModify ();
-				body = value;
+				content = value;
 			}
 		}
 
-		public string ReturnBody {
+		public HttpContent ReturnContent {
 			get {
-				return returnBody;
+				return returnContent;
 			}
 			set {
 				WantToModify ();
-				returnBody = value;
+				returnContent = value;
 			}
 		}
 
@@ -105,25 +105,25 @@ namespace Xamarin.WebTests.Handlers
 				return HttpResponse.CreateSuccess ();
 			}
 
-			if (Body != null) {
+			if (Content != null) {
 				if (body == null)
 					return HttpResponse.CreateError ("Missing body");
-				else if (!Body.Equals (body.AsString ()))
+				else if (!Content.AsString ().Equals (body.AsString ()))
 					return HttpResponse.CreateError ("Invalid body");
 			} else if (body != null) {
 				return HttpResponse.CreateError ("Must not have a body");
 			}
 
-			return HttpResponse.CreateSuccess (returnBody);
+			return new HttpResponse (HttpStatusCode.OK, returnContent);
 		}
 
 		public override Request CreateRequest (Uri uri)
 		{
 			if (Operation == HttpClientOperation.GetString) {
-				if (Body != null)
+				if (Content != null)
 					throw new InvalidOperationException ();
 			} else if (Operation == HttpClientOperation.PostString) {
-				if (Body == null)
+				if (Content == null)
 					throw new InvalidOperationException ();
 			} else {
 				throw new InvalidOperationException ();
@@ -188,7 +188,7 @@ namespace Xamarin.WebTests.Handlers
 				var message = new Http.HttpRequestMessage ();
 				message.Method = Http.HttpMethod.Post;
 				message.RequestUri = RequestUri;
-				message.Content = new Http.StringContent (Parent.Body);
+				message.Content = new Http.StringContent (Parent.Content.AsString ());
 
 				var response = await Client.SendAsync (
 					message, Http.HttpCompletionOption.ResponseContentRead, cancellationToken);
@@ -207,12 +207,12 @@ namespace Xamarin.WebTests.Handlers
 					ctx.LogMessage ("GOT BODY: {0}", body);
 				}
 
-				if (Parent.ReturnBody != null) {
+				if (Parent.ReturnContent != null) {
 					if (body == null)
 						throw new InvalidOperationException ("Got null body.");
 
 					body = body.TrimEnd ();
-					if (!body.Equals (Parent.ReturnBody))
+					if (!body.Equals (Parent.ReturnContent.AsString ()))
 						throw new InvalidOperationException ("Got invalid body.");
 				} else {
 					if (!string.IsNullOrEmpty (body))

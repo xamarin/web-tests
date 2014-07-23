@@ -61,12 +61,15 @@ namespace Xamarin.WebTests
 				Operation = HttpClientOperation.GetString, Description = "Get string"
 			};
 			yield return new HttpClientHandler {
-				Operation = HttpClientOperation.PostString, Body = "Hello World!",
+				Operation = HttpClientOperation.PostString,
+				Content = new StringContent ("Hello World!"),
 				Description = "Post string"
 			};
 			yield return new HttpClientHandler {
-				Operation = HttpClientOperation.PostString, Body = "Hello World!",
-				ReturnBody = "Returned body", Description = "Post string with result"
+				Operation = HttpClientOperation.PostString,
+				Content = new StringContent ("Hello World!"),
+				ReturnContent = new StringContent ("Returned body"),
+				Description = "Post string with result"
 			};
 		}
 
