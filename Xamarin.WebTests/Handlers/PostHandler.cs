@@ -173,7 +173,7 @@ namespace Xamarin.WebTests.Handlers
 			var body = request.ReadBody ();
 			if (body == null)
 				throw new InvalidOperationException ();
-			return body;
+			return body.AsString ();
 		}
 
 		public override Request CreateRequest (Uri uri)

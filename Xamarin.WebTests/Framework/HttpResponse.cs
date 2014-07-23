@@ -59,20 +59,20 @@ namespace Xamarin.WebTests.Framework
 		bool? keepAlive;
 		bool responseWritten;
 
-		public HttpResponse (HttpStatusCode status, string body = null)
+		public HttpResponse (HttpStatusCode status, HttpContent content = null)
 		{
 			Protocol = HttpProtocol.Http11;
 			StatusCode = status;
 			StatusMessage = status.ToString ();
-			Body = body;
+			Body = content;
 		}
 
-		public HttpResponse (HttpStatusCode status, HttpProtocol protocol, string statusMessage, string body = null)
+		public HttpResponse (HttpStatusCode status, HttpProtocol protocol, string statusMessage, HttpContent content = null)
 		{
 			Protocol = protocol;
 			StatusCode = status;
 			StatusMessage = statusMessage;
-			Body = body;
+			Body = content;
 		}
 
 		public HttpResponse (Connection connection, StreamReader reader)
@@ -82,12 +82,8 @@ namespace Xamarin.WebTests.Framework
 
 		void CheckHeaders ()
 		{
-			if (Body != null) {
-				if (!Headers.ContainsKey ("Content-Length"))
-					AddHeader ("Content-Length", Body.Length + 2);
-				if (!Headers.ContainsKey ("Content-Type"))
-					AddHeader ("Content-Type", "text/plain");
-			}
+			if (Body != null)
+				Body.AddHeadersTo (this);
 
 			if (Protocol == HttpProtocol.Http11 && !Headers.ContainsKey ("Connection"))
 				AddHeader ("Connection", (KeepAlive ?? false) ? "keep-alive" : "close");
@@ -121,13 +117,13 @@ namespace Xamarin.WebTests.Framework
 			WriteHeaders (writer);
 
 			if (Body != null)
-				writer.Write (Body + "\r\n");
+				Body.WriteTo (writer);
 			writer.Flush ();
 		}
 
 		public static HttpResponse CreateSimple (HttpStatusCode status, string body = null)
 		{
-			return new HttpResponse (status, body);
+			return new HttpResponse (status, body != null ? new StringContent (body) : null);
 		}
 
 		public static HttpResponse CreateRedirect (HttpStatusCode code, Uri uri)
@@ -139,12 +135,12 @@ namespace Xamarin.WebTests.Framework
 
 		public static HttpResponse CreateSuccess (string body = null)
 		{
-			return new HttpResponse (HttpStatusCode.OK, body);
+			return new HttpResponse (HttpStatusCode.OK, body != null ? new StringContent (body) : null);
 		}
 
 		public static HttpResponse CreateError (string message, params object[] args)
 		{
-			return new HttpResponse (HttpStatusCode.InternalServerError, string.Format (message, args));
+			return new HttpResponse (HttpStatusCode.InternalServerError, new StringContent (string.Format (message, args)));
 		}
 
 		public override string ToString ()

@@ -155,6 +155,15 @@
     <Compile Include="..\Xamarin.WebTests\Handlers\HttpClientOperation.cs">
       <Link>Handlers\HttpClientOperation.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\HttpContent.cs">
+      <Link>Framework\HttpContent.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\StringContent.cs">
+      <Link>Framework\StringContent.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\ChunkedContent.cs">
+      <Link>Framework\ChunkedContent.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xamarin.WebTests\Framework\RequestFlags.cs">

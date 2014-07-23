@@ -1,5 +1,5 @@
 ﻿//
-// ProxyConnection.cs
+// ChunkedContent.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,46 +25,62 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Text;
-using System.Net;
-using System.Net.Sockets;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Framework
 {
-	using Framework;
-
-	public class ProxyConnection : Connection
+	public class ChunkedContent : HttpContent
 	{
-		Connection proxy;
+		List<string> chunks;
 
-		public ProxyConnection (Connection proxy, StreamReader reader, StreamWriter writer)
-			: base (reader, writer)
+		public ChunkedContent (IEnumerable<string> chunks)
 		{
-			this.proxy = proxy;
+			this.chunks = new List<string> (chunks);
 		}
 
-		public void HandleRequest (HttpRequest request)
+		public static async Task<ChunkedContent> Read (StreamReader reader)
 		{
-			var task = Task.Factory.StartNew (() => CopyResponse ());
+			var chunks = new List<string> ();
 
-			WriteRequest (request);
-			var body = request.ReadBody ();
-			if (body != null)
-				body.WriteTo (ResponseWriter);
+			do {
+				var header = reader.ReadLine ();
+				var length = int.Parse (header, NumberStyles.HexNumber);
+				if (length == 0)
+					break;
 
-			task.Wait ();
+				var buffer = new char [length];
+				var ret = await reader.ReadAsync (buffer, 0, length);
+				if (ret != length)
+					throw new InvalidOperationException ();
+
+				chunks.Add (new string (buffer));
+
+				var empty = reader.ReadLine ();
+				if (!string.IsNullOrEmpty (empty))
+					throw new InvalidOperationException ();
+			} while (true);
+
+			return new ChunkedContent (chunks);
 		}
 
-		void CopyResponse ()
+		public override string AsString ()
 		{
-			var response = ReadResponse ();
-			response.SetHeader ("Connection", "close");
-			response.SetHeader ("Proxy-Connection", "close");
-			proxy.WriteResponse (response);
+			return string.Join (string.Empty, chunks);
+		}
+
+		public override void AddHeadersTo (HttpMessage message)
+		{
+			message.SetHeader ("Transfer-Encoding", "chunked");
+		}
+
+		public override void WriteTo (StreamWriter writer)
+		{
+			foreach (var chunk in chunks)
+				writer.Write ("{0:x}\r\n{1}\r\n", chunk.Length, chunk);
+			writer.Write ("0\r\n\r\n\r\n");
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// ProxyConnection.cs
+// HttpContent.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,47 +25,17 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Text;
-using System.Net;
-using System.Net.Sockets;
-using System.Globalization;
-using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Framework
 {
-	using Framework;
-
-	public class ProxyConnection : Connection
+	public abstract class HttpContent
 	{
-		Connection proxy;
+		public abstract string AsString ();
 
-		public ProxyConnection (Connection proxy, StreamReader reader, StreamWriter writer)
-			: base (reader, writer)
-		{
-			this.proxy = proxy;
-		}
+		public abstract void AddHeadersTo (HttpMessage message);
 
-		public void HandleRequest (HttpRequest request)
-		{
-			var task = Task.Factory.StartNew (() => CopyResponse ());
-
-			WriteRequest (request);
-			var body = request.ReadBody ();
-			if (body != null)
-				body.WriteTo (ResponseWriter);
-
-			task.Wait ();
-		}
-
-		void CopyResponse ()
-		{
-			var response = ReadResponse ();
-			response.SetHeader ("Connection", "close");
-			response.SetHeader ("Proxy-Connection", "close");
-			proxy.WriteResponse (response);
-		}
+		public abstract void WriteTo (StreamWriter writer);
 	}
 }
 

@@ -100,13 +100,19 @@ namespace Xamarin.WebTests.Handlers
 
 			Debug (0, "BODY", body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
-				if (!string.IsNullOrEmpty (body))
+				if (body != null)
 					return HttpResponse.CreateError ("Must not send a body with this request.");
 				return HttpResponse.CreateSuccess ();
 			}
 
-			if (Body != null && !Body.Equals (body))
-				return HttpResponse.CreateError ("Invalid body");
+			if (Body != null) {
+				if (body == null)
+					return HttpResponse.CreateError ("Missing body");
+				else if (!Body.Equals (body.AsString ()))
+					return HttpResponse.CreateError ("Invalid body");
+			} else if (body != null) {
+				return HttpResponse.CreateError ("Must not have a body");
+			}
 
 			return HttpResponse.CreateSuccess (returnBody);
 		}

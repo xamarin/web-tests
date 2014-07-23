@@ -87,6 +87,9 @@
     <Compile Include="Handlers\HttpClientOperation.cs" />
     <Compile Include="Handlers\SimpleResponse.cs" />
     <Compile Include="Tests\TestHttpClient.cs" />
+    <Compile Include="Framework\HttpContent.cs" />
+    <Compile Include="Framework\StringContent.cs" />
+    <Compile Include="Framework\ChunkedContent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

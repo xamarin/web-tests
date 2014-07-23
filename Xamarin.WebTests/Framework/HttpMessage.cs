@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Globalization;
 using System.Collections.Generic;
 
@@ -45,7 +46,7 @@ namespace Xamarin.WebTests.Framework
 			get; protected set;
 		}
 
-		public string Body {
+		public HttpContent Body {
 			get; protected set;
 		}
 
@@ -71,7 +72,7 @@ namespace Xamarin.WebTests.Framework
 		}
 
 		bool hasBody;
-		string body;
+		HttpContent body;
 
 		protected readonly StreamReader reader;
 		protected readonly Connection connection;
@@ -139,13 +140,13 @@ namespace Xamarin.WebTests.Framework
 			writer.Write ("\r\n");
 		}
 
-		public string ReadBody ()
+		public HttpContent ReadBody ()
 		{
-			DoReadBody ();
+			DoReadBody ().Wait ();
 			return body;
 		}
 
-		void DoReadBody ()
+		async Task DoReadBody ()
 		{
 			if (hasBody)
 				return;
@@ -153,89 +154,11 @@ namespace Xamarin.WebTests.Framework
 
 			string value;
 			if (Headers.TryGetValue ("Content-Length", out value))
-				body = ReadStaticBody (int.Parse (value));
+				body = await StringContent.Read (reader, int.Parse (value));
 			else if (Headers.TryGetValue ("Transfer-Encoding", out value)) {
 				if (!value.Equals ("chunked"))
 					throw new InvalidOperationException ();
-				body = ReadChunkedBody ();
-			}
-		}
-
-		string ReadStaticBody (int length)
-		{
-			var chunkSize = connection.ReadChunkSize ?? 4096;
-			var minDelay = connection.ReadChunkMinDelay ?? 0;
-			var maxDelay = connection.ReadChunkMaxDelay ?? 0;
-
-			var random = new Random ();
-			var delayRange = maxDelay - minDelay;
-
-			var buffer = new char [length];
-			int offset = 0;
-			while (offset < length) {
-				int delay = minDelay + random.Next (delayRange);
-				Thread.Sleep (delay);
-
-				var size = Math.Min (length - offset, chunkSize);
-				int ret = reader.Read (buffer, offset, size);
-				if (ret <= 0)
-					throw new InvalidOperationException ();
-
-				offset += ret;
-			}
-
-			return new string (buffer);
-		}
-
-		string ReadChunkedBody ()
-		{
-			var body = new StringBuilder ();
-			CopyChunkedBody (new StringWriter (body), false);
-			return body.ToString ();
-		}
-
-		void CopyChunkedBody (TextWriter writer, bool verbose)
-		{
-			do {
-				var header = reader.ReadLine ();
-				if (verbose) {
-					writer.Write (header);
-					writer.Write ('\r');
-					writer.Write ('\n');
-				}
-				var length = int.Parse (header, NumberStyles.HexNumber);
-				if (length == 0)
-					break;
-
-				var buffer = new char [length];
-				var ret = reader.Read (buffer, 0, length);
-				if (ret != length)
-					throw new InvalidOperationException ();
-
-				writer.Write (buffer, 0, length);
-				if (verbose) {
-					writer.Write ('\r');
-					writer.Write ('\n');
-				}
-
-				var empty = reader.ReadLine ();
-				if (!string.IsNullOrEmpty (empty))
-					throw new InvalidOperationException ();
-			} while (true);
-		}
-
-		internal void CopyBody (TextWriter writer)
-		{
-			if (hasBody)
-				throw new InvalidOperationException ();
-			string value;
-			if (Headers.TryGetValue ("Content-Length", out value)) {
-				var body = ReadStaticBody (int.Parse (value));
-				writer.Write (body);
-			} else if (Headers.TryGetValue ("Transfer-Encoding", out value)) {
-				if (!value.Equals ("chunked"))
-					throw new InvalidOperationException ();
-				CopyChunkedBody (writer, true);
+				body = await ChunkedContent.Read (reader);
 			}
 		}
 	}

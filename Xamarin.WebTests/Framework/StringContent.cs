@@ -1,5 +1,5 @@
 ﻿//
-// ProxyConnection.cs
+// StringContent.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,46 +25,52 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Text;
-using System.Net;
-using System.Net.Sockets;
-using System.Globalization;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Framework
 {
-	using Framework;
-
-	public class ProxyConnection : Connection
+	public class StringContent : HttpContent
 	{
-		Connection proxy;
+		string content;
 
-		public ProxyConnection (Connection proxy, StreamReader reader, StreamWriter writer)
-			: base (reader, writer)
+		public StringContent (string content)
 		{
-			this.proxy = proxy;
+			this.content = content;
 		}
 
-		public void HandleRequest (HttpRequest request)
+		public async static Task<StringContent> Read (StreamReader reader, int length)
 		{
-			var task = Task.Factory.StartNew (() => CopyResponse ());
+			var buffer = new char [length];
+			int offset = 0;
+			while (offset < length) {
+				var len = Math.Min (4096, length - offset);
+				var ret = await reader.ReadAsync (buffer, offset, len);
+				if (ret <= 0)
+					throw new InvalidOperationException ();
 
-			WriteRequest (request);
-			var body = request.ReadBody ();
-			if (body != null)
-				body.WriteTo (ResponseWriter);
+				offset += ret;
+			}
 
-			task.Wait ();
+			return new StringContent (new string (buffer));
 		}
 
-		void CopyResponse ()
+		public override string AsString ()
 		{
-			var response = ReadResponse ();
-			response.SetHeader ("Connection", "close");
-			response.SetHeader ("Proxy-Connection", "close");
-			proxy.WriteResponse (response);
+			return content;
+		}
+
+		public override void AddHeadersTo (HttpMessage message)
+		{
+			if (!message.Headers.ContainsKey ("Content-Length"))
+				message.AddHeader ("Content-Length", content.Length + 2);
+			if (!message.Headers.ContainsKey ("Content-Type"))
+				message.AddHeader ("Content-Type", "text/plain");
+		}
+
+		public override void WriteTo (StreamWriter writer)
+		{
+			writer.Write (content + "\r\n");
 		}
 	}
 }

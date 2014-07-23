@@ -47,18 +47,6 @@ namespace Xamarin.WebTests.Server
 			this.writer = writer;
 		}
 
-		public int? ReadChunkSize {
-			get; set;
-		}
-
-		public int? ReadChunkMinDelay {
-			get; set;
-		}
-
-		public int? ReadChunkMaxDelay {
-			get; set;
-		}
-
 		protected StreamReader RequestReader {
 			get { return reader; }
 		}
