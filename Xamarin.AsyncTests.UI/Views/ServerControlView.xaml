@@ -13,13 +13,12 @@
             <Button Text="Disconnect" Command="{Binding Stop}" />
         </StackLayout>
         <StackLayout Spacing="10" Orientation="Horizontal">
-            <Switch IsToggled="{Binding UseServer}" />
             <Entry Text="{Binding ServerAddress}" HorizontalOptions="FillAndExpand" />
         </StackLayout>
 
         <StackLayout Spacing="30" Orientation="Horizontal">
-            <Switch IsToggled="{Binding AutoStart}" />
-            <Label Text="Auto start server" VerticalOptions="Center" />
+            <Label Text="Startup action:" VerticalOptions="Center" />
+            <Picker x:Name="StartupActionPicker" HorizontalOptions="FillAndExpand" />
         </StackLayout>
 
         <Label Text="{Binding StatusMessage}" HorizontalOptions="FillAndExpand" />

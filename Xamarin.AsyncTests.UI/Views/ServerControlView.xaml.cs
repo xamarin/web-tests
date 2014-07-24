@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
@@ -34,6 +35,42 @@ namespace Xamarin.AsyncTests.UI
 		public ServerControlView ()
 		{
 			InitializeComponent ();
+
+			foreach (var item in Enum.GetNames (typeof (ServerManager.StartupActionKind)))
+				StartupActionPicker.Items.Add (item);
+
+			StartupActionPicker.SelectedIndexChanged += OnSelectedIndexChanged;
+		}
+
+		public ServerManager Model {
+			get;
+			private set;
+		}
+
+		protected override void OnBindingContextChanged ()
+		{
+			base.OnBindingContextChanged ();
+
+			if (Model != null)
+				Model.PropertyChanged -= OnPropertyChanged;
+
+			Model = (ServerManager)BindingContext;
+			if (Model != null) {
+				Model.PropertyChanged += OnPropertyChanged;
+				StartupActionPicker.SelectedIndex = (int)Model.StartupAction;
+			}
+		}
+
+		void OnPropertyChanged (object sender, PropertyChangedEventArgs e)
+		{
+			if (Model != null)
+				StartupActionPicker.SelectedIndex = (int)Model.StartupAction;
+		}
+
+		void OnSelectedIndexChanged (object sender, EventArgs e)
+		{
+			if (Model != null)
+				Model.StartupAction = (ServerManager.StartupActionKind)StartupActionPicker.SelectedIndex;
 		}
 	}
 }

@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -108,11 +109,18 @@ namespace Xamarin.AsyncTests.UI
 
 		internal async Task Initialize ()
 		{
-			if (AutoStart) {
-				if (useServer)
-					await Start.Execute ();
-				else
-					await Connect.Execute ();
+			switch (StartupAction) {
+			case StartupActionKind.LoadLocal:
+				await Local.Execute ();
+				break;
+			case StartupActionKind.Start:
+				await Start.Execute ();
+				break;
+			case StartupActionKind.Connect:
+				await Connect.Execute ();
+				break;
+			default:
+				break;
 			}
 		}
 
@@ -129,46 +137,42 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		bool autoStart;
-		bool useServer;
-
-		public bool AutoStart {
-			get { return autoStart; }
-			set {
-				if (value == autoStart)
-					return;
-				autoStart = value;
-				Settings.SetValue ("AutoStartServer", value.ToString ());
-				OnPropertyChanged ("AutoStart");
-			}
-		}
-
-		public bool UseServer {
-			get { return useServer; }
-			set {
-				if (value == useServer)
-					return;
-				useServer = value;
-				Settings.SetValue ("UseServer", value.ToString ());
-				OnPropertyChanged ("UseServer");
-			}
-		}
-
 		void LoadSettings ()
 		{
 			string value;
 			if (Settings.TryGetValue ("ServerAddress", out value))
 				serverAddress = value;
 
-			if (Settings.TryGetValue ("UseServer", out value))
-				useServer = bool.Parse (value);
-
-			if (Settings.TryGetValue ("AutoStartServer", out value))
-				autoStart = bool.Parse (value);
+			if (Settings.TryGetValue ("StartupAction", out value))
+				Enum.TryParse<StartupActionKind> (value, out startupAction);
 
 			OnPropertyChanged ("UseServer");
 			OnPropertyChanged ("ServerAddress");
 			OnPropertyChanged ("AutoStart");
+		}
+
+		#endregion
+
+		#region Startup Action
+
+		StartupActionKind startupAction;
+
+		public StartupActionKind StartupAction {
+			get { return startupAction; }
+			set {
+				if (value == startupAction)
+					return;
+				startupAction = value;
+				Settings.SetValue ("StartupAction", value.ToString ());
+				OnPropertyChanged ("StartupAction");
+			}
+		}
+
+		public enum StartupActionKind {
+			Nothing,
+			LoadLocal,
+			Start,
+			Connect,
 		}
 
 		#endregion
