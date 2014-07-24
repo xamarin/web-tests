@@ -1,5 +1,5 @@
 ﻿//
-// Assert.cs
+// ConstraintExpression.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,43 +25,34 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.Constraints
 {
-	using Constraints;
-
-	public static class Assert
+	public abstract class ConstraintOperator
 	{
-		public static void That (object actual, Constraint constraint, string format, params object[] args)
-		{
-			That (actual, constraint, string.Format (format, args));
+		public abstract string Name {
+			get;
 		}
 
-		internal static string Print (object value)
-		{
-			if (value == null)
-				return "<null>";
-			var svalue = value as string;
-			if (svalue != null && string.IsNullOrEmpty (svalue))
-				return "<empty>";
-			return value.ToString ();
+		public abstract bool Evaluate (Func<object,bool> func, object actual);
+
+		public Constraint False {
+			get { return new ConstraintExpression (this, new FalseConstraint ()); }
 		}
 
-		public static void That (object actual, Constraint constraint, string message)
-		{
-			if (constraint.Evaluate (actual))
-				return;
-			var error = string.Format ("Assertion failed ({0}:{1}): {2}", Print (actual), constraint.Print (), message);
-			throw new AssertionException (error);
+		public Constraint True {
+			get { return new ConstraintExpression (this, new TrueConstraint ()); }
 		}
 
-		public static void Fail (string format, params object[] args)
-		{
-			Fail (string.Format (format, args));
+		public Constraint Null {
+			get { return new ConstraintExpression (this, new NullConstraint ()); }
 		}
 
-		public static void Fail (string message)
-		{
-			throw new AssertionException (message);
+		public Constraint Empty {
+			get { return new ConstraintExpression (this, new EmptyConstraint ()); }
+		}
+
+		public Constraint NullOrEmpty {
+			get { return new ConstraintExpression (this, new NullOrEmptyConstraint ()); }
 		}
 	}
 }

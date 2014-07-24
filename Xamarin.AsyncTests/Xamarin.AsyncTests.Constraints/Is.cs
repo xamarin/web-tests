@@ -37,9 +37,25 @@ namespace Xamarin.AsyncTests.Constraints
 			get { return new TrueConstraint (); }
 		}
 
+		public static Constraint Null {
+			get { return new NullConstraint (); }
+		}
+
+		public static Constraint Empty {
+			get { return new EmptyConstraint (); }
+		}
+
+		public static Constraint NullOrEmpty {
+			get { return new NullOrEmptyConstraint (); }
+		}
+
 		public static Constraint EqualTo (object expected)
 		{
 			return new EqualConstraint (expected);
+		}
+
+		public static ConstraintOperator Not {
+			get { return new NotConstraint (); }
 		}
 	}
 }

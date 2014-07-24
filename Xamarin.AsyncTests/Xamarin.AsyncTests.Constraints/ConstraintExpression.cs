@@ -1,5 +1,5 @@
 ﻿//
-// Assert.cs
+// AggregatedConstraint.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,43 +25,47 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.Constraints
 {
-	using Constraints;
-
-	public static class Assert
+	public class ConstraintExpression : Constraint
 	{
-		public static void That (object actual, Constraint constraint, string format, params object[] args)
-		{
-			That (actual, constraint, string.Format (format, args));
+		public string Name {
+			get;
+			private set;
 		}
 
-		internal static string Print (object value)
-		{
-			if (value == null)
-				return "<null>";
-			var svalue = value as string;
-			if (svalue != null && string.IsNullOrEmpty (svalue))
-				return "<empty>";
-			return value.ToString ();
+		public Constraint Inner {
+			get;
+			private set;
 		}
 
-		public static void That (object actual, Constraint constraint, string message)
-		{
-			if (constraint.Evaluate (actual))
-				return;
-			var error = string.Format ("Assertion failed ({0}:{1}): {2}", Print (actual), constraint.Print (), message);
-			throw new AssertionException (error);
+		public Func<Func<object,bool>,object,bool> Operator {
+			get;
+			private set;
 		}
 
-		public static void Fail (string format, params object[] args)
+		public ConstraintExpression (string name, Func<Func<object,bool>,object,bool> op, Constraint inner)
 		{
-			Fail (string.Format (format, args));
+			Name = name;
+			Operator = op;
+			Inner = inner;
 		}
 
-		public static void Fail (string message)
+		public ConstraintExpression (ConstraintOperator op, Constraint inner)
 		{
-			throw new AssertionException (message);
+			Name = op.Name;
+			Operator = (f,a) => op.Evaluate (f,a);
+			Inner = inner;
+		}
+
+		public override bool Evaluate (object actual)
+		{
+			return Operator (f => Inner.Evaluate (actual), actual);
+		}
+
+		public override string Print ()
+		{
+			return Name + "." + Inner.Print ();
 		}
 	}
 }

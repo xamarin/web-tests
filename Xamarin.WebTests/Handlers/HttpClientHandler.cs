@@ -30,6 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Handlers
 {
@@ -81,16 +82,14 @@ namespace Xamarin.WebTests.Handlers
 		{
 			switch (Operation) {
 			case HttpClientOperation.GetString:
-				if (!request.Method.Equals ("GET"))
-					return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
-
+				Assert.That (request.Method, Is.EqualTo ("GET"), "method");
 				return HttpResponse.CreateSuccess (string.Format ("Hello World!"));
 
 			case HttpClientOperation.PostString:
 				return HandlePostString (connection, request, effectiveFlags);
 
 			default:
-				return HttpResponse.CreateError ("Invalid operation: {0}", operation);
+				throw new InvalidOperationException ();
 			}
 		}
 
@@ -100,18 +99,15 @@ namespace Xamarin.WebTests.Handlers
 
 			Debug (0, "BODY", body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
-				if (body != null)
-					return HttpResponse.CreateError ("Must not send a body with this request.");
+				Assert.That (body, Is.Not.Null, "body");
 				return HttpResponse.CreateSuccess ();
 			}
 
 			if (Content != null) {
-				if (body == null)
-					return HttpResponse.CreateError ("Missing body");
-				else if (!Content.AsString ().Equals (body.AsString ()))
-					return HttpResponse.CreateError ("Invalid body");
-			} else if (body != null) {
-				return HttpResponse.CreateError ("Must not have a body");
+				Assert.That (body, Is.Not.Null, "body");
+				Assert.That (body.AsString (), Is.EqualTo (Content.AsString ()), "body");
+			} else {
+				Assert.That (body, Is.Null, "body");
 			}
 
 			return new HttpResponse (HttpStatusCode.OK, returnContent);
@@ -193,8 +189,7 @@ namespace Xamarin.WebTests.Handlers
 				var response = await Client.SendAsync (
 					message, Http.HttpCompletionOption.ResponseContentRead, cancellationToken);
 
-				if (response == null)
-					throw new InvalidOperationException ("Got null response.");
+				Assert.That (response, Is.Not.Null, "response");
 
 				ctx.LogMessage ("GOT RESPONSE: {0}", response.StatusCode);
 
@@ -208,15 +203,12 @@ namespace Xamarin.WebTests.Handlers
 				}
 
 				if (Parent.ReturnContent != null) {
-					if (body == null)
-						throw new InvalidOperationException ("Got null body.");
+					Assert.That (body, Is.Not.Null, "returned body");
 
 					body = body.TrimEnd ();
-					if (!body.Equals (Parent.ReturnContent.AsString ()))
-						throw new InvalidOperationException ("Got invalid body.");
+					Assert.That (body, Is.EqualTo (Parent.ReturnContent.AsString ()), "returned body");
 				} else {
-					if (!string.IsNullOrEmpty (body))
-						throw new InvalidOperationException ("Did not expect a body.");
+					Assert.That (body, Is.Not.NullOrEmpty, "returned body");
 				}
 
 				return new SimpleResponse (this, response.StatusCode, body);

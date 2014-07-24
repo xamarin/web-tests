@@ -1,5 +1,5 @@
 ﻿//
-// Assert.cs
+// NotConstraint.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,43 +25,17 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.Constraints
 {
-	using Constraints;
-
-	public static class Assert
+	public class NotConstraint : ConstraintOperator
 	{
-		public static void That (object actual, Constraint constraint, string format, params object[] args)
-		{
-			That (actual, constraint, string.Format (format, args));
+		public override string Name {
+			get { return "Not"; }
 		}
 
-		internal static string Print (object value)
+		public override bool Evaluate (Func<object, bool> func, object actual)
 		{
-			if (value == null)
-				return "<null>";
-			var svalue = value as string;
-			if (svalue != null && string.IsNullOrEmpty (svalue))
-				return "<empty>";
-			return value.ToString ();
-		}
-
-		public static void That (object actual, Constraint constraint, string message)
-		{
-			if (constraint.Evaluate (actual))
-				return;
-			var error = string.Format ("Assertion failed ({0}:{1}): {2}", Print (actual), constraint.Print (), message);
-			throw new AssertionException (error);
-		}
-
-		public static void Fail (string format, params object[] args)
-		{
-			Fail (string.Format (format, args));
-		}
-
-		public static void Fail (string message)
-		{
-			throw new AssertionException (message);
+			return !func (actual);
 		}
 	}
 }
