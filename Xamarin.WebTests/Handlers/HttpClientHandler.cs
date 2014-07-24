@@ -171,7 +171,7 @@ namespace Xamarin.WebTests.Handlers
 
 				try {
 					var body = await Client.GetStringAsync (RequestUri);
-					return new SimpleResponse (this, HttpStatusCode.OK, body);
+					return new SimpleResponse (this, HttpStatusCode.OK, StringContent.Create (body));
 				} catch (Exception ex) {
 					return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, ex);
 				} finally {
@@ -208,10 +208,10 @@ namespace Xamarin.WebTests.Handlers
 					body = body.TrimEnd ();
 					Assert.That (body, Is.EqualTo (Parent.ReturnContent.AsString ()), "returned body");
 				} else {
-					Assert.That (body, Is.Not.NullOrEmpty, "returned body");
+					Assert.That (body, Is.Empty, "returned body");
 				}
 
-				return new SimpleResponse (this, response.StatusCode, body);
+				return new SimpleResponse (this, response.StatusCode, Parent.ReturnContent);
 			}
 		}
 	}

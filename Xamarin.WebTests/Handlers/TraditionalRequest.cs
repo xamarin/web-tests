@@ -33,6 +33,8 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Handlers
 {
+	using Framework;
+
 	public class TraditionalRequest : Request
 	{
 		public readonly HttpWebRequest Request;
@@ -84,7 +86,7 @@ namespace Xamarin.WebTests.Handlers
 			}
 			response.Close ();
 
-			return new SimpleResponse (this, status, content, error);
+			return new SimpleResponse (this, status, StringContent.Create (content), error);
 		}
 
 		Response Send ()

@@ -166,8 +166,8 @@ namespace Xamarin.WebTests.Runners
 			Assert.That (expectedStatus, Is.EqualTo (response.Status), "status code");
 			Assert.That (expectException, Is.EqualTo (!response.IsSuccess), "success status");
 
-			if (response.Body != null)
-				Debug (ctx, 5, handler, "GOT RESPONSE BODY", response.Body);
+			if (response.Content != null)
+				Debug (ctx, 5, handler, "GOT RESPONSE BODY", response.Content);
 
 			return true;
 		}

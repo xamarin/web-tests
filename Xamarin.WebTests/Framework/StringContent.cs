@@ -39,6 +39,11 @@ namespace Xamarin.WebTests.Framework
 			this.content = content;
 		}
 
+		public static HttpContent Create (string content)
+		{
+			return content != null ? new StringContent (content) : null;
+		}
+
 		public async static Task<StringContent> Read (StreamReader reader, int length)
 		{
 			var buffer = new char [length];

@@ -28,18 +28,20 @@ using System.Net;
 
 namespace Xamarin.WebTests.Handlers
 {
+	using Framework;
+
 	public class SimpleResponse : Response
 	{
 		HttpStatusCode code;
-		string body;
+		HttpContent content;
 		Exception error;
 
 		public override HttpStatusCode Status {
 			get { return code; }
 		}
 
-		public override string Body {
-			get { return body; }
+		public override HttpContent Content {
+			get { return content; }
 		}
 
 		public override bool IsSuccess {
@@ -50,11 +52,11 @@ namespace Xamarin.WebTests.Handlers
 			get { return error; }
 		}
 
-		public SimpleResponse (Request request, HttpStatusCode code, string body, Exception error = null)
+		public SimpleResponse (Request request, HttpStatusCode code, HttpContent content, Exception error = null)
 			: base (request)
 		{
 			this.code = code;
-			this.body = body;
+			this.content = content;
 			this.error = error;
 		}
 	}

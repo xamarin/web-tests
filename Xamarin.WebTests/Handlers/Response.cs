@@ -30,6 +30,8 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Handlers
 {
+	using Framework;
+
 	public abstract class Response
 	{
 		public Request Request {
@@ -54,7 +56,7 @@ namespace Xamarin.WebTests.Handlers
 			get;
 		}
 
-		public abstract string Body {
+		public abstract HttpContent Content {
 			get;
 		}
 	}
