@@ -105,7 +105,7 @@ namespace Xamarin.WebTests
 				writer.Write ("0");
 				Thread.Sleep (500);
 				writer.Write ("4\r\n");
-				writer.Write ("AAAA\r\n0\r\n\r\n\r\n");
+				writer.Write ("AAAA\r\n0\r\n\r\n");
 			}
 			#endregion
 		}

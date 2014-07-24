@@ -20,7 +20,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <Commandlineparameters>--connect=192.168.7.101</Commandlineparameters>
+    <Commandlineparameters>--my-tests --result=result.xml --connect=192.168.7.101 --run --wait --log-level=10
+</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
