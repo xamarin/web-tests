@@ -34,10 +34,6 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
-		TestCategory DefaultCategory {
-			get;
-		}
-
 		IEnumerable<TestCategory> Categories {
 			get;
 		}

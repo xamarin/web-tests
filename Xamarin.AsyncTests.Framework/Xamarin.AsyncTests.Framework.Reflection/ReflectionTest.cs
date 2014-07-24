@@ -55,6 +55,18 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				}
 			}
 
+			if (categories != null) {
+				foreach (var category in categories) {
+					if (ctx.CurrentCategory == category) {
+						enabled = true;
+						return true;
+					} else if (category.IsExplicit) {
+						enabled = false;
+						return true;
+					}
+				}
+			}
+
 			if (ctx.CurrentCategory == TestCategory.All) {
 				enabled = true;
 				return true;
@@ -63,13 +75,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (categories == null) {
 				enabled = false;
 				return false;
-			}
-
-			foreach (var category in categories) {
-				if (ctx.CurrentCategory == category) {
-					enabled = true;
-					return true;
-				}
 			}
 
 			enabled = false;

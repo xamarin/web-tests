@@ -59,13 +59,14 @@ namespace Xamarin.WebTests
 		public static readonly TestFeature ProxyAuth = new TestFeature ("ProxyAuth", "Proxy Authentication", true);
 		public static readonly TestFeature Experimental = new TestFeature ("Experimental", "Experimental Tests", false);
 
+		public static readonly TestFeature NotWorking = new TestFeature ("NotWorking", "Not Working", false);
+
 		public static readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", false);
 
 		public static readonly TestFeature HasNetwork = new TestFeature (
 			"Network", "HasNetwork", () => !IPAddress.IsLoopback (TestRunner.GetAddress ()));
 
-		public static readonly TestCategory NotWorking = new TestCategory ("NotWorking");
-		public static readonly TestCategory WorkCategory = new TestCategory ("Work");
+		public static readonly TestCategory WorkCategory = new TestCategory ("Work") { IsExplicit = true };
 
 		#region ITestSuite implementation
 		public IEnumerable<TestFeature> Features {
@@ -77,18 +78,14 @@ namespace Xamarin.WebTests
 				yield return ProxyAuth;
 				yield return Experimental;
 				yield return ReuseConnection;
+				yield return NotWorking;
 
 				yield return HasNetwork;
 			}
 		}
 
-		public TestCategory DefaultCategory {
-			get { return null; }
-		}
-
 		public IEnumerable<TestCategory> Categories {
 			get {
-				yield return NotWorking;
 				yield return WorkCategory;
 			}
 		}

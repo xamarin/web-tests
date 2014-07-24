@@ -39,6 +39,10 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
+		public bool IsExplicit {
+			get; set;
+		}
+
 		public TestCategory (string name)
 		{
 			Name = name;
