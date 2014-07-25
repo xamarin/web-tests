@@ -27,6 +27,8 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
+	using Constraints;
+
 	public sealed class InvocationContext : ITestLogger
 	{
 		public TestContext Context {
@@ -89,6 +91,24 @@ namespace Xamarin.AsyncTests
 		public void LogError (Exception error)
 		{
 			Logger.LogError (error);
+		}
+
+		#endregion
+
+		#region Assertions
+
+		public bool Expect (object actual, Constraint constraint, string format, params object[] args)
+		{
+			return Expect (actual, constraint, string.Format (format, args));
+		}
+
+		public bool Expect (object actual, Constraint constraint, string message)
+		{
+			if (constraint.Evaluate (actual))
+				return true;
+			var error = string.Format ("Assertion failed ({0}:{1}): {2}", Assert.Print (actual), constraint.Print (), message);
+			Result.AddError (new AssertionException (error));
+			return false;
 		}
 
 		#endregion

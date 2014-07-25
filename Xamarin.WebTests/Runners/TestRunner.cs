@@ -163,8 +163,10 @@ namespace Xamarin.WebTests.Runners
 
 			Debug (ctx, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess);
 
-			Assert.That (expectedStatus, Is.EqualTo (response.Status), "status code");
-			Assert.That (expectException, Is.EqualTo (!response.IsSuccess), "success status");
+			if (ctx.Expect (expectedStatus, Is.EqualTo (response.Status), "status code"))
+				ctx.Expect (expectException, Is.EqualTo (!response.IsSuccess), "success status");
+			else if (response.Error != null)
+				ctx.OnError (response.Error);
 
 			if (response.Content != null)
 				Debug (ctx, 5, handler, "GOT RESPONSE BODY", response.Content);
