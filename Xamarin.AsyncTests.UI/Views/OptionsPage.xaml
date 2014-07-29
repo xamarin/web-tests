@@ -16,6 +16,12 @@
             </StackLayout>
 
             <StackLayout Spacing="30" Orientation="Horizontal">
+                <Label Text="Log Level" VerticalOptions="Center" />
+                <Entry Text="{Binding LogLevelEntry}" HorizontalOptions="FillAndExpand"
+                       Completed="OnLogLevelChanged" />
+            </StackLayout>
+
+            <StackLayout Spacing="30" Orientation="Horizontal">
                 <Switch IsToggled="{Binding HideIgnoredTests}" />
                 <Label Text="Hide ignored tests" VerticalOptions="Center" />
             </StackLayout>

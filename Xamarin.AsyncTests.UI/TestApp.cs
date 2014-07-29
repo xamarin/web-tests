@@ -139,7 +139,8 @@ namespace Xamarin.AsyncTests.UI
 
 		public void LogDebug (int level, string message)
 		{
-			;
+			if (level <= DebugLevel)
+				SD.Debug.WriteLine (message);
 		}
 
 		public void LogDebug (int level, string format, params object[] args)
