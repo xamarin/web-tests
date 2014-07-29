@@ -161,17 +161,20 @@ namespace Xamarin.WebTests.Runners
 
 			var response = await request.Send (ctx, cancellationToken);
 
-			Debug (ctx, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess);
+			Debug (ctx, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error);
 
-			if (ctx.Expect (expectedStatus, Is.EqualTo (response.Status), "status code"))
-				ctx.Expect (expectException, Is.EqualTo (!response.IsSuccess), "success status");
-			else if (response.Error != null)
+			var ok = ctx.Expect (expectedStatus, Is.EqualTo (response.Status), "status code");
+			if (ok)
+				ok &= ctx.Expect (expectException, Is.EqualTo (!response.IsSuccess), "success status");
+			if (response.Error != null) {
 				ctx.OnError (response.Error);
+				ok = false;
+			}
 
 			if (response.Content != null)
 				Debug (ctx, 5, handler, "GOT RESPONSE BODY", response.Content);
 
-			return true;
+			return ok;
 		}
 
 		protected virtual string MyToString ()
