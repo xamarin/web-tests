@@ -164,6 +164,9 @@
     <Compile Include="..\Xamarin.WebTests\Framework\ChunkedContent.cs">
       <Link>Framework\ChunkedContent.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\GetHandler.cs">
+      <Link>Handlers\GetHandler.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xamarin.WebTests\Framework\RequestFlags.cs">
@@ -235,6 +238,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.1.2.1.6229\build\portable-win+net45+wp80+MonoAndroid10+MonoTouch10\Xamarin.Forms.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests.UI\Xamarin.AsyncTests.UI.csproj">
       <Project>{4A28C314-01ED-43DD-A08E-8EB842E25294}</Project>

@@ -52,13 +52,11 @@
     <Reference Include="Xamarin.Forms.Xaml">
       <HintPath>..\packages\Xamarin.Forms.1.2.1.6229\lib\MonoAndroid10\Xamarin.Forms.Xaml.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="Xamarin.Android.Support.v4">
       <HintPath>..\packages\Xamarin.Android.Support.v4.20.0.0.2\lib\MonoAndroid10\Xamarin.Android.Support.v4.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Android" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainActivity.cs" />
@@ -116,6 +114,9 @@
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Framework\ChunkedContent.cs">
       <Link>Framework\ChunkedContent.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\GetHandler.cs">
+      <Link>Handlers\GetHandler.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
