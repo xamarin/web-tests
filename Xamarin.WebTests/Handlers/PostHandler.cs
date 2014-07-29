@@ -202,7 +202,7 @@ namespace Xamarin.WebTests.Handlers
 				break;
 			}
 
-			traditional.Body = Body;
+			traditional.Content = StringContent.CreateMaybeNull (Body);
 
 			return traditional;
 		}

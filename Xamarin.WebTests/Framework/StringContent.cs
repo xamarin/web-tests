@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.Framework
 			this.content = content;
 		}
 
-		public static HttpContent Create (string content)
+		public static HttpContent CreateMaybeNull (string content)
 		{
 			return content != null ? new StringContent (content) : null;
 		}

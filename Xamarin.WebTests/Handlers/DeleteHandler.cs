@@ -91,7 +91,7 @@ namespace Xamarin.WebTests.Handlers
 			if (Flags == RequestFlags.ExplicitlySetLength)
 				traditional.Request.ContentLength = Body != null ? Body.Length : 0;
 
-			traditional.Body = body;
+			traditional.Content = StringContent.CreateMaybeNull (body);
 
 			return traditional;
 		}

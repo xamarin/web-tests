@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.Handlers
 	{
 		public readonly HttpWebRequest Request;
 
-		public string Body {
+		public HttpContent Content {
 			get; set;
 		}
 
@@ -86,16 +86,15 @@ namespace Xamarin.WebTests.Handlers
 			}
 			response.Close ();
 
-			return new SimpleResponse (this, status, StringContent.Create (content), error);
+			return new SimpleResponse (this, status, StringContent.CreateMaybeNull (content), error);
 		}
 
 		Response Send ()
 		{
 			try {
-				if (Body != null) {
+				if (Content != null) {
 					using (var writer = new StreamWriter (Request.GetRequestStream ())) {
-						if (!string.IsNullOrEmpty (Body))
-							writer.Write (Body);
+						Content.WriteTo (writer);
 					}
 				}
 

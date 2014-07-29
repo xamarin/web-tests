@@ -171,7 +171,7 @@ namespace Xamarin.WebTests.Handlers
 
 				try {
 					var body = await Client.GetStringAsync (RequestUri);
-					return new SimpleResponse (this, HttpStatusCode.OK, StringContent.Create (body));
+					return new SimpleResponse (this, HttpStatusCode.OK, StringContent.CreateMaybeNull (body));
 				} catch (Exception ex) {
 					return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, ex);
 				} finally {
