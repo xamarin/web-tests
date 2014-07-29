@@ -146,20 +146,20 @@ namespace Xamarin.WebTests.Server
 				cancellationToken.ThrowIfCancellationRequested ();
 
 				if (readList.Contains (input)) {
-					if (!Copy (input, output))
+					if (!Copy (input, output, cancellationToken))
 						doneSending = true;
 				}
 
 				cancellationToken.ThrowIfCancellationRequested ();
 
 				if (readList.Contains (output)) {
-					if (Copy (output, input))
+					if (Copy (output, input, cancellationToken))
 						continue;
 
 					doneReading = true;
 					while (!doneSending) {
 						cancellationToken.ThrowIfCancellationRequested ();
-						if (!Copy (input, output))
+						if (!Copy (input, output, cancellationToken))
 							break;
 					}
 					break;
@@ -167,10 +167,16 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		bool Copy (Socket input, Socket output)
+		bool Copy (Socket input, Socket output, CancellationToken cancellationToken)
 		{
 			var buffer = new byte [4096];
-			var ret = input.Receive (buffer);
+			int ret;
+			try {
+				ret = input.Receive (buffer);
+			} catch {
+				cancellationToken.ThrowIfCancellationRequested ();
+				throw;
+			}
 			if (ret == 0) {
 				try {
 					output.Shutdown (SocketShutdown.Send);
@@ -180,7 +186,13 @@ namespace Xamarin.WebTests.Server
 				return false;
 			}
 
-			var ret2 = output.Send (buffer, ret, SocketFlags.None);
+			int ret2;
+			try {
+				ret2 = output.Send (buffer, ret, SocketFlags.None);
+			} catch {
+				cancellationToken.ThrowIfCancellationRequested ();
+				throw;
+			}
 			if (ret2 != ret)
 				throw new InvalidOperationException ();
 			return true;

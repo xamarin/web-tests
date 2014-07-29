@@ -168,9 +168,21 @@ namespace Xamarin.WebTests.Server
 			}
 
 			var socket = args.AcceptSocket;
+			Stream stream;
 
 			try {
-				HandleConnection (socket, cts.Token);
+				stream = CreateStream (socket);
+			} catch (OperationCanceledException) {
+				stream = null;
+			} catch (Exception ex) {
+				if (!cts.IsCancellationRequested)
+					OnException (ex);
+				stream = null;
+			}
+
+			try {
+				if (stream != null)
+					HandleConnection (socket, stream, cts.Token);
 				Close (socket);
 			} catch (OperationCanceledException) {
 				;
@@ -251,9 +263,8 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		void HandleConnection (Socket socket, CancellationToken cancellationToken)
+		void HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken)
 		{
-			var stream = CreateStream (socket);
 			var reader = new StreamReader (stream, Encoding.ASCII);
 			var writer = new StreamWriter (stream, Encoding.ASCII);
 			writer.AutoFlush = true;

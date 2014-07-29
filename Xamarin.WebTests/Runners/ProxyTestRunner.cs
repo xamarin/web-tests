@@ -77,11 +77,11 @@ namespace Xamarin.WebTests.Runners
 
 		public override async Task Stop (CancellationToken cancellationToken)
 		{
-			await httpListener.Stop ();
-			httpListener = null;
-
 			await proxyListener.Stop ();
 			proxyListener = null;
+
+			await httpListener.Stop ();
+			httpListener = null;
 		}
 
 		IWebProxy CreateProxy ()
