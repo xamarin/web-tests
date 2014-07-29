@@ -104,6 +104,15 @@ namespace Xamarin.WebTests.Tests
 			};
 		}
 
+		static IEnumerable<Handler> GetChunkedTests ()
+		{
+			yield return new PostHandler () {
+				Description = "Chunked",
+				Body = "Hello Chunked World!",
+				Mode = TransferMode.Chunked
+			};
+		}
+
 		public static IEnumerable<Handler> GetParameters (TestContext context, string filter)
 		{
 			if (filter == null) {
@@ -116,6 +125,8 @@ namespace Xamarin.WebTests.Tests
 				return GetPostTests ();
 			else if (filter.Equals ("delete"))
 				return GetDeleteTests ();
+			else if (filter.Equals ("chunked"))
+				return GetChunkedTests ();
 			else
 				throw new InvalidOperationException ();
 		}
@@ -210,6 +221,15 @@ namespace Xamarin.WebTests.Tests
 			};
 
 			await runner.Run (ctx, secondPost, cancellationToken);
+		}
+
+		[Work]
+		[AsyncTest]
+		public Task TestChunked (
+			InvocationContext ctx, [TestHost] HttpTestRunner runner,
+			[TestParameter ("chunked")] Handler handler, CancellationToken cancellationToken)
+		{
+			return runner.Run (ctx, handler, cancellationToken);
 		}
 	}
 }
