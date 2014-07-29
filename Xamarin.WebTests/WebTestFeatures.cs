@@ -43,6 +43,14 @@ namespace Xamarin.WebTests
 	}
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class RecentlyFixedAttribute : TestCategoryAttribute
+	{
+		public override TestCategory Category {
+			get { return WebTestFeatures.RecentlyFixedCategory; }
+		}
+	}
+
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class ProxyAttribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {
@@ -67,6 +75,7 @@ namespace Xamarin.WebTests
 			"Network", "HasNetwork", () => !IPAddress.IsLoopback (TestRunner.GetAddress ()));
 
 		public static readonly TestCategory WorkCategory = new TestCategory ("Work") { IsExplicit = true };
+		public static readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
 
 		#region ITestSuite implementation
 		public IEnumerable<TestFeature> Features {
@@ -87,6 +96,7 @@ namespace Xamarin.WebTests
 		public IEnumerable<TestCategory> Categories {
 			get {
 				yield return WorkCategory;
+				yield return RecentlyFixedCategory;
 			}
 		}
 		#endregion

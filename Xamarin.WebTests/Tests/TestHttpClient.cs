@@ -41,7 +41,7 @@ namespace Xamarin.WebTests
 	using Handlers;
 	using Framework;
 
-	[Work]
+	[RecentlyFixed]
 	[AsyncTestFixture]
 	public class TestHttpClient : ITestHost<TestRunner>, ITestParameterSource<Handler>
 	{

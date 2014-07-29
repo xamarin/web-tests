@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.Tests
 	using Handlers;
 	using Framework;
 
+	[Work]
 	[Proxy]
 	[AsyncTestFixture]
 	public class TestProxy : ITestHost<ProxyTestRunner>, ITestParameterSource<Handler>,
@@ -103,6 +104,11 @@ namespace Xamarin.WebTests.Tests
 
 			if (!context.IsEnabled (WebTestFeatures.Proxy))
 				yield break;
+
+			if (context.CurrentCategory == WebTestFeatures.WorkCategory) {
+				yield return ProxyKind.SSL;
+				yield break;
+			}
 
 			yield return ProxyKind.Simple;
 
