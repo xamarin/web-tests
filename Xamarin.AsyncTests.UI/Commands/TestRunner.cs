@@ -90,6 +90,14 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
+		public static readonly BindableProperty CurrentTestProperty =
+			BindableProperty.Create ("CurrentTest", typeof(string), typeof(TestRunner), string.Empty);
+
+		public string CurrentTest {
+			get { return (string)GetValue (CurrentTestProperty); }
+			set { SetValue (CurrentTestProperty, value); }
+		}
+
 		static int countReruns;
 		DateTime startTime;
 
@@ -127,6 +135,7 @@ namespace Xamarin.AsyncTests.UI
 
 			var elapsed = DateTime.Now - startTime;
 
+			CurrentTest = string.Empty;
 			StatusMessage = GetStatusMessage (string.Format ("Finished in {0} seconds", (int)elapsed.TotalSeconds));
 
 			OnRefresh ();
@@ -158,6 +167,17 @@ namespace Xamarin.AsyncTests.UI
 		void OnStatisticsEvent (TestStatistics.StatisticsEventArgs args)
 		{
 			StatusMessage = GetStatusMessage ();
+
+			switch (args.Type) {
+			case TestStatistics.EventType.Running:
+				CurrentTest = string.Format ("Running {0}", args.Name);
+				break;
+			case TestStatistics.EventType.Finished:
+				CurrentTest = string.Format ("Finished {0}: {1}", args.Name, args.Status);
+				break;
+			default:
+				break;
+			}
 		}
 
 		string GetStatusMessage (string prefix = null)

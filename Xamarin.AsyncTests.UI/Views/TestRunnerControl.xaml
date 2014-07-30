@@ -16,6 +16,8 @@
 
         <Label Text="{Binding StatusMessage}" HorizontalOptions="FillAndExpand" />
 
+        <Label Text="{Binding CurrentTest}" HorizontalOptions="FillAndExpand" />
+
     </StackLayout>
 
 </ContentView>
