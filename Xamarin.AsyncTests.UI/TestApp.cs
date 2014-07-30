@@ -72,6 +72,11 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public IAppHost AppHost {
+			get;
+			private set;
+		}
+
 		public OptionsModel Options {
 			get;
 			private set;
@@ -92,10 +97,16 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestApp (SettingsBag settings, IServerHost server, Assembly assembly)
+		public LogPage LogPage {
+			get;
+			private set;
+		}
+
+		public TestApp (SettingsBag settings, IServerHost server, IAppHost host, Assembly assembly)
 			: base (settings)
 		{
 			ServerHost = server;
+			AppHost = host;
 			Assembly = assembly;
 
 			Logger = this;
@@ -117,9 +128,12 @@ namespace Xamarin.AsyncTests.UI
 			var resultPage = new TestResultPage (this, RootTestResult);
 			var resultNav = new NavigationPage (resultPage) { Title = resultPage.Title };
 
+			LogPage = new LogPage (this);
+
 			Root.Children.Add (MainPage);
 			Root.Children.Add (new OptionsPage (Options));
 			Root.Children.Add (resultNav);
+			Root.Children.Add (LogPage);
 
 			Initialize ();
 		}
@@ -139,8 +153,10 @@ namespace Xamarin.AsyncTests.UI
 
 		public void LogDebug (int level, string message)
 		{
-			if (level <= DebugLevel)
-				SD.Debug.WriteLine (message);
+			if (level > DebugLevel)
+				return;
+			SD.Debug.WriteLine (message);
+			AppHost.InvokeOnMainThread (() => LogPage.Log (message));
 		}
 
 		public void LogDebug (int level, string format, params object[] args)
@@ -151,6 +167,7 @@ namespace Xamarin.AsyncTests.UI
 		public void LogMessage (string message)
 		{
 			SD.Debug.WriteLine (message);
+			AppHost.InvokeOnMainThread (() => LogPage.Log (message));
 		}
 
 		public void LogMessage (string format, params object[] args)

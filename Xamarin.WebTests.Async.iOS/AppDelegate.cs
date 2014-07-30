@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.Async.iOS
 	// User Interface of the application, as well as listening (and optionally responding) to
 	// application events from iOS.
 	[Register ("AppDelegate")]
-	public partial class AppDelegate : UIApplicationDelegate
+	public partial class AppDelegate : UIApplicationDelegate, IAppHost
 	{
 		// class-level declarations
 		UIWindow window;
@@ -66,13 +66,18 @@ namespace Xamarin.WebTests.Async.iOS
 			settings = new SettingsHost ();
 			server = new ServerHost ();
 
-			test = new TestApp (settings, server, typeof(AppDelegate).Assembly);
+			test = new TestApp (settings, server, this, typeof(AppDelegate).Assembly);
 
 			window = new UIWindow (UIScreen.MainScreen.Bounds);
 			window.RootViewController =  test.Root.CreateViewController ();
 			window.MakeKeyAndVisible ();
 
 			return true;
+		}
+
+		void IAppHost.InvokeOnMainThread (Action action)
+		{
+			InvokeOnMainThread (() => action ());
 		}
 	}
 }

@@ -151,6 +151,7 @@ namespace Xamarin.AsyncTests.UI
 			message = null;
 			Context.Statistics.Reset ();
 			StatusMessage = GetStatusMessage ();
+			App.LogPage.Clear ();
 			OnRefresh ();
 		}
 
