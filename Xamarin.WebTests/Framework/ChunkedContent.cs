@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Linq;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Threading;
@@ -35,6 +36,11 @@ namespace Xamarin.WebTests.Framework
 	public class ChunkedContent : HttpContent
 	{
 		List<string> chunks;
+
+		public ChunkedContent (params string[] chunks)
+		{
+			this.chunks = new List<string> (chunks);
+		}
 
 		public ChunkedContent (IEnumerable<string> chunks)
 		{
@@ -64,6 +70,10 @@ namespace Xamarin.WebTests.Framework
 			} while (true);
 
 			return new ChunkedContent (chunks);
+		}
+
+		public override int Length {
+			get { return chunks.Sum (c => c.Length); }
 		}
 
 		public override string AsString ()

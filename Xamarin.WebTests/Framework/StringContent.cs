@@ -68,14 +68,15 @@ namespace Xamarin.WebTests.Framework
 		public override void AddHeadersTo (HttpMessage message)
 		{
 			if (!message.Headers.ContainsKey ("Content-Length"))
-				message.AddHeader ("Content-Length", content.Length + 2);
+				message.AddHeader ("Content-Length", content.Length);
 			if (!message.Headers.ContainsKey ("Content-Type"))
 				message.AddHeader ("Content-Type", "text/plain");
 		}
 
 		public override void WriteTo (StreamWriter writer)
 		{
-			writer.Write (content + "\r\n");
+			if (!string.IsNullOrEmpty (content))
+				writer.Write (content);
 		}
 	}
 }

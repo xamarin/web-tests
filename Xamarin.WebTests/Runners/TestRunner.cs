@@ -163,12 +163,24 @@ namespace Xamarin.WebTests.Runners
 
 			Debug (ctx, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error);
 
-			var ok = ctx.Expect (expectedStatus, Is.EqualTo (response.Status), "status code");
-			if (ok)
-				ok &= ctx.Expect (expectException, Is.EqualTo (!response.IsSuccess), "success status");
+			bool ok;
+
+			if (expectException) {
+				ok = ctx.Expect (response.Error, Is.Not.Null, "expecting exception");
+				ok &= ctx.Expect (response.Status, Is.EqualTo (expectedStatus));
+				return ok;
+			}
+
 			if (response.Error != null) {
-				ctx.OnError (response.Error);
+				if (response.Content != null)
+					ctx.OnError (new WebException (response.Content.AsString (), response.Error));
+				else
+					ctx.OnError (response.Error);
 				ok = false;
+			} else {
+				ok = ctx.Expect (expectedStatus, Is.EqualTo (response.Status), "status code");
+				if (ok)
+					ok &= ctx.Expect (expectException, Is.EqualTo (!response.IsSuccess), "success status");
 			}
 
 			if (response.Content != null)

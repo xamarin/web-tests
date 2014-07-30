@@ -97,19 +97,13 @@ namespace Xamarin.WebTests.Handlers
 		{
 			var body = request.ReadBody ();
 
-			Debug (0, "BODY", body);
+			Debug (5, "BODY", body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
 				Assert.That (body, Is.Not.Null, "body");
 				return HttpResponse.CreateSuccess ();
 			}
 
-			if (Content != null) {
-				Assert.That (body, Is.Not.Null, "body");
-				Assert.That (body.AsString (), Is.EqualTo (Content.AsString ()), "body");
-			} else {
-				Assert.That (body, Is.Null, "body");
-			}
-
+			HttpContent.Compare (Context, body, Content, false, true);
 			return new HttpResponse (HttpStatusCode.OK, returnContent);
 		}
 

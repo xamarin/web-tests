@@ -38,7 +38,7 @@ namespace Xamarin.WebTests.Handlers
 
 	public class PostHandler : Handler
 	{
-		string body;
+		HttpContent content;
 		bool? allowWriteBuffering;
 		TransferMode mode = TransferMode.Default;
 
@@ -50,13 +50,13 @@ namespace Xamarin.WebTests.Handlers
 			}
 		}
 
-		public string Body {
+		public HttpContent Content {
 			get {
-				return body;
+				return content;
 			}
 			set {
 				WantToModify ();
-				body = value;
+				content = value;
 			}
 		}
 
@@ -73,7 +73,7 @@ namespace Xamarin.WebTests.Handlers
 		public override object Clone ()
 		{
 			var post = new PostHandler ();
-			post.body = body;
+			post.content = content;
 			post.allowWriteBuffering = allowWriteBuffering;
 			post.mode = mode;
 			return post;
@@ -107,15 +107,14 @@ namespace Xamarin.WebTests.Handlers
 				return HttpResponse.CreateSuccess ();
 			}
 
-			string body;
+			var content = request.ReadBody ();
 
 			switch (Mode) {
 			case TransferMode.Default:
-				if (Body != null) {
+				if (Content != null) {
 					if (!haveContentLength)
 						return HttpResponse.CreateError ("Missing Content-Length");
 
-					body = ReadBody (connection, request, effectiveFlags);
 					break;
 				} else {
 					if (haveContentLength)
@@ -131,7 +130,6 @@ namespace Xamarin.WebTests.Handlers
 				if (haveTransferEncoding)
 					return HttpResponse.CreateError ("Transfer-Encoding header not allowed");
 
-				body = ReadBody (connection, request, effectiveFlags);
 				break;
 
 			case TransferMode.Chunked:
@@ -148,39 +146,31 @@ namespace Xamarin.WebTests.Handlers
 				if (!string.Equals (transferEncoding, "chunked", StringComparison.InvariantCultureIgnoreCase))
 					return HttpResponse.CreateError ("Invalid Transfer-Encoding header: '{0}'", transferEncoding);
 
-				body = ReadBody (connection, request, effectiveFlags);
 				break;
 
 			default:
 				return HttpResponse.CreateError ("Unknown TransferMode: '{0}'", Mode);
 			}
 
-			Debug (0, "BODY", body);
+			Debug (5, "BODY", content);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
-				if (!string.IsNullOrEmpty (body))
-					return HttpResponse.CreateError ("Must not send a body with this request.");
+				Context.Expect (HttpContent.IsNullOrEmpty (content), true, "Must not send a body with this request.");
 				return HttpResponse.CreateSuccess ();
 			}
 
-			if (Body != null && !Body.Equals (body))
-				return HttpResponse.CreateError ("Invalid body");
+			if (Content != null)
+				HttpContent.Compare (Context, content, Content, true, true);
+			else
+				Context.Expect (HttpContent.IsNullOrEmpty (content), true);
 
 			return HttpResponse.CreateSuccess ();
-		}
-
-		string ReadBody (Connection connection, HttpRequest request, RequestFlags effectiveFlags)
-		{
-			var body = request.ReadBody ();
-			if (body == null)
-				throw new InvalidOperationException ();
-			return body.AsString ();
 		}
 
 		public override Request CreateRequest (Uri uri)
 		{
 			var traditional = new TraditionalRequest (uri);
 
-			if (Body != null)
+			if (Content != null)
 				traditional.Request.ContentType = "text/plain";
 			traditional.Request.Method = "POST";
 
@@ -190,19 +180,26 @@ namespace Xamarin.WebTests.Handlers
 			if (((Flags & RequestFlags.ExplicitlySetLength) != 0) && (Mode != TransferMode.ContentLength))
 				throw new InvalidOperationException ();
 
-			switch (Mode) {
+			var effectiveMode = Mode;
+			if ((Flags & RequestFlags.Redirected) != 0) {
+				if (effectiveMode == TransferMode.Chunked)
+					effectiveMode = TransferMode.ContentLength;
+			}
+
+			if (Content != null)
+				traditional.Content = new StringContent (Content.AsString ());
+
+			switch (effectiveMode) {
 			case TransferMode.Chunked:
 				traditional.Request.SendChunked = true;
 				break;
 			case TransferMode.ContentLength:
-				if (body == null)
+				if (Content == null)
 					traditional.Request.ContentLength = 0;
 				else
-					traditional.Request.ContentLength = body.Length;
+					traditional.Request.ContentLength = traditional.Content.Length;
 				break;
 			}
-
-			traditional.Content = StringContent.CreateMaybeNull (Body);
 
 			return traditional;
 		}

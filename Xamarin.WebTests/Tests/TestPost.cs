@@ -60,26 +60,26 @@ namespace Xamarin.WebTests.Tests
 				Description = "No body"
 			};
 			yield return new PostHandler () {
-				Description = "Empty body", Body = string.Empty
+				Description = "Empty body", Content = new StringContent (string.Empty)
 			};
 			yield return new PostHandler () {
 				Description = "Normal post",
-				Body = "Hello Unknown World!"
+				Content = new StringContent ("Hello Unknown World!")
 			};
 			yield return new PostHandler () {
 				Description = "Content-Length",
-				Body = "Hello Known World!",
+				Content = new StringContent ("Hello Known World!"),
 				Mode = TransferMode.ContentLength
 			};
 			yield return new PostHandler () {
 				Description = "Chunked",
-				Body = "Hello Chunked World!",
+				Content = new ChunkedContent ("Hello Chunked World!"),
 				Mode = TransferMode.Chunked
 			};
 			yield return new PostHandler () {
 				Description = "Explicit length and empty body",
 				Mode = TransferMode.ContentLength,
-				Body = string.Empty
+				Content = new StringContent (string.Empty)
 			};
 			yield return new PostHandler () {
 				Description = "Explicit length and no body",
@@ -106,9 +106,16 @@ namespace Xamarin.WebTests.Tests
 
 		static IEnumerable<Handler> GetChunkedTests ()
 		{
+			var chunks = new List<string> ();
+			for (var i = 'A'; i < 'Z'; i++) {
+				chunks.Add (new string (i, 1000));
+			}
+
+			var content = new ChunkedContent (chunks);
+
 			yield return new PostHandler () {
 				Description = "Chunked",
-				Body = "Hello Chunked World!",
+				Content = content,
 				Mode = TransferMode.Chunked
 			};
 		}
@@ -143,7 +150,7 @@ namespace Xamarin.WebTests.Tests
 		{
 			var post = new PostHandler {
 				Description = "RedirectAsGetNoBuffering",
-				Body = "Hello chunked world",
+				Content = new ChunkedContent ("Hello chunked world"),
 				Mode = TransferMode.Chunked,
 				Flags = RequestFlags.RedirectedAsGet,
 				AllowWriteStreamBuffering = false
@@ -159,7 +166,7 @@ namespace Xamarin.WebTests.Tests
 		{
 			var post = new PostHandler {
 				Description = "RedirectNoBuffering",
-				Body = "Hello chunked world",
+				Content = new ChunkedContent ("Hello chunked world"),
 				Mode = TransferMode.Chunked,
 				Flags = RequestFlags.Redirected,
 				AllowWriteStreamBuffering = false
@@ -184,7 +191,7 @@ namespace Xamarin.WebTests.Tests
 		{
 			var post = (PostHandler)handler;
 			var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
-			var hasBody = post.Body != null || ((post.Flags & RequestFlags.ExplicitlySetLength) != 0) || (post.Mode == TransferMode.ContentLength);
+			var hasBody = post.Content != null || ((post.Flags & RequestFlags.ExplicitlySetLength) != 0) || (post.Mode == TransferMode.ContentLength);
 
 			if ((hasBody || !isWindows) && (code == HttpStatusCode.MovedPermanently || code == HttpStatusCode.Found))
 				post.Flags = RequestFlags.RedirectedAsGet;
@@ -203,7 +210,7 @@ namespace Xamarin.WebTests.Tests
 		{
 			var post = new PostHandler {
 				Description = "First post",
-				Body = "var1=value&var2=value2",
+				Content = new StringContent ("var1=value&var2=value2"),
 				Flags = RequestFlags.RedirectedAsGet
 			};
 			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
@@ -213,11 +220,11 @@ namespace Xamarin.WebTests.Tests
 			var uri = redirect.RegisterRequest (runner.Listener);
 
 			var wc = new WebClient ();
-			var res = await wc.UploadStringTaskAsync (uri, post.Body);
+			var res = await wc.UploadStringTaskAsync (uri, post.Content.AsString ());
 			ctx.LogDebug (2, "Test18750: {0}", res);
 
 			var secondPost = new PostHandler {
-				Description = "Second post", Body = "Should send this"
+				Description = "Second post", Content = new StringContent ("Should send this")
 			};
 
 			await runner.Run (ctx, secondPost, cancellationToken);

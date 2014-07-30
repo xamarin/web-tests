@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.Handlers
 		static int next_id;
 		public readonly int ID = ++next_id;
 
-		static int debugLevel = 10;
+		static int debugLevel = 0;
 
 		public static int DebugLevel {
 			get { return debugLevel; }
@@ -124,6 +124,12 @@ namespace Xamarin.WebTests.Handlers
 				DumpHeaders (response);
 				tcs.SetResult (response.IsSuccess);
 				return response.KeepAlive ?? false;
+			} catch (AssertionException ex) {
+				Debug (1, "HANDLE REQUEST - ASSERTION FAILED", ex);
+				var response = HttpResponse.CreateError (ex.Message);
+				connection.WriteResponse (response);
+				tcs.SetException (ex);
+				return false;
 			} catch (Exception ex) {
 				Debug (0, "HANDLE REQUEST EX", ex);
 				var response = HttpResponse.CreateError ("Caught unhandled exception", ex);

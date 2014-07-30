@@ -27,15 +27,49 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
+using Xamarin.AsyncTests.Constraints;
+
 namespace Xamarin.WebTests.Framework
 {
 	public abstract class HttpContent
 	{
+		public virtual int Length {
+			get { return AsString ().Length; }
+		}
+
 		public abstract string AsString ();
 
 		public abstract void AddHeadersTo (HttpMessage message);
 
 		public abstract void WriteTo (StreamWriter writer);
+
+		public static bool IsNullOrEmpty (HttpContent content)
+		{
+			if (content == null)
+				return true;
+			return string.IsNullOrEmpty (content.AsString ());
+		}
+
+		public static bool Compare (InvocationContext ctx, HttpContent actual, HttpContent expected,
+			bool ignoreType, bool fatal = false, string message = null)
+		{
+			if (expected == null)
+				return ctx.Expect (actual, Is.Null, fatal, message);
+			if (!ctx.Expect (actual, Is.Not.Null, fatal))
+				return false;
+
+			bool ok = true;
+			if (!ignoreType && !ctx.Expect (actual, Is.InstanceOfType (expected.GetType ()), fatal))
+				ok = false;
+
+			var actualString = actual.AsString ();
+			var expectedString = expected.AsString ();
+			if (!ctx.Expect (actualString, Is.EqualTo (expectedString), fatal))
+				ok = false;
+			return ok;
+		}
 	}
 }
 
