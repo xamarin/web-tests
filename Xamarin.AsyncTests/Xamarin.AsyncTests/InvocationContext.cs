@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Text;
 
 namespace Xamarin.AsyncTests
 {
@@ -97,17 +98,48 @@ namespace Xamarin.AsyncTests
 
 		#region Assertions
 
-		public bool Expect (object actual, Constraint constraint, string format, params object[] args)
+		public bool Expect (object actual, Constraint constraint)
 		{
-			return Expect (actual, constraint, string.Format (format, args));
+			return Expect (actual, constraint, false, null);
 		}
 
-		public bool Expect (object actual, Constraint constraint, string message)
+		public bool Expect (object actual, Constraint constraint, string format = null, params object[] args)
 		{
-			if (constraint.Evaluate (actual))
+			return Expect (actual, constraint, false, format, args);
+		}
+
+		public bool Expect (bool value, bool fatal = false, string format = null, params object[] args)
+		{
+			return Expect (value, Is.True, fatal, format, args);
+		}
+
+		public bool Expect (object actual, Constraint constraint, bool fatal = false, string format = null, params object[] args)
+		{
+			var sb = new StringBuilder ();
+
+			string error;
+			if (constraint.Evaluate (actual, out error))
 				return true;
-			var error = string.Format ("Assertion failed ({0}:{1}): {2}", Assert.Print (actual), constraint.Print (), message);
-			Result.AddError (new AssertionException (error));
+			sb.AppendFormat ("AssertionFailed ({0})", constraint.Print ());
+			if (format != null) {
+				sb.Append (": ");
+				if (args != null)
+					sb.AppendFormat (format, args);
+				else
+					sb.Append (format);
+			}
+			if (error != null) {
+				sb.AppendLine ();
+				sb.Append (error);
+			} else {
+				sb.AppendLine ();
+				sb.AppendFormat ("Actual value: {0}", Assert.Print (actual));
+			}
+
+			var exception = new AssertionException (sb.ToString ());
+			Result.AddError (exception);
+			if (fatal)
+				throw exception;
 			return false;
 		}
 

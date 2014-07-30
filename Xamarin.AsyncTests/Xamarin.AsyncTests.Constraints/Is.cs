@@ -54,6 +54,11 @@ namespace Xamarin.AsyncTests.Constraints
 			return new EqualConstraint (expected);
 		}
 
+		public static Constraint InstanceOfType (Type type)
+		{
+			return new InstanceOfTypeConstraint (type);
+		}
+
 		public static ConstraintOperator Not {
 			get { return new NotConstraint (); }
 		}

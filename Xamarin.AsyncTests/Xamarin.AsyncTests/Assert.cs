@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Text;
 
 namespace Xamarin.AsyncTests
 {
@@ -43,15 +44,26 @@ namespace Xamarin.AsyncTests
 			var svalue = value as string;
 			if (svalue != null && string.IsNullOrEmpty (svalue))
 				return "<empty>";
-			return value.ToString ();
+			if (svalue != null)
+				return '"' + svalue + '"';
+			else
+				return value.ToString ();
 		}
 
 		public static void That (object actual, Constraint constraint, string message)
 		{
-			if (constraint.Evaluate (actual))
+			string errorMessage;
+			if (constraint.Evaluate (actual, out errorMessage))
 				return;
-			var error = string.Format ("Assertion failed ({0}:{1}): {2}", Print (actual), constraint.Print (), message);
-			throw new AssertionException (error);
+			var sb = new StringBuilder ();
+			sb.AppendFormat ("AssertionFailed ({0}:{1})", Print (actual), constraint.Print ());
+			if (message != null)
+				sb.AppendFormat (": {0}", message);
+			if (errorMessage != null) {
+				sb.AppendLine ();
+				sb.Append (errorMessage);
+			}
+			throw new AssertionException (sb.ToString ());
 		}
 
 		public static void Fail (string format, params object[] args)

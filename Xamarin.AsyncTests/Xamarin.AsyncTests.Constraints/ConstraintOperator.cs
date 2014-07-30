@@ -33,7 +33,11 @@ namespace Xamarin.AsyncTests.Constraints
 			get;
 		}
 
-		public abstract bool Evaluate (Func<object,bool> func, object actual);
+		public delegate bool OperatorFunc (object actual, out string message);
+
+		public delegate bool OperatorDelegate (OperatorFunc func, object actual, out string message);
+
+		public abstract bool Evaluate (OperatorFunc func, object actual, out string message);
 
 		public Constraint False {
 			get { return new ConstraintExpression (this, new FalseConstraint ()); }

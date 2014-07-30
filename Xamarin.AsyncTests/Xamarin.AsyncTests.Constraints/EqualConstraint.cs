@@ -39,9 +39,37 @@ namespace Xamarin.AsyncTests.Constraints
 			Expected = expected;
 		}
 
-		public override bool Evaluate (object actual)
+		public override bool Evaluate (object actual, out string message)
 		{
+			if (Expected is string) {
+				if (actual == null) {
+					message = "Expected string, but got <null>.";
+					return false;
+				}
+				var actualString = actual as string;
+				if (actualString == null) {
+					message = string.Format (
+						"Expected string, but got instance of Type `{0}'.", actual.GetType ());
+					return false;
+				}
+
+				return CompareString ((string)Expected, actualString, out message);
+			}
+
+			message = null;
 			return object.Equals (actual, Expected);
+		}
+
+		bool CompareString (string expected, string actual, out string message)
+		{
+			if (actual.Length != expected.Length) {
+				message = string.Format (
+					"Strings differ in length: expected {0}, got {1}.", expected.Length, actual.Length);
+				return false;
+			}
+
+			message = null;
+			return string.Compare (expected, actual) == 0;
 		}
 
 		public override string Print ()

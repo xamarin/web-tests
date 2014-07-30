@@ -33,9 +33,9 @@ namespace Xamarin.AsyncTests.Constraints
 			get { return "Not"; }
 		}
 
-		public override bool Evaluate (Func<object, bool> func, object actual)
+		public override bool Evaluate (OperatorFunc func, object actual, out string message)
 		{
-			return !func (actual);
+			return !func (actual, out message);
 		}
 	}
 }

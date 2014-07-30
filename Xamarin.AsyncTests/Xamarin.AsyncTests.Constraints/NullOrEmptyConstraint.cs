@@ -29,13 +29,20 @@ namespace Xamarin.AsyncTests.Constraints
 {
 	public class NullOrEmptyConstraint : Constraint
 	{
-		public override bool Evaluate (object actual)
+		public override bool Evaluate (object actual, out string message)
 		{
-			if (actual == null)
+			if (actual == null) {
+				message = null;
 				return true;
+			}
+
 			var svalue = actual as string;
-			if (svalue == null)
+			if (svalue == null) {
+				message = string.Format ("Expected null or empty string, but got instance of type `{0}'.", actual.GetType ());
 				return false;
+			}
+
+			message = null;
 			return string.IsNullOrEmpty (svalue);
 		}
 

@@ -45,15 +45,23 @@ namespace Xamarin.AsyncTests.Constraints
 			Expected = expected;
 		}
 
-		public override bool Evaluate (object actual)
+		public override bool Evaluate (object actual, out string message)
 		{
-			if (actual == null && Expected == null)
+			if (actual == null && Expected == null) {
+				message = null;
 				return true;
+			}
 
-			if (actual == null || Expected == null)
+			if (actual == null) {
+				message = string.Format ("Expected instance of type `{0}', but got <null>.", Expected.GetType ());
 				return false;
+			} else if (Expected == null) {
+				message = string.Format ("Expected <null>, but got instance of type `{0}'.", actual.GetType ());
+				return false;
+			}
 
-			return Expected.Equals (actual);
+			message = null;
+			return object.Equals (Expected, actual);
 		}
 
 		public override string Print ()

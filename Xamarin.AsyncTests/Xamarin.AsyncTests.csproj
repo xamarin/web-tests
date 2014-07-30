@@ -78,6 +78,7 @@
     <Compile Include="Xamarin.AsyncTests.Constraints\NullOrEmptyConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\ConstraintOperator.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\ConstraintExpression.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\InstanceOfTypeConstraint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

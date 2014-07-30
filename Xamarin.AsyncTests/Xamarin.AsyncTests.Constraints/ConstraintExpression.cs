@@ -39,12 +39,12 @@ namespace Xamarin.AsyncTests.Constraints
 			private set;
 		}
 
-		public Func<Func<object,bool>,object,bool> Operator {
+		public ConstraintOperator.OperatorDelegate Operator {
 			get;
 			private set;
 		}
 
-		public ConstraintExpression (string name, Func<Func<object,bool>,object,bool> op, Constraint inner)
+		public ConstraintExpression (string name, ConstraintOperator.OperatorDelegate op, Constraint inner)
 		{
 			Name = name;
 			Operator = op;
@@ -54,13 +54,13 @@ namespace Xamarin.AsyncTests.Constraints
 		public ConstraintExpression (ConstraintOperator op, Constraint inner)
 		{
 			Name = op.Name;
-			Operator = (f,a) => op.Evaluate (f,a);
+			Operator = (ConstraintOperator.OperatorFunc f, object a, out string m) => op.Evaluate (f, a, out m);
 			Inner = inner;
 		}
 
-		public override bool Evaluate (object actual)
+		public override bool Evaluate (object actual, out string message)
 		{
-			return Operator (f => Inner.Evaluate (actual), actual);
+			return Operator ((object a, out string m) => Inner.Evaluate (a, out m), actual, out message);
 		}
 
 		public override string Print ()

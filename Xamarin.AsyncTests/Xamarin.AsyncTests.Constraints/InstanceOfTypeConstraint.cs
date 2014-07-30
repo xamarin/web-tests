@@ -1,5 +1,5 @@
 ﻿//
-// Constraint.cs
+// InstanceOfTypeConstraint.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,11 +27,33 @@ using System;
 
 namespace Xamarin.AsyncTests.Constraints
 {
-	public abstract class Constraint
+	public class InstanceOfTypeConstraint : Constraint
 	{
-		public abstract bool Evaluate (object actual, out string message);
+		public Type ExpectedType {
+			get;
+			private set;
+		}
 
-		public abstract string Print ();
+		public override bool Evaluate (object actual, out string message)
+		{
+			if (actual.GetType ().Equals (ExpectedType)) {
+				message = null;
+				return true;
+			}
+
+			message = string.Format ("Expected instance of type `{0}', got `{1}'.", ExpectedType, actual.GetType ());
+			return false;
+		}
+
+		public override string Print ()
+		{
+			return string.Format ("InstanceOfType({0})", ExpectedType);
+		}
+
+		public InstanceOfTypeConstraint (Type expectedType)
+		{
+			ExpectedType = expectedType;
+		}
 	}
 }
 
