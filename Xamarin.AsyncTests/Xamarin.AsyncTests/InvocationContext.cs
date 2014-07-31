@@ -34,7 +34,7 @@ namespace Xamarin.AsyncTests
 	public sealed class InvocationContext
 	{
 		readonly TestContext Context;
-		readonly TestResult Result;
+		readonly TestResult result;
 		readonly TestLogger Logger;
 		readonly SynchronizationContext SyncContext;
 
@@ -43,12 +43,16 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
+		public TestResult Result {
+			get { return result; }
+		}
+
 		public InvocationContext (TestContext context, TestLogger logger, TestName name, TestResult result)
 		{
 			Context = context;
 			Logger = logger;
 			Name = name;
-			Result = result;
+			this.result = result;
 			SyncContext = SynchronizationContext.Current;
 		}
 
@@ -60,6 +64,23 @@ namespace Xamarin.AsyncTests
 				SyncContext.Post (d => action (), null);
 		}
 
+		#region Statistics
+
+		public void OnTestRunning ()
+		{
+			Invoke (() => Context.Statistics.OnTestRunning (Name));
+		}
+
+		public void OnTestFinished (TestStatus status)
+		{
+			Result.Status = status;
+			Invoke (() => Context.Statistics.OnTestFinished (Name, status));
+		}
+
+		#endregion
+
+		#region Logging
+
 		public void OnError (Exception error)
 		{
 			Result.AddError (error);
@@ -68,8 +89,6 @@ namespace Xamarin.AsyncTests
 				Logger.LogError (error);
 			});
 		}
-
-		#region ITestLogger implementation
 
 		public void LogDebug (int level, string message)
 		{

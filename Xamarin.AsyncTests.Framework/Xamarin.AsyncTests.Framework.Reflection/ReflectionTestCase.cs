@@ -110,15 +110,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		public Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			var name = TestInstance.GetTestName (instance);
-			ctx.Statistics.OnTestRunning (name);
+			ctx.OnTestRunning ();
 
 			if (ExpectedExceptionType != null)
-				return ExpectingException (ctx, name, instance, result, ExpectedExceptionType, cancellationToken);
+				return ExpectingException (ctx, instance, ExpectedExceptionType, cancellationToken);
 			else
-				return ExpectingSuccess (ctx, name, instance, result, cancellationToken);
+				return ExpectingSuccess (ctx, instance, cancellationToken);
 		}
 
 		int GetTimeout ()
@@ -131,8 +130,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return 30000;
 		}
 
-		object InvokeInner (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+		object InvokeInner (InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			var args = new LinkedList<object> ();
 
@@ -151,10 +149,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var parameters = Method.GetParameters ();
 
-			var logger = new TestResultLogger (result, ctx.Logger);
-			var ic = new InvocationContext (ctx, logger, TestInstance.GetTestName (instance), result);
-
-			ctx.Debug (5, "INVOKE: {0} {1} {2}", Name, Method, instance);
+			ctx.LogDebug (5, "INVOKE: {0} {1} {2}", Name, Method, instance);
 
 			for (int index = parameters.Length - 1; index >= 0; index--) {
 				var param = parameters [index];
@@ -164,7 +159,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					args.AddFirst (methodToken);
 					continue;
 				} else if (paramType.Equals (typeof(InvocationContext))) {
-					args.AddFirst (ic);
+					args.AddFirst (ctx);
 					continue;
 				}
 
@@ -224,23 +219,19 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 		}
 
-		async Task<bool> ExpectingSuccess (
-			TestContext ctx, TestName name, TestInstance instance, TestResult result,
-			CancellationToken cancellationToken)
+		async Task<bool> ExpectingSuccess (InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			object retval;
 			try {
-				retval = InvokeInner (ctx, instance, result, cancellationToken);
+				retval = InvokeInner (ctx, instance, cancellationToken);
 			} catch (Exception ex) {
-				result.AddError (ex);
-				ctx.Statistics.OnException (name, ex);
+				ctx.OnError (ex);
 				return false;
 			}
 
 			var task = retval as Task;
 			if (task == null) {
-				result.Status = TestStatus.Success;
-				ctx.Statistics.OnTestFinished (name, TestStatus.Success);
+				ctx.OnTestFinished (TestStatus.Success);
 				return true;
 			}
 
@@ -253,45 +244,42 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					await task;
 					ok = true;
 				}
-				result.Status = ok ? TestStatus.Success : TestStatus.Error;
-				ctx.Statistics.OnTestFinished (name, result.Status);
+				if (!ok)
+					throw new AssertionException ("Test failed");
+				ctx.OnTestFinished (TestStatus.Success);
 				return ok;
 			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
+				ctx.OnTestFinished (TestStatus.Canceled);
 				return false;
 			} catch (Exception ex) {
-				result.AddError (ex);
-				ctx.Statistics.OnException (name, ex);
+				ctx.OnError (ex);
 				return false;
 			}
 		}
 
 		async Task<bool> ExpectingException (
-			TestContext ctx, TestName name, TestInstance instance, TestResult result,
+			InvocationContext ctx, TestInstance instance,
 			TypeInfo expectedException, CancellationToken cancellationToken)
 		{
 			try {
-				var retval = InvokeInner (ctx, instance, result, cancellationToken);
+				var retval = InvokeInner (ctx, instance, cancellationToken);
 				var task = retval as Task;
 				if (task != null)
 					await task;
 
 				var message = string.Format ("Expected an exception of type {0}", expectedException);
-				result.AddError (new AssertionException (message));
-				ctx.Statistics.OnTestFinished (name, TestStatus.Error);
+				ctx.OnError (new AssertionException (message));
 				return false;
 			} catch (Exception ex) {
 				if (ex is TargetInvocationException)
 					ex = ((TargetInvocationException)ex).InnerException;
 				if (expectedException.IsAssignableFrom (ex.GetType ().GetTypeInfo ())) {
-					result.Status = TestStatus.Success;
-					ctx.Statistics.OnTestFinished (name, TestStatus.Success);
+					ctx.OnTestFinished (TestStatus.Success);
 					return true;
 				}
 				var message = string.Format ("Expected an exception of type {0}, but got {1}",
 					expectedException, ex.GetType ());
-				result.AddError (new AssertionException (message, ex));
-				ctx.Statistics.OnTestFinished (name, TestStatus.Error);
+				ctx.OnError (new AssertionException (message, ex));
 				return false;
 			}
 		}
@@ -311,7 +299,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			public override Task<bool> Invoke (
 				TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 			{
-				return Test.Invoke (ctx, instance, result, cancellationToken);
+				var logger = new TestResultLogger (result, ctx.Logger);
+				var ictx = new InvocationContext (ctx, logger, TestInstance.GetTestName (instance), result);
+
+				return Test.Invoke (ictx, instance, cancellationToken);
 			}
 		}
 	}
