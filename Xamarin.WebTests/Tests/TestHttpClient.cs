@@ -41,7 +41,6 @@ namespace Xamarin.WebTests
 	using Handlers;
 	using Framework;
 
-	[RecentlyFixed]
 	[AsyncTestFixture (Timeout = 10000)]
 	public class TestHttpClient : ITestHost<TestRunner>, ITestParameterSource<Handler>
 	{
@@ -71,6 +70,10 @@ namespace Xamarin.WebTests
 				ReturnContent = new StringContent ("Returned body"),
 				Description = "Post string with result"
 			};
+
+			if (!ctx.IsEnabled (WebTestFeatures.Mono38))
+				yield break;
+
 			yield return new HttpClientHandler {
 				Operation = HttpClientOperation.PostString,
 				Content = new StringContent ("Hello World!"),

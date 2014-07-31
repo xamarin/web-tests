@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
 
@@ -58,6 +60,14 @@ namespace Xamarin.WebTests
 		}
 	}
 
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class Mono38Attribute : TestFeatureAttribute
+	{
+		public override TestFeature Feature {
+			get { return WebTestFeatures.Mono38; }
+		}
+	}
+
 	public class WebTestFeatures : ITestConfiguration
 	{
 		public static readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
@@ -73,6 +83,9 @@ namespace Xamarin.WebTests
 
 		public static readonly TestFeature HasNetwork = new TestFeature (
 			"Network", "HasNetwork", () => !IPAddress.IsLoopback (TestRunner.GetAddress ()));
+
+		public static readonly TestFeature Mono38 = new TestFeature (
+			"Mono38", "Mono 3.8.0", () => MonoVersion != null && MonoVersion >= new Version (3, 8, 0));
 
 		public static readonly TestCategory WorkCategory = new TestCategory ("Work") { IsExplicit = true };
 		public static readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
@@ -90,6 +103,7 @@ namespace Xamarin.WebTests
 				yield return NotWorking;
 
 				yield return HasNetwork;
+				yield return Mono38;
 			}
 		}
 
@@ -123,6 +137,48 @@ namespace Xamarin.WebTests
 					yield return true;
 			}
 			#endregion
+		}
+
+		public static readonly Version MonoVersion;
+
+		static WebTestFeatures ()
+		{
+			try {
+				MonoVersion = GetRuntimeVersion ();
+			} catch {
+				;
+			}
+		}
+
+		static Version GetRuntimeVersion ()
+		{
+			string version;
+			#if __MOBILE__
+			version = Mono.Runtime.GetDisplayName ();
+			#else
+			Type type = Type.GetType ("Mono.Runtime", false);
+			if (type == null)
+				return null;
+
+			var method = type.GetMethod ("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
+			if (method == null)
+				return null;
+
+			version = (string)method.Invoke (null, null);
+			#endif
+
+			var match = Regex.Match (version, @"^(\d+)\.(\d+)(?:\.(\d+))?\b");
+			if (!match.Success)
+				return null;
+
+			var major = int.Parse (match.Groups [1].Value);
+			var minor = int.Parse (match.Groups [2].Value);
+			int build = 0;
+
+			if (match.Groups.Count > 2 && match.Groups [3].Success)
+				build = int.Parse (match.Groups [3].Value);
+
+			return new Version (major, minor, build);
 		}
 	}
 }

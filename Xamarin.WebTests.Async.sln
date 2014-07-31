@@ -210,6 +210,6 @@ Global
 		{E93E8622-665B-44D6-B36A-89C93B5B3532}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Xamarin.WebTests.Async.Android\Xamarin.WebTests.Async.Android.csproj
+		StartupItem = Xamarin.WebTests.Async.iOS\Xamarin.WebTests.Async.iOS.csproj
 	EndGlobalSection
 EndGlobal
