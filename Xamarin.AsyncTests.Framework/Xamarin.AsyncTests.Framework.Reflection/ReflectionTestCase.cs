@@ -91,13 +91,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			for (int i = parameters.Length - 1; i >= 0; i--) {
 				var paramType = parameters [i].ParameterType;
 
-				if (paramType.Equals (typeof(TestContext)))
-					continue;
-				else if (paramType.Equals (typeof(CancellationToken)))
-					continue;
-				else if (paramType.Equals (typeof(ITestLogger)))
-					continue;
-				else if (paramType.Equals (typeof(TestResult)))
+				if (paramType.Equals (typeof(CancellationToken)))
 					continue;
 				else if (paramType.Equals (typeof(InvocationContext)))
 					continue;
@@ -168,15 +162,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 				if (paramType.Equals (typeof(CancellationToken))) {
 					args.AddFirst (methodToken);
-					continue;
-				} else if (paramType.Equals (typeof(TestContext))) {
-					args.AddFirst (ctx);
-					continue;
-				} else if (paramType.Equals (typeof(ITestLogger))) {
-					args.AddFirst (logger);
-					continue;
-				} else if (paramType.Equals (typeof(TestResult))) {
-					args.AddFirst (result);
 					continue;
 				} else if (paramType.Equals (typeof(InvocationContext))) {
 					args.AddFirst (ic);

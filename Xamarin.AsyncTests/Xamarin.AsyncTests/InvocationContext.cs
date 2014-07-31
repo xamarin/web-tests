@@ -32,22 +32,11 @@ namespace Xamarin.AsyncTests
 
 	public sealed class InvocationContext : ITestLogger
 	{
-		public TestContext Context {
-			get;
-			private set;
-		}
+		readonly TestContext Context;
+		readonly TestResult Result;
+		readonly ITestLogger Logger;
 
 		public TestName Name {
-			get;
-			private set;
-		}
-
-		public TestResult Result {
-			get;
-			private set;
-		}
-
-		internal ITestLogger Logger {
 			get;
 			private set;
 		}
