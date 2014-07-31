@@ -1,5 +1,5 @@
 ﻿//
-// ITestLogger.cs
+// TestLogger.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,17 +27,34 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	public interface ITestLogger
+	public abstract class TestLogger
 	{
-		void LogDebug (int level, string message);
+		protected internal abstract void OnLogEvent (LogEntry entry);
 
-		void LogDebug (int level, string format, params object[] args);
+		public void LogDebug (int level, string message)
+		{
+			OnLogEvent (new LogEntry (LogEntry.EntryKind.Debug, level, message));
+		}
 
-		void LogMessage (string message);
+		public void LogDebug (int level, string format, params object[] args)
+		{
+			LogDebug (level, string.Format (format, args));
+		}
 
-		void LogMessage (string format, params object[] args);
+		public void LogMessage (string message)
+		{
+			OnLogEvent (new LogEntry (LogEntry.EntryKind.Message, 0, message));
+		}
 
-		void LogError (Exception error);
+		public void LogMessage (string format, params object[] args)
+		{
+			LogMessage (string.Format (format, args));
+		}
+
+		public void LogError (Exception error)
+		{
+			OnLogEvent (new LogEntry (LogEntry.EntryKind.Error, 0, error.Message, error));
+		}
 	}
 }
 

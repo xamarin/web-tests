@@ -53,7 +53,7 @@ namespace Xamarin.AsyncTests
 			set { debugLevel = value; }
 		}
 
-		public ITestLogger Logger {
+		public TestLogger Logger {
 			get; set;
 		}
 

@@ -27,53 +27,52 @@ using System;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class ServerLogger : ITestLogger
+	class ServerLogger : TestLogger
 	{
 		public Connection Connection {
 			get;
 			private set;
 		}
 
-		public ITestLogger Parent {
+		public TestLogger Parent {
 			get;
 			private set;
 		}
 
-		public ServerLogger (Connection connection, ITestLogger parent)
+		public ServerLogger (Connection connection, TestLogger parent)
 		{
 			Connection = connection;
 			Parent = parent;
 		}
 
-		#region ITestLogger implementation
-
-		public async void LogDebug (int level, string message)
+		protected internal override void OnLogEvent (LogEntry entry)
 		{
-			if (level <= Connection.Context.DebugLevel)
-				await Connection.LogMessage (message);
+			if (Parent != null)
+				Parent.OnLogEvent (entry);
+
+			switch (entry.Kind) {
+			case LogEntry.EntryKind.Debug:
+				if (entry.LogLevel <= Connection.Context.DebugLevel)
+					SendMessage (entry.Text);
+				break;
+
+			case LogEntry.EntryKind.Error:
+				if (entry.Error != null)
+					SendMessage (string.Format ("ERROR: {0}", entry.Error));
+				else
+					SendMessage (entry.Text);
+				break;
+
+			default:
+				SendMessage (entry.Text);
+				break;
+			}
 		}
 
-		public void LogDebug (int level, string format, params object[] args)
-		{
-			LogDebug (level, string.Format (format, args));
-		}
-
-		public async void LogMessage (string message)
+		async void SendMessage (string message)
 		{
 			await Connection.LogMessage (message);
 		}
-
-		public async void LogMessage (string format, params object[] args)
-		{
-			await Connection.LogMessage (string.Format (format, args));
-		}
-
-		public void LogError (Exception error)
-		{
-			LogMessage (string.Format ("EXCEPTION: {0}", error));
-		}
-
-		#endregion
 	}
 }
 

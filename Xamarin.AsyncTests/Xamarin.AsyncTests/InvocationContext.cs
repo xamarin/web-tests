@@ -30,18 +30,18 @@ namespace Xamarin.AsyncTests
 {
 	using Constraints;
 
-	public sealed class InvocationContext : ITestLogger
+	public sealed class InvocationContext
 	{
 		readonly TestContext Context;
 		readonly TestResult Result;
-		readonly ITestLogger Logger;
+		readonly TestLogger Logger;
 
 		public TestName Name {
 			get;
 			private set;
 		}
 
-		public InvocationContext (TestContext context, ITestLogger logger, TestName name, TestResult result)
+		public InvocationContext (TestContext context, TestLogger logger, TestName name, TestResult result)
 		{
 			Context = context;
 			Logger = logger;

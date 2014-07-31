@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests.Client
 	using Server;
 	using Framework;
 
-	public class Program : ITestLogger
+	public class Program
 	{
 		public string SettingsFile {
 			get;
@@ -133,7 +133,7 @@ namespace Xamarin.AsyncTests.Client
 			}
 
 			Context = new TestContext (Settings);
-			Context.Logger = this;
+			Context.Logger = new ConsoleLogger (this);
 		}
 
 		static void Debug (string message, params object[] args)
@@ -231,30 +231,36 @@ namespace Xamarin.AsyncTests.Client
 			Debug ("Closed remote connection.");
 		}
 
-		#region ITestLogger implementation
-		public void LogDebug (int level, string message)
+		class ConsoleLogger : TestLogger
 		{
-			if (level > Context.DebugLevel)
-				return;
-			Debug (message);
+			readonly Program Program;
+
+			public ConsoleLogger (Program program)
+			{
+				Program = program;
+			}
+
+			protected override void OnLogEvent (LogEntry entry)
+			{
+				switch (entry.Kind) {
+				case LogEntry.EntryKind.Debug:
+					if (entry.LogLevel <= Program.Context.DebugLevel)
+						Debug (entry.Text);
+					break;
+
+				case LogEntry.EntryKind.Error:
+					if (entry.Error != null)
+						Debug (string.Format ("ERROR: {0}", entry.Error));
+					else
+						Debug (entry.Text);
+					break;
+
+				default:
+					Debug (entry.Text);
+					break;
+				}
+			}
 		}
-		public void LogDebug (int level, string format, params object[] args)
-		{
-			LogDebug (level, string.Format (format, args));
-		}
-		public void LogMessage (string message)
-		{
-			Debug (message);
-		}
-		public void LogMessage (string format, params object[] args)
-		{
-			LogMessage (string.Format (format, args));
-		}
-		public void LogError (Exception error)
-		{
-			LogMessage (string.Format ("ERROR: {0}", error));
-		}
-		#endregion
 	}
 }
 

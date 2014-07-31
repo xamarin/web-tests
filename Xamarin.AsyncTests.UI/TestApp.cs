@@ -37,7 +37,7 @@ namespace Xamarin.AsyncTests.UI
 {
 	using Framework;
 
-	public class TestApp : TestContext, ITestLogger
+	public class TestApp : TestContext
 	{
 		public Assembly Assembly {
 			get;
@@ -109,7 +109,7 @@ namespace Xamarin.AsyncTests.UI
 			AppHost = host;
 			Assembly = assembly;
 
-			Logger = this;
+			Logger = new UILogger (this);
 
 			var result = new TestResult (new TestName (null));
 			RootTestResult = new TestResultModel (this, result, true);
@@ -149,9 +149,37 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		#region ITestLogger implementation
+		class UILogger : TestLogger
+		{
+			readonly TestApp App;
 
-		public void LogDebug (int level, string message)
+			public UILogger (TestApp app)
+			{
+				App = app;
+			}
+
+			protected override void OnLogEvent (LogEntry entry)
+			{
+				switch (entry.Kind) {
+				case LogEntry.EntryKind.Debug:
+					App.LogDebug (entry.LogLevel, entry.Text);
+					break;
+
+				case LogEntry.EntryKind.Error:
+					if (entry.Error != null)
+						App.LogMessage (string.Format ("ERROR: {0}", entry.Error));
+					else
+						App.LogMessage (entry.Text);
+					break;
+
+				default:
+					App.LogMessage (entry.Text);
+					break;
+				}
+			}
+		}
+
+		protected void LogDebug (int level, string message)
 		{
 			if (level > DebugLevel)
 				return;
@@ -159,27 +187,10 @@ namespace Xamarin.AsyncTests.UI
 			AppHost.InvokeOnMainThread (() => LogPage.Log (message));
 		}
 
-		public void LogDebug (int level, string format, params object[] args)
-		{
-			LogDebug (level, string.Format (format, args));
-		}
-
-		public void LogMessage (string message)
+		protected void LogMessage (string message)
 		{
 			SD.Debug.WriteLine (message);
 			AppHost.InvokeOnMainThread (() => LogPage.Log (message));
 		}
-
-		public void LogMessage (string format, params object[] args)
-		{
-			LogMessage (string.Format (format, args));
-		}
-
-		public void LogError (Exception error)
-		{
-			LogMessage ("ERROR: {0}", error);
-		}
-
-		#endregion
 	}
 }

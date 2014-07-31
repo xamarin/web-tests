@@ -1,5 +1,5 @@
 ﻿//
-// MessageLogger.cs
+// LogEntry.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,41 +25,48 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	class TestResultLogger : TestLogger
+	public sealed class LogEntry
 	{
-		public TestResult Result {
+		public EntryKind Kind {
 			get;
 			private set;
 		}
 
-		public TestLogger Parent {
+		public int LogLevel {
 			get;
 			private set;
 		}
 
-		public TestResultLogger (TestResult result, TestLogger parent = null)
-		{
-			Result = result;
-			Parent = parent;
+		public string Text {
+			get;
+			private set;
 		}
 
-		protected internal override void OnLogEvent (LogEntry entry)
-		{
-			if (Parent != null) {
-				Parent.OnLogEvent (entry);
-				return;
-			}
+		public Exception Error {
+			get;
+			private set;
+		}
 
-			if (entry.Kind == LogEntry.EntryKind.Error) {
-				if (entry.Error != null)
-					Result.AddError (entry.Error);
-				else
-					Result.AddError (new AssertionException (entry.Text));
-			} else {
-				Result.AddMessage (entry.Text);
-			}
+		public LogEntry (EntryKind kind, int level, string text, Exception error = null)
+		{
+			Kind = kind;
+			LogLevel = level;
+			Text = text;
+			Error = error;
+		}
+
+		public enum EntryKind {
+			Debug,
+			Message,
+			Warning,
+			Error
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[LogEntry: Kind={0}, LogLevel={1}, Text={2}]", Kind, LogLevel, Text);
 		}
 	}
 }
