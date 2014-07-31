@@ -167,12 +167,15 @@ namespace Xamarin.AsyncTests
 		public void Clear ()
 		{
 			lock (this) {
-				WantToModify ();
 				children.Clear ();
 				messages.Clear ();
-				Error = null;
-				Status = TestStatus.None;
+				error = null;
+				status = TestStatus.None;
 			}
+			OnPropertyChanged ("Children");
+			OnPropertyChanged ("Messages");
+			OnPropertyChanged ("Error");
+			OnPropertyChanged ("Status");
 		}
 
 		void MergeStatus (TestStatus child)
