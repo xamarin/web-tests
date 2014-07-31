@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests.Client
 	using Server;
 	using Framework;
 
-	public class Program
+	public class Program : ITestLogger
 	{
 		public string SettingsFile {
 			get;
@@ -133,6 +133,7 @@ namespace Xamarin.AsyncTests.Client
 			}
 
 			Context = new TestContext (Settings);
+			Context.Logger = this;
 		}
 
 		static void Debug (string message, params object[] args)
@@ -230,6 +231,30 @@ namespace Xamarin.AsyncTests.Client
 			Debug ("Closed remote connection.");
 		}
 
+		#region ITestLogger implementation
+		public void LogDebug (int level, string message)
+		{
+			if (level > Context.DebugLevel)
+				return;
+			Debug (message);
+		}
+		public void LogDebug (int level, string format, params object[] args)
+		{
+			LogDebug (level, string.Format (format, args));
+		}
+		public void LogMessage (string message)
+		{
+			Debug (message);
+		}
+		public void LogMessage (string format, params object[] args)
+		{
+			LogMessage (string.Format (format, args));
+		}
+		public void LogError (Exception error)
+		{
+			LogMessage (string.Format ("ERROR: {0}", error));
+		}
+		#endregion
 	}
 }
 
