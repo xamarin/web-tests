@@ -42,7 +42,7 @@ namespace Xamarin.WebTests
 	using Framework;
 
 	[RecentlyFixed]
-	[AsyncTestFixture]
+	[AsyncTestFixture (Timeout = 10000)]
 	public class TestHttpClient : ITestHost<TestRunner>, ITestParameterSource<Handler>
 	{
 		[TestParameter (typeof (WebTestFeatures.SelectSSL), null, TestFlags.Hidden)]

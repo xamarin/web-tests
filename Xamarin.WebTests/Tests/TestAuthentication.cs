@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.Tests
 	using Handlers;
 	using Framework;
 
-	[AsyncTestFixture]
+	[AsyncTestFixture (Timeout = 10000)]
 	public class TestAuthentication : ITestHost<TestRunner>, ITestParameterSource<Handler>, ITestParameterSource<AuthenticationType>
 	{
 		[TestParameter (typeof (WebTestFeatures.SelectSSL), null, TestFlags.Hidden)]

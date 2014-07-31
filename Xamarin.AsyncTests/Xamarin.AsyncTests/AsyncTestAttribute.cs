@@ -35,6 +35,10 @@ namespace Xamarin.AsyncTests
 		public int Repeat {
 			get; set;
 		}
+
+		public int Timeout {
+			get; set;
+		}
 	}
 
 }

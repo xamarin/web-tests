@@ -42,7 +42,7 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 
 	[Proxy]
-	[AsyncTestFixture]
+	[AsyncTestFixture (Timeout = 30000)]
 	public class TestProxy : ITestHost<ProxyTestRunner>, ITestParameterSource<Handler>,
 		ITestParameterSource<ProxyKind>, ITestParameterSource<AuthenticationType>
 	{

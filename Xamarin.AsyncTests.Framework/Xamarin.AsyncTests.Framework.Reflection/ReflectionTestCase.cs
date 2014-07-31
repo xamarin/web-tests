@@ -127,10 +127,33 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return ExpectingSuccess (ctx, name, instance, result, cancellationToken);
 		}
 
+		int GetTimeout ()
+		{
+			if (Attribute.Timeout != 0)
+				return Attribute.Timeout;
+			else if (Fixture.Attribute.Timeout != 0)
+				return Fixture.Attribute.Timeout;
+			else
+				return 30000;
+		}
+
 		object InvokeInner (
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
 			var args = new LinkedList<object> ();
+
+			int timeout = GetTimeout ();
+			CancellationTokenSource timeoutCts = null;
+			CancellationTokenSource methodCts = null;
+			CancellationToken methodToken;
+
+			if (timeout > 0) {
+				timeoutCts = new CancellationTokenSource (timeout);
+				methodCts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken, timeoutCts.Token);
+				methodToken = methodCts.Token;
+			} else {
+				methodToken = cancellationToken;
+			}
 
 			var parameters = Method.GetParameters ();
 
@@ -144,7 +167,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				var paramType = param.ParameterType;
 
 				if (paramType.Equals (typeof(CancellationToken))) {
-					args.AddFirst (cancellationToken);
+					args.AddFirst (methodToken);
 					continue;
 				} else if (paramType.Equals (typeof(TestContext))) {
 					args.AddFirst (ctx);
@@ -208,7 +231,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (instance != null)
 				throw new InvalidOperationException ();
 
-			return Method.Invoke (thisInstance, args.ToArray ());
+			try {
+				return Method.Invoke (thisInstance, args.ToArray ());
+			} finally {
+				if (methodCts != null)
+					methodCts.Dispose ();
+				if (timeoutCts != null)
+					timeoutCts.Dispose ();
+			}
 		}
 
 		async Task<bool> ExpectingSuccess (

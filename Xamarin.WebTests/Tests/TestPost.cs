@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.Tests
 	using Handlers;
 	using Framework;
 
-	[AsyncTestFixture]
+	[AsyncTestFixture (Timeout = 15000)]
 	public class TestPost : ITestHost<HttpTestRunner>, ITestParameterSource<Handler>
 	{
 		[TestParameter (typeof (WebTestFeatures.SelectSSL), null, TestFlags.Hidden)]
