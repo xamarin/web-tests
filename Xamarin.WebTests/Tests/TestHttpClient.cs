@@ -78,7 +78,8 @@ namespace Xamarin.WebTests
 				Operation = HttpClientOperation.PostString,
 				Content = new StringContent ("Hello World!"),
 				ReturnContent = new Bug20583Content (),
-				Description = "Bug #20583"
+				Description = "Bug #20583",
+				Filter = (ctx) => ctx.IsEnabled (WebTestFeatures.Mono38)
 			};
 		}
 
@@ -88,9 +89,6 @@ namespace Xamarin.WebTests
 				foreach (var test in GetStableTests ())
 					yield return test;
 			}
-
-			if (!ctx.IsEnabled (WebTestFeatures.Mono38))
-				yield break;
 
 			if (filter == null || filter.Equals ("mono38")) {
 				foreach (var test in GetMono38Tests ())

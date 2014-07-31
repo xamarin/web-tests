@@ -25,7 +25,6 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-// using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -36,7 +35,7 @@ namespace Xamarin.WebTests.Handlers
 	using Framework;
 	using Server;
 
-	public abstract class Handler : Xamarin.AsyncTests.ICloneable
+	public abstract class Handler : Xamarin.AsyncTests.ICloneable, ITestFilter
 	{
 		static int next_id;
 		public readonly int ID = ++next_id;
@@ -56,6 +55,25 @@ namespace Xamarin.WebTests.Handlers
 			}
 		}
 
+		public Func<TestContext, bool> Filter {
+			get { return filter; }
+			set {
+				WantToModify ();
+				filter = value;
+			}
+		}
+
+		bool ITestFilter.Filter (TestContext ctx, out bool enabled)
+		{
+			if (filter == null) {
+				enabled = true;
+				return false;
+			}
+
+			enabled = filter (ctx);
+			return true;
+		}
+
 		public string Description {
 			get; set;
 		}
@@ -63,6 +81,8 @@ namespace Xamarin.WebTests.Handlers
 		public Task<bool> Task {
 			get { return tcs.Task; }
 		}
+
+		Func<TestContext, bool> filter;
 
 		bool hasRequest;
 		RequestFlags flags;

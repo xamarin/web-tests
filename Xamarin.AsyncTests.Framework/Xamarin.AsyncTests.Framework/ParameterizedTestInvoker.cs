@@ -96,9 +96,19 @@ namespace Xamarin.AsyncTests.Framework
 				if (!success)
 					break;
 
+				var name = TestInstance.GetTestName (parameterizedInstance);
+
+				bool enabled;
+
+				var filter = parameterizedInstance.Current as ITestFilter;
+				if (filter != null && filter.Filter (ctx, out enabled) && !enabled) {
+					var ignoredResult = new TestResult (name, TestStatus.Ignored);
+					ctx.Result.AddChild (ignoredResult);
+					continue;
+				}
+
 				found = true;
 
-				var name = TestInstance.GetTestName (parameterizedInstance);
 				var innerCtx = ctx.CreateChild (name, ctx.Result);
 
 				ctx.LogDebug (5, "InnerInvoke({0}): {1} {2} {3}", name.FullName,
