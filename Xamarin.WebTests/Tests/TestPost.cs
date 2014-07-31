@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.Tests
 			get; set;
 		}
 
-		public HttpTestRunner CreateInstance (TestContext context)
+		public HttpTestRunner CreateInstance (InvocationContext ctx)
 		{
 			return new HttpTestRunner { UseSSL = UseSSL };
 		}
@@ -120,7 +120,7 @@ namespace Xamarin.WebTests.Tests
 			};
 		}
 
-		public static IEnumerable<Handler> GetParameters (TestContext context, string filter)
+		public static IEnumerable<Handler> GetParameters (InvocationContext ctx, string filter)
 		{
 			if (filter == null) {
 				var list = new List<Handler> ();
@@ -138,9 +138,9 @@ namespace Xamarin.WebTests.Tests
 				throw new InvalidOperationException ();
 		}
 
-		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext context, string filter)
+		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (InvocationContext ctx, string filter)
 		{
-			return GetParameters (context, filter);
+			return GetParameters (ctx, filter);
 		}
 
 		[AsyncTest]

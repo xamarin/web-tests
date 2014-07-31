@@ -57,51 +57,49 @@ namespace Xamarin.AsyncTests.Framework
 			return new NamedTestInvoker (new NamedTestHost (name), inner);
 		}
 
-		NamedTestInstance SetUp (TestContext ctx, TestInstance instance, TestResult result)
+		NamedTestInstance SetUp (InvocationContext ctx, TestInstance instance)
 		{
-			var name = TestInstance.GetTestName (instance);
-			ctx.Debug (3, "SetUp({0}): {1} {2}", name, ctx.Print (Host), ctx.Print (instance));
+			ctx.LogDebug (3, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
 				return (NamedTestInstance)Host.CreateInstance (ctx, instance);
 			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
+				ctx.OnTestCanceled ();
 				return null;
 			} catch (Exception ex) {
-				result.AddError (ex);
-				ctx.Statistics.OnException (name, ex);
+				ctx.OnError (ex);
 				return null;
 			}
 		}
 
-		bool TearDown (TestContext ctx, NamedTestInstance instance, TestResult result)
+		bool TearDown (InvocationContext ctx, NamedTestInstance instance)
 		{
-			var name = TestInstance.GetTestName (instance);
-			ctx.Debug (3, "TearDown({0}): {1} {2}", name, ctx.Print (Host), ctx.Print (instance));
+			ctx.LogDebug (3, "TearDown({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
 				instance.Destroy (ctx);
 				return true;
 			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
+				ctx.OnTestCanceled ();
 				return false;
 			} catch (Exception ex) {
-				result.AddError (ex);
-				ctx.Statistics.OnException (name, ex);
+				ctx.OnError (ex);
 				return false;
 			}
 		}
 
 		public override async Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			var innerInstance = SetUp (ctx, instance, result);
+			var innerInstance = SetUp (ctx, instance);
 			if (innerInstance == null)
 				return false;
 
-			var success = await InvokeInner (ctx, innerInstance, result, Inner, cancellationToken);
+			var innerCtx = ctx.CreateChild (TestInstance.GetTestName (innerInstance));
 
-			if (!TearDown (ctx, innerInstance, result))
+			var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
+
+			if (!TearDown (ctx, innerInstance))
 				success = false;
 
 			return success;

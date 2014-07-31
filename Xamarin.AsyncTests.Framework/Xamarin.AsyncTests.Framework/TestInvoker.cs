@@ -31,8 +31,15 @@ namespace Xamarin.AsyncTests.Framework
 {
 	abstract class TestInvoker
 	{
-		public abstract Task<bool> Invoke (TestContext context, TestInstance instance,
-			TestResult result, CancellationToken cancellationToken);
+		public abstract Task<bool> Invoke (InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken);
+
+		public Task<bool> Invoke (TestContext ctx, TestResult result, CancellationToken cancellationToken)
+		{
+			var logger = new TestResultLogger (result, ctx.Logger);
+			var ictx = new InvocationContext (ctx, logger, result.Name, result);
+
+			return Invoke (ictx, null, cancellationToken);
+		}
 
 		public override string ToString ()
 		{

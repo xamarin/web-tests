@@ -54,7 +54,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public override async Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			bool enabled;
 			var matched = Filter.Filter (ctx, out enabled);
@@ -62,15 +62,11 @@ namespace Xamarin.AsyncTests.Framework
 				enabled = !MustMatch;
 
 			if (!enabled) {
-				if (result.Status == TestStatus.None)
-					result.Status = TestStatus.Ignored;
-				else
-					result.Status = TestStatus.Canceled;
-				ctx.Statistics.OnTestFinished (TestInstance.GetTestName (instance), TestStatus.Ignored);
+				ctx.OnTestFinished (TestStatus.Ignored);
 				return true;
 			}
 
-			return await Inner.Invoke (ctx, instance, result, cancellationToken);
+			return await Inner.Invoke (ctx, instance, cancellationToken);
 		}
 	}
 }

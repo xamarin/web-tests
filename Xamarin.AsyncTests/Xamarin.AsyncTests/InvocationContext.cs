@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Text;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Xamarin.AsyncTests
@@ -33,10 +34,11 @@ namespace Xamarin.AsyncTests
 
 	public sealed class InvocationContext
 	{
-		readonly TestContext Context;
+		readonly InvocationContext parent;
+		readonly TestContext context;
 		readonly TestResult result;
-		readonly TestLogger Logger;
-		readonly SynchronizationContext SyncContext;
+		readonly TestLogger logger;
+		readonly SynchronizationContext syncContext;
 
 		public TestName Name {
 			get;
@@ -44,24 +46,57 @@ namespace Xamarin.AsyncTests
 		}
 
 		public TestResult Result {
-			get { return result; }
+			get { return result ?? parent.Result; }
 		}
 
-		public InvocationContext (TestContext context, TestLogger logger, TestName name, TestResult result)
+		internal InvocationContext (TestContext context, TestLogger logger, TestName name, TestResult result)
 		{
-			Context = context;
-			Logger = logger;
 			Name = name;
+			this.context = context;
+			this.logger = logger;
 			this.result = result;
-			SyncContext = SynchronizationContext.Current;
+			this.syncContext = SynchronizationContext.Current;
+
+			CreateConfigSnapshot (context.CurrentTestSuite.Configuration, context.Settings);
+		}
+
+		InvocationContext (InvocationContext parent, TestName name, TestResult result)
+		{
+			Name = name;
+			this.parent = parent;
+			this.syncContext = SynchronizationContext.Current;
 		}
 
 		void Invoke (Action action)
 		{
-			if (SyncContext == null)
+			if (syncContext == null)
 				action ();
 			else
-				SyncContext.Post (d => action (), null);
+				syncContext.Post (d => action (), null);
+		}
+
+		internal InvocationContext CreateChild (TestName name)
+		{
+			return new InvocationContext (this, name, result);
+		}
+
+		internal InvocationContext CreateChild (TestName name, TestResult result)
+		{
+			return new InvocationContext (this, name, result);
+		}
+
+		TestContext Context {
+			get { return parent != null ? parent.Context : context; }
+		}
+
+		TestLogger Logger {
+			get { return parent != null ? parent.Logger : logger; }
+		}
+
+		[Obsolete ("BROKEN!")]
+		internal TestContext GetContext ()
+		{
+			return Context;
 		}
 
 		#region Statistics
@@ -75,6 +110,11 @@ namespace Xamarin.AsyncTests
 		{
 			Result.Status = status;
 			Invoke (() => Context.Statistics.OnTestFinished (Name, status));
+		}
+
+		public void OnTestCanceled ()
+		{
+			OnTestFinished (TestStatus.Canceled);
 		}
 
 		#endregion
@@ -164,6 +204,45 @@ namespace Xamarin.AsyncTests
 			if (fatal)
 				throw exception;
 			return false;
+		}
+
+		#endregion
+
+		#region Config Snapshot
+
+		Dictionary<TestFeature, bool> features;
+		List<TestCategory> categories;
+		TestCategory currentCategory;
+
+		void CreateConfigSnapshot (TestConfiguration config, SettingsBag settings)
+		{
+			features = new Dictionary<TestFeature, bool> ();
+			categories = new List<TestCategory> ();
+
+			foreach (var feature in config.Features) {
+				bool enabled;
+				if (feature.Constant != null)
+					enabled = feature.Constant.Value;
+				else
+					enabled = settings.IsFeatureEnabled (feature.Name) ?? feature.DefaultValue ?? false;
+				features.Add (feature, enabled);
+			}
+
+			categories.AddRange (config.Categories);
+
+			TestCategory category = TestCategory.All;
+			var key = settings.CurrentCategory;
+			if (key != null && config.TryGetCategory (key, out category))
+				currentCategory = category;
+		}
+
+		public TestCategory CurrentCategory {
+			get { return parent != null ? parent.CurrentCategory : currentCategory; }
+		}
+
+		public bool IsEnabled (TestFeature feature)
+		{
+			return parent != null ? parent.IsEnabled (feature) : features [feature];
 		}
 
 		#endregion

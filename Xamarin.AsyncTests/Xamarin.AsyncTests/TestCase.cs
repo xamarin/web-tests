@@ -48,5 +48,7 @@ namespace Xamarin.AsyncTests
 		}
 
 		public abstract Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken);
+
+		internal abstract Task<bool> Run (InvocationContext ctx, CancellationToken cancellationToken);
 	}
 }

@@ -55,6 +55,11 @@ namespace Xamarin.AsyncTests.Server
 			return Connection.RunTest (this, result, cancellationToken);
 		}
 
+		internal override Task<bool> Run (InvocationContext ctx, CancellationToken cancellationToken)
+		{
+			return Connection.RunTest (this, ctx.Result, cancellationToken);
+		}
+
 		#endregion
 	}
 }

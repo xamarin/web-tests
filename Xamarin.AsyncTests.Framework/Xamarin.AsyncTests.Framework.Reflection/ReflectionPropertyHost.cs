@@ -79,9 +79,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				Instance = instance;
 			}
 
-			public override void Initialize (TestContext context)
+			public override void Initialize (InvocationContext ctx)
 			{
-				Instance.Initialize (context);
+				Instance.Initialize (ctx);
 			}
 
 			public override bool HasNext ()
@@ -89,9 +89,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return Instance.HasNext ();
 			}
 
-			public override bool MoveNext (TestContext context)
+			public override bool MoveNext (InvocationContext ctx)
 			{
-				if (!Instance.MoveNext (context))
+				if (!Instance.MoveNext (ctx))
 					return false;
 
 				Host.Property.SetValue (GetFixtureInstance ().Instance, Instance.Current);

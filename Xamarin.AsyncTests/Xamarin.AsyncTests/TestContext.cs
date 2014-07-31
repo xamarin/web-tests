@@ -39,9 +39,9 @@ using System.ComponentModel;
 
 namespace Xamarin.AsyncTests
 {
-	public class TestContext : INotifyPropertyChanged, IDisposable {
+	public class TestContext : INotifyPropertyChanged
+	{
 		int debugLevel = DefaultDebugLevel;
-		List<IDisposable> disposables;
 		readonly SettingsBag settings;
 		readonly TestStatistics statistics;
 		volatile ITestSuite currentTestSuite;
@@ -88,112 +88,5 @@ namespace Xamarin.AsyncTests
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
-
-		public void Debug (int level, string format, params object[] args)
-		{
-			Debug (level, string.Format (format, args));
-		}
-
-		public void Debug (int level, string message)
-		{
-			if (Logger != null)
-				Logger.LogDebug (level, message);
-			if (level <= DebugLevel)
-				SD.Debug.WriteLine (message);
-		}
-
-		public void Log (string format, params object[] args)
-		{
-			Log (string.Format (format, args));
-		}
-
-		public void Log (string message)
-		{
-			SD.Debug.WriteLine (message);
-			if (Logger != null)
-				Logger.LogMessage (message);
-		}
-
-		public string Print (object obj)
-		{
-			return obj != null ? obj.ToString () : "<null>";
-		}
-
-		#region Configuration
-
-		public TestCategory CurrentCategory {
-			get {
-				var suite = currentTestSuite;
-				if (suite == null)
-					return TestCategory.All;
-
-				var key = Settings.CurrentCategory;
-				if (key == null)
-					return TestCategory.All;
-
-				TestCategory category;
-				if (suite.Configuration.TryGetCategory (key, out category))
-					return category;
-
-				return TestCategory.All;
-			}
-		}
-
-		public bool IsEnabled (TestFeature feature)
-		{
-			var suite = currentTestSuite;
-			if (suite == null)
-				return false;
-
-			if (feature.Constant != null)
-				return feature.Constant.Value;
-
-			return settings.IsFeatureEnabled (feature.Name) ?? feature.DefaultValue ?? false;
-		}
-
-		#endregion
-
-		#region Disposing
-
-		public void AutoDispose (IDisposable disposable)
-		{
-			if (disposable == null)
-				return;
-			if (disposables == null)
-				disposables = new List<IDisposable> ();
-			disposables.Add (disposable);
-		}
-
-		public void AutoDispose ()
-		{
-			if (disposables == null)
-				return;
-			foreach (var disposable in disposables) {
-				try {
-					disposable.Dispose ();
-				} catch (Exception ex) {
-					Log ("Auto-dispose failed: {0}", ex);
-				}
-			}
-			disposables = null;
-		}
-
-		~TestContext ()
-		{
-			Dispose (false);
-		}
-		
-		public void Dispose ()
-		{
-			Dispose (true);
-			GC.SuppressFinalize (this);
-		}
-
-		void Dispose (bool disposing)
-		{
-			AutoDispose ();
-		}
-
-		#endregion
 	}
 }

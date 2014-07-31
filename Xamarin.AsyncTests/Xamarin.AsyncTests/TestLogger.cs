@@ -55,6 +55,11 @@ namespace Xamarin.AsyncTests
 		{
 			OnLogEvent (new LogEntry (LogEntry.EntryKind.Error, 0, error.Message, error));
 		}
+
+		public static string Print (object obj)
+		{
+			return obj != null ? obj.ToString () : "<null>";
+		}
 	}
 }
 

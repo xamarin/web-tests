@@ -73,7 +73,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			invoker = Resolve ();
 		}
 
-		public override bool Filter (TestContext ctx, out bool enabled)
+		public override bool Filter (InvocationContext ctx, out bool enabled)
 		{
 			if (Fixture.Filter (ctx, out enabled))
 				return enabled;
@@ -296,13 +296,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				Test = test;
 			}
 
-			public override Task<bool> Invoke (
-				TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+			public override Task<bool> Invoke (InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
 			{
-				var logger = new TestResultLogger (result, ctx.Logger);
-				var ictx = new InvocationContext (ctx, logger, TestInstance.GetTestName (instance), result);
-
-				return Test.Invoke (ictx, instance, cancellationToken);
+				return Test.Invoke (ctx, instance, cancellationToken);
 			}
 		}
 	}

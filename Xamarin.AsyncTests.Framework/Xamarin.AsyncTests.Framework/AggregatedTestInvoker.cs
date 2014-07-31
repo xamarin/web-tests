@@ -72,22 +72,20 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		protected async Task<bool> InvokeInner (
-			TestContext ctx, TestInstance instance, TestResult result, TestInvoker invoker,
+			InvocationContext ctx, TestInstance instance, TestInvoker invoker,
 			CancellationToken cancellationToken)
 		{
-			var name = TestInstance.GetTestName (instance);
-			ctx.Debug (3, "Running({0}): {1}", name, invoker);
+			ctx.LogDebug (3, "Running({0}): {1}", ctx.Name, invoker);
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				var success = await invoker.Invoke (ctx, instance, result, cancellationToken);
+				var success = await invoker.Invoke (ctx, instance, cancellationToken);
 				return success || ContinueOnError;
 			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
+				ctx.OnTestFinished (TestStatus.Canceled);
 				return false;
 			} catch (Exception ex) {
-				result.AddError (ex);
-				ctx.Statistics.OnException (name, ex);
+				ctx.OnError (ex);
 				return false;
 			}
 		}

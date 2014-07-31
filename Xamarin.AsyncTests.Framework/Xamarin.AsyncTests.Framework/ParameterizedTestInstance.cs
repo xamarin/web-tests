@@ -54,7 +54,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public abstract bool HasNext ();
 
-		public abstract bool MoveNext (TestContext context);
+		public abstract bool MoveNext (InvocationContext ctx);
 
 		public sealed override TestHost CaptureContext ()
 		{

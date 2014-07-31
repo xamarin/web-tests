@@ -53,24 +53,24 @@ namespace Xamarin.WebTests.Tests
 			get; set;
 		}
 
-		public TestRunner CreateInstance (TestContext context)
+		public TestRunner CreateInstance (InvocationContext ctx)
 		{
 			return new HttpTestRunner { UseSSL = UseSSL, ReuseConnection = ReuseConnection };
 		}
 
-		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext context, string filter)
+		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (InvocationContext ctx, string filter)
 		{
-			return TestPost.GetParameters (context, filter);
+			return TestPost.GetParameters (ctx, filter);
 		}
 
-		public static IEnumerable<AuthenticationType> GetAuthenticationTypes (TestContext context, string filter)
+		public static IEnumerable<AuthenticationType> GetAuthenticationTypes (InvocationContext ctx, string filter)
 		{
 			yield return AuthenticationType.Basic;
 		}
 
-		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (TestContext context, string filter)
+		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (InvocationContext ctx, string filter)
 		{
-			return GetAuthenticationTypes (context, filter);
+			return GetAuthenticationTypes (ctx, filter);
 		}
 
 		[AsyncTest]

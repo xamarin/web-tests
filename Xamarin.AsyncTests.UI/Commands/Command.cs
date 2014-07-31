@@ -125,7 +125,7 @@ namespace Xamarin.AsyncTests.UI
 			try {
 				await Provider.ExecuteStart (this);
 			} catch (Exception ex) {
-				Provider.App.Debug (0, "EXECUTE COMMAND EX: {0}", ex);
+				Provider.App.Logger.LogError (ex);
 			}
 		}
 	}

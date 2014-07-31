@@ -44,30 +44,28 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public sealed override async Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			if (InnerInvokers.Count == 0)
 				return true;
 			if (cancellationToken.IsCancellationRequested)
 				return false;
 
-			var name = TestInstance.GetTestName (instance);
-
-			ctx.Debug (3, "Invoke({0}): {1} {2} {3}", name.FullName,
-				Flags, ctx.Print (instance), InnerInvokers.Count);
+			ctx.LogDebug (3, "Invoke({0}): {1} {2} {3}", ctx.Name,
+				Flags, TestLogger.Print (instance), InnerInvokers.Count);
 
 			bool success = true;
 			foreach (var invoker in InnerInvokers) {
 				if (cancellationToken.IsCancellationRequested)
 					break;
 
-				ctx.Debug (5, "InnerInvoke({0}): {1} {2} {3}", name.FullName,
-					ctx.Print (instance), invoker, InnerInvokers.Count);
+				ctx.LogDebug (5, "InnerInvoke({0}): {1} {2} {3}", ctx.Name,
+					TestLogger.Print (instance), invoker, InnerInvokers.Count);
 
-				success = await InvokeInner (ctx, instance, result, invoker, cancellationToken);
+				success = await InvokeInner (ctx, instance, invoker, cancellationToken);
 
-				ctx.Debug (5, "InnerInvoke({0}) done: {1} {2}", name.FullName,
-					ctx.Print (instance), success);
+				ctx.LogDebug (5, "InnerInvoke({0}) done: {1} {2}", ctx.Name,
+					TestLogger.Print (instance), success);
 
 				if (!success)
 					break;

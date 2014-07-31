@@ -50,10 +50,9 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		async Task<HeavyTestInstance> SetUp (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			var name = TestInstance.GetTestName (instance);
-			ctx.Debug (3, "SetUp({0}): {1} {2}", name, ctx.Print (Host), ctx.Print (instance));
+			ctx.LogDebug (3, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
@@ -61,44 +60,44 @@ namespace Xamarin.AsyncTests.Framework
 				await childInstance.Initialize (ctx, cancellationToken);
 				return childInstance;
 			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
+				ctx.OnTestCanceled ();
 				return null;
 			} catch (Exception ex) {
-				result.AddError (ex);
-				ctx.Statistics.OnException (name, ex);
+				ctx.OnError (ex);
 				return null;
 			}
 		}
 
 		async Task<bool> TearDown (
-			TestContext ctx, HeavyTestInstance instance, TestResult result, CancellationToken cancellationToken)
+			InvocationContext ctx, HeavyTestInstance instance, CancellationToken cancellationToken)
 		{
-			var name = TestInstance.GetTestName (instance);
-			ctx.Debug (3, "TearDown({0}): {1} {2}", name, ctx.Print (Host), ctx.Print (instance));
+			ctx.LogDebug (3, "TearDown({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
 				await instance.Destroy (ctx, cancellationToken);
 				return true;
 			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
+				ctx.OnTestCanceled ();
 				return false;
 			} catch (Exception ex) {
-				result.AddError (ex);
-				ctx.Statistics.OnException (name, ex);
+				ctx.OnError (ex);
 				return false;
 			}
 		}
 
 		public override async Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			var innerInstance = await SetUp (ctx, instance, result, cancellationToken);
+			var innerInstance = await SetUp (ctx, instance, cancellationToken);
 			if (innerInstance == null)
 				return false;
 
-			var success = await InvokeInner (ctx, innerInstance, result, Inner, cancellationToken);
+			var name = TestInstance.GetTestName (innerInstance);
+			var innerCtx = ctx.CreateChild (name);
 
-			if (!await TearDown (ctx, innerInstance, result, cancellationToken))
+			var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
+
+			if (!await TearDown (ctx, innerInstance, cancellationToken))
 				success = false;
 
 			return success;

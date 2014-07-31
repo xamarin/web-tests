@@ -139,7 +139,7 @@ namespace Xamarin.AsyncTests.UI
 			try {
 				await ServerManager.Initialize ();
 			} catch (Exception ex) {
-				Context.Log ("INITIALIZE EX: {0}", ex);
+				Logger.LogError (ex);
 			}
 		}
 

@@ -60,7 +60,7 @@ namespace Xamarin.WebTests.Tests
 			hasNetwork = !IPAddress.IsLoopback (address);
 		}
 
-		public ProxyTestRunner CreateInstance (TestContext context)
+		public ProxyTestRunner CreateInstance (InvocationContext ctx)
 		{
 			if (!hasNetwork)
 				throw new InvalidOperationException ();
@@ -96,48 +96,48 @@ namespace Xamarin.WebTests.Tests
 			}
 		}
 
-		IEnumerable<ProxyKind> ITestParameterSource<ProxyKind>.GetParameters (TestContext context, string filter)
+		IEnumerable<ProxyKind> ITestParameterSource<ProxyKind>.GetParameters (InvocationContext ctx, string filter)
 		{
-			if (!context.IsEnabled (WebTestFeatures.HasNetwork))
+			if (!ctx.IsEnabled (WebTestFeatures.HasNetwork))
 				yield break;
 
-			if (!context.IsEnabled (WebTestFeatures.Proxy))
+			if (!ctx.IsEnabled (WebTestFeatures.Proxy))
 				yield break;
 
-			if (context.CurrentCategory == WebTestFeatures.WorkCategory) {
+			if (ctx.CurrentCategory == WebTestFeatures.WorkCategory) {
 				yield return ProxyKind.SSL;
 				yield break;
 			}
 
 			yield return ProxyKind.Simple;
 
-			if (context.IsEnabled (WebTestFeatures.ProxyAuth)) {
+			if (ctx.IsEnabled (WebTestFeatures.ProxyAuth)) {
 				yield return ProxyKind.BasicAuth;
-				if (context.IsEnabled (WebTestFeatures.NTLM))
+				if (ctx.IsEnabled (WebTestFeatures.NTLM))
 					yield return ProxyKind.NtlmAuth;
 			}
 
-			if (context.IsEnabled (WebTestFeatures.Mono361)) {
+			if (ctx.IsEnabled (WebTestFeatures.Mono361)) {
 				yield return ProxyKind.Unauthenticated;
 
-				if (context.IsEnabled (WebTestFeatures.SSL))
+				if (ctx.IsEnabled (WebTestFeatures.SSL))
 					yield return ProxyKind.SSL;
 			}
 		}
 
-		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (TestContext context, string filter)
+		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (InvocationContext ctx, string filter)
 		{
-			return TestAuthentication.GetAuthenticationTypes (context, filter);
+			return TestAuthentication.GetAuthenticationTypes (ctx, filter);
 		}
 
-		public IEnumerable<Handler> GetParameters (TestContext context, string filter)
+		public IEnumerable<Handler> GetParameters (InvocationContext ctx, string filter)
 		{
 			var list = new List<Handler> ();
 			if (!hasNetwork)
 				return list;
 
 			list.Add (new HelloWorldHandler ());
-			list.AddRange (TestPost.GetParameters (context, filter));
+			list.AddRange (TestPost.GetParameters (ctx, filter));
 			return list;
 		}
 

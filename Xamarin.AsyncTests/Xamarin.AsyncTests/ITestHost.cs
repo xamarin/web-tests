@@ -32,7 +32,7 @@ namespace Xamarin.AsyncTests
 	public interface ITestHost<T>
 		where T : ITestInstance
 	{
-		T CreateInstance (TestContext context);
+		T CreateInstance (InvocationContext context);
 	}
 }
 

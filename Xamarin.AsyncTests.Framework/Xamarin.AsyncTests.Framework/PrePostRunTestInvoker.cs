@@ -42,10 +42,9 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		async Task<bool> PreRun (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			var name = TestInstance.GetTestName (instance);
-			ctx.Debug (3, "PreRun({0}): {1}", name, ctx.Print (instance));
+			ctx.LogDebug (3, "PreRun({0}): {1}", ctx.Name, TestLogger.Print (instance));
 
 			try {
 				for (var current = instance; current != null; current = current.Parent) {
@@ -56,20 +55,18 @@ namespace Xamarin.AsyncTests.Framework
 				}
 				return true;
 			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
+				ctx.OnTestCanceled ();
 				return false;
 			} catch (Exception ex) {
-				result.AddError (ex);
-				ctx.Statistics.OnException (name, ex);
+				ctx.OnError (ex);
 				return false;
 			}
 		}
 
 		async Task<bool> PostRun (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			var name = TestInstance.GetTestName (instance);
-			ctx.Debug (3, "PostRun({0}): {1}", name, ctx.Print (instance));
+			ctx.LogDebug (3, "PostRun({0}): {1}", ctx.Name, TestLogger.Print (instance));
 
 			try {
 				for (var current = instance; current != null; current = current.Parent) {
@@ -79,24 +76,23 @@ namespace Xamarin.AsyncTests.Framework
 				}
 				return true;
 			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
+				ctx.OnTestCanceled ();
 				return false;
 			} catch (Exception ex) {
-				result.AddError (ex);
-				ctx.Statistics.OnException (name, ex);
+				ctx.OnError (ex);
 				return false;
 			}
 		}
 
 		public override async Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
+			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			if (!await PreRun (ctx, instance, result, cancellationToken))
+			if (!await PreRun (ctx, instance, cancellationToken))
 				return false;
 
-			var success = await InvokeInner (ctx, instance, result, Inner, cancellationToken);
+			var success = await InvokeInner (ctx, instance, Inner, cancellationToken);
 
-			if (!await PostRun (ctx, instance, result, cancellationToken))
+			if (!await PostRun (ctx, instance, cancellationToken))
 				success = false;
 
 			return success;

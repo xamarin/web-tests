@@ -30,7 +30,7 @@ namespace Xamarin.AsyncTests
 {
 	public interface ITestParameterSource<T>
 	{
-		IEnumerable<T> GetParameters (TestContext context, string filter);
+		IEnumerable<T> GetParameters (InvocationContext ctx, string filter);
 	}
 }
 

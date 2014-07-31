@@ -53,12 +53,12 @@ namespace Xamarin.WebTests.Tests
 			get; set;
 		}
 
-		public TestRunner CreateInstance (TestContext ctx)
+		public TestRunner CreateInstance (InvocationContext ctx)
 		{
 			return new HttpTestRunner { UseSSL = UseSSL, ReuseConnection = ReuseConnection };
 		}
 
-		public IEnumerable<Handler> GetParameters (TestContext context, string filter)
+		public IEnumerable<Handler> GetParameters (InvocationContext ctx, string filter)
 		{
 			yield return new HelloWorldHandler ();
 			yield return new HelloWorldHandler ();

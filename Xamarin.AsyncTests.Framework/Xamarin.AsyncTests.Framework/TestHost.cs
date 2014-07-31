@@ -35,10 +35,10 @@ namespace Xamarin.AsyncTests.Framework
 			get; protected set;
 		}
 
-		internal TestInstance CreateInstance (TestContext context, TestInstance parent)
+		internal TestInstance CreateInstance (InvocationContext ctx, TestInstance parent)
 		{
 			var instance = CreateInstance (parent);
-			instance.Initialize (context);
+			instance.Initialize (ctx);
 			return instance;
 		}
 

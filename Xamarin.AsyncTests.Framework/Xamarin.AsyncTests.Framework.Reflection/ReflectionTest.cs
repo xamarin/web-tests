@@ -46,7 +46,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get;
 		}
 
-		public virtual bool Filter (TestContext ctx, out bool enabled)
+		public virtual bool Filter (InvocationContext ctx, out bool enabled)
 		{
 			foreach (var feature in features) {
 				if (!ctx.IsEnabled (feature)) {
@@ -231,7 +231,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		class BooleanTestSource : ITestParameterSource<bool>
 		{
-			public IEnumerable<bool> GetParameters (TestContext context, string filter)
+			public IEnumerable<bool> GetParameters (InvocationContext ctx, string filter)
 			{
 				yield return false;
 				yield return true;
@@ -240,7 +240,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		class EnumTestSource<T> : ITestParameterSource<T>
 		{
-			public IEnumerable<T> GetParameters (TestContext context, string filter)
+			public IEnumerable<T> GetParameters (InvocationContext ctx, string filter)
 			{
 				foreach (var value in Enum.GetValues (typeof (T)))
 					yield return (T)value;
@@ -263,7 +263,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
 		{
-			return Invoker.Invoke (ctx, null, result, cancellationToken);
+			return Invoker.Invoke (ctx, result, cancellationToken);
+		}
+
+		internal override Task<bool> Run (InvocationContext ctx, CancellationToken cancellationToken)
+		{
+			return Invoker.Invoke (ctx, null, cancellationToken);
 		}
 	}
 }

@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.Runners
 		bool reuseConnection;
 		bool initialized;
 
-		public async Task Initialize (TestContext context, CancellationToken cancellationToken)
+		public async Task Initialize (InvocationContext ctx, CancellationToken cancellationToken)
 		{
 			if (initialized)
 				throw new InvalidOperationException ();
@@ -67,19 +67,19 @@ namespace Xamarin.WebTests.Runners
 				await Start (cancellationToken);
 		}
 
-		public async Task PreRun (TestContext context, CancellationToken cancellationToken)
+		public async Task PreRun (InvocationContext ctx, CancellationToken cancellationToken)
 		{
 			if (!ReuseConnection)
 				await Start (cancellationToken);
 		}
 
-		public async Task PostRun (TestContext context, CancellationToken cancellationToken)
+		public async Task PostRun (InvocationContext ctx, CancellationToken cancellationToken)
 		{
 			if (!ReuseConnection)
 				await Stop (cancellationToken);
 		}
 
-		public async Task Destroy (TestContext context, CancellationToken cancellationToken)
+		public async Task Destroy (InvocationContext ctx, CancellationToken cancellationToken)
 		{
 			if (!initialized)
 				throw new InvalidOperationException ();
