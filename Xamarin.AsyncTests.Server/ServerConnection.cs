@@ -38,7 +38,7 @@ namespace Xamarin.AsyncTests.Server
 		TaskCompletionSource<TestSuite> helloTcs;
 		TestSuite suite;
 
-		public ServerConnection (TestContext context, Stream stream)
+		public ServerConnection (TestApp context, Stream stream)
 			: base (context, stream, true)
 		{
 			helloTcs = new TaskCompletionSource<TestSuite> ();

@@ -1,5 +1,5 @@
 //
-// Xamarin.AsyncTests.Framework.TestContext
+// TestApp.cs
 //
 // Authors:
 //      Martin Baulig (martin.baulig@gmail.com)
@@ -39,7 +39,7 @@ using System.ComponentModel;
 
 namespace Xamarin.AsyncTests
 {
-	public class TestContext : INotifyPropertyChanged
+	public class TestApp : INotifyPropertyChanged
 	{
 		int debugLevel = DefaultDebugLevel;
 		readonly SettingsBag settings;
@@ -75,7 +75,7 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		public TestContext (SettingsBag settings)
+		public TestApp (SettingsBag settings)
 		{
 			this.settings = settings;
 			statistics = new TestStatistics ();

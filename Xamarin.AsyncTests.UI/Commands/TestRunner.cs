@@ -57,7 +57,7 @@ namespace Xamarin.AsyncTests.UI
 			get { return refreshCommand; }
 		}
 
-		public TestContext Context {
+		public TestApp Context {
 			get { return App.Context; }
 		}
 

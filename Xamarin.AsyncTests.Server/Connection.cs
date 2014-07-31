@@ -41,13 +41,13 @@ namespace Xamarin.AsyncTests.Server
 	public abstract class Connection
 	{
 		readonly Stream stream;
-		readonly TestContext context;
+		readonly TestApp context;
 		readonly bool isServer;
 		CancellationTokenSource cancelCts;
 		TaskCompletionSource<object> mainTcs;
 		bool shutdownRequested;
 
-		internal Connection (TestContext context, Stream stream, bool isServer)
+		internal Connection (TestApp context, Stream stream, bool isServer)
 		{
 			this.isServer = isServer;
 			this.context = context;
@@ -55,7 +55,7 @@ namespace Xamarin.AsyncTests.Server
 			cancelCts = new CancellationTokenSource ();
 		}
 
-		public TestContext Context {
+		public TestApp Context {
 			get { return context; }
 		}
 

@@ -43,7 +43,6 @@
     <Compile Include="Xamarin.AsyncTests\RepeatAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\TestCase.cs" />
     <Compile Include="Xamarin.AsyncTests\TestCategoryAttribute.cs" />
-    <Compile Include="Xamarin.AsyncTests\TestContext.cs" />
     <Compile Include="Xamarin.AsyncTests\TestFlags.cs" />
     <Compile Include="Xamarin.AsyncTests\TestHostAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\TestName.cs" />
@@ -80,6 +79,7 @@
     <Compile Include="Xamarin.AsyncTests.Constraints\InstanceOfTypeConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests\TestLogger.cs" />
     <Compile Include="Xamarin.AsyncTests\LogEntry.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestApp.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

@@ -37,14 +37,14 @@ namespace Xamarin.AsyncTests.UI
 {
 	using Framework;
 
-	public class UITestApp : TestContext
+	public class UITestApp : TestApp
 	{
 		public Assembly Assembly {
 			get;
 			private set;
 		}
 
-		public TestContext Context {
+		public TestApp Context {
 			get { return this; }
 		}
 

@@ -48,7 +48,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return configuration; }
 		}
 
-		public static Task<TestSuite> Create (TestContext ctx, Assembly assembly)
+		public static Task<TestSuite> Create (TestApp ctx, Assembly assembly)
 		{
 			var tcs = new TaskCompletionSource<TestSuite> ();
 
@@ -67,7 +67,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return tcs.Task;
 		}
 
-		void DoLoadAssembly (TestContext ctx, Assembly assembly)
+		void DoLoadAssembly (TestApp ctx, Assembly assembly)
 		{
 			foreach (var type in assembly.ExportedTypes) {
 				var tinfo = type.GetTypeInfo ();

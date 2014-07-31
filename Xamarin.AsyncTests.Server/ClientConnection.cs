@@ -48,7 +48,7 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public ClientConnection (TestContext context, Stream stream, bool useMySettings, bool useMyTests)
+		public ClientConnection (TestApp context, Stream stream, bool useMySettings, bool useMyTests)
 			: base (context, stream, false)
 		{
 			UseMySettings = UseMySettings;

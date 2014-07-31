@@ -62,7 +62,7 @@ namespace Xamarin.AsyncTests.Client
 			private set;
 		}
 
-		public TestContext Context {
+		public TestApp Context {
 			get;
 			private set;
 		}
@@ -132,7 +132,7 @@ namespace Xamarin.AsyncTests.Client
 				return;
 			}
 
-			Context = new TestContext (Settings);
+			Context = new TestApp (Settings);
 			Context.Logger = new ConsoleLogger (this);
 		}
 

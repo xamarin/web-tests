@@ -47,7 +47,7 @@ namespace Xamarin.AsyncTests
 			Name = name;
 		}
 
-		public Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
+		public Task<bool> Run (TestApp ctx, TestResult result, CancellationToken cancellationToken)
 		{
 			var logger = TestLogger.CreateForResult (result, ctx.Logger);
 			var ictx = new InvocationContext (

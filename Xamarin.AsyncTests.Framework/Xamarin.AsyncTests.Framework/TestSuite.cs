@@ -54,7 +54,7 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public static Task<TestSuite> LoadAssembly (TestContext ctx, Assembly assembly)
+		public static Task<TestSuite> LoadAssembly (TestApp ctx, Assembly assembly)
 		{
 			return ReflectionTestSuite.Create (ctx, assembly);
 		}
