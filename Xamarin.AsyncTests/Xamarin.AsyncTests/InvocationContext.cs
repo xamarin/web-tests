@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Text;
+using System.Threading;
 
 namespace Xamarin.AsyncTests
 {
@@ -35,6 +36,7 @@ namespace Xamarin.AsyncTests
 		readonly TestContext Context;
 		readonly TestResult Result;
 		readonly TestLogger Logger;
+		readonly SynchronizationContext SyncContext;
 
 		public TestName Name {
 			get;
@@ -47,40 +49,53 @@ namespace Xamarin.AsyncTests
 			Logger = logger;
 			Name = name;
 			Result = result;
+			SyncContext = SynchronizationContext.Current;
+		}
+
+		void Invoke (Action action)
+		{
+			if (SyncContext == null)
+				action ();
+			else
+				SyncContext.Post (d => action (), null);
 		}
 
 		public void OnError (Exception error)
 		{
 			Result.AddError (error);
-			Context.Statistics.OnException (Name, error);
-			Logger.LogError (error);
+			Invoke (() => {
+				Context.Statistics.OnException (Name, error);
+				Logger.LogError (error);
+			});
 		}
 
 		#region ITestLogger implementation
 
 		public void LogDebug (int level, string message)
 		{
-			Logger.LogDebug (level, message);
+			if (level > Context.DebugLevel)
+				return;
+			Invoke (() => Logger.LogDebug (level, message));
 		}
 
 		public void LogDebug (int level, string format, params object[] args)
 		{
-			Logger.LogDebug (level, format, args);
+			LogDebug (level, string.Format (format, args));
 		}
 
 		public void LogMessage (string message)
 		{
-			Logger.LogMessage (message);
+			Invoke (() => Logger.LogMessage (message));
 		}
 
 		public void LogMessage (string message, params object[] args)
 		{
-			Logger.LogMessage (string.Format (message, args));
+			LogMessage (string.Format (message, args));
 		}
 
 		public void LogError (Exception error)
 		{
-			Logger.LogError (error);
+			Invoke (() => Logger.LogError (error));
 		}
 
 		#endregion
@@ -126,7 +141,7 @@ namespace Xamarin.AsyncTests
 			}
 
 			var exception = new AssertionException (sb.ToString ());
-			Result.AddError (exception);
+			Invoke (() => Result.AddError (exception));
 			if (fatal)
 				throw exception;
 			return false;

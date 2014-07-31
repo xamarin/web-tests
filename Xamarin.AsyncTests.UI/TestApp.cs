@@ -72,11 +72,6 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public IAppHost AppHost {
-			get;
-			private set;
-		}
-
 		public OptionsModel Options {
 			get;
 			private set;
@@ -102,11 +97,10 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestApp (SettingsBag settings, IServerHost server, IAppHost host, Assembly assembly)
+		public TestApp (SettingsBag settings, IServerHost server, Assembly assembly)
 			: base (settings)
 		{
 			ServerHost = server;
-			AppHost = host;
 			Assembly = assembly;
 
 			Logger = new UILogger (this);
@@ -184,13 +178,13 @@ namespace Xamarin.AsyncTests.UI
 			if (level > DebugLevel)
 				return;
 			SD.Debug.WriteLine (message);
-			AppHost.InvokeOnMainThread (() => LogPage.Log (message));
+			LogPage.Log (message);
 		}
 
 		protected void LogMessage (string message)
 		{
 			SD.Debug.WriteLine (message);
-			AppHost.InvokeOnMainThread (() => LogPage.Log (message));
+			LogPage.Log (message);
 		}
 	}
 }

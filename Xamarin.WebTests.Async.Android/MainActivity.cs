@@ -19,7 +19,7 @@ using Xamarin.WebTests.Async;
 namespace Xamarin.WebTests.Async.Android
 {
 	[Activity (Label = "Xamarin.WebTests.Async.Android", MainLauncher = true)]
-	public class MainActivity : AndroidActivity, IAppHost
+	public class MainActivity : AndroidActivity
 	{
 		ISharedPreferences preferences;
 
@@ -33,14 +33,9 @@ namespace Xamarin.WebTests.Async.Android
 			var settings = new SettingsHost (preferences);
 			var server = new ServerHost ();
 
-			var test = new TestApp (settings, server, this, typeof(MainActivity).Assembly);
+			var test = new TestApp (settings, server, typeof(MainActivity).Assembly);
 
 			SetPage (test.Root);
-		}
-
-		void IAppHost.InvokeOnMainThread (Action action)
-		{
-			RunOnUiThread (action);
 		}
 	}
 }
