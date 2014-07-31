@@ -34,7 +34,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests
 {
-	using Runners;
+	using Framework;
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class WorkAttribute : TestCategoryAttribute
@@ -90,7 +90,7 @@ namespace Xamarin.WebTests
 		public static readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", false);
 
 		public static readonly TestFeature HasNetwork = new TestFeature (
-			"Network", "HasNetwork", () => !IPAddress.IsLoopback (TestRunner.GetAddress ()));
+			"Network", "HasNetwork", () => !IPAddress.IsLoopback (HttpServer.GetAddress ()));
 
 		public static readonly TestFeature Mono38;
 		public static readonly TestFeature Mono361;

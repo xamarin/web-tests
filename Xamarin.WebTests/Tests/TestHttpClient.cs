@@ -42,16 +42,16 @@ namespace Xamarin.WebTests
 	using Framework;
 
 	[AsyncTestFixture (Timeout = 10000)]
-	public class TestHttpClient : ITestHost<TestRunner>, ITestParameterSource<Handler>
+	public class TestHttpClient : ITestHost<HttpServer>, ITestParameterSource<Handler>
 	{
 		[TestParameter (typeof (WebTestFeatures.SelectSSL), null, TestFlags.Hidden)]
 		public bool UseSSL {
 			get; set;
 		}
 
-		public TestRunner CreateInstance (TestContext ctx)
+		public HttpServer CreateInstance (TestContext ctx)
 		{
-			return new HttpTestRunner { UseSSL = UseSSL };
+			return new HttpServer (IPAddress.Loopback, 9999) { UseSSL = UseSSL };
 		}
 
 		IEnumerable<Handler> GetStableTests ()
@@ -98,18 +98,16 @@ namespace Xamarin.WebTests
 
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost (typeof (TestHttpClient))] TestRunner runner,
-			[TestParameter ("stable")] Handler handler)
+			[TestHost] HttpServer server, [TestParameter ("stable")] Handler handler)
 		{
-			return runner.Run (ctx, handler, cancellationToken);
+			return TestRunner.Run (ctx, server, handler, cancellationToken);
 		}
 
 		[AsyncTest]
 		public Task RunMono38 (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost (typeof (TestHttpClient))] TestRunner runner,
-			[TestParameter ("mono38")] Handler handler)
+			[TestHost] HttpServer server, [TestParameter ("mono38")] Handler handler)
 		{
-			return runner.Run (ctx, handler, cancellationToken);
+			return TestRunner.Run (ctx, server, handler, cancellationToken);
 		}
 
 		class Bug20583Content : HttpContent

@@ -118,6 +118,12 @@
     <Compile Include="..\Xamarin.WebTests\Handlers\GetHandler.cs">
       <Link>Handlers\GetHandler.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\HttpServer.cs">
+      <Link>Framework\HttpServer.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\ProxyServer.cs">
+      <Link>Framework\ProxyServer.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -175,12 +181,6 @@
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Handlers\RedirectHandler.cs">
       <Link>Handlers\RedirectHandler.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Runners\HttpTestRunner.cs">
-      <Link>Runners\HttpTestRunner.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Runners\ProxyTestRunner.cs">
-      <Link>Runners\ProxyTestRunner.cs</Link>
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Runners\TestRunner.cs">
       <Link>Runners\TestRunner.cs</Link>

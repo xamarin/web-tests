@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 
 	[AsyncTestFixture (Timeout = 10000)]
-	public class TestAuthentication : ITestHost<TestRunner>, ITestParameterSource<Handler>, ITestParameterSource<AuthenticationType>
+	public class TestAuthentication : ITestHost<HttpServer>, ITestParameterSource<Handler>, ITestParameterSource<AuthenticationType>
 	{
 		[TestParameter (typeof (WebTestFeatures.SelectSSL), null, TestFlags.Hidden)]
 		public bool UseSSL {
@@ -53,9 +53,9 @@ namespace Xamarin.WebTests.Tests
 			get; set;
 		}
 
-		public TestRunner CreateInstance (TestContext ctx)
+		public HttpServer CreateInstance (TestContext ctx)
 		{
-			return new HttpTestRunner { UseSSL = UseSSL, ReuseConnection = ReuseConnection };
+			return new HttpServer (IPAddress.Loopback, 9999) { UseSSL = UseSSL, ReuseConnection = ReuseConnection };
 		}
 
 		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext ctx, string filter)
@@ -75,17 +75,17 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Run (
-			TestContext ctx, [TestHost] TestRunner runner,
+			TestContext ctx, [TestHost] HttpServer server,
 			[TestParameter] AuthenticationType authType,  [TestParameter] Handler handler,
 			CancellationToken cancellationToken)
 		{
 			var authHandler = new AuthenticationHandler (authType, handler);
-			return runner.Run (ctx, authHandler, cancellationToken);
+			return TestRunner.Run (ctx, server, authHandler, cancellationToken);
 		}
 
 		[AsyncTest]
 		public Task MustClearAuthOnRedirect (
-			TestContext ctx, [TestHost] TestRunner runner,
+			TestContext ctx, [TestHost] HttpServer server,
 			CancellationToken cancellationToken)
 		{
 			var target = new HelloWorldHandler ();
@@ -94,7 +94,7 @@ namespace Xamarin.WebTests.Tests
 			var redirect = new RedirectHandler (targetAuth, HttpStatusCode.Redirect);
 			var authHandler = new AuthenticationHandler (AuthenticationType.Basic, redirect);
 
-			return runner.Run (ctx, authHandler, cancellationToken);
+			return TestRunner.Run (ctx, server, authHandler, cancellationToken);
 		}
 	}
 }

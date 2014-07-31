@@ -1,5 +1,5 @@
 ﻿//
-// ProxyTestRunner.cs
+// ProxyServer.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -29,26 +29,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Runners
+namespace Xamarin.WebTests.Framework
 {
 	using Framework;
 	using Handlers;
 	using Server;
 
-	public class ProxyTestRunner : TestRunner
+	public class ProxyServer : HttpServer
 	{
-		IPEndPoint endpoint, proxyEndpoint;
+		IPEndPoint proxyEndpoint;
 		AuthenticationType authType = AuthenticationType.None;
-		HttpListener httpListener;
 		ProxyListener proxyListener;
 
-		public ProxyTestRunner (IPEndPoint endpoint, IPEndPoint proxyEndpoint)
+		public ProxyServer (IPEndPoint endpoint, IPEndPoint proxyEndpoint)
+			: base (endpoint)
 		{
-			this.endpoint = endpoint;
 			this.proxyEndpoint = proxyEndpoint;
 		}
 
-		public ProxyTestRunner (IPAddress address, int port, int proxyPort)
+		public ProxyServer (IPAddress address, int port, int proxyPort)
 			: this (new IPEndPoint (address, port), new IPEndPoint (address,proxyPort))
 		{
 		}
@@ -62,16 +61,11 @@ namespace Xamarin.WebTests.Runners
 			get; set;
 		}
 
-		public bool UseSSL {
-			get; set;
-		}
-
 		public override async Task Start (CancellationToken cancellationToken)
 		{
-			httpListener = new HttpListener (endpoint.Address, endpoint.Port, ReuseConnection, UseSSL);
-			proxyListener = new ProxyListener (httpListener, proxyEndpoint.Address, proxyEndpoint.Port, authType);
+			await base.Start (cancellationToken);
 
-			await httpListener.Start ();
+			proxyListener = new ProxyListener (Listener, proxyEndpoint.Address, proxyEndpoint.Port, authType);
 			await proxyListener.Start ();
 		}
 
@@ -80,8 +74,7 @@ namespace Xamarin.WebTests.Runners
 			await proxyListener.Stop ();
 			proxyListener = null;
 
-			await httpListener.Stop ();
-			httpListener = null;
+			await base.Stop (cancellationToken);
 		}
 
 		IWebProxy CreateProxy ()
@@ -92,9 +85,9 @@ namespace Xamarin.WebTests.Runners
 			return proxy;
 		}
 
-		protected override Request CreateRequest (Handler handler)
+		protected internal override Request CreateRequest (Handler handler)
 		{
-			var request = handler.CreateRequest (httpListener);
+			var request = base.CreateRequest (handler);
 			request.SetProxy (CreateProxy ());
 			return request;
 		}

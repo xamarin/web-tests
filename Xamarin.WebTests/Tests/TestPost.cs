@@ -42,16 +42,16 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 
 	[AsyncTestFixture (Timeout = 15000)]
-	public class TestPost : ITestHost<HttpTestRunner>, ITestParameterSource<Handler>
+	public class TestPost : ITestHost<HttpServer>, ITestParameterSource<Handler>
 	{
 		[TestParameter (typeof (WebTestFeatures.SelectSSL), null, TestFlags.Hidden)]
 		public bool UseSSL {
 			get; set;
 		}
 
-		public HttpTestRunner CreateInstance (TestContext ctx)
+		public HttpServer CreateInstance (TestContext ctx)
 		{
-			return new HttpTestRunner { UseSSL = UseSSL };
+			return new HttpServer (IPAddress.Loopback, 9999) { UseSSL = UseSSL };
 		}
 
 		public static IEnumerable<PostHandler> GetPostTests ()
@@ -145,7 +145,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task RedirectAsGetNoBuffering (
-			TestContext ctx, [TestHost] HttpTestRunner runner,
+			TestContext ctx, [TestHost] HttpServer server,
 			CancellationToken cancellationToken)
 		{
 			var post = new PostHandler {
@@ -156,12 +156,12 @@ namespace Xamarin.WebTests.Tests
 				AllowWriteStreamBuffering = false
 			};
 			var handler = new RedirectHandler (post, HttpStatusCode.Redirect);
-			return runner.Run (ctx, handler, cancellationToken);
+			return TestRunner.Run (ctx, server, handler, cancellationToken);
 		}
 
 		[AsyncTest]
 		public Task RedirectNoBuffering (
-			TestContext ctx, [TestHost] HttpTestRunner runner,
+			TestContext ctx, [TestHost] HttpServer server,
 			CancellationToken cancellationToken)
 		{
 			var post = new PostHandler {
@@ -172,20 +172,20 @@ namespace Xamarin.WebTests.Tests
 				AllowWriteStreamBuffering = false
 			};
 			var handler = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
-			return runner.Run (ctx, handler, cancellationToken, HttpStatusCode.TemporaryRedirect, true);
+			return TestRunner.Run (ctx, server, handler, cancellationToken, HttpStatusCode.TemporaryRedirect, true);
 		}
 
 		[AsyncTest]
 		public Task Run (
-			TestContext ctx, [TestHost] HttpTestRunner runner,
+			TestContext ctx, [TestHost] HttpServer server,
 			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{
-			return runner.Run (ctx, handler, cancellationToken);
+			return TestRunner.Run (ctx, server, handler, cancellationToken);
 		}
 
 		[AsyncTest]
 		public Task Redirect (
-			TestContext ctx, [TestHost] HttpTestRunner runner,
+			TestContext ctx, [TestHost] HttpServer server,
 			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
 			[TestParameter ("post")] Handler handler, CancellationToken cancellationToken)
 		{
@@ -200,12 +200,12 @@ namespace Xamarin.WebTests.Tests
 			post.Description = string.Format ("{0}: {1}", code, post.Description);
 			var redirect = new RedirectHandler (post, code) { Description = post.Description };
 
-			return runner.Run (ctx, redirect, cancellationToken);
+			return TestRunner.Run (ctx, server, redirect, cancellationToken);
 		}
 
 		[AsyncTest]
 		public async Task Test18750 (
-			TestContext ctx, [TestHost] HttpTestRunner runner,
+			TestContext ctx, [TestHost] HttpServer server,
 			CancellationToken cancellationToken)
 		{
 			var post = new PostHandler {
@@ -217,7 +217,7 @@ namespace Xamarin.WebTests.Tests
 
 			redirect.Register (ctx);
 
-			var uri = redirect.RegisterRequest (runner.Listener);
+			var uri = redirect.RegisterRequest (server.Listener);
 
 			var wc = new WebClient ();
 			var res = await wc.UploadStringTaskAsync (uri, post.Content.AsString ());
@@ -227,15 +227,15 @@ namespace Xamarin.WebTests.Tests
 				Description = "Second post", Content = new StringContent ("Should send this")
 			};
 
-			await runner.Run (ctx, secondPost, cancellationToken);
+			await TestRunner.Run (ctx, server, secondPost, cancellationToken);
 		}
 
 		[AsyncTest]
 		public Task TestChunked (
-			TestContext ctx, [TestHost] HttpTestRunner runner,
+			TestContext ctx, [TestHost] HttpServer server,
 			[TestParameter ("chunked")] Handler handler, CancellationToken cancellationToken)
 		{
-			return runner.Run (ctx, handler, cancellationToken);
+			return TestRunner.Run (ctx, server, handler, cancellationToken);
 		}
 	}
 }

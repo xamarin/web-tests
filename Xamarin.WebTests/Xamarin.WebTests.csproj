@@ -72,8 +72,6 @@
     <Compile Include="Handlers\HelloWorldHandler.cs" />
     <Compile Include="Handlers\RedirectHandler.cs" />
     <Compile Include="Handlers\PostHandler.cs" />
-    <Compile Include="Runners\HttpTestRunner.cs" />
-    <Compile Include="Runners\ProxyTestRunner.cs" />
     <Compile Include="Runners\TestRunner.cs" />
     <Compile Include="Handlers\Handler.cs" />
     <Compile Include="Tests\ProxyKind.cs" />
@@ -91,6 +89,8 @@
     <Compile Include="Framework\StringContent.cs" />
     <Compile Include="Framework\ChunkedContent.cs" />
     <Compile Include="Handlers\GetHandler.cs" />
+    <Compile Include="Framework\ProxyServer.cs" />
+    <Compile Include="Framework\HttpServer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

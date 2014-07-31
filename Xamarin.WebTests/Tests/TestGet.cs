@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 
 	[AsyncTestFixture (Timeout = 5000)]
-	public class TestGet : ITestHost<TestRunner>, ITestParameterSource<Handler>
+	public class TestGet : ITestHost<HttpServer>, ITestParameterSource<Handler>
 	{
 		[TestParameter (typeof (WebTestFeatures.SelectSSL), null, TestFlags.Hidden)]
 		public bool UseSSL {
@@ -53,9 +53,9 @@ namespace Xamarin.WebTests.Tests
 			get; set;
 		}
 
-		public TestRunner CreateInstance (TestContext ctx)
+		public HttpServer CreateInstance (TestContext ctx)
 		{
-			return new HttpTestRunner { UseSSL = UseSSL, ReuseConnection = ReuseConnection };
+			return new HttpServer (IPAddress.Loopback, 9999) { UseSSL = UseSSL, ReuseConnection = ReuseConnection };
 		}
 
 		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
@@ -66,21 +66,21 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost (typeof (TestGet))] TestRunner runner, [TestParameter] Handler handler)
+			[TestHost] HttpServer server, [TestParameter] Handler handler)
 		{
-			return runner.Run (ctx, handler, cancellationToken);
+			return TestRunner.Run (ctx, server, handler, cancellationToken);
 		}
 
 		[AsyncTest]
 		public Task Redirect (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] TestRunner runner,
+			[TestHost] HttpServer server,
 			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
 			[TestParameter] Handler handler)
 		{
 			var description = string.Format ("{0}: {1}", code, handler.Description);
 			var redirect = new RedirectHandler (handler, code) { Description = description };
 
-			return runner.Run (ctx, redirect, cancellationToken);
+			return TestRunner.Run (ctx, server, redirect, cancellationToken);
 		}
 
 		[Work]

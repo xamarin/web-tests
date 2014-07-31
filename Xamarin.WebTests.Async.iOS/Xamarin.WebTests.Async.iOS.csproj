@@ -167,6 +167,12 @@
     <Compile Include="..\Xamarin.WebTests\Handlers\GetHandler.cs">
       <Link>Handlers\GetHandler.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\ProxyServer.cs">
+      <Link>Framework\ProxyServer.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\HttpServer.cs">
+      <Link>Framework\HttpServer.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xamarin.WebTests\Framework\RequestFlags.cs">
@@ -214,12 +220,6 @@
     <Compile Include="..\Xamarin.WebTests\Handlers\RedirectHandler.cs">
       <Link>Handlers\RedirectHandler.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests\Runners\HttpTestRunner.cs">
-      <Link>Runners\HttpTestRunner.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Runners\ProxyTestRunner.cs">
-      <Link>Runners\ProxyTestRunner.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests\Runners\TestRunner.cs">
       <Link>Runners\TestRunner.cs</Link>
     </Compile>
@@ -248,6 +248,11 @@
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.1.2.2.6243\build\portable-win+net45+wp80+MonoAndroid10+MonoTouch10\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.1.2.2.6243\build\portable-win+net45+wp80+MonoAndroid10+MonoTouch10\Xamarin.Forms.targets')" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <ItemGroup>

@@ -41,106 +41,15 @@ namespace Xamarin.WebTests.Runners
 	using Handlers;
 	using Framework;
 
-	public abstract class TestRunner : ITestInstance
+	public static class TestRunner
 	{
-		public bool ReuseConnection {
-			get { return reuseConnection; }
-			set {
-				if (initialized)
-					throw new InvalidOperationException ();
-				reuseConnection = value;
-			}
-		}
-
-		#region ITestInstance implementation
-
-		bool reuseConnection;
-		bool initialized;
-
-		public async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
-		{
-			if (initialized)
-				throw new InvalidOperationException ();
-			initialized = true;
-
-			if (ReuseConnection)
-				await Start (cancellationToken);
-		}
-
-		public async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
-		{
-			if (!ReuseConnection)
-				await Start (cancellationToken);
-		}
-
-		public async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
-		{
-			if (!ReuseConnection)
-				await Stop (cancellationToken);
-		}
-
-		public async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
-		{
-			if (!initialized)
-				throw new InvalidOperationException ();
-
-			if (ReuseConnection)
-				await Stop (cancellationToken);
-
-			initialized = false;
-		}
-
-		#endregion
-
-		public abstract Task Start (CancellationToken cancellationToken);
-
-		public abstract Task Stop (CancellationToken cancellationToken);
-
-		protected abstract Request CreateRequest (Handler handler);
-
-		static IPAddress address;
-
-		public static IPAddress GetAddress ()
-		{
-			if (address == null)
-				address = LookupAddress ();
-			return address;
-		}
-
-		static IPAddress LookupAddress ()
-		{
-			try {
-				#if __IOS__
-				var interfaces = NetworkInterface.GetAllNetworkInterfaces ();
-				foreach (var iface in interfaces) {
-					if (iface.NetworkInterfaceType != NetworkInterfaceType.Ethernet && iface.NetworkInterfaceType != NetworkInterfaceType.Wireless80211)
-						continue;
-					foreach (var address in iface.GetIPProperties ().UnicastAddresses) {
-						if (address.Address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback (address.Address))
-							return address.Address;
-					}
-				}
-				#else
-				var hostname = Dns.GetHostName ();
-				var hostent = Dns.GetHostEntry (hostname);
-				foreach (var address in hostent.AddressList) {
-					if (address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback (address))
-						return address;
-				}
-				#endif
-			} catch {
-				;
-			}
-
-			return IPAddress.Loopback;
-		}
-
-		protected void Debug (TestContext ctx, int level, Handler handler, string message, params object[] args)
+		static void Debug (TestContext ctx, HttpServer server, int level,
+			Handler handler, string message, params object[] args)
 		{
 			if (Handler.DebugLevel < level)
 				return;
 			var sb = new StringBuilder ();
-			sb.AppendFormat ("{0}:{1}: {2}", this, handler, message);
+			sb.AppendFormat ("{0}:{1}: {2}", server, handler, message);
 			for (int i = 0; i < args.Length; i++) {
 				sb.Append (" ");
 				sb.Append (args [i] != null ? args [i].ToString () : "<null>");
@@ -149,19 +58,19 @@ namespace Xamarin.WebTests.Runners
 			ctx.LogDebug (level, sb.ToString ());
 		}
 
-		public async Task<bool> Run (
-			TestContext ctx, Handler handler, CancellationToken cancellationToken,
+		public static async Task<bool> Run (
+			TestContext ctx, HttpServer server, Handler handler, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			bool expectException = false)
 		{
-			Debug (ctx, 0, handler, "RUN");
+			Debug (ctx, server, 0, handler, "RUN");
 
 			handler.Register (ctx);
-			var request = CreateRequest (handler);
+			var request = server.CreateRequest (handler);
 
 			var response = await request.Send (ctx, cancellationToken);
 
-			Debug (ctx, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error);
+			Debug (ctx, server, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error);
 
 			bool ok;
 
@@ -184,23 +93,10 @@ namespace Xamarin.WebTests.Runners
 			}
 
 			if (response.Content != null)
-				Debug (ctx, 5, handler, "GOT RESPONSE BODY", response.Content);
+				Debug (ctx, server, 5, handler, "GOT RESPONSE BODY", response.Content);
 
 			return ok;
 		}
-
-		protected virtual string MyToString ()
-		{
-			return null;
-		}
-
-		public override string ToString ()
-		{
-			var description = MyToString ();
-			var padding = string.IsNullOrEmpty (description) ? string.Empty : ": ";
-			return string.Format ("[{0}{1}{2}]", GetType ().Name, padding, description);
-		}
-
 	}
 }
 

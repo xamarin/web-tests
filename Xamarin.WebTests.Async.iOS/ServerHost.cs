@@ -36,12 +36,14 @@ using Xamarin.AsyncTests.Server;
 
 namespace Xamarin.WebTests.Async.iOS
 {
+	using Framework;
+
 	public class ServerHost : IServerHost
 	{
 		public Task<IServerConnection> Start (CancellationToken cancellationToken)
 		{
 			return Task.Run<IServerConnection> (() => {
-				var address = Runners.TestRunner.GetAddress ();
+				var address = HttpServer.GetAddress ();
 				var listener = new TcpListener (new IPEndPoint (address, 8888));
 
 				listener.Start ();
