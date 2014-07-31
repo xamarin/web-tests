@@ -31,7 +31,7 @@ namespace Xamarin.AsyncTests.UI
 {	
 	public partial class MainPage : ContentPage
 	{
-		public TestApp App {
+		public UITestApp App {
 			get { return Manager.App; }
 		}
 

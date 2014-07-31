@@ -38,7 +38,7 @@ namespace Xamarin.AsyncTests.UI
 
 	public abstract class TestProvider
 	{
-		public TestApp App {
+		public UITestApp App {
 			get;
 			private set;
 		}
@@ -48,19 +48,19 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestProvider (TestApp app, string name)
+		public TestProvider (UITestApp app, string name)
 		{
 			App = app;
 			Name = name;
 		}
 
-		public static TestProvider StartLocal (TestApp app)
+		public static TestProvider StartLocal (UITestApp app)
 		{
 			app.ServerManager.SetStatusMessage ("Loaded locally.");
 			return new LocalTestProvider (app);
 		}
 
-		public static async Task<TestProvider> StartServer (TestApp app, CancellationToken cancellationToken)
+		public static async Task<TestProvider> StartServer (UITestApp app, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 
@@ -73,7 +73,7 @@ namespace Xamarin.AsyncTests.UI
 			return new RemoteTestProvider (app, server, connection);
 		}
 
-		public static async Task<TestProvider> Connect (TestApp app, string address, CancellationToken cancellationToken)
+		public static async Task<TestProvider> Connect (UITestApp app, string address, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 

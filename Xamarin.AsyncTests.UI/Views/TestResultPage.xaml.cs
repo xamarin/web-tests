@@ -36,7 +36,7 @@ namespace Xamarin.AsyncTests.UI
 
 	public partial class TestResultPage : ContentPage
 	{
-		public TestApp App {
+		public UITestApp App {
 			get;
 			private set;
 		}
@@ -54,7 +54,7 @@ namespace Xamarin.AsyncTests.UI
 			get { return Result.CanRun; }
 		}
 
-		public TestResultPage (TestApp app, TestResultModel model)
+		public TestResultPage (UITestApp app, TestResultModel model)
 		{
 			App = app;
 			Model = model;

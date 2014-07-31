@@ -33,7 +33,7 @@ namespace Xamarin.AsyncTests.UI
 
 	public class LocalTestProvider : TestProvider
 	{
-		public LocalTestProvider (TestApp app)
+		public LocalTestProvider (UITestApp app)
 			: base (app, "local")
 		{
 		}

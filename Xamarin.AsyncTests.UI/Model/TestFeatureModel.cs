@@ -31,7 +31,7 @@ namespace Xamarin.AsyncTests.UI
 {
 	public class TestFeatureModel : BindableObject
 	{
-		public TestApp App {
+		public UITestApp App {
 			get;
 			private set;
 		}
@@ -60,7 +60,7 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		public TestFeatureModel (TestApp app, TestConfiguration config, TestFeature feature)
+		public TestFeatureModel (UITestApp app, TestConfiguration config, TestFeature feature)
 		{
 			App = app;
 			Configuration = config;

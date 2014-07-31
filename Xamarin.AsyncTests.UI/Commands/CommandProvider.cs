@@ -35,12 +35,12 @@ namespace Xamarin.AsyncTests.UI
 {
 	public abstract class CommandProvider : BindableObject
 	{
-		public TestApp App {
+		public UITestApp App {
 			get;
 			private set;
 		}
 
-		public CommandProvider (TestApp app)
+		public CommandProvider (UITestApp app)
 		{
 			App = app;
 
@@ -148,7 +148,7 @@ namespace Xamarin.AsyncTests.UI
 	public abstract class CommandProvider<T> : CommandProvider
 		where T : class
 	{
-		public CommandProvider (TestApp app)
+		public CommandProvider (UITestApp app)
 			: base (app)
 		{
 		}

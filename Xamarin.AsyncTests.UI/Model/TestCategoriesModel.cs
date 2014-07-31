@@ -33,7 +33,7 @@ namespace Xamarin.AsyncTests.UI
 {
 	public class TestCategoriesModel : BindableObject
 	{
-		public TestApp App {
+		public UITestApp App {
 			get;
 			private set;
 		}
@@ -65,7 +65,7 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		public TestCategoriesModel (TestApp app)
+		public TestCategoriesModel (UITestApp app)
 		{
 			App = app;
 			categories = new List<string> ();

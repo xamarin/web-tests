@@ -87,7 +87,7 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public ServerManager (TestApp app)
+		public ServerManager (UITestApp app)
 			: base (app)
 		{
 			Settings = app.Settings;

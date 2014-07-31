@@ -31,12 +31,12 @@ namespace Xamarin.AsyncTests.UI
 {	
 	public partial class LogPage : ContentPage
 	{
-		public TestApp App {
+		public UITestApp App {
 			get;
 			private set;
 		}
 
-		public LogPage (TestApp app)
+		public LogPage (UITestApp app)
 		{
 			App = app;
 

@@ -36,7 +36,7 @@ namespace Xamarin.AsyncTests.UI
 		TestServer server;
 		IServerConnection connection;
 
-		public RemoteTestProvider (TestApp app, TestServer server, IServerConnection connection)
+		public RemoteTestProvider (UITestApp app, TestServer server, IServerConnection connection)
 			: base (app, connection.Name)
 		{
 			this.server = server;

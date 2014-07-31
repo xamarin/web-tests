@@ -36,7 +36,7 @@ namespace Xamarin.AsyncTests.UI
 
 	public class TestServer : ServerConnection
 	{
-		public TestApp App {
+		public UITestApp App {
 			get;
 			private set;
 		}
@@ -51,7 +51,7 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestServer (TestApp app, Stream stream, IServerConnection connection, bool isServer)
+		public TestServer (UITestApp app, Stream stream, IServerConnection connection, bool isServer)
 			: base (app, stream)
 		{
 			App = app;

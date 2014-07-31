@@ -50,7 +50,7 @@ namespace Xamarin.WebTests.Async.iOS
 		UIWindow window;
 		SettingsHost settings;
 		ServerHost server;
-		TestApp test;
+		UITestApp test;
 
 		//
 		// This method is invoked when the application has loaded and is ready to run. In this
@@ -66,7 +66,7 @@ namespace Xamarin.WebTests.Async.iOS
 			settings = new SettingsHost ();
 			server = new ServerHost ();
 
-			test = new TestApp (settings, server, typeof(AppDelegate).Assembly);
+			test = new UITestApp (settings, server, typeof(AppDelegate).Assembly);
 
 			window = new UIWindow (UIScreen.MainScreen.Bounds);
 			window.RootViewController =  test.Root.CreateViewController ();

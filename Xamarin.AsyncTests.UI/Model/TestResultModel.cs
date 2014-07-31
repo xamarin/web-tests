@@ -38,7 +38,7 @@ namespace Xamarin.AsyncTests.UI
 
 	public class TestResultModel : BindableObject
 	{
-		public TestApp App {
+		public UITestApp App {
 			get;
 			private set;
 		}
@@ -57,7 +57,7 @@ namespace Xamarin.AsyncTests.UI
 			get { return TestResultConverter.GetColorForStatus (Result.Status); }
 		}
 
-		public TestResultModel (TestApp app, TestResult result, bool isRoot)
+		public TestResultModel (UITestApp app, TestResult result, bool isRoot)
 		{
 			App = app;
 			Result = result;

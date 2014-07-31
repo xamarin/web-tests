@@ -61,7 +61,7 @@ namespace Xamarin.AsyncTests.UI
 			get { return App.Context; }
 		}
 
-		public TestRunner (TestApp app)
+		public TestRunner (UITestApp app)
 			: base (app)
 		{
 			runCommand = new RunSingleCommand (this);

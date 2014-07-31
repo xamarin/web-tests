@@ -1,5 +1,5 @@
 ﻿//
-// App.cs
+// UITestApp.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -37,7 +37,7 @@ namespace Xamarin.AsyncTests.UI
 {
 	using Framework;
 
-	public class TestApp : TestContext
+	public class UITestApp : TestContext
 	{
 		public Assembly Assembly {
 			get;
@@ -97,7 +97,7 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestApp (SettingsBag settings, IServerHost server, Assembly assembly)
+		public UITestApp (SettingsBag settings, IServerHost server, Assembly assembly)
 			: base (settings)
 		{
 			ServerHost = server;
@@ -145,9 +145,9 @@ namespace Xamarin.AsyncTests.UI
 
 		class UILogger : TestLogger
 		{
-			readonly TestApp App;
+			readonly UITestApp App;
 
-			public UILogger (TestApp app)
+			public UILogger (UITestApp app)
 			{
 				App = app;
 			}

@@ -30,7 +30,7 @@ namespace Xamarin.AsyncTests.UI
 {
 	public class OptionsModel : BindableObject
 	{
-		public TestApp App {
+		public UITestApp App {
 			get;
 			private set;
 		}
@@ -116,7 +116,7 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		public OptionsModel (TestApp app)
+		public OptionsModel (UITestApp app)
 		{
 			App = app;
 

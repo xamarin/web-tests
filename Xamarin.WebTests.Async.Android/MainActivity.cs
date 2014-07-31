@@ -33,7 +33,7 @@ namespace Xamarin.WebTests.Async.Android
 			var settings = new SettingsHost (preferences);
 			var server = new ServerHost ();
 
-			var test = new TestApp (settings, server, typeof(MainActivity).Assembly);
+			var test = new UITestApp (settings, server, typeof(MainActivity).Assembly);
 
 			SetPage (test.Root);
 		}
