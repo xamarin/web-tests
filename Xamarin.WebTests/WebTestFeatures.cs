@@ -84,8 +84,7 @@ namespace Xamarin.WebTests
 		public static readonly TestFeature HasNetwork = new TestFeature (
 			"Network", "HasNetwork", () => !IPAddress.IsLoopback (TestRunner.GetAddress ()));
 
-		public static readonly TestFeature Mono38 = new TestFeature (
-			"Mono38", "Mono 3.8.0", () => MonoVersion != null && MonoVersion >= new Version (3, 8, 0));
+		public static readonly TestFeature Mono38;
 
 		public static readonly TestCategory WorkCategory = new TestCategory ("Work") { IsExplicit = true };
 		public static readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
@@ -139,7 +138,7 @@ namespace Xamarin.WebTests
 			#endregion
 		}
 
-		public static readonly Version MonoVersion;
+		static readonly Version MonoVersion;
 
 		static WebTestFeatures ()
 		{
@@ -148,6 +147,9 @@ namespace Xamarin.WebTests
 			} catch {
 				;
 			}
+
+			Mono38 = new TestFeature (
+				"Mono38", "Mono 3.8.0", () => MonoVersion != null && MonoVersion >= new Version (3, 8, 0));
 		}
 
 		static Version GetRuntimeVersion ()
