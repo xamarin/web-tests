@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.Tests
 			get; set;
 		}
 
-		public HttpTestRunner CreateInstance (InvocationContext ctx)
+		public HttpTestRunner CreateInstance (TestContext ctx)
 		{
 			return new HttpTestRunner { UseSSL = UseSSL };
 		}
@@ -120,7 +120,7 @@ namespace Xamarin.WebTests.Tests
 			};
 		}
 
-		public static IEnumerable<Handler> GetParameters (InvocationContext ctx, string filter)
+		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
 			if (filter == null) {
 				var list = new List<Handler> ();
@@ -138,14 +138,14 @@ namespace Xamarin.WebTests.Tests
 				throw new InvalidOperationException ();
 		}
 
-		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (InvocationContext ctx, string filter)
+		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext ctx, string filter)
 		{
 			return GetParameters (ctx, filter);
 		}
 
 		[AsyncTest]
 		public Task RedirectAsGetNoBuffering (
-			InvocationContext ctx, [TestHost] HttpTestRunner runner,
+			TestContext ctx, [TestHost] HttpTestRunner runner,
 			CancellationToken cancellationToken)
 		{
 			var post = new PostHandler {
@@ -161,7 +161,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task RedirectNoBuffering (
-			InvocationContext ctx, [TestHost] HttpTestRunner runner,
+			TestContext ctx, [TestHost] HttpTestRunner runner,
 			CancellationToken cancellationToken)
 		{
 			var post = new PostHandler {
@@ -177,7 +177,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Run (
-			InvocationContext ctx, [TestHost] HttpTestRunner runner,
+			TestContext ctx, [TestHost] HttpTestRunner runner,
 			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{
 			return runner.Run (ctx, handler, cancellationToken);
@@ -185,7 +185,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Redirect (
-			InvocationContext ctx, [TestHost] HttpTestRunner runner,
+			TestContext ctx, [TestHost] HttpTestRunner runner,
 			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
 			[TestParameter ("post")] Handler handler, CancellationToken cancellationToken)
 		{
@@ -205,7 +205,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public async Task Test18750 (
-			InvocationContext ctx, [TestHost] HttpTestRunner runner,
+			TestContext ctx, [TestHost] HttpTestRunner runner,
 			CancellationToken cancellationToken)
 		{
 			var post = new PostHandler {
@@ -232,7 +232,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task TestChunked (
-			InvocationContext ctx, [TestHost] HttpTestRunner runner,
+			TestContext ctx, [TestHost] HttpTestRunner runner,
 			[TestParameter ("chunked")] Handler handler, CancellationToken cancellationToken)
 		{
 			return runner.Run (ctx, handler, cancellationToken);

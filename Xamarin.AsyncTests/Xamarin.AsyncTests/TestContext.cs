@@ -1,5 +1,5 @@
 ﻿//
-// InvocationContext.cs
+// TestContext.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -32,9 +32,9 @@ namespace Xamarin.AsyncTests
 {
 	using Constraints;
 
-	public sealed class InvocationContext
+	public sealed class TestContext
 	{
-		readonly InvocationContext parent;
+		readonly TestContext parent;
 		readonly int logLevel;
 		readonly TestStatistics statistics;
 		readonly TestResult result;
@@ -50,7 +50,7 @@ namespace Xamarin.AsyncTests
 			get { return result ?? parent.Result; }
 		}
 
-		internal InvocationContext (TestConfiguration config, SettingsBag settings, TestStatistics statistics,
+		internal TestContext (TestConfiguration config, SettingsBag settings, TestStatistics statistics,
 			int logLevel, TestLogger logger, TestName name, TestResult result)
 		{
 			Name = name;
@@ -63,7 +63,7 @@ namespace Xamarin.AsyncTests
 			CreateConfigSnapshot (config, settings);
 		}
 
-		InvocationContext (InvocationContext parent, TestName name, TestResult result)
+		TestContext (TestContext parent, TestName name, TestResult result)
 		{
 			Name = name;
 			this.parent = parent;
@@ -81,14 +81,14 @@ namespace Xamarin.AsyncTests
 				syncContext.Post (d => action (), null);
 		}
 
-		internal InvocationContext CreateChild (TestName name)
+		internal TestContext CreateChild (TestName name)
 		{
-			return new InvocationContext (this, name, result);
+			return new TestContext (this, name, result);
 		}
 
-		internal InvocationContext CreateChild (TestName name, TestResult result)
+		internal TestContext CreateChild (TestName name, TestResult result)
 		{
-			return new InvocationContext (this, name, result);
+			return new TestContext (this, name, result);
 		}
 
 		#region Statistics

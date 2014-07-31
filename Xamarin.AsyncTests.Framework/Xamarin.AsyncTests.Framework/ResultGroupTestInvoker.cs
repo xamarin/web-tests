@@ -42,7 +42,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public override async Task<bool> Invoke (
-			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			var innerResult = new TestResult (TestInstance.GetTestName (instance));
 			if (instance != null)

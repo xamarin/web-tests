@@ -49,7 +49,7 @@ namespace Xamarin.AsyncTests.Framework
 			Inner = inner;
 		}
 
-		ParameterizedTestInstance SetUp (InvocationContext ctx, TestInstance instance)
+		ParameterizedTestInstance SetUp (TestContext ctx, TestInstance instance)
 		{
 			ctx.LogDebug (3, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
@@ -64,7 +64,7 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		bool MoveNext (InvocationContext ctx, TestInstance instance)
+		bool MoveNext (TestContext ctx, TestInstance instance)
 		{
 			ctx.LogDebug (3, "MoveNext({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
@@ -80,7 +80,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public override async Task<bool> Invoke (
-			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			var parameterizedInstance = SetUp (ctx, instance);
 			if (parameterizedInstance == null)

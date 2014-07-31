@@ -66,7 +66,7 @@ namespace Xamarin.AsyncTests.Framework
 			Filter = filter;
 		}
 
-		ITestParameterSource<T> CreateSource (InvocationContext ctx)
+		ITestParameterSource<T> CreateSource (TestContext ctx)
 		{
 			if (SourceType != null)
 				return (ITestParameterSource<T>)Activator.CreateInstance (SourceType);
@@ -76,7 +76,7 @@ namespace Xamarin.AsyncTests.Framework
 				throw new InvalidOperationException ();
 		}
 
-		public override void Initialize (InvocationContext ctx)
+		public override void Initialize (TestContext ctx)
 		{
 			base.Initialize (ctx);
 			source = CreateSource (ctx);
@@ -84,7 +84,7 @@ namespace Xamarin.AsyncTests.Framework
 			index = 0;
 		}
 
-		public override void Destroy (InvocationContext ctx)
+		public override void Destroy (TestContext ctx)
 		{
 			source = null;
 			parameters = null;
@@ -97,7 +97,7 @@ namespace Xamarin.AsyncTests.Framework
 			return index < parameters.Count;
 		}
 
-		public override bool MoveNext (InvocationContext ctx)
+		public override bool MoveNext (TestContext ctx)
 		{
 			if (!HasNext ())
 				return false;

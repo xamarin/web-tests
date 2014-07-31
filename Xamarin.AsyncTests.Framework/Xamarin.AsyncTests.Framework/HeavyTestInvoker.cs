@@ -50,7 +50,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		async Task<HeavyTestInstance> SetUp (
-			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			ctx.LogDebug (3, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
@@ -69,7 +69,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		async Task<bool> TearDown (
-			InvocationContext ctx, HeavyTestInstance instance, CancellationToken cancellationToken)
+			TestContext ctx, HeavyTestInstance instance, CancellationToken cancellationToken)
 		{
 			ctx.LogDebug (3, "TearDown({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
@@ -86,7 +86,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public override async Task<bool> Invoke (
-			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			var innerInstance = await SetUp (ctx, instance, cancellationToken);
 			if (innerInstance == null)

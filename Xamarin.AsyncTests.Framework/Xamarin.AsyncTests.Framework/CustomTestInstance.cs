@@ -56,7 +56,7 @@ namespace Xamarin.AsyncTests.Framework
 			get { return instance; }
 		}
 
-		public override async Task Initialize (InvocationContext ctx, CancellationToken cancellationToken)
+		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (UseFixtureInstance)
 				customHost = (ITestHost<T>)GetFixtureInstance ().Instance;
@@ -69,17 +69,17 @@ namespace Xamarin.AsyncTests.Framework
 			await instance.Initialize (ctx, cancellationToken);
 		}
 
-		public override async Task PreRun (InvocationContext ctx, CancellationToken cancellationToken)
+		public override async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			await instance.PreRun (ctx, cancellationToken);
 		}
 
-		public override async Task PostRun (InvocationContext ctx, CancellationToken cancellationToken)
+		public override async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			await instance.PostRun (ctx, cancellationToken);
 		}
 
-		public override async Task Destroy (InvocationContext ctx, CancellationToken cancellationToken)
+		public override async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
 		{
 			await instance.Destroy (ctx, cancellationToken);
 		}

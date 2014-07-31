@@ -46,7 +46,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		#region implemented abstract members of ParameterizedTestInstance
 
-		public override void Initialize (InvocationContext ctx)
+		public override void Initialize (TestContext ctx)
 		{
 			current = Host.CapturedInstance;
 			var cloneable = current as ICloneable;
@@ -61,7 +61,7 @@ namespace Xamarin.AsyncTests.Framework
 			return hasNext;
 		}
 
-		public override bool MoveNext (InvocationContext ctx)
+		public override bool MoveNext (TestContext ctx)
 		{
 			if (!hasNext)
 				return false;

@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests
 
 		internal class RepeatedTestSource : ITestParameterSource<int>
 		{
-			public IEnumerable<int> GetParameters (InvocationContext ctx, string filter)
+			public IEnumerable<int> GetParameters (TestContext ctx, string filter)
 			{
 				int count = int.Parse (filter);
 				if (count < 0) {

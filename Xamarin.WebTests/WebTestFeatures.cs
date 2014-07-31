@@ -127,7 +127,7 @@ namespace Xamarin.WebTests
 		public class SelectSSL : ITestParameterSource<bool>
 		{
 			#region ITestParameterSource implementation
-			public IEnumerable<bool> GetParameters (InvocationContext ctx, string filter)
+			public IEnumerable<bool> GetParameters (TestContext ctx, string filter)
 			{
 				yield return false;
 				if (ctx.IsEnabled (SSL))
@@ -139,7 +139,7 @@ namespace Xamarin.WebTests
 		public class SelectReuseConnection : ITestParameterSource<bool>
 		{
 			#region ITestParameterSource implementation
-			public IEnumerable<bool> GetParameters (InvocationContext ctx, string filter)
+			public IEnumerable<bool> GetParameters (TestContext ctx, string filter)
 			{
 				yield return false;
 				if (ctx.IsEnabled (ReuseConnection))

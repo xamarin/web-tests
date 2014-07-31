@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public sealed override async Task<bool> Invoke (
-			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			if (InnerInvokers.Count == 0)
 				return true;

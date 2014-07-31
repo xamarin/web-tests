@@ -43,7 +43,7 @@ namespace Xamarin.AsyncTests.Framework
 			Invoker = invoker;
 		}
 
-		internal override Task<bool> Run (InvocationContext ctx, CancellationToken cancellationToken)
+		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return Invoker.Invoke (ctx, null, cancellationToken);
 		}

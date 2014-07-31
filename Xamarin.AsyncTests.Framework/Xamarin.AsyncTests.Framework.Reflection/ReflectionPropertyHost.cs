@@ -79,7 +79,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				Instance = instance;
 			}
 
-			public override void Initialize (InvocationContext ctx)
+			public override void Initialize (TestContext ctx)
 			{
 				Instance.Initialize (ctx);
 			}
@@ -89,7 +89,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return Instance.HasNext ();
 			}
 
-			public override bool MoveNext (InvocationContext ctx)
+			public override bool MoveNext (TestContext ctx)
 			{
 				if (!Instance.MoveNext (ctx))
 					return false;

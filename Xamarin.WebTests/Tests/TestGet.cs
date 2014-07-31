@@ -53,26 +53,26 @@ namespace Xamarin.WebTests.Tests
 			get; set;
 		}
 
-		public TestRunner CreateInstance (InvocationContext ctx)
+		public TestRunner CreateInstance (TestContext ctx)
 		{
 			return new HttpTestRunner { UseSSL = UseSSL, ReuseConnection = ReuseConnection };
 		}
 
-		public IEnumerable<Handler> GetParameters (InvocationContext ctx, string filter)
+		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
 			yield return new HelloWorldHandler ();
 			yield return new HelloWorldHandler ();
 		}
 
 		[AsyncTest]
-		public Task Run (InvocationContext ctx, CancellationToken cancellationToken,
+		public Task Run (TestContext ctx, CancellationToken cancellationToken,
 			[TestHost (typeof (TestGet))] TestRunner runner, [TestParameter] Handler handler)
 		{
 			return runner.Run (ctx, handler, cancellationToken);
 		}
 
 		[AsyncTest]
-		public Task Redirect (InvocationContext ctx, CancellationToken cancellationToken,
+		public Task Redirect (TestContext ctx, CancellationToken cancellationToken,
 			[TestHost] TestRunner runner,
 			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
 			[TestParameter] Handler handler)

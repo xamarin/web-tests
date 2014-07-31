@@ -29,7 +29,7 @@ namespace Xamarin.AsyncTests
 {
 	public interface ITestFilter
 	{
-		bool Filter (InvocationContext ctx, out bool enabled);
+		bool Filter (TestContext ctx, out bool enabled);
 	}
 }
 

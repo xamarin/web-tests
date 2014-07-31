@@ -61,7 +61,7 @@ namespace Xamarin.WebTests.Handlers
 			Request.Proxy = proxy;
 		}
 
-		public override async Task<Response> Send (InvocationContext ctx, CancellationToken cancellationToken)
+		public override async Task<Response> Send (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.Token.Register (() => Request.Abort ());

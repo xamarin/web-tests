@@ -54,7 +54,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public override async Task<bool> Invoke (
-			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			bool enabled;
 			var matched = Filter.Filter (ctx, out enabled);

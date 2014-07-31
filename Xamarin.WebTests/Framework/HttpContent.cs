@@ -52,7 +52,7 @@ namespace Xamarin.WebTests.Framework
 			return string.IsNullOrEmpty (content.AsString ());
 		}
 
-		public static bool Compare (InvocationContext ctx, HttpContent actual, HttpContent expected,
+		public static bool Compare (TestContext ctx, HttpContent actual, HttpContent expected,
 			bool ignoreType, bool fatal = false, string message = null)
 		{
 			if (expected == null)

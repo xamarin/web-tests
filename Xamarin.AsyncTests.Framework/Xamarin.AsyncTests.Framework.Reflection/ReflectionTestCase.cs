@@ -73,7 +73,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			invoker = Resolve ();
 		}
 
-		public override bool Filter (InvocationContext ctx, out bool enabled)
+		public override bool Filter (TestContext ctx, out bool enabled)
 		{
 			if (Fixture.Filter (ctx, out enabled))
 				return enabled;
@@ -93,7 +93,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 				if (paramType.Equals (typeof(CancellationToken)))
 					continue;
-				else if (paramType.Equals (typeof(InvocationContext)))
+				else if (paramType.Equals (typeof(TestContext)))
 					continue;
 
 				var member = ReflectionHelper.GetParameterInfo (parameters [i]);
@@ -110,7 +110,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		public Task<bool> Invoke (
-			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			ctx.OnTestRunning ();
 
@@ -130,7 +130,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return 30000;
 		}
 
-		object InvokeInner (InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+		object InvokeInner (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			var args = new LinkedList<object> ();
 
@@ -158,7 +158,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (paramType.Equals (typeof(CancellationToken))) {
 					args.AddFirst (methodToken);
 					continue;
-				} else if (paramType.Equals (typeof(InvocationContext))) {
+				} else if (paramType.Equals (typeof(TestContext))) {
 					args.AddFirst (ctx);
 					continue;
 				}
@@ -219,7 +219,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 		}
 
-		async Task<bool> ExpectingSuccess (InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+		async Task<bool> ExpectingSuccess (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			object retval;
 			try {
@@ -258,7 +258,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		async Task<bool> ExpectingException (
-			InvocationContext ctx, TestInstance instance,
+			TestContext ctx, TestInstance instance,
 			TypeInfo expectedException, CancellationToken cancellationToken)
 		{
 			try {
@@ -296,7 +296,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				Test = test;
 			}
 
-			public override Task<bool> Invoke (InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+			public override Task<bool> Invoke (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 			{
 				return Test.Invoke (ctx, instance, cancellationToken);
 			}

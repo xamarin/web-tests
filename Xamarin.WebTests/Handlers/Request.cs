@@ -34,7 +34,7 @@ namespace Xamarin.WebTests.Handlers
 {
 	public abstract class Request
 	{
-		public abstract Task<Response> Send (InvocationContext ctx, CancellationToken cancellationToken);
+		public abstract Task<Response> Send (TestContext ctx, CancellationToken cancellationToken);
 
 		public abstract void SetProxy (IWebProxy proxy);
 

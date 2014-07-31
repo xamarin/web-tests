@@ -49,7 +49,7 @@ namespace Xamarin.WebTests
 			get; set;
 		}
 
-		public TestRunner CreateInstance (InvocationContext ctx)
+		public TestRunner CreateInstance (TestContext ctx)
 		{
 			return new HttpTestRunner { UseSSL = UseSSL };
 		}
@@ -82,7 +82,7 @@ namespace Xamarin.WebTests
 			};
 		}
 
-		public IEnumerable<Handler> GetParameters (InvocationContext ctx, string filter)
+		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
 			if (filter == null || filter.Equals ("stable")) {
 				foreach (var test in GetStableTests ())
@@ -99,7 +99,7 @@ namespace Xamarin.WebTests
 		}
 
 		[AsyncTest]
-		public Task Run (InvocationContext ctx, CancellationToken cancellationToken,
+		public Task Run (TestContext ctx, CancellationToken cancellationToken,
 			[TestHost (typeof (TestHttpClient))] TestRunner runner,
 			[TestParameter ("stable")] Handler handler)
 		{
@@ -107,7 +107,7 @@ namespace Xamarin.WebTests
 		}
 
 		[AsyncTest]
-		public Task RunMono38 (InvocationContext ctx, CancellationToken cancellationToken,
+		public Task RunMono38 (TestContext ctx, CancellationToken cancellationToken,
 			[TestHost (typeof (TestHttpClient))] TestRunner runner,
 			[TestParameter ("mono38")] Handler handler)
 		{

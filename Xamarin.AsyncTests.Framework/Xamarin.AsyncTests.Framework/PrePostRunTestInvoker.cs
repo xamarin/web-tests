@@ -42,7 +42,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		async Task<bool> PreRun (
-			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			ctx.LogDebug (3, "PreRun({0}): {1}", ctx.Name, TestLogger.Print (instance));
 
@@ -64,7 +64,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		async Task<bool> PostRun (
-			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			ctx.LogDebug (3, "PostRun({0}): {1}", ctx.Name, TestLogger.Print (instance));
 
@@ -85,7 +85,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public override async Task<bool> Invoke (
-			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			if (!await PreRun (ctx, instance, cancellationToken))
 				return false;

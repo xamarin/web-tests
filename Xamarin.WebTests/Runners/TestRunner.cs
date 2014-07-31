@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.Runners
 		bool reuseConnection;
 		bool initialized;
 
-		public async Task Initialize (InvocationContext ctx, CancellationToken cancellationToken)
+		public async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (initialized)
 				throw new InvalidOperationException ();
@@ -67,19 +67,19 @@ namespace Xamarin.WebTests.Runners
 				await Start (cancellationToken);
 		}
 
-		public async Task PreRun (InvocationContext ctx, CancellationToken cancellationToken)
+		public async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (!ReuseConnection)
 				await Start (cancellationToken);
 		}
 
-		public async Task PostRun (InvocationContext ctx, CancellationToken cancellationToken)
+		public async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (!ReuseConnection)
 				await Stop (cancellationToken);
 		}
 
-		public async Task Destroy (InvocationContext ctx, CancellationToken cancellationToken)
+		public async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (!initialized)
 				throw new InvalidOperationException ();
@@ -135,7 +135,7 @@ namespace Xamarin.WebTests.Runners
 			return IPAddress.Loopback;
 		}
 
-		protected void Debug (InvocationContext ctx, int level, Handler handler, string message, params object[] args)
+		protected void Debug (TestContext ctx, int level, Handler handler, string message, params object[] args)
 		{
 			if (Handler.DebugLevel < level)
 				return;
@@ -150,7 +150,7 @@ namespace Xamarin.WebTests.Runners
 		}
 
 		public async Task<bool> Run (
-			InvocationContext ctx, Handler handler, CancellationToken cancellationToken,
+			TestContext ctx, Handler handler, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			bool expectException = false)
 		{

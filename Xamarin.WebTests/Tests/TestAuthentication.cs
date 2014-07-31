@@ -53,29 +53,29 @@ namespace Xamarin.WebTests.Tests
 			get; set;
 		}
 
-		public TestRunner CreateInstance (InvocationContext ctx)
+		public TestRunner CreateInstance (TestContext ctx)
 		{
 			return new HttpTestRunner { UseSSL = UseSSL, ReuseConnection = ReuseConnection };
 		}
 
-		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (InvocationContext ctx, string filter)
+		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext ctx, string filter)
 		{
 			return TestPost.GetParameters (ctx, filter);
 		}
 
-		public static IEnumerable<AuthenticationType> GetAuthenticationTypes (InvocationContext ctx, string filter)
+		public static IEnumerable<AuthenticationType> GetAuthenticationTypes (TestContext ctx, string filter)
 		{
 			yield return AuthenticationType.Basic;
 		}
 
-		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (InvocationContext ctx, string filter)
+		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (TestContext ctx, string filter)
 		{
 			return GetAuthenticationTypes (ctx, filter);
 		}
 
 		[AsyncTest]
 		public Task Run (
-			InvocationContext ctx, [TestHost] TestRunner runner,
+			TestContext ctx, [TestHost] TestRunner runner,
 			[TestParameter] AuthenticationType authType,  [TestParameter] Handler handler,
 			CancellationToken cancellationToken)
 		{
@@ -85,7 +85,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task MustClearAuthOnRedirect (
-			InvocationContext ctx, [TestHost] TestRunner runner,
+			TestContext ctx, [TestHost] TestRunner runner,
 			CancellationToken cancellationToken)
 		{
 			var target = new HelloWorldHandler ();

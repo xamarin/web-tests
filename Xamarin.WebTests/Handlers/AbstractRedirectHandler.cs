@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.Handlers
 			Description = string.Format ("{0}: {1}", GetType ().Name, target.Description);
 		}
 
-		public override void Register (InvocationContext context)
+		public override void Register (TestContext context)
 		{
 			base.Register (context);
 			if (Target.Context == null)

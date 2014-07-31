@@ -79,7 +79,7 @@ namespace Xamarin.WebTests.Handlers
 			tcs = new TaskCompletionSource<bool> ();
 		}
 
-		public InvocationContext Context {
+		public TestContext Context {
 			get;
 			private set;
 		}
@@ -141,7 +141,7 @@ namespace Xamarin.WebTests.Handlers
 
 		protected internal abstract HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags);
 
-		public virtual void Register (InvocationContext context)
+		public virtual void Register (TestContext context)
 		{
 			lock (this) {
 				if (Context != null && Context != context)

@@ -61,11 +61,11 @@ namespace Xamarin.AsyncTests.Framework
 			throw new InvalidOperationException ();
 		}
 
-		public virtual void Initialize (InvocationContext ctx)
+		public virtual void Initialize (TestContext ctx)
 		{
 		}
 
-		public virtual void Destroy (InvocationContext ctx)
+		public virtual void Destroy (TestContext ctx)
 		{
 		}
 

@@ -31,13 +31,13 @@ namespace Xamarin.AsyncTests
 {
 	public interface ITestInstance
 	{
-		Task Initialize (InvocationContext ctx, CancellationToken cancellationToken);
+		Task Initialize (TestContext ctx, CancellationToken cancellationToken);
 
-		Task PreRun (InvocationContext ctx, CancellationToken cancellationToken);
+		Task PreRun (TestContext ctx, CancellationToken cancellationToken);
 
-		Task PostRun (InvocationContext ctx, CancellationToken cancellationToken);
+		Task PostRun (TestContext ctx, CancellationToken cancellationToken);
 
-		Task Destroy (InvocationContext ctx, CancellationToken cancellationToken);
+		Task Destroy (TestContext ctx, CancellationToken cancellationToken);
 	}
 }
 

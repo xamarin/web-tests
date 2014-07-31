@@ -60,7 +60,7 @@ namespace Xamarin.WebTests.Tests
 			hasNetwork = !IPAddress.IsLoopback (address);
 		}
 
-		public ProxyTestRunner CreateInstance (InvocationContext ctx)
+		public ProxyTestRunner CreateInstance (TestContext ctx)
 		{
 			if (!hasNetwork)
 				throw new InvalidOperationException ();
@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.Tests
 			}
 		}
 
-		IEnumerable<ProxyKind> ITestParameterSource<ProxyKind>.GetParameters (InvocationContext ctx, string filter)
+		IEnumerable<ProxyKind> ITestParameterSource<ProxyKind>.GetParameters (TestContext ctx, string filter)
 		{
 			if (!ctx.IsEnabled (WebTestFeatures.HasNetwork))
 				yield break;
@@ -125,12 +125,12 @@ namespace Xamarin.WebTests.Tests
 			}
 		}
 
-		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (InvocationContext ctx, string filter)
+		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (TestContext ctx, string filter)
 		{
 			return TestAuthentication.GetAuthenticationTypes (ctx, filter);
 		}
 
-		public IEnumerable<Handler> GetParameters (InvocationContext ctx, string filter)
+		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
 			var list = new List<Handler> ();
 			if (!hasNetwork)
@@ -143,7 +143,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Run (
-			InvocationContext ctx, [TestHost] ProxyTestRunner runner,
+			TestContext ctx, [TestHost] ProxyTestRunner runner,
 			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{
 			if (Kind == ProxyKind.Unauthenticated)
@@ -156,7 +156,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task RunAuthentication (
-			InvocationContext ctx, [TestHost] ProxyTestRunner runner,
+			TestContext ctx, [TestHost] ProxyTestRunner runner,
 			[TestParameter] AuthenticationType authType,  [TestParameter] Handler handler,
 			CancellationToken cancellationToken)
 		{

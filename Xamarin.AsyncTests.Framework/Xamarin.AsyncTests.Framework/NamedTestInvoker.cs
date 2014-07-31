@@ -57,7 +57,7 @@ namespace Xamarin.AsyncTests.Framework
 			return new NamedTestInvoker (new NamedTestHost (name), inner);
 		}
 
-		NamedTestInstance SetUp (InvocationContext ctx, TestInstance instance)
+		NamedTestInstance SetUp (TestContext ctx, TestInstance instance)
 		{
 			ctx.LogDebug (3, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
@@ -72,7 +72,7 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		bool TearDown (InvocationContext ctx, NamedTestInstance instance)
+		bool TearDown (TestContext ctx, NamedTestInstance instance)
 		{
 			ctx.LogDebug (3, "TearDown({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
@@ -89,7 +89,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public override async Task<bool> Invoke (
-			InvocationContext ctx, TestInstance instance, CancellationToken cancellationToken)
+			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			var innerInstance = SetUp (ctx, instance);
 			if (innerInstance == null)

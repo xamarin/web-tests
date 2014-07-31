@@ -69,7 +69,6 @@
     <Compile Include="Xamarin.AsyncTests\ITestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests\SettingsBag.cs" />
     <Compile Include="Xamarin.AsyncTests\TestStatistics.cs" />
-    <Compile Include="Xamarin.AsyncTests\InvocationContext.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\NullConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\NotConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\EmptyConstraint.cs" />
@@ -80,6 +79,7 @@
     <Compile Include="Xamarin.AsyncTests\TestLogger.cs" />
     <Compile Include="Xamarin.AsyncTests\LogEntry.cs" />
     <Compile Include="Xamarin.AsyncTests\TestApp.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestContext.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

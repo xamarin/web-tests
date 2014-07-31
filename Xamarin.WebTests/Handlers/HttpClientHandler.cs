@@ -137,7 +137,7 @@ namespace Xamarin.WebTests.Handlers
 				Client = new Http.HttpClient (Handler, true);
 			}
 
-			public override Task<Response> Send (InvocationContext ctx, CancellationToken cancellationToken)
+			public override Task<Response> Send (TestContext ctx, CancellationToken cancellationToken)
 			{
 				switch (Parent.Operation) {
 				case HttpClientOperation.GetString:
@@ -173,7 +173,7 @@ namespace Xamarin.WebTests.Handlers
 				}
 			}
 
-			async Task<Response> PostString (InvocationContext ctx, CancellationToken cancellationToken)
+			async Task<Response> PostString (TestContext ctx, CancellationToken cancellationToken)
 			{
 				var message = new Http.HttpRequestMessage ();
 				message.Method = Http.HttpMethod.Post;

@@ -72,7 +72,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		protected async Task<bool> InvokeInner (
-			InvocationContext ctx, TestInstance instance, TestInvoker invoker,
+			TestContext ctx, TestInstance instance, TestInvoker invoker,
 			CancellationToken cancellationToken)
 		{
 			ctx.LogDebug (3, "Running({0}): {1}", ctx.Name, invoker);
