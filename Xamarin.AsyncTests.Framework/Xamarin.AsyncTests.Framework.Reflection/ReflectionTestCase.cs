@@ -234,8 +234,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			try {
 				return Method.Invoke (thisInstance, args.ToArray ());
 			} finally {
-				if (methodCts != null)
-					methodCts.Dispose ();
 				if (timeoutCts != null)
 					timeoutCts.Dispose ();
 			}
