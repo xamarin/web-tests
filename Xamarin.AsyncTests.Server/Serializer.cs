@@ -242,10 +242,6 @@ namespace Xamarin.AsyncTests.Server
 
 				var result = new TestResult (name, status);
 
-				var message = node.Attribute ("Message");
-				if (message != null)
-					result.Message = message.Value;
-
 				var error = node.Attribute ("Error");
 				if (error != null)
 					result.AddError (new SavedException (error.Value));
@@ -282,8 +278,6 @@ namespace Xamarin.AsyncTests.Server
 				var element = new XElement ("TestResult");
 				element.SetAttributeValue ("Status", instance.Status.ToString ());
 
-				if (instance.Message != null)
-					element.SetAttributeValue ("Message", instance.Message);
 				if (instance.Error != null)
 					element.SetAttributeValue ("Error", instance.Error.ToString ());
 

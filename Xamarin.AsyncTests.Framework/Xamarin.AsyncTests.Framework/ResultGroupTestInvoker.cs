@@ -45,7 +45,6 @@ namespace Xamarin.AsyncTests.Framework
 			TestContext ctx, TestInstance instance, TestResult result, CancellationToken cancellationToken)
 		{
 			var innerResult = new TestResult (TestInstance.GetTestName (instance));
-			result.AddChild (innerResult);
 
 			if (instance != null)
 				innerResult.Test = CaptureContext (innerResult.Name, instance);
@@ -53,7 +52,7 @@ namespace Xamarin.AsyncTests.Framework
 			try {
 				return await InvokeInner (ctx, instance, innerResult, Inner, cancellationToken);
 			} finally {
-				result.MergeStatus (innerResult.Status);
+				result.AddChild (innerResult);
 			}
 		}
 

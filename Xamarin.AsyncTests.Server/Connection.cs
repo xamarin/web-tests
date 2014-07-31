@@ -96,7 +96,6 @@ namespace Xamarin.AsyncTests.Server
 			try {
 				var remoteResult = await command.Send (this, cancellationToken);
 				result.AddChild (remoteResult);
-				result.MergeStatus (remoteResult.Status);
 				return true;
 			} catch (Exception ex) {
 				Debug ("SEND COMMAND ERROR: {0}", ex);

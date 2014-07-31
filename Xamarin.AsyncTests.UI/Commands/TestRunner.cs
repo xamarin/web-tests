@@ -121,7 +121,6 @@ namespace Xamarin.AsyncTests.UI
 
 				test = TestSuite.CreateProxy (test, name.GetName ());
 				result = new TestResult (name.GetName ());
-				model.Result.AddChild (result);
 			} else {
 				model.Result.Clear ();
 			}
@@ -137,6 +136,9 @@ namespace Xamarin.AsyncTests.UI
 
 			CurrentTest = string.Empty;
 			StatusMessage = GetStatusMessage (string.Format ("Finished in {0} seconds", (int)elapsed.TotalSeconds));
+
+			if (!model.IsRoot)
+				model.Result.AddChild (result);
 
 			OnRefresh ();
 
