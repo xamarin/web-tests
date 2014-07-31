@@ -67,6 +67,7 @@ namespace Xamarin.AsyncTests
 		{
 			Name = name;
 			this.parent = parent;
+			this.result = result;
 			this.logLevel = parent.logLevel;
 			this.logger = parent.logger;
 			this.statistics = parent.statistics;

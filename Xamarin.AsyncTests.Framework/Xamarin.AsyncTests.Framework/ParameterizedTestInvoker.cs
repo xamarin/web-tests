@@ -86,6 +86,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (parameterizedInstance == null)
 				return false;
 
+			bool found = false;
 			bool success = true;
 			while (success && parameterizedInstance.HasNext ()) {
 				if (cancellationToken.IsCancellationRequested)
@@ -94,6 +95,8 @@ namespace Xamarin.AsyncTests.Framework
 				success = MoveNext (ctx, parameterizedInstance);
 				if (!success)
 					break;
+
+				found = true;
 
 				var name = TestInstance.GetTestName (parameterizedInstance);
 				var innerCtx = ctx.CreateChild (name, ctx.Result);
@@ -106,6 +109,9 @@ namespace Xamarin.AsyncTests.Framework
 				ctx.LogDebug (5, "InnerInvoke({0}) done: {1} {2} {3}", name.FullName,
 					TestLogger.Print (Host), TestLogger.Print (parameterizedInstance), success);
 			}
+
+			if (success && !found)
+				ctx.OnTestFinished (TestStatus.Ignored);
 
 			return success;
 		}

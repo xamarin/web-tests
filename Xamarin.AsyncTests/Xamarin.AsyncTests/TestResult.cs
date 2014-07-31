@@ -178,8 +178,11 @@ namespace Xamarin.AsyncTests
 			OnPropertyChanged ("Status");
 		}
 
-		void MergeStatus (TestStatus child)
+		void MergeStatus (TestStatus childStatus)
 		{
+			if (childStatus == TestStatus.None)
+				return;
+
 			switch (status) {
 			case TestStatus.Canceled:
 			case TestStatus.Error:
@@ -187,12 +190,12 @@ namespace Xamarin.AsyncTests
 
 			case TestStatus.Ignored:
 			case TestStatus.None:
-				Status = child;
+				Status = childStatus;
 				break;
 
 			case TestStatus.Success:
-				if (child == TestStatus.Error || child == TestStatus.Canceled)
-					Status = child;
+				if (childStatus == TestStatus.Error || childStatus == TestStatus.Canceled)
+					Status = childStatus;
 				break;
 
 			default:
