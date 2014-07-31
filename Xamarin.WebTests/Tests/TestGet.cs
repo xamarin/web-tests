@@ -82,6 +82,17 @@ namespace Xamarin.WebTests.Tests
 
 			return runner.Run (ctx, redirect, cancellationToken);
 		}
+
+		[Work]
+		[AsyncTest]
+		public async Task TestFork (TestContext ctx, [Fork (5, RandomDelay = 1500)] IFork fork, CancellationToken cancellationToken)
+		{
+			ctx.LogMessage ("FORK START: {0} {1}", fork.ID, Thread.CurrentThread.ManagedThreadId);
+			Task.Delay (1500).Wait ();
+			ctx.LogMessage ("FORK HERE: {0} {1}", fork.ID, Thread.CurrentThread.ManagedThreadId);
+			await Task.Delay (5000);
+			ctx.LogMessage ("FORK DONE: {0} {1}", fork.ID, Thread.CurrentThread.ManagedThreadId);
+		}
 	}
 }
 

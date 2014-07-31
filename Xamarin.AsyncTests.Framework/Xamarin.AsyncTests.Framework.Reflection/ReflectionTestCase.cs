@@ -87,14 +87,34 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (Attribute.Repeat != 0)
 				parameterHosts.Add (new RepeatedTestHost (Attribute.Repeat, TestFlags.Browsable));
 
+			bool seenCtx = false;
+			bool seenToken = false;
+
 			var parameters = Method.GetParameters ();
 			for (int i = parameters.Length - 1; i >= 0; i--) {
 				var paramType = parameters [i].ParameterType;
 
-				if (paramType.Equals (typeof(CancellationToken)))
+				var fork = parameters [i].GetCustomAttribute<ForkAttribute> ();
+				if (fork != null) {
+					if (!paramType.Equals (typeof(IFork)))
+						throw new InvalidOperationException ();
+					parameterHosts.Add (new ForkedTestHost (fork));
 					continue;
-				else if (paramType.Equals (typeof(TestContext)))
+				}
+
+				if (paramType.Equals (typeof(CancellationToken))) {
+					if (seenToken)
+						throw new InvalidOperationException ();
+					seenToken = true;
 					continue;
+				} else if (paramType.Equals (typeof(TestContext))) {
+					if (seenCtx)
+						throw new InvalidOperationException ();
+					seenCtx = true;
+					continue;
+				} else if (paramType.Equals (typeof(IFork))) {
+					throw new InvalidOperationException ();
+				}
 
 				var member = ReflectionHelper.GetParameterInfo (parameters [i]);
 				parameterHosts.AddRange (ResolveParameter (Fixture.Type, member));
@@ -160,6 +180,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					continue;
 				} else if (paramType.Equals (typeof(TestContext))) {
 					args.AddFirst (ctx);
+					continue;
+				}
+
+				var forkedInstance = instance as ForkedTestInstance;
+				if (forkedInstance != null) {
+					args.AddFirst (forkedInstance);
+					instance = instance.Parent;
 					continue;
 				}
 

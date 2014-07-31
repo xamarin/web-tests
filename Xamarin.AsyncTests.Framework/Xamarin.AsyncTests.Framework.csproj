@@ -62,6 +62,9 @@
     <Compile Include="Xamarin.AsyncTests.Framework\NamedTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\NamedTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\NamedTestInvoker.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\ForkedTestHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\ForkedTestInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\ForkedTestInvoker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>
