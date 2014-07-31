@@ -60,6 +60,48 @@ namespace Xamarin.AsyncTests
 		{
 			return obj != null ? obj.ToString () : "<null>";
 		}
+
+		public static TestLogger CreateForResult (TestResult result, TestLogger parent)
+		{
+			return new TestResultLogger (result, parent);
+		}
+
+		class TestResultLogger : TestLogger
+		{
+			public TestResult Result {
+				get;
+				private set;
+			}
+
+			public TestLogger Parent {
+				get;
+				private set;
+			}
+
+			public TestResultLogger (TestResult result, TestLogger parent = null)
+			{
+				Result = result;
+				Parent = parent;
+			}
+
+			protected internal override void OnLogEvent (LogEntry entry)
+			{
+				if (Parent != null) {
+					Parent.OnLogEvent (entry);
+					return;
+				}
+
+				if (entry.Kind == LogEntry.EntryKind.Error) {
+					if (entry.Error != null)
+						Result.AddError (entry.Error);
+					else
+						Result.AddError (new AssertionException (entry.Text));
+				} else {
+					Result.AddMessage (entry.Text);
+				}
+			}
+		}
+
 	}
 }
 

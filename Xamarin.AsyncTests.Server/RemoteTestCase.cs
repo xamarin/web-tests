@@ -50,11 +50,6 @@ namespace Xamarin.AsyncTests.Server
 
 		#region implemented abstract members of TestCase
 
-		public override Task<bool> Run (TestContext ctx, TestResult result, CancellationToken cancellationToken)
-		{
-			return Connection.RunTest (this, result, cancellationToken);
-		}
-
 		internal override Task<bool> Run (InvocationContext ctx, CancellationToken cancellationToken)
 		{
 			return Connection.RunTest (this, ctx.Result, cancellationToken);
