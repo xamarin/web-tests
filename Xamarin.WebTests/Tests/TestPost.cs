@@ -230,7 +230,6 @@ namespace Xamarin.WebTests.Tests
 			await runner.Run (ctx, secondPost, cancellationToken);
 		}
 
-		[Work]
 		[AsyncTest]
 		public Task TestChunked (
 			InvocationContext ctx, [TestHost] HttpTestRunner runner,

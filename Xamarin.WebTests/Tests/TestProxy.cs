@@ -117,10 +117,10 @@ namespace Xamarin.WebTests.Tests
 					yield return ProxyKind.NtlmAuth;
 			}
 
-			if (context.IsEnabled (WebTestFeatures.Experimental)) {
+			if (context.IsEnabled (WebTestFeatures.Mono361)) {
 				yield return ProxyKind.Unauthenticated;
 
-				if (context.IsEnabled (WebTestFeatures.SSL) && context.IsEnabled (WebTestFeatures.NotWorking))
+				if (context.IsEnabled (WebTestFeatures.SSL))
 					yield return ProxyKind.SSL;
 			}
 		}

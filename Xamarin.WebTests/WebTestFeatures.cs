@@ -68,6 +68,14 @@ namespace Xamarin.WebTests
 		}
 	}
 
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class Mono61Attribute : TestFeatureAttribute
+	{
+		public override TestFeature Feature {
+			get { return WebTestFeatures.Mono361; }
+		}
+	}
+
 	public class WebTestFeatures : ITestConfiguration
 	{
 		public static readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
@@ -85,6 +93,7 @@ namespace Xamarin.WebTests
 			"Network", "HasNetwork", () => !IPAddress.IsLoopback (TestRunner.GetAddress ()));
 
 		public static readonly TestFeature Mono38;
+		public static readonly TestFeature Mono361;
 
 		public static readonly TestCategory WorkCategory = new TestCategory ("Work") { IsExplicit = true };
 		public static readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
@@ -103,6 +112,7 @@ namespace Xamarin.WebTests
 
 				yield return HasNetwork;
 				yield return Mono38;
+				yield return Mono361;
 			}
 		}
 
@@ -150,6 +160,8 @@ namespace Xamarin.WebTests
 
 			Mono38 = new TestFeature (
 				"Mono38", "Mono 3.8.0", () => MonoVersion != null && MonoVersion >= new Version (3, 8, 0));
+			Mono361 = new TestFeature (
+				"Mono361", "Mono 3.6.1", () => MonoVersion != null && MonoVersion >= new Version (3, 6, 1));
 		}
 
 		static Version GetRuntimeVersion ()
