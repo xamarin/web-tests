@@ -54,7 +54,7 @@ namespace Xamarin.WebTests
 			return new HttpTestRunner { UseSSL = UseSSL };
 		}
 
-		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
+		IEnumerable<Handler> GetStableTests ()
 		{
 			yield return new HttpClientHandler {
 				Operation = HttpClientOperation.GetString, Description = "Get string"
@@ -70,10 +70,10 @@ namespace Xamarin.WebTests
 				ReturnContent = new StringContent ("Returned body"),
 				Description = "Post string with result"
 			};
+		}
 
-			if (!ctx.IsEnabled (WebTestFeatures.Mono38))
-				yield break;
-
+		IEnumerable<Handler> GetMono38Tests ()
+		{
 			yield return new HttpClientHandler {
 				Operation = HttpClientOperation.PostString,
 				Content = new StringContent ("Hello World!"),
@@ -82,9 +82,34 @@ namespace Xamarin.WebTests
 			};
 		}
 
+		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
+		{
+			if (filter == null || filter.Equals ("stable")) {
+				foreach (var test in GetStableTests ())
+					yield return test;
+			}
+
+			if (!ctx.IsEnabled (WebTestFeatures.Mono38))
+				yield break;
+
+			if (filter == null || filter.Equals ("mono38")) {
+				foreach (var test in GetMono38Tests ())
+					yield return test;
+			}
+		}
+
 		[AsyncTest]
 		public Task Run (InvocationContext ctx, CancellationToken cancellationToken,
-			[TestHost (typeof (TestHttpClient))] TestRunner runner, [TestParameter] Handler handler)
+			[TestHost (typeof (TestHttpClient))] TestRunner runner,
+			[TestParameter ("stable")] Handler handler)
+		{
+			return runner.Run (ctx, handler, cancellationToken);
+		}
+
+		[AsyncTest]
+		public Task RunMono38 (InvocationContext ctx, CancellationToken cancellationToken,
+			[TestHost (typeof (TestHttpClient))] TestRunner runner,
+			[TestParameter ("mono38")] Handler handler)
 		{
 			return runner.Run (ctx, handler, cancellationToken);
 		}
