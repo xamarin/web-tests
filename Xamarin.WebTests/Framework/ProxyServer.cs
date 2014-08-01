@@ -77,19 +77,12 @@ namespace Xamarin.WebTests.Framework
 			await base.Stop (cancellationToken);
 		}
 
-		IWebProxy CreateProxy ()
+		public override IWebProxy GetProxy ()
 		{
 			var proxy = new WebProxy (proxyListener.Uri, false);
 			if (Credentials != null)
 				proxy.Credentials = Credentials;
 			return proxy;
-		}
-
-		protected internal override Request CreateRequest (Handler handler)
-		{
-			var request = base.CreateRequest (handler);
-			request.SetProxy (CreateProxy ());
-			return request;
 		}
 
 		protected override string MyToString ()

@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.Tests
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
 			[TestHost] HttpServer server, [TestParameter] Handler handler)
 		{
-			return TestRunner.Run (ctx, server, handler, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 
 		[AsyncTest]
@@ -79,7 +79,7 @@ namespace Xamarin.WebTests.Tests
 			var description = string.Format ("{0}: {1}", code, handler.Description);
 			var redirect = new RedirectHandler (handler, code) { Description = description };
 
-			return TestRunner.Run (ctx, server, redirect, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, redirect, cancellationToken);
 		}
 
 		[Work]

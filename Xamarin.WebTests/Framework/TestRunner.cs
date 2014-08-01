@@ -58,7 +58,7 @@ namespace Xamarin.WebTests.Framework
 			ctx.LogDebug (level, sb.ToString ());
 		}
 
-		public static async Task<bool> Run (
+		public static Task<bool> RunTraditional (
 			TestContext ctx, HttpServer server, Handler handler, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			bool expectException = false)
@@ -66,7 +66,38 @@ namespace Xamarin.WebTests.Framework
 			Debug (ctx, server, 0, handler, "RUN");
 
 			handler.Register (ctx);
-			var request = server.CreateRequest (handler);
+			var uri = handler.RegisterRequest (server.Listener);
+			var request = new TraditionalRequest (uri);
+			handler.ConfigureRequest (request, uri);
+
+			request.SetProxy (server.GetProxy ());
+
+			return Run (ctx, server, request, handler, cancellationToken, expectedStatus, expectException);
+		}
+
+		public static Task<bool> RunHttpClient (
+			TestContext ctx, HttpServer server, HttpClientHandler handler, CancellationToken cancellationToken,
+			HttpStatusCode expectedStatus = HttpStatusCode.OK,
+			bool expectException = false)
+		{
+			Debug (ctx, server, 0, handler, "RUN");
+
+			handler.Register (ctx);
+			var uri = handler.RegisterRequest (server.Listener);
+			var request = handler.CreateRequest (uri);
+			handler.ConfigureRequest (request, uri);
+
+			request.SetProxy (server.GetProxy ());
+
+			return Run (ctx, server, request, handler, cancellationToken, expectedStatus, expectException);
+		}
+
+		public static async Task<bool> Run (
+			TestContext ctx, HttpServer server, Request request, Handler handler,
+			CancellationToken cancellationToken, HttpStatusCode expectedStatus = HttpStatusCode.OK,
+			bool expectException = false)
+		{
+			Debug (ctx, server, 0, handler, "RUN");
 
 			var response = await request.Send (ctx, cancellationToken);
 

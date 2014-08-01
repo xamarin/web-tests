@@ -46,11 +46,6 @@ namespace Xamarin.WebTests.Handlers
 
 			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
 		}
-
-		public override Request CreateRequest (Uri uri)
-		{
-			return new TraditionalRequest (uri);
-		}
 	}
 }
 

@@ -79,7 +79,7 @@ namespace Xamarin.WebTests.Tests
 			CancellationToken cancellationToken)
 		{
 			var authHandler = new AuthenticationHandler (authType, handler);
-			return TestRunner.Run (ctx, server, authHandler, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, authHandler, cancellationToken);
 		}
 
 		[AsyncTest]
@@ -93,7 +93,7 @@ namespace Xamarin.WebTests.Tests
 			var redirect = new RedirectHandler (targetAuth, HttpStatusCode.Redirect);
 			var authHandler = new AuthenticationHandler (AuthenticationType.Basic, redirect);
 
-			return TestRunner.Run (ctx, server, authHandler, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, authHandler, cancellationToken);
 		}
 	}
 }

@@ -56,11 +56,6 @@ namespace Xamarin.WebTests.Handlers
 				Target.Register (context);
 		}
 
-		public override Request CreateRequest (Uri uri)
-		{
-			return Target.CreateRequest (uri);
-		}
-
 		public override void ConfigureRequest (Request request, Uri uri)
 		{
 			base.ConfigureRequest (request, uri);

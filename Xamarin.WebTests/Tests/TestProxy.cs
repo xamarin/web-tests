@@ -146,11 +146,11 @@ namespace Xamarin.WebTests.Tests
 			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{
 			if (Kind == ProxyKind.Unauthenticated)
-				return TestRunner.Run (
+				return TestRunner.RunTraditional (
 					ctx, server, handler, cancellationToken,
 					HttpStatusCode.ProxyAuthenticationRequired, true);
 			else
-				return TestRunner.Run (ctx, server, handler, cancellationToken);
+				return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 
 		[AsyncTest]
@@ -161,11 +161,11 @@ namespace Xamarin.WebTests.Tests
 		{
 			var authHandler = new AuthenticationHandler (authType, handler);
 			if (Kind == ProxyKind.Unauthenticated)
-				return TestRunner.Run (
+				return TestRunner.RunTraditional (
 					ctx, server, authHandler, cancellationToken,
 					HttpStatusCode.ProxyAuthenticationRequired, true);
 			else
-				return TestRunner.Run (ctx, server, authHandler, cancellationToken);
+				return TestRunner.RunTraditional (ctx, server, authHandler, cancellationToken);
 		}
 	}
 }

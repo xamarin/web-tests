@@ -41,7 +41,7 @@ namespace Xamarin.WebTests
 	using Framework;
 
 	[AsyncTestFixture (Timeout = 10000)]
-	public class TestHttpClient : ITestHost<HttpServer>, ITestParameterSource<Handler>
+	public class TestHttpClient : ITestHost<HttpServer>, ITestParameterSource<HttpClientHandler>
 	{
 		[TestParameter (typeof (WebTestFeatures.SelectSSL), null, TestFlags.Hidden)]
 		public bool UseSSL {
@@ -53,7 +53,7 @@ namespace Xamarin.WebTests
 			return new HttpServer (IPAddress.Loopback, 9999) { UseSSL = UseSSL };
 		}
 
-		IEnumerable<Handler> GetStableTests ()
+		IEnumerable<HttpClientHandler> GetStableTests ()
 		{
 			yield return new HttpClientHandler {
 				Operation = HttpClientOperation.GetString, Description = "Get string"
@@ -71,7 +71,7 @@ namespace Xamarin.WebTests
 			};
 		}
 
-		IEnumerable<Handler> GetMono38Tests ()
+		IEnumerable<HttpClientHandler> GetMono38Tests ()
 		{
 			yield return new HttpClientHandler {
 				Operation = HttpClientOperation.PostString,
@@ -82,7 +82,7 @@ namespace Xamarin.WebTests
 			};
 		}
 
-		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
+		public IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)
 		{
 			if (filter == null || filter.Equals ("stable")) {
 				foreach (var test in GetStableTests ())
@@ -97,16 +97,16 @@ namespace Xamarin.WebTests
 
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] HttpServer server, [TestParameter ("stable")] Handler handler)
+			[TestHost] HttpServer server, [TestParameter ("stable")] HttpClientHandler handler)
 		{
-			return TestRunner.Run (ctx, server, handler, cancellationToken);
+			return TestRunner.RunHttpClient (ctx, server, handler, cancellationToken);
 		}
 
 		[AsyncTest]
 		public Task RunMono38 (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] HttpServer server, [TestParameter ("mono38")] Handler handler)
+			[TestHost] HttpServer server, [TestParameter ("mono38")] HttpClientHandler handler)
 		{
-			return TestRunner.Run (ctx, server, handler, cancellationToken);
+			return TestRunner.RunHttpClient (ctx, server, handler, cancellationToken);
 		}
 
 		class Bug20583Content : HttpContent

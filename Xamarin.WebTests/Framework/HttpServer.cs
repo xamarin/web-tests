@@ -74,6 +74,11 @@ namespace Xamarin.WebTests.Framework
 			}
 		}
 
+		public virtual IWebProxy GetProxy ()
+		{
+			return null;
+		}
+
 		#region ITestInstance implementation
 
 		bool reuseConnection;
@@ -123,11 +128,6 @@ namespace Xamarin.WebTests.Framework
 		public virtual Task Stop (CancellationToken cancellationToken)
 		{
 			return Task.Run (() => listener.Stop ());
-		}
-
-		protected internal virtual Request CreateRequest (Handler handler)
-		{
-			return handler.CreateRequest (listener);
 		}
 
 		static IPAddress address;

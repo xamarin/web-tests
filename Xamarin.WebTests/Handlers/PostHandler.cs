@@ -166,20 +166,13 @@ namespace Xamarin.WebTests.Handlers
 			return HttpResponse.CreateSuccess ();
 		}
 
-		public override Request CreateRequest (Uri uri)
-		{
-			var traditional = new TraditionalRequest (uri);
-
-			if (AllowWriteStreamBuffering != null)
-				traditional.Request.AllowWriteStreamBuffering = AllowWriteStreamBuffering.Value;
-
-			return traditional;
-		}
-
 		public override void ConfigureRequest (Request request, Uri uri)
 		{
 			base.ConfigureRequest (request, uri);
 			request.Method = "POST";
+
+			if (AllowWriteStreamBuffering != null)
+				((TraditionalRequest)request).Request.AllowWriteStreamBuffering = AllowWriteStreamBuffering.Value;
 
 			if (Content != null)
 				request.SetContentType ("text/plain");

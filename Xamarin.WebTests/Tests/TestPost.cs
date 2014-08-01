@@ -155,7 +155,7 @@ namespace Xamarin.WebTests.Tests
 				AllowWriteStreamBuffering = false
 			};
 			var handler = new RedirectHandler (post, HttpStatusCode.Redirect);
-			return TestRunner.Run (ctx, server, handler, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 
 		[AsyncTest]
@@ -171,7 +171,7 @@ namespace Xamarin.WebTests.Tests
 				AllowWriteStreamBuffering = false
 			};
 			var handler = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
-			return TestRunner.Run (ctx, server, handler, cancellationToken, HttpStatusCode.TemporaryRedirect, true);
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, HttpStatusCode.TemporaryRedirect, true);
 		}
 
 		[AsyncTest]
@@ -179,7 +179,7 @@ namespace Xamarin.WebTests.Tests
 			TestContext ctx, [TestHost] HttpServer server,
 			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{
-			return TestRunner.Run (ctx, server, handler, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 
 		[AsyncTest]
@@ -199,7 +199,7 @@ namespace Xamarin.WebTests.Tests
 			post.Description = string.Format ("{0}: {1}", code, post.Description);
 			var redirect = new RedirectHandler (post, code) { Description = post.Description };
 
-			return TestRunner.Run (ctx, server, redirect, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, redirect, cancellationToken);
 		}
 
 		[AsyncTest]
@@ -226,7 +226,7 @@ namespace Xamarin.WebTests.Tests
 				Description = "Second post", Content = new StringContent ("Should send this")
 			};
 
-			await TestRunner.Run (ctx, server, secondPost, cancellationToken);
+			await TestRunner.RunTraditional (ctx, server, secondPost, cancellationToken);
 		}
 
 		[AsyncTest]
@@ -234,7 +234,7 @@ namespace Xamarin.WebTests.Tests
 			TestContext ctx, [TestHost] HttpServer server,
 			[TestParameter ("chunked")] Handler handler, CancellationToken cancellationToken)
 		{
-			return TestRunner.Run (ctx, server, handler, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 	}
 }

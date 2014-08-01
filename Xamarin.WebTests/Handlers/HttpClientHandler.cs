@@ -107,7 +107,7 @@ namespace Xamarin.WebTests.Handlers
 			return new HttpResponse (HttpStatusCode.OK, returnContent);
 		}
 
-		public override Request CreateRequest (Uri uri)
+		public Request CreateRequest (Uri uri)
 		{
 			return new HttpClientRequest (this, uri);
 		}
