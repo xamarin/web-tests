@@ -5,20 +5,26 @@
     xmlns:local="clr-namespace:Xamarin.AsyncTests.UI;assembly=Xamarin.AsyncTests.UI"
     x:Class="Xamarin.AsyncTests.UI.OptionsPage">
 
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:TestResultConverter x:Key="converter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
     <ScrollView Padding="0,20,0,0" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
         <StackLayout Spacing="20" Padding="20" Orientation="Vertical" VerticalOptions="FillAndExpand">
 
             <StackLayout Spacing="30" Orientation="Horizontal">
                 <Switch IsToggled="{Binding Repeat}" />
                 <Label Text="Repeat" VerticalOptions="Center" />
-                <Entry Text="{Binding RepeatCountEntry}" HorizontalOptions="FillAndExpand"
-                       Completed="OnRepeatCountChanged" />
+                <Entry Text="{Binding RepeatCount, Converter={StaticResource converter}, ConverterParameter='int'}"
+                       HorizontalOptions="FillAndExpand" />
             </StackLayout>
 
             <StackLayout Spacing="30" Orientation="Horizontal">
                 <Label Text="Log Level" VerticalOptions="Center" />
-                <Entry Text="{Binding LogLevelEntry}" HorizontalOptions="FillAndExpand"
-                       Completed="OnLogLevelChanged" />
+                <Entry Text="{Binding LogLevel, Converter={StaticResource converter}, ConverterParameter='int'}"
+                       HorizontalOptions="FillAndExpand" />
             </StackLayout>
 
             <StackLayout Spacing="30" Orientation="Horizontal">

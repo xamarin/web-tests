@@ -37,9 +37,7 @@ namespace Xamarin.AsyncTests.UI
 
 		bool repeat;
 		int repeatCount;
-		string repeatCountEntry;
 		int logLevel;
-		string logLevelEntry;
 		bool hideIgnored, hideSuccessful;
 
 		public bool Repeat {
@@ -59,17 +57,8 @@ namespace Xamarin.AsyncTests.UI
 				if (repeatCount == value)
 					return;
 				repeatCount = value;
-				RepeatCountEntry = value.ToString ();
 				App.Settings.RepeatCount = value;
 				OnPropertyChanged ("RepeatCount");
-			}
-		}
-
-		public string RepeatCountEntry {
-			get { return repeatCountEntry; }
-			set {
-				repeatCountEntry = value;
-				OnPropertyChanged ("RepeatCountEntry");
 			}
 		}
 
@@ -79,18 +68,9 @@ namespace Xamarin.AsyncTests.UI
 				if (logLevel == value)
 					return;
 				logLevel = value;
-				logLevelEntry = value.ToString ();
 				App.Settings.LogLevel = value;
 				App.DebugLevel = value;
 				OnPropertyChanged ("LogLevel");
-			}
-		}
-
-		public string LogLevelEntry {
-			get { return logLevelEntry; }
-			set {
-				logLevelEntry = value;
-				OnPropertyChanged ("LogLevelEntry");
 			}
 		}
 
@@ -128,18 +108,14 @@ namespace Xamarin.AsyncTests.UI
 		{
 			repeat = App.Settings.Repeat;
 			repeatCount = App.Settings.RepeatCount;
-			repeatCountEntry = repeatCount.ToString ();
 			logLevel = App.Settings.LogLevel;
-			logLevelEntry = logLevel.ToString ();
 			hideIgnored = App.Settings.HideIgnoredTests;
 			hideSuccessful = App.Settings.HideSuccessfulTests;
 			App.DebugLevel = LogLevel;
 
 			OnPropertyChanged ("Repeat");
 			OnPropertyChanged ("RepeatCount");
-			OnPropertyChanged ("RepeatCountEntry");
 			OnPropertyChanged ("LogLevel");
-			OnPropertyChanged ("LogLevelEntry");
 			OnPropertyChanged ("HideIgnoredTests");
 			OnPropertyChanged ("HideSuccessfulTests");
 		}

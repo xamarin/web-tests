@@ -37,28 +37,6 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		void OnRepeatCountChanged (object sender, EventArgs args)
-		{
-			int repeatCount;
-			if (!int.TryParse (Model.RepeatCountEntry, out repeatCount)) {
-				Model.RepeatCountEntry = Model.RepeatCount.ToString ();
-				return;
-			}
-
-			Model.RepeatCount = repeatCount;
-		}
-
-		void OnLogLevelChanged (object sender, EventArgs args)
-		{
-			int logLevel;
-			if (!int.TryParse (Model.LogLevelEntry, out logLevel)) {
-				Model.LogLevelEntry = Model.LogLevel.ToString ();
-				return;
-			}
-
-			Model.LogLevel = logLevel;
-		}
-
 		public OptionsPage (OptionsModel model)
 		{
 			Model = model;

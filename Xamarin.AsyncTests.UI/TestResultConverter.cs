@@ -47,6 +47,8 @@ namespace Xamarin.AsyncTests.UI
 					return value != null;
 				case "not-empty":
 					return !string.IsNullOrEmpty ((string)value);
+				case "int":
+					return ((int)value).ToString ();
 				default:
 					throw new InvalidOperationException ();
 				}
@@ -80,7 +82,19 @@ namespace Xamarin.AsyncTests.UI
 
 		public object ConvertBack (object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			throw new NotImplementedException ();
+			if (parameter != null) {
+				switch ((string)parameter) {
+				case "int":
+					int intValue;
+					if (int.TryParse ((string)value, out intValue))
+						return intValue;
+					return null;
+				default:
+					throw new InvalidOperationException ();
+				}
+			}
+
+			throw new InvalidOperationException ();
 		}
 
 		internal static Color GetColorForStatus (TestStatus status)
