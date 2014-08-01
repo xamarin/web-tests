@@ -72,6 +72,11 @@ namespace Xamarin.AsyncTests.Client
 			private set;
 		}
 
+		public bool LogRemotely {
+			get;
+			private set;
+		}
+
 		public bool IsServer {
 			get { return Endpoint == null; }
 		}
@@ -94,6 +99,8 @@ namespace Xamarin.AsyncTests.Client
 			get;
 			private set;
 		}
+
+		ConsoleClient connection;
 
 		public static void Main (string[] args)
 		{
@@ -121,6 +128,7 @@ namespace Xamarin.AsyncTests.Client
 			p.Add ("run", v => Run = true);
 			p.Add ("result=", v => ResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
+			p.Add ("log-remotely", v => LogRemotely = true);
 			p.Add ("my-tests", v => UseMyTestSuite = true);
 			var remaining = p.Parse (args);
 
@@ -211,10 +219,12 @@ namespace Xamarin.AsyncTests.Client
 
 			Debug ("Got remote connection from {0}.", socket.RemoteEndPoint);
 
-			var connection = new ConsoleClient (this, stream);
+			connection = new ConsoleClient (this, stream);
 			await connection.RunClient (CancellationToken.None);
 
 			Debug ("Closed remote connection.");
+
+			connection = null;
 		}
 
 		async Task RunClient ()
@@ -225,10 +235,19 @@ namespace Xamarin.AsyncTests.Client
 			await client.ConnectAsync (Endpoint.Address, Endpoint.Port);
 
 			var stream = client.GetStream ();
-			var server = new ConsoleClient (this, stream);
-			await server.RunClient (CancellationToken.None);
+			connection = new ConsoleClient (this, stream);
+			await connection.RunClient (CancellationToken.None);
 
 			Debug ("Closed remote connection.");
+
+			connection = null;
+		}
+
+		async void OnLogMessage (string message)
+		{
+			if (connection == null || !LogRemotely)
+				return;
+			await connection.LogMessage (message);
 		}
 
 		class ConsoleLogger : TestLogger
@@ -245,18 +264,18 @@ namespace Xamarin.AsyncTests.Client
 				switch (entry.Kind) {
 				case LogEntry.EntryKind.Debug:
 					if (entry.LogLevel <= Program.Context.DebugLevel)
-						Debug (entry.Text);
+						Program.OnLogMessage (entry.Text);
 					break;
 
 				case LogEntry.EntryKind.Error:
 					if (entry.Error != null)
-						Debug (string.Format ("ERROR: {0}", entry.Error));
+						Program.OnLogMessage (string.Format ("ERROR: {0}", entry.Error));
 					else
-						Debug (entry.Text);
+						Program.OnLogMessage (entry.Text);
 					break;
 
 				default:
-					Debug (entry.Text);
+					Program.OnLogMessage (entry.Text);
 					break;
 				}
 			}
