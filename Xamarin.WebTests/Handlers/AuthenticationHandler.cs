@@ -96,11 +96,10 @@ namespace Xamarin.WebTests.Handlers
 			return Target.HandleRequest (connection, request, effectiveFlags);
 		}
 
-		public override Request CreateRequest (Uri uri)
+		public override void ConfigureRequest (Request request, Uri uri)
 		{
-			var request = base.CreateRequest (uri);
+			base.ConfigureRequest (request, uri);
 			request.SetCredentials (new NetworkCredential ("xamarin", "monkey"));
-			return request;
 		}
 	}
 }

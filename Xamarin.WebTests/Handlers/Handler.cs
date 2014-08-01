@@ -193,7 +193,13 @@ namespace Xamarin.WebTests.Handlers
 		public Request CreateRequest (HttpListener listener)
 		{
 			var uri = RegisterRequest (listener);
-			return CreateRequest (uri);
+			var request = CreateRequest (uri);
+			ConfigureRequest (request, uri);
+			return request;
+		}
+
+		public virtual void ConfigureRequest (Request request, Uri uri)
+		{
 		}
 
 		public abstract object Clone ();

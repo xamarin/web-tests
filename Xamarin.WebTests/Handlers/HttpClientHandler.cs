@@ -109,17 +109,27 @@ namespace Xamarin.WebTests.Handlers
 
 		public override Request CreateRequest (Uri uri)
 		{
-			if (Operation == HttpClientOperation.GetString) {
+			return new HttpClientRequest (this, uri);
+		}
+
+		public override void ConfigureRequest (Request request, Uri uri)
+		{
+			base.ConfigureRequest (request, uri);
+			switch (Operation) {
+			case HttpClientOperation.GetString:
+				request.Method = "GET";
 				if (Content != null)
 					throw new InvalidOperationException ();
-			} else if (Operation == HttpClientOperation.PostString) {
+				break;
+			case HttpClientOperation.PostString:
+				request.Method = "POST";
 				if (Content == null)
 					throw new InvalidOperationException ();
-			} else {
+				request.Content = Content;
+				break;
+			default:
 				throw new InvalidOperationException ();
 			}
-
-			return new HttpClientRequest (this, uri);
 		}
 
 		class HttpClientRequest : Request
@@ -128,6 +138,9 @@ namespace Xamarin.WebTests.Handlers
 			public readonly HttpClientHandler Parent;
 			public readonly Http.HttpClientHandler Handler;
 			public readonly Http.HttpClient Client;
+			Http.HttpMethod method = Http.HttpMethod.Get;
+			Http.Headers.MediaTypeHeaderValue contentType;
+			long? contentLength;
 
 			public HttpClientRequest (HttpClientHandler parent, Uri uri)
 			{
@@ -147,6 +160,47 @@ namespace Xamarin.WebTests.Handlers
 				default:
 					throw new InvalidOperationException ();
 				}
+			}
+
+			public override string Method {
+				get { return method.ToString ().ToUpper (); }
+				set {
+					switch (value.ToUpper ()) {
+					case "GET":
+						method = Http.HttpMethod.Get;
+						break;
+					case "POST":
+						method = Http.HttpMethod.Post;
+						break;
+					case "PUT":
+						method = Http.HttpMethod.Put;
+						break;
+					case "HEAD":
+						method = Http.HttpMethod.Head;
+						break;
+					case "DELETE":
+						method = Http.HttpMethod.Delete;
+						break;
+					default:
+						throw new NotImplementedException ();
+					}
+				}
+			}
+
+			public override void SetContentLength (long contentLength)
+			{
+				this.contentLength = contentLength;
+			}
+
+			public override void SetContentType (string contentType)
+			{
+				if (!Http.Headers.MediaTypeHeaderValue.TryParse (contentType, out this.contentType))
+					throw new InvalidOperationException ();
+			}
+
+			public override void SendChunked ()
+			{
+				throw new NotSupportedException ();
 			}
 
 			public override void SetProxy (IWebProxy proxy)
@@ -179,6 +233,11 @@ namespace Xamarin.WebTests.Handlers
 				message.Method = Http.HttpMethod.Post;
 				message.RequestUri = RequestUri;
 				message.Content = new Http.StringContent (Parent.Content.AsString ());
+
+				if (contentLength != null)
+					message.Content.Headers.ContentLength = contentLength;
+				if (contentType != null)
+					message.Content.Headers.ContentType = contentType;
 
 				var response = await Client.SendAsync (
 					message, Http.HttpCompletionOption.ResponseContentRead, cancellationToken);

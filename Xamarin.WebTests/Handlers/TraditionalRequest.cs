@@ -39,10 +39,6 @@ namespace Xamarin.WebTests.Handlers
 	{
 		public readonly HttpWebRequest Request;
 
-		public HttpContent Content {
-			get; set;
-		}
-
 		public TraditionalRequest (Uri uri)
 		{
 			Request = (HttpWebRequest)HttpWebRequest.Create (uri);
@@ -59,6 +55,26 @@ namespace Xamarin.WebTests.Handlers
 		public override void SetProxy (IWebProxy proxy)
 		{
 			Request.Proxy = proxy;
+		}
+
+		public override string Method {
+			get { return Request.Method; }
+			set { Request.Method = value; }
+		}
+
+		public override void SetContentLength (long contentLength)
+		{
+			Request.ContentLength = contentLength;
+		}
+
+		public override void SetContentType (string contentType)
+		{
+			Request.ContentType = contentType;
+		}
+
+		public override void SendChunked ()
+		{
+			Request.SendChunked = true;
 		}
 
 		public override async Task<Response> Send (TestContext ctx, CancellationToken cancellationToken)

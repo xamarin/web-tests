@@ -32,9 +32,25 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Handlers
 {
+	using Framework;
+
 	public abstract class Request
 	{
 		public abstract Task<Response> Send (TestContext ctx, CancellationToken cancellationToken);
+
+		public abstract string Method {
+			get; set;
+		}
+
+		public HttpContent Content {
+			get; set;
+		}
+
+		public abstract void SetContentLength (long contentLength);
+
+		public abstract void SetContentType (string contentType);
+
+		public abstract void SendChunked ();
 
 		public abstract void SetProxy (IWebProxy proxy);
 

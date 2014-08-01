@@ -170,12 +170,19 @@ namespace Xamarin.WebTests.Handlers
 		{
 			var traditional = new TraditionalRequest (uri);
 
-			if (Content != null)
-				traditional.Request.ContentType = "text/plain";
-			traditional.Request.Method = "POST";
-
 			if (AllowWriteStreamBuffering != null)
 				traditional.Request.AllowWriteStreamBuffering = AllowWriteStreamBuffering.Value;
+
+			return traditional;
+		}
+
+		public override void ConfigureRequest (Request request, Uri uri)
+		{
+			base.ConfigureRequest (request, uri);
+			request.Method = "POST";
+
+			if (Content != null)
+				request.SetContentType ("text/plain");
 
 			if (((Flags & RequestFlags.ExplicitlySetLength) != 0) && (Mode != TransferMode.ContentLength))
 				throw new InvalidOperationException ();
@@ -187,21 +194,19 @@ namespace Xamarin.WebTests.Handlers
 			}
 
 			if (Content != null)
-				traditional.Content = new StringContent (Content.AsString ());
+				request.Content = new StringContent (Content.AsString ());
 
 			switch (effectiveMode) {
 			case TransferMode.Chunked:
-				traditional.Request.SendChunked = true;
+				request.SendChunked ();
 				break;
 			case TransferMode.ContentLength:
 				if (Content == null)
-					traditional.Request.ContentLength = 0;
+					request.SetContentLength (0);
 				else
-					traditional.Request.ContentLength = traditional.Content.Length;
+					request.SetContentLength (request.Content.Length);
 				break;
 			}
-
-			return traditional;
 		}
 	}
 }

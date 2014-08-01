@@ -86,14 +86,18 @@ namespace Xamarin.WebTests.Handlers
 		public override Request CreateRequest (Uri uri)
 		{
 			var traditional = new TraditionalRequest (uri);
-			traditional.Request.Method = "DELETE";
 
 			if (Flags == RequestFlags.ExplicitlySetLength)
 				traditional.Request.ContentLength = Body != null ? Body.Length : 0;
 
-			traditional.Content = StringContent.CreateMaybeNull (body);
-
 			return traditional;
+		}
+
+		public override void ConfigureRequest (Request request, Uri uri)
+		{
+			base.ConfigureRequest (request, uri);
+			request.Method = "DELETE";
+			request.Content = StringContent.CreateMaybeNull (body);
 		}
 	}
 }
