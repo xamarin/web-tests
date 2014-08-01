@@ -121,15 +121,6 @@ namespace Xamarin.WebTests
 				message.SetHeader ("Transfer-Encoding", "chunked");
 				message.SetHeader ("Content-Type", "text/plain");
 			}
-			public override void WriteTo (StreamWriter writer)
-			{
-				writer.AutoFlush = true;
-				Thread.Sleep (500);
-				writer.Write ("0");
-				Thread.Sleep (500);
-				writer.Write ("4\r\n");
-				writer.Write ("AAAA\r\n0\r\n\r\n");
-			}
 			public override async Task WriteToAsync (StreamWriter writer)
 			{
 				writer.AutoFlush = true;

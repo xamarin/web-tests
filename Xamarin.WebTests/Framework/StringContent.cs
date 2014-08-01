@@ -73,12 +73,6 @@ namespace Xamarin.WebTests.Framework
 				message.AddHeader ("Content-Type", "text/plain");
 		}
 
-		public override void WriteTo (StreamWriter writer)
-		{
-			if (!string.IsNullOrEmpty (content))
-				writer.Write (content);
-		}
-
 		public override async Task WriteToAsync (StreamWriter writer)
 		{
 			if (!string.IsNullOrEmpty (content))

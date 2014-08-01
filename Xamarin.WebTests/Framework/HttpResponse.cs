@@ -117,7 +117,7 @@ namespace Xamarin.WebTests.Framework
 			WriteHeaders (writer);
 
 			if (Body != null)
-				Body.WriteTo (writer);
+				Body.WriteToAsync (writer).Wait ();
 			writer.Flush ();
 		}
 

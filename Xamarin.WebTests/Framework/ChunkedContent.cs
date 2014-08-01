@@ -86,13 +86,6 @@ namespace Xamarin.WebTests.Framework
 			message.SetHeader ("Transfer-Encoding", "chunked");
 		}
 
-		public override void WriteTo (StreamWriter writer)
-		{
-			foreach (var chunk in chunks)
-				writer.Write ("{0:x}\r\n{1}\r\n", chunk.Length, chunk);
-			writer.Write ("0\r\n\r\n\r\n");
-		}
-
 		public override async Task WriteToAsync (StreamWriter writer)
 		{
 			foreach (var chunk in chunks)

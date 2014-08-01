@@ -140,7 +140,7 @@ namespace Xamarin.WebTests.Handlers
 			try {
 				if (Content != null) {
 					using (var writer = new StreamWriter (Request.GetRequestStream ())) {
-						Content.WriteTo (writer);
+						Content.WriteToAsync (writer).Wait ();
 					}
 				}
 

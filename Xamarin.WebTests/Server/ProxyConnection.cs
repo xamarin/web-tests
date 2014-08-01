@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.Server
 			WriteRequest (request);
 			var body = request.ReadBody ();
 			if (body != null)
-				body.WriteTo (ResponseWriter);
+				body.WriteToAsync (ResponseWriter).Wait ();
 
 			task.Wait ();
 		}
