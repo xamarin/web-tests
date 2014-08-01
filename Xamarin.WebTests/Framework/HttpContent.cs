@@ -45,6 +45,8 @@ namespace Xamarin.WebTests.Framework
 
 		public abstract void WriteTo (StreamWriter writer);
 
+		public abstract Task WriteToAsync (StreamWriter writer);
+
 		public static bool IsNullOrEmpty (HttpContent content)
 		{
 			if (content == null)

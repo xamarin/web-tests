@@ -171,20 +171,22 @@ namespace Xamarin.WebTests.Tests
 				AllowWriteStreamBuffering = false
 			};
 			var handler = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, HttpStatusCode.TemporaryRedirect, true);
+			return TestRunner.RunTraditional (
+				ctx, server, handler, cancellationToken, false,
+				HttpStatusCode.TemporaryRedirect, true);
 		}
 
 		[AsyncTest]
 		public Task Run (
-			TestContext ctx, [TestHost] HttpServer server,
+			TestContext ctx, [TestHost] HttpServer server, bool sendAsync,
 			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}
 
 		[AsyncTest]
 		public Task Redirect (
-			TestContext ctx, [TestHost] HttpServer server,
+			TestContext ctx, [TestHost] HttpServer server, bool sendAsync,
 			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
 			[TestParameter ("post")] Handler handler, CancellationToken cancellationToken)
 		{
@@ -199,7 +201,7 @@ namespace Xamarin.WebTests.Tests
 			post.Description = string.Format ("{0}: {1}", code, post.Description);
 			var redirect = new RedirectHandler (post, code) { Description = post.Description };
 
-			return TestRunner.RunTraditional (ctx, server, redirect, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, redirect, cancellationToken, sendAsync);
 		}
 
 		[AsyncTest]
@@ -231,10 +233,10 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task TestChunked (
-			TestContext ctx, [TestHost] HttpServer server,
+			TestContext ctx, [TestHost] HttpServer server, bool sendAsync,
 			[TestParameter ("chunked")] Handler handler, CancellationToken cancellationToken)
 		{
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}
 	}
 }

@@ -130,6 +130,15 @@ namespace Xamarin.WebTests
 				writer.Write ("4\r\n");
 				writer.Write ("AAAA\r\n0\r\n\r\n");
 			}
+			public override async Task WriteToAsync (StreamWriter writer)
+			{
+				writer.AutoFlush = true;
+				await Task.Delay (500).ConfigureAwait (false);
+				await writer.WriteAsync ("0");
+				await Task.Delay (500);
+				await writer.WriteAsync ("4\r\n");
+				await writer.WriteAsync ("AAAA\r\n0\r\n\r\n");
+			}
 			#endregion
 		}
 

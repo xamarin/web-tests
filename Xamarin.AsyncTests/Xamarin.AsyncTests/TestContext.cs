@@ -193,7 +193,7 @@ namespace Xamarin.AsyncTests
 			}
 
 			var exception = new AssertionException (sb.ToString ());
-			Invoke (() => Result.AddError (exception));
+			Result.AddError (exception);
 			if (fatal)
 				throw exception;
 			return false;

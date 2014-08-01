@@ -92,6 +92,13 @@ namespace Xamarin.WebTests.Framework
 				writer.Write ("{0:x}\r\n{1}\r\n", chunk.Length, chunk);
 			writer.Write ("0\r\n\r\n\r\n");
 		}
+
+		public override async Task WriteToAsync (StreamWriter writer)
+		{
+			foreach (var chunk in chunks)
+				await writer.WriteAsync (string.Format ("{0:x}\r\n{1}\r\n", chunk.Length, chunk));
+			await writer.WriteAsync ("0\r\n\r\n\r\n");
+		}
 	}
 }
 

@@ -65,21 +65,21 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] HttpServer server, [TestParameter] Handler handler)
+			[TestHost] HttpServer server, bool sendAsync, [TestParameter] Handler handler)
 		{
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}
 
 		[AsyncTest]
 		public Task Redirect (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] HttpServer server,
+			[TestHost] HttpServer server, bool sendAsync,
 			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
 			[TestParameter] Handler handler)
 		{
 			var description = string.Format ("{0}: {1}", code, handler.Description);
 			var redirect = new RedirectHandler (handler, code) { Description = description };
 
-			return TestRunner.RunTraditional (ctx, server, redirect, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, redirect, cancellationToken, sendAsync);
 		}
 
 		[Work]

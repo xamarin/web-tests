@@ -93,6 +93,36 @@ namespace Xamarin.WebTests.Handlers
 			}
 		}
 
+		public async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
+			cts.Token.Register (() => Request.Abort ());
+
+			try {
+				if (Content != null) {
+					using (var stream = await Request.GetRequestStreamAsync ()) {
+						using (var writer = new StreamWriter (stream)) {
+							await Content.WriteToAsync (writer);
+							await writer.FlushAsync ();
+						}
+					}
+				}
+
+				var response = (HttpWebResponse)await Request.GetResponseAsync ();
+				return FromHttpResponse (response);
+			} catch (WebException wexc) {
+				var response = (HttpWebResponse)wexc.Response;
+				if (response == null)
+					return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, wexc);
+
+				return FromHttpResponse (response, wexc);
+			} catch (Exception ex) {
+				return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, ex);
+			} finally {
+				cts.Dispose ();
+			}
+		}
+
 		Response FromHttpResponse (HttpWebResponse response, WebException error = null)
 		{
 			string content;

@@ -74,8 +74,8 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Run (
-			TestContext ctx, [TestHost] HttpServer server,
-			[TestParameter] AuthenticationType authType,  [TestParameter] Handler handler,
+			TestContext ctx, [TestHost] HttpServer server, bool sendAsync,
+			[TestParameter] AuthenticationType authType, [TestParameter] Handler handler,
 			CancellationToken cancellationToken)
 		{
 			var authHandler = new AuthenticationHandler (authType, handler);
@@ -84,7 +84,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task MustClearAuthOnRedirect (
-			TestContext ctx, [TestHost] HttpServer server,
+			TestContext ctx, [TestHost] HttpServer server, bool sendAsync,
 			CancellationToken cancellationToken)
 		{
 			var target = new HelloWorldHandler ();
@@ -93,7 +93,7 @@ namespace Xamarin.WebTests.Tests
 			var redirect = new RedirectHandler (targetAuth, HttpStatusCode.Redirect);
 			var authHandler = new AuthenticationHandler (AuthenticationType.Basic, redirect);
 
-			return TestRunner.RunTraditional (ctx, server, authHandler, cancellationToken);
+			return TestRunner.RunTraditional (ctx, server, authHandler, cancellationToken, sendAsync);
 		}
 	}
 }

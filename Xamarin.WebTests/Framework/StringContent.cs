@@ -78,6 +78,12 @@ namespace Xamarin.WebTests.Framework
 			if (!string.IsNullOrEmpty (content))
 				writer.Write (content);
 		}
+
+		public override async Task WriteToAsync (StreamWriter writer)
+		{
+			if (!string.IsNullOrEmpty (content))
+				await writer.WriteAsync (content);
+		}
 	}
 }
 

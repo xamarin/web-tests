@@ -59,7 +59,8 @@ namespace Xamarin.WebTests.Framework
 		}
 
 		public static async Task<bool> RunTraditional (
-			TestContext ctx, HttpServer server, Handler handler, CancellationToken cancellationToken,
+			TestContext ctx, HttpServer server, Handler handler,
+			CancellationToken cancellationToken, bool sendAsync = false,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			bool expectException = false)
 		{
@@ -72,7 +73,11 @@ namespace Xamarin.WebTests.Framework
 
 			request.SetProxy (server.GetProxy ());
 
-			var response = await request.Send (ctx, cancellationToken);
+			Response response;
+			if (sendAsync)
+				response = await request.SendAsync (ctx, cancellationToken);
+			else
+				response = await request.Send (ctx, cancellationToken);
 
 			return CheckResponse (
 				ctx, server, response, handler, cancellationToken, expectedStatus, expectException);
