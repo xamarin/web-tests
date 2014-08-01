@@ -159,9 +159,16 @@ namespace Xamarin.WebTests
 			}
 
 			Mono38 = new TestFeature (
-				"Mono38", "Mono 3.8.0", () => MonoVersion != null && MonoVersion >= new Version (3, 8, 0));
+				"Mono38", "Mono 3.8.0", () => HasMonoVersion (new Version (3, 8, 0)));
 			Mono361 = new TestFeature (
-				"Mono361", "Mono 3.6.1", () => MonoVersion != null && MonoVersion >= new Version (3, 6, 1));
+				"Mono361", "Mono 3.6.1", () => HasMonoVersion (new Version (3, 6, 1)));
+		}
+
+		static bool HasMonoVersion (Version version)
+		{
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+				return true;
+			return MonoVersion != null && MonoVersion >= version;
 		}
 
 		static Version GetRuntimeVersion ()
