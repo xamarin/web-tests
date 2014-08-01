@@ -36,8 +36,6 @@ namespace Xamarin.WebTests.Handlers
 
 	public abstract class Request
 	{
-		public abstract Task<Response> Send (TestContext ctx, CancellationToken cancellationToken);
-
 		public abstract string Method {
 			get; set;
 		}

@@ -77,7 +77,7 @@ namespace Xamarin.WebTests.Handlers
 			Request.SendChunked = true;
 		}
 
-		public override async Task<Response> Send (TestContext ctx, CancellationToken cancellationToken)
+		public async Task<Response> Send (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.Token.Register (() => Request.Abort ());

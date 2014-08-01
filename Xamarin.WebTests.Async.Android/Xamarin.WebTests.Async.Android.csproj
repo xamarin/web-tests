@@ -127,6 +127,9 @@
     <Compile Include="..\Xamarin.WebTests\Framework\TestRunner.cs">
       <Link>Framework\TestRunner.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Handlers\HttpClientRequest.cs">
+      <Link>Handlers\HttpClientRequest.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
