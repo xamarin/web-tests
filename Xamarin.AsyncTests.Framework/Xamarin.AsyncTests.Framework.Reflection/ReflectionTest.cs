@@ -65,20 +65,18 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 						return true;
 					}
 				}
+
+				enabled = false;
+				return true;
 			}
 
-			if (ctx.CurrentCategory == TestCategory.All) {
+			if (!IsFixture && ctx.CurrentCategory == TestCategory.All) {
 				enabled = true;
 				return true;
 			}
 
-			if (categories == null) {
-				enabled = false;
-				return false;
-			}
-
 			enabled = false;
-			return true;
+			return false;
 		}
 
 		internal abstract TestInvoker Invoker {
