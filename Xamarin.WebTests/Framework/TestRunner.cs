@@ -36,7 +36,7 @@ using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Runners
+namespace Xamarin.WebTests.Framework
 {
 	using Handlers;
 	using Framework;

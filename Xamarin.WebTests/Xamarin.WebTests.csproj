@@ -72,7 +72,6 @@
     <Compile Include="Handlers\HelloWorldHandler.cs" />
     <Compile Include="Handlers\RedirectHandler.cs" />
     <Compile Include="Handlers\PostHandler.cs" />
-    <Compile Include="Runners\TestRunner.cs" />
     <Compile Include="Handlers\Handler.cs" />
     <Compile Include="Tests\ProxyKind.cs" />
     <Compile Include="Tests\RedirectStatusSource.cs" />
@@ -91,6 +90,7 @@
     <Compile Include="Handlers\GetHandler.cs" />
     <Compile Include="Framework\ProxyServer.cs" />
     <Compile Include="Framework\HttpServer.cs" />
+    <Compile Include="Framework\TestRunner.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -98,7 +98,6 @@
     <Folder Include="Server\" />
     <Folder Include="Tests\" />
     <Folder Include="Handlers\" />
-    <Folder Include="Runners\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="cert.pfx">

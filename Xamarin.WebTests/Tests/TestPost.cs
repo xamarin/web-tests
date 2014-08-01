@@ -37,7 +37,6 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.Tests
 {
 	using Server;
-	using Runners;
 	using Handlers;
 	using Framework;
 
