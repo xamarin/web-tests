@@ -4,10 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="Xamarin.AsyncTests.UI.TestCategorySelector">
 
-    <StackLayout Spacing="30" Orientation="Horizontal">
-        <Label Text="Category:" VerticalOptions="Center" />
-        <Picker x:Name="Picker" HorizontalOptions="FillAndExpand" />
-    </StackLayout>
+    <Frame>
+        <StackLayout Spacing="30" Orientation="Horizontal">
+            <Label Text="Category:" VerticalOptions="Center" />
+            <Picker x:Name="Picker" HorizontalOptions="FillAndExpand" />
+        </StackLayout>
+    </Frame>
 
 </ContentView>
 

@@ -60,11 +60,21 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
+		string fullName;
+		public string FullName {
+			get { return fullName; }
+		}
+
 		public TestFeatureModel (UITestApp app, TestConfiguration config, TestFeature feature)
 		{
 			App = app;
 			Configuration = config;
 			Feature = feature;
+
+			if (feature.Constant != null)
+				fullName = string.Format ("{0} ({1})", feature.Name, feature.Constant.Value ? "enabled" : "disabled");
+			else
+				fullName = string.Empty;
 
 			App.Settings.PropertyChanged += (sender, e) => LoadConfiguration ();
 			LoadConfiguration ();

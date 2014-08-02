@@ -49,25 +49,34 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		ObservableCollection<TestFeatureModel> features;
+		ObservableCollection<TestFeatureModel> systemFeatures;
+
 		public ObservableCollection<TestFeatureModel> Features {
 			get { return features; }
+		}
+
+		public ObservableCollection<TestFeatureModel> SystemFeatures {
+			get { return systemFeatures; }
 		}
 
 		public TestFeaturesModel (UITestApp app)
 		{
 			App = app;
 			features = new ObservableCollection<TestFeatureModel> ();
+			systemFeatures = new ObservableCollection<TestFeatureModel> ();
 		}
 
 		void ReloadFeatures ()
 		{
 			features.Clear ();
+			systemFeatures.Clear ();
 			if (Configuration == null)
 				return;
 			foreach (var feature in Configuration.Features.ToArray ()) {
-				if (!feature.CanModify)
-					continue;
-				features.Add (new TestFeatureModel (App, Configuration, feature));
+				if (feature.CanModify)
+					features.Add (new TestFeatureModel (App, Configuration, feature));
+				else
+					systemFeatures.Add (new TestFeatureModel (App, Configuration, feature));
 			}
 		}
 	}
