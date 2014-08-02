@@ -47,14 +47,6 @@ namespace Xamarin.WebTests.Server
 		{
 		}
 
-		protected override void OnStop ()
-		{
-			foreach (var handler in allHandlers)
-				handler.Reset ();
-
-			base.OnStop ();
-		}
-
 		public Uri RegisterHandler (Handler handler)
 		{
 			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);

@@ -133,6 +133,8 @@ namespace Xamarin.WebTests.Handlers
 			try {
 				Debug (1, "HANDLE REQUEST");
 				DumpHeaders (request);
+				if (Context == null)
+					throw new InvalidOperationException ();
 				var response = HandleRequest (connection, request, Flags);
 				if (response == null)
 					response = HttpResponse.CreateSuccess ();
@@ -179,13 +181,6 @@ namespace Xamarin.WebTests.Handlers
 
 				return listener.RegisterHandler (this);
 			}
-		}
-
-		internal virtual void Reset ()
-		{
-			Context = null;
-			hasRequest = false;
-			tcs = new TaskCompletionSource<bool> ();
 		}
 
 		public virtual void ConfigureRequest (Request request, Uri uri)
