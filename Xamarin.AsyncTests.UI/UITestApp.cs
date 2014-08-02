@@ -92,11 +92,6 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public LogPage LogPage {
-			get;
-			private set;
-		}
-
 		public UITestApp (SettingsBag settings, IServerHost server, Assembly assembly)
 			: base (settings)
 		{
@@ -122,12 +117,9 @@ namespace Xamarin.AsyncTests.UI
 			var resultPage = new TestResultPage (this, RootTestResult);
 			var resultNav = new NavigationPage (resultPage) { Title = resultPage.Title };
 
-			LogPage = new LogPage (this);
-
 			Root.Children.Add (MainPage);
 			Root.Children.Add (new OptionsPage (Options));
 			Root.Children.Add (resultNav);
-			Root.Children.Add (LogPage);
 
 			Initialize ();
 		}
@@ -178,13 +170,11 @@ namespace Xamarin.AsyncTests.UI
 			if (level > DebugLevel)
 				return;
 			SD.Debug.WriteLine (message);
-			LogPage.Log (message);
 		}
 
 		protected void LogMessage (string message)
 		{
 			SD.Debug.WriteLine (message);
-			LogPage.Log (message);
 		}
 	}
 }
