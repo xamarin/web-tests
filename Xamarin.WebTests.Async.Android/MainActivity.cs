@@ -19,7 +19,7 @@ using Xamarin.WebTests.Async;
 namespace Xamarin.WebTests.Async.Android
 {
 	[Activity (Label = "Xamarin.WebTests.Async.Android", MainLauncher = true)]
-	public class MainActivity : AndroidActivity
+	public class MainActivity : AndroidActivity, IPortableSupport
 	{
 		ISharedPreferences preferences;
 
@@ -33,10 +33,19 @@ namespace Xamarin.WebTests.Async.Android
 			var settings = new SettingsHost (preferences);
 			var server = new ServerHost ();
 
-			var test = new UITestApp (settings, server, typeof(MainActivity).Assembly);
+			var test = new UITestApp (this, settings, server, typeof(MainActivity).Assembly);
 
 			SetPage (test.Root);
 		}
+
+		#region IPortableSupport implementation
+
+		public string GetStackTrace ()
+		{
+			return System.Environment.StackTrace;
+		}
+
+		#endregion
 	}
 }
 

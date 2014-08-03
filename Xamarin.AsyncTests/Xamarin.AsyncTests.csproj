@@ -82,6 +82,7 @@
     <Compile Include="Xamarin.AsyncTests\TestContext.cs" />
     <Compile Include="Xamarin.AsyncTests\ForkAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\IFork.cs" />
+    <Compile Include="Xamarin.AsyncTests\IPortableSupport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

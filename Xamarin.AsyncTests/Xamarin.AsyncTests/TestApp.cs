@@ -42,6 +42,7 @@ namespace Xamarin.AsyncTests
 	public class TestApp : INotifyPropertyChanged
 	{
 		int debugLevel = DefaultDebugLevel;
+		readonly IPortableSupport support;
 		readonly SettingsBag settings;
 		readonly TestStatistics statistics;
 		volatile ITestSuite currentTestSuite;
@@ -75,8 +76,13 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		public TestApp (SettingsBag settings)
+		public IPortableSupport PortableSupport {
+			get { return support; }
+		}
+
+		public TestApp (IPortableSupport support, SettingsBag settings)
 		{
+			this.support = support;
 			this.settings = settings;
 			statistics = new TestStatistics ();
 		}

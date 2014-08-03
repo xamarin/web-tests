@@ -1,5 +1,5 @@
 ﻿//
-// AssertionException.cs
+// IPortableSupport.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,27 +27,9 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	public class AssertionException : Exception
+	public interface IPortableSupport
 	{
-		readonly string stackTrace;
-
-		public AssertionException (string message, string stackTrace = null)
-			: base (message)
-		{
-			this.stackTrace = stackTrace;
-		}
-
-		public AssertionException (string message, Exception inner, string stackTrace = null)
-			: base (message, inner)
-		{
-			this.stackTrace = stackTrace;
-		}
-
-		public override string StackTrace {
-			get {
-				return stackTrace ?? base.StackTrace;
-			}
-		}
+		string GetStackTrace ();
 	}
 }
 

@@ -35,6 +35,7 @@ namespace Xamarin.AsyncTests
 	public sealed class TestContext
 	{
 		readonly TestContext parent;
+		readonly IPortableSupport support;
 		readonly int logLevel;
 		readonly TestStatistics statistics;
 		readonly TestResult result;
@@ -50,10 +51,11 @@ namespace Xamarin.AsyncTests
 			get { return result ?? parent.Result; }
 		}
 
-		internal TestContext (TestConfiguration config, SettingsBag settings, TestStatistics statistics,
-			int logLevel, TestLogger logger, TestName name, TestResult result)
+		internal TestContext (IPortableSupport support, TestConfiguration config, SettingsBag settings,
+			TestStatistics statistics, int logLevel, TestLogger logger, TestName name, TestResult result)
 		{
 			Name = name;
+			this.support = support;
 			this.statistics = statistics;
 			this.logger = logger;
 			this.result = result;
@@ -67,6 +69,7 @@ namespace Xamarin.AsyncTests
 		{
 			Name = name;
 			this.parent = parent;
+			this.support = parent.support;
 			this.result = result;
 			this.logLevel = parent.logLevel;
 			this.logger = parent.logger;
