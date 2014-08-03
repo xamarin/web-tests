@@ -216,13 +216,12 @@ namespace Xamarin.WebTests.Tests
 			};
 			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
 
-			redirect.Register (ctx);
-
-			var uri = redirect.RegisterRequest (server.Listener);
-
-			var wc = new WebClient ();
-			var res = await wc.UploadStringTaskAsync (uri, post.Content.AsString ());
-			ctx.LogDebug (2, "Test18750: {0}", res);
+			await redirect.RunWithContext (ctx, server.Listener, async (uri) => {
+				var wc = new WebClient ();
+				var res = await wc.UploadStringTaskAsync (uri, post.Content.AsString ());
+				ctx.LogDebug (2, "Test18750: {0}", res);
+				return res;
+			});
 
 			var secondPost = new PostHandler {
 				Description = "Second post", Content = new StringContent ("Should send this")

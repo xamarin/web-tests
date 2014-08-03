@@ -88,20 +88,34 @@ namespace Xamarin.WebTests.Handlers
 		RequestFlags flags;
 		TaskCompletionSource<bool> tcs;
 
+		Handler parent;
+		TestContext context;
+
 		protected void WantToModify ()
 		{
 			if (hasRequest)
 				throw new InvalidOperationException ();
 		}
 
-		public Handler ()
+		public Handler (Handler parent = null)
 		{
+			this.parent = parent;
+
 			tcs = new TaskCompletionSource<bool> ();
 		}
 
+		public Handler Parent {
+			get { return parent; }
+		}
+
 		public TestContext Context {
-			get;
-			private set;
+			get {
+				if (parent != null)
+					return parent.Context;
+				else if (context == null)
+					throw new InvalidOperationException ();
+				return context;
+			}
 		}
 
 		protected void Debug (int level, string message, params object[] args)
@@ -163,12 +177,22 @@ namespace Xamarin.WebTests.Handlers
 
 		protected internal abstract HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags);
 
-		public virtual void Register (TestContext context)
+		public Task<T> RunWithContext<T> (TestContext ctx, HttpListener listener, Func<Uri, Task<T>> func)
 		{
-			lock (this) {
-				if (Context != null && Context != context)
-					throw new InvalidOperationException ();
-				Context = context;
+			var uri = RegisterRequest (listener);
+			return RunWithContext (ctx, uri, func);
+		}
+
+		async Task<T> RunWithContext<T> (TestContext ctx, Uri uri, Func<Uri, Task<T>> func)
+		{
+			if (parent != null)
+				return await parent.RunWithContext (ctx, uri, func);
+
+			try {
+				this.context = ctx;
+				return await func (uri);
+			} finally {
+				this.context = null;
 			}
 		}
 
@@ -192,7 +216,7 @@ namespace Xamarin.WebTests.Handlers
 		public override string ToString ()
 		{
 			var padding = string.IsNullOrEmpty (Description) ? string.Empty : ": ";
-			return string.Format ("[{0}{1}{2}]", GetType ().Name, padding, Description);
+			return string.Format ("[{0}: {1}{2}{3}]", GetType ().Name, ID, padding, Description);
 		}
 	}
 }

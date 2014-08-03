@@ -58,7 +58,7 @@ namespace Xamarin.WebTests.Framework
 			ctx.LogDebug (level, sb.ToString ());
 		}
 
-		public static async Task<bool> RunTraditional (
+		public static Task<bool> RunTraditional (
 			TestContext ctx, HttpServer server, Handler handler,
 			CancellationToken cancellationToken, bool sendAsync = false,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
@@ -66,52 +66,52 @@ namespace Xamarin.WebTests.Framework
 		{
 			Debug (ctx, server, 0, handler, "RUN");
 
-			handler.Register (ctx);
-			var uri = handler.RegisterRequest (server.Listener);
-			var request = new TraditionalRequest (uri);
-			handler.ConfigureRequest (request, uri);
+			return handler.RunWithContext (ctx, server.Listener, async (uri) => {
+				var request = new TraditionalRequest (uri);
+				handler.ConfigureRequest (request, uri);
 
-			request.SetProxy (server.GetProxy ());
+				request.SetProxy (server.GetProxy ());
 
-			Response response;
-			if (sendAsync)
-				response = await request.SendAsync (ctx, cancellationToken);
-			else
-				response = await request.Send (ctx, cancellationToken);
+				Response response;
+				if (sendAsync)
+					response = await request.SendAsync (ctx, cancellationToken);
+				else
+					response = await request.Send (ctx, cancellationToken);
 
-			return CheckResponse (
-				ctx, server, response, handler, cancellationToken, expectedStatus, expectException);
+				return CheckResponse (
+					ctx, server, response, handler, cancellationToken, expectedStatus, expectException);
+			});
 		}
 
-		public static async Task<bool> RunHttpClient (
+		public static Task<bool> RunHttpClient (
 			TestContext ctx, HttpServer server, HttpClientHandler handler, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			bool expectException = false)
 		{
 			Debug (ctx, server, 0, handler, "RUN");
 
-			handler.Register (ctx);
-			var uri = handler.RegisterRequest (server.Listener);
-			var request = new HttpClientRequest (handler, uri);
-			handler.ConfigureRequest (request, uri);
+			return handler.RunWithContext (ctx, server.Listener, async (uri) => {
+				var request = new HttpClientRequest (handler, uri);
+				handler.ConfigureRequest (request, uri);
 
-			request.SetProxy (server.GetProxy ());
+				request.SetProxy (server.GetProxy ());
 
-			Response response;
+				Response response;
 
-			switch (handler.Operation) {
-			case HttpClientOperation.GetString:
-				response = await request.GetString (ctx, cancellationToken);
-				break;
-			case HttpClientOperation.PostString:
-				response = await request.PostString (ctx, handler.ReturnContent, cancellationToken);
-				break;
-			default:
-				throw new InvalidOperationException ();
-			}
+				switch (handler.Operation) {
+				case HttpClientOperation.GetString:
+					response = await request.GetString (ctx, cancellationToken);
+					break;
+				case HttpClientOperation.PostString:
+					response = await request.PostString (ctx, handler.ReturnContent, cancellationToken);
+					break;
+				default:
+					throw new InvalidOperationException ();
+				}
 
-			return CheckResponse (
-				ctx, server, response, handler, cancellationToken, expectedStatus, expectException);
+				return CheckResponse (
+					ctx, server, response, handler, cancellationToken, expectedStatus, expectException);
+			});
 		}
 
 		static bool CheckResponse (

@@ -69,7 +69,7 @@ namespace Xamarin.WebTests.Handlers
 			protected override HttpResponse OnUnauthenticated (HttpRequest request, string token, bool omitBody)
 			{
 				var handler = new AuthenticationHandler (this);
-				handler.Register (Target.Context);
+				// handler.Register (Target.Context);
 				if (omitBody)
 					handler.Flags |= RequestFlags.NoBody;
 				handler.Flags |= RequestFlags.Redirected;
