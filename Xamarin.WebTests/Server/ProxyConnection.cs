@@ -41,8 +41,8 @@ namespace Xamarin.WebTests.Server
 	{
 		Connection proxy;
 
-		public ProxyConnection (Connection proxy, StreamReader reader, StreamWriter writer)
-			: base (reader, writer)
+		public ProxyConnection (Connection proxy, Stream stream)
+			: base (stream)
 		{
 			this.proxy = proxy;
 		}

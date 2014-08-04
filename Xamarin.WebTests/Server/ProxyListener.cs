@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -49,10 +50,9 @@ namespace Xamarin.WebTests.Server
 				authManager = new ProxyAuthManager (authType);
 		}
 
-		protected override bool HandleConnection (
-			Socket socket, StreamReader reader, StreamWriter writer, CancellationToken cancellationToken)
+		protected override bool HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken)
 		{
-			var connection = new Connection (reader, writer);
+			var connection = new Connection (stream);
 			var request = connection.ReadRequest ();
 
 			var remoteAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.Server
 			}
 
 			if (request.Method.Equals ("CONNECT")) {
-				CreateTunnel (connection, socket, reader, writer, request, cancellationToken);
+				CreateTunnel (connection, socket, stream, request, cancellationToken);
 				return false;
 			}
 
@@ -82,11 +82,7 @@ namespace Xamarin.WebTests.Server
 			targetSocket.Connect (target.Uri.Host, target.Uri.Port);
 
 			using (var targetStream = new NetworkStream (targetSocket)) {
-				var targetReader = new StreamReader (targetStream);
-				var targetWriter = new StreamWriter (targetStream);
-				targetWriter.AutoFlush = true;
-
-				var targetConnection = new ProxyConnection (connection, targetReader, targetWriter);
+				var targetConnection = new ProxyConnection (connection, targetStream);
 				targetConnection.HandleRequest (request);
 
 				targetConnection.Close ();
@@ -108,13 +104,15 @@ namespace Xamarin.WebTests.Server
 		}
 
 		void CreateTunnel (
-			Connection connection, Socket socket, StreamReader reader, StreamWriter writer,
-			HttpRequest request, CancellationToken cancellationToken)
+			Connection connection, Socket socket, Stream stream, HttpRequest request, CancellationToken cancellationToken)
 		{
 			var targetEndpoint = GetConnectEndpoint (request);
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			targetSocket.Connect (targetEndpoint);
 			targetSocket.NoDelay = true;
+
+			var writer = new StreamWriter (stream, Encoding.ASCII);
+			writer.AutoFlush = true;
 
 			var connectionEstablished = new HttpResponse (HttpStatusCode.OK, HttpProtocol.Http10, "Connection established");
 			connectionEstablished.Write (writer);

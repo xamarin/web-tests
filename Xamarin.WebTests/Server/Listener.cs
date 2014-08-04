@@ -182,7 +182,7 @@ namespace Xamarin.WebTests.Server
 
 			try {
 				if (stream != null)
-					HandleConnection (socket, stream, cts.Token);
+					HandleConnection_internal (socket, stream, cts.Token);
 				Close (socket);
 			} catch (OperationCanceledException) {
 				;
@@ -252,35 +252,36 @@ namespace Xamarin.WebTests.Server
 			return authStream;
 		}
 
-		bool IsStillConnected (Socket socket, StreamReader reader)
+		bool IsStillConnected (Socket socket)
 		{
 			try {
 				if (!socket.Poll (-1, SelectMode.SelectRead))
 					return false;
-				return socket.Available > 0 && !reader.EndOfStream;
+				return socket.Available > 0;
 			} catch {
 				return false;
 			}
 		}
 
-		void HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken)
+		void HandleConnection_internal (Socket socket, Stream stream, CancellationToken cancellationToken)
 		{
+			#if FIXME
 			var reader = new StreamReader (stream, Encoding.ASCII);
 			var writer = new StreamWriter (stream, Encoding.ASCII);
 			writer.AutoFlush = true;
+			#endif
 
 			while (!cancellationToken.IsCancellationRequested) {
-				var wantToReuse = HandleConnection (socket, reader, writer, cancellationToken);
+				var wantToReuse = HandleConnection (socket, stream, cancellationToken);
 				if (!wantToReuse || cancellationToken.IsCancellationRequested)
 					break;
 
-				bool connectionAvailable = IsStillConnected (socket, reader);
+				bool connectionAvailable = IsStillConnected (socket);
 				if (!connectionAvailable && !cts.IsCancellationRequested)
 					throw new InvalidOperationException ("Expecting another connection, but socket has been shut down.");
 			}
 		}
 
-		protected abstract bool HandleConnection (
-			Socket socket, StreamReader reader, StreamWriter writer, CancellationToken cancellationToken);
+		protected abstract bool HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken);
 	}
 }

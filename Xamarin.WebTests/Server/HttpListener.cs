@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Collections.Generic;
@@ -61,10 +62,9 @@ namespace Xamarin.WebTests.Server
 			allHandlers.Add (handler);
 		}
 
-		protected override bool HandleConnection (
-			Socket socket, StreamReader reader, StreamWriter writer, CancellationToken cancellationToken)
+		protected override bool HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken)
 		{
-			var connection = new HttpConnection (this, reader, writer);
+			var connection = new HttpConnection (this, stream);
 			var request = connection.ReadRequest ();
 
 			var path = request.Path;

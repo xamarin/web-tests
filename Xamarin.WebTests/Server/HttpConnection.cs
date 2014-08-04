@@ -39,8 +39,8 @@ namespace Xamarin.WebTests.Server
 			get; private set;
 		}
 
-		public HttpConnection (HttpListener server, StreamReader reader, StreamWriter writer)
-			: base (reader, writer)
+		public HttpConnection (HttpListener server, Stream stream)
+			: base (stream)
 		{
 			Server = server;
 		}

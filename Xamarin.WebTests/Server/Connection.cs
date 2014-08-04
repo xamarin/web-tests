@@ -41,10 +41,11 @@ namespace Xamarin.WebTests.Server
 		StreamReader reader;
 		StreamWriter writer;
 
-		public Connection (StreamReader reader, StreamWriter writer)
+		public Connection (Stream stream)
 		{
-			this.reader = reader;
-			this.writer = writer;
+			reader = new StreamReader (stream, Encoding.ASCII);
+			writer = new StreamWriter (stream, Encoding.ASCII);
+			writer.AutoFlush = true;
 		}
 
 		protected StreamReader RequestReader {
