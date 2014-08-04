@@ -29,15 +29,18 @@ namespace Xamarin.AsyncTests
 {
 	public class AssertionException : Exception
 	{
+		static long next_id;
+		readonly long id = ++next_id;
+
 		readonly string stackTrace;
 
-		public AssertionException (string message, string stackTrace = null)
+		public AssertionException (string message, string stackTrace)
 			: base (message)
 		{
 			this.stackTrace = stackTrace;
 		}
 
-		public AssertionException (string message, Exception inner, string stackTrace = null)
+		public AssertionException (string message, Exception inner, string stackTrace)
 			: base (message, inner)
 		{
 			this.stackTrace = stackTrace;
@@ -47,6 +50,10 @@ namespace Xamarin.AsyncTests
 			get {
 				return stackTrace ?? base.StackTrace;
 			}
+		}
+
+		public long ID {
+			get { return id; }
 		}
 	}
 }

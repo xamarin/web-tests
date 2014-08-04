@@ -95,7 +95,7 @@ namespace Xamarin.AsyncTests
 					if (entry.Error != null)
 						Result.AddError (entry.Error);
 					else
-						Result.AddError (new AssertionException (entry.Text));
+						Result.AddError (new AssertionException (entry.Text, null));
 				} else {
 					Result.AddMessage (entry.Text);
 				}

@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests.Client
 	using Server;
 	using Framework;
 
-	public class Program : IPortableSupport
+	public class Program
 	{
 		public string SettingsFile {
 			get;
@@ -140,7 +140,9 @@ namespace Xamarin.AsyncTests.Client
 				return;
 			}
 
-			Context = new TestApp (this, Settings);
+			var support = new PortableSupport ();
+
+			Context = new TestApp (support, Settings);
 			Context.Logger = new ConsoleLogger (this);
 		}
 
@@ -280,15 +282,6 @@ namespace Xamarin.AsyncTests.Client
 				}
 			}
 		}
-
-		#region IPortableSupport implementation
-
-		public string GetStackTrace ()
-		{
-			return Environment.StackTrace;
-		}
-
-		#endregion
 	}
 }
 

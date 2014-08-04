@@ -49,11 +49,14 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public abstract object Current {
+			[StackTraceEntryPoint]
 			get;
 		}
 
+		[StackTraceEntryPoint]
 		public abstract bool HasNext ();
 
+		[StackTraceEntryPoint]
 		public abstract bool MoveNext (TestContext ctx);
 
 		public sealed override TestHost CaptureContext ()

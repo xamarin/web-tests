@@ -92,6 +92,7 @@
     <Compile Include="Framework\HttpServer.cs" />
     <Compile Include="Framework\TestRunner.cs" />
     <Compile Include="Handlers\HttpClientRequest.cs" />
+    <Compile Include="PortableSupport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

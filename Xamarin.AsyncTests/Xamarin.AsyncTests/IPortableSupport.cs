@@ -29,7 +29,7 @@ namespace Xamarin.AsyncTests
 {
 	public interface IPortableSupport
 	{
-		string GetStackTrace ();
+		string GetStackTrace (bool full);
 	}
 }
 

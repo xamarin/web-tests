@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Handlers
 {
@@ -41,9 +43,7 @@ namespace Xamarin.WebTests.Handlers
 
 		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			if (!request.Method.Equals ("GET"))
-				return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
-
+			Context.Expect (request.Method, Is.EqualTo ("GET"), true, "method");
 			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
 		}
 	}

@@ -138,6 +138,7 @@ namespace Xamarin.WebTests.Framework
 			return new HttpResponse (HttpStatusCode.OK, body != null ? new StringContent (body) : null);
 		}
 
+		// [Obsolete]
 		public static HttpResponse CreateError (string message, params object[] args)
 		{
 			return new HttpResponse (HttpStatusCode.InternalServerError, new StringContent (string.Format (message, args)));

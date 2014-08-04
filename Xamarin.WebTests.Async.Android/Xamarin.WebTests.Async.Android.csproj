@@ -130,6 +130,9 @@
     <Compile Include="..\Xamarin.WebTests\Handlers\HttpClientRequest.cs">
       <Link>Handlers\HttpClientRequest.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\PortableSupport.cs">
+      <Link>PortableSupport.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

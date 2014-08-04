@@ -32,7 +32,7 @@ namespace Xamarin.AsyncTests
 {
 	using Constraints;
 
-	public sealed class TestContext
+	public sealed class TestContext : IPortableSupport
 	{
 		readonly TestContext parent;
 		readonly IPortableSupport support;
@@ -157,21 +157,38 @@ namespace Xamarin.AsyncTests
 
 		#region Assertions
 
+		internal static string Print (object value)
+		{
+			if (value == null)
+				return "<null>";
+			var svalue = value as string;
+			if (svalue != null && string.IsNullOrEmpty (svalue))
+				return "<empty>";
+			if (svalue != null)
+				return '"' + svalue + '"';
+			else
+				return value.ToString ();
+		}
+
+		[HideStackFrame]
 		public bool Expect (object actual, Constraint constraint)
 		{
 			return Expect (actual, constraint, false, null);
 		}
 
+		[HideStackFrame]
 		public bool Expect (object actual, Constraint constraint, string format = null, params object[] args)
 		{
 			return Expect (actual, constraint, false, format, args);
 		}
 
+		[HideStackFrame]
 		public bool Expect (bool value, bool fatal = false, string format = null, params object[] args)
 		{
 			return Expect (value, Is.True, fatal, format, args);
 		}
 
+		[HideStackFrame]
 		public bool Expect (object actual, Constraint constraint, bool fatal = false, string format = null, params object[] args)
 		{
 			var sb = new StringBuilder ();
@@ -192,14 +209,36 @@ namespace Xamarin.AsyncTests
 				sb.Append (error);
 			} else {
 				sb.AppendLine ();
-				sb.AppendFormat ("Actual value: {0}", Assert.Print (actual));
+				sb.AppendFormat ("Actual value: {0}", Print (actual));
 			}
 
-			var exception = new AssertionException (sb.ToString ());
-			Result.AddError (exception);
+			var exception = new AssertionException (sb.ToString (), GetStackTrace ());
 			if (fatal)
 				throw exception;
+			Result.AddError (exception);
 			return false;
+		}
+
+		[HideStackFrame]
+		public void Assert (object actual, Constraint constraint)
+		{
+			Assert (actual, constraint, null);
+		}
+
+		[HideStackFrame]
+		public void Assert (bool value, string format = null, params object[] args)
+		{
+			Assert (value, Is.True, format, args);
+		}
+
+		[HideStackFrame]
+		public void Assert (object actual, Constraint constraint, string format = null, params object[] args)
+		{
+			Expect (actual, constraint, true, format, args);
+		}
+
+		public bool HasPendingException {
+			get { return Result.Error != null; }
 		}
 
 		#endregion
@@ -242,6 +281,18 @@ namespace Xamarin.AsyncTests
 		}
 
 		#endregion
+
+		[HideStackFrame]
+		public string GetStackTrace ()
+		{
+			return support.GetStackTrace (false);
+		}
+
+		[HideStackFrame]
+		string IPortableSupport.GetStackTrace (bool full)
+		{
+			return support.GetStackTrace (full);
+		}
 	}
 }
 

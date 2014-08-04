@@ -44,12 +44,16 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		[StackTraceEntryPoint]
 		public abstract Task Initialize (TestContext ctx, CancellationToken cancellationToken);
 
+		[StackTraceEntryPoint]
 		public abstract Task PreRun (TestContext ctx, CancellationToken cancellationToken);
 
+		[StackTraceEntryPoint]
 		public abstract Task PostRun (TestContext ctx, CancellationToken cancellationToken);
 
+		[StackTraceEntryPoint]
 		public abstract Task Destroy (TestContext ctx, CancellationToken cancellationToken);
 
 		public override sealed TestHost CaptureContext ()

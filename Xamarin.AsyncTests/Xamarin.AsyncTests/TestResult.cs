@@ -208,18 +208,13 @@ namespace Xamarin.AsyncTests
 			lock (this) {
 				WantToModify ();
 				if (error == null) {
-					Error = exception;
+					Error = new AggregateException (exception);
 					return;
 				}
 				var list = new List<Exception> ();
-				var aggregated = error as AggregateException;
-				if (aggregated != null) {
-					list.AddRange (aggregated.InnerExceptions);
-					list.Add (exception);
-					Error = new AggregateException (aggregated.Message, list);
-				} else {
-					Error = new AggregateException (exception);
-				}
+				list.AddRange (((AggregateException)error).InnerExceptions);
+				list.Add (exception);
+				Error = new AggregateException (list);
 				Status = TestStatus.Error;
 			}
 		}

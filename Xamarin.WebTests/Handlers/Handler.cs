@@ -108,7 +108,7 @@ namespace Xamarin.WebTests.Handlers
 			get { return parent; }
 		}
 
-		public TestContext Context {
+		protected TestContext Context {
 			get {
 				if (parent != null)
 					return parent.Context;
@@ -175,6 +175,7 @@ namespace Xamarin.WebTests.Handlers
 			}
 		}
 
+		[StackTraceEntryPoint]
 		protected internal abstract HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags);
 
 		public Task<T> RunWithContext<T> (TestContext ctx, HttpListener listener, Func<Uri, Task<T>> func)
@@ -216,7 +217,7 @@ namespace Xamarin.WebTests.Handlers
 		public override string ToString ()
 		{
 			var padding = string.IsNullOrEmpty (Description) ? string.Empty : ": ";
-			return string.Format ("[{0}: {1}{2}{3}]", GetType ().Name, ID, padding, Description);
+			return string.Format ("[{0}{1}{2}]", GetType ().Name, padding, Description);
 		}
 	}
 }

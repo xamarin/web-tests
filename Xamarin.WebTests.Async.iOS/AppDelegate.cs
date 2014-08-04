@@ -44,10 +44,11 @@ namespace Xamarin.WebTests.Async.iOS
 	// User Interface of the application, as well as listening (and optionally responding) to
 	// application events from iOS.
 	[Register ("AppDelegate")]
-	public partial class AppDelegate : UIApplicationDelegate, IPortableSupport
+	public partial class AppDelegate : UIApplicationDelegate
 	{
 		// class-level declarations
 		UIWindow window;
+		IPortableSupport support;
 		SettingsHost settings;
 		ServerHost server;
 		UITestApp test;
@@ -63,10 +64,12 @@ namespace Xamarin.WebTests.Async.iOS
 		{
 			Xamarin.Forms.Forms.Init ();
 
+			support = new PortableSupport ();
+
 			settings = new SettingsHost ();
 			server = new ServerHost ();
 
-			test = new UITestApp (this, settings, server, typeof(AppDelegate).Assembly);
+			test = new UITestApp (support, settings, server, typeof(AppDelegate).Assembly);
 
 			window = new UIWindow (UIScreen.MainScreen.Bounds);
 			window.RootViewController =  test.Root.CreateViewController ();
@@ -74,15 +77,6 @@ namespace Xamarin.WebTests.Async.iOS
 
 			return true;
 		}
-
-		#region IPortableSupport implementation
-
-		public string GetStackTrace ()
-		{
-			return Environment.StackTrace;
-		}
-
-		#endregion
 	}
 }
 

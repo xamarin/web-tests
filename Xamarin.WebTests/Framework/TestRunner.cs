@@ -58,7 +58,7 @@ namespace Xamarin.WebTests.Framework
 			ctx.LogDebug (level, sb.ToString ());
 		}
 
-		public static Task<bool> RunTraditional (
+		public static async Task<bool> RunTraditional (
 			TestContext ctx, HttpServer server, Handler handler,
 			CancellationToken cancellationToken, bool sendAsync = false,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
@@ -66,7 +66,7 @@ namespace Xamarin.WebTests.Framework
 		{
 			Debug (ctx, server, 0, handler, "RUN");
 
-			return handler.RunWithContext (ctx, server.Listener, async (uri) => {
+			var retval = await handler.RunWithContext (ctx, server.Listener, async (uri) => {
 				var request = new TraditionalRequest (uri);
 				handler.ConfigureRequest (request, uri);
 
@@ -81,6 +81,8 @@ namespace Xamarin.WebTests.Framework
 				return CheckResponse (
 					ctx, server, response, handler, cancellationToken, expectedStatus, expectException);
 			});
+
+			return retval;
 		}
 
 		public static Task<bool> RunHttpClient (
@@ -120,6 +122,9 @@ namespace Xamarin.WebTests.Framework
 			bool expectException = false)
 		{
 			Debug (ctx, server, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error);
+
+			if (ctx.HasPendingException)
+				return false;
 
 			bool ok;
 

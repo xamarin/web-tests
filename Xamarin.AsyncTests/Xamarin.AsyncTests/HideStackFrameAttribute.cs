@@ -1,5 +1,5 @@
 ﻿//
-// GetHandler.cs
+// HideStackFrameAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,45 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Globalization;
-using System.Collections.Generic;
 
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
-
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.AsyncTests
 {
-	using Framework;
-	using Server;
-
-	public class GetHandler : Handler
+	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
+	public class HideStackFrameAttribute : Attribute
 	{
-		HttpContent content;
-
-		public HttpContent Content {
-			get {
-				return content;
-			}
-			set {
-				WantToModify ();
-				content = value;
-			}
-		}
-
-		public override object Clone ()
-		{
-			return new GetHandler { Content = Content };
-		}
-
-		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
-		{
-			Assert.That (request.Method, Is.EqualTo ("get"), "method");
-			return new HttpResponse (HttpStatusCode.OK, Content);
-		}
 	}
 }
 

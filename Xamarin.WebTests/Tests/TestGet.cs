@@ -64,8 +64,15 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
+		public Task Run (TestContext ctx, CancellationToken cancellationToken, [TestHost] HttpServer server, [TestParameter] Handler handler)
+		{
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+		}
+
+		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] HttpServer server, bool sendAsync, [TestParameter] Handler handler)
+			[TestHost] HttpServer server, bool sendAsync,
+			[TestParameter] Handler handler)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}

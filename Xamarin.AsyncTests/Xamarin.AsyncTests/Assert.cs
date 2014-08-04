@@ -30,6 +30,7 @@ namespace Xamarin.AsyncTests
 {
 	using Constraints;
 
+	[Obsolete]
 	public static class Assert
 	{
 		public static void That (object actual, Constraint constraint, string format, params object[] args)
@@ -63,7 +64,7 @@ namespace Xamarin.AsyncTests
 				sb.AppendLine ();
 				sb.Append (errorMessage);
 			}
-			throw new AssertionException (sb.ToString ());
+			throw new AssertionException (sb.ToString (), null);
 		}
 
 		public static void Fail (string format, params object[] args)
@@ -73,7 +74,7 @@ namespace Xamarin.AsyncTests
 
 		public static void Fail (string message)
 		{
-			throw new AssertionException (message);
+			throw new AssertionException (message, null);
 		}
 	}
 }

@@ -19,7 +19,7 @@ using Xamarin.WebTests.Async;
 namespace Xamarin.WebTests.Async.Android
 {
 	[Activity (Label = "Xamarin.WebTests.Async.Android", MainLauncher = true)]
-	public class MainActivity : AndroidActivity, IPortableSupport
+	public class MainActivity : AndroidActivity
 	{
 		ISharedPreferences preferences;
 
@@ -30,10 +30,11 @@ namespace Xamarin.WebTests.Async.Android
 			Xamarin.Forms.Forms.Init (this, bundle);
 
 			preferences = PreferenceManager.GetDefaultSharedPreferences (this);
+			var support = new PortableSupport ();
 			var settings = new SettingsHost (preferences);
 			var server = new ServerHost ();
 
-			var test = new UITestApp (this, settings, server, typeof(MainActivity).Assembly);
+			var test = new UITestApp (support, settings, server, typeof(MainActivity).Assembly);
 
 			SetPage (test.Root);
 		}

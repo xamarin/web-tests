@@ -239,11 +239,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				throw new InvalidOperationException ();
 
 			try {
-				return Method.Invoke (thisInstance, args.ToArray ());
+				return DoInvokeInner (thisInstance, args.ToArray ());
 			} finally {
 				if (timeoutCts != null)
 					timeoutCts.Dispose ();
 			}
+		}
+
+		[StackTraceEntryPoint]
+		object DoInvokeInner (object instance, object[] args)
+		{
+			return Method.Invoke (instance, args);
 		}
 
 		async Task<bool> ExpectingSuccess (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
@@ -271,8 +277,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					await task;
 					ok = true;
 				}
-				if (!ok)
-					throw new AssertionException ("Test failed");
+				if (!ok) {
+					if (ctx.HasPendingException)
+						return false;
+					throw new AssertionException ("Test failed", ctx.GetStackTrace ());
+				}
 				ctx.OnTestFinished (TestStatus.Success);
 				return ok;
 			} catch (OperationCanceledException) {
@@ -295,7 +304,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					await task;
 
 				var message = string.Format ("Expected an exception of type {0}", expectedException);
-				ctx.OnError (new AssertionException (message));
+				ctx.OnError (new AssertionException (message, ctx.GetStackTrace ()));
 				return false;
 			} catch (Exception ex) {
 				if (ex is TargetInvocationException)
@@ -306,7 +315,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				}
 				var message = string.Format ("Expected an exception of type {0}, but got {1}",
 					expectedException, ex.GetType ());
-				ctx.OnError (new AssertionException (message, ex));
+				ctx.OnError (new AssertionException (message, ex, ctx.GetStackTrace ()));
 				return false;
 			}
 		}
