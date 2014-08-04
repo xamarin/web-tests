@@ -34,13 +34,13 @@ namespace Xamarin.AsyncTests
 
 		readonly string stackTrace;
 
-		public AssertionException (string message, string stackTrace)
+		internal AssertionException (string message, string stackTrace)
 			: base (message)
 		{
 			this.stackTrace = stackTrace;
 		}
 
-		public AssertionException (string message, Exception inner, string stackTrace)
+		internal AssertionException (string message, Exception inner, string stackTrace)
 			: base (message, inner)
 		{
 			this.stackTrace = stackTrace;

@@ -51,7 +51,6 @@
     <Compile Include="Xamarin.AsyncTests\TestResult.cs" />
     <Compile Include="Xamarin.AsyncTests\TestStatus.cs" />
     <Compile Include="Xamarin.AsyncTests\TestNameBuilder.cs" />
-    <Compile Include="Xamarin.AsyncTests\Assert.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\Constraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\Is.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\EqualConstraint.cs" />

@@ -66,7 +66,7 @@ namespace Xamarin.AsyncTests.Constraints
 
 		public override string Print ()
 		{
-			return string.Format ("{0}({1})", Name, Assert.Print (Expected));
+			return string.Format ("{0}({1})", Name, TestContext.Print (Expected));
 		}
 	}
 }
