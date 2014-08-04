@@ -83,7 +83,7 @@ namespace Xamarin.WebTests.Handlers
 
 		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			Debug (ctx, 0, "HANDLE POST", request.Path, request.Method, effectiveFlags);
+			Debug (ctx, 2, "HANDLE POST", request.Path, request.Method, effectiveFlags);
 
 			if (request.Headers.ContainsKey ("X-Mono-Redirected"))
 				effectiveFlags |= RequestFlags.Redirected;

@@ -64,7 +64,7 @@ namespace Xamarin.WebTests.Framework
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			bool expectException = false)
 		{
-			Debug (ctx, server, 0, handler, "RUN");
+			Debug (ctx, server, 1, handler, "RUN TRADITIONAL");
 
 			var retval = await handler.RunWithContext (ctx, server.Listener, async (uri) => {
 				var request = new TraditionalRequest (uri);
@@ -90,7 +90,7 @@ namespace Xamarin.WebTests.Framework
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			bool expectException = false)
 		{
-			Debug (ctx, server, 0, handler, "RUN");
+			Debug (ctx, server, 1, handler, "RUN HTTP CLIENT");
 
 			return handler.RunWithContext (ctx, server.Listener, async (uri) => {
 				var request = new HttpClientRequest (handler, uri);

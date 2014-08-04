@@ -136,7 +136,7 @@ namespace Xamarin.WebTests.Handlers
 
 			ctx.Assert (response, Is.Not.Null, "response");
 
-			ctx.LogMessage ("GOT RESPONSE: {0}", response.StatusCode);
+			ctx.LogDebug (3, "GOT RESPONSE: {0}", response.StatusCode);
 
 			if (!response.IsSuccessStatusCode)
 				return new SimpleResponse (this, response.StatusCode, null);
@@ -144,7 +144,7 @@ namespace Xamarin.WebTests.Handlers
 			string body = null;
 			if (response.Content != null) {
 				body = await response.Content.ReadAsStringAsync ();
-				ctx.LogMessage ("GOT BODY: {0}", body);
+				ctx.LogDebug (5, "GOT BODY: {0}", body);
 			}
 
 			if (returnContent != null) {
