@@ -27,6 +27,8 @@ using System;
 using System.Net;
 using Mono.Security.Protocol.Ntlm;
 
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
@@ -82,7 +84,7 @@ namespace Xamarin.WebTests.Handlers
 
 		readonly HttpAuthManager manager;
 
-		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
 			string authHeader;
 			if (!request.Headers.TryGetValue ("Authorization", out authHeader))
@@ -92,7 +94,7 @@ namespace Xamarin.WebTests.Handlers
 			if (response != null)
 				return response;
 
-			return Target.HandleRequest (connection, request, effectiveFlags);
+			return Target.HandleRequest (ctx, connection, request, effectiveFlags);
 		}
 
 		public override void ConfigureRequest (Request request, Uri uri)

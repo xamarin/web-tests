@@ -41,9 +41,9 @@ namespace Xamarin.WebTests.Handlers
 			return new HelloWorldHandler ();
 		}
 
-		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			Context.Expect (request.Method, Is.EqualTo ("GET"), true, "method");
+			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
 			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
 		}
 	}

@@ -31,6 +31,8 @@ using System.Threading;
 using System.Globalization;
 using System.Collections.Generic;
 
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
@@ -79,9 +81,9 @@ namespace Xamarin.WebTests.Handlers
 			return post;
 		}
 
-		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			Debug (0, "HANDLE POST", request.Path, request.Method, effectiveFlags);
+			Debug (ctx, 0, "HANDLE POST", request.Path, request.Method, effectiveFlags);
 
 			if (request.Headers.ContainsKey ("X-Mono-Redirected"))
 				effectiveFlags |= RequestFlags.Redirected;
@@ -152,16 +154,16 @@ namespace Xamarin.WebTests.Handlers
 				return HttpResponse.CreateError ("Unknown TransferMode: '{0}'", Mode);
 			}
 
-			Debug (5, "BODY", content);
+			Debug (ctx, 5, "BODY", content);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
-				Context.Expect (HttpContent.IsNullOrEmpty (content), true, "Must not send a body with this request.");
+				ctx.Assert (HttpContent.IsNullOrEmpty (content), "Must not send a body with this request.");
 				return HttpResponse.CreateSuccess ();
 			}
 
 			if (Content != null)
-				HttpContent.Compare (Context, content, Content, true, true);
+				HttpContent.Compare (ctx, content, Content, true, true);
 			else
-				Context.Expect (HttpContent.IsNullOrEmpty (content), true);
+				ctx.Assert (HttpContent.IsNullOrEmpty (content));
 
 			return HttpResponse.CreateSuccess ();
 		}

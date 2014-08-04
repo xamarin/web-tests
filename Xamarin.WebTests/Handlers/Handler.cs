@@ -108,66 +108,68 @@ namespace Xamarin.WebTests.Handlers
 			get { return parent; }
 		}
 
-		protected TestContext Context {
-			get {
-				if (parent != null)
-					return parent.Context;
-				else if (context == null)
-					throw new InvalidOperationException ();
-				return context;
-			}
+		TestContext GetContext ()
+		{
+			if (parent != null)
+				return parent.GetContext ();
+			else if (context == null)
+				throw new InvalidOperationException ();
+			return context;
 		}
-
-		protected void Debug (int level, string message, params object[] args)
+			
+		protected void Debug (TestContext ctx, int level, string message, params object[] args)
 		{
 			if (DebugLevel < level)
 				return;
-			if (Context == null)
-				throw new InvalidOperationException ();
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("{0}: {1}", this, message);
 			for (int i = 0; i < args.Length; i++) {
 				sb.Append (" ");
 				sb.Append (args [i] != null ? args [i].ToString () : "<null>");
 			}
-			Context.LogDebug (level, sb.ToString ());
+			ctx.LogDebug (level, sb.ToString ());
 		}
 
-		protected void DumpHeaders (HttpMessage message)
+		void DumpHeaders (TestContext ctx, HttpMessage message)
 		{
 			if (DebugLevel < 2)
 				return;
+			var sb = new StringBuilder ();
 			foreach (var header in message.Headers) {
-				Context.LogMessage (string.Format ("  {0} = {1}", header.Key, header.Value));
+				sb.AppendFormat ("  {0} = {1}", header.Key, header.Value);
+				sb.AppendLine ();
 			}
+			ctx.LogDebug (2, sb.ToString ());
 		}
 
 		public bool HandleRequest (HttpConnection connection, HttpRequest request)
 		{
+			var ctx = GetContext ();
+			if (ctx == null)
+				throw new InvalidOperationException ();
+
 			try {
-				Debug (1, "HANDLE REQUEST");
-				DumpHeaders (request);
-				if (Context == null)
-					throw new InvalidOperationException ();
-				var response = HandleRequest (connection, request, Flags);
+				Debug (ctx, 1, "HANDLE REQUEST");
+				DumpHeaders (ctx, request);
+				var response = HandleRequest (ctx, connection, request, Flags);
 				if (response == null)
 					response = HttpResponse.CreateSuccess ();
 				if (!response.KeepAlive.HasValue && ((Flags & RequestFlags.KeepAlive) != 0))
 					response.KeepAlive = true;
 				request.ReadBody ();
 				connection.WriteResponse (response);
-				Debug (1, "HANDLE REQUEST DONE", response);
-				DumpHeaders (response);
+				Debug (ctx, 1, "HANDLE REQUEST DONE", response);
+				DumpHeaders (ctx, response);
 				tcs.SetResult (response.IsSuccess);
 				return response.KeepAlive ?? false;
 			} catch (AssertionException ex) {
-				Debug (1, "HANDLE REQUEST - ASSERTION FAILED", ex);
+				Debug (ctx, 1, "HANDLE REQUEST - ASSERTION FAILED", ex);
 				var response = HttpResponse.CreateError (ex.Message);
 				connection.WriteResponse (response);
 				tcs.SetException (ex);
 				return false;
 			} catch (Exception ex) {
-				Debug (0, "HANDLE REQUEST EX", ex);
+				Debug (ctx, 0, "HANDLE REQUEST EX", ex);
 				var response = HttpResponse.CreateError ("Caught unhandled exception", ex);
 				connection.WriteResponse (response);
 				tcs.SetException (ex);
@@ -176,7 +178,7 @@ namespace Xamarin.WebTests.Handlers
 		}
 
 		[StackTraceEntryPoint]
-		protected internal abstract HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags);
+		protected internal abstract HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags);
 
 		public Task<T> RunWithContext<T> (TestContext ctx, HttpListener listener, Func<Uri, Task<T>> func)
 		{

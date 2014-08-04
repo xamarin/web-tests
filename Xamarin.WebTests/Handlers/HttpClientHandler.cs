@@ -78,32 +78,32 @@ namespace Xamarin.WebTests.Handlers
 			return handler;
 		}
 
-		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
 			switch (Operation) {
 			case HttpClientOperation.GetString:
-				Assert.That (request.Method, Is.EqualTo ("GET"), "method");
+				ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
 				return HttpResponse.CreateSuccess (string.Format ("Hello World!"));
 
 			case HttpClientOperation.PostString:
-				return HandlePostString (connection, request, effectiveFlags);
+				return HandlePostString (ctx, connection, request, effectiveFlags);
 
 			default:
 				throw new InvalidOperationException ();
 			}
 		}
 
-		HttpResponse HandlePostString (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		HttpResponse HandlePostString (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
 			var body = request.ReadBody ();
 
-			Debug (5, "BODY", body);
+			Debug (ctx, 5, "BODY", body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
-				Assert.That (body, Is.Not.Null, "body");
+				ctx.Assert (body, Is.Not.Null, "body");
 				return HttpResponse.CreateSuccess ();
 			}
 
-			HttpContent.Compare (Context, body, Content, false, true);
+			HttpContent.Compare (ctx, body, Content, false, true);
 			return new HttpResponse (HttpStatusCode.OK, returnContent);
 		}
 

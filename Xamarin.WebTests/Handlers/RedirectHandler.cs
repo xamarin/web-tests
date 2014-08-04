@@ -28,6 +28,8 @@ using System.Net;
 using System.Text;
 using System.Globalization;
 
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
@@ -60,7 +62,7 @@ namespace Xamarin.WebTests.Handlers
 			return icode == 301 || icode == 302 || icode == 303 || icode == 307;
 		}
 
-		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
 			var targetUri = Target.RegisterRequest (connection.Server);
 			return HttpResponse.CreateRedirect (Code, targetUri);

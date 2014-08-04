@@ -134,7 +134,7 @@ namespace Xamarin.WebTests.Handlers
 			var response = await Client.SendAsync (
 				message, Http.HttpCompletionOption.ResponseContentRead, cancellationToken);
 
-			Assert.That (response, Is.Not.Null, "response");
+			ctx.Assert (response, Is.Not.Null, "response");
 
 			ctx.LogMessage ("GOT RESPONSE: {0}", response.StatusCode);
 
@@ -148,12 +148,12 @@ namespace Xamarin.WebTests.Handlers
 			}
 
 			if (returnContent != null) {
-				Assert.That (body, Is.Not.Null, "returned body");
+				ctx.Assert (body, Is.Not.Null, "returned body");
 
 				body = body.TrimEnd ();
-				Assert.That (body, Is.EqualTo (returnContent.AsString ()), "returned body");
+				ctx.Assert (body, Is.EqualTo (returnContent.AsString ()), "returned body");
 			} else {
-				Assert.That (body, Is.Empty, "returned body");
+				ctx.Assert (body, Is.Empty, "returned body");
 			}
 
 			return new SimpleResponse (this, response.StatusCode, returnContent);

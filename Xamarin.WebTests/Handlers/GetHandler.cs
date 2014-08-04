@@ -58,9 +58,9 @@ namespace Xamarin.WebTests.Handlers
 			return new GetHandler { Content = Content };
 		}
 
-		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			Assert.That (request.Method, Is.EqualTo ("get"), "method");
+			ctx.Assert (request.Method, Is.EqualTo ("get"), "method");
 			return new HttpResponse (HttpStatusCode.OK, Content);
 		}
 	}

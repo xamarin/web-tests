@@ -31,6 +31,8 @@ using System.Threading;
 using System.Globalization;
 using System.Collections.Generic;
 
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
@@ -55,7 +57,7 @@ namespace Xamarin.WebTests.Handlers
 			return delete;
 		}
 
-		protected internal override HttpResponse HandleRequest (HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
 			if (!request.Method.Equals ("DELETE"))
 				return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
