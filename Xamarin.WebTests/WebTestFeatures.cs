@@ -54,6 +54,14 @@ namespace Xamarin.WebTests
 	}
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class HeavyAttribute : TestCategoryAttribute
+	{
+		public override TestCategory Category {
+			get { return WebTestFeatures.HeavyCategory; }
+		}
+	}
+
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class ProxyAttribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {
@@ -97,6 +105,7 @@ namespace Xamarin.WebTests
 		public static readonly TestFeature Mono361;
 
 		public static readonly TestCategory WorkCategory = new TestCategory ("Work") { IsExplicit = true };
+		public static readonly TestCategory HeavyCategory = new TestCategory ("Heavy") { IsExplicit = true };
 		public static readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
 
 		#region ITestSuite implementation
@@ -120,6 +129,7 @@ namespace Xamarin.WebTests
 		public IEnumerable<TestCategory> Categories {
 			get {
 				yield return WorkCategory;
+				yield return HeavyCategory;
 				yield return RecentlyFixedCategory;
 			}
 		}

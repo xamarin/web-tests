@@ -1,5 +1,5 @@
 ﻿//
-// TestPost.cs
+// TestFork.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -39,55 +39,44 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 	using Portable;
 
+	[Heavy]
 	[AsyncTestFixture (Timeout = 5000)]
-	public class TestGet : ITestHost<HttpServer>, ITestParameterSource<Handler>
+	public class TestFork : ITestHost<HttpServer>, ITestParameterSource<Handler>
 	{
-		[TestParameter (typeof (WebTestFeatures.SelectSSL), null, TestFlags.Hidden)]
-		public bool UseSSL {
-			get; set;
-		}
-
-		[TestParameter (typeof (WebTestFeatures.SelectReuseConnection), null, TestFlags.Hidden)]
-		public bool ReuseConnection {
-			get; set;
-		}
-
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			return new HttpServer (PortableSupport.Web.GetLoopbackEndpoint (9999), ReuseConnection, UseSSL);
+			return new HttpServer (PortableSupport.Web.GetLoopbackEndpoint (9999), true, false);
+		}
+
+		static Random random = new Random ();
+
+		HttpContent CreateRandomContent ()
+		{
+			var size = 13 + random.Next (1048576);
+			var bytes = new byte [size];
+			random.NextBytes (bytes);
+			var text = Convert.ToBase64String (bytes);
+			return new ChunkedContent (text);
 		}
 
 		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
-			yield return new HelloWorldHandler ();
-			yield return new HelloWorldHandler ();
+			yield return new PostHandler {
+				Mode = TransferMode.Chunked,  Content = CreateRandomContent (),
+				Description = "Large chunked post"
+			};
 		}
 
 		[AsyncTest]
-		public Task Run (TestContext ctx, CancellationToken cancellationToken, [TestHost] HttpServer server, [TestParameter] Handler handler)
+		public async Task Run (TestContext ctx, [TestHost] HttpServer server,
+			[Fork (10, RandomDelay = 1500)] IFork fork, [Repeat (50)] int repeat,
+			[TestParameter] Handler handler, CancellationToken cancellationToken)
 		{
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
-		}
+			ctx.LogDebug (1, "FORK START: {0} {1}", fork.ID, ctx.PortableSupport.CurrentThreadId);
 
-		[AsyncTest]
-		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] HttpServer server, bool sendAsync,
-			[TestParameter] Handler handler)
-		{
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
-		}
+			await TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 
-		[AsyncTest]
-		public Task Redirect (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] HttpServer server, bool sendAsync,
-			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
-			[TestParameter] Handler handler)
-		{
-			var description = string.Format ("{0}: {1}", code, handler.Description);
-			var redirect = new RedirectHandler (handler, code) { Description = description };
-
-			return TestRunner.RunTraditional (ctx, server, redirect, cancellationToken, sendAsync);
+			ctx.LogDebug (1, "FORK DONE: {0} {1}", fork.ID, ctx.PortableSupport.CurrentThreadId);
 		}
 	}
 }
-
