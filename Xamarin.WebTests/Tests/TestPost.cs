@@ -36,9 +36,9 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Tests
 {
-	using Server;
 	using Handlers;
 	using Framework;
+	using Portable;
 
 	[AsyncTestFixture (Timeout = 15000)]
 	public class TestPost : ITestHost<HttpServer>, ITestParameterSource<Handler>
@@ -50,7 +50,7 @@ namespace Xamarin.WebTests.Tests
 
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			return new HttpServer (IPAddress.Loopback, 9999) { UseSSL = UseSSL };
+			return new HttpServer (PortableSupport.Web.GetLoopbackEndpoint (9999), false, UseSSL);
 		}
 
 		public static IEnumerable<PostHandler> GetPostTests ()
@@ -191,7 +191,7 @@ namespace Xamarin.WebTests.Tests
 			[TestParameter ("post")] Handler handler, CancellationToken cancellationToken)
 		{
 			var post = (PostHandler)handler;
-			var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
+			var isWindows = ctx.PortableSupport.IsMicrosoftRuntime;
 			var hasBody = post.Content != null || ((post.Flags & RequestFlags.ExplicitlySetLength) != 0) || (post.Mode == TransferMode.ContentLength);
 
 			if ((hasBody || !isWindows) && (code == HttpStatusCode.MovedPermanently || code == HttpStatusCode.Found))
@@ -216,11 +216,12 @@ namespace Xamarin.WebTests.Tests
 			};
 			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
 
-			await redirect.RunWithContext (ctx, server.Listener, async (uri) => {
-				var wc = new WebClient ();
-				var res = await wc.UploadStringTaskAsync (uri, post.Content.AsString ());
-				ctx.LogDebug (2, "Test18750: {0}", res);
-				return res;
+			await redirect.RunWithContext (ctx, server, async (uri) => {
+				using (var wc = PortableSupport.Web.CreateWebClient ()) {
+					var res = await wc.UploadStringTaskAsync (uri, post.Content.AsString ());
+					ctx.LogDebug (2, "Test18750: {0}", res);
+					return res;
+				}
 			});
 
 			var secondPost = new PostHandler {

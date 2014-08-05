@@ -35,9 +35,9 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Tests
 {
-	using Server;
 	using Handlers;
 	using Framework;
+	using Portable;
 
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestGet : ITestHost<HttpServer>, ITestParameterSource<Handler>
@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.Tests
 
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			return new HttpServer (IPAddress.Loopback, 9999) { UseSSL = UseSSL, ReuseConnection = ReuseConnection };
+			return new HttpServer (PortableSupport.Web.GetLoopbackEndpoint (9999), ReuseConnection, UseSSL);
 		}
 
 		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
@@ -93,11 +93,11 @@ namespace Xamarin.WebTests.Tests
 		[AsyncTest]
 		public async Task TestFork (TestContext ctx, [Fork (5, RandomDelay = 1500)] IFork fork, CancellationToken cancellationToken)
 		{
-			ctx.LogMessage ("FORK START: {0} {1}", fork.ID, Thread.CurrentThread.ManagedThreadId);
+			ctx.LogMessage ("FORK START: {0} {1}", fork.ID, ctx.PortableSupport.CurrentThreadId);
 			Task.Delay (1500).Wait ();
-			ctx.LogMessage ("FORK HERE: {0} {1}", fork.ID, Thread.CurrentThread.ManagedThreadId);
+			ctx.LogMessage ("FORK HERE: {0} {1}", fork.ID, ctx.PortableSupport.CurrentThreadId);
 			await Task.Delay (5000);
-			ctx.LogMessage ("FORK DONE: {0} {1}", fork.ID, Thread.CurrentThread.ManagedThreadId);
+			ctx.LogMessage ("FORK DONE: {0} {1}", fork.ID, ctx.PortableSupport.CurrentThreadId);
 		}
 	}
 }

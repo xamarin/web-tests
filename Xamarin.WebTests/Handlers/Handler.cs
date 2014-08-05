@@ -33,7 +33,6 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
-	using Server;
 
 	public abstract class Handler : Xamarin.AsyncTests.ICloneable, ITestFilter
 	{
@@ -180,9 +179,9 @@ namespace Xamarin.WebTests.Handlers
 		[StackTraceEntryPoint]
 		protected internal abstract HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags);
 
-		public Task<T> RunWithContext<T> (TestContext ctx, HttpListener listener, Func<Uri, Task<T>> func)
+		public Task<T> RunWithContext<T> (TestContext ctx, HttpServer server, Func<Uri, Task<T>> func)
 		{
-			var uri = RegisterRequest (listener);
+			var uri = RegisterRequest (server);
 			return RunWithContext (ctx, uri, func);
 		}
 
@@ -199,14 +198,14 @@ namespace Xamarin.WebTests.Handlers
 			}
 		}
 
-		internal Uri RegisterRequest (HttpListener listener)
+		internal Uri RegisterRequest (HttpServer server)
 		{
 			lock (this) {
 				if (hasRequest)
 					throw new InvalidOperationException ();
 				hasRequest = true;
 
-				return listener.RegisterHandler (this);
+				return server.RegisterHandler (this);
 			}
 		}
 

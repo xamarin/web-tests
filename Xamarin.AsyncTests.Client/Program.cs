@@ -33,6 +33,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.WebTests;
+using Xamarin.WebTests.Portable;
 using NDesk.Options;
 
 namespace Xamarin.AsyncTests.Client
@@ -107,6 +108,8 @@ namespace Xamarin.AsyncTests.Client
 			SD.Debug.AutoFlush = true;
 			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
 
+			PortableSupportImpl.Initialize ();
+
 			var program = new Program (args);
 
 			try {
@@ -140,9 +143,7 @@ namespace Xamarin.AsyncTests.Client
 				return;
 			}
 
-			var support = new PortableSupport ();
-
-			Context = new TestApp (support, Settings);
+			Context = new TestApp (PortableSupport.Instance, Settings);
 			Context.Logger = new ConsoleLogger (this);
 		}
 

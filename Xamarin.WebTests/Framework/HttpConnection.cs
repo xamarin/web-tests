@@ -1,5 +1,5 @@
 ﻿//
-// Listener.cs
+// HttpConnection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,53 +25,23 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Text;
 using System.Net;
-using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Framework
 {
-	using Handlers;
-
-	public class HttpListener : Listener
+	public class HttpConnection : Connection
 	{
-		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
-		List<Handler> allHandlers = new List<Handler> ();
-
-		static int nextId;
-
-		public HttpListener (IPAddress address, int port, bool reuseConnection, bool ssl)
-			: base (address, port, reuseConnection, ssl)
-		{
+		public HttpServer Server {
+			get; private set;
 		}
 
-		public Uri RegisterHandler (Handler handler)
+		public HttpConnection (HttpServer server, Stream stream)
+			: base (stream)
 		{
-			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
-			handlers.Add (path, handler);
-			allHandlers.Add (handler);
-			return new Uri (Uri, path);
-		}
-
-		public void RegisterHandler (string path, Handler handler)
-		{
-			handlers.Add (path, handler);
-			allHandlers.Add (handler);
-		}
-
-		protected override bool HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken)
-		{
-			var connection = new HttpConnection (this, stream);
-			var request = connection.ReadRequest ();
-
-			var path = request.Path;
-			var handler = handlers [path];
-			handlers.Remove (path);
-
-			return handler.HandleRequest (connection, request);
+			Server = server;
 		}
 	}
 }

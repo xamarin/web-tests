@@ -6,6 +6,8 @@ Build
 # mstest test results
 TestResults
 
+*.suo
+
 *.userprefs
 /packages/
 result.xml

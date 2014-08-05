@@ -1,5 +1,5 @@
 ﻿//
-// HttpConnection.cs
+// Connection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -26,23 +26,58 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Net.Sockets;
+using System.Text;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Framework
 {
-	public class HttpConnection : Connection
+	using Portable;
+
+	public class Connection
 	{
-		public HttpListener Server {
-			get; private set;
+		StreamReader reader;
+		StreamWriter writer;
+
+		public Connection (Stream stream)
+		{
+			reader = new StreamReader (stream);
+			writer = new StreamWriter (stream);
+			writer.AutoFlush = true;
 		}
 
-		public HttpConnection (HttpListener server, Stream stream)
-			: base (stream)
+		protected StreamReader RequestReader {
+			get { return reader; }
+		}
+
+		protected StreamWriter ResponseWriter {
+			get { return writer; }
+		}
+
+		public HttpRequest ReadRequest ()
 		{
-			Server = server;
+			return new HttpRequest (this, reader);
+		}
+
+		protected HttpResponse ReadResponse ()
+		{
+			return new HttpResponse (this, reader);
+		}
+
+		protected void WriteRequest (HttpRequest request)
+		{
+			request.Write (writer);
+		}
+
+		public void WriteResponse (HttpResponse response)
+		{
+			response.Write (writer);
+		}
+
+		public void Close ()
+		{
+			writer.Flush ();
 		}
 	}
 }

@@ -33,17 +33,20 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.Server
 {
 	using Framework;
+	using Portable;
 
 	public class ProxyListener : Listener
 	{
 		readonly HttpListener target;
 		ProxyAuthManager authManager;
 
-		public ProxyListener (HttpListener target, IPAddress address, int port, AuthenticationType authType)
-			: base (address, port, false, false)
+		public ProxyListener (HttpListener target, IPortableEndPoint endpoint, AuthenticationType authType)
+			: base (endpoint, false, false)
 		{
 			this.target = target;
 			if (authType != AuthenticationType.None)

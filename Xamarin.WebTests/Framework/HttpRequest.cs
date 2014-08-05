@@ -32,8 +32,6 @@ using System.Collections.Generic;
 
 namespace Xamarin.WebTests.Framework
 {
-	using Server;
-
 	public class HttpRequest : HttpMessage
 	{
 		public HttpRequest (Connection connection, StreamReader reader)
@@ -53,10 +51,8 @@ namespace Xamarin.WebTests.Framework
 		{
 			var header = reader.ReadLine ();
 			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
-			if (fields.Length != 3) {
-				Console.Error.WriteLine ("GOT INVALID HTTP REQUEST: {0}", header);
+			if (fields.Length != 3)
 				throw new InvalidOperationException ();
-			}
 
 			Method = fields [0];
 			Protocol = ProtocolFromString (fields [2]);

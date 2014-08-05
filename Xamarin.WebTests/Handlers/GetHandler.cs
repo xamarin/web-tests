@@ -37,7 +37,6 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
-	using Server;
 
 	public class GetHandler : Handler
 	{

@@ -29,8 +29,6 @@ using System.Net;
 
 namespace Xamarin.WebTests.Framework
 {
-	using Server;
-
 	public class HttpResponse : HttpMessage
 	{
 		public HttpStatusCode StatusCode {
@@ -93,10 +91,8 @@ namespace Xamarin.WebTests.Framework
 		{
 			var header = reader.ReadLine ();
 			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
-			if (fields.Length < 2 || fields.Length > 3) {
-				Console.Error.WriteLine ("GOT INVALID HTTP REQUEST: {0}", header);
+			if (fields.Length < 2 || fields.Length > 3)
 				throw new InvalidOperationException ();
-			}
 
 			Protocol = ProtocolFromString (fields [0]);
 			StatusCode = (HttpStatusCode)int.Parse (fields [1]);

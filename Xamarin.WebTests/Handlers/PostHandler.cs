@@ -36,7 +36,7 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
-	using Server;
+	using Portable;
 
 	public class PostHandler : Handler
 	{
@@ -145,7 +145,7 @@ namespace Xamarin.WebTests.Handlers
 					return HttpResponse.CreateError ("Missing Transfer-Encoding header");
 
 				var transferEncoding = request.Headers ["Transfer-Encoding"];
-				if (!string.Equals (transferEncoding, "chunked", StringComparison.InvariantCultureIgnoreCase))
+				if (!string.Equals (transferEncoding, "chunked", StringComparison.OrdinalIgnoreCase))
 					return HttpResponse.CreateError ("Invalid Transfer-Encoding header: '{0}'", transferEncoding);
 
 				break;
@@ -174,7 +174,7 @@ namespace Xamarin.WebTests.Handlers
 			request.Method = "POST";
 
 			if (AllowWriteStreamBuffering != null)
-				((TraditionalRequest)request).Request.AllowWriteStreamBuffering = AllowWriteStreamBuffering.Value;
+				PortableSupport.Web.SetAllowWriteStreamBuffering (((TraditionalRequest)request).Request, AllowWriteStreamBuffering.Value);
 
 			if (Content != null)
 				request.SetContentType ("text/plain");

@@ -32,7 +32,7 @@ namespace Xamarin.AsyncTests
 {
 	using Constraints;
 
-	public sealed class TestContext : IPortableSupport
+	public sealed class TestContext
 	{
 		readonly TestContext parent;
 		readonly IPortableSupport support;
@@ -49,6 +49,10 @@ namespace Xamarin.AsyncTests
 
 		public TestResult Result {
 			get { return result ?? parent.Result; }
+		}
+
+		public IPortableSupport PortableSupport {
+			get { return support; }
 		}
 
 		internal TestContext (IPortableSupport support, TestConfiguration config, SettingsBag settings,
@@ -286,12 +290,6 @@ namespace Xamarin.AsyncTests
 		public string GetStackTrace ()
 		{
 			return support.GetStackTrace (false);
-		}
-
-		[HideStackFrame]
-		string IPortableSupport.GetStackTrace (bool full)
-		{
-			return support.GetStackTrace (full);
 		}
 	}
 }

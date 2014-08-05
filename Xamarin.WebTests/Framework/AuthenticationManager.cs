@@ -25,16 +25,10 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
-using Mono.Security.Protocol.Ntlm;
 
 namespace Xamarin.WebTests.Framework
 {
-	public enum AuthenticationType {
-		None,
-		Basic,
-		NTLM,
-		ForceNone
-	}
+	using Portable;
 
 	public enum AuthenticationState {
 		Authenticated,
@@ -100,25 +94,11 @@ namespace Xamarin.WebTests.Framework
 
 			var bytes = Convert.FromBase64String (arg);
 
-			if (haveChallenge) {
-				// FIXME: We don't actually check the result.
-				var message = new Type3Message (bytes);
-				if (message.Type != 3)
-					throw new InvalidOperationException ();
-
+			if (PortableSupport.Web.HandleNTLM (ref bytes, ref haveChallenge))
 				return null;
-			} else {
-				var message = new Type1Message (bytes);
-				if (message.Type != 1)
-					throw new InvalidOperationException ();
 
-				var type2 = new Type2Message ();
-				var token = "NTLM " + Convert.ToBase64String (type2.GetBytes ());
-
-				haveChallenge = true;
-
-				return OnUnauthenticated (request, token, false);
-			}
+			var token = "NTLM " + Convert.ToBase64String (bytes);
+			return OnUnauthenticated (request, token, false);
 		}
 	}
 }

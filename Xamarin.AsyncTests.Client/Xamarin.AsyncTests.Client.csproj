@@ -31,6 +31,18 @@
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugWin|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DebugWin\</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
@@ -59,6 +71,14 @@
     <ProjectReference Include="..\Xamarin.WebTests\Xamarin.WebTests.csproj">
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
       <Name>Xamarin.WebTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\support\Xamarin.WebTests.Portable.Console\Xamarin.WebTests.Portable.Console.csproj">
+      <Project>{B4911C7D-196D-4B50-98FF-0BD6CABF60B4}</Project>
+      <Name>Xamarin.WebTests.Portable.Console</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\support\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj">
+      <Project>{9A328159-EF48-4082-B8FA-FB4FC2E44B0C}</Project>
+      <Name>Xamarin.WebTests.Portable</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

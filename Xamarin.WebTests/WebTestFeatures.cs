@@ -35,6 +35,7 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests
 {
 	using Framework;
+	using Portable;
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class WorkAttribute : TestCategoryAttribute
@@ -90,7 +91,7 @@ namespace Xamarin.WebTests
 		public static readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", false);
 
 		public static readonly TestFeature HasNetwork = new TestFeature (
-			"Network", "HasNetwork", () => !IPAddress.IsLoopback (HttpServer.GetAddress ()));
+			"Network", "HasNetwork", () => PortableSupport.Web.HasNetwork);
 
 		public static readonly TestFeature Mono38;
 		public static readonly TestFeature Mono361;
@@ -148,16 +149,8 @@ namespace Xamarin.WebTests
 			#endregion
 		}
 
-		static readonly Version MonoVersion;
-
 		static WebTestFeatures ()
 		{
-			try {
-				MonoVersion = GetRuntimeVersion ();
-			} catch {
-				;
-			}
-
 			Mono38 = new TestFeature (
 				"Mono38", "Mono 3.8.0", () => HasMonoVersion (new Version (3, 8, 0)));
 			Mono361 = new TestFeature (
@@ -166,40 +159,10 @@ namespace Xamarin.WebTests
 
 		static bool HasMonoVersion (Version version)
 		{
-			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+			var support = PortableSupport.Instance;
+			if (support.IsMicrosoftRuntime)
 				return true;
-			return MonoVersion != null && MonoVersion >= version;
-		}
-
-		static Version GetRuntimeVersion ()
-		{
-			string version;
-			#if __MOBILE__
-			version = Mono.Runtime.GetDisplayName ();
-			#else
-			Type type = Type.GetType ("Mono.Runtime", false);
-			if (type == null)
-				return null;
-
-			var method = type.GetMethod ("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
-			if (method == null)
-				return null;
-
-			version = (string)method.Invoke (null, null);
-			#endif
-
-			var match = Regex.Match (version, @"^(\d+)\.(\d+)(?:\.(\d+))?\b");
-			if (!match.Success)
-				return null;
-
-			var major = int.Parse (match.Groups [1].Value);
-			var minor = int.Parse (match.Groups [2].Value);
-			int build = 0;
-
-			if (match.Groups.Count > 2 && match.Groups [3].Success)
-				build = int.Parse (match.Groups [3].Value);
-
-			return new Version (major, minor, build);
+			return support.MonoRuntimeVersion != null && support.MonoRuntimeVersion >= version;
 		}
 	}
 }

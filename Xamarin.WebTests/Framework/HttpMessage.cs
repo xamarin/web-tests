@@ -33,8 +33,6 @@ using System.Collections.Generic;
 
 namespace Xamarin.WebTests.Framework
 {
-	using Server;
-
 	public enum HttpProtocol {
 		Http10,
 		Http11
@@ -91,9 +89,9 @@ namespace Xamarin.WebTests.Framework
 
 		internal static HttpProtocol ProtocolFromString (string proto)
 		{
-			if (proto.Equals ("HTTP/1.0", StringComparison.InvariantCultureIgnoreCase))
+			if (proto.Equals ("HTTP/1.0", StringComparison.OrdinalIgnoreCase))
 				return HttpProtocol.Http10;
-			else if (proto.Equals ("HTTP/1.1", StringComparison.InvariantCultureIgnoreCase))
+			else if (proto.Equals ("HTTP/1.1", StringComparison.OrdinalIgnoreCase))
 				return HttpProtocol.Http11;
 			else
 				throw new InvalidOperationException ();
@@ -125,12 +123,6 @@ namespace Xamarin.WebTests.Framework
 				var headerValue = line.Substring (pos + 1).Trim ();
 				headers.Add (headerName, headerValue);
 			}
-		}
-
-		internal void DumpHeaders ()
-		{
-			foreach (var entry in Headers)
-				Console.WriteLine ("{0}: {1}", entry.Key, entry.Value);
 		}
 
 		protected void WriteHeaders (StreamWriter writer)

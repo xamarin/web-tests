@@ -31,15 +31,19 @@ using System.Text;
 using System.Threading;
 using System.Reflection;
 using System.Net.Sockets;
-using System.Net.Security;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using SD = System.Diagnostics;
 
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.Server
 {
-	public abstract class Listener
+	using Portable;
+
+	public abstract class Listener : IListener
 	{
 		Socket server;
 		int currentConnections;
@@ -74,14 +78,16 @@ namespace Xamarin.WebTests.Server
 			return asm.GetManifestResourceStream ("Xamarin.WebTests.Server." + name);
 		}
 
-		public Listener (IPAddress address, int port, bool reuseConnection, bool ssl)
+		public Listener (IPortableEndPoint endpoint, bool reuseConnection, bool ssl)
 		{
 			this.ssl = ssl;
 
-			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", address, port));
+			var networkEndpoint = PortableSupportImpl.GetEndpoint (endpoint);
+
+			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", networkEndpoint.Address, networkEndpoint.Port));
 
 			server = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			server.Bind (new IPEndPoint (address, port));
+			server.Bind (networkEndpoint);
 			server.Listen (1);
 		}
 
@@ -265,12 +271,6 @@ namespace Xamarin.WebTests.Server
 
 		void HandleConnection_internal (Socket socket, Stream stream, CancellationToken cancellationToken)
 		{
-			#if FIXME
-			var reader = new StreamReader (stream, Encoding.ASCII);
-			var writer = new StreamWriter (stream, Encoding.ASCII);
-			writer.AutoFlush = true;
-			#endif
-
 			while (!cancellationToken.IsCancellationRequested) {
 				var wantToReuse = HandleConnection (socket, stream, cancellationToken);
 				if (!wantToReuse || cancellationToken.IsCancellationRequested)

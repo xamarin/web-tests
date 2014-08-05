@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectGuid>{378CBF56-1858-473E-8465-E10986F0D37C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Xamarin.WebTests.Portable.Android</RootNamespace>
+    <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
+    <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
+    <AndroidResgenClass>Resource</AndroidResgenClass>
+    <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
+    <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
+    <AssemblyName>Xamarin.WebTests.Portable.Android</AssemblyName>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\Xamarin.AsyncTests.snk</AssemblyOriginatorKeyFile>
+    <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;XAMARIN_WEBTESTS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AndroidLinkMode>None</AndroidLinkMode>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>XAMARIN_WEBTESTS</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="Mono.Android" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Resources\Resource.designer.cs" />
+    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\HttpListener.cs">
+      <Link>Xamarin.WebTests.Server\HttpListener.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\Listener.cs">
+      <Link>Xamarin.WebTests.Server\Listener.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\ProxyListener.cs">
+      <Link>Xamarin.WebTests.Server\ProxyListener.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\PortableSupportImpl.cs">
+      <Link>Xamarin.WebTests.Server\PortableSupportImpl.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security\BitConverterLE.cs">
+      <Link>Mono.Security\BitConverterLE.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security\Locale.cs">
+      <Link>Mono.Security\Locale.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\MessageBase.cs">
+      <Link>Mono.Security.Protocol.Ntlm\MessageBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\NtlmAuthLevel.cs">
+      <Link>Mono.Security.Protocol.Ntlm\NtlmAuthLevel.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\NtlmFlags.cs">
+      <Link>Mono.Security.Protocol.Ntlm\NtlmFlags.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\NtlmSettings.cs">
+      <Link>Mono.Security.Protocol.Ntlm\NtlmSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\Type1Message.cs">
+      <Link>Mono.Security.Protocol.Ntlm\Type1Message.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\Type2Message.cs">
+      <Link>Mono.Security.Protocol.Ntlm\Type2Message.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\Type3Message.cs">
+      <Link>Mono.Security.Protocol.Ntlm\Type3Message.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AboutResources.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\Strings.xml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
+      <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
+      <Name>Xamarin.AsyncTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Xamarin.WebTests\Xamarin.WebTests.csproj">
+      <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
+      <Name>Xamarin.WebTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj">
+      <Project>{9A328159-EF48-4082-B8FA-FB4FC2E44B0C}</Project>
+      <Name>Xamarin.WebTests.Portable</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Mono.Security\" />
+    <Folder Include="Mono.Security.Protocol.Ntlm\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\cert.pfx">
+      <Link>Xamarin.WebTests.Server\cert.pfx</Link>
+      <LogicalName>Xamarin.WebTests.Server.cert.pfx</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

@@ -27,61 +27,60 @@ using System;
 using System.IO;
 using System.Text;
 using System.Net;
-using System.Net.Sockets;
-using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Framework
 {
-	using Server;
 	using Handlers;
 	using Framework;
+	using Portable;
 
-	public class HttpServer : ITestInstance
+	public class HttpServer : ITestInstance, IHttpServer
 	{
-		IPEndPoint endpoint;
-		HttpListener listener;
+		readonly Uri uri;
+		readonly bool reuseConnection;
+		readonly bool ssl;
 
-		public HttpServer (IPEndPoint endpoint)
+		IPortableEndPoint endpoint;
+		IListener listener;
+
+		static long nextId;
+		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
+
+		public HttpServer (IPortableEndPoint endpoint, bool reuseConnection, bool ssl)
 		{
 			this.endpoint = endpoint;
+			this.reuseConnection = reuseConnection;
+			this.ssl = ssl;
+
+			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", endpoint.Address, endpoint.Port));
 		}
 
-		public HttpServer (IPAddress address, int port)
-			: this (new IPEndPoint (address, port))
-		{
-		}
-
-		public HttpListener Listener {
+		protected IListener Listener {
 			get { return listener; }
 		}
 
 		public bool UseSSL {
-			get; set;
+			get { return ssl; }
 		}
 
 		public bool ReuseConnection {
 			get { return reuseConnection; }
-			set {
-				if (initialized)
-					throw new InvalidOperationException ();
-				reuseConnection = value;
-			}
 		}
 
-		public virtual IWebProxy GetProxy ()
+		public virtual IPortableProxy GetProxy ()
 		{
 			return null;
 		}
 
 		#region ITestInstance implementation
 
-		bool reuseConnection;
 		bool initialized;
 
 		public async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
@@ -121,7 +120,7 @@ namespace Xamarin.WebTests.Framework
 
 		public virtual Task Start (CancellationToken cancellationToken)
 		{
-			listener = new HttpListener (endpoint.Address, endpoint.Port, ReuseConnection, UseSSL);
+			listener = PortableSupport.Web.CreateHttpListener (endpoint, this, ReuseConnection, UseSSL);
 			return listener.Start ();
 		}
 
@@ -130,41 +129,28 @@ namespace Xamarin.WebTests.Framework
 			return Task.Run (() => listener.Stop ());
 		}
 
-		static IPAddress address;
-
-		public static IPAddress GetAddress ()
+		public Uri RegisterHandler (Handler handler)
 		{
-			if (address == null)
-				address = LookupAddress ();
-			return address;
+			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
+			handlers.Add (path, handler);
+			return new Uri (uri, path);
 		}
 
-		static IPAddress LookupAddress ()
+		public void RegisterHandler (string path, Handler handler)
 		{
-			try {
-				#if __IOS__
-				var interfaces = NetworkInterface.GetAllNetworkInterfaces ();
-				foreach (var iface in interfaces) {
-				if (iface.NetworkInterfaceType != NetworkInterfaceType.Ethernet && iface.NetworkInterfaceType != NetworkInterfaceType.Wireless80211)
-				continue;
-				foreach (var address in iface.GetIPProperties ().UnicastAddresses) {
-				if (address.Address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback (address.Address))
-				return address.Address;
-				}
-				}
-				#else
-				var hostname = Dns.GetHostName ();
-				var hostent = Dns.GetHostEntry (hostname);
-				foreach (var address in hostent.AddressList) {
-					if (address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback (address))
-						return address;
-				}
-				#endif
-			} catch {
-				;
-			}
+			handlers.Add (path, handler);
+		}
 
-			return IPAddress.Loopback;
+		public bool HandleConnection (Stream stream)
+		{
+			var connection = new HttpConnection (this, stream);
+			var request = connection.ReadRequest ();
+
+			var path = request.Path;
+			var handler = handlers [path];
+			handlers.Remove (path);
+
+			return handler.HandleRequest (connection, request);
 		}
 
 		protected void Debug (TestContext ctx, int level, Handler handler, string message, params object[] args)

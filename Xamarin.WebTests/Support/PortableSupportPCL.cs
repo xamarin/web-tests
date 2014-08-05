@@ -1,5 +1,5 @@
 ﻿//
-// ProxyConnection.cs
+// PortableSupport.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,47 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Text;
-using System.Net;
-using System.Net.Sockets;
-using System.Globalization;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests
 {
-	using Framework;
+	using Support;
 
-	public class ProxyConnection : Connection
+	public static class PortableSupport
 	{
-		Connection proxy;
-
-		public ProxyConnection (Connection proxy, Stream stream)
-			: base (stream)
-		{
-			this.proxy = proxy;
+		public static IPortableSupport Instance {
+			get { throw new NotSupportedException (); }
 		}
 
-		public void HandleRequest (HttpRequest request)
-		{
-			var task = Task.Factory.StartNew (() => CopyResponse ());
-
-			WriteRequest (request);
-			var body = request.ReadBody ();
-			if (body != null)
-				body.WriteToAsync (ResponseWriter).Wait ();
-
-			task.Wait ();
-		}
-
-		void CopyResponse ()
-		{
-			var response = ReadResponse ();
-			response.SetHeader ("Connection", "close");
-			response.SetHeader ("Proxy-Connection", "close");
-			proxy.WriteResponse (response);
+		public static IPortableWebSupport Web {
+			get { throw new NotSupportedException (); }
 		}
 	}
 }

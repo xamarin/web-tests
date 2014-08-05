@@ -33,6 +33,7 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
+	using Portable;
 
 	public abstract class Request
 	{
@@ -50,7 +51,7 @@ namespace Xamarin.WebTests.Handlers
 
 		public abstract void SendChunked ();
 
-		public abstract void SetProxy (IWebProxy proxy);
+		public abstract void SetProxy (IPortableProxy proxy);
 
 		public abstract void SetCredentials (ICredentials credentials);
 	}

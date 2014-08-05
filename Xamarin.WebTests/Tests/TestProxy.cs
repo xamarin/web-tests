@@ -36,9 +36,9 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Tests
 {
-	using Server;
 	using Handlers;
 	using Framework;
+	using Portable;
 
 	[Proxy]
 	[AsyncTestFixture (Timeout = 30000)]
@@ -50,13 +50,13 @@ namespace Xamarin.WebTests.Tests
 			get; set;
 		}
 
-		readonly IPAddress address;
+		readonly IPortableEndPoint address;
 		readonly bool hasNetwork;
 
 		public TestProxy ()
 		{
-			address = HttpServer.GetAddress ();
-			hasNetwork = !IPAddress.IsLoopback (address);
+			address = PortableSupport.Web.GetEndpoint (0);
+			hasNetwork = !address.IsLoopback;
 		}
 
 		public ProxyServer CreateInstance (TestContext ctx)
@@ -66,29 +66,27 @@ namespace Xamarin.WebTests.Tests
 
 			switch (Kind) {
 			case ProxyKind.Simple:
-				return new ProxyServer (address, 9999, 9998);
+				return new ProxyServer (address.CopyWithPort (9999), address.CopyWithPort (9998));
 
 			case ProxyKind.BasicAuth:
-				return new ProxyServer (address, 9997, 9996) {
+				return new ProxyServer (address.CopyWithPort (9997), address.CopyWithPort (9996)) {
 					AuthenticationType = AuthenticationType.Basic,
 					Credentials = new NetworkCredential ("xamarin", "monkey")
 				};
 
 			case ProxyKind.NtlmAuth:
-				return new ProxyServer (address, 9995, 9994) {
+				return new ProxyServer (address.CopyWithPort (9995), address.CopyWithPort (9994)) {
 					AuthenticationType = AuthenticationType.NTLM,
 					Credentials = new NetworkCredential ("xamarin", "monkey")
 				};
 
 			case ProxyKind.Unauthenticated:
-				return new ProxyServer (address, 9993, 9992) {
+				return new ProxyServer (address.CopyWithPort (9993), address.CopyWithPort (9992)) {
 					AuthenticationType = AuthenticationType.Basic
 				};
 
 			case ProxyKind.SSL:
-				return new ProxyServer (address, 9991, 9990) {
-					UseSSL = true
-				};
+				return new ProxyServer (address.CopyWithPort (9991), address.CopyWithPort (9990), true);
 
 			default:
 				throw new InvalidOperationException ();

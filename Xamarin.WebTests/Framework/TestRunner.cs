@@ -27,8 +27,6 @@ using System;
 using System.IO;
 using System.Text;
 using System.Net;
-using System.Net.Sockets;
-using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
@@ -66,7 +64,7 @@ namespace Xamarin.WebTests.Framework
 		{
 			Debug (ctx, server, 1, handler, "RUN TRADITIONAL");
 
-			var retval = await handler.RunWithContext (ctx, server.Listener, async (uri) => {
+			var retval = await handler.RunWithContext (ctx, server, async (uri) => {
 				var request = new TraditionalRequest (uri);
 				handler.ConfigureRequest (request, uri);
 
@@ -92,7 +90,7 @@ namespace Xamarin.WebTests.Framework
 		{
 			Debug (ctx, server, 1, handler, "RUN HTTP CLIENT");
 
-			return handler.RunWithContext (ctx, server.Listener, async (uri) => {
+			return handler.RunWithContext (ctx, server, async (uri) => {
 				var request = new HttpClientRequest (handler, uri);
 				handler.ConfigureRequest (request, uri);
 

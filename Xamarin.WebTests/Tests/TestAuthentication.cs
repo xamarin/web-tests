@@ -35,9 +35,9 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Tests
 {
-	using Server;
 	using Handlers;
 	using Framework;
+	using Portable;
 
 	[AsyncTestFixture (Timeout = 10000)]
 	public class TestAuthentication : ITestHost<HttpServer>, ITestParameterSource<Handler>, ITestParameterSource<AuthenticationType>
@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.Tests
 
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			return new HttpServer (IPAddress.Loopback, 9999) { UseSSL = UseSSL, ReuseConnection = ReuseConnection };
+			return new HttpServer (PortableSupport.Web.GetLoopbackEndpoint (9999), ReuseConnection, UseSSL);
 		}
 
 		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext ctx, string filter)

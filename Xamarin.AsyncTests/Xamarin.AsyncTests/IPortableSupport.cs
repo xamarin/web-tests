@@ -30,6 +30,18 @@ namespace Xamarin.AsyncTests
 	public interface IPortableSupport
 	{
 		string GetStackTrace (bool full);
+
+		string CurrentThreadId {
+			get;
+		}
+
+		bool IsMicrosoftRuntime {
+			get;
+		}
+
+		Version MonoRuntimeVersion {
+			get;
+		}
 	}
 }
 

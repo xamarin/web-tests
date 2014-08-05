@@ -36,7 +36,6 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
-	using Server;
 
 	public class DeleteHandler : Handler
 	{

@@ -34,6 +34,7 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
+	using Portable;
 
 	public class TraditionalRequest : Request
 	{
@@ -42,7 +43,7 @@ namespace Xamarin.WebTests.Handlers
 		public TraditionalRequest (Uri uri)
 		{
 			Request = (HttpWebRequest)HttpWebRequest.Create (uri);
-			Request.KeepAlive = true;
+			PortableSupport.Web.SetKeepAlive (Request, true);
 		}
 
 		#region implemented abstract members of Request
@@ -52,9 +53,9 @@ namespace Xamarin.WebTests.Handlers
 			Request.Credentials = credentials;
 		}
 
-		public override void SetProxy (IWebProxy proxy)
+		public override void SetProxy (IPortableProxy proxy)
 		{
-			Request.Proxy = proxy;
+			PortableSupport.Web.SetProxy (Request, proxy);
 		}
 
 		public override string Method {
@@ -64,7 +65,7 @@ namespace Xamarin.WebTests.Handlers
 
 		public override void SetContentLength (long contentLength)
 		{
-			Request.ContentLength = contentLength;
+			PortableSupport.Web.SetContentLength (Request, contentLength);
 		}
 
 		public override void SetContentType (string contentType)
@@ -74,7 +75,7 @@ namespace Xamarin.WebTests.Handlers
 
 		public override void SendChunked ()
 		{
-			Request.SendChunked = true;
+			PortableSupport.Web.SetSendChunked (Request, true);
 		}
 
 		public async Task<Response> Send (TestContext ctx, CancellationToken cancellationToken)
@@ -100,7 +101,7 @@ namespace Xamarin.WebTests.Handlers
 
 			try {
 				if (Content != null) {
-					using (var stream = await Request.GetRequestStreamAsync ()) {
+					using (var stream = await PortableSupport.Web.GetRequestStreamAsync (Request)) {
 						using (var writer = new StreamWriter (stream)) {
 							await Content.WriteToAsync (writer);
 							await writer.FlushAsync ();
@@ -108,7 +109,7 @@ namespace Xamarin.WebTests.Handlers
 					}
 				}
 
-				var response = (HttpWebResponse)await Request.GetResponseAsync ();
+				var response = await PortableSupport.Web.GetResponseAsync (Request);
 				return FromHttpResponse (response);
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
@@ -130,7 +131,7 @@ namespace Xamarin.WebTests.Handlers
 			using (var reader = new StreamReader (response.GetResponseStream ())) {
 				content = reader.ReadToEnd ();
 			}
-			response.Close ();
+			response.Dispose ();
 
 			return new SimpleResponse (this, status, StringContent.CreateMaybeNull (content), error);
 		}
@@ -139,12 +140,12 @@ namespace Xamarin.WebTests.Handlers
 		{
 			try {
 				if (Content != null) {
-					using (var writer = new StreamWriter (Request.GetRequestStream ())) {
+					using (var writer = new StreamWriter (PortableSupport.Web.GetRequestStream (Request))) {
 						Content.WriteToAsync (writer).Wait ();
 					}
 				}
 
-				var response = (HttpWebResponse)Request.GetResponse ();
+				var response = PortableSupport.Web.GetResponse (Request);
 				return FromHttpResponse (response);
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
