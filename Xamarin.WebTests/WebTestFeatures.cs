@@ -70,6 +70,14 @@ namespace Xamarin.WebTests
 	}
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class MartinAttribute : TestFeatureAttribute
+	{
+		public override TestFeature Feature {
+			get { return WebTestFeatures.Martin; }
+		}
+	}
+
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class Mono38Attribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {
@@ -98,6 +106,9 @@ namespace Xamarin.WebTests
 
 		public static readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", false);
 
+		// Requires special local setup
+		public static readonly TestFeature Martin = new TestFeature ("Martin", "Martin's Lab", false);
+
 		public static readonly TestFeature HasNetwork = new TestFeature (
 			"Network", "HasNetwork", () => PortableSupport.Web.HasNetwork);
 
@@ -119,6 +130,7 @@ namespace Xamarin.WebTests
 				yield return Experimental;
 				yield return ReuseConnection;
 				yield return NotWorking;
+				yield return Martin;
 
 				yield return HasNetwork;
 				yield return Mono38;

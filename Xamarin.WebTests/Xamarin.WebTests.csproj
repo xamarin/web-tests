@@ -18,6 +18,7 @@
     <WarningLevel>4</WarningLevel>
     <Optimize>false</Optimize>
     <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
