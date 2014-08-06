@@ -32,6 +32,7 @@ using System.Globalization;
 using System.Collections.Generic;
 
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Handlers
 {
@@ -89,23 +90,17 @@ namespace Xamarin.WebTests.Handlers
 				effectiveFlags |= RequestFlags.Redirected;
 
 			if ((effectiveFlags & RequestFlags.RedirectedAsGet) != 0) {
-				if (!request.Method.Equals ("GET"))
-					return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
-			} else {
-				if (!request.Method.Equals ("POST") && !request.Method.Equals ("PUT"))
-					return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
+				ctx.Expect (request.Method, Is.EqualTo ("GET"), "method");
+			} else if (!request.Method.Equals ("POST") && !request.Method.Equals ("PUT")) {
+				ctx.Assert (false, "Invalid method: {0}", request.Method);
 			}
 
 			var haveContentLength = request.Headers.ContainsKey ("Content-Length");
 			var haveTransferEncoding = request.Headers.ContainsKey ("Transfer-Encoding");
 
 			if ((effectiveFlags & RequestFlags.RedirectedAsGet) != 0) {
-				if (haveContentLength)
-					return HttpResponse.CreateError ("Content-Length header not allowed");
-
-				if (haveTransferEncoding)
-					return HttpResponse.CreateError ("Transfer-Encoding header not allowed");
-
+				ctx.Expect (haveContentLength, Is.False, "Content-Length header not allowed");
+				ctx.Expect (haveTransferEncoding, Is.False, "Transfer-Encoding header not allowed");
 				return HttpResponse.CreateSuccess ();
 			}
 
@@ -114,44 +109,34 @@ namespace Xamarin.WebTests.Handlers
 			switch (Mode) {
 			case TransferMode.Default:
 				if (Content != null) {
-					if (!haveContentLength)
-						return HttpResponse.CreateError ("Missing Content-Length");
-
+					ctx.Expect (haveContentLength, Is.True, "Missing Content-Length");
 					break;
 				} else {
-					if (haveContentLength)
-						return HttpResponse.CreateError ("Content-Length header not allowed");
-
+					ctx.Expect (haveContentLength, Is.False, "Content-Length header not allowed");
 					return HttpResponse.CreateSuccess ();
 				}
 
 			case TransferMode.ContentLength:
-				if (!haveContentLength)
-					return HttpResponse.CreateError ("Missing Content-Length");
-
-				if (haveTransferEncoding)
-					return HttpResponse.CreateError ("Transfer-Encoding header not allowed");
-
+				ctx.Expect (haveContentLength, Is.True, "Missing Content-Length");
+				ctx.Expect (haveTransferEncoding, Is.False, "Transfer-Encoding header not allowed");
 				break;
 
 			case TransferMode.Chunked:
 				if ((effectiveFlags & RequestFlags.Redirected) != 0)
 					goto case TransferMode.ContentLength;
 
-				if (haveContentLength)
-					return HttpResponse.CreateError ("Content-Length header not allowed");
-
-				if (!haveTransferEncoding)
-					return HttpResponse.CreateError ("Missing Transfer-Encoding header");
+				ctx.Expect (haveContentLength, Is.False, "Content-Length header not allowed");
+				var ok = ctx.Expect (haveTransferEncoding, Is.True, "Missing Transfer-Encoding header");
+				if (!ok)
+					break;
 
 				var transferEncoding = request.Headers ["Transfer-Encoding"];
-				if (!string.Equals (transferEncoding, "chunked", StringComparison.OrdinalIgnoreCase))
-					return HttpResponse.CreateError ("Invalid Transfer-Encoding header: '{0}'", transferEncoding);
-
+				ok &= ctx.Expect (transferEncoding.ToLowerInvariant (), Is.EqualTo ("chunked"), "Invalid Transfer-Encoding");
 				break;
 
 			default:
-				return HttpResponse.CreateError ("Unknown TransferMode: '{0}'", Mode);
+				ctx.Assert (false, "Unknown TransferMode: '{0}'", Mode);
+				break;
 			}
 
 			Debug (ctx, 5, "BODY", content);
