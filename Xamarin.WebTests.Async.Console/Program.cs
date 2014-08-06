@@ -248,6 +248,17 @@ namespace Xamarin.AsyncTests.Client
 
 		async void OnLogMessage (string message)
 		{
+			Debug (message);
+			if (connection == null || !LogRemotely)
+				return;
+			await connection.LogMessage (message);
+		}
+
+		async void OnLogDebug (int level, string message)
+		{
+			var ourLevel = LogRemotely ? Context.DebugLevel : LogLevel;
+			if (level > ourLevel)
+				return;
 			if (connection == null || !LogRemotely)
 				return;
 			await connection.LogMessage (message);
@@ -266,8 +277,7 @@ namespace Xamarin.AsyncTests.Client
 			{
 				switch (entry.Kind) {
 				case LogEntry.EntryKind.Debug:
-					if (entry.LogLevel <= Program.Context.DebugLevel)
-						Program.OnLogMessage (entry.Text);
+					Program.OnLogDebug (entry.LogLevel, entry.Text);
 					break;
 
 				case LogEntry.EntryKind.Error:
