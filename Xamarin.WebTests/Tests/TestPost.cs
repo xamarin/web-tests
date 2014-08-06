@@ -238,6 +238,28 @@ namespace Xamarin.WebTests.Tests
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}
+
+		[Work]
+		[NotWorking]
+		[AsyncTest]
+		public async Task Test10163 (
+			TestContext ctx, [TestHost] HttpServer server, CancellationToken cancellationToken)
+		{
+			var post = new PostHandler {
+				Description = "Post bug#10163", Content = new StringContent ("Hello World")
+			};
+
+			await post.RunWithContext (ctx, server, async (uri) => {
+				using (var wc = PortableSupport.Web.CreateWebClient ()) {
+					var stream = await wc.OpenWriteAsync (uri, "PUT");
+
+					using (var writer = new StreamWriter (stream)) {
+						await post.Content.WriteToAsync (writer);
+					}
+				}
+				return true;
+			});
+		}
 	}
 }
 

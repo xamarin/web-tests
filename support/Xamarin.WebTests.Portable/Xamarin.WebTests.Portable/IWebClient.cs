@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,6 +33,8 @@ namespace Xamarin.WebTests.Portable
 	public interface IWebClient : IDisposable
 	{
 		Task<string> UploadStringTaskAsync (Uri uri, string data);
+
+		Task<Stream> OpenWriteAsync (Uri uri, string method);
 	}
 }
 

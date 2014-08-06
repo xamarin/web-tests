@@ -480,6 +480,11 @@ namespace Xamarin.WebTests.Portable
 				return client.UploadStringTaskAsync (uri, data);
 			}
 
+			public Task<Stream> OpenWriteAsync (Uri uri, string method)
+			{
+				return client.OpenWriteTaskAsync (uri, method);
+			}
+
 			public void Dispose ()
 			{
 				Dispose (true);

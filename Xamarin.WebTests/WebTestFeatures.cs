@@ -70,6 +70,14 @@ namespace Xamarin.WebTests
 	}
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class NotWorking : TestFeatureAttribute
+	{
+		public override TestFeature Feature {
+			get { return WebTestFeatures.NotWorking; }
+		}
+	}
+
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class MartinAttribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {
