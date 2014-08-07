@@ -80,7 +80,6 @@
     <Compile Include="Xamarin.AsyncTests\SettingsBag.cs" />
     <Compile Include="Xamarin.AsyncTests\TestStatistics.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\NullConstraint.cs" />
-    <Compile Include="Xamarin.AsyncTests.Constraints\NotConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\EmptyConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\NullOrEmptyConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\ConstraintOperator.cs" />
@@ -95,6 +94,15 @@
     <Compile Include="Xamarin.AsyncTests\HideStackFrameAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\StackTraceEntryPointAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\IPortableSupport.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\UnaryExpression.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\NotOperator.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\NotExpression.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\OrOperator.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\BinaryExpression.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\OrExpression.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\AndExpression.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\AndOperator.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\UnaryOperator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />

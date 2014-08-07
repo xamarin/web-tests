@@ -1,5 +1,5 @@
 ﻿//
-// Constraint.cs
+// UnaryExpression.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,18 +27,27 @@ using System;
 
 namespace Xamarin.AsyncTests.Constraints
 {
-	public abstract class Constraint
+	public abstract class UnaryExpression : ConstraintExpression
 	{
-		public abstract bool Evaluate (object actual, out string message);
-
-		public abstract string Print ();
-
-		public ConstraintOperator Or {
-			get { return new OrOperator (this); }
+		public Constraint Inner {
+			get;
+			private set;
 		}
 
-		public ConstraintOperator And {
-			get { return new AndOperator (this); }
+		public string Name {
+			get;
+			private set;
+		}
+
+		public UnaryExpression (Constraint inner, string name)
+		{
+			Inner = inner;
+			Name = name;
+		}
+
+		public override string Print ()
+		{
+			return Name + Inner.Print ();
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// Constraint.cs
+// BinaryExpression.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,18 +27,33 @@ using System;
 
 namespace Xamarin.AsyncTests.Constraints
 {
-	public abstract class Constraint
+	public abstract class BinaryExpression : ConstraintExpression
 	{
-		public abstract bool Evaluate (object actual, out string message);
-
-		public abstract string Print ();
-
-		public ConstraintOperator Or {
-			get { return new OrOperator (this); }
+		public Constraint Left {
+			get;
+			private set;
 		}
 
-		public ConstraintOperator And {
-			get { return new AndOperator (this); }
+		public Constraint Right {
+			get;
+			private set;
+		}
+
+		public string Name {
+			get;
+			private set;
+		}
+
+		public BinaryExpression (Constraint left, Constraint right, string name)
+		{
+			Left = left;
+			Right = right;
+			Name = name;
+		}
+
+		public override string Print ()
+		{
+			return string.Format ("{0} {1} {2}", Left.Print (), Name, Right.Print ());
 		}
 	}
 }

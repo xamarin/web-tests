@@ -1,5 +1,5 @@
 ﻿//
-// Constraint.cs
+// AndOperator.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,18 +27,16 @@ using System;
 
 namespace Xamarin.AsyncTests.Constraints
 {
-	public abstract class Constraint
+	public class AndOperator : UnaryOperator
 	{
-		public abstract bool Evaluate (object actual, out string message);
-
-		public abstract string Print ();
-
-		public ConstraintOperator Or {
-			get { return new OrOperator (this); }
+		public AndOperator (Constraint inner)
+			: base (inner)
+		{
 		}
 
-		public ConstraintOperator And {
-			get { return new AndOperator (this); }
+		public override ConstraintExpression Combine (Constraint right)
+		{
+			return new AndExpression (Inner, right);
 		}
 	}
 }

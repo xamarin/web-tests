@@ -1,5 +1,5 @@
 ﻿//
-// NotConstraint.cs
+// UnaryOperator.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,15 +27,16 @@ using System;
 
 namespace Xamarin.AsyncTests.Constraints
 {
-	public class NotConstraint : ConstraintOperator
+	public abstract class UnaryOperator : ConstraintOperator
 	{
-		public override string Name {
-			get { return "Not"; }
+		public Constraint Inner {
+			get;
+			private set;
 		}
 
-		public override bool Evaluate (OperatorFunc func, object actual, out string message)
+		public UnaryOperator (Constraint inner)
 		{
-			return !func (actual, out message);
+			Inner = inner;
 		}
 	}
 }

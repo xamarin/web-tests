@@ -29,34 +29,36 @@ namespace Xamarin.AsyncTests.Constraints
 {
 	public abstract class ConstraintOperator
 	{
-		public abstract string Name {
-			get;
-		}
-
-		public delegate bool OperatorFunc (object actual, out string message);
-
-		public delegate bool OperatorDelegate (OperatorFunc func, object actual, out string message);
-
-		public abstract bool Evaluate (OperatorFunc func, object actual, out string message);
+		public abstract ConstraintExpression Combine (Constraint right);
 
 		public Constraint False {
-			get { return new ConstraintExpression (this, new FalseConstraint ()); }
+			get { return Combine (new FalseConstraint ()); }
 		}
 
 		public Constraint True {
-			get { return new ConstraintExpression (this, new TrueConstraint ()); }
+			get { return Combine (new TrueConstraint ()); }
 		}
 
 		public Constraint Null {
-			get { return new ConstraintExpression (this, new NullConstraint ()); }
+			get { return Combine (new NullConstraint ()); }
 		}
 
 		public Constraint Empty {
-			get { return new ConstraintExpression (this, new EmptyConstraint ()); }
+			get { return Combine (new EmptyConstraint ()); }
 		}
 
 		public Constraint NullOrEmpty {
-			get { return new ConstraintExpression (this, new NullOrEmptyConstraint ()); }
+			get { return Combine (new NullOrEmptyConstraint ()); }
+		}
+
+		public Constraint EqualTo (object expected)
+		{
+			return Combine (new EqualConstraint (expected));
+		}
+
+		public Constraint InstanceOfType (Type type)
+		{
+			return Combine (new InstanceOfTypeConstraint (type));
 		}
 	}
 }

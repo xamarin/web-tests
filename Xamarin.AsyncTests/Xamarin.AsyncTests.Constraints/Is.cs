@@ -60,7 +60,7 @@ namespace Xamarin.AsyncTests.Constraints
 		}
 
 		public static ConstraintOperator Not {
-			get { return new NotConstraint (); }
+			get { return new NotOperator (); }
 		}
 	}
 }

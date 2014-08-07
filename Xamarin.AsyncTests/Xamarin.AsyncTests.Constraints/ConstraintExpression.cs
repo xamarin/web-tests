@@ -27,45 +27,13 @@ using System;
 
 namespace Xamarin.AsyncTests.Constraints
 {
-	public class ConstraintExpression : Constraint
+	public abstract class ConstraintExpression : Constraint
 	{
-		public string Name {
-			get;
-			private set;
-		}
-
-		public Constraint Inner {
-			get;
-			private set;
-		}
-
-		public ConstraintOperator.OperatorDelegate Operator {
-			get;
-			private set;
-		}
-
-		public ConstraintExpression (string name, ConstraintOperator.OperatorDelegate op, Constraint inner)
+		protected string PrintError (string value)
 		{
-			Name = name;
-			Operator = op;
-			Inner = inner;
-		}
-
-		public ConstraintExpression (ConstraintOperator op, Constraint inner)
-		{
-			Name = op.Name;
-			Operator = (ConstraintOperator.OperatorFunc f, object a, out string m) => op.Evaluate (f, a, out m);
-			Inner = inner;
-		}
-
-		public override bool Evaluate (object actual, out string message)
-		{
-			return Operator ((object a, out string m) => Inner.Evaluate (a, out m), actual, out message);
-		}
-
-		public override string Print ()
-		{
-			return Name + "." + Inner.Print ();
+			if (string.IsNullOrEmpty (value))
+				return "<unknown error>";
+			return value;
 		}
 	}
 }

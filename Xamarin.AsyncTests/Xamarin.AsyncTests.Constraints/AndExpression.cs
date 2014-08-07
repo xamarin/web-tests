@@ -1,5 +1,5 @@
 ﻿//
-// Constraint.cs
+// AndExpression.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,18 +27,26 @@ using System;
 
 namespace Xamarin.AsyncTests.Constraints
 {
-	public abstract class Constraint
+	public class AndExpression : BinaryExpression
 	{
-		public abstract bool Evaluate (object actual, out string message);
-
-		public abstract string Print ();
-
-		public ConstraintOperator Or {
-			get { return new OrOperator (this); }
+		public AndExpression (Constraint left, Constraint right)
+			: base (left, right, "and")
+		{
 		}
 
-		public ConstraintOperator And {
-			get { return new AndOperator (this); }
+		public override bool Evaluate (object actual, out string message)
+		{
+			string leftMessage, rightMessage;
+			if (!Left.Evaluate (actual, out leftMessage)) {
+				message = string.Format ("LHS failed ({0})", PrintError (leftMessage));
+				return false;
+			}
+			if (!Right.Evaluate (actual, out rightMessage)) {
+				message = string.Format ("RHS failed ({0})", PrintError (rightMessage));
+				return false;
+			}
+			message = null;
+			return true;
 		}
 	}
 }
