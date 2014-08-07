@@ -186,10 +186,16 @@ namespace Xamarin.AsyncTests
 			return Expect (actual, constraint, false, format, args);
 		}
 
-		[HideStackFrame]
-		public bool Expect (bool value, bool fatal = false, string format = null, params object[] args)
+		[HideStackFrameAttribute]
+		public bool Expect (bool value, string format = null)
 		{
-			return Expect (value, Is.True, fatal, format, args);
+			return Expect (value, Is.True, false, format);
+		}
+
+		[HideStackFrame]
+		public bool Expect (bool value, string format = null, params object[] args)
+		{
+			return Expect (value, Is.True, false, format, args);
 		}
 
 		[HideStackFrame]

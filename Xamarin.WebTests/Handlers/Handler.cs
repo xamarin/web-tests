@@ -162,7 +162,7 @@ namespace Xamarin.WebTests.Handlers
 				tcs.SetResult (response.IsSuccess);
 				return response.KeepAlive ?? false;
 			} catch (AssertionException ex) {
-				Debug (ctx, 1, "HANDLE REQUEST - ASSERTION FAILED", ex);
+				Debug (ctx, 0, "HANDLE REQUEST - ASSERTION FAILED", ex);
 				var response = HttpResponse.CreateError (ex.Message);
 				connection.WriteResponse (response);
 				tcs.SetException (ex);
@@ -183,6 +183,15 @@ namespace Xamarin.WebTests.Handlers
 		{
 			var uri = RegisterRequest (server);
 			return RunWithContext (ctx, uri, func);
+		}
+
+		public Task RunWithContext (TestContext ctx, HttpServer server, Func<Uri, Task> func)
+		{
+			var uri = RegisterRequest (server);
+			return RunWithContext<object> (ctx, uri, async (arg) => {
+				await func (arg);
+				return null;
+			});
 		}
 
 		async Task<T> RunWithContext<T> (TestContext ctx, Uri uri, Func<Uri, Task<T>> func)
