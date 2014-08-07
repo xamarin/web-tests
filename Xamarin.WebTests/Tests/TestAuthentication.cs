@@ -64,6 +64,16 @@ namespace Xamarin.WebTests.Tests
 
 		public static IEnumerable<AuthenticationType> GetAuthenticationTypes (TestContext ctx, string filter)
 		{
+			if (filter != null) {
+				switch (filter) {
+				case "include-none":
+					yield return AuthenticationType.None;
+					break;
+				default:
+					throw new InvalidOperationException ();
+				}
+			}
+
 			yield return AuthenticationType.Basic;
 			if (ctx.IsEnabled (WebTestFeatures.NTLM))
 				yield return AuthenticationType.NTLM;

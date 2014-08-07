@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,9 +34,13 @@ namespace Xamarin.WebTests.Portable
 {
 	public interface IWebClient : IDisposable
 	{
+		void SetCredentials (ICredentials credentials);
+
 		Task<string> UploadStringTaskAsync (Uri uri, string data);
 
 		Task<Stream> OpenWriteAsync (Uri uri, string method);
+
+		Task<byte[]> UploadValuesTaskAsync (Uri address, string method, List<KeyValuePair<string, string>> data);
 	}
 }
 

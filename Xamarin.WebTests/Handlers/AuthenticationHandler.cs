@@ -101,6 +101,11 @@ namespace Xamarin.WebTests.Handlers
 			base.ConfigureRequest (request, uri);
 			request.SetCredentials (new NetworkCredential ("xamarin", "monkey"));
 		}
+
+		public ICredentials GetCredentials ()
+		{
+			return new NetworkCredential ("xamarin", "monkey");
+		}
 	}
 }
 

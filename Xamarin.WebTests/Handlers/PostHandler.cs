@@ -44,6 +44,7 @@ namespace Xamarin.WebTests.Handlers
 		HttpContent content;
 		bool? allowWriteBuffering;
 		TransferMode mode = TransferMode.Default;
+		Func<HttpRequest, HttpResponse> customHandler;
 
 		public TransferMode Mode {
 			get { return mode; }
@@ -73,12 +74,20 @@ namespace Xamarin.WebTests.Handlers
 			}
 		}
 
+		public Func<HttpRequest, HttpResponse> CustomHandler {
+			set {
+				WantToModify ();
+				customHandler = value;
+			}
+		}
+
 		public override object Clone ()
 		{
 			var post = new PostHandler ();
 			post.content = content;
 			post.allowWriteBuffering = allowWriteBuffering;
 			post.mode = mode;
+			post.customHandler = customHandler;
 			return post;
 		}
 
@@ -90,9 +99,17 @@ namespace Xamarin.WebTests.Handlers
 				effectiveFlags |= RequestFlags.Redirected;
 
 			if ((effectiveFlags & RequestFlags.RedirectedAsGet) != 0) {
-				ctx.Expect (request.Method, Is.EqualTo ("GET"), "method");
-			} else if (!request.Method.Equals ("POST") && !request.Method.Equals ("PUT")) {
-				ctx.Assert (false, "Invalid method: {0}", request.Method);
+				if (!ctx.Expect (request.Method, Is.EqualTo ("GET"), "method"))
+					return null;
+			} else {
+				ctx.Expect (request.Method, Is.EqualTo ("POST").Or.EqualTo ("PUT"), "method");
+				return null;
+			}
+
+			if (customHandler != null) {
+				var customResponse = customHandler (request);
+				if (customResponse != null)
+					return customResponse;
 			}
 
 			var haveContentLength = request.Headers.ContainsKey ("Content-Length");
@@ -135,22 +152,22 @@ namespace Xamarin.WebTests.Handlers
 				break;
 
 			default:
-				ctx.Assert (false, "Unknown TransferMode: '{0}'", Mode);
-				break;
+				ctx.Expect (false, "Unknown TransferMode: '{0}'", Mode);
+				return null;
 			}
 
 			Debug (ctx, 5, "BODY", content);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
-				ctx.Assert (HttpContent.IsNullOrEmpty (content), "Must not send a body with this request.");
-				return HttpResponse.CreateSuccess ();
+				ctx.Expect (HttpContent.IsNullOrEmpty (content), "Must not send a body with this request.");
+				return null;
 			}
 
 			if (Content != null)
-				HttpContent.Compare (ctx, content, Content, true, true);
+				HttpContent.Compare (ctx, content, Content, true);
 			else
-				ctx.Assert (HttpContent.IsNullOrEmpty (content));
+				ctx.Expect (HttpContent.IsNullOrEmpty (content), "null or empty content");
 
-			return HttpResponse.CreateSuccess ();
+			return null;
 		}
 
 		public override void ConfigureRequest (Request request, Uri uri)

@@ -33,6 +33,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Tests
 {
@@ -239,25 +240,93 @@ namespace Xamarin.WebTests.Tests
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}
 
+		Handler CreateAuthMaybeNone (Handler handler, AuthenticationType authType)
+		{
+			if (authType == AuthenticationType.None)
+				return handler;
+			var auth = new AuthenticationHandler (authType, handler);
+			return auth;
+		}
+
+		void ConfigureWebClient (IWebClient client, Handler handler)
+		{
+			var authHandler = handler as AuthenticationHandler;
+			if (authHandler != null)
+				client.SetCredentials (authHandler.GetCredentials ());
+		}
+
 		[Work]
 		[NotWorking]
 		[AsyncTest]
 		public async Task Test10163 (
-			TestContext ctx, [TestHost] HttpServer server, CancellationToken cancellationToken)
+			TestContext ctx, [TestHost] HttpServer server,
+			[TestParameter (typeof (TestAuthentication), "include-none")] AuthenticationType authType,
+			CancellationToken cancellationToken)
 		{
 			var post = new PostHandler {
-				Description = "Post bug#10163", Content = new StringContent ("Hello World")
+				Description = "Post bug #10163", Content = new StringContent ("Hello World")
 			};
 
-			await post.RunWithContext (ctx, server, async (uri) => {
-				using (var wc = PortableSupport.Web.CreateWebClient ()) {
-					var stream = await wc.OpenWriteAsync (uri, "PUT");
+			var handler = CreateAuthMaybeNone (post, authType);
+
+			await handler.RunWithContext (ctx, server, async (uri) => {
+				using (var client = PortableSupport.Web.CreateWebClient ()) {
+					ConfigureWebClient (client, handler);
+
+					var stream = await client.OpenWriteAsync (uri, "PUT");
 
 					using (var writer = new StreamWriter (stream)) {
 						await post.Content.WriteToAsync (writer);
 					}
 				}
-				return true;
+			});
+		}
+
+		[Work]
+		[NotWorking]
+		[AsyncTest]
+		public async Task Test20359 (
+			TestContext ctx, [TestHost] HttpServer server,
+			[TestParameter (typeof (TestAuthentication), "include-none")] AuthenticationType authType,
+			CancellationToken cancellationToken)
+		{
+			var post = new PostHandler {
+				Description = "Post bug #20359",
+				Content = new StringContent ("vax1=value&var2=value2")
+			};
+
+			post.CustomHandler = (request) => {
+				string header;
+				if (!request.Headers.TryGetValue ("Content-Type", out header))
+					header = null;
+				ctx.Expect (header, Is.EqualTo ("application/x-www-form-urlencoded"), "Content-Type");
+				return null;
+			};
+
+			var handler = CreateAuthMaybeNone (post, authType);
+
+			await handler.RunWithContext (ctx, server, async (uri) => {
+				using (var client = PortableSupport.Web.CreateWebClient ()) {
+					ConfigureWebClient (client, handler);
+
+					var collection = new List<KeyValuePair<string, string>> ();
+					collection.Add (new KeyValuePair<string, string> ("var1", "value"));
+					collection.Add (new KeyValuePair<string, string> ("var2", "value2"));
+
+					byte[] data;
+					try {
+						data = await client.UploadValuesTaskAsync (uri, "POST", collection);
+					} catch (Exception ex) {
+						ctx.LogMessage ("TEST ERROR: {0} {1}", ctx.HasPendingException, ex);
+						if (ctx.HasPendingException)
+							return false;
+						throw;
+					}
+
+					var ok = ctx.Expect (data, Is.Not.Null, "Returned array");
+					ok &= ctx.Expect (data.Length, Is.EqualTo (0), "Returned array");
+					return ok;
+				}
 			});
 		}
 	}

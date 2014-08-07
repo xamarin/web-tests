@@ -36,6 +36,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using Mono.Security.Protocol.Ntlm;
 
 using Xamarin.AsyncTests;
@@ -483,6 +484,20 @@ namespace Xamarin.WebTests.Portable
 			public Task<Stream> OpenWriteAsync (Uri uri, string method)
 			{
 				return client.OpenWriteTaskAsync (uri, method);
+			}
+
+			public Task<byte[]> UploadValuesTaskAsync (
+				Uri uri, string method, List<KeyValuePair<string, string>> data)
+			{
+				var collection = new NameValueCollection ();
+				foreach (var entry in data)
+					collection.Add (entry.Key, entry.Value);
+				return client.UploadValuesTaskAsync (uri, method, collection);
+			}
+
+			public void SetCredentials (ICredentials credentials)
+			{
+				client.Credentials = credentials;
 			}
 
 			public void Dispose ()
