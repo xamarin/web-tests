@@ -102,8 +102,8 @@ namespace Xamarin.WebTests.Handlers
 				if (!ctx.Expect (request.Method, Is.EqualTo ("GET"), "method"))
 					return null;
 			} else {
-				ctx.Expect (request.Method, Is.EqualTo ("POST").Or.EqualTo ("PUT"), "method");
-				return null;
+				if (!ctx.Expect (request.Method, Is.EqualTo ("POST").Or.EqualTo ("PUT"), "method"))
+					return null;
 			}
 
 			if (customHandler != null) {
