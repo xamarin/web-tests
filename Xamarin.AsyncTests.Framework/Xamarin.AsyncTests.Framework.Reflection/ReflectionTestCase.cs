@@ -169,7 +169,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var parameters = Method.GetParameters ();
 
-			ctx.LogDebug (5, "INVOKE: {0} {1} {2}", Name, Method, instance);
+			ctx.LogDebug (10, "INVOKE: {0} {1} {2}", Name, Method, instance);
 
 			for (int index = parameters.Length - 1; index >= 0; index--) {
 				var param = parameters [index];

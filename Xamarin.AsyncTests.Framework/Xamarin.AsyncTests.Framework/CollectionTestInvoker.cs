@@ -51,7 +51,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (cancellationToken.IsCancellationRequested)
 				return false;
 
-			ctx.LogDebug (3, "Invoke({0}): {1} {2} {3}", ctx.Name,
+			ctx.LogDebug (10, "Invoke({0}): {1} {2} {3}", ctx.Name,
 				Flags, TestLogger.Print (instance), InnerInvokers.Count);
 
 			bool success = true;
@@ -59,12 +59,12 @@ namespace Xamarin.AsyncTests.Framework
 				if (cancellationToken.IsCancellationRequested)
 					break;
 
-				ctx.LogDebug (5, "InnerInvoke({0}): {1} {2} {3}", ctx.Name,
+				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2} {3}", ctx.Name,
 					TestLogger.Print (instance), invoker, InnerInvokers.Count);
 
 				success = await InvokeInner (ctx, instance, invoker, cancellationToken);
 
-				ctx.LogDebug (5, "InnerInvoke({0}) done: {1} {2}", ctx.Name,
+				ctx.LogDebug (10, "InnerInvoke({0}) done: {1} {2}", ctx.Name,
 					TestLogger.Print (instance), success);
 
 				if (!success)

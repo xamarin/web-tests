@@ -144,6 +144,7 @@ namespace Xamarin.AsyncTests.Client
 			}
 
 			Context = new TestApp (PortableSupport.Instance, Settings);
+			Context.DebugLevel = LogLevel;
 			Context.Logger = new ConsoleLogger (this);
 		}
 
@@ -259,6 +260,7 @@ namespace Xamarin.AsyncTests.Client
 			var ourLevel = LogRemotely ? Context.DebugLevel : LogLevel;
 			if (level > ourLevel)
 				return;
+			Debug (message);
 			if (connection == null || !LogRemotely)
 				return;
 			await connection.LogMessage (message);

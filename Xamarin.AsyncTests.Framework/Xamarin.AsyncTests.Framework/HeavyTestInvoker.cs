@@ -52,7 +52,7 @@ namespace Xamarin.AsyncTests.Framework
 		async Task<HeavyTestInstance> SetUp (
 			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			ctx.LogDebug (3, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
+			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
@@ -71,7 +71,7 @@ namespace Xamarin.AsyncTests.Framework
 		async Task<bool> TearDown (
 			TestContext ctx, HeavyTestInstance instance, CancellationToken cancellationToken)
 		{
-			ctx.LogDebug (3, "TearDown({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
+			ctx.LogDebug (10, "TearDown({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
 				await instance.Destroy (ctx, cancellationToken);
