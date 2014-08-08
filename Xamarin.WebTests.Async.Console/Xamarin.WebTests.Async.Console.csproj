@@ -9,6 +9,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Xamarin.AsyncTests.snk</AssemblyOriginatorKeyFile>
+    <AssemblyName>Xamarin.WebTests.Async.Console</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +22,6 @@
     <ConsolePause>false</ConsolePause>
     <Commandlineparameters>--my-tests --result=result.xml --connect=192.168.7.101 --run --wait --log-level=10
 </Commandlineparameters>
-    <AssemblyName>Xamarin.WebTests.Async.Console</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -30,7 +30,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
-    <AssemblyName>Xamarin.AsyncTests.Client</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugWin|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -43,7 +42,6 @@
     <Prefer32Bit>true</Prefer32Bit>
     <WarningLevel>4</WarningLevel>
     <Optimize>false</Optimize>
-    <AssemblyName>Xamarin.AsyncTests.Client</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
