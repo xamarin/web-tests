@@ -44,8 +44,6 @@ namespace Xamarin.WebTests.Framework
 		static void Debug (TestContext ctx, HttpServer server, int level,
 			Handler handler, string message, params object[] args)
 		{
-			if (Handler.DebugLevel < level)
-				return;
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("{0}:{1}: {2}", server, handler, message);
 			for (int i = 0; i < args.Length; i++) {

@@ -39,13 +39,6 @@ namespace Xamarin.WebTests.Handlers
 		static int next_id;
 		public readonly int ID = ++next_id;
 
-		static int debugLevel = 0;
-
-		public static int DebugLevel {
-			get { return debugLevel; }
-			set { debugLevel = value; }
-		}
-
 		public RequestFlags Flags {
 			get { return flags; }
 			set {
@@ -118,8 +111,6 @@ namespace Xamarin.WebTests.Handlers
 			
 		protected void Debug (TestContext ctx, int level, string message, params object[] args)
 		{
-			if (DebugLevel < level)
-				return;
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("{0}: {1}", this, message);
 			for (int i = 0; i < args.Length; i++) {
@@ -131,8 +122,6 @@ namespace Xamarin.WebTests.Handlers
 
 		void DumpHeaders (TestContext ctx, HttpMessage message)
 		{
-			if (DebugLevel < 2)
-				return;
 			var sb = new StringBuilder ();
 			foreach (var header in message.Headers) {
 				sb.AppendFormat ("  {0} = {1}", header.Key, header.Value);
