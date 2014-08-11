@@ -191,7 +191,7 @@ namespace Xamarin.WebTests.Handlers
 			}
 
 			if (Content != null)
-				request.Content = new StringContent (Content.AsString ());
+				request.Content = Content.RemoveTransferEncoding ();
 
 			switch (effectiveMode) {
 			case TransferMode.Chunked:

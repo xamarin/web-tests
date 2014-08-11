@@ -102,7 +102,7 @@ namespace Xamarin.WebTests.Handlers
 				return HttpResponse.CreateSuccess ();
 			}
 
-			HttpContent.Compare (ctx, body, Content, false, true);
+			HttpContent.Compare (ctx, body, Content, false);
 			return new HttpResponse (HttpStatusCode.OK, returnContent);
 		}
 

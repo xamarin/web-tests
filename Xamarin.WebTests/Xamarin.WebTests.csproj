@@ -73,6 +73,7 @@
     <Compile Include="Framework\HttpConnection.cs" />
     <Compile Include="Framework\ProxyConnection.cs" />
     <Compile Include="Tests\TestFork.cs" />
+    <Compile Include="Framework\RandomContent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />

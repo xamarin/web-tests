@@ -49,21 +49,9 @@ namespace Xamarin.WebTests.Tests
 			return new HttpServer (PortableSupport.Web.GetLoopbackEndpoint (9999), true, false);
 		}
 
-		static Random random = new Random ();
-
 		HttpContent CreateRandomContent (TestContext ctx)
 		{
-			var repeat = 1 + random.Next (10);
-			var chunks = new string [repeat];
-			for (int i = 0; i < repeat; i++) {
-				var multiplier = 15 + random.Next (7);
-				var size = (int)Math.Pow (2, multiplier);
-				ctx.LogMessage ("RANDOM SIZE: {0}/{1} {2} {3}", i, repeat, multiplier, size);
-				var bytes = new byte [size];
-				random.NextBytes (bytes);
-				chunks [i] = Convert.ToBase64String (bytes);
-			}
-			return new ChunkedContent (chunks);
+			return new RandomContent (2 << 15, 2 << 22);
 		}
 
 		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
@@ -83,13 +71,7 @@ namespace Xamarin.WebTests.Tests
 		{
 			ctx.LogMessage ("FORK START: {0} {1}", fork.ID, ctx.PortableSupport.CurrentThreadId);
 
-			bool ok;
-
-			try {
-				ok = await TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
-			} finally {
-				((ChunkedContent)((PostHandler)handler).Content).Clear ();
-			}
+			var ok = await TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 
 			ctx.LogMessage ("FORK DONE: {0} {1} {2}", fork.ID, ctx.PortableSupport.CurrentThreadId, ok);
 
@@ -109,13 +91,7 @@ namespace Xamarin.WebTests.Tests
 			var request = new TraditionalRequest (uri);
 			handler.ConfigureRequest (request, request.Request.RequestUri);
 
-			Response response;
-
-			try {
-				response = await request.Send (ctx, cancellationToken);
-			} finally {
-				((ChunkedContent)((PostHandler)handler).Content).Clear ();
-			}
+			var response = await request.Send (ctx, cancellationToken);
 
 			bool ok;
 			if (response.Error != null) {

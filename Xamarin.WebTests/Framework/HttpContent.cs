@@ -41,6 +41,11 @@ namespace Xamarin.WebTests.Framework
 
 		public abstract string AsString ();
 
+		public virtual HttpContent RemoveTransferEncoding ()
+		{
+			return new StringContent (AsString ());
+		}
+
 		public abstract void AddHeadersTo (HttpMessage message);
 
 		public abstract Task WriteToAsync (StreamWriter writer);
@@ -49,26 +54,33 @@ namespace Xamarin.WebTests.Framework
 		{
 			if (content == null)
 				return true;
-			return string.IsNullOrEmpty (content.AsString ());
+			return content.IsNullOrEmpty ();
+		}
+
+		protected virtual bool IsNullOrEmpty ()
+		{
+			return string.IsNullOrEmpty (AsString ());
+		}
+
+		protected virtual bool Compare (TestContext ctx, HttpContent actual)
+		{
+			var actualString = actual.AsString ();
+			var expectedString = AsString ();
+			return ctx.Expect (actualString, Is.EqualTo (expectedString));
 		}
 
 		public static bool Compare (TestContext ctx, HttpContent actual, HttpContent expected,
-			bool ignoreType, bool fatal = false, string message = null)
+			bool ignoreType, string message = null)
 		{
 			if (expected == null)
-				return ctx.Expect (actual, Is.Null, fatal, message);
-			if (!ctx.Expect (actual, Is.Not.Null, fatal))
+				return ctx.Expect (actual, Is.Null, message);
+			if (!ctx.Expect (actual, Is.Not.Null))
 				return false;
 
-			bool ok = true;
-			if (!ignoreType && !ctx.Expect (actual, Is.InstanceOfType (expected.GetType ()), fatal))
-				ok = false;
+			if (!ignoreType && !ctx.Expect (actual, Is.InstanceOfType (expected.GetType ())))
+				return false;
 
-			var actualString = actual.AsString ();
-			var expectedString = expected.AsString ();
-			if (!ctx.Expect (actualString, Is.EqualTo (expectedString), fatal))
-				ok = false;
-			return ok;
+			return expected.Compare (ctx, actual);
 		}
 	}
 }

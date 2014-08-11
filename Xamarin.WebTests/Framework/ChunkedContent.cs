@@ -47,11 +47,6 @@ namespace Xamarin.WebTests.Framework
 			this.chunks = new List<string> (chunks);
 		}
 
-		public void Clear ()
-		{
-			chunks.Clear ();
-		}
-
 		public static async Task<ChunkedContent> Read (StreamReader reader)
 		{
 			var chunks = new List<string> ();
