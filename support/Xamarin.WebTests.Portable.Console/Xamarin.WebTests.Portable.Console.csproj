@@ -29,8 +29,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>XAMARIN_WEBTESTS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugWin|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -62,34 +62,8 @@
     <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\PortableSupportImpl.cs">
       <Link>Xamarin.WebTests.Server\PortableSupportImpl.cs</Link>
     </Compile>
-    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\MessageBase.cs">
-      <Link>Mono.Security.Protocol.Ntlm\MessageBase.cs</Link>
-    </Compile>
-    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\NtlmAuthLevel.cs">
-      <Link>Mono.Security.Protocol.Ntlm\NtlmAuthLevel.cs</Link>
-    </Compile>
-    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\NtlmFlags.cs">
-      <Link>Mono.Security.Protocol.Ntlm\NtlmFlags.cs</Link>
-    </Compile>
-    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\NtlmSettings.cs">
-      <Link>Mono.Security.Protocol.Ntlm\NtlmSettings.cs</Link>
-    </Compile>
-    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\Type1Message.cs">
-      <Link>Mono.Security.Protocol.Ntlm\Type1Message.cs</Link>
-    </Compile>
-    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\Type2Message.cs">
-      <Link>Mono.Security.Protocol.Ntlm\Type2Message.cs</Link>
-    </Compile>
-    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\Type3Message.cs">
-      <Link>Mono.Security.Protocol.Ntlm\Type3Message.cs</Link>
-    </Compile>
-    <Compile Include="..\Mono.Security\Mono.Security\BitConverterLE.cs">
-      <Link>Mono.Security\BitConverterLE.cs</Link>
-    </Compile>
-    <Compile Include="..\Mono.Security\Mono.Security\Locale.cs">
-      <Link>Mono.Security\Locale.cs</Link>
-    </Compile>
   </ItemGroup>
+  <Import Project="..\Xamarin.WebTests.PortableImpl\Xamarin.WebTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\Xamarin.WebTests.PortableImpl\Xamarin.WebTests.PortableImpl.projitems')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Mono.Security.Protocol.Ntlm\" />

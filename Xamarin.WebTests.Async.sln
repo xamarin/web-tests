@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Portable.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Async.Console", "Xamarin.WebTests.Async.Console\Xamarin.WebTests.Async.Console.csproj", "{8FA04E17-8E60-45C4-A9A7-51C5047CCABF}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Xamarin.WebTests.PortableImpl", "support\Xamarin.WebTests.PortableImpl\Xamarin.WebTests.PortableImpl.shproj", "{751E9E00-2330-4A9D-938B-FF7C86B55E22}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
