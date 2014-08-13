@@ -114,9 +114,11 @@ namespace Mono.Security.Protocol.Ntlm {
 			var tname_len = BitConverterLE.ToUInt16 (message, 12);
 			var tname_off = BitConverterLE.ToUInt16 (message, 16);
 			if (tname_len > 0) {
+				#if !XAMARIN_WEBTESTS
 				if ((Flags & NtlmFlags.NegotiateOem) != 0)
 					_targetName = Encoding.ASCII.GetString (message, tname_off, tname_len);
 				else
+				#endif
 					_targetName = Encoding.Unicode.GetString (message, tname_off, tname_len);
 			}
 			

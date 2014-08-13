@@ -49,7 +49,7 @@ namespace Mono.Security.Protocol.Ntlm {
 
 		static FieldInfo GetDefaultAuthLevelField ()
 		{
-			#if INSIDE_SYSTEM
+			#if INSIDE_SYSTEM || XAMARIN_WEBTESTS
 			return null;
 			#else
 			var type = typeof (HttpWebRequest).Assembly.GetType ("Mono.Security.Protocol.Ntlm.NtlmSettings", false);

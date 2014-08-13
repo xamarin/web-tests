@@ -18,25 +18,24 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>DEBUG;XAMARIN_WEBTESTS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
+    <DefineConstants>XAMARIN_WEBTESTS</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugWin|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\DebugWin\</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>DEBUG;XAMARIN_WEBTESTS</DefineConstants>
     <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <WarningLevel>4</WarningLevel>
@@ -52,6 +51,15 @@
     <Compile Include="Xamarin.WebTests.Portable\AuthenticationType.cs" />
     <Compile Include="Xamarin.WebTests.Portable\PortableSupport.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IPortableProxy.cs" />
+    <Compile Include="Mono.Security\BitConverterLE.cs" />
+    <Compile Include="Mono.Security\Locale.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\MessageBase.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\NtlmAuthLevel.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\NtlmFlags.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\NtlmSettings.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\Type1Message.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\Type2Message.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\Type3Message.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />

@@ -74,9 +74,15 @@ namespace Mono.Security.Protocol.Ntlm {
 					"unless explicitly enabled using DefaultAuthLevel.");
 
 			// default values
+			#if XAMARIN_WEBTESTS
+			_domain = "Xamarin.WebTests.TestDomain";
+			_host = "Xamarin.WebTests.TestMachine";
+			_username = "monkey";
+			#else
 			_domain = Environment.UserDomainName;
 			_host = Environment.MachineName;
 			_username = Environment.UserName;
+			#endif
 			_level = NtlmAuthLevel.LM_and_NTLM;
 			Flags = (NtlmFlags) 0x8201;
 		}
@@ -97,8 +103,13 @@ namespace Mono.Security.Protocol.Ntlm {
 			_challenge = (byte[]) type2.Nonce.Clone ();
 
 			_domain = type2.TargetName;
+			#if XAMARIN_WEBTESTS
+			_host = "Xamarin.WebTests.TestMachine";
+			_username = "monkey";
+			#else
 			_host = Environment.MachineName;
 			_username = Environment.UserName;
+			#endif
 
 			Flags = (NtlmFlags) 0x8200;
 			if ((type2.Flags & NtlmFlags.NegotiateUnicode) != 0)
@@ -248,7 +259,11 @@ namespace Mono.Security.Protocol.Ntlm {
 			if ((Flags & NtlmFlags.NegotiateUnicode) != 0)
 				return Encoding.Unicode.GetString (buffer, offset, len);
 			else
+				#if XAMARIN_WEBTESTS
+				return Encoding.UTF8.GetString (buffer, offset, len);
+				#else
 				return Encoding.ASCII.GetString (buffer, offset, len);
+				#endif
 		}
 
 		byte[] EncodeString (string text)
@@ -258,7 +273,11 @@ namespace Mono.Security.Protocol.Ntlm {
 			if ((Flags & NtlmFlags.NegotiateUnicode) != 0)
 				return Encoding.Unicode.GetBytes (text);
 			else
+				#if XAMARIN_WEBTESTS
+				return Encoding.UTF8.GetBytes (text);
+				#else
 				return Encoding.ASCII.GetBytes (text);
+				#endif
 		}
 
 		public override byte[] GetBytes ()

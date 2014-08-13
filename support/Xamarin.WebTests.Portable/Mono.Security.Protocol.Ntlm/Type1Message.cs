@@ -52,8 +52,13 @@ namespace Mono.Security.Protocol.Ntlm {
 		public Type1Message () : base (1)
 		{
 			// default values
+			#if XAMARIN_WEBTESTS
+			_domain = "Xamarin.WebTests.TestDomain";
+			_host = "Xamarin.WebTests.TestMachine";
+			#else
 			_domain = Environment.UserDomainName;
 			_host = Environment.MachineName;
+			#endif
 			Flags = (NtlmFlags) 0xb207;
 		}
 
@@ -102,10 +107,18 @@ namespace Mono.Security.Protocol.Ntlm {
 
 			int dom_len = BitConverterLE.ToUInt16 (message, 16);
 			int dom_off = BitConverterLE.ToUInt16 (message, 20);
+			#if XAMARIN_WEBTESTS
+			_domain = Encoding.UTF8.GetString (message, dom_off, dom_len);
+			#else
 			_domain = Encoding.ASCII.GetString (message, dom_off, dom_len);
+			#endif
 
 			int host_len = BitConverterLE.ToUInt16 (message, 24);
+			#if XAMARIN_WEBTESTS
+			_host = Encoding.UTF8.GetString (message, 32, host_len);
+			#else
 			_host = Encoding.ASCII.GetString (message, 32, host_len);
+			#endif
 		}
 
 		public override byte[] GetBytes () 
@@ -136,10 +149,18 @@ namespace Mono.Security.Protocol.Ntlm {
 			data [28] = 0x20;
 			data [29] = 0x00;
 
+			#if XAMARIN_WEBTESTS
+			byte[] host = Encoding.UTF8.GetBytes (_host.ToUpperInvariant ());
+			#else
 			byte[] host = Encoding.ASCII.GetBytes (_host.ToUpper (CultureInfo.InvariantCulture));
+			#endif
 			Buffer.BlockCopy (host, 0, data, 32, host.Length);
 
+			#if XAMARIN_WEBTESTS
+			byte[] domain = Encoding.UTF8.GetBytes (_domain.ToUpperInvariant ());
+			#else
 			byte[] domain = Encoding.ASCII.GetBytes (_domain.ToUpper (CultureInfo.InvariantCulture));
+			#endif
 			Buffer.BlockCopy (domain, 0, data, dom_off, domain.Length);
 
 			return data;

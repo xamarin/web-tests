@@ -9,20 +9,9 @@
     <Import_RootNamespace>Xamarin.WebTests.PortableImpl</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Mono.Security\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Mono.Security.Protocol.Ntlm\" />
     <Folder Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Mono.Security\BitConverterLE.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Mono.Security\Locale.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Mono.Security.Protocol.Ntlm\MessageBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Mono.Security.Protocol.Ntlm\NtlmAuthLevel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Mono.Security.Protocol.Ntlm\NtlmFlags.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Mono.Security.Protocol.Ntlm\NtlmSettings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Mono.Security.Protocol.Ntlm\Type1Message.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Mono.Security.Protocol.Ntlm\Type2Message.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Mono.Security.Protocol.Ntlm\Type3Message.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\HttpListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\Listener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\PortableSupportImpl.cs" />
