@@ -36,7 +36,7 @@ namespace Mono.Security.Protocol.Ntlm {
 	 * is LM_and_NTLM_and_try_NTLMv2_Session.
 	 */
 	
-#if INSIDE_SYSTEM
+#if INSIDE_SYSTEM || XAMARIN_WEBTESTS
 	internal
 #else
 	public

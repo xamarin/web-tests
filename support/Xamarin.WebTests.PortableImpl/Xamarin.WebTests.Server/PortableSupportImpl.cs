@@ -535,31 +535,6 @@ namespace Xamarin.WebTests.Portable
 		}
 
 		#endregion
-
-		#region NTLM Authentication
-
-		bool IPortableWebSupport.HandleNTLM (ref byte[] bytes, ref bool haveChallenge)
-		{
-			if (haveChallenge) {
-				// FIXME: We don't actually check the result.
-				var message = new Type3Message (bytes);
-				if (message.Type != 3)
-					throw new InvalidOperationException ();
-
-				return true;
-			} else {
-				var message = new Type1Message (bytes);
-				if (message.Type != 1)
-					throw new InvalidOperationException ();
-
-				var type2 = new Type2Message ();
-				haveChallenge = true;
-				bytes = type2.GetBytes ();
-				return false;
-			}
-		}
-
-		#endregion
 	}
 }
 

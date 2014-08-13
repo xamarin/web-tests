@@ -47,6 +47,7 @@
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="ConsoleClient.cs" />
   </ItemGroup>
+  <Import Project="..\support\Xamarin.WebTests.PortableImpl\Xamarin.WebTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\support\Xamarin.WebTests.PortableImpl\Xamarin.WebTests.PortableImpl.projitems')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
@@ -71,10 +73,6 @@
     <ProjectReference Include="..\Xamarin.WebTests\Xamarin.WebTests.csproj">
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
       <Name>Xamarin.WebTests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\support\Xamarin.WebTests.Portable.Console\Xamarin.WebTests.Portable.Console.csproj">
-      <Project>{B4911C7D-196D-4B50-98FF-0BD6CABF60B4}</Project>
-      <Name>Xamarin.WebTests.Portable.Console</Name>
     </ProjectReference>
     <ProjectReference Include="..\support\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj">
       <Project>{9A328159-EF48-4082-B8FA-FB4FC2E44B0C}</Project>

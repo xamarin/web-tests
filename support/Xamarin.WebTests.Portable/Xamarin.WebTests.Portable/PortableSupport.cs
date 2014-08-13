@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Mono.Security.Protocol.Ntlm;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Portable
@@ -46,6 +47,32 @@ namespace Xamarin.WebTests.Portable
 		public static IPortableWebSupport Web {
 			get { return web; }
 		}
+
+
+		#region NTLM Authentication
+
+		public static bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge)
+		{
+			if (haveChallenge) {
+				// FIXME: We don't actually check the result.
+				var message = new Type3Message (bytes);
+				if (message.Type != 3)
+					throw new InvalidOperationException ();
+
+				return true;
+			} else {
+				var message = new Type1Message (bytes);
+				if (message.Type != 1)
+					throw new InvalidOperationException ();
+
+				var type2 = new Type2Message ();
+				haveChallenge = true;
+				bytes = type2.GetBytes ();
+				return false;
+			}
+		}
+
+		#endregion
 	}
 }
 

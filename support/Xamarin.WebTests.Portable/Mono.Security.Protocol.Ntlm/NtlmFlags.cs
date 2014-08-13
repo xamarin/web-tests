@@ -40,7 +40,7 @@ using System;
 namespace Mono.Security.Protocol.Ntlm {
 
 	[Flags]
-#if INSIDE_SYSTEM
+#if INSIDE_SYSTEM || XAMARIN_WEBTESTS
 	internal
 #else
 	public

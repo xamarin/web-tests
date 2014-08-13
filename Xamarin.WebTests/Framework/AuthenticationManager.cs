@@ -94,7 +94,7 @@ namespace Xamarin.WebTests.Framework
 
 			var bytes = Convert.FromBase64String (arg);
 
-			if (PortableSupport.Web.HandleNTLM (ref bytes, ref haveChallenge))
+			if (PortableSupport.HandleNTLM (ref bytes, ref haveChallenge))
 				return null;
 
 			var token = "NTLM " + Convert.ToBase64String (bytes);

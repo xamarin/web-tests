@@ -39,7 +39,7 @@ using System.Globalization;
 
 namespace Mono.Security.Protocol.Ntlm {
 
-#if INSIDE_SYSTEM
+#if INSIDE_SYSTEM || XAMARIN_WEBTESTS
 	internal
 #else
 	public

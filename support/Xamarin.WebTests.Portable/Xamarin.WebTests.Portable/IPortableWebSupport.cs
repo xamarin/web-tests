@@ -69,8 +69,6 @@ namespace Xamarin.WebTests.Portable
 
 		Task<HttpWebResponse> GetResponseAsync (HttpWebRequest request);
 
-		bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge);
-
 		IWebClient CreateWebClient ();
 	}
 }
