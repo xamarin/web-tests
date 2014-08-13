@@ -35,7 +35,9 @@
 
 using System;
 using System.Text;
+#if !XAMARIN_WEBTESTS
 using System.Security.Cryptography;
+#endif
 
 namespace Mono.Security.Protocol.Ntlm {
 
@@ -53,8 +55,13 @@ namespace Mono.Security.Protocol.Ntlm {
 		public Type2Message () : base (2)
 		{
 			_nonce = new byte [8];
+			#if XAMARIN_WEBTESTS
+			var rng = new Random ();
+			rng.NextBytes (_nonce);
+			#else
 			RandomNumberGenerator rng = RandomNumberGenerator.Create ();
 			rng.GetBytes (_nonce);
+			#endif
 			// default values
 			Flags = (NtlmFlags) 0x8201;
 		}
