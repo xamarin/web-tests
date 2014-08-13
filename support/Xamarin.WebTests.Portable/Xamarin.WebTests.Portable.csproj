@@ -83,4 +83,9 @@
       <HintPath>..\..\packages\Microsoft.Net.Http.2.2.22\lib\portable-net40+sl4+win8+wp71+wpa81\System.Net.Http.Extensions.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="cert.pfx">
+      <LogicalName>Xamarin.WebTests.Server.cert.pfx</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
