@@ -11,6 +11,7 @@
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Mono.Security\" />
     <Folder Include="$(MSBuildThisFileDirectory)Mono.Security.Protocol.Ntlm\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Mono.Security\BitConverterLE.cs" />
@@ -22,5 +23,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Mono.Security.Protocol.Ntlm\Type1Message.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mono.Security.Protocol.Ntlm\Type2Message.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mono.Security.Protocol.Ntlm\Type3Message.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\HttpListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\Listener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\PortableSupportImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\ProxyListener.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\cert.pfx" />
   </ItemGroup>
 </Project>

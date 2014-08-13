@@ -45,20 +45,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\HttpListener.cs">
-      <Link>Xamarin.WebTests.Server\HttpListener.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\Listener.cs">
-      <Link>Xamarin.WebTests.Server\Listener.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\ProxyListener.cs">
-      <Link>Xamarin.WebTests.Server\ProxyListener.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\PortableSupportImpl.cs">
-      <Link>Xamarin.WebTests.Server\PortableSupportImpl.cs</Link>
-    </Compile>
   </ItemGroup>
   <Import Project="..\Xamarin.WebTests.PortableImpl\Xamarin.WebTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\Xamarin.WebTests.PortableImpl\Xamarin.WebTests.PortableImpl.projitems')" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
@@ -93,11 +82,5 @@
       <Project>{9A328159-EF48-4082-B8FA-FB4FC2E44B0C}</Project>
       <Name>Xamarin.WebTests.Portable</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\cert.pfx">
-      <Link>Xamarin.WebTests.Server\cert.pfx</Link>
-      <LogicalName>Xamarin.WebTests.Server.cert.pfx</LogicalName>
-    </EmbeddedResource>
   </ItemGroup>
 </Project>
