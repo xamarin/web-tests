@@ -255,8 +255,7 @@ namespace Xamarin.WebTests.Tests
 				client.SetCredentials (authHandler.GetCredentials ());
 		}
 
-		[Work]
-		[NotWorking]
+		[Mono381]
 		[AsyncTest]
 		public async Task Test10163 (
 			TestContext ctx, [TestHost] HttpServer server,
@@ -282,8 +281,7 @@ namespace Xamarin.WebTests.Tests
 			});
 		}
 
-		[Work]
-		[NotWorking]
+		[Mono381]
 		[AsyncTest]
 		public async Task Test20359 (
 			TestContext ctx, [TestHost] HttpServer server,
@@ -292,7 +290,7 @@ namespace Xamarin.WebTests.Tests
 		{
 			var post = new PostHandler {
 				Description = "Post bug #20359",
-				Content = new StringContent ("vax1=value&var2=value2")
+				Content = new StringContent ("var1=value&var2=value2")
 			};
 
 			post.CustomHandler = (request) => {
@@ -317,7 +315,6 @@ namespace Xamarin.WebTests.Tests
 					try {
 						data = await client.UploadValuesTaskAsync (uri, "POST", collection);
 					} catch (Exception ex) {
-						ctx.LogMessage ("TEST ERROR: {0} {1}", ctx.HasPendingException, ex);
 						if (ctx.HasPendingException)
 							return false;
 						throw;

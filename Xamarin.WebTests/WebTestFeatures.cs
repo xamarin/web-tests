@@ -94,6 +94,14 @@ namespace Xamarin.WebTests
 	}
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class Mono381Attribute : TestFeatureAttribute
+	{
+		public override TestFeature Feature {
+			get { return WebTestFeatures.Mono381; }
+		}
+	}
+
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class Mono61Attribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {
@@ -121,6 +129,7 @@ namespace Xamarin.WebTests
 			"Network", "HasNetwork", () => PortableSupport.Web.HasNetwork);
 
 		public static readonly TestFeature Mono38;
+		public static readonly TestFeature Mono381;
 		public static readonly TestFeature Mono361;
 
 		public static readonly TestCategory WorkCategory = new TestCategory ("Work") { IsExplicit = true };
@@ -142,6 +151,7 @@ namespace Xamarin.WebTests
 
 				yield return HasNetwork;
 				yield return Mono38;
+				yield return Mono381;
 				yield return Mono361;
 			}
 		}
@@ -183,6 +193,8 @@ namespace Xamarin.WebTests
 		{
 			Mono38 = new TestFeature (
 				"Mono38", "Mono 3.8.0", () => HasMonoVersion (new Version (3, 8, 0)));
+			Mono381 = new TestFeature (
+				"Mono381", "Mono 3.8.1", () => HasMonoVersion (new Version (3, 8, 1)));
 			Mono361 = new TestFeature (
 				"Mono361", "Mono 3.6.1", () => HasMonoVersion (new Version (3, 6, 1)));
 		}
