@@ -109,8 +109,10 @@ namespace Xamarin.WebTests
 		}
 	}
 
-	public class WebTestFeatures : ITestConfiguration
+	public class WebTestFeatures : ITestConfigurationProvider
 	{
+		public static readonly WebTestFeatures Instance;
+
 		public static readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
 		public static readonly TestFeature SSL = new TestFeature ("SSL", "Use SSL", true);
 		public static readonly TestFeature Redirect = new TestFeature ("Redirect", "Redirect Tests", true);
@@ -197,6 +199,8 @@ namespace Xamarin.WebTests
 				"Mono381", "Mono 3.8.1", () => HasMonoVersion (new Version (3, 8, 1)));
 			Mono361 = new TestFeature (
 				"Mono361", "Mono 3.6.1", () => HasMonoVersion (new Version (3, 6, 1)));
+
+			Instance = new WebTestFeatures ();
 		}
 
 		static bool HasMonoVersion (Version version)

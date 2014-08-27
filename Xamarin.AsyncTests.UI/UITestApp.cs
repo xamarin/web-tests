@@ -92,8 +92,9 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public UITestApp (IPortableSupport support, SettingsBag settings, IServerHost server, Assembly assembly)
-			: base (support, settings)
+		public UITestApp (IPortableSupport support, ITestConfigurationProvider configProvider,
+			SettingsBag settings, IServerHost server, Assembly assembly)
+			: base (support, configProvider, settings)
 		{
 			ServerHost = server;
 			Assembly = assembly;

@@ -180,15 +180,9 @@ namespace Xamarin.AsyncTests.UI
 		protected void OnTestSuiteChanged (TestSuite suite)
 		{
 			if (suite == null) {
-				Features.Configuration = null;
-				Categories.Configuration = null;
-
 				App.RootTestResult.Result.Clear ();
 				App.TestRunner.CurrentTestResult = App.RootTestResult;
 			} else {
-				Features.Configuration = suite.Configuration;
-				Categories.Configuration = suite.Configuration;
-
 				App.RootTestResult.Result.Test = suite;
 			}
 

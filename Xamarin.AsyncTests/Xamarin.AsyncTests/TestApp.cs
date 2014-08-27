@@ -43,6 +43,7 @@ namespace Xamarin.AsyncTests
 	{
 		int debugLevel = DefaultDebugLevel;
 		readonly IPortableSupport support;
+		readonly TestConfiguration config;
 		readonly SettingsBag settings;
 		readonly TestStatistics statistics;
 		volatile ITestSuite currentTestSuite;
@@ -60,6 +61,10 @@ namespace Xamarin.AsyncTests
 
 		public TestStatistics Statistics {
 			get { return statistics; }
+		}
+
+		public TestConfiguration Configuration {
+			get { return config; }
 		}
 
 		public SettingsBag Settings {
@@ -80,10 +85,11 @@ namespace Xamarin.AsyncTests
 			get { return support; }
 		}
 
-		public TestApp (IPortableSupport support, SettingsBag settings)
+		public TestApp (IPortableSupport support, ITestConfigurationProvider configProvider, SettingsBag settings)
 		{
 			this.support = support;
 			this.settings = settings;
+			config = new TestConfiguration (configProvider, settings);
 			statistics = new TestStatistics ();
 		}
 

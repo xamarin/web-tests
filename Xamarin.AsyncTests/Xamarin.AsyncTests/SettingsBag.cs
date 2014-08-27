@@ -99,38 +99,6 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		public bool? IsFeatureEnabled (string name)
-		{
-			var key = "/Feature/" + name;
-			string value;
-			if (!TryGetValue (key, out value))
-				return null;
-			return bool.Parse (value);
-		}
-
-		public void SetIsFeatureEnabled (string name, bool? enabled)
-		{
-			var key = "/Feature/" + name;
-			if (enabled == null)
-				RemoveValue (key);
-			else
-				SetValue (key, enabled.ToString ());
-			OnPropertyChanged ("Feature");
-		}
-
-		public string CurrentCategory {
-			get {
-				string value;
-				if (!TryGetValue ("CurrentCategory", out value))
-					return null;
-				return value;
-			}
-			set {
-				SetValue ("CurrentCategory", value);
-				OnPropertyChanged ("CurrentCategory");
-			}
-		}
-
 		protected void OnPropertyChanged (string propertyName)
 		{
 			if (PropertyChanged != null)

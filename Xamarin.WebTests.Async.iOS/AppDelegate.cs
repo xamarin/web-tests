@@ -66,7 +66,9 @@ namespace Xamarin.WebTests.Async.iOS
 			settings = new SettingsHost ();
 			server = new ServerHost ();
 
-			test = new UITestApp (PortableSupport.Instance, settings, server, typeof(WebTestFeatures).Assembly);
+			test = new UITestApp (
+				PortableSupport.Instance, WebTestFeatures.Instance, settings,
+				server, typeof(WebTestFeatures).Assembly);
 
 			window = new UIWindow (UIScreen.MainScreen.Bounds);
 			window.RootViewController =  test.Root.CreateViewController ();

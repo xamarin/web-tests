@@ -36,16 +36,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 	{
 		List<ReflectionTest> tests;
 		TestInvoker invoker;
-		TestConfiguration configuration;
 
 		ReflectionTestSuite (TestName name)
 			: base (name)
 		{
 			tests = new List<ReflectionTest> ();
-		}
-
-		public override TestConfiguration Configuration {
-			get { return configuration; }
 		}
 
 		public static Task<TestSuite> Create (TestApp ctx, Assembly assembly)
@@ -81,12 +76,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var invokers = tests.Select (t => t.Invoker).ToArray ();
 			invoker = AggregatedTestInvoker.Create (TestFlags.ContinueOnError, invokers);
-
-			var suiteAttr = assembly.GetCustomAttribute<AsyncTestSuiteAttribute> ();
-			if (suiteAttr != null) {
-				var config = (ITestConfiguration)Activator.CreateInstance (suiteAttr.Type);
-				configuration = TestConfiguration.FromTestSuite (config);
-			}
 		}
 
 		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)

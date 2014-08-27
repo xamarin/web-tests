@@ -50,10 +50,6 @@ namespace Xamarin.AsyncTests.Framework
 			get { return this; }
 		}
 
-		public abstract TestConfiguration Configuration {
-			get;
-		}
-
 		public static Task<TestSuite> LoadAssembly (TestApp ctx, Assembly assembly)
 		{
 			return ReflectionTestSuite.Create (ctx, assembly);

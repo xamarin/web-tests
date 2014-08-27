@@ -40,7 +40,6 @@ namespace Xamarin.AsyncTests.Server
 		public static readonly Serializer<TestSuite> TestSuite = new TestSuiteSerializer ();
 		public static readonly Serializer<TestCase> TestCase = new TestCaseSerializer ();
 		public static readonly Serializer<TestResult> TestResult = new TestResultSerializer ();
-		public static readonly Serializer<TestConfiguration> Configuration = new ConfigurationSerializer ();
 		public static readonly Serializer<TestStatistics.StatisticsEventArgs> StatisticsEventArgs = new StatisticsEventArgsSerializer ();
 		public static readonly Serializer<Handshake> Handshake = new HandshakeSerializer ();
 
@@ -177,9 +176,8 @@ namespace Xamarin.AsyncTests.Server
 					return suite;
 
 				var name = Serializer.TestName.Read (connection, node.Element ("TestName"));
-				var config = Serializer.Configuration.Read (connection, node.Element ("TestConfiguration"));
 
-				return new RemoteTestSuite (connection, objectId, name, config);
+				return new RemoteTestSuite (connection, objectId, name);
 			}
 
 			public override XElement Write (Connection connection, TestSuite instance)
@@ -190,11 +188,6 @@ namespace Xamarin.AsyncTests.Server
 
 				var name = Serializer.TestName.Write (connection, instance.Name);
 				element.Add (name);
-
-				if (instance.Configuration != null) {
-					var config = Serializer.Configuration.Write (connection, instance.Configuration);
-					element.Add (config);
-				}
 
 				return element;
 			}
@@ -290,19 +283,6 @@ namespace Xamarin.AsyncTests.Server
 					element.Add (Write (connection, child));
 
 				return element;
-			}
-		}
-
-		class ConfigurationSerializer : Serializer<TestConfiguration>
-		{
-			public override TestConfiguration Read (Connection connection, XElement node)
-			{
-				return TestConfiguration.ReadFromXml (node);
-			}
-
-			public override XElement Write (Connection connection, TestConfiguration instance)
-			{
-				return instance.WriteToXml ();
 			}
 		}
 

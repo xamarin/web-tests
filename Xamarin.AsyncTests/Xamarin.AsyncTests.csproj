@@ -71,8 +71,6 @@
     <Compile Include="Xamarin.AsyncTests\TestFeature.cs" />
     <Compile Include="Xamarin.AsyncTests\AsyncTestSuiteAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\TestCategory.cs" />
-    <Compile Include="Xamarin.AsyncTests\ITestConfiguration.cs" />
-    <Compile Include="Xamarin.AsyncTests\TestConfiguration.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestFilter.cs" />
     <Compile Include="Xamarin.AsyncTests\TestFeatureAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\ICloneable.cs" />
@@ -103,6 +101,9 @@
     <Compile Include="Xamarin.AsyncTests.Constraints\AndExpression.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\AndOperator.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\UnaryOperator.cs" />
+    <Compile Include="Xamarin.AsyncTests\ITestConfigurationProvider.cs" />
+    <Compile Include="Xamarin.AsyncTests\ITestConfiguration.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestConfiguration.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />

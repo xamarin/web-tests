@@ -36,11 +36,6 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public TestConfiguration Configuration {
-			get;
-			private set;
-		}
-
 		public TestFeature Feature {
 			get;
 			private set;
@@ -55,7 +50,7 @@ namespace Xamarin.AsyncTests.UI
 				if (value == isEnabled)
 					return;
 				isEnabled = value;
-				App.Settings.SetIsFeatureEnabled (Feature.Name, value);
+				App.Configuration.SetIsEnabled (Feature, value);
 				OnPropertyChanged ("Feature");
 			}
 		}
@@ -65,10 +60,9 @@ namespace Xamarin.AsyncTests.UI
 			get { return fullName; }
 		}
 
-		public TestFeatureModel (UITestApp app, TestConfiguration config, TestFeature feature)
+		public TestFeatureModel (UITestApp app, TestFeature feature)
 		{
 			App = app;
-			Configuration = config;
 			Feature = feature;
 
 			if (feature.Constant != null)
@@ -82,7 +76,7 @@ namespace Xamarin.AsyncTests.UI
 
 		void LoadConfiguration ()
 		{
-			isEnabled = App.Settings.IsFeatureEnabled (Feature.Name) ?? Feature.DefaultValue ?? false;
+			isEnabled = App.Configuration.IsEnabled (Feature);
 			OnPropertyChanged ("IsEnabled");
 		}
 	}

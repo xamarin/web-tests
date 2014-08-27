@@ -143,7 +143,7 @@ namespace Xamarin.AsyncTests.Client
 				return;
 			}
 
-			Context = new TestApp (PortableSupport.Instance, Settings);
+			Context = new TestApp (PortableSupport.Instance, WebTestFeatures.Instance, Settings);
 			Context.DebugLevel = LogLevel;
 			Context.Logger = new ConsoleLogger (this);
 		}

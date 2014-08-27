@@ -1,5 +1,5 @@
 ﻿//
-// ITestSuite.cs
+// ITestConfiguration.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,19 +24,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests
 {
 	public interface ITestConfiguration
 	{
-		IEnumerable<TestFeature> Features {
+		TestCategory CurrentCategory {
 			get;
 		}
 
-		IEnumerable<TestCategory> Categories {
-			get;
-		}
+		bool IsEnabled (TestFeature feature);
 	}
 }
 

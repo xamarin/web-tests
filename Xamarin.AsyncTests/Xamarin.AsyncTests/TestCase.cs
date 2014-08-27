@@ -51,7 +51,7 @@ namespace Xamarin.AsyncTests
 		{
 			var logger = TestLogger.CreateForResult (result, app.Logger);
 			var ictx = new TestContext (
-				app.PortableSupport, app.CurrentTestSuite.Configuration, app.Settings, app.Statistics,
+				app.PortableSupport, app.Configuration.AsReadOnly (), app.Settings, app.Statistics,
 				app.DebugLevel, logger, result.Name, result);
 
 			return Run (ictx, cancellationToken);

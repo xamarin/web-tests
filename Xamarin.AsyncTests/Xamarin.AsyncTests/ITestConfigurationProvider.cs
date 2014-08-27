@@ -1,5 +1,5 @@
 ﻿//
-// RemoteTestSuite.cs
+// ITestSuite.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,40 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests.Server
+namespace Xamarin.AsyncTests
 {
-	using Framework;
-
-	class RemoteTestSuite : TestSuite, IRemoteObject
+	public interface ITestConfigurationProvider
 	{
-		public Connection Connection {
+		IEnumerable<TestFeature> Features {
 			get;
-			private set;
 		}
 
-		public long ObjectID {
+		IEnumerable<TestCategory> Categories {
 			get;
-			private set;
 		}
-
-		public RemoteTestSuite (Connection connection, long objectId, TestName name)
-			: base (name)
-		{
-			Connection = connection;
-			ObjectID = objectId;
-		}
-
-		#region implemented abstract members of TestCase
-
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Connection.RunTest (this, ctx.Result, cancellationToken);
-		}
-
-		#endregion
 	}
 }
 

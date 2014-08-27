@@ -38,20 +38,12 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public readonly BindableProperty ConfigurationProperty = BindableProperty.Create (
-			"Configuration", typeof(TestConfiguration), typeof(TestCategoriesModel), null,
-			propertyChanged: (bo, o, n) => ((TestCategoriesModel)bo).UpdateConfiguration ());
-
-		public TestConfiguration Configuration {
-			get { return (TestConfiguration)GetValue (ConfigurationProperty); }
-			set { SetValue (ConfigurationProperty, value); }
-		}
-
 		int selectedIndex;
-		List<string> categories;
+		List<TestCategory> categories;
+		List<string> categoryNames;
 
 		public IList<string> Categories {
-			get { return categories; }
+			get { return categoryNames; }
 		}
 
 		public int SelectedIndex {
@@ -61,60 +53,35 @@ namespace Xamarin.AsyncTests.UI
 					return;
 				selectedIndex = value;
 				if (selectedIndex >= 0)
-					App.Settings.CurrentCategory = Categories [selectedIndex];
+					App.Configuration.CurrentCategory = categories [selectedIndex];
 			}
 		}
 
 		public TestCategoriesModel (UITestApp app)
 		{
 			App = app;
-			categories = new List<string> ();
+			categories = new List<TestCategory> ();
+			categoryNames = new List<string> ();
+
+			foreach (var category in app.Configuration.Categories) {
+				categories.Add (category);
+				categoryNames.Add (category.Name);
+			}
 
 			app.Settings.PropertyChanged += (sender, e) => LoadSettings ();
 			LoadSettings ();
 		}
 
-		void OnConfigurationChanged (object sender, PropertyChangedEventArgs args)
-		{
-			if (args.PropertyName == "CurrentCategory") {
-				LoadSettings ();
-				OnPropertyChanged ("SelectedIndex");
-				return;
-			} else if (args.PropertyName != "Categories") {
-				return;
-			}
-
-			UpdateConfiguration ();
-		}
-
-		void UpdateConfiguration ()
-		{
-			selectedIndex = -1;
-
-			categories.Clear ();
-			if (Configuration != null) {
-				foreach (var category in Configuration.Categories) {
-					categories.Add (category.Name);
-				}
-				LoadSettings ();
-			}
-			OnPropertyChanged ("Categories");
-			OnPropertyChanged ("SelectedIndex");
-			OnPropertyChanged ("Configuration");
-		}
-
 		void LoadSettings ()
 		{
-			var key = App.Settings.CurrentCategory;
-			if (key != null) {
-				var index = categories.FindIndex (c => c.Equals (key));
-				if (index >= 0)
-					selectedIndex = index;
-				else if (categories.Count > 0)
-					selectedIndex = 0;
-				else
-					selectedIndex = -1;
-			}
+			var category = App.Configuration.CurrentCategory;
+			var index = categories.FindIndex (c => c.Equals (category));
+			if (index >= 0)
+				selectedIndex = index;
+			else if (categories.Count > 0)
+				selectedIndex = 0;
+			else
+				selectedIndex = -1;
 		}
 	}
 }

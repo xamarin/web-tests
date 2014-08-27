@@ -37,11 +37,9 @@
                 <Label Text="Hide successful tests" VerticalOptions="Center" />
             </StackLayout>
 
-            <local:TestCategorySelector BindingContext="{Binding App.ServerManager.Categories}"
-                                        IsVisible="{Binding App.ServerManager.HasTestSuite}" />
+            <local:TestCategorySelector BindingContext="{Binding App.ServerManager.Categories}" />
 
-            <local:TestFeatureSelector BindingContext="{Binding App.ServerManager.Features}"
-                                       IsVisible="{Binding App.ServerManager.HasTestSuite}" />
+            <local:TestFeatureSelector BindingContext="{Binding App.ServerManager.Features}" />
 
         </StackLayout>
     </ScrollView>

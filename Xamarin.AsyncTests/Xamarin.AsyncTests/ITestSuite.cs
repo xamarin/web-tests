@@ -32,10 +32,6 @@ namespace Xamarin.AsyncTests
 		TestCase Test {
 			get;
 		}
-
-		TestConfiguration Configuration {
-			get;
-		}
 	}
 }
 

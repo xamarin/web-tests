@@ -32,7 +32,7 @@ namespace Xamarin.AsyncTests
 {
 	using Constraints;
 
-	public sealed class TestContext
+	public sealed class TestContext : ITestConfiguration
 	{
 		readonly TestContext parent;
 		readonly IPortableSupport support;
@@ -41,6 +41,7 @@ namespace Xamarin.AsyncTests
 		readonly TestResult result;
 		readonly TestLogger logger;
 		readonly SynchronizationContext syncContext;
+		readonly ITestConfiguration config;
 
 		public TestName Name {
 			get;
@@ -55,18 +56,17 @@ namespace Xamarin.AsyncTests
 			get { return support; }
 		}
 
-		internal TestContext (IPortableSupport support, TestConfiguration config, SettingsBag settings,
+		internal TestContext (IPortableSupport support, ITestConfiguration config, SettingsBag settings,
 			TestStatistics statistics, int logLevel, TestLogger logger, TestName name, TestResult result)
 		{
 			Name = name;
 			this.support = support;
+			this.config = config;
 			this.statistics = statistics;
 			this.logger = logger;
 			this.result = result;
 			this.logLevel = logLevel;
 			this.syncContext = SynchronizationContext.Current;
-
-			CreateConfigSnapshot (config, settings);
 		}
 
 		TestContext (TestContext parent, TestName name, TestResult result)
@@ -79,6 +79,8 @@ namespace Xamarin.AsyncTests
 			this.logger = parent.logger;
 			this.statistics = parent.statistics;
 			this.syncContext = SynchronizationContext.Current;
+
+			config = parent.config;
 		}
 
 		void Invoke (Action action)
@@ -255,39 +257,13 @@ namespace Xamarin.AsyncTests
 
 		#region Config Snapshot
 
-		Dictionary<TestFeature, bool> features;
-		List<TestCategory> categories;
-		TestCategory currentCategory;
-
-		void CreateConfigSnapshot (TestConfiguration config, SettingsBag settings)
-		{
-			features = new Dictionary<TestFeature, bool> ();
-			categories = new List<TestCategory> ();
-
-			foreach (var feature in config.Features) {
-				bool enabled;
-				if (feature.Constant != null)
-					enabled = feature.Constant.Value;
-				else
-					enabled = settings.IsFeatureEnabled (feature.Name) ?? feature.DefaultValue ?? false;
-				features.Add (feature, enabled);
-			}
-
-			categories.AddRange (config.Categories);
-
-			TestCategory category = TestCategory.All;
-			var key = settings.CurrentCategory;
-			if (key != null && config.TryGetCategory (key, out category))
-				currentCategory = category;
-		}
-
 		public TestCategory CurrentCategory {
-			get { return parent != null ? parent.CurrentCategory : currentCategory; }
+			get { return config.CurrentCategory; }
 		}
 
 		public bool IsEnabled (TestFeature feature)
 		{
-			return parent != null ? parent.IsEnabled (feature) : features [feature];
+			return config.IsEnabled (feature);
 		}
 
 		#endregion

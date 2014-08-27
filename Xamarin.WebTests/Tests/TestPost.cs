@@ -314,7 +314,7 @@ namespace Xamarin.WebTests.Tests
 					byte[] data;
 					try {
 						data = await client.UploadValuesTaskAsync (uri, "POST", collection);
-					} catch (Exception ex) {
+					} catch {
 						if (ctx.HasPendingException)
 							return false;
 						throw;
