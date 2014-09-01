@@ -1,5 +1,5 @@
 ﻿//
-// ServerLogger.cs
+// SessionManager.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,54 +24,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.ComponentModel;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
-namespace Xamarin.AsyncTests.Server
+namespace Xamarin.AsyncTests.UI
 {
-	class ServerLogger : TestLogger
+	public class SessionManager
 	{
-		public Connection Connection {
+		public UITestApp App {
 			get;
 			private set;
 		}
 
-		public TestLogger Parent {
-			get;
-			private set;
+		ObservableCollection<SessionModel> sessions;
+
+		public ObservableCollection<SessionModel> Sessions {
+			get { return sessions; }
 		}
 
-		public ServerLogger (Connection connection, TestLogger parent)
+		public SessionManager (UITestApp app)
 		{
-			Connection = connection;
-			Parent = parent;
-		}
-
-		protected internal override void OnLogEvent (LogEntry entry)
-		{
-			if (Parent != null)
-				Parent.OnLogEvent (entry);
-
-			switch (entry.Kind) {
-			case LogEntry.EntryKind.Debug:
-				if (entry.LogLevel <= Connection.Context.DebugLevel)
-					SendMessage (entry.Text);
-				break;
-
-			case LogEntry.EntryKind.Error:
-				if (entry.Error != null)
-					SendMessage (string.Format ("ERROR: {0}", entry.Error));
-				else
-					SendMessage (entry.Text);
-				break;
-
-			default:
-				SendMessage (entry.Text);
-				break;
-			}
-		}
-
-		async void SendMessage (string message)
-		{
-			await Connection.LogMessage (message);
+			App = app;
+			sessions = new ObservableCollection<SessionModel> ();
 		}
 	}
 }

@@ -44,16 +44,15 @@ namespace Xamarin.AsyncTests.Client
 		}
 
 		public ConsoleClient (Program program, Stream stream)
-			: base (program.Context, stream, program.UseMySettings, program.UseMyTestSuite)
+			: base (program, stream, program.UseMySettings, program.UseMyTestSuite)
 		{
 			Program = program;
-			program.Context.Statistics.StatisticsEvent += (sender, e) => OnStatisticsEvent (e);
 		}
 
 		protected override async Task<TestSuite> GetLocalTestSuite (CancellationToken cancellationToken)
 		{
 			var assembly = typeof(WebTestFeatures).Assembly;
-			return await TestSuite.LoadAssembly (Context, assembly);
+			return await TestSuite.LoadAssembly (App, assembly);
 		}
 
 		public async Task RunClient (CancellationToken cancellationToken)
@@ -104,18 +103,6 @@ namespace Xamarin.AsyncTests.Client
 				var node = Connection.WriteTestResult (result);
 				node.WriteTo (xml);
 				xml.Flush ();
-			}
-		}
-
-		void OnStatisticsEvent (TestStatistics.StatisticsEventArgs e)
-		{
-			switch (e.Type) {
-			case TestStatistics.EventType.Running:
-				Debug ("Running {0}.", e.Name);
-				break;
-			case TestStatistics.EventType.Finished:
-				Debug ("Finished {0}: {1}", e.Name, e.Status);
-				break;
 			}
 		}
 

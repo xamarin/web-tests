@@ -1,5 +1,5 @@
 ﻿//
-// NotifyStatisticsEventCommand.cs
+// ITestSession.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,17 +25,28 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.Server
+namespace Xamarin.AsyncTests
 {
-	class NotifyStatisticsEventCommand : OneWayCommand<TestStatistics.StatisticsEventArgs>
+	public interface ITestSession
 	{
-		protected override Serializer<TestStatistics.StatisticsEventArgs> ArgumentSerializer {
-			get { return Serializer.StatisticsEventArgs; }
+		DateTime Created {
+			get;
 		}
 
-		protected override void Run (Connection connection, TestStatistics.StatisticsEventArgs argument)
-		{
-			connection.Context.Statistics.HandleStatisticsEvent (argument);
+		string Name {
+			get;
+		}
+
+		TestCase Test {
+			get;
+		}
+
+		ITestConfiguration Configuration {
+			get;
+		}
+
+		TestResult Result {
+			get;
 		}
 	}
 }

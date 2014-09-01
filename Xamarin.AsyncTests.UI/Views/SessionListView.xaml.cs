@@ -1,5 +1,5 @@
 ﻿//
-// SetLogLevelCommand.cs
+// SessionListView.xaml.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,28 +24,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using Xamarin.Forms;
 
-namespace Xamarin.AsyncTests.Server
+namespace Xamarin.AsyncTests.UI
 {
-	class SetLogLevelCommand : Command<string,object>
+	public partial class SessionListView : ContentView
 	{
-		protected override Serializer<string> ArgumentSerializer {
-			get { return Serializer.String; }
-		}
-
-		protected override Serializer<object> ResponseSerializer {
-			get { return null; }
-		}
-
-		protected override Task<object> Run (
-			Connection connection, string argument, CancellationToken cancellationToken)
+		public SessionListView ()
 		{
-			if (argument != null)
-				connection.OnSetLogLevel (int.Parse (argument));
-			return Task.FromResult<object> (null);
+			InitializeComponent ();
+		}
+
+		async void OnItemSelected (object sender, SelectedItemChangedEventArgs args)
+		{
+			var selected = (SessionModel)args.SelectedItem;
+			selected.App.Logger.LogMessage ("SELECTED: {0}", selected.Session.Name);
 		}
 	}
 }

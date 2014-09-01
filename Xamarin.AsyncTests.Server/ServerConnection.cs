@@ -64,14 +64,11 @@ namespace Xamarin.AsyncTests.Server
 				localSuite = await GetLocalTestSuite (cancellationToken);
 
 			lock (this) {
-				if (handshake.WantStatisticsEvents)
-					Context.Statistics.StatisticsEvent += OnStatisticsEvent;
-
 				if (handshake.Settings == null) {
-					Context.Settings.PropertyChanged += OnSettingsChanged;
-					handshake.Settings = Context.Settings;
+					App.Settings.PropertyChanged += OnSettingsChanged;
+					handshake.Settings = App.Settings;
 				} else {
-					Context.Settings.Merge (handshake.Settings);
+					App.Settings.Merge (handshake.Settings);
 					handshake.Settings = null;
 				}
 
@@ -83,7 +80,7 @@ namespace Xamarin.AsyncTests.Server
 					handshake.TestSuite = suite;
 				}
 
-				Context.CurrentTestSuite = suite;
+				App.CurrentTestSuite = suite;
 				helloTcs.SetResult (suite);
 			}
 
@@ -97,26 +94,17 @@ namespace Xamarin.AsyncTests.Server
 			await SyncSettings ((SettingsBag)sender);
 		}
 
-		async void OnStatisticsEvent (object sender, TestStatistics.StatisticsEventArgs e)
-		{
-			if (e.IsRemote)
-				return;
-			await new NotifyStatisticsEventCommand { Argument = e }.Send (this);
-		}
-
 		public override void Stop ()
 		{
-			Context.CurrentTestSuite = null;
-			Context.Settings.PropertyChanged -= OnSettingsChanged;
-			Context.Statistics.StatisticsEvent -= OnStatisticsEvent;
+			App.CurrentTestSuite = null;
+			App.Settings.PropertyChanged -= OnSettingsChanged;
 			base.Stop ();
 		}
 
 		protected internal override void OnShutdown ()
 		{
-			Context.CurrentTestSuite = null;
-			Context.Settings.PropertyChanged -= OnSettingsChanged;
-			Context.Statistics.StatisticsEvent -= OnStatisticsEvent;
+			App.CurrentTestSuite = null;
+			App.Settings.PropertyChanged -= OnSettingsChanged;
 			base.OnShutdown ();
 		}
 	}

@@ -92,14 +92,40 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
+		public SessionManager SessionManager {
+			get;
+			private set;
+		}
+
+		public override TestLogger Logger {
+			get { return logger; }
+		}
+
+		public override SettingsBag Settings {
+			get { return settings; }
+		}
+
+		public override TestConfiguration Configuration {
+			get { return config; }
+		}
+
+		readonly TestLogger logger;
+		readonly SettingsBag settings;
+		readonly TestConfiguration config;
+
 		public UITestApp (IPortableSupport support, ITestConfigurationProvider configProvider,
 			SettingsBag settings, IServerHost server, Assembly assembly)
-			: base (support, configProvider, settings)
+			: base (support, configProvider)
 		{
+			this.settings = settings;
+
 			ServerHost = server;
 			Assembly = assembly;
 
-			Logger = new UILogger (this);
+			logger = new TestLogger (new UILogger (this));
+			config = new TestConfiguration (configProvider, settings);
+
+			SessionManager = new SessionManager (this);
 
 			var result = new TestResult (new TestName (null));
 			RootTestResult = new TestResultModel (this, result, true);
@@ -136,7 +162,7 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		class UILogger : TestLogger
+		class UILogger : TestLoggerBackend
 		{
 			readonly UITestApp App;
 
@@ -148,11 +174,11 @@ namespace Xamarin.AsyncTests.UI
 			protected override void OnLogEvent (LogEntry entry)
 			{
 				switch (entry.Kind) {
-				case LogEntry.EntryKind.Debug:
+				case EntryKind.Debug:
 					App.LogDebug (entry.LogLevel, entry.Text);
 					break;
 
-				case LogEntry.EntryKind.Error:
+				case EntryKind.Error:
 					if (entry.Error != null)
 						App.LogMessage (string.Format ("ERROR: {0}", entry.Error));
 					else
@@ -164,11 +190,16 @@ namespace Xamarin.AsyncTests.UI
 					break;
 				}
 			}
+
+			protected override void OnStatisticsEvent (StatisticsEventArgs args)
+			{
+				App.TestRunner.OnStatisticsEvent (args);
+			}
 		}
 
 		protected void LogDebug (int level, string message)
 		{
-			if (level > DebugLevel)
+			if (level > Logger.LogLevel)
 				return;
 			SD.Debug.WriteLine (message);
 		}

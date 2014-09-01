@@ -16,6 +16,8 @@
             </StackLayout>
         </Frame>
 
+        <local:SessionListView BindingContext="{Binding App.SessionManager}" />
+
     </StackLayout>
 
 </ContentPage>

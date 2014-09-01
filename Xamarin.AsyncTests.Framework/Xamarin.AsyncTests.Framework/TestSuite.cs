@@ -55,7 +55,7 @@ namespace Xamarin.AsyncTests.Framework
 			return ReflectionTestSuite.Create (ctx, assembly);
 		}
 
-		public static TestCase CreateRepeatedTest (TestCase test, int count)
+		internal static TestCase CreateRepeatedTest (TestCase test, int count)
 		{
 			var repeatHost = new RepeatedTestHost (count, TestFlags.ContinueOnError | TestFlags.Browsable, "$iteration");
 			var invoker = AggregatedTestInvoker.Create (repeatHost, new TestCaseInvoker (test));

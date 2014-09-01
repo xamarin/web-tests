@@ -1,5 +1,5 @@
 ﻿//
-// SavedException.cs
+// ITestLogger.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,23 +25,19 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.Server
+namespace Xamarin.AsyncTests
 {
-	public class SavedException : Exception
+	public interface ITestLogger
 	{
-		readonly string stackTrace;
+		void LogDebug (int level, string message);
 
-		public SavedException (string name, string stackTrace = null)
-			: base (name)
-		{
-			this.stackTrace = stackTrace;
-		}
+		void LogDebug (int level, string format, params object[] args);
 
-		public override string StackTrace {
-			get {
-				return stackTrace ?? base.StackTrace;
-			}
-		}
+		void LogMessage (string message);
+
+		void LogMessage (string format, params object[] args);
+
+		void LogError (Exception error);
 	}
 }
 

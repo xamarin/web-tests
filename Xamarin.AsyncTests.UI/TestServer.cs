@@ -36,7 +36,7 @@ namespace Xamarin.AsyncTests.UI
 
 	public class TestServer : ServerConnection
 	{
-		public UITestApp App {
+		new public UITestApp App {
 			get;
 			private set;
 		}

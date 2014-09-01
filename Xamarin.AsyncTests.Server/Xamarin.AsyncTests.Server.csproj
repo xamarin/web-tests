@@ -46,7 +46,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Connection.cs" />
-    <Compile Include="ServerLogger.cs" />
     <Compile Include="SavedException.cs" />
     <Compile Include="RemoteTestCase.cs" />
     <Compile Include="RunTestCommand.cs" />
@@ -64,11 +63,13 @@
     <Compile Include="OneWayCommand.cs" />
     <Compile Include="HelloCommand.cs" />
     <Compile Include="RunTestSuiteCommand.cs" />
-    <Compile Include="SetLogLevelCommand.cs" />
-    <Compile Include="NotifyStatisticsEventCommand.cs" />
     <Compile Include="Handshake.cs" />
     <Compile Include="ClientConnection.cs" />
     <Compile Include="ServerConnection.cs" />
+    <Compile Include="ObjectCommand.cs" />
+    <Compile Include="RemoteObject.cs" />
+    <Compile Include="RemoteTestLogger.cs" />
+    <Compile Include="RemoteObjectManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

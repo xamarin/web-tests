@@ -27,13 +27,32 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	public abstract class TestLogger
+	public sealed class TestLogger : ITestLogger
 	{
-		protected internal abstract void OnLogEvent (LogEntry entry);
+		readonly TestLoggerBackend backend;
+
+		internal TestLoggerBackend Backend {
+			get { return backend; }
+		}
+
+		public TestLogger (TestLoggerBackend backend)
+		{
+			this.backend = backend;
+		}
+
+		public int LogLevel {
+			get; set;
+		}
+
+		void OnLogEvent (TestLoggerBackend.LogEntry entry)
+		{
+			if (entry.LogLevel <= LogLevel)
+				backend.OnLogEvent (entry);
+		}
 
 		public void LogDebug (int level, string message)
 		{
-			OnLogEvent (new LogEntry (LogEntry.EntryKind.Debug, level, message));
+			OnLogEvent (new TestLoggerBackend.LogEntry (TestLoggerBackend.EntryKind.Debug, level, message));
 		}
 
 		public void LogDebug (int level, string format, params object[] args)
@@ -43,7 +62,7 @@ namespace Xamarin.AsyncTests
 
 		public void LogMessage (string message)
 		{
-			OnLogEvent (new LogEntry (LogEntry.EntryKind.Message, 0, message));
+			OnLogEvent (new TestLoggerBackend.LogEntry (TestLoggerBackend.EntryKind.Message, 0, message));
 		}
 
 		public void LogMessage (string format, params object[] args)
@@ -53,7 +72,7 @@ namespace Xamarin.AsyncTests
 
 		public void LogError (Exception error)
 		{
-			OnLogEvent (new LogEntry (LogEntry.EntryKind.Error, 0, error.Message, error));
+			OnLogEvent (new TestLoggerBackend.LogEntry (TestLoggerBackend.EntryKind.Error, 0, error.Message, error));
 		}
 
 		public static string Print (object obj)
@@ -61,47 +80,30 @@ namespace Xamarin.AsyncTests
 			return obj != null ? obj.ToString () : "<null>";
 		}
 
-		public static TestLogger CreateForResult (TestResult result, TestLogger parent)
+		public void ResetStatistics ()
 		{
-			return new TestResultLogger (result, parent);
+			backend.OnStatisticsEvent (new TestLoggerBackend.StatisticsEventArgs {
+				Type = TestLoggerBackend.StatisticsEventType.Reset });
 		}
 
-		class TestResultLogger : TestLogger
+		public void OnTestRunning (TestName name)
 		{
-			public TestResult Result {
-				get;
-				private set;
-			}
-
-			public TestLogger Parent {
-				get;
-				private set;
-			}
-
-			public TestResultLogger (TestResult result, TestLogger parent = null)
-			{
-				Result = result;
-				Parent = parent;
-			}
-
-			protected internal override void OnLogEvent (LogEntry entry)
-			{
-				if (Parent != null) {
-					Parent.OnLogEvent (entry);
-					return;
-				}
-
-				if (entry.Kind == LogEntry.EntryKind.Error) {
-					if (entry.Error != null)
-						Result.AddError (entry.Error);
-					else
-						Result.AddError (new AssertionException (entry.Text, null));
-				} else {
-					Result.AddMessage (entry.Text);
-				}
-			}
+			backend.OnStatisticsEvent (new TestLoggerBackend.StatisticsEventArgs {
+				Type = TestLoggerBackend.StatisticsEventType.Running, Name = name
+			});
 		}
 
+		public void OnTestFinished (TestName name, TestStatus status)
+		{
+			backend.OnStatisticsEvent (new TestLoggerBackend.StatisticsEventArgs {
+				Type = TestLoggerBackend.StatisticsEventType.Finished, Name = name, Status = status
+			});
+		}
+
+		public void OnException (TestName name, Exception ex)
+		{
+			OnTestFinished (name, TestStatus.Error);
+		}
 	}
 }
 

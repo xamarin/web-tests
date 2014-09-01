@@ -36,8 +36,6 @@ namespace Xamarin.AsyncTests
 	{
 		readonly TestContext parent;
 		readonly IPortableSupport support;
-		readonly int logLevel;
-		readonly TestStatistics statistics;
 		readonly TestResult result;
 		readonly TestLogger logger;
 		readonly SynchronizationContext syncContext;
@@ -56,16 +54,14 @@ namespace Xamarin.AsyncTests
 			get { return support; }
 		}
 
-		internal TestContext (IPortableSupport support, ITestConfiguration config, SettingsBag settings,
-			TestStatistics statistics, int logLevel, TestLogger logger, TestName name, TestResult result)
+		internal TestContext (IPortableSupport support, ITestConfiguration config,
+			TestLogger logger, TestName name, TestResult result)
 		{
 			Name = name;
 			this.support = support;
 			this.config = config;
-			this.statistics = statistics;
 			this.logger = logger;
 			this.result = result;
-			this.logLevel = logLevel;
 			this.syncContext = SynchronizationContext.Current;
 		}
 
@@ -75,9 +71,7 @@ namespace Xamarin.AsyncTests
 			this.parent = parent;
 			this.support = parent.support;
 			this.result = result;
-			this.logLevel = parent.logLevel;
 			this.logger = parent.logger;
-			this.statistics = parent.statistics;
 			this.syncContext = SynchronizationContext.Current;
 
 			config = parent.config;
@@ -105,13 +99,13 @@ namespace Xamarin.AsyncTests
 
 		public void OnTestRunning ()
 		{
-			Invoke (() => statistics.OnTestRunning (Name));
+			Invoke (() => logger.OnTestRunning (Name));
 		}
 
 		public void OnTestFinished (TestStatus status)
 		{
 			Result.Status = status;
-			Invoke (() => statistics.OnTestFinished (Name, status));
+			Invoke (() => logger.OnTestFinished (Name, status));
 		}
 
 		public void OnTestCanceled ()
@@ -127,14 +121,14 @@ namespace Xamarin.AsyncTests
 		{
 			Result.AddError (error);
 			Invoke (() => {
-				statistics.OnException (Name, error);
+				logger.OnException (Name, error);
 				logger.LogError (error);
 			});
 		}
 
 		public void LogDebug (int level, string message)
 		{
-			if (level > logLevel)
+			if (level > logger.LogLevel)
 				return;
 			Invoke (() => logger.LogDebug (level, message));
 		}

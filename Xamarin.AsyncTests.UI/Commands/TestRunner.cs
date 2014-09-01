@@ -70,7 +70,6 @@ namespace Xamarin.AsyncTests.UI
 			refreshCommand = new RefreshCommand (this);
 			currentResult = app.RootTestResult;
 
-			Context.Statistics.StatisticsEvent += (sender, e) => OnStatisticsEvent (e);
 			app.RootTestResult.PropertyChanged += (sender, e) => OnPropertyChanged ("CurrentTestResult");
 		}
 
@@ -107,7 +106,7 @@ namespace Xamarin.AsyncTests.UI
 
 			var model = currentResult;
 
-			App.Context.Statistics.Reset ();
+			App.Logger.ResetStatistics ();
 
 			SetStatusMessage ("Running {0}.", model.Result.Test.Name);
 
@@ -125,17 +124,23 @@ namespace Xamarin.AsyncTests.UI
 				model.Result.Clear ();
 			}
 
-			if (repeat)
-				test = TestSuite.CreateRepeatedTest (test, App.Options.RepeatCount);
+			var session = new TestSession (App, test, result);
 
 			startTime = DateTime.Now;
 
-			await test.Run (App.Context, result, cancellationToken);
+			if (repeat)
+				await session.Repeat (App.Options.RepeatCount, cancellationToken);
+			else
+				await session.Run (cancellationToken);
+
+			await session.Run (cancellationToken);
 
 			var elapsed = DateTime.Now - startTime;
 
 			CurrentTest = string.Empty;
 			StatusMessage = GetStatusMessage (string.Format ("Finished in {0} seconds", (int)elapsed.TotalSeconds));
+
+			App.Logger.LogMessage ("DONE: |{0}|{1}|", session.Name, StatusMessage);
 
 			if (!model.IsRoot)
 				model.Result.AddChild (result);
@@ -151,7 +156,7 @@ namespace Xamarin.AsyncTests.UI
 			if (result != null)
 				result.Result.Clear ();
 			message = null;
-			Context.Statistics.Reset ();
+			App.Logger.ResetStatistics ();
 			StatusMessage = GetStatusMessage ();
 			OnRefresh ();
 		}
@@ -166,15 +171,34 @@ namespace Xamarin.AsyncTests.UI
 
 		string message;
 
-		void OnStatisticsEvent (TestStatistics.StatisticsEventArgs args)
+		int countTests;
+		int countSuccess;
+		int countErrors;
+		int countIgnored;
+
+		internal void OnStatisticsEvent (TestLoggerBackend.StatisticsEventArgs args)
 		{
 			StatusMessage = GetStatusMessage ();
 
 			switch (args.Type) {
-			case TestStatistics.EventType.Running:
+			case TestLoggerBackend.StatisticsEventType.Running:
+				++countTests;
 				CurrentTest = string.Format ("Running {0}", args.Name);
 				break;
-			case TestStatistics.EventType.Finished:
+			case TestLoggerBackend.StatisticsEventType.Finished:
+				switch (args.Status) {
+				case TestStatus.Success:
+					++countSuccess;
+					break;
+				case TestStatus.Ignored:
+				case TestStatus.None:
+					++countIgnored;
+					break;
+				default:
+					++countErrors;
+					break;
+				}
+
 				CurrentTest = string.Format ("Finished {0}: {1}", args.Name, args.Status);
 				break;
 			default:
@@ -191,11 +215,11 @@ namespace Xamarin.AsyncTests.UI
 				sb.Append (prefix);
 				sb.Append (": ");
 			}
-			sb.AppendFormat ("{0} tests passed", Context.Statistics.CountSuccess);
-			if (Context.Statistics.CountErrors > 0)
-				sb.AppendFormat (", {0} errors", Context.Statistics.CountErrors);
-			if (Context.Statistics.CountIgnored > 0)
-				sb.AppendFormat (", {0} ignored", Context.Statistics.CountIgnored);
+			sb.AppendFormat ("{0} tests passed", countSuccess);
+			if (countErrors > 0)
+				sb.AppendFormat (", {0} errors", countErrors);
+			if (countIgnored > 0)
+				sb.AppendFormat (", {0} ignored", countIgnored);
 
 			if (message != null)
 				return string.Format ("{0} ({1})", message, sb);

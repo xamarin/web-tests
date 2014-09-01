@@ -39,36 +39,21 @@ using System.ComponentModel;
 
 namespace Xamarin.AsyncTests
 {
-	public class TestApp : INotifyPropertyChanged
+	public abstract class TestApp : INotifyPropertyChanged
 	{
-		int debugLevel = DefaultDebugLevel;
 		readonly IPortableSupport support;
-		readonly TestConfiguration config;
-		readonly SettingsBag settings;
-		readonly TestStatistics statistics;
 		volatile ITestSuite currentTestSuite;
 
-		const int DefaultDebugLevel = 0;
-
-		public int DebugLevel {
-			get { return debugLevel; }
-			set { debugLevel = value; }
+		public abstract TestLogger Logger {
+			get;
 		}
 
-		public TestLogger Logger {
-			get; set;
+		public abstract TestConfiguration Configuration {
+			get;
 		}
 
-		public TestStatistics Statistics {
-			get { return statistics; }
-		}
-
-		public TestConfiguration Configuration {
-			get { return config; }
-		}
-
-		public SettingsBag Settings {
-			get { return settings; }
+		public abstract SettingsBag Settings {
+			get;
 		}
 
 		public ITestSuite CurrentTestSuite {
@@ -85,12 +70,9 @@ namespace Xamarin.AsyncTests
 			get { return support; }
 		}
 
-		public TestApp (IPortableSupport support, ITestConfigurationProvider configProvider, SettingsBag settings)
+		public TestApp (IPortableSupport support, ITestConfigurationProvider configProvider)
 		{
 			this.support = support;
-			this.settings = settings;
-			config = new TestConfiguration (configProvider, settings);
-			statistics = new TestStatistics ();
 		}
 
 		protected virtual void OnPropertyChanged (string propertyName)

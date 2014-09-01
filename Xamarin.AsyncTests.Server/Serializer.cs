@@ -36,12 +36,14 @@ namespace Xamarin.AsyncTests.Server
 	static class Serializer
 	{
 		public static readonly Serializer<string> String = new StringSerializer ();
+		public static readonly Serializer<long> ObjectID = new ObjectIDSerializer ();
 		public static readonly Serializer<TestName> TestName = new TestNameSerializer ();
 		public static readonly Serializer<TestSuite> TestSuite = new TestSuiteSerializer ();
 		public static readonly Serializer<TestCase> TestCase = new TestCaseSerializer ();
 		public static readonly Serializer<TestResult> TestResult = new TestResultSerializer ();
-		public static readonly Serializer<TestStatistics.StatisticsEventArgs> StatisticsEventArgs = new StatisticsEventArgsSerializer ();
 		public static readonly Serializer<Handshake> Handshake = new HandshakeSerializer ();
+		public static readonly Serializer<TestLoggerBackend.LogEntry> LogEntry = new LogEntrySerializer ();
+		public static readonly Serializer<TestLoggerBackend.StatisticsEventArgs> StatisticsEventArgs = new StatisticsEventArgsSerializer ();
 
 		static readonly SettingsSerializer settingsSerializer = new SettingsSerializer ();
 
@@ -114,6 +116,24 @@ namespace Xamarin.AsyncTests.Server
 			public override XElement Write (Connection connection, string instance)
 			{
 				var element = new XElement ("Text");
+				element.SetAttributeValue ("Value", instance);
+				return element;
+			}
+		}
+
+		class ObjectIDSerializer : Serializer<long>
+		{
+			public override long Read (Connection connection, XElement node)
+			{
+				if (!node.Name.LocalName.Equals ("ObjectID"))
+					throw new InvalidOperationException ();
+
+				return long.Parse (node.Attribute ("Value").Value);
+			}
+
+			public override XElement Write (Connection connection, long instance)
+			{
+				var element = new XElement ("ObjectID");
 				element.SetAttributeValue ("Value", instance);
 				return element;
 			}
@@ -286,15 +306,15 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		class StatisticsEventArgsSerializer : Serializer<TestStatistics.StatisticsEventArgs>
+		class StatisticsEventArgsSerializer : Serializer<TestLoggerBackend.StatisticsEventArgs>
 		{
-			public override TestStatistics.StatisticsEventArgs Read (Connection connection, XElement node)
+			public override TestLoggerBackend.StatisticsEventArgs Read (Connection connection, XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("TestStatisticsEventArgs"))
 					throw new InvalidOperationException ();
 
-				var instance = new TestStatistics.StatisticsEventArgs ();
-				instance.Type = (TestStatistics.EventType)Enum.Parse (typeof(TestStatistics.EventType), node.Attribute ("Type").Value);
+				var instance = new TestLoggerBackend.StatisticsEventArgs ();
+				instance.Type = (TestLoggerBackend.StatisticsEventType)Enum.Parse (typeof(TestLoggerBackend.StatisticsEventType), node.Attribute ("Type").Value);
 				instance.Status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
 				instance.IsRemote = true;
 
@@ -305,7 +325,7 @@ namespace Xamarin.AsyncTests.Server
 				return instance;
 			}
 
-			public override XElement Write (Connection connection, TestStatistics.StatisticsEventArgs instance)
+			public override XElement Write (Connection connection, TestLoggerBackend.StatisticsEventArgs instance)
 			{
 				if (instance.IsRemote)
 					throw new InvalidOperationException ();
@@ -355,6 +375,51 @@ namespace Xamarin.AsyncTests.Server
 
 				return element;
 			}
+		}
+
+		class LogEntrySerializer : Serializer<TestLoggerBackend.LogEntry>
+		{
+			#region implemented abstract members of Serializer
+			public override TestLoggerBackend.LogEntry Read (Connection connection, XElement node)
+			{
+				if (!node.Name.LocalName.Equals ("LogEntry"))
+					throw new InvalidOperationException ();
+
+				TestLoggerBackend.EntryKind kind;
+				if (!Enum.TryParse (node.Attribute ("Kind").Value, out kind))
+					throw new InvalidOperationException ();
+
+				var text = node.Attribute ("Text").Value;
+				var logLevel = int.Parse (node.Attribute ("LogLevel").Value);
+
+				Exception exception = null;
+				var error = node.Element ("Error");
+				if (error != null) {
+					var errorMessage = error.Attribute ("Text").Value;
+					var stackTrace = error.Attribute ("StackTrace").Value;
+					exception = new SavedException (errorMessage, stackTrace);
+				}
+
+				var instance = new TestLoggerBackend.LogEntry (kind, logLevel, text, exception);
+				return instance;
+			}
+			public override XElement Write (Connection connection, TestLoggerBackend.LogEntry instance)
+			{
+				var element = new XElement ("LogEntry");
+				element.SetAttributeValue ("Kind", instance.Kind);
+				element.SetAttributeValue ("LogLevel", instance.LogLevel);
+				element.SetAttributeValue ("Text", instance.Text);
+
+				if (instance.Error != null) {
+					var error = new XElement ("Error");
+					error.SetAttributeValue ("Text", instance.Error.Message);
+					error.SetAttributeValue ("StackTrace", instance.Error.StackTrace);
+					element.Add (error);
+				}
+
+				return element;
+			}
+			#endregion
 		}
 	}
 

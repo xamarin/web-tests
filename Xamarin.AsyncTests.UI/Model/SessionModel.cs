@@ -1,5 +1,5 @@
 ﻿//
-// LogEntry.cs
+// SessionModel.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,48 +25,26 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.UI
 {
-	public sealed class LogEntry
+	using Framework;
+
+	public class SessionModel
 	{
-		public EntryKind Kind {
+		public UITestApp App {
 			get;
 			private set;
 		}
 
-		public int LogLevel {
+		public TestSession Session {
 			get;
 			private set;
 		}
 
-		public string Text {
-			get;
-			private set;
-		}
-
-		public Exception Error {
-			get;
-			private set;
-		}
-
-		public LogEntry (EntryKind kind, int level, string text, Exception error = null)
+		public SessionModel (UITestApp app, TestSession session)
 		{
-			Kind = kind;
-			LogLevel = level;
-			Text = text;
-			Error = error;
-		}
-
-		public enum EntryKind {
-			Debug,
-			Message,
-			Warning,
-			Error
-		}
-
-		public override string ToString ()
-		{
-			return string.Format ("[LogEntry: Kind={0}, LogLevel={1}, Text={2}]", Kind, LogLevel, Text);
+			App = app;
+			Session = session;
 		}
 	}
 }

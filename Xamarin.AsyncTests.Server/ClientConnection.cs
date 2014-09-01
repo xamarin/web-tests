@@ -48,8 +48,8 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public ClientConnection (TestApp context, Stream stream, bool useMySettings, bool useMyTests)
-			: base (context, stream, false)
+		public ClientConnection (TestApp app, Stream stream, bool useMySettings, bool useMyTests)
+			: base (app, stream, false)
 		{
 			UseMySettings = UseMySettings;
 			UseMyTestSuite = useMyTests;
@@ -71,17 +71,24 @@ namespace Xamarin.AsyncTests.Server
 		{
 			var handshake = new Handshake { WantStatisticsEvents = true };
 			if (UseMySettings)
-				handshake.Settings = Context.Settings;
+				handshake.Settings = App.Settings;
 
 			if (UseMyTestSuite)
 				handshake.TestSuite = await GetLocalTestSuite (cancellationToken);
 
 			await Hello (handshake, cancellationToken);
 
-			if (Context.DebugLevel >= 0)
-				await SetLogLevel (Context.DebugLevel, cancellationToken);
+			await MartinTest ();
 
 			await base.Start (cancellationToken);
+		}
+
+		async Task MartinTest ()
+		{
+			var logger = await RemoteObjectManager.GetRemoteTestLogger (this, CancellationToken.None);
+			Debug ("GOT REMOTE LOGGER: {0}", logger);
+			logger.LogMessage ("Hello World!");
+			Debug ("LOGGER DONE!");
 		}
 
 		internal override Task<Handshake> OnHello (Handshake handshake, CancellationToken cancellationToken)
@@ -98,12 +105,9 @@ namespace Xamarin.AsyncTests.Server
 
 			lock (this) {
 				if (retval.Settings != null) {
-					Context.Settings.Merge (retval.Settings);
-					Context.Settings.PropertyChanged += OnSettingsChanged;
+					App.Settings.Merge (retval.Settings);
+					App.Settings.PropertyChanged += OnSettingsChanged;
 				}
-
-				if (handshake.WantStatisticsEvents)
-					Context.Statistics.StatisticsEvent += OnStatisticsEvent;
 
 				if (retval.TestSuite != null)
 					suite = retval.TestSuite;
@@ -113,7 +117,7 @@ namespace Xamarin.AsyncTests.Server
 				if (suite == null)
 					throw new InvalidOperationException ();
 
-				Context.CurrentTestSuite = suite;
+				App.CurrentTestSuite = suite;
 				startTcs.SetResult (suite);
 			}
 
@@ -130,25 +134,16 @@ namespace Xamarin.AsyncTests.Server
 			await SyncSettings ((SettingsBag)sender);
 		}
 
-		async void OnStatisticsEvent (object sender, TestStatistics.StatisticsEventArgs e)
-		{
-			if (e.IsRemote)
-				return;
-			await new NotifyStatisticsEventCommand { Argument = e }.Send (this);
-		}
-
 		public override void Stop ()
 		{
-			Context.Settings.PropertyChanged -= OnSettingsChanged;
-			Context.Statistics.StatisticsEvent -= OnStatisticsEvent;
+			App.Settings.PropertyChanged -= OnSettingsChanged;
 			base.Stop ();
 		}
 
 		protected internal override void OnShutdown ()
 		{
-			Context.CurrentTestSuite = null;
-			Context.Settings.PropertyChanged -= OnSettingsChanged;
-			Context.Statistics.StatisticsEvent -= OnStatisticsEvent;
+			App.CurrentTestSuite = null;
+			App.Settings.PropertyChanged -= OnSettingsChanged;
 			base.OnShutdown ();
 		}
 	}

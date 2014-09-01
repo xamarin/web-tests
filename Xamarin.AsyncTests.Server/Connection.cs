@@ -41,22 +41,22 @@ namespace Xamarin.AsyncTests.Server
 	public abstract class Connection
 	{
 		readonly Stream stream;
-		readonly TestApp context;
+		readonly TestApp app;
 		readonly bool isServer;
 		CancellationTokenSource cancelCts;
 		TaskCompletionSource<object> mainTcs;
 		bool shutdownRequested;
 
-		internal Connection (TestApp context, Stream stream, bool isServer)
+		internal Connection (TestApp app, Stream stream, bool isServer)
 		{
 			this.isServer = isServer;
-			this.context = context;
+			this.app = app;
 			this.stream = stream;
 			cancelCts = new CancellationTokenSource ();
 		}
 
-		public TestApp Context {
-			get { return context; }
+		public TestApp App {
+			get { return app; }
 		}
 
 		#region Public Client API
@@ -64,18 +64,7 @@ namespace Xamarin.AsyncTests.Server
 		public async Task LogMessage (string message)
 		{
 			var command = new LogMessageCommand { Argument = message };
-			try {
-				await command.Send (this);
-			} catch {
-				OnSetLogLevel (-1);
-			}
-		}
-
-		public async Task SetLogLevel (int level, CancellationToken cancellationToken)
-		{
-			Context.DebugLevel = level;
-			var command = new SetLogLevelCommand { Argument = level.ToString () };
-			await command.Send (this, cancellationToken);
+			await command.Send (this);
 		}
 
 		public Task<SettingsBag> GetSettings (CancellationToken cancellationToken)
@@ -85,7 +74,7 @@ namespace Xamarin.AsyncTests.Server
 
 		public async Task Shutdown ()
 		{
-			Context.CurrentTestSuite = null;
+			App.CurrentTestSuite = null;
 			await new ShutdownCommand ().Send (this);
 		}
 
@@ -116,28 +105,15 @@ namespace Xamarin.AsyncTests.Server
 		protected internal virtual void OnShutdown ()
 		{
 			shutdownRequested = true;
-			OnSetLogLevel (-1);
 		}
 
 		protected internal abstract void OnLogMessage (string message);
 
 		protected abstract void OnDebug (int level, string message);
 
-		internal void OnSetLogLevel (int level)
-		{
-			var serverLogger = context.Logger as ServerLogger;
-			if (level < 0) {
-				if (serverLogger != null)
-					context.Logger = serverLogger.Parent;
-			} else if (serverLogger == null) {
-				context.Logger = new ServerLogger (this, context.Logger);
-			}
-			Context.DebugLevel = level;
-		}
-
 		internal SettingsBag OnGetSettings ()
 		{
-			return Context.Settings;
+			return App.Settings;
 		}
 
 		internal async Task SyncSettings (SettingsBag settings)
@@ -151,7 +127,7 @@ namespace Xamarin.AsyncTests.Server
 		internal void OnSyncSettings (SettingsBag newSettings)
 		{
 			lock (this) {
-				Context.Settings.Merge (newSettings);
+				App.Settings.Merge (newSettings);
 			}
 		}
 
@@ -167,19 +143,10 @@ namespace Xamarin.AsyncTests.Server
 
 		protected internal abstract Task<TestSuite> GetLocalTestSuite (CancellationToken cancellationToken);
 
-		protected internal async Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken)
+		protected internal Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken)
 		{
-			var result = new TestResult (test.Name);
-
-			try {
-				await test.Run (Context, result, cancellationToken).ConfigureAwait (false);
-			} catch (OperationCanceledException) {
-				result.Status = TestStatus.Canceled;
-			} catch (Exception ex) {
-				result.AddError (ex);
-			}
-
-			return result;
+			var session = new TestSession (App, test);
+			return session.Run (cancellationToken);
 		}
 
 		protected internal abstract Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken);

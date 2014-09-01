@@ -86,10 +86,11 @@ namespace Xamarin.WebTests.Portable
 			isMsRuntime = Environment.OSVersion.Platform == PlatformID.Win32NT && runtimeVersion == null;
 		}
 
-		public static void Initialize ()
+		public static IPortableSupport Initialize ()
 		{
 			var instance = new PortableSupportImpl ();
 			PortableSupport.Initialize (instance, instance);
+			return instance;
 		}
 
 		static readonly bool hasNetwork;

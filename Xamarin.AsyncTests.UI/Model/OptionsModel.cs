@@ -69,7 +69,7 @@ namespace Xamarin.AsyncTests.UI
 					return;
 				logLevel = value;
 				App.Settings.LogLevel = value;
-				App.DebugLevel = value;
+				App.Logger.LogLevel = value;
 				OnPropertyChanged ("LogLevel");
 			}
 		}
@@ -111,7 +111,7 @@ namespace Xamarin.AsyncTests.UI
 			logLevel = App.Settings.LogLevel;
 			hideIgnored = App.Settings.HideIgnoredTests;
 			hideSuccessful = App.Settings.HideSuccessfulTests;
-			App.DebugLevel = LogLevel;
+			App.Logger.LogLevel = LogLevel;
 
 			OnPropertyChanged ("Repeat");
 			OnPropertyChanged ("RepeatCount");

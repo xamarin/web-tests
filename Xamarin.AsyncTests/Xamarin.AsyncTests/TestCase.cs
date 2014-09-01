@@ -47,16 +47,6 @@ namespace Xamarin.AsyncTests
 			Name = name;
 		}
 
-		public Task<bool> Run (TestApp app, TestResult result, CancellationToken cancellationToken)
-		{
-			var logger = TestLogger.CreateForResult (result, app.Logger);
-			var ictx = new TestContext (
-				app.PortableSupport, app.Configuration.AsReadOnly (), app.Settings, app.Statistics,
-				app.DebugLevel, logger, result.Name, result);
-
-			return Run (ictx, cancellationToken);
-		}
-
 		internal abstract Task<bool> Run (TestContext ctx, CancellationToken cancellationToken);
 	}
 }

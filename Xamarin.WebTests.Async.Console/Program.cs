@@ -41,7 +41,7 @@ namespace Xamarin.AsyncTests.Client
 	using Server;
 	using Framework;
 
-	public class Program
+	public class Program : TestApp
 	{
 		public string SettingsFile {
 			get;
@@ -58,14 +58,16 @@ namespace Xamarin.AsyncTests.Client
 			private set;
 		}
 
-		public SettingsBag Settings {
-			get;
-			private set;
+		public override SettingsBag Settings {
+			get { return settings; }
 		}
 
-		public TestApp Context {
-			get;
-			private set;
+		public override TestConfiguration Configuration {
+			get { return config; }
+		}
+
+		public override TestLogger Logger {
+			get { return logger; }
 		}
 
 		public int LogLevel {
@@ -102,15 +104,18 @@ namespace Xamarin.AsyncTests.Client
 		}
 
 		ConsoleClient connection;
+		SettingsBag settings;
+		TestConfiguration config;
+		TestLogger logger;
 
 		public static void Main (string[] args)
 		{
 			SD.Debug.AutoFlush = true;
 			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
 
-			PortableSupportImpl.Initialize ();
+			var support = PortableSupportImpl.Initialize ();
 
-			var program = new Program (args);
+			var program = new Program (support, WebTestFeatures.Instance, args);
 
 			try {
 				var task = program.RunMain ();
@@ -120,7 +125,8 @@ namespace Xamarin.AsyncTests.Client
 			}
 		}
 
-		Program (string[] args)
+		Program (IPortableSupport support, ITestConfigurationProvider configProvider, string[] args)
+			: base (support, configProvider)
 		{
 			LogLevel = -1;
 
@@ -135,7 +141,7 @@ namespace Xamarin.AsyncTests.Client
 			p.Add ("my-tests", v => UseMyTestSuite = true);
 			var remaining = p.Parse (args);
 
-			Settings = LoadSettings (SettingsFile);
+			settings = LoadSettings (SettingsFile);
 
 			if (remaining.Count > 0) {
 				Console.Error.WriteLine ("Failed to parse command-line args!");
@@ -143,9 +149,10 @@ namespace Xamarin.AsyncTests.Client
 				return;
 			}
 
-			Context = new TestApp (PortableSupport.Instance, WebTestFeatures.Instance, Settings);
-			Context.DebugLevel = LogLevel;
-			Context.Logger = new ConsoleLogger (this);
+			config = new TestConfiguration (configProvider, settings);
+
+			logger = new TestLogger (new ConsoleLogger (this));
+			logger.LogLevel = LogLevel;
 		}
 
 		static void Debug (string message, params object[] args)
@@ -257,8 +264,7 @@ namespace Xamarin.AsyncTests.Client
 
 		async void OnLogDebug (int level, string message)
 		{
-			var ourLevel = LogRemotely ? Context.DebugLevel : LogLevel;
-			if (level > ourLevel)
+			if (level > Logger.LogLevel)
 				return;
 			Debug (message);
 			if (connection == null || !LogRemotely)
@@ -266,7 +272,19 @@ namespace Xamarin.AsyncTests.Client
 			await connection.LogMessage (message);
 		}
 
-		class ConsoleLogger : TestLogger
+		void OnStatisticsEvent (TestLoggerBackend.StatisticsEventArgs e)
+		{
+			switch (e.Type) {
+			case TestLoggerBackend.StatisticsEventType.Running:
+				Debug ("Running {0}.", e.Name);
+				break;
+			case TestLoggerBackend.StatisticsEventType.Finished:
+				Debug ("Finished {0}: {1}", e.Name, e.Status);
+				break;
+			}
+		}
+
+		class ConsoleLogger : TestLoggerBackend
 		{
 			readonly Program Program;
 
@@ -278,11 +296,11 @@ namespace Xamarin.AsyncTests.Client
 			protected override void OnLogEvent (LogEntry entry)
 			{
 				switch (entry.Kind) {
-				case LogEntry.EntryKind.Debug:
+				case EntryKind.Debug:
 					Program.OnLogDebug (entry.LogLevel, entry.Text);
 					break;
 
-				case LogEntry.EntryKind.Error:
+				case EntryKind.Error:
 					if (entry.Error != null)
 						Program.OnLogMessage (string.Format ("ERROR: {0}", entry.Error));
 					else
@@ -293,6 +311,11 @@ namespace Xamarin.AsyncTests.Client
 					Program.OnLogMessage (entry.Text);
 					break;
 				}
+			}
+
+			protected override void OnStatisticsEvent (StatisticsEventArgs args)
+			{
+				Program.OnStatisticsEvent (args);
 			}
 		}
 	}
