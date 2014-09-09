@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -44,6 +45,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal abstract TestInstance CreateInstance (TestInstance parent);
 
+		[Obsolete]
 		internal abstract TestInvoker CreateInvoker (TestInvoker invoker);
 
 		public override string ToString ()

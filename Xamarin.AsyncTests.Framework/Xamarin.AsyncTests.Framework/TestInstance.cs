@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -70,6 +71,26 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public abstract TestHost CaptureContext ();
+
+		public static XElement Serialize (TestInstance instance)
+		{
+			var node = new XElement ("TestInstance");
+			if (!instance.Serialize (node))
+				return null;
+			return node;
+		}
+
+		public static TestInstance Deserialize (TestContext ctx, XElement node)
+		{
+			return null;
+		}
+
+		protected virtual bool Serialize (XElement node)
+		{
+			if (Parent != null)
+				return Parent.Serialize (node);
+			return false;
+		}
 
 		protected virtual void GetTestName (TestNameBuilder builder)
 		{

@@ -1,5 +1,5 @@
 ﻿//
-// CapturedTestCase.cs
+// FixtureTestHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,29 +24,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CapturedTestCase : TestCase
+	abstract class FixtureTestHost : HeavyTestHost
 	{
-		public TestInvoker Invoker {
+		public abstract string FixtureName {
 			get;
-			private set;
 		}
 
-		public CapturedTestCase (TestSuite suite, TestName name, TestInvoker invoker)
-			: base (suite, name)
+		public FixtureTestHost (string name)
+			: base (name)
 		{
-			Invoker = invoker;
-		}
-
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Invoker.Invoke (ctx, null, cancellationToken);
 		}
 	}
 }

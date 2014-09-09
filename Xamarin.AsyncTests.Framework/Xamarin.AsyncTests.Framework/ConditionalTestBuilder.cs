@@ -1,5 +1,5 @@
 ﻿//
-// CapturedTestCase.cs
+// ConditionalTestBuilder.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,30 +24,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CapturedTestCase : TestCase
+	class ConditionalTestBuilder : TestBuilder
 	{
-		public TestInvoker Invoker {
+		public ITestFilter Filter {
 			get;
 			private set;
 		}
 
-		public CapturedTestCase (TestSuite suite, TestName name, TestInvoker invoker)
-			: base (suite, name)
-		{
-			Invoker = invoker;
+		public bool MustMatch {
+			get;
+			private set;
 		}
 
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+		public ConditionalTestBuilder (ITestFilter filter, bool mustMatch)
 		{
-			return Invoker.Invoke (ctx, null, cancellationToken);
+			Filter = filter;
+			MustMatch = mustMatch;
 		}
+
+		internal override TestInvoker CreateInvoker (TestInvoker inner)
+		{
+			return new ConditionalTestInvoker (Filter, MustMatch, inner);
+		}
+
 	}
 }
 

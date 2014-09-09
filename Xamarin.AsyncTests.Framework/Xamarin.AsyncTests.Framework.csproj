@@ -77,6 +77,11 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestFramework.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestFramework.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestApp.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\FixtureTestHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestBuilder.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\NamedTestBuilder.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\ConditionalTestBuilder.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\ResultGroupTestBuilder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

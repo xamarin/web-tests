@@ -341,8 +341,18 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			public override Task<bool> Invoke (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 			{
+				MartinTest (ctx, instance);
 				return Test.Invoke (ctx, instance, cancellationToken);
 			}
+
+			static void MartinTest (TestContext ctx, TestInstance instance)
+			{
+				var name = TestInstance.GetTestName (instance);
+				var node = TestInstance.Serialize (instance);
+				ctx.LogMessage ("MARTIN TEST: {0} {1}", name, node);
+				TestInstance.Deserialize (ctx, node);
+			}
+
 		}
 	}
 }

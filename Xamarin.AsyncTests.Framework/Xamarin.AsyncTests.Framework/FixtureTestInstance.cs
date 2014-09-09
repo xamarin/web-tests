@@ -32,14 +32,20 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class FixtureTestInstance : HeavyTestInstance
 	{
+		new public FixtureTestHost Host {
+			get;
+			private set;
+		}
+
 		public object Instance {
 			get;
 			private set;
 		}
 
-		public FixtureTestInstance (HeavyTestHost host, object instance, TestInstance parent)
+		public FixtureTestInstance (FixtureTestHost host, object instance, TestInstance parent)
 			: base (host, parent)
 		{
+			Host = host;
 			Instance = instance;
 		}
 

@@ -95,11 +95,15 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return CreateInvoker (invoker, parameterHosts);
 		}
 
-		class ReflectionTestFixtureHost : HeavyTestHost
+		class ReflectionTestFixtureHost : FixtureTestHost
 		{
 			public ReflectionTestFixture Fixture {
 				get;
 				private set;
+			}
+
+			public override string FixtureName {
+				get { return Fixture.Type.FullName; }
 			}
 
 			public ReflectionTestFixtureHost (ReflectionTestFixture fixture)

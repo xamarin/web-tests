@@ -1,5 +1,5 @@
 ﻿//
-// CapturedTestCase.cs
+// NamedTestBuilder.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,29 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CapturedTestCase : TestCase
+	class NamedTestBuilder : TestBuilder
 	{
-		public TestInvoker Invoker {
+		public NamedTestHost Host {
 			get;
 			private set;
 		}
 
-		public CapturedTestCase (TestSuite suite, TestName name, TestInvoker invoker)
-			: base (suite, name)
+		public NamedTestBuilder (NamedTestHost host)
 		{
-			Invoker = invoker;
+			Host = host;
 		}
 
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+		internal override TestInvoker CreateInvoker (TestInvoker inner)
 		{
-			return Invoker.Invoke (ctx, null, cancellationToken);
+			return new NamedTestInvoker (Host, inner);
 		}
 	}
 }

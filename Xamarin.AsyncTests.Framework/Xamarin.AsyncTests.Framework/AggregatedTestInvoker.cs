@@ -51,16 +51,19 @@ namespace Xamarin.AsyncTests.Framework
 			Flags = flags;
 		}
 
+		[Obsolete]
 		public static TestInvoker Create (TestFlags flags, params TestInvoker[] invokers)
 		{
 			return Create (flags, null, invokers);
 		}
 
+		[Obsolete]
 		public static TestInvoker Create (TestHost host, params TestInvoker[] invokers)
 		{
 			return Create (host.Flags, host, invokers);
 		}
 
+		[Obsolete]
 		static TestInvoker Create (TestFlags flags, TestHost host, params TestInvoker[] invokers)
 		{
 			TestInvoker invoker = new CollectionTestInvoker (flags, invokers);

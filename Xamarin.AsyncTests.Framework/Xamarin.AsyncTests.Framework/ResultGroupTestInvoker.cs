@@ -46,7 +46,7 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			var innerResult = new TestResult (TestInstance.GetTestName (instance));
 			if (instance != null)
-				innerResult.Test = CaptureContext (ctx.Suite, innerResult.Name, instance);
+				innerResult.Test = CaptureContext (ctx, innerResult.Name, instance);
 
 			var innerCtx = ctx.CreateChild (innerResult.Name, innerResult);
 
@@ -57,7 +57,7 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		TestCase CaptureContext (TestSuite suite, TestName name, TestInstance instance)
+		TestCase CaptureContext (TestContext ctx, TestName name, TestInstance instance)
 		{
 			TestInvoker invoker = new ResultGroupTestInvoker (Inner);
 			invoker = new PrePostRunTestInvoker (invoker);
@@ -65,7 +65,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (invoker == null)
 				return null;
 
-			return new CapturedTestCase (suite, name, invoker);
+			return new CapturedTestCase (ctx.Suite, name, invoker);
 		}
 
 		static TestInvoker CaptureContext (TestName name, TestInstance instance, TestInvoker invoker)
