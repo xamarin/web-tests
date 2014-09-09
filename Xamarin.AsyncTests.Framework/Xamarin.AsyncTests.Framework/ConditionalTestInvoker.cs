@@ -31,12 +31,7 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class ConditionalTestInvoker : TestInvoker
 	{
-		public ITestFilter Filter {
-			get;
-			private set;
-		}
-
-		public bool MustMatch {
+		public TestFilter Filter {
 			get;
 			private set;
 		}
@@ -46,10 +41,9 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public ConditionalTestInvoker (ITestFilter filter, bool mustMatch, TestInvoker inner)
+		public ConditionalTestInvoker (TestFilter filter, TestInvoker inner)
 		{
 			Filter = filter;
-			MustMatch = mustMatch;
 			Inner = inner;
 		}
 
@@ -59,7 +53,7 @@ namespace Xamarin.AsyncTests.Framework
 			bool enabled;
 			var matched = Filter.Filter (ctx, out enabled);
 			if (!matched)
-				enabled = !MustMatch;
+				enabled = !Filter.MustMatch;
 
 			if (!enabled) {
 				ctx.OnTestFinished (TestStatus.Ignored);

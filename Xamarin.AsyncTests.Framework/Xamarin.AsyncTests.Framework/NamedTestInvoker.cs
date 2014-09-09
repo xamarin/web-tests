@@ -24,7 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -48,14 +47,16 @@ namespace Xamarin.AsyncTests.Framework
 			Inner = inner;
 		}
 
-		public static NamedTestInvoker Create (string name, TestInvoker inner)
+		[Obsolete]
+		public static NamedTestInvoker Create (TestHost parent, string name, TestInvoker inner)
 		{
-			return new NamedTestInvoker (new NamedTestHost (name), inner);
+			return new NamedTestInvoker (new NamedTestHost (parent, name), inner);
 		}
 
-		public static NamedTestInvoker Create (TestName name, TestInvoker inner)
+		[Obsolete]
+		public static NamedTestInvoker Create (TestHost parent, TestName name, TestInvoker inner)
 		{
-			return new NamedTestInvoker (new NamedTestHost (name), inner);
+			return new NamedTestInvoker (new NamedTestHost (parent, name), inner);
 		}
 
 		NamedTestInstance SetUp (TestContext ctx, TestInstance instance)

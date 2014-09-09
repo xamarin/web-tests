@@ -1,5 +1,5 @@
 ﻿//
-// CapturedTestCase.cs
+// TestBuilderHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,28 +24,51 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Xml.Linq;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CapturedTestCase : TestCase
+	abstract class TestBuilderHost : NamedTestHost
 	{
-		public TestInvoker Invoker {
+		public TestBuilder Builder {
 			get;
 			private set;
 		}
 
-		public CapturedTestCase (TestSuite suite, TestName name, TestInvoker invoker)
-			: base (suite, name)
+		public TestBuilderHost (TestHost parent, TestBuilder builder)
+			: base (parent, builder.Name.Name)
 		{
-			Invoker = invoker;
+			Builder = builder;
 		}
 
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+		internal override TestInstance CreateInstance (TestInstance parent)
 		{
-			return Invoker.Invoke (ctx, null, cancellationToken);
+			return new TestBuilderInstance (this, parent);
+		}
+
+		internal override TestInvoker CreateInvoker (TestInvoker invoker)
+		{
+			throw new InvalidOperationException ();
+		}
+
+		public abstract TestInvoker CreateInnerInvoker ();
+
+		internal override bool Serialize (XElement node, TestInstance instance)
+		{
+			node.Add (new XAttribute ("Name", Builder.FullName));
+			return true;
+		}
+
+		internal override TestHost Deserialize (XElement node, TestHost parent)
+		{
+			return base.Deserialize (node, parent);
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[TestBuilderHost: Name={0}, Builder={1}]", Name, Builder.GetType ().Name);
 		}
 	}
 }

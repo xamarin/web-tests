@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Threading;
@@ -33,7 +34,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	class ReflectionPropertyHost : ParameterizedTestHost
 	{
-		public ReflectionTestFixture Fixture {
+		public ReflectionTestFixtureBuilder Fixture {
 			get;
 			private set;
 		}
@@ -43,13 +44,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public TestHost Host {
+		public ParameterizedTestHost Host {
 			get;
 			private set;
 		}
 
-		public ReflectionPropertyHost (ReflectionTestFixture fixture, PropertyInfo prop, TestHost host)
-			: base (prop.Name, prop.PropertyType.GetTypeInfo (), host.Flags)
+		public ReflectionPropertyHost (TestHost parent, ReflectionTestFixtureBuilder fixture,
+			PropertyInfo prop, ParameterizedTestHost host)
+			: base (parent, prop.Name, prop.PropertyType.GetTypeInfo (), host.Serializer, host.Flags)
 		{
 			Fixture = fixture;
 			Property = prop;

@@ -1,5 +1,5 @@
 ﻿//
-// CapturedTestCase.cs
+// InvokableTestHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,29 +24,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CapturedTestCase : TestCase
+	abstract class InvokableTestHost : TestHost
 	{
-		public TestInvoker Invoker {
+		public TestBuilder Builder {
 			get;
 			private set;
 		}
 
-		public CapturedTestCase (TestSuite suite, TestName name, TestInvoker invoker)
-			: base (suite, name)
+		public InvokableTestHost (TestHost parent, TestBuilder builder)
+			: base (parent)
 		{
-			Invoker = invoker;
+			Builder = builder;
 		}
 
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+		internal sealed override TestInstance CreateInstance (TestInstance parent)
 		{
-			return Invoker.Invoke (ctx, null, cancellationToken);
+			return new InvokableTestInstance (this, parent);
 		}
+
+		internal override TestInvoker CreateInvoker (TestInvoker invoker)
+		{
+			throw new InvalidOperationException ();
+		}
+
+		public TestInvoker CreateInvoker ()
+		{
+			var invoker = CreateInnerInvoker ();
+
+			for (var host = Parent; host != null; host = host.Parent)
+				invoker = host.CreateInvoker (invoker);
+
+			return invoker;
+		}
+
+		protected abstract TestInvoker CreateInnerInvoker ();
 	}
 }
 

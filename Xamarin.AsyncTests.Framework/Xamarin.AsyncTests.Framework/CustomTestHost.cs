@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Threading;
@@ -44,8 +45,8 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public CustomTestHost (string name, Type hostType, bool useFixtureInstance)
-			: base (name)
+		public CustomTestHost (TestHost parent, string name, Type hostType, bool useFixtureInstance)
+			: base (parent, name)
 		{
 			HostType = hostType;
 			UseFixtureInstance = useFixtureInstance;
@@ -54,6 +55,22 @@ namespace Xamarin.AsyncTests.Framework
 		internal override TestInstance CreateInstance (TestInstance parent)
 		{
 			return new CustomTestInstance<T> (this, parent, HostType, UseFixtureInstance);
+		}
+
+		internal override bool Serialize (XElement node, TestInstance instance)
+		{
+			return true;
+		}
+
+		internal override TestHost Deserialize (XElement node, TestHost parent)
+		{
+			return new CustomTestHost<T> (parent, Name, HostType, UseFixtureInstance);
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[CustomTestHost: Type={0}, HostType={1}, UseFixtureInstance={2}]",
+				typeof (T).Name, HostType != null ? HostType.Name : "<null>", UseFixtureInstance);
 		}
 	}
 }

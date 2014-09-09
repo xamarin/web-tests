@@ -34,7 +34,7 @@ namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
 
-	public abstract class Handler : Xamarin.AsyncTests.ICloneable, ITestFilter
+	public abstract class Handler : Xamarin.AsyncTests.ICloneable, ITestFilter, ITestParameter
 	{
 		static int next_id;
 		public readonly int ID = ++next_id;
@@ -64,6 +64,10 @@ namespace Xamarin.WebTests.Handlers
 
 			enabled = filter (ctx);
 			return true;
+		}
+
+		string ITestParameter.Identifier {
+			get { return Description; }
 		}
 
 		public string Description {

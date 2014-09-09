@@ -1,5 +1,5 @@
 ﻿//
-// TestInstance.cs
+// ReflectionTestBuilder.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,70 +24,71 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	abstract class TestInstance
+	abstract class ReflectionTestBuilder : TestBuilder
 	{
-		public TestHost Host {
+		public IMemberInfo Member {
 			get;
 			private set;
 		}
 
-		public TestInstance Parent {
+		public AsyncTestAttribute Attribute {
 			get;
 			private set;
 		}
 
-		protected TestInstance (TestHost host, TestInstance parent)
+		protected ReflectionTestBuilder (TestSuite suite, TestName name, AsyncTestAttribute attr, IMemberInfo member)
+			: base (suite, name)
 		{
-			Host = host;
-			Parent = parent;
+			Attribute = attr;
+			Member = member;
 		}
 
-		protected FixtureTestInstance GetFixtureInstance ()
+		protected override TestFilter GetTestFilter ()
 		{
-			TestInstance instance = this;
-			while (instance != null) {
-				var fixtureInstance = instance as FixtureTestInstance;
-				if (fixtureInstance != null)
-					return fixtureInstance;
+			TestFilter parent = null;
+			if (Parent != null)
+				parent = Parent.Filter;
 
-				instance = instance.Parent;
+			var categories = ReflectionHelper.GetCategories (Member);
+			var features = ReflectionHelper.GetFeatures (Member);
+
+			return new TestFilter (parent, categories, features);
+		}
+
+		protected override TestCase CreateTestCase ()
+		{
+			return new ReflectionTestCase (this);
+		}
+
+		protected static TestHost CreateRepeatHost (TestHost parent, int repeat)
+		{
+			return new RepeatedTestHost (null, repeat, TestFlags.Browsable);
+		}
+
+		class ReflectionTestCase : TestCase
+		{
+			public ReflectionTestBuilder Builder {
+				get;
+				private set;
 			}
 
-			TestSerializer.Dump (this);
-			throw new InternalErrorException ();
-		}
+			public ReflectionTestCase (ReflectionTestBuilder builder)
+				: base (builder.Suite, builder.Name)
+			{
+				Builder = builder;
+			}
 
-		public virtual void Initialize (TestContext ctx)
-		{
-		}
-
-		public virtual void Destroy (TestContext ctx)
-		{
-		}
-
-		protected virtual void GetTestName (TestNameBuilder builder)
-		{
-			if (Parent != null)
-				Parent.GetTestName (builder);
-		}
-
-		public static TestName GetTestName (TestInstance instance)
-		{
-			var builder = new TestNameBuilder ();
-			if (instance != null)
-				instance.GetTestName (builder);
-			return builder.GetName ();
-		}
-
-		public override string ToString ()
-		{
-			return string.Format ("[{0}: Host={1}, Parent={2}]", GetType ().Name, Host, Parent);
+			internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+			{
+				return Builder.Invoker.Invoke (ctx, null, cancellationToken);
+			}
 		}
 	}
 }

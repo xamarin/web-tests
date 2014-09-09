@@ -1,5 +1,5 @@
 ﻿//
-// HostInstanceTestInvoker.cs
+// CapturableTestInvoker.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,15 +24,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class HeavyTestInvoker : AggregatedTestInvoker
+	class CapturableTestInvoker : AggregatedTestInvoker
 	{
-		public HeavyTestHost Host {
+		public CapturableTestHost Host {
 			get;
 			private set;
 		}
@@ -42,26 +41,18 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		static int next_id;
-		public readonly int ID = ++next_id;
-
-		public HeavyTestInvoker (HeavyTestHost host, TestInvoker inner)
-			: base (host.Flags)
+		public CapturableTestInvoker (CapturableTestHost host, TestInvoker inner)
 		{
 			Host = host;
 			Inner = inner;
 		}
 
-		async Task<HeavyTestInstance> SetUp (
-			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
+		CapturableTestInstance SetUp (TestContext ctx, TestInstance instance)
 		{
 			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
-				cancellationToken.ThrowIfCancellationRequested ();
-				var childInstance = (HeavyTestInstance)Host.CreateInstance (ctx, instance);
-				await childInstance.Initialize (ctx, cancellationToken);
-				return childInstance;
+				return (CapturableTestInstance)Host.CreateInstance (ctx, instance);
 			} catch (OperationCanceledException) {
 				ctx.OnTestCanceled ();
 				return null;
@@ -71,13 +62,12 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		async Task<bool> TearDown (
-			TestContext ctx, HeavyTestInstance instance, CancellationToken cancellationToken)
+		bool TearDown (TestContext ctx, CapturableTestInstance instance)
 		{
 			ctx.LogDebug (10, "TearDown({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
-				await instance.Destroy (ctx, cancellationToken);
+				instance.Destroy (ctx);
 				return true;
 			} catch (OperationCanceledException) {
 				ctx.OnTestCanceled ();
@@ -91,16 +81,25 @@ namespace Xamarin.AsyncTests.Framework
 		public override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			var innerInstance = await SetUp (ctx, instance, cancellationToken);
+			var innerInstance = SetUp (ctx, instance);
 			if (innerInstance == null)
 				return false;
 
-			var name = TestInstance.GetTestName (innerInstance);
-			var innerCtx = ctx.CreateChild (name);
+			var innerResult = new TestResult (TestInstance.GetTestName (innerInstance));
 
-			var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
+			var innerCtx = ctx.CreateChild (innerResult.Name, innerResult);
 
-			if (!await TearDown (ctx, innerInstance, cancellationToken))
+			if (!Host.IsCaptured)
+				innerResult.Test = TestBuilder.CaptureContext (innerCtx, innerInstance);
+
+			bool success;
+			try {
+				success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
+			} finally {
+				ctx.Result.AddChild (innerResult);
+			}
+
+			if (!TearDown (ctx, innerInstance))
 				success = false;
 
 			return success;

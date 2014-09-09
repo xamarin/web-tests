@@ -1,5 +1,5 @@
 ﻿//
-// CapturedTestCase.cs
+// CapturableTestInstance.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,28 +24,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CapturedTestCase : TestCase
+	class CapturableTestInstance : TestInstance
 	{
-		public TestInvoker Invoker {
-			get;
-			private set;
-		}
-
-		public CapturedTestCase (TestSuite suite, TestName name, TestInvoker invoker)
-			: base (suite, name)
+		public CapturableTestInstance (CapturableTestHost host, TestInstance parent)
+			: base (host, parent)
 		{
-			Invoker = invoker;
-		}
-
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Invoker.Invoke (ctx, null, cancellationToken);
 		}
 	}
 }

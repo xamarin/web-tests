@@ -59,11 +59,6 @@ namespace Xamarin.AsyncTests.Framework
 		[StackTraceEntryPoint]
 		public abstract bool MoveNext (TestContext ctx);
 
-		public sealed override TestHost CaptureContext ()
-		{
-			return new CapturedTestHost (Host, Current);
-		}
-
 		protected override void GetTestName (TestNameBuilder builder)
 		{
 			base.GetTestName (builder);

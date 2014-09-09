@@ -1,5 +1,5 @@
 ﻿//
-// ReflectionTestCase.cs
+// ReflectionTestCaseInvoker.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -26,126 +26,55 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestCase : ReflectionTest
+	class ReflectionTestCaseInvoker : TestInvoker
 	{
-		public ReflectionTestFixture Fixture {
+		public ReflectionTestCaseBuilder Builder {
 			get;
 			private set;
 		}
 
-		public MethodInfo Method {
-			get;
-			private set;
-		}
-
-		public TypeInfo ExpectedExceptionType {
-			get { return expectedExceptionType; }
-		}
-
-		internal override TestInvoker Invoker {
-			get { return invoker; }
-		}
-
-		protected override bool IsFixture {
-			get { return false; }
-		}
-
-		readonly ExpectedExceptionAttribute expectedException;
-		readonly TypeInfo expectedExceptionType;
-		readonly TestInvoker invoker;
-
-		public ReflectionTestCase (ReflectionTestFixture fixture, AsyncTestAttribute attr, MethodInfo method)
-			: base (fixture.Suite, new TestName (method.Name), attr, ReflectionHelper.GetMethodInfo (method))
+		public ReflectionTestCaseInvoker (ReflectionTestCaseBuilder builder)
 		{
-			Fixture = fixture;
-			Method = method;
-
-			expectedException = method.GetCustomAttribute<ExpectedExceptionAttribute> ();
-			if (expectedException != null)
-				expectedExceptionType = expectedException.ExceptionType.GetTypeInfo ();
-
-			invoker = Resolve ();
+			Builder = builder;
 		}
 
-		public override bool Filter (TestContext ctx, out bool enabled)
+		public override Task<bool> Invoke (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			if (Fixture.Filter (ctx, out enabled))
-				return enabled;
-			return base.Filter (ctx, out enabled);
-		}
+			// instance = MartinTest (ctx, instance);
 
-		TestInvoker Resolve ()
-		{
-			var parameterHosts = new List<TestHost> ();
-
-			if (Attribute.Repeat != 0)
-				parameterHosts.Add (new RepeatedTestHost (Attribute.Repeat, TestFlags.Browsable));
-
-			bool seenCtx = false;
-			bool seenToken = false;
-
-			var parameters = Method.GetParameters ();
-			for (int i = parameters.Length - 1; i >= 0; i--) {
-				var paramType = parameters [i].ParameterType;
-
-				var fork = parameters [i].GetCustomAttribute<ForkAttribute> ();
-				if (fork != null) {
-					if (!paramType.Equals (typeof(IFork)))
-						throw new InvalidOperationException ();
-					parameterHosts.Add (new ForkedTestHost (fork));
-					continue;
-				}
-
-				if (paramType.Equals (typeof(CancellationToken))) {
-					if (seenToken)
-						throw new InvalidOperationException ();
-					seenToken = true;
-					continue;
-				} else if (paramType.Equals (typeof(TestContext))) {
-					if (seenCtx)
-						throw new InvalidOperationException ();
-					seenCtx = true;
-					continue;
-				} else if (paramType.Equals (typeof(IFork))) {
-					throw new InvalidOperationException ();
-				}
-
-				var member = ReflectionHelper.GetParameterInfo (parameters [i]);
-				parameterHosts.AddRange (ResolveParameter (Fixture.Type, member));
-			}
-
-			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
-
-			invoker = new ResultGroupTestInvoker (invoker);
-
-			invoker = new PrePostRunTestInvoker (invoker);
-
-			return CreateInvoker (invoker, parameterHosts);
-		}
-
-		public Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
-		{
 			ctx.OnTestRunning ();
 
-			if (ExpectedExceptionType != null)
-				return ExpectingException (ctx, instance, ExpectedExceptionType, cancellationToken);
+			if (Builder.ExpectedExceptionType != null)
+				return ExpectingException (ctx, instance, Builder.ExpectedExceptionType, cancellationToken);
 			else
 				return ExpectingSuccess (ctx, instance, cancellationToken);
 		}
 
+		#if FIXME
+		static TestInstance MartinTest (TestContext ctx, TestInstance instance)
+		{
+			var name = TestInstance.GetTestName (instance);
+			var node = TestSerializer.Serialize (instance);
+			ctx.LogMessage ("MARTIN TEST: {0} {1}", name, node);
+
+			var result = TestSerializer.Deserialize (ctx, node);
+			ctx.LogMessage ("MARTIN TEST DONE: {0}", result);
+			return result;
+		}
+		#endif
+
 		int GetTimeout ()
 		{
-			if (Attribute.Timeout != 0)
-				return Attribute.Timeout;
-			else if (Fixture.Attribute.Timeout != 0)
-				return Fixture.Attribute.Timeout;
+			if (Builder.Attribute.Timeout != 0)
+				return Builder.Attribute.Timeout;
+			else if (Builder.Fixture.Attribute.Timeout != 0)
+				return Builder.Fixture.Attribute.Timeout;
 			else
 				return 30000;
 		}
@@ -167,13 +96,20 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				methodToken = cancellationToken;
 			}
 
-			var parameters = Method.GetParameters ();
+			var parameters = Builder.Method.GetParameters ();
 
-			ctx.LogDebug (10, "INVOKE: {0} {1} {2}", Name, Method, instance);
+			ctx.LogDebug (10, "INVOKE: {0} {1} {2}", Builder.Name, Builder.Method, instance);
 
-			for (int index = parameters.Length - 1; index >= 0; index--) {
+			var index = parameters.Length - 1;
+			while (index >= 0) {
+				if (instance is NamedTestInstance || instance is CapturableTestInstance) {
+					instance = instance.Parent;
+					continue;
+				}
+
 				var param = parameters [index];
 				var paramType = param.ParameterType;
+				index--;
 
 				if (paramType.Equals (typeof(CancellationToken))) {
 					args.AddFirst (methodToken);
@@ -197,18 +133,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					continue;
 				}
 
-				var namedInstance = instance as NamedTestInstance;
-				if (namedInstance != null) {
-					instance = instance.Parent;
-					continue;
-				}
-
 				var parameterizedInstance = instance as ParameterizedTestInstance;
 				if (parameterizedInstance == null)
-					throw new InvalidOperationException ();
+					throw new InternalErrorException ();
 
 				if (!paramType.GetTypeInfo ().IsAssignableFrom (parameterizedInstance.ParameterType))
-					throw new InvalidOperationException ();
+					throw new InternalErrorException ();
 
 				args.AddFirst (parameterizedInstance.Current);
 				instance = instance.Parent;
@@ -220,23 +150,23 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				var host = instance.Host;
 				var capturedHost = host as CapturedTestHost;
 				if (capturedHost != null)
-					host = capturedHost.Parent;
+					host = capturedHost.Host;
 				if (!(host is RepeatedTestHost || host is ReflectionPropertyHost || host is NamedTestHost))
-					throw new InvalidOperationException ();
+					throw new InternalErrorException ();
 				instance = instance.Parent;
 			}
 
 			object thisInstance = null;
-			if (!Method.IsStatic) {
+			if (!Builder.Method.IsStatic) {
 				var fixtureInstance = instance as FixtureTestInstance;
 				if (fixtureInstance == null)
-					throw new InvalidOperationException ();
+					throw new InternalErrorException ();
 				thisInstance = fixtureInstance.Instance;
 				instance = null;
 			}
 
 			if (instance != null)
-				throw new InvalidOperationException ();
+				throw new InternalErrorException ();
 
 			try {
 				return DoInvokeInner (thisInstance, args.ToArray ());
@@ -249,7 +179,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		[StackTraceEntryPoint]
 		object DoInvokeInner (object instance, object[] args)
 		{
-			return Method.Invoke (instance, args);
+			return Builder.Method.Invoke (instance, args);
 		}
 
 		bool CheckFinalStatus (TestContext ctx, bool ok)
@@ -325,34 +255,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				ctx.OnError (new AssertionException (message, ex, ctx.GetStackTrace ()));
 				return false;
 			}
-		}
-
-		class ReflectionTestCaseInvoker : TestInvoker
-		{
-			public ReflectionTestCase Test {
-				get;
-				private set;
-			}
-
-			public ReflectionTestCaseInvoker (ReflectionTestCase test)
-			{
-				Test = test;
-			}
-
-			public override Task<bool> Invoke (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
-			{
-				MartinTest (ctx, instance);
-				return Test.Invoke (ctx, instance, cancellationToken);
-			}
-
-			static void MartinTest (TestContext ctx, TestInstance instance)
-			{
-				var name = TestInstance.GetTestName (instance);
-				var node = TestInstance.Serialize (instance);
-				ctx.LogMessage ("MARTIN TEST: {0} {1}", name, node);
-				TestInstance.Deserialize (ctx, node);
-			}
-
 		}
 	}
 }

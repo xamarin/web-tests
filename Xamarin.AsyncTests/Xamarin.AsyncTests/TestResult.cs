@@ -157,7 +157,7 @@ namespace Xamarin.AsyncTests
 		public void AddChild (TestResult child)
 		{
 			lock (this) {
-				WantToModify ();
+				// WantToModify ();
 				child.parent = this;
 				children.Add (child);
 				MergeStatus (child.Status);

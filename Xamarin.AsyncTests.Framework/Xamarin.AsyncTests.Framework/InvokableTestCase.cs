@@ -32,20 +32,14 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class InvokableTestCase : TestCase
 	{
-		public TestCase Test {
-			get;
-			private set;
-		}
-
 		public TestInvoker Invoker {
 			get;
 			private set;
 		}
 
-		public InvokableTestCase (TestCase test, TestInvoker invoker)
-			: base (test.Suite, test.Name)
+		public InvokableTestCase (TestSuite suite, TestInvoker invoker)
+			: base (suite, suite.Name)
 		{
-			Test = test;
 			Invoker = invoker;
 		}
 

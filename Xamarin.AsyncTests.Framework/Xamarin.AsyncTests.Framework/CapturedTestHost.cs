@@ -29,7 +29,7 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class CapturedTestHost : ParameterizedTestHost
 	{
-		public ParameterizedTestHost Parent {
+		public ParameterizedTestHost Host {
 			get;
 			private set;
 		}
@@ -39,10 +39,11 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public CapturedTestHost (ParameterizedTestHost parent, object instance)
-			: base (parent.ParameterName, parent.ParameterType, parent.Flags | TestFlags.FlattenHierarchy)
+		public CapturedTestHost (TestHost parent, ParameterizedTestHost host, object instance)
+			: base (parent, host.ParameterName, host.ParameterType,
+				null, host.Flags | TestFlags.FlattenHierarchy)
 		{
-			Parent = parent;
+			Host = host;
 			CapturedInstance = instance;
 		}
 

@@ -38,11 +38,6 @@ namespace Xamarin.AsyncTests.Framework
 		{
 		}
 
-		public override TestHost CaptureContext ()
-		{
-			return Host;
-		}
-
 		protected override void GetTestName (TestNameBuilder builder)
 		{
 			if (Host.TestName != null)

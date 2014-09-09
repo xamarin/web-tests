@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,13 +48,59 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public bool IsCaptured {
+			get;
+			private set;
+		}
+
 		public ParameterSourceHost (
-			string name, Type sourceType, bool useFixtureInstance, string filter, TestFlags flags = TestFlags.None)
-			: base (name, typeof (T).GetTypeInfo (), flags)
+			TestHost parent, string name, Type sourceType, bool useFixtureInstance,
+			IParameterSerializer serializer, string filter, TestFlags flags = TestFlags.None)
+			: base (parent, name, typeof (T).GetTypeInfo (), serializer, flags)
 		{
 			SourceType = sourceType;
 			UseFixtureInstance = useFixtureInstance;
 			Filter = filter;
+		}
+
+		internal override bool Serialize (XElement node, TestInstance instance)
+		{
+			if (Serializer != null)
+				return base.Serialize (node, instance);
+
+			var parameterizedInstance = (ParameterizedTestInstance)instance;
+			var testParameter = parameterizedInstance.Current as ITestParameter;
+			if (testParameter == null)
+				return false;
+
+			node.Add (new XAttribute ("Identifier", testParameter.Identifier));
+			return true;
+		}
+
+		internal override TestHost Deserialize (XElement node, TestHost parent)
+		{
+			if (Serializer != null && node != null)
+				return base.Deserialize (node, parent);
+
+			string identifier;
+			if (node != null) {
+				var attr = node.Attribute ("Identifier");
+				if (attr == null)
+					return null;
+
+				identifier = attr.Value;
+			} else {
+				identifier = Filter;
+			}
+
+			var host = new ParameterSourceHost<T> (
+				parent, ParameterName, SourceType, UseFixtureInstance, null,
+				identifier, Flags);
+
+			if (node != null)
+				host.IsCaptured = true;
+
+			return host;
 		}
 
 		internal override TestInstance CreateInstance (TestInstance parent)

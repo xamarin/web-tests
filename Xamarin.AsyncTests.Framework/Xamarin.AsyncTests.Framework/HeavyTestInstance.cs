@@ -56,11 +56,6 @@ namespace Xamarin.AsyncTests.Framework
 		[StackTraceEntryPoint]
 		public abstract Task Destroy (TestContext ctx, CancellationToken cancellationToken);
 
-		public override sealed TestHost CaptureContext ()
-		{
-			return Host;
-		}
-
 		protected override void GetTestName (TestNameBuilder builder)
 		{
 			base.GetTestName (builder);

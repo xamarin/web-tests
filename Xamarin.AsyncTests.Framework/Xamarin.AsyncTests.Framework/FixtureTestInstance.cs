@@ -32,21 +32,28 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class FixtureTestInstance : HeavyTestInstance
 	{
-		new public FixtureTestHost Host {
-			get;
-			private set;
-		}
-
 		public object Instance {
 			get;
 			private set;
 		}
 
-		public FixtureTestInstance (FixtureTestHost host, object instance, TestInstance parent)
+		public FixtureTestInstance (HeavyTestHost host, object instance, TestInstance parent)
 			: base (host, parent)
 		{
-			Host = host;
+			SanityCheck (parent);
 			Instance = instance;
+		}
+
+		static void SanityCheck (TestInstance parent)
+		{
+			var current = parent;
+			while (current != null) {
+				if (current is FixtureTestInstance) {
+					TestSerializer.Dump (parent);
+					throw new InternalErrorException ();
+				}
+				current = current.Parent;
+			}
 		}
 
 		public override object Current {

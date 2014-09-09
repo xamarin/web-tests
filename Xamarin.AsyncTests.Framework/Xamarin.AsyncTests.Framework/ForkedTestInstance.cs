@@ -54,11 +54,6 @@ namespace Xamarin.AsyncTests.Framework
 			Invoker = invoker;
 		}
 
-		public override TestHost CaptureContext ()
-		{
-			return Host;
-		}
-
 		public async Task<bool> Start (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (Delay == 0)

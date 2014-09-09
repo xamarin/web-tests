@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Framework
 {
@@ -34,7 +35,8 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public ForkedTestHost (ForkAttribute attr)
+		public ForkedTestHost (TestHost parent, ForkAttribute attr)
+			: base (parent)
 		{
 			Attribute = attr;
 		}
@@ -49,6 +51,16 @@ namespace Xamarin.AsyncTests.Framework
 		internal override TestInvoker CreateInvoker (TestInvoker invoker)
 		{
 			return new ForkedTestInvoker (this, invoker);
+		}
+
+		internal override bool Serialize (XElement node, TestInstance instance)
+		{
+			return true;
+		}
+
+		internal override TestHost Deserialize (XElement node, TestHost parent)
+		{
+			return new ForkedTestHost (parent, Attribute);
 		}
 
 		#endregion

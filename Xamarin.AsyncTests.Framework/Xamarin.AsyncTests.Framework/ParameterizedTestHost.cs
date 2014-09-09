@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Threading;
@@ -43,16 +44,45 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		protected ParameterizedTestHost (string name, TypeInfo type, TestFlags flags = TestFlags.None)
+		public IParameterSerializer Serializer {
+			get;
+			private set;
+		}
+
+		protected ParameterizedTestHost (TestHost parent, string name, TypeInfo type,
+			IParameterSerializer serializer, TestFlags flags = TestFlags.None)
+			: base (parent)
 		{
 			ParameterName = name;
 			ParameterType = type;
+			Serializer = serializer;
 			Flags = flags;
 		}
 
 		internal override TestInvoker CreateInvoker (TestInvoker invoker)
 		{
 			return new ParameterizedTestInvoker (this, invoker);
+		}
+
+		internal override bool Serialize (XElement node, TestInstance instance)
+		{
+			if (Serializer == null)
+				return false;
+
+			var parameterizedInstance = (ParameterizedTestInstance)instance;
+			return Serializer.Serialize (node, parameterizedInstance.Current);
+		}
+
+		internal override TestHost Deserialize (XElement node, TestHost parent)
+		{
+			if (Serializer == null)
+				return null;
+
+			var value = Serializer.Deserialize (node);
+			if (value == null)
+				return null;
+
+			return new CapturedTestHost (parent, this, value);
 		}
 
 		public override string ToString ()

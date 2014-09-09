@@ -24,6 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Xml.Linq;
+using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -31,14 +34,21 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	public static class ReflectionHelper
 	{
-		public static IMemberInfo GetParameterInfo (ParameterInfo member)
-		{
-			return new _ParameterInfo (member);
-		}
+		#region Type Info
 
-		public static IMemberInfo GetPropertyInfo (PropertyInfo member)
+		public static string GetMethodSignatureFullName (MethodInfo method)
 		{
-			return new _PropertyInfo (member);
+			var sb = new StringBuilder ();
+			sb.Append (method.Name);
+			sb.Append ("(");
+			var parameters = method.GetParameters ();
+			for (int i = 0; i < parameters.Length; i++) {
+				if (i > 0)
+					sb.Append (",");
+				sb.Append (parameters [i].ParameterType.Name);
+			}
+			sb.Append (")");
+			return sb.ToString ();
 		}
 
 		public static IMemberInfo GetMethodInfo (MethodInfo member)
@@ -169,6 +179,251 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 		}
 
+		#endregion
+
+		#region Test Hosts
+
+		internal static TestHost ResolveParameter (
+			TestHost parent, ReflectionTestFixtureBuilder builder, ParameterInfo member)
+		{
+			return ResolveParameter (parent, builder, new _ParameterInfo (member));
+		}
+
+		internal static TestHost ResolveParameter (
+			TestHost parent, ReflectionTestFixtureBuilder builder, PropertyInfo member)
+		{
+			return ResolveParameter (parent, builder, new _PropertyInfo (member));
+		}
+
+		static TestHost ResolveParameter (
+			TestHost parent, ReflectionTestFixtureBuilder fixture, IMemberInfo member)
+		{
+			if (typeof(ITestInstance).GetTypeInfo ().IsAssignableFrom (member.Type)) {
+				var hostAttr = member.GetCustomAttribute<TestHostAttribute> ();
+				if (hostAttr == null)
+					hostAttr = member.Type.GetCustomAttribute<TestHostAttribute> ();
+				if (hostAttr == null)
+					throw new InternalErrorException ();
+
+				return CreateCustomHost (parent, fixture.Type, member, hostAttr);
+			}
+
+			var paramAttrs = member.GetCustomAttributes<TestParameterSourceAttribute> ().ToArray ();
+			if (paramAttrs.Length == 1)
+				return CreateParameterAttributeHost (parent, fixture.Type, member, paramAttrs[0]);
+			else if (paramAttrs.Length > 1)
+				throw new InternalErrorException ();
+
+			paramAttrs = member.Type.GetCustomAttributes<TestParameterSourceAttribute> ().ToArray ();
+			if (paramAttrs.Length == 1)
+				return CreateParameterAttributeHost (parent, fixture.Type, member, paramAttrs [0]);
+			else if (paramAttrs.Length > 1)
+				throw new InternalErrorException ();
+
+			if (member.Type.AsType ().Equals (typeof(bool)))
+				return CreateBoolean (parent, member);
+
+			if (member.Type.IsEnum)
+				return CreateEnum (parent, member);
+
+			throw new InternalErrorException ();
+		}
+
+		internal static Type GetHostType (
+			TypeInfo fixtureType, Type hostType, TypeInfo memberType, Type attrType,
+			bool allowImplicit, out bool useFixtureInstance)
+		{
+			var genericInstance = hostType.GetTypeInfo ().MakeGenericType (memberType.AsType ()).GetTypeInfo ();
+
+			if (attrType != null) {
+				if (!genericInstance.IsAssignableFrom (attrType.GetTypeInfo ()))
+					throw new InternalErrorException ();
+				useFixtureInstance = genericInstance.IsAssignableFrom (fixtureType);
+				return attrType;
+			}
+
+			if (genericInstance.IsAssignableFrom (fixtureType)) {
+				useFixtureInstance = true;
+				return null;
+			}
+
+			if (allowImplicit) {
+				if (memberType.AsType ().Equals (typeof(bool))) {
+					useFixtureInstance = false;
+					return typeof(BooleanTestSource);
+				} else if (memberType.IsEnum) {
+					useFixtureInstance = false;
+					return typeof(EnumTestSource<>).MakeGenericType (memberType.AsType ());
+				}
+			}
+
+			throw new InternalErrorException ();
+		}
+
+		static TestHost CreateCustomHost (TestHost parent, TypeInfo fixture, IMemberInfo member, TestHostAttribute attr)
+		{
+			bool useFixtureInstance;
+			var hostType = GetHostType (
+				fixture, typeof(ITestHost<>), member.Type,
+				attr.HostType, false, out useFixtureInstance);
+
+			var type = typeof(CustomTestHost<>).MakeGenericType (member.Type.AsType ());
+			return (TestHost)Activator.CreateInstance (
+				type, parent, member.Name, hostType, useFixtureInstance);
+		}
+
+		static TestHost CreateParameterAttributeHost (
+			TestHost parent, TypeInfo fixtureType, IMemberInfo member, TestParameterSourceAttribute attr)
+		{
+			string filter = null;
+			var paramAttr = attr as TestParameterAttribute;
+			if (paramAttr != null)
+				filter = paramAttr.Filter;
+
+			bool useFixtureInstance = false;
+			var sourceType = GetHostType (
+				fixtureType, typeof(ITestParameterSource<>), member.Type,
+				attr.SourceType, true, out useFixtureInstance);
+
+			var serializer = GetParameterSerializer (member.Type, sourceType, useFixtureInstance);
+
+			var type = typeof(ParameterSourceHost<>).MakeGenericType (member.Type.AsType ());
+			return (TestHost)Activator.CreateInstance (
+				type, parent, member.Name, sourceType, useFixtureInstance, serializer, filter, attr.Flags);
+		}
+
+		static TestHost CreateEnum (TestHost parent, IMemberInfo member)
+		{
+			if (!member.Type.IsEnum || member.Type.GetCustomAttribute<FlagsAttribute> () != null)
+				throw new InternalErrorException ();
+
+			var type = member.Type.AsType ();
+			var sourceType = typeof(EnumTestSource<>).MakeGenericType (type);
+			var hostType = typeof(ParameterSourceHost<>).MakeGenericType (type);
+
+			var serializerType = typeof(EnumSerializer<>).MakeGenericType (type);
+			var serializer = (IParameterSerializer)Activator.CreateInstance (serializerType);
+
+			var source = Activator.CreateInstance (sourceType);
+			return (ParameterizedTestHost)Activator.CreateInstance (
+				hostType, parent, member.Name, source, serializer, TestFlags.None);
+		}
+
+		static TestHost CreateBoolean (TestHost parent, IMemberInfo member)
+		{
+			return new ParameterSourceHost<bool> (
+				parent, member.Name, typeof (BooleanTestSource), false,
+				GetBooleanSerializer (), null, TestFlags.None);
+		}
+
+		class BooleanTestSource : ITestParameterSource<bool>
+		{
+			public IEnumerable<bool> GetParameters (TestContext ctx, string filter)
+			{
+				yield return false;
+				yield return true;
+			}
+		}
+
+		class EnumTestSource<T> : ITestParameterSource<T>
+		{
+			public IEnumerable<T> GetParameters (TestContext ctx, string filter)
+			{
+				foreach (var value in Enum.GetValues (typeof (T)))
+					yield return (T)value;
+			}
+		}
+
+		static IParameterSerializer GetParameterSerializer (TypeInfo type, Type sourceType, bool useFixtureInstance)
+		{
+			if (typeof(ITestParameter).GetTypeInfo ().IsAssignableFrom (type))
+				return null;
+
+			if (type.Equals (typeof(bool)))
+				return new BooleanSerializer ();
+			else if (type.Equals (typeof(int)))
+				return new IntegerSerializer ();
+			else if (type.IsEnum) {
+				var serializerType = typeof(EnumSerializer<>).MakeGenericType (type.AsType ());
+				return (IParameterSerializer)Activator.CreateInstance (serializerType);
+			}
+
+			return null;
+		}
+
+		internal static IParameterSerializer GetBooleanSerializer ()
+		{
+			return new BooleanSerializer ();
+		}
+
+		internal static IParameterSerializer GetIntegerSerializer ()
+		{
+			return new IntegerSerializer ();
+		}
+
+		class BooleanSerializer : IParameterSerializer
+		{
+			public bool Serialize (XElement node, object value)
+			{
+				node.Add (new XAttribute ("Value", (bool)value));
+				return true;
+			}
+			public object Deserialize (XElement node)
+			{
+				return bool.Parse (node.Attribute ("Value").Value);
+			}
+		}
+
+		class IntegerSerializer : IParameterSerializer
+		{
+			public bool Serialize (XElement node, object value)
+			{
+				node.Add (new XAttribute ("Value", (int)value));
+				return true;
+			}
+			public object Deserialize (XElement node)
+			{
+				return int.Parse (node.Attribute ("Value").Value);
+			}
+		}
+
+		class EnumSerializer<T> : IParameterSerializer
+			where T : struct
+		{
+			public bool Serialize (XElement node, object value)
+			{
+				node.Add (new XAttribute ("Value", (T)value));
+				return true;
+			}
+			public object Deserialize (XElement node)
+			{
+				var value = node.Attribute ("Value").Value;
+				T result;
+				if (!Enum.TryParse (value, out result))
+					throw new InternalErrorException ();
+				return result;
+			}
+		}
+
+		#endregion
+
+		#region Misc
+
+		internal static IEnumerable<TestCategory> GetCategories (IMemberInfo member)
+		{
+			var cattrs = member.GetCustomAttributes<TestCategoryAttribute> ();
+			if (cattrs.Count () == 0)
+				return null;
+			return cattrs.Select (c => c.Category);
+		}
+
+		internal static IEnumerable<TestFeature> GetFeatures (IMemberInfo member)
+		{
+			foreach (var cattr in member.GetCustomAttributes<TestFeatureAttribute> ())
+				yield return cattr.Feature;
+		}
+
+		#endregion
 	}
 }
 

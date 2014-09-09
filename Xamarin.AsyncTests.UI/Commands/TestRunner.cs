@@ -133,8 +133,6 @@ namespace Xamarin.AsyncTests.UI
 			else
 				await session.Run (cancellationToken);
 
-			await session.Run (cancellationToken);
-
 			var elapsed = DateTime.Now - startTime;
 
 			CurrentTest = string.Empty;

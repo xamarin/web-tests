@@ -38,6 +38,11 @@ namespace Xamarin.AsyncTests.Framework
 		T current;
 		int index;
 
+		public ParameterSourceHost<T> SourceHost {
+			get;
+			private set;
+		}
+
 		public Type SourceType {
 			get;
 			private set;
@@ -57,10 +62,11 @@ namespace Xamarin.AsyncTests.Framework
 			get { return current; }
 		}
 
-		public ParameterSourceInstance (ParameterizedTestHost host, TestInstance parent,
+		public ParameterSourceInstance (ParameterSourceHost<T> host, TestInstance parent,
 			Type sourceType, bool useFixtureInstance, string filter)
 			: base (host, parent)
 		{
+			SourceHost = host;
 			SourceType = sourceType;
 			UseFixtureInstance = useFixtureInstance;
 			Filter = filter;
@@ -81,6 +87,14 @@ namespace Xamarin.AsyncTests.Framework
 			base.Initialize (ctx);
 			source = CreateSource (ctx);
 			parameters = new List<T> (source.GetParameters (ctx, Filter));
+			if (SourceHost.IsCaptured) {
+				if (parameters.Count == 0)
+					throw new InvalidOperationException ();
+				else if (parameters.Count > 1)
+					parameters.RemoveAll (p => !((ITestParameter)p).Identifier.Equals (Filter));
+				if (parameters.Count != 1)
+					throw new InvalidOperationException ();
+			}
 			index = 0;
 		}
 

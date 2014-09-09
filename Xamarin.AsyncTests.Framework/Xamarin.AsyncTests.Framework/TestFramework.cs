@@ -43,16 +43,16 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal static TestCase CreateRepeatedTest (TestCase test, int count)
 		{
-			var repeatHost = new RepeatedTestHost (count, TestFlags.ContinueOnError | TestFlags.Browsable, "$iteration");
+			var repeatHost = new RepeatedTestHost (null, count, TestFlags.ContinueOnError | TestFlags.Browsable, "$iteration");
 			var invoker = AggregatedTestInvoker.Create (repeatHost, new TestCaseInvoker (test));
-			invoker = NamedTestInvoker.Create (test.Name, invoker);
-			return new InvokableTestCase (test, invoker);
+			invoker = NamedTestInvoker.Create (null, test.Name, invoker);
+			return new InvokableTestCase (test.Suite, invoker);
 		}
 
 		public static TestCase CreateProxy (TestCase test, TestName proxy)
 		{
-			var invoker = NamedTestInvoker.Create (proxy, new TestCaseInvoker (test));
-			return new InvokableTestCase (test, invoker);
+			var invoker = NamedTestInvoker.Create (null, proxy, new TestCaseInvoker (test));
+			return new InvokableTestCase (test.Suite, invoker);
 		}
 
 		class TestCaseInvoker : TestInvoker

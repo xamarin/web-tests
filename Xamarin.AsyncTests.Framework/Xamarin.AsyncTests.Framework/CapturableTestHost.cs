@@ -1,5 +1,5 @@
 ﻿//
-// CapturedTestCase.cs
+// CapturableTestHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,28 +24,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CapturedTestCase : TestCase
+	class CapturableTestHost : TestHost
 	{
-		public TestInvoker Invoker {
+		public bool IsCaptured {
 			get;
 			private set;
 		}
 
-		public CapturedTestCase (TestSuite suite, TestName name, TestInvoker invoker)
-			: base (suite, name)
+		public CapturableTestHost (TestHost parent)
+			: base (parent)
 		{
-			Invoker = invoker;
 		}
 
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+		internal override TestInstance CreateInstance (TestInstance parent)
 		{
-			return Invoker.Invoke (ctx, null, cancellationToken);
+			return new CapturableTestInstance (this, parent);
+		}
+
+		internal override TestInvoker CreateInvoker (TestInvoker invoker)
+		{
+			return new CapturableTestInvoker (this, invoker);
+		}
+
+		internal override bool Serialize (XElement node, TestInstance instance)
+		{
+			return true;
+		}
+
+		internal override TestHost Deserialize (XElement node, TestHost parent)
+		{
+			return new CapturableTestHost (parent) { IsCaptured = true };
 		}
 	}
 }

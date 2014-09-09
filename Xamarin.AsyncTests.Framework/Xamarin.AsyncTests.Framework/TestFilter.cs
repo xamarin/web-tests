@@ -1,5 +1,5 @@
 ﻿//
-// CapturedTestCase.cs
+// TestFilter.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,27 +25,60 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CapturedTestCase : TestCase
+	class TestFilter : ITestFilter
 	{
-		public TestInvoker Invoker {
-			get;
-			private set;
+		readonly ITestFilter parent;
+		readonly IEnumerable<TestCategory> categories;
+		readonly IEnumerable<TestFeature> features;
+
+		public TestFilter (TestFilter parent, IEnumerable<TestCategory> categories, IEnumerable<TestFeature> features)
+		{
+			this.parent = parent;
+			this.categories = categories;
+			this.features = features;
 		}
 
-		public CapturedTestCase (TestSuite suite, TestName name, TestInvoker invoker)
-			: base (suite, name)
-		{
-			Invoker = invoker;
+		public bool MustMatch {
+			get { return parent != null; }
 		}
 
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+		public bool Filter (TestContext ctx, out bool enabled)
 		{
-			return Invoker.Invoke (ctx, null, cancellationToken);
+			if (parent != null && parent.Filter (ctx, out enabled))
+				return enabled;
+
+			foreach (var feature in features) {
+				if (!ctx.IsEnabled (feature)) {
+					enabled = false;
+					return true;
+				}
+			}
+
+			if (categories != null) {
+				foreach (var category in categories) {
+					if (ctx.CurrentCategory == category) {
+						enabled = true;
+						return true;
+					} else if (category.IsExplicit) {
+						enabled = false;
+						return true;
+					}
+				}
+
+				enabled = false;
+				return true;
+			}
+
+			if ((parent != null) && ctx.CurrentCategory == TestCategory.All) {
+				enabled = true;
+				return true;
+			}
+
+			enabled = false;
+			return false;
 		}
 	}
 }
