@@ -30,12 +30,14 @@ using System.Threading;
 
 namespace Xamarin.AsyncTests
 {
+	using Portable;
 	using Constraints;
 
 	public sealed class TestContext : ITestConfiguration
 	{
 		readonly TestContext parent;
 		readonly IPortableSupport support;
+		readonly TestSuite suite;
 		readonly TestResult result;
 		readonly TestLogger logger;
 		readonly SynchronizationContext syncContext;
@@ -50,17 +52,22 @@ namespace Xamarin.AsyncTests
 			get { return result ?? parent.Result; }
 		}
 
+		public TestSuite Suite {
+			get { return parent != null ? parent.Suite : suite; }
+		}
+
 		public IPortableSupport PortableSupport {
 			get { return support; }
 		}
 
 		internal TestContext (IPortableSupport support, ITestConfiguration config,
-			TestLogger logger, TestName name, TestResult result)
+			TestLogger logger, TestSuite suite, TestName name, TestResult result)
 		{
 			Name = name;
 			this.support = support;
 			this.config = config;
 			this.logger = logger;
+			this.suite = suite;
 			this.result = result;
 			this.syncContext = SynchronizationContext.Current;
 		}

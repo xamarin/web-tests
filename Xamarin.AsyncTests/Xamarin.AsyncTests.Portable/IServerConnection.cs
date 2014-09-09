@@ -1,5 +1,5 @@
 ﻿//
-// IPortableSupport.cs
+// IServerConnection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,24 +24,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.Portable
 {
-	public interface IPortableSupport
+	public interface IServerConnection
 	{
-		string GetStackTrace (bool full);
-
-		string CurrentThreadId {
+		string Name {
 			get;
 		}
 
-		bool IsMicrosoftRuntime {
-			get;
-		}
+		Task<Stream> Open (CancellationToken cancellationToken);
 
-		Version MonoRuntimeVersion {
-			get;
-		}
+		void Close ();
 	}
 }
 

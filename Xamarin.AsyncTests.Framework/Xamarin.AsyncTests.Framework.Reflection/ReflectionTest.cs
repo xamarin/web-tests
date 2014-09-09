@@ -83,8 +83,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get;
 		}
 
-		public ReflectionTest (TestName name, AsyncTestAttribute attr, IMemberInfo member)
-			: base (name)
+		public ReflectionTest (TestSuite suite, TestName name, AsyncTestAttribute attr, IMemberInfo member)
+			: base (suite, name)
 		{
 			Attribute = attr;
 

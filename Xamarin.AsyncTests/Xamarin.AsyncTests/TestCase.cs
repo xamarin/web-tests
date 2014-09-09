@@ -37,13 +37,19 @@ namespace Xamarin.AsyncTests
 {
 	public abstract class TestCase
 	{
+		public TestSuite Suite {
+			get;
+			private set;
+		}
+
 		public TestName Name {
 			get;
 			private set;
 		}
 
-		public TestCase (TestName name)
+		public TestCase (TestSuite suite, TestName name)
 		{
+			Suite = suite;
 			Name = name;
 		}
 

@@ -1,5 +1,5 @@
 ﻿//
-// IServerConnection.cs
+// IServerHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -28,17 +28,13 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests.Portable
 {
-	public interface IServerConnection
+	public interface IServerHost
 	{
-		string Name {
-			get;
-		}
+		Task<IServerConnection> Start (CancellationToken cancellationToken);
 
-		Task<Stream> Open (CancellationToken cancellationToken);
-
-		void Close ();
+		Task<IServerConnection> Connect (string address, CancellationToken cancellationToken);
 	}
 }
 

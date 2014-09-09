@@ -64,8 +64,6 @@
     <Compile Include="Model\TestFeatureModel.cs" />
     <Compile Include="ISettingsHost.cs" />
     <Compile Include="Model\TestCategoriesModel.cs" />
-    <Compile Include="IServerHost.cs" />
-    <Compile Include="IServerConnection.cs" />
     <Compile Include="Views\ServerControlView.xaml.cs">
       <DependentUpon>ServerControlView.xaml</DependentUpon>
     </Compile>
@@ -76,13 +74,9 @@
       <DependentUpon>TestCategorySelector.xaml</DependentUpon>
     </Compile>
     <Compile Include="Commands\TestRunner.cs" />
-    <Compile Include="TestServer.cs" />
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Commands\TestProvider.cs" />
-    <Compile Include="Commands\LocalTestProvider.cs" />
-    <Compile Include="Commands\RemoteTestProvider.cs" />
     <Compile Include="Views\LogPage.xaml.cs">
       <DependentUpon>LogPage.xaml</DependentUpon>
     </Compile>

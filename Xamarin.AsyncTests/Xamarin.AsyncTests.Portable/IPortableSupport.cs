@@ -1,5 +1,5 @@
 ﻿//
-// LocalTestProvider.cs
+// IPortableSupport.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,33 +24,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests.Portable
 {
-	using Framework;
-
-	public class LocalTestProvider : TestProvider
+	public interface IPortableSupport
 	{
-		public LocalTestProvider (UITestApp app)
-			: base (app, "local")
-		{
+		string GetStackTrace (bool full);
+
+		string CurrentThreadId {
+			get;
 		}
 
-		internal override Task<bool> Run (CancellationToken cancellationToken)
-		{
-			return Task.FromResult (true);
+		bool IsMicrosoftRuntime {
+			get;
 		}
 
-		internal override Task Stop (CancellationToken cancellationToken)
-		{
-			return Task.FromResult<object> (null);
+		Version MonoRuntimeVersion {
+			get;
 		}
 
-		public override Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
-		{
-			return TestSuite.LoadAssembly (App.Context, App.Assembly);
+		IServerHost ServerHost {
+			get;
 		}
 	}
 }

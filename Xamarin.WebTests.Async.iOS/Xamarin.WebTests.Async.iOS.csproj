@@ -111,7 +111,6 @@
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="SettingsHost.cs" />
-    <Compile Include="ServerHost.cs" />
   </ItemGroup>
   <Import Project="..\support\Xamarin.WebTests.PortableImpl\Xamarin.WebTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\support\Xamarin.WebTests.PortableImpl\Xamarin.WebTests.PortableImpl.projitems')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

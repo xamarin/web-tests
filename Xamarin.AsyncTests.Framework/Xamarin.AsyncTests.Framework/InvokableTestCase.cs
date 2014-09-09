@@ -43,7 +43,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public InvokableTestCase (TestCase test, TestInvoker invoker)
-			: base (test.Name)
+			: base (test.Suite, test.Name)
 		{
 			Test = test;
 			Invoker = invoker;

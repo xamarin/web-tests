@@ -50,7 +50,6 @@
     <Compile Include="Xamarin.AsyncTests.Framework\CapturedTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\CapturedTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\FixtureTestInstance.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestFixture.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\IMemberInfo.cs" />
@@ -75,6 +74,9 @@
     <Compile Include="Xamarin.AsyncTests.Framework\ForkedTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ForkedTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSession.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestFramework.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestFramework.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestApp.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

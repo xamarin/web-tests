@@ -26,6 +26,7 @@
 using System;
 using Mono.Security.Protocol.Ntlm;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Portable
 {

@@ -37,12 +37,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.ComponentModel;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.Framework
 {
+	using Portable;
+
 	public abstract class TestApp : INotifyPropertyChanged
 	{
 		readonly IPortableSupport support;
-		volatile ITestSuite currentTestSuite;
+		volatile TestSuite currentTestSuite;
 
 		public abstract TestLogger Logger {
 			get;
@@ -56,9 +58,9 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
-		public ITestSuite CurrentTestSuite {
+		public TestSuite CurrentTestSuite {
 			get { return currentTestSuite; }
-			internal set {
+			set {
 				if (currentTestSuite == value)
 					return;
 				currentTestSuite = value;
@@ -82,5 +84,7 @@ namespace Xamarin.AsyncTests
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
+
+		public abstract TestFramework GetLocalTestFramework ();
 	}
 }

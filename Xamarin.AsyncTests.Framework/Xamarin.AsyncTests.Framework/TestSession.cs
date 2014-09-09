@@ -86,7 +86,7 @@ namespace Xamarin.AsyncTests.Framework
 		TestContext CreateContext ()
 		{
 			return new TestContext (
-				App.PortableSupport, Configuration, Logger, Result.Name, Result);
+				App.PortableSupport, Configuration, Logger, App.CurrentTestSuite, Result.Name, Result);
 		}
 
 		public Task<TestResult> Run (CancellationToken cancellationToken)
@@ -96,7 +96,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public Task<TestResult> Repeat (int count, CancellationToken cancellationToken)
 		{
-			var repeatedTest = TestSuite.CreateRepeatedTest (Test, count);
+			var repeatedTest = TestFramework.CreateRepeatedTest (Test, count);
 			return Run (repeatedTest, cancellationToken);
 		}
 

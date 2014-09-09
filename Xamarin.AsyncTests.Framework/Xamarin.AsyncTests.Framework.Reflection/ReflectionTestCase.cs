@@ -61,7 +61,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		readonly TestInvoker invoker;
 
 		public ReflectionTestCase (ReflectionTestFixture fixture, AsyncTestAttribute attr, MethodInfo method)
-			: base (new TestName (method.Name), attr, ReflectionHelper.GetMethodInfo (method))
+			: base (fixture.Suite, new TestName (method.Name), attr, ReflectionHelper.GetMethodInfo (method))
 		{
 			Fixture = fixture;
 			Method = method;

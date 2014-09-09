@@ -43,21 +43,35 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
+		RootTestCase root;
+
+		public override TestCase Test {
+			get { return root; }
+		}
+
 		public RemoteTestSuite (Connection connection, long objectId, TestName name)
 			: base (name)
 		{
 			Connection = connection;
 			ObjectID = objectId;
+			root = new RootTestCase (this);
 		}
 
-		#region implemented abstract members of TestCase
-
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+		class RootTestCase : TestCase
 		{
-			return Connection.RunTest (this, ctx.Result, cancellationToken);
-		}
+			readonly RemoteTestSuite suite;
 
-		#endregion
+			public RootTestCase (RemoteTestSuite suite)
+				: base (suite, suite.Name)
+			{
+				this.suite = suite;
+			}
+
+			internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+			{
+				return suite.Connection.RunTest (this, ctx.Result, cancellationToken);
+			}
+		}
 	}
 }
 

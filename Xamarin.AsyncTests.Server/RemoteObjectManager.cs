@@ -29,6 +29,8 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
+	using Framework;
+
 	static class RemoteObjectManager
 	{
 		internal static RemoteObject<U,V>.ClientProxy CreateClient<T,U,V> (Connection connection, long objectId)
@@ -70,6 +72,23 @@ namespace Xamarin.AsyncTests.Server
 			var command = new GetRemoteTestLoggerCommand ();
 			var objectID = await command.Send (connection, cancellationToken);
 			var remote = RemoteTestLogger.CreateClient (connection, objectID);
+			return remote.Instance;
+		}
+
+		class GetRemoteTestFrameworkCommand : CreateCommand<RemoteTestFramework, TestFramework, TestFramework>
+		{
+			protected override long CreateInstance (Connection connection)
+			{
+				return RemoteTestFramework.CreateServer (connection).ObjectID;
+			}
+		}
+
+		public static async Task<TestFramework> GetRemoteTestFramework (
+			Connection connection, CancellationToken cancellationToken)
+		{
+			var command = new GetRemoteTestFrameworkCommand ();
+			var objectID = await command.Send (connection, cancellationToken);
+			var remote = RemoteTestFramework.CreateClient (connection, objectID);
 			return remote.Instance;
 		}
 	}

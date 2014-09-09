@@ -118,7 +118,7 @@ namespace Xamarin.AsyncTests.UI
 				name.PushName ("UI-Rerun");
 				name.PushParameter ("$uiTriggeredRerun", ++countReruns);
 
-				test = TestSuite.CreateProxy (test, name.GetName ());
+				test = TestFramework.CreateProxy (test, name.GetName ());
 				result = new TestResult (name.GetName ());
 			} else {
 				model.Result.Clear ();

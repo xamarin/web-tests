@@ -36,11 +36,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 	{
 		List<ReflectionTest> tests;
 		TestInvoker invoker;
+		RootTestCase root;
 
 		ReflectionTestSuite (TestName name)
 			: base (name)
 		{
 			tests = new List<ReflectionTest> ();
+			root = new RootTestCase (this);
+		}
+
+		public override TestCase Test {
+			get { return root; }
 		}
 
 		public static Task<TestSuite> Create (TestApp ctx, Assembly assembly)
@@ -78,9 +84,20 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			invoker = AggregatedTestInvoker.Create (TestFlags.ContinueOnError, invokers);
 		}
 
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+		class RootTestCase : TestCase
 		{
-			return invoker.Invoke (ctx, null, cancellationToken);
+			readonly ReflectionTestSuite suite;
+
+			public RootTestCase (ReflectionTestSuite suite)
+				: base (suite, suite.Name)
+			{
+				this.suite = suite;
+			}
+
+			internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+			{
+				return suite.invoker.Invoke (ctx, null, cancellationToken);
+			}
 		}
 	}
 }

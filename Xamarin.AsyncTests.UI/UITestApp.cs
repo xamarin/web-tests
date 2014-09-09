@@ -35,6 +35,7 @@ using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.UI
 {
+	using Portable;
 	using Framework;
 
 	public class UITestApp : TestApp
@@ -65,11 +66,6 @@ namespace Xamarin.AsyncTests.UI
 				statusMessage = value;
 				OnPropertyChanged ("StatusMessage");
 			}
-		}
-
-		public IServerHost ServerHost {
-			get;
-			private set;
 		}
 
 		public OptionsModel Options {
@@ -114,12 +110,11 @@ namespace Xamarin.AsyncTests.UI
 		readonly TestConfiguration config;
 
 		public UITestApp (IPortableSupport support, ITestConfigurationProvider configProvider,
-			SettingsBag settings, IServerHost server, Assembly assembly)
+			SettingsBag settings, Assembly assembly)
 			: base (support, configProvider)
 		{
 			this.settings = settings;
 
-			ServerHost = server;
 			Assembly = assembly;
 
 			logger = new TestLogger (new UILogger (this));
@@ -207,6 +202,11 @@ namespace Xamarin.AsyncTests.UI
 		protected void LogMessage (string message)
 		{
 			SD.Debug.WriteLine (message);
+		}
+
+		public override TestFramework GetLocalTestFramework ()
+		{
+			return TestFramework.GetLocalFramework (Assembly);
 		}
 	}
 }

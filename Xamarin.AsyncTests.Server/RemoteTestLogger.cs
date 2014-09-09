@@ -41,16 +41,6 @@ namespace Xamarin.AsyncTests.Server
 			return new ClientProxy (connection, new RemoteTestLogger (), objectId);
 		}
 
-		public interface ILoggerClient
-		{
-			Task Foo (string text);
-		}
-
-		public interface ILoggerServer
-		{
-			void HandleFoo (string text);
-		}
-
 		protected override TestLogger CreateClientProxy (ClientProxy proxy)
 		{
 			var backend = new LoggerClient (proxy);
@@ -75,9 +65,7 @@ namespace Xamarin.AsyncTests.Server
 			{
 				var command = new LogCommand ();
 				await command.Send (proxy, entry, CancellationToken.None);
-				throw new NotImplementedException ();
 			}
-
 
 			protected internal override void OnStatisticsEvent (StatisticsEventArgs args)
 			{

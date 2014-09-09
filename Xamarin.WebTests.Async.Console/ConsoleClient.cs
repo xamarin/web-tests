@@ -49,10 +49,11 @@ namespace Xamarin.AsyncTests.Client
 			Program = program;
 		}
 
-		protected override async Task<TestSuite> GetLocalTestSuite (CancellationToken cancellationToken)
+		protected override Task<TestSuite> GetLocalTestSuite (CancellationToken cancellationToken)
 		{
 			var assembly = typeof(WebTestFeatures).Assembly;
-			return await TestSuite.LoadAssembly (App, assembly);
+			var framework = TestFramework.GetLocalFramework (assembly);
+			return framework.LoadTestSuite (App, cancellationToken);
 		}
 
 		public async Task RunClient (CancellationToken cancellationToken)

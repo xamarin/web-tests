@@ -95,7 +95,7 @@ namespace Xamarin.AsyncTests.Server
 
 		protected abstract T CreateClientProxy (ClientProxy proxy);
 
-		protected abstract U CreateServerProxy (Connection proxy);
+		protected abstract U CreateServerProxy (Connection connection);
 	}
 }
 

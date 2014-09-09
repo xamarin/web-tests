@@ -228,7 +228,7 @@ namespace Xamarin.AsyncTests.Server
 
 				var name = Serializer.TestName.Read (connection, node.Element ("TestName"));
 
-				return new RemoteTestCase (name, connection, objectId);
+				return new RemoteTestCase (null, name, connection, objectId);
 			}
 
 			public override XElement Write (Connection connection, TestCase instance)

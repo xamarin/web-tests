@@ -31,12 +31,10 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Xamarin.AsyncTests.UI;
-using Xamarin.AsyncTests.Server;
+using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Async.Android
+namespace Xamarin.WebTests.Server
 {
-	using Framework;
 	using Portable;
 
 	public class ServerHost : IServerHost

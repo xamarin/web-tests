@@ -51,7 +51,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		readonly TestInvoker invoker;
 
 		public ReflectionTestFixture (TestSuite suite, AsyncTestFixtureAttribute attr, TypeInfo type)
-			: base (new TestName (type.Name), attr, ReflectionHelper.GetTypeInfo (type))
+			: base (suite, new TestName (type.Name), attr, ReflectionHelper.GetTypeInfo (type))
 		{
 			Type = type;
 

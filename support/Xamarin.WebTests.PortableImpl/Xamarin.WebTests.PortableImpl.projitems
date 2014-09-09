@@ -16,5 +16,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\Listener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\PortableSupportImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\ProxyListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\ServerHost.cs" />
   </ItemGroup>
 </Project>

@@ -35,63 +35,22 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	using Reflection;
-
-	public abstract class TestSuite : TestCase, ITestSuite
+	public abstract class TestSuite
 	{
 		public TestSuite (TestName name)
-			: base (name)
 		{
+			Name = name;
 		}
 
-		TestCase ITestSuite.Test {
-			get { return this; }
+		public TestName Name {
+			get;
+			private set;
 		}
 
-		public static Task<TestSuite> LoadAssembly (TestApp ctx, Assembly assembly)
-		{
-			return ReflectionTestSuite.Create (ctx, assembly);
-		}
-
-		internal static TestCase CreateRepeatedTest (TestCase test, int count)
-		{
-			var repeatHost = new RepeatedTestHost (count, TestFlags.ContinueOnError | TestFlags.Browsable, "$iteration");
-			var invoker = AggregatedTestInvoker.Create (repeatHost, new TestCaseInvoker (test));
-			invoker = NamedTestInvoker.Create (test.Name, invoker);
-			return new InvokableTestCase (test, invoker);
-		}
-
-		public static TestCase CreateProxy (TestCase test, TestName proxy)
-		{
-			var invoker = NamedTestInvoker.Create (proxy, new TestCaseInvoker (test));
-			return new InvokableTestCase (test, invoker);
-		}
-
-		class TestCaseInvoker : TestInvoker
-		{
-			public TestCase Test {
-				get;
-				private set;
-			}
-
-			public TestCaseInvoker (TestCase test)
-			{
-				Test = test;
-			}
-
-			public override Task<bool> Invoke (
-				TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
-			{
-				while (instance != null) {
-					if (!(instance.Host is RepeatedTestHost || instance.Host is NamedTestHost))
-						throw new InvalidOperationException ();
-					instance = instance.Parent;
-				}
-
-				return Test.Run (ctx, cancellationToken);
-			}
+		public abstract TestCase Test {
+			get;
 		}
 	}
 }

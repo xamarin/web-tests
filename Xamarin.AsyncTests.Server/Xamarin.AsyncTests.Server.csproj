@@ -70,6 +70,8 @@
     <Compile Include="RemoteObject.cs" />
     <Compile Include="RemoteTestLogger.cs" />
     <Compile Include="RemoteObjectManager.cs" />
+    <Compile Include="TestServer.cs" />
+    <Compile Include="RemoteTestFramework.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

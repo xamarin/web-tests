@@ -39,6 +39,7 @@ using NDesk.Options;
 namespace Xamarin.AsyncTests.Client
 {
 	using Server;
+	using Portable;
 	using Framework;
 
 	public class Program : TestApp
@@ -317,6 +318,11 @@ namespace Xamarin.AsyncTests.Client
 			{
 				Program.OnStatisticsEvent (args);
 			}
+		}
+
+		public override TestFramework GetLocalTestFramework ()
+		{
+			return TestFramework.GetLocalFramework (typeof(WebTestFeatures).Assembly);
 		}
 	}
 }

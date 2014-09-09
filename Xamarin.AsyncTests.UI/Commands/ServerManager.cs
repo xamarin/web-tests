@@ -37,21 +37,21 @@ namespace Xamarin.AsyncTests.UI
 	using Framework;
 	using Server;
 
-	public class ServerManager : CommandProvider<TestProvider>
+	public class ServerManager : CommandProvider<TestServer>
 	{
 		readonly LocalCommand localCommand;
 		readonly ConnectCommand connectCommand;
 		readonly StartCommand startCommand;
 
-		public Command<TestProvider> Local {
+		public Command<TestServer> Local {
 			get { return localCommand; }
 		}
 
-		public Command<TestProvider> Connect {
+		public Command<TestServer> Connect {
 			get { return connectCommand; }
 		}
 
-		public Command<TestProvider> Start {
+		public Command<TestServer> Start {
 			get { return startCommand; }
 		}
 
@@ -64,7 +64,7 @@ namespace Xamarin.AsyncTests.UI
 			BindableProperty.Create ("TestSuite", typeof(TestSuite), typeof(ServerManager), null,
 				propertyChanged: (bo, o, n) => ((ServerManager)bo).OnTestSuiteChanged ((TestSuite)n));
 
-		public ITestSuite TestSuite {
+		public TestSuite TestSuite {
 			get { return (TestSuite)GetValue(TestSuiteProperty); }
 			set { SetValue (TestSuiteProperty, value); }
 		}
@@ -99,8 +99,8 @@ namespace Xamarin.AsyncTests.UI
 			Features = new TestFeaturesModel (App);
 			Categories = new TestCategoriesModel (App);
 
-			connectCommand.CanExecute = app.ServerHost != null;
-			startCommand.CanExecute = app.ServerHost != null;
+			connectCommand.CanExecute = app.PortableSupport.ServerHost != null;
+			startCommand.CanExecute = app.PortableSupport.ServerHost != null;
 
 			serverAddress = string.Empty;
 			Settings.PropertyChanged += (sender, e) => LoadSettings ();
@@ -183,27 +183,27 @@ namespace Xamarin.AsyncTests.UI
 				App.RootTestResult.Result.Clear ();
 				App.TestRunner.CurrentTestResult = App.RootTestResult;
 			} else {
-				App.RootTestResult.Result.Test = suite;
+				App.RootTestResult.Result.Test = suite.Test;
 			}
 
 			HasTestSuite = suite != null;
 		}
 
-		protected async Task<bool> OnRun (TestProvider instance, CancellationToken cancellationToken)
+		protected async Task<bool> OnRun (TestServer instance, CancellationToken cancellationToken)
 		{
 			var suite = await instance.LoadTestSuite (cancellationToken);
 			TestSuite = suite;
 			return await instance.Run (cancellationToken);
 		}
 
-		protected async Task OnStop (TestProvider instance, CancellationToken cancellationToken)
+		protected async Task OnStop (TestServer instance, CancellationToken cancellationToken)
 		{
 			TestSuite = null;
 			SetStatusMessage ("Server stopped.");
 			await instance.Stop (cancellationToken);
 		}
 
-		abstract class ServerCommand : Command<TestProvider>
+		abstract class ServerCommand : Command<TestServer>
 		{
 			public readonly ServerManager Manager;
 
@@ -213,12 +213,12 @@ namespace Xamarin.AsyncTests.UI
 				Manager = manager;
 			}
 
-			internal sealed override Task<bool> Run (TestProvider instance, CancellationToken cancellationToken)
+			internal sealed override Task<bool> Run (TestServer instance, CancellationToken cancellationToken)
 			{
 				return Manager.OnRun (instance, cancellationToken);
 			}
 
-			internal sealed override Task Stop (TestProvider instance, CancellationToken cancellationToken)
+			internal sealed override Task Stop (TestServer instance, CancellationToken cancellationToken)
 			{
 				return Manager.OnStop (instance, cancellationToken);
 			}
@@ -231,9 +231,9 @@ namespace Xamarin.AsyncTests.UI
 			{
 			}
 
-			internal override Task<TestProvider> Start (CancellationToken cancellationToken)
+			internal override Task<TestServer> Start (CancellationToken cancellationToken)
 			{
-				return Task.FromResult (TestProvider.StartLocal (Manager.App));
+				return Task.FromResult (TestServer.StartLocal (Manager.App));
 			}
 		}
 
@@ -244,9 +244,9 @@ namespace Xamarin.AsyncTests.UI
 			{
 			}
 
-			internal override Task<TestProvider> Start (CancellationToken cancellationToken)
+			internal override Task<TestServer> Start (CancellationToken cancellationToken)
 			{
-				return TestProvider.Connect (Manager.App, Manager.ServerAddress, cancellationToken);
+				return TestServer.Connect (Manager.App, Manager.ServerAddress, cancellationToken);
 			}
 		}
 
@@ -257,9 +257,9 @@ namespace Xamarin.AsyncTests.UI
 			{
 			}
 
-			internal override Task<TestProvider> Start (CancellationToken cancellationToken)
+			internal override Task<TestServer> Start (CancellationToken cancellationToken)
 			{
-				return TestProvider.StartServer (Manager.App, cancellationToken);
+				return TestServer.StartServer (Manager.App, cancellationToken);
 			}
 		}
 	}

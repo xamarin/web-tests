@@ -40,11 +40,11 @@ using System.Collections.Specialized;
 using Mono.Security.Protocol.Ntlm;
 
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Portable
 {
 	using Framework;
-	using Portable;
 	using Server;
 
 	public class PortableSupportImpl : IPortableSupport, IPortableWebSupport
@@ -67,6 +67,10 @@ namespace Xamarin.WebTests.Portable
 			get { return runtimeVersion; }
 		}
 
+		public IServerHost ServerHost {
+			get { return serverHost; }
+		}
+
 		static PortableSupportImpl ()
 		{
 			try {
@@ -84,12 +88,15 @@ namespace Xamarin.WebTests.Portable
 			}
 
 			isMsRuntime = Environment.OSVersion.Platform == PlatformID.Win32NT && runtimeVersion == null;
+			serverHost = new ServerHost ();
 		}
 
 		public static IPortableSupport Initialize ()
 		{
-			var instance = new PortableSupportImpl ();
-			PortableSupport.Initialize (instance, instance);
+			if (instance == null) {
+				instance = new PortableSupportImpl ();
+				PortableSupport.Initialize (instance, instance);
+			}
 			return instance;
 		}
 
@@ -98,6 +105,10 @@ namespace Xamarin.WebTests.Portable
 
 		static readonly bool isMsRuntime;
 		static readonly Version runtimeVersion;
+
+		static readonly ServerHost serverHost;
+
+		static PortableSupportImpl instance;
 
 		static Version GetRuntimeVersion ()
 		{

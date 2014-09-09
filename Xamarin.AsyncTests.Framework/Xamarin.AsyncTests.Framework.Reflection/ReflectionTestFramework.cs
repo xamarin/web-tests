@@ -1,5 +1,5 @@
 ﻿//
-// ITestSuite.cs
+// ReflectionTestFramework.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,13 +24,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	public interface ITestSuite
+	class ReflectionTestFramework : TestFramework
 	{
-		TestCase Test {
+		public Assembly Assembly {
 			get;
+			private set;
+		}
+
+		public ReflectionTestFramework (Assembly assembly)
+		{
+			Assembly = assembly;
+		}
+
+		public override Task<TestSuite> LoadTestSuite (TestApp app, CancellationToken cancellationToken)
+		{
+			return ReflectionTestSuite.Create (app, Assembly);
 		}
 	}
 }

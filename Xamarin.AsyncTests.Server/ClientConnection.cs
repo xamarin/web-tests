@@ -126,7 +126,7 @@ namespace Xamarin.AsyncTests.Server
 
 		protected internal override Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken)
 		{
-			return OnRun (suite, cancellationToken);
+			return OnRun (suite.Test, cancellationToken);
 		}
 
 		async void OnSettingsChanged (object sender, PropertyChangedEventArgs e)

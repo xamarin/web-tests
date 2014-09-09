@@ -31,16 +31,19 @@ using System.ComponentModel;
 
 namespace Xamarin.AsyncTests.Server
 {
+	using Portable;
 	using Framework;
 
-	public abstract class ServerConnection : Connection
+	public class ServerConnection : Connection
 	{
+		IServerConnection connection;
 		TaskCompletionSource<TestSuite> helloTcs;
 		TestSuite suite;
 
-		public ServerConnection (TestApp context, Stream stream)
+		public ServerConnection (TestApp context, Stream stream, IServerConnection connection)
 			: base (context, stream, true)
 		{
+			this.connection = connection;
 			helloTcs = new TaskCompletionSource<TestSuite> ();
 		}
 
@@ -98,7 +101,21 @@ namespace Xamarin.AsyncTests.Server
 		{
 			App.CurrentTestSuite = null;
 			App.Settings.PropertyChanged -= OnSettingsChanged;
-			base.Stop ();
+
+			try {
+				base.Stop ();
+			} catch {
+				;
+			}
+
+			try {
+				if (connection != null) {
+					connection.Close ();
+					connection = null;
+				}
+			} catch {
+				;
+			}
 		}
 
 		protected internal override void OnShutdown ()
@@ -107,6 +124,30 @@ namespace Xamarin.AsyncTests.Server
 			App.Settings.PropertyChanged -= OnSettingsChanged;
 			base.OnShutdown ();
 		}
+
+		#region implemented abstract members of Connection
+
+		protected internal override void OnLogMessage (string message)
+		{
+			throw new NotImplementedException ();
+		}
+
+		protected override void OnDebug (int level, string message)
+		{
+			throw new NotImplementedException ();
+		}
+
+		protected internal override Task<TestSuite> GetLocalTestSuite (CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
+		}
+
+		protected internal override Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
+		}
+
+		#endregion
 	}
 }
 

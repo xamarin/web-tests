@@ -32,11 +32,10 @@ namespace Xamarin.WebTests.Async.Android
 
 			preferences = PreferenceManager.GetDefaultSharedPreferences (this);
 			var settings = new SettingsHost (preferences);
-			var server = new ServerHost ();
 
 			var test = new UITestApp (
 				PortableSupport.Instance, WebTestFeatures.Instance, settings,
-				server, typeof(WebTestFeatures).Assembly);
+				typeof(WebTestFeatures).Assembly);
 
 			SetPage (test.Root);
 		}

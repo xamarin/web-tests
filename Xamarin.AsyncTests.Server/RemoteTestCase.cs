@@ -41,8 +41,8 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public RemoteTestCase (TestName name, Connection connection, long objectId)
-			: base (name)
+		public RemoteTestCase (TestSuite suite, TestName name, Connection connection, long objectId)
+			: base (suite, name)
 		{
 			Connection = connection;
 			ObjectID = objectId;

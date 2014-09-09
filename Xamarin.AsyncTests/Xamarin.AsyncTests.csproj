@@ -74,7 +74,6 @@
     <Compile Include="Xamarin.AsyncTests\ITestFilter.cs" />
     <Compile Include="Xamarin.AsyncTests\TestFeatureAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\ICloneable.cs" />
-    <Compile Include="Xamarin.AsyncTests\ITestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests\SettingsBag.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\NullConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\EmptyConstraint.cs" />
@@ -83,13 +82,11 @@
     <Compile Include="Xamarin.AsyncTests.Constraints\ConstraintExpression.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\InstanceOfTypeConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests\TestLogger.cs" />
-    <Compile Include="Xamarin.AsyncTests\TestApp.cs" />
     <Compile Include="Xamarin.AsyncTests\TestContext.cs" />
     <Compile Include="Xamarin.AsyncTests\ForkAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\IFork.cs" />
     <Compile Include="Xamarin.AsyncTests\HideStackFrameAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\StackTraceEntryPointAttribute.cs" />
-    <Compile Include="Xamarin.AsyncTests\IPortableSupport.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\UnaryExpression.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\NotOperator.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\NotExpression.cs" />
@@ -105,7 +102,14 @@
     <Compile Include="Xamarin.AsyncTests\ITestSession.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestLogger.cs" />
     <Compile Include="Xamarin.AsyncTests\TestLoggerBackend.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestSuite.cs" />
+    <Compile Include="Xamarin.AsyncTests.Portable\IPortableSupport.cs" />
+    <Compile Include="Xamarin.AsyncTests.Portable\IServerConnection.cs" />
+    <Compile Include="Xamarin.AsyncTests.Portable\IServerHost.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Xamarin.AsyncTests.Portable\" />
+  </ItemGroup>
 </Project>
