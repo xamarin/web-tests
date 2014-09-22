@@ -47,7 +47,7 @@ namespace Xamarin.AsyncTests.Server
 		internal static Command Create (Connection connection, XElement node)
 		{
 			if (!node.Name.LocalName.Equals ("Command"))
-				throw new InvalidOperationException ();
+				throw new ServerErrorException ();
 
 			var typeName = node.Attribute ("Type");
 			var type = Type.GetType (typeName.Value);
@@ -122,7 +122,7 @@ namespace Xamarin.AsyncTests.Server
 			if (response.Error != null)
 				throw new SavedException (response.Error);
 			if (!response.Success)
-				throw new InvalidOperationException ();
+				throw new ServerErrorException ();
 			return response.Response;
 		}
 
@@ -133,7 +133,7 @@ namespace Xamarin.AsyncTests.Server
 			var argument = node.Element ("Argument");
 			if (ArgumentSerializer != null && argument != null) {
 				if (argument.Elements ().Count () > 1)
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 				var first = argument.Elements ().First ();
 				Argument = ArgumentSerializer.Read (connection, first);
 			}
@@ -194,7 +194,7 @@ namespace Xamarin.AsyncTests.Server
 				var response = node.Element ("Response");
 				if (Command.ResponseSerializer != null && response != null) {
 					if (response.Elements ().Count () > 1)
-						throw new InvalidOperationException ();
+						throw new ServerErrorException ();
 					var first = response.Elements ().First ();
 					Response = Command.ResponseSerializer.Read (connection, first);
 				}

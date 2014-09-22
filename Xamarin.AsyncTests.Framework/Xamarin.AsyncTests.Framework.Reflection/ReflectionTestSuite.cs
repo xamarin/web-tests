@@ -39,17 +39,20 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		TestCase test;
-		List<ReflectionTestFixtureBuilder> fixtures;
+		public ReflectionTestSuiteBuilder Builder {
+			get;
+			private set;
+		}
 
 		ReflectionTestSuite (TestName name, Assembly assembly)
 			: base (name)
 		{
 			Assembly = assembly;
+			Builder = new ReflectionTestSuiteBuilder (this);
 		}
 
 		public override TestCase Test {
-			get { return test; }
+			get { return Builder.Test; }
 		}
 
 		public static Task<TestSuite> Create (TestApp ctx, Assembly assembly)
@@ -60,7 +63,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				try {
 					var name = new TestName (assembly.GetName ().Name);
 					var suite = new ReflectionTestSuite (name, assembly);
-					suite.ResolveMembers ();
 					ctx.CurrentTestSuite = suite;
 					tcs.SetResult (suite);
 				} catch (Exception ex) {
@@ -69,30 +71,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			});
 
 			return tcs.Task;
-		}
-
-		void ResolveMembers ()
-		{
-			fixtures = new List<ReflectionTestFixtureBuilder> ();
-
-			foreach (var type in Assembly.ExportedTypes) {
-				var tinfo = type.GetTypeInfo ();
-				var attr = tinfo.GetCustomAttribute<AsyncTestFixtureAttribute> (true);
-				if (attr == null)
-					continue;
-
-				fixtures.Add (new ReflectionTestFixtureBuilder (this, attr, tinfo));
-			}
-
-			var invokers = fixtures.Select (f => f.Invoker).ToArray ();
-			var suiteInvoker = AggregatedTestInvoker.Create (TestFlags.ContinueOnError, invokers);
-
-			test = new InvokableTestCase (this, suiteInvoker);
-		}
-
-		public ReflectionTestFixtureBuilder FindFixture (string name)
-		{
-			return fixtures.Find (f => f.FullName.Equals (name));
 		}
 	}
 }

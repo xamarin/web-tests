@@ -49,19 +49,63 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public ReflectionPropertyHost (TestHost parent, ReflectionTestFixtureBuilder fixture,
+		public ReflectionPropertyHost (ReflectionTestFixtureBuilder fixture,
 			PropertyInfo prop, ParameterizedTestHost host)
-			: base (parent, prop.Name, prop.PropertyType.GetTypeInfo (), host.Serializer, host.Flags)
+			: base (prop.Name, prop.PropertyType.GetTypeInfo (), host.Serializer, host.Flags)
 		{
 			Fixture = fixture;
 			Property = prop;
 			Host = host;
 		}
 
+		internal override bool Serialize (XElement node, TestInstance instance)
+		{
+			if (Serializer == null)
+				return false;
+
+			var parameterizedInstance = (ParameterizedTestInstance)instance;
+			return Serializer.Serialize (node, parameterizedInstance.Current);
+		}
+
+		internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
+		{
+			if (Serializer == null)
+				return null;
+
+			var value = Serializer.Deserialize (node);
+			if (value == null)
+				throw new InternalErrorException ();
+
+			return new CapturedInvoker (this, value, invoker);
+		}
+
 		internal override TestInstance CreateInstance (TestInstance parent)
 		{
 			var instance = (ParameterizedTestInstance)Host.CreateInstance (parent);
 			return new ReflectionPropertyInstance (this, instance, parent);
+		}
+
+		class CapturedInvoker : ParameterizedTestInvoker
+		{
+			public object Captured {
+				get;
+				private set;
+			}
+
+			new public ReflectionPropertyHost Host {
+				get { return (ReflectionPropertyHost)base.Host; }
+			}
+
+			public CapturedInvoker (ReflectionPropertyHost host, object captured, TestInvoker inner)
+				: base (host, inner)
+			{
+				Captured = captured;
+			}
+
+			protected override ParameterizedTestInstance CreateInstance (TestInstance parent)
+			{
+				return new ReflectionPropertyInstance (Host, Captured, parent);
+			}
 		}
 
 		class ReflectionPropertyInstance : ParameterizedTestInstance
@@ -75,36 +119,64 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				private set;
 			}
 
+			public object CapturedValue {
+				get;
+				private set;
+			}
+
+			object current;
+			bool hasNext;
+
 			public ReflectionPropertyInstance (ReflectionPropertyHost host, ParameterizedTestInstance instance, TestInstance parent)
 				: base (host, parent)
 			{
 				Instance = instance;
 			}
 
+			public ReflectionPropertyInstance (ReflectionPropertyHost host, object captured, TestInstance parent)
+				: base (host, parent)
+			{
+				CapturedValue = captured;
+			}
+
 			public override void Initialize (TestContext ctx)
 			{
-				Instance.Initialize (ctx);
+				if (Instance != null)
+					Instance.Initialize (ctx);
+				else {
+					current = CapturedValue;
+					var cloneable = current as ICloneable;
+					if (cloneable != null)
+						current = cloneable.Clone ();
+					hasNext = true;
+				}
 			}
 
 			public override bool HasNext ()
 			{
-				return Instance.HasNext ();
+				return Instance != null ? Instance.HasNext () : hasNext;
 			}
 
 			public override bool MoveNext (TestContext ctx)
 			{
-				if (!Instance.MoveNext (ctx))
-					return false;
+				if (Instance != null) {
+					if (!Instance.MoveNext (ctx))
+						return false;
+					current = Instance.Current;
+				} else {
+					if (!hasNext)
+						return false;
+					hasNext = false;
+				}
 
-				Host.Property.SetValue (GetFixtureInstance ().Instance, Instance.Current);
+				Host.Property.SetValue (GetFixtureInstance ().Instance, current);
 				return true;
 			}
 
 			public override object Current {
-				get { return Instance.Current; }
+				get { return current; }
 			}
 		}
-
 	}
 }
 

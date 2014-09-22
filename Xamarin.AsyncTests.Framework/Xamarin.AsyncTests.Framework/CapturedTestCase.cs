@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,20 +33,31 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class CapturedTestCase : TestCase
 	{
-		public TestInvoker Invoker {
+		public XElement Node {
 			get;
 			private set;
 		}
 
-		public CapturedTestCase (TestSuite suite, TestName name, TestInvoker invoker)
+		TestInvoker invoker;
+
+		public CapturedTestCase (TestSuite suite, TestName name, XElement node)
 			: base (suite, name)
 		{
-			Invoker = invoker;
+			Node = node;
+		}
+
+		public bool Resolve ()
+		{
+			invoker = TestSerializer.Deserialize (Suite, Node);
+			return invoker != null;
 		}
 
 		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Invoker.Invoke (ctx, null, cancellationToken);
+			TestSerializer.Debug ("CAPTURED RUN: {0}", Node);
+			if (invoker == null)
+				throw new InternalErrorException ();
+			return invoker.Invoke (ctx, null, cancellationToken);
 		}
 	}
 }

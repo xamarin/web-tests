@@ -37,8 +37,8 @@ namespace Xamarin.WebTests.Handlers
 			private set;
 		}
 
-		protected AbstractRedirectHandler (Handler target)
-			: base (target)
+		protected AbstractRedirectHandler (Handler target, string identifier)
+			: base (target, identifier)
 		{
 			Target = target;
 
@@ -46,8 +46,6 @@ namespace Xamarin.WebTests.Handlers
 				Flags |= RequestFlags.SendContinue;
 			else
 				Flags &= ~RequestFlags.SendContinue;
-
-			Description = string.Format ("{0}: {1}", GetType ().Name, target.Description);
 		}
 
 		public override void ConfigureRequest (Request request, Uri uri)

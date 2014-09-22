@@ -48,15 +48,10 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public bool IsCaptured {
-			get;
-			private set;
-		}
-
 		public ParameterSourceHost (
-			TestHost parent, string name, Type sourceType, bool useFixtureInstance,
+			string name, Type sourceType, bool useFixtureInstance,
 			IParameterSerializer serializer, string filter, TestFlags flags = TestFlags.None)
-			: base (parent, name, typeof (T).GetTypeInfo (), serializer, flags)
+			: base (name, typeof (T).GetTypeInfo (), serializer, flags)
 		{
 			SourceType = sourceType;
 			UseFixtureInstance = useFixtureInstance;
@@ -65,10 +60,11 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal override bool Serialize (XElement node, TestInstance instance)
 		{
-			if (Serializer != null)
-				return base.Serialize (node, instance);
-
 			var parameterizedInstance = (ParameterizedTestInstance)instance;
+
+			if (Serializer != null)
+				return Serializer.Serialize (node, parameterizedInstance.Current);
+
 			var testParameter = parameterizedInstance.Current as ITestParameter;
 			if (testParameter == null)
 				return false;
@@ -77,35 +73,64 @@ namespace Xamarin.AsyncTests.Framework
 			return true;
 		}
 
-		internal override TestHost Deserialize (XElement node, TestHost parent)
+		internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
 		{
-			if (Serializer != null && node != null)
-				return base.Deserialize (node, parent);
+			if (Serializer != null) {
+				var value = Serializer.Deserialize (node);
+				if (value == null)
+					throw new InternalErrorException ();
 
-			string identifier;
-			if (node != null) {
-				var attr = node.Attribute ("Identifier");
-				if (attr == null)
-					return null;
-
-				identifier = attr.Value;
-			} else {
-				identifier = Filter;
+				return new CapturedInvoker (this, value, invoker);
 			}
 
-			var host = new ParameterSourceHost<T> (
-				parent, ParameterName, SourceType, UseFixtureInstance, null,
-				identifier, Flags);
+			var attr = node.Attribute ("Identifier");
+			if (attr == null)
+				throw new InternalErrorException ();
 
-			if (node != null)
-				host.IsCaptured = true;
-
-			return host;
+			return new CapturedInvoker (this, attr.Value, invoker);
 		}
 
 		internal override TestInstance CreateInstance (TestInstance parent)
 		{
 			return new ParameterSourceInstance<T> (this, parent, SourceType, UseFixtureInstance, Filter);
+		}
+
+		class CapturedInvoker : ParameterizedTestInvoker
+		{
+			public object CapturedValue {
+				get;
+				private set;
+			}
+
+			public string CapturedIdentifier {
+				get;
+				private set;
+			}
+
+			new public ParameterSourceHost<T> Host {
+				get { return (ParameterSourceHost<T>)base.Host; }
+			}
+
+			public CapturedInvoker (ParameterSourceHost<T> host, object captured, TestInvoker inner)
+				: base (host, inner)
+			{
+				CapturedValue = captured;
+			}
+
+			public CapturedInvoker (ParameterSourceHost<T> host, string identifier, TestInvoker inner)
+				: base (host, inner)
+			{
+				CapturedIdentifier = identifier;
+			}
+
+			protected override ParameterizedTestInstance CreateInstance (TestInstance parent)
+			{
+				var instance = new ParameterSourceInstance<T> (
+					Host, parent, Host.SourceType, Host.UseFixtureInstance, Host.Filter);
+				instance.CapturedValue = CapturedValue;
+				instance.CapturedIdentifier = CapturedIdentifier;
+				return instance;
+			}
 		}
 	}
 }

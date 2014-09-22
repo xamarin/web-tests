@@ -56,50 +56,21 @@ namespace Xamarin.WebTests.Tests
 
 		public static IEnumerable<PostHandler> GetPostTests ()
 		{
-			yield return new PostHandler () {
-				Description = "No body"
-			};
-			yield return new PostHandler () {
-				Description = "Empty body", Content = new StringContent (string.Empty)
-			};
-			yield return new PostHandler () {
-				Description = "Normal post",
-				Content = new StringContent ("Hello Unknown World!")
-			};
-			yield return new PostHandler () {
-				Description = "Content-Length",
-				Content = new StringContent ("Hello Known World!"),
-				Mode = TransferMode.ContentLength
-			};
-			yield return new PostHandler () {
-				Description = "Chunked",
-				Content = new ChunkedContent ("Hello Chunked World!"),
-				Mode = TransferMode.Chunked
-			};
-			yield return new PostHandler () {
-				Description = "Explicit length and empty body",
-				Mode = TransferMode.ContentLength,
-				Content = new StringContent (string.Empty)
-			};
-			yield return new PostHandler () {
-				Description = "Explicit length and no body",
-				Mode = TransferMode.ContentLength
-			};
+			yield return new PostHandler ("No body");
+			yield return new PostHandler ("Empty body", StringContent.Empty);
+			yield return new PostHandler ("Normal post", HttpContent.HelloWorld);
+			yield return new PostHandler ("Content-Length", HttpContent.HelloWorld, TransferMode.ContentLength);
+			yield return new PostHandler ("Chunked", HttpContent.HelloChunked, TransferMode.Chunked);
+			yield return new PostHandler ("Explicit length and empty body", StringContent.Empty, TransferMode.ContentLength);
+			yield return new PostHandler ("Explicit length and no body", null, TransferMode.ContentLength);
 		}
 
 		public static IEnumerable<Handler> GetDeleteTests ()
 		{
-			yield return new DeleteHandler ();
-			yield return new DeleteHandler () {
-				Description = "DELETE with empty body",
-				Body = string.Empty
-			};
-			yield return new DeleteHandler () {
-				Description = "DELETE with request body",
-				Body = "I have a body!"
-			};
-			yield return new DeleteHandler () {
-				Description = "DELETE with no body and a length",
+			yield return new DeleteHandler ("Empty delete");
+			yield return new DeleteHandler ("DELETE with empty body", string.Empty);
+			yield return new DeleteHandler ("DELETE with request body", "I have a body!");
+			yield return new DeleteHandler ("DELETE with no body and a length") {
 				Flags = RequestFlags.ExplicitlySetLength
 			};
 		}
@@ -113,18 +84,14 @@ namespace Xamarin.WebTests.Tests
 
 			var content = new ChunkedContent (chunks);
 
-			yield return new PostHandler () {
-				Description = "Chunked",
-				Content = content,
-				Mode = TransferMode.Chunked
-			};
+			yield return new PostHandler ("Big Chunked", content, TransferMode.Chunked);
 		}
 
 		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
 			if (filter == null) {
 				var list = new List<Handler> ();
-				list.Add (new HelloWorldHandler ());
+				list.Add (new HelloWorldHandler ("hello world"));
 				list.AddRange (GetPostTests ());
 				list.AddRange (GetDeleteTests ());
 				return list;
@@ -148,10 +115,7 @@ namespace Xamarin.WebTests.Tests
 			TestContext ctx, [TestHost] HttpServer server,
 			CancellationToken cancellationToken)
 		{
-			var post = new PostHandler {
-				Description = "RedirectAsGetNoBuffering",
-				Content = new ChunkedContent ("Hello chunked world"),
-				Mode = TransferMode.Chunked,
+			var post = new PostHandler ("RedirectAsGetNoBuffering", HttpContent.HelloChunked, TransferMode.Chunked) {
 				Flags = RequestFlags.RedirectedAsGet,
 				AllowWriteStreamBuffering = false
 			};
@@ -164,10 +128,7 @@ namespace Xamarin.WebTests.Tests
 			TestContext ctx, [TestHost] HttpServer server,
 			CancellationToken cancellationToken)
 		{
-			var post = new PostHandler {
-				Description = "RedirectNoBuffering",
-				Content = new ChunkedContent ("Hello chunked world"),
-				Mode = TransferMode.Chunked,
+			var post = new PostHandler ("RedirectNoBuffering", HttpContent.HelloChunked, TransferMode.Chunked) {
 				Flags = RequestFlags.Redirected,
 				AllowWriteStreamBuffering = false
 			};
@@ -199,8 +160,8 @@ namespace Xamarin.WebTests.Tests
 				post.Flags = RequestFlags.RedirectedAsGet;
 			else
 				post.Flags = RequestFlags.Redirected;
-			post.Description = string.Format ("{0}: {1}", code, post.Description);
-			var redirect = new RedirectHandler (post, code) { Description = post.Description };
+			var identifier = string.Format ("{0}: {1}", code, post.ID);
+			var redirect = new RedirectHandler (post, code, identifier);
 
 			return TestRunner.RunTraditional (ctx, server, redirect, cancellationToken, sendAsync);
 		}
@@ -210,9 +171,7 @@ namespace Xamarin.WebTests.Tests
 			TestContext ctx, [TestHost] HttpServer server,
 			CancellationToken cancellationToken)
 		{
-			var post = new PostHandler {
-				Description = "First post",
-				Content = new StringContent ("var1=value&var2=value2"),
+			var post = new PostHandler ("First post", new StringContent ("var1=value&var2=value2")) {
 				Flags = RequestFlags.RedirectedAsGet
 			};
 			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
@@ -225,9 +184,7 @@ namespace Xamarin.WebTests.Tests
 				}
 			});
 
-			var secondPost = new PostHandler {
-				Description = "Second post", Content = new StringContent ("Should send this")
-			};
+			var secondPost = new PostHandler ("Second post", new StringContent ("Should send this"));
 
 			await TestRunner.RunTraditional (ctx, server, secondPost, cancellationToken);
 		}
@@ -262,9 +219,7 @@ namespace Xamarin.WebTests.Tests
 			[TestParameter (typeof (TestAuthentication), "include-none")] AuthenticationType authType,
 			CancellationToken cancellationToken)
 		{
-			var post = new PostHandler {
-				Description = "Post bug #10163", Content = new StringContent ("Hello World")
-			};
+			var post = new PostHandler ("Post bug #10163", HttpContent.HelloWorld);
 
 			var handler = CreateAuthMaybeNone (post, authType);
 
@@ -288,10 +243,7 @@ namespace Xamarin.WebTests.Tests
 			[TestParameter (typeof (TestAuthentication), "include-none")] AuthenticationType authType,
 			CancellationToken cancellationToken)
 		{
-			var post = new PostHandler {
-				Description = "Post bug #20359",
-				Content = new StringContent ("var1=value&var2=value2")
-			};
+			var post = new PostHandler ("Post bug #20359", new StringContent ("var1=value&var2=value2"));
 
 			post.CustomHandler = (request) => {
 				string header;

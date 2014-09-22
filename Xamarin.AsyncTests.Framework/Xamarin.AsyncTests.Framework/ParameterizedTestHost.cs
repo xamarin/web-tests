@@ -49,9 +49,8 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		protected ParameterizedTestHost (TestHost parent, string name, TypeInfo type,
+		protected ParameterizedTestHost (string name, TypeInfo type,
 			IParameterSerializer serializer, TestFlags flags = TestFlags.None)
-			: base (parent)
 		{
 			ParameterName = name;
 			ParameterType = type;
@@ -64,30 +63,9 @@ namespace Xamarin.AsyncTests.Framework
 			return new ParameterizedTestInvoker (this, invoker);
 		}
 
-		internal override bool Serialize (XElement node, TestInstance instance)
-		{
-			if (Serializer == null)
-				return false;
-
-			var parameterizedInstance = (ParameterizedTestInstance)instance;
-			return Serializer.Serialize (node, parameterizedInstance.Current);
-		}
-
-		internal override TestHost Deserialize (XElement node, TestHost parent)
-		{
-			if (Serializer == null)
-				return null;
-
-			var value = Serializer.Deserialize (node);
-			if (value == null)
-				return null;
-
-			return new CapturedTestHost (parent, this, value);
-		}
-
 		public override string ToString ()
 		{
-			return string.Format ("[ParameterizedTestHost: ParameterName={0}, ParameterType={1}]", ParameterName, ParameterType);
+			return string.Format ("[{0}: ParameterName={1}, ParameterType={2}]", GetType ().Name, ParameterName, ParameterType);
 		}
 	}
 }

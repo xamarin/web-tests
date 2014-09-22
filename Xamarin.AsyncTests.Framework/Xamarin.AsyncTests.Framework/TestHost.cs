@@ -36,16 +36,6 @@ namespace Xamarin.AsyncTests.Framework
 			get; protected set;
 		}
 
-		public TestHost Parent {
-			get;
-			private set;
-		}
-
-		protected TestHost (TestHost parent)
-		{
-			Parent = parent;
-		}
-
 		internal TestInstance CreateInstance (TestContext ctx, TestInstance parent)
 		{
 			var instance = CreateInstance (parent);
@@ -55,7 +45,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal abstract bool Serialize (XElement node, TestInstance instance);
 
-		internal abstract TestHost Deserialize (XElement node, TestHost parent);
+		internal abstract TestInvoker Deserialize (XElement node, TestInvoker invoker);
 
 		internal abstract TestInstance CreateInstance (TestInstance parent);
 

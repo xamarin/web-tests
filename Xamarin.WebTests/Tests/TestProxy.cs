@@ -133,7 +133,7 @@ namespace Xamarin.WebTests.Tests
 			if (!hasNetwork)
 				return list;
 
-			list.Add (new HelloWorldHandler ());
+			list.Add (new HelloWorldHandler ("Hello World"));
 			list.AddRange (TestPost.GetParameters (ctx, filter));
 			return list;
 		}

@@ -93,7 +93,7 @@ namespace Xamarin.AsyncTests.Server
 
 		internal override Task<Handshake> OnHello (Handshake handshake, CancellationToken cancellationToken)
 		{
-			throw new InvalidOperationException ();
+			throw new ServerErrorException ();
 		}
 
 		public async Task Hello (Handshake handshake, CancellationToken cancellationToken)
@@ -115,7 +115,7 @@ namespace Xamarin.AsyncTests.Server
 					suite = handshake.TestSuite;
 
 				if (suite == null)
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 
 				App.CurrentTestSuite = suite;
 				startTcs.SetResult (suite);

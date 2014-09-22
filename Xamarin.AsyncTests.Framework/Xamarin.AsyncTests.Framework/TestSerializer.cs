@@ -35,7 +35,10 @@ namespace Xamarin.AsyncTests.Framework
 	static class TestSerializer
 	{
 		static readonly XName InstanceName = "TestInstance";
+		static readonly XName BuilderName = "TestBuilder";
 		static readonly XName ParameterName = "TestParameter";
+
+		static int next_id;
 
 		public static XElement Serialize (TestInstance instance)
 		{
@@ -45,37 +48,67 @@ namespace Xamarin.AsyncTests.Framework
 			Dump (instance);
 			Debug (Environment.NewLine);
 
-			var node = new XElement (InstanceName);
-			node.Add (new XAttribute ("Name", name.FullName));
+			var id = ++next_id;
+
+			var root = new XElement (InstanceName);
+			root.Add (new XAttribute ("ID", id));
+			root.Add (new XAttribute ("Name", name.FullName));
 
 			while (instance != null) {
-				var element = new XElement (ParameterName);
-				element.Add (new XAttribute ("Type", instance.GetType ().Name));
-				element.Add (new XAttribute ("Host", instance.Host.GetType ().Name));
-				node.AddFirst (element);
+				var element = SerializeBuilder (ref instance);
+				root.AddFirst (element);
+			}
 
-				if (!instance.Host.Serialize (element, instance)) {
-					Debug ("SERIALIZE INSTANCE FAILED: {0}", instance.Host);
-					instance.Host.Serialize (element, instance);
-					return null;
-				}
+			Debug ("SERIALIZE DONE: {0}", root);
+			return root;
+		}
 
+		static XElement SerializeBuilder (ref TestInstance instance)
+		{
+			var parameterInstances = new LinkedList<TestInstance> ();
+			TestBuilderInstance builderInstance = null;
+
+			while (instance != null && builderInstance == null) {
+				parameterInstances.AddLast (instance);
+
+				builderInstance = instance as TestBuilderInstance;
 				instance = instance.Parent;
 			}
 
-			Debug ("SERIALIZE DONE: {0}", node);
-			return node;
-		}
+			if (builderInstance == null)
+				throw new InternalErrorException ();
 
-		static TestBuilder FindBuilder (TestInstance instance)
-		{
-			while (instance != null) {
-				var builderInstance = instance as TestBuilderInstance;
-				if (builderInstance != null)
-					return builderInstance.Builder;
+			var builder = builderInstance.Builder;
+
+			var node = new XElement (BuilderName);
+			node.Add (new XAttribute ("Type", builder.GetType ().Name));
+			node.Add (new XAttribute ("Name", builder.FullName));
+
+			var hostIter = builder.ParameterHosts.First;
+			var instanceIter = parameterInstances.Last.Previous;
+
+			while (instanceIter != null) {
+				var parameterInstance = instanceIter.Value;
+				if (instanceIter.Value.Host != hostIter.Value)
+					throw new InternalErrorException ();
+
+				var element = new XElement (ParameterName);
+				element.Add (new XAttribute ("Type", parameterInstance.GetType ().Name));
+				element.Add (new XAttribute ("Host", parameterInstance.Host.GetType ().Name));
+
+				if (!parameterInstance.Host.Serialize (element, parameterInstance)) {
+					Debug ("SERIALIZE INSTANCE FAILED: {0}", parameterInstance.Host);
+					parameterInstance.Host.Serialize (element, parameterInstance);
+					throw new InternalErrorException ();
+				}
+
+				node.Add (element);
+
+				instanceIter = instanceIter.Previous;
+				hostIter = hostIter.Next;
 			}
 
-			return null;
+			return node;
 		}
 
 		public static TestInvoker Deserialize (TestSuite suite, XElement root)
@@ -84,60 +117,73 @@ namespace Xamarin.AsyncTests.Framework
 				throw new InternalErrorException ();
 
 			var name = root.Attribute ("Name").Value;
+			var id = int.Parse (root.Attribute ("ID").Value);
 
-			Debug ("DESERIALIZE: {0}", name);
+			Debug ("DESERIALIZE: {0} {1}\n{2}\n", name, id, root);
 
-			var parameters = new LinkedList<XElement> (root.Elements (ParameterName));
-
-			var builders = parameters.Where (p => p.Attribute ("Type").Value.Equals ("TestBuilderInstance"));
-			Debug ("DESERIALIZE #1: {0}", builders.Count ());
+			var elements = new LinkedList<XElement> (root.Elements (BuilderName));
+			var builders = new LinkedList<TestBuilder> ();
 
 			var reflectionSuite = (ReflectionTestSuite)suite;
+			TestBuilder builder = reflectionSuite.Builder;
+			builders.AddLast (builder);
 
-			TestBuilder current = null;
-			foreach (var builderNode in builders) {
-				var builderHost = builderNode.Attribute ("Host").Value;
-				var builderName = builderNode.Attribute ("Name").Value;
+			var elementIter = elements.First.Next;
+			while (elementIter != null) {
+				var node = elementIter.Value;
+				elementIter = elementIter.Next;
 
-				Debug ("DESERIALIZE #2: {0} - {1} {2}", builderNode, builderHost, builderName);
-				if (current == null)
-					current = reflectionSuite.FindFixture (builderName);
-				else
-					current = current.FindChild (builderName);
+				var builderName = node.Attribute ("Name").Value;
+				builder = builder.FindChild (builderName);
+				if (builder == null)
+					throw new InternalErrorException ();
 
-				if (current == null)
+				Debug ("DESERIALIZE #1: {0} {1}", builder, node);
+
+				builders.AddLast (builder);
+			}
+
+			TestInvoker invoker = null;
+			elementIter = elements.Last;
+			var builderIter = builders.Last;
+
+			while (builderIter != null) {
+				builder = builderIter.Value;
+				builderIter = builderIter.Previous;
+
+				var node = elementIter.Value;
+				elementIter = elementIter.Previous;
+
+				if (!DeserializeBuilder (builder, node, ref invoker))
 					throw new InternalErrorException ();
 			}
 
-			Debug ("DESERIALIZE #3: {0}", current);
+			return invoker;
+		}
 
-			Dump (current.Host);
-			Dump (current.ParameterHost);
+		static bool DeserializeBuilder (TestBuilder builder, XElement node, ref TestInvoker invoker)
+		{
+			var elements = new LinkedList<XElement> (node.Elements (ParameterName));
+			var elementIter = elements.First;
+			var hostIter = builder.ParameterHosts.First;
 
-			TestHost deserialized = null;
+			var current = (TestBuilderHost)builder.Host;
+			if (invoker == null)
+				invoker = current.CreateInnerInvoker ();
 
-			var hostList = new LinkedList<TestHost> ();
-			for (var h = current.ParameterHost; h != null; h = h.Parent)
-				hostList.AddLast (h);
-
-			var hostIter = hostList.Last;
-			var paramIter = parameters.First;
+			var parameters = new LinkedList<KeyValuePair<TestHost,XElement>> ();
 
 			while (hostIter != null) {
 				var host = hostIter.Value;
+				hostIter = hostIter.Next;
+
 				XElement param = null;
-				if (paramIter != null) {
-					param = paramIter.Value;
-					paramIter = paramIter.Next;
-				}
+				if (elementIter != null) {
+					param = elementIter.Value;
+					elementIter = elementIter.Next;
 
-				Debug ("DESERIALIZE #4: {0} {1}", param != null ? param.ToString () : "<null>", host);
-
-				if (param != null) {
 					var paramType = param.Attribute ("Type").Value;
 					var paramHost = param.Attribute ("Host").Value;
-					if (paramType.Equals ("TestBuilderInstance"))
-						continue;
 
 					if (!host.GetType ().Name.Equals (paramHost)) {
 						Debug ("DESERIALIZE #4a - {0} {1}", paramHost, host);
@@ -145,29 +191,26 @@ namespace Xamarin.AsyncTests.Framework
 					}
 				}
 
-				var old = deserialized;
-				deserialized = hostIter.Value.Deserialize (param, deserialized);
-				if (deserialized == null) {
-					hostIter.Value.Deserialize (param, old);
-					throw new InternalErrorException ();
-				}
-
-				hostIter = hostIter.Previous;
+				parameters.AddLast (new KeyValuePair<TestHost,XElement> (host, param));
 			}
 
-			Debug ("LOOP DONE: {0} {1}", paramIter, hostIter);
+			var paramIter = parameters.Last;
+			while (paramIter != null) {
+				var host = paramIter.Value.Key;
+				var param = paramIter.Value.Value;
+				paramIter = paramIter.Previous;
 
-			if (paramIter != null || hostIter != null)
-				throw new InternalErrorException ();
+				if (param != null)
+					invoker = host.Deserialize (param, invoker);
+				else
+					invoker = host.CreateInvoker (invoker);
+				if (invoker == null)
+					throw new InternalErrorException ();
+			}
 
-			Debug ("DESERIALIZE #6: {0}", deserialized);
-			Dump (deserialized);
+			invoker = current.Deserialize (node, invoker);
 
-			var invoker = current.Deserialize (deserialized);
-
-			Debug ("DESERIALIZE #7: {0}", invoker);
-
-			return invoker;
+			return true;
 		}
 
 		internal static void Dump (TestInstance instance)
@@ -182,12 +225,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal static void Dump (TestHost host)
 		{
-			Debug (Environment.NewLine);
-			Debug ("DUMPING HOST");
-			while (host != null) {
-				Debug ("HOST: {0}", host);
-				host = host.Parent;
-			}
+			Debug ("HOST: {0}", host);
 		}
 
 		internal static void Debug (string message, params object[] args)

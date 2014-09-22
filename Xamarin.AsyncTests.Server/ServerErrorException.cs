@@ -1,5 +1,5 @@
 ﻿//
-// FixtureTestHost.cs
+// ServerErrorException.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,18 +25,10 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests.Server
 {
-	abstract class FixtureTestHost : HeavyTestHost
+	class ServerErrorException : InvalidOperationException
 	{
-		public abstract string FixtureName {
-			get;
-		}
-
-		public FixtureTestHost (string name)
-			: base (name)
-		{
-		}
 	}
 }
 

@@ -63,7 +63,7 @@ namespace Xamarin.AsyncTests.Framework
 			else if (HostType != null)
 				customHost = (ITestHost<T>)Activator.CreateInstance (HostType);
 			else
-				throw new InvalidOperationException ();
+				throw new InternalErrorException ();
 
 			instance = customHost.CreateInstance (ctx);
 			await instance.Initialize (ctx, cancellationToken);

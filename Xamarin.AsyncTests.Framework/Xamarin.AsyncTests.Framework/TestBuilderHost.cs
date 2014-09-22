@@ -37,8 +37,8 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestBuilderHost (TestHost parent, TestBuilder builder)
-			: base (parent, builder.Name.Name)
+		public TestBuilderHost (TestBuilder builder)
+			: base (builder.Name.Name)
 		{
 			Builder = builder;
 		}
@@ -50,21 +50,27 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal override TestInvoker CreateInvoker (TestInvoker invoker)
 		{
-			throw new InvalidOperationException ();
+			if (!TestName.IsNullOrEmpty (Builder.Name))
+				invoker = new ResultGroupTestInvoker (invoker);
+
+			invoker = new TestBuilderInvoker (this, invoker);
+
+			return invoker;
 		}
 
-		public abstract TestInvoker CreateInnerInvoker ();
-
-		internal override bool Serialize (XElement node, TestInstance instance)
+		internal sealed override bool Serialize (XElement node, TestInstance instance)
 		{
-			node.Add (new XAttribute ("Name", Builder.FullName));
 			return true;
 		}
 
-		internal override TestHost Deserialize (XElement node, TestHost parent)
+		internal sealed override TestInvoker Deserialize (XElement node, TestInvoker invoker)
 		{
-			return base.Deserialize (node, parent);
+			invoker = new TestBuilderInvoker (this, invoker);
+
+			return invoker;
 		}
+
+		public abstract TestInvoker CreateInnerInvoker ();
 
 		public override string ToString ()
 		{

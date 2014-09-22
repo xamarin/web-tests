@@ -33,11 +33,16 @@ namespace Xamarin.WebTests.Handlers
 
 	public class HelloWorldHandler : Handler
 	{
+		public HelloWorldHandler (string identifier)
+			: base (identifier)
+		{
+		}
+
 		static int next_id;
 
 		public override object Clone ()
 		{
-			return new HelloWorldHandler ();
+			return new HelloWorldHandler (Identifier);
 		}
 
 		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)

@@ -184,19 +184,19 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		#region Test Hosts
 
 		internal static TestHost ResolveParameter (
-			TestHost parent, ReflectionTestFixtureBuilder builder, ParameterInfo member)
+			ReflectionTestFixtureBuilder builder, ParameterInfo member)
 		{
-			return ResolveParameter (parent, builder, new _ParameterInfo (member));
+			return ResolveParameter (builder, new _ParameterInfo (member));
 		}
 
 		internal static TestHost ResolveParameter (
-			TestHost parent, ReflectionTestFixtureBuilder builder, PropertyInfo member)
+			ReflectionTestFixtureBuilder builder, PropertyInfo member)
 		{
-			return ResolveParameter (parent, builder, new _PropertyInfo (member));
+			return ResolveParameter (builder, new _PropertyInfo (member));
 		}
 
 		static TestHost ResolveParameter (
-			TestHost parent, ReflectionTestFixtureBuilder fixture, IMemberInfo member)
+			ReflectionTestFixtureBuilder fixture, IMemberInfo member)
 		{
 			if (typeof(ITestInstance).GetTypeInfo ().IsAssignableFrom (member.Type)) {
 				var hostAttr = member.GetCustomAttribute<TestHostAttribute> ();
@@ -205,26 +205,26 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (hostAttr == null)
 					throw new InternalErrorException ();
 
-				return CreateCustomHost (parent, fixture.Type, member, hostAttr);
+				return CreateCustomHost (fixture.Type, member, hostAttr);
 			}
 
 			var paramAttrs = member.GetCustomAttributes<TestParameterSourceAttribute> ().ToArray ();
 			if (paramAttrs.Length == 1)
-				return CreateParameterAttributeHost (parent, fixture.Type, member, paramAttrs[0]);
+				return CreateParameterAttributeHost (fixture.Type, member, paramAttrs[0]);
 			else if (paramAttrs.Length > 1)
 				throw new InternalErrorException ();
 
 			paramAttrs = member.Type.GetCustomAttributes<TestParameterSourceAttribute> ().ToArray ();
 			if (paramAttrs.Length == 1)
-				return CreateParameterAttributeHost (parent, fixture.Type, member, paramAttrs [0]);
+				return CreateParameterAttributeHost (fixture.Type, member, paramAttrs [0]);
 			else if (paramAttrs.Length > 1)
 				throw new InternalErrorException ();
 
 			if (member.Type.AsType ().Equals (typeof(bool)))
-				return CreateBoolean (parent, member);
+				return CreateBoolean (member);
 
 			if (member.Type.IsEnum)
-				return CreateEnum (parent, member);
+				return CreateEnum (member);
 
 			throw new InternalErrorException ();
 		}
@@ -260,7 +260,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			throw new InternalErrorException ();
 		}
 
-		static TestHost CreateCustomHost (TestHost parent, TypeInfo fixture, IMemberInfo member, TestHostAttribute attr)
+		static TestHost CreateCustomHost (TypeInfo fixture, IMemberInfo member, TestHostAttribute attr)
 		{
 			bool useFixtureInstance;
 			var hostType = GetHostType (
@@ -269,11 +269,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var type = typeof(CustomTestHost<>).MakeGenericType (member.Type.AsType ());
 			return (TestHost)Activator.CreateInstance (
-				type, parent, member.Name, hostType, useFixtureInstance);
+				type, member.Name, hostType, useFixtureInstance);
+		}
+
+		static void Debug (string format, params object[] args)
+		{
+			System.Diagnostics.Debug.WriteLine (string.Format (format, args));
 		}
 
 		static TestHost CreateParameterAttributeHost (
-			TestHost parent, TypeInfo fixtureType, IMemberInfo member, TestParameterSourceAttribute attr)
+			TypeInfo fixtureType, IMemberInfo member, TestParameterSourceAttribute attr)
 		{
 			string filter = null;
 			var paramAttr = attr as TestParameterAttribute;
@@ -285,14 +290,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				fixtureType, typeof(ITestParameterSource<>), member.Type,
 				attr.SourceType, true, out useFixtureInstance);
 
-			var serializer = GetParameterSerializer (member.Type, sourceType, useFixtureInstance);
+			IParameterSerializer serializer;
+			if (!GetParameterSerializer (member.Type, sourceType, useFixtureInstance, out serializer))
+				throw new InternalErrorException ();
 
 			var type = typeof(ParameterSourceHost<>).MakeGenericType (member.Type.AsType ());
 			return (TestHost)Activator.CreateInstance (
-				type, parent, member.Name, sourceType, useFixtureInstance, serializer, filter, attr.Flags);
+				type, member.Name, sourceType, useFixtureInstance, serializer, filter, attr.Flags);
 		}
 
-		static TestHost CreateEnum (TestHost parent, IMemberInfo member)
+		static TestHost CreateEnum (IMemberInfo member)
 		{
 			if (!member.Type.IsEnum || member.Type.GetCustomAttribute<FlagsAttribute> () != null)
 				throw new InternalErrorException ();
@@ -306,13 +313,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var source = Activator.CreateInstance (sourceType);
 			return (ParameterizedTestHost)Activator.CreateInstance (
-				hostType, parent, member.Name, source, serializer, TestFlags.None);
+				hostType, member.Name, source, serializer, TestFlags.None);
 		}
 
-		static TestHost CreateBoolean (TestHost parent, IMemberInfo member)
+		static TestHost CreateBoolean (IMemberInfo member)
 		{
 			return new ParameterSourceHost<bool> (
-				parent, member.Name, typeof (BooleanTestSource), false,
+				member.Name, typeof (BooleanTestSource), false,
 				GetBooleanSerializer (), null, TestFlags.None);
 		}
 
@@ -334,21 +341,28 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 		}
 
-		static IParameterSerializer GetParameterSerializer (TypeInfo type, Type sourceType, bool useFixtureInstance)
+		static bool GetParameterSerializer (
+			TypeInfo type, Type sourceType, bool useFixtureInstance, out IParameterSerializer serializer)
 		{
-			if (typeof(ITestParameter).GetTypeInfo ().IsAssignableFrom (type))
-				return null;
-
-			if (type.Equals (typeof(bool)))
-				return new BooleanSerializer ();
-			else if (type.Equals (typeof(int)))
-				return new IntegerSerializer ();
-			else if (type.IsEnum) {
-				var serializerType = typeof(EnumSerializer<>).MakeGenericType (type.AsType ());
-				return (IParameterSerializer)Activator.CreateInstance (serializerType);
+			if (typeof(ITestParameter).GetTypeInfo ().IsAssignableFrom (type)) {
+				serializer = null;
+				return true;
 			}
 
-			return null;
+			if (type.Equals (typeof(bool))) {
+				serializer = new BooleanSerializer ();
+				return true;
+			} else if (type.Equals (typeof(int))) {
+				serializer = new IntegerSerializer ();
+				return true;
+			} else if (type.IsEnum) {
+				var serializerType = typeof(EnumSerializer<>).MakeGenericType (type.AsType ());
+				serializer = (IParameterSerializer)Activator.CreateInstance (serializerType);
+				return true;
+			}
+
+			serializer = null;
+			return false;
 		}
 
 		internal static IParameterSerializer GetBooleanSerializer ()
@@ -370,6 +384,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 			public object Deserialize (XElement node)
 			{
+				if (node == null)
+					throw new InternalErrorException ();
 				return bool.Parse (node.Attribute ("Value").Value);
 			}
 		}
@@ -421,6 +437,19 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			foreach (var cattr in member.GetCustomAttributes<TestFeatureAttribute> ())
 				yield return cattr.Feature;
+		}
+
+		internal static TestFilter CreateTestFilter (TestFilter parent, IMemberInfo member)
+		{
+			var categories = ReflectionHelper.GetCategories (member);
+			var features = ReflectionHelper.GetFeatures (member);
+
+			return new TestFilter (parent, categories, features);
+		}
+
+		internal static TestHost CreateRepeatHost (int repeat)
+		{
+			return new RepeatedTestHost (repeat, TestFlags.Browsable);
 		}
 
 		#endregion

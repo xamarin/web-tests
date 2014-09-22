@@ -47,7 +47,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal override TestInvoker CreateInvoker (TestInvoker invoker)
 		{
-			throw new InvalidOperationException ();
+			throw new InternalErrorException ();
 		}
 
 		public TestInvoker CreateInvoker ()

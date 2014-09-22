@@ -46,13 +46,18 @@ namespace Xamarin.WebTests.Handlers
 			return new RedirectHandler (Target, Code);
 		}
 
-		public RedirectHandler (Handler target, HttpStatusCode code)
-			: base (target)
+		public RedirectHandler (Handler target, HttpStatusCode code, string identifier = null)
+			: base (target, identifier ?? CreateIdentifier (target, code))
 		{
 			Code = code;
 
 			if (!IsRedirectStatus (code))
 				throw new InvalidOperationException ();
+		}
+
+		static string CreateIdentifier (Handler target, HttpStatusCode code)
+		{
+			return string.Format ("Redirect({0}): {1}", code, target.Identifier);
 		}
 
 		static bool IsRedirectStatus (HttpStatusCode code)

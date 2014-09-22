@@ -40,11 +40,12 @@ namespace Xamarin.AsyncTests.Framework
 
 		protected override void GetTestName (TestNameBuilder builder)
 		{
-			if (Host.TestName != null)
+			if (!TestName.IsNullOrEmpty (Host.TestName))
 				builder.Merge (Host.TestName);
 			else {
 				base.GetTestName (builder);
-				builder.PushName (Host.Name);
+				if (!string.IsNullOrEmpty (Host.Name))
+					builder.PushName (Host.Name);
 			}
 		}
 	}

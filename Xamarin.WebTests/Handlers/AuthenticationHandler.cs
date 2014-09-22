@@ -35,14 +35,19 @@ namespace Xamarin.WebTests.Handlers
 
 	public class AuthenticationHandler : AbstractRedirectHandler
 	{
-		public AuthenticationHandler (AuthenticationType type, Handler target)
-			: base (target)
+		public AuthenticationHandler (AuthenticationType type, Handler target, string identifier = null)
+			: base (target, identifier ?? CreateIdentifier (type, target))
 		{
 			manager = new HttpAuthManager (type, target);
 		}
 
+		static string CreateIdentifier (AuthenticationType type, Handler target)
+		{
+			return string.Format ("Authentication({0}): {1}", type, target.Identifier);
+		}
+
 		AuthenticationHandler (HttpAuthManager manager)
-			: base (manager.Target)
+			: base (manager.Target, manager.Target.Identifier)
 		{
 			this.manager = manager;
 		}

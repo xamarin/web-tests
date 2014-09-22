@@ -99,7 +99,7 @@ namespace Xamarin.WebTests.Tests
 			TestContext ctx, [TestHost] HttpServer server, bool sendAsync,
 			CancellationToken cancellationToken)
 		{
-			var target = new HelloWorldHandler ();
+			var target = new HelloWorldHandler ("Hello World");
 			var targetAuth = new AuthenticationHandler (AuthenticationType.ForceNone, target);
 
 			var redirect = new RedirectHandler (targetAuth, HttpStatusCode.Redirect);

@@ -91,7 +91,7 @@ namespace Xamarin.AsyncTests.Server
 			public SettingsBag Read (XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("Settings"))
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 
 				var settings = SettingsBag.CreateDefault ();
 				foreach (var element in node.Elements ("Setting")) {
@@ -108,7 +108,7 @@ namespace Xamarin.AsyncTests.Server
 			public override string Read (Connection connection, XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("Text"))
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 
 				return node.Attribute ("Value").Value;
 			}
@@ -126,7 +126,7 @@ namespace Xamarin.AsyncTests.Server
 			public override long Read (Connection connection, XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("ObjectID"))
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 
 				return long.Parse (node.Attribute ("Value").Value);
 			}
@@ -144,7 +144,7 @@ namespace Xamarin.AsyncTests.Server
 			public override TestName Read (Connection connection, XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("TestName"))
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 
 				var builder = new TestNameBuilder ();
 				var nameAttr = node.Attribute ("Name");
@@ -187,7 +187,7 @@ namespace Xamarin.AsyncTests.Server
 			public override TestSuite Read (Connection connection, XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("TestSuite"))
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 
 				var objectId = long.Parse (node.Attribute ("ObjectID").Value);
 
@@ -218,7 +218,7 @@ namespace Xamarin.AsyncTests.Server
 			public override TestCase Read (Connection connection, XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("TestCase"))
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 
 				var objectId = long.Parse (node.Attribute ("ObjectID").Value);
 
@@ -248,7 +248,7 @@ namespace Xamarin.AsyncTests.Server
 			public override TestResult Read (Connection connection, XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("TestResult"))
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 
 				var name = Serializer.TestName.Read (connection, node.Element ("TestName"));
 				var status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
@@ -267,7 +267,7 @@ namespace Xamarin.AsyncTests.Server
 						if (result.Test == testcase)
 							return;
 						if (result.Test != null)
-							throw new InvalidOperationException ();
+							throw new ServerErrorException ();
 						connection.UnregisterRemoteObject (testcase);
 					};
 				}
@@ -311,7 +311,7 @@ namespace Xamarin.AsyncTests.Server
 			public override TestLoggerBackend.StatisticsEventArgs Read (Connection connection, XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("TestStatisticsEventArgs"))
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 
 				var instance = new TestLoggerBackend.StatisticsEventArgs ();
 				instance.Type = (TestLoggerBackend.StatisticsEventType)Enum.Parse (typeof(TestLoggerBackend.StatisticsEventType), node.Attribute ("Type").Value);
@@ -328,7 +328,7 @@ namespace Xamarin.AsyncTests.Server
 			public override XElement Write (Connection connection, TestLoggerBackend.StatisticsEventArgs instance)
 			{
 				if (instance.IsRemote)
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 
 				var element = new XElement ("TestStatisticsEventArgs");
 				element.SetAttributeValue ("Type", instance.Type.ToString ());
@@ -346,7 +346,7 @@ namespace Xamarin.AsyncTests.Server
 			public override Handshake Read (Connection connection, XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("Handshake"))
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 
 				var instance = new Handshake ();
 				instance.WantStatisticsEvents = bool.Parse (node.Attribute ("WantStatisticsEvents").Value);
@@ -383,11 +383,11 @@ namespace Xamarin.AsyncTests.Server
 			public override TestLoggerBackend.LogEntry Read (Connection connection, XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("LogEntry"))
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 
 				TestLoggerBackend.EntryKind kind;
 				if (!Enum.TryParse (node.Attribute ("Kind").Value, out kind))
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 
 				var text = node.Attribute ("Text").Value;
 				var logLevel = int.Parse (node.Attribute ("LogLevel").Value);

@@ -63,7 +63,7 @@ namespace Xamarin.AsyncTests.Server
 			if (response.Error != null)
 				throw new SavedException (response.Error);
 			if (!response.Success)
-				throw new InvalidOperationException ();
+				throw new ServerErrorException ();
 			return response.Response;
 		}
 
@@ -74,14 +74,14 @@ namespace Xamarin.AsyncTests.Server
 			var argElement = node.Element ("Argument");
 			if (ArgumentSerializer != null && argElement != null) {
 				if (argElement.Elements ().Count () > 1)
-					throw new InvalidOperationException ();
+					throw new ServerErrorException ();
 				var first = argElement.Elements ().First ();
 				argument = ArgumentSerializer.Read (connection, first);
 			}
 
 			var instanceID = long.Parse (node.Attribute ("InstanceID").Value);
 			if (!connection.TryGetRemoteObject (instanceID, out serverProxy))
-				throw new InvalidOperationException ();
+				throw new ServerErrorException ();
 		}
 
 		public override void Write (Connection connection, XElement node)
@@ -142,7 +142,7 @@ namespace Xamarin.AsyncTests.Server
 				var response = node.Element ("Response");
 				if (Command.ResponseSerializer != null && response != null) {
 					if (response.Elements ().Count () > 1)
-						throw new InvalidOperationException ();
+						throw new ServerErrorException ();
 					var first = response.Elements ().First ();
 					Response = Command.ResponseSerializer.Read (connection, first);
 				}

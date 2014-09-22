@@ -56,42 +56,23 @@ namespace Xamarin.AsyncTests.Framework
 			Name = name;
 		}
 
-		public TestFilter Filter {
-			get {
-				if (!resolvedMembers)
-					throw new InvalidOperationException ();
-				return filter;
-			}
-		}
-
-		public TestCase Test {
-			get {
-				if (!resolved)
-					throw new InvalidOperationException ();
-				return test;
-			}
-		}
-
-		public TestHost ParameterHost {
-			get {
-				if (!resolved)
-					throw new InvalidOperationException ();
-				return parameterHost;
-			}
+		public abstract TestFilter Filter {
+			get;
 		}
 
 		public TestBuilderHost Host {
 			get {
 				if (!resolved)
-					throw new InvalidOperationException ();
+					throw new InternalErrorException ();
 				return host;
 			}
 		}
 
+
 		internal TestInvoker Invoker {
 			get {
 				if (!resolved)
-					throw new InvalidOperationException ();
+					throw new InternalErrorException ();
 				return invoker;
 			}
 		}
@@ -99,7 +80,7 @@ namespace Xamarin.AsyncTests.Framework
 		internal bool HasChildren {
 			get {
 				if (!resolvedChildren)
-					throw new InvalidOperationException ();
+					throw new InternalErrorException ();
 				return children.Count > 0;
 			}
 		}
@@ -107,33 +88,33 @@ namespace Xamarin.AsyncTests.Framework
 		internal IList<TestBuilder> Children {
 			get {
 				if (!resolvedChildren)
-					throw new InvalidOperationException ();
+					throw new InternalErrorException ();
 				return children;
+			}
+		}
+
+		internal LinkedList<TestHost> ParameterHosts {
+			get {
+				if (!resolved)
+					throw new InternalErrorException ();
+				return parameterHosts;
 			}
 		}
 
 		bool resolving;
 		bool resolved;
-		bool resolvedMembers;
 		bool resolvedChildren;
 
-		TestFilter filter;
-		TestHost parameterHost;
 		TestBuilderHost host;
 		TestInvoker invoker;
-		TestCase test;
 		IList<TestBuilder> children;
-
-		protected void Resolve ()
-		{
-			Resolve (null);
-		}
+		LinkedList<TestHost> parameterHosts;
 
 		protected virtual void ResolveMembers ()
 		{
 		}
 
-		void Resolve (TestHost parent)
+		protected void Resolve ()
 		{
 			if (resolved || resolving)
 				return;
@@ -142,63 +123,36 @@ namespace Xamarin.AsyncTests.Framework
 
 			ResolveMembers ();
 
-			filter = GetTestFilter ();
-
 			children = CreateChildren ().ToList ();
 
-			parameterHost = new CapturableTestHost (parent);
+			host = CreateHost ();
 
-			parameterHost = CreateParameterHost (parameterHost);
-
-			host = CreateHost (parameterHost);
-
-			resolvedMembers = true;
+			parameterHosts = new LinkedList<TestHost> ();
+			foreach (var current in CreateParameterHosts ())
+				parameterHosts.AddLast (current);
 
 			foreach (var child in children) {
-				child.Resolve (parameterHost);
+				child.Resolve ();
 			}
 
 			resolvedChildren = true;
 
-			TestSerializer.Debug ("RESOLVE: {0}", this);
-			TestSerializer.Dump (parameterHost);
-
-			invoker = host.CreateInnerInvoker ();
-
-			invoker = CreateParameterInvoker (host, parent, invoker);
-
-			invoker = CreateInvoker (invoker);
-
-			test = CreateTestCase ();
+			invoker = CreateParameterInvoker ();
 
 			resolved = true;
 		}
 
-		TestInvoker CreateInvoker (TestInvoker invoker)
+		TestInvoker CreateParameterInvoker ()
 		{
-			if (Filter != null)
-				invoker = new ConditionalTestInvoker (Filter, invoker);
+			var invoker = host.CreateInnerInvoker ();
 
-			invoker = new TestBuilderInvoker (host, invoker);
-
-			return invoker;
-		}
-
-		static TestInvoker CreateParameterInvoker (TestBuilderHost host, TestHost parent, TestInvoker invoker)
-		{
-			TestSerializer.Debug ("CREATE PARAM INVOKER: {0} {1}", host, parent);
-			TestSerializer.Dump (host);
-
-			TestHost current = host.Parent;
-			while (current != null && current != parent) {
-				TestSerializer.Debug ("CREATE PARAM INVOKER #1: {0}", current);
-
-				invoker = current.CreateInvoker (invoker);
-
-				current = current.Parent;
+			var current = parameterHosts.Last;
+			while (current != null) {
+				invoker = current.Value.CreateInvoker (invoker);
+				current = current.Previous;
 			}
 
-			TestSerializer.Debug ("CREATE PARAM INVOKER #2: {0}", invoker);
+			invoker = host.CreateInvoker (invoker);
 
 			return invoker;
 		}
@@ -206,7 +160,6 @@ namespace Xamarin.AsyncTests.Framework
 		public TestBuilder FindChild (string name)
 		{
 			foreach (var child in Children) {
-				TestSerializer.Debug ("FIND CHILD: {0} - {1}", child.FullName, name);
 				if (child.FullName.Equals (name))
 					return child;
 			}
@@ -216,32 +169,13 @@ namespace Xamarin.AsyncTests.Framework
 
 		protected abstract IEnumerable<TestBuilder> CreateChildren ();
 
-		protected abstract TestFilter GetTestFilter ();
+		protected abstract IEnumerable<TestHost> CreateParameterHosts ();
 
-		protected abstract TestHost CreateParameterHost (TestHost parent);
-
-		protected abstract TestBuilderHost CreateHost (TestHost parent);
-
-		protected abstract TestCase CreateTestCase ();
-
-		public TestInvoker Deserialize (TestHost parent)
-		{
-			var host = CreateHost (parent);
-
-			invoker = host.CreateInnerInvoker ();
-
-			invoker = CreateParameterInvoker (host, null, invoker);
-
-			invoker = CreateInvoker (invoker);
-
-			return invoker;
-		}
+		protected abstract TestBuilderHost CreateHost ();
 
 		public static TestCase CaptureContext (TestContext ctx, TestInstance instance)
 		{
 			var name = TestInstance.GetTestName (instance);
-			if (!name.FullName.Contains ("MartinTest"))
-				return null;
 
 			TestSerializer.Debug ("CAPTURE CONTEXT: {0}", name);
 			TestSerializer.Dump (instance);
@@ -253,29 +187,29 @@ namespace Xamarin.AsyncTests.Framework
 				node = TestSerializer.Serialize (instance);
 				if (node == null) {
 					TestSerializer.Debug ("CAPTURE FAILED");
-					return null;
+					throw new InternalErrorException ();
 				}
 			} catch (Exception ex) {
 				TestSerializer.Debug ("CAPTURE ERROR: {0}", ex);
-				return null;
+				throw;
 			}
 
 			TestSerializer.Debug ("CAPTURE DONE: {0}", node);
 
-			TestInvoker invoker;
+			var test = new CapturedTestCase (ctx.Suite, name, node);
+
 			try {
-				invoker = TestSerializer.Deserialize (ctx.Suite, node);
-				if (invoker == null) {
+				if (!test.Resolve ()) {
 					TestSerializer.Debug ("DESERIALIZE FAILED");
-					return null;
+					throw new InternalErrorException ();
 				}
 			} catch (Exception ex) {
 				TestSerializer.Debug ("DESERIALIZE ERROR: {0}", ex);
-				return null;
+				throw;
 			}
 
-			TestSerializer.Debug ("DESERIALIZE DONE: {0}", invoker);
-			return new CapturedTestCase (ctx.Suite, name, invoker);
+			TestSerializer.Debug ("DESERIALIZE DONE: {0}", name);
+			return test;
 		}
 	}
 }

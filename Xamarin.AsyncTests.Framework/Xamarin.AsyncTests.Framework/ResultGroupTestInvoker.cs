@@ -1,5 +1,5 @@
 ﻿//
-// CapturableTestInvoker.cs
+// ResultGroupTestInvoker.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -29,78 +29,39 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CapturableTestInvoker : AggregatedTestInvoker
+	class ResultGroupTestInvoker : AggregatedTestInvoker
 	{
-		public CapturableTestHost Host {
-			get;
-			private set;
-		}
-
 		public TestInvoker Inner {
 			get;
 			private set;
 		}
 
-		public CapturableTestInvoker (CapturableTestHost host, TestInvoker inner)
+		public ResultGroupTestInvoker (TestInvoker inner)
 		{
-			Host = host;
 			Inner = inner;
-		}
-
-		CapturableTestInstance SetUp (TestContext ctx, TestInstance instance)
-		{
-			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
-
-			try {
-				return (CapturableTestInstance)Host.CreateInstance (ctx, instance);
-			} catch (OperationCanceledException) {
-				ctx.OnTestCanceled ();
-				return null;
-			} catch (Exception ex) {
-				ctx.OnError (ex);
-				return null;
-			}
-		}
-
-		bool TearDown (TestContext ctx, CapturableTestInstance instance)
-		{
-			ctx.LogDebug (10, "TearDown({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
-
-			try {
-				instance.Destroy (ctx);
-				return true;
-			} catch (OperationCanceledException) {
-				ctx.OnTestCanceled ();
-				return false;
-			} catch (Exception ex) {
-				ctx.OnError (ex);
-				return false;
-			}
 		}
 
 		public override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			var innerInstance = SetUp (ctx, instance);
-			if (innerInstance == null)
-				return false;
-
-			var innerResult = new TestResult (TestInstance.GetTestName (innerInstance));
+			var innerResult = new TestResult (TestInstance.GetTestName (instance));
 
 			var innerCtx = ctx.CreateChild (innerResult.Name, innerResult);
 
-			if (!Host.IsCaptured)
-				innerResult.Test = TestBuilder.CaptureContext (innerCtx, innerInstance);
+			try {
+				innerResult.Test = TestBuilder.CaptureContext (innerCtx, instance);
+				if (innerResult.Test == null)
+					throw new InternalErrorException ();
+			} catch (Exception ex) {
+				ctx.LogError (ex);
+			}
 
 			bool success;
 			try {
-				success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
+				success = await InvokeInner (innerCtx, instance, Inner, cancellationToken);
 			} finally {
 				ctx.Result.AddChild (innerResult);
 			}
-
-			if (!TearDown (ctx, innerInstance))
-				success = false;
 
 			return success;
 		}

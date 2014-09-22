@@ -39,6 +39,8 @@ namespace Xamarin.WebTests.Framework
 			this.content = content;
 		}
 
+		public static readonly StringContent Empty = new StringContent (string.Empty);
+
 		public static HttpContent CreateMaybeNull (string content)
 		{
 			return content != null ? new StringContent (content) : null;

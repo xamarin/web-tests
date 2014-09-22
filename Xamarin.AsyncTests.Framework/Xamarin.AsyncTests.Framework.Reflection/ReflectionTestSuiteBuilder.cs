@@ -1,5 +1,5 @@
 ﻿//
-// ReflectionTestBuilder.cs
+// ReflectionTestSuiteBuilder.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,62 +24,61 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	abstract class ReflectionTestBuilder : TestBuilder
+	class ReflectionTestSuiteBuilder : TestCollectionBuilder
 	{
-		public IMemberInfo Member {
+		public Assembly Assembly {
 			get;
 			private set;
 		}
 
-		public AsyncTestAttribute Attribute {
+		public TestCase Test {
 			get;
 			private set;
 		}
 
-		protected ReflectionTestBuilder (TestSuite suite, TestName name, AsyncTestAttribute attr, IMemberInfo member)
-			: base (suite, name)
+		public ReflectionTestSuiteBuilder (ReflectionTestSuite suite)
+			: base (suite, TestName.Empty, null)
 		{
-			Attribute = attr;
-			Member = member;
+			Assembly = suite.Assembly;
+
+			Resolve ();
+
+			Test = new TestCaseCollection (this);
 		}
 
-		protected override TestFilter GetTestFilter ()
+		protected override IEnumerable<TestBuilder> ResolveChildren ()
 		{
-			TestFilter parent = null;
-			if (Parent != null)
-				parent = Parent.Filter;
+			foreach (var type in Assembly.ExportedTypes) {
+				var tinfo = type.GetTypeInfo ();
+				var attr = tinfo.GetCustomAttribute<AsyncTestFixtureAttribute> (true);
+				if (attr == null)
+					continue;
 
-			var categories = ReflectionHelper.GetCategories (Member);
-			var features = ReflectionHelper.GetFeatures (Member);
-
-			return new TestFilter (parent, categories, features);
+				yield return new ReflectionTestFixtureBuilder (this, attr, tinfo);
+			}
 		}
 
-		protected override TestCase CreateTestCase ()
+		protected override IEnumerable<TestHost> CreateParameterHosts ()
 		{
-			return new ReflectionTestCase (this);
+			yield break;
 		}
 
-		protected static TestHost CreateRepeatHost (TestHost parent, int repeat)
+		class TestCaseCollection : TestCase
 		{
-			return new RepeatedTestHost (null, repeat, TestFlags.Browsable);
-		}
-
-		class ReflectionTestCase : TestCase
-		{
-			public ReflectionTestBuilder Builder {
+			public TestCollectionBuilder Builder {
 				get;
 				private set;
 			}
 
-			public ReflectionTestCase (ReflectionTestBuilder builder)
+			public TestCaseCollection (TestCollectionBuilder builder)
 				: base (builder.Suite, builder.Name)
 			{
 				Builder = builder;

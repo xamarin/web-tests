@@ -72,6 +72,7 @@
     <Compile Include="RemoteObjectManager.cs" />
     <Compile Include="TestServer.cs" />
     <Compile Include="RemoteTestFramework.cs" />
+    <Compile Include="ServerErrorException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

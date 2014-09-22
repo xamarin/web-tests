@@ -39,6 +39,7 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 	using Portable;
 
+	// [Work]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestGet : ITestHost<HttpServer>, ITestParameterSource<Handler>
 	{
@@ -59,8 +60,8 @@ namespace Xamarin.WebTests.Tests
 
 		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
-			yield return new HelloWorldHandler { Description = "First Hello" };
-			yield return new HelloWorldHandler { Description = "Second Hello" };
+			yield return new HelloWorldHandler ("First Hello");
+			yield return new HelloWorldHandler ("Second Hello");
 		}
 
 		[AsyncTest]
@@ -83,8 +84,8 @@ namespace Xamarin.WebTests.Tests
 			[TestParameter (typeof (RedirectStatusSource))] HttpStatusCode code,
 			[TestParameter] Handler handler)
 		{
-			var description = string.Format ("{0}: {1}", code, handler.Description);
-			var redirect = new RedirectHandler (handler, code) { Description = description };
+			var description = string.Format ("{0}: {1}", code, handler.Identifier);
+			var redirect = new RedirectHandler (handler, code, description);
 
 			return TestRunner.RunTraditional (ctx, server, redirect, cancellationToken, sendAsync);
 		}

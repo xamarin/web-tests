@@ -38,42 +38,35 @@ namespace Xamarin.WebTests.Handlers
 
 	public class HttpClientHandler : Handler
 	{
-		HttpClientOperation operation;
-		HttpContent content;
-		HttpContent returnContent;
+		public HttpClientHandler (
+			string identifier, HttpClientOperation operation,
+			HttpContent content = null, HttpContent returnContent = null)
+			: base (identifier)
+		{
+			Operation = operation;
+			Content = content;
+			ReturnContent = returnContent;
+		}
 
 		public HttpClientOperation Operation {
-			get { return operation; }
-			set {
-				WantToModify ();
-				operation = value;
-			}
+			get;
+			private set;
 		}
 
 		public HttpContent Content {
-			get {
-				return content;
-			}
-			set {
-				WantToModify ();
-				content = value;
-			}
+			get;
+			private set;
 		}
 
 		public HttpContent ReturnContent {
-			get {
-				return returnContent;
-			}
-			set {
-				WantToModify ();
-				returnContent = value;
-			}
+			get;
+			private set;
 		}
 
 		public override object Clone ()
 		{
-			var handler = new HttpClientHandler ();
-			handler.operation = operation;
+			var handler = new HttpClientHandler (Identifier, Operation, Content, ReturnContent);
+			handler.Flags = Flags;
 			return handler;
 		}
 
@@ -103,7 +96,7 @@ namespace Xamarin.WebTests.Handlers
 			}
 
 			HttpContent.Compare (ctx, body, Content, false);
-			return new HttpResponse (HttpStatusCode.OK, returnContent);
+			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 		}
 
 		public override void ConfigureRequest (Request request, Uri uri)

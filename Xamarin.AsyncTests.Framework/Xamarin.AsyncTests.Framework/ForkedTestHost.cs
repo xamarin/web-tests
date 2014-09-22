@@ -35,8 +35,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public ForkedTestHost (TestHost parent, ForkAttribute attr)
-			: base (parent)
+		public ForkedTestHost (ForkAttribute attr)
 		{
 			Attribute = attr;
 		}
@@ -58,9 +57,9 @@ namespace Xamarin.AsyncTests.Framework
 			return true;
 		}
 
-		internal override TestHost Deserialize (XElement node, TestHost parent)
+		internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
 		{
-			return new ForkedTestHost (parent, Attribute);
+			return CreateInvoker (invoker);
 		}
 
 		#endregion

@@ -41,27 +41,26 @@ namespace Xamarin.WebTests.Handlers
 
 	public class PostHandler : Handler
 	{
+		TransferMode mode;
 		HttpContent content;
 		bool? allowWriteBuffering;
-		TransferMode mode = TransferMode.Default;
 		Func<HttpRequest, HttpResponse> customHandler;
 
+		public PostHandler (string identifier, HttpContent content = null, TransferMode mode = TransferMode.Default)
+			: base (identifier)
+		{
+			Mode = mode;
+			Content = content;
+		}
+
 		public TransferMode Mode {
-			get { return mode; }
-			set {
-				WantToModify ();
-				mode = value;
-			}
+			get;
+			private set;
 		}
 
 		public HttpContent Content {
-			get {
-				return content;
-			}
-			set {
-				WantToModify ();
-				content = value;
-			}
+			get;
+			private set;
 		}
 
 		public bool? AllowWriteStreamBuffering {
@@ -83,10 +82,9 @@ namespace Xamarin.WebTests.Handlers
 
 		public override object Clone ()
 		{
-			var post = new PostHandler ();
-			post.content = content;
+			var post = new PostHandler (Identifier, Content, Mode);
+			post.Flags = Flags;
 			post.allowWriteBuffering = allowWriteBuffering;
-			post.mode = mode;
 			post.customHandler = customHandler;
 			return post;
 		}

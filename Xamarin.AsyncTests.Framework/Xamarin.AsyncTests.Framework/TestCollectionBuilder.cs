@@ -1,5 +1,5 @@
 ﻿//
-// NamedTestBuilder.cs
+// TestCollectionBuilder.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,24 +24,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Xml.Linq;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class NamedTestBuilder : TestBuilder
+	abstract class TestCollectionBuilder : TestBuilder
 	{
-		public NamedTestHost Host {
-			get;
-			private set;
+		public override TestFilter Filter {
+			get { return filter; }
 		}
 
-		public NamedTestBuilder (NamedTestHost host)
+		public TestCollectionBuilder (TestSuite suite, TestName name, TestFilter filter)
+			: base (suite, name)
 		{
-			Host = host;
+			this.filter = filter;
 		}
 
-		internal override TestInvoker CreateInvoker (TestInvoker inner)
+		TestFilter filter;
+		List<TestBuilder> innerBuilders;
+		Dictionary<string,TestBuilder> testByName;
+
+		protected sealed override IEnumerable<TestBuilder> CreateChildren ()
 		{
-			return new NamedTestInvoker (Host, inner);
+			innerBuilders = new List<TestBuilder> ();
+			testByName = new Dictionary<string,TestBuilder> ();
+
+			foreach (var builder in ResolveChildren ()) {
+				testByName.Add (builder.FullName, builder);
+				innerBuilders.Add (builder);
+				yield return builder;
+			}
+		}
+
+		protected abstract IEnumerable<TestBuilder> ResolveChildren ();
+
+		protected sealed override TestBuilderHost CreateHost ()
+		{
+			return new TestCollectionHost (this);
 		}
 	}
 }

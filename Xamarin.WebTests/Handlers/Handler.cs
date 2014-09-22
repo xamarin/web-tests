@@ -66,12 +66,9 @@ namespace Xamarin.WebTests.Handlers
 			return true;
 		}
 
-		string ITestParameter.Identifier {
-			get { return Description; }
-		}
-
-		public string Description {
-			get; set;
+		public string Identifier {
+			get;
+			private set;
 		}
 
 		public Task<bool> Task {
@@ -93,11 +90,17 @@ namespace Xamarin.WebTests.Handlers
 				throw new InvalidOperationException ();
 		}
 
-		public Handler (Handler parent = null)
+		public Handler (Handler parent, string identifier = null)
 		{
+			Identifier = identifier;
 			this.parent = parent;
 
 			tcs = new TaskCompletionSource<bool> ();
+		}
+
+		public Handler (string identifier)
+			: this (null, identifier)
+		{
 		}
 
 		public Handler Parent {
@@ -219,8 +222,8 @@ namespace Xamarin.WebTests.Handlers
 
 		public override string ToString ()
 		{
-			var padding = string.IsNullOrEmpty (Description) ? string.Empty : ": ";
-			return string.Format ("[{0}{1}{2}]", GetType ().Name, padding, Description);
+			var padding = string.IsNullOrEmpty (Identifier) ? string.Empty : ": ";
+			return string.Format ("[{0}{1}{2}]", GetType ().Name, padding, Identifier);
 		}
 	}
 }

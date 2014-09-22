@@ -43,16 +43,24 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal static TestCase CreateRepeatedTest (TestCase test, int count)
 		{
+			#if FIXME
 			var repeatHost = new RepeatedTestHost (null, count, TestFlags.ContinueOnError | TestFlags.Browsable, "$iteration");
 			var invoker = AggregatedTestInvoker.Create (repeatHost, new TestCaseInvoker (test));
 			invoker = NamedTestInvoker.Create (null, test.Name, invoker);
 			return new InvokableTestCase (test.Suite, invoker);
+			#else
+			return test;
+			#endif
 		}
 
 		public static TestCase CreateProxy (TestCase test, TestName proxy)
 		{
+			#if FIXME
 			var invoker = NamedTestInvoker.Create (null, proxy, new TestCaseInvoker (test));
 			return new InvokableTestCase (test.Suite, invoker);
+			#else
+			return test;
+			#endif
 		}
 
 		class TestCaseInvoker : TestInvoker
@@ -72,7 +80,7 @@ namespace Xamarin.AsyncTests.Framework
 			{
 				while (instance != null) {
 					if (!(instance.Host is RepeatedTestHost || instance.Host is NamedTestHost))
-						throw new InvalidOperationException ();
+						throw new InternalErrorException ();
 					instance = instance.Parent;
 				}
 

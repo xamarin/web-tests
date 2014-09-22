@@ -31,8 +31,13 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestFixtureBuilder : ReflectionTestBuilder
+	class ReflectionTestFixtureBuilder : TestCollectionBuilder
 	{
+		new public ReflectionTestSuiteBuilder Suite {
+			get;
+			private set;
+		}
+
 		public TypeInfo Type {
 			get;
 			private set;
@@ -43,21 +48,26 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		List<TestBuilder> innerBuilders;
-		Dictionary<string,ReflectionTestCaseBuilder> testByName;
+		public AsyncTestAttribute Attribute {
+			get;
+			private set;
+		}
 
-		public ReflectionTestFixtureBuilder (TestSuite suite, AsyncTestAttribute attr, TypeInfo type)
-			: base (suite, new TestName (type.Name), attr, ReflectionHelper.GetTypeInfo (type))
+		public override TestBuilder Parent {
+			get { return Suite; }
+		}
+
+		public ReflectionTestFixtureBuilder (ReflectionTestSuiteBuilder suite, AsyncTestAttribute attr, TypeInfo type)
+			: base (suite.Suite, new TestName (type.Name), ReflectionHelper.CreateTestFilter (null, ReflectionHelper.GetTypeInfo (type)))
 		{
+			Suite = suite;
 			Type = type;
+			Attribute = attr;
 			Resolve ();
 		}
 
-		protected override IEnumerable<TestBuilder> CreateChildren ()
+		protected override IEnumerable<TestBuilder> ResolveChildren ()
 		{
-			innerBuilders = new List<TestBuilder> ();
-			testByName = new Dictionary<string,ReflectionTestCaseBuilder> ();
-
 			foreach (var method in Type.DeclaredMethods) {
 				if (method.IsStatic || !method.IsPublic)
 					continue;
@@ -65,55 +75,25 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (attr == null)
 					continue;
 
-				var builder = new ReflectionTestCaseBuilder (this, attr, method);
-				testByName.Add (builder.FullName, builder);
-				innerBuilders.Add (builder);
-				yield return builder;
+				yield return new ReflectionTestCaseBuilder (this, attr, method);
 			}
 		}
 
-		protected override TestHost CreateParameterHost (TestHost parent)
+		protected override IEnumerable<TestHost> CreateParameterHosts ()
 		{
-			TestHost current = new FixtureInstanceTestHost (parent, this);
+			yield return new FixtureInstanceTestHost (this);
 
 			var properties = Type.DeclaredProperties.ToArray ();
 			for (int i = 0; i < properties.Length; i++) {
-				var host = (ParameterizedTestHost)ReflectionHelper.ResolveParameter (current, this, properties [i]);
+				var host = (ParameterizedTestHost)ReflectionHelper.ResolveParameter (this, properties [i]);
 				if (host.Serializer == null) {
-					ReflectionHelper.ResolveParameter (current, this, properties [i]);
+					ReflectionHelper.ResolveParameter (this, properties [i]);
 				}
-				current = new ReflectionPropertyHost (current, this, properties [i], host);
+				yield return new ReflectionPropertyHost (this, properties [i], host);
 			}
 
 			if (Attribute.Repeat != 0)
-				current = CreateRepeatHost (current, Attribute.Repeat);
-
-			return current;
-		}
-
-		protected override TestBuilderHost CreateHost (TestHost parent)
-		{
-			return new ReflectionTestFixtureHost (parent, this);
-		}
-
-		class ReflectionTestFixtureHost : TestBuilderHost
-		{
-			new public ReflectionTestFixtureBuilder Builder {
-				get;
-				private set;
-			}
-
-			public ReflectionTestFixtureHost (TestHost parent, ReflectionTestFixtureBuilder builder)
-				: base (parent, builder)
-			{
-				Builder = builder;
-			}
-
-			public override TestInvoker CreateInnerInvoker ()
-			{
-				var innerInvokers = Builder.Children.Select (b => b.Invoker).ToArray ();
-				return AggregatedTestInvoker.Create (TestFlags.ContinueOnError, innerInvokers);
-			}
+				yield return ReflectionHelper.CreateRepeatHost (Attribute.Repeat);
 		}
 
 		class FixtureInstanceTestHost : HeavyTestHost
@@ -123,8 +103,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				private set;
 			}
 
-			public FixtureInstanceTestHost (TestHost parent, ReflectionTestFixtureBuilder builder)
-				: base (parent, null)
+			public FixtureInstanceTestHost (ReflectionTestFixtureBuilder builder)
+				: base (null)
 			{
 				Flags = TestFlags.ContinueOnError;
 				Builder = builder;
@@ -141,9 +121,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return true;
 			}
 
-			internal override TestHost Deserialize (XElement node, TestHost parent)
+			internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
 			{
-				return new FixtureInstanceTestHost (parent, Builder);
+				return CreateInvoker (invoker);
 			}
 		}
 	}

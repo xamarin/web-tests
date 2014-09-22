@@ -40,14 +40,12 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public NamedTestHost (TestHost parent, string name)
-			: base (parent)
+		public NamedTestHost (string name)
 		{
 			Name = name;
 		}
 
-		public NamedTestHost (TestHost parent, TestName name)
-			: base (parent)
+		public NamedTestHost (TestName name)
 		{
 			TestName = name;
 		}
@@ -67,9 +65,9 @@ namespace Xamarin.AsyncTests.Framework
 			return true;
 		}
 
-		internal override TestHost Deserialize (XElement node, TestHost parent)
+		internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
 		{
-			return new NamedTestHost (parent, Name);
+			return CreateInvoker (invoker);
 		}
 
 		public override string ToString ()

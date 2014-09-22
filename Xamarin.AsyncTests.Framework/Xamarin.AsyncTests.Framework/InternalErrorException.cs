@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	public class InternalErrorException : InvalidOperationException
+	class InternalErrorException : InvalidOperationException
 	{
 	}
 }

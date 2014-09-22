@@ -35,6 +35,7 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		ITestParameterSource<T> source;
 		List<T> parameters;
+		bool hasNext;
 		T current;
 		int index;
 
@@ -58,6 +59,14 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public string CapturedIdentifier {
+			get; set;
+		}
+
+		public object CapturedValue {
+			get; set;
+		}
+
 		public override object Current {
 			get { return current; }
 		}
@@ -79,21 +88,31 @@ namespace Xamarin.AsyncTests.Framework
 			else if (UseFixtureInstance)
 				return (ITestParameterSource<T>)GetFixtureInstance ().Instance;
 			else
-				throw new InvalidOperationException ();
+				throw new InternalErrorException ();
 		}
 
 		public override void Initialize (TestContext ctx)
 		{
 			base.Initialize (ctx);
+
+			if (CapturedValue != null) {
+				current = (T)CapturedValue;
+				var cloneable = current as ICloneable;
+				if (cloneable != null)
+					current = (T)cloneable.Clone ();
+				hasNext = true;
+				return;
+			}
+
 			source = CreateSource (ctx);
 			parameters = new List<T> (source.GetParameters (ctx, Filter));
-			if (SourceHost.IsCaptured) {
+			if (CapturedIdentifier != null) {
 				if (parameters.Count == 0)
-					throw new InvalidOperationException ();
+					throw new InternalErrorException ();
 				else if (parameters.Count > 1)
-					parameters.RemoveAll (p => !((ITestParameter)p).Identifier.Equals (Filter));
+					parameters.RemoveAll (p => !((ITestParameter)p).Identifier.Equals (CapturedIdentifier));
 				if (parameters.Count != 1)
-					throw new InvalidOperationException ();
+					throw new InternalErrorException ();
 			}
 			index = 0;
 		}
@@ -102,13 +121,14 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			source = null;
 			parameters = null;
+			current = default(T);
 			index = -1;
 			base.Destroy (ctx);
 		}
 
 		public override bool HasNext ()
 		{
-			return index < parameters.Count;
+			return parameters != null ? index < parameters.Count : hasNext;
 		}
 
 		public override bool MoveNext (TestContext ctx)
@@ -116,9 +136,16 @@ namespace Xamarin.AsyncTests.Framework
 			if (!HasNext ())
 				return false;
 
-			current = parameters [index];
-			index++;
-			return true;
+			if (parameters != null) {
+				current = parameters [index];
+				index++;
+				return true;
+			} else {
+				if (!hasNext)
+					return false;
+				hasNext = false;
+				return true;
+			}
 		}
 	}
 }

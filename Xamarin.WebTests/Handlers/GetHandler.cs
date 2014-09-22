@@ -40,21 +40,19 @@ namespace Xamarin.WebTests.Handlers
 
 	public class GetHandler : Handler
 	{
-		HttpContent content;
+		public GetHandler (string identifier, HttpContent content)
+			: base (identifier)
+		{
+		}
 
 		public HttpContent Content {
-			get {
-				return content;
-			}
-			set {
-				WantToModify ();
-				content = value;
-			}
+			get;
+			private set;
 		}
 
 		public override object Clone ()
 		{
-			return new GetHandler { Content = Content };
+			return new GetHandler (Identifier, Content);
 		}
 
 		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)

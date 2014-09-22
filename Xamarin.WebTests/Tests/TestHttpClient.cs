@@ -55,29 +55,20 @@ namespace Xamarin.WebTests
 
 		IEnumerable<HttpClientHandler> GetStableTests ()
 		{
-			yield return new HttpClientHandler {
-				Operation = HttpClientOperation.GetString, Description = "Get string"
-			};
-			yield return new HttpClientHandler {
-				Operation = HttpClientOperation.PostString,
-				Content = new StringContent ("Hello World!"),
-				Description = "Post string"
-			};
-			yield return new HttpClientHandler {
-				Operation = HttpClientOperation.PostString,
-				Content = new StringContent ("Hello World!"),
-				ReturnContent = new StringContent ("Returned body"),
-				Description = "Post string with result"
-			};
+			yield return new HttpClientHandler (
+				"Get string", HttpClientOperation.GetString);
+			yield return new HttpClientHandler (
+				"Post string", HttpClientOperation.PostString, HttpContent.HelloWorld);
+			yield return new HttpClientHandler (
+				"Post string with result", HttpClientOperation.PostString,
+				HttpContent.HelloWorld, new StringContent ("Returned body"));
 		}
 
 		IEnumerable<HttpClientHandler> GetMono38Tests ()
 		{
-			yield return new HttpClientHandler {
-				Operation = HttpClientOperation.PostString,
-				Content = new StringContent ("Hello World!"),
-				ReturnContent = new Bug20583Content (),
-				Description = "Bug #20583",
+			yield return new HttpClientHandler (
+				"Bug #20583", HttpClientOperation.PostString,
+				HttpContent.HelloWorld, new Bug20583Content ()) {
 				Filter = (ctx) => ctx.IsEnabled (WebTestFeatures.Mono38)
 			};
 		}

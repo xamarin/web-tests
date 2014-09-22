@@ -51,28 +51,6 @@ namespace Xamarin.AsyncTests.Framework
 			Flags = flags;
 		}
 
-		public static TestInvoker Create (TestFlags flags, params TestInvoker[] invokers)
-		{
-			return Create (flags, null, invokers);
-		}
-
-		public static TestInvoker Create (TestHost host, params TestInvoker[] invokers)
-		{
-			return Create (host.Flags, host, invokers);
-		}
-
-		static TestInvoker Create (TestFlags flags, TestHost host, params TestInvoker[] invokers)
-		{
-			TestInvoker invoker = new CollectionTestInvoker (flags, invokers);
-			if (host != null)
-				invoker = host.CreateInvoker (invoker);
-			#if FIXME
-			if ((flags & (TestFlags.Browsable | TestFlags.FlattenHierarchy)) == TestFlags.Browsable)
-				invoker = new ResultGroupTestInvoker (invoker);
-			#endif
-			return invoker;
-		}
-
 		protected async Task<bool> InvokeInner (
 			TestContext ctx, TestInstance instance, TestInvoker invoker,
 			CancellationToken cancellationToken)

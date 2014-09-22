@@ -45,8 +45,8 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public CustomTestHost (TestHost parent, string name, Type hostType, bool useFixtureInstance)
-			: base (parent, name)
+		public CustomTestHost (string name, Type hostType, bool useFixtureInstance)
+			: base (name)
 		{
 			HostType = hostType;
 			UseFixtureInstance = useFixtureInstance;
@@ -62,9 +62,9 @@ namespace Xamarin.AsyncTests.Framework
 			return true;
 		}
 
-		internal override TestHost Deserialize (XElement node, TestHost parent)
+		internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
 		{
-			return new CustomTestHost<T> (parent, Name, HostType, UseFixtureInstance);
+			return CreateInvoker (invoker);
 		}
 
 		public override string ToString ()

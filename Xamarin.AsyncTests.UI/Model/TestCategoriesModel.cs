@@ -63,6 +63,9 @@ namespace Xamarin.AsyncTests.UI
 			categories = new List<TestCategory> ();
 			categoryNames = new List<string> ();
 
+			categories.Add (TestCategory.All);
+			categoryNames.Add (TestCategory.All.Name);
+
 			foreach (var category in app.Configuration.Categories) {
 				categories.Add (category);
 				categoryNames.Add (category.Name);

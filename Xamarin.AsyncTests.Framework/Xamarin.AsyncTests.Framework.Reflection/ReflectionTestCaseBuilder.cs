@@ -31,7 +31,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestCaseBuilder : ReflectionTestBuilder
+	class ReflectionTestCaseBuilder : TestBuilder
 	{
 		public ReflectionTestFixtureBuilder Fixture {
 			get;
@@ -40,6 +40,15 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		public override TestBuilder Parent {
 			get { return Fixture; }
+		}
+
+		public override TestFilter Filter {
+			get { return filter; }
+		}
+
+		public AsyncTestAttribute Attribute {
+			get;
+			private set;
 		}
 
 		public MethodInfo Method {
@@ -56,15 +65,18 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		string fullName;
+		TestFilter filter;
 		ExpectedExceptionAttribute expectedException;
 		TypeInfo expectedExceptionType;
 
 		public ReflectionTestCaseBuilder (ReflectionTestFixtureBuilder fixture, AsyncTestAttribute attr, MethodInfo method)
-			: base (fixture.Suite, new TestName (method.Name), attr, ReflectionHelper.GetMethodInfo (method))
+			: base (fixture.Suite.Suite, new TestName (method.Name))
 		{
 			Fixture = fixture;
+			Attribute = attr;
 			Method = method;
 			fullName = ReflectionHelper.GetMethodSignatureFullName (method);
+			filter = ReflectionHelper.CreateTestFilter (fixture.Filter, ReflectionHelper.GetMethodInfo (method));
 		}
 
 		protected override void ResolveMembers ()
@@ -81,11 +93,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			yield break;
 		}
 
-		protected override TestHost CreateParameterHost (TestHost parent)
+		protected override IEnumerable<TestHost> CreateParameterHosts ()
 		{
-			TestHost current = parent;
-			TestSerializer.Dump (current);
-
 			bool seenCtx = false;
 			bool seenToken = false;
 
@@ -97,7 +106,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (fork != null) {
 					if (!paramType.Equals (typeof(IFork)))
 						throw new InternalErrorException ();
-					current = new ForkedTestHost (current, fork);
+					yield return new ForkedTestHost (fork);
 					continue;
 				}
 
@@ -115,20 +124,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					throw new InternalErrorException ();
 				}
 
-				current = ReflectionHelper.ResolveParameter (current, Fixture, parameters [i]);
+				yield return ReflectionHelper.ResolveParameter (Fixture, parameters [i]);
 			}
 
 			if (Attribute.Repeat != 0)
-				current = CreateRepeatHost (current, Attribute.Repeat);
-
-			current = new CapturableTestHost (current);
-
-			return current;
+				yield return ReflectionHelper.CreateRepeatHost (Attribute.Repeat);
 		}
 
-		protected override TestBuilderHost CreateHost (TestHost parent)
+		protected override TestBuilderHost CreateHost ()
 		{
-			return new ReflectionTestCaseHost (parent, this);
+			return new ReflectionTestCaseHost (this);
 		}
 
 		class ReflectionTestCaseHost : TestBuilderHost
@@ -138,8 +143,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				private set;
 			}
 
-			public ReflectionTestCaseHost (TestHost parent, ReflectionTestCaseBuilder builder)
-				: base (parent, builder)
+			public ReflectionTestCaseHost (ReflectionTestCaseBuilder builder)
+				: base (builder)
 			{
 				Builder = builder;
 			}
@@ -149,6 +154,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				TestInvoker invoker = new ReflectionTestCaseInvoker (Builder);
 
 				invoker = new PrePostRunTestInvoker (invoker);
+
+				invoker = new ResultGroupTestInvoker (invoker);
 
 				return invoker;
 			}

@@ -50,10 +50,23 @@ namespace Xamarin.AsyncTests
 			get { return Parameters.Where (p => !p.IsHidden); }
 		}
 
+		public static TestName Empty = new TestName (string.Empty);
+
+		public static bool IsNullOrEmpty (TestName name)
+		{
+			return name == null || name.IsEmpty;
+		}
+
+		public bool IsEmpty {
+			get;
+			private set;
+		}
+
 		public TestName (string name, params Parameter[] parameters)
 		{
 			Name = name;
 			Parameters = parameters;
+			IsEmpty = string.IsNullOrEmpty (name) && parameters.Length == 0;
 		}
 
 		string fullName;

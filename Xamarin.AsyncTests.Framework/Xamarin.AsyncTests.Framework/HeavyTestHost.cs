@@ -36,8 +36,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public HeavyTestHost (TestHost parent, string name)
-			: base (parent)
+		public HeavyTestHost (string name)
 		{
 			Name = name;
 		}

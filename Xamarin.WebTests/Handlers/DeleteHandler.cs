@@ -39,21 +39,20 @@ namespace Xamarin.WebTests.Handlers
 
 	public class DeleteHandler : Handler
 	{
-		string body;
+		public DeleteHandler (string identifier, string body = null)
+			: base (identifier)
+		{
+			Body = body;
+		}
 
 		public string Body {
-			get { return body; }
-			set {
-				WantToModify ();
-				body = value;
-			}
+			get;
+			private set;
 		}
 
 		public override object Clone ()
 		{
-			var delete = new DeleteHandler ();
-			delete.body = body;
-			return delete;
+			return new DeleteHandler (Identifier, Body) { Flags = Flags };
 		}
 
 		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
@@ -88,10 +87,10 @@ namespace Xamarin.WebTests.Handlers
 		{
 			base.ConfigureRequest (request, uri);
 			request.Method = "DELETE";
-			request.Content = StringContent.CreateMaybeNull (body);
+			request.Content = StringContent.CreateMaybeNull (Body);
 
 			if (Flags == RequestFlags.ExplicitlySetLength)
-				request.SetContentLength (body != null ? body.Length : 0);
+				request.SetContentLength (Body != null ? Body.Length : 0);
 		}
 	}
 }

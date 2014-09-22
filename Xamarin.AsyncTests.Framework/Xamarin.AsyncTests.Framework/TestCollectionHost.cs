@@ -1,5 +1,5 @@
 ﻿//
-// ConditionalTestInvoker.cs
+// TestBuilderCollectionHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,43 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Xml.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class ConditionalTestInvoker : TestInvoker
+	sealed class TestCollectionHost : TestBuilderHost
 	{
-		public TestFilter Filter {
-			get;
-			private set;
-		}
-
-		public TestInvoker Inner {
-			get;
-			private set;
-		}
-
-		public ConditionalTestInvoker (TestFilter filter, TestInvoker inner)
+		public TestCollectionHost (TestBuilder builder)
+			: base (builder)
 		{
-			Filter = filter;
-			Inner = inner;
 		}
 
-		public override async Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
+		public sealed override TestInvoker CreateInnerInvoker ()
 		{
-			bool enabled;
-			var matched = Filter.Filter (ctx, out enabled);
-			if (!matched)
-				enabled = !Filter.MustMatch;
-
-			if (!enabled) {
-				ctx.OnTestFinished (TestStatus.Ignored);
-				return true;
-			}
-
-			return await Inner.Invoke (ctx, instance, cancellationToken);
+			return new TestCollectionInvoker (this);
 		}
 	}
 }

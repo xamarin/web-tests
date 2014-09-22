@@ -1,5 +1,5 @@
 ﻿//
-// CollectionTestInvoker.cs
+// TestBuilderCollectionInvoker.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -30,37 +30,56 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CollectionTestInvoker : AggregatedTestInvoker
+	class TestCollectionInvoker : AggregatedTestInvoker
 	{
-		public List<TestInvoker> InnerInvokers {
+		public TestCollectionHost Host {
 			get;
 			private set;
 		}
 
-		public CollectionTestInvoker (TestFlags flags, IEnumerable<TestInvoker> invokers)
-			: base (flags)
+		public IList<TestBuilder> Children {
+			get { return Host.Builder.Children; }
+		}
+
+		public TestCollectionInvoker (TestCollectionHost host)
+			: base (host.Flags)
 		{
-			InnerInvokers = new List<TestInvoker> (invokers);
+			Host = host;
+		}
+
+		bool Filter (TestContext ctx, TestFilter filter)
+		{
+			bool enabled;
+			var matched = filter.Filter (ctx, out enabled);
+			if (!matched)
+				enabled = !filter.MustMatch;
+
+			return enabled;
 		}
 
 		public sealed override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			if (InnerInvokers.Count == 0)
+			if (Children.Count == 0)
 				return true;
 			if (cancellationToken.IsCancellationRequested)
 				return false;
 
 			ctx.LogDebug (10, "Invoke({0}): {1} {2} {3}", ctx.Name,
-				Flags, TestLogger.Print (instance), InnerInvokers.Count);
+				Flags, TestLogger.Print (instance), Children.Count);
 
 			bool success = true;
-			foreach (var invoker in InnerInvokers) {
+			foreach (var child in Children) {
 				if (cancellationToken.IsCancellationRequested)
 					break;
 
+				if (child.Filter != null && !Filter (ctx, child.Filter))
+					continue;
+
 				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2} {3}", ctx.Name,
-					TestLogger.Print (instance), invoker, InnerInvokers.Count);
+					TestLogger.Print (instance), child, Children.Count);
+
+				var invoker = child.Invoker;
 
 				success = await InvokeInner (ctx, instance, invoker, cancellationToken);
 
@@ -70,6 +89,9 @@ namespace Xamarin.AsyncTests.Framework
 				if (!success)
 					break;
 			}
+
+			ctx.LogDebug (10, "Invoke({0}) done: {1} {2} {3} - {4}", ctx.Name,
+				Flags, TestLogger.Print (instance), Children.Count, success);
 
 			return success;
 		}

@@ -50,13 +50,13 @@ namespace Xamarin.AsyncTests.Framework
 		[Obsolete]
 		public static NamedTestInvoker Create (TestHost parent, string name, TestInvoker inner)
 		{
-			return new NamedTestInvoker (new NamedTestHost (parent, name), inner);
+			return new NamedTestInvoker (new NamedTestHost (name), inner);
 		}
 
 		[Obsolete]
 		public static NamedTestInvoker Create (TestHost parent, TestName name, TestInvoker inner)
 		{
-			return new NamedTestInvoker (new NamedTestHost (parent, name), inner);
+			return new NamedTestInvoker (new NamedTestHost (name), inner);
 		}
 
 		NamedTestInstance SetUp (TestContext ctx, TestInstance instance)

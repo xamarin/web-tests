@@ -305,7 +305,7 @@ namespace Xamarin.AsyncTests.Server
 
 			var header = BitConverter.GetBytes (bytes.Length);
 			if (bytes.Length == 0)
-				throw new InvalidOperationException ();
+				throw new ServerErrorException ();
 
 			await stream.WriteAsync (header, 0, 4).ConfigureAwait (false);
 			await stream.FlushAsync ();
@@ -316,7 +316,7 @@ namespace Xamarin.AsyncTests.Server
 
 			var old2 = Interlocked.CompareExchange (ref currentMessage, null, queued);
 			if (old2 != queued)
-				throw new InvalidOperationException ();
+				throw new ServerErrorException ();
 
 			queued.Task.SetResult (true);
 		}

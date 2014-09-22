@@ -56,9 +56,9 @@ namespace Xamarin.WebTests.Tests
 
 		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
-			yield return new PostHandler {
-				Mode = TransferMode.Chunked, Content = CreateRandomContent (ctx),
-				AllowWriteStreamBuffering = false, Description = "Large chunked post"
+			yield return new PostHandler (
+				"Large chunked post", CreateRandomContent (ctx), TransferMode.Chunked) {
+				AllowWriteStreamBuffering = false
 			};
 		}
 
