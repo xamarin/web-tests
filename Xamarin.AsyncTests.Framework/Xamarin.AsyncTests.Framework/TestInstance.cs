@@ -59,7 +59,6 @@ namespace Xamarin.AsyncTests.Framework
 				instance = instance.Parent;
 			}
 
-			TestSerializer.Dump (this);
 			throw new InternalErrorException ();
 		}
 

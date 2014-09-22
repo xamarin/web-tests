@@ -54,7 +54,6 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
 		{
-			TestSerializer.Debug ("CAPTURED RUN: {0}", Node);
 			if (invoker == null)
 				throw new InternalErrorException ();
 			return invoker.Invoke (ctx, null, cancellationToken);

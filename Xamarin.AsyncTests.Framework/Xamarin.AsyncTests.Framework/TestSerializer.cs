@@ -38,20 +38,11 @@ namespace Xamarin.AsyncTests.Framework
 		static readonly XName BuilderName = "TestBuilder";
 		static readonly XName ParameterName = "TestParameter";
 
-		static int next_id;
-
 		public static XElement Serialize (TestInstance instance)
 		{
 			var name = TestInstance.GetTestName (instance);
 
-			Debug ("SERIALIZE: {0} - {1} {2}", name, instance, instance.Host);
-			Dump (instance);
-			Debug (Environment.NewLine);
-
-			var id = ++next_id;
-
 			var root = new XElement (InstanceName);
-			root.Add (new XAttribute ("ID", id));
 			root.Add (new XAttribute ("Name", name.FullName));
 
 			while (instance != null) {
@@ -59,7 +50,6 @@ namespace Xamarin.AsyncTests.Framework
 				root.AddFirst (element);
 			}
 
-			Debug ("SERIALIZE DONE: {0}", root);
 			return root;
 		}
 
@@ -96,11 +86,8 @@ namespace Xamarin.AsyncTests.Framework
 				element.Add (new XAttribute ("Type", parameterInstance.GetType ().Name));
 				element.Add (new XAttribute ("Host", parameterInstance.Host.GetType ().Name));
 
-				if (!parameterInstance.Host.Serialize (element, parameterInstance)) {
-					Debug ("SERIALIZE INSTANCE FAILED: {0}", parameterInstance.Host);
-					parameterInstance.Host.Serialize (element, parameterInstance);
+				if (!parameterInstance.Host.Serialize (element, parameterInstance))
 					throw new InternalErrorException ();
-				}
 
 				node.Add (element);
 
@@ -117,9 +104,6 @@ namespace Xamarin.AsyncTests.Framework
 				throw new InternalErrorException ();
 
 			var name = root.Attribute ("Name").Value;
-			var id = int.Parse (root.Attribute ("ID").Value);
-
-			Debug ("DESERIALIZE: {0} {1}\n{2}\n", name, id, root);
 
 			var elements = new LinkedList<XElement> (root.Elements (BuilderName));
 			var builders = new LinkedList<TestBuilder> ();
@@ -137,8 +121,6 @@ namespace Xamarin.AsyncTests.Framework
 				builder = builder.FindChild (builderName);
 				if (builder == null)
 					throw new InternalErrorException ();
-
-				Debug ("DESERIALIZE #1: {0} {1}", builder, node);
 
 				builders.AddLast (builder);
 			}
@@ -185,10 +167,8 @@ namespace Xamarin.AsyncTests.Framework
 					var paramType = param.Attribute ("Type").Value;
 					var paramHost = param.Attribute ("Host").Value;
 
-					if (!host.GetType ().Name.Equals (paramHost)) {
-						Debug ("DESERIALIZE #4a - {0} {1}", paramHost, host);
+					if (!host.GetType ().Name.Equals (paramHost))
 						throw new InternalErrorException ();
-					}
 				}
 
 				parameters.AddLast (new KeyValuePair<TestHost,XElement> (host, param));
@@ -212,27 +192,6 @@ namespace Xamarin.AsyncTests.Framework
 
 			return true;
 		}
-
-		internal static void Dump (TestInstance instance)
-		{
-			Debug (Environment.NewLine);
-			Debug ("DUMPING INSTANCE");
-			while (instance != null) {
-				Debug ("INSTANCE: {0} {1}", instance, instance.Host);
-				instance = instance.Parent;
-			}
-		}
-
-		internal static void Dump (TestHost host)
-		{
-			Debug ("HOST: {0}", host);
-		}
-
-		internal static void Debug (string message, params object[] args)
-		{
-			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
-		}
-
 	}
 }
 

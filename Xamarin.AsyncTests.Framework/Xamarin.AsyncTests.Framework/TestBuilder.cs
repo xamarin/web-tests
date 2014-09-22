@@ -177,38 +177,14 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			var name = TestInstance.GetTestName (instance);
 
-			TestSerializer.Debug ("CAPTURE CONTEXT: {0}", name);
-			TestSerializer.Dump (instance);
-
-			TestSerializer.Debug (Environment.NewLine);
-
-			XElement node;
-			try {
-				node = TestSerializer.Serialize (instance);
-				if (node == null) {
-					TestSerializer.Debug ("CAPTURE FAILED");
-					throw new InternalErrorException ();
-				}
-			} catch (Exception ex) {
-				TestSerializer.Debug ("CAPTURE ERROR: {0}", ex);
-				throw;
-			}
-
-			TestSerializer.Debug ("CAPTURE DONE: {0}", node);
+			var node = TestSerializer.Serialize (instance);
+			if (node == null)
+				throw new InternalErrorException ();
 
 			var test = new CapturedTestCase (ctx.Suite, name, node);
+			if (!test.Resolve ())
+				throw new InternalErrorException ();
 
-			try {
-				if (!test.Resolve ()) {
-					TestSerializer.Debug ("DESERIALIZE FAILED");
-					throw new InternalErrorException ();
-				}
-			} catch (Exception ex) {
-				TestSerializer.Debug ("DESERIALIZE ERROR: {0}", ex);
-				throw;
-			}
-
-			TestSerializer.Debug ("DESERIALIZE DONE: {0}", name);
 			return test;
 		}
 	}

@@ -40,20 +40,7 @@ namespace Xamarin.AsyncTests.Framework
 		public FixtureTestInstance (HeavyTestHost host, object instance, TestInstance parent)
 			: base (host, parent)
 		{
-			SanityCheck (parent);
 			Instance = instance;
-		}
-
-		static void SanityCheck (TestInstance parent)
-		{
-			var current = parent;
-			while (current != null) {
-				if (current is FixtureTestInstance) {
-					TestSerializer.Dump (parent);
-					throw new InternalErrorException ();
-				}
-				current = current.Parent;
-			}
 		}
 
 		public override object Current {
