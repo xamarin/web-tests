@@ -13,7 +13,7 @@ using System.Reflection;
 
 namespace Xamarin.WebTests.Android
 {
-	[Instrumentation]
+	[Instrumentation (Name = "xamarin.webtests.android.WebTestInstrumentation")]
 	public class WebTestInstrumentation : TestSuiteInstrumentation
 	{
 
