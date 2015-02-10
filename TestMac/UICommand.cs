@@ -1,10 +1,10 @@
 ﻿//
-// TestFeaturesModel.cs
+// UICommand.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,48 +24,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using Xamarin.AsyncTests.Framework;
+using AppKit;
+using Xamarin.AsyncTests.UI;
 
-namespace Xamarin.AsyncTests.UI
+namespace TestMac
 {
-	using Binding;
-
-	public class TestFeaturesModel : BindableObject
+	public class UICommand
 	{
-		public UITestApp App {
+		public Command Command {
 			get;
 			private set;
 		}
 
-		ObservableCollection<TestFeatureModel> features;
-		ObservableCollection<TestFeatureModel> systemFeatures;
-
-		public ObservableCollection<TestFeatureModel> Features {
-			get { return features; }
+		public NSButton Button {
+			get;
+			private set;
 		}
 
-		public ObservableCollection<TestFeatureModel> SystemFeatures {
-			get { return systemFeatures; }
-		}
-
-		public TestFeaturesModel (UITestApp app)
+		public UICommand (Command command, NSButton button)
 		{
-			App = app;
-			features = new ObservableCollection<TestFeatureModel> ();
-			systemFeatures = new ObservableCollection<TestFeatureModel> ();
+			Command = command;
+			Button = button;
 
-			features.Clear ();
-			systemFeatures.Clear ();
-			foreach (var feature in App.Configuration.Features) {
-				if (feature.CanModify)
-					features.Add (new TestFeatureModel (App, feature));
-				else
-					systemFeatures.Add (new TestFeatureModel (App, feature));
-			}
+			Button.Enabled = command.CanExecute;
+			command.CanExecuteChanged += (sender, e) => Button.Enabled = command.CanExecute;
+			Button.Activated += (sender, e) => command.Execute ();
 		}
 	}
 }

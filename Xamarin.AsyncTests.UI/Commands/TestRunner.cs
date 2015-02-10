@@ -33,6 +33,8 @@ using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.AsyncTests.UI
 {
+	using Binding;
+
 	public class TestRunner : CommandProvider<TestResult>
 	{
 		readonly RunSingleCommand runCommand;

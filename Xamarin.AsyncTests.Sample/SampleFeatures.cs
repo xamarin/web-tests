@@ -1,10 +1,10 @@
 ﻿//
-// TestFeaturesModel.cs
+// SampleFeatures.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,47 +24,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
-using System.ComponentModel;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using Xamarin.AsyncTests.Framework;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests.Sample
 {
-	using Binding;
-
-	public class TestFeaturesModel : BindableObject
+	public class SampleFeatures : ITestConfigurationProvider
 	{
-		public UITestApp App {
-			get;
-			private set;
-		}
+		public static readonly SampleFeatures Instance;
 
-		ObservableCollection<TestFeatureModel> features;
-		ObservableCollection<TestFeatureModel> systemFeatures;
-
-		public ObservableCollection<TestFeatureModel> Features {
-			get { return features; }
-		}
-
-		public ObservableCollection<TestFeatureModel> SystemFeatures {
-			get { return systemFeatures; }
-		}
-
-		public TestFeaturesModel (UITestApp app)
+		static SampleFeatures ()
 		{
-			App = app;
-			features = new ObservableCollection<TestFeatureModel> ();
-			systemFeatures = new ObservableCollection<TestFeatureModel> ();
+			Instance = new SampleFeatures ();
+		}
 
-			features.Clear ();
-			systemFeatures.Clear ();
-			foreach (var feature in App.Configuration.Features) {
-				if (feature.CanModify)
-					features.Add (new TestFeatureModel (App, feature));
-				else
-					systemFeatures.Add (new TestFeatureModel (App, feature));
+		public IEnumerable<TestFeature> Features {
+			get {
+				yield break;
+			}
+		}
+
+		public IEnumerable<TestCategory> Categories {
+			get {
+				yield break;
 			}
 		}
 	}

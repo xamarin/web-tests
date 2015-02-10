@@ -1,5 +1,5 @@
 ﻿//
-// BindableObject.cs
+// MyPage.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,31 +24,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
-namespace Xamarin.AsyncTests.UI
+using Xamarin.Forms;
+
+namespace TestMac
 {
-	public abstract class BindableObject : INotifyPropertyChanged
+	public class MyPage : ContentPage
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		protected virtual void OnPropertyChanged ([CallerMemberName] string propertyName = null)
+		public MyPage ()
 		{
-			var handler = PropertyChanged;
-			if (handler != null)
-				handler (this, new PropertyChangedEventArgs (propertyName));
-		}
-
-		public object GetValue (BindableProperty property)
-		{
-			throw new NotImplementedException ();
-		}
-
-		public void SetValue (BindableProperty property, object value)
-		{
-			throw new NotImplementedException ();
+			Content = new StackLayout { 
+				Children = {
+					new Label { Text = "Hello ContentPage" }
+				}
+			};
 		}
 	}
 }
+
 

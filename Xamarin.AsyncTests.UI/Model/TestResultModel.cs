@@ -34,6 +34,7 @@ using System.Collections.Specialized;
 namespace Xamarin.AsyncTests.UI
 {
 	using Framework;
+	using Binding;
 
 	public class TestResultModel : BindableObject
 	{

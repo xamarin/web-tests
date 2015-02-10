@@ -34,6 +34,7 @@ using Xamarin.AsyncTests.Framework;
 namespace Xamarin.AsyncTests.UI
 {
 	using Framework;
+	using Binding;
 	using Server;
 
 	public class ServerManager : CommandProvider<TestServer>
@@ -98,8 +99,13 @@ namespace Xamarin.AsyncTests.UI
 			Features = new TestFeaturesModel (App);
 			Categories = new TestCategoriesModel (App);
 
-			connectCommand.CanExecute = app.PortableSupport.ServerHost != null;
-			startCommand.CanExecute = app.PortableSupport.ServerHost != null;
+			if (app.PortableSupport != null) {
+				connectCommand.CanExecute = app.PortableSupport.ServerHost != null;
+				startCommand.CanExecute = app.PortableSupport.ServerHost != null;
+			} else {
+				connectCommand.CanExecute = false;
+				startCommand.CanExecute = false;
+			}
 
 			serverAddress = string.Empty;
 			Settings.PropertyChanged += (sender, e) => LoadSettings ();

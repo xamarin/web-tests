@@ -30,6 +30,8 @@ using System.Windows.Input;
 
 namespace Xamarin.AsyncTests.UI
 {
+	using Binding;
+
 	public abstract class Command : BindableObject, ICommand
 	{
 		public CommandProvider Provider {

@@ -1,5 +1,5 @@
 ﻿//
-// BindableProperty.cs
+// MacUI.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,32 +24,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
+using Xamarin.AsyncTests.UI;
+using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Sample;
 
-namespace Xamarin.AsyncTests.UI
+namespace TestMac
 {
-	public abstract class BindableProperty
+	public class MacUI : UITestApp
 	{
-		public delegate bool ValidateValueDelegate (BindableObject bindable, object value);
-
-		public delegate void BindingPropertyChangedDelegate (BindableObject bindable, object oldValue, object newValue);
-
-		public delegate object CoerceValueDelegate (BindableObject bindable, object value);
-
-		public delegate void BindingPropertyChangingDelegate (BindableObject bindable, object oldValue, object newValue);
-
-		public BindableProperty ()
-		{
+		public MainWindowController Controller {
+			get;
+			private set;
 		}
 
-		public static BindableProperty Create (
-			string propertyName, Type returnType, Type declaringType, object defaultValue,
-			BindingMode defaultBindingMode = BindingMode.OneWay,
-			ValidateValueDelegate validateValue = null, BindingPropertyChangedDelegate propertyChanged = null,
-			BindingPropertyChangingDelegate propertyChanging = null, CoerceValueDelegate coerceValue = null)
+		MacUI (MainWindowController controller, IPortableSupport support, ITestConfigurationProvider configProvider,
+			SettingsBag settings, Assembly assembly)
+			: base (support, configProvider, settings, assembly)
 		{
-			throw new NotImplementedException ();
+			Controller = controller;
 		}
 
+		public static MacUI Create (MainWindowController controller)
+		{
+			// var support = PortableSupportImpl.Initialize ();
+			// var provider = WebTestFeatures.Instance;
+			var settings = SettingsBag.CreateDefault ();
+			var assembly = typeof(SampleFeatures).Assembly;
+			return new MacUI (controller, null, SampleFeatures.Instance, settings, assembly);
+		}
+
+		public void Run ()
+		{
+			var task = TestRunner.Run.Execute ();
+			Console.WriteLine ("RUN: {0}", task);
+		}
 	}
 }
 

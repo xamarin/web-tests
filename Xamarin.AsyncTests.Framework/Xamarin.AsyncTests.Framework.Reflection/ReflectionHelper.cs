@@ -355,6 +355,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			} else if (type.Equals (typeof(int))) {
 				serializer = new IntegerSerializer ();
 				return true;
+			} else if (type.Equals (typeof(string))) {
+				serializer = new StringSerializer ();
+				return true;
 			} else if (type.IsEnum) {
 				var serializerType = typeof(EnumSerializer<>).MakeGenericType (type.AsType ());
 				serializer = (IParameterSerializer)Activator.CreateInstance (serializerType);
@@ -400,6 +403,19 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			public object Deserialize (XElement node)
 			{
 				return int.Parse (node.Attribute ("Value").Value);
+			}
+		}
+
+		class StringSerializer : IParameterSerializer
+		{
+			public bool Serialize (XElement node, object value)
+			{
+				node.Add (new XAttribute ("Value", (string)value));
+				return true;
+			}
+			public object Deserialize (XElement node)
+			{
+				return node.Attribute ("Value").Value;
 			}
 		}
 

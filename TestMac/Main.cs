@@ -1,5 +1,5 @@
 ﻿//
-// BindingMode.cs
+// Main.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,14 +25,16 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.UI
+using AppKit;
+
+namespace TestMac
 {
-	public enum BindingMode
+	static class MainClass
 	{
-		Default,
-		TwoWay,
-		OneWay,
-		OneWayToSource
+		static void Main (string[] args)
+		{
+			NSApplication.Init ();
+			NSApplication.Main (args);
+		}
 	}
 }
-

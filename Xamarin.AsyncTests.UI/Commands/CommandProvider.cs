@@ -32,6 +32,8 @@ using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.AsyncTests.UI
 {
+	using Binding;
+
 	public abstract class CommandProvider : BindableObject
 	{
 		public UITestApp App {
@@ -47,7 +49,7 @@ namespace Xamarin.AsyncTests.UI
 			CanStart = true;
 		}
 
-		public ICommand Stop {
+		public Command Stop {
 			get { return stopCommand; }
 		}
 

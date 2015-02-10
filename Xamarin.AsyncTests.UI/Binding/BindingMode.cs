@@ -1,10 +1,10 @@
 ﻿//
-// TestFeaturesModel.cs
+// BindingMode.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,49 +24,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using Xamarin.AsyncTests.Framework;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests.UI.Binding
 {
-	using Binding;
-
-	public class TestFeaturesModel : BindableObject
+	public enum BindingMode
 	{
-		public UITestApp App {
-			get;
-			private set;
-		}
-
-		ObservableCollection<TestFeatureModel> features;
-		ObservableCollection<TestFeatureModel> systemFeatures;
-
-		public ObservableCollection<TestFeatureModel> Features {
-			get { return features; }
-		}
-
-		public ObservableCollection<TestFeatureModel> SystemFeatures {
-			get { return systemFeatures; }
-		}
-
-		public TestFeaturesModel (UITestApp app)
-		{
-			App = app;
-			features = new ObservableCollection<TestFeatureModel> ();
-			systemFeatures = new ObservableCollection<TestFeatureModel> ();
-
-			features.Clear ();
-			systemFeatures.Clear ();
-			foreach (var feature in App.Configuration.Features) {
-				if (feature.CanModify)
-					features.Add (new TestFeatureModel (App, feature));
-				else
-					systemFeatures.Add (new TestFeatureModel (App, feature));
-			}
-		}
+		Default,
+		TwoWay,
+		OneWay,
+		OneWayToSource
 	}
 }
 

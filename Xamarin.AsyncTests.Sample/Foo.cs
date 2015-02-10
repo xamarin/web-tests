@@ -34,6 +34,10 @@ namespace Xamarin.AsyncTests.Sample
 			private set;
 		}
 
+		string ITestParameter.Identifier {
+			get { return Name; }
+		}
+
 		public Foo (string name)
 		{
 			Name = name;

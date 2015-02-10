@@ -31,6 +31,8 @@ using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.AsyncTests.UI
 {
+	using Binding;
+
 	public class TestCategoriesModel : BindableObject
 	{
 		public UITestApp App {

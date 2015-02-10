@@ -29,6 +29,8 @@ using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.AsyncTests.UI
 {
+	using Binding;
+
 	public class TestFeatureModel : BindableObject
 	{
 		public UITestApp App {

@@ -38,14 +38,14 @@
     <Compile Include="Model\TestFeatureModel.cs" />
     <Compile Include="Model\TestFeaturesModel.cs" />
     <Compile Include="Model\TestResultModel.cs" />
-    <Compile Include="Model\BindableObject.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\CommandProvider.cs" />
     <Compile Include="Commands\ServerManager.cs" />
     <Compile Include="Commands\TestRunner.cs" />
-    <Compile Include="Model\BindableProperty.cs" />
-    <Compile Include="Model\BindingMode.cs" />
     <Compile Include="UITestApp.cs" />
+    <Compile Include="Binding\BindableObject.cs" />
+    <Compile Include="Binding\BindableProperty.cs" />
+    <Compile Include="Binding\BindingMode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>
@@ -61,5 +61,8 @@
       <Project>{584654DF-6888-4B18-AB82-3C773CD45436}</Project>
       <Name>Xamarin.AsyncTests.Server</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Binding\" />
   </ItemGroup>
 </Project>

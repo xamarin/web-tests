@@ -28,6 +28,8 @@ using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.AsyncTests.UI
 {
+	using Binding;
+
 	public class OptionsModel : BindableObject
 	{
 		public UITestApp App {
