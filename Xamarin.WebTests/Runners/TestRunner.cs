@@ -78,7 +78,16 @@ namespace Xamarin.WebTests.Runners
 				}
 				#endif
 			} catch {
-				;
+				try {
+					foreach (var nic in NetworkInterface.GetAllNetworkInterfaces ()) {
+						foreach (var addressInfo in nic.GetIPProperties ().UnicastAddresses) {
+							IPAddress address = addressInfo.Address;
+							if (address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback (address))
+								return address;
+						}
+					}
+				} catch {
+				}
 			}
 
 			return IPAddress.Loopback;
