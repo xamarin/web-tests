@@ -175,9 +175,9 @@
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Xamarin.AsyncTests.UI\Xamarin.AsyncTests.UI.csproj">
+    <ProjectReference Include="..\Xamarin.AsyncTests.UI.Forms\Xamarin.AsyncTests.UI.Forms.csproj">
       <Project>{4A28C314-01ED-43DD-A08E-8EB842E25294}</Project>
-      <Name>Xamarin.AsyncTests.UI</Name>
+      <Name>Xamarin.AsyncTests.UI.Forms</Name>
     </ProjectReference>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>

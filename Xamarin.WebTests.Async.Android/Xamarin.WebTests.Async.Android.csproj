@@ -82,9 +82,9 @@
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
       <Name>Xamarin.AsyncTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.AsyncTests.UI\Xamarin.AsyncTests.UI.csproj">
+    <ProjectReference Include="..\Xamarin.AsyncTests.UI.Forms\Xamarin.AsyncTests.UI.Forms.csproj">
       <Project>{4A28C314-01ED-43DD-A08E-8EB842E25294}</Project>
-      <Name>Xamarin.AsyncTests.UI</Name>
+      <Name>Xamarin.AsyncTests.UI.Forms</Name>
     </ProjectReference>
     <ProjectReference Include="..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>

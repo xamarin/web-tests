@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using MonoTouch.Foundation;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.UI;
+using Xamarin.AsyncTests.UI.Forms;
 
 namespace Xamarin.WebTests.Async.iOS
 {

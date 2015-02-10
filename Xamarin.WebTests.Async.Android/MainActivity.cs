@@ -12,7 +12,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.UI;
+using Xamarin.AsyncTests.UI.Forms;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.WebTests.Portable;
 

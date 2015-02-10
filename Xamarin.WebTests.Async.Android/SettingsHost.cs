@@ -28,7 +28,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.UI;
+using Xamarin.AsyncTests.UI.Forms;
 
 using Android;
 using Android.Content;

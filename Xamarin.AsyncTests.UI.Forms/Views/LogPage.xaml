@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage Title="Log"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Xamarin.AsyncTests.UI.Forms;assembly=Xamarin.AsyncTests.UI.Forms"
+    x:Class="Xamarin.AsyncTests.UI.Forms.LogPage">
+
+    <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+        <Label x:Name="Editor" Font="terminal" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" />
+    </ScrollView>
+
+</ContentPage>
