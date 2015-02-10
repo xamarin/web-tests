@@ -34,19 +34,26 @@ namespace Xamarin.AsyncTests.UI
 {
 	using Binding;
 
-	public abstract class CommandProvider : BindableObject
+	public abstract class CommandProvider
 	{
 		public UITestApp App {
 			get;
 			private set;
 		}
 
-		public CommandProvider (UITestApp app)
+		public CommandProvider (UITestApp app, CommandProvider parent)
 		{
 			App = app;
 
+			IsEnabled = new BooleanProperty ("IsEnabled", true);
+			CanStart = new BooleanProperty ("CanStart", true);
+			CanStop = new BooleanProperty ("CanStop", false);
+
+			notifyCanExecute = new NotifyStateChanged (IsEnabled, CanStart);
+			if (parent != null)
+				notifyCanExecute.Register (parent.NotifyHasInstance);
+
 			stopCommand = new StopCommand (this);
-			CanStart = true;
 		}
 
 		public Command Stop {
@@ -54,89 +61,45 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		readonly StopCommand stopCommand;
+		readonly NotifyStateChanged notifyCanExecute;
 
-		public static readonly BindableProperty CanStartProperty =
-			BindableProperty.Create ("CanStart", typeof(bool), typeof(CommandProvider), false,
-				propertyChanged: (bo, o, n) => ((CommandProvider)bo).OnCanStartChanged ((bool)n));
-
-		public bool CanStart {
-			get { return (bool)GetValue (CanStartProperty); }
-			set { SetValue (CanStartProperty, value); }
+		public BooleanProperty IsEnabled {
+			get;
+			private set;
 		}
 
-		protected void OnCanStartChanged (bool canStart)
-		{
-			if (CanStartChanged != null)
-				CanStartChanged (this, canStart);
+		public BooleanProperty CanStart {
+			get;
+			private set;
 		}
 
-		public event EventHandler<bool> CanStartChanged;
-
-		public static readonly BindableProperty CanStopProperty =
-			BindableProperty.Create ("CanStop", typeof(bool), typeof(CommandProvider), false,
-				propertyChanged: (bo, o, n) => ((CommandProvider)bo).OnCanStopChanged ((bool)n));
-
-		public bool CanStop {
-			get { return (bool)GetValue (CanStopProperty); }
-			set { SetValue (CanStopProperty, value); }
+		public BooleanProperty CanStop {
+			get;
+			private set;
 		}
 
-		protected void OnCanStopChanged (bool canStop)
-		{
-			if (CanStopChanged != null)
-				CanStopChanged (this, canStop);
+		public INotifyStateChanged NotifyCanExecute {
+			get { return notifyCanExecute; }
 		}
 
-		public event EventHandler<bool> CanStopChanged;
-
-		public static readonly BindableProperty HasInstanceProperty =
-			BindableProperty.Create ("HasInstance", typeof(bool), typeof(CommandProvider), false,
-				propertyChanged: (bo, o, n) => ((CommandProvider)bo).OnHasInstanceChanged ((bool)n));
-
-		public bool HasInstance {
-			get { return (bool)GetValue (HasInstanceProperty); }
-			set { SetValue (HasInstanceProperty, value); }
+		public abstract INotifyStateChanged NotifyHasInstance {
+			get;
 		}
 
-		protected void OnHasInstanceChanged (bool hasInstance)
-		{
-			if (HasInstanceChanged != null)
-				HasInstanceChanged (this, hasInstance);
-		}
-
-		public event EventHandler<bool> HasInstanceChanged;
-
-		public static readonly BindableProperty StatusMessageProperty =
-			BindableProperty.Create ("StatusMessage", typeof(string), typeof(CommandProvider), string.Empty,
-				propertyChanged: (bo, o, n) => ((CommandProvider)bo).OnStatusMessageChanged ((string)n));
-
-		public string StatusMessage {
-			get { return (string)GetValue(StatusMessageProperty); }
-			set { SetValue (StatusMessageProperty, value); }
-		}
-
-		protected virtual void OnStatusMessageChanged (string message)
-		{
-		}
+		public readonly Property<string> StatusMessage = new InstanceProperty<string> ("StatusMessage", string.Empty);
 
 		internal void SetStatusMessage (string message, params object[] args)
 		{
-			StatusMessage = string.Format (message, args);
+			StatusMessage.Value = string.Format (message, args);
 		}
 
 		internal abstract Task ExecuteStop ();
 
 		class StopCommand : Command
 		{
-			public StopCommand (CommandProvider command)
-				: base (command)
+			public StopCommand (CommandProvider provider)
+				: base (provider, provider.CanStop)
 			{
-				command.CanStopChanged += (sender, e) => OnCanExecuteChanged ();
-			}
-
-			public override bool IsEnabled ()
-			{
-				return Provider.CanStop;
 			}
 
 			public override Task Execute ()
@@ -149,23 +112,20 @@ namespace Xamarin.AsyncTests.UI
 	public abstract class CommandProvider<T> : CommandProvider
 		where T : class
 	{
-		public CommandProvider (UITestApp app)
-			: base (app)
+		public CommandProvider (UITestApp app, CommandProvider parent)
+			: base (app, parent)
 		{
+			instanceProperty = new InstanceProperty<T> ("Instance", null);
 		}
 
-		public readonly BindableProperty InstanceProperty = BindableProperty.Create (
-			"Instance", typeof (T), typeof (CommandProvider<T>), null,
-			propertyChanged: (bo, o, n) => ((CommandProvider<T>)bo).OnInstanceChanged ((T)n));
+		readonly InstanceProperty<T> instanceProperty;
 
-		public T Instance {
-			get { return (T)GetValue (InstanceProperty); }
-			set { SetValue (InstanceProperty, value); }
+		public Property<T> Instance {
+			get { return instanceProperty; }
 		}
 
-		protected virtual void OnInstanceChanged (T instance)
-		{
-			HasInstance = instance != null;
+		public override INotifyStateChanged NotifyHasInstance {
+			get { return instanceProperty; }
 		}
 
 		volatile Command<T> currentCommand;
@@ -177,8 +137,8 @@ namespace Xamarin.AsyncTests.UI
 			lock (this) {
 				if (startTcs != null || !CanStart || !command.CanExecute)
 					return Task.FromResult<object> (null);
-				CanStart = false;
-				CanStop = true;
+				CanStart.Value = false;
+				CanStop.Value = true;
 				currentCommand = command;
 				startTcs = new TaskCompletionSource<T> ();
 				cts = new CancellationTokenSource ();
@@ -186,9 +146,11 @@ namespace Xamarin.AsyncTests.UI
 
 			Task.Factory.StartNew (async () => {
 				var token = cts.Token;
+				T instance = null;
 				try {
-					Instance = await command.Start (token);
-					startTcs.SetResult (Instance);
+					instance = await command.Start (token);
+					Instance.Value = instance;
+					startTcs.SetResult (instance);
 				} catch (OperationCanceledException) {
 					startTcs.SetCanceled ();
 				} catch (Exception ex) {
@@ -198,7 +160,7 @@ namespace Xamarin.AsyncTests.UI
 
 				try {
 					token.ThrowIfCancellationRequested ();
-					bool running = await command.Run (Instance, token);
+					bool running = await command.Run (instance, token);
 					if (running)
 						return;
 				} catch (OperationCanceledException) {
@@ -219,9 +181,9 @@ namespace Xamarin.AsyncTests.UI
 			lock (this) {
 				if (startTcs == null)
 					return;
-				CanStop = false;
-				instance = Instance;
-				Instance = null;
+				CanStop.Value = false;
+				instance = Instance.Value;
+				Instance.Value = null;
 			}
 
 			try {
@@ -248,7 +210,7 @@ namespace Xamarin.AsyncTests.UI
 			lock (this) {
 				startTcs = null;
 				currentCommand = null;
-				CanStart = true;
+				CanStart.Value = true;
 			}
 		}
 	}

@@ -63,40 +63,22 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		public TestRunner (UITestApp app)
-			: base (app)
+			: base (app, app.ServerManager)
 		{
 			runCommand = new RunSingleCommand (this);
 			repeatCommand = new RepeatCommand (this);
 			clearCommand = new ClearCommand (this);
 			refreshCommand = new RefreshCommand (this);
-			currentResult = app.RootTestResult;
-
-			app.RootTestResult.PropertyChanged += (sender, e) => OnPropertyChanged ("CurrentTestResult");
+			CurrentTestResultProperty.Value = app.RootTestResult;
 		}
 
-		protected override void OnStatusMessageChanged (string message)
-		{
-			base.OnStatusMessageChanged (message);
-		}
-
-		TestResultModel currentResult;
 		public TestResultModel CurrentTestResult {
-			get { return currentResult; }
-			set {
-				lock (this) {
-					currentResult = value;
-					OnPropertyChanged ("CurrentTestResult");
-				}
-			}
+			get { return CurrentTestResultProperty; }
 		}
 
-		public static readonly BindableProperty CurrentTestProperty =
-			BindableProperty.Create ("CurrentTest", typeof(string), typeof(TestRunner), string.Empty);
+		public readonly Property<TestResultModel> CurrentTestResultProperty = new InstanceProperty<TestResultModel> ("CurrentTestResult", null);
 
-		public string CurrentTest {
-			get { return (string)GetValue (CurrentTestProperty); }
-			set { SetValue (CurrentTestProperty, value); }
-		}
+		public readonly Property<string> CurrentTestProperty = new InstanceProperty<string> ("CurrentTest", null);
 
 		static int countReruns;
 		DateTime startTime;
@@ -105,7 +87,7 @@ namespace Xamarin.AsyncTests.UI
 		{
 			await Task.Yield ();
 
-			var model = currentResult;
+			var model = CurrentTestResult;
 
 			App.Logger.ResetStatistics ();
 
@@ -136,8 +118,8 @@ namespace Xamarin.AsyncTests.UI
 
 			var elapsed = DateTime.Now - startTime;
 
-			CurrentTest = string.Empty;
-			StatusMessage = GetStatusMessage (string.Format ("Finished in {0} seconds", (int)elapsed.TotalSeconds));
+			CurrentTestProperty.Value = string.Empty;
+			StatusMessage.Value = GetStatusMessage (string.Format ("Finished in {0} seconds", (int)elapsed.TotalSeconds));
 
 			App.Logger.LogMessage ("DONE: |{0}|{1}|", session.Name, StatusMessage);
 
@@ -151,12 +133,12 @@ namespace Xamarin.AsyncTests.UI
 
 		void OnClear ()
 		{
-			var result = currentResult;
+			var result = CurrentTestResult;
 			if (result != null)
 				result.Result.Clear ();
 			message = null;
 			App.Logger.ResetStatistics ();
-			StatusMessage = GetStatusMessage ();
+			StatusMessage.Value = GetStatusMessage ();
 			OnRefresh ();
 		}
 
@@ -177,12 +159,12 @@ namespace Xamarin.AsyncTests.UI
 
 		internal void OnStatisticsEvent (TestLoggerBackend.StatisticsEventArgs args)
 		{
-			StatusMessage = GetStatusMessage ();
+			StatusMessage.Value = GetStatusMessage ();
 
 			switch (args.Type) {
 			case TestLoggerBackend.StatisticsEventType.Running:
 				++countTests;
-				CurrentTest = string.Format ("Running {0}", args.Name);
+				CurrentTestProperty.Value = string.Format ("Running {0}", args.Name);
 				break;
 			case TestLoggerBackend.StatisticsEventType.Finished:
 				switch (args.Status) {
@@ -198,7 +180,7 @@ namespace Xamarin.AsyncTests.UI
 					break;
 				}
 
-				CurrentTest = string.Format ("Finished {0}: {1}", args.Name, args.Status);
+				CurrentTestProperty.Value = string.Format ("Finished {0}: {1}", args.Name, args.Status);
 				break;
 			default:
 				break;
@@ -207,7 +189,7 @@ namespace Xamarin.AsyncTests.UI
 
 		string GetStatusMessage (string prefix = null)
 		{
-			if (!App.ServerManager.HasTestSuite)
+			if (!App.ServerManager.TestSuiteProperty.HasValue)
 				return prefix ?? "No test loaded.";
 			var sb = new StringBuilder ();
 			if (prefix != null) {
@@ -231,21 +213,9 @@ namespace Xamarin.AsyncTests.UI
 			public readonly TestRunner Runner;
 
 			public RunCommand (TestRunner runner)
-				: base (runner, runner.App.ServerManager)
+				: base (runner, runner.NotifyCanExecute)
 			{
 				Runner = runner;
-
-				Runner.PropertyChanged += (sender, e) => {
-					switch (e.PropertyName) {
-					case "CurrentTestResult":
-						var result = runner.CurrentTestResult;
-						if (result == null || result.Result.Test == null)
-							CanExecute = false;
-						else
-							CanExecute = true;
-						break;
-					}
-				};
 			}
 
 			internal sealed override Task<bool> Run (TestResult result, CancellationToken cancellationToken)

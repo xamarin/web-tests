@@ -60,22 +60,7 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public static readonly BindableProperty TestSuiteProperty =
-			BindableProperty.Create ("TestSuite", typeof(TestSuite), typeof(ServerManager), null,
-				propertyChanged: (bo, o, n) => ((ServerManager)bo).OnTestSuiteChanged ((TestSuite)n));
-
-		public TestSuite TestSuite {
-			get { return (TestSuite)GetValue(TestSuiteProperty); }
-			set { SetValue (TestSuiteProperty, value); }
-		}
-
-		public static readonly BindableProperty HasTestSuiteProperty =
-			BindableProperty.Create ("HasTestSuite", typeof(bool), typeof(ServerManager), false);
-
-		public bool HasTestSuite {
-			get { return (bool)GetValue (HasTestSuiteProperty); }
-			set { SetValue (HasTestSuiteProperty, value); }
-		}
+		public readonly InstanceProperty<TestSuite> TestSuiteProperty = new InstanceProperty<TestSuite> ("TestSuite", null);
 
 		public TestFeaturesModel Features {
 			get;
@@ -88,7 +73,7 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		public ServerManager (UITestApp app)
-			: base (app)
+			: base (app, null)
 		{
 			Settings = app.Settings;
 
@@ -99,17 +84,18 @@ namespace Xamarin.AsyncTests.UI
 			Features = new TestFeaturesModel (App);
 			Categories = new TestCategoriesModel (App);
 
-			if (app.PortableSupport != null) {
-				connectCommand.CanExecute = app.PortableSupport.ServerHost != null;
-				startCommand.CanExecute = app.PortableSupport.ServerHost != null;
-			} else {
-				connectCommand.CanExecute = false;
-				startCommand.CanExecute = false;
-			}
-
 			serverAddress = string.Empty;
 			Settings.PropertyChanged += (sender, e) => LoadSettings ();
 			LoadSettings ();
+
+			TestSuiteProperty.PropertyChanged += (sender, e) => {
+				if (e == null) {
+					App.RootTestResult.Result.Clear ();
+					App.TestRunner.CurrentTestResultProperty.Value = App.RootTestResult;
+				} else {
+					App.RootTestResult.Result.Test = e.Test;
+				}
+			};
 		}
 
 		internal async Task Initialize ()
@@ -138,7 +124,6 @@ namespace Xamarin.AsyncTests.UI
 			set {
 				serverAddress = value;
 				Settings.SetValue ("ServerAddress", value);
-				OnPropertyChanged ("ServerAddress");
 			}
 		}
 
@@ -150,10 +135,6 @@ namespace Xamarin.AsyncTests.UI
 
 			if (Settings.TryGetValue ("StartupAction", out value))
 				Enum.TryParse<StartupActionKind> (value, out startupAction);
-
-			OnPropertyChanged ("UseServer");
-			OnPropertyChanged ("ServerAddress");
-			OnPropertyChanged ("AutoStart");
 		}
 
 		#endregion
@@ -169,7 +150,6 @@ namespace Xamarin.AsyncTests.UI
 					return;
 				startupAction = value;
 				Settings.SetValue ("StartupAction", value.ToString ());
-				OnPropertyChanged ("StartupAction");
 			}
 		}
 
@@ -182,28 +162,16 @@ namespace Xamarin.AsyncTests.UI
 
 		#endregion
 
-		protected void OnTestSuiteChanged (TestSuite suite)
-		{
-			if (suite == null) {
-				App.RootTestResult.Result.Clear ();
-				App.TestRunner.CurrentTestResult = App.RootTestResult;
-			} else {
-				App.RootTestResult.Result.Test = suite.Test;
-			}
-
-			HasTestSuite = suite != null;
-		}
-
 		protected async Task<bool> OnRun (TestServer instance, CancellationToken cancellationToken)
 		{
 			var suite = await instance.LoadTestSuite (cancellationToken);
-			TestSuite = suite;
+			TestSuiteProperty.Value = suite;
 			return await instance.Run (cancellationToken);
 		}
 
 		protected async Task OnStop (TestServer instance, CancellationToken cancellationToken)
 		{
-			TestSuite = null;
+			TestSuiteProperty.Value = null;
 			SetStatusMessage ("Server stopped.");
 			await instance.Stop (cancellationToken);
 		}
@@ -213,7 +181,7 @@ namespace Xamarin.AsyncTests.UI
 			public readonly ServerManager Manager;
 
 			public ServerCommand (ServerManager manager)
-				: base (manager)
+				: base (manager, manager.NotifyCanExecute)
 			{
 				Manager = manager;
 			}

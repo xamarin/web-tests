@@ -44,8 +44,11 @@
     <Compile Include="Commands\TestRunner.cs" />
     <Compile Include="UITestApp.cs" />
     <Compile Include="Binding\BindableObject.cs" />
-    <Compile Include="Binding\BindableProperty.cs" />
-    <Compile Include="Binding\BindingMode.cs" />
+    <Compile Include="Binding\Property.cs" />
+    <Compile Include="Binding\BooleanProperty.cs" />
+    <Compile Include="Binding\InstanceProperty.cs" />
+    <Compile Include="Commands\INotifyStateChanged.cs" />
+    <Compile Include="Commands\NotifyStateChanged.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

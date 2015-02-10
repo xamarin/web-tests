@@ -1,5 +1,5 @@
 ﻿//
-// BindableObject.cs
+// InstanceProperty.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,24 +24,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
-namespace Xamarin.AsyncTests.UI.Binding
+namespace Xamarin.AsyncTests.UI
 {
-	[Obsolete]
-	public abstract class BindableObject : INotifyPropertyChanged
+	public class InstanceProperty<T> : Property<T>, INotifyStateChanged
+		where T : class
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		protected virtual void OnPropertyChanged ([CallerMemberName] string propertyName = null)
+		public InstanceProperty (string name, T defaultValue)
+			: base (name, defaultValue)
 		{
-			var handler = PropertyChanged;
-			if (handler != null)
-				handler (this, new PropertyChangedEventArgs (propertyName));
 		}
 
+		public bool HasValue {
+			get { return Value != null; }
+		}
+
+		protected override void OnPropertyChanged (T value)
+		{
+			base.OnPropertyChanged (value);
+			if (StateChanged != null)
+				StateChanged (this, value != null);
+		}
+
+		public event EventHandler<bool> StateChanged;
+
+		bool INotifyStateChanged.State {
+			get { return HasValue; }
+		}
 	}
 }
 

@@ -3,37 +3,12 @@
 using Foundation;
 using AppKit;
 
+using Xamarin.AsyncTests.UI;
+
 namespace TestMac
 {
 	public partial class MainWindowController : NSWindowController
 	{
-		MacUI ui;
-
-		public UICommand LoadLocalCommand {
-			get;
-			private set;
-		}
-
-		public UICommand RunCommand {
-			get;
-			private set;
-		}
-
-		public UICommand RepeatCommand {
-			get;
-			private set;
-		}
-
-		public UICommand StopCommand {
-			get;
-			private set;
-		}
-
-		public UICommand ClearCommand {
-			get;
-			private set;
-		}
-
 		public MainWindowController (IntPtr handle) : base (handle)
 		{
 		}
@@ -56,23 +31,15 @@ namespace TestMac
 
 		void Initialize ()
 		{
-			ui = MacUI.Create (this);
+			var app = (AppDelegate)NSApplication.SharedApplication.Delegate;
 
-			LoadLocalCommand = new UICommand (ui.ServerManager.Local, Load);
-			RunCommand = new UICommand (ui.TestRunner.Run, Run);
-			RepeatCommand = new UICommand (ui.TestRunner.Repeat, Repeat);
-			StopCommand = new UICommand (ui.TestRunner.Stop, Stop);
-			ClearCommand = new UICommand (ui.ServerManager.Stop, Clear);
+			UIBinding.Bind (app.MacUI.TestRunner.Run, Run);
+			UIBinding.Bind (app.MacUI.TestRunner.Repeat, Repeat);
+			UIBinding.Bind (app.MacUI.TestRunner.Stop, Stop);
+			UIBinding.Bind (app.MacUI.TestRunner.Clear, Clear);
 
-			ui.ServerManager.PropertyChanged += (sender, e) => {
-				Console.WriteLine ("PROPERTY CHANGED: {0} {1}", e.PropertyName, ui.ServerManager.StatusMessage);
-				InvokeOnMainThread (() => ServerStatusMessage.StringValue = ui.ServerManager.StatusMessage);
-			};
-
-			ui.TestRunner.PropertyChanged += (sender, e) => {
-				Console.WriteLine ("PROPERTY CHANGED #1: {0} {1}", e.PropertyName, ui.TestRunner.StatusMessage);
-				InvokeOnMainThread (() => TestRunnerStatusMessage.StringValue = ui.TestRunner.StatusMessage);
-			};
+			UIBinding.Bind (app.MacUI.ServerManager.StatusMessage, ServerStatusMessage);
+			UIBinding.Bind (app.MacUI.TestRunner.StatusMessage, ServerStatusMessage);
 		}
 
 		public new MainWindow Window {

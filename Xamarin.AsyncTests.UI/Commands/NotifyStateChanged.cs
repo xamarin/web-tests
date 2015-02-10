@@ -1,5 +1,5 @@
 ﻿//
-// BindableObject.cs
+// NotifyCanExecute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,24 +24,59 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.ComponentModel;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
-namespace Xamarin.AsyncTests.UI.Binding
+namespace Xamarin.AsyncTests.UI
 {
-	[Obsolete]
-	public abstract class BindableObject : INotifyPropertyChanged
+	class NotifyStateChanged : INotifyStateChanged
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
+		List<INotifyStateChanged> listeners;
+		bool currentState;
 
-		protected virtual void OnPropertyChanged ([CallerMemberName] string propertyName = null)
+		public NotifyStateChanged (params INotifyStateChanged[] parentListeners)
 		{
-			var handler = PropertyChanged;
-			if (handler != null)
-				handler (this, new PropertyChangedEventArgs (propertyName));
+			listeners = new List<INotifyStateChanged> (parentListeners);
+
+			foreach (var listener in listeners)
+				listener.StateChanged += (sender, e) => Update ();
+			Update ();
 		}
 
+		public void Register (INotifyStateChanged listener)
+		{
+			listeners.Add (listener);
+			listener.StateChanged += (sender, e) => Update ();
+			Update ();
+		}
+
+		void OnStateChanged ()
+		{
+			if (StateChanged != null)
+				StateChanged (null, currentState);
+		}
+
+		internal void Update ()
+		{
+			var newState = true;
+			foreach (var listener in listeners) {
+				if (!listener.State) {
+					newState = false;
+					break;
+				}
+			}
+
+			if (newState == currentState)
+				return;
+
+			currentState = newState;
+			OnStateChanged ();
+		}
+
+		public event EventHandler<bool> StateChanged;
+
+		public bool State {
+			get { return currentState; }
+		}
 	}
 }
 

@@ -98,7 +98,8 @@ namespace Xamarin.AsyncTests.UI
 		readonly SettingsBag settings;
 		readonly TestConfiguration config;
 
-		public UITestApp (IPortableSupport support, ITestConfigurationProvider configProvider,
+		public UITestApp (
+			IPortableSupport support, ITestConfigurationProvider configProvider,
 			SettingsBag settings, Assembly assembly)
 			: base (support, configProvider)
 		{
@@ -117,7 +118,7 @@ namespace Xamarin.AsyncTests.UI
 			ServerManager = new ServerManager (this);
 
 			TestRunner = new TestRunner (this);
-			TestRunner.CurrentTestResult = RootTestResult;
+			TestRunner.CurrentTestResultProperty.Value = RootTestResult;
 
 			Options = new OptionsModel (this);
 

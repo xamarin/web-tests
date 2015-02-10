@@ -1,4 +1,4 @@
-﻿// WARNING
+// WARNING
 //
 // This file has been generated automatically by Xamarin Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
@@ -16,9 +16,6 @@ namespace TestMac
 		AppKit.NSButton Clear { get; set; }
 
 		[Outlet]
-		AppKit.NSButton Load { get; set; }
-
-		[Outlet]
 		AppKit.NSButton Repeat { get; set; }
 
 		[Outlet]
@@ -31,18 +28,18 @@ namespace TestMac
 		AppKit.NSButton Stop { get; set; }
 
 		[Outlet]
-		AppKit.NSTextField TestRunnerStatusMessage { get; set; }
+		AppKit.NSOutlineView TestResultView { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (TestResultView != null) {
+				TestResultView.Dispose ();
+				TestResultView = null;
+			}
+
 			if (Clear != null) {
 				Clear.Dispose ();
 				Clear = null;
-			}
-
-			if (Load != null) {
-				Load.Dispose ();
-				Load = null;
 			}
 
 			if (Repeat != null) {
@@ -63,11 +60,6 @@ namespace TestMac
 			if (Stop != null) {
 				Stop.Dispose ();
 				Stop = null;
-			}
-
-			if (TestRunnerStatusMessage != null) {
-				TestRunnerStatusMessage.Dispose ();
-				TestRunnerStatusMessage = null;
 			}
 		}
 	}

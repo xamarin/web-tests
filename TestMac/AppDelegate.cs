@@ -33,6 +33,11 @@ namespace TestMac
 	public partial class AppDelegate : NSApplicationDelegate
 	{
 		MainWindowController mainWindowController;
+		MacUI ui;
+
+		public MacUI MacUI {
+			get { return ui; }
+		}
 
 		public AppDelegate ()
 		{
@@ -40,8 +45,17 @@ namespace TestMac
 
 		public override void DidFinishLaunching (NSNotification notification)
 		{
+			ui = MacUI.Create (this);
+
 			mainWindowController = new MainWindowController ();
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
+
+			UIBinding.Bind (ui.ServerManager.Local, LoadLocal);
+			UIBinding.Bind (ui.ServerManager.Start, StartServer);
+			UIBinding.Bind (ui.ServerManager.Connect, ConnectToServer);
+			UIBinding.Bind (ui.ServerManager.Stop, Unload);
+
+			ui.ServerManager.Local.Execute ();
 		}
 	}
 }

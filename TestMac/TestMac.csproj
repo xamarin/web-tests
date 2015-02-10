@@ -85,7 +85,7 @@
       <DependentUpon>AppDelegate.cs</DependentUpon>
     </Compile>
     <Compile Include="MacUI.cs" />
-    <Compile Include="UICommand.cs" />
+    <Compile Include="UIBinding.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />

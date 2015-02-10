@@ -1,5 +1,5 @@
 ﻿//
-// UICommand.cs
+// INotifyCanExecuteChanged.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,32 +24,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using AppKit;
-using Xamarin.AsyncTests.UI;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.UI
 {
-	public class UICommand
+	public interface INotifyStateChanged
 	{
-		public Command Command {
+		bool State {
 			get;
-			private set;
 		}
 
-		public NSButton Button {
-			get;
-			private set;
-		}
-
-		public UICommand (Command command, NSButton button)
-		{
-			Command = command;
-			Button = button;
-
-			Button.Enabled = command.CanExecute;
-			command.CanExecuteChanged += (sender, e) => Button.Enabled = command.CanExecute;
-			Button.Activated += (sender, e) => command.Execute ();
-		}
+		event EventHandler<bool> StateChanged;
 	}
 }
 

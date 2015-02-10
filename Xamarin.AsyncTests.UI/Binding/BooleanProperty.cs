@@ -1,5 +1,5 @@
 ﻿//
-// BindableObject.cs
+// BooleanProperty.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,24 +24,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
-namespace Xamarin.AsyncTests.UI.Binding
+namespace Xamarin.AsyncTests.UI
 {
-	[Obsolete]
-	public abstract class BindableObject : INotifyPropertyChanged
+	public class BooleanProperty : Property<bool>, INotifyStateChanged
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		protected virtual void OnPropertyChanged ([CallerMemberName] string propertyName = null)
+		public BooleanProperty (string name, bool defaultValue)
+			: base (name, defaultValue)
 		{
-			var handler = PropertyChanged;
-			if (handler != null)
-				handler (this, new PropertyChangedEventArgs (propertyName));
 		}
 
+		protected override void OnPropertyChanged (bool value)
+		{
+			base.OnPropertyChanged (value);
+			if (StateChanged != null)
+				StateChanged (this, value);
+		}
+
+		public event EventHandler<bool> StateChanged;
+
+		public bool State {
+			get { return Value; }
+		}
 	}
 }
 

@@ -1,5 +1,5 @@
 ﻿//
-// BindableObject.cs
+// UIBinding.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,24 +24,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using AppKit;
+using Xamarin.AsyncTests.UI;
 
-namespace Xamarin.AsyncTests.UI.Binding
+namespace TestMac
 {
-	[Obsolete]
-	public abstract class BindableObject : INotifyPropertyChanged
+	public static class UIBinding
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		protected virtual void OnPropertyChanged ([CallerMemberName] string propertyName = null)
+		public static void Bind (Command command, NSButton button)
 		{
-			var handler = PropertyChanged;
-			if (handler != null)
-				handler (this, new PropertyChangedEventArgs (propertyName));
+			button.Activated += (sender, e) => command.Execute ();
+			command.NotifyStateChanged.StateChanged += (sender, e) => {
+				button.InvokeOnMainThread (() => button.Enabled = e);
+			};
+			button.Enabled = command.NotifyStateChanged.State;
 		}
 
+		public static void Bind (Command command, NSMenuItem item)
+		{
+			item.Activated += (sender, e) => command.Execute ();
+			command.NotifyStateChanged.StateChanged += (sender, e) => {
+				item.InvokeOnMainThread (() => item.Enabled = e);
+			};
+			item.Enabled = command.NotifyStateChanged.State;
+		}
+
+		public static void Bind (Property<string> property, NSTextField label)
+		{
+			property.PropertyChanged += (sender, e) => {
+				label.InvokeOnMainThread (() => label.StringValue = e);
+			};
+			label.StringValue = property.Value;
+		}
 	}
 }
 

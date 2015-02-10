@@ -32,57 +32,29 @@ namespace Xamarin.AsyncTests.UI
 {
 	using Binding;
 
-	public abstract class Command : BindableObject, ICommand
+	public abstract class Command
 	{
 		public CommandProvider Provider {
 			get;
 			private set;
 		}
 
-		protected Command (CommandProvider provider)
+		public INotifyStateChanged NotifyStateChanged {
+			get;
+			private set;
+		}
+
+		protected Command (CommandProvider provider, INotifyStateChanged notify)
 		{
 			Provider = provider;
-			CanExecute = true;
+			NotifyStateChanged = notify;
 		}
-
-		public static readonly BindableProperty CanExecuteProperty =
-			BindableProperty.Create ("CanExecute", typeof(bool), typeof(Command), false,
-				propertyChanged: (bo, o, n) => ((Command)bo).OnCanExecuteChanged ());
-
-		public bool CanExecute {
-			get { return (bool)GetValue (CanExecuteProperty); }
-			set { SetValue (CanExecuteProperty, value); }
-		}
-
-		protected void OnCanExecuteChanged ()
-		{
-			if (CanExecuteChanged != null)
-				CanExecuteChanged (this, EventArgs.Empty);
-		}
-
-		public abstract bool IsEnabled ();
 
 		public abstract Task Execute ();
 
-		#region ICommand implementation
-
-		public event EventHandler CanExecuteChanged;
-
-		bool ICommand.CanExecute (object parameter)
-		{
-			return CanExecute && IsEnabled ();
+		public bool CanExecute {
+			get { return NotifyStateChanged.State; }
 		}
-
-		async void ICommand.Execute (object parameter)
-		{
-			try {
-				await Execute ();
-			} catch {
-				;
-			}
-		}
-
-		#endregion
 	}
 
 	public abstract class Command<T> : Command
@@ -90,29 +62,10 @@ namespace Xamarin.AsyncTests.UI
 	{
 		new readonly CommandProvider<T> Provider;
 
-		public CommandProvider Parent {
-			get;
-			private set;
-		}
-
-		protected Command (CommandProvider<T> provider, CommandProvider parent = null)
-			: base (provider)
+		protected Command (CommandProvider<T> provider, INotifyStateChanged notify)
+			: base (provider, notify)
 		{
 			Provider = provider;
-			Parent = parent;
-
-			Provider.CanStartChanged += (sender, e) => OnCanExecuteChanged ();
-			if (Parent != null)
-				Parent.HasInstanceChanged += (sender, e) => OnCanExecuteChanged ();
-		}
-
-		public override bool IsEnabled ()
-		{
-			if (!Provider.CanStart)
-				return false;
-			if (Parent != null && !Parent.HasInstance)
-				return false;
-			return true;
 		}
 
 		internal abstract Task<T> Start (CancellationToken cancellationToken);

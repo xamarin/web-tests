@@ -1,5 +1,5 @@
 ﻿//
-// BindingMode.cs
+// Property.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,15 +24,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.ComponentModel;
 
-namespace Xamarin.AsyncTests.UI.Binding
+namespace Xamarin.AsyncTests.UI
 {
-	public enum BindingMode
+	public abstract class Property<T>
 	{
-		Default,
-		TwoWay,
-		OneWay,
-		OneWayToSource
+		public Property (string name, T defaultValue)
+		{
+			Name = name;
+			currentValue = defaultValue;
+		}
+
+		public string Name {
+			get;
+			private set;
+		}
+
+		T currentValue;
+		public T Value {
+			get { return currentValue; }
+			set {
+				currentValue = value;
+				OnPropertyChanged (currentValue);
+			}
+		}
+
+		protected virtual void OnPropertyChanged (T value)
+		{
+			if (PropertyChanged != null)
+				PropertyChanged (this, value);
+		}
+
+		public event EventHandler<T> PropertyChanged;
+
+		public static implicit operator T (Property<T> property)
+		{
+			return property.Value;
+		}
 	}
 }
 

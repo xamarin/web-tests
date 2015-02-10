@@ -35,25 +35,25 @@ namespace TestMac
 {
 	public class MacUI : UITestApp
 	{
-		public MainWindowController Controller {
+		public AppDelegate AppDelegate {
 			get;
 			private set;
 		}
 
-		MacUI (MainWindowController controller, IPortableSupport support, ITestConfigurationProvider configProvider,
+		MacUI (AppDelegate appDelegate, IPortableSupport support, ITestConfigurationProvider configProvider,
 			SettingsBag settings, Assembly assembly)
 			: base (support, configProvider, settings, assembly)
 		{
-			Controller = controller;
+			AppDelegate = appDelegate;
 		}
 
-		public static MacUI Create (MainWindowController controller)
+		public static MacUI Create (AppDelegate appDelegate)
 		{
 			// var support = PortableSupportImpl.Initialize ();
 			// var provider = WebTestFeatures.Instance;
 			var settings = SettingsBag.CreateDefault ();
 			var assembly = typeof(SampleFeatures).Assembly;
-			return new MacUI (controller, null, SampleFeatures.Instance, settings, assembly);
+			return new MacUI (appDelegate, null, SampleFeatures.Instance, settings, assembly);
 		}
 
 		public void Run ()
