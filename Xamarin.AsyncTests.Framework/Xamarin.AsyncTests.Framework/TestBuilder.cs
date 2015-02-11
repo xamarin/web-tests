@@ -30,7 +30,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestBuilder
+	abstract class TestBuilder : ITestBuilder
 	{
 		public TestSuite Suite {
 			get;
@@ -44,6 +44,10 @@ namespace Xamarin.AsyncTests.Framework
 
 		public virtual TestBuilder Parent {
 			get { return null; }
+		}
+
+		ITestBuilder ITestBuilder.Parent {
+			get { return Parent; }
 		}
 
 		public virtual string FullName {
@@ -91,6 +95,15 @@ namespace Xamarin.AsyncTests.Framework
 					throw new InternalErrorException ();
 				return children;
 			}
+		}
+
+		int ITestBuilder.CountChildren {
+			get { return Children.Count; }
+		}
+
+		ITestBuilder ITestBuilder.GetChild (int index)
+		{
+			return Children [index];
 		}
 
 		internal LinkedList<TestHost> ParameterHosts {
@@ -181,7 +194,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (node == null)
 				throw new InternalErrorException ();
 
-			var test = new CapturedTestCase (ctx.Suite, name, node);
+			var test = new CapturedTestCase (ctx.Suite, name, node, null);
 			if (!test.Resolve ())
 				throw new InternalErrorException ();
 

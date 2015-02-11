@@ -69,16 +69,12 @@ namespace Xamarin.AsyncTests.UI
 			repeatCommand = new RepeatCommand (this);
 			clearCommand = new ClearCommand (this);
 			refreshCommand = new RefreshCommand (this);
-			CurrentTestResultProperty.Value = app.RootTestResult;
+			TestResult.Value = app.RootTestResult;
 		}
 
-		public TestResultModel CurrentTestResult {
-			get { return CurrentTestResultProperty; }
-		}
+		public readonly InstanceProperty<TestResult> TestResult = new InstanceProperty<TestResult> ("CurrentTestResult", null);
 
-		public readonly Property<TestResultModel> CurrentTestResultProperty = new InstanceProperty<TestResultModel> ("CurrentTestResult", null);
-
-		public readonly Property<string> CurrentTestProperty = new InstanceProperty<string> ("CurrentTest", null);
+		public readonly Property<string> CurrentTestName = new InstanceProperty<string> ("CurrentTest", null);
 
 		static int countReruns;
 		DateTime startTime;
@@ -87,16 +83,15 @@ namespace Xamarin.AsyncTests.UI
 		{
 			await Task.Yield ();
 
-			var model = CurrentTestResult;
+			var result = TestResult.Value;
 
 			App.Logger.ResetStatistics ();
 
-			SetStatusMessage ("Running {0}.", model.Result.Test.Name);
+			SetStatusMessage ("Running {0}.", result.Test.Name);
 
-			var test = model.Result.Test;
-			var result = model.Result;
+			var test = result.Test;
 
-			if (!model.IsRoot) {
+			if (false) {
 				var name = new TestNameBuilder ();
 				name.PushName ("UI-Rerun");
 				name.PushParameter ("$uiTriggeredRerun", ++countReruns);
@@ -104,7 +99,7 @@ namespace Xamarin.AsyncTests.UI
 				test = TestFramework.CreateProxy (test, name.GetName ());
 				result = new TestResult (name.GetName ());
 			} else {
-				model.Result.Clear ();
+				result.Clear ();
 			}
 
 			var session = new TestSession (App, test, result);
@@ -118,13 +113,13 @@ namespace Xamarin.AsyncTests.UI
 
 			var elapsed = DateTime.Now - startTime;
 
-			CurrentTestProperty.Value = string.Empty;
+			CurrentTestName.Value = string.Empty;
 			StatusMessage.Value = GetStatusMessage (string.Format ("Finished in {0} seconds", (int)elapsed.TotalSeconds));
 
 			App.Logger.LogMessage ("DONE: |{0}|{1}|", session.Name, StatusMessage);
 
-			if (!model.IsRoot)
-				model.Result.AddChild (result);
+			if (false)
+				result.AddChild (result);
 
 			OnRefresh ();
 
@@ -133,9 +128,9 @@ namespace Xamarin.AsyncTests.UI
 
 		void OnClear ()
 		{
-			var result = CurrentTestResult;
+			var result = TestResult.Value;
 			if (result != null)
-				result.Result.Clear ();
+				result.Clear ();
 			message = null;
 			App.Logger.ResetStatistics ();
 			StatusMessage.Value = GetStatusMessage ();
@@ -164,7 +159,7 @@ namespace Xamarin.AsyncTests.UI
 			switch (args.Type) {
 			case TestLoggerBackend.StatisticsEventType.Running:
 				++countTests;
-				CurrentTestProperty.Value = string.Format ("Running {0}", args.Name);
+				CurrentTestName.Value = string.Format ("Running {0}", args.Name);
 				break;
 			case TestLoggerBackend.StatisticsEventType.Finished:
 				switch (args.Status) {
@@ -180,7 +175,7 @@ namespace Xamarin.AsyncTests.UI
 					break;
 				}
 
-				CurrentTestProperty.Value = string.Format ("Finished {0}: {1}", args.Name, args.Status);
+				CurrentTestName.Value = string.Format ("Finished {0}: {1}", args.Name, args.Status);
 				break;
 			default:
 				break;
@@ -189,7 +184,7 @@ namespace Xamarin.AsyncTests.UI
 
 		string GetStatusMessage (string prefix = null)
 		{
-			if (!App.ServerManager.TestSuiteProperty.HasValue)
+			if (!App.ServerManager.TestSuite.HasValue)
 				return prefix ?? "No test loaded.";
 			var sb = new StringBuilder ();
 			if (prefix != null) {

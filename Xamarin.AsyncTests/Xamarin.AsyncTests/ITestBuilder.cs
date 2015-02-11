@@ -1,10 +1,10 @@
 ﻿//
-// ITestResultModel.cs
+// ITestBuilder.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,66 +24,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests
 {
-	using Framework;
-	using Binding;
-
-	public class TestResultModel : BindableObject
+	public interface ITestBuilder
 	{
-		public UITestApp App {
+		TestSuite Suite {
 			get;
-			private set;
 		}
 
-		public TestResult Result {
+		TestName Name {
 			get;
-			private set;
 		}
 
-		public bool IsRoot {
+		string FullName {
 			get;
-			private set;
 		}
 
-		public TestResultModel (UITestApp app, TestResult result, bool isRoot)
-		{
-			App = app;
-			Result = result;
-			IsRoot = isRoot;
-
-			result.PropertyChanged += (sender, e) => {
-				OnPropertyChanged ("StatusColor");
-			};
+		ITestBuilder Parent {
+			get;
 		}
 
-		public IEnumerable<TestResultModel> GetChildren ()
-		{
-			foreach (var child in Result.Children) {
-				if (Filter (child))
-					yield return new TestResultModel (App, child, false);
-			}
+		int CountChildren {
+			get;
 		}
 
-		bool Filter (TestResult result)
-		{
-			#if FIXME
-			if (App.Options.HideIgnoredTests) {
-				if (result.Status == TestStatus.Ignored || result.Status == TestStatus.None)
-					return false;
-			}
-			if (App.Options.HideSuccessfulTests && result.Status == TestStatus.Success)
-				return false;
-			#endif
-			return true;
-		}
+		ITestBuilder GetChild (int index);
 	}
 }
 

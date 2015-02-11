@@ -40,6 +40,9 @@ namespace TestMac
 
 			UIBinding.Bind (app.MacUI.ServerManager.StatusMessage, ServerStatusMessage);
 			UIBinding.Bind (app.MacUI.TestRunner.StatusMessage, ServerStatusMessage);
+
+			TestResultView.DataSource = new TestBuilderDataSource (TestResultView, app.MacUI);
+			// TestResultView.Delegate = new TestSuiteViewDelegate ();
 		}
 
 		public new MainWindow Window {

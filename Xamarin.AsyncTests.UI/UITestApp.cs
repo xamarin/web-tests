@@ -48,7 +48,7 @@ namespace Xamarin.AsyncTests.UI
 			get { return this; }
 		}
 
-		public TestResultModel RootTestResult {
+		public TestResult RootTestResult {
 			get;
 			private set;
 		}
@@ -112,13 +112,12 @@ namespace Xamarin.AsyncTests.UI
 
 			SessionManager = new SessionManager (this);
 
-			var result = new TestResult (new TestName (null));
-			RootTestResult = new TestResultModel (this, result, true);
+			RootTestResult = new TestResult (new TestName (null));
 
 			ServerManager = new ServerManager (this);
 
 			TestRunner = new TestRunner (this);
-			TestRunner.CurrentTestResultProperty.Value = RootTestResult;
+			TestRunner.TestResult.Value = RootTestResult;
 
 			Options = new OptionsModel (this);
 

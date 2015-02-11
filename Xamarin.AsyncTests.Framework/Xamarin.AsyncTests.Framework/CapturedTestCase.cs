@@ -40,8 +40,8 @@ namespace Xamarin.AsyncTests.Framework
 
 		TestInvoker invoker;
 
-		public CapturedTestCase (TestSuite suite, TestName name, XElement node)
-			: base (suite, name)
+		public CapturedTestCase (TestSuite suite, TestName name, XElement node, ITestBuilder builder)
+			: base (suite, name, builder)
 		{
 			Node = node;
 		}

@@ -1,10 +1,10 @@
 ﻿//
-// InvokableTestCase.cs
+// TestCaseModel.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,27 +25,59 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using Foundation;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
 
-namespace Xamarin.AsyncTests.Framework
+namespace TestMac
 {
-	class InvokableTestCase : TestCase
+	public class TestBuilderModel : NSObject
 	{
-		public TestInvoker Invoker {
+		public ITestBuilder Builder {
 			get;
 			private set;
 		}
 
-		public InvokableTestCase (TestSuite suite, TestInvoker invoker)
-			: base (suite, suite.Name)
-		{
-			Invoker = invoker;
+		public TestName Name {
+			get;
+			private set;
 		}
 
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+		public TestBuilderModel (TestSuite suite)
 		{
-			return Invoker.Invoke (ctx, null, cancellationToken);
+			Builder = suite.TestBuilder;
+			Name = suite.Name;
+		}
+
+		TestBuilderModel (ITestBuilder builder)
+		{
+			Builder = builder;
+			Name = builder.Name;
+		}
+
+		List<TestBuilderModel> children;
+
+		public int CountChildren {
+			get { return Builder.CountChildren; }
+		}
+
+		public TestBuilderModel GetChild (int index)
+		{
+			InitializeChildren ();
+			return children [index];
+		}
+
+		void InitializeChildren ()
+		{
+			if (children != null)
+				return;
+
+			children = new List<TestBuilderModel> (Builder.CountChildren);
+			for (int i = 0; i < Builder.CountChildren; i++) {
+				var child = Builder.GetChild (i);
+				var childModel = new TestBuilderModel (child);
+				children.Add (childModel);
+			}
 		}
 	}
 }

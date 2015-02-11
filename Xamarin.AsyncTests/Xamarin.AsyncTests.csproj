@@ -107,6 +107,7 @@
     <Compile Include="Xamarin.AsyncTests.Portable\IServerConnection.cs" />
     <Compile Include="Xamarin.AsyncTests.Portable\IServerHost.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestParameter.cs" />
+    <Compile Include="Xamarin.AsyncTests\ITestBuilder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />

@@ -47,7 +47,13 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
+		[Obsolete ("FUCK")]
 		public TestCase (TestSuite suite, TestName name)
+			: this (suite, name, null)
+		{
+		}
+
+		public TestCase (TestSuite suite, TestName name, ITestBuilder builder)
 		{
 			Suite = suite;
 			Name = name;

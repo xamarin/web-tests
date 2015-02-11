@@ -49,6 +49,12 @@ namespace Xamarin.AsyncTests.Server
 			get { return root; }
 		}
 
+		public override ITestBuilder TestBuilder {
+			get {
+				throw new NotImplementedException ();
+			}
+		}
+
 		public RemoteTestSuite (Connection connection, long objectId, TestName name)
 			: base (name)
 		{

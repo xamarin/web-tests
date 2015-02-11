@@ -79,7 +79,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 
 			public TestCaseCollection (TestCollectionBuilder builder)
-				: base (builder.Suite, builder.Name)
+				: base (builder.Suite, builder.Name, builder)
 			{
 				Builder = builder;
 			}

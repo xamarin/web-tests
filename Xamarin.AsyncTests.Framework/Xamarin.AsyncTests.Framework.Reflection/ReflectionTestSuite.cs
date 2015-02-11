@@ -44,6 +44,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
+		public override ITestBuilder TestBuilder {
+			get { return Builder; }
+		}
+
 		ReflectionTestSuite (TestName name, Assembly assembly)
 			: base (name)
 		{

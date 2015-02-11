@@ -60,7 +60,7 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public readonly InstanceProperty<TestSuite> TestSuiteProperty = new InstanceProperty<TestSuite> ("TestSuite", null);
+		public readonly InstanceProperty<TestSuite> TestSuite = new InstanceProperty<TestSuite> ("TestSuite", null);
 
 		public TestFeaturesModel Features {
 			get;
@@ -88,12 +88,12 @@ namespace Xamarin.AsyncTests.UI
 			Settings.PropertyChanged += (sender, e) => LoadSettings ();
 			LoadSettings ();
 
-			TestSuiteProperty.PropertyChanged += (sender, e) => {
+			TestSuite.PropertyChanged += (sender, e) => {
 				if (e == null) {
-					App.RootTestResult.Result.Clear ();
-					App.TestRunner.CurrentTestResultProperty.Value = App.RootTestResult;
+					App.RootTestResult.Clear ();
+					App.TestRunner.TestResult.Value = App.RootTestResult;
 				} else {
-					App.RootTestResult.Result.Test = e.Test;
+					App.RootTestResult.Test = e.Test;
 				}
 			};
 		}
@@ -165,13 +165,13 @@ namespace Xamarin.AsyncTests.UI
 		protected async Task<bool> OnRun (TestServer instance, CancellationToken cancellationToken)
 		{
 			var suite = await instance.LoadTestSuite (cancellationToken);
-			TestSuiteProperty.Value = suite;
+			TestSuite.Value = suite;
 			return await instance.Run (cancellationToken);
 		}
 
 		protected async Task OnStop (TestServer instance, CancellationToken cancellationToken)
 		{
-			TestSuiteProperty.Value = null;
+			TestSuite.Value = null;
 			SetStatusMessage ("Server stopped.");
 			await instance.Stop (cancellationToken);
 		}

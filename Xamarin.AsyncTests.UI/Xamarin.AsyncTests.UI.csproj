@@ -37,7 +37,6 @@
     <Compile Include="Model\TestCategoriesModel.cs" />
     <Compile Include="Model\TestFeatureModel.cs" />
     <Compile Include="Model\TestFeaturesModel.cs" />
-    <Compile Include="Model\TestResultModel.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\CommandProvider.cs" />
     <Compile Include="Commands\ServerManager.cs" />

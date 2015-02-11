@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
+    <Folder Include="Binding\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainWindow.cs" />
@@ -85,7 +86,9 @@
       <DependentUpon>AppDelegate.cs</DependentUpon>
     </Compile>
     <Compile Include="MacUI.cs" />
-    <Compile Include="UIBinding.cs" />
+    <Compile Include="Binding\UIBinding.cs" />
+    <Compile Include="Binding\TestBuilderDataSource.cs" />
+    <Compile Include="Binding\TestBuilderModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
