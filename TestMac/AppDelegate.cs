@@ -24,23 +24,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading.Tasks;
 
 using Foundation;
 using AppKit;
+using Xamarin.AsyncTests;
 
 namespace TestMac
 {
 	public partial class AppDelegate : NSApplicationDelegate
 	{
 		MainWindowController mainWindowController;
+		NSMutableArray testResultArray;
 		MacUI ui;
 
 		public MacUI MacUI {
 			get { return ui; }
 		}
 
-		public AppDelegate ()
-		{
+		public MainWindowController MainController {
+			get { return mainWindowController; }
+		}
+
+		public static AppDelegate Instance {
+			get { return (AppDelegate)NSApplication.SharedApplication.Delegate; }
 		}
 
 		public override void DidFinishLaunching (NSNotification notification)
@@ -56,6 +63,24 @@ namespace TestMac
 			UIBinding.Bind (ui.ServerManager.Stop, Unload);
 
 			ui.ServerManager.Local.Execute ();
+		}
+
+		public override void AwakeFromNib ()
+		{
+			base.AwakeFromNib ();
+
+			testResultArray = new NSMutableArray ();
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[AppDelegate: {0:x}]", Handle.ToInt64 ());
+		}
+
+		[Export ("TestResultArray")]
+		public NSMutableArray TestResultArray {
+			get { return testResultArray; }
+			set { testResultArray = value; }
 		}
 	}
 }

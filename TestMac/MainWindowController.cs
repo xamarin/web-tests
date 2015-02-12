@@ -4,6 +4,7 @@ using Foundation;
 using AppKit;
 
 using Xamarin.AsyncTests.UI;
+using Xamarin.AsyncTests;
 
 namespace TestMac
 {
@@ -41,8 +42,27 @@ namespace TestMac
 			UIBinding.Bind (app.MacUI.ServerManager.StatusMessage, ServerStatusMessage);
 			UIBinding.Bind (app.MacUI.TestRunner.StatusMessage, ServerStatusMessage);
 
-			TestResultView.DataSource = new TestBuilderDataSource (TestResultView, app.MacUI);
-			// TestResultView.Delegate = new TestSuiteViewDelegate ();
+			SplitView.AddSubview (TestResultList);
+			SplitView.AddSubview (TestResultDetails);
+
+			app.MacUI.ServerManager.TestSuite.PropertyChanged += (sender, e) => OnTestSuiteLoaded (e);
+			app.MacUI.TestRunner.UpdateResultEvent += (sender, e) => OnTestFinished ();
+		}
+
+		void OnTestFinished ()
+		{
+			var result = AppDelegate.Instance.MacUI.TestRunner.TestResult.Value;
+			var model = new TestResultModel (result, result.Name);
+			var node = new TestResultNode (model);
+			TestResultController.AddObject (node);
+		}
+
+		void OnTestSuiteLoaded (TestSuite suite)
+		{
+			var result = AppDelegate.Instance.MacUI.RootTestResult;
+			var model = new TestResultModel (result, suite.Name);
+			var node = new TestResultNode (model);
+			TestResultController.AddObject (node);
 		}
 
 		public new MainWindow Window {

@@ -25,18 +25,25 @@ namespace TestMac
 		AppKit.NSTextField ServerStatusMessage { get; set; }
 
 		[Outlet]
+		AppKit.NSSplitView SplitView { get; set; }
+
+		[Outlet]
 		AppKit.NSButton Stop { get; set; }
+
+		[Outlet]
+		AppKit.NSTreeController TestResultController { get; set; }
+
+		[Outlet]
+		TestMac.TestResultDetails TestResultDetails { get; set; }
+
+		[Outlet]
+		TestMac.TestResultList TestResultList { get; set; }
 
 		[Outlet]
 		AppKit.NSOutlineView TestResultView { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (TestResultView != null) {
-				TestResultView.Dispose ();
-				TestResultView = null;
-			}
-
 			if (Clear != null) {
 				Clear.Dispose ();
 				Clear = null;
@@ -57,9 +64,34 @@ namespace TestMac
 				ServerStatusMessage = null;
 			}
 
+			if (SplitView != null) {
+				SplitView.Dispose ();
+				SplitView = null;
+			}
+
 			if (Stop != null) {
 				Stop.Dispose ();
 				Stop = null;
+			}
+
+			if (TestResultController != null) {
+				TestResultController.Dispose ();
+				TestResultController = null;
+			}
+
+			if (TestResultList != null) {
+				TestResultList.Dispose ();
+				TestResultList = null;
+			}
+
+			if (TestResultView != null) {
+				TestResultView.Dispose ();
+				TestResultView = null;
+			}
+
+			if (TestResultDetails != null) {
+				TestResultDetails.Dispose ();
+				TestResultDetails = null;
 			}
 		}
 	}

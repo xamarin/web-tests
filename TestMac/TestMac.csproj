@@ -87,8 +87,19 @@
     </Compile>
     <Compile Include="MacUI.cs" />
     <Compile Include="Binding\UIBinding.cs" />
-    <Compile Include="Binding\TestBuilderDataSource.cs" />
     <Compile Include="Binding\TestBuilderModel.cs" />
+    <Compile Include="Binding\TestResultModel.cs" />
+    <Compile Include="Binding\TestResultNode.cs" />
+    <Compile Include="Binding\FooModel.cs" />
+    <Compile Include="TestResultList.cs" />
+    <Compile Include="TestResultList.designer.cs">
+      <DependentUpon>TestResultList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TestResultDetails.cs" />
+    <Compile Include="TestResultDetails.designer.cs">
+      <DependentUpon>TestResultDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Binding\ValueTransformers.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
