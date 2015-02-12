@@ -45,12 +45,14 @@ namespace Xamarin.AsyncTests.Sample
 			context.LogMessage ("FIRST: {0}", id);
 		}
 
+		#if FIXME
 		[AsyncTest (Repeat = 3)]
 		public void Second (TestContext context)
 		{
 			context.LogMessage ("SECOND: {0}", id);
 			throw new NotSupportedException ();
 		}
+		#endif
 
 		[AsyncTest(Repeat = 10)]
 		public void Hello (TestContext context)
