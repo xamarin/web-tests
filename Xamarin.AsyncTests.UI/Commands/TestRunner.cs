@@ -126,26 +126,15 @@ namespace Xamarin.AsyncTests.UI
 			return result;
 		}
 
-		internal async Task<TestResult> Run (TestCase test, int repeat, CancellationToken cancellationToken)
+		internal async Task<TestResult> Run (TestCase test, TestName name, int repeat, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 
-			var result = new TestResult (test.Name);
+			var result = new TestResult (name);
 
 			App.Logger.ResetStatistics ();
 
 			SetStatusMessage ("Running {0}.", test.Name);
-
-			if (false) {
-				var name = new TestNameBuilder ();
-				name.PushName ("UI-Rerun");
-				name.PushParameter ("$uiTriggeredRerun", ++countReruns);
-
-				test = TestFramework.CreateProxy (test, name.GetName ());
-				result = new TestResult (name.GetName ());
-			} else {
-				result.Clear ();
-			}
 
 			var session = new TestSession (App, test, result);
 

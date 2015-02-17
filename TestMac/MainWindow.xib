@@ -9,7 +9,6 @@
             <connections>
                 <outlet property="Clear" destination="16" id="WAY-OC-mZw"/>
                 <outlet property="Repeat" destination="12" id="8oa-cw-Q6f"/>
-                <outlet property="Run" destination="10" id="ASu-GR-CMO"/>
                 <outlet property="ServerStatusMessage" destination="l13-Jy-Xnn" id="caa-FH-1zz"/>
                 <outlet property="SplitView" destination="uFN-Gi-fL5" id="O3f-UK-PRy"/>
                 <outlet property="Stop" destination="14" id="ynZ-mh-tU8"/>
@@ -87,14 +86,22 @@
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
                             <connections>
-                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selectionIndexPath" previousBinding="X6n-v6-w8f" id="Khq-L3-ave">
+                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selectionIndexPath" previousBinding="guv-pk-gLf" id="dJB-o6-Jad">
                                     <dictionary key="options">
-                                        <string key="NSSelectorName">run:testCase:indexPath:</string>
+                                        <string key="NSSelectorName">Run:testCase:indexPath:</string>
                                     </dictionary>
                                 </binding>
-                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.representedObject.TestCase" id="X6n-v6-w8f">
+                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.representedObject.TestCase" id="guv-pk-gLf">
                                     <dictionary key="options">
-                                        <string key="NSSelectorName">run:testCase:indexPath:</string>
+                                        <string key="NSSelectorName">Run:testCase:indexPath:</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="-2" name="enabled2" keyPath="CanRun" previousBinding="fGF-2M-ax3" id="piK-xY-yDH">
+                                    <dictionary key="options">
+                                        <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                        <integer key="NSNoSelectionPlaceholder" value="-1"/>
+                                        <integer key="NSNotApplicablePlaceholder" value="-1"/>
+                                        <integer key="NSNullPlaceholder" value="-1"/>
                                     </dictionary>
                                 </binding>
                                 <binding destination="oII-JR-BBP" name="enabled" keyPath="selection.representedObject.TestCase" id="fGF-2M-ax3">
@@ -102,9 +109,9 @@
                                         <string key="NSValueTransformerName">NSIsNotNil</string>
                                     </dictionary>
                                 </binding>
-                                <binding destination="-2" name="target" keyPath="self" previousBinding="Khq-L3-ave" id="SaO-P9-0VT">
+                                <binding destination="-2" name="target" keyPath="self" previousBinding="dJB-o6-Jad" id="e52-00-RJy">
                                     <dictionary key="options">
-                                        <string key="NSSelectorName">run:testCase:indexPath:</string>
+                                        <string key="NSSelectorName">Run:testCase:indexPath:</string>
                                     </dictionary>
                                 </binding>
                             </connections>

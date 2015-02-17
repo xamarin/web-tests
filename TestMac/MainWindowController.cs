@@ -7,6 +7,7 @@ using AppKit;
 
 using Xamarin.AsyncTests.UI;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
 
 namespace TestMac
 {
@@ -36,6 +37,8 @@ namespace TestMac
 		{
 			var app = (AppDelegate)NSApplication.SharedApplication.Delegate;
 
+			app.MacUI.TestRunner.RunCommand.NotifyStateChanged.StateChanged += (sender, e) => CanRun = e;
+
 			// UIBinding.Bind (app.MacUI.TestRunner.Run, Run);
 			UIBinding.Bind (app.MacUI.TestRunner.Repeat, Repeat);
 			UIBinding.Bind (app.MacUI.TestRunner.Stop, Stop);
@@ -63,15 +66,29 @@ namespace TestMac
 			get { return (MainWindow)base.Window; }
 		}
 
-		[Export ("run:testCase:indexPath:")]
-		public async void RunCommand (TestCaseModel test, NSIndexPath index)
+		[Export ("Run:testCase:indexPath:")]
+		public async void Run (TestCaseModel test, NSIndexPath index)
 		{
 			Console.WriteLine ("RUN: {0} {1}", test, index);
 			var ui = AppDelegate.Instance.MacUI;
-			var newResult = await ui.TestRunner.RunCommand.Run (test.Test, CancellationToken.None);
-			Console.WriteLine ("RESULT: {0}", newResult);
-			var model = new TestResultNode (newResult);
+
+			var result = await ui.TestRunner.RunCommand.Run (test.Test, test.Test.Name, CancellationToken.None);
+			Console.WriteLine ("RESULT: {0}", result);
+
+			var model = new TestResultNode (result);
 			TestResultController.InsertObject (model, index);
+		}
+
+		bool canRun;
+
+		[Export ("CanRun")]
+		public bool CanRun {
+			get { return canRun; }
+			set {
+				WillChangeValue ("CanRun");
+				canRun = value;
+				DidChangeValue ("CanRun");
+			}
 		}
 	}
 }

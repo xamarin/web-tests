@@ -19,9 +19,6 @@ namespace TestMac
 		AppKit.NSButton Repeat { get; set; }
 
 		[Outlet]
-		AppKit.NSButton Run { get; set; }
-
-		[Outlet]
 		AppKit.NSTextField ServerStatusMessage { get; set; }
 
 		[Outlet]
@@ -54,11 +51,6 @@ namespace TestMac
 				Repeat = null;
 			}
 
-			if (Run != null) {
-				Run.Dispose ();
-				Run = null;
-			}
-
 			if (ServerStatusMessage != null) {
 				ServerStatusMessage.Dispose ();
 				ServerStatusMessage = null;
@@ -79,6 +71,11 @@ namespace TestMac
 				TestResultController = null;
 			}
 
+			if (TestResultDetails != null) {
+				TestResultDetails.Dispose ();
+				TestResultDetails = null;
+			}
+
 			if (TestResultList != null) {
 				TestResultList.Dispose ();
 				TestResultList = null;
@@ -87,11 +84,6 @@ namespace TestMac
 			if (TestResultView != null) {
 				TestResultView.Dispose ();
 				TestResultView = null;
-			}
-
-			if (TestResultDetails != null) {
-				TestResultDetails.Dispose ();
-				TestResultDetails = null;
 			}
 		}
 	}
