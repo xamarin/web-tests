@@ -48,7 +48,7 @@ namespace Xamarin.AsyncTests.Sample
 			public async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 			{
 				ctx.LogMessage ("INITIALIZE: {0}!", this);
-				await Task.Delay (1500, cancellationToken);
+				await Task.Delay (300, cancellationToken);
 				ctx.LogMessage ("INITIALIZE DONE: {0}!", this);
 			}
 
@@ -56,21 +56,21 @@ namespace Xamarin.AsyncTests.Sample
 			public async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 			{
 				ctx.LogMessage ("PRE RUN: {0}!", this);
-				await Task.Delay (500, cancellationToken);
+				await Task.Delay (100, cancellationToken);
 				ctx.LogMessage ("PRE RUN DONE: {0}!", this);
 			}
 
 			public async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 			{
 				ctx.LogMessage ("POST RUN: {0}!", this);
-				await Task.Delay (500, cancellationToken);
+				await Task.Delay (100, cancellationToken);
 				ctx.LogMessage ("POST RUN DONE: {0}!", this);
 			}
 
 			public async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
 			{
 				ctx.LogMessage ("DESTROY: {0}!", this);
-				await Task.Delay (1500, cancellationToken);
+				await Task.Delay (300, cancellationToken);
 				ctx.LogMessage ("DESTROY DONE: {0}!", this);
 			}
 
@@ -89,7 +89,7 @@ namespace Xamarin.AsyncTests.Sample
 		}
 
 		[AsyncTest]
-		public void Test (TestContext context, [Repeat (3)] int outer, MyInstance instance, [Repeat (10)] int iteration)
+		public void Test (TestContext context, [Repeat (3)] int outer, MyInstance instance, [Repeat (2)] int iteration)
 		{
 			context.LogMessage ("TEST: {0} {1} {2}", outer, instance, iteration);
 		}
