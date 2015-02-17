@@ -264,7 +264,7 @@
                     </connections>
                 </textField>
                 <scrollView autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QOD-vv-nf4">
-                    <rect key="frame" x="20" y="20" width="430" height="165"/>
+                    <rect key="frame" x="20" y="20" width="430" height="160"/>
                     <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="yVN-oW-Nkv">
                         <rect key="frame" x="1" y="1" width="223" height="133"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -273,10 +273,10 @@
                                 <rect key="frame" x="0.0" y="0.0" width="223" height="163"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <size key="minSize" width="428" height="163"/>
+                                <size key="minSize" width="428" height="158"/>
                                 <size key="maxSize" width="463" height="10000000"/>
                                 <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                <size key="minSize" width="428" height="163"/>
+                                <size key="minSize" width="428" height="158"/>
                                 <size key="maxSize" width="463" height="10000000"/>
                                 <connections>
                                     <binding destination="oII-JR-BBP" name="attributedString" keyPath="selection.representedObject.Error" id="Njb-FO-eJY"/>
@@ -304,7 +304,7 @@
             </subviews>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="bgk-mR-QUO" secondAttribute="trailing" constant="20" id="08D-8N-RMR"/>
-                <constraint firstItem="QOD-vv-nf4" firstAttribute="top" secondItem="bgk-mR-QUO" secondAttribute="bottom" constant="20" id="4EN-Bl-80X"/>
+                <constraint firstItem="QOD-vv-nf4" firstAttribute="top" secondItem="bgk-mR-QUO" secondAttribute="bottom" constant="25" id="4EN-Bl-80X"/>
                 <constraint firstAttribute="bottom" secondItem="QOD-vv-nf4" secondAttribute="bottom" constant="20" id="Bpi-VT-GRX"/>
                 <constraint firstItem="exw-Rk-kYf" firstAttribute="top" secondItem="pv2-8m-9Gd" secondAttribute="top" constant="20" id="HbZ-BR-crc"/>
                 <constraint firstAttribute="trailing" secondItem="QOD-vv-nf4" secondAttribute="trailing" constant="20" id="OAt-fn-CBZ"/>

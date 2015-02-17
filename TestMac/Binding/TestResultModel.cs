@@ -104,16 +104,46 @@ namespace TestMac
 		}
 
 		[Export ("Error")]
-		public string Error {
+		public NSAttributedString Error {
 			get {
-				if (Result == null || Result.Error == null)
-					return null;
-				return Result.Error.ToString ();
+				return GetError ();
 			}
+		}
+
+		NSAttributedString GetError ()
+		{
+			if (error != null)
+				return error;
+			if (Result == null || Result.Error == null)
+				return null;
+
+			var sb = new StringBuilder ();
+			var aggregate = Result.Error as AggregateException;
+			if (aggregate != null) {
+				sb.AppendFormat ("{0}: {1}", aggregate.GetType ().FullName, aggregate.Message);
+				sb.AppendLine ();
+				sb.AppendLine ();
+				sb.AppendLine (aggregate.InnerException.ToString ());
+				sb.AppendLine ();
+				for (int i = 0; i < aggregate.InnerExceptions.Count; i++) {
+					sb.AppendFormat ("Inner exception #{0}):", i + 1);
+					sb.AppendLine ();
+					sb.AppendLine (aggregate.InnerExceptions [i].ToString ());
+					sb.AppendLine ();
+				}
+			} else {
+				sb.Append (Result.Error.ToString ());
+			}
+
+			var font = NSFont.FromFontName ("Courier New", 18.0f);
+			error = new NSAttributedString (sb.ToString (), font);
+
+			return error;
 		}
 
 		List<TestResultModel> children;
 		string testParameters;
+		NSAttributedString error;
 
 		public int CountChildren {
 			get {
