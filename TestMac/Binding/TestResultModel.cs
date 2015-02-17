@@ -50,8 +50,6 @@ namespace TestMac
 		{
 			Result = result;
 			TestName = name;
-
-			Console.WriteLine ("TRM: {0} {1}", result, result.Messages.Count);
 		}
 
 		#if FIXME
