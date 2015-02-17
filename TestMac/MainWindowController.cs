@@ -42,7 +42,6 @@ namespace TestMac
 			// UIBinding.Bind (app.MacUI.TestRunner.Run, Run);
 			UIBinding.Bind (app.MacUI.TestRunner.Repeat, Repeat);
 			UIBinding.Bind (app.MacUI.TestRunner.Stop, Stop);
-			UIBinding.Bind (app.MacUI.TestRunner.Clear, Clear);
 
 			UIBinding.Bind (app.MacUI.ServerManager.StatusMessage, ServerStatusMessage);
 			UIBinding.Bind (app.MacUI.TestRunner.StatusMessage, ServerStatusMessage);
@@ -59,6 +58,7 @@ namespace TestMac
 			result.Test = suite.Test;
 
 			var node = new TestResultNode (result);
+			node.Model.IsRoot = true;
 			TestResultController.AddObject (node);
 		}
 
@@ -89,6 +89,13 @@ namespace TestMac
 				canRun = value;
 				DidChangeValue ("CanRun");
 			}
+		}
+
+		[Export ("Clear:testResult:indexPath:")]
+		public void Clear (TestResultModel result, NSIndexPath indexPath)
+		{
+			if (!result.IsRoot)
+				TestResultController.RemoveObjectAtArrangedObjectIndexPath (indexPath);
 		}
 	}
 }

@@ -72,7 +72,6 @@ namespace TestMac
 				return children;
 			}
 			set {
-				Console.WriteLine ("TRN ATTEMPT TO SET CHILD NODES: {0}", value);
 				children = value;
 			}
 		}

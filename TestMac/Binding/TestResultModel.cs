@@ -46,6 +46,10 @@ namespace TestMac
 			private set;
 		}
 
+		public bool IsRoot {
+			get; set;
+		}
+
 		public TestResultModel (TestResult result, TestName name)
 		{
 			Result = result;

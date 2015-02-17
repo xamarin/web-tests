@@ -7,7 +7,6 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="MainWindowController">
             <connections>
-                <outlet property="Clear" destination="16" id="WAY-OC-mZw"/>
                 <outlet property="Repeat" destination="12" id="8oa-cw-Q6f"/>
                 <outlet property="ServerStatusMessage" destination="l13-Jy-Xnn" id="caa-FH-1zz"/>
                 <outlet property="SplitView" destination="uFN-Gi-fL5" id="O3f-UK-PRy"/>
@@ -154,6 +153,23 @@
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
+                            <connections>
+                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selectionIndexPath" previousBinding="sQL-QC-xaE" id="Iyz-zF-Igt">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">Clear:testResult:indexPath:</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.representedObject" id="sQL-QC-xaE">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">Clear:testResult:indexPath:</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="-2" name="target" keyPath="self" previousBinding="Iyz-zF-Igt" id="Ql8-Bp-mOV">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">Clear:testResult:indexPath:</string>
+                                    </dictionary>
+                                </binding>
+                            </connections>
                         </button>
                     </toolbarItem>
                 </allowedToolbarItems>

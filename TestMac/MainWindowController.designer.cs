@@ -13,9 +13,6 @@ namespace TestMac
 	partial class MainWindowController
 	{
 		[Outlet]
-		AppKit.NSButton Clear { get; set; }
-
-		[Outlet]
 		AppKit.NSButton Repeat { get; set; }
 
 		[Outlet]
@@ -41,11 +38,6 @@ namespace TestMac
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (Clear != null) {
-				Clear.Dispose ();
-				Clear = null;
-			}
-
 			if (Repeat != null) {
 				Repeat.Dispose ();
 				Repeat = null;
