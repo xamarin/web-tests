@@ -50,6 +50,8 @@ namespace TestMac
 		{
 			Result = result;
 			TestName = name;
+
+			Console.WriteLine ("TRM: {0} {1}", result, result.Messages.Count);
 		}
 
 		#if FIXME
@@ -82,19 +84,12 @@ namespace TestMac
 			get { return GetTestParameters (); }
 		}
 
-		[Export ("HasParameters")]
-		public bool HasParameters {
-			get { return !TestName.IsNullOrEmpty (TestName) && TestName.HasParameters; }
-		}
-
 		string GetTestParameters ()
 		{
 			if (testParameters != null)
 				return testParameters;
-			if (TestName.IsNullOrEmpty (TestName) || !TestName.HasParameters) {
-				testParameters = string.Empty;
-				return testParameters;
-			}
+			if (TestName.IsNullOrEmpty (TestName) || !TestName.HasParameters)
+				return null;
 
 			Console.WriteLine ("GET PARAMETERS: {0}", TestName.Parameters.Length);
 			var sb = new StringBuilder ();
@@ -106,6 +101,15 @@ namespace TestMac
 
 			testParameters = sb.ToString ();
 			return testParameters;
+		}
+
+		[Export ("Error")]
+		public string Error {
+			get {
+				if (Result == null || Result.Error == null)
+					return null;
+				return Result.Error.ToString ();
+			}
 		}
 
 		List<TestResultModel> children;
