@@ -52,8 +52,9 @@ namespace TestMac
 
 		void OnTestSuiteLoaded (TestSuite suite)
 		{
-			var result = AppDelegate.Instance.MacUI.RootTestResult;
-			// var model = new TestResultModel (result, suite.Name);
+			var result = new TestResult (suite.Name);
+			result.Test = suite.Test;
+
 			var node = new TestResultNode (result);
 			TestResultController.AddObject (node);
 		}

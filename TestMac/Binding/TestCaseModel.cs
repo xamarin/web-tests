@@ -41,6 +41,11 @@ namespace TestMac
 		{
 			Test = test;
 		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[TestCaseModel: Test={0}]", Test);
+		}
 	}
 }
 

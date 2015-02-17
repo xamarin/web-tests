@@ -130,7 +130,7 @@ namespace Xamarin.AsyncTests.UI
 		{
 			await Task.Yield ();
 
-			var result = TestResult.Value;
+			var result = new TestResult (test.Name);
 
 			App.Logger.ResetStatistics ();
 

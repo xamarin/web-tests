@@ -51,7 +51,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			Resolve ();
 
-			Test = new TestCaseCollection (this);
+			Test = new TestCaseCollection (this, suite.Name);
 		}
 
 		protected override IEnumerable<TestBuilder> ResolveChildren ()
@@ -78,8 +78,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				private set;
 			}
 
-			public TestCaseCollection (TestCollectionBuilder builder)
-				: base (builder.Suite, builder.Name, builder)
+			public TestCaseCollection (TestCollectionBuilder builder, TestName name)
+				: base (builder.Suite, name, builder)
 			{
 				Builder = builder;
 			}
