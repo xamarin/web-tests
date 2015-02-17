@@ -54,7 +54,6 @@ namespace Xamarin.AsyncTests.Sample
 			context.LogMessage ("HELLO IFOO: {0}", foo);
 		}
 
-		#if FIXME
 		[AsyncTest]
 		public void HelloFoo (TestContext context, [Repeat (20)] int index, [TestParameter ("New York")] Foo foo, [TestParameter (null, TestFlags.None)] Foo bar)
 		{
@@ -62,7 +61,6 @@ namespace Xamarin.AsyncTests.Sample
 			if (index > 5)
 				throw new NotSupportedException ();
 		}
-		#endif
 
 		[AsyncTest]
 		public void Repeat (TestContext context, [Repeat (10)] int index)
@@ -76,13 +74,11 @@ namespace Xamarin.AsyncTests.Sample
 			context.LogMessage ("SIMPLE REPEAT");
 		}
 
-		#if FIXME
 		[AsyncTest]
 		public void RepeatedError ([Repeat (5, TestFlags.ContinueOnError | TestFlags.Browsable)] int index, TestContext context)
 		{
 			context.LogMessage ("REPEATED ERROR: {0}", index);
 			throw new NotSupportedException ();
 		}
-		#endif
 	}
 }

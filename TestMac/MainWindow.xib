@@ -178,6 +178,11 @@
                                                     <bool key="NSCreatesSortDescriptor" value="NO"/>
                                                 </dictionary>
                                             </binding>
+                                            <binding destination="oII-JR-BBP" name="textColor" keyPath="arrangedObjects.representedObject.Status" id="IeU-Z4-nTE">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">TestStatusColorValueTransformer</string>
+                                                </dictionary>
+                                            </binding>
                                         </connections>
                                     </tableColumn>
                                 </tableColumns>
