@@ -24,37 +24,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using AppKit;
 using Foundation;
+using Xamarin.AsyncTests;
 
 namespace TestMac
 {
 	public class TestResultNode : NSObject
 	{
-		public TestResultModel Result {
+		public TestResult Result {
+			get;
+			private set;
+		}
+
+		public TestResultModel Model {
 			get;
 			private set;
 		}
 
 		TestResultNode[] children;
 
-		public TestResultNode (TestResultModel result)
+		public TestResultNode (TestResult result)
 		{
 			Result = result;
+			Model = new TestResultModel (result, result.Name);
 		}
 
 		[Export ("isLeaf")]
 		public bool IsLeaf {
-			get { return Result.CountChildren == 0; }
+			get { return !Result.HasChildren; }
 		}
 
 		void InitializeChildren ()
 		{
 			if (children != null)
 				return;
-			children = new TestResultNode [Result.CountChildren];
+			children = new TestResultNode [Result.Children.Count];
 			for (int i = 0; i < children.Length; i++)
-				children [i] = new TestResultNode (Result.GetChild (i));
+				children [i] = new TestResultNode (Result.Children [i]);
 		}
 
 		[Export ("childNodes")]
@@ -96,7 +104,7 @@ namespace TestMac
 
 		[Export("representedObject")]
 		public NSObject RepresentedObject {
-			get { return Result; }
+			get { return Model; }
 		}
 
 		public override string ToString ()

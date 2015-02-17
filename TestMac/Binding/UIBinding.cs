@@ -33,11 +33,15 @@ namespace TestMac
 	{
 		public static void Bind (Command command, NSButton button)
 		{
-			button.Activated += (sender, e) => command.Execute ();
+			#if FIXME
+			button.Activated += (sender, e) => {
+				command.Execute ();
+			};
+			button.Enabled = command.NotifyStateChanged.State;
+			#endif
 			command.NotifyStateChanged.StateChanged += (sender, e) => {
 				button.InvokeOnMainThread (() => button.Enabled = e);
 			};
-			button.Enabled = command.NotifyStateChanged.State;
 		}
 
 		public static void Bind (Command command, NSMenuItem item)

@@ -37,12 +37,12 @@ namespace Xamarin.AsyncTests.UI
 
 	public class TestRunner : CommandProvider<TestResult>
 	{
-		readonly RunSingleCommand runCommand;
+		readonly RunCommand runCommand;
 		readonly RepeatCommand repeatCommand;
 		readonly ClearCommand clearCommand;
 		readonly RefreshCommand refreshCommand;
 
-		public Command<TestResult> Run {
+		public RunCommand RunCommand {
 			get { return runCommand; }
 		}
 
@@ -65,7 +65,7 @@ namespace Xamarin.AsyncTests.UI
 		public TestRunner (UITestApp app)
 			: base (app, app.ServerManager)
 		{
-			runCommand = new RunSingleCommand (this);
+			runCommand = new RunCommand (this);
 			repeatCommand = new RepeatCommand (this);
 			clearCommand = new ClearCommand (this);
 			refreshCommand = new RefreshCommand (this);
@@ -108,6 +108,51 @@ namespace Xamarin.AsyncTests.UI
 
 			if (repeat)
 				await session.Repeat (App.Options.RepeatCount, cancellationToken);
+			else
+				await session.Run (cancellationToken);
+
+			var elapsed = DateTime.Now - startTime;
+
+			CurrentTestName.Value = string.Empty;
+			StatusMessage.Value = GetStatusMessage (string.Format ("Finished in {0} seconds", (int)elapsed.TotalSeconds));
+
+			App.Logger.LogMessage ("DONE: |{0}|{1}|", session.Name, StatusMessage);
+
+			if (false)
+				result.AddChild (result);
+
+			OnRefresh ();
+
+			return result;
+		}
+
+		internal async Task<TestResult> Run (TestCase test, int repeat, CancellationToken cancellationToken)
+		{
+			await Task.Yield ();
+
+			var result = TestResult.Value;
+
+			App.Logger.ResetStatistics ();
+
+			SetStatusMessage ("Running {0}.", test.Name);
+
+			if (false) {
+				var name = new TestNameBuilder ();
+				name.PushName ("UI-Rerun");
+				name.PushParameter ("$uiTriggeredRerun", ++countReruns);
+
+				test = TestFramework.CreateProxy (test, name.GetName ());
+				result = new TestResult (name.GetName ());
+			} else {
+				result.Clear ();
+			}
+
+			var session = new TestSession (App, test, result);
+
+			startTime = DateTime.Now;
+
+			if (repeat > 0)
+				await session.Repeat (repeat, cancellationToken);
 			else
 				await session.Run (cancellationToken);
 
@@ -203,11 +248,11 @@ namespace Xamarin.AsyncTests.UI
 				return sb.ToString ();
 		}
 
-		abstract class RunCommand : Command<TestResult>
+		abstract class AbstractRunCommand : Command<TestResult>
 		{
 			public readonly TestRunner Runner;
 
-			public RunCommand (TestRunner runner)
+			public AbstractRunCommand (TestRunner runner)
 				: base (runner, runner.NotifyCanExecute)
 			{
 				Runner = runner;

@@ -86,6 +86,28 @@
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
+                            <connections>
+                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selectionIndexPath" previousBinding="X6n-v6-w8f" id="Khq-L3-ave">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">run:testCase:indexPath:</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.representedObject.TestCase" id="X6n-v6-w8f">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">run:testCase:indexPath:</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="oII-JR-BBP" name="enabled" keyPath="selection.representedObject.TestCase" id="fGF-2M-ax3">
+                                    <dictionary key="options">
+                                        <string key="NSValueTransformerName">NSIsNotNil</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="-2" name="target" keyPath="self" previousBinding="Khq-L3-ave" id="SaO-P9-0VT">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">run:testCase:indexPath:</string>
+                                    </dictionary>
+                                </binding>
+                            </connections>
                         </button>
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="CF3EC7AD-8973-47FF-BDBA-41166C8E1EDB" label="" paletteLabel="Custom View" id="Gke-6i-tGI">

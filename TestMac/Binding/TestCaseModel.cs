@@ -1,5 +1,5 @@
 ﻿//
-// MacUI.cs
+// TestCaseModel.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,38 +24,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
+using AppKit;
+using Foundation;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.UI;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Sample;
 
 namespace TestMac
 {
-	public class MacUI : UITestApp
+	public class TestCaseModel : NSObject
 	{
-		public AppDelegate AppDelegate {
+		public TestCase Test {
 			get;
 			private set;
 		}
 
-		MacUI (AppDelegate appDelegate, IPortableSupport support, ITestConfigurationProvider configProvider,
-			SettingsBag settings, Assembly assembly)
-			: base (support, configProvider, settings, assembly)
+		public TestCaseModel (TestCase test)
 		{
-			AppDelegate = appDelegate;
+			Test = test;
 		}
-
-		public static MacUI Create (AppDelegate appDelegate)
-		{
-			// var support = PortableSupportImpl.Initialize ();
-			// var provider = WebTestFeatures.Instance;
-			var settings = SettingsBag.CreateDefault ();
-			var assembly = typeof(SampleFeatures).Assembly;
-			return new MacUI (appDelegate, null, SampleFeatures.Instance, settings, assembly);
-		}
-
 	}
 }
 

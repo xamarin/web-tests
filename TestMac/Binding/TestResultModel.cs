@@ -89,7 +89,6 @@ namespace TestMac
 			if (TestName.IsNullOrEmpty (TestName) || !TestName.HasParameters)
 				return null;
 
-			Console.WriteLine ("GET PARAMETERS: {0}", TestName.Parameters.Length);
 			var sb = new StringBuilder ();
 			foreach (var parameter in TestName.Parameters) {
 				if (sb.Length > 0)
@@ -139,34 +138,25 @@ namespace TestMac
 			return error;
 		}
 
-		List<TestResultModel> children;
+		[Export ("TestCase")]
+		public TestCaseModel TestCase {
+			get { return GetTestCase (); }
+		}
+
+		TestCaseModel GetTestCase ()
+		{
+			if (testCase != null)
+				return testCase;
+			if (Result == null || Result.Test == null)
+				return null;
+
+			testCase = new TestCaseModel (Result.Test);
+			return testCase;
+		}
+
+		TestCaseModel testCase;
 		string testParameters;
 		NSAttributedString error;
-
-		public int CountChildren {
-			get {
-				InitializeChildren ();
-				return children.Count;
-			}
-		}
-
-		public TestResultModel GetChild (int index)
-		{
-			InitializeChildren ();
-			return children [index];
-		}
-
-		void InitializeChildren ()
-		{
-			if (children != null)
-				return;
-
-			children = new List<TestResultModel> ();
-			foreach (var child in Result.Children) {
-				var childModel = new TestResultModel (child, child.Name);
-				children.Add (childModel);
-			}
-		}
 	}
 }
 

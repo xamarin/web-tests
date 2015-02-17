@@ -119,7 +119,7 @@ namespace Xamarin.AsyncTests
 			get { return children.Count > 0; }
 		}
 
-		public IReadOnlyCollection<TestResult> Children {
+		public IReadOnlyList<TestResult> Children {
 			get { return children; }
 		}
 

@@ -1,5 +1,5 @@
 ﻿//
-// MacUI.cs
+// RunCommand.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,38 +24,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.UI;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Sample;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.UI
 {
-	public class MacUI : UITestApp
+	public class RunCommand : Command<TestResult>
 	{
-		public AppDelegate AppDelegate {
-			get;
-			private set;
-		}
+		public readonly TestRunner Runner;
 
-		MacUI (AppDelegate appDelegate, IPortableSupport support, ITestConfigurationProvider configProvider,
-			SettingsBag settings, Assembly assembly)
-			: base (support, configProvider, settings, assembly)
+		public RunCommand (TestRunner runner)
+			: base (runner, runner.NotifyCanExecute)
 		{
-			AppDelegate = appDelegate;
+			Runner = runner;
 		}
 
-		public static MacUI Create (AppDelegate appDelegate)
+		internal sealed override Task<bool> Run (TestResult result, CancellationToken cancellationToken)
 		{
-			// var support = PortableSupportImpl.Initialize ();
-			// var provider = WebTestFeatures.Instance;
-			var settings = SettingsBag.CreateDefault ();
-			var assembly = typeof(SampleFeatures).Assembly;
-			return new MacUI (appDelegate, null, SampleFeatures.Instance, settings, assembly);
+			return Task.FromResult (false);
 		}
 
+		internal sealed override Task Stop (TestResult result, CancellationToken cancellationToken)
+		{
+			return Task.FromResult (false);
+		}
+
+		internal override Task<TestResult> Start (CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
+		}
+
+		public Task<TestResult> Run (TestCase test, CancellationToken cancellationToken)
+		{
+			return Runner.Run (test, 0, cancellationToken);
+		}
 	}
 }
 
