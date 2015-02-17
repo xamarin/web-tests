@@ -26,7 +26,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="131" y="74" width="843" height="644"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1440"/>
             <view key="contentView" id="3">
                 <rect key="frame" x="0.0" y="0.0" width="843" height="644"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -143,11 +143,11 @@
             </connections>
         </treeController>
         <customView id="asp-yt-jjb" customClass="TestResultList">
-            <rect key="frame" x="0.0" y="0.0" width="829" height="436"/>
+            <rect key="frame" x="0.0" y="0.0" width="520" height="436"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3gE-rn-ZCp">
-                    <rect key="frame" x="10" y="10" width="809" height="416"/>
+                    <rect key="frame" x="10" y="10" width="500" height="416"/>
                     <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="DGl-nO-0KV">
                         <rect key="frame" x="1" y="0.0" width="238" height="134"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -158,7 +158,7 @@
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="calibratedRGB"/>
                                 <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 <tableColumns>
-                                    <tableColumn identifier="" editable="NO" width="804" minWidth="16" maxWidth="1000" id="mbK-fz-jy4">
+                                    <tableColumn identifier="" editable="NO" width="495" minWidth="16" maxWidth="1000" id="mbK-fz-jy4">
                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -190,6 +190,10 @@
                         </subviews>
                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </clipView>
+                    <constraints>
+                        <constraint firstAttribute="width" relation="lessThanOrEqual" constant="500" id="Q24-I0-7d8"/>
+                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="h6o-Hi-rc3"/>
+                    </constraints>
                     <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="9B5-t8-vtE">
                         <rect key="frame" x="1" y="119" width="223" height="15"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -251,22 +255,22 @@
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                     <connections>
+                        <binding destination="oII-JR-BBP" name="value" keyPath="selection.representedObject.TestParameters" id="UAh-v6-6ff"/>
                         <binding destination="oII-JR-BBP" name="enabled" keyPath="selection.representedObject.TestParameters" id="nzw-ES-KJS">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSIsNil</string>
                             </dictionary>
                         </binding>
-                        <binding destination="oII-JR-BBP" name="value" keyPath="selection.representedObject.TestParameters" id="UAh-v6-6ff"/>
                     </connections>
                 </textField>
-                <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QOD-vv-nf4">
+                <scrollView autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QOD-vv-nf4">
                     <rect key="frame" x="20" y="20" width="430" height="165"/>
-                    <clipView key="contentView" id="yVN-oW-Nkv">
+                    <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="yVN-oW-Nkv">
                         <rect key="frame" x="1" y="1" width="223" height="133"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="6Hp-RI-rhf">
-                                <rect key="frame" x="0.0" y="0.0" width="223" height="133"/>
+                                <rect key="frame" x="0.0" y="0.0" width="223" height="163"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <size key="minSize" width="428" height="163"/>
@@ -285,7 +289,7 @@
                         <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
-                    <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="pVB-Qz-RVh">
+                    <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="pVB-Qz-RVh">
                         <rect key="frame" x="224" y="1" width="15" height="133"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
