@@ -50,14 +50,23 @@ namespace Xamarin.AsyncTests.UI
 			NotifyStateChanged = notify;
 		}
 
-		public abstract Task Execute ();
-
 		public bool CanExecute {
 			get { return NotifyStateChanged.State; }
 		}
 	}
 
 	public abstract class Command<T> : Command
+		where T : class
+	{
+		protected Command (CommandProvider<T> provider, INotifyStateChanged notify)
+			: base (provider, notify)
+		{
+		}
+
+		internal abstract Task Stop (T instance, CancellationToken cancellationToken);
+	}
+
+	public abstract class Command<T,U> : Command<T>
 		where T : class
 	{
 		new readonly CommandProvider<T> Provider;
@@ -68,19 +77,31 @@ namespace Xamarin.AsyncTests.UI
 			Provider = provider;
 		}
 
-		internal abstract Task<T> Start (CancellationToken cancellationToken);
+		internal abstract Task<T> Start (U argument, CancellationToken cancellationToken);
 
 		internal abstract Task<bool> Run (T instance, CancellationToken cancellationToken);
 
-		internal abstract Task Stop (T instance, CancellationToken cancellationToken);
-
-		public override async Task Execute ()
+		public async Task<T> Execute (U argument)
 		{
 			try {
-				await Provider.ExecuteStart (this);
+				return await Provider.ExecuteStart (this, argument);
 			} catch (Exception ex) {
 				Provider.App.Logger.LogError (ex);
+				throw;
 			}
+		}
+	}
+
+	public class StopCommand : Command
+	{
+		public StopCommand (CommandProvider provider)
+			: base (provider, provider.CanStop)
+		{
+		}
+
+		public Task Execute ()
+		{
+			return Provider.ExecuteStop ();
 		}
 	}
 }

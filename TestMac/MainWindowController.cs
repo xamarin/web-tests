@@ -40,10 +40,6 @@ namespace TestMac
 			app.MacUI.TestRunner.Run.NotifyStateChanged.StateChanged += (sender, e) => CanRun = e;
 			app.MacUI.TestRunner.Stop.NotifyStateChanged.StateChanged += (sender, e) => CanStop = e;
 
-			// UIBinding.Bind (app.MacUI.TestRunner.Run, Run);
-			UIBinding.Bind (app.MacUI.TestRunner.Repeat, Repeat);
-			// UIBinding.Bind (app.MacUI.TestRunner.Stop, Stop);
-
 			UIBinding.Bind (app.MacUI.ServerManager.StatusMessage, ServerStatusMessage);
 			UIBinding.Bind (app.MacUI.TestRunner.StatusMessage, ServerStatusMessage);
 
@@ -73,7 +69,8 @@ namespace TestMac
 			Console.WriteLine ("RUN: {0} {1}", test, index);
 			var ui = AppDelegate.Instance.MacUI;
 
-			var result = await ui.TestRunner.Run.Execute (test.Test, test.Test.Name, CancellationToken.None);
+			var parameters = new RunParameters (test.Test);
+			var result = await ui.TestRunner.Run.Execute (parameters);
 			Console.WriteLine ("RESULT: {0}", result);
 
 			var model = new TestResultNode (result);
@@ -105,7 +102,6 @@ namespace TestMac
 			get { return canStop; }
 			set {
 				WillChangeValue ("CanStop");
-				Console.WriteLine ("CAN STOP: {0} -> {1}", canStop, value);
 				canStop = value;
 				DidChangeValue ("CanStop");
 			}

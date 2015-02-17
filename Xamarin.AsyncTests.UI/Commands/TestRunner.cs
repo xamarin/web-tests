@@ -38,24 +38,9 @@ namespace Xamarin.AsyncTests.UI
 	public class TestRunner : CommandProvider<TestResult>
 	{
 		readonly RunCommand runCommand;
-		readonly RepeatCommand repeatCommand;
-		readonly ClearCommand clearCommand;
-		readonly RefreshCommand refreshCommand;
 
-		public RunCommand Run {
+		public Command<TestResult,RunParameters> Run {
 			get { return runCommand; }
-		}
-
-		public Command<TestResult> Repeat {
-			get { return repeatCommand; }
-		}
-
-		public Command Clear {
-			get { return clearCommand; }
-		}
-
-		public Command Refresh {
-			get { return refreshCommand; }
 		}
 
 		public TestApp Context {
@@ -66,9 +51,6 @@ namespace Xamarin.AsyncTests.UI
 			: base (app, app.ServerManager)
 		{
 			runCommand = new RunCommand (this);
-			repeatCommand = new RepeatCommand (this);
-			clearCommand = new ClearCommand (this);
-			refreshCommand = new RefreshCommand (this);
 			TestResult.Value = app.RootTestResult;
 		}
 
@@ -79,35 +61,22 @@ namespace Xamarin.AsyncTests.UI
 		static int countReruns;
 		DateTime startTime;
 
-		async Task<TestResult> OnRun (bool repeat, CancellationToken cancellationToken)
+		async Task<TestResult> OnRun (RunParameters parameters, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 
-			var result = TestResult.Value;
+			var result = new TestResult (parameters.Name);
 
 			App.Logger.ResetStatistics ();
 
-			SetStatusMessage ("Running {0}.", result.Test.Name);
+			SetStatusMessage ("Running {0}.", parameters.Test.Name);
 
-			var test = result.Test;
-
-			if (false) {
-				var name = new TestNameBuilder ();
-				name.PushName ("UI-Rerun");
-				name.PushParameter ("$uiTriggeredRerun", ++countReruns);
-
-				test = TestFramework.CreateProxy (test, name.GetName ());
-				result = new TestResult (name.GetName ());
-			} else {
-				result.Clear ();
-			}
-
-			var session = new TestSession (App, test, result);
+			var session = new TestSession (App, parameters.Test, result);
 
 			startTime = DateTime.Now;
 
-			if (repeat)
-				await session.Repeat (App.Options.RepeatCount, cancellationToken);
+			if (parameters.RepeatCount > 0)
+				await session.Repeat (parameters.RepeatCount, cancellationToken);
 			else
 				await session.Run (cancellationToken);
 
@@ -117,43 +86,6 @@ namespace Xamarin.AsyncTests.UI
 			StatusMessage.Value = GetStatusMessage (string.Format ("Finished in {0} seconds", (int)elapsed.TotalSeconds));
 
 			App.Logger.LogMessage ("DONE: |{0}|{1}|", session.Name, StatusMessage);
-
-			if (false)
-				result.AddChild (result);
-
-			OnRefresh ();
-
-			return result;
-		}
-
-		internal async Task<TestResult> OnRun (TestCase test, TestName name, int repeat, CancellationToken cancellationToken)
-		{
-			await Task.Yield ();
-
-			var result = new TestResult (name);
-
-			App.Logger.ResetStatistics ();
-
-			SetStatusMessage ("Running {0}.", test.Name);
-
-			var session = new TestSession (App, test, result);
-
-			startTime = DateTime.Now;
-
-			if (repeat > 0)
-				await session.Repeat (repeat, cancellationToken);
-			else
-				await session.Run (cancellationToken);
-
-			var elapsed = DateTime.Now - startTime;
-
-			CurrentTestName.Value = string.Empty;
-			StatusMessage.Value = GetStatusMessage (string.Format ("Finished in {0} seconds", (int)elapsed.TotalSeconds));
-
-			App.Logger.LogMessage ("DONE: |{0}|{1}|", session.Name, StatusMessage);
-
-			if (false)
-				result.AddChild (result);
 
 			OnRefresh ();
 
@@ -237,92 +169,31 @@ namespace Xamarin.AsyncTests.UI
 				return sb.ToString ();
 		}
 
-		abstract class AbstractRunCommand : Command<TestResult>
+		class RunCommand : Command<TestResult,RunParameters>
 		{
 			public readonly TestRunner Runner;
 
-			public AbstractRunCommand (TestRunner runner)
+			public RunCommand (TestRunner runner)
 				: base (runner, runner.NotifyCanExecute)
 			{
 				Runner = runner;
 			}
 
-			internal sealed override Task<bool> Run (TestResult result, CancellationToken cancellationToken)
+			internal override Task Stop (TestResult instance, CancellationToken cancellationToken)
 			{
 				return Task.FromResult (false);
 			}
 
-			internal sealed override Task Stop (TestResult result, CancellationToken cancellationToken)
+			internal override Task<bool> Run (TestResult instance, CancellationToken cancellationToken)
 			{
 				return Task.FromResult (false);
 			}
-		}
 
-		class RunSingleCommand : RunCommand
-		{
-			public RunSingleCommand (TestRunner runner)
-				: base (runner)
+			internal override Task<TestResult> Start (RunParameters parameters, CancellationToken cancellationToken)
 			{
-			}
-
-			internal override Task<TestResult> Start (CancellationToken cancellationToken)
-			{
-				return Runner.OnRun (false, cancellationToken);
+				return Runner.OnRun (parameters, cancellationToken);
 			}
 		}
-
-		class RepeatCommand : RunCommand
-		{
-			public RepeatCommand (TestRunner runner)
-				: base (runner)
-			{
-			}
-
-			internal override Task<TestResult> Start (CancellationToken cancellationToken)
-			{
-				return Runner.OnRun (true, cancellationToken);
-			}
-		}
-
-		class ClearCommand : RunCommand
-		{
-			public ClearCommand (TestRunner runner)
-				: base (runner)
-			{
-			}
-
-			#region implemented abstract members of Command
-
-			internal override async Task<TestResult> Start (CancellationToken cancellationToken)
-			{
-				await Task.Yield ();
-				Runner.OnClear ();
-				return null;
-			}
-
-			#endregion
-		}
-
-
-		class RefreshCommand : RunCommand
-		{
-			public RefreshCommand (TestRunner runner)
-				: base (runner)
-			{
-			}
-
-			#region implemented abstract members of Command
-
-			internal override async Task<TestResult> Start (CancellationToken cancellationToken)
-			{
-				await Task.Yield ();
-				Runner.OnRefresh ();
-				return null;
-			}
-
-			#endregion
-		}
-
 	}
 }
 

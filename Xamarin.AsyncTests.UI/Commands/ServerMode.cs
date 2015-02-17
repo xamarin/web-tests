@@ -1,5 +1,5 @@
 ﻿//
-// UIBinding.cs
+// ServerMode.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,20 +24,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using AppKit;
-using Xamarin.AsyncTests.UI;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.UI
 {
-	public static class UIBinding
+	public enum ServerMode
 	{
-		public static void Bind (Property<string> property, NSTextField label)
-		{
-			property.PropertyChanged += (sender, e) => {
-				label.InvokeOnMainThread (() => label.StringValue = e);
-			};
-			label.StringValue = property.Value;
-		}
+		Local,
+		StartServer,
+		ConnectToServer
 	}
 }
 

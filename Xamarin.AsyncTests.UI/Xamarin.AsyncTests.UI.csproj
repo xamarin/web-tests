@@ -48,7 +48,9 @@
     <Compile Include="Binding\InstanceProperty.cs" />
     <Compile Include="Commands\INotifyStateChanged.cs" />
     <Compile Include="Commands\NotifyStateChanged.cs" />
-    <Compile Include="Commands\RunCommand.cs" />
+    <Compile Include="Commands\RunParameters.cs" />
+    <Compile Include="Commands\ServerMode.cs" />
+    <Compile Include="Commands\ServerParameters.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

@@ -56,7 +56,7 @@ namespace Xamarin.AsyncTests.UI
 			stopCommand = new StopCommand (this);
 		}
 
-		public Command Stop {
+		public StopCommand Stop {
 			get { return stopCommand; }
 		}
 
@@ -94,19 +94,6 @@ namespace Xamarin.AsyncTests.UI
 		}
 
 		internal abstract Task ExecuteStop ();
-
-		class StopCommand : Command
-		{
-			public StopCommand (CommandProvider provider)
-				: base (provider, provider.CanStop)
-			{
-			}
-
-			public override Task Execute ()
-			{
-				return Provider.ExecuteStop ();
-			}
-		}
 	}
 
 	public abstract class CommandProvider<T> : CommandProvider
@@ -132,11 +119,11 @@ namespace Xamarin.AsyncTests.UI
 		volatile TaskCompletionSource<T> startTcs;
 		volatile CancellationTokenSource cts;
 
-		internal Task ExecuteStart (Command<T> command)
+		internal Task<T> ExecuteStart<U> (Command<T,U> command, U argument)
 		{
 			lock (this) {
 				if (startTcs != null || !CanStart || !command.CanExecute)
-					return Task.FromResult<object> (null);
+					return Task.FromResult<T> (null);
 				CanStart.Value = false;
 				CanStop.Value = true;
 				currentCommand = command;
@@ -148,7 +135,7 @@ namespace Xamarin.AsyncTests.UI
 				var token = cts.Token;
 				T instance = null;
 				try {
-					instance = await command.Start (token);
+					instance = await command.Start (argument, token);
 					Instance.Value = instance;
 					startTcs.SetResult (instance);
 				} catch (OperationCanceledException) {

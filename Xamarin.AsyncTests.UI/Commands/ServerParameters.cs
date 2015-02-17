@@ -1,5 +1,5 @@
 ﻿//
-// RunCommand.cs
+// ServerParameters.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,39 +24,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.UI
 {
-	public class RunCommand : Command<TestResult>
+	public class ServerParameters
 	{
-		public readonly TestRunner Runner;
-
-		public RunCommand (TestRunner runner)
-			: base (runner, runner.NotifyCanExecute)
-		{
-			Runner = runner;
+		public ServerMode Mode {
+			get;
+			private set;
 		}
 
-		internal sealed override Task<bool> Run (TestResult result, CancellationToken cancellationToken)
-		{
-			return Task.FromResult (false);
+		public string Address {
+			get;
+			private set;
 		}
 
-		internal sealed override Task Stop (TestResult result, CancellationToken cancellationToken)
+		public ServerParameters (ServerMode mode = ServerMode.Local, string address = null)
 		{
-			return Task.FromResult (false);
+			Mode = mode;
+			Address = address;
 		}
 
-		internal override Task<TestResult> Start (CancellationToken cancellationToken)
+		public static ServerParameters CreateLocal ()
 		{
-			throw new NotImplementedException ();
-		}
-
-		public Task<TestResult> Execute (TestCase test, TestName name, CancellationToken cancellationToken)
-		{
-			return Runner.OnRun (test, name, 0, cancellationToken);
+			return new ServerParameters (ServerMode.Local);
 		}
 	}
 }

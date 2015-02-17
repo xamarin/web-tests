@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Foundation;
 using AppKit;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.UI;
 
 namespace TestMac
 {
@@ -57,12 +58,7 @@ namespace TestMac
 			mainWindowController = new MainWindowController ();
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
 
-			UIBinding.Bind (ui.ServerManager.Local, LoadLocal);
-			UIBinding.Bind (ui.ServerManager.Start, StartServer);
-			UIBinding.Bind (ui.ServerManager.Connect, ConnectToServer);
-			UIBinding.Bind (ui.ServerManager.Stop, Unload);
-
-			ui.ServerManager.Local.Execute ();
+			ui.ServerManager.Start.Execute (ServerParameters.CreateLocal ());
 		}
 
 		public override void AwakeFromNib ()

@@ -39,19 +39,9 @@ namespace Xamarin.AsyncTests.UI
 
 	public class ServerManager : CommandProvider<TestServer>
 	{
-		readonly LocalCommand localCommand;
-		readonly ConnectCommand connectCommand;
-		readonly StartCommand startCommand;
+		readonly ServerCommand startCommand;
 
-		public Command<TestServer> Local {
-			get { return localCommand; }
-		}
-
-		public Command<TestServer> Connect {
-			get { return connectCommand; }
-		}
-
-		public Command<TestServer> Start {
+		public Command<TestServer,ServerParameters> Start {
 			get { return startCommand; }
 		}
 
@@ -77,9 +67,7 @@ namespace Xamarin.AsyncTests.UI
 		{
 			Settings = app.Settings;
 
-			localCommand = new LocalCommand (this);
-			connectCommand = new ConnectCommand (this);
-			startCommand = new StartCommand (this);
+			startCommand = new ServerCommand (this);
 
 			Features = new TestFeaturesModel (App);
 			Categories = new TestCategoriesModel (App);
@@ -96,23 +84,6 @@ namespace Xamarin.AsyncTests.UI
 					App.RootTestResult.Test = e.Test;
 				}
 			};
-		}
-
-		internal async Task Initialize ()
-		{
-			switch (StartupAction) {
-			case StartupActionKind.LoadLocal:
-				await Local.Execute ();
-				break;
-			case StartupActionKind.Start:
-				await Start.Execute ();
-				break;
-			case StartupActionKind.Connect:
-				await Connect.Execute ();
-				break;
-			default:
-				break;
-			}
 		}
 
 		#region Options
@@ -176,7 +147,7 @@ namespace Xamarin.AsyncTests.UI
 			await instance.Stop (cancellationToken);
 		}
 
-		abstract class ServerCommand : Command<TestServer>
+		class ServerCommand : Command<TestServer,ServerParameters>
 		{
 			public readonly ServerManager Manager;
 
@@ -184,6 +155,20 @@ namespace Xamarin.AsyncTests.UI
 				: base (manager, manager.NotifyCanExecute)
 			{
 				Manager = manager;
+			}
+
+			internal override Task<TestServer> Start (ServerParameters parameters, CancellationToken cancellationToken)
+			{
+				switch (parameters.Mode) {
+				case ServerMode.Local:
+					return Task.FromResult (TestServer.StartLocal (Manager.App));
+				case ServerMode.ConnectToServer:
+					return TestServer.Connect (Manager.App, parameters.Address, cancellationToken);
+				case ServerMode.StartServer:
+					return TestServer.StartServer (Manager.App, cancellationToken);
+				default:
+					throw new InvalidOperationException ();
+				}
 			}
 
 			internal sealed override Task<bool> Run (TestServer instance, CancellationToken cancellationToken)
@@ -194,45 +179,6 @@ namespace Xamarin.AsyncTests.UI
 			internal sealed override Task Stop (TestServer instance, CancellationToken cancellationToken)
 			{
 				return Manager.OnStop (instance, cancellationToken);
-			}
-		}
-
-		class LocalCommand : ServerCommand
-		{
-			public LocalCommand (ServerManager manager)
-				: base (manager)
-			{
-			}
-
-			internal override Task<TestServer> Start (CancellationToken cancellationToken)
-			{
-				return Task.FromResult (TestServer.StartLocal (Manager.App));
-			}
-		}
-
-		class ConnectCommand : ServerCommand
-		{
-			public ConnectCommand (ServerManager manager)
-				: base (manager)
-			{
-			}
-
-			internal override Task<TestServer> Start (CancellationToken cancellationToken)
-			{
-				return TestServer.Connect (Manager.App, Manager.ServerAddress, cancellationToken);
-			}
-		}
-
-		class StartCommand : ServerCommand
-		{
-			public StartCommand (ServerManager manager)
-				: base (manager)
-			{
-			}
-
-			internal override Task<TestServer> Start (CancellationToken cancellationToken)
-			{
-				return TestServer.StartServer (Manager.App, cancellationToken);
 			}
 		}
 	}

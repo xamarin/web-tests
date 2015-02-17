@@ -120,19 +120,6 @@ namespace Xamarin.AsyncTests.UI
 			TestRunner.TestResult.Value = RootTestResult;
 
 			Options = new OptionsModel (this);
-
-			Initialize ();
-		}
-
-		async void Initialize ()
-		{
-			await Task.Yield ();
-
-			try {
-				await ServerManager.Initialize ();
-			} catch (Exception ex) {
-				Logger.LogError (ex);
-			}
 		}
 
 		class UILogger : TestLoggerBackend

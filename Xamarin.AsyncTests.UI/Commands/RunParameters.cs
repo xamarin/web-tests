@@ -1,5 +1,5 @@
 ﻿//
-// UIBinding.cs
+// RunParameters.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,19 +24,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using AppKit;
-using Xamarin.AsyncTests.UI;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.UI
 {
-	public static class UIBinding
+	public class RunParameters
 	{
-		public static void Bind (Property<string> property, NSTextField label)
+		public TestCase Test {
+			get;
+			private set;
+		}
+
+		public TestName Name {
+			get;
+			private set;
+		}
+
+		public int RepeatCount {
+			get;
+			private set;
+		}
+
+		public RunParameters (TestCase test, TestName name = null, int repeat = 0)
 		{
-			property.PropertyChanged += (sender, e) => {
-				label.InvokeOnMainThread (() => label.StringValue = e);
-			};
-			label.StringValue = property.Value;
+			Test = test;
+			Name = name ?? test.Name;
+			RepeatCount = repeat;
 		}
 	}
 }
