@@ -54,9 +54,9 @@ namespace Xamarin.AsyncTests.UI
 			throw new NotImplementedException ();
 		}
 
-		public Task<TestResult> Run (TestCase test, TestName name, CancellationToken cancellationToken)
+		public Task<TestResult> Execute (TestCase test, TestName name, CancellationToken cancellationToken)
 		{
-			return Runner.Run (test, name, 0, cancellationToken);
+			return Runner.OnRun (test, name, 0, cancellationToken);
 		}
 	}
 }

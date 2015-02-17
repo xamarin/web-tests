@@ -42,7 +42,7 @@ namespace Xamarin.AsyncTests.UI
 		readonly ClearCommand clearCommand;
 		readonly RefreshCommand refreshCommand;
 
-		public RunCommand RunCommand {
+		public RunCommand Run {
 			get { return runCommand; }
 		}
 
@@ -126,7 +126,7 @@ namespace Xamarin.AsyncTests.UI
 			return result;
 		}
 
-		internal async Task<TestResult> Run (TestCase test, TestName name, int repeat, CancellationToken cancellationToken)
+		internal async Task<TestResult> OnRun (TestCase test, TestName name, int repeat, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 

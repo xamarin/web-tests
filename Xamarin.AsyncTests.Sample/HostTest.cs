@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Sample
 {
-	// [AsyncTestFixture]
+	[AsyncTestFixture]
 	public class HostTest
 	{
 		[TestHost (typeof (MyHost))]

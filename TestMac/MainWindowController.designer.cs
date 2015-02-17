@@ -22,9 +22,6 @@ namespace TestMac
 		AppKit.NSSplitView SplitView { get; set; }
 
 		[Outlet]
-		AppKit.NSButton Stop { get; set; }
-
-		[Outlet]
 		AppKit.NSTreeController TestResultController { get; set; }
 
 		[Outlet]
@@ -51,11 +48,6 @@ namespace TestMac
 			if (SplitView != null) {
 				SplitView.Dispose ();
 				SplitView = null;
-			}
-
-			if (Stop != null) {
-				Stop.Dispose ();
-				Stop = null;
 			}
 
 			if (TestResultController != null) {

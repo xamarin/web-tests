@@ -10,7 +10,6 @@
                 <outlet property="Repeat" destination="12" id="8oa-cw-Q6f"/>
                 <outlet property="ServerStatusMessage" destination="l13-Jy-Xnn" id="caa-FH-1zz"/>
                 <outlet property="SplitView" destination="uFN-Gi-fL5" id="O3f-UK-PRy"/>
-                <outlet property="Stop" destination="14" id="ynZ-mh-tU8"/>
                 <outlet property="TestResultController" destination="oII-JR-BBP" id="3mm-9R-6Wd"/>
                 <outlet property="TestResultDetails" destination="pv2-8m-9Gd" id="3tY-tR-Bae"/>
                 <outlet property="TestResultList" destination="asp-yt-jjb" id="cOe-fC-RWp"/>
@@ -140,6 +139,14 @@
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
+                            <connections>
+                                <binding destination="-2" name="enabled" keyPath="CanStop" id="6od-Xn-Xfy"/>
+                                <binding destination="-2" name="target" keyPath="self" id="dAC-wY-mN4">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">Stop:</string>
+                                    </dictionary>
+                                </binding>
+                            </connections>
                         </button>
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="63F40D71-744E-45A7-885D-AF7E4B1F9C69" label="" paletteLabel="Custom View" id="lCO-Sg-1yt">
@@ -154,7 +161,7 @@
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
                             <connections>
-                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selectionIndexPath" previousBinding="sQL-QC-xaE" id="Iyz-zF-Igt">
+                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selectionIndexPath" previousBinding="sQL-QC-xaE" id="BqW-eO-JpB">
                                     <dictionary key="options">
                                         <string key="NSSelectorName">Clear:testResult:indexPath:</string>
                                     </dictionary>
@@ -164,7 +171,7 @@
                                         <string key="NSSelectorName">Clear:testResult:indexPath:</string>
                                     </dictionary>
                                 </binding>
-                                <binding destination="-2" name="target" keyPath="self" previousBinding="Iyz-zF-Igt" id="Ql8-Bp-mOV">
+                                <binding destination="-2" name="target" keyPath="self" previousBinding="BqW-eO-JpB" id="Vil-DJ-kmb">
                                     <dictionary key="options">
                                         <string key="NSSelectorName">Clear:testResult:indexPath:</string>
                                     </dictionary>
