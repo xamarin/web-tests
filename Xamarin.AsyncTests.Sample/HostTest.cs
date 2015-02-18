@@ -88,6 +88,7 @@ namespace Xamarin.AsyncTests.Sample
 			}
 		}
 
+		[Work]
 		[AsyncTest]
 		public void Test (TestContext context, [Repeat (3)] int outer, MyInstance instance, [Repeat (2)] int iteration)
 		{

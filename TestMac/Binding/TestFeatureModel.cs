@@ -36,6 +36,10 @@ namespace TestMac
 			private set;
 		}
 
+		public TestConfiguration Configuration {
+			get { return AppDelegate.Instance.MacUI.Configuration; }
+		}
+
 		public TestFeatureModel (TestFeature feature)
 		{
 			Feature = feature;
@@ -56,21 +60,10 @@ namespace TestMac
 			get { return Feature.Description; }
 		}
 
-		int state;
 		[Export ("State")]
 		public int State {
-			get { return state; }
-			set { state = value; }
-		}
-
-		bool enabled;
-		[Export ("Enabled")]
-		public bool Enabled {
-			get { return enabled; }
-			set {
-				Console.WriteLine ("SET ENABLED: {0}", value);
-				enabled = value;
-			}
+			get { return Configuration.IsEnabled (Feature) ? 1 : 0; }
+			set { Configuration.SetIsEnabled (Feature, value != 0); }
 		}
 	}
 }

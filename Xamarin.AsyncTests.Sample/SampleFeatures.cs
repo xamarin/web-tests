@@ -28,6 +28,20 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Sample
 {
+	public class NotWorkingAttribute : TestFeatureAttribute
+	{
+		public override TestFeature Feature {
+			get { return SampleFeatures.NotWorking; }
+		}
+	}
+
+	public class WorkAttribute : TestCategoryAttribute
+	{
+		public override TestCategory Category {
+			get { return SampleFeatures.Work; }
+		}
+	}
+
 	public class SampleFeatures : ITestConfigurationProvider
 	{
 		public static readonly SampleFeatures Instance;

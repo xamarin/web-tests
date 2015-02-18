@@ -60,9 +60,6 @@ namespace TestMac
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
 
 			settingsDialogController = new SettingsDialogController ();
-			settingsDialogController.Window.MakeKeyAndOrderFront (this);
-
-			settingsDialogController.Initialize (ui.Configuration);
 
 			ui.ServerManager.Start.Execute (ServerParameters.CreateLocal ());
 		}
@@ -72,6 +69,12 @@ namespace TestMac
 			base.AwakeFromNib ();
 
 			testResultArray = new NSMutableArray ();
+		}
+
+		[Export ("ShowPreferences:")]
+		public void ShowPreferences ()
+		{
+			settingsDialogController.Window.MakeKeyAndOrderFront (this);
 		}
 
 		public override string ToString ()

@@ -55,6 +55,7 @@ namespace Xamarin.AsyncTests.Sample
 		}
 
 		[AsyncTest]
+		[NotWorking]
 		public void HelloFoo (TestContext context, [Repeat (20)] int index, [TestParameter ("New York")] Foo foo, [TestParameter (null, TestFlags.None)] Foo bar)
 		{
 			context.LogMessage ("HELLO FOO: {0} {1} {2}", context.Name, foo, bar);
@@ -75,6 +76,7 @@ namespace Xamarin.AsyncTests.Sample
 		}
 
 		[AsyncTest]
+		[NotWorking]
 		public void RepeatedError ([Repeat (5, TestFlags.ContinueOnError | TestFlags.Browsable)] int index, TestContext context)
 		{
 			context.LogMessage ("REPEATED ERROR: {0}", index);

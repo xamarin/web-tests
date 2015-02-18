@@ -12,6 +12,10 @@ namespace TestMac
 		NSMutableArray testFeaturesArray;
 		TestCategoryModel currentCategory;
 
+		public static TestConfiguration Configuration {
+			get { return AppDelegate.Instance.MacUI.Configuration; }
+		}
+
 		public SettingsDialogController (IntPtr handle) : base (handle)
 		{
 		}
@@ -37,6 +41,8 @@ namespace TestMac
 			allCategory = new TestCategoryModel (TestCategory.All);
 
 			testFeaturesArray = new NSMutableArray ();
+
+			Initialize (app.MacUI.Configuration);
 		}
 
 		public void Initialize (TestConfiguration configuration)
@@ -50,6 +56,8 @@ namespace TestMac
 			foreach (var category in configuration.Categories) {
 				var model = new TestCategoryModel (category);
 				CategoriesController.AddObject (model);
+				if (category == Configuration.CurrentCategory)
+					CurrentCategory = model;
 			}
 
 			foreach (var feature in configuration.Features) {
@@ -74,6 +82,7 @@ namespace TestMac
 			set {
 				WillChangeValue ("CurrentCategory");
 				currentCategory = value;
+				Configuration.CurrentCategory = value.Category;
 				DidChangeValue ("CurrentCategory");
 			}
 		}
