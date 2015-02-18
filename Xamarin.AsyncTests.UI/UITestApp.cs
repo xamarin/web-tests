@@ -48,11 +48,6 @@ namespace Xamarin.AsyncTests.UI
 			get { return this; }
 		}
 
-		public TestResult RootTestResult {
-			get;
-			private set;
-		}
-
 		string statusMessage;
 		public string StatusMessage {
 			get { return statusMessage; }
@@ -107,12 +102,9 @@ namespace Xamarin.AsyncTests.UI
 
 			SessionManager = new SessionManager (this);
 
-			RootTestResult = new TestResult (new TestName (null));
-
 			ServerManager = new ServerManager (this);
 
 			TestRunner = new TestRunner (this);
-			TestRunner.TestResult.Value = RootTestResult;
 		}
 
 		class UILogger : TestLoggerBackend

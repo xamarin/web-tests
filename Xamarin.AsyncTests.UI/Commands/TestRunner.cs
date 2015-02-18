@@ -49,10 +49,16 @@ namespace Xamarin.AsyncTests.UI
 			: base (app, app.ServerManager)
 		{
 			runCommand = new RunCommand (this);
-			TestResult.Value = app.RootTestResult;
+
+			app.ServerManager.TestSuite.PropertyChanged += (sender, e) => {
+				if (e == null)
+					TestResult.Value = null;
+				else
+					TestResult.Value = new TestResult (e.Name) { Test = e.Test };
+			};
 		}
 
-		public readonly InstanceProperty<TestResult> TestResult = new InstanceProperty<TestResult> ("CurrentTestResult", null);
+		public readonly InstanceProperty<TestResult> TestResult = new InstanceProperty<TestResult> ("RootTestResult", null);
 
 		public readonly Property<string> CurrentTestName = new InstanceProperty<string> ("CurrentTest", null);
 

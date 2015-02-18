@@ -61,15 +61,6 @@ namespace Xamarin.AsyncTests.UI
 			serverAddress = string.Empty;
 			Settings.PropertyChanged += (sender, e) => LoadSettings ();
 			LoadSettings ();
-
-			TestSuite.PropertyChanged += (sender, e) => {
-				if (e == null) {
-					App.RootTestResult.Clear ();
-					App.TestRunner.TestResult.Value = App.RootTestResult;
-				} else {
-					App.RootTestResult.Test = e.Test;
-				}
-			};
 		}
 
 		#region Options

@@ -46,14 +46,11 @@ namespace TestMac
 			SplitView.AddSubview (TestResultList);
 			SplitView.AddSubview (TestResultDetails);
 
-			app.MacUI.ServerManager.TestSuite.PropertyChanged += (sender, e) => OnTestSuiteLoaded (e);
+			app.MacUI.TestRunner.TestResult.PropertyChanged += (sender, e) => OnTestSuiteLoaded (e);
 		}
 
-		void OnTestSuiteLoaded (TestSuite suite)
+		void OnTestSuiteLoaded (TestResult result)
 		{
-			var result = new TestResult (suite.Name);
-			result.Test = suite.Test;
-
 			var node = new TestResultNode (result);
 			node.Model.IsRoot = true;
 			TestResultController.AddObject (node);
