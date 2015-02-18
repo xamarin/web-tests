@@ -16,6 +16,10 @@ namespace TestMac
 			get { return AppDelegate.Instance.MacUI.Configuration; }
 		}
 
+		public static SettingsBag SettingsBag {
+			get { return AppDelegate.Instance.MacUI.Settings; }
+		}
+
 		public SettingsDialogController (IntPtr handle) : base (handle)
 		{
 		}
@@ -91,6 +95,16 @@ namespace TestMac
 		public NSMutableArray TestFeaturesArray {
 			get { return testFeaturesArray; }
 			set { testFeaturesArray = value; }
+		}
+
+		[Export ("RepeatCount")]
+		public int RepeatCount {
+			get { return SettingsBag.RepeatCount; }
+			set {
+				WillChangeValue ("RepeatCount");
+				SettingsBag.RepeatCount = value;
+				DidChangeValue ("RepeatCount");
+			}
 		}
 	}
 }

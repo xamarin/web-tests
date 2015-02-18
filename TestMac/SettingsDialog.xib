@@ -64,14 +64,14 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                         <connections>
-                            <binding destination="OPB-id-1Hh" name="value" keyPath="values.RepeatCount" id="esM-BC-wXs"/>
+                            <binding destination="-2" name="value" keyPath="RepeatCount" id="itS-xO-Hwd"/>
                         </connections>
                     </textField>
                     <stepper horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="qQj-gR-TfD">
                         <rect key="frame" x="348" y="368" width="19" height="27"/>
                         <stepperCell key="cell" continuous="YES" alignment="left" maxValue="1000" id="sA7-eM-Yuf"/>
                         <connections>
-                            <binding destination="OPB-id-1Hh" name="value" keyPath="values.RepeatCount" id="d6w-I0-CvU"/>
+                            <binding destination="-2" name="value" keyPath="RepeatCount" id="Vpa-2Y-Anp"/>
                         </connections>
                     </stepper>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="o3T-ot-Dyo">
@@ -198,7 +198,6 @@
             </view>
             <point key="canvasLocation" x="447" y="562.5"/>
         </window>
-        <userDefaultsController representsSharedInstance="YES" id="OPB-id-1Hh"/>
         <arrayController objectClassName="TestCategoryNode" editable="NO" id="fK4-jb-ZhC" userLabel="CategoriesController">
             <connections>
                 <binding destination="-2" name="contentArray" keyPath="TestCategoriesArray" id="mag-eK-PDX"/>
