@@ -109,6 +109,7 @@
       <DependentUpon>SettingsDialogController.cs</DependentUpon>
     </Compile>
     <Compile Include="Binding\TestCategoryModel.cs" />
+    <Compile Include="Binding\TestFeatureModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />

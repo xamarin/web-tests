@@ -8,6 +8,7 @@
         <customObject id="-2" userLabel="File's Owner" customClass="SettingsDialogController">
             <connections>
                 <outlet property="CategoriesController" destination="fK4-jb-ZhC" id="3iT-Kg-kFG"/>
+                <outlet property="FeaturesController" destination="Vqq-7d-jab" id="meq-fU-jCz"/>
                 <outlet property="window" destination="2" id="6"/>
             </connections>
         </customObject>
@@ -83,25 +84,101 @@
                     </textField>
                     <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="m51-J3-1b1">
                         <rect key="frame" x="244" y="327" width="123" height="26"/>
-                        <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="V86-8T-Kko" id="3xz-Uc-jDM">
+                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="V86-8T-Kko" id="3xz-Uc-jDM">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="menu"/>
                             <menu key="menu" id="ryr-9F-1R6">
                                 <items>
-                                    <menuItem title="Item 1" state="on" id="V86-8T-Kko"/>
+                                    <menuItem state="on" id="V86-8T-Kko"/>
                                     <menuItem title="Item 2" id="UIS-14-hL7"/>
                                     <menuItem title="Item 3" id="1Jl-3i-cGd"/>
                                 </items>
                             </menu>
                         </popUpButtonCell>
                         <connections>
-                            <binding destination="fK4-jb-ZhC" name="content" keyPath="arrangedObjects" id="eKm-Pc-B3k"/>
                             <binding destination="-2" name="selectedObject" keyPath="CurrentCategory" previousBinding="eKm-Pc-B3k" id="7xd-Me-Fv8"/>
+                            <binding destination="fK4-jb-ZhC" name="content" keyPath="arrangedObjects" id="eKm-Pc-B3k"/>
                         </connections>
                     </popUpButton>
+                    <scrollView borderType="none" autohidesScrollers="YES" horizontalLineScroll="20" horizontalPageScroll="10" verticalLineScroll="20" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ilG-dS-Rhu">
+                        <rect key="frame" x="20" y="20" width="344" height="290"/>
+                        <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="hqW-Xq-vyk">
+                            <rect key="frame" x="1" y="0.0" width="238" height="134"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="sequential" columnReordering="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="18" id="dSI-K6-eJI">
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <size key="intercellSpacing" width="3" height="2"/>
+                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
+                                    <tableColumns>
+                                        <tableColumn editable="NO" width="20" minWidth="20" maxWidth="20" id="VCd-4G-FBE">
+                                            <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                            </tableHeaderCell>
+                                            <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="left" alignment="left" scrollable="YES" lineBreakMode="clipping" inset="2" id="Ckp-wt-HQj">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                            <connections>
+                                                <binding destination="Vqq-7d-jab" name="enabled" keyPath="arrangedObjects.CanModify" id="MrV-RQ-3An"/>
+                                                <binding destination="Vqq-7d-jab" name="value" keyPath="arrangedObjects.State" id="rBG-tp-G9y"/>
+                                            </connections>
+                                        </tableColumn>
+                                        <tableColumn editable="NO" width="100" minWidth="80" maxWidth="3.4028234663852886e+38" id="yWh-no-kJj">
+                                            <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                            </tableHeaderCell>
+                                            <textFieldCell key="dataCell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" alignment="left" id="WBm-Pe-IyS">
+                                                <font key="font" metaFont="system"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                            <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                            <connections>
+                                                <binding destination="Vqq-7d-jab" name="value" keyPath="arrangedObjects.Name" id="8pG-75-Pct"/>
+                                            </connections>
+                                        </tableColumn>
+                                        <tableColumn editable="NO" width="100" minWidth="50" maxWidth="3.4028234663852886e+38" id="Aqg-29-S4R">
+                                            <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                            </tableHeaderCell>
+                                            <textFieldCell key="dataCell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" alignment="left" id="yBL-6E-ZD1">
+                                                <font key="font" metaFont="system"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                            <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                            <connections>
+                                                <binding destination="Vqq-7d-jab" name="value" keyPath="arrangedObjects.Details" id="4GJ-eY-75K"/>
+                                            </connections>
+                                        </tableColumn>
+                                    </tableColumns>
+                                </tableView>
+                            </subviews>
+                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </clipView>
+                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="NV2-Vd-k2f">
+                            <rect key="frame" x="1" y="119" width="223" height="15"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                        <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="ARi-9f-H69">
+                            <rect key="frame" x="224" y="17" width="15" height="102"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                    </scrollView>
                 </subviews>
                 <constraints>
+                    <constraint firstAttribute="bottom" secondItem="ilG-dS-Rhu" secondAttribute="bottom" constant="20" id="1qb-D2-4FL"/>
                     <constraint firstItem="m51-J3-1b1" firstAttribute="centerY" secondItem="o3T-ot-Dyo" secondAttribute="centerY" id="6Dw-Xn-G1j"/>
+                    <constraint firstItem="ilG-dS-Rhu" firstAttribute="trailing" secondItem="m51-J3-1b1" secondAttribute="trailing" id="8lv-zL-hKa"/>
                     <constraint firstItem="o3T-ot-Dyo" firstAttribute="leading" secondItem="Qda-XC-Qpw" secondAttribute="leading" id="Cm8-cl-5pZ"/>
                     <constraint firstItem="m51-J3-1b1" firstAttribute="trailing" secondItem="qQj-gR-TfD" secondAttribute="trailing" id="GB2-S6-ui1"/>
                     <constraint firstItem="Qda-XC-Qpw" firstAttribute="top" secondItem="3" secondAttribute="top" constant="22" id="Grq-MO-1RG"/>
@@ -113,16 +190,23 @@
                     <constraint firstAttribute="trailing" secondItem="qQj-gR-TfD" secondAttribute="trailing" constant="20" id="Nd0-jM-Zol"/>
                     <constraint firstItem="Pqg-mp-wCU" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Qda-XC-Qpw" secondAttribute="trailing" constant="50" id="Tp4-SH-dJJ"/>
                     <constraint firstItem="Pqg-mp-wCU" firstAttribute="centerY" secondItem="qQj-gR-TfD" secondAttribute="centerY" id="VTh-gT-pmw"/>
+                    <constraint firstItem="ilG-dS-Rhu" firstAttribute="top" secondItem="m51-J3-1b1" secondAttribute="bottom" constant="20" id="eHp-SH-Xwm"/>
                     <constraint firstItem="Qda-XC-Qpw" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="20" id="phI-i0-AjU"/>
+                    <constraint firstItem="ilG-dS-Rhu" firstAttribute="leading" secondItem="o3T-ot-Dyo" secondAttribute="leading" id="rWd-N6-8qc"/>
                     <constraint firstItem="o3T-ot-Dyo" firstAttribute="top" secondItem="Qda-XC-Qpw" secondAttribute="bottom" constant="25" id="yBg-gh-H8a"/>
                 </constraints>
             </view>
             <point key="canvasLocation" x="447" y="562.5"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="OPB-id-1Hh"/>
-        <arrayController objectClassName="TestCategoryNode" editable="NO" id="fK4-jb-ZhC">
+        <arrayController objectClassName="TestCategoryNode" editable="NO" id="fK4-jb-ZhC" userLabel="CategoriesController">
             <connections>
                 <binding destination="-2" name="contentArray" keyPath="TestCategoriesArray" id="mag-eK-PDX"/>
+            </connections>
+        </arrayController>
+        <arrayController objectClassName="TestFeatureModel" editable="NO" id="Vqq-7d-jab" userLabel="FeaturesController">
+            <connections>
+                <binding destination="-2" name="contentArray" keyPath="TestFeaturesArray" id="Vdg-qB-xeY"/>
             </connections>
         </arrayController>
     </objects>

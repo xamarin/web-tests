@@ -9,6 +9,7 @@ namespace TestMac
 	public partial class SettingsDialogController : NSWindowController
 	{
 		NSMutableArray testCategoriesArray;
+		NSMutableArray testFeaturesArray;
 		TestCategoryModel currentCategory;
 
 		public SettingsDialogController (IntPtr handle) : base (handle)
@@ -34,6 +35,8 @@ namespace TestMac
 
 			testCategoriesArray = new NSMutableArray ();
 			allCategory = new TestCategoryModel (TestCategory.All);
+
+			testFeaturesArray = new NSMutableArray ();
 		}
 
 		public void Initialize (TestConfiguration configuration)
@@ -47,6 +50,11 @@ namespace TestMac
 			foreach (var category in configuration.Categories) {
 				var model = new TestCategoryModel (category);
 				CategoriesController.AddObject (model);
+			}
+
+			foreach (var feature in configuration.Features) {
+				var model = new TestFeatureModel (feature);
+				FeaturesController.AddObject (model);
 			}
 		}
 
@@ -68,6 +76,12 @@ namespace TestMac
 				currentCategory = value;
 				DidChangeValue ("CurrentCategory");
 			}
+		}
+
+		[Export ("TestFeaturesArray")]
+		public NSMutableArray TestFeaturesArray {
+			get { return testFeaturesArray; }
+			set { testFeaturesArray = value; }
 		}
 	}
 }

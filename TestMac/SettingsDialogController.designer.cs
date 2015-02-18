@@ -14,12 +14,20 @@ namespace TestMac
 	{
 		[Outlet]
 		AppKit.NSArrayController CategoriesController { get; set; }
+
+		[Outlet]
+		AppKit.NSArrayController FeaturesController { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
 			if (CategoriesController != null) {
 				CategoriesController.Dispose ();
 				CategoriesController = null;
+			}
+
+			if (FeaturesController != null) {
+				FeaturesController.Dispose ();
+				FeaturesController = null;
 			}
 		}
 	}

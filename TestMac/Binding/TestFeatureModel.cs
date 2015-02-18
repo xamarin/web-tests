@@ -1,5 +1,5 @@
 ﻿//
-// SampleFeatures.cs
+// TestFeaturesModel.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,33 +24,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
+using Foundation;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.AsyncTests.Sample
+namespace TestMac
 {
-	public class SampleFeatures : ITestConfigurationProvider
+	public class TestFeatureModel : NSObject
 	{
-		public static readonly SampleFeatures Instance;
+		public TestFeature Feature {
+			get;
+			private set;
+		}
 
-		public static readonly TestCategory Work = new TestCategory ("Work");
-		public static readonly TestFeature Hello = new TestFeature ("Hello", "Hello World");
-		public static readonly TestFeature NotWorking = new TestFeature ("NotWorking", "Not Working");
-
-		static SampleFeatures ()
+		public TestFeatureModel (TestFeature feature)
 		{
-			Instance = new SampleFeatures ();
+			Feature = feature;
 		}
 
-		public IEnumerable<TestFeature> Features {
-			get {
-				yield return Hello;
-				yield return NotWorking;
-			}
+		[Export ("Name")]
+		public string Name {
+			get { return Feature.Name; }
 		}
 
-		public IEnumerable<TestCategory> Categories {
-			get {
-				yield return Work;
+		[Export ("CanModify")]
+		public bool CanModify {
+			get { return Feature.CanModify; }
+		}
+
+		[Export ("Details")]
+		public string Details {
+			get { return Feature.Description; }
+		}
+
+		int state;
+		[Export ("State")]
+		public int State {
+			get { return state; }
+			set { state = value; }
+		}
+
+		bool enabled;
+		[Export ("Enabled")]
+		public bool Enabled {
+			get { return enabled; }
+			set {
+				Console.WriteLine ("SET ENABLED: {0}", value);
+				enabled = value;
 			}
 		}
 	}
