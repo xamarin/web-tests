@@ -1,5 +1,5 @@
 ﻿//
-// MacUI.cs
+// UISettings.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,32 +24,55 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
+using System.Collections.Generic;
+using AppKit;
+using Foundation;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.UI;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Sample;
 
 namespace TestMac
 {
-	public class MacUI : UITestApp
+	public class UISettings : SettingsBag
 	{
-		MacUI (IPortableSupport support, ITestConfigurationProvider configProvider,
-			SettingsBag settings, Assembly assembly)
-			: base (support, configProvider, settings, assembly)
+		NSUserDefaults defaults;
+
+		public UISettings ()
 		{
+			defaults = NSUserDefaults.StandardUserDefaults;
 		}
 
-		public static MacUI Create ()
+		#region implemented abstract members of SettingsBag
+
+		public override bool TryGetValue (string key, out string value)
 		{
-			// var support = PortableSupportImpl.Initialize ();
-			// var provider = WebTestFeatures.Instance;
-			var settings = new UISettings ();
-			var assembly = typeof(SampleFeatures).Assembly;
-			return new MacUI (null, SampleFeatures.Instance, settings, assembly);
+			value = defaults.StringForKey (key);
+			return value != null;
 		}
 
+		public override void Add (string key, string value)
+		{
+			defaults.SetString (value, key);
+			defaults.Synchronize ();
+		}
+
+		public override void RemoveValue (string key)
+		{
+			defaults.RemoveObject (key);
+			defaults.Synchronize ();
+		}
+
+		protected override void DoSetValue (string key, string value)
+		{
+			defaults.SetString (value, key);
+			defaults.Synchronize ();
+		}
+
+		public override IReadOnlyDictionary<string, string> Settings {
+			get {
+				throw new NotImplementedException ();
+			}
+		}
+
+		#endregion
 	}
 }
 
