@@ -32,8 +32,6 @@ using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.AsyncTests.UI
 {
-	using Binding;
-
 	public abstract class CommandProvider
 	{
 		public UITestApp App {

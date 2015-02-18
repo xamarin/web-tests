@@ -62,11 +62,6 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		public OptionsModel Options {
-			get;
-			private set;
-		}
-
 		public ServerManager ServerManager {
 			get;
 			private set;
@@ -118,8 +113,6 @@ namespace Xamarin.AsyncTests.UI
 
 			TestRunner = new TestRunner (this);
 			TestRunner.TestResult.Value = RootTestResult;
-
-			Options = new OptionsModel (this);
 		}
 
 		class UILogger : TestLoggerBackend

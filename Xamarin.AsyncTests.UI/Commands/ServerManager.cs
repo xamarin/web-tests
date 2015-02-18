@@ -34,7 +34,6 @@ using Xamarin.AsyncTests.Framework;
 namespace Xamarin.AsyncTests.UI
 {
 	using Framework;
-	using Binding;
 	using Server;
 
 	public class ServerManager : CommandProvider<TestServer>
@@ -52,25 +51,12 @@ namespace Xamarin.AsyncTests.UI
 
 		public readonly InstanceProperty<TestSuite> TestSuite = new InstanceProperty<TestSuite> ("TestSuite", null);
 
-		public TestFeaturesModel Features {
-			get;
-			private set;
-		}
-
-		public TestCategoriesModel Categories {
-			get;
-			private set;
-		}
-
 		public ServerManager (UITestApp app)
 			: base (app, null)
 		{
 			Settings = app.Settings;
 
 			startCommand = new ServerCommand (this);
-
-			Features = new TestFeaturesModel (App);
-			Categories = new TestCategoriesModel (App);
 
 			serverAddress = string.Empty;
 			Settings.PropertyChanged += (sender, e) => LoadSettings ();

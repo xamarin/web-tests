@@ -33,8 +33,6 @@ using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.AsyncTests.UI
 {
-	using Binding;
-
 	public class TestRunner : CommandProvider<TestResult>
 	{
 		readonly RunCommand runCommand;
@@ -58,7 +56,6 @@ namespace Xamarin.AsyncTests.UI
 
 		public readonly Property<string> CurrentTestName = new InstanceProperty<string> ("CurrentTest", null);
 
-		static int countReruns;
 		DateTime startTime;
 
 		async Task<TestResult> OnRun (RunParameters parameters, CancellationToken cancellationToken)

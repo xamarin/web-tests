@@ -31,18 +31,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Model\OptionsModel.cs" />
     <Compile Include="Model\SessionManager.cs" />
     <Compile Include="Model\SessionModel.cs" />
-    <Compile Include="Model\TestCategoriesModel.cs" />
-    <Compile Include="Model\TestFeatureModel.cs" />
-    <Compile Include="Model\TestFeaturesModel.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\CommandProvider.cs" />
     <Compile Include="Commands\ServerManager.cs" />
     <Compile Include="Commands\TestRunner.cs" />
     <Compile Include="UITestApp.cs" />
-    <Compile Include="Binding\BindableObject.cs" />
     <Compile Include="Binding\Property.cs" />
     <Compile Include="Binding\BooleanProperty.cs" />
     <Compile Include="Binding\InstanceProperty.cs" />
