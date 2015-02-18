@@ -44,6 +44,7 @@ namespace TestMac
 			get { return ui; }
 		}
 
+		[Export ("MainController")]
 		public MainWindowController MainController {
 			get { return mainWindowController; }
 		}

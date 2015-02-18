@@ -1,4 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Xml;
+using System.Xml.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,6 +12,7 @@ using AppKit;
 using Xamarin.AsyncTests.UI;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
+using Xamarin.AsyncTests.Server;
 
 namespace TestMac
 {
@@ -92,6 +97,43 @@ namespace TestMac
 		{
 			if (!result.IsRoot)
 				TestResultController.RemoveObjectAtArrangedObjectIndexPath (indexPath);
+		}
+
+		[Export ("ClearAll:")]
+		public void ClearAll ()
+		{
+		}
+
+		[Export ("SaveTestResult:")]
+		public void SaveResult ()
+		{
+			// Get root node from current selection
+			var indexPath = TestResultController.SelectionIndexPath;
+			var index = indexPath.IndexAtPosition (0);
+
+			var internalArray = (NSArray)TestResultController.Content;
+			var rootNode = internalArray.GetItem<TestResultNode> ((nint)index);
+
+			var result = rootNode.Model.Result;
+			var element = Connection.WriteTestResult (result);
+
+			var settings = new XmlWriterSettings { Indent = true };
+			using (var writer = XmlTextWriter.Create ("TestResult.xml", settings)) {
+				element.WriteTo (writer);
+			}
+		}
+
+		[Export ("LoadTestResult:")]
+		public void LoadResult ()
+		{
+			using (var reader = XmlTextReader.Create ("TestResult.xml")) {
+				var doc = XDocument.Load (reader);
+				var root = doc.Root;
+				var result = Connection.ReadTestResult (root);
+
+				var model = new TestResultNode (result);
+				TestResultController.AddObject (model);
+			}
 		}
 
 		[Export ("CanStop")]

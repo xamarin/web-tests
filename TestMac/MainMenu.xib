@@ -19,7 +19,6 @@
                 <outlet property="Unload" destination="boh-Pj-TRt" id="Ph6-H4-GSu"/>
             </connections>
         </customObject>
-        <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
                 <menuItem title="TestMac" id="1Xt-HY-uBw">
@@ -90,6 +89,43 @@
                             <menuItem isSeparatorItem="YES" id="Ig6-Tl-Dsw"/>
                             <menuItem title="Unload" enabled="NO" id="boh-Pj-TRt">
                                 <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
+                <menuItem title="Test Result" id="r80-4B-h4S">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Test Result" id="vND-j8-JGg">
+                        <items>
+                            <menuItem title="Load" id="Zrm-2K-bTw">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="MainController" id="0Dm-LU-eSA">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">LoadTestResult:</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Save" id="5h9-AO-Waf">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="MainController" id="eA9-MC-swl">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">SaveTestResult:</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Clear" id="YQL-g7-J1K">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="eph-sA-Oag">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">ClearResult:</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
                             </menuItem>
                         </items>
                     </menu>
