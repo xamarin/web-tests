@@ -35,38 +35,25 @@ namespace TestMac
 
 		TestCategoryModel allCategory;
 
-		public override void AwakeFromNib ()
+		public void Initialize (TestConfiguration configuration)
 		{
-			base.AwakeFromNib ();
-
-			var app = AppDelegate.Instance;
-
 			testCategoriesArray = new NSMutableArray ();
 			allCategory = new TestCategoryModel (TestCategory.All);
+			currentCategory = allCategory;
+			testCategoriesArray.Add (allCategory);
 
 			testFeaturesArray = new NSMutableArray ();
 
-			Initialize (app.MacUI.Configuration);
-		}
-
-		public void Initialize (TestConfiguration configuration)
-		{
-			var range = new NSRange (0, CategoriesController.ArrangedObjects ().Length);
-			CategoriesController.Remove (NSIndexSet.FromNSRange (range));
-
-			CategoriesController.AddObject (allCategory);
-			CurrentCategory = allCategory;
-
 			foreach (var category in configuration.Categories) {
 				var model = new TestCategoryModel (category);
-				CategoriesController.AddObject (model);
+				testCategoriesArray.Add (model);
 				if (category == Configuration.CurrentCategory)
-					CurrentCategory = model;
+					currentCategory = model;
 			}
 
 			foreach (var feature in configuration.Features) {
 				var model = new TestFeatureModel (feature);
-				FeaturesController.AddObject (model);
+				testFeaturesArray.Add (model);
 			}
 		}
 

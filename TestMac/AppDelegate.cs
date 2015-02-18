@@ -60,6 +60,7 @@ namespace TestMac
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
 
 			settingsDialogController = new SettingsDialogController ();
+			settingsDialogController.Initialize (ui.Configuration);
 
 			ui.ServerManager.Start.Execute (ServerParameters.CreateLocal ());
 		}
