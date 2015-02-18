@@ -1,5 +1,5 @@
 ﻿//
-// FooModel.cs
+// TestCategoryModel.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,14 +25,25 @@
 // THE SOFTWARE.
 using System;
 using Foundation;
+using Xamarin.AsyncTests;
 
 namespace TestMac
 {
-	public class FooModel : NSObject
+	public class TestCategoryModel : NSObject
 	{
-		[Export ("Foo")]
-		public string Test {
-			get { return "Hello World!"; }
+		public TestCategory Category {
+			get;
+			private set;
+		}
+
+		public TestCategoryModel (TestCategory category)
+		{
+			Category = category;
+		}
+
+		[Export ("description")]
+		public string Name {
+			get { return Category.Name; }
 		}
 	}
 }

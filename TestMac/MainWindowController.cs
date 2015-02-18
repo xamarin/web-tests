@@ -35,7 +35,7 @@ namespace TestMac
 
 		void Initialize ()
 		{
-			var app = (AppDelegate)NSApplication.SharedApplication.Delegate;
+			var app = AppDelegate.Instance;
 
 			app.MacUI.TestRunner.Run.NotifyStateChanged.StateChanged += (sender, e) => CanRun = e;
 			app.MacUI.TestRunner.Stop.NotifyStateChanged.StateChanged += (sender, e) => CanStop = e;

@@ -90,7 +90,6 @@
     <Compile Include="Binding\TestBuilderModel.cs" />
     <Compile Include="Binding\TestResultModel.cs" />
     <Compile Include="Binding\TestResultNode.cs" />
-    <Compile Include="Binding\FooModel.cs" />
     <Compile Include="TestResultList.cs" />
     <Compile Include="TestResultList.designer.cs">
       <DependentUpon>TestResultList.cs</DependentUpon>
@@ -101,10 +100,20 @@
     </Compile>
     <Compile Include="Binding\ValueTransformers.cs" />
     <Compile Include="Binding\TestCaseModel.cs" />
+    <Compile Include="SettingsDialog.cs" />
+    <Compile Include="SettingsDialog.designer.cs">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SettingsDialogController.cs" />
+    <Compile Include="SettingsDialogController.designer.cs">
+      <DependentUpon>SettingsDialogController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Binding\TestCategoryModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
     <InterfaceDefinition Include="MainMenu.xib" />
+    <InterfaceDefinition Include="SettingsDialog.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />

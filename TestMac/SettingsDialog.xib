@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14C109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <development version="5000" identifier="xcode"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="SettingsDialogController">
+            <connections>
+                <outlet property="CategoriesController" destination="fK4-jb-ZhC" id="3iT-Kg-kFG"/>
+                <outlet property="window" destination="2" id="6"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="2" customClass="SettingsDialog">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="131" y="74" width="384" height="413"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <view key="contentView" id="3">
+                <rect key="frame" x="0.0" y="0.0" width="384" height="413"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Qda-XC-Qpw">
+                        <rect key="frame" x="18" y="374" width="104" height="17"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="100" id="Dks-wL-P3W"/>
+                        </constraints>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Repeat" id="vnF-0e-kcX">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Pqg-mp-wCU">
+                        <rect key="frame" x="246" y="371" width="100" height="22"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="100" id="7Mp-rz-8Yl"/>
+                        </constraints>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="Ejf-LG-fO4">
+                            <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="nlP-Fz-mGf">
+                                <nil key="paddingCharacter"/>
+                                <nil key="decimalSeparator"/>
+                                <nil key="groupingSeparator"/>
+                                <nil key="currencyDecimalSeparator"/>
+                                <nil key="plusSign"/>
+                                <nil key="minusSign"/>
+                                <nil key="nilSymbol"/>
+                                <nil key="notANumberSymbol"/>
+                                <nil key="perMillSymbol"/>
+                                <nil key="percentSymbol"/>
+                                <nil key="exponentSymbol"/>
+                                <nil key="positivePrefix"/>
+                                <nil key="positiveSuffix"/>
+                                <nil key="negativePrefix"/>
+                                <nil key="negativeSuffix"/>
+                                <real key="minimum" value="0.0"/>
+                                <real key="maximum" value="1000"/>
+                            </numberFormatter>
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <connections>
+                            <binding destination="OPB-id-1Hh" name="value" keyPath="values.RepeatCount" id="esM-BC-wXs"/>
+                        </connections>
+                    </textField>
+                    <stepper horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="qQj-gR-TfD">
+                        <rect key="frame" x="348" y="368" width="19" height="27"/>
+                        <stepperCell key="cell" continuous="YES" alignment="left" maxValue="1000" id="sA7-eM-Yuf"/>
+                        <connections>
+                            <binding destination="OPB-id-1Hh" name="value" keyPath="values.RepeatCount" id="d6w-I0-CvU"/>
+                        </connections>
+                    </stepper>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="o3T-ot-Dyo">
+                        <rect key="frame" x="18" y="332" width="104" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Category" id="cCT-Ct-hTq">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="m51-J3-1b1">
+                        <rect key="frame" x="244" y="327" width="123" height="26"/>
+                        <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="V86-8T-Kko" id="3xz-Uc-jDM">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="menu"/>
+                            <menu key="menu" id="ryr-9F-1R6">
+                                <items>
+                                    <menuItem title="Item 1" state="on" id="V86-8T-Kko"/>
+                                    <menuItem title="Item 2" id="UIS-14-hL7"/>
+                                    <menuItem title="Item 3" id="1Jl-3i-cGd"/>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                        <connections>
+                            <binding destination="fK4-jb-ZhC" name="content" keyPath="arrangedObjects" id="eKm-Pc-B3k"/>
+                            <binding destination="-2" name="selectedObject" keyPath="CurrentCategory" previousBinding="eKm-Pc-B3k" id="7xd-Me-Fv8"/>
+                        </connections>
+                    </popUpButton>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="m51-J3-1b1" firstAttribute="centerY" secondItem="o3T-ot-Dyo" secondAttribute="centerY" id="6Dw-Xn-G1j"/>
+                    <constraint firstItem="o3T-ot-Dyo" firstAttribute="leading" secondItem="Qda-XC-Qpw" secondAttribute="leading" id="Cm8-cl-5pZ"/>
+                    <constraint firstItem="m51-J3-1b1" firstAttribute="trailing" secondItem="qQj-gR-TfD" secondAttribute="trailing" id="GB2-S6-ui1"/>
+                    <constraint firstItem="Qda-XC-Qpw" firstAttribute="top" secondItem="3" secondAttribute="top" constant="22" id="Grq-MO-1RG"/>
+                    <constraint firstItem="Pqg-mp-wCU" firstAttribute="top" secondItem="3" secondAttribute="top" constant="20" id="Hyg-0G-Wf5"/>
+                    <constraint firstItem="Pqg-mp-wCU" firstAttribute="centerY" secondItem="Qda-XC-Qpw" secondAttribute="centerY" id="I09-Lx-eyT"/>
+                    <constraint firstItem="m51-J3-1b1" firstAttribute="leading" secondItem="Pqg-mp-wCU" secondAttribute="leading" id="LBS-rU-fqD"/>
+                    <constraint firstItem="qQj-gR-TfD" firstAttribute="leading" secondItem="Pqg-mp-wCU" secondAttribute="trailing" constant="5" id="NDN-gy-ECJ"/>
+                    <constraint firstItem="o3T-ot-Dyo" firstAttribute="width" secondItem="Qda-XC-Qpw" secondAttribute="width" id="NYD-eo-bYw"/>
+                    <constraint firstAttribute="trailing" secondItem="qQj-gR-TfD" secondAttribute="trailing" constant="20" id="Nd0-jM-Zol"/>
+                    <constraint firstItem="Pqg-mp-wCU" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Qda-XC-Qpw" secondAttribute="trailing" constant="50" id="Tp4-SH-dJJ"/>
+                    <constraint firstItem="Pqg-mp-wCU" firstAttribute="centerY" secondItem="qQj-gR-TfD" secondAttribute="centerY" id="VTh-gT-pmw"/>
+                    <constraint firstItem="Qda-XC-Qpw" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="20" id="phI-i0-AjU"/>
+                    <constraint firstItem="o3T-ot-Dyo" firstAttribute="top" secondItem="Qda-XC-Qpw" secondAttribute="bottom" constant="25" id="yBg-gh-H8a"/>
+                </constraints>
+            </view>
+            <point key="canvasLocation" x="447" y="562.5"/>
+        </window>
+        <userDefaultsController representsSharedInstance="YES" id="OPB-id-1Hh"/>
+        <arrayController objectClassName="TestCategoryNode" editable="NO" id="fK4-jb-ZhC">
+            <connections>
+                <binding destination="-2" name="contentArray" keyPath="TestCategoriesArray" id="mag-eK-PDX"/>
+            </connections>
+        </arrayController>
+    </objects>
+</document>

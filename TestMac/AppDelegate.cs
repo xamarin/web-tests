@@ -36,6 +36,7 @@ namespace TestMac
 	public partial class AppDelegate : NSApplicationDelegate
 	{
 		MainWindowController mainWindowController;
+		SettingsDialogController settingsDialogController;
 		NSMutableArray testResultArray;
 		MacUI ui;
 
@@ -53,10 +54,15 @@ namespace TestMac
 
 		public override void DidFinishLaunching (NSNotification notification)
 		{
-			ui = MacUI.Create (this);
+			ui = MacUI.Create ();
 
 			mainWindowController = new MainWindowController ();
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
+
+			settingsDialogController = new SettingsDialogController ();
+			settingsDialogController.Window.MakeKeyAndOrderFront (this);
+
+			settingsDialogController.Initialize (ui.Configuration);
 
 			ui.ServerManager.Start.Execute (ServerParameters.CreateLocal ());
 		}

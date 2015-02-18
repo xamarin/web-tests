@@ -32,6 +32,8 @@ namespace Xamarin.AsyncTests.Sample
 	{
 		public static readonly SampleFeatures Instance;
 
+		public static readonly TestCategory Work = new TestCategory ("Work");
+
 		static SampleFeatures ()
 		{
 			Instance = new SampleFeatures ();
@@ -45,7 +47,7 @@ namespace Xamarin.AsyncTests.Sample
 
 		public IEnumerable<TestCategory> Categories {
 			get {
-				yield break;
+				yield return Work;
 			}
 		}
 	}

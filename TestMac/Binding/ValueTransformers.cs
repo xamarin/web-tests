@@ -85,6 +85,19 @@ namespace TestMac
 			}
 		}
 
+		[Register ("TestCategoryNameValueTransformer")]
+		public class TestCategoryNameValueTransformer : NSValueTransformer
+		{
+			public override NSObject TransformedValue (NSObject value)
+			{
+				var category = value as TestCategoryModel;
+				Console.WriteLine ("TRANSFORM: {0} {1}", value, value.GetType ());
+				if (category == null)
+					return (NSString)"FUCK";
+				return (NSString)category.Category.Name;
+			}
+		}
+
 	}
 }
 
