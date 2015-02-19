@@ -48,15 +48,6 @@ namespace Xamarin.AsyncTests.UI
 			get { return this; }
 		}
 
-		string statusMessage;
-		public string StatusMessage {
-			get { return statusMessage; }
-			set {
-				statusMessage = value;
-				OnPropertyChanged ("StatusMessage");
-			}
-		}
-
 		public ServerManager ServerManager {
 			get;
 			private set;

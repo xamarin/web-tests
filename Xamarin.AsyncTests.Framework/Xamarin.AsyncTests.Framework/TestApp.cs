@@ -35,13 +35,12 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.ComponentModel;
 
 namespace Xamarin.AsyncTests.Framework
 {
 	using Portable;
 
-	public abstract class TestApp : INotifyPropertyChanged
+	public abstract class TestApp
 	{
 		readonly IPortableSupport support;
 
@@ -61,14 +60,6 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			this.support = support;
 		}
-
-		protected virtual void OnPropertyChanged (string propertyName)
-		{
-			if (PropertyChanged != null)
-				PropertyChanged (this, new PropertyChangedEventArgs (propertyName));
-		}
-
-		public event PropertyChangedEventHandler PropertyChanged;
 
 		public abstract TestFramework GetLocalTestFramework ();
 	}
