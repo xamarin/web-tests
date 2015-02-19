@@ -35,7 +35,7 @@ using ObjCRuntime;
 
 namespace TestMac
 {
-	public class TestResultModel : TestListItem
+	public class TestResultModel : TestListNode
 	{
 		public TestResult Result {
 			get;

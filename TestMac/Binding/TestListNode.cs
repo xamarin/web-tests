@@ -76,9 +76,38 @@ namespace TestMac
 			}
 		}
 
+		public bool IsRoot {
+			get; set;
+		}
+
+		[Export ("Name")]
+		public abstract string Name {
+			get;
+		}
+
+		[Export ("Status")]
+		public abstract TestStatus TestStatus {
+			get;
+		}
+
+		[Export ("TestParameters")]
+		public abstract string TestParameters {
+			get;
+		}
+
+		[Export ("Error")]
+		public abstract NSAttributedString Error {
+			get;
+		}
+
+		[Export ("TestCase")]
+		public abstract TestCaseModel TestCase {
+			get;
+		}
+
 		public override string ToString ()
 		{
-			return string.Format ("[TestListNode: IsLeaf={0}, Type={1}]", IsLeaf, GetType ());
+			return string.Format ("[TestListNode: IsLeaf={0}, Name={1}, Status={2}]", IsLeaf, Name, TestStatus);
 		}
 	}
 }

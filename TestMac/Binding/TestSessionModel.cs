@@ -31,7 +31,7 @@ using Xamarin.AsyncTests;
 
 namespace TestMac
 {
-	public class TestSessionModel : TestListItem
+	public class TestSessionModel : TestListNode
 	{
 		public TestSuite Suite {
 			get;
