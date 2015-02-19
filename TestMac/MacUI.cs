@@ -35,19 +35,16 @@ namespace TestMac
 {
 	public class MacUI : UITestApp
 	{
-		MacUI (IPortableSupport support, ITestConfigurationProvider configProvider,
-			SettingsBag settings, Assembly assembly)
-			: base (support, configProvider, settings, assembly)
+		MacUI (IPortableSupport support, SettingsBag settings, Assembly assembly)
+			: base (support, settings, assembly)
 		{
 		}
 
 		public static MacUI Create ()
 		{
-			// var support = PortableSupportImpl.Initialize ();
-			// var provider = WebTestFeatures.Instance;
 			var settings = new UISettings ();
 			var assembly = typeof(SampleFeatures).Assembly;
-			return new MacUI (null, SampleFeatures.Instance, settings, assembly);
+			return new MacUI (null, settings, assembly);
 		}
 
 	}

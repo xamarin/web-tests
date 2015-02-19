@@ -75,17 +75,10 @@ namespace Xamarin.AsyncTests.UI
 			get { return settings; }
 		}
 
-		public override TestConfiguration Configuration {
-			get { return config; }
-		}
-
 		readonly TestLogger logger;
 		readonly SettingsBag settings;
-		readonly TestConfiguration config;
 
-		public UITestApp (
-			IPortableSupport support, ITestConfigurationProvider configProvider,
-			SettingsBag settings, Assembly assembly)
+		public UITestApp (IPortableSupport support, SettingsBag settings, Assembly assembly)
 			: base (support)
 		{
 			this.settings = settings;
@@ -93,7 +86,6 @@ namespace Xamarin.AsyncTests.UI
 			Assembly = assembly;
 
 			logger = new TestLogger (new UILogger (this));
-			config = new TestConfiguration (configProvider, settings);
 
 			ServerManager = new ServerManager (this);
 

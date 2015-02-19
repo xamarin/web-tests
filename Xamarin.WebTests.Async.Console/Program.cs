@@ -63,10 +63,6 @@ namespace Xamarin.AsyncTests.Client
 			get { return settings; }
 		}
 
-		public override TestConfiguration Configuration {
-			get { return config; }
-		}
-
 		public override TestLogger Logger {
 			get { return logger; }
 		}
