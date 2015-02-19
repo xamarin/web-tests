@@ -60,12 +60,11 @@ namespace Xamarin.AsyncTests
 			get { return support; }
 		}
 
-		internal TestContext (IPortableSupport support, ITestConfiguration config,
-			TestLogger logger, TestSuite suite, TestName name, TestResult result)
+		internal TestContext (IPortableSupport support, TestLogger logger, TestSuite suite, TestName name, TestResult result)
 		{
 			Name = name;
 			this.support = support;
-			this.config = config;
+			this.config = suite.Configuration.AsReadOnly ();
 			this.logger = logger;
 			this.suite = suite;
 			this.result = result;

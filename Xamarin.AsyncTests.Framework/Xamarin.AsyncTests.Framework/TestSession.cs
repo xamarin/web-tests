@@ -29,6 +29,8 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
+	using Portable;
+
 	public class TestSession : ITestSession
 	{
 		public DateTime Created {
@@ -46,17 +48,12 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public ITestConfiguration Configuration {
-			get;
-			private set;
-		}
-
 		public TestResult Result {
 			get;
 			private set;
 		}
 
-		internal TestApp App {
+		internal IPortableSupport PortableSupport {
 			get;
 			private set;
 		}
@@ -73,11 +70,10 @@ namespace Xamarin.AsyncTests.Framework
 
 		public TestSession (TestApp app, TestCase test, TestResult result)
 		{
-			App = app;
 			Test = test;
 			Result = result;
 			Logger = new TestLogger (TestLoggerBackend.CreateForResult (Result, app.Logger));
-			Configuration = test.Suite.Configuration.AsReadOnly ();
+			PortableSupport = app.PortableSupport;
 
 			Created = DateTime.Now;
 			Name = string.Format ("[{0:s}]: {1}", Created, Result.Name.Name);
@@ -85,8 +81,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		TestContext CreateContext ()
 		{
-			return new TestContext (
-				App.PortableSupport, Configuration, Logger, Test.Suite, Result.Name, Result);
+			return new TestContext (PortableSupport, Logger, Test.Suite, Result.Name, Result);
 		}
 
 		public Task<TestResult> Run (CancellationToken cancellationToken)

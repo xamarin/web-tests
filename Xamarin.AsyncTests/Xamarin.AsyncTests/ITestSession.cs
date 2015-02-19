@@ -41,10 +41,6 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
-		ITestConfiguration Configuration {
-			get;
-		}
-
 		TestResult Result {
 			get;
 		}
