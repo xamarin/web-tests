@@ -92,24 +92,24 @@
                                         <integer key="NSNullPlaceholder" value="-1"/>
                                     </dictionary>
                                 </binding>
+                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selection.self" previousBinding="y5U-Pr-mrJ" id="iHa-vV-3KF">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">Run:testCase:selection:</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.representedObject.TestCase" id="y5U-Pr-mrJ">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">Run:testCase:selection:</string>
+                                    </dictionary>
+                                </binding>
                                 <binding destination="oII-JR-BBP" name="enabled" keyPath="selection.representedObject.TestCase" id="fGF-2M-ax3">
                                     <dictionary key="options">
                                         <string key="NSValueTransformerName">NSIsNotNil</string>
                                     </dictionary>
                                 </binding>
-                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.representedObject.TestCase" id="guv-pk-gLf">
+                                <binding destination="-2" name="target" keyPath="self" previousBinding="iHa-vV-3KF" id="uC4-W0-CxO">
                                     <dictionary key="options">
-                                        <string key="NSSelectorName">Run:testCase:indexPath:</string>
-                                    </dictionary>
-                                </binding>
-                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selectionIndexPath" previousBinding="guv-pk-gLf" id="dJB-o6-Jad">
-                                    <dictionary key="options">
-                                        <string key="NSSelectorName">Run:testCase:indexPath:</string>
-                                    </dictionary>
-                                </binding>
-                                <binding destination="-2" name="target" keyPath="self" previousBinding="dJB-o6-Jad" id="e52-00-RJy">
-                                    <dictionary key="options">
-                                        <string key="NSSelectorName">Run:testCase:indexPath:</string>
+                                        <string key="NSSelectorName">Run:testCase:selection:</string>
                                     </dictionary>
                                 </binding>
                             </connections>

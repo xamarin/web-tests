@@ -67,10 +67,8 @@ namespace TestMac
 		void OnTestSuiteLoaded (TestSessionModel session)
 		{
 			if (session != null) {
-				rootNode = session;
 				TestResultController.AddObject (session);
 			} else {
-				rootNode = null;
 				var array = (NSArray)TestResultController.Content;
 				var length = (int)array.Count;
 				for (int i = 0; i < length; i++) {
@@ -80,14 +78,12 @@ namespace TestMac
 			}
 		}
 
-		TestListNode rootNode;
-
 		public new MainWindow Window {
 			get { return (MainWindow)base.Window; }
 		}
 
-		[Export ("Run:testCase:indexPath:")]
-		public async void Run (TestCaseModel test, NSIndexPath index)
+		[Export ("Run:testCase:selection:")]
+		public async void Run (TestCaseModel test, TestListNode node)
 		{
 			var ui = AppDelegate.Instance.MacUI;
 
@@ -95,12 +91,7 @@ namespace TestMac
 			var result = await ui.TestRunner.Run.Execute (parameters);
 
 			var model = new TestResultModel (result);
-
-			// var newIndex = index.IndexPathByAddingIndex (0);
-			// TestResultController.InsertObject (model, newIndex);
-
-			var session = AppDelegate.Instance.CurrentSession;
-			rootNode.AddChild (model);
+			node.AddChild (model);
 		}
 
 		bool canRun;
