@@ -117,7 +117,6 @@ namespace Xamarin.AsyncTests.Server
 				if (suite == null)
 					throw new ServerErrorException ();
 
-				App.CurrentTestSuite = suite;
 				startTcs.SetResult (suite);
 			}
 
@@ -142,7 +141,6 @@ namespace Xamarin.AsyncTests.Server
 
 		protected internal override void OnShutdown ()
 		{
-			App.CurrentTestSuite = null;
 			App.Settings.PropertyChanged -= OnSettingsChanged;
 			base.OnShutdown ();
 		}

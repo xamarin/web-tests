@@ -44,7 +44,6 @@ namespace Xamarin.AsyncTests.Framework
 	public abstract class TestApp : INotifyPropertyChanged
 	{
 		readonly IPortableSupport support;
-		volatile TestSuite currentTestSuite;
 
 		public abstract TestLogger Logger {
 			get;
@@ -52,16 +51,6 @@ namespace Xamarin.AsyncTests.Framework
 
 		public abstract SettingsBag Settings {
 			get;
-		}
-
-		public TestSuite CurrentTestSuite {
-			get { return currentTestSuite; }
-			set {
-				if (currentTestSuite == value)
-					return;
-				currentTestSuite = value;
-				OnPropertyChanged ("CurrentTestSuite");
-			}
 		}
 
 		public IPortableSupport PortableSupport {

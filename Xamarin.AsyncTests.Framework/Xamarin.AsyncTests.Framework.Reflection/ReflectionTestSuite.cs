@@ -77,7 +77,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				try {
 					var name = new TestName (assembly.GetName ().Name);
 					var suite = new ReflectionTestSuite (app, name, assembly);
-					app.CurrentTestSuite = suite;
 					tcs.SetResult (suite);
 				} catch (Exception ex) {
 					tcs.SetException (ex);

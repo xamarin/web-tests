@@ -86,7 +86,7 @@ namespace Xamarin.AsyncTests.Framework
 		TestContext CreateContext ()
 		{
 			return new TestContext (
-				App.PortableSupport, Configuration, Logger, App.CurrentTestSuite, Result.Name, Result);
+				App.PortableSupport, Configuration, Logger, Test.Suite, Result.Name, Result);
 		}
 
 		public Task<TestResult> Run (CancellationToken cancellationToken)

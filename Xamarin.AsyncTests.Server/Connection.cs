@@ -74,7 +74,6 @@ namespace Xamarin.AsyncTests.Server
 
 		public async Task Shutdown ()
 		{
-			App.CurrentTestSuite = null;
 			await new ShutdownCommand ().Send (this);
 		}
 
