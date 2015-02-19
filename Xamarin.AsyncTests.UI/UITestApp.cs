@@ -67,11 +67,6 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public SessionManager SessionManager {
-			get;
-			private set;
-		}
-
 		public override TestLogger Logger {
 			get { return logger; }
 		}
@@ -99,8 +94,6 @@ namespace Xamarin.AsyncTests.UI
 
 			logger = new TestLogger (new UILogger (this));
 			config = new TestConfiguration (configProvider, settings);
-
-			SessionManager = new SessionManager (this);
 
 			ServerManager = new ServerManager (this);
 

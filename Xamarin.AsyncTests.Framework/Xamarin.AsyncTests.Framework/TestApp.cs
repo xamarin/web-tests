@@ -50,6 +50,7 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		[Obsolete ("REMOVING")]
 		public abstract TestConfiguration Configuration {
 			get;
 		}

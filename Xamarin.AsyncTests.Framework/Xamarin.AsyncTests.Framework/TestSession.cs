@@ -77,7 +77,7 @@ namespace Xamarin.AsyncTests.Framework
 			Test = test;
 			Result = result;
 			Logger = new TestLogger (TestLoggerBackend.CreateForResult (Result, app.Logger));
-			Configuration = app.Configuration.AsReadOnly ();
+			Configuration = test.Suite.Configuration.AsReadOnly ();
 
 			Created = DateTime.Now;
 			Name = string.Format ("[{0:s}]: {1}", Created, Result.Name.Name);
