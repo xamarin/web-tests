@@ -38,6 +38,7 @@ namespace TestMac
 		MainWindowController mainWindowController;
 		SettingsDialogController settingsDialogController;
 		TestSessionModel currentSession;
+		bool isStopped;
 		MacUI ui;
 
 		public MacUI MacUI {
@@ -60,6 +61,9 @@ namespace TestMac
 		public override void DidFinishLaunching (NSNotification notification)
 		{
 			ui = MacUI.Create ();
+
+			isStopped = true;
+			ui.TestRunner.Stop.NotifyStateChanged.StateChanged += (sender, e) => IsStopped = !e;
 
 			mainWindowController = new MainWindowController ();
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
@@ -127,6 +131,20 @@ namespace TestMac
 				DidChangeValue (CurrentSessionKey);
 			}
 		}
+
+		public const string IsStoppedKey = "IsStopped";
+
+		[Export (IsStoppedKey)]
+		public bool IsStopped {
+			get { return isStopped; }
+			set {
+				WillChangeValue (IsStoppedKey);
+				isStopped = value;
+				DidChangeValue (IsStoppedKey);
+			}
+		}
+
+
 	}
 }
 

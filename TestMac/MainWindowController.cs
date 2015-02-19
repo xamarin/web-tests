@@ -94,19 +94,6 @@ namespace TestMac
 			node.AddChild (model);
 		}
 
-		bool canRun;
-		bool canStop;
-
-		[Export ("CanRun")]
-		public bool CanRun {
-			get { return canRun; }
-			set {
-				WillChangeValue ("CanRun");
-				canRun = value;
-				DidChangeValue ("CanRun");
-			}
-		}
-
 		[Export ("Clear:node:")]
 		public void Clear (TestListNode node)
 		{
@@ -146,6 +133,19 @@ namespace TestMac
 
 				var model = new TestResultModel (result);
 				TestResultController.AddObject (model);
+			}
+		}
+
+		bool canRun;
+		bool canStop;
+
+		[Export ("CanRun")]
+		public bool CanRun {
+			get { return canRun; }
+			set {
+				WillChangeValue ("CanRun");
+				canRun = value;
+				DidChangeValue ("CanRun");
 			}
 		}
 

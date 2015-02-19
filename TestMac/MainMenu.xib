@@ -107,6 +107,14 @@
                                             <string key="NSValueTransformerName">NSIsNotNil</string>
                                         </dictionary>
                                     </binding>
+                                    <binding destination="Voe-Tx-rLC" name="enabled2" keyPath="IsStopped" previousBinding="LfJ-2I-JXK" id="ADa-ng-wLU">
+                                        <dictionary key="options">
+                                            <integer key="NSMultipleValuesPlaceholder" value="-1"/>
+                                            <integer key="NSNoSelectionPlaceholder" value="-1"/>
+                                            <integer key="NSNotApplicablePlaceholder" value="-1"/>
+                                            <integer key="NSNullPlaceholder" value="-1"/>
+                                        </dictionary>
+                                    </binding>
                                     <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="7dO-ig-ban">
                                         <dictionary key="options">
                                             <string key="NSSelectorName">UnloadTestSuite:</string>
@@ -168,6 +176,9 @@
                             </menuItem>
                         </items>
                     </menu>
+                    <connections>
+                        <binding destination="Voe-Tx-rLC" name="enabled" keyPath="IsStopped" id="scR-t8-Ryp"/>
+                    </connections>
                 </menuItem>
                 <menuItem title="View" id="H8h-7b-M4v">
                     <modifierMask key="keyEquivalentModifierMask"/>

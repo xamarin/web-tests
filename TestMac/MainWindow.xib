@@ -23,7 +23,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="131" y="74" width="843" height="644"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1440"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <view key="contentView" id="3">
                 <rect key="frame" x="0.0" y="0.0" width="843" height="644"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -92,14 +92,14 @@
                                         <integer key="NSNullPlaceholder" value="-1"/>
                                     </dictionary>
                                 </binding>
-                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.self" id="l3V-Qb-1OP">
-                                    <dictionary key="options">
-                                        <string key="NSSelectorName">Run:node:</string>
-                                    </dictionary>
-                                </binding>
                                 <binding destination="oII-JR-BBP" name="enabled" keyPath="selection.TestCase" id="MTt-MF-ttY">
                                     <dictionary key="options">
                                         <string key="NSValueTransformerName">NSIsNotNil</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.self" id="l3V-Qb-1OP">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">Run:node:</string>
                                     </dictionary>
                                 </binding>
                                 <binding destination="-2" name="target" keyPath="self" previousBinding="l3V-Qb-1OP" id="ehk-qD-8E5">
@@ -156,6 +156,7 @@
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
                             <connections>
+                                <binding destination="-3" name="enabled" keyPath="delegate.IsStopped" id="kiU-3u-fT3"/>
                                 <binding destination="oII-JR-BBP" name="argument" keyPath="selection.self" id="HON-kI-kn1">
                                     <dictionary key="options">
                                         <string key="NSSelectorName">Clear:node:</string>
