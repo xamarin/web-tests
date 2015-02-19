@@ -76,14 +76,9 @@ namespace TestMac
 			}
 		}
 
-		[Export("representedObject")]
-		public NSObject RepresentedObject {
-			get { return this; }
-		}
-
 		public override string ToString ()
 		{
-			return string.Format ("[TestListNode: IsLeaf={0}, RepresentedObject={1}]", IsLeaf, RepresentedObject);
+			return string.Format ("[TestListNode: IsLeaf={0}, Type={1}]", IsLeaf, GetType ());
 		}
 	}
 }

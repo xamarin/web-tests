@@ -84,7 +84,17 @@
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
                             <connections>
-                                <binding destination="-2" name="enabled2" keyPath="CanRun" previousBinding="fGF-2M-ax3" id="piK-xY-yDH">
+                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selection.self" previousBinding="TJ5-bb-Gph" id="p3J-vz-nia">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">Run:testCase:selection:</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.TestCase" id="TJ5-bb-Gph">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">Run:testCase:selection:</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="-2" name="enabled2" keyPath="CanRun" previousBinding="MTt-MF-ttY" id="EaB-gk-aG2">
                                     <dictionary key="options">
                                         <integer key="NSMultipleValuesPlaceholder" value="-1"/>
                                         <integer key="NSNoSelectionPlaceholder" value="-1"/>
@@ -92,22 +102,12 @@
                                         <integer key="NSNullPlaceholder" value="-1"/>
                                     </dictionary>
                                 </binding>
-                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selection.self" previousBinding="y5U-Pr-mrJ" id="iHa-vV-3KF">
-                                    <dictionary key="options">
-                                        <string key="NSSelectorName">Run:testCase:selection:</string>
-                                    </dictionary>
-                                </binding>
-                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.representedObject.TestCase" id="y5U-Pr-mrJ">
-                                    <dictionary key="options">
-                                        <string key="NSSelectorName">Run:testCase:selection:</string>
-                                    </dictionary>
-                                </binding>
-                                <binding destination="oII-JR-BBP" name="enabled" keyPath="selection.representedObject.TestCase" id="fGF-2M-ax3">
+                                <binding destination="oII-JR-BBP" name="enabled" keyPath="selection.TestCase" id="MTt-MF-ttY">
                                     <dictionary key="options">
                                         <string key="NSValueTransformerName">NSIsNotNil</string>
                                     </dictionary>
                                 </binding>
-                                <binding destination="-2" name="target" keyPath="self" previousBinding="iHa-vV-3KF" id="uC4-W0-CxO">
+                                <binding destination="-2" name="target" keyPath="self" previousBinding="p3J-vz-nia" id="ftg-3H-dh2">
                                     <dictionary key="options">
                                         <string key="NSSelectorName">Run:testCase:selection:</string>
                                     </dictionary>
@@ -161,7 +161,7 @@
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
                             <connections>
-                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.representedObject" id="sQL-QC-xaE">
+                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.self" id="sQL-QC-xaE">
                                     <dictionary key="options">
                                         <string key="NSSelectorName">Clear:testResult:indexPath:</string>
                                     </dictionary>
@@ -219,14 +219,14 @@
                                         </textFieldCell>
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         <connections>
-                                            <binding destination="oII-JR-BBP" name="value" keyPath="arrangedObjects.representedObject.Name" id="oYt-w8-GfZ">
+                                            <binding destination="oII-JR-BBP" name="value" keyPath="arrangedObjects.Name" id="oYt-w8-GfZ">
                                                 <dictionary key="options">
                                                     <bool key="NSAllowsEditingMultipleValuesSelection" value="NO"/>
                                                     <bool key="NSConditionallySetsEnabled" value="YES"/>
                                                     <bool key="NSCreatesSortDescriptor" value="NO"/>
                                                 </dictionary>
                                             </binding>
-                                            <binding destination="oII-JR-BBP" name="textColor" keyPath="arrangedObjects.representedObject.Status" id="IeU-Z4-nTE">
+                                            <binding destination="oII-JR-BBP" name="textColor" keyPath="arrangedObjects.Status" id="IeU-Z4-nTE">
                                                 <dictionary key="options">
                                                     <string key="NSValueTransformerName">TestStatusColorValueTransformer</string>
                                                 </dictionary>
@@ -271,7 +271,7 @@
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         <connections>
-                            <binding destination="oII-JR-BBP" name="value" keyPath="selection.representedObject.Name" id="KfF-gM-EG2"/>
+                            <binding destination="oII-JR-BBP" name="value" keyPath="selection.Name" id="KfF-gM-EG2"/>
                         </connections>
                     </textFieldCell>
                 </textField>
@@ -282,12 +282,12 @@
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         <connections>
-                            <binding destination="oII-JR-BBP" name="value" keyPath="selection.representedObject.Status" id="Hnp-Gg-AqW">
+                            <binding destination="oII-JR-BBP" name="value" keyPath="selection.Status" id="Hnp-Gg-AqW">
                                 <dictionary key="options">
                                     <string key="NSValueTransformerName">TestStatusNameValueTransformer</string>
                                 </dictionary>
                             </binding>
-                            <binding destination="oII-JR-BBP" name="textColor" keyPath="selection.representedObject.Status" id="pqc-YM-WDK">
+                            <binding destination="oII-JR-BBP" name="textColor" keyPath="selection.Status" id="pqc-YM-WDK">
                                 <dictionary key="options">
                                     <string key="NSValueTransformerName">TestStatusColorValueTransformer</string>
                                 </dictionary>
@@ -303,8 +303,8 @@
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                     <connections>
-                        <binding destination="oII-JR-BBP" name="value" keyPath="selection.representedObject.TestParameters" id="UAh-v6-6ff"/>
-                        <binding destination="oII-JR-BBP" name="enabled" keyPath="selection.representedObject.TestParameters" id="nzw-ES-KJS">
+                        <binding destination="oII-JR-BBP" name="value" keyPath="selection.TestParameters" id="UAh-v6-6ff"/>
+                        <binding destination="oII-JR-BBP" name="enabled" keyPath="selection.TestParameters" id="nzw-ES-KJS">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSIsNil</string>
                             </dictionary>
@@ -327,7 +327,7 @@
                                 <size key="minSize" width="428" height="158"/>
                                 <size key="maxSize" width="463" height="10000000"/>
                                 <connections>
-                                    <binding destination="oII-JR-BBP" name="attributedString" keyPath="selection.representedObject.Error" id="Njb-FO-eJY"/>
+                                    <binding destination="oII-JR-BBP" name="attributedString" keyPath="selection.Error" id="Njb-FO-eJY"/>
                                 </connections>
                             </textView>
                         </subviews>
@@ -342,7 +342,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <connections>
-                        <binding destination="oII-JR-BBP" name="hidden" keyPath="selection.representedObject.Error" id="Ec9-ro-lzg">
+                        <binding destination="oII-JR-BBP" name="hidden" keyPath="selection.Error" id="Ec9-ro-lzg">
                             <dictionary key="options">
                                 <string key="NSValueTransformerName">NSIsNil</string>
                             </dictionary>
