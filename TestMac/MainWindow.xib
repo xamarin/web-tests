@@ -189,7 +189,7 @@
             </toolbar>
             <point key="canvasLocation" x="1556.5" y="486"/>
         </window>
-        <treeController objectClassName="TestResultNode" childrenKeyPath="childNodes" leafKeyPath="isLeaf" id="oII-JR-BBP">
+        <treeController objectClassName="TestListNode" childrenKeyPath="childNodes" leafKeyPath="isLeaf" id="oII-JR-BBP">
             <connections>
                 <binding destination="-3" name="contentArray" keyPath="delegate.TestResultArray" id="DPo-fI-OgS"/>
             </connections>

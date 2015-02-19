@@ -91,7 +91,6 @@
     <Compile Include="Binding\UIBinding.cs" />
     <Compile Include="Binding\TestBuilderModel.cs" />
     <Compile Include="Binding\TestResultModel.cs" />
-    <Compile Include="Binding\TestResultNode.cs" />
     <Compile Include="TestResultList.cs" />
     <Compile Include="TestResultList.designer.cs">
       <DependentUpon>TestResultList.cs</DependentUpon>
@@ -114,6 +113,7 @@
     <Compile Include="Binding\TestFeatureModel.cs" />
     <Compile Include="UISettings.cs" />
     <Compile Include="Binding\TestSessionModel.cs" />
+    <Compile Include="Binding\TestListNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />

@@ -1,5 +1,5 @@
 ﻿//
-// TestResultNode.cs
+// TestListNode.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -31,7 +31,7 @@ using Xamarin.AsyncTests;
 
 namespace TestMac
 {
-	public class TestResultNode : NSObject
+	public class TestListNode : NSObject
 	{
 		public TestResult Result {
 			get;
@@ -43,9 +43,9 @@ namespace TestMac
 			private set;
 		}
 
-		TestResultNode[] children;
+		TestListNode[] children;
 
-		public TestResultNode (TestResult result)
+		public TestListNode (TestResult result)
 		{
 			Result = result;
 			Model = new TestResultModel (result, result.Name);
@@ -60,13 +60,13 @@ namespace TestMac
 		{
 			if (children != null)
 				return;
-			children = new TestResultNode [Result.Children.Count];
+			children = new TestListNode [Result.Children.Count];
 			for (int i = 0; i < children.Length; i++)
-				children [i] = new TestResultNode (Result.Children [i]);
+				children [i] = new TestListNode (Result.Children [i]);
 		}
 
 		[Export ("childNodes")]
-		public TestResultNode[] Children {
+		public TestListNode[] Children {
 			get {
 				InitializeChildren ();
 				return children;
@@ -83,7 +83,7 @@ namespace TestMac
 
 		public override string ToString ()
 		{
-			return string.Format ("[TestResultNode: IsLeaf={0}, RepresentedObject={1}]", IsLeaf, RepresentedObject);
+			return string.Format ("[TestListNode: IsLeaf={0}, RepresentedObject={1}]", IsLeaf, RepresentedObject);
 		}
 	}
 }

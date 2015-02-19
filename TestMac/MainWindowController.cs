@@ -57,7 +57,7 @@ namespace TestMac
 		void OnTestSuiteLoaded (TestResult result)
 		{
 			if (result != null) {
-				var node = new TestResultNode (result);
+				var node = new TestListNode (result);
 				node.Model.IsRoot = true;
 				TestResultController.AddObject (node);
 			} else {
@@ -84,7 +84,7 @@ namespace TestMac
 			var result = await ui.TestRunner.Run.Execute (parameters);
 			Console.WriteLine ("RESULT: {0}", result);
 
-			var model = new TestResultNode (result);
+			var model = new TestListNode (result);
 			TestResultController.InsertObject (model, index);
 		}
 
@@ -121,7 +121,7 @@ namespace TestMac
 			var index = indexPath.IndexAtPosition (0);
 
 			var internalArray = (NSArray)TestResultController.Content;
-			var rootNode = internalArray.GetItem<TestResultNode> ((nint)index);
+			var rootNode = internalArray.GetItem<TestListNode> ((nint)index);
 
 			var result = rootNode.Model.Result;
 			var element = Connection.WriteTestResult (result);
@@ -140,7 +140,7 @@ namespace TestMac
 				var root = doc.Root;
 				var result = Connection.ReadTestResult (root);
 
-				var model = new TestResultNode (result);
+				var model = new TestListNode (result);
 				TestResultController.AddObject (model);
 			}
 		}
