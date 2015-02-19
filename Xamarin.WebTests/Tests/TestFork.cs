@@ -40,21 +40,35 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 	using Portable;
 
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+	public class ForkHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
+	{
+		public ForkHandlerAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (typeof (ForkHandlerAttribute), filter, flags)
+		{
+		}
+
+		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
+		{
+			return TestFork.GetParameters (ctx, filter);
+		}
+	}
+
 	[Heavy]
 	[AsyncTestFixture (Timeout = 5000)]
-	public class TestFork : ITestHost<HttpServer>, ITestParameterSource<Handler>
+	public class TestFork : ITestHost<HttpServer>
 	{
 		public HttpServer CreateInstance (TestContext ctx)
 		{
 			return new HttpServer (PortableSupport.Web.GetLoopbackEndpoint (9999), true, false);
 		}
 
-		HttpContent CreateRandomContent (TestContext ctx)
+		static HttpContent CreateRandomContent (TestContext ctx)
 		{
 			return new RandomContent (2 << 15, 2 << 22);
 		}
 
-		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
+		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
 			yield return new PostHandler (
 				"Large chunked post", CreateRandomContent (ctx), TransferMode.Chunked) {
@@ -67,7 +81,7 @@ namespace Xamarin.WebTests.Tests
 		[AsyncTest]
 		public async Task<bool> Run (TestContext ctx, [TestHost] HttpServer server,
 			[Fork (5, RandomDelay = 1500)] IFork fork, [Repeat (50)] int repeat,
-			[TestParameter] Handler handler, CancellationToken cancellationToken)
+			[ForkHandler] Handler handler, CancellationToken cancellationToken)
 		{
 			ctx.LogMessage ("FORK START: {0} {1}", fork.ID, ctx.PortableSupport.CurrentThreadId);
 
@@ -82,7 +96,7 @@ namespace Xamarin.WebTests.Tests
 		[AsyncTest]
 		public async Task<bool> RunPuppy (TestContext ctx, [TestHost] HttpServer server,
 			[Fork (5, RandomDelay = 1500)] IFork fork, [Repeat (50)] int repeat,
-			[TestParameter] Handler handler, CancellationToken cancellationToken)
+			[ForkHandler] Handler handler, CancellationToken cancellationToken)
 		{
 			ctx.LogMessage ("FORK START: {0} {1}", fork.ID, ctx.PortableSupport.CurrentThreadId);
 

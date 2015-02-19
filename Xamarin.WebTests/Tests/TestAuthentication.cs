@@ -39,15 +39,29 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 	using Portable;
 
-	[AsyncTestFixture (Timeout = 10000)]
-	public class TestAuthentication : ITestHost<HttpServer>, ITestParameterSource<Handler>, ITestParameterSource<AuthenticationType>
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+	public class AuthenticationTypeAttribute : TestParameterAttribute, ITestParameterSource<AuthenticationType>
 	{
-		[TestParameter (typeof (WebTestFeatures.SelectSSL), null, TestFlags.Hidden)]
+		public AuthenticationTypeAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (typeof (AuthenticationTypeAttribute), filter, flags)
+		{
+		}
+
+		public IEnumerable<AuthenticationType> GetParameters (TestContext ctx, string filter)
+		{
+			return TestAuthentication.GetAuthenticationTypes (ctx, filter);
+		}
+	}
+
+	[AsyncTestFixture (Timeout = 10000)]
+	public class TestAuthentication : ITestHost<HttpServer>
+	{
+		[WebTestFeatures.SelectSSL]
 		public bool UseSSL {
 			get; set;
 		}
 
-		[TestParameter (null, TestFlags.Hidden)]
+		[WebTestFeatures.SelectReuseConnection]
 		public bool ReuseConnection {
 			get; set;
 		}
@@ -55,11 +69,6 @@ namespace Xamarin.WebTests.Tests
 		public HttpServer CreateInstance (TestContext ctx)
 		{
 			return new HttpServer (PortableSupport.Web.GetLoopbackEndpoint (9999), ReuseConnection, UseSSL);
-		}
-
-		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext ctx, string filter)
-		{
-			return TestPost.GetParameters (ctx, filter);
 		}
 
 		public static IEnumerable<AuthenticationType> GetAuthenticationTypes (TestContext ctx, string filter)
@@ -79,15 +88,10 @@ namespace Xamarin.WebTests.Tests
 				yield return AuthenticationType.NTLM;
 		}
 
-		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (TestContext ctx, string filter)
-		{
-			return GetAuthenticationTypes (ctx, filter);
-		}
-
 		[AsyncTest]
 		public Task Run (
 			TestContext ctx, [TestHost] HttpServer server, bool sendAsync,
-			[TestParameter] AuthenticationType authType, [TestParameter] Handler handler,
+			[AuthenticationType] AuthenticationType authType, [PostHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
 			var authHandler = new AuthenticationHandler (authType, handler);

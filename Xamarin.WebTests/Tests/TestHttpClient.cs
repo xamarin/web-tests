@@ -40,10 +40,24 @@ namespace Xamarin.WebTests
 	using Framework;
 	using Portable;
 
-	[AsyncTestFixture (Timeout = 10000)]
-	public class TestHttpClient : ITestHost<HttpServer>, ITestParameterSource<HttpClientHandler>
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+	public class HttpClientHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
 	{
-		[TestParameter (typeof (WebTestFeatures.SelectSSL), null, TestFlags.Hidden)]
+		public HttpClientHandlerAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (typeof (HttpClientHandlerAttribute), filter, flags)
+		{
+		}
+
+		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
+		{
+			return TestHttpClient.GetParameters (ctx, filter);
+		}
+	}
+
+	[AsyncTestFixture (Timeout = 10000)]
+	public class TestHttpClient : ITestHost<HttpServer>
+	{
+		[WebTestFeatures.SelectSSL]
 		public bool UseSSL {
 			get; set;
 		}
@@ -53,7 +67,7 @@ namespace Xamarin.WebTests
 			return new HttpServer (PortableSupport.Web.GetLoopbackEndpoint (9999), false, UseSSL);
 		}
 
-		IEnumerable<HttpClientHandler> GetStableTests ()
+		static IEnumerable<HttpClientHandler> GetStableTests ()
 		{
 			yield return new HttpClientHandler (
 				"Get string", HttpClientOperation.GetString);
@@ -64,7 +78,7 @@ namespace Xamarin.WebTests
 				HttpContent.HelloWorld, new StringContent ("Returned body"));
 		}
 
-		IEnumerable<HttpClientHandler> GetMono38Tests ()
+		static IEnumerable<HttpClientHandler> GetMono38Tests ()
 		{
 			yield return new HttpClientHandler (
 				"Bug #20583", HttpClientOperation.PostString,
@@ -73,7 +87,7 @@ namespace Xamarin.WebTests
 			};
 		}
 
-		public IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)
+		public static IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)
 		{
 			if (filter == null || filter.Equals ("stable")) {
 				foreach (var test in GetStableTests ())
@@ -88,14 +102,14 @@ namespace Xamarin.WebTests
 
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] HttpServer server, [TestParameter ("stable")] HttpClientHandler handler)
+			[TestHost] HttpServer server, [HttpClientHandler ("stable")] HttpClientHandler handler)
 		{
 			return TestRunner.RunHttpClient (ctx, server, handler, cancellationToken);
 		}
 
 		[AsyncTest]
 		public Task RunMono38 (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] HttpServer server, [TestParameter ("mono38")] HttpClientHandler handler)
+			[TestHost] HttpServer server, [HttpClientHandler ("mono38")] HttpClientHandler handler)
 		{
 			return TestRunner.RunHttpClient (ctx, server, handler, cancellationToken);
 		}

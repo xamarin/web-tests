@@ -30,8 +30,13 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Tests
 {
-	public class RedirectStatusSource : ITestParameterSource<HttpStatusCode>
+	public class RedirectStatusAttribute : TestParameterAttribute, ITestParameterSource<HttpStatusCode>
 	{
+		public RedirectStatusAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (typeof (RedirectStatusAttribute), filter, flags)
+		{
+		}
+
 		#region ITestParameterSource implementation
 		public IEnumerable<HttpStatusCode> GetParameters (TestContext ctx, string filter)
 		{

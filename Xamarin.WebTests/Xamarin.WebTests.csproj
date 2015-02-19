@@ -51,7 +51,6 @@
     <Compile Include="Handlers\PostHandler.cs" />
     <Compile Include="Handlers\Handler.cs" />
     <Compile Include="Tests\ProxyKind.cs" />
-    <Compile Include="Tests\RedirectStatusSource.cs" />
     <Compile Include="Tests\TestGet.cs" />
     <Compile Include="WebTestFeatures.cs" />
     <Compile Include="Handlers\Request.cs" />
@@ -74,6 +73,7 @@
     <Compile Include="Framework\ProxyConnection.cs" />
     <Compile Include="Tests\TestFork.cs" />
     <Compile Include="Framework\RandomContent.cs" />
+    <Compile Include="Tests\RedirectStatusAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />

@@ -36,6 +36,7 @@ namespace Xamarin.WebTests
 {
 	using Framework;
 	using Portable;
+	using Tests;
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class WorkAttribute : TestCategoryAttribute
@@ -167,8 +168,14 @@ namespace Xamarin.WebTests
 		}
 		#endregion
 
-		public class SelectSSL : ITestParameterSource<bool>
+		[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+		public class SelectSSLAttribute : TestParameterAttribute, ITestParameterSource<bool>
 		{
+			public SelectSSLAttribute (string filter = null, TestFlags flags = TestFlags.Hidden)
+				: base (typeof (SelectSSLAttribute), filter, flags)
+			{
+			}
+
 			#region ITestParameterSource implementation
 			public IEnumerable<bool> GetParameters (TestContext ctx, string filter)
 			{
@@ -179,8 +186,14 @@ namespace Xamarin.WebTests
 			#endregion
 		}
 
-		public class SelectReuseConnection : ITestParameterSource<bool>
+		[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+		public class SelectReuseConnectionAttribute : TestParameterAttribute, ITestParameterSource<bool>
 		{
+			public SelectReuseConnectionAttribute (string filter = null, TestFlags flags = TestFlags.Hidden)
+				: base (typeof (SelectReuseConnectionAttribute), filter, flags)
+			{
+			}
+
 			#region ITestParameterSource implementation
 			public IEnumerable<bool> GetParameters (TestContext ctx, string filter)
 			{
@@ -189,6 +202,44 @@ namespace Xamarin.WebTests
 					yield return true;
 			}
 			#endregion
+		}
+
+		[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+		public class SelectProxyKindAttribute : TestParameterAttribute, ITestParameterSource<ProxyKind>
+		{
+			public SelectProxyKindAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+				: base (typeof (SelectProxyKindAttribute), filter, flags)
+			{
+			}
+
+			public IEnumerable<ProxyKind> GetParameters (TestContext ctx, string filter)
+			{
+				if (!ctx.IsEnabled (WebTestFeatures.HasNetwork))
+					yield break;
+
+				if (!ctx.IsEnabled (WebTestFeatures.Proxy))
+					yield break;
+
+				if (ctx.CurrentCategory == WebTestFeatures.WorkCategory) {
+					yield return ProxyKind.SSL;
+					yield break;
+				}
+
+				yield return ProxyKind.Simple;
+
+				if (ctx.IsEnabled (WebTestFeatures.ProxyAuth)) {
+					yield return ProxyKind.BasicAuth;
+					if (ctx.IsEnabled (WebTestFeatures.NTLM))
+						yield return ProxyKind.NtlmAuth;
+				}
+
+				if (ctx.IsEnabled (WebTestFeatures.Mono361)) {
+					yield return ProxyKind.Unauthenticated;
+
+					if (ctx.IsEnabled (WebTestFeatures.SSL))
+						yield return ProxyKind.SSL;
+				}
+			}
 		}
 
 		static WebTestFeatures ()

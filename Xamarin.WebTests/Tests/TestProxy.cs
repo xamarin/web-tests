@@ -40,20 +40,33 @@ namespace Xamarin.WebTests.Tests
 	using Framework;
 	using Portable;
 
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+	public class ProxyHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
+	{
+		public ProxyHandlerAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (typeof (ProxyHandlerAttribute), filter, flags)
+		{
+		}
+
+		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
+		{
+			return TestProxy.GetParameters (ctx, filter);
+		}
+	}
+
 	[Proxy]
 	[AsyncTestFixture (Timeout = 30000)]
-	public class TestProxy : ITestHost<ProxyServer>, ITestParameterSource<Handler>,
-		ITestParameterSource<ProxyKind>, ITestParameterSource<AuthenticationType>
+	public class TestProxy : ITestHost<ProxyServer>
 	{
-		[TestParameter]
+		[WebTestFeatures.SelectProxyKind]
 		public ProxyKind Kind {
 			get; set;
 		}
 
-		readonly IPortableEndPoint address;
-		readonly bool hasNetwork;
+		readonly static IPortableEndPoint address;
+		readonly static bool hasNetwork;
 
-		public TestProxy ()
+		static TestProxy ()
 		{
 			address = PortableSupport.Web.GetEndpoint (0);
 			hasNetwork = !address.IsLoopback;
@@ -93,41 +106,7 @@ namespace Xamarin.WebTests.Tests
 			}
 		}
 
-		IEnumerable<ProxyKind> ITestParameterSource<ProxyKind>.GetParameters (TestContext ctx, string filter)
-		{
-			if (!ctx.IsEnabled (WebTestFeatures.HasNetwork))
-				yield break;
-
-			if (!ctx.IsEnabled (WebTestFeatures.Proxy))
-				yield break;
-
-			if (ctx.CurrentCategory == WebTestFeatures.WorkCategory) {
-				yield return ProxyKind.SSL;
-				yield break;
-			}
-
-			yield return ProxyKind.Simple;
-
-			if (ctx.IsEnabled (WebTestFeatures.ProxyAuth)) {
-				yield return ProxyKind.BasicAuth;
-				if (ctx.IsEnabled (WebTestFeatures.NTLM))
-					yield return ProxyKind.NtlmAuth;
-			}
-
-			if (ctx.IsEnabled (WebTestFeatures.Mono361)) {
-				yield return ProxyKind.Unauthenticated;
-
-				if (ctx.IsEnabled (WebTestFeatures.SSL))
-					yield return ProxyKind.SSL;
-			}
-		}
-
-		IEnumerable<AuthenticationType> ITestParameterSource<AuthenticationType>.GetParameters (TestContext ctx, string filter)
-		{
-			return TestAuthentication.GetAuthenticationTypes (ctx, filter);
-		}
-
-		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
+		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
 			var list = new List<Handler> ();
 			if (!hasNetwork)
@@ -141,7 +120,7 @@ namespace Xamarin.WebTests.Tests
 		[AsyncTest]
 		public Task Run (
 			TestContext ctx, [TestHost] ProxyServer server,
-			[TestParameter] Handler handler, CancellationToken cancellationToken)
+			[ProxyHandler] Handler handler, CancellationToken cancellationToken)
 		{
 			if (Kind == ProxyKind.Unauthenticated)
 				return TestRunner.RunTraditional (
@@ -155,7 +134,7 @@ namespace Xamarin.WebTests.Tests
 		[AsyncTest]
 		public Task RunAuthentication (
 			TestContext ctx, [TestHost] ProxyServer server,
-			[TestParameter] AuthenticationType authType,  [TestParameter] Handler handler,
+			[AuthenticationType] AuthenticationType authType,  [ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
 			var authHandler = new AuthenticationHandler (authType, handler);
