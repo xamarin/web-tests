@@ -23,7 +23,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="131" y="74" width="843" height="644"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1440"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <view key="contentView" id="3">
                 <rect key="frame" x="0.0" y="0.0" width="843" height="644"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -84,16 +84,6 @@
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
                             <connections>
-                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selectionIndexPath" previousBinding="guv-pk-gLf" id="dJB-o6-Jad">
-                                    <dictionary key="options">
-                                        <string key="NSSelectorName">Run:testCase:indexPath:</string>
-                                    </dictionary>
-                                </binding>
-                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.representedObject.TestCase" id="guv-pk-gLf">
-                                    <dictionary key="options">
-                                        <string key="NSSelectorName">Run:testCase:indexPath:</string>
-                                    </dictionary>
-                                </binding>
                                 <binding destination="-2" name="enabled2" keyPath="CanRun" previousBinding="fGF-2M-ax3" id="piK-xY-yDH">
                                     <dictionary key="options">
                                         <integer key="NSMultipleValuesPlaceholder" value="-1"/>
@@ -105,6 +95,16 @@
                                 <binding destination="oII-JR-BBP" name="enabled" keyPath="selection.representedObject.TestCase" id="fGF-2M-ax3">
                                     <dictionary key="options">
                                         <string key="NSValueTransformerName">NSIsNotNil</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.representedObject.TestCase" id="guv-pk-gLf">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">Run:testCase:indexPath:</string>
+                                    </dictionary>
+                                </binding>
+                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selectionIndexPath" previousBinding="guv-pk-gLf" id="dJB-o6-Jad">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">Run:testCase:indexPath:</string>
                                     </dictionary>
                                 </binding>
                                 <binding destination="-2" name="target" keyPath="self" previousBinding="dJB-o6-Jad" id="e52-00-RJy">
@@ -161,12 +161,12 @@
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
                             <connections>
-                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selectionIndexPath" previousBinding="sQL-QC-xaE" id="BqW-eO-JpB">
+                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.representedObject" id="sQL-QC-xaE">
                                     <dictionary key="options">
                                         <string key="NSSelectorName">Clear:testResult:indexPath:</string>
                                     </dictionary>
                                 </binding>
-                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.representedObject" id="sQL-QC-xaE">
+                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selectionIndexPath" previousBinding="sQL-QC-xaE" id="BqW-eO-JpB">
                                     <dictionary key="options">
                                         <string key="NSSelectorName">Clear:testResult:indexPath:</string>
                                     </dictionary>
@@ -189,11 +189,7 @@
             </toolbar>
             <point key="canvasLocation" x="1556.5" y="486"/>
         </window>
-        <treeController objectClassName="TestListNode" childrenKeyPath="childNodes" leafKeyPath="isLeaf" id="oII-JR-BBP">
-            <connections>
-                <binding destination="-3" name="contentArray" keyPath="delegate.TestResultArray" id="DPo-fI-OgS"/>
-            </connections>
-        </treeController>
+        <treeController objectClassName="TestListNode" childrenKeyPath="childNodes" leafKeyPath="isLeaf" id="oII-JR-BBP"/>
         <customView id="asp-yt-jjb" customClass="TestResultList">
             <rect key="frame" x="0.0" y="0.0" width="520" height="436"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>

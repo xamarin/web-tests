@@ -37,7 +37,6 @@ namespace TestMac
 	{
 		MainWindowController mainWindowController;
 		SettingsDialogController settingsDialogController;
-		NSMutableArray testResultArray;
 		TestSessionModel currentSession;
 		MacUI ui;
 
@@ -75,13 +74,6 @@ namespace TestMac
 			LoadLocalTestSuite ();
 		}
 
-		public override void AwakeFromNib ()
-		{
-			base.AwakeFromNib ();
-
-			testResultArray = new NSMutableArray ();
-		}
-
 		[Export ("ShowPreferences:")]
 		public void ShowPreferences ()
 		{
@@ -104,12 +96,6 @@ namespace TestMac
 		public override string ToString ()
 		{
 			return string.Format ("[AppDelegate: {0:x}]", Handle.ToInt64 ());
-		}
-
-		[Export ("TestResultArray")]
-		public NSMutableArray TestResultArray {
-			get { return testResultArray; }
-			set { testResultArray = value; }
 		}
 
 		public const string CurrentSessionKey = "CurrentSession";
