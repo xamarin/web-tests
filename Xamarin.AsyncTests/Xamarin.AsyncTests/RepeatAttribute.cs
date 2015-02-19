@@ -29,7 +29,7 @@ using System.Collections.Generic;
 namespace Xamarin.AsyncTests
 {
 	[AttributeUsage (AttributeTargets.Parameter, AllowMultiple = false)]
-	public sealed class RepeatAttribute : TestParameterAttribute
+	public sealed class RepeatAttribute : TestParameterAttribute, ITestParameterSource<int>
 	{
 		public int Count {
 			get;
@@ -37,24 +37,21 @@ namespace Xamarin.AsyncTests
 		}
 
 		public RepeatAttribute (int count, TestFlags flags = TestFlags.Browsable)
-			: base (typeof (RepeatedTestSource), count.ToString (), flags)
+			: base (count.ToString (), flags)
 		{
 			Count = count;
 		}
 
-		internal class RepeatedTestSource : ITestParameterSource<int>
+		public IEnumerable<int> GetParameters (TestContext ctx, string filter)
 		{
-			public IEnumerable<int> GetParameters (TestContext ctx, string filter)
-			{
-				int count = int.Parse (filter);
-				if (count < 0) {
-					int index = 0;
-					while (true)
-						yield return index++;
-				} else {
-					for (int i = 1; i <= count; i++)
-						yield return i;
-				}
+			int count = int.Parse (filter);
+			if (count < 0) {
+				int index = 0;
+				while (true)
+					yield return index++;
+			} else {
+				for (int i = 1; i <= count; i++)
+					yield return i;
 			}
 		}
 	}

@@ -43,7 +43,7 @@ namespace Xamarin.WebTests.Tests
 	public class AuthenticationTypeAttribute : TestParameterAttribute, ITestParameterSource<AuthenticationType>
 	{
 		public AuthenticationTypeAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (typeof (AuthenticationTypeAttribute), filter, flags)
+			: base (filter, flags)
 		{
 		}
 

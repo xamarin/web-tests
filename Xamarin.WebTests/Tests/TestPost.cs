@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.Tests
 	public class PostHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
 	{
 		public PostHandlerAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (typeof (PostHandlerAttribute), filter, flags)
+			: base (filter, flags)
 		{
 		}
 

@@ -45,7 +45,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public RepeatedTestHost (int count, TestFlags flags = TestFlags.None, string name = "$repeat")
-			: base (name, typeof(RepeatAttribute.RepeatedTestSource), false,
+			: base (name, typeof(RepeatAttribute), null, false,
 				ReflectionHelper.GetIntegerSerializer (), count.ToString (), flags)
 		{
 			Count = count;

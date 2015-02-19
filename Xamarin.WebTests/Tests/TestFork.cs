@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.Tests
 	public class ForkHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
 	{
 		public ForkHandlerAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (typeof (ForkHandlerAttribute), filter, flags)
+			: base (filter, flags)
 		{
 		}
 

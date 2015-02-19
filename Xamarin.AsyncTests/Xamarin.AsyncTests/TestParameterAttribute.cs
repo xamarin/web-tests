@@ -44,7 +44,12 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
-		public TestParameterAttribute (Type sourceType, string filter = null, TestFlags flags = TestFlags.Browsable)
+		public TestParameterAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+			: this (null, filter, flags)
+		{
+		}
+
+		public TestParameterAttribute (Type sourceType = null, string filter = null, TestFlags flags = TestFlags.Browsable)
 		{
 			SourceType = sourceType;
 			Filter = filter;

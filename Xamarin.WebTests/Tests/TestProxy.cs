@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.Tests
 	public class ProxyHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
 	{
 		public ProxyHandlerAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (typeof (ProxyHandlerAttribute), filter, flags)
+			: base (filter, flags)
 		{
 		}
 

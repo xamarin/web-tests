@@ -172,7 +172,7 @@ namespace Xamarin.WebTests
 		public class SelectSSLAttribute : TestParameterAttribute, ITestParameterSource<bool>
 		{
 			public SelectSSLAttribute (string filter = null, TestFlags flags = TestFlags.Hidden)
-				: base (typeof (SelectSSLAttribute), filter, flags)
+				: base (filter, flags)
 			{
 			}
 
@@ -190,7 +190,7 @@ namespace Xamarin.WebTests
 		public class SelectReuseConnectionAttribute : TestParameterAttribute, ITestParameterSource<bool>
 		{
 			public SelectReuseConnectionAttribute (string filter = null, TestFlags flags = TestFlags.Hidden)
-				: base (typeof (SelectReuseConnectionAttribute), filter, flags)
+				: base (filter, flags)
 			{
 			}
 
@@ -208,7 +208,7 @@ namespace Xamarin.WebTests
 		public class SelectProxyKindAttribute : TestParameterAttribute, ITestParameterSource<ProxyKind>
 		{
 			public SelectProxyKindAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-				: base (typeof (SelectProxyKindAttribute), filter, flags)
+				: base (filter, flags)
 			{
 			}
 

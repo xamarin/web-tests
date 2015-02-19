@@ -32,7 +32,7 @@ namespace Xamarin.AsyncTests.Sample
 	public class HelloAttribute : TestParameterAttribute, ITestParameterSource<string>
 	{
 		public HelloAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (typeof (HelloAttribute), filter, flags)
+			: base (filter, flags)
 		{
 		}
 

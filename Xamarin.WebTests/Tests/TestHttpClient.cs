@@ -44,7 +44,7 @@ namespace Xamarin.WebTests
 	public class HttpClientHandlerAttribute : TestParameterAttribute, ITestParameterSource<HttpClientHandler>
 	{
 		public HttpClientHandlerAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (typeof (HttpClientHandlerAttribute), filter, flags)
+			: base (filter, flags)
 		{
 		}
 

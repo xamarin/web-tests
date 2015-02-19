@@ -33,7 +33,7 @@ namespace Xamarin.WebTests.Tests
 	public class RedirectStatusAttribute : TestParameterAttribute, ITestParameterSource<HttpStatusCode>
 	{
 		public RedirectStatusAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (typeof (RedirectStatusAttribute), filter, flags)
+			: base (filter, flags)
 		{
 		}
 

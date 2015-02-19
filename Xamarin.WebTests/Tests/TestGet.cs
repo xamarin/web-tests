@@ -43,7 +43,7 @@ namespace Xamarin.WebTests.Tests
 	public class GetHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
 	{
 		public GetHandlerAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (typeof (GetHandlerAttribute), filter, flags)
+			: base (filter, flags)
 		{
 		}
 

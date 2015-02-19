@@ -49,6 +49,11 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public ITestParameterSource<T> SourceInstance {
+			get;
+			private set;
+		}
+
 		public bool UseFixtureInstance {
 			get;
 			private set;
@@ -72,18 +77,21 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public ParameterSourceInstance (ParameterSourceHost<T> host, TestInstance parent,
-			Type sourceType, bool useFixtureInstance, string filter)
+			Type sourceType, ITestParameterSource<T> sourceInstance, bool useFixtureInstance, string filter)
 			: base (host, parent)
 		{
 			SourceHost = host;
 			SourceType = sourceType;
+			SourceInstance = sourceInstance;
 			UseFixtureInstance = useFixtureInstance;
 			Filter = filter;
 		}
 
 		ITestParameterSource<T> CreateSource (TestContext ctx)
 		{
-			if (SourceType != null)
+			if (SourceInstance != null)
+				return SourceInstance;
+			else if (SourceType != null)
 				return (ITestParameterSource<T>)Activator.CreateInstance (SourceType);
 			else if (UseFixtureInstance)
 				return (ITestParameterSource<T>)GetFixtureInstance ().Instance;
