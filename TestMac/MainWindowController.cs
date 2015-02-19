@@ -82,12 +82,12 @@ namespace TestMac
 			get { return (MainWindow)base.Window; }
 		}
 
-		[Export ("Run:testCase:selection:")]
-		public async void Run (TestCaseModel test, TestListNode node)
+		[Export ("Run:node:")]
+		public async void Run (TestListNode node)
 		{
 			var ui = AppDelegate.Instance.MacUI;
 
-			var parameters = new RunParameters (test.Test);
+			var parameters = new RunParameters (node.TestCase.Test);
 			var result = await ui.TestRunner.Run.Execute (parameters);
 
 			var model = new TestResultModel (result);
@@ -107,16 +107,10 @@ namespace TestMac
 			}
 		}
 
-		[Export ("Clear:testResult:indexPath:")]
-		public void Clear (TestResultModel result, NSIndexPath indexPath)
+		[Export ("Clear:node:")]
+		public void Clear (TestListNode node)
 		{
-			if (!result.IsRoot)
-				TestResultController.RemoveObjectAtArrangedObjectIndexPath (indexPath);
-		}
-
-		[Export ("ClearAll:")]
-		public void ClearAll ()
-		{
+			node.RemoveAllChildren ();
 		}
 
 		[Export ("SaveTestResult:")]

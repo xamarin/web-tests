@@ -89,8 +89,26 @@ namespace TestMac
 		[Export ("UnloadTestSuite:")]
 		public async void UnloadTestSuite ()
 		{
-			Console.WriteLine ("UNLOAD!");
 			await ui.ServerManager.Stop.Execute ();
+		}
+
+		[Export ("ClearSession:")]
+		public void ClearSession ()
+		{
+			if (CurrentSession != null)
+				CurrentSession.RemoveAllChildren ();
+		}
+
+		[Export ("LoadSession:")]
+		public void LoadSession ()
+		{
+			Console.WriteLine ("LOAD SESSION");
+		}
+
+		[Export ("SaveSession:")]
+		public void SaveSession ()
+		{
+			Console.WriteLine ("SAVE SESSION");
 		}
 
 		public override string ToString ()

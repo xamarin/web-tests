@@ -124,9 +124,14 @@
                             <menuItem title="Load" id="Zrm-2K-bTw">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="MainController" id="0Dm-LU-eSA">
+                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="CurrentSession" id="QrM-Lr-pa5">
                                         <dictionary key="options">
-                                            <string key="NSSelectorName">LoadTestResult:</string>
+                                            <string key="NSValueTransformerName">NSIsNil</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="2pD-5y-VIs">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">LoadSession:</string>
                                         </dictionary>
                                     </binding>
                                 </connections>
@@ -134,9 +139,14 @@
                             <menuItem title="Save" id="5h9-AO-Waf">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="MainController" id="eA9-MC-swl">
+                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="CurrentSession" id="YX3-3W-PPl">
                                         <dictionary key="options">
-                                            <string key="NSSelectorName">SaveTestResult:</string>
+                                            <string key="NSValueTransformerName">NSIsNotNil</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="bOK-Wp-0QF">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">SaveSession:</string>
                                         </dictionary>
                                     </binding>
                                 </connections>
@@ -144,9 +154,14 @@
                             <menuItem title="Clear" id="YQL-g7-J1K">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="eph-sA-Oag">
+                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="CurrentSession" id="4ml-rm-ezf">
                                         <dictionary key="options">
-                                            <string key="NSSelectorName">ClearResult:</string>
+                                            <string key="NSValueTransformerName">NSIsNotNil</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="tyv-aO-KiV">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">ClearSession:</string>
                                         </dictionary>
                                     </binding>
                                 </connections>
@@ -212,6 +227,5 @@
                 </menuItem>
             </items>
         </menu>
-        <userDefaultsController representsSharedInstance="YES" id="TTY-J4-EmD"/>
     </objects>
 </document>

@@ -34,16 +34,57 @@ namespace TestMac
 {
 	public abstract class TestListNode : NSObject
 	{
+		TestListNode parent;
 		NSMutableArray children;
 
+		static int nextID;
+		public readonly int ID = ++nextID;
+
 		protected abstract IEnumerable<TestListNode> ResolveChildren ();
+
+		public TestListNode Parent {
+			get { return parent; }
+		}
 
 		public void AddChild (TestListNode child)
 		{
 			WillChangeValue ("isLeaf");
 			WillChangeValue ("childNodes");
 
+			Console.WriteLine ("ADD CHILD: {0} {1}", this, child);
+
 			children.Add (child);
+			child.parent = this;
+
+			DidChangeValue ("isLeaf");
+			DidChangeValue ("childNodes");
+		}
+
+		public void RemoveChild (TestListNode child)
+		{
+			WillChangeValue ("isLeaf");
+			WillChangeValue ("childNodes");
+
+			var length = (nint)children.Count;
+			for (nint i = 0; i < length; i++) {
+				if (children.GetItem<TestListNode> (i) == child) {
+					children.RemoveObject ((nint)i);
+					break;
+				}
+			}
+
+			child.parent = null;
+
+			DidChangeValue ("isLeaf");
+			DidChangeValue ("childNodes");
+		}
+
+		public void RemoveAllChildren ()
+		{
+			WillChangeValue ("isLeaf");
+			WillChangeValue ("childNodes");
+
+			children.RemoveAllObjects ();
 
 			DidChangeValue ("isLeaf");
 			DidChangeValue ("childNodes");
@@ -54,7 +95,10 @@ namespace TestMac
 			if (children != null)
 				return;
 			children = new NSMutableArray ();
-			children.AddObjects (ResolveChildren ().ToArray ());
+			foreach (var child in ResolveChildren ()) {
+				child.parent = this;
+				children.Add (child);
+			}
 		}
 
 		[Export ("isLeaf")]
@@ -74,10 +118,6 @@ namespace TestMac
 			set {
 				children = value;
 			}
-		}
-
-		public bool IsRoot {
-			get; set;
 		}
 
 		[Export ("Name")]
@@ -107,7 +147,7 @@ namespace TestMac
 
 		public override string ToString ()
 		{
-			return string.Format ("[TestListNode: IsLeaf={0}, Name={1}, Status={2}]", IsLeaf, Name, TestStatus);
+			return string.Format ("[TestListNode({0}): IsLeaf={1}, Name={2}, Status={3}]", ID, IsLeaf, Name, TestStatus);
 		}
 	}
 }

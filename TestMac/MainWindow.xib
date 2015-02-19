@@ -23,7 +23,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="131" y="74" width="843" height="644"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1440"/>
             <view key="contentView" id="3">
                 <rect key="frame" x="0.0" y="0.0" width="843" height="644"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -84,16 +84,6 @@
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
                             <connections>
-                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selection.self" previousBinding="TJ5-bb-Gph" id="p3J-vz-nia">
-                                    <dictionary key="options">
-                                        <string key="NSSelectorName">Run:testCase:selection:</string>
-                                    </dictionary>
-                                </binding>
-                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.TestCase" id="TJ5-bb-Gph">
-                                    <dictionary key="options">
-                                        <string key="NSSelectorName">Run:testCase:selection:</string>
-                                    </dictionary>
-                                </binding>
                                 <binding destination="-2" name="enabled2" keyPath="CanRun" previousBinding="MTt-MF-ttY" id="EaB-gk-aG2">
                                     <dictionary key="options">
                                         <integer key="NSMultipleValuesPlaceholder" value="-1"/>
@@ -102,14 +92,19 @@
                                         <integer key="NSNullPlaceholder" value="-1"/>
                                     </dictionary>
                                 </binding>
+                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.self" id="l3V-Qb-1OP">
+                                    <dictionary key="options">
+                                        <string key="NSSelectorName">Run:node:</string>
+                                    </dictionary>
+                                </binding>
                                 <binding destination="oII-JR-BBP" name="enabled" keyPath="selection.TestCase" id="MTt-MF-ttY">
                                     <dictionary key="options">
                                         <string key="NSValueTransformerName">NSIsNotNil</string>
                                     </dictionary>
                                 </binding>
-                                <binding destination="-2" name="target" keyPath="self" previousBinding="p3J-vz-nia" id="ftg-3H-dh2">
+                                <binding destination="-2" name="target" keyPath="self" previousBinding="l3V-Qb-1OP" id="ehk-qD-8E5">
                                     <dictionary key="options">
-                                        <string key="NSSelectorName">Run:testCase:selection:</string>
+                                        <string key="NSSelectorName">Run:node:</string>
                                     </dictionary>
                                 </binding>
                             </connections>
@@ -161,19 +156,14 @@
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
                             <connections>
-                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.self" id="sQL-QC-xaE">
+                                <binding destination="oII-JR-BBP" name="argument" keyPath="selection.self" id="HON-kI-kn1">
                                     <dictionary key="options">
-                                        <string key="NSSelectorName">Clear:testResult:indexPath:</string>
+                                        <string key="NSSelectorName">Clear:node:</string>
                                     </dictionary>
                                 </binding>
-                                <binding destination="oII-JR-BBP" name="argument2" keyPath="selectionIndexPath" previousBinding="sQL-QC-xaE" id="BqW-eO-JpB">
+                                <binding destination="-2" name="target" keyPath="self" previousBinding="HON-kI-kn1" id="LHh-Wl-Xp2">
                                     <dictionary key="options">
-                                        <string key="NSSelectorName">Clear:testResult:indexPath:</string>
-                                    </dictionary>
-                                </binding>
-                                <binding destination="-2" name="target" keyPath="self" previousBinding="BqW-eO-JpB" id="Vil-DJ-kmb">
-                                    <dictionary key="options">
-                                        <string key="NSSelectorName">Clear:testResult:indexPath:</string>
+                                        <string key="NSSelectorName">Clear:node:</string>
                                     </dictionary>
                                 </binding>
                             </connections>
