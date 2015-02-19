@@ -1,5 +1,5 @@
 ﻿//
-// TestFeaturesModel.cs
+// TestSessionModel.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,42 +24,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using AppKit;
 using Foundation;
 using Xamarin.AsyncTests;
 
 namespace TestMac
 {
-	public class TestFeatureModel : NSObject
+	public class TestSessionModel : NSObject
 	{
-		public TestFeature Feature {
+		public TestSuite Suite {
 			get;
 			private set;
 		}
 
-		public TestFeatureModel (TestFeature feature)
+		public TestSessionModel (TestSuite suite)
 		{
-			Feature = feature;
-		}
-
-		[Export ("Name")]
-		public string Name {
-			get { return Feature.Name; }
-		}
-
-		[Export ("CanModify")]
-		public bool CanModify {
-			get { return Feature.CanModify; }
-		}
-
-		[Export ("Details")]
-		public string Details {
-			get { return Feature.Description; }
-		}
-
-		[Export ("State")]
-		public int State {
-			get { return AppDelegate.Settings.IsEnabled (Feature) ? 1 : 0; }
-			set { AppDelegate.Settings.SetIsEnabled (Feature, value != 0); }
+			Suite = suite;
 		}
 	}
 }

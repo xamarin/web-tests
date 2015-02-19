@@ -113,6 +113,7 @@
     <Compile Include="Binding\TestCategoryModel.cs" />
     <Compile Include="Binding\TestFeatureModel.cs" />
     <Compile Include="UISettings.cs" />
+    <Compile Include="Binding\TestSessionModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />

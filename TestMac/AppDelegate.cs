@@ -38,6 +38,7 @@ namespace TestMac
 		MainWindowController mainWindowController;
 		SettingsDialogController settingsDialogController;
 		NSMutableArray testResultArray;
+		TestSessionModel currentSession;
 		MacUI ui;
 
 		public MacUI MacUI {
@@ -53,6 +54,10 @@ namespace TestMac
 			get { return (AppDelegate)NSApplication.SharedApplication.Delegate; }
 		}
 
+		public static SettingsDialogController Settings {
+			get { return Instance.settingsDialogController; }
+		}
+
 		public override void DidFinishLaunching (NSNotification notification)
 		{
 			ui = MacUI.Create ();
@@ -61,9 +66,13 @@ namespace TestMac
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
 
 			settingsDialogController = new SettingsDialogController ();
-			settingsDialogController.Initialize (ui.Configuration);
 
-			ui.ServerManager.Start.Execute (ServerParameters.CreateLocal ());
+			ui.ServerManager.TestSuite.PropertyChanged += (sender, e) => {
+				Console.WriteLine ("AD SUITE CHANGED: {0}", e);
+				CurrentSession = e != null ? new TestSessionModel (e) : null;
+			};
+
+			LoadLocalTestSuite ();
 		}
 
 		public override void AwakeFromNib ()
@@ -79,6 +88,19 @@ namespace TestMac
 			settingsDialogController.Window.MakeKeyAndOrderFront (this);
 		}
 
+		[Export ("LoadLocalTestSuite:")]
+		public async void LoadLocalTestSuite ()
+		{
+			await ui.ServerManager.Start.Execute (ServerParameters.CreateLocal ());
+		}
+
+		[Export ("UnloadTestSuite:")]
+		public async void UnloadTestSuite ()
+		{
+			Console.WriteLine ("UNLOAD!");
+			await ui.ServerManager.Stop.Execute ();
+		}
+
 		public override string ToString ()
 		{
 			return string.Format ("[AppDelegate: {0:x}]", Handle.ToInt64 ());
@@ -88,6 +110,16 @@ namespace TestMac
 		public NSMutableArray TestResultArray {
 			get { return testResultArray; }
 			set { testResultArray = value; }
+		}
+
+		[Export ("CurrentSession")]
+		public TestSessionModel CurrentSession {
+			get { return currentSession; }
+			set {
+				WillChangeValue ("CurrentSession");
+				currentSession = value;
+				DidChangeValue ("CurrentSession");
+			}
 		}
 	}
 }

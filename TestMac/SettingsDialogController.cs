@@ -12,30 +12,36 @@ namespace TestMac
 		NSMutableArray testFeaturesArray;
 		TestCategoryModel currentCategory;
 
-		public static TestConfiguration Configuration {
-			get { return AppDelegate.Instance.MacUI.Configuration; }
+		public static MacUI MacUI {
+			get { return AppDelegate.Instance.MacUI; }
 		}
 
 		public static SettingsBag SettingsBag {
 			get { return AppDelegate.Instance.MacUI.Settings; }
 		}
 
+		public TestConfiguration Configuration {
+			get;
+			private set;
+		}
+
 		public SettingsDialogController (IntPtr handle) : base (handle)
 		{
+			Initialize ();
 		}
 
 		[Export ("initWithCoder:")]
 		public SettingsDialogController (NSCoder coder) : base (coder)
 		{
+			Initialize ();
 		}
 
 		public SettingsDialogController () : base ("SettingsDialog")
 		{
+			Initialize ();
 		}
 
-		TestCategoryModel allCategory;
-
-		public void Initialize (TestConfiguration configuration)
+		void Initialize ()
 		{
 			testCategoriesArray = new NSMutableArray ();
 			allCategory = new TestCategoryModel (TestCategory.All);
@@ -43,17 +49,43 @@ namespace TestMac
 			testCategoriesArray.Add (allCategory);
 
 			testFeaturesArray = new NSMutableArray ();
+		}
 
-			foreach (var category in configuration.Categories) {
-				var model = new TestCategoryModel (category);
-				testCategoriesArray.Add (model);
-				if (category == Configuration.CurrentCategory)
-					currentCategory = model;
-			}
+		TestCategoryModel allCategory;
 
-			foreach (var feature in configuration.Features) {
-				var model = new TestFeatureModel (feature);
-				testFeaturesArray.Add (model);
+		public override void AwakeFromNib ()
+		{
+			base.AwakeFromNib ();
+
+			var ui = AppDelegate.Instance.MacUI;
+			ui.ServerManager.TestSuite.PropertyChanged += (sender, e) => OnTestSuiteChanged (e);
+			OnTestSuiteChanged (ui.ServerManager.TestSuite);
+		}
+
+		void OnTestSuiteChanged (TestSuite suite)
+		{
+			if (suite != null) {
+				Configuration = suite.Configuration;
+				foreach (var category in Configuration.Categories) {
+					var model = new TestCategoryModel (category);
+					CategoriesController.AddObject (model);
+					if (category == Configuration.CurrentCategory)
+						CurrentCategory = model;
+				}
+
+				foreach (var feature in Configuration.Features) {
+					var model = new TestFeatureModel (feature);
+					FeaturesController.AddObject (model);
+				}
+			} else {
+				Configuration = null;
+				var categoryRange = new NSRange (1, CategoriesController.ArrangedObjects ().Length - 1);
+				CategoriesController.Remove (NSIndexSet.FromNSRange (categoryRange));
+
+				var featureRange = new NSRange (0, FeaturesController.ArrangedObjects ().Length);
+				FeaturesController.Remove (NSIndexSet.FromNSRange (featureRange));
+
+				CurrentCategory = allCategory;
 			}
 		}
 
@@ -73,7 +105,8 @@ namespace TestMac
 			set {
 				WillChangeValue ("CurrentCategory");
 				currentCategory = value;
-				Configuration.CurrentCategory = value.Category;
+				if (Configuration != null)
+					Configuration.CurrentCategory = value.Category;
 				DidChangeValue ("CurrentCategory");
 			}
 		}
@@ -92,6 +125,19 @@ namespace TestMac
 				SettingsBag.RepeatCount = value;
 				DidChangeValue ("RepeatCount");
 			}
+		}
+
+		public bool IsEnabled (TestFeature feature)
+		{
+			if (Configuration != null)
+				return Configuration.IsEnabled (feature);
+			return feature.Constant ?? feature.DefaultValue ?? false;
+		}
+
+		public void SetIsEnabled (TestFeature feature, bool value)
+		{
+			if (Configuration != null)
+				Configuration.SetIsEnabled (feature, value);
 		}
 	}
 }

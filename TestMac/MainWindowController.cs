@@ -56,9 +56,11 @@ namespace TestMac
 
 		void OnTestSuiteLoaded (TestResult result)
 		{
-			var node = new TestResultNode (result);
-			node.Model.IsRoot = true;
-			TestResultController.AddObject (node);
+			if (result != null) {
+				var node = new TestResultNode (result);
+				node.Model.IsRoot = true;
+				TestResultController.AddObject (node);
+			}
 		}
 
 		public new MainWindow Window {

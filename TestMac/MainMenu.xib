@@ -79,6 +79,18 @@
                         <items>
                             <menuItem title="Load Local" enabled="NO" id="KkW-Ct-M8D">
                                 <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="CurrentSession" id="Khn-B1-bun">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSIsNil</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="MEx-eD-Nh4">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">LoadLocalTestSuite:</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
                             </menuItem>
                             <menuItem title="Start Server" enabled="NO" id="H8C-3P-b6k">
                                 <modifierMask key="keyEquivalentModifierMask"/>
@@ -89,6 +101,18 @@
                             <menuItem isSeparatorItem="YES" id="Ig6-Tl-Dsw"/>
                             <menuItem title="Unload" enabled="NO" id="boh-Pj-TRt">
                                 <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="CurrentSession" id="LfJ-2I-JXK">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSIsNotNil</string>
+                                        </dictionary>
+                                    </binding>
+                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="7dO-ig-ban">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">UnloadTestSuite:</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
                             </menuItem>
                         </items>
                     </menu>
@@ -188,5 +212,6 @@
                 </menuItem>
             </items>
         </menu>
+        <userDefaultsController representsSharedInstance="YES" id="TTY-J4-EmD"/>
     </objects>
 </document>
