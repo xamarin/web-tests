@@ -127,7 +127,7 @@ namespace Xamarin.AsyncTests.Client
 		}
 
 		Program (IPortableSupport support, ITestConfigurationProvider configProvider, string[] args)
-			: base (support, configProvider)
+			: base (support)
 		{
 			LogLevel = -1;
 

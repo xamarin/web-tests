@@ -54,6 +54,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Test = new TestCaseCollection (this, suite.Name);
 		}
 
+		protected override void ResolveMembers ()
+		{
+			var cattr = Assembly.GetCustomAttributes<AsyncTestSuiteAttribute> ().First ();
+			var type = cattr.Type;
+			var instanceMember = type.GetRuntimeField ("Instance");
+			var provider = (ITestConfigurationProvider)instanceMember.GetValue (null);
+
+			base.ResolveMembers ();
+		}
+
 		protected override IEnumerable<TestBuilder> ResolveChildren ()
 		{
 			foreach (var type in Assembly.ExportedTypes) {

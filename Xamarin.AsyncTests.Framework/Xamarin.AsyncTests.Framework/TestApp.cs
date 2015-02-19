@@ -72,7 +72,7 @@ namespace Xamarin.AsyncTests.Framework
 			get { return support; }
 		}
 
-		public TestApp (IPortableSupport support, ITestConfigurationProvider configProvider)
+		public TestApp (IPortableSupport support)
 		{
 			this.support = support;
 		}

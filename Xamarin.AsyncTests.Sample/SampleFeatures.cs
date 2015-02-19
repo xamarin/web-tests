@@ -25,9 +25,14 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Sample;
+
+[assembly: AsyncTestSuite (typeof (SampleFeatures))]
 
 namespace Xamarin.AsyncTests.Sample
 {
+
 	public class NotWorkingAttribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {

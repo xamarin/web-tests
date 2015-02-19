@@ -111,7 +111,7 @@ namespace Xamarin.AsyncTests.UI.Forms
 
 		public UITestApp (IPortableSupport support, ITestConfigurationProvider configProvider,
 			SettingsBag settings, Assembly assembly)
-			: base (support, configProvider)
+			: base (support)
 		{
 			this.settings = settings;
 
