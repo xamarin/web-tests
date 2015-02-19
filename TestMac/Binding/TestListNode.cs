@@ -60,6 +60,18 @@ namespace TestMac
 			return new TestListNode (session, new TestListNode [0]);
 		}
 
+		public void AddChild (TestListNode child)
+		{
+			WillChangeValue ("isLeaf");
+			WillChangeValue ("childNodes");
+			var newChildren = new TestListNode [children.Length + 1];
+			children.CopyTo (newChildren, 0);
+			newChildren [newChildren.Length - 1] = child;
+			children = newChildren;
+			DidChangeValue ("isLeaf");
+			DidChangeValue ("childNodes");
+		}
+
 		[Export ("isLeaf")]
 		public bool IsLeaf {
 			get { return children.Length == 0; }
