@@ -34,6 +34,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	class ReflectionTestSuite : TestSuite
 	{
+		public TestApp App {
+			get;
+			private set;
+		}
+
 		public Assembly Assembly {
 			get;
 			private set;
@@ -44,13 +49,18 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
+		public override TestConfiguration Configuration {
+			get { return Builder.Configuration; }
+		}
+
 		public override ITestBuilder TestBuilder {
 			get { return Builder; }
 		}
 
-		ReflectionTestSuite (TestName name, Assembly assembly)
+		ReflectionTestSuite (TestApp app, TestName name, Assembly assembly)
 			: base (name)
 		{
+			App = app;
 			Assembly = assembly;
 			Builder = new ReflectionTestSuiteBuilder (this);
 		}
@@ -59,15 +69,15 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return Builder.Test; }
 		}
 
-		public static Task<TestSuite> Create (TestApp ctx, Assembly assembly)
+		public static Task<TestSuite> Create (TestApp app, Assembly assembly)
 		{
 			var tcs = new TaskCompletionSource<TestSuite> ();
 
 			Task.Factory.StartNew (() => {
 				try {
 					var name = new TestName (assembly.GetName ().Name);
-					var suite = new ReflectionTestSuite (name, assembly);
-					ctx.CurrentTestSuite = suite;
+					var suite = new ReflectionTestSuite (app, name, assembly);
+					app.CurrentTestSuite = suite;
 					tcs.SetResult (suite);
 				} catch (Exception ex) {
 					tcs.SetException (ex);

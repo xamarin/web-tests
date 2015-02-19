@@ -34,7 +34,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	class ReflectionTestSuiteBuilder : TestCollectionBuilder
 	{
+		public TestApp App {
+			get;
+			private set;
+		}
+
 		public Assembly Assembly {
+			get;
+			private set;
+		}
+
+		public TestConfiguration Configuration {
 			get;
 			private set;
 		}
@@ -47,6 +57,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		public ReflectionTestSuiteBuilder (ReflectionTestSuite suite)
 			: base (suite, TestName.Empty, null)
 		{
+			App = suite.App;
 			Assembly = suite.Assembly;
 
 			Resolve ();
@@ -60,6 +71,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var type = cattr.Type;
 			var instanceMember = type.GetRuntimeField ("Instance");
 			var provider = (ITestConfigurationProvider)instanceMember.GetValue (null);
+
+			Configuration = new TestConfiguration (provider, App.Settings);
 
 			base.ResolveMembers ();
 		}

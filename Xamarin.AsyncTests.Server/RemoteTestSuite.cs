@@ -38,6 +38,12 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
+		public override TestConfiguration Configuration {
+			get {
+				throw new NotImplementedException ();
+			}
+		}
+
 		public long ObjectID {
 			get;
 			private set;
