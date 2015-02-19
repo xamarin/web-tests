@@ -37,6 +37,8 @@ namespace TestMac
 		{
 			public override NSObject TransformedValue (NSObject value)
 			{
+				if (value == null)
+					return null;
 				var number = (NSNumber)value;
 				var status = (TestStatus)number.Int32Value;
 				switch ((TestStatus)number.Int32Value) {
@@ -66,6 +68,8 @@ namespace TestMac
 		{
 			public override NSObject TransformedValue (NSObject value)
 			{
+				if (value == null)
+					return null;
 				var number = (NSNumber)value;
 				var status = (TestStatus)number.Int32Value;
 				switch ((TestStatus)number.Int32Value) {

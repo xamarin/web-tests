@@ -60,6 +60,13 @@ namespace TestMac
 				var node = new TestResultNode (result);
 				node.Model.IsRoot = true;
 				TestResultController.AddObject (node);
+			} else {
+				var array = (NSArray)TestResultController.Content;
+				var length = (int)array.Count;
+				for (int i = 0; i < length; i++) {
+					var index = NSIndexPath.FromIndex (0);
+					TestResultController.RemoveObjectAtArrangedObjectIndexPath (index);
+				}
 			}
 		}
 
