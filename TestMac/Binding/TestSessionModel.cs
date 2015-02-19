@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using AppKit;
 using Foundation;
 using Xamarin.AsyncTests;
@@ -50,9 +51,9 @@ namespace TestMac
 
 		#region implemented abstract members of TestListNode
 
-		protected override TestListNode[] ResolveChildren ()
+		protected override IEnumerable<TestListNode> ResolveChildren ()
 		{
-			return new TestListNode [0];
+			yield break;
 		}
 
 		#endregion

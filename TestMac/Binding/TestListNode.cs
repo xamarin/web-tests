@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using AppKit;
 using Foundation;
 using Xamarin.AsyncTests;
@@ -33,48 +34,46 @@ namespace TestMac
 {
 	public abstract class TestListNode : NSObject
 	{
-		TestListNode[] children;
+		NSMutableArray children;
 
-		public static TestListNode CreateFromResult (TestResult result)
-		{
-			return new TestResultModel (result, result.Name);
-		}
-
-		public static TestListNode CreateFromSession (TestSessionModel session)
-		{
-			return session;
-		}
-
-		protected abstract TestListNode[] ResolveChildren ();
+		protected abstract IEnumerable<TestListNode> ResolveChildren ();
 
 		public void AddChild (TestListNode child)
 		{
 			WillChangeValue ("isLeaf");
 			WillChangeValue ("childNodes");
-			var newChildren = new TestListNode [children.Length + 1];
-			children.CopyTo (newChildren, 0);
-			newChildren [newChildren.Length - 1] = child;
-			children = newChildren;
+
+			children.Add (child);
+
 			DidChangeValue ("isLeaf");
 			DidChangeValue ("childNodes");
 		}
 
-		TestListNode[] GetChildren ()
+		void InitializeChildren ()
 		{
-			if (children == null)
-				children = ResolveChildren ();
-			return children;
+			if (children != null)
+				return;
+			children = new NSMutableArray ();
+			children.AddObjects (ResolveChildren ().ToArray ());
 		}
 
 		[Export ("isLeaf")]
 		public bool IsLeaf {
-			get { return GetChildren ().Length == 0; }
+			get {
+				InitializeChildren ();
+				return children.Count == 0;
+			}
 		}
 
 		[Export ("childNodes")]
-		public TestListNode[] Children {
-			get { return GetChildren (); }
-			set { children = value; }
+		public NSMutableArray Children {
+			get {
+				InitializeChildren ();
+				return children;
+			}
+			set {
+				children = value;
+			}
 		}
 
 		[Export("representedObject")]

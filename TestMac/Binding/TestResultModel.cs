@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Text;
+using System.Linq;
 using System.Collections.Generic;
 using AppKit;
 using Foundation;
@@ -46,18 +47,15 @@ namespace TestMac
 			private set;
 		}
 
-		public TestResultModel (TestResult result, TestName name)
+		public TestResultModel (TestResult result, TestName name = null)
 		{
 			Result = result;
-			TestName = name;
+			TestName = name ?? result.Name;
 		}
 
-		protected override TestListNode[] ResolveChildren ()
+		protected override IEnumerable<TestListNode> ResolveChildren ()
 		{
-			var children = new TestListNode [Result.Children.Count];
-			for (int i = 0; i < children.Length; i++)
-				children [i] = TestListNode.CreateFromResult (Result.Children [i]);
-			return children;
+			return Result.Children.Select (c => new TestResultModel (c));
 		}
 
 		public override string Name {

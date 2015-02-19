@@ -67,9 +67,8 @@ namespace TestMac
 		void OnTestSuiteLoaded (TestSessionModel session)
 		{
 			if (session != null) {
-				var node = TestListNode.CreateFromSession (session);
-				rootNode = node;
-				TestResultController.AddObject (node);
+				rootNode = session;
+				TestResultController.AddObject (session);
 			} else {
 				rootNode = null;
 				var array = (NSArray)TestResultController.Content;
@@ -95,7 +94,7 @@ namespace TestMac
 			var parameters = new RunParameters (test.Test);
 			var result = await ui.TestRunner.Run.Execute (parameters);
 
-			var model = TestListNode.CreateFromResult (result);
+			var model = new TestResultModel (result);
 
 			// var newIndex = index.IndexPathByAddingIndex (0);
 			// TestResultController.InsertObject (model, newIndex);
@@ -160,7 +159,7 @@ namespace TestMac
 				var root = doc.Root;
 				var result = Connection.ReadTestResult (root);
 
-				var model = TestListNode.CreateFromResult (result);
+				var model = new TestResultModel (result);
 				TestResultController.AddObject (model);
 			}
 		}
