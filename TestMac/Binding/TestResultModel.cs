@@ -56,21 +56,6 @@ namespace TestMac
 			TestName = name;
 		}
 
-		#if FIXME
-		[Export("copyWithZone:")]
-		public NSObject CopyWithZone (IntPtr zone)
-		{
-			var cloned = new TestResultModel ();
-			cloned.DangerousRetain ();
-			return cloned;
-		}
-		#endif
-
-		public override NSObject ValueForUndefinedKey (NSString key)
-		{
-			return base.ValueForUndefinedKey (key);
-		}
-
 		[Export ("Name")]
 		public string Name {
 			get { return TestName.IsNullOrEmpty (TestName) ? "ROOT" : TestName.FullName; }

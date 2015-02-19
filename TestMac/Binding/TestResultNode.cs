@@ -76,31 +76,6 @@ namespace TestMac
 			}
 		}
 
-		#if FIXME
-		[Export("copyWithZone:")]
-		public NSObject CopyWithZone (IntPtr zone)
-		{
-			var cloned = new TestResultNode (Result);
-			cloned.DangerousRetain ();
-			return cloned;
-		}
-		#endif
-
-		public override NSObject ValueForKey (NSString key)
-		{
-			return base.ValueForKey (key);
-		}
-
-		public override NSObject ValueForKeyPath (NSString keyPath)
-		{
-			return base.ValueForKeyPath (keyPath);
-		}
-
-		public override NSObject ValueForUndefinedKey (NSString key)
-		{
-			return base.ValueForUndefinedKey (key);
-		}
-
 		[Export("representedObject")]
 		public NSObject RepresentedObject {
 			get { return Model; }
