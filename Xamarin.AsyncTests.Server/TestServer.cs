@@ -39,36 +39,67 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
+		public TestFramework Framework {
+			get;
+			private set;
+		}
+
+		public TestSuite TestSuite {
+			get;
+			private set;
+		}
+
 		protected TestServer (TestApp app)
 		{
 			App = app;
 		}
 
-		public static TestServer StartLocal (TestApp app)
+		public static async Task<TestServer> StartLocal (TestApp app, CancellationToken cancellationToken)
 		{
-			return new LocalTestServer (app);
+			var server = new LocalTestServer (app);
+			await server.Initialize (cancellationToken);
+			return server;
 		}
 
 		public static async Task<TestServer> StartServer (TestApp app, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 
+			cancellationToken.ThrowIfCancellationRequested ();
 			var connection = await app.PortableSupport.ServerHost.Start (cancellationToken);
-			var stream = await connection.Open (cancellationToken);
 
-			var server = new ServerConnection (app, stream, connection);
-			return new RemoteTestServer (app, server);
+			return await StartRemoteServer (app, connection, cancellationToken);
 		}
 
 		public static async Task<TestServer> Connect (TestApp app, string address, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 
+			cancellationToken.ThrowIfCancellationRequested ();
 			var connection = await app.PortableSupport.ServerHost.Connect (address, cancellationToken);
+
+			return await StartRemoteServer (app, connection, cancellationToken);
+		}
+
+		static async Task<TestServer> StartRemoteServer (TestApp app, IServerConnection connection, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
 			var stream = await connection.Open (cancellationToken);
 
-			var server = new ServerConnection (app, stream, connection);
-			return new RemoteTestServer (app, server);
+			cancellationToken.ThrowIfCancellationRequested ();
+			var serverConnection = new ServerConnection (app, stream, connection);
+			var server = new RemoteTestServer (app, serverConnection);
+			await server.Initialize (cancellationToken);
+			return server;
+		}
+
+		async Task Initialize (CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+			Framework = await GetTestFramework (cancellationToken);
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			TestSuite = await Framework.LoadTestSuite (App, cancellationToken);
 		}
 
 		public abstract Task<bool> Run (CancellationToken cancellationToken);
@@ -76,12 +107,6 @@ namespace Xamarin.AsyncTests.Server
 		public abstract Task Stop (CancellationToken cancellationToken);
 
 		public abstract Task<TestFramework> GetTestFramework (CancellationToken cancellationToken);
-
-		public async Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
-		{
-			var framework = await GetTestFramework (cancellationToken);
-			return await framework.LoadTestSuite (App, cancellationToken);
-		}
 
 		class LocalTestServer : TestServer
 		{

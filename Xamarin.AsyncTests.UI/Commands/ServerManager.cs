@@ -112,8 +112,7 @@ namespace Xamarin.AsyncTests.UI
 
 		protected async Task<bool> OnRun (TestServer instance, CancellationToken cancellationToken)
 		{
-			var suite = await instance.LoadTestSuite (cancellationToken);
-			TestSuite.Value = suite;
+			TestSuite.Value = instance.TestSuite;
 			return await instance.Run (cancellationToken);
 		}
 
@@ -138,7 +137,7 @@ namespace Xamarin.AsyncTests.UI
 			{
 				switch (parameters.Mode) {
 				case ServerMode.Local:
-					return Task.FromResult (TestServer.StartLocal (Manager.App));
+					return TestServer.StartLocal (Manager.App, cancellationToken);
 				case ServerMode.ConnectToServer:
 					return TestServer.Connect (Manager.App, parameters.Address, cancellationToken);
 				case ServerMode.StartServer:
