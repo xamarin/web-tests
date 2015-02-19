@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.AsyncTests.Sample
 {
-	[TestParameterSource (typeof (FooSource))]
+	[Foo]
 	public interface IFoo : ITestParameter
 	{
 		string Name {

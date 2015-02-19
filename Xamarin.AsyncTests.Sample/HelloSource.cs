@@ -28,9 +28,15 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Sample
 {
-	public class HelloSource : ITestParameterSource<string>
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+	public class HelloAttribute : TestParameterAttribute, ITestParameterSource<string>
 	{
-		public IEnumerable<string> GetParameters (TestContext context, string filter)
+		public HelloAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (typeof (HelloAttribute), filter, flags)
+		{
+		}
+
+		public IEnumerable<string> GetParameters (TestContext ctx, string filter)
 		{
 			if (!string.IsNullOrEmpty (filter)) {
 				yield return "Hello " + filter;

@@ -43,7 +43,7 @@ namespace Xamarin.AsyncTests.Sample
 		}
 
 		[AsyncTest]
-		public void Hello (TestContext context, [TestParameter (typeof (HelloSource))] string hello)
+		public void Hello (TestContext context, [Hello] string hello)
 		{
 			context.LogMessage ("HELLO: {0}", hello);
 		}
@@ -56,7 +56,7 @@ namespace Xamarin.AsyncTests.Sample
 
 		[AsyncTest]
 		[NotWorking]
-		public void HelloFoo (TestContext context, [Repeat (20)] int index, [TestParameter ("New York")] Foo foo, [TestParameter (null, TestFlags.None)] Foo bar)
+		public void HelloFoo (TestContext context, [Repeat (20)] int index, [Foo ("New York")] Foo foo, [Foo (null, TestFlags.None)] Foo bar)
 		{
 			context.LogMessage ("HELLO FOO: {0} {1} {2}", context.Name, foo, bar);
 			if (index > 5)

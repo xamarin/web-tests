@@ -28,9 +28,15 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Sample
 {
-	public class FooSource : ITestParameterSource<IFoo>
+	[AttributeUsage (AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+	public class FooAttribute : TestParameterAttribute, ITestParameterSource<IFoo>, ITestParameterSource<Foo>
 	{
-		public IEnumerable<IFoo> GetParameters (TestContext context, string filter)
+		public FooAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (typeof (FooAttribute), filter, flags)
+		{
+		}
+
+		IEnumerable<IFoo> ITestParameterSource<IFoo>.GetParameters (TestContext context, string filter)
 		{
 			if (!string.IsNullOrEmpty (filter)) {
 				yield return new Foo ("Hello " + filter);
@@ -39,6 +45,17 @@ namespace Xamarin.AsyncTests.Sample
 
 			yield return new Foo ("Hello Boston");
 			yield return new Foo ("Hello San Francisco");
+		}
+
+		public IEnumerable<Foo> GetParameters (TestContext context, string filter)
+		{
+			if (filter != null) {
+				yield return new Foo (filter);
+				yield return new Foo ("Orlando");
+			} else {
+				yield return new Foo ("Chicago");
+				yield return new Foo ("Atlanta");
+			}
 		}
 	}
 }

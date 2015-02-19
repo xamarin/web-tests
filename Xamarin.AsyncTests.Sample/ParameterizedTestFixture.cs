@@ -33,7 +33,7 @@ namespace Xamarin.AsyncTests.Sample
 	{
 		string theHello;
 
-		[TestParameter (typeof (HelloSource))]
+		[Hello]
 		public string Hello {
 			get { return theHello; }
 			set {
@@ -41,7 +41,7 @@ namespace Xamarin.AsyncTests.Sample
 			}
 		}
 
-		[TestParameter (typeof (HelloSource))]
+		[Hello]
 		public string Hello2 {
 			get; set;
 		}
