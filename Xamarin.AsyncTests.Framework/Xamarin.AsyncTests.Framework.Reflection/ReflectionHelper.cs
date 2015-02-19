@@ -290,8 +290,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				fixtureType, typeof(ITestParameterSource<>), member.Type,
 				attr.SourceType, true, out useFixtureInstance);
 
+			if (useFixtureInstance)
+				throw new InternalErrorException ();
+
 			IParameterSerializer serializer;
-			if (!GetParameterSerializer (member.Type, sourceType, useFixtureInstance, out serializer))
+			if (!GetParameterSerializer (member.Type, sourceType, out serializer))
 				throw new InternalErrorException ();
 
 			var type = typeof(ParameterSourceHost<>).MakeGenericType (member.Type.AsType ());
@@ -341,8 +344,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 		}
 
-		static bool GetParameterSerializer (
-			TypeInfo type, Type sourceType, bool useFixtureInstance, out IParameterSerializer serializer)
+		static bool GetParameterSerializer (TypeInfo type, Type sourceType, out IParameterSerializer serializer)
 		{
 			if (typeof(ITestParameter).GetTypeInfo ().IsAssignableFrom (type)) {
 				serializer = null;
