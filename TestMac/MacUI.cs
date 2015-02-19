@@ -30,6 +30,8 @@ using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.UI;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.AsyncTests.Sample;
+using Xamarin.WebTests;
+using Xamarin.WebTests.Portable;
 
 namespace TestMac
 {
@@ -43,8 +45,9 @@ namespace TestMac
 		public static MacUI Create ()
 		{
 			var settings = new UISettings ();
-			var assembly = typeof(SampleFeatures).Assembly;
-			return new MacUI (null, settings, assembly);
+			var portable = PortableSupportImpl.Initialize ();
+			var assembly = typeof(WebTestFeatures).Assembly;
+			return new MacUI (portable, settings, assembly);
 		}
 
 	}
