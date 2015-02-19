@@ -34,7 +34,7 @@ using ObjCRuntime;
 
 namespace TestMac
 {
-	public abstract class TestListItem : NSObject
+	public abstract class TestListItem : TestListNode
 	{
 		public bool IsRoot {
 			get; set;

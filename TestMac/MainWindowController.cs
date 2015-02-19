@@ -69,7 +69,6 @@ namespace TestMac
 			if (session != null) {
 				var node = TestListNode.CreateFromSession (session);
 				rootNode = node;
-				node.Model.IsRoot = true;
 				TestResultController.AddObject (node);
 			} else {
 				rootNode = null;
@@ -140,7 +139,7 @@ namespace TestMac
 			var internalArray = (NSArray)TestResultController.Content;
 			var rootNode = internalArray.GetItem<TestListNode> ((nint)index);
 
-			var model = rootNode.Model as TestResultModel;
+			var model = rootNode as TestResultModel;
 			if (model == null)
 				return;
 

@@ -52,6 +52,14 @@ namespace TestMac
 			TestName = name;
 		}
 
+		protected override TestListNode[] ResolveChildren ()
+		{
+			var children = new TestListNode [Result.Children.Count];
+			for (int i = 0; i < children.Length; i++)
+				children [i] = TestListNode.CreateFromResult (Result.Children [i]);
+			return children;
+		}
+
 		public override string Name {
 			get { return TestName.IsNullOrEmpty (TestName) ? "ROOT" : TestName.FullName; }
 		}

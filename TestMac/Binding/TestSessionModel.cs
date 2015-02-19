@@ -48,6 +48,15 @@ namespace TestMac
 			Test = new TestCaseModel (suite.Test);
 		}
 
+		#region implemented abstract members of TestListNode
+
+		protected override TestListNode[] ResolveChildren ()
+		{
+			return new TestListNode [0];
+		}
+
+		#endregion
+
 		#region implemented abstract members of TestListItem
 
 		public override string Name {

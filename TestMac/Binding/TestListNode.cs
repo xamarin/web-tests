@@ -31,34 +31,21 @@ using Xamarin.AsyncTests;
 
 namespace TestMac
 {
-	public class TestListNode : NSObject
+	public abstract class TestListNode : NSObject
 	{
-		public TestListItem Model {
-			get { return model; }
-		}
-
-		TestListItem model;
 		TestListNode[] children;
-
-		TestListNode (TestListItem model, TestListNode[] children)
-		{
-			this.model = model;
-			this.children = children;
-		}
 
 		public static TestListNode CreateFromResult (TestResult result)
 		{
-			var children = new TestListNode [result.Children.Count];
-			for (int i = 0; i < children.Length; i++)
-				children [i] = TestListNode.CreateFromResult (result.Children [i]);
-			var model = new TestResultModel (result, result.Name);
-			return new TestListNode (model, children);
+			return new TestResultModel (result, result.Name);
 		}
 
 		public static TestListNode CreateFromSession (TestSessionModel session)
 		{
-			return new TestListNode (session, new TestListNode [0]);
+			return session;
 		}
+
+		protected abstract TestListNode[] ResolveChildren ();
 
 		public void AddChild (TestListNode child)
 		{
@@ -72,20 +59,27 @@ namespace TestMac
 			DidChangeValue ("childNodes");
 		}
 
+		TestListNode[] GetChildren ()
+		{
+			if (children == null)
+				children = ResolveChildren ();
+			return children;
+		}
+
 		[Export ("isLeaf")]
 		public bool IsLeaf {
-			get { return children.Length == 0; }
+			get { return GetChildren ().Length == 0; }
 		}
 
 		[Export ("childNodes")]
 		public TestListNode[] Children {
-			get { return children; }
+			get { return GetChildren (); }
 			set { children = value; }
 		}
 
 		[Export("representedObject")]
 		public NSObject RepresentedObject {
-			get { return Model; }
+			get { return this; }
 		}
 
 		public override string ToString ()
