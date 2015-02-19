@@ -55,6 +55,11 @@ namespace TestMac
 			return new TestListNode (model, children);
 		}
 
+		public static TestListNode CreateFromSession (TestSessionModel session)
+		{
+			return new TestListNode (session, new TestListNode [0]);
+		}
+
 		[Export ("isLeaf")]
 		public bool IsLeaf {
 			get { return children.Length == 0; }

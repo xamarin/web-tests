@@ -51,13 +51,23 @@ namespace TestMac
 			SplitView.AddSubview (TestResultList);
 			SplitView.AddSubview (TestResultDetails);
 
-			app.MacUI.TestRunner.TestResult.PropertyChanged += (sender, e) => OnTestSuiteLoaded (e);
+			app.AddObserver (this, (NSString)AppDelegate.CurrentSessionKey, NSKeyValueObservingOptions.New, IntPtr.Zero);
 		}
 
-		void OnTestSuiteLoaded (TestResult result)
+		public override void ObserveValue (NSString keyPath, NSObject ofObject, NSDictionary change, IntPtr context)
 		{
-			if (result != null) {
-				var node = TestListNode.CreateFromResult (result);
+			if (string.Equals (keyPath, AppDelegate.CurrentSessionKey)) {
+				OnTestSuiteLoaded (AppDelegate.Instance.CurrentSession);
+			} else {
+				// would otherwise crash in native code.
+				throw new InvalidOperationException ();
+			}
+		}
+
+		void OnTestSuiteLoaded (TestSessionModel session)
+		{
+			if (session != null) {
+				var node = TestListNode.CreateFromSession (session);
 				node.Model.IsRoot = true;
 				TestResultController.AddObject (node);
 			} else {

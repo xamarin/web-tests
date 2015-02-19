@@ -30,9 +30,14 @@ using Xamarin.AsyncTests;
 
 namespace TestMac
 {
-	public class TestSessionModel : NSObject
+	public class TestSessionModel : TestListItem
 	{
 		public TestSuite Suite {
+			get;
+			private set;
+		}
+
+		public TestCaseModel Test {
 			get;
 			private set;
 		}
@@ -40,7 +45,32 @@ namespace TestMac
 		public TestSessionModel (TestSuite suite)
 		{
 			Suite = suite;
+			Test = new TestCaseModel (suite.Test);
 		}
+
+		#region implemented abstract members of TestListItem
+
+		public override string Name {
+			get { return Suite.Name.FullName; }
+		}
+
+		public override TestStatus TestStatus {
+			get { return TestStatus.None; }
+		}
+
+		public override string TestParameters {
+			get { return null; }
+		}
+
+		public override NSAttributedString Error {
+			get { return null; }
+		}
+
+		public override TestCaseModel TestCase {
+			get { return Test; }
+		}
+
+		#endregion
 	}
 }
 

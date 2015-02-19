@@ -112,13 +112,15 @@ namespace TestMac
 			set { testResultArray = value; }
 		}
 
-		[Export ("CurrentSession")]
+		public const string CurrentSessionKey = "CurrentSession";
+
+		[Export (CurrentSessionKey)]
 		public TestSessionModel CurrentSession {
 			get { return currentSession; }
 			set {
-				WillChangeValue ("CurrentSession");
+				WillChangeValue (CurrentSessionKey);
 				currentSession = value;
-				DidChangeValue ("CurrentSession");
+				DidChangeValue (CurrentSessionKey);
 			}
 		}
 	}
