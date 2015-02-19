@@ -208,13 +208,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return CreateCustomHost (fixture.Type, member, hostAttr);
 			}
 
-			var paramAttrs = member.GetCustomAttributes<TestParameterSourceAttribute> ().ToArray ();
+			var paramAttrs = member.GetCustomAttributes<TestParameterAttribute> ().ToArray ();
 			if (paramAttrs.Length == 1)
 				return CreateParameterAttributeHost (fixture.Type, member, paramAttrs[0]);
 			else if (paramAttrs.Length > 1)
 				throw new InternalErrorException ();
 
-			paramAttrs = member.Type.GetCustomAttributes<TestParameterSourceAttribute> ().ToArray ();
+			paramAttrs = member.Type.GetCustomAttributes<TestParameterAttribute> ().ToArray ();
 			if (paramAttrs.Length == 1)
 				return CreateParameterAttributeHost (fixture.Type, member, paramAttrs [0]);
 			else if (paramAttrs.Length > 1)
@@ -278,7 +278,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		static TestHost CreateParameterAttributeHost (
-			TypeInfo fixtureType, IMemberInfo member, TestParameterSourceAttribute attr)
+			TypeInfo fixtureType, IMemberInfo member, TestParameterAttribute attr)
 		{
 			string filter = null;
 			var paramAttr = attr as TestParameterAttribute;

@@ -27,17 +27,28 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	public abstract class TestParameterAttribute : TestParameterSourceAttribute
+	public abstract class TestParameterAttribute : Attribute
 	{
+		public Type SourceType {
+			get;
+			private set;
+		}
+
 		public string Filter {
 			get;
 			private set;
 		}
 
+		public TestFlags Flags {
+			get;
+			private set;
+		}
+
 		public TestParameterAttribute (Type sourceType, string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (sourceType, flags)
 		{
+			SourceType = sourceType;
 			Filter = filter;
+			Flags = flags;
 		}
 
 		string Print (object value)
