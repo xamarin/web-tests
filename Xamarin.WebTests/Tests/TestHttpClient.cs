@@ -41,14 +41,14 @@ namespace Xamarin.WebTests
 	using Portable;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class HttpClientHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
+	public class HttpClientHandlerAttribute : TestParameterAttribute, ITestParameterSource<HttpClientHandler>
 	{
 		public HttpClientHandlerAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
 			: base (typeof (HttpClientHandlerAttribute), filter, flags)
 		{
 		}
 
-		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
+		public IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)
 		{
 			return TestHttpClient.GetParameters (ctx, filter);
 		}
