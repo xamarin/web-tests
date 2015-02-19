@@ -34,7 +34,7 @@ using ObjCRuntime;
 
 namespace TestMac
 {
-	public class TestResultModel : NSObject
+	public class TestResultModel : TestListItem
 	{
 		public TestResult Result {
 			get;
@@ -46,28 +46,21 @@ namespace TestMac
 			private set;
 		}
 
-		public bool IsRoot {
-			get; set;
-		}
-
 		public TestResultModel (TestResult result, TestName name)
 		{
 			Result = result;
 			TestName = name;
 		}
 
-		[Export ("Name")]
-		public string Name {
+		public override string Name {
 			get { return TestName.IsNullOrEmpty (TestName) ? "ROOT" : TestName.FullName; }
 		}
 
-		[Export ("Status")]
-		public TestStatus TestStatus {
+		public override TestStatus TestStatus {
 			get { return Result != null ? Result.Status : TestStatus.None; }
 		}
 
-		[Export ("TestParameters")]
-		public string TestParameters {
+		public override string TestParameters {
 			get { return GetTestParameters (); }
 		}
 
@@ -89,8 +82,7 @@ namespace TestMac
 			return testParameters;
 		}
 
-		[Export ("Error")]
-		public NSAttributedString Error {
+		public override NSAttributedString Error {
 			get {
 				return GetError ();
 			}
@@ -127,8 +119,7 @@ namespace TestMac
 			return error;
 		}
 
-		[Export ("TestCase")]
-		public TestCaseModel TestCase {
+		public override TestCaseModel TestCase {
 			get { return GetTestCase (); }
 		}
 

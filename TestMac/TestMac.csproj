@@ -114,6 +114,7 @@
     <Compile Include="UISettings.cs" />
     <Compile Include="Binding\TestSessionModel.cs" />
     <Compile Include="Binding\TestListNode.cs" />
+    <Compile Include="Binding\TestListItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />

@@ -1,5 +1,5 @@
 ﻿//
-// TestListNode.cs
+// TestListItem.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,56 +24,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
+using System.Text;
+using System.Collections.Generic;
 using AppKit;
 using Foundation;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
+using ObjCRuntime;
 
 namespace TestMac
 {
-	public class TestListNode : NSObject
+	public abstract class TestListItem : NSObject
 	{
-		public TestListItem Model {
-			get { return model; }
+		public bool IsRoot {
+			get; set;
 		}
 
-		TestListItem model;
-		TestListNode[] children;
-
-		TestListNode (TestListItem model, TestListNode[] children)
-		{
-			this.model = model;
-			this.children = children;
+		[Export ("Name")]
+		public abstract string Name {
+			get;
 		}
 
-		public static TestListNode CreateFromResult (TestResult result)
-		{
-			var children = new TestListNode [result.Children.Count];
-			for (int i = 0; i < children.Length; i++)
-				children [i] = TestListNode.CreateFromResult (result.Children [i]);
-			var model = new TestResultModel (result, result.Name);
-			return new TestListNode (model, children);
+		[Export ("Status")]
+		public abstract TestStatus TestStatus {
+			get;
 		}
 
-		[Export ("isLeaf")]
-		public bool IsLeaf {
-			get { return children.Length == 0; }
+		[Export ("TestParameters")]
+		public abstract string TestParameters {
+			get;
 		}
 
-		[Export ("childNodes")]
-		public TestListNode[] Children {
-			get { return children; }
-			set { children = value; }
+		[Export ("Error")]
+		public abstract NSAttributedString Error {
+			get;
 		}
 
-		[Export("representedObject")]
-		public NSObject RepresentedObject {
-			get { return Model; }
-		}
-
-		public override string ToString ()
-		{
-			return string.Format ("[TestListNode: IsLeaf={0}, RepresentedObject={1}]", IsLeaf, RepresentedObject);
+		[Export ("TestCase")]
+		public abstract TestCaseModel TestCase {
+			get;
 		}
 	}
 }
