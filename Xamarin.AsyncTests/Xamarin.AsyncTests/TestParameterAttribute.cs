@@ -29,11 +29,6 @@ namespace Xamarin.AsyncTests
 {
 	public abstract class TestParameterAttribute : Attribute
 	{
-		public Type SourceType {
-			get;
-			private set;
-		}
-
 		public string Filter {
 			get;
 			private set;
@@ -45,13 +40,7 @@ namespace Xamarin.AsyncTests
 		}
 
 		public TestParameterAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: this (null, filter, flags)
 		{
-		}
-
-		public TestParameterAttribute (Type sourceType = null, string filter = null, TestFlags flags = TestFlags.Browsable)
-		{
-			SourceType = sourceType;
 			Filter = filter;
 			Flags = flags;
 		}
@@ -64,7 +53,7 @@ namespace Xamarin.AsyncTests
 		public override string ToString ()
 		{
 			return string.Format ("[TestParameterAttribute: SourceType={0}, Filter={1}, Flags={2}]",
-				Print (SourceType), Print (Filter), Flags);
+				Print (GetType ()), Print (Filter), Flags);
 		}
 	}
 }

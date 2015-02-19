@@ -285,7 +285,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			bool useFixtureInstance = false;
 			var sourceType = GetHostType (
 				attrTypeInfo, typeof(ITestParameterSource<>), member.Type,
-				attr.SourceType, true, out useFixtureInstance);
+				null, true, out useFixtureInstance);
 
 			IParameterSerializer serializer;
 			if (!GetParameterSerializer (member.Type, sourceType, out serializer))
