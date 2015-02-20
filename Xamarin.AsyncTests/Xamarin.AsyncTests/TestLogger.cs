@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	public sealed class TestLogger : ITestLogger
+	public sealed class TestLogger
 	{
 		readonly TestLoggerBackend backend;
 

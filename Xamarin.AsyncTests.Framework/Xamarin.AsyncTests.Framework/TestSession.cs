@@ -31,7 +31,7 @@ namespace Xamarin.AsyncTests.Framework
 {
 	using Portable;
 
-	public class TestSession : ITestSession
+	public class TestSession
 	{
 		public DateTime Created {
 			get;

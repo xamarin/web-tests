@@ -98,8 +98,6 @@
     <Compile Include="Xamarin.AsyncTests\ITestConfigurationProvider.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestConfiguration.cs" />
     <Compile Include="Xamarin.AsyncTests\TestConfiguration.cs" />
-    <Compile Include="Xamarin.AsyncTests\ITestSession.cs" />
-    <Compile Include="Xamarin.AsyncTests\ITestLogger.cs" />
     <Compile Include="Xamarin.AsyncTests\TestLoggerBackend.cs" />
     <Compile Include="Xamarin.AsyncTests\TestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests.Portable\IPortableSupport.cs" />
