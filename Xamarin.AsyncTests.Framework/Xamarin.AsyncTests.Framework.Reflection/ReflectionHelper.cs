@@ -229,32 +229,23 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			throw new InternalErrorException ();
 		}
 
-		internal static Type GetHostType (
-			TypeInfo fixtureType, Type hostType, TypeInfo memberType, Type attrType,
-			bool allowImplicit, out bool useFixtureInstance)
+		static Type GetCustomHostType (
+			TypeInfo fixtureType, IMemberInfo member, TestHostAttribute attr,
+			out bool useFixtureInstance)
 		{
-			var genericInstance = hostType.GetTypeInfo ().MakeGenericType (memberType.AsType ()).GetTypeInfo ();
+			var hostType = typeof(ITestHost<>).GetTypeInfo ();
+			var genericInstance = hostType.MakeGenericType (member.Type.AsType ()).GetTypeInfo ();
 
-			if (attrType != null) {
-				if (!genericInstance.IsAssignableFrom (attrType.GetTypeInfo ()))
+			if (attr.HostType != null) {
+				if (!genericInstance.IsAssignableFrom (attr.HostType.GetTypeInfo ()))
 					throw new InternalErrorException ();
 				useFixtureInstance = genericInstance.IsAssignableFrom (fixtureType);
-				return attrType;
+				return attr.HostType;
 			}
 
 			if (genericInstance.IsAssignableFrom (fixtureType)) {
 				useFixtureInstance = true;
 				return null;
-			}
-
-			if (allowImplicit) {
-				if (memberType.AsType ().Equals (typeof(bool))) {
-					useFixtureInstance = false;
-					return typeof(BooleanTestSource);
-				} else if (memberType.IsEnum) {
-					useFixtureInstance = false;
-					return typeof(EnumTestSource<>).MakeGenericType (memberType.AsType ());
-				}
 			}
 
 			throw new InternalErrorException ();
@@ -263,9 +254,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		static TestHost CreateCustomHost (TypeInfo fixture, IMemberInfo member, TestHostAttribute attr)
 		{
 			bool useFixtureInstance;
-			var hostType = GetHostType (
-				fixture, typeof(ITestHost<>), member.Type,
-				attr.HostType, false, out useFixtureInstance);
+			var hostType = GetCustomHostType (fixture, member, attr, out useFixtureInstance);
 
 			var type = typeof(CustomTestHost<>).MakeGenericType (member.Type.AsType ());
 			return (TestHost)Activator.CreateInstance (
@@ -277,24 +266,45 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			System.Diagnostics.Debug.WriteLine (string.Format (format, args));
 		}
 
+		static Type GetParameterHostType (IMemberInfo member, TestParameterAttribute attr, out object sourceInstance)
+		{
+			var hostType = typeof(ITestParameterSource<>).GetTypeInfo ();
+			var genericInstance = hostType.MakeGenericType (member.Type.AsType ()).GetTypeInfo ();
+
+			var attrType = attr.GetType ();
+
+			if (genericInstance.IsAssignableFrom (attrType.GetTypeInfo ())) {
+				sourceInstance = attr;
+				return attrType;
+			}
+
+			if (member.Type.AsType ().Equals (typeof(bool))) {
+				sourceInstance = null;
+				return typeof(BooleanTestSource);
+			} else if (member.Type.IsEnum) {
+				sourceInstance = null;
+				return typeof(EnumTestSource<>).MakeGenericType (member.Type.AsType ());
+			}
+
+			throw new InternalErrorException ();
+		}
+
 		static TestHost CreateParameterAttributeHost (
 			TypeInfo fixtureType, IMemberInfo member, TestParameterAttribute attr)
 		{
-			var attrTypeInfo = attr.GetType ().GetTypeInfo ();
-
-			bool useFixtureInstance = false;
-			var sourceType = GetHostType (
-				attrTypeInfo, typeof(ITestParameterSource<>), member.Type,
-				null, true, out useFixtureInstance);
+			object sourceInstance;
+			var sourceType = GetParameterHostType (member, attr, out sourceInstance);
 
 			IParameterSerializer serializer;
 			if (!GetParameterSerializer (member.Type, sourceType, out serializer))
 				throw new InternalErrorException ();
 
+			if (sourceInstance == null)
+				sourceInstance = Activator.CreateInstance (sourceType);
+
 			var type = typeof(ParameterSourceHost<>).MakeGenericType (member.Type.AsType ());
 			return (TestHost)Activator.CreateInstance (
-				type, member.Name, sourceType, useFixtureInstance ? attr : null,
-				false, serializer, attr.Filter, attr.Flags);
+				type, member.Name, sourceInstance, serializer, attr.Filter, attr.Flags);
 		}
 
 		static TestHost CreateEnum (IMemberInfo member)
@@ -317,7 +327,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		static TestHost CreateBoolean (IMemberInfo member)
 		{
 			return new ParameterSourceHost<bool> (
-				member.Name, typeof (BooleanTestSource), null, false,
+				member.Name, new BooleanTestSource (),
 				GetBooleanSerializer (), null, TestFlags.None);
 		}
 

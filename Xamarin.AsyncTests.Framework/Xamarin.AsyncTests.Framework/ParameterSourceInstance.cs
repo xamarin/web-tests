@@ -33,28 +33,12 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class ParameterSourceInstance<T> : ParameterizedTestInstance
 	{
-		ITestParameterSource<T> source;
 		List<T> parameters;
 		bool hasNext;
 		T current;
 		int index;
 
-		public ParameterSourceHost<T> SourceHost {
-			get;
-			private set;
-		}
-
-		public Type SourceType {
-			get;
-			private set;
-		}
-
 		public ITestParameterSource<T> SourceInstance {
-			get;
-			private set;
-		}
-
-		public bool UseFixtureInstance {
 			get;
 			private set;
 		}
@@ -77,26 +61,11 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public ParameterSourceInstance (ParameterSourceHost<T> host, TestInstance parent,
-			Type sourceType, ITestParameterSource<T> sourceInstance, bool useFixtureInstance, string filter)
+			ITestParameterSource<T> sourceInstance, string filter)
 			: base (host, parent)
 		{
-			SourceHost = host;
-			SourceType = sourceType;
 			SourceInstance = sourceInstance;
-			UseFixtureInstance = useFixtureInstance;
 			Filter = filter;
-		}
-
-		ITestParameterSource<T> CreateSource (TestContext ctx)
-		{
-			if (SourceInstance != null)
-				return SourceInstance;
-			else if (SourceType != null)
-				return (ITestParameterSource<T>)Activator.CreateInstance (SourceType);
-			else if (UseFixtureInstance)
-				return (ITestParameterSource<T>)GetFixtureInstance ().Instance;
-			else
-				throw new InternalErrorException ();
 		}
 
 		public override void Initialize (TestContext ctx)
@@ -112,8 +81,7 @@ namespace Xamarin.AsyncTests.Framework
 				return;
 			}
 
-			source = CreateSource (ctx);
-			parameters = new List<T> (source.GetParameters (ctx, Filter));
+			parameters = new List<T> (SourceInstance.GetParameters (ctx, Filter));
 			if (CapturedIdentifier != null) {
 				if (parameters.Count == 0)
 					throw new InternalErrorException ();
@@ -127,7 +95,6 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override void Destroy (TestContext ctx)
 		{
-			source = null;
 			parameters = null;
 			current = default(T);
 			index = -1;

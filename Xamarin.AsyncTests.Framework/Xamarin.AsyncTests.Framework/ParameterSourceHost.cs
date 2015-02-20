@@ -33,17 +33,7 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class ParameterSourceHost<T> : ParameterizedTestHost
 	{
-		public Type SourceType {
-			get;
-			private set;
-		}
-
 		public ITestParameterSource<T> SourceInstance {
-			get;
-			private set;
-		}
-
-		public bool UseFixtureInstance {
 			get;
 			private set;
 		}
@@ -54,13 +44,11 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public ParameterSourceHost (
-			string name, Type sourceType, ITestParameterSource<T> sourceInstance, bool useFixtureInstance,
-			IParameterSerializer serializer, string filter, TestFlags flags = TestFlags.None)
+			string name, ITestParameterSource<T> sourceInstance, IParameterSerializer serializer,
+			string filter, TestFlags flags = TestFlags.None)
 			: base (name, typeof (T).GetTypeInfo (), serializer, flags)
 		{
-			SourceType = sourceType;
 			SourceInstance = sourceInstance;
-			UseFixtureInstance = useFixtureInstance;
 			Filter = filter;
 		}
 
@@ -98,7 +86,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal override TestInstance CreateInstance (TestInstance parent)
 		{
-			return new ParameterSourceInstance<T> (this, parent, SourceType, SourceInstance, UseFixtureInstance, Filter);
+			return new ParameterSourceInstance<T> (this, parent, SourceInstance, Filter);
 		}
 
 		class CapturedInvoker : ParameterizedTestInvoker
@@ -132,7 +120,7 @@ namespace Xamarin.AsyncTests.Framework
 			protected override ParameterizedTestInstance CreateInstance (TestInstance parent)
 			{
 				var instance = new ParameterSourceInstance<T> (
-					Host, parent, Host.SourceType, Host.SourceInstance, Host.UseFixtureInstance, Host.Filter);
+					Host, parent, Host.SourceInstance, Host.Filter);
 				instance.CapturedValue = CapturedValue;
 				instance.CapturedIdentifier = CapturedIdentifier;
 				return instance;
