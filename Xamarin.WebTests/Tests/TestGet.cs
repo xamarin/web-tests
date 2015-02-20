@@ -53,7 +53,6 @@ namespace Xamarin.WebTests.Tests
 		}
 	}
 
-	[Work]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestGet : ITestHost<HttpServer>
 	{
