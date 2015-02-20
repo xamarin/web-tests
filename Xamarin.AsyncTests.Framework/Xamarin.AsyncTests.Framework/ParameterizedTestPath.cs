@@ -1,10 +1,10 @@
 ﻿//
-// TestInstance.cs
+// ParameterizedTestPath.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,62 +25,57 @@
 // THE SOFTWARE.
 using System;
 using System.Xml.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestInstance
+	sealed class ParameterizedTestPath : TestPath
 	{
-		public TestHost Host {
+		public string ParameterName {
 			get;
 			private set;
 		}
 
-		public TestInstance Parent {
+		public TestFlags Flags {
 			get;
 			private set;
 		}
 
-		protected TestInstance (TestHost host, TestInstance parent)
-		{
-			Host = host;
-			Parent = parent;
+		public IParameterSerializer Serializer {
+			get;
+			private set;
 		}
 
-		public abstract TestPath CreatePath (TestPath parent);
-
-		protected FixtureTestInstance GetFixtureInstance ()
-		{
-			TestInstance instance = this;
-			while (instance != null) {
-				var fixtureInstance = instance as FixtureTestInstance;
-				if (fixtureInstance != null)
-					return fixtureInstance;
-
-				instance = instance.Parent;
-			}
-
-			throw new InternalErrorException ();
+		public object Value {
+			get;
+			private set;
 		}
 
-		public virtual void Initialize (TestContext ctx)
+		public ParameterizedTestPath (ParameterizedTestHost host, IParameterSerializer serializer, object value, TestPath parent)
+			: base (host.TypeKey, parent)
 		{
+			ParameterName = host.ParameterName;
+			Flags = host.Flags;
+			Serializer = serializer;
+			Value = value;
 		}
 
-		public virtual void Destroy (TestContext ctx)
+		internal override bool Serialize (XElement node)
 		{
+			if (Serializer != null)
+				return Serializer.Serialize (node, Value);
+
+			var testParameter = Value as ITestParameter;
+			if (testParameter == null)
+				return false;
+
+			node.Add (new XAttribute ("Identifier", testParameter.Identifier));
+			return true;
 		}
 
-		public static TestName GetTestName (TestInstance instance)
+		protected override void GetTestName (TestNameBuilder builder)
 		{
-			var path = TestPath.CreateFromInstance (instance);
-			return TestPath.GetTestName (path);
-		}
-
-		public override string ToString ()
-		{
-			return string.Format ("[{0}: Host={1}, Parent={2}]", GetType ().Name, Host, Parent);
+			base.GetTestName (builder);
+			builder.PushParameter (ParameterName, Value, (Flags & TestFlags.Hidden) != 0);
 		}
 	}
 }

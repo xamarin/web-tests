@@ -53,16 +53,15 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		public sealed override TestPath CreatePath (TestPath parent)
+		{
+			return new ParameterizedTestPath (Host, Host.Serializer, Current, parent);
+		}
+
 		[StackTraceEntryPoint]
 		public abstract bool HasNext ();
 
 		[StackTraceEntryPoint]
 		public abstract bool MoveNext (TestContext ctx);
-
-		protected override void GetTestName (TestNameBuilder builder)
-		{
-			base.GetTestName (builder);
-			builder.PushParameter (Host.ParameterName, Current, (Host.Flags & TestFlags.Hidden) != 0);
-		}
 	}
 }

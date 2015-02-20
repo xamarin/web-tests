@@ -1,10 +1,10 @@
 ﻿//
-// TestInstance.cs
+// ForkedTestPath.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,62 +25,19 @@
 // THE SOFTWARE.
 using System;
 using System.Xml.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestInstance
+	class ForkedTestPath : TestPath
 	{
-		public TestHost Host {
-			get;
-			private set;
-		}
-
-		public TestInstance Parent {
-			get;
-			private set;
-		}
-
-		protected TestInstance (TestHost host, TestInstance parent)
-		{
-			Host = host;
-			Parent = parent;
-		}
-
-		public abstract TestPath CreatePath (TestPath parent);
-
-		protected FixtureTestInstance GetFixtureInstance ()
-		{
-			TestInstance instance = this;
-			while (instance != null) {
-				var fixtureInstance = instance as FixtureTestInstance;
-				if (fixtureInstance != null)
-					return fixtureInstance;
-
-				instance = instance.Parent;
-			}
-
-			throw new InternalErrorException ();
-		}
-
-		public virtual void Initialize (TestContext ctx)
+		public ForkedTestPath (ForkedTestHost host, TestPath parent)
+			: base (host.TypeKey, parent)
 		{
 		}
 
-		public virtual void Destroy (TestContext ctx)
+		internal override bool Serialize (XElement node)
 		{
-		}
-
-		public static TestName GetTestName (TestInstance instance)
-		{
-			var path = TestPath.CreateFromInstance (instance);
-			return TestPath.GetTestName (path);
-		}
-
-		public override string ToString ()
-		{
-			return string.Format ("[{0}: Host={1}, Parent={2}]", GetType ().Name, Host, Parent);
+			return true;
 		}
 	}
 }

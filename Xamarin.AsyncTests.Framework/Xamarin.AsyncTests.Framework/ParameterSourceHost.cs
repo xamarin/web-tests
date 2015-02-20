@@ -52,21 +52,6 @@ namespace Xamarin.AsyncTests.Framework
 			Filter = filter;
 		}
 
-		internal override bool Serialize (XElement node, TestInstance instance)
-		{
-			var parameterizedInstance = (ParameterizedTestInstance)instance;
-
-			if (Serializer != null)
-				return Serializer.Serialize (node, parameterizedInstance.Current);
-
-			var testParameter = parameterizedInstance.Current as ITestParameter;
-			if (testParameter == null)
-				return false;
-
-			node.Add (new XAttribute ("Identifier", testParameter.Identifier));
-			return true;
-		}
-
 		internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
 		{
 			if (Serializer != null) {

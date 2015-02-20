@@ -58,15 +58,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Host = host;
 		}
 
-		internal override bool Serialize (XElement node, TestInstance instance)
-		{
-			if (Serializer == null)
-				return false;
-
-			var parameterizedInstance = (ParameterizedTestInstance)instance;
-			return Serializer.Serialize (node, parameterizedInstance.Current);
-		}
-
 		internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
 		{
 			if (Serializer == null)

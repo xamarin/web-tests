@@ -38,6 +38,10 @@ namespace Xamarin.AsyncTests.Framework
 		T current;
 		int index;
 
+		new public ParameterSourceHost<T> Host {
+			get { return (ParameterSourceHost<T>)base.Host; }
+		}
+
 		public ITestParameterSource<T> SourceInstance {
 			get;
 			private set;

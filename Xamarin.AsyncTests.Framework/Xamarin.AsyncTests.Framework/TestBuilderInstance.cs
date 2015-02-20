@@ -47,13 +47,10 @@ namespace Xamarin.AsyncTests.Framework
 			Builder = host.Builder;
 		}
 
-		protected override void GetTestName (TestNameBuilder builder)
+		public override TestPath CreatePath (TestPath parent)
 		{
-			base.GetTestName (builder);
-			if (!string.IsNullOrEmpty (Host.Name))
-				builder.PushName (Host.Name);
+			return new TestBuilderPath (Host, parent);
 		}
-
 	}
 }
 

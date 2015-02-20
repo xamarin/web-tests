@@ -36,6 +36,7 @@ namespace Xamarin.WebTests.Framework
 	using Handlers;
 	using Portable;
 
+	[FriendlyName ("[ProxyServer]")]
 	public class ProxyServer : HttpServer
 	{
 		Uri proxyUri;

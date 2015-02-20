@@ -1,10 +1,10 @@
 ﻿//
-// TestInstance.cs
+// TestPathNode.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,62 +25,54 @@
 // THE SOFTWARE.
 using System;
 using System.Xml.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestInstance
+	abstract class TestPath
 	{
-		public TestHost Host {
+		public string Type {
 			get;
 			private set;
 		}
 
-		public TestInstance Parent {
+		public TestPath Parent {
 			get;
 			private set;
 		}
 
-		protected TestInstance (TestHost host, TestInstance parent)
+		protected TestPath (string type, TestPath parent)
 		{
-			Host = host;
+			Type = type;
 			Parent = parent;
 		}
 
-		public abstract TestPath CreatePath (TestPath parent);
+		internal abstract bool Serialize (XElement node);
 
-		protected FixtureTestInstance GetFixtureInstance ()
+		public static TestPath CreateFromInstance (TestInstance instance)
 		{
-			TestInstance instance = this;
-			while (instance != null) {
-				var fixtureInstance = instance as FixtureTestInstance;
-				if (fixtureInstance != null)
-					return fixtureInstance;
-
-				instance = instance.Parent;
-			}
-
-			throw new InternalErrorException ();
+			TestPath parent = null;
+			if (instance.Parent != null)
+				parent = CreateFromInstance (instance.Parent);
+			return instance.CreatePath (parent);
 		}
 
-		public virtual void Initialize (TestContext ctx)
+		protected virtual void GetTestName (TestNameBuilder builder)
 		{
+			if (Parent != null)
+				Parent.GetTestName (builder);
 		}
 
-		public virtual void Destroy (TestContext ctx)
+		public static TestName GetTestName (TestPath path)
 		{
-		}
-
-		public static TestName GetTestName (TestInstance instance)
-		{
-			var path = TestPath.CreateFromInstance (instance);
-			return TestPath.GetTestName (path);
+			var builder = new TestNameBuilder ();
+			if (path != null)
+				path.GetTestName (builder);
+			return builder.GetName ();
 		}
 
 		public override string ToString ()
 		{
-			return string.Format ("[{0}: Host={1}, Parent={2}]", GetType ().Name, Host, Parent);
+			return string.Format ("[TestPath: Type={0}, Parent={1}]", Type, Parent);
 		}
 	}
 }

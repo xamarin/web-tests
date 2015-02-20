@@ -35,6 +35,10 @@ namespace Xamarin.AsyncTests.Framework
 		ITestHost<T> customHost;
 		T instance;
 
+		new public CustomTestHost<T> Host {
+			get { return (CustomTestHost<T>)base.Host; }
+		}
+
 		public Type HostType {
 			get;
 			private set;

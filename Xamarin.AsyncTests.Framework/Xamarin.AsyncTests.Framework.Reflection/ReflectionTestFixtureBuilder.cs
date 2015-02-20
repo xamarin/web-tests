@@ -104,7 +104,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 
 			public FixtureInstanceTestHost (ReflectionTestFixtureBuilder builder)
-				: base (null)
+				: base (null, builder.Type.AsType ())
 			{
 				Flags = TestFlags.ContinueOnError;
 				Builder = builder;
@@ -114,11 +114,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			{
 				var instance = Activator.CreateInstance (Builder.Type.AsType ());
 				return new FixtureTestInstance (this, instance, parent);
-			}
-
-			internal override bool Serialize (XElement node, TestInstance instance)
-			{
-				return true;
 			}
 
 			internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)

@@ -44,6 +44,11 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		public sealed override TestPath CreatePath (TestPath parent)
+		{
+			return new HeavyTestPath (Host, parent);
+		}
+
 		[StackTraceEntryPoint]
 		public abstract Task Initialize (TestContext ctx, CancellationToken cancellationToken);
 
@@ -55,13 +60,6 @@ namespace Xamarin.AsyncTests.Framework
 
 		[StackTraceEntryPoint]
 		public abstract Task Destroy (TestContext ctx, CancellationToken cancellationToken);
-
-		protected override void GetTestName (TestNameBuilder builder)
-		{
-			base.GetTestName (builder);
-			if (Host.Name != null)
-				builder.PushParameter (Host.Name, Current, (Host.Flags & TestFlags.Hidden) != 0);
-		}
 	}
 }
 

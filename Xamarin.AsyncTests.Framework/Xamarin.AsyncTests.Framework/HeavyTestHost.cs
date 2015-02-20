@@ -36,9 +36,17 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public HeavyTestHost (string name)
+		public Type Type {
+			get;
+			private set;
+		}
+
+		public HeavyTestHost (string name, Type type)
 		{
 			Name = name;
+			Type = type;
+			if (Type == null)
+				throw new NotSupportedException ();
 		}
 
 		internal sealed override TestInvoker CreateInvoker (TestInvoker invoker)

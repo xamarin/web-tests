@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.Framework
 	using Framework;
 	using Portable;
 
+	[FriendlyName ("[HttpServer]")]
 	public class HttpServer : ITestInstance, IHttpServer
 	{
 		readonly Uri uri;

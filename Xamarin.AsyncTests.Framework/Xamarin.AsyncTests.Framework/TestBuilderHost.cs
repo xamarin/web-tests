@@ -63,11 +63,6 @@ namespace Xamarin.AsyncTests.Framework
 			return invoker;
 		}
 
-		internal sealed override bool Serialize (XElement node, TestInstance instance)
-		{
-			return true;
-		}
-
 		internal sealed override TestInvoker Deserialize (XElement node, TestInvoker invoker)
 		{
 			invoker = new TestBuilderInvoker (this, invoker);

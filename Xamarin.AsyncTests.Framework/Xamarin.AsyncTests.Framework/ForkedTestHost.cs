@@ -52,11 +52,6 @@ namespace Xamarin.AsyncTests.Framework
 			return new ForkedTestInvoker (this, invoker);
 		}
 
-		internal override bool Serialize (XElement node, TestInstance instance)
-		{
-			return true;
-		}
-
 		internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
 		{
 			return CreateInvoker (invoker);

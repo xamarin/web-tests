@@ -40,59 +40,59 @@ namespace Xamarin.AsyncTests.Framework
 
 		public static XElement Serialize (TestInstance instance)
 		{
-			var name = TestInstance.GetTestName (instance);
+			var path = TestPath.CreateFromInstance (instance);
+
+			var name = TestPath.GetTestName (path);
 
 			var root = new XElement (InstanceName);
 			root.Add (new XAttribute ("Name", name.FullName));
 
-			while (instance != null) {
-				var element = SerializeBuilder (ref instance);
+			while (path != null) {
+				var element = SerializeBuilder (ref path);
 				root.AddFirst (element);
 			}
 
 			return root;
 		}
 
-		static XElement SerializeBuilder (ref TestInstance instance)
+		static void Debug (string message, params object[] args)
 		{
-			var parameterInstances = new LinkedList<TestInstance> ();
-			TestBuilderInstance builderInstance = null;
+			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
+		}
 
-			while (instance != null && builderInstance == null) {
-				parameterInstances.AddLast (instance);
+		static XElement SerializeBuilder (ref TestPath path)
+		{
+			var parameterPath = new LinkedList<TestPath> ();
+			TestBuilderPath builderPath = null;
 
-				builderInstance = instance as TestBuilderInstance;
-				instance = instance.Parent;
+			while (path != null && builderPath == null) {
+				parameterPath.AddLast (path);
+
+				builderPath = path as TestBuilderPath;
+				path = path.Parent;
 			}
 
-			if (builderInstance == null)
+			if (builderPath == null)
 				throw new InternalErrorException ();
 
-			var builder = builderInstance.Builder;
+			var builder = builderPath.Builder;
 
 			var node = new XElement (BuilderName);
 			node.Add (new XAttribute ("Type", builder.GetType ().Name));
 			node.Add (new XAttribute ("Name", builder.FullName));
 
-			var hostIter = builder.ParameterHosts.First;
-			var instanceIter = parameterInstances.Last.Previous;
+			var pathIter = parameterPath.Last.Previous;
 
-			while (instanceIter != null) {
-				var parameterInstance = instanceIter.Value;
-				if (instanceIter.Value.Host != hostIter.Value)
-					throw new InternalErrorException ();
-
+			while (pathIter != null) {
 				var element = new XElement (ParameterName);
-				element.Add (new XAttribute ("Type", parameterInstance.GetType ().Name));
-				element.Add (new XAttribute ("Host", parameterInstance.Host.GetType ().Name));
+				element.Add (new XAttribute ("Type", pathIter.Value.Type));
 
-				if (!parameterInstance.Host.Serialize (element, parameterInstance))
+				if (!pathIter.Value.Serialize (element))
 					throw new InternalErrorException ();
 
 				node.Add (element);
 
-				instanceIter = instanceIter.Previous;
-				hostIter = hostIter.Next;
+				pathIter = pathIter.Previous;
 			}
 
 			return node;
@@ -165,9 +165,7 @@ namespace Xamarin.AsyncTests.Framework
 					elementIter = elementIter.Next;
 
 					var paramType = param.Attribute ("Type").Value;
-					var paramHost = param.Attribute ("Host").Value;
-
-					if (!host.GetType ().Name.Equals (paramHost))
+					if (!host.TypeKey.Equals (paramType))
 						throw new InternalErrorException ();
 				}
 

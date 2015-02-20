@@ -36,14 +36,16 @@ namespace Xamarin.AsyncTests.Framework
 			get; protected set;
 		}
 
+		public virtual string TypeKey {
+			get { return GetType ().FullName; }
+		}
+
 		internal TestInstance CreateInstance (TestContext ctx, TestInstance parent)
 		{
 			var instance = CreateInstance (parent);
 			instance.Initialize (ctx);
 			return instance;
 		}
-
-		internal abstract bool Serialize (XElement node, TestInstance instance);
 
 		internal abstract TestInvoker Deserialize (XElement node, TestInvoker invoker);
 

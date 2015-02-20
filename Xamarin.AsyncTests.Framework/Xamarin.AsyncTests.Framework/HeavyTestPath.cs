@@ -1,10 +1,10 @@
 ﻿//
-// TestInstance.cs
+// HeavyTestPath.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,62 +25,53 @@
 // THE SOFTWARE.
 using System;
 using System.Xml.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestInstance
+	sealed class HeavyTestPath : TestPath
 	{
-		public TestHost Host {
+		public string Name {
 			get;
 			private set;
 		}
 
-		public TestInstance Parent {
+		public string HostName {
 			get;
 			private set;
 		}
 
-		protected TestInstance (TestHost host, TestInstance parent)
-		{
-			Host = host;
-			Parent = parent;
+		public TestFlags Flags {
+			get;
+			private set;
 		}
 
-		public abstract TestPath CreatePath (TestPath parent);
-
-		protected FixtureTestInstance GetFixtureInstance ()
+		public HeavyTestPath (HeavyTestHost host, TestPath parent)
+			: base (host.TypeKey, parent)
 		{
-			TestInstance instance = this;
-			while (instance != null) {
-				var fixtureInstance = instance as FixtureTestInstance;
-				if (fixtureInstance != null)
-					return fixtureInstance;
-
-				instance = instance.Parent;
-			}
-
-			throw new InternalErrorException ();
+			Name = host.Name;
+			HostName = GetHostTypeName (host.Type);
+			Flags = host.Flags;
 		}
 
-		public virtual void Initialize (TestContext ctx)
+		internal override bool Serialize (XElement node)
 		{
+			return true;
 		}
 
-		public virtual void Destroy (TestContext ctx)
+		protected override void GetTestName (TestNameBuilder builder)
 		{
+			base.GetTestName (builder);
+			if (Name != null)
+				builder.PushParameter (Name, HostName, (Flags & TestFlags.Hidden) != 0);
 		}
 
-		public static TestName GetTestName (TestInstance instance)
+		static string GetHostTypeName (Type type)
 		{
-			var path = TestPath.CreateFromInstance (instance);
-			return TestPath.GetTestName (path);
-		}
-
-		public override string ToString ()
-		{
-			return string.Format ("[{0}: Host={1}, Parent={2}]", GetType ().Name, Host, Parent);
+			var friendlyAttr = type.GetTypeInfo ().GetCustomAttribute<FriendlyNameAttribute> ();
+			if (friendlyAttr != null)
+				return friendlyAttr.Name;
+			return type.FullName;
 		}
 	}
 }
