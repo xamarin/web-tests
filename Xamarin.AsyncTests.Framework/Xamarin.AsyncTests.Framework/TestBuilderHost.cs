@@ -30,17 +30,22 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestBuilderHost : NamedTestHost
+	abstract class TestBuilderHost : TestHost
 	{
 		public TestBuilder Builder {
 			get;
 			private set;
 		}
 
+		public string Name {
+			get;
+			private set;
+		}
+
 		public TestBuilderHost (TestBuilder builder)
-			: base (builder.Name.Name)
 		{
 			Builder = builder;
+			Name = builder.Name.Name;
 		}
 
 		internal override TestInstance CreateInstance (TestInstance parent)

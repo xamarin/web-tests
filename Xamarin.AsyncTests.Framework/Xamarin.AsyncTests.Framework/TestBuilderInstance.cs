@@ -30,8 +30,12 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class TestBuilderInstance : NamedTestInstance
+	class TestBuilderInstance : TestInstance
 	{
+		new public TestBuilderHost Host {
+			get { return (TestBuilderHost)base.Host; }
+		}
+
 		public TestBuilder Builder {
 			get;
 			private set;
@@ -42,6 +46,14 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			Builder = host.Builder;
 		}
+
+		protected override void GetTestName (TestNameBuilder builder)
+		{
+			base.GetTestName (builder);
+			if (!string.IsNullOrEmpty (Host.Name))
+				builder.PushName (Host.Name);
+		}
+
 	}
 }
 

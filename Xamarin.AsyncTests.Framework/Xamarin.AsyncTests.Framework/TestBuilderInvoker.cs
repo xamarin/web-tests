@@ -29,11 +29,70 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class TestBuilderInvoker : NamedTestInvoker
+	class TestBuilderInvoker : AggregatedTestInvoker
 	{
+		public TestBuilderHost Host {
+			get;
+			private set;
+		}
+
+		public TestInvoker Inner {
+			get;
+			private set;
+		}
+
 		public TestBuilderInvoker (TestBuilderHost host, TestInvoker inner)
-			: base (host, inner)
 		{
+			Host = host;
+			Inner = inner;
+		}
+
+		TestBuilderInstance SetUp (TestContext ctx, TestInstance instance)
+		{
+			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
+
+			try {
+				return (TestBuilderInstance)Host.CreateInstance (ctx, instance);
+			} catch (OperationCanceledException) {
+				ctx.OnTestCanceled ();
+				return null;
+			} catch (Exception ex) {
+				ctx.OnError (ex);
+				return null;
+			}
+		}
+
+		bool TearDown (TestContext ctx, TestBuilderInstance instance)
+		{
+			ctx.LogDebug (10, "TearDown({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
+
+			try {
+				instance.Destroy (ctx);
+				return true;
+			} catch (OperationCanceledException) {
+				ctx.OnTestCanceled ();
+				return false;
+			} catch (Exception ex) {
+				ctx.OnError (ex);
+				return false;
+			}
+		}
+
+		public override async Task<bool> Invoke (
+			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
+		{
+			var innerInstance = SetUp (ctx, instance);
+			if (innerInstance == null)
+				return false;
+
+			var innerCtx = ctx.CreateChild (TestInstance.GetTestName (innerInstance));
+
+			var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
+
+			if (!TearDown (ctx, innerInstance))
+				success = false;
+
+			return success;
 		}
 	}
 }

@@ -58,9 +58,6 @@
     <Compile Include="Xamarin.AsyncTests.Framework\HeavyTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\HeavyTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ParameterSourceHost.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\NamedTestHost.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\NamedTestInstance.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\NamedTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ForkedTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ForkedTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ForkedTestInvoker.cs" />
@@ -72,7 +69,6 @@
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestCaseBuilder.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestFixtureBuilder.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestCaseInvoker.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestFilter.cs" />
@@ -84,6 +80,7 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestCollectionHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCollectionInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ResultGroupTestInvoker.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderInvoker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

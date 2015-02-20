@@ -102,7 +102,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var index = parameters.Length - 1;
 			while (index >= 0) {
-				if (instance is NamedTestInstance) {
+				if (instance is TestBuilderInstance) {
 					instance = instance.Parent;
 					continue;
 				}
@@ -148,7 +148,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (instance is FixtureTestInstance)
 					break;
 				var host = instance.Host;
-				if (!(host is RepeatedTestHost || host is ReflectionPropertyHost || host is NamedTestHost))
+				if (!(host is RepeatedTestHost || host is ReflectionPropertyHost || host is TestBuilderHost))
 					throw new InternalErrorException ();
 				instance = instance.Parent;
 			}

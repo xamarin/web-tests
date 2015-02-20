@@ -79,7 +79,7 @@ namespace Xamarin.AsyncTests.Framework
 				TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 			{
 				while (instance != null) {
-					if (!(instance.Host is RepeatedTestHost || instance.Host is NamedTestHost))
+					if (!(instance.Host is RepeatedTestHost || instance.Host is TestBuilderInstance))
 						throw new InternalErrorException ();
 					instance = instance.Parent;
 				}
