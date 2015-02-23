@@ -1,5 +1,5 @@
 ﻿//
-// ForkedTestPath.cs
+// IPathResolvable.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,21 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class ForkedTestPath : TestPath
+	interface IPathResolvable
 	{
-		public ForkedTestPath (ForkedTestHost host, TestPath parent)
-			: base (host.TypeKey, parent)
-		{
-		}
-
-		internal override bool Serialize (XElement node)
-		{
-			return true;
-		}
+		IPathResolver GetResolver ();
 	}
 }
 

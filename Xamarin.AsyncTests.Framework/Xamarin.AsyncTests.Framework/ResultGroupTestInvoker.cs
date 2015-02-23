@@ -48,6 +48,7 @@ namespace Xamarin.AsyncTests.Framework
 
 			var innerCtx = ctx.CreateChild (innerResult.Name, innerResult);
 
+			#if FIXME
 			try {
 				innerResult.Test = TestBuilder.CaptureContext (innerCtx, instance);
 				if (innerResult.Test == null)
@@ -55,6 +56,7 @@ namespace Xamarin.AsyncTests.Framework
 			} catch (Exception ex) {
 				ctx.LogError (ex);
 			}
+			#endif
 
 			bool success;
 			try {

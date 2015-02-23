@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,22 +32,24 @@ namespace Xamarin.AsyncTests.Framework
 {
 	abstract class HeavyTestHost : TestHost
 	{
-		public string Name {
-			get;
-			private set;
-		}
-
 		public Type Type {
 			get;
 			private set;
 		}
 
-		public HeavyTestHost (string name, Type type)
+		public abstract ITestParameter Parameter {
+			get;
+		}
+
+		public HeavyTestHost (string identifier, string name, Type type, string parameterType)
+			: base (identifier, name, parameterType)
 		{
-			Name = name;
 			Type = type;
-			if (Type == null)
-				throw new NotSupportedException ();
+		}
+
+		internal override ITestParameter GetParameter (TestInstance instance)
+		{
+			return Parameter;
 		}
 
 		internal sealed override TestInvoker CreateInvoker (TestInvoker invoker)

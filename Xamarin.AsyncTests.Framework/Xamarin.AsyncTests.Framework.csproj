@@ -82,10 +82,11 @@
     <Compile Include="Xamarin.AsyncTests.Framework\ResultGroupTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestPath.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderPath.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\ForkedTestPath.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\ParameterizedTestPath.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\HeavyTestPath.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\IPathNode.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\IPathResolvable.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\IPathResolver.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestPathTree.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\PathBasedTestCase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

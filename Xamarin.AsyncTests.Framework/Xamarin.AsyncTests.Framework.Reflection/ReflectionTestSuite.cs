@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestSuite : TestSuite
+	class ReflectionTestSuite : TestSuite, IPathResolvable, IPathResolver
 	{
 		public TestApp App {
 			get;
@@ -67,6 +67,29 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		public override TestCase Test {
 			get { return Builder.Test; }
+		}
+
+		public IPathResolver GetResolver ()
+		{
+			return this;
+		}
+
+		IPathNode IPathResolver.Node {
+			get { return null; }
+		}
+
+		public IPathResolvable Resolve (IPathNode node, string parameter)
+		{
+			if (!node.Identifier.Equals (TestSerializer.TestSuiteIdentifier))
+				throw new InternalErrorException ();
+			if (!node.ParameterType.Equals (TestSerializer.TestSuiteIdentifier))
+				throw new InternalErrorException ();
+			return Builder;
+		}
+
+		public IPathResolvable FindChild (string name)
+		{
+			return Builder;
 		}
 
 		public static Task<TestSuite> Create (TestApp app, Assembly assembly)

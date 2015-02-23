@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Xml.Linq;
 
@@ -37,6 +38,12 @@ namespace Xamarin.AsyncTests.Framework
 		static readonly XName InstanceName = "TestInstance";
 		static readonly XName BuilderName = "TestBuilder";
 		static readonly XName ParameterName = "TestParameter";
+		static readonly XName PathName = "TestPath";
+
+		internal const string TestCaseIdentifier = "test";
+		internal const string FixtureInstanceIdentifier = "instance";
+		internal const string TestFixtureIdentifier = "fixture";
+		internal const string TestSuiteIdentifier = "suite";
 
 		public static XElement Serialize (TestInstance instance)
 		{
@@ -47,6 +54,9 @@ namespace Xamarin.AsyncTests.Framework
 			var root = new XElement (InstanceName);
 			root.Add (new XAttribute ("Name", name.FullName));
 
+			var pathElement = SerializePath (path);
+			root.AddFirst (pathElement);
+
 			while (path != null) {
 				var element = SerializeBuilder (ref path);
 				root.AddFirst (element);
@@ -55,7 +65,7 @@ namespace Xamarin.AsyncTests.Framework
 			return root;
 		}
 
-		static void Debug (string message, params object[] args)
+		internal static void Debug (string message, params object[] args)
 		{
 			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
 		}
@@ -63,19 +73,17 @@ namespace Xamarin.AsyncTests.Framework
 		static XElement SerializeBuilder (ref TestPath path)
 		{
 			var parameterPath = new LinkedList<TestPath> ();
-			TestBuilderPath builderPath = null;
+			TestBuilder builder = null;
 
-			while (path != null && builderPath == null) {
+			while (path != null && builder == null) {
 				parameterPath.AddLast (path);
 
-				builderPath = path as TestBuilderPath;
+				builder = path.BrokenBuilder;
 				path = path.Parent;
 			}
 
-			if (builderPath == null)
+			if (builder == null)
 				throw new InternalErrorException ();
-
-			var builder = builderPath.Builder;
 
 			var node = new XElement (BuilderName);
 			node.Add (new XAttribute ("Type", builder.GetType ().Name));
@@ -84,15 +92,22 @@ namespace Xamarin.AsyncTests.Framework
 			var pathIter = parameterPath.Last.Previous;
 
 			while (pathIter != null) {
-				var element = new XElement (ParameterName);
-				element.Add (new XAttribute ("Type", pathIter.Value.Type));
-
-				if (!pathIter.Value.Serialize (element))
-					throw new InternalErrorException ();
-
+				var element = WritePathNode (pathIter.Value.Host, pathIter.Value.Parameter);
 				node.Add (element);
-
 				pathIter = pathIter.Previous;
+			}
+
+			return node;
+		}
+
+		static XElement SerializePath (TestPath path)
+		{
+			var node = new XElement (PathName);
+
+			while (path != null) {
+				var element = WritePathNode (path.Host, path.Parameter);
+				node.AddFirst (element);
+				path = path.Parent;
 			}
 
 			return node;
@@ -102,6 +117,12 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			if (!root.Name.Equals (InstanceName))
 				throw new InternalErrorException ();
+
+			var resolvable = suite as IPathResolvable;
+			if (resolvable != null) {
+				var pathElement = root.Element (PathName);
+				DeserializePath (suite, resolvable, root, pathElement);
+			}
 
 			var name = root.Attribute ("Name").Value;
 
@@ -141,6 +162,22 @@ namespace Xamarin.AsyncTests.Framework
 			}
 
 			return invoker;
+		}
+
+		static void DeserializePath (TestSuite suite, IPathResolvable resolvable, XElement root, XElement path)
+		{
+			Debug ("DESERIALIZE: {0}", root);
+
+			foreach (var element in path.Elements (ParameterName)) {
+				Debug ("DESERIALIZE PATH: {0} {1}", resolvable, element);
+
+				var node = ReadPathNode (element);
+				var parameterAttr = element.Attribute ("Parameter");
+				var parameter = parameterAttr != null ? parameterAttr.Value : null;
+
+				var resolver = resolvable.GetResolver ();
+				resolvable = resolver.Resolve (node, parameter);
+			}
 		}
 
 		static bool DeserializeBuilder (TestBuilder builder, XElement node, ref TestInvoker invoker)
@@ -189,6 +226,80 @@ namespace Xamarin.AsyncTests.Framework
 			invoker = current.Deserialize (node, invoker);
 
 			return true;
+		}
+
+		internal static string GetFriendlyName (Type type)
+		{
+			var friendlyAttr = type.GetTypeInfo ().GetCustomAttribute<FriendlyNameAttribute> ();
+			if (friendlyAttr != null)
+				return friendlyAttr.Name;
+			return type.FullName;
+		}
+
+		internal static ITestParameter GetStringParameter (string value)
+		{
+			return new ParameterWrapper { Value = value };
+		}
+
+		class ParameterWrapper : ITestParameter
+		{
+			public string Value {
+				get; set;
+			}
+		}
+
+		static IPathNode ReadPathNode (XElement element)
+		{
+			var node = new TestPathNode ();
+			node.TypeKey = element.Attribute ("Type").Value;
+			node.Identifier = element.Attribute ("Identifier").Value;
+
+			var nameAttr = element.Attribute ("Name");
+			if (nameAttr != null)
+				node.Name = nameAttr.Value;
+
+			var paramTypeAttr = element.Attribute ("ParameterType");
+			if (paramTypeAttr != null)
+				node.ParameterType = paramTypeAttr.Value;
+
+			var paramValueAttr = element.Attribute ("Parameter");
+			if (paramValueAttr != null)
+				node.ParameterValue = paramValueAttr.Value;
+
+			return node;
+		}
+
+		static XElement WritePathNode (IPathNode node, ITestParameter parameter)
+		{
+			var element = new XElement (ParameterName);
+			element.Add (new XAttribute ("Type", node.TypeKey));
+			element.Add (new XAttribute ("Identifier", node.Identifier));
+			if (node.Name != null)
+				element.Add (new XAttribute ("Name", node.Name));
+			if (node.ParameterType != null)
+				element.Add (new XAttribute ("ParameterType", node.ParameterType));
+			if (parameter != null)
+				element.Add (new XAttribute ("Parameter", parameter.Value));
+			return element;
+		}
+
+		class TestPathNode : IPathNode
+		{
+			public string TypeKey {
+				get; set;
+			}
+			public string Identifier {
+				get; set;
+			}
+			public string Name {
+				get; set;
+			}
+			public string ParameterType {
+				get; set;
+			}
+			public string ParameterValue {
+				get; set;
+			}
 		}
 	}
 }

@@ -34,8 +34,12 @@ namespace Xamarin.AsyncTests.Framework
 {
 	sealed class TestCollectionHost : TestBuilderHost
 	{
+		public override string TypeKey {
+			get { return Builder.TypeKey; }
+		}
+
 		public TestCollectionHost (TestBuilder builder)
-			: base (builder)
+			: base (builder, builder)
 		{
 		}
 

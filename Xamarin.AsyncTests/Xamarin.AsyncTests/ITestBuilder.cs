@@ -51,6 +51,10 @@ namespace Xamarin.AsyncTests
 		}
 
 		ITestBuilder GetChild (int index);
+
+		TestCase Test {
+			get;
+		}
 	}
 }
 

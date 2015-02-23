@@ -43,6 +43,10 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public override string TypeKey {
+			get { return typeof(ParameterSourceHost<>).FullName; }
+		}
+
 		public ParameterSourceHost (
 			string name, ITestParameterSource<T> sourceInstance, IParameterSerializer serializer,
 			string filter, TestFlags flags = TestFlags.None)
@@ -62,7 +66,7 @@ namespace Xamarin.AsyncTests.Framework
 				return new CapturedInvoker (this, value, invoker);
 			}
 
-			var attr = node.Attribute ("Identifier");
+			var attr = node.Attribute ("Parameter");
 			if (attr == null)
 				throw new InternalErrorException ();
 

@@ -43,11 +43,11 @@ namespace Xamarin.WebTests.Handlers
 
 		static string CreateIdentifier (AuthenticationType type, Handler target)
 		{
-			return string.Format ("Authentication({0}): {1}", type, target.Identifier);
+			return string.Format ("Authentication({0}): {1}", type, target.Value);
 		}
 
 		AuthenticationHandler (HttpAuthManager manager)
-			: base (manager.Target, manager.Target.Identifier)
+			: base (manager.Target, manager.Target.Value)
 		{
 			this.manager = manager;
 		}

@@ -37,15 +37,21 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public string Name {
+		public IPathNode PathNode {
 			get;
 			private set;
 		}
 
-		public TestBuilderHost (TestBuilder builder)
+		public TestBuilderHost (TestBuilder builder, IPathNode node)
+			: base (node.Identifier, node.Name, node.ParameterType, TestFlags.PathHidden)
 		{
 			Builder = builder;
-			Name = builder.Name.Name;
+			PathNode = node;
+		}
+
+		internal override ITestParameter GetParameter (TestInstance instance)
+		{
+			return Builder.Parameter;
 		}
 
 		internal override TestInstance CreateInstance (TestInstance parent)
@@ -55,7 +61,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal override TestInvoker CreateInvoker (TestInvoker invoker)
 		{
-			if (!TestName.IsNullOrEmpty (Builder.Name))
+			if (!TestName.IsNullOrEmpty (Builder.TestName))
 				invoker = new ResultGroupTestInvoker (invoker);
 
 			invoker = new TestBuilderInvoker (this, invoker);
@@ -74,7 +80,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override string ToString ()
 		{
-			return string.Format ("[TestBuilderHost: Name={0}, Builder={1}]", Name, Builder.GetType ().Name);
+			return string.Format ("[TestBuilderHost: Name={0}, Builder={1}]", Builder.Name, Builder.GetType ().Name);
 		}
 	}
 }

@@ -29,14 +29,13 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CustomTestInstance<T> : HeavyTestInstance
-		where T : ITestInstance
+	class CustomTestInstance : HeavyTestInstance
 	{
-		ITestHost<T> customHost;
-		T instance;
+		ITestHost<ITestInstance> customHost;
+		ITestInstance instance;
 
-		new public CustomTestHost<T> Host {
-			get { return (CustomTestHost<T>)base.Host; }
+		new public CustomTestHost Host {
+			get { return (CustomTestHost)base.Host; }
 		}
 
 		public Type HostType {
@@ -49,7 +48,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public CustomTestInstance (CustomTestHost<T> host, TestInstance parent, Type hostType, bool useFixtureInstance)
+		public CustomTestInstance (CustomTestHost host, TestInstance parent, Type hostType, bool useFixtureInstance)
 			: base (host, parent)
 		{
 			HostType = hostType;
@@ -63,9 +62,9 @@ namespace Xamarin.AsyncTests.Framework
 		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (UseFixtureInstance)
-				customHost = (ITestHost<T>)GetFixtureInstance ().Instance;
+				customHost = (ITestHost<ITestInstance>)GetFixtureInstance ().Instance;
 			else if (HostType != null)
-				customHost = (ITestHost<T>)Activator.CreateInstance (HostType);
+				customHost = (ITestHost<ITestInstance>)Activator.CreateInstance (HostType);
 			else
 				throw new InternalErrorException ();
 

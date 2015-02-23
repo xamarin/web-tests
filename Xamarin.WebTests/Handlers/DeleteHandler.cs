@@ -52,7 +52,7 @@ namespace Xamarin.WebTests.Handlers
 
 		public override object Clone ()
 		{
-			return new DeleteHandler (Identifier, Body) { Flags = Flags };
+			return new DeleteHandler (Value, Body) { Flags = Flags };
 		}
 
 		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)

@@ -58,9 +58,9 @@ namespace Xamarin.AsyncTests.Framework
 			Invoker = invoker;
 		}
 
-		public override TestPath CreatePath (TestPath parent)
+		internal override TestPath GetCurrentPath ()
 		{
-			return new ForkedTestPath (Host, parent);
+			return Path;
 		}
 
 		public async Task<bool> Start (TestContext ctx, CancellationToken cancellationToken)

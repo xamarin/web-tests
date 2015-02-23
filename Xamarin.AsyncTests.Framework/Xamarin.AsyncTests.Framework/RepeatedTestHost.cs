@@ -34,11 +34,6 @@ namespace Xamarin.AsyncTests.Framework
 
 	class RepeatedTestHost : ParameterSourceHost<int>
 	{
-		public string Name {
-			get;
-			private set;
-		}
-
 		public int Count {
 			get;
 			private set;

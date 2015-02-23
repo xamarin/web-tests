@@ -47,6 +47,11 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
+		public ITestBuilder Builder {
+			get;
+			private set;
+		}
+
 		[Obsolete ("FUCK")]
 		public TestCase (TestSuite suite, TestName name)
 			: this (suite, name, null)
@@ -57,6 +62,7 @@ namespace Xamarin.AsyncTests
 		{
 			Suite = suite;
 			Name = name;
+			Builder = builder;
 		}
 
 		internal abstract Task<bool> Run (TestContext ctx, CancellationToken cancellationToken);

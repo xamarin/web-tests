@@ -32,8 +32,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class CustomTestHost<T> : HeavyTestHost
-		where T : ITestInstance
+	class CustomTestHost : HeavyTestHost, ITestParameter
 	{
 		public Type HostType {
 			get;
@@ -45,8 +44,16 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public CustomTestHost (string name, Type hostType, bool useFixtureInstance)
-			: base (name, typeof(T))
+		public override ITestParameter Parameter {
+			get { return this; }
+		}
+
+		public string Value {
+			get { return TestSerializer.GetFriendlyName (Type); }
+		}
+
+		public CustomTestHost (string name, Type type, Type hostType, bool useFixtureInstance)
+			: base (name, name, type, TestSerializer.GetFriendlyName (hostType))
 		{
 			HostType = hostType;
 			UseFixtureInstance = useFixtureInstance;
@@ -54,7 +61,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal override TestInstance CreateInstance (TestInstance parent)
 		{
-			return new CustomTestInstance<T> (this, parent, HostType, UseFixtureInstance);
+			return new CustomTestInstance (this, parent, HostType, UseFixtureInstance);
 		}
 
 		internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
@@ -65,7 +72,7 @@ namespace Xamarin.AsyncTests.Framework
 		public override string ToString ()
 		{
 			return string.Format ("[CustomTestHost: Type={0}, HostType={1}, UseFixtureInstance={2}]",
-				typeof (T).Name, HostType != null ? HostType.Name : "<null>", UseFixtureInstance);
+				Type.Name, HostType != null ? HostType.Name : "<null>", UseFixtureInstance);
 		}
 	}
 }

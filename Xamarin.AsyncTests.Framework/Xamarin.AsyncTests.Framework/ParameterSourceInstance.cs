@@ -90,7 +90,7 @@ namespace Xamarin.AsyncTests.Framework
 				if (parameters.Count == 0)
 					throw new InternalErrorException ();
 				else if (parameters.Count > 1)
-					parameters.RemoveAll (p => !((ITestParameter)p).Identifier.Equals (CapturedIdentifier));
+					parameters.RemoveAll (p => !((ITestParameter)p).Value.Equals (CapturedIdentifier));
 				if (parameters.Count != 1)
 					throw new InternalErrorException ();
 			}

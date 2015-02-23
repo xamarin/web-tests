@@ -24,23 +24,62 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using AppKit;
 using Foundation;
 using Xamarin.AsyncTests;
 
 namespace TestMac
 {
-	public class TestCaseModel : NSObject
+	public class TestCaseModel : TestListNode
 	{
 		public TestCase Test {
 			get;
 			private set;
 		}
 
+		string fullName;
+
 		public TestCaseModel (TestCase test)
 		{
 			Test = test;
+			fullName = string.Format ("TEST:{0}", test.Name.FullName);
 		}
+
+		#region implemented abstract members of TestListNode
+
+		protected override IEnumerable<TestListNode> ResolveChildren ()
+		{
+			for (int i = 0; i < Test.Builder.CountChildren; i++) {
+				var child = Test.Builder.GetChild (i);
+				var test = child.Test;
+				if (test != null)
+					yield return new TestCaseModel (test);
+			}
+			yield break;
+		}
+
+		public override string Name {
+			get { return fullName; }
+		}
+
+		public override TestStatus TestStatus {
+			get { return TestStatus.None; }
+		}
+
+		public override string TestParameters {
+			get { return null; }
+		}
+
+		public override NSAttributedString Error {
+			get { return null; }
+		}
+
+		public override TestCaseModel TestCase {
+			get { return this; }
+		}
+
+		#endregion
 
 		public override string ToString ()
 		{

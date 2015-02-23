@@ -1,5 +1,5 @@
 ﻿//
-// TestPathNode.cs
+// TestPath.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -28,9 +28,9 @@ using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestPath
+	sealed class TestPath
 	{
-		public string Type {
+		public TestHost Host {
 			get;
 			private set;
 		}
@@ -40,26 +40,54 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		protected TestPath (string type, TestPath parent)
-		{
-			Type = type;
-			Parent = parent;
+		[Obsolete ("MUST GO")]
+		public TestBuilder BrokenBuilder {
+			get;
+			private set;
 		}
 
-		internal abstract bool Serialize (XElement node);
+		public bool IsParameterized {
+			get { return Host.ParameterType != null; }
+		}
 
+		public ITestParameter Parameter {
+			get;
+			private set;
+		}
+
+		internal TestPath (TestHost host, TestPath parent)
+		{
+			Host = host;
+			Parent = parent;
+
+			var builderHost = host as TestBuilderHost;
+			if (builderHost != null)
+				BrokenBuilder = builderHost.Builder;
+		}
+
+		void GetTestName (TestNameBuilder builder)
+		{
+			if (Parent != null)
+				Parent.GetTestName (builder);
+			if (Host.Name != null) {
+				if (Parameter != null && ((Host.Flags & TestFlags.PathHidden) == 0))
+					builder.PushParameter (Host.Name, Parameter.Value, (Host.Flags & TestFlags.Hidden) != 0);
+				else
+					builder.PushName (Host.Name);
+			}
+		}
+
+		[Obsolete ("REMOVE")]
 		public static TestPath CreateFromInstance (TestInstance instance)
 		{
 			TestPath parent = null;
 			if (instance.Parent != null)
 				parent = CreateFromInstance (instance.Parent);
-			return instance.CreatePath (parent);
-		}
-
-		protected virtual void GetTestName (TestNameBuilder builder)
-		{
-			if (Parent != null)
-				Parent.GetTestName (builder);
+			var path = new TestPath (instance.Host, parent);
+			var parameter = instance.Host.GetParameter (instance);
+			if (parameter != null)
+				path = path.Parameterize (parameter);
+			return path;
 		}
 
 		public static TestName GetTestName (TestPath path)
@@ -70,9 +98,33 @@ namespace Xamarin.AsyncTests.Framework
 			return builder.GetName ();
 		}
 
+		public TestPath Parameterize (ITestParameter parameter)
+		{
+			if (!IsParameterized || Parameter != null)
+				throw new InternalErrorException ();
+			var newPath = new TestPath (Host, Parent);
+			newPath.Parameter = parameter;
+			newPath.BrokenBuilder = BrokenBuilder;
+			return newPath;
+		}
+
+		internal TestInvoker CreateInvoker ()
+		{
+			TestInvoker invoker = null;
+			if (Parent != null)
+				invoker = Parent.CreateInvoker ();
+			else
+				invoker = BrokenBuilder.Invoker;
+			invoker = Host.CreateInvoker (invoker);
+			return invoker;
+		}
+
+		public readonly int ID = ++next_id;
+		static int next_id;
+
 		public override string ToString ()
 		{
-			return string.Format ("[TestPath: Type={0}, Parent={1}]", Type, Parent);
+			return string.Format ("[TestPath: ID={0}, Type={1}, Identifier={2}, Parent={3}]", ID, Host.TypeKey, Host.Identifier, Parent != null ? Parent.ID : 0);
 		}
 	}
 }

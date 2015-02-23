@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests
 {
-	public interface ITestHost<T>
+	public interface ITestHost<out T>
 		where T : ITestInstance
 	{
 		T CreateInstance (TestContext context);

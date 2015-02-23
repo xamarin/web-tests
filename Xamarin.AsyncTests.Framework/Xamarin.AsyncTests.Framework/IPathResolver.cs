@@ -1,5 +1,5 @@
 ﻿//
-// TestBuilderPath.cs
+// IPathResolver.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,40 +24,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class TestBuilderPath : TestPath
+	interface IPathResolver
 	{
-		public string Name {
+		IPathNode Node {
 			get;
-			private set;
 		}
 
-		public TestBuilder Builder {
-			get;
-			private set;
-		}
-
-		public TestBuilderPath (TestBuilderHost host, TestPath parent)
-			: base (host.TypeKey, parent)
-		{
-			Name = host.Name;
-			Builder = host.Builder;
-		}
-
-		internal override bool Serialize (XElement node)
-		{
-			return true;
-		}
-
-		protected override void GetTestName (TestNameBuilder builder)
-		{
-			base.GetTestName (builder);
-			if (!string.IsNullOrEmpty (Name))
-				builder.PushName (Name);
-		}
+		IPathResolvable Resolve (IPathNode node, string parameter);
 	}
 }
 

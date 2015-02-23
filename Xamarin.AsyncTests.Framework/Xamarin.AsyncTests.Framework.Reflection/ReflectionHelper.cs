@@ -256,9 +256,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			bool useFixtureInstance;
 			var hostType = GetCustomHostType (fixture, member, attr, out useFixtureInstance);
 
-			var type = typeof(CustomTestHost<>).MakeGenericType (member.Type.AsType ());
-			return (TestHost)Activator.CreateInstance (
-				type, member.Name, hostType, useFixtureInstance);
+			return new CustomTestHost (member.Name, member.Type.AsType (), hostType, useFixtureInstance);
 		}
 
 		static void Debug (string format, params object[] args)
@@ -385,58 +383,100 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return new IntegerSerializer ();
 		}
 
-		class BooleanSerializer : IParameterSerializer
+		class ParameterWrapper : ITestParameter
 		{
+			public object Value {
+				get;
+				private set;
+			}
+
+			string ITestParameter.Value {
+				get { return Value.ToString (); }
+			}
+
+			public ParameterWrapper (object value)
+			{
+				Value = value;
+			}
+		}
+
+		abstract class ParameterSerializer<T> : IParameterSerializer
+		{
+			public ITestParameter ObjectToParameter (object value)
+			{
+				return new ParameterWrapper (value);
+			}
+
+			public object ParameterToObject (ITestParameter value)
+			{
+				return ((ParameterWrapper)value).Value;
+			}
+
+			protected abstract string Serialize (T value);
+
+			protected abstract T Deserialize (string value);
+
 			public bool Serialize (XElement node, object value)
 			{
-				node.Add (new XAttribute ("Value", (bool)value));
+				var serialized = Serialize ((T)value);
+				node.Add (new XAttribute ("Parameter", serialized));
 				return true;
 			}
+
 			public object Deserialize (XElement node)
 			{
 				if (node == null)
 					throw new InternalErrorException ();
-				return bool.Parse (node.Attribute ("Value").Value);
+				var value = node.Attribute ("Parameter").Value;
+				return Deserialize (value);
 			}
 		}
 
-		class IntegerSerializer : IParameterSerializer
+		class BooleanSerializer : ParameterSerializer<bool>
 		{
-			public bool Serialize (XElement node, object value)
+			protected override string Serialize (bool value)
 			{
-				node.Add (new XAttribute ("Value", (int)value));
-				return true;
+				return value.ToString ();
 			}
-			public object Deserialize (XElement node)
+			protected override bool Deserialize (string value)
 			{
-				return int.Parse (node.Attribute ("Value").Value);
+				return bool.Parse (value);
 			}
 		}
 
-		class StringSerializer : IParameterSerializer
+		class IntegerSerializer : ParameterSerializer<int>
 		{
-			public bool Serialize (XElement node, object value)
+			protected override string Serialize (int value)
 			{
-				node.Add (new XAttribute ("Value", (string)value));
-				return true;
+				return value.ToString ();
 			}
-			public object Deserialize (XElement node)
+			protected override int Deserialize (string value)
 			{
-				return node.Attribute ("Value").Value;
+				return int.Parse (value);
 			}
 		}
 
-		class EnumSerializer<T> : IParameterSerializer
+		class StringSerializer : ParameterSerializer<string>
+		{
+			protected override string Serialize (string value)
+			{
+				return value;
+			}
+			protected override string Deserialize (string value)
+			{
+				return value;
+			}
+		}
+
+		class EnumSerializer<T> : ParameterSerializer<T>
 			where T : struct
 		{
-			public bool Serialize (XElement node, object value)
+			protected override string Serialize (T value)
 			{
-				node.Add (new XAttribute ("Value", (T)value));
-				return true;
+				return Enum.GetName (typeof(T), value);
 			}
-			public object Deserialize (XElement node)
+			protected override T Deserialize (string value)
 			{
-				var value = node.Attribute ("Value").Value;
 				T result;
 				if (!Enum.TryParse (value, out result))
 					throw new InternalErrorException ();

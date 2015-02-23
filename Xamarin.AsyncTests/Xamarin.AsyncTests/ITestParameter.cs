@@ -29,7 +29,7 @@ namespace Xamarin.AsyncTests
 {
 	public interface ITestParameter
 	{
-		string Identifier {
+		string Value {
 			get;
 		}
 	}

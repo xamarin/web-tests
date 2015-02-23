@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.Handlers
 
 		static string CreateIdentifier (Handler target, HttpStatusCode code)
 		{
-			return string.Format ("Redirect({0}): {1}", code, target.Identifier);
+			return string.Format ("Redirect({0}): {1}", code, target.Value);
 		}
 
 		static bool IsRedirectStatus (HttpStatusCode code)

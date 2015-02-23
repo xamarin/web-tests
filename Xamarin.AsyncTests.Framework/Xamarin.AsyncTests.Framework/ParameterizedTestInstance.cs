@@ -40,12 +40,6 @@ namespace Xamarin.AsyncTests.Framework
 		public ParameterizedTestInstance (ParameterizedTestHost host, TestInstance parent)
 			: base (host, parent)
 		{
-			ParameterType = host.ParameterType;
-		}
-
-		public TypeInfo ParameterType {
-			get;
-			private set;
 		}
 
 		public abstract object Current {
@@ -53,9 +47,25 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public sealed override TestPath CreatePath (TestPath parent)
+		internal ITestParameter Serialize ()
 		{
-			return new ParameterizedTestPath (Host, Host.Serializer, Current, parent);
+			if (Current == null)
+				return null;
+
+			var testParameter = Current as ITestParameter;
+			if (testParameter != null)
+				return testParameter;
+
+			return Host.Serializer.ObjectToParameter (Current);
+		}
+
+		internal override TestPath GetCurrentPath ()
+		{
+			var parameter = Serialize ();
+			if (parameter == null)
+				return Path;
+
+			return Path.Parameterize (parameter);
 		}
 
 		[StackTraceEntryPoint]

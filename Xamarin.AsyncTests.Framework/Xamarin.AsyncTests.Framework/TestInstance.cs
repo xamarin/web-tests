@@ -42,13 +42,21 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public TestPath Path {
+			get;
+			private set;
+		}
+
 		protected TestInstance (TestHost host, TestInstance parent)
 		{
 			Host = host;
 			Parent = parent;
+
+			var parentPath = parent != null ? parent.GetCurrentPath () : null;
+			Path = new TestPath (host, parentPath);
 		}
 
-		public abstract TestPath CreatePath (TestPath parent);
+		internal abstract TestPath GetCurrentPath ();
 
 		protected FixtureTestInstance GetFixtureInstance ()
 		{
@@ -74,7 +82,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public static TestName GetTestName (TestInstance instance)
 		{
-			var path = TestPath.CreateFromInstance (instance);
+			var path = instance.GetCurrentPath ();
 			return TestPath.GetTestName (path);
 		}
 

@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestHost
+	abstract class TestHost : IPathNode
 	{
 		public TestFlags Flags {
 			get; protected set;
@@ -40,12 +40,37 @@ namespace Xamarin.AsyncTests.Framework
 			get { return GetType ().FullName; }
 		}
 
+		public string Identifier {
+			get;
+			private set;
+		}
+
+		public string Name {
+			get;
+			private set;
+		}
+
+		public string ParameterType {
+			get;
+			private set;
+		}
+
+		protected TestHost (string identifier, string name, string parameterType, TestFlags flags = TestFlags.None)
+		{
+			Identifier = identifier;
+			Name = name;
+			ParameterType = parameterType;
+			Flags = flags;
+		}
+
 		internal TestInstance CreateInstance (TestContext ctx, TestInstance parent)
 		{
 			var instance = CreateInstance (parent);
 			instance.Initialize (ctx);
 			return instance;
 		}
+
+		internal abstract ITestParameter GetParameter (TestInstance instance);
 
 		internal abstract TestInvoker Deserialize (XElement node, TestInvoker invoker);
 

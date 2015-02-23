@@ -88,6 +88,12 @@ namespace Xamarin.AsyncTests.Sample
 			}
 		}
 
+		[AsyncTest]
+		public void Test (TestContext context, MyInstance instance)
+		{
+			context.LogMessage ("TEST: {0}", instance);
+		}
+
 		[Work]
 		[AsyncTest]
 		public void Test (TestContext context, [Repeat (3)] int outer, MyInstance instance, [Repeat (2)] int iteration)

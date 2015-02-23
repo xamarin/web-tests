@@ -57,26 +57,30 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		public override string FullName {
-			get { return fullName; }
+			get { return Parameter.Value; }
 		}
 
 		public TypeInfo ExpectedExceptionType {
 			get { return expectedExceptionType; }
 		}
 
-		string fullName;
 		TestFilter filter;
 		ExpectedExceptionAttribute expectedException;
 		TypeInfo expectedExceptionType;
 
 		public ReflectionTestCaseBuilder (ReflectionTestFixtureBuilder fixture, AsyncTestAttribute attr, MethodInfo method)
-			: base (fixture.Suite.Suite, new TestName (method.Name))
+			: base (fixture.Suite.Suite, TestSerializer.TestCaseIdentifier, method.Name, GetParameter (method))
 		{
 			Fixture = fixture;
 			Attribute = attr;
 			Method = method;
-			fullName = ReflectionHelper.GetMethodSignatureFullName (method);
 			filter = ReflectionHelper.CreateTestFilter (fixture.Filter, ReflectionHelper.GetMethodInfo (method));
+		}
+
+		static ITestParameter GetParameter (MethodInfo method)
+		{
+			var fullName = ReflectionHelper.GetMethodSignatureFullName (method);
+			return TestSerializer.GetStringParameter (fullName);
 		}
 
 		protected override void ResolveMembers ()
@@ -101,12 +105,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var parameters = Method.GetParameters ();
 			for (int i = 0; i < parameters.Length; i++) {
 				var paramType = parameters [i].ParameterType;
+				var paramName = parameters [i].Name;
 
 				var fork = parameters [i].GetCustomAttribute<ForkAttribute> ();
 				if (fork != null) {
 					if (!paramType.Equals (typeof(IFork)))
 						throw new InternalErrorException ();
-					yield return new ForkedTestHost (fork);
+					yield return new ForkedTestHost (paramName, fork);
 					continue;
 				}
 
@@ -144,7 +149,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 
 			public ReflectionTestCaseHost (ReflectionTestCaseBuilder builder)
-				: base (builder)
+				: base (builder, builder)
 			{
 				Builder = builder;
 			}

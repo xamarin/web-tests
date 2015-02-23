@@ -97,7 +97,7 @@ namespace Xamarin.WebTests.Tests
 			[RedirectStatusAttribute] HttpStatusCode code,
 			[GetHandler] Handler handler)
 		{
-			var description = string.Format ("{0}: {1}", code, handler.Identifier);
+			var description = string.Format ("{0}: {1}", code, handler.Value);
 			var redirect = new RedirectHandler (handler, code, description);
 
 			return TestRunner.RunTraditional (ctx, server, redirect, cancellationToken, sendAsync);

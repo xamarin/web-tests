@@ -98,7 +98,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var parameters = Builder.Method.GetParameters ();
 
-			ctx.LogDebug (10, "INVOKE: {0} {1} {2}", Builder.Name, Builder.Method, instance);
+			ctx.LogDebug (10, "INVOKE: {0} {1} {2}", Builder.TestName, Builder.Method, instance);
 
 			var index = parameters.Length - 1;
 			while (index >= 0) {
@@ -137,7 +137,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (parameterizedInstance == null)
 					throw new InternalErrorException ();
 
-				if (!paramType.GetTypeInfo ().IsAssignableFrom (parameterizedInstance.ParameterType))
+				if (!paramType.GetTypeInfo ().IsAssignableFrom (parameterizedInstance.Host.ParameterTypeInfo))
 					throw new InternalErrorException ();
 
 				args.AddFirst (parameterizedInstance.Current);

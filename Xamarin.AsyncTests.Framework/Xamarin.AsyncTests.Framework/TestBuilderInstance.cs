@@ -47,9 +47,9 @@ namespace Xamarin.AsyncTests.Framework
 			Builder = host.Builder;
 		}
 
-		public override TestPath CreatePath (TestPath parent)
+		internal override TestPath GetCurrentPath ()
 		{
-			return new TestBuilderPath (Host, parent);
+			return Path;
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// ParameterizedTestPath.cs
+// PathBasedTestCase.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,58 +24,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	sealed class ParameterizedTestPath : TestPath
+	class PathBasedTestCase : TestCase
 	{
-		public string ParameterName {
+		new public TestBuilder Builder {
 			get;
 			private set;
 		}
 
-		public TestFlags Flags {
+		public TestPathTree Tree {
 			get;
 			private set;
 		}
 
-		public IParameterSerializer Serializer {
-			get;
-			private set;
-		}
-
-		public object Value {
-			get;
-			private set;
-		}
-
-		public ParameterizedTestPath (ParameterizedTestHost host, IParameterSerializer serializer, object value, TestPath parent)
-			: base (host.TypeKey, parent)
+		public PathBasedTestCase (TestBuilder builder, TestName name)
+			: base (builder.Suite, name, builder)
 		{
-			ParameterName = host.ParameterName;
-			Flags = host.Flags;
-			Serializer = serializer;
-			Value = value;
+			Builder = builder;
+			Tree = builder.Tree;
+
+			if (Tree == null)
+				throw new InternalErrorException ();
 		}
 
-		internal override bool Serialize (XElement node)
+		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (Serializer != null)
-				return Serializer.Serialize (node, Value);
-
-			var testParameter = Value as ITestParameter;
-			if (testParameter == null)
-				return false;
-
-			node.Add (new XAttribute ("Identifier", testParameter.Identifier));
-			return true;
-		}
-
-		protected override void GetTestName (TestNameBuilder builder)
-		{
-			base.GetTestName (builder);
-			builder.PushParameter (ParameterName, Value, (Flags & TestFlags.Hidden) != 0);
+			TestSerializer.Debug ("RUN: {0}", Tree);
+			var invoker = Tree.Node.CreateInvoker ();
+			return invoker.Invoke (ctx, null, cancellationToken);
 		}
 	}
 }

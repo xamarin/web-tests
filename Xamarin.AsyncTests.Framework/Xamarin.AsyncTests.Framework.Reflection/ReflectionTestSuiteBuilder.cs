@@ -49,20 +49,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public TestCase Test {
-			get;
-			private set;
-		}
-
 		public ReflectionTestSuiteBuilder (ReflectionTestSuite suite)
-			: base (suite, TestName.Empty, null)
+			: base (suite, TestSerializer.TestSuiteIdentifier, null,
+				TestSerializer.GetStringParameter (suite.Assembly.FullName), null)
 		{
 			App = suite.App;
 			Assembly = suite.Assembly;
 
 			Resolve ();
-
-			Test = new TestCaseCollection (this, suite.Name);
 		}
 
 		protected override void ResolveMembers ()

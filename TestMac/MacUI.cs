@@ -46,7 +46,7 @@ namespace TestMac
 		{
 			var settings = new UISettings ();
 			var portable = PortableSupportImpl.Initialize ();
-			var assembly = typeof(WebTestFeatures).Assembly;
+			var assembly = typeof(SampleFeatures).Assembly;
 			return new MacUI (portable, settings, assembly);
 		}
 

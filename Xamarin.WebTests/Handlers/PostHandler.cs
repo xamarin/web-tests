@@ -82,7 +82,7 @@ namespace Xamarin.WebTests.Handlers
 
 		public override object Clone ()
 		{
-			var post = new PostHandler (Identifier, Content, Mode);
+			var post = new PostHandler (Value, Content, Mode);
 			post.Flags = Flags;
 			post.allowWriteBuffering = allowWriteBuffering;
 			post.customHandler = customHandler;

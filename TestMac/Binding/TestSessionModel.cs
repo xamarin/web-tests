@@ -53,7 +53,7 @@ namespace TestMac
 
 		protected override IEnumerable<TestListNode> ResolveChildren ()
 		{
-			yield break;
+			yield return Test;
 		}
 
 		#endregion

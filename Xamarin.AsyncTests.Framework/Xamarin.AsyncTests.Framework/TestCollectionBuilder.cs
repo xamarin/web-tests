@@ -38,8 +38,8 @@ namespace Xamarin.AsyncTests.Framework
 			get { return filter; }
 		}
 
-		public TestCollectionBuilder (TestSuite suite, TestName name, TestFilter filter)
-			: base (suite, name)
+		public TestCollectionBuilder (TestSuite suite, string identifier, string name, ITestParameter parameter, TestFilter filter)
+			: base (suite, identifier, name, parameter)
 		{
 			this.filter = filter;
 		}

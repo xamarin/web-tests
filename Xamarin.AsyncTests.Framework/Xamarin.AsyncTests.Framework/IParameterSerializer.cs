@@ -31,6 +31,10 @@ namespace Xamarin.AsyncTests.Framework
 {
 	interface IParameterSerializer
 	{
+		object ParameterToObject (ITestParameter value);
+
+		ITestParameter ObjectToParameter (object value);
+
 		bool Serialize (XElement node, object value);
 
 		object Deserialize (XElement node);

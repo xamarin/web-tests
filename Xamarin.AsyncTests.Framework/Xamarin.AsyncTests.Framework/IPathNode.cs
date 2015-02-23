@@ -1,5 +1,5 @@
 ﻿//
-// HeavyTestPath.cs
+// IPathNode.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,54 +24,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
-using System.Reflection;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	sealed class HeavyTestPath : TestPath
+	public interface IPathNode
 	{
-		public string Name {
+		string TypeKey {
 			get;
-			private set;
 		}
 
-		public string HostName {
+		string Identifier {
 			get;
-			private set;
 		}
 
-		public TestFlags Flags {
+		string Name {
 			get;
-			private set;
 		}
 
-		public HeavyTestPath (HeavyTestHost host, TestPath parent)
-			: base (host.TypeKey, parent)
-		{
-			Name = host.Name;
-			HostName = GetHostTypeName (host.Type);
-			Flags = host.Flags;
-		}
-
-		internal override bool Serialize (XElement node)
-		{
-			return true;
-		}
-
-		protected override void GetTestName (TestNameBuilder builder)
-		{
-			base.GetTestName (builder);
-			if (Name != null)
-				builder.PushParameter (Name, HostName, (Flags & TestFlags.Hidden) != 0);
-		}
-
-		static string GetHostTypeName (Type type)
-		{
-			var friendlyAttr = type.GetTypeInfo ().GetCustomAttribute<FriendlyNameAttribute> ();
-			if (friendlyAttr != null)
-				return friendlyAttr.Name;
-			return type.FullName;
+		string ParameterType {
+			get;
 		}
 	}
 }

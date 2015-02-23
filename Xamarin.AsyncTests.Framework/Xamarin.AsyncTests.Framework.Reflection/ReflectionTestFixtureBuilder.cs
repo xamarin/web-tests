@@ -58,7 +58,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		public ReflectionTestFixtureBuilder (ReflectionTestSuiteBuilder suite, AsyncTestAttribute attr, TypeInfo type)
-			: base (suite.Suite, new TestName (type.Name), ReflectionHelper.CreateTestFilter (null, ReflectionHelper.GetTypeInfo (type)))
+			: base (suite.Suite, TestSerializer.TestFixtureIdentifier, type.Name,
+				TestSerializer.GetStringParameter (type.FullName),
+				ReflectionHelper.CreateTestFilter (null, ReflectionHelper.GetTypeInfo (type)))
 		{
 			Suite = suite;
 			Type = type;
@@ -103,10 +105,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				private set;
 			}
 
+			public override ITestParameter Parameter {
+				get { return null; }
+			}
+
 			public FixtureInstanceTestHost (ReflectionTestFixtureBuilder builder)
-				: base (null, builder.Type.AsType ())
+				: base (TestSerializer.FixtureInstanceIdentifier, null, builder.Type.AsType (), null)
 			{
-				Flags = TestFlags.ContinueOnError;
+				Flags = TestFlags.ContinueOnError | TestFlags.PathHidden;
 				Builder = builder;
 			}
 

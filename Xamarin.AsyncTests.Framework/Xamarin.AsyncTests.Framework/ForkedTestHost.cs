@@ -35,12 +35,18 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public ForkedTestHost (ForkAttribute attr)
+		public ForkedTestHost (string name, ForkAttribute attr)
+			: base (name, name, null)
 		{
 			Attribute = attr;
 		}
 
 		#region implemented abstract members of TestHost
+
+		internal override ITestParameter GetParameter (TestInstance instance)
+		{
+			return null;
+		}
 
 		internal override TestInstance CreateInstance (TestInstance parent)
 		{

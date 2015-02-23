@@ -66,7 +66,7 @@ namespace Xamarin.WebTests.Handlers
 			return true;
 		}
 
-		public string Identifier {
+		public string Value {
 			get;
 			private set;
 		}
@@ -92,7 +92,7 @@ namespace Xamarin.WebTests.Handlers
 
 		public Handler (Handler parent, string identifier = null)
 		{
-			Identifier = identifier;
+			Value = identifier;
 			this.parent = parent;
 
 			tcs = new TaskCompletionSource<bool> ();
@@ -222,8 +222,8 @@ namespace Xamarin.WebTests.Handlers
 
 		public override string ToString ()
 		{
-			var padding = string.IsNullOrEmpty (Identifier) ? string.Empty : ": ";
-			return string.Format ("[{0}{1}{2}]", GetType ().Name, padding, Identifier);
+			var padding = string.IsNullOrEmpty (Value) ? string.Empty : ": ";
+			return string.Format ("[{0}{1}{2}]", GetType ().Name, padding, Value);
 		}
 	}
 }

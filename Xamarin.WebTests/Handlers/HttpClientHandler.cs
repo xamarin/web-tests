@@ -65,7 +65,7 @@ namespace Xamarin.WebTests.Handlers
 
 		public override object Clone ()
 		{
-			var handler = new HttpClientHandler (Identifier, Operation, Content, ReturnContent);
+			var handler = new HttpClientHandler (Value, Operation, Content, ReturnContent);
 			handler.Flags = Flags;
 			return handler;
 		}

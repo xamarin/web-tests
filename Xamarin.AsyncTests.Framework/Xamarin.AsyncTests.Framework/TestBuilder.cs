@@ -30,14 +30,37 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestBuilder : ITestBuilder
+	abstract class TestBuilder : ITestBuilder, IPathNode, IPathResolvable
 	{
 		public TestSuite Suite {
 			get;
 			private set;
 		}
 
-		public TestName Name {
+		public string Name {
+			get;
+			private set;
+		}
+
+		public string Identifier {
+			get;
+			private set;
+		}
+
+		public ITestParameter Parameter {
+			get;
+			private set;
+		}
+
+		string IPathNode.ParameterType {
+			get { return Identifier; }
+		}
+
+		TestName ITestBuilder.Name {
+			get { return TestName; }
+		}
+
+		public TestName TestName {
 			get;
 			private set;
 		}
@@ -51,13 +74,28 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public virtual string FullName {
-			get { return Name.FullName; }
+			get { return TestName.FullName; }
 		}
 
-		protected TestBuilder (TestSuite suite, TestName name)
+		public virtual string TypeKey {
+			get { return GetType ().FullName; }
+		}
+
+		protected TestBuilder (TestSuite suite, string identifier, string name, ITestParameter parameter)
 		{
 			Suite = suite;
+			Identifier = identifier;
 			Name = name;
+			TestName = name != null ? new TestName (name) : TestName.Empty;
+			Parameter = parameter;
+		}
+
+		public TestCase Test {
+			get {
+				if (!resolved)
+					throw new InternalErrorException ();
+				return test;
+			}
 		}
 
 		public abstract TestFilter Filter {
@@ -114,14 +152,36 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
+		internal TestPath RootPath {
+			get {
+				if (!resolvedMembers)
+					throw new InternalErrorException ();
+				return rootPath;
+			}
+		}
+
+		internal TestPathTree Tree {
+			get {
+				if (!resolvedMembers)
+					throw new InternalErrorException ();
+				return treeRoot;
+			}
+		}
+
 		bool resolving;
 		bool resolved;
+		bool resolvedMembers;
 		bool resolvedChildren;
 
+		TestPath rootPath;
+		TestPath path;
 		TestBuilderHost host;
 		TestInvoker invoker;
 		IList<TestBuilder> children;
 		LinkedList<TestHost> parameterHosts;
+		TestPathTree tree;
+		TestPathTree treeRoot;
+		TestCase test;
 
 		protected virtual void ResolveMembers ()
 		{
@@ -136,13 +196,35 @@ namespace Xamarin.AsyncTests.Framework
 
 			ResolveMembers ();
 
+			resolvedMembers = true;
+
+			if (Parent != null)
+				rootPath = Parent.RootPath;
+
 			children = CreateChildren ().ToList ();
 
 			host = CreateHost ();
 
 			parameterHosts = new LinkedList<TestHost> ();
-			foreach (var current in CreateParameterHosts ())
+
+			TestSerializer.Debug ("RESOLVE: {0} {1} {2}", this, Parent, rootPath);
+
+			path = rootPath = new TestPath (host, rootPath);
+
+			TestSerializer.Debug ("RESOLVE #1: {0}", path);
+
+			tree = treeRoot = new TestPathTree (this, null, path);
+
+			foreach (var current in CreateParameterHosts ()) {
 				parameterHosts.AddLast (current);
+			}
+
+			var parameterIter = parameterHosts.Last;
+			while (parameterIter != null) {
+				path = new TestPath (parameterIter.Value, path);
+				tree = new TestPathTree (this, tree, path);
+				parameterIter = parameterIter.Previous;
+			}
 
 			foreach (var child in children) {
 				child.Resolve ();
@@ -151,6 +233,8 @@ namespace Xamarin.AsyncTests.Framework
 			resolvedChildren = true;
 
 			invoker = CreateParameterInvoker ();
+
+			test = new PathBasedTestCase (this, TestName);
 
 			resolved = true;
 		}
@@ -199,6 +283,13 @@ namespace Xamarin.AsyncTests.Framework
 				throw new InternalErrorException ();
 
 			return test;
+		}
+
+		public IPathResolver GetResolver ()
+		{
+			if (!resolved)
+				throw new InternalErrorException ();
+			return tree;
 		}
 	}
 }

@@ -44,9 +44,9 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public sealed override TestPath CreatePath (TestPath parent)
+		internal override TestPath GetCurrentPath ()
 		{
-			return new HeavyTestPath (Host, parent);
+			return Path;
 		}
 
 		[StackTraceEntryPoint]
