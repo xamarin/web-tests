@@ -92,7 +92,7 @@ namespace Xamarin.AsyncTests.Framework
 			var firstTime = TestSerializer.SerializePath (Node.Path);
 			var firstTimeString = firstTime.ToString ();
 
-			var deserialized = TestSerializer.DeserializePath (ctx, Suite, firstTime);
+			var deserialized = TestSerializer.DeserializePath (ctx, firstTime);
 			if (deserialized.Path.Host != Node.Path.Host)
 				throw new InternalErrorException ();
 
@@ -101,7 +101,7 @@ namespace Xamarin.AsyncTests.Framework
 
 			if (!firstTimeString.Equals (secondTimeString)) {
 				TestSerializer.Debug ("ROUND TRIP FAILED:\n{0}\n\n{1}\n", firstTimeString, secondTimeString);
-				TestSerializer.DeserializePath (ctx, Suite, firstTime);
+				TestSerializer.DeserializePath (ctx, firstTime);
 				throw new InternalErrorException ();
 			}
 

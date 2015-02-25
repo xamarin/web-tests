@@ -37,6 +37,11 @@ namespace TestMac
 {
 	public class TestResultModel : TestListNode
 	{
+		public TestContext Context {
+			get;
+			private set;
+		}
+
 		public TestResult Result {
 			get;
 			private set;
@@ -47,15 +52,16 @@ namespace TestMac
 			private set;
 		}
 
-		public TestResultModel (TestResult result, TestName name = null)
+		public TestResultModel (TestContext ctx, TestResult result, TestName name = null)
 		{
+			Context = ctx;
 			Result = result;
 			TestName = name ?? result.Name;
 		}
 
 		protected override IEnumerable<TestListNode> ResolveChildren ()
 		{
-			return Result.Children.Select (c => new TestResultModel (c));
+			return Result.Children.Select (c => new TestResultModel (Context, c));
 		}
 
 		public override string Name {
@@ -139,12 +145,10 @@ namespace TestMac
 		{
 			if (testCase != null)
 				return testCase;
-			if (Result == null || Result.Test == null)
+			if (Result == null || Result.Test == null || Context == null)
 				return null;
 
-			#if FIXME
-			testCase = new TestCaseModel (Result.Test);
-			#endif
+			testCase = new TestCaseModel (Context, Result.Test);
 			return testCase;
 		}
 

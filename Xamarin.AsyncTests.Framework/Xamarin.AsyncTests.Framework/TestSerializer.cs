@@ -61,12 +61,12 @@ namespace Xamarin.AsyncTests.Framework
 			return node;
 		}
 
-		internal static TestPathNode DeserializePath (TestContext ctx, TestSuite suite, XElement root)
+		internal static TestPathNode DeserializePath (TestContext ctx, XElement root)
 		{
 			if (!root.Name.Equals (PathName))
 				throw new InternalErrorException ();
 
-			var resolver = (IPathResolver)suite;
+			var resolver = (IPathResolver)ctx.Suite;
 
 			foreach (var element in root.Elements (ParameterName)) {
 				var node = ReadPathNode (element);
