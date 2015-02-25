@@ -153,7 +153,7 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			string parameter = IsParameterized ? string.Format (", Parameter={0}", Parameter != null ? Parameter.Value : "<null>") : string.Empty;
 			var parent = Parent != null ? string.Format (", Parent={0}", Parent.ID) : string.Empty;
-			return string.Format ("[TestPath: ID={0}, Type={1}, Identifier={2}, Name={3}{4}{5}]", ID, Host.TypeKey, Host.Identifier, Host.Name, parameter, parent);
+			return string.Format ("[TestPath: ID={0}, Identifier={1}, Name={2}{3}{4}]", ID, Host.Identifier, Host.Name, parameter, parent);
 		}
 	}
 }

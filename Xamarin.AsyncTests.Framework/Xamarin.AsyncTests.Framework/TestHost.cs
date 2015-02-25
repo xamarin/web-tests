@@ -37,10 +37,6 @@ namespace Xamarin.AsyncTests.Framework
 			get; protected set;
 		}
 
-		public virtual string TypeKey {
-			get { return GetType ().FullName; }
-		}
-
 		public string Identifier {
 			get;
 			private set;

@@ -44,10 +44,6 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public override string TypeKey {
-			get { return typeof(ParameterSourceHost<>).FullName; }
-		}
-
 		public ParameterSourceHost (
 			string name, ITestParameterSource<T> sourceInstance, IParameterSerializer serializer,
 			string filter, TestFlags flags = TestFlags.None)
