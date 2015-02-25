@@ -82,6 +82,8 @@ namespace Xamarin.AsyncTests.Framework
 
 		public static string GetFriendlyName (Type type)
 		{
+			if (type == null)
+				return null;
 			var friendlyAttr = type.GetTypeInfo ().GetCustomAttribute<FriendlyNameAttribute> ();
 			if (friendlyAttr != null)
 				return friendlyAttr.Name;
