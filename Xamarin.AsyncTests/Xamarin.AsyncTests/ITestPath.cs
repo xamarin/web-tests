@@ -1,5 +1,5 @@
 ﻿//
-// IPathResolvable.cs
+// ITestPath.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,12 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	interface IPathResolvable
+	public interface ITestPath
 	{
-		IPathResolver GetResolver ();
+		XElement Serialize ();
 	}
 }
 

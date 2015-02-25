@@ -41,15 +41,15 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestBuilderInstance (TestBuilderHost host, TestInstance parent)
-			: base (host, parent)
+		public TestBuilderInstance (TestBuilderHost host, TestPath path, TestInstance parent)
+			: base (host, path, parent)
 		{
 			Builder = host.Builder;
 		}
 
-		internal override TestPath GetCurrentPath ()
+		internal sealed override ITestParameter GetCurrentParameter ()
 		{
-			return Path;
+			return Path.Parameter;
 		}
 	}
 }

@@ -28,7 +28,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class TestPathNode
+	class TestPathNode : IPathResolver
 	{
 		public TestPathTree Tree {
 			get;
@@ -63,8 +63,10 @@ namespace Xamarin.AsyncTests.Framework
 				return;
 
 			parameters = new List<TestPathNode> ();
-			foreach (var parameter in Tree.Host.GetParameters (ctx)) {
-				parameters.Add (Parameterize (parameter));
+			if ((Path.Flags & TestFlags.Browsable) != 0) {
+				foreach (var parameter in Tree.Host.GetParameters (ctx)) {
+					parameters.Add (Parameterize (parameter));
+				}
 			}
 
 			if (Tree.Inner != null) {
@@ -75,7 +77,7 @@ namespace Xamarin.AsyncTests.Framework
 
 			children = new List<TestPathNode> ();
 			foreach (var child in Tree.Builder.GetChildren (ctx)) {
-				var childPath = new TestPath (child.Host, Path, child);
+				var childPath = new TestPath (child.Host, Path, child.Parameter);
 				children.Add (new TestPathNode (child.TreeRoot, childPath));
 			}
 
@@ -88,6 +90,16 @@ namespace Xamarin.AsyncTests.Framework
 			var newNode = new TestPathNode (Tree, newPath);
 			newNode.parameterized = true;
 			return newNode;
+		}
+
+		TestPathNode Parameterize (string value)
+		{
+			foreach (var parameter in parameters) {
+				if (parameter.Path.Parameter.Value == value)
+					return parameter;
+			}
+
+			return this;
 		}
 
 		public IEnumerable<TestPathNode> GetChildren (TestContext ctx)
@@ -111,9 +123,45 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
+		TestPathNode IPathResolver.Node {
+			get { return this; }
+		}
+
+		public IPathResolver Resolve (TestContext ctx, IPathNode node, string parameter)
+		{
+			Resolve (ctx);
+
+			TestSerializer.Debug ("RESOLVE TREE: {0} {1} {2} {3}", this, node, parameterized, parameter);
+
+			if (innerNode != null) {
+				innerNode.Resolve (ctx);
+
+				if (!TestPath.Matches (innerNode.Tree.Host, node))
+					throw new InternalErrorException ();
+				if (parameter != null)
+					return innerNode.Parameterize (parameter);
+				return innerNode;
+			}
+
+			if (parameter == null)
+				throw new InternalErrorException ();
+
+			foreach (var child in children) {
+				if (!TestPath.Matches (child.Path.Host, node))
+					throw new InternalErrorException ();
+
+				if (!parameter.Equals (child.Path.Parameter.Value))
+					continue;
+
+				return child;
+			}
+
+			throw new InternalErrorException ();
+		}
+
 		internal TestInvoker CreateInvoker (TestContext ctx)
 		{
-			var invoker = CreateInvoker (ctx, null, false);
+			var invoker = CreateInvoker (ctx, null, true);
 
 			invoker = WalkHierarchy (invoker, null, true);
 
@@ -145,7 +193,7 @@ namespace Xamarin.AsyncTests.Framework
 
 			TestInvoker invoker = null;
 			if (innerNode != null)
-				invoker = innerNode.CreateInvoker (ctx, root, false);
+				invoker = innerNode.CreateInvoker (ctx, root, flattenHierarchy);
 			else
 				invoker = CreateInnerInvoker (ctx);
 

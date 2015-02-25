@@ -43,7 +43,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public TestBuilderHost (TestBuilder builder, IPathNode node)
-			: base (node.Identifier, node.Name, node.ParameterType, TestFlags.PathHidden)
+			: base (node.Identifier, node.Name, node.ParameterType, TestFlags.Browsable | TestFlags.PathHidden)
 		{
 			Builder = builder;
 			PathNode = node;
@@ -56,7 +56,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
 		{
-			return new TestBuilderInstance (this, parent);
+			return new TestBuilderInstance (this, path, parent);
 		}
 
 		TestInvoker CreateResultGroup (TestPath path, TestInvoker invoker)

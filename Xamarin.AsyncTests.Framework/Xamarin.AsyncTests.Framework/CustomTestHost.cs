@@ -61,7 +61,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
 		{
-			return new CustomTestInstance (this, parent, HostType, UseFixtureInstance);
+			return new CustomTestInstance (this, path, parent, HostType, UseFixtureInstance);
 		}
 
 		public override string ToString ()

@@ -35,8 +35,8 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (HeavyTestHost)base.Host; }
 		}
 
-		public HeavyTestInstance (HeavyTestHost host, TestInstance parent)
-			: base (host, parent)
+		public HeavyTestInstance (HeavyTestHost host, TestPath path, TestInstance parent)
+			: base (host, path, parent)
 		{
 		}
 
@@ -44,9 +44,9 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		internal override TestPath GetCurrentPath ()
+		internal sealed override ITestParameter GetCurrentParameter ()
 		{
-			return Path;
+			return null;
 		}
 
 		[StackTraceEntryPoint]

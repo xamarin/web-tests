@@ -53,22 +53,11 @@ namespace Xamarin.AsyncTests.Framework
 			if ((Path.Flags & TestFlags.FlattenHierarchy) != 0)
 				return await InvokeInner (ctx, instance, Inner, cancellationToken);
 
-			var innerName = TestNameBuilder.CreateFromName (TestInstance.GetTestName (instance));
-			innerName.PushParameter ("ID", Path.ID);
-			innerName.PushParameter ("Host", Path.Host, true);
-			innerName.PushParameter ("Path", Path, true);
-			innerName.PushParameter ("Flags", Path.Flags, true);
-			innerName.PushParameter ("Parameter", Path.Parameter, true);
+			var currentPath = TestInstance.GetCurrentPath (instance);
 
-			var serialized = TestSerializer.SerializePath (Path);
-			TestSerializer.Debug ("RESULT GROUP: {0}", serialized);
-
-			var builder = Path.GetTestBuilder ();
-			TestSerializer.DeserializePath (builder.Suite, serialized);
-
-			innerName.PushParameter ("XML", serialized, true);
-
+			var innerName = TestNameBuilder.CreateFromName (TestPath.GetTestName (currentPath));
 			var innerResult = new TestResult (innerName.GetName ());
+			innerResult.Path = currentPath;
 
 			var innerCtx = ctx.CreateChild (innerResult.Name, innerResult);
 

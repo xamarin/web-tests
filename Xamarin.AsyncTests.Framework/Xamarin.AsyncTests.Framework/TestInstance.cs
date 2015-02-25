@@ -47,16 +47,19 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		protected TestInstance (TestHost host, TestInstance parent)
+		protected TestInstance (TestHost host, TestPath path, TestInstance parent)
 		{
+			if (host == null)
+				throw new ArgumentNullException ("host");
+			if (path == null)
+				throw new ArgumentNullException ("path");
+
 			Host = host;
 			Parent = parent;
-
-			var parentPath = parent != null ? parent.GetCurrentPath () : null;
-			Path = new TestPath (host, parentPath);
+			Path = path;
 		}
 
-		internal abstract TestPath GetCurrentPath ();
+		internal abstract ITestParameter GetCurrentParameter ();
 
 		protected FixtureTestInstance GetFixtureInstance ()
 		{
@@ -80,9 +83,24 @@ namespace Xamarin.AsyncTests.Framework
 		{
 		}
 
+		TestPath GetCurrentPath ()
+		{
+			TestPath parentPath = null;
+			if (Parent != null)
+				parentPath = Parent.GetCurrentPath ();
+
+			var parameter = GetCurrentParameter ();
+			return new TestPath (Path.Host, parentPath, parameter);
+		}
+
+		public static TestPath GetCurrentPath (TestInstance instance)
+		{
+			return instance.GetCurrentPath ();
+		}
+
 		public static TestName GetTestName (TestInstance instance)
 		{
-			var path = instance.GetCurrentPath ();
+			var path = GetCurrentPath (instance);
 			return TestPath.GetTestName (path);
 		}
 

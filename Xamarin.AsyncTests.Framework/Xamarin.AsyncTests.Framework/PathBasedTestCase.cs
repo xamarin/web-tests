@@ -66,7 +66,7 @@ namespace Xamarin.AsyncTests.Framework
 		static void AddChildren (List<PathBasedTestCase> children, TestContext ctx, TestPathNode node)
 		{
 			foreach (var child in node.GetChildren (ctx)) {
-				if ((child.Path.Flags & TestFlags.Hidden) != 0) {
+				if (child.Path.IsHidden || !child.Path.IsBrowseable) {
 					AddChildren (children, ctx, child);
 				} else {
 					children.Add (new PathBasedTestCase (child));
@@ -84,20 +84,39 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override XElement Serialize ()
 		{
-			var element = TestSerializer.SerializePath (Node.Path);
-			TestSerializer.DeserializePath (Suite, element);
-			return element;
+			return TestSerializer.SerializePath (Node.Path);
+		}
+
+		XElement TestSerialize (TestContext ctx)
+		{
+			var firstTime = TestSerializer.SerializePath (Node.Path);
+			var firstTimeString = firstTime.ToString ();
+
+			var deserialized = TestSerializer.DeserializePath (ctx, Suite, firstTime);
+			if (deserialized.Path.Host != Node.Path.Host)
+				throw new InternalErrorException ();
+
+			var secondTime = TestSerializer.SerializePath (deserialized.Path);
+			var secondTimeString = secondTime.ToString ();
+
+			if (!firstTimeString.Equals (secondTimeString)) {
+				TestSerializer.Debug ("ROUND TRIP FAILED:\n{0}\n\n{1}\n", firstTimeString, secondTimeString);
+				TestSerializer.DeserializePath (ctx, Suite, firstTime);
+				throw new InternalErrorException ();
+			}
+
+			return firstTime;
 		}
 
 		public override void Resolve (TestContext ctx)
 		{
-			var element = Serialize ();
+			var element = TestSerialize (ctx);
 			TestSerializer.Debug ("RESOLVE: {0}\n{1}", this, element);
 
 			var children = ResolveChildren (ctx);
 
 			foreach (var child in children) {
-				child.Serialize ();
+				child.TestSerialize (ctx);
 			}
 
 			foreach (var child in children) {

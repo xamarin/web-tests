@@ -48,8 +48,8 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public CustomTestInstance (CustomTestHost host, TestInstance parent, Type hostType, bool useFixtureInstance)
-			: base (host, parent)
+		public CustomTestInstance (CustomTestHost host, TestPath path, TestInstance parent, Type hostType, bool useFixtureInstance)
+			: base (host, path, parent)
 		{
 			HostType = hostType;
 			UseFixtureInstance = useFixtureInstance;

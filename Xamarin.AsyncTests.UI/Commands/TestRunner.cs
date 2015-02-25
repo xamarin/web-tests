@@ -54,7 +54,7 @@ namespace Xamarin.AsyncTests.UI
 				if (e == null)
 					TestResult.Value = null;
 				else
-					TestResult.Value = new TestResult (e.Name) { Test = e.Test };
+					TestResult.Value = new TestResult (e.Test);
 			};
 		}
 

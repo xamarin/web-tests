@@ -36,7 +36,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests
 {
-	public abstract class TestCase
+	public abstract class TestCase :  ITestPath
 	{
 		public TestSuite Suite {
 			get;
@@ -54,14 +54,11 @@ namespace Xamarin.AsyncTests
 			Name = name;
 		}
 
-		public virtual XElement Serialize ()
-		{
-			throw new NotImplementedException ();
-		}
-
 		public virtual void Resolve (TestContext ctx)
 		{
 		}
+
+		public abstract XElement Serialize ();
 
 		public abstract IEnumerable<TestCase> GetChildren (TestContext ctx);
 

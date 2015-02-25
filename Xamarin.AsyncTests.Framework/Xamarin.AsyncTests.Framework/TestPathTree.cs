@@ -28,7 +28,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class TestPathTree : IPathResolvable, IPathResolver
+	class TestPathTree
 	{
 		public TestBuilder Builder {
 			get;
@@ -72,22 +72,11 @@ namespace Xamarin.AsyncTests.Framework
 			return next;
 		}
 
-		IPathResolver IPathResolvable.GetResolver ()
+		#if FIXME
+		internal TestPathTree ResolveTree (TestPathNode path, IPathNode node, string parameter)
 		{
-			return this;
-		}
+			TestSerializer.Debug ("RESOLVE TREE: {0} {1} {2} {3}", this, path, node, parameter);
 
-		IPathNode IPathResolver.Node {
-			get { return Host; }
-		}
-
-		IPathResolvable IPathResolver.Resolve (IPathNode node, string parameter)
-		{
-			return ResolveTree (node, parameter);
-		}
-
-		internal TestPathTree ResolveTree (IPathNode node, string parameter)
-		{
 			if (Inner != null) {
 				if (!TestPath.Matches (Inner.Host, node))
 					throw new InternalErrorException ();
@@ -111,6 +100,7 @@ namespace Xamarin.AsyncTests.Framework
 
 			throw new InternalErrorException ();
 		}
+		#endif
 
 		static int next_id;
 		public readonly int ID = ++next_id;

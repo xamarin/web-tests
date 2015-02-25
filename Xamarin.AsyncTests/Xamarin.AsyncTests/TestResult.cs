@@ -40,6 +40,7 @@ namespace Xamarin.AsyncTests
 		TestStatus status = TestStatus.None;
 		Exception error;
 		TestCase test;
+		ITestPath path;
 		TestResult parent;
 
 		public TestName Name {
@@ -81,7 +82,7 @@ namespace Xamarin.AsyncTests
 
 		public TestCase Test {
 			get { return test; }
-			set {
+			internal set {
 				lock (this) {
 					WantToModify ();
 					test = value;
@@ -91,8 +92,26 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public ITestPath Path {
+			get { return path; }
+			internal set {
+				lock (this) {
+					WantToModify ();
+					path = value;
+				}
+				OnPropertyChanged ("Path");
+			}
+		}
+
 		public bool CanRun {
 			get { return test != null; }
+		}
+
+		public TestResult (TestCase test)
+			: this (test.Name)
+		{
+			Test = test;
+			Path = test;
 		}
 
 		public TestResult (TestName name, Exception error)

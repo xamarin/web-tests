@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestSuiteBuilder : TestCollectionBuilder
+	class ReflectionTestSuiteBuilder : TestBuilder
 	{
 		public TestApp App {
 			get;
@@ -50,13 +50,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		public ReflectionTestSuiteBuilder (ReflectionTestSuite suite)
-			: base (suite, TestSerializer.TestSuiteIdentifier, null,
-				TestSerializer.GetStringParameter (suite.Assembly.FullName), null)
+			: base (suite, TestSerializer.TestSuiteIdentifier, suite.Assembly.GetName ().Name,
+				TestSerializer.GetStringParameter (suite.Assembly.FullName))
 		{
 			App = suite.App;
 			Assembly = suite.Assembly;
 
 			Resolve ();
+		}
+
+		public override TestFilter Filter {
+			get { return null; }
 		}
 
 		protected override void ResolveMembers ()
@@ -71,7 +75,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			base.ResolveMembers ();
 		}
 
-		protected override IEnumerable<TestBuilder> ResolveChildren ()
+		protected override IEnumerable<TestBuilder> CreateChildren ()
 		{
 			foreach (var type in Assembly.ExportedTypes) {
 				var tinfo = type.GetTypeInfo ();
@@ -86,6 +90,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		protected override IEnumerable<TestHost> CreateParameterHosts ()
 		{
 			yield break;
+		}
+
+		internal override TestInvoker CreateInnerInvoker (TestPathNode node)
+		{
+			return new TestCollectionInvoker (this, node);
 		}
 	}
 }

@@ -29,7 +29,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	sealed class TestPath
+	sealed class TestPath : ITestPath
 	{
 		public TestHost Host {
 			get;
@@ -57,6 +57,14 @@ namespace Xamarin.AsyncTests.Framework
 		public ITestParameter Parameter {
 			get;
 			private set;
+		}
+
+		public bool IsHidden {
+			get { return (Flags & TestFlags.Hidden) != 0; } 
+		}
+
+		public bool IsBrowseable {
+			get { return (Flags & TestFlags.Browsable) != 0; }
 		}
 
 		internal TestPath (TestHost host, TestPath parent, ITestParameter parameter = null)
@@ -125,8 +133,6 @@ namespace Xamarin.AsyncTests.Framework
 				return false;
 			if ((first.Name != null) != (second.Name != null))
 				return false;
-			if (first.Name != null && !first.Name.Equals (second.Name))
-				return false;
 			if ((first.ParameterType != null) != (second.ParameterType != null))
 				return false;
 			if (first.ParameterType != null && !first.ParameterType.Equals (second.ParameterType))
@@ -135,13 +141,9 @@ namespace Xamarin.AsyncTests.Framework
 			return true;
 		}
 
-		public bool HasChildren {
-			get { return false; }
-		}
-
-		public IEnumerable<TestPath> GetChildren ()
+		public XElement Serialize ()
 		{
-			throw new InternalErrorException ();
+			return TestSerializer.SerializePath (this);
 		}
 
 		public readonly int ID = ++next_id;
@@ -149,7 +151,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override string ToString ()
 		{
-			string parameter = IsParameterized ? string.Format (", Parameter={0}", Parameter != null ? Parameter.ToString () : "<null>") : string.Empty;
+			string parameter = IsParameterized ? string.Format (", Parameter={0}", Parameter != null ? Parameter.Value : "<null>") : string.Empty;
 			var parent = Parent != null ? string.Format (", Parent={0}", Parent.ID) : string.Empty;
 			return string.Format ("[TestPath: ID={0}, Type={1}, Identifier={2}, Name={3}{4}{5}]", ID, Host.TypeKey, Host.Identifier, Host.Name, parameter, parent);
 		}

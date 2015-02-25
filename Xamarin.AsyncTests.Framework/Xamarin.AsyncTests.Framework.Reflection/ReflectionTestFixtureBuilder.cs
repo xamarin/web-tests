@@ -31,7 +31,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestFixtureBuilder : TestCollectionBuilder
+	class ReflectionTestFixtureBuilder : TestBuilder
 	{
 		new public ReflectionTestSuiteBuilder Suite {
 			get;
@@ -57,17 +57,24 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return Suite; }
 		}
 
+		TestFilter filter;
+
 		public ReflectionTestFixtureBuilder (ReflectionTestSuiteBuilder suite, AsyncTestAttribute attr, TypeInfo type)
 			: base (suite.Suite, TestSerializer.TestFixtureIdentifier, type.Name,
-				TestSerializer.GetStringParameter (type.FullName),
-				ReflectionHelper.CreateTestFilter (null, ReflectionHelper.GetTypeInfo (type)))
+				TestSerializer.GetStringParameter (type.FullName))
 		{
 			Suite = suite;
 			Type = type;
 			Attribute = attr;
+
+			filter = ReflectionHelper.CreateTestFilter (null, ReflectionHelper.GetTypeInfo (type));
 		}
 
-		protected override IEnumerable<TestBuilder> ResolveChildren ()
+		public override TestFilter Filter {
+			get { return filter; }
+		}
+
+		protected override IEnumerable<TestBuilder> CreateChildren ()
 		{
 			foreach (var method in Type.DeclaredMethods) {
 				if (method.IsStatic || !method.IsPublic)
@@ -97,6 +104,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				yield return ReflectionHelper.CreateRepeatHost (Attribute.Repeat);
 		}
 
+		internal override TestInvoker CreateInnerInvoker (TestPathNode node)
+		{
+			return new TestCollectionInvoker (this, node);
+		}
+
 		class FixtureInstanceTestHost : HeavyTestHost
 		{
 			public ReflectionTestFixtureBuilder Builder {
@@ -118,7 +130,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
 			{
 				var instance = Activator.CreateInstance (Builder.Type.AsType ());
-				return new FixtureTestInstance (this, instance, parent);
+				return new FixtureTestInstance (this, path, instance, parent);
 			}
 		}
 	}

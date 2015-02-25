@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestSuite : TestSuite, IPathResolvable, IPathResolver
+	class ReflectionTestSuite : TestSuite, IPathResolver
 	{
 		public TestApp App {
 			get;
@@ -53,6 +53,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return Builder.Configuration; }
 		}
 
+		public TestPathNode RootPath {
+			get;
+			private set;
+		}
+
 		ReflectionTestSuite (TestApp app, TestName name, Assembly assembly)
 			: base (name)
 		{
@@ -60,9 +65,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Assembly = assembly;
 			Builder = new ReflectionTestSuiteBuilder (this);
 
-			var rootPath = new TestPath (Builder.Host, null);
-			var rootNode = new TestPathNode (Builder.TreeRoot, rootPath);
-			test = new PathBasedTestCase (rootNode);
+			var rootPath = new TestPath (Builder.Host, null, Builder.Parameter);
+			RootPath = new TestPathNode (Builder.TreeRoot, rootPath);
+			test = new PathBasedTestCase (RootPath);
 		}
 
 		TestCase test;
@@ -71,22 +76,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return test; }
 		}
 
-		public IPathResolver GetResolver ()
-		{
-			return this;
+		TestPathNode IPathResolver.Node {
+			get { return RootPath; }
 		}
 
-		IPathNode IPathResolver.Node {
-			get { return null; }
-		}
-
-		public IPathResolvable Resolve (IPathNode node, string parameter)
+		IPathResolver IPathResolver.Resolve (TestContext ctx, IPathNode node, string parameter)
 		{
 			if (!node.Identifier.Equals (TestSerializer.TestSuiteIdentifier))
 				throw new InternalErrorException ();
 			if (!node.ParameterType.Equals (TestSerializer.TestSuiteIdentifier))
 				throw new InternalErrorException ();
-			return Builder;
+			return RootPath;
 		}
 
 		public static Task<TestSuite> Create (TestApp app, Assembly assembly)

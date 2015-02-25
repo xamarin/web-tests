@@ -55,7 +55,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal override TestInvoker CreateInvoker (TestPath path, TestInvoker invoker)
 		{
-			return new ForkedTestInvoker (this, invoker);
+			return new ForkedTestInvoker (this, path, invoker);
 		}
 
 		#endregion

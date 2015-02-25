@@ -37,8 +37,8 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public FixtureTestInstance (HeavyTestHost host, object instance, TestInstance parent)
-			: base (host, parent)
+		public FixtureTestInstance (HeavyTestHost host, TestPath path, object instance, TestInstance parent)
+			: base (host, path, parent)
 		{
 			Instance = instance;
 		}

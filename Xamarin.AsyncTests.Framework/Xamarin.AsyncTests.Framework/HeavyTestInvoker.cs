@@ -54,6 +54,7 @@ namespace Xamarin.AsyncTests.Framework
 			: base (host.Flags)
 		{
 			Host = host;
+			Path = path;
 			Inner = inner;
 		}
 

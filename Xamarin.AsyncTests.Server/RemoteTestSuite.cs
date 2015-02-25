@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,6 +73,11 @@ namespace Xamarin.AsyncTests.Server
 				: base (suite, suite.Name)
 			{
 				this.suite = suite;
+			}
+
+			public override XElement Serialize ()
+			{
+				throw new NotImplementedException ();
 			}
 
 			public override IEnumerable<TestCase> GetChildren (TestContext ctx)

@@ -30,7 +30,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestBuilder : ITestParameter, IPathNode, IPathResolvable
+	abstract class TestBuilder : IPathNode
 	{
 		public TestSuite Suite {
 			get;
@@ -50,10 +50,6 @@ namespace Xamarin.AsyncTests.Framework
 		public ITestParameter Parameter {
 			get;
 			private set;
-		}
-
-		string ITestParameter.Value {
-			get { return Parameter.Value; }
 		}
 
 		string IPathNode.ParameterType {
@@ -216,13 +212,6 @@ namespace Xamarin.AsyncTests.Framework
 		protected TestBuilderHost CreateHost ()
 		{
 			return new TestBuilderHost (this, this);
-		}
-
-		public IPathResolver GetResolver ()
-		{
-			if (!resolved)
-				throw new InternalErrorException ();
-			return treeRoot;
 		}
 	}
 }

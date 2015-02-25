@@ -50,17 +50,17 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (ForkedTestHost)base.Host; }
 		}
 
-		public ForkedTestInstance (ForkedTestHost host, TestInstance parent, long id, int delay, TestInvoker invoker)
-			: base (host, parent)
+		public ForkedTestInstance (ForkedTestHost host, TestPath path, TestInstance parent, long id, int delay, TestInvoker invoker)
+			: base (host, path, parent)
 		{
 			ID = id;
 			Delay = delay;
 			Invoker = invoker;
 		}
 
-		internal override TestPath GetCurrentPath ()
+		internal sealed override ITestParameter GetCurrentParameter ()
 		{
-			return Path;
+			return null;
 		}
 
 		public async Task<bool> Start (TestContext ctx, CancellationToken cancellationToken)

@@ -49,6 +49,7 @@ namespace Xamarin.AsyncTests.Framework
 		public TestBuilderInvoker (TestBuilderHost host, TestPath path, TestInvoker inner)
 		{
 			Host = host;
+			Path = path;
 			Inner = inner;
 		}
 

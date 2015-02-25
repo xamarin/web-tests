@@ -512,7 +512,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		internal static TestHost CreateRepeatHost (int repeat)
 		{
-			return new RepeatedTestHost (repeat, TestFlags.Browsable);
+			return new RepeatedTestHost (repeat, TestFlags.None);
 		}
 
 		#endregion

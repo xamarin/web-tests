@@ -29,11 +29,11 @@ namespace Xamarin.AsyncTests.Framework
 {
 	interface IPathResolver
 	{
-		IPathNode Node {
+		TestPathNode Node {
 			get;
 		}
 
-		IPathResolvable Resolve (IPathNode node, string parameter);
+		IPathResolver Resolve (TestContext ctx, IPathNode node, string parameter);
 	}
 }
 

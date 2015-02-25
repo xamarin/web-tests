@@ -33,10 +33,8 @@ namespace Xamarin.AsyncTests.Framework
 {
 	using Reflection;
 
-	static class TestSerializer
+	public static class TestSerializer
 	{
-		static readonly XName InstanceName = "TestInstance";
-		static readonly XName BuilderName = "TestBuilder";
 		static readonly XName ParameterName = "TestParameter";
 		static readonly XName PathName = "TestPath";
 
@@ -63,24 +61,26 @@ namespace Xamarin.AsyncTests.Framework
 			return node;
 		}
 
-		internal static void DeserializePath (TestSuite suite, XElement root)
+		internal static TestPathNode DeserializePath (TestContext ctx, TestSuite suite, XElement root)
 		{
 			if (!root.Name.Equals (PathName))
 				throw new InternalErrorException ();
 
-			var resolvable = (IPathResolvable)suite;
+			var resolver = (IPathResolver)suite;
 
 			foreach (var element in root.Elements (ParameterName)) {
 				var node = ReadPathNode (element);
 				var parameterAttr = element.Attribute ("Parameter");
 				var parameter = parameterAttr != null ? parameterAttr.Value : null;
 
-				var resolver = resolvable.GetResolver ();
-				resolvable = resolver.Resolve (node, parameter);
+				resolver = resolver.Resolve (ctx, node, parameter);
 			}
+
+			TestSerializer.Debug ("DESERIALIZE: {0} {1}\n{2}", resolver, resolver.Node, root);
+			return resolver.Node;
 		}
 
-		internal static string GetFriendlyName (Type type)
+		public static string GetFriendlyName (Type type)
 		{
 			var friendlyAttr = type.GetTypeInfo ().GetCustomAttribute<FriendlyNameAttribute> ();
 			if (friendlyAttr != null)
@@ -88,7 +88,7 @@ namespace Xamarin.AsyncTests.Framework
 			return type.FullName;
 		}
 
-		internal static ITestParameter GetStringParameter (string value)
+		public static ITestParameter GetStringParameter (string value)
 		{
 			return new ParameterWrapper { Value = value };
 		}
@@ -102,7 +102,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		static IPathNode ReadPathNode (XElement element)
 		{
-			var node = new TestPathNode ();
+			var node = new PathNodeWrapper ();
 			node.TypeKey = element.Attribute ("Type").Value;
 			node.Identifier = element.Attribute ("Identifier").Value;
 
@@ -135,7 +135,7 @@ namespace Xamarin.AsyncTests.Framework
 			return element;
 		}
 
-		class TestPathNode : IPathNode
+		class PathNodeWrapper : IPathNode
 		{
 			public string TypeKey {
 				get; set;

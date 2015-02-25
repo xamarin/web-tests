@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using AppKit;
 using Foundation;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
 
 namespace TestMac
 {
@@ -51,7 +52,7 @@ namespace TestMac
 		{
 			Context = ctx;
 			Test = test;
-			fullName = string.Format ("TEST:{0}:{1}", test, test.Name.FullName);
+			fullName = test.Name.FullName;
 			serialized = Test.Serialize ().ToString ();
 		}
 
@@ -79,7 +80,10 @@ namespace TestMac
 		}
 
 		public override NSAttributedString Error {
-			get { return new NSAttributedString (serialized); }
+			get {
+				var font = NSFont.FromFontName ("Courier New", 18.0f);
+				return new NSAttributedString (serialized, font);
+			}
 		}
 
 		public override TestCaseModel TestCase {

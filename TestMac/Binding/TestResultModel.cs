@@ -98,10 +98,16 @@ namespace TestMac
 		{
 			if (error != null)
 				return error;
-			if (Result == null || Result.Error == null)
+			if (Result == null)
 				return null;
 
 			var sb = new StringBuilder ();
+			if (Result.Path != null) {
+				var serialized = Result.Path.Serialize ();
+				sb.AppendLine (serialized.ToString ());
+				sb.AppendLine ();
+			}
+
 			var aggregate = Result.Error as AggregateException;
 			if (aggregate != null) {
 				sb.AppendFormat ("{0}: {1}", aggregate.GetType ().FullName, aggregate.Message);
@@ -115,7 +121,7 @@ namespace TestMac
 					sb.AppendLine (aggregate.InnerExceptions [i].ToString ());
 					sb.AppendLine ();
 				}
-			} else {
+			} else if (Result.Error != null) {
 				sb.Append (Result.Error.ToString ());
 			}
 

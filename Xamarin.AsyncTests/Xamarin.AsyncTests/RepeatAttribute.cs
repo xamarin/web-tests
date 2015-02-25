@@ -36,7 +36,7 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
-		public RepeatAttribute (int count, TestFlags flags = TestFlags.Browsable)
+		public RepeatAttribute (int count, TestFlags flags = TestFlags.None)
 			: base (count.ToString (), flags)
 		{
 			Count = count;

@@ -66,6 +66,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal TestInstance CreateInstance (TestContext ctx, TestPath path, TestInstance parent)
 		{
+			if (path == null)
+				throw new ArgumentNullException ("path");
+
 			var instance = CreateInstance (path, parent);
 			instance.Initialize (ctx);
 			return instance;
