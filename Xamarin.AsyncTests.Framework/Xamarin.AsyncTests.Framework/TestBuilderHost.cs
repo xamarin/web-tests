@@ -30,7 +30,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestBuilderHost : TestHost
+	sealed class TestBuilderHost : TestHost
 	{
 		public TestBuilder Builder {
 			get;
@@ -54,29 +54,29 @@ namespace Xamarin.AsyncTests.Framework
 			return Builder.Parameter;
 		}
 
-		internal override TestInstance CreateInstance (TestInstance parent)
+		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
 		{
 			return new TestBuilderInstance (this, parent);
 		}
 
-		internal override TestInvoker CreateInvoker (TestInvoker invoker)
+		TestInvoker CreateResultGroup (TestPath path, TestInvoker invoker)
 		{
-			if (!TestName.IsNullOrEmpty (Builder.TestName))
-				invoker = new ResultGroupTestInvoker (invoker);
+			if (TestName.IsNullOrEmpty (Builder.TestName))
+				return invoker;
+			if ((path.Flags & (TestFlags.Hidden | TestFlags.FlattenHierarchy)) != 0)
+				return invoker;
 
-			invoker = new TestBuilderInvoker (this, invoker);
+			return new ResultGroupTestInvoker (path, invoker);
+		}
+
+		internal override TestInvoker CreateInvoker (TestPath path, TestInvoker invoker)
+		{
+			invoker = CreateResultGroup (path, invoker);
+
+			invoker = new TestBuilderInvoker (this, path, invoker);
 
 			return invoker;
 		}
-
-		internal sealed override TestInvoker Deserialize (XElement node, TestInvoker invoker)
-		{
-			invoker = new TestBuilderInvoker (this, invoker);
-
-			return invoker;
-		}
-
-		public abstract TestInvoker CreateInnerInvoker ();
 
 		public override string ToString ()
 		{

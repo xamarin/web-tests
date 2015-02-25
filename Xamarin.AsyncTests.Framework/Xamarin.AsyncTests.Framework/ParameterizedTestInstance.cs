@@ -37,9 +37,15 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (ParameterizedTestHost)base.Host; }
 		}
 
-		public ParameterizedTestInstance (ParameterizedTestHost host, TestInstance parent)
+		public TestPath Path {
+			get;
+			private set;
+		}
+
+		public ParameterizedTestInstance (ParameterizedTestHost host, TestPath path, TestInstance parent)
 			: base (host, parent)
 		{
+			Path = path;
 		}
 
 		public abstract object Current {

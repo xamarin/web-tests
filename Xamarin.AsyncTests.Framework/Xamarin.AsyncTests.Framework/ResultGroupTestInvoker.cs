@@ -36,27 +36,41 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public ResultGroupTestInvoker (TestInvoker inner)
+		public TestPath Path {
+			get;
+			private set;
+		}
+
+		public ResultGroupTestInvoker (TestPath path, TestInvoker inner)
 		{
+			Path = path;
 			Inner = inner;
 		}
 
 		public override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			var innerResult = new TestResult (TestInstance.GetTestName (instance));
+			if ((Path.Flags & TestFlags.FlattenHierarchy) != 0)
+				return await InvokeInner (ctx, instance, Inner, cancellationToken);
+
+			var innerName = TestNameBuilder.CreateFromName (TestInstance.GetTestName (instance));
+			innerName.PushParameter ("ID", Path.ID);
+			innerName.PushParameter ("Host", Path.Host, true);
+			innerName.PushParameter ("Path", Path, true);
+			innerName.PushParameter ("Flags", Path.Flags, true);
+			innerName.PushParameter ("Parameter", Path.Parameter, true);
+
+			var serialized = TestSerializer.SerializePath (Path);
+			TestSerializer.Debug ("RESULT GROUP: {0}", serialized);
+
+			var builder = Path.GetTestBuilder ();
+			TestSerializer.DeserializePath (builder.Suite, serialized);
+
+			innerName.PushParameter ("XML", serialized, true);
+
+			var innerResult = new TestResult (innerName.GetName ());
 
 			var innerCtx = ctx.CreateChild (innerResult.Name, innerResult);
-
-			#if FIXME
-			try {
-				innerResult.Test = TestBuilder.CaptureContext (innerCtx, instance);
-				if (innerResult.Test == null)
-					throw new InternalErrorException ();
-			} catch (Exception ex) {
-				ctx.LogError (ex);
-			}
-			#endif
 
 			bool success;
 			try {

@@ -45,62 +45,12 @@ namespace Xamarin.AsyncTests.Framework
 		internal const string TestFixtureIdentifier = "fixture";
 		internal const string TestSuiteIdentifier = "suite";
 
-		public static XElement Serialize (TestInstance instance)
-		{
-			var path = TestPath.CreateFromInstance (instance);
-
-			var name = TestPath.GetTestName (path);
-
-			var root = new XElement (InstanceName);
-			root.Add (new XAttribute ("Name", name.FullName));
-
-			var pathElement = SerializePath (path);
-			root.AddFirst (pathElement);
-
-			while (path != null) {
-				var element = SerializeBuilder (ref path);
-				root.AddFirst (element);
-			}
-
-			return root;
-		}
-
 		internal static void Debug (string message, params object[] args)
 		{
 			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
 		}
 
-		static XElement SerializeBuilder (ref TestPath path)
-		{
-			var parameterPath = new LinkedList<TestPath> ();
-			TestBuilder builder = null;
-
-			while (path != null && builder == null) {
-				parameterPath.AddLast (path);
-
-				builder = path.BrokenBuilder;
-				path = path.Parent;
-			}
-
-			if (builder == null)
-				throw new InternalErrorException ();
-
-			var node = new XElement (BuilderName);
-			node.Add (new XAttribute ("Type", builder.GetType ().Name));
-			node.Add (new XAttribute ("Name", builder.FullName));
-
-			var pathIter = parameterPath.Last.Previous;
-
-			while (pathIter != null) {
-				var element = WritePathNode (pathIter.Value.Host, pathIter.Value.Parameter);
-				node.Add (element);
-				pathIter = pathIter.Previous;
-			}
-
-			return node;
-		}
-
-		static XElement SerializePath (TestPath path)
+		internal static XElement SerializePath (TestPath path)
 		{
 			var node = new XElement (PathName);
 
@@ -113,64 +63,14 @@ namespace Xamarin.AsyncTests.Framework
 			return node;
 		}
 
-		public static TestInvoker Deserialize (TestSuite suite, XElement root)
+		internal static void DeserializePath (TestSuite suite, XElement root)
 		{
-			if (!root.Name.Equals (InstanceName))
+			if (!root.Name.Equals (PathName))
 				throw new InternalErrorException ();
 
-			var resolvable = suite as IPathResolvable;
-			if (resolvable != null) {
-				var pathElement = root.Element (PathName);
-				DeserializePath (suite, resolvable, root, pathElement);
-			}
+			var resolvable = (IPathResolvable)suite;
 
-			var name = root.Attribute ("Name").Value;
-
-			var elements = new LinkedList<XElement> (root.Elements (BuilderName));
-			var builders = new LinkedList<TestBuilder> ();
-
-			var reflectionSuite = (ReflectionTestSuite)suite;
-			TestBuilder builder = reflectionSuite.Builder;
-			builders.AddLast (builder);
-
-			var elementIter = elements.First.Next;
-			while (elementIter != null) {
-				var node = elementIter.Value;
-				elementIter = elementIter.Next;
-
-				var builderName = node.Attribute ("Name").Value;
-				builder = builder.FindChild (builderName);
-				if (builder == null)
-					throw new InternalErrorException ();
-
-				builders.AddLast (builder);
-			}
-
-			TestInvoker invoker = null;
-			elementIter = elements.Last;
-			var builderIter = builders.Last;
-
-			while (builderIter != null) {
-				builder = builderIter.Value;
-				builderIter = builderIter.Previous;
-
-				var node = elementIter.Value;
-				elementIter = elementIter.Previous;
-
-				if (!DeserializeBuilder (builder, node, ref invoker))
-					throw new InternalErrorException ();
-			}
-
-			return invoker;
-		}
-
-		static void DeserializePath (TestSuite suite, IPathResolvable resolvable, XElement root, XElement path)
-		{
-			Debug ("DESERIALIZE: {0}", root);
-
-			foreach (var element in path.Elements (ParameterName)) {
-				Debug ("DESERIALIZE PATH: {0} {1}", resolvable, element);
-
+			foreach (var element in root.Elements (ParameterName)) {
 				var node = ReadPathNode (element);
 				var parameterAttr = element.Attribute ("Parameter");
 				var parameter = parameterAttr != null ? parameterAttr.Value : null;
@@ -178,54 +78,6 @@ namespace Xamarin.AsyncTests.Framework
 				var resolver = resolvable.GetResolver ();
 				resolvable = resolver.Resolve (node, parameter);
 			}
-		}
-
-		static bool DeserializeBuilder (TestBuilder builder, XElement node, ref TestInvoker invoker)
-		{
-			var elements = new LinkedList<XElement> (node.Elements (ParameterName));
-			var elementIter = elements.First;
-			var hostIter = builder.ParameterHosts.First;
-
-			var current = (TestBuilderHost)builder.Host;
-			if (invoker == null)
-				invoker = current.CreateInnerInvoker ();
-
-			var parameters = new LinkedList<KeyValuePair<TestHost,XElement>> ();
-
-			while (hostIter != null) {
-				var host = hostIter.Value;
-				hostIter = hostIter.Next;
-
-				XElement param = null;
-				if (elementIter != null) {
-					param = elementIter.Value;
-					elementIter = elementIter.Next;
-
-					var paramType = param.Attribute ("Type").Value;
-					if (!host.TypeKey.Equals (paramType))
-						throw new InternalErrorException ();
-				}
-
-				parameters.AddLast (new KeyValuePair<TestHost,XElement> (host, param));
-			}
-
-			var paramIter = parameters.Last;
-			while (paramIter != null) {
-				var host = paramIter.Value.Key;
-				var param = paramIter.Value.Value;
-				paramIter = paramIter.Previous;
-
-				if (param != null)
-					invoker = host.Deserialize (param, invoker);
-				else
-					invoker = host.CreateInvoker (invoker);
-				if (invoker == null)
-					throw new InternalErrorException ();
-			}
-
-			invoker = current.Deserialize (node, invoker);
-
-			return true;
 		}
 
 		internal static string GetFriendlyName (Type type)
@@ -299,6 +151,12 @@ namespace Xamarin.AsyncTests.Framework
 			}
 			public string ParameterValue {
 				get; set;
+			}
+
+			public override string ToString ()
+			{
+				string parameter = ParameterValue != null ? string.Format (", Parameter={0}", ParameterValue) : string.Empty;
+				return string.Format ("[TestPathNode: Type={0}, Identifier={1}, Name={2}{3}]", TypeKey, Identifier, Name, parameter);
 			}
 		}
 	}

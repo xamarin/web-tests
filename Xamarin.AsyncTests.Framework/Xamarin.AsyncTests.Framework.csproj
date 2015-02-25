@@ -45,7 +45,6 @@
     <Compile Include="Xamarin.AsyncTests.Framework\ParameterSourceInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\CustomTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\RepeatedTestHost.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\CapturedTestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\FixtureTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\IMemberInfo.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionHelper.cs" />
@@ -77,7 +76,6 @@
     <Compile Include="Xamarin.AsyncTests.Framework\InternalErrorException.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestSuiteBuilder.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCollectionBuilder.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestCollectionHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCollectionInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ResultGroupTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderInvoker.cs" />
@@ -87,6 +85,7 @@
     <Compile Include="Xamarin.AsyncTests.Framework\IPathResolver.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestPathTree.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\PathBasedTestCase.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestPathNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

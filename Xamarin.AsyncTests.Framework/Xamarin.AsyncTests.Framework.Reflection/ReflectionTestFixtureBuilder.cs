@@ -65,7 +65,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Suite = suite;
 			Type = type;
 			Attribute = attr;
-			Resolve ();
 		}
 
 		protected override IEnumerable<TestBuilder> ResolveChildren ()
@@ -112,19 +111,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			public FixtureInstanceTestHost (ReflectionTestFixtureBuilder builder)
 				: base (TestSerializer.FixtureInstanceIdentifier, null, builder.Type.AsType (), null)
 			{
-				Flags = TestFlags.ContinueOnError | TestFlags.PathHidden;
+				Flags = TestFlags.ContinueOnError | TestFlags.PathHidden | TestFlags.Hidden;
 				Builder = builder;
 			}
 
-			internal override TestInstance CreateInstance (TestInstance parent)
+			internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
 			{
 				var instance = Activator.CreateInstance (Builder.Type.AsType ());
 				return new FixtureTestInstance (this, instance, parent);
-			}
-
-			internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
-			{
-				return CreateInvoker (invoker);
 			}
 		}
 	}

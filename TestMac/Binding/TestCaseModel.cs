@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Collections.Generic;
 using AppKit;
 using Foundation;
@@ -33,28 +34,34 @@ namespace TestMac
 {
 	public class TestCaseModel : TestListNode
 	{
+		public TestContext Context {
+			get;
+			private set;
+		}
+
 		public TestCase Test {
 			get;
 			private set;
 		}
 
 		string fullName;
+		string serialized;
 
-		public TestCaseModel (TestCase test)
+		public TestCaseModel (TestContext ctx, TestCase test)
 		{
+			Context = ctx;
 			Test = test;
-			fullName = string.Format ("TEST:{0}", test.Name.FullName);
+			fullName = string.Format ("TEST:{0}:{1}", test, test.Name.FullName);
+			serialized = Test.Serialize ().ToString ();
 		}
 
 		#region implemented abstract members of TestListNode
 
 		protected override IEnumerable<TestListNode> ResolveChildren ()
 		{
-			for (int i = 0; i < Test.Builder.CountChildren; i++) {
-				var child = Test.Builder.GetChild (i);
-				var test = child.Test;
-				if (test != null)
-					yield return new TestCaseModel (test);
+			var children = Test.GetChildren (Context);
+			foreach (var child in children) {
+				yield return new TestCaseModel (Context, child);
 			}
 			yield break;
 		}
@@ -72,7 +79,7 @@ namespace TestMac
 		}
 
 		public override NSAttributedString Error {
-			get { return null; }
+			get { return new NSAttributedString (serialized); }
 		}
 
 		public override TestCaseModel TestCase {

@@ -87,25 +87,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			yield break;
 		}
-
-		class TestCaseCollection : TestCase
-		{
-			public TestCollectionBuilder Builder {
-				get;
-				private set;
-			}
-
-			public TestCaseCollection (TestCollectionBuilder builder, TestName name)
-				: base (builder.Suite, name, builder)
-			{
-				Builder = builder;
-			}
-
-			internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
-			{
-				return Builder.Invoker.Invoke (ctx, null, cancellationToken);
-			}
-		}
 	}
 }
 

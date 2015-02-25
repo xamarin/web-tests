@@ -63,6 +63,11 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public TestContext Context {
+			get;
+			private set;
+		}
+
 		public TestSession (TestApp app, TestCase test)
 			: this (app, test, new TestResult (test.Name))
 		{
@@ -77,6 +82,8 @@ namespace Xamarin.AsyncTests.Framework
 
 			Created = DateTime.Now;
 			Name = string.Format ("[{0:s}]: {1}", Created, Result.Name.Name);
+
+			Context = CreateContext ();
 		}
 
 		TestContext CreateContext ()

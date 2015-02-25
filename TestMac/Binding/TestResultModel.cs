@@ -136,7 +136,9 @@ namespace TestMac
 			if (Result == null || Result.Test == null)
 				return null;
 
+			#if FIXME
 			testCase = new TestCaseModel (Result.Test);
+			#endif
 			return testCase;
 		}
 

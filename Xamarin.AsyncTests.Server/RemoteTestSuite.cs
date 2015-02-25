@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -55,12 +56,6 @@ namespace Xamarin.AsyncTests.Server
 			get { return root; }
 		}
 
-		public override ITestBuilder TestBuilder {
-			get {
-				throw new NotImplementedException ();
-			}
-		}
-
 		public RemoteTestSuite (Connection connection, long objectId, TestName name)
 			: base (name)
 		{
@@ -77,6 +72,11 @@ namespace Xamarin.AsyncTests.Server
 				: base (suite, suite.Name)
 			{
 				this.suite = suite;
+			}
+
+			public override IEnumerable<TestCase> GetChildren (TestContext ctx)
+			{
+				throw new NotImplementedException ();
 			}
 
 			internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)

@@ -30,7 +30,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestBuilder : ITestBuilder, IPathNode, IPathResolvable
+	abstract class TestBuilder : ITestParameter, IPathNode, IPathResolvable
 	{
 		public TestSuite Suite {
 			get;
@@ -52,12 +52,12 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		string IPathNode.ParameterType {
-			get { return Identifier; }
+		string ITestParameter.Value {
+			get { return Parameter.Value; }
 		}
 
-		TestName ITestBuilder.Name {
-			get { return TestName; }
+		string IPathNode.ParameterType {
+			get { return Identifier; }
 		}
 
 		public TestName TestName {
@@ -67,10 +67,6 @@ namespace Xamarin.AsyncTests.Framework
 
 		public virtual TestBuilder Parent {
 			get { return null; }
-		}
-
-		ITestBuilder ITestBuilder.Parent {
-			get { return Parent; }
 		}
 
 		public virtual string FullName {
@@ -90,14 +86,6 @@ namespace Xamarin.AsyncTests.Framework
 			Parameter = parameter;
 		}
 
-		public TestCase Test {
-			get {
-				if (!resolved)
-					throw new InternalErrorException ();
-				return test;
-			}
-		}
-
 		public abstract TestFilter Filter {
 			get;
 		}
@@ -107,15 +95,6 @@ namespace Xamarin.AsyncTests.Framework
 				if (!resolved)
 					throw new InternalErrorException ();
 				return host;
-			}
-		}
-
-
-		internal TestInvoker Invoker {
-			get {
-				if (!resolved)
-					throw new InternalErrorException ();
-				return invoker;
 			}
 		}
 
@@ -135,53 +114,31 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		int ITestBuilder.CountChildren {
-			get { return Children.Count; }
-		}
-
-		ITestBuilder ITestBuilder.GetChild (int index)
-		{
-			return Children [index];
-		}
-
-		internal LinkedList<TestHost> ParameterHosts {
+		internal TestPathTree TreeRoot {
 			get {
-				if (!resolved)
-					throw new InternalErrorException ();
-				return parameterHosts;
-			}
-		}
-
-		internal TestPath RootPath {
-			get {
-				if (!resolvedMembers)
-					throw new InternalErrorException ();
-				return rootPath;
-			}
-		}
-
-		internal TestPathTree Tree {
-			get {
-				if (!resolvedMembers)
+				if (!resolvedTree)
 					throw new InternalErrorException ();
 				return treeRoot;
 			}
 		}
 
+		internal TestPathTree Tree {
+			get {
+				if (!resolvedTree)
+					throw new InternalErrorException ();
+				return tree;
+			}
+		}
+
 		bool resolving;
 		bool resolved;
-		bool resolvedMembers;
+		bool resolvedTree;
 		bool resolvedChildren;
 
-		TestPath rootPath;
-		TestPath path;
 		TestBuilderHost host;
-		TestInvoker invoker;
 		IList<TestBuilder> children;
-		LinkedList<TestHost> parameterHosts;
 		TestPathTree tree;
 		TestPathTree treeRoot;
-		TestCase test;
 
 		protected virtual void ResolveMembers ()
 		{
@@ -196,35 +153,31 @@ namespace Xamarin.AsyncTests.Framework
 
 			ResolveMembers ();
 
-			resolvedMembers = true;
-
+			TestPathTree parentTree = null;
 			if (Parent != null)
-				rootPath = Parent.RootPath;
+				parentTree = Parent.Tree;
 
 			children = CreateChildren ().ToList ();
 
 			host = CreateHost ();
 
-			parameterHosts = new LinkedList<TestHost> ();
+			var parameterHosts = new LinkedList<TestHost> ();
 
-			TestSerializer.Debug ("RESOLVE: {0} {1} {2}", this, Parent, rootPath);
+			TestSerializer.Debug ("RESOLVE: {0} {1}", this, Parent);
 
-			path = rootPath = new TestPath (host, rootPath);
-
-			TestSerializer.Debug ("RESOLVE #1: {0}", path);
-
-			tree = treeRoot = new TestPathTree (this, null, path);
+			tree = treeRoot = new TestPathTree (this, host, parentTree);
 
 			foreach (var current in CreateParameterHosts ()) {
-				parameterHosts.AddLast (current);
+				parameterHosts.AddFirst (current);
 			}
 
 			var parameterIter = parameterHosts.Last;
 			while (parameterIter != null) {
-				path = new TestPath (parameterIter.Value, path);
-				tree = new TestPathTree (this, tree, path);
+				tree = tree.Add (parameterIter.Value);
 				parameterIter = parameterIter.Previous;
 			}
+
+			resolvedTree = true;
 
 			foreach (var child in children) {
 				child.Resolve ();
@@ -232,64 +185,44 @@ namespace Xamarin.AsyncTests.Framework
 
 			resolvedChildren = true;
 
-			invoker = CreateParameterInvoker ();
-
-			test = new PathBasedTestCase (this, TestName);
-
 			resolved = true;
 		}
 
-		TestInvoker CreateParameterInvoker ()
+		bool RunFilter (TestContext ctx, TestFilter filter)
 		{
-			var invoker = host.CreateInnerInvoker ();
+			bool enabled;
+			var matched = filter.Filter (ctx, out enabled);
+			if (!matched)
+				enabled = !filter.MustMatch;
 
-			var current = parameterHosts.Last;
-			while (current != null) {
-				invoker = current.Value.CreateInvoker (invoker);
-				current = current.Previous;
-			}
-
-			invoker = host.CreateInvoker (invoker);
-
-			return invoker;
+			return enabled;
 		}
 
-		public TestBuilder FindChild (string name)
+		internal IEnumerable<TestBuilder> GetChildren (TestContext ctx)
 		{
-			foreach (var child in Children) {
-				if (child.FullName.Equals (name))
-					return child;
+			foreach (var child in children) {
+				if (child.Filter != null && !RunFilter (ctx, child.Filter))
+					continue;
+				yield return child;
 			}
-
-			throw new InternalErrorException ();
 		}
+
+		internal abstract TestInvoker CreateInnerInvoker (TestPathNode node);
 
 		protected abstract IEnumerable<TestBuilder> CreateChildren ();
 
 		protected abstract IEnumerable<TestHost> CreateParameterHosts ();
 
-		protected abstract TestBuilderHost CreateHost ();
-
-		public static TestCase CaptureContext (TestContext ctx, TestInstance instance)
+		protected TestBuilderHost CreateHost ()
 		{
-			var name = TestInstance.GetTestName (instance);
-
-			var node = TestSerializer.Serialize (instance);
-			if (node == null)
-				throw new InternalErrorException ();
-
-			var test = new CapturedTestCase (ctx.Suite, name, node, null);
-			if (!test.Resolve ())
-				throw new InternalErrorException ();
-
-			return test;
+			return new TestBuilderHost (this, this);
 		}
 
 		public IPathResolver GetResolver ()
 		{
 			if (!resolved)
 				throw new InternalErrorException ();
-			return tree;
+			return treeRoot;
 		}
 	}
 }

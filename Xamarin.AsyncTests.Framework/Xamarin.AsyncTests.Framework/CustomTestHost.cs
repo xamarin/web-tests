@@ -59,14 +59,9 @@ namespace Xamarin.AsyncTests.Framework
 			UseFixtureInstance = useFixtureInstance;
 		}
 
-		internal override TestInstance CreateInstance (TestInstance parent)
+		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
 		{
 			return new CustomTestInstance (this, parent, HostType, UseFixtureInstance);
-		}
-
-		internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
-		{
-			return CreateInvoker (invoker);
 		}
 
 		public override string ToString ()

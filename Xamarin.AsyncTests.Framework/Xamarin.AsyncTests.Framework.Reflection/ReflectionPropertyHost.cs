@@ -58,45 +58,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Host = host;
 		}
 
-		internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
+		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
 		{
-			if (Serializer == null)
-				return null;
-
-			var value = Serializer.Deserialize (node);
-			if (value == null)
-				throw new InternalErrorException ();
-
-			return new CapturedInvoker (this, value, invoker);
-		}
-
-		internal override TestInstance CreateInstance (TestInstance parent)
-		{
-			var instance = (ParameterizedTestInstance)Host.CreateInstance (parent);
+			var instance = (ParameterizedTestInstance)Host.CreateInstance (path, parent);
 			return new ReflectionPropertyInstance (this, instance, parent);
-		}
-
-		class CapturedInvoker : ParameterizedTestInvoker
-		{
-			public object Captured {
-				get;
-				private set;
-			}
-
-			new public ReflectionPropertyHost Host {
-				get { return (ReflectionPropertyHost)base.Host; }
-			}
-
-			public CapturedInvoker (ReflectionPropertyHost host, object captured, TestInvoker inner)
-				: base (host, inner)
-			{
-				Captured = captured;
-			}
-
-			protected override ParameterizedTestInstance CreateInstance (TestInstance parent)
-			{
-				return new ReflectionPropertyInstance (Host, Captured, parent);
-			}
 		}
 
 		class ReflectionPropertyInstance : ParameterizedTestInstance
@@ -119,16 +84,18 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			bool hasNext;
 
 			public ReflectionPropertyInstance (ReflectionPropertyHost host, ParameterizedTestInstance instance, TestInstance parent)
-				: base (host, parent)
+				: base (host, instance.Path, parent)
 			{
 				Instance = instance;
 			}
 
+			#if FIXME
 			public ReflectionPropertyInstance (ReflectionPropertyHost host, object captured, TestInstance parent)
 				: base (host, parent)
 			{
 				CapturedValue = captured;
 			}
+			#endif
 
 			public override void Initialize (TestContext ctx)
 			{

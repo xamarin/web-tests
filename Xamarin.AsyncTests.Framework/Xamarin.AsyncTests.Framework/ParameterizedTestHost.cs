@@ -64,9 +64,9 @@ namespace Xamarin.AsyncTests.Framework
 			return parameterizedInstance.Serialize ();
 		}
 
-		internal override TestInvoker CreateInvoker (TestInvoker invoker)
+		internal override TestInvoker CreateInvoker (TestPath path, TestInvoker invoker)
 		{
-			return new ParameterizedTestInvoker (this, invoker);
+			return new ParameterizedTestInvoker (this, path, invoker);
 		}
 
 		public override string ToString ()

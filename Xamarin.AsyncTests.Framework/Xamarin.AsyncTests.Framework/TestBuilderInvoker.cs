@@ -36,12 +36,17 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public TestPath Path {
+			get;
+			private set;
+		}
+
 		public TestInvoker Inner {
 			get;
 			private set;
 		}
 
-		public TestBuilderInvoker (TestBuilderHost host, TestInvoker inner)
+		public TestBuilderInvoker (TestBuilderHost host, TestPath path, TestInvoker inner)
 		{
 			Host = host;
 			Inner = inner;
@@ -52,7 +57,7 @@ namespace Xamarin.AsyncTests.Framework
 			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
-				return (TestBuilderInstance)Host.CreateInstance (ctx, instance);
+				return (TestBuilderInstance)Host.CreateInstance (ctx, Path, instance);
 			} catch (OperationCanceledException) {
 				ctx.OnTestCanceled ();
 				return null;

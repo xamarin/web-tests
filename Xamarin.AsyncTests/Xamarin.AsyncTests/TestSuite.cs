@@ -53,10 +53,6 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
-		public abstract ITestBuilder TestBuilder {
-			get;
-		}
-
 		public abstract TestCase Test {
 			get;
 		}

@@ -24,13 +24,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Sample
 {
 	[AsyncTestFixture]
-	public class ParameterizedTest : ITestParameterSource<Foo>
+	public class ParameterizedTest : ITestParameterSource<Foo>, ITestInstance
 	{
+		int id;
+		static int next_id;
+
+		public Task Initialize (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => {
+				id = ++next_id;
+				context.LogMessage ("INITIALIZE: {0}", id);
+			});
+		}
+
+		public Task PreRun (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => {
+				context.LogMessage ("PRE RUN: {0}", id);
+			});
+		}
+
+		public Task PostRun (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => {
+				context.LogMessage ("POST RUN: {0}", id);
+			});
+		}
+
+		public Task Destroy (TestContext context, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => {
+				context.LogMessage ("DESTROY: {0}", id);
+			});
+		}
+
 		public IEnumerable<Foo> GetParameters (TestContext context, string filter)
 		{
 			if (filter != null) {
@@ -45,13 +79,19 @@ namespace Xamarin.AsyncTests.Sample
 		[AsyncTest]
 		public void Hello (TestContext context, [Hello] string hello)
 		{
-			context.LogMessage ("HELLO: {0}", hello);
+			context.LogMessage ("HELLO: {0} {1}", id, hello);
 		}
 
 		[AsyncTest]
 		public void HelloIFoo (TestContext context, IFoo foo)
 		{
-			context.LogMessage ("HELLO IFOO: {0}", foo);
+			context.LogMessage ("HELLO IFOO: {0} {1}", id, foo);
+		}
+
+		[AsyncTest]
+		public void HelloBoolean (TestContext context, bool flag, [Hello] string hello)
+		{
+			context.LogMessage ("HELLO BOOLEAN: {0} {1} {2}", id, flag, hello);
 		}
 
 		[AsyncTest]

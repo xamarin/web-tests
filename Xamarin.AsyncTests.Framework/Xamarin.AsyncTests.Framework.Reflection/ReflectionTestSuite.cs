@@ -53,20 +53,22 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return Builder.Configuration; }
 		}
 
-		public override ITestBuilder TestBuilder {
-			get { return Builder; }
-		}
-
 		ReflectionTestSuite (TestApp app, TestName name, Assembly assembly)
 			: base (name)
 		{
 			App = app;
 			Assembly = assembly;
 			Builder = new ReflectionTestSuiteBuilder (this);
+
+			var rootPath = new TestPath (Builder.Host, null);
+			var rootNode = new TestPathNode (Builder.TreeRoot, rootPath);
+			test = new PathBasedTestCase (rootNode);
 		}
 
+		TestCase test;
+
 		public override TestCase Test {
-			get { return Builder.Test; }
+			get { return test; }
 		}
 
 		public IPathResolver GetResolver ()
@@ -84,11 +86,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				throw new InternalErrorException ();
 			if (!node.ParameterType.Equals (TestSerializer.TestSuiteIdentifier))
 				throw new InternalErrorException ();
-			return Builder;
-		}
-
-		public IPathResolvable FindChild (string name)
-		{
 			return Builder;
 		}
 

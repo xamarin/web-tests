@@ -90,7 +90,6 @@
     </Compile>
     <Compile Include="MacUI.cs" />
     <Compile Include="Binding\UIBinding.cs" />
-    <Compile Include="Binding\TestBuilderModel.cs" />
     <Compile Include="Binding\TestResultModel.cs" />
     <Compile Include="TestResultList.cs" />
     <Compile Include="TestResultList.designer.cs">

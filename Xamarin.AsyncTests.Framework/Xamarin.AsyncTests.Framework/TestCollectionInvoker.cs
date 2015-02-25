@@ -32,19 +32,21 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class TestCollectionInvoker : AggregatedTestInvoker
 	{
-		public TestCollectionHost Host {
+		public TestBuilder Builder {
 			get;
 			private set;
 		}
 
-		public IList<TestBuilder> Children {
-			get { return Host.Builder.Children; }
+		public TestPathNode Node {
+			get;
+			private set;
 		}
 
-		public TestCollectionInvoker (TestCollectionHost host)
-			: base (host.Flags)
+		public TestCollectionInvoker (TestBuilder builder, TestPathNode node, TestFlags flags = TestFlags.None)
+			: base (flags)
 		{
-			Host = host;
+			Builder = builder;
+			Node = node;
 		}
 
 		bool Filter (TestContext ctx, TestFilter filter)
@@ -57,29 +59,54 @@ namespace Xamarin.AsyncTests.Framework
 			return enabled;
 		}
 
+		LinkedList<Tuple<TestPathNode,TestInvoker>> children;
+
+		internal void ResolveChildren (TestContext ctx)
+		{
+			children = new LinkedList<Tuple<TestPathNode, TestInvoker>> ();
+			foreach (var child in Node.GetChildren (ctx)) {
+				var invoker = child.CreateChildInvoker (ctx);
+				children.AddLast (new Tuple<TestPathNode, TestInvoker> (child, invoker));
+			}
+		}
+
+		bool SetUp (TestContext ctx, TestInstance instance)
+		{
+			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Builder), TestLogger.Print (instance));
+
+			try {
+				ResolveChildren (ctx);
+				return true;
+			} catch (OperationCanceledException) {
+				ctx.OnTestCanceled ();
+				return false;
+			} catch (Exception ex) {
+				ctx.OnError (ex);
+				return false;
+			}
+		}
+
 		public sealed override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			if (Children.Count == 0)
-				return true;
 			if (cancellationToken.IsCancellationRequested)
 				return false;
 
+			if (!SetUp (ctx, instance))
+				return false;
+
 			ctx.LogDebug (10, "Invoke({0}): {1} {2} {3}", ctx.Name,
-				Flags, TestLogger.Print (instance), Children.Count);
+				Flags, TestLogger.Print (instance), children.Count);
 
 			bool success = true;
-			foreach (var child in Children) {
+			foreach (var child in children) {
 				if (cancellationToken.IsCancellationRequested)
 					break;
 
-				if (child.Filter != null && !Filter (ctx, child.Filter))
-					continue;
+				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2}", ctx.Name,
+					TestLogger.Print (instance), child);
 
-				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2} {3}", ctx.Name,
-					TestLogger.Print (instance), child, Children.Count);
-
-				var invoker = child.Invoker;
+				var invoker = child.Item2;
 
 				success = await InvokeInner (ctx, instance, invoker, cancellationToken);
 
@@ -90,8 +117,8 @@ namespace Xamarin.AsyncTests.Framework
 					break;
 			}
 
-			ctx.LogDebug (10, "Invoke({0}) done: {1} {2} {3} - {4}", ctx.Name,
-				Flags, TestLogger.Print (instance), Children.Count, success);
+			ctx.LogDebug (10, "Invoke({0}) done: {1} {2} - {3}", ctx.Name,
+				Flags, TestLogger.Print (instance), success);
 
 			return success;
 		}

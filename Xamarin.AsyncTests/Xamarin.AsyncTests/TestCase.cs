@@ -28,6 +28,7 @@
 //
 using System;
 using System.Linq;
+using System.Xml.Linq;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
@@ -47,23 +48,22 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
-		public ITestBuilder Builder {
-			get;
-			private set;
-		}
-
-		[Obsolete ("FUCK")]
 		public TestCase (TestSuite suite, TestName name)
-			: this (suite, name, null)
-		{
-		}
-
-		public TestCase (TestSuite suite, TestName name, ITestBuilder builder)
 		{
 			Suite = suite;
 			Name = name;
-			Builder = builder;
 		}
+
+		public virtual XElement Serialize ()
+		{
+			throw new NotImplementedException ();
+		}
+
+		public virtual void Resolve (TestContext ctx)
+		{
+		}
+
+		public abstract IEnumerable<TestCase> GetChildren (TestContext ctx);
 
 		internal abstract Task<bool> Run (TestContext ctx, CancellationToken cancellationToken);
 	}

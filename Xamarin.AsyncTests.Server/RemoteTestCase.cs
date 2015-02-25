@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -49,6 +50,11 @@ namespace Xamarin.AsyncTests.Server
 		}
 
 		#region implemented abstract members of TestCase
+
+		public override IEnumerable<TestCase> GetChildren (TestContext ctx)
+		{
+			throw new NotImplementedException ();
+		}
 
 		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
 		{

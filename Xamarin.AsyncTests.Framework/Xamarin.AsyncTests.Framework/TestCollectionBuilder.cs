@@ -62,9 +62,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		protected abstract IEnumerable<TestBuilder> ResolveChildren ();
 
-		protected sealed override TestBuilderHost CreateHost ()
+		internal override TestInvoker CreateInnerInvoker (TestPathNode node)
 		{
-			return new TestCollectionHost (this);
+			return new TestCollectionInvoker (this, node);
 		}
 	}
 }

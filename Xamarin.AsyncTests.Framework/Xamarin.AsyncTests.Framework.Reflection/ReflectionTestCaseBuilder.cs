@@ -136,34 +136,15 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				yield return ReflectionHelper.CreateRepeatHost (Attribute.Repeat);
 		}
 
-		protected override TestBuilderHost CreateHost ()
+		internal override TestInvoker CreateInnerInvoker (TestPathNode node)
 		{
-			return new ReflectionTestCaseHost (this);
-		}
+			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
 
-		class ReflectionTestCaseHost : TestBuilderHost
-		{
-			new public ReflectionTestCaseBuilder Builder {
-				get;
-				private set;
-			}
+			invoker = new PrePostRunTestInvoker (invoker);
 
-			public ReflectionTestCaseHost (ReflectionTestCaseBuilder builder)
-				: base (builder, builder)
-			{
-				Builder = builder;
-			}
+			invoker = new ResultGroupTestInvoker (node.Path, invoker);
 
-			public override TestInvoker CreateInnerInvoker ()
-			{
-				TestInvoker invoker = new ReflectionTestCaseInvoker (Builder);
-
-				invoker = new PrePostRunTestInvoker (invoker);
-
-				invoker = new ResultGroupTestInvoker (invoker);
-
-				return invoker;
-			}
+			return invoker;
 		}
 	}
 }

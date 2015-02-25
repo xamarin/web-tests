@@ -84,8 +84,13 @@ namespace Xamarin.AsyncTests
 				return Name;
 			var sb = new StringBuilder (Name);
 			sb.Append ("(");
+			bool first = true;
 			for (int i = 0; i < Parameters.Length; i++) {
-				if (i > 0)
+				if (Parameters [i].IsHidden)
+					continue;
+				if (first)
+					first = false;
+				else
 					sb.Append (",");
 				sb.Append (Parameters [i].Value);
 			}

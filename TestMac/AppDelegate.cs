@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Foundation;
 using AppKit;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.UI;
 
 namespace TestMac
@@ -72,7 +73,12 @@ namespace TestMac
 
 			ui.ServerManager.TestSuite.PropertyChanged += (sender, e) => {
 				Console.WriteLine ("AD SUITE CHANGED: {0}", e);
-				CurrentSession = e != null ? new TestSessionModel (e) : null;
+				if (e == null)
+					CurrentSession = null;
+				else {
+					var session = new TestSession (ui, e.Test);
+					CurrentSession = new TestSessionModel (session);
+				}
 			};
 
 			LoadLocalTestSuite ();

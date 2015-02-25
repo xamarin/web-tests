@@ -37,21 +37,27 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public TestPath Path {
+			get;
+			private set;
+		}
+
 		public TestInvoker Inner {
 			get;
 			private set;
 		}
 
-		public ParameterizedTestInvoker (ParameterizedTestHost host, TestInvoker inner)
+		public ParameterizedTestInvoker (ParameterizedTestHost host, TestPath path, TestInvoker inner)
 			: base (host.Flags)
 		{
 			Host = host;
+			Path = path;
 			Inner = inner;
 		}
 
 		protected virtual ParameterizedTestInstance CreateInstance (TestInstance parent)
 		{
-			return (ParameterizedTestInstance)Host.CreateInstance (parent);
+			return (ParameterizedTestInstance)Host.CreateInstance (Path, parent);
 		}
 
 		ParameterizedTestInstance SetUp (TestContext ctx, TestInstance instance)

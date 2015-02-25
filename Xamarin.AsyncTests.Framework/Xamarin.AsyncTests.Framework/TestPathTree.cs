@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
@@ -34,21 +35,41 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestPathTree Next {
+		public TestHost Host {
 			get;
 			private set;
 		}
 
-		public TestPath Node {
+		public TestPathTree Parent {
 			get;
 			private set;
 		}
 
-		internal TestPathTree (TestBuilder builder, TestPathTree next, TestPath node)
+		public TestPathTree Outer {
+			get;
+			private set;
+		}
+
+		public TestPathTree Inner {
+			get;
+			internal set;
+		}
+
+		internal TestPathTree (TestBuilder builder, TestHost host, TestPathTree parent)
 		{
 			Builder = builder;
-			Next = next;
-			Node = node;
+			Host = host;
+			Parent = parent;
+		}
+
+		internal TestPathTree Add (TestHost host)
+		{
+			var next = new TestPathTree (Builder, host, null);
+			if (Inner != null)
+				throw new InternalErrorException ();
+			Inner = next;
+			next.Outer = this;
+			return next;
 		}
 
 		IPathResolver IPathResolvable.GetResolver ()
@@ -57,7 +78,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		IPathNode IPathResolver.Node {
-			get { return Node.Host; }
+			get { return Host; }
 		}
 
 		IPathResolvable IPathResolver.Resolve (IPathNode node, string parameter)
@@ -67,30 +88,16 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal TestPathTree ResolveTree (IPathNode node, string parameter)
 		{
-			TestSerializer.Debug ("RESOLVE: {0} {1}", this, node);
-			TestSerializer.Debug ("RESOLVE #1: {0} {1}", Next != null, Node.BrokenBuilder != null);
-
-			if (Next != null) {
-				if (!node.Identifier.Equals (Node.Host.Identifier))
+			if (Inner != null) {
+				if (!TestPath.Matches (Inner.Host, node))
 					throw new InternalErrorException ();
-				if (Node.IsParameterized != (node.ParameterType != null))
-					throw new InternalErrorException ();
-				if (node.ParameterType != null && !node.ParameterType.Equals (Node.Host.ParameterType))
-					throw new InternalErrorException ();
-				if (Node.BrokenBuilder != null)
-					throw new InternalErrorException ();
-				return Next;
+				return Inner;
 			}
-
-			if (Node.BrokenBuilder == null)
-				throw new InternalErrorException ();
 
 			if (parameter == null)
 				return this;
 
-			foreach (var child in Node.BrokenBuilder.Children) {
-				TestSerializer.Debug ("  RESOLVE #3: {0}", child);
-
+			foreach (var child in Builder.Children) {
 				if (!node.Identifier.Equals (child.Identifier))
 					throw new InternalErrorException ();
 				if (!node.ParameterType.Equals (child.Identifier))
@@ -99,15 +106,22 @@ namespace Xamarin.AsyncTests.Framework
 				if (!parameter.Equals (child.Parameter.Value))
 					continue;
 
-				return child.Tree;
+				return child.TreeRoot;
 			}
 
 			throw new InternalErrorException ();
 		}
 
+		static int next_id;
+		public readonly int ID = ++next_id;
+
 		public override string ToString ()
 		{
-			return string.Format ("[TestPathTree: Builder={0}, Node={1}, Next={2}]", Builder, Node, Next != null ? Next.Node.ID : 0);
+			var builderName = Builder.GetType ().Name;
+			var outer = Outer != null ? string.Format (", Outer={0}", Outer.ID) : string.Empty;
+			var inner = Inner != null ? string.Format (", Inner={0}", Inner.ID) : string.Empty;
+			var parent = Parent != null ? string.Format (", Parent={0}", Parent.ID) : string.Empty;
+			return string.Format ("[TestPathTree({0}): Builder={1}, Host={2}{3}{4}{5}]", ID, builderName, Host, parent, outer, inner);
 		}
 	}
 }

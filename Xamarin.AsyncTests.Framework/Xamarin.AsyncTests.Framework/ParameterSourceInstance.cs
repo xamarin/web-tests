@@ -52,21 +52,14 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public string CapturedIdentifier {
-			get; set;
-		}
-
-		public object CapturedValue {
-			get; set;
-		}
-
 		public override object Current {
 			get { return current; }
 		}
 
-		public ParameterSourceInstance (ParameterSourceHost<T> host, TestInstance parent,
+		public ParameterSourceInstance (
+			ParameterSourceHost<T> host, TestPath path, TestInstance parent,
 			ITestParameterSource<T> sourceInstance, string filter)
-			: base (host, parent)
+			: base (host, path, parent)
 		{
 			SourceInstance = sourceInstance;
 			Filter = filter;
@@ -76,8 +69,8 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			base.Initialize (ctx);
 
-			if (CapturedValue != null) {
-				current = (T)CapturedValue;
+			if (Path.Parameter != null) {
+				current = Host.Deserialize (Path.Parameter);
 				var cloneable = current as ICloneable;
 				if (cloneable != null)
 					current = (T)cloneable.Clone ();
@@ -86,14 +79,6 @@ namespace Xamarin.AsyncTests.Framework
 			}
 
 			parameters = new List<T> (SourceInstance.GetParameters (ctx, Filter));
-			if (CapturedIdentifier != null) {
-				if (parameters.Count == 0)
-					throw new InternalErrorException ();
-				else if (parameters.Count > 1)
-					parameters.RemoveAll (p => !((ITestParameter)p).Value.Equals (CapturedIdentifier));
-				if (parameters.Count != 1)
-					throw new InternalErrorException ();
-			}
 			index = 0;
 		}
 

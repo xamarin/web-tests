@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Xml.Linq;
+using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
@@ -35,13 +36,12 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestPath Parent {
+		public TestFlags Flags {
 			get;
-			private set;
+			internal set;
 		}
 
-		[Obsolete ("MUST GO")]
-		public TestBuilder BrokenBuilder {
+		public TestPath Parent {
 			get;
 			private set;
 		}
@@ -50,19 +50,26 @@ namespace Xamarin.AsyncTests.Framework
 			get { return Host.ParameterType != null; }
 		}
 
+		public bool HasParameter {
+			get { return Parameter != null; }
+		}
+
 		public ITestParameter Parameter {
 			get;
 			private set;
 		}
 
-		internal TestPath (TestHost host, TestPath parent)
+		internal TestPath (TestHost host, TestPath parent, ITestParameter parameter = null)
 		{
 			Host = host;
+			Flags = host.Flags;
 			Parent = parent;
+			Parameter = parameter;
+		}
 
-			var builderHost = host as TestBuilderHost;
-			if (builderHost != null)
-				BrokenBuilder = builderHost.Builder;
+		internal TestPath Clone ()
+		{
+			return new TestPath (Host, Parent, Parameter);
 		}
 
 		void GetTestName (TestNameBuilder builder)
@@ -77,19 +84,6 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		[Obsolete ("REMOVE")]
-		public static TestPath CreateFromInstance (TestInstance instance)
-		{
-			TestPath parent = null;
-			if (instance.Parent != null)
-				parent = CreateFromInstance (instance.Parent);
-			var path = new TestPath (instance.Host, parent);
-			var parameter = instance.Host.GetParameter (instance);
-			if (parameter != null)
-				path = path.Parameterize (parameter);
-			return path;
-		}
-
 		public static TestName GetTestName (TestPath path)
 		{
 			var builder = new TestNameBuilder ();
@@ -100,23 +94,54 @@ namespace Xamarin.AsyncTests.Framework
 
 		public TestPath Parameterize (ITestParameter parameter)
 		{
-			if (!IsParameterized || Parameter != null)
+			if (!IsParameterized)
 				throw new InternalErrorException ();
-			var newPath = new TestPath (Host, Parent);
-			newPath.Parameter = parameter;
-			newPath.BrokenBuilder = BrokenBuilder;
-			return newPath;
+			return new TestPath (Host, Parent, parameter);
 		}
 
-		internal TestInvoker CreateInvoker ()
+		internal TestBuilder GetTestBuilder ()
 		{
-			TestInvoker invoker = null;
-			if (Parent != null)
-				invoker = Parent.CreateInvoker ();
-			else
-				invoker = BrokenBuilder.Invoker;
-			invoker = Host.CreateInvoker (invoker);
-			return invoker;
+			var builder = Host as TestBuilderHost;
+			if (builder != null)
+				return builder.Builder;
+			return Parent.GetTestBuilder ();
+		}
+
+		public bool Matches (IPathNode node)
+		{
+			if (!node.Identifier.Equals (Host.Identifier))
+				return false;
+			if (IsParameterized != (node.ParameterType != null))
+				return false;
+			if (node.ParameterType != null && !node.ParameterType.Equals (Host.ParameterType))
+				return false;
+
+			return true;
+		}
+
+		public static bool Matches (IPathNode first, IPathNode second)
+		{
+			if (!first.Identifier.Equals (second.Identifier))
+				return false;
+			if ((first.Name != null) != (second.Name != null))
+				return false;
+			if (first.Name != null && !first.Name.Equals (second.Name))
+				return false;
+			if ((first.ParameterType != null) != (second.ParameterType != null))
+				return false;
+			if (first.ParameterType != null && !first.ParameterType.Equals (second.ParameterType))
+				return false;
+
+			return true;
+		}
+
+		public bool HasChildren {
+			get { return false; }
+		}
+
+		public IEnumerable<TestPath> GetChildren ()
+		{
+			throw new InternalErrorException ();
 		}
 
 		public readonly int ID = ++next_id;
@@ -124,7 +149,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override string ToString ()
 		{
-			return string.Format ("[TestPath: ID={0}, Type={1}, Identifier={2}, Parent={3}]", ID, Host.TypeKey, Host.Identifier, Parent != null ? Parent.ID : 0);
+			string parameter = IsParameterized ? string.Format (", Parameter={0}", Parameter != null ? Parameter.ToString () : "<null>") : string.Empty;
+			var parent = Parent != null ? string.Format (", Parent={0}", Parent.ID) : string.Empty;
+			return string.Format ("[TestPath: ID={0}, Type={1}, Identifier={2}, Name={3}{4}{5}]", ID, Host.TypeKey, Host.Identifier, Host.Name, parameter, parent);
 		}
 	}
 }

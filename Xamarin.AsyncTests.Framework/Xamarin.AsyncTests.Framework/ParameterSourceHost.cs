@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Xml.Linq;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -56,64 +57,34 @@ namespace Xamarin.AsyncTests.Framework
 			Filter = filter;
 		}
 
-		internal override TestInvoker Deserialize (XElement node, TestInvoker invoker)
+		internal override IEnumerable<ITestParameter> GetParameters (TestContext ctx)
 		{
-			if (Serializer != null) {
-				var value = Serializer.Deserialize (node);
-				if (value == null)
-					throw new InternalErrorException ();
-
-				return new CapturedInvoker (this, value, invoker);
+			var parameters = SourceInstance.GetParameters (ctx, Filter);
+			foreach (var value in parameters) {
+				yield return Serialize (value);
 			}
-
-			var attr = node.Attribute ("Parameter");
-			if (attr == null)
-				throw new InternalErrorException ();
-
-			return new CapturedInvoker (this, attr.Value, invoker);
 		}
 
-		internal override TestInstance CreateInstance (TestInstance parent)
+		internal ITestParameter Serialize (T value)
 		{
-			return new ParameterSourceInstance<T> (this, parent, SourceInstance, Filter);
+			var testParameter = value as ITestParameter;
+			if (testParameter != null)
+				return testParameter;
+
+			return Serializer.ObjectToParameter (value);
 		}
 
-		class CapturedInvoker : ParameterizedTestInvoker
+		internal T Deserialize (ITestParameter parameter)
 		{
-			public object CapturedValue {
-				get;
-				private set;
-			}
+			if (Serializer != null)
+				return (T)Serializer.ParameterToObject (parameter);
 
-			public string CapturedIdentifier {
-				get;
-				private set;
-			}
+			return (T)parameter;
+		}
 
-			new public ParameterSourceHost<T> Host {
-				get { return (ParameterSourceHost<T>)base.Host; }
-			}
-
-			public CapturedInvoker (ParameterSourceHost<T> host, object captured, TestInvoker inner)
-				: base (host, inner)
-			{
-				CapturedValue = captured;
-			}
-
-			public CapturedInvoker (ParameterSourceHost<T> host, string identifier, TestInvoker inner)
-				: base (host, inner)
-			{
-				CapturedIdentifier = identifier;
-			}
-
-			protected override ParameterizedTestInstance CreateInstance (TestInstance parent)
-			{
-				var instance = new ParameterSourceInstance<T> (
-					Host, parent, Host.SourceInstance, Host.Filter);
-				instance.CapturedValue = CapturedValue;
-				instance.CapturedIdentifier = CapturedIdentifier;
-				return instance;
-			}
+		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
+		{
+			return new ParameterSourceInstance<T> (this, path, parent, SourceInstance, Filter);
 		}
 	}
 }

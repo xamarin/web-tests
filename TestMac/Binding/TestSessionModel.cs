@@ -28,11 +28,17 @@ using System.Collections.Generic;
 using AppKit;
 using Foundation;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
 
 namespace TestMac
 {
 	public class TestSessionModel : TestListNode
 	{
+		public TestSession Session {
+			get;
+			private set;
+		}
+
 		public TestSuite Suite {
 			get;
 			private set;
@@ -43,10 +49,13 @@ namespace TestMac
 			private set;
 		}
 
-		public TestSessionModel (TestSuite suite)
+		public TestSessionModel (TestSession session)
 		{
-			Suite = suite;
-			Test = new TestCaseModel (suite.Test);
+			Session = session;
+			Suite = session.Test.Suite;
+			
+			Test = new TestCaseModel (Session.Context, Session.Test);
+			Test.Test.Resolve (Session.Context);
 		}
 
 		#region implemented abstract members of TestListNode

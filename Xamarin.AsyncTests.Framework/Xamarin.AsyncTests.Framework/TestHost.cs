@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Xml.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -63,20 +64,23 @@ namespace Xamarin.AsyncTests.Framework
 			Flags = flags;
 		}
 
-		internal TestInstance CreateInstance (TestContext ctx, TestInstance parent)
+		internal TestInstance CreateInstance (TestContext ctx, TestPath path, TestInstance parent)
 		{
-			var instance = CreateInstance (parent);
+			var instance = CreateInstance (path, parent);
 			instance.Initialize (ctx);
 			return instance;
 		}
 
+		internal virtual IEnumerable<ITestParameter> GetParameters (TestContext ctx)
+		{
+			yield break;
+		}
+
 		internal abstract ITestParameter GetParameter (TestInstance instance);
 
-		internal abstract TestInvoker Deserialize (XElement node, TestInvoker invoker);
+		internal abstract TestInstance CreateInstance (TestPath path, TestInstance parent);
 
-		internal abstract TestInstance CreateInstance (TestInstance parent);
-
-		internal abstract TestInvoker CreateInvoker (TestInvoker invoker);
+		internal abstract TestInvoker CreateInvoker (TestPath path, TestInvoker invoker);
 
 		public override string ToString ()
 		{
