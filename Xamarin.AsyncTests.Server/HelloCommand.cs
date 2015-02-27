@@ -33,18 +33,20 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class HelloCommand : Command<Handshake,Handshake>
+	class HelloCommand : Command<Handshake,object>
 	{
 		protected override Serializer<Handshake> ArgumentSerializer {
 			get { return Serializer.Handshake; }
 		}
-		protected override Serializer<Handshake> ResponseSerializer {
-			get { return Serializer.Handshake; }
+		protected override Serializer<object> ResponseSerializer {
+			get { return null; }
 		}
 
-		protected override Task<Handshake> Run (Connection connection, Handshake argument, CancellationToken cancellationToken)
+		protected async override Task<object> Run (Connection connection, Handshake argument, CancellationToken cancellationToken)
 		{
-			return connection.OnHello (argument, cancellationToken);
+			var serverConnection = (ServerConnection)connection;
+			await serverConnection.OnHello (argument, cancellationToken);
+			return null;
 		}
 	}
 }

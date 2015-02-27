@@ -49,6 +49,11 @@ namespace Xamarin.AsyncTests.UI
 		{
 			return new ServerParameters (ServerMode.Local);
 		}
+
+		public static ServerParameters CreatePipe ()
+		{
+			return new ServerParameters (ServerMode.CreatePipe);
+		}
 	}
 }
 

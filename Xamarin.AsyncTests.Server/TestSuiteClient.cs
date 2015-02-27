@@ -1,10 +1,10 @@
 ﻿//
-// RunTestCommand.cs
+// TestSuiteClient.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,26 +24,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class RunTestCommand : Command<TestCase,TestResult>
+	class TestSuiteClient : TestSuite
 	{
-		protected override Serializer<TestCase> ArgumentSerializer {
-			get { return Serializer.TestCase; }
+		public RemoteTestSuite.ClientProxy Proxy {
+			get;
+			private set;
 		}
 
-		protected override Serializer<TestResult> ResponseSerializer {
-			get { return Serializer.TestResult; }
-		}
-
-		protected override Task<TestResult> Run (
-			Connection connection, TestCase argument, CancellationToken cancellationToken)
+		public TestSuiteClient (RemoteTestFramework.ClientProxy framework, long objectID)
+			: base (framework.Instance)
 		{
-			return connection.OnRun (argument, cancellationToken);
+			Proxy = new RemoteTestSuite.ClientProxy (framework.Connection, this, objectID);
+		}
+
+		public override Task<TestCase> Resolve (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return RemoteObjectManager.ResolveTestSuite (Proxy, cancellationToken);
 		}
 	}
 }

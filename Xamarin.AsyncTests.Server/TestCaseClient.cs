@@ -1,10 +1,10 @@
 ﻿//
-// GetTestSuiteCommand.cs
+// TestCaseClient.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,34 +24,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml;
 using System.Xml.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	using Framework;
-
-	class GetSettingsCommand : Command<object,SettingsBag>
+	class TestCaseClient : TestCase
 	{
-		#region implemented abstract members of Command
-		protected override Task<SettingsBag> Run (Connection connection, object argument, CancellationToken cancellationToken)
+		public RemoteTestCase.ClientProxy Proxy {
+			get;
+			private set;
+		}
+
+		public TestCaseClient (RemoteTestSuite.ClientProxy suite, long objectID)
+			: base (suite.Instance, suite.Instance.Name)
 		{
-			return Task.FromResult (connection.OnGetSettings ());
+			Proxy = new RemoteTestCase.ClientProxy (suite.Connection, this, objectID);
 		}
 
-		protected override Serializer<object> ArgumentSerializer {
-			get { return null; }
+		public XElement SerializedPath {
+			get;
+			internal set;
 		}
 
-		protected override Serializer<SettingsBag> ResponseSerializer {
-			get { return Serializer.Settings; }
+		public override IEnumerable<TestCase> GetChildren (TestContext ctx)
+		{
+			throw new NotImplementedException ();
 		}
 
-		#endregion
+		public override XElement Serialize ()
+		{
+			return SerializedPath;
+		}
+
+		public override void Resolve (TestContext ctx)
+		{
+			base.Resolve (ctx);
+		}
+
+		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
+		}
 	}
 }
 

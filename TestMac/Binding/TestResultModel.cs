@@ -148,6 +148,8 @@ namespace TestMac
 			if (Result == null || Result.Test == null || Context == null)
 				return null;
 
+			
+
 			testCase = new TestCaseModel (Context, Result.Test);
 			return testCase;
 		}

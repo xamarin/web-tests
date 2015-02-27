@@ -29,76 +29,24 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
+	using Portable;
 	using Framework;
 
-	class RemoteTestFramework : RemoteObject<TestFramework,TestFramework>
+	class RemoteTestFramework : RemoteObject<TestFrameworkClient,TestFrameworkServant>
 	{
-		internal static ServerProxy CreateServer (Connection connection)
+		internal static ServerProxy CreateServer (ServerConnection connection)
 		{
-			return new ServerProxy (connection, new RemoteTestFramework ());
+			return new TestFrameworkServant (connection).Proxy;
 		}
 
-		internal static ClientProxy CreateClient (Connection connection, long objectId)
+		internal static ClientProxy CreateClient (ClientConnection connection, long objectID)
 		{
-			return new ClientProxy (connection, new RemoteTestFramework (), objectId);
+			return new TestFrameworkClient (connection, objectID).Proxy;
 		}
 
-		protected override TestFramework CreateClientProxy (ClientProxy proxy)
+		protected override TestFrameworkClient CreateClientProxy (ClientProxy proxy)
 		{
-			return new FrameworkClient (proxy);
-		}
-
-		protected override TestFramework CreateServerProxy (Connection connection)
-		{
-			return new FrameworkServer (connection);
-		}
-
-		class FrameworkServer : TestFramework
-		{
-			readonly Connection connection;
-
-			public FrameworkServer (Connection connection)
-			{
-				this.connection = connection;
-			}
-
-			public override Task<TestSuite> LoadTestSuite (TestApp app, CancellationToken cancellationToken)
-			{
-				return connection.GetLocalTestSuite (cancellationToken);
-			}
-		}
-
-		class FrameworkClient : TestFramework
-		{
-			readonly ClientProxy proxy;
-
-			public FrameworkClient (ClientProxy proxy)
-			{
-				this.proxy = proxy;
-			}
-
-			public override Task<TestSuite> LoadTestSuite (TestApp app, CancellationToken cancellationToken)
-			{
-				var command = new LoadTestSuiteCommand ();
-				return command.Send (proxy, null, cancellationToken);
-			}
-		}
-
-		class LoadTestSuiteCommand : ObjectCommand<TestFramework,TestFramework,object,TestSuite>
-		{
-			protected override Serializer<object> ArgumentSerializer {
-				get { return null; }
-			}
-
-			protected override Serializer<TestSuite> ResponseSerializer {
-				get { return Serializer.TestSuite; }
-			}
-
-			protected override Task<TestSuite> Run (
-				Connection connection, TestFramework server, object argument, CancellationToken cancellationToken)
-			{
-				return connection.GetLocalTestSuite (cancellationToken);
-			}
+			throw new ServerErrorException ();
 		}
 
 	}

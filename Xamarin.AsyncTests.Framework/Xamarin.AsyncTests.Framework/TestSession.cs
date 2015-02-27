@@ -43,7 +43,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestCase Test {
+		public TestSuite Suite {
 			get;
 			private set;
 		}
@@ -68,14 +68,27 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestSession (TestApp app, TestCase test)
-			: this (app, test, new TestResult (test.Name))
+		public TestSession (TestApp app, TestSuite suite)
+			: this (app, suite, new TestResult (suite.Name))
 		{
 		}
 
-		public TestSession (TestApp app, TestCase test, TestResult result)
+		public TestSession (TestSuite suite, IPortableSupport support, TestLogger logger, TestResult result = null)
 		{
-			Test = test;
+			Suite = suite;
+			Result = result ?? new TestResult (suite.Name);
+			Logger = new TestLogger (TestLoggerBackend.CreateForResult (Result, logger));
+			PortableSupport = support;
+
+			Created = DateTime.Now;
+			Name = string.Format ("[{0:s}]: {1}", Created, Result.Name.Name);
+
+			Context = CreateContext ();
+		}
+
+		public TestSession (TestApp app, TestSuite suite, TestResult result)
+		{
+			Suite = suite;
 			Result = result;
 			Logger = new TestLogger (TestLoggerBackend.CreateForResult (Result, app.Logger));
 			PortableSupport = app.PortableSupport;
@@ -88,26 +101,13 @@ namespace Xamarin.AsyncTests.Framework
 
 		TestContext CreateContext ()
 		{
-			return new TestContext (PortableSupport, Logger, Test.Suite, Result.Name, Result);
+			return new TestContext (PortableSupport, Logger, Suite, Result.Name, Result);
 		}
 
-		public Task<TestResult> Run (CancellationToken cancellationToken)
+		public async Task<TestResult> Run (TestCase test, CancellationToken cancellationToken)
 		{
-			return Run (Test, cancellationToken);
-		}
-
-		public Task<TestResult> Repeat (int count, CancellationToken cancellationToken)
-		{
-			var repeatedTest = TestFramework.CreateRepeatedTest (Test, count);
-			return Run (repeatedTest, cancellationToken);
-		}
-
-		async Task<TestResult> Run (TestCase test, CancellationToken cancellationToken)
-		{
-			var ctx = CreateContext ();
-
 			try {
-				await test.Run (ctx, cancellationToken).ConfigureAwait (false);
+				await test.Run (Context, cancellationToken).ConfigureAwait (false);
 			} catch (OperationCanceledException) {
 				Result.Status = TestStatus.Canceled;
 			} catch (Exception ex) {

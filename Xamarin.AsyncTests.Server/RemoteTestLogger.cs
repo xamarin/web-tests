@@ -33,7 +33,7 @@ namespace Xamarin.AsyncTests.Server
 	{
 		internal static ServerProxy CreateServer (Connection connection)
 		{
-			return new ServerProxy (connection, new RemoteTestLogger ());
+			return new LoggerServer (connection).Proxy;
 		}
 
 		internal static ClientProxy CreateClient (Connection connection, long objectId)
@@ -45,11 +45,6 @@ namespace Xamarin.AsyncTests.Server
 		{
 			var backend = new LoggerClient (proxy);
 			return new TestLogger (backend);
-		}
-
-		protected override TestLoggerBackend CreateServerProxy (Connection connection)
-		{
-			return new LoggerServer (connection);
 		}
 
 		class LoggerClient : TestLoggerBackend
@@ -74,11 +69,14 @@ namespace Xamarin.AsyncTests.Server
 
 		class LoggerServer : TestLoggerBackend
 		{
-			readonly Connection connection;
+			public ServerProxy Proxy {
+				get;
+				private set;
+			}
 
 			public LoggerServer (Connection connection)
 			{
-				this.connection = connection;
+				Proxy = new ServerProxy (connection, this);
 			}
 
 			protected internal override void OnLogEvent (LogEntry entry)

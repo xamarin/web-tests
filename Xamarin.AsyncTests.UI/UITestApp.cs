@@ -118,21 +118,26 @@ namespace Xamarin.AsyncTests.UI
 			}
 		}
 
-		protected void LogDebug (int level, string message)
+		protected internal void LogDebug (int level, string message)
 		{
 			if (level > Logger.LogLevel)
 				return;
 			SD.Debug.WriteLine (message);
 		}
 
-		protected void LogMessage (string message)
+		protected internal void LogMessage (string format, params object[] args)
+		{
+			LogMessage (string.Format (format, args));
+		}
+
+		protected internal void LogMessage (string message)
 		{
 			SD.Debug.WriteLine (message);
 		}
 
 		public override TestFramework GetLocalTestFramework ()
 		{
-			return TestFramework.GetLocalFramework (Assembly);
+			return TestFramework.GetLocalFramework (Assembly, PortableSupport, Logger, Settings);
 		}
 	}
 }

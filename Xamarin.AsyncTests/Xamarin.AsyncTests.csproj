@@ -106,6 +106,8 @@
     <Compile Include="Xamarin.AsyncTests\ITestParameter.cs" />
     <Compile Include="Xamarin.AsyncTests\FriendlyNameAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestPath.cs" />
+    <Compile Include="Xamarin.AsyncTests.Portable\IPipeConnection.cs" />
+    <Compile Include="Xamarin.AsyncTests\ITestFramework.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />

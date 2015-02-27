@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -58,39 +59,105 @@ namespace Xamarin.AsyncTests.Server
 			protected abstract long CreateInstance (Connection connection);
 		}
 
-		class GetRemoteTestLoggerCommand : CreateCommand<RemoteTestLogger, TestLogger, TestLoggerBackend>
+		class GetRemoteTestFrameworkCommand : CreateCommand<RemoteTestFramework, TestFrameworkClient, TestFrameworkServant>
 		{
 			protected override long CreateInstance (Connection connection)
 			{
-				return RemoteTestLogger.CreateServer (connection).ObjectID;
-			}
-		}
-
-		public static async Task<TestLogger> GetRemoteTestLogger (
-			Connection connection, CancellationToken cancellationToken)
-		{
-			var command = new GetRemoteTestLoggerCommand ();
-			var objectID = await command.Send (connection, cancellationToken);
-			var remote = RemoteTestLogger.CreateClient (connection, objectID);
-			return remote.Instance;
-		}
-
-		class GetRemoteTestFrameworkCommand : CreateCommand<RemoteTestFramework, TestFramework, TestFramework>
-		{
-			protected override long CreateInstance (Connection connection)
-			{
-				return RemoteTestFramework.CreateServer (connection).ObjectID;
+				return RemoteTestFramework.CreateServer ((ServerConnection)connection).ObjectID;
 			}
 		}
 
 		public static async Task<TestFramework> GetRemoteTestFramework (
-			Connection connection, CancellationToken cancellationToken)
+			ClientConnection connection, CancellationToken cancellationToken)
 		{
 			var command = new GetRemoteTestFrameworkCommand ();
 			var objectID = await command.Send (connection, cancellationToken);
 			var remote = RemoteTestFramework.CreateClient (connection, objectID);
 			return remote.Instance;
 		}
+
+		class GetRemoteTestSuiteCommand : ObjectCommand<TestFrameworkClient,TestFrameworkServant,object,long>
+		{
+			protected override Serializer<object> ArgumentSerializer {
+				get { return null; }
+			}
+
+			protected override Serializer<long> ResponseSerializer {
+				get { return Serializer.ObjectID; }
+			}
+
+			protected override async Task<long> Run (
+				Connection connection, TestFrameworkServant servant, object argument, CancellationToken cancellationToken)
+			{
+				var serverConnection = (ServerConnection)connection;
+				var suite = RemoteTestSuite.CreateServer (serverConnection, servant);
+				await suite.Instance.Initialize (serverConnection.Logger, cancellationToken);
+				return suite.ObjectID;
+			}
+		}
+
+		public static async Task<TestSuite> GetRemoteTestSuite (
+			RemoteTestFramework.ClientProxy framework, CancellationToken cancellationToken)
+		{
+			var command = new GetRemoteTestSuiteCommand ();
+			var objectID = await command.Send (framework, null, cancellationToken);
+			var remote = RemoteTestSuite.CreateClient (framework, objectID);
+			return remote.Instance;
+		}
+
+		class ResolveTestSuiteCommand : ObjectCommand<TestSuiteClient,TestSuiteServant,object,long>
+		{
+			protected override Serializer<object> ArgumentSerializer {
+				get { return null; }
+			}
+
+			protected override Serializer<long> ResponseSerializer {
+				get { return Serializer.ObjectID; }
+			}
+
+			protected override async Task<long> Run (
+				Connection connection, TestSuiteServant servant, object argument, CancellationToken cancellationToken)
+			{
+				var test = await servant.Resolve (cancellationToken);
+				var suite = RemoteTestCase.CreateServer ((ServerConnection)connection, servant, test);
+				return suite.ObjectID;
+			}
+		}
+
+		class GetTestPathCommand : ObjectCommand<TestCaseClient,TestCaseServant,object,XElement>
+		{
+			protected override Serializer<object> ArgumentSerializer {
+				get { return null; }
+			}
+
+			protected override Serializer<XElement> ResponseSerializer {
+				get { return Serializer.Element; }
+			}
+
+			protected override Task<XElement> Run (
+				Connection connection, TestCaseServant servant, object argument, CancellationToken cancellationToken)
+			{
+				return Task.Run (() => {
+					return servant.Serialize ();
+				});
+			}
+		}
+
+		public static async Task<TestCase> ResolveTestSuite (
+			RemoteTestSuite.ClientProxy suite, CancellationToken cancellationToken)
+		{
+			var command = new ResolveTestSuiteCommand ();
+			var objectID = await command.Send (suite, null, cancellationToken);
+			var remote = RemoteTestCase.CreateClient (suite, objectID);
+
+			var getPathCommand = new GetTestPathCommand ();
+			var testPath = await getPathCommand.Send (remote, null, cancellationToken);
+
+			remote.Instance.SerializedPath = testPath;
+
+			return remote.Instance;
+		}
+
 	}
 }
 

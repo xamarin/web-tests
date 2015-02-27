@@ -34,11 +34,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	class ReflectionTestSuite : TestSuite, IPathResolver
 	{
-		public TestApp App {
-			get;
-			private set;
-		}
-
 		public Assembly Assembly {
 			get;
 			private set;
@@ -49,20 +44,15 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public override TestConfiguration Configuration {
-			get { return Builder.Configuration; }
-		}
-
 		public TestPathNode RootPath {
 			get;
 			private set;
 		}
 
-		ReflectionTestSuite (TestApp app, TestName name, Assembly assembly)
-			: base (name)
+		internal ReflectionTestSuite (ReflectionTestFramework framework)
+			: base (framework)
 		{
-			App = app;
-			Assembly = assembly;
+			Assembly = framework.Assembly;
 			Builder = new ReflectionTestSuiteBuilder (this);
 
 			var rootPath = new TestPath (Builder.Host, null, Builder.Parameter);
@@ -72,8 +62,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		TestCase test;
 
-		public override TestCase Test {
-			get { return test; }
+		public override Task<TestCase> Resolve (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Task.FromResult (test);
 		}
 
 		TestPathNode IPathResolver.Node {
@@ -87,23 +78,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (!node.ParameterType.Equals (TestSerializer.TestSuiteIdentifier))
 				throw new InternalErrorException ();
 			return RootPath;
-		}
-
-		public static Task<TestSuite> Create (TestApp app, Assembly assembly)
-		{
-			var tcs = new TaskCompletionSource<TestSuite> ();
-
-			Task.Factory.StartNew (() => {
-				try {
-					var name = new TestName (assembly.GetName ().Name);
-					var suite = new ReflectionTestSuite (app, name, assembly);
-					tcs.SetResult (suite);
-				} catch (Exception ex) {
-					tcs.SetException (ex);
-				}
-			});
-
-			return tcs.Task;
 		}
 	}
 }

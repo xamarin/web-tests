@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using AppKit;
 using Foundation;
@@ -52,17 +54,31 @@ namespace TestMac
 		public TestSessionModel (TestSession session)
 		{
 			Session = session;
-			Suite = session.Test.Suite;
-			
-			Test = new TestCaseModel (Session.Context, Session.Test);
-			Test.Test.Resolve (Session.Context);
+			Suite = session.Suite;
+
+			Initialize ();
+
+			// Test = new TestCaseModel (Session.Context, Session.Test);
+			// Test.Test.Resolve (Session.Context);
+		}
+
+		async void Initialize ()
+		{
+			var test = await Suite.Resolve (Session.Context, CancellationToken.None);
+			Console.WriteLine ("GOT ROOT TEST: {0}", test);
+
+			if (test != null) {
+				var model = new TestCaseModel (Session.Context, test);
+				AddChild (model);
+			}
 		}
 
 		#region implemented abstract members of TestListNode
 
 		protected override IEnumerable<TestListNode> ResolveChildren ()
 		{
-			yield return Test;
+			if (Test != null)
+				yield return Test;
 		}
 
 		#endregion

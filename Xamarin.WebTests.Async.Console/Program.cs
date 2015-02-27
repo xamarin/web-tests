@@ -91,15 +91,6 @@ namespace Xamarin.AsyncTests.Client
 			private set;
 		}
 
-		public bool UseMySettings {
-			get { return SettingsFile != null; }
-		}
-
-		public bool UseMyTestSuite {
-			get;
-			private set;
-		}
-
 		ConsoleClient connection;
 		SettingsBag settings;
 		TestConfiguration config;
@@ -135,7 +126,6 @@ namespace Xamarin.AsyncTests.Client
 			p.Add ("result=", v => ResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
 			p.Add ("log-remotely", v => LogRemotely = true);
-			p.Add ("my-tests", v => UseMyTestSuite = true);
 			var remaining = p.Parse (args);
 
 			settings = LoadSettings (SettingsFile);

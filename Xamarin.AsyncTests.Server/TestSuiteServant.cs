@@ -1,10 +1,10 @@
 ﻿//
-// Handshake.cs
+// TestSuiteServant.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,28 +24,54 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
 	using Framework;
 
-	public class Handshake
+	class TestSuiteServant
 	{
-		public bool WantStatisticsEvents {
-			get; set;
+		public RemoteTestSuite.ServerProxy Proxy {
+			get;
+			private set;
 		}
 
-		public SettingsBag Settings {
-			get; set;
+		public TestFrameworkServant Framework {
+			get;
+			private set;
 		}
 
-		public TestLogger Logger {
-			get; set;
+		public TestSuite Suite {
+			get;
+			private set;
 		}
 
-		public override string ToString ()
+		public TestSession Session {
+			get;
+			private set;
+		}
+
+		public TestSuiteServant (ServerConnection connection, TestFrameworkServant framework)
 		{
-			return string.Format ("[Handshake: WantStatisticsEvents={0}, Settings={1}]", WantStatisticsEvents, Settings);
+			Framework = framework;
+			Proxy = new RemoteTestSuite.ServerProxy (connection, this);
+		}
+
+		public async Task Initialize (TestLogger logger, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+			Suite = await Framework.LoadTestSuite (cancellationToken);
+
+			Session = new TestSession (Suite, Framework.LocalFramework.PortableSupport, logger);
+
+			Session.Context.LogMessage ("Hello from Server!");
+		}
+
+		public Task<TestCase> Resolve (CancellationToken cancellationToken)
+		{
+			return Suite.Resolve (Session.Context, cancellationToken);
 		}
 	}
 }

@@ -31,43 +31,24 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class RemoteTestCase : TestCase, IRemoteObject
+	using Framework;
+
+	class RemoteTestCase : RemoteObject<TestCaseClient,TestCaseServant>
 	{
-		public Connection Connection {
-			get;
-			private set;
-		}
-
-		public long ObjectID {
-			get;
-			private set;
-		}
-
-		public RemoteTestCase (TestSuite suite, TestName name, Connection connection, long objectId)
-			: base (suite, name)
+		internal static ServerProxy CreateServer (ServerConnection connection, TestSuiteServant suite, TestCase test)
 		{
-			Connection = connection;
-			ObjectID = objectId;
+			return new TestCaseServant (connection, suite, test).Proxy;
 		}
 
-		#region implemented abstract members of TestCase
-
-		public override XElement Serialize ()
+		internal static ClientProxy CreateClient (RemoteTestSuite.ClientProxy suite, long objectID)
 		{
-			throw new NotImplementedException ();
+			return new TestCaseClient (suite, objectID).Proxy;
 		}
 
-		public override IEnumerable<TestCase> GetChildren (TestContext ctx)
+		protected override TestCaseClient CreateClientProxy (ClientProxy proxy)
 		{
-			throw new NotImplementedException ();
+			throw new ServerErrorException ();
 		}
-
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Connection.RunTest (this, ctx.Result, cancellationToken);
-		}
-
-		#endregion
 	}
 }
 

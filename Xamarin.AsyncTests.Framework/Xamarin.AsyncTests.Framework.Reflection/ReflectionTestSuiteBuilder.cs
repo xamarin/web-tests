@@ -34,11 +34,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	class ReflectionTestSuiteBuilder : TestBuilder
 	{
-		public TestApp App {
-			get;
-			private set;
-		}
-
 		public Assembly Assembly {
 			get;
 			private set;
@@ -53,26 +48,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			: base (suite, TestSerializer.TestSuiteIdentifier, suite.Assembly.GetName ().Name,
 				TestSerializer.GetStringParameter (suite.Assembly.FullName))
 		{
-			App = suite.App;
 			Assembly = suite.Assembly;
+			Configuration = suite.Configuration;
 
 			Resolve ();
 		}
 
 		public override TestFilter Filter {
 			get { return null; }
-		}
-
-		protected override void ResolveMembers ()
-		{
-			var cattr = Assembly.GetCustomAttributes<AsyncTestSuiteAttribute> ().First ();
-			var type = cattr.Type;
-			var instanceMember = type.GetRuntimeField ("Instance");
-			var provider = (ITestConfigurationProvider)instanceMember.GetValue (null);
-
-			Configuration = new TestConfiguration (provider, App.Settings);
-
-			base.ResolveMembers ();
 		}
 
 		protected override IEnumerable<TestBuilder> CreateChildren ()

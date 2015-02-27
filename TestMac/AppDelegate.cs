@@ -76,7 +76,7 @@ namespace TestMac
 				if (e == null)
 					CurrentSession = null;
 				else {
-					var session = new TestSession (ui, e.Test);
+					var session = new TestSession (ui, e);
 					CurrentSession = new TestSessionModel (session);
 				}
 			};
@@ -93,7 +93,7 @@ namespace TestMac
 		[Export ("LoadLocalTestSuite:")]
 		public async void LoadLocalTestSuite ()
 		{
-			await ui.ServerManager.Start.Execute (ServerParameters.CreateLocal ());
+			await ui.ServerManager.Start.Execute (ServerParameters.CreatePipe ());
 		}
 
 		[Export ("UnloadTestSuite:")]

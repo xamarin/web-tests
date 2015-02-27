@@ -39,22 +39,24 @@ namespace Xamarin.AsyncTests
 {
 	public abstract class TestSuite
 	{
-		public TestSuite (TestName name)
+		public TestSuite (ITestFramework framework)
 		{
-			Name = name;
+			Framework = framework;
 		}
 
 		public TestName Name {
+			get { return Framework.Name; }
+		}
+
+		public ITestFramework Framework {
 			get;
 			private set;
 		}
 
-		public abstract TestConfiguration Configuration {
-			get;
+		public TestConfiguration Configuration {
+			get { return Framework.Configuration; }
 		}
 
-		public abstract TestCase Test {
-			get;
-		}
+		public abstract Task<TestCase> Resolve (TestContext ctx, CancellationToken cancellationToken);
 	}
 }

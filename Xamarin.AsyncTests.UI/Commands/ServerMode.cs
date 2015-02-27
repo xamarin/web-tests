@@ -31,7 +31,8 @@ namespace Xamarin.AsyncTests.UI
 	{
 		Local,
 		StartServer,
-		ConnectToServer
+		ConnectToServer,
+		CreatePipe
 	}
 }
 

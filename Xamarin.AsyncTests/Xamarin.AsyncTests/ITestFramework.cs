@@ -1,10 +1,10 @@
 ﻿//
-// RunTestSuiteCommand.cs
+// ITestFramework.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,27 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Server
+namespace Xamarin.AsyncTests
 {
-	class RunTestSuiteCommand : Command<object,TestResult>
+	public interface ITestFramework
 	{
-		protected override Serializer<object> ArgumentSerializer {
-			get { return null; }
+		TestName Name {
+			get;
 		}
 
-		protected override Serializer<TestResult> ResponseSerializer {
-			get { return Serializer.TestResult; }
+		TestConfiguration Configuration {
+			get;
 		}
 
-		protected override Task<TestResult> Run (
-			Connection connection, object argument, CancellationToken cancellationToken)
-		{
-			return connection.OnRunTestSuite (cancellationToken);
-		}
+		Task<TestCase> ResolveTest (TestContext ctx, ITestPath path, CancellationToken cancellationToken);
+
+		Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken);
 	}
 }
 

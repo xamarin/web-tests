@@ -33,63 +33,23 @@ namespace Xamarin.AsyncTests.Server
 {
 	using Framework;
 
-	class RemoteTestSuite : TestSuite, IRemoteObject
+	class RemoteTestSuite : RemoteObject<TestSuiteClient,TestSuiteServant>
 	{
-		public Connection Connection {
-			get;
-			private set;
-		}
-
-		public override TestConfiguration Configuration {
-			get {
-				throw new NotImplementedException ();
-			}
-		}
-
-		public long ObjectID {
-			get;
-			private set;
-		}
-
-		RootTestCase root;
-
-		public override TestCase Test {
-			get { return root; }
-		}
-
-		public RemoteTestSuite (Connection connection, long objectId, TestName name)
-			: base (name)
+		internal static ServerProxy CreateServer (ServerConnection connection, TestFrameworkServant framework)
 		{
-			Connection = connection;
-			ObjectID = objectId;
-			root = new RootTestCase (this);
+			return new TestSuiteServant (connection, framework).Proxy;
 		}
 
-		class RootTestCase : TestCase
+		internal static ClientProxy CreateClient (RemoteTestFramework.ClientProxy framework, long objectID)
 		{
-			readonly RemoteTestSuite suite;
-
-			public RootTestCase (RemoteTestSuite suite)
-				: base (suite, suite.Name)
-			{
-				this.suite = suite;
-			}
-
-			public override XElement Serialize ()
-			{
-				throw new NotImplementedException ();
-			}
-
-			public override IEnumerable<TestCase> GetChildren (TestContext ctx)
-			{
-				throw new NotImplementedException ();
-			}
-
-			internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
-			{
-				return suite.Connection.RunTest (this, ctx.Result, cancellationToken);
-			}
+			return new TestSuiteClient (framework, objectID).Proxy;
 		}
+
+		protected override TestSuiteClient CreateClientProxy (ClientProxy proxy)
+		{
+			throw new ServerErrorException ();
+		}
+
 	}
 }
 

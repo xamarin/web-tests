@@ -30,63 +30,36 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
+	using Portable;
 	using Reflection;
 
-	public abstract class TestFramework
+	public abstract class TestFramework : ITestFramework
 	{
-		public static TestFramework GetLocalFramework (Assembly assembly)
+		public static TestFramework GetLocalFramework (
+			Assembly assembly, IPortableSupport support, TestLogger logger, SettingsBag settings)
 		{
-			return new ReflectionTestFramework (assembly);
+			return new ReflectionTestFramework (assembly, support, logger, settings);
 		}
 
-		public abstract Task<TestSuite> LoadTestSuite (TestApp app, CancellationToken cancellationToken);
-
-		internal static TestCase CreateRepeatedTest (TestCase test, int count)
-		{
-			#if FIXME
-			var repeatHost = new RepeatedTestHost (null, count, TestFlags.ContinueOnError | TestFlags.Browsable, "$iteration");
-			var invoker = AggregatedTestInvoker.Create (repeatHost, new TestCaseInvoker (test));
-			invoker = NamedTestInvoker.Create (null, test.Name, invoker);
-			return new InvokableTestCase (test.Suite, invoker);
-			#else
-			return test;
-			#endif
+		public abstract TestName Name {
+			get;
 		}
 
-		public static TestCase CreateProxy (TestCase test, TestName proxy)
-		{
-			#if FIXME
-			var invoker = NamedTestInvoker.Create (null, proxy, new TestCaseInvoker (test));
-			return new InvokableTestCase (test.Suite, invoker);
-			#else
-			return test;
-			#endif
+		public abstract IPortableSupport PortableSupport {
+			get;
 		}
 
-		class TestCaseInvoker : TestInvoker
-		{
-			public TestCase Test {
-				get;
-				private set;
-			}
-
-			public TestCaseInvoker (TestCase test)
-			{
-				Test = test;
-			}
-
-			public override Task<bool> Invoke (
-				TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
-			{
-				while (instance != null) {
-					if (!(instance.Host is RepeatedTestHost || instance.Host is TestBuilderHost))
-						throw new InternalErrorException ();
-					instance = instance.Parent;
-				}
-
-				return Test.Run (ctx, cancellationToken);
-			}
+		public abstract TestConfiguration Configuration {
+			get;
 		}
+
+		protected internal abstract TestLogger Logger {
+			get;
+		}
+
+		public abstract Task<TestCase> ResolveTest (TestContext ctx, ITestPath path, CancellationToken cancellationToken);
+
+		public abstract Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken);
 	}
 }
 

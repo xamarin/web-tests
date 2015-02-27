@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.Client
 		}
 
 		public ConsoleClient (Program program, Stream stream)
-			: base (program, stream, program.UseMySettings, program.UseMyTestSuite)
+			: base (program, stream)
 		{
 			Program = program;
 		}

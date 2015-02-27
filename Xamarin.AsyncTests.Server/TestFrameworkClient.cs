@@ -1,10 +1,10 @@
 ﻿//
-// Handshake.cs
+// TestFrameworkClient.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,28 +24,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
+	using Portable;
 	using Framework;
 
-	public class Handshake
+	class TestFrameworkClient : TestFramework
 	{
-		public bool WantStatisticsEvents {
-			get; set;
+		public RemoteTestFramework.ClientProxy Proxy {
+			get;
+			private set;
 		}
 
-		public SettingsBag Settings {
-			get; set;
+		public ClientConnection Connection {
+			get;
+			private set;
 		}
 
-		public TestLogger Logger {
-			get; set;
-		}
-
-		public override string ToString ()
+		public TestFrameworkClient (ClientConnection connection, long objectID)
 		{
-			return string.Format ("[Handshake: WantStatisticsEvents={0}, Settings={1}]", WantStatisticsEvents, Settings);
+			Connection = connection;
+			Proxy = new RemoteTestFramework.ClientProxy (connection, this, objectID);
+		}
+
+		public override TestName Name {
+			get { return Connection.LocalFramework.Name; }
+		}
+
+		public override IPortableSupport PortableSupport {
+			get { return Connection.PortableSupport; }
+		}
+
+		protected override TestLogger Logger {
+			get { return Connection.App.Logger; }
+		}
+
+		public override TestConfiguration Configuration {
+			get { return Connection.LocalFramework.Configuration; }
+		}
+
+		public override Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
+		{
+			return RemoteObjectManager.GetRemoteTestSuite (Proxy, cancellationToken);
+		}
+
+		public override Task<TestCase> ResolveTest (TestContext ctx, ITestPath path, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }

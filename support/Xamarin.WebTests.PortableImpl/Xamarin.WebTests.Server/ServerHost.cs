@@ -70,6 +70,33 @@ namespace Xamarin.WebTests.Server
 			return new ClientConnection (client);
 		}
 
+		public async Task<IPipeConnection> CreatePipe (CancellationToken cancellationToken)
+		{
+			var server = await Start (cancellationToken);
+			var client = await Connect (server.Name, cancellationToken);
+
+			return new PipeConnection (client, server);
+		}
+
+		class PipeConnection : IPipeConnection
+		{
+			public IServerConnection Client {
+				get;
+				private set;
+			}
+
+			public IServerConnection Server {
+				get;
+				private set;
+			}
+
+			public PipeConnection (IServerConnection client, IServerConnection server)
+			{
+				Client = client;
+				Server = server;
+			}
+		}
+
 		class ClientConnection : IServerConnection
 		{
 			TcpClient client;

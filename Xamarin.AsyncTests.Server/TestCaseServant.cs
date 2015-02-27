@@ -1,10 +1,10 @@
 ﻿//
-// MessageCommand.cs
+// TestCaseServant.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,21 +24,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class LogMessageCommand : OneWayCommand<string>
+	class TestCaseServant
 	{
-		protected override Serializer<string> ArgumentSerializer {
-			get { return Serializer.String; }
+		public RemoteTestCase.ServerProxy Proxy {
+			get;
+			private set;
 		}
 
-		protected override void Run (Connection connection, string argument)
+		public TestSuiteServant Suite {
+			get;
+			private set;
+		}
+
+		public TestCase Test {
+			get;
+			private set;
+		}
+
+		public TestCaseServant (ServerConnection connection, TestSuiteServant suite, TestCase test)
 		{
-			connection.OnLogMessage (argument);
+			Suite = suite;
+			Test = test;
+
+			Proxy = new RemoteTestCase.ServerProxy (connection, this);
+		}
+
+		public XElement Serialize ()
+		{
+			return Test.Serialize ();
 		}
 	}
 }

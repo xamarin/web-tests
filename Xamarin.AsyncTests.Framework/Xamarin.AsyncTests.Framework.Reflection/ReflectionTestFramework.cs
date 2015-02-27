@@ -24,12 +24,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
+	using Portable;
+
 	class ReflectionTestFramework : TestFramework
 	{
 		public Assembly Assembly {
@@ -37,14 +40,63 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public ReflectionTestFramework (Assembly assembly)
-		{
-			Assembly = assembly;
+		public SettingsBag Settings {
+			get;
+			private set;
 		}
 
-		public override Task<TestSuite> LoadTestSuite (TestApp app, CancellationToken cancellationToken)
+		public override TestName Name {
+			get { return name; }
+		}
+
+		public override IPortableSupport PortableSupport {
+			get { return support; }
+		}
+
+		protected internal override TestLogger Logger {
+			get { return logger; }
+		}
+
+		public override TestConfiguration Configuration {
+			get { return configuration; }
+		}
+
+		TestName name;
+		TestConfiguration configuration;
+		IPortableSupport support;
+		TestLogger logger;
+
+		public ReflectionTestFramework (Assembly assembly, IPortableSupport support, TestLogger logger, SettingsBag settings)
 		{
-			return ReflectionTestSuite.Create (app, Assembly);
+			Assembly = assembly;
+			this.support = support;
+			this.logger = logger;
+			Settings = settings;
+
+			Resolve ();
+		}
+
+		public override Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
+		{
+			return Task.FromResult<TestSuite> (new ReflectionTestSuite (this));
+		}
+
+		void Resolve ()
+		{
+			var cattr = Assembly.GetCustomAttributes<AsyncTestSuiteAttribute> ().First ();
+			var type = cattr.Type;
+			var instanceMember = type.GetRuntimeField ("Instance");
+			var provider = (ITestConfigurationProvider)instanceMember.GetValue (null);
+
+			configuration = new TestConfiguration (provider, Settings);
+			name = new TestName (Assembly.GetName ().Name);
+		}
+
+		public override Task<TestCase> ResolveTest (TestContext ctx, ITestPath path, CancellationToken cancellationToken)
+		{
+			var element = path.Serialize ();
+			var node = TestSerializer.DeserializePath (ctx, element);
+			return Task.FromResult<TestCase> (new PathBasedTestCase (node));
 		}
 	}
 }

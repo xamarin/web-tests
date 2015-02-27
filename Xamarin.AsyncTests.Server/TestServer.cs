@@ -61,45 +61,55 @@ namespace Xamarin.AsyncTests.Server
 			return server;
 		}
 
-		public static async Task<TestServer> StartServer (TestApp app, CancellationToken cancellationToken)
+		public static async Task<TestServer> CreatePipe (TestApp app, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			var connection = await app.PortableSupport.ServerHost.Start (cancellationToken);
+			var connection = await app.PortableSupport.ServerHost.CreatePipe (cancellationToken);
 
-			return await StartRemoteServer (app, connection, cancellationToken);
+			var framework = app.GetLocalTestFramework ();
+			var serverApp = new PipeApp (app.PortableSupport, framework);
+
+			var server = await StartServer (serverApp, connection.Server, cancellationToken);
+			var client = await StartClient (app, connection.Client, cancellationToken);
+
+			var pipe = new PipeServer (app, client, server);
+			await pipe.Initialize (cancellationToken);
+			return pipe;
 		}
 
-		public static async Task<TestServer> Connect (TestApp app, string address, CancellationToken cancellationToken)
-		{
-			await Task.Yield ();
-
-			cancellationToken.ThrowIfCancellationRequested ();
-			var connection = await app.PortableSupport.ServerHost.Connect (address, cancellationToken);
-
-			return await StartRemoteServer (app, connection, cancellationToken);
-		}
-
-		static async Task<TestServer> StartRemoteServer (TestApp app, IServerConnection connection, CancellationToken cancellationToken)
+		static async Task<ServerConnection> StartServer (TestApp app, IServerConnection connection, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			var stream = await connection.Open (cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			var serverConnection = new ServerConnection (app, stream, connection);
-			var server = new RemoteTestServer (app, serverConnection);
-			await server.Initialize (cancellationToken);
-			return server;
+			return new ServerConnection (app, stream, connection);
 		}
 
-		async Task Initialize (CancellationToken cancellationToken)
+		static async Task<ClientConnection> StartClient (TestApp app, IServerConnection connection, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested ();
+			var stream = await connection.Open (cancellationToken);
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			return new ClientConnection (app, stream, connection);
+		}
+
+		protected virtual async Task Initialize (CancellationToken cancellationToken)
+		{
+			Connection.Debug ("INITIALIZE");
+
 			cancellationToken.ThrowIfCancellationRequested ();
 			Framework = await GetTestFramework (cancellationToken);
 
+			Connection.Debug ("GOT FRAMEWORK: {0}", Framework);
+
 			cancellationToken.ThrowIfCancellationRequested ();
-			TestSuite = await Framework.LoadTestSuite (App, cancellationToken);
+			TestSuite = await Framework.LoadTestSuite (cancellationToken);
+
+			Connection.Debug ("GOT TEST SUITE: {0}", TestSuite);
 		}
 
 		public abstract Task<bool> Run (CancellationToken cancellationToken);
@@ -131,39 +141,97 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		class RemoteTestServer : TestServer
+		class PipeApp : TestApp
 		{
-			ServerConnection server;
+			SettingsBag settings;
+			TestFramework framework;
 
-			public RemoteTestServer (TestApp app, ServerConnection server)
+			public PipeApp (IPortableSupport support, TestFramework framework)
+				: base (support)
+			{
+				this.framework = framework;
+
+				settings = SettingsBag.CreateDefault ();
+			}
+
+			#region implemented abstract members of TestApp
+
+			public override TestFramework GetLocalTestFramework ()
+			{
+				return framework;
+			}
+
+			public override TestLogger Logger {
+				get {
+					throw new NotImplementedException ();
+				}
+			}
+
+			public override SettingsBag Settings {
+				get { return settings; }
+			}
+
+			#endregion
+		}
+
+		class PipeServer : TestServer
+		{
+			ClientConnection client;
+			ServerConnection server;
+			Task serverTask;
+			Task clientTask;
+
+			public PipeServer (TestApp app, ClientConnection client, ServerConnection server)
 				: base (app)
 			{
+				this.client = client;
 				this.server = server;
+			}
+
+			protected override async Task Initialize (CancellationToken cancellationToken)
+			{
+				await Task.WhenAll (server.Start (cancellationToken), client.Start (cancellationToken));
+
+				serverTask = server.Run (cancellationToken);
+				clientTask = client.Run (cancellationToken);
+				await base.Initialize (cancellationToken);
 			}
 
 			public override async Task<bool> Run (CancellationToken cancellationToken)
 			{
-				if (server != null)
-					await server.Run (cancellationToken);
+				await Task.Yield ();
+				Connection.Debug ("RUN PIPE");
+				await Task.WhenAll (serverTask, clientTask);
 				return false;
 			}
 
 			public override async Task Stop (CancellationToken cancellationToken)
 			{
-				if (server != null) {
-					try {
-						await server.Shutdown ();
-					} catch {
-						;
-					}
+				try {
+					await client.Shutdown ();
+				} catch {
+					;
+				}
+				try {
+					await server.Shutdown ();
+				} catch {
+					;
+				}
+				try {
+					client.Stop();
+				} catch {
+					;
+				}
+				try {
 					server.Stop ();
-					server = null;
+				} catch {
+					;
 				}
 			}
 
 			public override Task<TestFramework> GetTestFramework (CancellationToken cancellationToken)
 			{
-				return RemoteObjectManager.GetRemoteTestFramework (server, cancellationToken);
+				return RemoteObjectManager.GetRemoteTestFramework (client, cancellationToken);
 			}
 		}
 	}

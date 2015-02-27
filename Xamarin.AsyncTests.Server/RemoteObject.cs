@@ -65,6 +65,14 @@ namespace Xamarin.AsyncTests.Server
 
 				Instance = parent.CreateClientProxy (this);
 			}
+
+			public ClientProxy (Connection connection, T instance, long objectID)
+			{
+				this.connection = connection;
+				this.objectID = objectID;
+
+				Instance = instance;
+			}
 		}
 
 		public sealed class ServerProxy : Proxy
@@ -85,17 +93,15 @@ namespace Xamarin.AsyncTests.Server
 				private set;
 			}
 
-			public ServerProxy (Connection connection, RemoteObject<T,U> parent)
+			public ServerProxy (Connection connection, U instance)
 			{
-				this.connection = connection;
+				this.connection = Connection;
+				Instance = instance;
 				objectID = connection.RegisterRemoteObject (this);
-				Instance = parent.CreateServerProxy (connection);
 			}
 		}
 
 		protected abstract T CreateClientProxy (ClientProxy proxy);
-
-		protected abstract U CreateServerProxy (Connection connection);
 	}
 }
 

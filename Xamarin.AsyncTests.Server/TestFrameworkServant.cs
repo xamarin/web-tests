@@ -1,10 +1,10 @@
 ﻿//
-// SyncSettingsCommand.cs
+// TestFrameworkServant.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,10 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml;
-using System.Xml.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,24 +31,45 @@ namespace Xamarin.AsyncTests.Server
 {
 	using Framework;
 
-	class SyncSettingsCommand : Command<SettingsBag,object>
+	class TestFrameworkServant : IRemoteObject
 	{
-		#region implemented abstract members of Command
-		protected override Task<object> Run (Connection connection, SettingsBag argument, CancellationToken cancellationToken)
+		public RemoteTestFramework.ServerProxy Proxy {
+			get;
+			private set;
+		}
+
+		public TestApp App {
+			get;
+			private set;
+		}
+
+		public TestFramework LocalFramework {
+			get;
+			private set;
+		}
+
+		public long ObjectID {
+			get;
+			private set;
+		}
+
+		public TestFrameworkServant (ServerConnection connection)
 		{
-			connection.OnSyncSettings (argument);
-			return Task.FromResult<object> (null);
+			App = connection.App;
+			LocalFramework = App.GetLocalTestFramework ();
+
+			Proxy = new RemoteTestFramework.ServerProxy (connection, this);
 		}
 
-		protected override Serializer<SettingsBag> ArgumentSerializer {
-			get { return Serializer.Settings; }
+		public Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
+		{
+			return LocalFramework.LoadTestSuite (cancellationToken);
 		}
 
-		protected override Serializer<object> ResponseSerializer {
-			get { return null; }
+		public Task<TestCase> ResolveTest (TestContext ctx, ITestPath path, CancellationToken cancellationToken)
+		{
+			return LocalFramework.ResolveTest (ctx, path, cancellationToken);
 		}
-
-		#endregion
 	}
 }
 

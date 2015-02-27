@@ -48,24 +48,15 @@
     <Compile Include="Connection.cs" />
     <Compile Include="SavedException.cs" />
     <Compile Include="RemoteTestCase.cs" />
-    <Compile Include="RunTestCommand.cs" />
     <Compile Include="RemoteTestSuite.cs" />
-    <Compile Include="LoadTestSuiteCommand.cs" />
     <Compile Include="ShutdownCommand.cs" />
-    <Compile Include="GetSettingsCommand.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Response.cs" />
-    <Compile Include="LogMessageCommand.cs" />
     <Compile Include="Serializer.cs" />
-    <Compile Include="SyncSettingsCommand.cs" />
     <Compile Include="IRemoteObject.cs" />
     <Compile Include="CancelCommand.cs" />
     <Compile Include="OneWayCommand.cs" />
     <Compile Include="HelloCommand.cs" />
-    <Compile Include="RunTestSuiteCommand.cs" />
-    <Compile Include="Handshake.cs" />
-    <Compile Include="ClientConnection.cs" />
-    <Compile Include="ServerConnection.cs" />
     <Compile Include="ObjectCommand.cs" />
     <Compile Include="RemoteObject.cs" />
     <Compile Include="RemoteTestLogger.cs" />
@@ -73,6 +64,15 @@
     <Compile Include="TestServer.cs" />
     <Compile Include="RemoteTestFramework.cs" />
     <Compile Include="ServerErrorException.cs" />
+    <Compile Include="Handshake.cs" />
+    <Compile Include="TestCaseClient.cs" />
+    <Compile Include="TestCaseServant.cs" />
+    <Compile Include="TestFrameworkServant.cs" />
+    <Compile Include="ServerConnection.cs" />
+    <Compile Include="ClientConnection.cs" />
+    <Compile Include="TestSuiteServant.cs" />
+    <Compile Include="TestFrameworkClient.cs" />
+    <Compile Include="TestSuiteClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

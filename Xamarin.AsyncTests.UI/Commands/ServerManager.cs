@@ -138,18 +138,26 @@ namespace Xamarin.AsyncTests.UI
 				switch (parameters.Mode) {
 				case ServerMode.Local:
 					return TestServer.StartLocal (Manager.App, cancellationToken);
-				case ServerMode.ConnectToServer:
-					return TestServer.Connect (Manager.App, parameters.Address, cancellationToken);
-				case ServerMode.StartServer:
-					return TestServer.StartServer (Manager.App, cancellationToken);
+				case ServerMode.CreatePipe:
+					return TestServer.CreatePipe (Manager.App, cancellationToken);
 				default:
-					throw new InvalidOperationException ();
+					throw new InternalErrorException ();
 				}
 			}
 
-			internal sealed override Task<bool> Run (TestServer instance, CancellationToken cancellationToken)
+			internal sealed async override Task<bool> Run (TestServer instance, CancellationToken cancellationToken)
 			{
-				return Manager.OnRun (instance, cancellationToken);
+				Manager.App.LogMessage ("RUN SERVER");
+				try {
+					var retval = await Manager.OnRun (instance, cancellationToken);
+					Manager.App.LogMessage ("RUN SERVER DONE: {0}", retval);
+					return retval;
+				} catch (Exception ex) {
+					Manager.App.LogMessage ("RUN SERVER EX: {0}", ex);
+					throw;
+				} finally {
+					Manager.App.LogMessage ("RUN SERVER FINALLY");
+				}
 			}
 
 			internal sealed override Task Stop (TestServer instance, CancellationToken cancellationToken)

@@ -34,6 +34,7 @@ namespace TestMac
 	public class UISettings : SettingsBag
 	{
 		NSUserDefaults defaults;
+		const string Prefix = "xamarin.asynctests.";
 
 		public UISettings ()
 		{
@@ -44,31 +45,39 @@ namespace TestMac
 
 		public override bool TryGetValue (string key, out string value)
 		{
-			value = defaults.StringForKey (key);
+			value = defaults.StringForKey (Prefix + key);
 			return value != null;
 		}
 
 		public override void Add (string key, string value)
 		{
-			defaults.SetString (value, key);
+			defaults.SetString (value, Prefix + key);
 			defaults.Synchronize ();
 		}
 
 		public override void RemoveValue (string key)
 		{
-			defaults.RemoveObject (key);
+			defaults.RemoveObject (Prefix + key);
 			defaults.Synchronize ();
 		}
 
 		protected override void DoSetValue (string key, string value)
 		{
-			defaults.SetString (value, key);
+			defaults.SetString (value, Prefix + key);
 			defaults.Synchronize ();
 		}
 
 		public override IReadOnlyDictionary<string, string> Settings {
 			get {
-				throw new NotImplementedException ();
+				var dict = new Dictionary<string, string> ();
+				foreach (var entry in defaults.AsDictionary ()) {
+					var key = (string)(NSString)entry.Key;
+					if (!key.StartsWith (Prefix))
+						continue;
+					var value = (NSString)entry.Value;
+					dict.Add (key, value);
+				}
+				return dict;
 			}
 		}
 

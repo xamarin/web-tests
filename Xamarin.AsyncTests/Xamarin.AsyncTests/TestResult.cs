@@ -107,13 +107,6 @@ namespace Xamarin.AsyncTests
 			get { return test != null; }
 		}
 
-		public TestResult (TestCase test)
-			: this (test.Name)
-		{
-			Test = test;
-			Path = test;
-		}
-
 		public TestResult (TestName name, Exception error)
 			: this (name, TestStatus.Error)
 		{

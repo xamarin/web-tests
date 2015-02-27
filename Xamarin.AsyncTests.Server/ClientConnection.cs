@@ -31,36 +31,37 @@ using System.ComponentModel;
 
 namespace Xamarin.AsyncTests.Server
 {
+	using Portable;
 	using Framework;
 
-	public abstract class ClientConnection : Connection
+	public class ClientConnection : Connection
 	{
-		TestSuite suite;
-		TaskCompletionSource<TestSuite> startTcs;
+		IPortableSupport support;
+		TestFramework localFramework;
+		TestFramework remoteFramework;
+		TaskCompletionSource<TestFramework> startTcs;
 
-		public bool UseMySettings {
-			get;
-			private set;
-		}
-
-		public bool UseMyTestSuite {
-			get;
-			private set;
-		}
-
-		public ClientConnection (TestApp app, Stream stream, bool useMySettings, bool useMyTests)
-			: base (app, stream, false)
+		public ClientConnection (TestApp app, Stream stream, IServerConnection connection)
+			: base (app, stream)
 		{
-			UseMySettings = UseMySettings;
-			UseMyTestSuite = useMyTests;
-			startTcs = new TaskCompletionSource<TestSuite> ();
+			support = app.PortableSupport;
+			localFramework = app.GetLocalTestFramework ();
+			startTcs = new TaskCompletionSource<TestFramework> ();
 		}
 
-		public async Task<TestSuite> StartClient (CancellationToken cancellationToken)
+		public TestFramework LocalFramework {
+			get { return localFramework; }
+		}
+
+		public IPortableSupport PortableSupport {
+			get { return support; }
+		}
+
+		public async Task<TestFramework> StartClient (CancellationToken cancellationToken)
 		{
 			lock (this) {
-				if (suite != null)
-					return suite;
+				if (remoteFramework != null)
+					return remoteFramework;
 			}
 
 			await Start (cancellationToken);
@@ -69,31 +70,11 @@ namespace Xamarin.AsyncTests.Server
 
 		internal override async Task OnStart (CancellationToken cancellationToken)
 		{
-			var handshake = new Handshake { WantStatisticsEvents = true };
-			if (UseMySettings)
-				handshake.Settings = App.Settings;
-
-			if (UseMyTestSuite)
-				handshake.TestSuite = await GetLocalTestSuite (cancellationToken);
+			var handshake = new Handshake { WantStatisticsEvents = true, Settings = App.Settings, Logger = App.Logger };
 
 			await Hello (handshake, cancellationToken);
 
-			await MartinTest ();
-
 			await base.Start (cancellationToken);
-		}
-
-		async Task MartinTest ()
-		{
-			var logger = await RemoteObjectManager.GetRemoteTestLogger (this, CancellationToken.None);
-			Debug ("GOT REMOTE LOGGER: {0}", logger);
-			logger.LogMessage ("Hello World!");
-			Debug ("LOGGER DONE!");
-		}
-
-		internal override Task<Handshake> OnHello (Handshake handshake, CancellationToken cancellationToken)
-		{
-			throw new ServerErrorException ();
 		}
 
 		public async Task Hello (Handshake handshake, CancellationToken cancellationToken)
@@ -101,48 +82,14 @@ namespace Xamarin.AsyncTests.Server
 			Debug ("Client Handshake: {0}", handshake);
 
 			var hello = new HelloCommand { Argument = handshake };
-			var retval = await hello.Send (this, cancellationToken);
+			await hello.Send (this, cancellationToken);
 
-			lock (this) {
-				if (retval.Settings != null) {
-					App.Settings.Merge (retval.Settings);
-					App.Settings.PropertyChanged += OnSettingsChanged;
-				}
+			cancellationToken.ThrowIfCancellationRequested ();
+			var remoteFramework = await RemoteObjectManager.GetRemoteTestFramework (this, cancellationToken);
 
-				if (retval.TestSuite != null)
-					suite = retval.TestSuite;
-				else if (handshake.TestSuite != null)
-					suite = handshake.TestSuite;
+			Debug ("Client Handshake done: {0}", remoteFramework);
 
-				if (suite == null)
-					throw new ServerErrorException ();
-
-				startTcs.SetResult (suite);
-			}
-
-			Debug ("Client Handshake done: {0}", retval);
-		}
-
-		protected internal override Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken)
-		{
-			return OnRun (suite.Test, cancellationToken);
-		}
-
-		async void OnSettingsChanged (object sender, PropertyChangedEventArgs e)
-		{
-			await SyncSettings ((SettingsBag)sender);
-		}
-
-		public override void Stop ()
-		{
-			App.Settings.PropertyChanged -= OnSettingsChanged;
-			base.Stop ();
-		}
-
-		protected internal override void OnShutdown ()
-		{
-			App.Settings.PropertyChanged -= OnSettingsChanged;
-			base.OnShutdown ();
+			startTcs.SetResult (remoteFramework);
 		}
 	}
 }

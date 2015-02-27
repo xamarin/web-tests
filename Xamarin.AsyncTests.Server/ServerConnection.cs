@@ -37,69 +37,47 @@ namespace Xamarin.AsyncTests.Server
 	public class ServerConnection : Connection
 	{
 		IServerConnection connection;
-		TaskCompletionSource<TestSuite> helloTcs;
-		TestSuite suite;
+		TaskCompletionSource<object> helloTcs;
+		TestLogger logger;
+
+		public TestLogger Logger {
+			get { return logger; }
+		}
 
 		public ServerConnection (TestApp context, Stream stream, IServerConnection connection)
-			: base (context, stream, true)
+			: base (context, stream)
 		{
 			this.connection = connection;
-			helloTcs = new TaskCompletionSource<TestSuite> ();
+			helloTcs = new TaskCompletionSource<object> ();
 		}
 
-		public async Task<TestSuite> StartServer (CancellationToken cancellationToken)
+		public async Task StartServer (CancellationToken cancellationToken)
 		{
-			lock (this) {
-				if (suite != null)
-					return suite;
-			}
-
 			await Start (cancellationToken);
-			return await helloTcs.Task;
+			await helloTcs.Task;
 		}
 
-		internal override async Task<Handshake> OnHello (Handshake handshake, CancellationToken cancellationToken)
+		internal async Task OnHello (Handshake handshake, CancellationToken cancellationToken)
 		{
 			Debug ("Server Handshake: {0}", handshake);
 
-			TestSuite localSuite = null;
-			if (handshake.TestSuite == null)
-				localSuite = await GetLocalTestSuite (cancellationToken);
+			await Task.Yield ();
 
 			lock (this) {
-				if (handshake.Settings == null) {
-					App.Settings.PropertyChanged += OnSettingsChanged;
-					handshake.Settings = App.Settings;
-				} else {
+				if (handshake.Settings != null)
 					App.Settings.Merge (handshake.Settings);
-					handshake.Settings = null;
-				}
 
-				if (handshake.TestSuite != null) {
-					suite = handshake.TestSuite;
-					handshake.TestSuite = null;
-				} else {
-					suite = localSuite;
-					handshake.TestSuite = suite;
-				}
+				logger = handshake.Logger;
+				logger.LogMessage ("Hello from Server!");
 
-				helloTcs.SetResult (suite);
+				helloTcs.SetResult (null);
 			}
 
-			Debug ("Server Handshake done: {0}", handshake);
-
-			return handshake;
-		}
-
-		async void OnSettingsChanged (object sender, PropertyChangedEventArgs e)
-		{
-			await SyncSettings ((SettingsBag)sender);
+			Debug ("Server Handshake done");
 		}
 
 		public override void Stop ()
 		{
-			App.Settings.PropertyChanged -= OnSettingsChanged;
-
 			try {
 				base.Stop ();
 			} catch {
@@ -115,36 +93,6 @@ namespace Xamarin.AsyncTests.Server
 				;
 			}
 		}
-
-		protected internal override void OnShutdown ()
-		{
-			App.Settings.PropertyChanged -= OnSettingsChanged;
-			base.OnShutdown ();
-		}
-
-		#region implemented abstract members of Connection
-
-		protected internal override void OnLogMessage (string message)
-		{
-			throw new NotImplementedException ();
-		}
-
-		protected override void OnDebug (int level, string message)
-		{
-			throw new NotImplementedException ();
-		}
-
-		protected internal override Task<TestSuite> GetLocalTestSuite (CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException ();
-		}
-
-		protected internal override Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException ();
-		}
-
-		#endregion
 	}
 }
 

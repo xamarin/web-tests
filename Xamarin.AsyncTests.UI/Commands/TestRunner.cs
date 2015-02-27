@@ -49,16 +49,7 @@ namespace Xamarin.AsyncTests.UI
 			: base (app, app.ServerManager)
 		{
 			runCommand = new RunCommand (this);
-
-			app.ServerManager.TestSuite.PropertyChanged += (sender, e) => {
-				if (e == null)
-					TestResult.Value = null;
-				else
-					TestResult.Value = new TestResult (e.Test);
-			};
 		}
-
-		public readonly InstanceProperty<TestResult> TestResult = new InstanceProperty<TestResult> ("RootTestResult", null);
 
 		public readonly Property<string> CurrentTestName = new InstanceProperty<string> ("CurrentTest", null);
 
@@ -74,14 +65,14 @@ namespace Xamarin.AsyncTests.UI
 
 			SetStatusMessage ("Running {0}.", parameters.Test.Name);
 
-			var session = new TestSession (App, parameters.Test, result);
+			var session = new TestSession (App, parameters.Test.Suite, result);
 
 			startTime = DateTime.Now;
 
 			if (parameters.RepeatCount > 0)
-				await session.Repeat (parameters.RepeatCount, cancellationToken);
+				throw new NotImplementedException ();
 			else
-				await session.Run (cancellationToken);
+				await session.Run (parameters.Test, cancellationToken);
 
 			var elapsed = DateTime.Now - startTime;
 
@@ -97,9 +88,6 @@ namespace Xamarin.AsyncTests.UI
 
 		void OnClear ()
 		{
-			var result = TestResult.Value;
-			if (result != null)
-				result.Clear ();
 			message = null;
 			App.Logger.ResetStatistics ();
 			StatusMessage.Value = GetStatusMessage ();

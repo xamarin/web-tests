@@ -42,14 +42,12 @@ namespace Xamarin.AsyncTests.Server
 	{
 		readonly Stream stream;
 		readonly TestApp app;
-		readonly bool isServer;
 		CancellationTokenSource cancelCts;
 		TaskCompletionSource<object> mainTcs;
 		bool shutdownRequested;
 
-		internal Connection (TestApp app, Stream stream, bool isServer)
+		internal Connection (TestApp app, Stream stream)
 		{
-			this.isServer = isServer;
 			this.app = app;
 			this.stream = stream;
 			cancelCts = new CancellationTokenSource ();
@@ -61,40 +59,9 @@ namespace Xamarin.AsyncTests.Server
 
 		#region Public Client API
 
-		public async Task LogMessage (string message)
-		{
-			var command = new LogMessageCommand { Argument = message };
-			await command.Send (this);
-		}
-
-		public Task<SettingsBag> GetSettings (CancellationToken cancellationToken)
-		{
-			return new GetSettingsCommand ().Send (this, cancellationToken);
-		}
-
 		public async Task Shutdown ()
 		{
 			await new ShutdownCommand ().Send (this);
-		}
-
-		public async Task<bool> RunTest (TestCase test, TestResult result, CancellationToken cancellationToken)
-		{
-			var command = new RunTestCommand { Argument = test };
-
-			try {
-				var remoteResult = await command.Send (this, cancellationToken);
-				result.AddChild (remoteResult);
-				return true;
-			} catch (Exception ex) {
-				Debug ("SEND COMMAND ERROR: {0}", ex);
-				result.AddError (ex);
-				return false;
-			}
-		}
-
-		public Task<TestResult> RunTestSuite (CancellationToken cancellationToken)
-		{
-			return new RunTestSuiteCommand ().Send (this, cancellationToken);
 		}
 
 		#endregion
@@ -106,30 +73,6 @@ namespace Xamarin.AsyncTests.Server
 			shutdownRequested = true;
 		}
 
-		protected internal abstract void OnLogMessage (string message);
-
-		protected abstract void OnDebug (int level, string message);
-
-		internal SettingsBag OnGetSettings ()
-		{
-			return App.Settings;
-		}
-
-		internal async Task SyncSettings (SettingsBag settings)
-		{
-			if (shutdownRequested || cancelCts.IsCancellationRequested)
-				return;
-
-			await new SyncSettingsCommand { Argument = settings }.Send (this);
-		}
-
-		internal void OnSyncSettings (SettingsBag newSettings)
-		{
-			lock (this) {
-				App.Settings.Merge (newSettings);
-			}
-		}
-
 		internal void OnCancel (long objectID)
 		{
 			lock (this) {
@@ -139,18 +82,6 @@ namespace Xamarin.AsyncTests.Server
 				operation.CancelCts.Cancel ();
 			}
 		}
-
-		protected internal abstract Task<TestSuite> GetLocalTestSuite (CancellationToken cancellationToken);
-
-		protected internal Task<TestResult> OnRun (TestCase test, CancellationToken cancellationToken)
-		{
-			var session = new TestSession (App, test);
-			return session.Run (cancellationToken);
-		}
-
-		protected internal abstract Task<TestResult> OnRunTestSuite (CancellationToken cancellationToken);
-
-		internal abstract Task<Handshake> OnHello (Handshake handshake, CancellationToken cancellationToken);
 
 		#endregion
 
@@ -336,6 +267,8 @@ namespace Xamarin.AsyncTests.Server
 		async Task MainLoop ()
 		{
 			while (!shutdownRequested && !cancelCts.IsCancellationRequested) {
+				Debug ("MAIN LOOP: {0}", this);
+
 				var header = await ReadBuffer (4);
 				var len = BitConverter.ToInt32 (header, 0);
 				if (len == 0)
@@ -346,6 +279,8 @@ namespace Xamarin.AsyncTests.Server
 
 				var doc = XDocument.Load (new StringReader (content));
 				var element = doc.Root;
+
+				Debug ("MAIN LOOP #1: {0} {1}", this, doc);
 
 				if (element.Name.LocalName.Equals ("Response")) {
 					var objectID = element.Attribute ("ObjectID").Value;
@@ -420,10 +355,7 @@ namespace Xamarin.AsyncTests.Server
 		static long next_id;
 		long GetNextObjectId ()
 		{
-			if (isServer)
-				return ++next_id;
-			else
-				return --next_id;
+			return ++next_id;
 		}
 
 		Dictionary<long, ClientOperation> clientOperations = new Dictionary<long, ClientOperation> ();
