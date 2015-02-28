@@ -87,7 +87,7 @@ namespace TestMac
 		{
 			var ui = AppDelegate.Instance.MacUI;
 
-			var parameters = new RunParameters (node.TestCase.Test);
+			var parameters = new RunParameters (node.TestCase.Context, node.TestCase.Test);
 			var result = await ui.TestRunner.Run.Execute (parameters);
 
 			var model = new TestResultModel (node.TestCase.Context, result);

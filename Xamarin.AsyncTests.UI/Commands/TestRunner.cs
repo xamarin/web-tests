@@ -59,27 +59,20 @@ namespace Xamarin.AsyncTests.UI
 		{
 			await Task.Yield ();
 
-			var result = new TestResult (parameters.Name);
-
 			App.Logger.ResetStatistics ();
 
 			SetStatusMessage ("Running {0}.", parameters.Test.Name);
 
-			var session = new TestSession (App, parameters.Test.Suite, result);
-
 			startTime = DateTime.Now;
 
-			if (parameters.RepeatCount > 0)
-				throw new NotImplementedException ();
-			else
-				await session.Run (parameters.Test, cancellationToken);
+			var result = await parameters.Test.Run (parameters.Context, cancellationToken);
 
 			var elapsed = DateTime.Now - startTime;
 
 			CurrentTestName.Value = string.Empty;
 			StatusMessage.Value = GetStatusMessage (string.Format ("Finished in {0} seconds", (int)elapsed.TotalSeconds));
 
-			App.Logger.LogMessage ("DONE: |{0}|{1}|", session.Name, StatusMessage);
+			App.Logger.LogMessage (StatusMessage.Value);
 
 			OnRefresh ();
 

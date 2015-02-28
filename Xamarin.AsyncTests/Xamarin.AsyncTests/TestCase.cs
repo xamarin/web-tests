@@ -52,6 +52,6 @@ namespace Xamarin.AsyncTests
 
 		Task<IReadOnlyCollection<TestCase>> GetChildren (TestContext ctx, CancellationToken cancellationToken);
 
-		Task<bool> Run (TestContext ctx, CancellationToken cancellationToken);
+		Task<TestResult> Run (TestContext ctx, CancellationToken cancellationToken);
 	}
 }

@@ -27,8 +27,15 @@ using System;
 
 namespace Xamarin.AsyncTests.UI
 {
+	using Framework;
+
 	public class RunParameters
 	{
+		public TestContext Context {
+			get;
+			private set;
+		}
+
 		public TestCase Test {
 			get;
 			private set;
@@ -44,8 +51,9 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public RunParameters (TestCase test, TestName name = null, int repeat = 0)
+		public RunParameters (TestContext context, TestCase test, TestName name = null, int repeat = 0)
 		{
+			Context = context;
 			Test = test;
 			Name = name ?? test.Name;
 			RepeatCount = repeat;

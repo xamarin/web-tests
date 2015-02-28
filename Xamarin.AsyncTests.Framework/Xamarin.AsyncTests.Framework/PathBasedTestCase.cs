@@ -89,12 +89,22 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		public Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+		public async Task<TestResult> Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			TestSerializer.Debug ("RUN: {0}", this);
 
+			var result = new TestResult (Name);
+			var childCtx = ctx.CreateChild (Name, result);
+
 			var invoker = Node.CreateInvoker (ctx);
-			return invoker.Invoke (ctx, null, cancellationToken);
+			var ok = await invoker.Invoke (childCtx, null, cancellationToken);
+
+			if (!ok && result.Status == TestStatus.Success)
+				result.Status = TestStatus.Error;
+
+			TestSerializer.Debug ("RUN DONE: {0} {1}", ok, result);
+
+			return result;
 		}
 
 		public XElement Serialize ()
@@ -102,7 +112,7 @@ namespace Xamarin.AsyncTests.Framework
 			return TestSerializer.SerializePath (Node.Path);
 		}
 
-		XElement TestSerialize (TestContext ctx)
+		XElement TestSerialization (TestContext ctx)
 		{
 			var firstTime = TestSerializer.SerializePath (Node.Path);
 			var firstTimeString = firstTime.ToString ();
@@ -129,13 +139,13 @@ namespace Xamarin.AsyncTests.Framework
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			var element = TestSerialize (ctx);
+			var element = TestSerialization (ctx);
 			TestSerializer.Debug ("RESOLVE: {0}\n{1}", this, element);
 
 			var children = ResolveChildren (ctx);
 
 			foreach (var child in children) {
-				child.TestSerialize (ctx);
+				child.TestSerialization (ctx);
 			}
 
 			foreach (var child in children) {
