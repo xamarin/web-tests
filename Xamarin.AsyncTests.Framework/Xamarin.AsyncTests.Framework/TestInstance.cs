@@ -100,8 +100,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public static TestName GetTestName (TestInstance instance)
 		{
-			var path = GetCurrentPath (instance);
-			return TestPath.GetTestName (path);
+			return GetCurrentPath (instance).Name;
 		}
 
 		public override string ToString ()

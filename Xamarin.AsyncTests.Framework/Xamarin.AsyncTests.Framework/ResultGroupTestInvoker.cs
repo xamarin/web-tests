@@ -55,8 +55,8 @@ namespace Xamarin.AsyncTests.Framework
 
 			var currentPath = TestInstance.GetCurrentPath (instance);
 
-			var innerName = TestNameBuilder.CreateFromName (TestPath.GetTestName (currentPath));
-			var innerResult = new TestResult (innerName.GetName ());
+			var innerName = currentPath.Name;
+			var innerResult = new TestResult (innerName);
 			innerResult.Path = currentPath;
 
 			var serialized = currentPath.Serialize ();

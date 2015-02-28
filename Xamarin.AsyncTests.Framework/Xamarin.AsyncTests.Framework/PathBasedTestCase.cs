@@ -57,7 +57,7 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			Node = node;
 			Suite = node.Tree.Builder.Suite;
-			Name = TestPath.GetTestName (node.Path);
+			Name = node.Path.Name;
 		}
 
 		public bool HasParameters {

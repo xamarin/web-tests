@@ -46,17 +46,20 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public TestName Name {
+			get { return name; }
+		}
+
 		public bool IsParameterized {
 			get { return Host.ParameterType != null; }
 		}
 
 		public bool HasParameter {
-			get { return Parameter != null; }
+			get { return parameter != null; }
 		}
 
 		public ITestParameter Parameter {
-			get;
-			private set;
+			get { return parameter; }
 		}
 
 		public bool IsHidden {
@@ -67,12 +70,17 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (Flags & TestFlags.Browsable) != 0; }
 		}
 
+		readonly ITestParameter parameter;
+		readonly TestName name;
+
 		internal TestPath (TestHost host, TestPath parent, ITestParameter parameter = null)
 		{
 			Host = host;
 			Flags = host.Flags;
 			Parent = parent;
-			Parameter = parameter;
+
+			this.parameter = parameter;
+			this.name = GetTestName (host, parent, parameter);
 		}
 
 		internal TestPath Clone ()
@@ -80,23 +88,17 @@ namespace Xamarin.AsyncTests.Framework
 			return new TestPath (Host, Parent, Parameter);
 		}
 
-		void GetTestName (TestNameBuilder builder)
-		{
-			if (Parent != null)
-				Parent.GetTestName (builder);
-			if (Host.Name != null) {
-				if (Parameter != null && ((Host.Flags & TestFlags.PathHidden) == 0))
-					builder.PushParameter (Host.Name, Parameter.Value, (Host.Flags & TestFlags.Hidden) != 0);
-				else
-					builder.PushName (Host.Name);
-			}
-		}
-
-		public static TestName GetTestName (TestPath path)
+		static TestName GetTestName (TestHost host, TestPath parent, ITestParameter parameter = null)
 		{
 			var builder = new TestNameBuilder ();
-			if (path != null)
-				path.GetTestName (builder);
+			if (parent != null)
+				builder.Merge (parent.name);
+			if (host.Name != null) {
+				if (parameter != null && ((host.Flags & TestFlags.PathHidden) == 0))
+					builder.PushParameter (host.Name, parameter.Value, (host.Flags & TestFlags.Hidden) != 0);
+				else
+					builder.PushName (host.Name);
+			}
 			return builder.GetName ();
 		}
 
