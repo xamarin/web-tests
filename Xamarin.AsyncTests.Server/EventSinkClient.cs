@@ -101,6 +101,12 @@ namespace Xamarin.AsyncTests.Server
 			await command.Send (this, entry, cancellationToken);
 		}
 
+		public async Task StatisticsEvent (TestLoggerBackend.StatisticsEventArgs args, CancellationToken cancellationToken)
+		{
+			var command = new StatisticsCommand ();
+			await command.Send (this, args, cancellationToken);
+		}
+
 		class LogCommand : RemoteObjectCommand<RemoteEventSink,TestLoggerBackend.LogEntry,object>
 		{
 			public override bool IsOneWay {
@@ -152,7 +158,7 @@ namespace Xamarin.AsyncTests.Server
 
 			protected internal override void OnStatisticsEvent (StatisticsEventArgs args)
 			{
-				;
+				client.StatisticsEvent (args, CancellationToken.None).Wait ();
 			}
 		}
 	}
