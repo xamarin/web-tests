@@ -29,12 +29,24 @@ namespace Xamarin.AsyncTests.Server
 {
 	public class SavedException : Exception
 	{
+		readonly string type;
 		readonly string stackTrace;
 
-		public SavedException (string name, string stackTrace = null)
-			: base (name)
+		public SavedException (string message, string stackTrace = null)
+			: base (message)
 		{
 			this.stackTrace = stackTrace;
+		}
+
+		public SavedException (string type, string message, string stackTrace)
+			: base (message)
+		{
+			this.type = type;
+			this.stackTrace = stackTrace;
+		}
+
+		public string Type {
+			get { return type; }
 		}
 
 		public override string StackTrace {

@@ -206,6 +206,28 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
+		static XElement WriteError (Exception error)
+		{
+			var element = new XElement ("Error");
+			element.SetAttributeValue ("Type", error.GetType ().FullName);
+			element.SetAttributeValue ("Message", error.Message);
+			if (error.StackTrace != null)
+				element.SetAttributeValue ("StackTrace", error.StackTrace);
+			return element;
+		}
+
+		static Exception ReadError (XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("Error"))
+				throw new ServerErrorException ();
+
+			var type = node.Attribute ("Type").Value;
+			var message = node.Attribute ("Message").Value;
+			var stackAttr = node.Attribute ("StackTrace");
+			var stackTrace = stackAttr != null ? stackAttr.Value : null;
+			return new SavedException (type, message, stackTrace);
+		}
+
 		class TestResultSerializer : IValueSerializer<TestResult>
 		{
 			public TestResult Read (XElement node)
@@ -219,9 +241,7 @@ namespace Xamarin.AsyncTests.Server
 				var result = new TestResult (name, status);
 
 				foreach (var error in node.Elements ("Error")) {
-					var errorMessage = error.Attribute ("Text").Value;
-					var stackTrace = error.Attribute ("StackTrace");
-					result.AddError (new SavedException (errorMessage, stackTrace != null ? stackTrace.Value : null));
+					result.AddError (ReadError (error));
 				}
 
 				foreach (var message in node.Elements ("Message")) {
@@ -242,13 +262,8 @@ namespace Xamarin.AsyncTests.Server
 
 				element.Add (Serializer.TestName.Write (instance.Name));
 
-				if (instance.HasErrors) {
-					foreach (var error in instance.Errors) {
-						var errorElement = new XElement ("Error");
-						errorElement.SetAttributeValue ("Text", error.Message);
-						errorElement.SetAttributeValue ("StackTrace", error.StackTrace);
-						element.Add (errorElement);
-					}
+				foreach (var error in instance.Errors) {
+					element.Add (WriteError (error));
 				}
 
 				if (instance.HasMessages) {

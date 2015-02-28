@@ -32,6 +32,7 @@ using Foundation;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using ObjCRuntime;
+using Xamarin.AsyncTests.Server;
 
 namespace TestMac
 {
@@ -115,10 +116,26 @@ namespace TestMac
 				sb.AppendLine ();
 			}
 
-			foreach (var exception in Result.Errors) {
-				sb.Append (exception.ToString ());
+			if (Result.HasErrors) {
+				sb.AppendLine ("One or more errors have occured:");
 				sb.AppendLine ();
-				sb.AppendLine ();
+
+				var errors = Result.Errors.ToArray ();
+				for (int i = 0; i < errors.Length; i++) {
+					sb.AppendFormat ("#{0}): ", i);
+
+					var exception = errors [i];
+					var savedException = exception as SavedException;
+					if (savedException != null) {
+						sb.AppendLine (savedException.Type);
+						sb.AppendLine (savedException.Message);
+						if (savedException.StackTrace != null)
+							sb.AppendLine (savedException.StackTrace);
+					} else {
+						sb.AppendLine (exception.ToString ());
+					}
+					sb.AppendLine ();
+				}
 			}
 
 			if (Result.Messages != null) {
