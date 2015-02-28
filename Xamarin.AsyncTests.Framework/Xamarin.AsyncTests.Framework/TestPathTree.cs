@@ -72,36 +72,6 @@ namespace Xamarin.AsyncTests.Framework
 			return next;
 		}
 
-		#if FIXME
-		internal TestPathTree ResolveTree (TestPathNode path, IPathNode node, string parameter)
-		{
-			TestSerializer.Debug ("RESOLVE TREE: {0} {1} {2} {3}", this, path, node, parameter);
-
-			if (Inner != null) {
-				if (!TestPath.Matches (Inner.Host, node))
-					throw new InternalErrorException ();
-				return Inner;
-			}
-
-			if (parameter == null)
-				return this;
-
-			foreach (var child in Builder.Children) {
-				if (!node.Identifier.Equals (child.Identifier))
-					throw new InternalErrorException ();
-				if (!node.ParameterType.Equals (child.Identifier))
-					throw new InternalErrorException ();
-
-				if (!parameter.Equals (child.Parameter.Value))
-					continue;
-
-				return child.TreeRoot;
-			}
-
-			throw new InternalErrorException ();
-		}
-		#endif
-
 		static int next_id;
 		public readonly int ID = ++next_id;
 
