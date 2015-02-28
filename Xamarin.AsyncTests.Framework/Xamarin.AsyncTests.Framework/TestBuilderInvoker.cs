@@ -58,6 +58,10 @@ namespace Xamarin.AsyncTests.Framework
 			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
+				if (!Host.Builder.RunFilter (ctx)) {
+					ctx.OnTestIgnored ();
+					return null;
+				}
 				return (TestBuilderInstance)Host.CreateInstance (ctx, Path, instance);
 			} catch (OperationCanceledException) {
 				ctx.OnTestCanceled ();

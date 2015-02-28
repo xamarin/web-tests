@@ -184,23 +184,17 @@ namespace Xamarin.AsyncTests.Framework
 			resolved = true;
 		}
 
-		bool RunFilter (TestContext ctx, TestFilter filter)
+		internal bool RunFilter (TestContext ctx)
 		{
+			if (Filter == null)
+				return true;
+
 			bool enabled;
-			var matched = filter.Filter (ctx, out enabled);
+			var matched = Filter.Filter (ctx, out enabled);
 			if (!matched)
-				enabled = !filter.MustMatch;
+				enabled = !Filter.MustMatch;
 
 			return enabled;
-		}
-
-		internal IEnumerable<TestBuilder> GetChildren (TestContext ctx)
-		{
-			foreach (var child in children) {
-				if (child.Filter != null && !RunFilter (ctx, child.Filter))
-					continue;
-				yield return child;
-			}
 		}
 
 		internal abstract TestInvoker CreateInnerInvoker (TestPathNode node);

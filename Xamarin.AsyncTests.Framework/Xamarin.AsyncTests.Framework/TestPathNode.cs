@@ -76,7 +76,7 @@ namespace Xamarin.AsyncTests.Framework
 			}
 
 			children = new List<TestPathNode> ();
-			foreach (var child in Tree.Builder.GetChildren (ctx)) {
+			foreach (var child in Tree.Builder.Children) {
 				var childPath = new TestPath (child.Host, Path, child.Parameter);
 				children.Add (new TestPathNode (child.TreeRoot, childPath));
 			}
@@ -212,6 +212,16 @@ namespace Xamarin.AsyncTests.Framework
 			if (collectionInvoker != null)
 				collectionInvoker.ResolveChildren (ctx);
 			return invoker;
+		}
+
+		internal bool RunFilter (TestContext ctx)
+		{
+			Resolve (ctx);
+
+			if (innerNode != null)
+				return true;
+			else
+				return Tree.Builder.RunFilter (ctx);
 		}
 
 		public override string ToString ()

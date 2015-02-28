@@ -119,6 +119,14 @@ namespace Xamarin.AsyncTests
 			OnTestFinished (TestStatus.Canceled);
 		}
 
+		public void OnTestIgnored ()
+		{
+			Invoke (() => {
+				if (Result.Status == TestStatus.None)
+					Result.Status = TestStatus.Ignored;
+			});
+		}
+
 		#endregion
 
 		#region Logging
