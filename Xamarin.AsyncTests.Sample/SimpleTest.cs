@@ -70,7 +70,8 @@ namespace Xamarin.AsyncTests.Sample
 		public void MultipleErrors (TestContext context)
 		{
 			context.LogError (new InvalidTimeZoneException ());
-			context.Assert (true, Is.False, "Never true");
+			context.Expect (true, Is.False, "Never true");
+			context.Assert (false, Is.True, "Never false");
 		}
 
 	}

@@ -109,6 +109,7 @@
     <Compile Include="Xamarin.AsyncTests.Portable\IPipeConnection.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestFramework.cs" />
     <Compile Include="Xamarin.AsyncTests\SavedException.cs" />
+    <Compile Include="Xamarin.AsyncTests\IgnoreException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />

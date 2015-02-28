@@ -166,7 +166,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				throw new InternalErrorException ();
 
 			try {
-				return DoInvokeInner (thisInstance, args.ToArray ());
+				return DoInvokeInner (ctx, thisInstance, args.ToArray ());
 			} finally {
 				if (timeoutCts != null)
 					timeoutCts.Dispose ();
@@ -174,9 +174,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		[StackTraceEntryPoint]
-		object DoInvokeInner (object instance, object[] args)
+		object DoInvokeInner (TestContext ctx, object instance, object[] args)
 		{
-			return Builder.Method.Invoke (instance, args);
+			try {
+				return Builder.Method.Invoke (instance, args);
+			} catch (TargetInvocationException ex) {
+				ctx.OnError (ex.InnerException);
+				return null;
+			}
 		}
 
 		bool CheckFinalStatus (TestContext ctx, bool ok)

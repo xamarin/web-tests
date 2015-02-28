@@ -130,6 +130,8 @@ namespace TestMac
 						sb.AppendLine (savedException.Message);
 						if (savedException.StackTrace != null)
 							sb.AppendLine (savedException.StackTrace);
+						else
+							sb.AppendLine ();
 					} else {
 						sb.AppendLine (exception.ToString ());
 					}

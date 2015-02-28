@@ -125,7 +125,9 @@ namespace Xamarin.AsyncTests
 
 		public void OnError (Exception error)
 		{
-			Result.AddError (error);
+			if (error is SkipRestOfThisTestException)
+				return;
+
 			Invoke (() => {
 				logger.OnException (Name, error);
 				logger.LogError (error);
@@ -225,10 +227,14 @@ namespace Xamarin.AsyncTests
 			}
 
 			var exception = new AssertionException (sb.ToString (), GetStackTrace ());
+			OnError (exception);
 			if (fatal)
-				throw exception;
-			Result.AddError (exception);
+				throw new SkipRestOfThisTestException ();
 			return false;
+		}
+
+		class SkipRestOfThisTestException : Exception
+		{
 		}
 
 		[HideStackFrame]
