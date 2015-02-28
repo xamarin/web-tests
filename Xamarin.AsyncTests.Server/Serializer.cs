@@ -39,9 +39,7 @@ namespace Xamarin.AsyncTests.Server
 		public static readonly IValueSerializer<string> String = new StringSerializer ();
 		public static readonly IValueSerializer<XElement> Element = new ElementSerializer ();
 		public static readonly IValueSerializer<TestName> TestName = new TestNameSerializer ();
-		public static readonly Serializer<TestLoggerBackend> TestLogger = new TestLoggerSerializer ();
 		public static readonly IValueSerializer<TestResult> TestResult = new TestResultSerializer ();
-		public static readonly Serializer<Handshake> Handshake = new HandshakeSerializer ();
 		public static readonly IValueSerializer<TestLoggerBackend.LogEntry> LogEntry = new LogEntrySerializer ();
 		public static readonly IValueSerializer<TestLoggerBackend.StatisticsEventArgs> StatisticsEventArgs = new StatisticsEventArgsSerializer ();
 
@@ -301,42 +299,6 @@ namespace Xamarin.AsyncTests.Server
 
 				if (instance.Name != null)
 					element.Add (Serializer.TestName.Write (instance.Name));
-
-				return element;
-			}
-		}
-
-		class HandshakeSerializer : Serializer<Handshake>
-		{
-			public Handshake Read (Connection connection, object sender, XElement node)
-			{
-				if (!node.Name.LocalName.Equals ("HandshakeRequest"))
-					throw new ServerErrorException ();
-
-				var instance = new Handshake ();
-				instance.WantStatisticsEvents = bool.Parse (node.Attribute ("WantStatisticsEvents").Value);
-
-				var settings = node.Element ("Settings");
-				if (settings != null)
-					instance.Settings = Serializer.Settings.Read (settings);
-
-				var logger = node.Element ("TestLogger");
-				if (logger != null)
-					instance.Logger = Serializer.TestLogger.Read (connection, sender, logger);
-
-				return instance;
-			}
-
-			public XElement Write (Connection connection, object sender, Handshake instance)
-			{
-				var element = new XElement ("HandshakeRequest");
-				element.SetAttributeValue ("WantStatisticsEvents", instance.WantStatisticsEvents);
-
-				if (instance.Settings != null)
-					element.Add (Serializer.Settings.Write (instance.Settings));
-
-				if (instance.Logger != null)
-					element.Add (Serializer.TestLogger.Write (connection, sender, instance.Logger));
 
 				return element;
 			}

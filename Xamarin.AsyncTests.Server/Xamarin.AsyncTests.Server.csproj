@@ -54,7 +54,6 @@
     <Compile Include="IRemoteObject.cs" />
     <Compile Include="CancelCommand.cs" />
     <Compile Include="OneWayCommand.cs" />
-    <Compile Include="HelloCommand.cs" />
     <Compile Include="RemoteObject.cs" />
     <Compile Include="RemoteObjectManager.cs" />
     <Compile Include="TestServer.cs" />

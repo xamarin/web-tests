@@ -67,7 +67,7 @@ namespace Xamarin.AsyncTests.Server
 				if (handshake.Settings != null)
 					App.Settings.Merge (handshake.Settings);
 
-				logger = new TestLogger (handshake.Logger);
+				logger = new TestLogger (handshake.Logger.Client);
 				logger.LogMessage ("Hello from Server!");
 
 				helloTcs.SetResult (null);

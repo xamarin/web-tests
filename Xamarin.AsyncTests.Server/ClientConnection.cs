@@ -38,15 +38,14 @@ namespace Xamarin.AsyncTests.Server
 	{
 		IPortableSupport support;
 		TestFramework localFramework;
-		TestFramework remoteFramework;
-		TaskCompletionSource<TestFramework> startTcs;
+		TaskCompletionSource<object> startTcs;
 
 		public ClientConnection (TestApp app, Stream stream, IServerConnection connection)
 			: base (app, stream)
 		{
 			support = app.PortableSupport;
 			localFramework = app.GetLocalTestFramework ();
-			startTcs = new TaskCompletionSource<TestFramework> ();
+			startTcs = new TaskCompletionSource<object> ();
 		}
 
 		public TestFramework LocalFramework {
@@ -57,39 +56,19 @@ namespace Xamarin.AsyncTests.Server
 			get { return support; }
 		}
 
-		public async Task<TestFramework> StartClient (CancellationToken cancellationToken)
+		public async Task StartClient (CancellationToken cancellationToken)
 		{
-			lock (this) {
-				if (remoteFramework != null)
-					return remoteFramework;
-			}
-
 			await Start (cancellationToken);
-			return await startTcs.Task;
+			await startTcs.Task;
 		}
 
 		internal override async Task OnStart (CancellationToken cancellationToken)
 		{
-			var handshake = new Handshake { WantStatisticsEvents = true, Settings = App.Settings, Logger = App.Logger.Backend };
+			var handshake = new Handshake { WantStatisticsEvents = true, Settings = App.Settings };
 
-			await Hello (handshake, cancellationToken);
+			await RemoteObjectManager.Handshake (this, App.Logger.Backend, handshake, cancellationToken);
 
 			await base.Start (cancellationToken);
-		}
-
-		public async Task Hello (Handshake handshake, CancellationToken cancellationToken)
-		{
-			Debug ("Client Handshake: {0}", handshake);
-
-			var hello = new HelloCommand ();
-			await hello.Send (this, handshake, cancellationToken);
-
-			cancellationToken.ThrowIfCancellationRequested ();
-			var remoteFramework = await RemoteObjectManager.GetRemoteTestFramework (this, cancellationToken);
-
-			Debug ("Client Handshake done: {0}", remoteFramework);
-
-			startTcs.SetResult (remoteFramework);
 		}
 	}
 }

@@ -29,7 +29,7 @@ namespace Xamarin.AsyncTests.Server
 {
 	using Framework;
 
-	public class Handshake
+	class Handshake
 	{
 		public bool WantStatisticsEvents {
 			get; set;
@@ -39,7 +39,7 @@ namespace Xamarin.AsyncTests.Server
 			get; set;
 		}
 
-		public TestLoggerBackend Logger {
+		public RemoteTestLogger Logger {
 			get; set;
 		}
 

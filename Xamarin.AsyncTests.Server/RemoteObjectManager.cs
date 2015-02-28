@@ -80,6 +80,71 @@ namespace Xamarin.AsyncTests.Server
 			return ReadProxy (suite.Connection, node, (objectID) => new TestCaseClient (suite, objectID));
 		}
 
+		static Handshake ReadHandshake (Connection connection, XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("Handshake"))
+				throw new ServerErrorException ();
+
+			var instance = new Handshake ();
+			instance.WantStatisticsEvents = bool.Parse (node.Attribute ("WantStatisticsEvents").Value);
+
+			var settings = node.Element ("Settings");
+			if (settings != null)
+				instance.Settings = Serializer.Settings.Read (settings);
+
+			var logger = node.Element ("TestLogger");
+			if (logger != null)
+				instance.Logger = ReadProxy (connection, logger, (objectID) => new TestLoggerClient (connection, objectID));
+
+			return instance;
+		}
+
+		static XElement WriteHandshake (Connection connection, Handshake instance)
+		{
+			var element = new XElement ("Handshake");
+			element.SetAttributeValue ("WantStatisticsEvents", instance.WantStatisticsEvents);
+
+			if (instance.Settings != null)
+				element.Add (Serializer.Settings.Write (instance.Settings));
+
+			if (instance.Logger != null)
+				element.Add (WriteProxy (instance.Logger));
+
+			return element;
+		}
+
+		class HandshakeCommand : Command<Handshake,object>
+		{
+			protected override XElement WriteArgument (Connection connection, Handshake instance)
+			{
+				return WriteHandshake (connection, instance);
+			}
+
+			protected override Handshake ReadArgument (Connection connection, XElement node)
+			{
+				return ReadHandshake (connection, node);
+			}
+
+			protected async override Task<object> Run (Connection connection, Handshake argument, CancellationToken cancellationToken)
+			{
+				var serverConnection = (ServerConnection)connection;
+				await serverConnection.OnHello (argument, cancellationToken);
+				return null;
+			}
+		}
+
+		internal static async Task Handshake (ClientConnection connection, TestLoggerBackend logger, Handshake handshake, CancellationToken cancellationToken)
+		{
+			Connection.Debug ("Client Handshake: {0}", handshake);
+
+			var handshakeCommand = new HandshakeCommand ();
+			await handshakeCommand.Send (connection, handshake, cancellationToken);
+
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			Connection.Debug ("Client Handshake done");
+		}
+
 		public static async Task LogEvent (
 			TestLoggerClient proxy, TestLoggerBackend.LogEntry entry, CancellationToken cancellationToken)
 		{
