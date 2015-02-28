@@ -62,6 +62,8 @@ namespace Xamarin.AsyncTests
 				private set;
 			}
 
+			internal bool AddedToResult;
+
 			public LogEntry (EntryKind kind, int level, string text, Exception error = null)
 			{
 				Kind = kind;
@@ -132,17 +134,21 @@ namespace Xamarin.AsyncTests
 
 			protected internal override void OnLogEvent (LogEntry entry)
 			{
+				if (!entry.AddedToResult) {
+					if (entry.Kind == EntryKind.Error) {
+						if (entry.Error != null)
+							Result.AddError (entry.Error);
+						else
+							Result.AddError (new AssertionException (entry.Text, null));
+					} else {
+						Result.AddMessage (entry.Text);
+					}
+
+					entry.AddedToResult = true;
+				}
+
 				if (Parent != null)
 					Parent.OnLogEvent (entry);
-
-				if (entry.Kind == EntryKind.Error) {
-					if (entry.Error != null)
-						Result.AddError (entry.Error);
-					else
-						Result.AddError (new AssertionException (entry.Text, null));
-				} else {
-					Result.AddMessage (entry.Text);
-				}
 			}
 
 			protected internal override void OnStatisticsEvent (StatisticsEventArgs args)

@@ -116,7 +116,7 @@ namespace TestMac
 			}
 
 			if (Result.HasErrors) {
-				sb.AppendLine ("One or more errors have occured:");
+				sb.AppendLine ("One or more errors have occurred:");
 				sb.AppendLine ();
 
 				var errors = Result.Errors.ToArray ();
