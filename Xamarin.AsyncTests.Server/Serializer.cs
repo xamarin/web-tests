@@ -218,9 +218,11 @@ namespace Xamarin.AsyncTests.Server
 
 				var result = new TestResult (name, status);
 
-				var error = node.Attribute ("Error");
-				if (error != null)
-					result.AddError (new SavedException (error.Value));
+				foreach (var error in node.Elements ("Error")) {
+					var errorMessage = error.Attribute ("Text").Value;
+					var stackTrace = error.Attribute ("StackTrace");
+					result.AddError (new SavedException (errorMessage, stackTrace != null ? stackTrace.Value : null));
+				}
 
 				foreach (var message in node.Elements ("Message")) {
 					result.AddMessage (message.Attribute ("Text").Value);
@@ -238,10 +240,16 @@ namespace Xamarin.AsyncTests.Server
 				var element = new XElement ("TestResult");
 				element.SetAttributeValue ("Status", instance.Status.ToString ());
 
-				if (instance.Error != null)
-					element.SetAttributeValue ("Error", instance.Error.ToString ());
-
 				element.Add (Serializer.TestName.Write (instance.Name));
+
+				if (instance.HasErrors) {
+					foreach (var error in instance.Errors) {
+						var errorElement = new XElement ("Error");
+						errorElement.SetAttributeValue ("Text", error.Message);
+						errorElement.SetAttributeValue ("StackTrace", error.StackTrace);
+						element.Add (errorElement);
+					}
+				}
 
 				if (instance.HasMessages) {
 					foreach (var message in instance.Messages) {

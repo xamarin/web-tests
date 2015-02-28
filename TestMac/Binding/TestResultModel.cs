@@ -115,22 +115,8 @@ namespace TestMac
 				sb.AppendLine ();
 			}
 
-			var aggregate = Result.Error as AggregateException;
-			if (aggregate != null) {
-				sb.AppendFormat ("{0}: {1}", aggregate.GetType ().FullName, aggregate.Message);
-				sb.AppendLine ();
-				sb.AppendLine ();
-				sb.AppendLine (aggregate.InnerException.ToString ());
-				sb.AppendLine ();
-				for (int i = 0; i < aggregate.InnerExceptions.Count; i++) {
-					sb.AppendFormat ("Inner exception #{0}):", i + 1);
-					sb.AppendLine ();
-					sb.AppendLine (aggregate.InnerExceptions [i].ToString ());
-					sb.AppendLine ();
-				}
-				sb.AppendLine ();
-			} else if (Result.Error != null) {
-				sb.Append (Result.Error.ToString ());
+			foreach (var exception in Result.Errors) {
+				sb.Append (exception.ToString ());
 				sb.AppendLine ();
 				sb.AppendLine ();
 			}

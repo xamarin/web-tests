@@ -38,7 +38,6 @@ namespace Xamarin.AsyncTests
 	{
 		TestName name;
 		TestStatus status = TestStatus.None;
-		Exception error;
 		TestCase test;
 		ITestPath path;
 		TestResult parent;
@@ -64,19 +63,6 @@ namespace Xamarin.AsyncTests
 					status = value;
 				}
 				OnPropertyChanged ("Status");
-			}
-		}
-
-		public Exception Error {
-			get { return error; }
-			private set {
-				lock (this) {
-					WantToModify ();
-					error = value;
-					if (error != null)
-						Status = TestStatus.Error;
-				}
-				OnPropertyChanged ("Error");
 			}
 		}
 
@@ -110,7 +96,7 @@ namespace Xamarin.AsyncTests
 		public TestResult (TestName name, Exception error)
 			: this (name, TestStatus.Error)
 		{
-			this.error = error;
+			AddError (error);
 		}
 
 		public TestResult (TestName name, TestStatus status = TestStatus.None)
@@ -122,10 +108,13 @@ namespace Xamarin.AsyncTests
 			((INotifyPropertyChanged)messages).PropertyChanged += (sender, e) => OnMessagesChanged ();
 			children = new ObservableCollection<TestResult> ();
 			((INotifyPropertyChanged)children).PropertyChanged += (sender, e) => OnChildrenChanged ();
+			errors = new ObservableCollection<Exception> ();
+			((INotifyPropertyChanged)errors).PropertyChanged += (sender, e) => OnErrorsChanged ();
 		}
 
 		ObservableCollection<TestResult> children;
 		ObservableCollection<string> messages;
+		ObservableCollection<Exception> errors;
 
 		public bool HasChildren {
 			get { return children.Count > 0; }
@@ -143,9 +132,22 @@ namespace Xamarin.AsyncTests
 			get { return messages; }
 		}
 
+		public bool HasErrors {
+			get { return errors.Count > 0; }
+		}
+
+		public IReadOnlyCollection<Exception> Errors {
+			get { return errors; }
+		}
+
 		void OnMessagesChanged ()
 		{
 			OnPropertyChanged ("Messages");
+		}
+
+		void OnErrorsChanged ()
+		{
+			OnPropertyChanged ("Errors");
 		}
 
 		void OnChildrenChanged ()
@@ -185,12 +187,12 @@ namespace Xamarin.AsyncTests
 			lock (this) {
 				children.Clear ();
 				messages.Clear ();
-				error = null;
+				errors.Clear ();
 				status = TestStatus.None;
 			}
 			OnPropertyChanged ("Children");
 			OnPropertyChanged ("Messages");
-			OnPropertyChanged ("Error");
+			OnPropertyChanged ("Errors");
 			OnPropertyChanged ("Status");
 		}
 
@@ -223,18 +225,7 @@ namespace Xamarin.AsyncTests
 		{
 			lock (this) {
 				WantToModify ();
-				if (error == null) {
-					Error = exception;
-					return;
-				}
-				var list = new List<Exception> ();
-				var oldAggregate = error as AggregateException;
-				if (oldAggregate != null)
-					list.AddRange (oldAggregate.InnerExceptions);
-				else
-					list.Add (error);
-				list.Add (exception);
-				Error = new AggregateException (list);
+				errors.Add (exception);
 				Status = TestStatus.Error;
 			}
 		}
@@ -255,7 +246,7 @@ namespace Xamarin.AsyncTests
 
 		public override string ToString ()
 		{
-			return string.Format ("[TestResult: Name={0}, Status={1}, Error={2}]", Name, Status, Error);
+			return string.Format ("[TestResult: Name={0}, Status={1}]", Name, Status);
 		}
 	}
 }

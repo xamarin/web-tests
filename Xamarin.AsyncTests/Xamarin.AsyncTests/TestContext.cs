@@ -250,7 +250,7 @@ namespace Xamarin.AsyncTests
 		}
 
 		public bool HasPendingException {
-			get { return Result.Error != null; }
+			get { return Result.HasErrors; }
 		}
 
 		#endregion
