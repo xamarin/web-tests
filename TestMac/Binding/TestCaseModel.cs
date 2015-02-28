@@ -67,9 +67,17 @@ namespace TestMac
 			WillChangeValue ("isLeaf");
 			WillChangeValue ("childNodes");
 
-			var result = await Test.GetChildren (Context, CancellationToken.None);
+			List<TestCase> list = new List<Xamarin.AsyncTests.TestCase> ();
+
+			if (Test.HasParameters) {
+				var parameterResult = await Test.GetParameters (Context, CancellationToken.None);
+				list.AddRange (parameterResult);
+			}
+			var childrenResult = await Test.GetChildren (CancellationToken.None);
+			list.AddRange (childrenResult);
+
 			lock (this) {
-				children = result;
+				children = list;
 			}
 
 			DidChangeValue ("isLeaf");

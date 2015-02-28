@@ -47,27 +47,25 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		bool resolved;
+		bool resolvedContext;
 		bool parameterized;
 		TestPathNode innerNode;
 		List<TestPathNode> parameters;
 		List<TestPathNode> children;
+
+		public bool HasParameters {
+			get { return Path.Host.HasParameters; }
+		}
 
 		public TestPathNode Clone ()
 		{
 			return new TestPathNode (Tree, Path.Clone ());
 		}
 
-		public void Resolve (TestContext ctx)
+		public void Resolve ()
 		{
 			if (resolved)
 				return;
-
-			parameters = new List<TestPathNode> ();
-			if ((Path.Flags & TestFlags.Browsable) != 0) {
-				foreach (var parameter in Tree.Host.GetParameters (ctx)) {
-					parameters.Add (Parameterize (parameter));
-				}
-			}
 
 			if (Tree.Inner != null) {
 				var innerPath = new TestPath (Tree.Inner.Host, Path);
@@ -82,6 +80,23 @@ namespace Xamarin.AsyncTests.Framework
 			}
 
 			resolved = true;
+		}
+
+		public void Resolve (TestContext ctx)
+		{
+			if (resolvedContext)
+				return;
+
+			Resolve ();
+
+			parameters = new List<TestPathNode> ();
+			if ((Path.Flags & TestFlags.Browsable) != 0) {
+				foreach (var parameter in Tree.Host.GetParameters (ctx)) {
+					parameters.Add (Parameterize (parameter));
+				}
+			}
+
+			resolvedContext = true;
 		}
 
 		TestPathNode Parameterize (ITestParameter parameter)
@@ -102,7 +117,7 @@ namespace Xamarin.AsyncTests.Framework
 			return this;
 		}
 
-		public IEnumerable<TestPathNode> GetChildren (TestContext ctx)
+		public IEnumerable<TestPathNode> GetParameters (TestContext ctx)
 		{
 			Resolve (ctx);
 
@@ -112,6 +127,14 @@ namespace Xamarin.AsyncTests.Framework
 			foreach (var parameter in parameters) {
 				yield return parameter;
 			}
+		}
+
+		public IEnumerable<TestPathNode> GetChildren ()
+		{
+			Resolve ();
+
+			if (parameterized)
+				yield break;
 
 			if (innerNode != null) {
 				yield return innerNode;

@@ -70,6 +70,10 @@ namespace Xamarin.AsyncTests.Framework
 			return instance;
 		}
 
+		internal virtual bool HasParameters {
+			get { return false; }
+		}
+
 		internal virtual IEnumerable<ITestParameter> GetParameters (TestContext ctx)
 		{
 			yield break;

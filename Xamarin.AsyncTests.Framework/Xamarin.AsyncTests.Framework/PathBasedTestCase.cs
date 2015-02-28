@@ -60,31 +60,63 @@ namespace Xamarin.AsyncTests.Framework
 			Name = TestPath.GetTestName (node.Path);
 		}
 
-		public Task<IReadOnlyCollection<TestCase>> GetChildren (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Task.Run<IReadOnlyCollection<TestCase>> (() => ResolveChildren (ctx));
+		public bool HasParameters {
+			get { return Node.HasParameters; }
 		}
 
+		public Task<IReadOnlyCollection<TestCase>> GetParameters (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Task.Run<IReadOnlyCollection<TestCase>> (() => ResolveParameters (ctx));
+		}
+
+		public Task<IReadOnlyCollection<TestCase>> GetChildren (CancellationToken cancellationToken)
+		{
+			return Task.Run<IReadOnlyCollection<TestCase>> (() => ResolveChildren ());
+		}
+
+		List<PathBasedTestCase> parameters;
 		List<PathBasedTestCase> children;
 
-		List<PathBasedTestCase> ResolveChildren (TestContext ctx)
+		List<PathBasedTestCase> ResolveParameters (TestContext ctx)
+		{
+			if (parameters != null)
+				return parameters;
+
+			Node.Resolve (ctx);
+			parameters = new List<PathBasedTestCase> ();
+			AddParameters (ctx, Node);
+			return parameters;
+		}
+
+		List<PathBasedTestCase> ResolveChildren ()
 		{
 			if (children != null)
 				return children;
 
-			Node.Resolve (ctx);
+			Node.Resolve ();
 			children = new List<PathBasedTestCase> ();
-			AddChildren (children, ctx, Node);
+			AddChildren (Node);
 			return children;
 		}
 
-		static void AddChildren (List<PathBasedTestCase> children, TestContext ctx, TestPathNode node)
+		void AddChildren (TestPathNode node)
 		{
-			foreach (var child in node.GetChildren (ctx)) {
+			foreach (var child in node.GetChildren ()) {
 				if (child.Path.IsHidden || !child.Path.IsBrowseable) {
-					AddChildren (children, ctx, child);
+					AddChildren (child);
 				} else {
 					children.Add (new PathBasedTestCase (child));
+				}
+			}
+		}
+
+		void AddParameters (TestContext ctx, TestPathNode node)
+		{
+			foreach (var child in node.GetParameters (ctx)) {
+				if (child.Path.IsHidden || !child.Path.IsBrowseable) {
+					AddParameters (ctx, child);
+				} else {
+					parameters.Add (new PathBasedTestCase (child));
 				}
 			}
 		}

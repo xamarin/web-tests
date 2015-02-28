@@ -66,6 +66,11 @@ namespace Xamarin.AsyncTests.Server
 			get { return "TestCase"; }
 		}
 
+		public bool HasParameters {
+			get;
+			private set;
+		}
+
 		public TestCaseClient (TestSuiteClient suite, long objectID)
 		{
 			Suite = suite;
@@ -74,8 +79,18 @@ namespace Xamarin.AsyncTests.Server
 		}
 
 		List<TestCaseClient> children;
+		List<TestCaseClient> parameters;
 
-		public async Task<IReadOnlyCollection<TestCase>> GetChildren (TestContext ctx, CancellationToken cancellationToken)
+		async Task<IReadOnlyCollection<TestCase>> TestCase.GetParameters (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (parameters != null)
+				return parameters;
+
+			parameters = await GetParameters (cancellationToken);
+			return parameters;
+		}
+
+		async Task<IReadOnlyCollection<TestCase>> TestCase.GetChildren (CancellationToken cancellationToken)
 		{
 			if (children != null)
 				return children;
@@ -89,8 +104,9 @@ namespace Xamarin.AsyncTests.Server
 			if (!node.Name.LocalName.Equals ("TestCase"))
 				throw new ServerErrorException ();
 
-			Path = new Serializer.PathWrapper (node.Element ("Path"));
+			Path = new Serializer.PathWrapper (node.Element ("TestPath"));
 			Name = Serializer.TestName.Read (node.Element ("TestName"));
+			HasParameters = bool.Parse (node.Attribute ("HasParameters").Value);
 		}
 
 		public async Task<TestResult> Run (TestContext ctx, CancellationToken cancellationToken)
@@ -109,37 +125,62 @@ namespace Xamarin.AsyncTests.Server
 			get { throw new ServerErrorException (); }
 		}
 
+		static XElement WriteTestCaseList (IEnumerable<TestCaseServant> list)
+		{
+			var root = new XElement ("TestCaseList");
+			foreach (var child in list)
+				root.Add (RemoteObjectManager.WriteProxy (child));
+			return root;
+		}
+
+		async Task<List<TestCaseClient>> ReadTestCaseList (XElement node, CancellationToken cancellationToken)
+		{
+			if (!node.Name.LocalName.Equals ("TestCaseList"))
+				throw new ServerErrorException ();
+
+			var list = new List<TestCaseClient> ();
+
+			foreach (var element in node.Elements ()) {
+				var proxy = RemoteObjectManager.ReadTestCase (Suite, element);
+				var test = await FromProxy (proxy, cancellationToken);
+				list.Add (test);
+			}
+
+			return list;
+		}
+
+		class GetParametersCommand : RemoteObjectCommand<RemoteTestCase,object,XElement>
+		{
+			protected override async Task<XElement> Run (
+				Connection connection, RemoteTestCase proxy, object argument, CancellationToken cancellationToken)
+			{
+				var list = await proxy.Servant.GetParameters (cancellationToken).ConfigureAwait (false);
+				return WriteTestCaseList (list);
+			}
+		}
+
+		async Task<List<TestCaseClient>> GetParameters (CancellationToken cancellationToken)
+		{
+			var command = new GetParametersCommand ();
+			var response = await command.Send (this, null, cancellationToken).ConfigureAwait (false);
+			return await ReadTestCaseList (response, cancellationToken);
+		}
+
 		class GetChildrenCommand : RemoteObjectCommand<RemoteTestCase,object,XElement>
 		{
 			protected override async Task<XElement> Run (
 				Connection connection, RemoteTestCase proxy, object argument, CancellationToken cancellationToken)
 			{
-				var root = new XElement ("TestCaseList");
-				foreach (var child in await proxy.Servant.GetChildren (cancellationToken))
-					root.Add (RemoteObjectManager.WriteProxy (child));
-				return root;
+				var list = await proxy.Servant.GetChildren (cancellationToken).ConfigureAwait (false);
+				return WriteTestCaseList (list);
 			}
 		}
 
 		async Task<List<TestCaseClient>> GetChildren (CancellationToken cancellationToken)
 		{
 			var command = new GetChildrenCommand ();
-			var response = await command.Send (this, null, cancellationToken);
-
-			Connection.Debug ("GOT RESPONSE: {0}", response);
-
-			if (!response.Name.LocalName.Equals ("TestCaseList"))
-				throw new ServerErrorException ();
-
-			var children = new List<TestCaseClient> ();
-
-			foreach (var element in response.Elements ()) {
-				var proxy = RemoteObjectManager.ReadTestCase (Suite, element);
-				var test = await FromProxy (proxy, cancellationToken);
-				children.Add (test);
-			}
-
-			return children;
+			var response = await command.Send (this, null, cancellationToken).ConfigureAwait (false);
+			return await ReadTestCaseList (response, cancellationToken);
 		}
 
 		class RunCommand : RemoteObjectCommand<RemoteTestCase,object,TestResult>
@@ -161,8 +202,7 @@ namespace Xamarin.AsyncTests.Server
 			if (!node.Name.LocalName.Equals ("TestCase"))
 				throw new ServerErrorException ();
 
-			test.Path = new Serializer.PathWrapper (node.Element ("TestPath"));
-			test.Name = Serializer.TestName.Read (node.Element ("TestName"));
+			test.Deserialize (node);
 			return test;
 		}
 

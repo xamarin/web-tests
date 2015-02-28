@@ -53,6 +53,10 @@ namespace Xamarin.AsyncTests.Framework
 			Filter = filter;
 		}
 
+		internal override bool HasParameters {
+			get { return true; }
+		}
+
 		internal override IEnumerable<ITestParameter> GetParameters (TestContext ctx)
 		{
 			var parameters = SourceInstance.GetParameters (ctx, Filter);

@@ -57,12 +57,28 @@ namespace Xamarin.AsyncTests.Server
 		internal XElement SerializeServant ()
 		{
 			var node = new XElement ("TestCase");
+			node.SetAttributeValue ("HasParameters", Test.HasParameters);
 			node.Add (Serializer.TestName.Write (Test.Name));
 			node.Add (Test.Path.Serialize ());
 			return node;
 		}
 
+		List<TestCaseServant> parameters;
 		List<TestCaseServant> children;
+
+		public async Task<IEnumerable<TestCaseServant>> GetParameters (CancellationToken cancellationToken)
+		{
+			if (parameters != null)
+				return parameters;
+
+			parameters = new List<TestCaseServant> ();
+			foreach (var parameter in await Test.GetParameters (Suite.Context, cancellationToken)) {
+				var parameterServant = new TestCaseServant ((ServerConnection)Connection, Suite, parameter);
+				parameters.Add (parameterServant);
+			}
+
+			return parameters;
+		}
 
 		public async Task<IEnumerable<TestCaseServant>> GetChildren (CancellationToken cancellationToken)
 		{
@@ -70,7 +86,7 @@ namespace Xamarin.AsyncTests.Server
 				return children;
 
 			children = new List<TestCaseServant> ();
-			foreach (var child in await Test.GetChildren (Suite.Context, cancellationToken)) {
+			foreach (var child in await Test.GetChildren (cancellationToken)) {
 				var childServant = new TestCaseServant ((ServerConnection)Connection, Suite, child);
 				children.Add (childServant);
 			}
