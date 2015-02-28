@@ -131,6 +131,12 @@ namespace TestMac
 				sb.Append (Result.Error.ToString ());
 			}
 
+			if (Result.Messages != null) {
+				foreach (var message in Result.Messages) {
+					sb.AppendLine (message);
+				}
+			}
+
 			var font = NSFont.FromFontName ("Courier New", 18.0f);
 			error = new NSAttributedString (sb.ToString (), font);
 
@@ -147,8 +153,6 @@ namespace TestMac
 				return testCase;
 			if (Result == null || Result.Test == null || Context == null)
 				return null;
-
-			
 
 			testCase = new TestCaseModel (Context, Result.Test);
 			return testCase;

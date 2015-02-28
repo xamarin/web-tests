@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.AsyncTests.Sample
 {
@@ -58,5 +59,19 @@ namespace Xamarin.AsyncTests.Sample
 		{
 			context.LogMessage ("HELLO: {0}", id);
 		}
+
+		[AsyncTest]
+		public void LogError (TestContext context)
+		{
+			context.LogError (new DivideByZeroException ());
+		}
+
+		[AsyncTest]
+		public void MultipleErrors (TestContext context)
+		{
+			context.LogError (new InvalidTimeZoneException ());
+			context.Assert (true, Is.False, "Never true");
+		}
+
 	}
 }

@@ -299,12 +299,11 @@ namespace Xamarin.AsyncTests.Server
 				var error = node.Element ("Error");
 				if (error != null) {
 					var errorMessage = error.Attribute ("Text").Value;
-					var stackTrace = error.Attribute ("StackTrace").Value;
-					exception = new SavedException (errorMessage, stackTrace);
+					var stackTrace = error.Attribute ("StackTrace");
+					exception = new SavedException (errorMessage, stackTrace != null ? stackTrace.Value : null);
 				}
 
-				var instance = new TestLoggerBackend.LogEntry (kind, logLevel, text, exception);
-				return instance;
+				return new TestLoggerBackend.LogEntry (kind, logLevel, text, exception);
 			}
 
 			public XElement Write (TestLoggerBackend.LogEntry instance)
@@ -346,13 +345,6 @@ namespace Xamarin.AsyncTests.Server
 		T Read (XElement node);
 
 		XElement Write (T instance);
-	}
-
-	interface Serializer<T>
-	{
-		T Read (Connection connection, object sender, XElement node);
-
-		XElement Write (Connection connection, object sender, T instance);
 	}
 }
 

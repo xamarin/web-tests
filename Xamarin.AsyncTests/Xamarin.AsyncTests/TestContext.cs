@@ -78,8 +78,12 @@ namespace Xamarin.AsyncTests
 			this.parent = parent;
 			this.support = parent.support;
 			this.result = result;
-			this.logger = parent.logger;
 			this.syncContext = syncContext ?? parent.syncContext;
+
+			if (result != null)
+				logger = new TestLogger (TestLoggerBackend.CreateForResult (result, parent.logger));
+			else
+				logger = parent.logger;
 
 			config = parent.config;
 		}

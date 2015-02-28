@@ -132,10 +132,8 @@ namespace Xamarin.AsyncTests
 
 			protected internal override void OnLogEvent (LogEntry entry)
 			{
-				if (Parent != null) {
+				if (Parent != null)
 					Parent.OnLogEvent (entry);
-					return;
-				}
 
 				if (entry.Kind == EntryKind.Error) {
 					if (entry.Error != null)

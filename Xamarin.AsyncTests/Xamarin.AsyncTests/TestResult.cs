@@ -169,7 +169,7 @@ namespace Xamarin.AsyncTests
 		public void AddChild (TestResult child)
 		{
 			lock (this) {
-				// WantToModify ();
+				WantToModify ();
 				child.parent = this;
 				children.Add (child);
 				MergeStatus (child.Status);
@@ -220,11 +220,15 @@ namespace Xamarin.AsyncTests
 			lock (this) {
 				WantToModify ();
 				if (error == null) {
-					Error = new AggregateException (exception);
+					Error = exception;
 					return;
 				}
 				var list = new List<Exception> ();
-				list.AddRange (((AggregateException)error).InnerExceptions);
+				var oldAggregate = error as AggregateException;
+				if (oldAggregate != null)
+					list.AddRange (oldAggregate.InnerExceptions);
+				else
+					list.Add (error);
 				list.Add (exception);
 				Error = new AggregateException (list);
 				Status = TestStatus.Error;

@@ -42,7 +42,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestCollectionInvoker (TestBuilder builder, TestPathNode node, TestFlags flags = TestFlags.None)
+		public TestCollectionInvoker (TestBuilder builder, TestPathNode node, TestFlags flags = TestFlags.ContinueOnError)
 			: base (flags)
 		{
 			Builder = builder;
