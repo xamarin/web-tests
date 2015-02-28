@@ -131,8 +131,6 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			Resolve (ctx);
 
-			TestSerializer.Debug ("RESOLVE TREE: {0} {1} {2} {3}", this, node, parameterized, parameter);
-
 			if (innerNode != null) {
 				innerNode.Resolve (ctx);
 

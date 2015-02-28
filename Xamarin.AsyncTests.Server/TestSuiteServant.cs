@@ -43,7 +43,7 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public TestSession Session {
+		public TestContext Context {
 			get;
 			private set;
 		}
@@ -58,19 +58,17 @@ namespace Xamarin.AsyncTests.Server
 			Framework = framework;
 		}
 
-		public async Task Initialize (TestLogger logger, CancellationToken cancellationToken)
+		public async Task Initialize (EventSinkClient sink, TestLogger logger, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			Suite = await Framework.LoadTestSuite (cancellationToken);
+			Suite = await Framework.LoadTestSuite (cancellationToken).ConfigureAwait (false);
 
-			Session = new TestSession (Suite, Framework.LocalFramework.PortableSupport, logger);
-
-			Session.Context.LogMessage ("Hello from Server!");
+			Context = sink.CreateContext (this);
 		}
 
 		public Task<TestCase> Resolve (CancellationToken cancellationToken)
 		{
-			return Suite.Resolve (Session.Context, cancellationToken);
+			return Suite.Resolve (Context, cancellationToken);
 		}
 
 		TestSuiteClient RemoteObject<TestSuiteClient,TestSuiteServant>.Client {

@@ -112,47 +112,6 @@ namespace Xamarin.AsyncTests.Framework
 			return TestSerializer.SerializePath (Node.Path);
 		}
 
-		XElement TestSerialization (TestContext ctx)
-		{
-			var firstTime = TestSerializer.SerializePath (Node.Path);
-			var firstTimeString = firstTime.ToString ();
-
-			var deserialized = TestSerializer.DeserializePath (ctx, firstTime);
-			if (deserialized.Path.Host != Node.Path.Host)
-				throw new InternalErrorException ();
-
-			var secondTime = TestSerializer.SerializePath (deserialized.Path);
-			var secondTimeString = secondTime.ToString ();
-
-			if (!firstTimeString.Equals (secondTimeString)) {
-				TestSerializer.Debug ("ROUND TRIP FAILED:\n{0}\n\n{1}\n", firstTimeString, secondTimeString);
-				TestSerializer.DeserializePath (ctx, firstTime);
-				throw new InternalErrorException ();
-			}
-
-			return firstTime;
-		}
-
-		public async Task Resolve (TestContext ctx, CancellationToken cancellationToken)
-		{
-			await Task.Yield ();
-
-			cancellationToken.ThrowIfCancellationRequested ();
-
-			var element = TestSerialization (ctx);
-			TestSerializer.Debug ("RESOLVE: {0}\n{1}", this, element);
-
-			var children = ResolveChildren (ctx);
-
-			foreach (var child in children) {
-				child.TestSerialization (ctx);
-			}
-
-			foreach (var child in children) {
-				await child.Resolve (ctx, cancellationToken);
-			}
-		}
-
 		public override string ToString ()
 		{
 			return string.Format ("[PathBasedTestCase: {0}]", Node);

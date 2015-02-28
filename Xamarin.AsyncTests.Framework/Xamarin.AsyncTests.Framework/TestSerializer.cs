@@ -76,7 +76,6 @@ namespace Xamarin.AsyncTests.Framework
 				resolver = resolver.Resolve (ctx, node, parameter);
 			}
 
-			TestSerializer.Debug ("DESERIALIZE: {0} {1}\n{2}", resolver, resolver.Node, root);
 			return resolver.Node;
 		}
 

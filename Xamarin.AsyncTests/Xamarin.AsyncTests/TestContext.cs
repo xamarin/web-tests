@@ -60,7 +60,8 @@ namespace Xamarin.AsyncTests
 			get { return support; }
 		}
 
-		internal TestContext (IPortableSupport support, TestLogger logger, TestSuite suite, TestName name, TestResult result)
+		internal TestContext (IPortableSupport support, TestLogger logger, TestSuite suite, TestName name, TestResult result,
+			SynchronizationContext syncContext = null)
 		{
 			Name = name;
 			this.support = support;
@@ -68,17 +69,17 @@ namespace Xamarin.AsyncTests
 			this.logger = logger;
 			this.suite = suite;
 			this.result = result;
-			this.syncContext = SynchronizationContext.Current;
+			this.syncContext = syncContext;
 		}
 
-		TestContext (TestContext parent, TestName name, TestResult result)
+		TestContext (TestContext parent, TestName name, TestResult result, SynchronizationContext syncContext = null)
 		{
 			Name = name;
 			this.parent = parent;
 			this.support = parent.support;
 			this.result = result;
 			this.logger = parent.logger;
-			this.syncContext = SynchronizationContext.Current;
+			this.syncContext = syncContext ?? parent.syncContext;
 
 			config = parent.config;
 		}
@@ -91,14 +92,9 @@ namespace Xamarin.AsyncTests
 				syncContext.Post (d => action (), null);
 		}
 
-		internal TestContext CreateChild (TestName name)
+		internal TestContext CreateChild (TestName name, TestResult result = null, SynchronizationContext syncContext = null)
 		{
-			return new TestContext (this, name, result);
-		}
-
-		internal TestContext CreateChild (TestName name, TestResult result)
-		{
-			return new TestContext (this, name, result);
+			return new TestContext (this, name, result, syncContext);
 		}
 
 		#region Statistics

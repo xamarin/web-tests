@@ -269,8 +269,6 @@ namespace Xamarin.AsyncTests.Server
 		async Task MainLoop ()
 		{
 			while (!shutdownRequested && !cancelCts.IsCancellationRequested) {
-				Debug ("MAIN LOOP: {0}", this);
-
 				var header = await ReadBuffer (4);
 				var len = BitConverter.ToInt32 (header, 0);
 				if (len == 0)
@@ -281,8 +279,6 @@ namespace Xamarin.AsyncTests.Server
 
 				var doc = XDocument.Load (new StringReader (content));
 				var element = doc.Root;
-
-				Debug ("MAIN LOOP #1: {0} {1}", this, doc);
 
 				if (element.Name.LocalName.Equals ("Response")) {
 					var objectID = element.Attribute ("ObjectID").Value;

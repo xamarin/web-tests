@@ -70,7 +70,7 @@ namespace Xamarin.AsyncTests.Server
 				return children;
 
 			children = new List<TestCaseServant> ();
-			foreach (var child in await Test.GetChildren (Suite.Session.Context, cancellationToken)) {
+			foreach (var child in await Test.GetChildren (Suite.Context, cancellationToken)) {
 				var childServant = new TestCaseServant ((ServerConnection)Connection, Suite, child);
 				children.Add (childServant);
 			}
@@ -88,7 +88,20 @@ namespace Xamarin.AsyncTests.Server
 
 		public Task<TestResult> Run (CancellationToken cancellationToken)
 		{
-			return Test.Run (Suite.Session.Context, cancellationToken);
+			var tcs = new TaskCompletionSource<TestResult> ();
+
+			Task.Factory.StartNew (() => {
+				Test.Run (Suite.Context, cancellationToken).ContinueWith (task => {
+					if (task.IsFaulted)
+						tcs.SetException (task.Exception);
+					else if (task.IsCanceled)
+						tcs.SetCanceled ();
+					else
+						tcs.SetResult (task.Result);
+				});
+			}, cancellationToken, TaskCreationOptions.None, TaskScheduler.Default);
+
+			return tcs.Task;
 		}
 	}
 }

@@ -34,21 +34,25 @@ namespace Xamarin.AsyncTests.Server
 	using Portable;
 	using Framework;
 
-	public class ServerConnection : Connection
+	class ServerConnection : Connection
 	{
 		IServerConnection connection;
-		TaskCompletionSource<object> helloTcs;
-		TestLogger logger;
+		TaskCompletionSource<EventSinkClient> helloTcs;
+		EventSinkClient eventSink;
+
+		internal EventSinkClient EventSink {
+			get { return eventSink; }
+		}
 
 		public TestLogger Logger {
-			get { return logger; }
+			get { return eventSink.LoggerClient; }
 		}
 
 		public ServerConnection (TestApp context, Stream stream, IServerConnection connection)
 			: base (context, stream)
 		{
 			this.connection = connection;
-			helloTcs = new TaskCompletionSource<object> ();
+			helloTcs = new TaskCompletionSource<EventSinkClient> ();
 		}
 
 		public async Task StartServer (CancellationToken cancellationToken)
@@ -61,18 +65,14 @@ namespace Xamarin.AsyncTests.Server
 		{
 			Debug ("Server Handshake: {0}", handshake);
 
-			await Task.Yield ();
-
-			var loggerClient = await EventSinkClient.FromProxy (handshake.EventSink, cancellationToken);
+			eventSink = await EventSinkClient.FromProxy (handshake.EventSink, cancellationToken);
 
 			if (handshake.Settings != null)
 				App.Settings.Merge (handshake.Settings);
 
-			logger = new TestLogger (loggerClient.Backend);
-
 			Debug ("Server Handshake done");
 
-			helloTcs.SetResult (null);
+			helloTcs.SetResult (eventSink);
 		}
 
 		public override void Stop ()

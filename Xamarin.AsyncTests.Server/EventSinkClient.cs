@@ -41,7 +41,12 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public TestLoggerBackend Backend {
+		public TestLoggerBackend LoggerBackend {
+			get;
+			private set;
+		}
+
+		public TestLogger LoggerClient {
 			get;
 			private set;
 		}
@@ -56,12 +61,38 @@ namespace Xamarin.AsyncTests.Server
 			ObjectID = objectID;
 		}
 
+		public TestContext CreateContext (TestSuiteServant suite)
+		{
+			return new TestContext (
+				Connection.App.PortableSupport, LoggerClient, suite.Suite,
+				suite.Framework.LocalFramework.Name, null, null);
+		}
+
+		public TestContext CreateContext (TestContext parent, TestName name, TestResult result)
+		{
+			return parent.CreateChild (name, result, null);
+		}
+
+		void Initialize ()
+		{
+			if (LoggerClient != null)
+				return;
+
+			LoggerBackend = new EventSinkBackend (this);
+			LoggerClient = new TestLogger (LoggerBackend);
+		}
+
 		EventSinkClient RemoteObject<EventSinkClient,EventSinkServant>.Client {
 			get { return this; }
 		}
 
 		EventSinkServant RemoteObject<EventSinkClient,EventSinkServant>.Servant {
 			get { throw new ServerErrorException (); }
+		}
+
+		public Task LogMessage (string message)
+		{
+			return LogEvent (new TestLoggerBackend.LogEntry (TestLoggerBackend.EntryKind.Message, 0, message), CancellationToken.None);
 		}
 
 		public async Task LogEvent (TestLoggerBackend.LogEntry entry, CancellationToken cancellationToken)
@@ -72,14 +103,16 @@ namespace Xamarin.AsyncTests.Server
 
 		class LogCommand : RemoteObjectCommand<RemoteEventSink,TestLoggerBackend.LogEntry,object>
 		{
+			public override bool IsOneWay {
+				get { return true; }
+			}
+
 			protected override Task<object> Run (
 				Connection connection, RemoteEventSink proxy,
 				TestLoggerBackend.LogEntry argument, CancellationToken cancellationToken)
 			{
-				return Task.Run<object> (() => {
-					proxy.Servant.LogEvent (argument);
-					return null;
-				});
+				proxy.Servant.LogEvent (argument);
+				return Task.FromResult<object> (null);
 			}
 		}
 
@@ -89,10 +122,8 @@ namespace Xamarin.AsyncTests.Server
 				Connection connection, RemoteEventSink proxy,
 				TestLoggerBackend.StatisticsEventArgs argument, CancellationToken cancellationToken)
 			{
-				return Task.Run<object> (() => {
-					proxy.Servant.StatisticsEvent (argument);
-					return null;
-				});
+				proxy.Servant.StatisticsEvent (argument);
+				return Task.FromResult<object> (null);
 			}
 		}
 
@@ -100,10 +131,7 @@ namespace Xamarin.AsyncTests.Server
 		{
 			return Task.Run (() => {
 				var client = (EventSinkClient)proxy;
-				if (client.Backend != null)
-					return client;
-
-				client.Backend = new EventSinkBackend (client);
+				client.Initialize ();
 				return client;
 			});
 		}
@@ -119,7 +147,7 @@ namespace Xamarin.AsyncTests.Server
 
 			protected internal override void OnLogEvent (LogEntry entry)
 			{
-				client.LogEvent (entry, CancellationToken.None);
+				client.LogEvent (entry, CancellationToken.None).Wait ();
 			}
 
 			protected internal override void OnStatisticsEvent (StatisticsEventArgs args)

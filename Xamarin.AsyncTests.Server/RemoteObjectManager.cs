@@ -174,7 +174,7 @@ namespace Xamarin.AsyncTests.Server
 			{
 				var serverConnection = (ServerConnection)connection;
 				var suite = new TestSuiteServant (serverConnection, proxy.Servant);
-				await suite.Initialize (serverConnection.Logger, cancellationToken);
+				await suite.Initialize (serverConnection.EventSink, serverConnection.Logger, cancellationToken);
 				return suite;
 			}
 		}
