@@ -109,7 +109,7 @@ namespace TestMac
 
 			var sb = new StringBuilder ();
 			if (Result.Path != null) {
-				var serialized = Result.Path.Serialize ();
+				var serialized = Result.Path.SerializePath ();
 				sb.AppendLine (serialized.ToString ());
 				sb.AppendLine ();
 				sb.AppendLine ();

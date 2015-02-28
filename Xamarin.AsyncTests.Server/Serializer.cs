@@ -368,7 +368,7 @@ namespace Xamarin.AsyncTests.Server
 				this.node = node;
 			}
 
-			public XElement Serialize ()
+			public XElement SerializePath ()
 			{
 				return node;
 			}

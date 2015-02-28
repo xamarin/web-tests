@@ -57,7 +57,7 @@ namespace TestMac
 			Context = ctx;
 			Test = test;
 			fullName = test.Name.FullName;
-			serialized = Test.Path.Serialize ().ToString ();
+			serialized = Test.Path.SerializePath ().ToString ();
 
 			Initialize ();
 		}

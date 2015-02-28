@@ -94,7 +94,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		public override Task<TestCase> ResolveTest (TestContext ctx, ITestPath path, CancellationToken cancellationToken)
 		{
-			var element = path.Serialize ();
+			var element = path.SerializePath ();
 			var node = TestSerializer.DeserializePath (ctx, element);
 			return Task.FromResult<TestCase> (new PathBasedTestCase (node));
 		}

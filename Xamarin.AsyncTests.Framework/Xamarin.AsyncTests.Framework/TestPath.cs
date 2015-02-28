@@ -143,7 +143,7 @@ namespace Xamarin.AsyncTests.Framework
 			return true;
 		}
 
-		public XElement Serialize ()
+		public XElement SerializePath ()
 		{
 			return TestSerializer.SerializePath (this);
 		}

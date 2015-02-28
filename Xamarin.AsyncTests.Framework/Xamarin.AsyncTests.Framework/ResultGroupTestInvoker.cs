@@ -59,7 +59,7 @@ namespace Xamarin.AsyncTests.Framework
 			var innerResult = new TestResult (innerName);
 			innerResult.Path = currentPath;
 
-			var serialized = currentPath.Serialize ();
+			var serialized = currentPath.SerializePath ();
 			var deserialized = TestSerializer.DeserializePath (ctx, serialized);
 			innerResult.Test = new PathBasedTestCase (deserialized);
 
