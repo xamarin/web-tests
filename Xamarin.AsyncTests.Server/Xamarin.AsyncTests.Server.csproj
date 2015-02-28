@@ -46,7 +46,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Connection.cs" />
-    <Compile Include="SavedException.cs" />
     <Compile Include="ShutdownCommand.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Response.cs" />

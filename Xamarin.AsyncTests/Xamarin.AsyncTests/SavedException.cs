@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.Server
+namespace Xamarin.AsyncTests
 {
 	public class SavedException : Exception
 	{

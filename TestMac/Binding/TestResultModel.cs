@@ -32,7 +32,6 @@ using Foundation;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using ObjCRuntime;
-using Xamarin.AsyncTests.Server;
 
 namespace TestMac
 {
