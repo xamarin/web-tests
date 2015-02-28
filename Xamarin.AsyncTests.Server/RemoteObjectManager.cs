@@ -33,7 +33,7 @@ namespace Xamarin.AsyncTests.Server
 {
 	using Framework;
 
-	interface RemoteTestLogger : RemoteObject<TestLoggerClient,TestLoggerServant>
+	interface RemoteEventSink : RemoteObject<EventSinkClient,EventSinkServant>
 	{
 	}
 
@@ -92,9 +92,8 @@ namespace Xamarin.AsyncTests.Server
 			if (settings != null)
 				instance.Settings = Serializer.Settings.Read (settings);
 
-			var logger = node.Element ("TestLogger");
-			if (logger != null)
-				instance.Logger = ReadProxy (connection, logger, (objectID) => new TestLoggerClient (connection, objectID));
+			var logger = node.Element ("EventSink");
+			instance.EventSink = ReadProxy (connection, logger, (objectID) => new EventSinkClient (connection, objectID));
 
 			return instance;
 		}
@@ -107,8 +106,7 @@ namespace Xamarin.AsyncTests.Server
 			if (instance.Settings != null)
 				element.Add (Serializer.Settings.Write (instance.Settings));
 
-			if (instance.Logger != null)
-				element.Add (WriteProxy (instance.Logger));
+			element.Add (WriteProxy (instance.EventSink));
 
 			return element;
 		}
@@ -143,39 +141,6 @@ namespace Xamarin.AsyncTests.Server
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			Connection.Debug ("Client Handshake done");
-		}
-
-		public static async Task LogEvent (
-			TestLoggerClient proxy, TestLoggerBackend.LogEntry entry, CancellationToken cancellationToken)
-		{
-			var command = new LogCommand ();
-			await command.Send (proxy, entry, cancellationToken);
-		}
-
-		class LogCommand : RemoteObjectCommand<RemoteTestLogger,TestLoggerBackend.LogEntry,object>
-		{
-			protected override Task<object> Run (
-				Connection connection, RemoteTestLogger proxy,
-				TestLoggerBackend.LogEntry argument, CancellationToken cancellationToken)
-			{
-				return Task.Run<object> (() => {
-					proxy.Servant.LogEvent (argument);
-					return null;
-				});
-			}
-		}
-
-		class StatisticsCommand : RemoteObjectCommand<RemoteTestLogger,TestLoggerBackend.StatisticsEventArgs,object>
-		{
-			protected override Task<object> Run (
-				Connection connection, RemoteTestLogger proxy,
-				TestLoggerBackend.StatisticsEventArgs argument, CancellationToken cancellationToken)
-			{
-				return Task.Run<object> (() => {
-					proxy.Servant.StatisticsEvent (argument);
-					return null;
-				});
-			}
 		}
 
 		class GetRemoteTestFrameworkCommand : Command<object,ObjectProxy>

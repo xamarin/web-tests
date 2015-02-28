@@ -1,5 +1,5 @@
 ﻿//
-// TestLoggerClient.cs
+// EventSinkServant.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,44 +24,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using SD = System.Diagnostics;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class TestLoggerClient : TestLoggerBackend, ObjectClient<TestLoggerClient>, RemoteTestLogger
+	class EventSinkServant : ObjectServant, RemoteEventSink
 	{
-		public Connection Connection {
+		public TestLoggerBackend Logger {
 			get;
 			private set;
 		}
 
-		public long ObjectID {
-			get;
-			private set;
+		public override string Type {
+			get { return "EventSink"; }
 		}
 
-		public TestLoggerClient (Connection connection, long objectID)
+		public EventSinkServant (ClientConnection connection, TestLoggerBackend logger)
+			: base (connection)
 		{
-			Connection = connection;
-			ObjectID = objectID;
+			Logger = logger;
 		}
 
-		async protected internal override void OnLogEvent (LogEntry entry)
+		public void LogEvent (TestLoggerBackend.LogEntry entry)
 		{
-			await RemoteObjectManager.LogEvent (this, entry, CancellationToken.None);
+			SD.Debug.WriteLine ("ON LOG EVENT: {0}", entry);
+			Logger.OnLogEvent (entry);
 		}
 
-		protected internal override void OnStatisticsEvent (StatisticsEventArgs args)
+		public void StatisticsEvent (TestLoggerBackend.StatisticsEventArgs args)
 		{
+			SD.Debug.WriteLine ("ON STATISTICS EVENT: {0}", args);
+			Logger.OnStatisticsEvent (args);
 		}
 
-		TestLoggerClient RemoteObject<TestLoggerClient,TestLoggerServant>.Client {
-			get { return this; }
-		}
-
-		TestLoggerServant RemoteObject<TestLoggerClient,TestLoggerServant>.Servant {
+		EventSinkClient RemoteObject<EventSinkClient,EventSinkServant>.Client {
 			get { throw new ServerErrorException (); }
+		}
+
+		EventSinkServant RemoteObject<EventSinkClient,EventSinkServant>.Servant {
+			get { return this; }
 		}
 	}
 }

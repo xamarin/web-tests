@@ -63,11 +63,13 @@ namespace Xamarin.AsyncTests.Server
 
 			await Task.Yield ();
 
+			var loggerClient = await EventSinkClient.FromProxy (handshake.EventSink, cancellationToken);
+
 			lock (this) {
 				if (handshake.Settings != null)
 					App.Settings.Merge (handshake.Settings);
 
-				logger = new TestLogger (handshake.Logger.Client);
+				logger = new TestLogger (loggerClient.Backend);
 				logger.LogMessage ("Hello from Server!");
 
 				helloTcs.SetResult (null);

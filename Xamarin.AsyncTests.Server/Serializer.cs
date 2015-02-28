@@ -206,29 +206,6 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		class TestLoggerSerializer : Serializer<TestLoggerBackend>
-		{
-			public TestLoggerBackend Read (Connection connection, object sender, XElement node)
-			{
-				if (!node.Name.LocalName.Equals ("TestLogger"))
-					throw new ServerErrorException ();
-
-				var objectId = long.Parse (node.Attribute ("ObjectID").Value);
-
-				var proxy = new TestLoggerClient (connection, objectId);
-				return proxy;
-			}
-
-			public XElement Write (Connection connection, object sender, TestLoggerBackend instance)
-			{
-				var element = new XElement ("TestLogger");
-				var proxy = new TestLoggerServant ((ClientConnection)connection);
-				element.SetAttributeValue ("ObjectID", proxy.ObjectID);
-
-				return element;
-			}
-		}
-
 		class TestResultSerializer : IValueSerializer<TestResult>
 		{
 			public TestResult Read (XElement node)

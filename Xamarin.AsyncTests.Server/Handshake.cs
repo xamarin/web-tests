@@ -39,7 +39,7 @@ namespace Xamarin.AsyncTests.Server
 			get; set;
 		}
 
-		public RemoteTestLogger Logger {
+		public RemoteEventSink EventSink {
 			get; set;
 		}
 
