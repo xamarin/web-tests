@@ -46,6 +46,10 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
+		public string Type {
+			get { return "EventSink"; }
+		}
+
 		internal EventSinkClient (Connection connection, long objectID)
 		{
 			Connection = connection;
@@ -115,7 +119,7 @@ namespace Xamarin.AsyncTests.Server
 
 			protected internal override void OnLogEvent (LogEntry entry)
 			{
-				client.LogEvent (entry, CancellationToken.None).Wait ();
+				client.LogEvent (entry, CancellationToken.None);
 			}
 
 			protected internal override void OnStatisticsEvent (StatisticsEventArgs args)

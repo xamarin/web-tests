@@ -52,6 +52,10 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
+		public string Type {
+			get { return "TestSuite"; }
+		}
+
 		public TestSuiteClient (TestFrameworkClient framework, long objectID)
 		{
 			Framework = framework;

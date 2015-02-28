@@ -54,10 +54,7 @@ namespace Xamarin.AsyncTests.Server
 		static C ReadProxy<C> (Connection connection, XElement node, Func<long,C> createClientFunc)
 			where C : class, ObjectProxy
 		{
-			if (!node.Name.LocalName.Equals ("ObjectID"))
-				throw new ServerErrorException ();
-
-			var objectID = long.Parse (node.Attribute ("Value").Value);
+			var objectID = long.Parse (node.Attribute ("ObjectID").Value);
 
 			C client;
 			if (connection.TryGetRemoteObject (objectID, out client))
@@ -70,8 +67,8 @@ namespace Xamarin.AsyncTests.Server
 
 		internal static XElement WriteProxy (ObjectProxy proxy)
 		{
-			var element = new XElement ("ObjectID");
-			element.SetAttributeValue ("Value", proxy.ObjectID);
+			var element = new XElement (proxy.Type);
+			element.SetAttributeValue ("ObjectID", proxy.ObjectID);
 			return element;
 		}
 
@@ -126,7 +123,7 @@ namespace Xamarin.AsyncTests.Server
 			protected async override Task<object> Run (Connection connection, Handshake argument, CancellationToken cancellationToken)
 			{
 				var serverConnection = (ServerConnection)connection;
-				await serverConnection.OnHello (argument, cancellationToken);
+				await serverConnection.Initialize (argument, cancellationToken);
 				return null;
 			}
 		}
@@ -134,6 +131,8 @@ namespace Xamarin.AsyncTests.Server
 		internal static async Task Handshake (ClientConnection connection, TestLoggerBackend logger, Handshake handshake, CancellationToken cancellationToken)
 		{
 			Connection.Debug ("Client Handshake: {0}", handshake);
+
+			handshake.EventSink = new EventSinkServant (connection, logger);
 
 			var handshakeCommand = new HandshakeCommand ();
 			await handshakeCommand.Send (connection, handshake, cancellationToken);

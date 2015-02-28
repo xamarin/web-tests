@@ -62,6 +62,10 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
+		public string Type {
+			get { return "TestCase"; }
+		}
+
 		public TestCaseClient (TestSuiteClient suite, long objectID)
 		{
 			Suite = suite;

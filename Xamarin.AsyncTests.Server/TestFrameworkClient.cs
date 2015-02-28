@@ -49,6 +49,10 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
+		public string Type {
+			get { return "TestFramework"; }
+		}
+
 		public TestFrameworkClient (ClientConnection connection, long objectID)
 		{
 			Connection = connection;

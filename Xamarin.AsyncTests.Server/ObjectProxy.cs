@@ -33,6 +33,10 @@ namespace Xamarin.AsyncTests.Server
 			get;
 		}
 
+		string Type {
+			get;
+		}
+
 		long ObjectID {
 			get;
 		}

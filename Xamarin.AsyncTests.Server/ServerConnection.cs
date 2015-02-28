@@ -57,7 +57,7 @@ namespace Xamarin.AsyncTests.Server
 			await helloTcs.Task;
 		}
 
-		internal async Task OnHello (Handshake handshake, CancellationToken cancellationToken)
+		internal async Task Initialize (Handshake handshake, CancellationToken cancellationToken)
 		{
 			Debug ("Server Handshake: {0}", handshake);
 
@@ -65,17 +65,14 @@ namespace Xamarin.AsyncTests.Server
 
 			var loggerClient = await EventSinkClient.FromProxy (handshake.EventSink, cancellationToken);
 
-			lock (this) {
-				if (handshake.Settings != null)
-					App.Settings.Merge (handshake.Settings);
+			if (handshake.Settings != null)
+				App.Settings.Merge (handshake.Settings);
 
-				logger = new TestLogger (loggerClient.Backend);
-				logger.LogMessage ("Hello from Server!");
-
-				helloTcs.SetResult (null);
-			}
+			logger = new TestLogger (loggerClient.Backend);
 
 			Debug ("Server Handshake done");
+
+			helloTcs.SetResult (null);
 		}
 
 		public override void Stop ()
