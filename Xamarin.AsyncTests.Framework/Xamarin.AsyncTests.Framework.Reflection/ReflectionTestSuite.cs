@@ -71,7 +71,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		TestCase test;
 
-		public Task<TestCase> Resolve (TestContext ctx, CancellationToken cancellationToken)
+		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
 		{
 			return Task.FromResult (test);
 		}

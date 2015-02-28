@@ -43,6 +43,6 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
-		Task<TestCase> Resolve (TestContext ctx, CancellationToken cancellationToken);
+		Task<TestCase> GetRootTestCase (CancellationToken cancellationToken);
 	}
 }

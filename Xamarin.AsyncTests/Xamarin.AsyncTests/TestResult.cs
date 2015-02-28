@@ -66,6 +66,7 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		[Obsolete ("KILL")]
 		public TestCase Test {
 			get { return test; }
 			internal set {

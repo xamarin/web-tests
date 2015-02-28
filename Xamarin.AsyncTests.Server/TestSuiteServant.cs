@@ -66,9 +66,9 @@ namespace Xamarin.AsyncTests.Server
 			Context = sink.CreateContext (this);
 		}
 
-		public Task<TestCase> Resolve (CancellationToken cancellationToken)
+		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
 		{
-			return Suite.Resolve (Context, cancellationToken);
+			return Suite.GetRootTestCase (cancellationToken);
 		}
 
 		TestSuiteClient RemoteObject<TestSuiteClient,TestSuiteServant>.Client {

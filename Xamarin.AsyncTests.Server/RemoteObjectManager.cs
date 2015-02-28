@@ -186,7 +186,7 @@ namespace Xamarin.AsyncTests.Server
 			return (TestSuiteClient)await command.Send (framework, null, cancellationToken);
 		}
 
-		class ResolveTestSuiteCommand : RemoteObjectCommand<RemoteTestSuite,object,ObjectProxy>
+		class GetRootTestCaseCommand : RemoteObjectCommand<RemoteTestSuite,object,ObjectProxy>
 		{
 			protected override ObjectProxy ReadResponse (Connection connection, XElement node)
 			{
@@ -196,15 +196,15 @@ namespace Xamarin.AsyncTests.Server
 			protected override async Task<ObjectProxy> Run (
 				Connection connection, RemoteTestSuite proxy, object argument, CancellationToken cancellationToken)
 			{
-				var test = await proxy.Servant.Resolve (cancellationToken);
+				var test = await proxy.Servant.GetRootTestCase (cancellationToken);
 				return new TestCaseServant ((ServerConnection)connection, proxy.Servant, test);
 			}
 		}
 
-		public static async Task<TestCase> ResolveTestSuite (
+		public static async Task<TestCase> GetRootTestCase (
 			TestSuiteClient suite, CancellationToken cancellationToken)
 		{
-			var command = new ResolveTestSuiteCommand ();
+			var command = new GetRootTestCaseCommand ();
 			var proxy = await command.Send (suite, null, cancellationToken);
 
 			return await TestCaseClient.FromProxy (proxy, cancellationToken);

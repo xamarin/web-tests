@@ -64,7 +64,7 @@ namespace TestMac
 
 		async void Initialize ()
 		{
-			var test = await Suite.Resolve (Session.Context, CancellationToken.None);
+			var test = await Suite.GetRootTestCase (CancellationToken.None);
 			Console.WriteLine ("GOT ROOT TEST: {0}", test);
 
 			if (test != null) {
