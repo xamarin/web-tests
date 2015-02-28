@@ -89,26 +89,12 @@ namespace Xamarin.AsyncTests.Server
 			Name = Serializer.TestName.Read (node.Element ("TestName"));
 		}
 
-		public XElement Serialize ()
+		public async Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Path.Serialize ();
-		}
-
-		public async Task Resolve (TestContext ctx, CancellationToken cancellationToken)
-		{
-			if (children != null)
-				return;
-
-			var result = await GetChildren (cancellationToken);
-
-			lock (this) {
-				children = result;
-			}
-		}
-
-		public Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException ();
+			var runCommand = new RunCommand ();
+			var result = await runCommand.Send (this, null, cancellationToken);
+			Connection.Debug ("RUN: {0}", result);
+			return true;
 		}
 
 		TestCaseClient RemoteObject<TestCaseClient,TestCaseServant>.Client {
@@ -150,6 +136,15 @@ namespace Xamarin.AsyncTests.Server
 			}
 
 			return children;
+		}
+
+		class RunCommand : RemoteObjectCommand<RemoteTestCase,object,object>
+		{
+			protected override async Task<object> Run (Connection connection, RemoteTestCase proxy, object argument, CancellationToken cancellationToken)
+			{
+				await proxy.Servant.Run (cancellationToken);
+				return null;
+			}
 		}
 
 		internal static async Task<TestCaseClient> FromProxy (ObjectProxy proxy, CancellationToken cancellationToken)

@@ -85,6 +85,16 @@ namespace Xamarin.AsyncTests.Server
 		TestCaseServant RemoteObject<TestCaseClient,TestCaseServant>.Servant {
 			get { return this; }
 		}
+
+		public async Task<bool> Run (CancellationToken cancellationToken)
+		{
+			Connection.Debug ("RUN: {0}", Test);
+			var result = new TestResult (Test.Name);
+			var ctx = Suite.Session.Context.CreateChild (Test.Name, result);
+			var retval = await Test.Run (ctx, cancellationToken);
+			Connection.Debug ("RUN DONE: {0} {1}", retval, result);
+			return retval;
+		}
 	}
 }
 
