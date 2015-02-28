@@ -39,7 +39,7 @@ namespace Xamarin.AsyncTests.Server
 			get; set;
 		}
 
-		public TestLogger Logger {
+		public TestLoggerBackend Logger {
 			get; set;
 		}
 

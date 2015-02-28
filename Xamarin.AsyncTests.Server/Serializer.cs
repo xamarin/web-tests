@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Text;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml;
 using System.Xml.Linq;
@@ -35,19 +36,56 @@ namespace Xamarin.AsyncTests.Server
 
 	static class Serializer
 	{
-		public static readonly Serializer<string> String = new StringSerializer ();
-		public static readonly Serializer<XElement> Element = new ElementSerializer ();
-		public static readonly Serializer<long> ObjectID = new ObjectIDSerializer ();
-		public static readonly Serializer<TestName> TestName = new TestNameSerializer ();
-		public static readonly Serializer<TestLogger> TestLogger = new TestLoggerSerializer ();
-		public static readonly Serializer<TestResult> TestResult = new TestResultSerializer ();
+		public static readonly IValueSerializer<string> String = new StringSerializer ();
+		public static readonly IValueSerializer<XElement> Element = new ElementSerializer ();
+		public static readonly IValueSerializer<TestName> TestName = new TestNameSerializer ();
+		public static readonly Serializer<TestLoggerBackend> TestLogger = new TestLoggerSerializer ();
+		public static readonly IValueSerializer<TestResult> TestResult = new TestResultSerializer ();
 		public static readonly Serializer<Handshake> Handshake = new HandshakeSerializer ();
-		public static readonly Serializer<TestLoggerBackend.LogEntry> LogEntry = new LogEntrySerializer ();
-		public static readonly Serializer<TestLoggerBackend.StatisticsEventArgs> StatisticsEventArgs = new StatisticsEventArgsSerializer ();
+		public static readonly IValueSerializer<TestLoggerBackend.LogEntry> LogEntry = new LogEntrySerializer ();
+		public static readonly IValueSerializer<TestLoggerBackend.StatisticsEventArgs> StatisticsEventArgs = new StatisticsEventArgsSerializer ();
+
+		public static XElement Write (object instance)
+		{
+			if (instance is string)
+				return String.Write ((string)instance);
+			else if (instance is XElement)
+				return Element.Write ((XElement)instance);
+			else if (instance is TestName)
+				return TestName.Write ((TestName)instance);
+			else if (instance is TestResult)
+				return TestResult.Write ((TestResult)instance);
+			else if (instance is TestLoggerBackend.LogEntry)
+				return LogEntry.Write ((TestLoggerBackend.LogEntry)instance);
+			else if (instance is TestLoggerBackend.StatisticsEventArgs)
+				return StatisticsEventArgs.Write ((TestLoggerBackend.StatisticsEventArgs)instance);
+			else if (instance is ObjectProxy)
+				return RemoteObjectManager.WriteProxy ((ObjectProxy)instance);
+			else
+				throw new ServerErrorException ();
+		}
+
+		public static T Read<T> (XElement node)
+		{
+			if (typeof(T) == typeof(string))
+				return ((IValueSerializer<T>)String).Read (node);
+			else if (typeof(T) == typeof(XElement))
+				return ((IValueSerializer<T>)Element).Read (node);
+			else if (typeof(T) == typeof(TestName))
+				return ((IValueSerializer<T>)TestName).Read (node);
+			else if (typeof(T) == typeof(TestResult))
+				return ((IValueSerializer<T>)TestResult).Read (node);
+			else if (typeof(T) == typeof(TestLoggerBackend.LogEntry))
+				return ((IValueSerializer<T>)LogEntry).Read (node);
+			else if (typeof(T) == typeof(TestLoggerBackend.StatisticsEventArgs))
+				return ((IValueSerializer<T>)StatisticsEventArgs).Read (node);
+			else
+				throw new ServerErrorException ();
+		}
 
 		static readonly SettingsSerializer settingsSerializer = new SettingsSerializer ();
 
-		public static Serializer<SettingsBag> Settings {
+		public static IValueSerializer<SettingsBag> Settings {
 			get { return settingsSerializer; }
 		}
 
@@ -61,13 +99,8 @@ namespace Xamarin.AsyncTests.Server
 			return settingsSerializer.Write (settings);
 		}
 
-		class SettingsSerializer : Serializer<SettingsBag>
+		class SettingsSerializer : IValueSerializer<SettingsBag>
 		{
-			public XElement Write (Connection connection, SettingsBag instance)
-			{
-				return Write (instance);
-			}
-
 			public XElement Write (SettingsBag instance)
 			{
 				var settings = new XElement ("Settings");
@@ -81,11 +114,6 @@ namespace Xamarin.AsyncTests.Server
 				}
 
 				return settings;
-			}
-
-			public SettingsBag Read (Connection connection, XElement node)
-			{
-				return Read (node);
 			}
 
 			public SettingsBag Read (XElement node)
@@ -103,9 +131,9 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		class StringSerializer : Serializer<string>
+		class StringSerializer : IValueSerializer<string>
 		{
-			public string Read (Connection connection, XElement node)
+			public string Read (XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("Text"))
 					throw new ServerErrorException ();
@@ -113,7 +141,7 @@ namespace Xamarin.AsyncTests.Server
 				return node.Attribute ("Value").Value;
 			}
 
-			public XElement Write (Connection connection, string instance)
+			public XElement Write (string instance)
 			{
 				var element = new XElement ("Text");
 				element.SetAttributeValue ("Value", instance);
@@ -121,45 +149,25 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		class ElementSerializer : Serializer<XElement>
+		class ElementSerializer : IValueSerializer<XElement>
 		{
-			public XElement Read (Connection connection, XElement node)
+			public XElement Read (XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("Element"))
 					throw new ServerErrorException ();
 
-				return node.Element ("Value");
+				return (XElement)node.FirstNode;
 			}
 
-			public XElement Write (Connection connection, XElement instance)
+			public XElement Write (XElement instance)
 			{
-				var element = new XElement ("Element");
-				element.SetElementValue ("Value", instance);
-				return element;
+				return new XElement ("Element", instance);
 			}
 		}
 
-		class ObjectIDSerializer : Serializer<long>
+		class TestNameSerializer : IValueSerializer<TestName>
 		{
-			public long Read (Connection connection, XElement node)
-			{
-				if (!node.Name.LocalName.Equals ("ObjectID"))
-					throw new ServerErrorException ();
-
-				return long.Parse (node.Attribute ("Value").Value);
-			}
-
-			public XElement Write (Connection connection, long instance)
-			{
-				var element = new XElement ("ObjectID");
-				element.SetAttributeValue ("Value", instance);
-				return element;
-			}
-		}
-
-		class TestNameSerializer : Serializer<TestName>
-		{
-			public TestName Read (Connection connection, XElement node)
+			public TestName Read (XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("TestName"))
 					throw new ServerErrorException ();
@@ -179,7 +187,7 @@ namespace Xamarin.AsyncTests.Server
 				return builder.GetName ();
 			}
 
-			public XElement Write (Connection connection, TestName instance)
+			public XElement Write (TestName instance)
 			{
 				var element = new XElement ("TestName");
 				if (instance.Name != null)
@@ -200,37 +208,37 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		class TestLoggerSerializer : Serializer<TestLogger>
+		class TestLoggerSerializer : Serializer<TestLoggerBackend>
 		{
-			public TestLogger Read (Connection connection, XElement node)
+			public TestLoggerBackend Read (Connection connection, object sender, XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("TestLogger"))
 					throw new ServerErrorException ();
 
 				var objectId = long.Parse (node.Attribute ("ObjectID").Value);
 
-				var proxy = RemoteTestLogger.CreateClient (connection, objectId);
-				return proxy.Instance;
+				var proxy = new TestLoggerClient (connection, objectId);
+				return proxy;
 			}
 
-			public XElement Write (Connection connection, TestLogger instance)
+			public XElement Write (Connection connection, object sender, TestLoggerBackend instance)
 			{
 				var element = new XElement ("TestLogger");
-				var proxy = RemoteTestLogger.CreateServer (connection);
+				var proxy = new TestLoggerServant ((ClientConnection)connection);
 				element.SetAttributeValue ("ObjectID", proxy.ObjectID);
 
 				return element;
 			}
 		}
 
-		class TestResultSerializer : Serializer<TestResult>
+		class TestResultSerializer : IValueSerializer<TestResult>
 		{
-			public TestResult Read (Connection connection, XElement node)
+			public TestResult Read (XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("TestResult"))
 					throw new ServerErrorException ();
 
-				var name = Serializer.TestName.Read (connection, node.Element ("TestName"));
+				var name = Serializer.TestName.Read (node.Element ("TestName"));
 				var status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
 
 				var result = new TestResult (name, status);
@@ -240,20 +248,13 @@ namespace Xamarin.AsyncTests.Server
 					result.AddError (new SavedException (error.Value));
 
 				foreach (var child in node.Elements ("TestResult")) {
-					result.AddChild (Read (connection, child));
+					result.AddChild (Read (child));
 				}
 
 				return result;
 			}
 
-			void OnPropertyChanged (Connection connection, TestResult result, TestCase oldTest)
-			{
-				if (result.Test == oldTest)
-					return;
-
-			}
-
-			public XElement Write (Connection connection, TestResult instance)
+			public XElement Write (TestResult instance)
 			{
 				var element = new XElement ("TestResult");
 				element.SetAttributeValue ("Status", instance.Status.ToString ());
@@ -261,18 +262,18 @@ namespace Xamarin.AsyncTests.Server
 				if (instance.Error != null)
 					element.SetAttributeValue ("Error", instance.Error.ToString ());
 
-				element.Add (Serializer.TestName.Write (connection, instance.Name));
+				element.Add (Serializer.TestName.Write (instance.Name));
 
 				foreach (var child in instance.Children)
-					element.Add (Write (connection, child));
+					element.Add (Write (child));
 
 				return element;
 			}
 		}
 
-		class StatisticsEventArgsSerializer : Serializer<TestLoggerBackend.StatisticsEventArgs>
+		class StatisticsEventArgsSerializer : IValueSerializer<TestLoggerBackend.StatisticsEventArgs>
 		{
-			public TestLoggerBackend.StatisticsEventArgs Read (Connection connection, XElement node)
+			public TestLoggerBackend.StatisticsEventArgs Read (XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("TestStatisticsEventArgs"))
 					throw new ServerErrorException ();
@@ -284,12 +285,12 @@ namespace Xamarin.AsyncTests.Server
 
 				var name = node.Element ("TestName");
 				if (name != null)
-					instance.Name = Serializer.TestName.Read (connection, name);
+					instance.Name = Serializer.TestName.Read (name);
 
 				return instance;
 			}
 
-			public XElement Write (Connection connection, TestLoggerBackend.StatisticsEventArgs instance)
+			public XElement Write (TestLoggerBackend.StatisticsEventArgs instance)
 			{
 				if (instance.IsRemote)
 					throw new ServerErrorException ();
@@ -299,7 +300,7 @@ namespace Xamarin.AsyncTests.Server
 				element.SetAttributeValue ("Status", instance.Status.ToString ());
 
 				if (instance.Name != null)
-					element.Add (Serializer.TestName.Write (connection, instance.Name));
+					element.Add (Serializer.TestName.Write (instance.Name));
 
 				return element;
 			}
@@ -307,7 +308,7 @@ namespace Xamarin.AsyncTests.Server
 
 		class HandshakeSerializer : Serializer<Handshake>
 		{
-			public Handshake Read (Connection connection, XElement node)
+			public Handshake Read (Connection connection, object sender, XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("HandshakeRequest"))
 					throw new ServerErrorException ();
@@ -317,34 +318,33 @@ namespace Xamarin.AsyncTests.Server
 
 				var settings = node.Element ("Settings");
 				if (settings != null)
-					instance.Settings = Serializer.Settings.Read (connection, settings);
+					instance.Settings = Serializer.Settings.Read (settings);
 
 				var logger = node.Element ("TestLogger");
 				if (logger != null)
-					instance.Logger = Serializer.TestLogger.Read (connection, logger);
+					instance.Logger = Serializer.TestLogger.Read (connection, sender, logger);
 
 				return instance;
 			}
 
-			public XElement Write (Connection connection, Handshake instance)
+			public XElement Write (Connection connection, object sender, Handshake instance)
 			{
 				var element = new XElement ("HandshakeRequest");
 				element.SetAttributeValue ("WantStatisticsEvents", instance.WantStatisticsEvents);
 
 				if (instance.Settings != null)
-					element.Add (Serializer.Settings.Write (connection, instance.Settings));
+					element.Add (Serializer.Settings.Write (instance.Settings));
 
 				if (instance.Logger != null)
-					element.Add (Serializer.TestLogger.Write (connection, instance.Logger));
+					element.Add (Serializer.TestLogger.Write (connection, sender, instance.Logger));
 
 				return element;
 			}
 		}
 
-		class LogEntrySerializer : Serializer<TestLoggerBackend.LogEntry>
+		class LogEntrySerializer : IValueSerializer<TestLoggerBackend.LogEntry>
 		{
-			#region implemented abstract members of Serializer
-			public TestLoggerBackend.LogEntry Read (Connection connection, XElement node)
+			public TestLoggerBackend.LogEntry Read (XElement node)
 			{
 				if (!node.Name.LocalName.Equals ("LogEntry"))
 					throw new ServerErrorException ();
@@ -367,7 +367,8 @@ namespace Xamarin.AsyncTests.Server
 				var instance = new TestLoggerBackend.LogEntry (kind, logLevel, text, exception);
 				return instance;
 			}
-			public XElement Write (Connection connection, TestLoggerBackend.LogEntry instance)
+
+			public XElement Write (TestLoggerBackend.LogEntry instance)
 			{
 				var element = new XElement ("LogEntry");
 				element.SetAttributeValue ("Kind", instance.Kind);
@@ -383,22 +384,36 @@ namespace Xamarin.AsyncTests.Server
 
 				return element;
 			}
-			#endregion
 		}
+
+		internal class PathWrapper : ITestPath
+		{
+			readonly XElement node;
+
+			public PathWrapper (XElement node)
+			{
+				this.node = node;
+			}
+
+			public XElement Serialize ()
+			{
+				return node;
+			}
+		}
+	}
+
+	interface IValueSerializer<T>
+	{
+		T Read (XElement node);
+
+		XElement Write (T instance);
 	}
 
 	interface Serializer<T>
 	{
-		T Read (Connection connection, XElement node);
+		T Read (Connection connection, object sender, XElement node);
 
-		XElement Write (Connection connection, T instance);
-	}
-
-	interface Serializer<T,U>
-	{
-		T Read (Connection connection, XElement node);
-
-		XElement Write (Connection connection, U instance);
+		XElement Write (Connection connection, object sender, T instance);
 	}
 }
 

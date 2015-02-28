@@ -41,7 +41,8 @@ namespace Xamarin.AsyncTests.Server
 		}
 
 		public long ResponseID {
-			get; set;
+			get;
+			internal set;
 		}
 
 		internal static Command Create (Connection connection, XElement node)
@@ -95,20 +96,34 @@ namespace Xamarin.AsyncTests.Server
 	abstract class Command<T,U> : Command
 	{
 		public T Argument {
-			get; set;
-		}
-
-		protected abstract Serializer<T> ArgumentSerializer {
 			get;
+			private set;
 		}
 
-		protected abstract Serializer<U> ResponseSerializer {
-			get;
-		}
-
-		public Task<U> Send (Connection connection)
+		protected virtual XElement WriteResponse (Connection connection, U instance)
 		{
-			return Send (connection, CancellationToken.None);
+			return Serializer.Write (instance);
+		}
+
+		protected virtual U ReadResponse (Connection connection, XElement node)
+		{
+			return Serializer.Read<U> (node);
+		}
+
+		protected virtual XElement WriteArgument (Connection connection, T instance)
+		{
+			return Serializer.Write (instance);
+		}
+
+		protected virtual T ReadArgument (Connection connection, XElement node)
+		{
+			return Serializer.Read<T> (node);
+		}
+
+		public Task<U> Send (Connection connection, T argument, CancellationToken cancellationToken)
+		{
+			Argument = argument;
+			return Send (connection, cancellationToken);
 		}
 
 		public async Task<U> Send (Connection connection, CancellationToken cancellationToken)
@@ -131,11 +146,11 @@ namespace Xamarin.AsyncTests.Server
 			base.Read (connection, node);
 
 			var argument = node.Element ("Argument");
-			if (ArgumentSerializer != null && argument != null) {
+			if (argument != null) {
 				if (argument.Elements ().Count () > 1)
 					throw new ServerErrorException ();
 				var first = argument.Elements ().First ();
-				Argument = ArgumentSerializer.Read (connection, first);
+				Argument = ReadArgument (connection, first);
 			}
 		}
 
@@ -143,8 +158,8 @@ namespace Xamarin.AsyncTests.Server
 		{
 			base.Write (connection, node);
 
-			if (ArgumentSerializer != null && Argument != null) {
-				var element = ArgumentSerializer.Write (connection, Argument);
+			if (Argument != null) {
+				var element = WriteArgument (connection, Argument);
 				if (element != null) {
 					var argument = new XElement ("Argument");
 					argument.Add (element);
@@ -192,19 +207,19 @@ namespace Xamarin.AsyncTests.Server
 				base.Read (connection, node);
 
 				var response = node.Element ("Response");
-				if (Command.ResponseSerializer != null && response != null) {
+				if (response != null) {
 					if (response.Elements ().Count () > 1)
 						throw new ServerErrorException ();
 					var first = response.Elements ().First ();
-					Response = Command.ResponseSerializer.Read (connection, first);
+					Response = Command.ReadResponse (connection, first);
 				}
 			}
 
 			public override void Write (Connection connection, XElement node)
 			{
 				base.Write (connection, node);
-				if (Command.ResponseSerializer != null && Response != null) {
-					var element = Command.ResponseSerializer.Write (connection, Response);
+				if (Response != null) {
+					var element = Command.WriteResponse (connection, Response);
 					if (element != null) {
 						var response = new XElement ("Response");
 						response.Add (element);

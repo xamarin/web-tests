@@ -31,42 +31,152 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class TestCaseClient : TestCase
+	class TestCaseClient : TestCase, ObjectClient<TestCaseClient>, RemoteTestCase
 	{
-		public RemoteTestCase.ClientProxy Proxy {
+		TestSuite TestCase.Suite {
+			get { return Suite; }
+		}
+
+		public TestSuiteClient Suite {
 			get;
 			private set;
 		}
 
-		public TestCaseClient (RemoteTestSuite.ClientProxy suite, long objectID)
-			: base (suite.Instance, suite.Instance.Name)
-		{
-			Proxy = new RemoteTestCase.ClientProxy (suite.Connection, this, objectID);
-		}
-
-		public XElement SerializedPath {
+		public TestName Name {
 			get;
-			internal set;
+			private set;
 		}
 
-		public override IEnumerable<TestCase> GetChildren (TestContext ctx)
+		public ITestPath Path {
+			get;
+			private set;
+		}
+
+		public Connection Connection {
+			get;
+			private set;
+		}
+
+		public long ObjectID {
+			get;
+			private set;
+		}
+
+		public TestCaseClient (TestSuiteClient suite, long objectID)
+		{
+			Suite = suite;
+			Connection = suite.Connection;
+			ObjectID = objectID;
+		}
+
+		List<TestCaseClient> children;
+
+		public async Task<IReadOnlyCollection<TestCase>> GetChildren (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (children != null)
+				return children;
+
+			children = await GetChildren (cancellationToken);
+			return children;
+		}
+
+		void Deserialize (XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("TestCase"))
+				throw new ServerErrorException ();
+
+			Path = new Serializer.PathWrapper (node.Element ("Path"));
+			Name = Serializer.TestName.Read (node.Element ("TestName"));
+		}
+
+		public XElement Serialize ()
+		{
+			return Path.Serialize ();
+		}
+
+		public async Task Resolve (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (children != null)
+				return;
+
+			var result = await GetChildren (cancellationToken);
+
+			lock (this) {
+				children = result;
+			}
+		}
+
+		public Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException ();
 		}
 
-		public override XElement Serialize ()
-		{
-			return SerializedPath;
+		TestCaseClient RemoteObject<TestCaseClient,TestCaseServant>.Client {
+			get { return this; }
 		}
 
-		public override void Resolve (TestContext ctx)
-		{
-			base.Resolve (ctx);
+		TestCaseServant RemoteObject<TestCaseClient, TestCaseServant>.Servant {
+			get { throw new ServerErrorException (); }
 		}
 
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+		class GetChildrenCommand : RemoteObjectCommand<RemoteTestCase,object,XElement>
 		{
-			throw new NotImplementedException ();
+			protected override async Task<XElement> Run (
+				Connection connection, RemoteTestCase proxy, object argument, CancellationToken cancellationToken)
+			{
+				var root = new XElement ("TestCaseList");
+				foreach (var child in await proxy.Servant.GetChildren (cancellationToken))
+					root.Add (RemoteObjectManager.WriteProxy (child));
+				return root;
+			}
+		}
+
+		async Task<List<TestCaseClient>> GetChildren (CancellationToken cancellationToken)
+		{
+			var command = new GetChildrenCommand ();
+			var response = await command.Send (this, null, cancellationToken);
+
+			Connection.Debug ("GOT RESPONSE: {0}", response);
+
+			if (!response.Name.LocalName.Equals ("TestCaseList"))
+				throw new ServerErrorException ();
+
+			var children = new List<TestCaseClient> ();
+
+			foreach (var element in response.Elements ()) {
+				var proxy = RemoteObjectManager.ReadTestCase (Suite, element);
+				var test = await FromProxy (proxy, cancellationToken);
+				children.Add (test);
+			}
+
+			return children;
+		}
+
+		internal static async Task<TestCaseClient> FromProxy (ObjectProxy proxy, CancellationToken cancellationToken)
+		{
+			var test = (TestCaseClient)proxy;
+			if (test.Path != null)
+				return test;
+
+			var command = new InitializeCommand ();
+			var node = await command.Send (test, null, cancellationToken);
+			if (!node.Name.LocalName.Equals ("TestCase"))
+				throw new ServerErrorException ();
+
+			test.Path = new Serializer.PathWrapper (node.Element ("TestPath"));
+			test.Name = Serializer.TestName.Read (node.Element ("TestName"));
+			return test;
+		}
+
+		class InitializeCommand : RemoteObjectCommand<RemoteTestCase,object,XElement>
+		{
+			protected override Task<XElement> Run (
+				Connection connection, RemoteTestCase proxy, object argument, CancellationToken cancellationToken)
+			{
+				return Task.Run (() => {
+					return proxy.Servant.SerializeServant ();
+				});
+			}
 		}
 	}
 }

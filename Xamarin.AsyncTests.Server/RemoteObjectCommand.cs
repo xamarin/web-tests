@@ -1,10 +1,10 @@
 ﻿//
-// RemoteTestSuite.cs
+// RemoteObjectCommand.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,25 +31,49 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	using Framework;
-
-	class RemoteTestSuite : RemoteObject<TestSuiteClient,TestSuiteServant>
+	abstract class RemoteObjectCommand<T,A,R> : Command<A,R>
+		where T : class, RemoteObject
 	{
-		internal static ServerProxy CreateServer (ServerConnection connection, TestFrameworkServant framework)
-		{
-			return new TestSuiteServant (connection, framework).Proxy;
+		public T Proxy {
+			get { return proxy; }
 		}
 
-		internal static ClientProxy CreateClient (RemoteTestFramework.ClientProxy framework, long objectID)
+		T proxy;
+
+		public async Task<R> Send (T proxy, A argument, CancellationToken cancellationToken)
 		{
-			return new TestSuiteClient (framework, objectID).Proxy;
+			this.proxy = proxy;
+
+			try {
+				return await base.Send (proxy.Connection, argument, cancellationToken).ConfigureAwait (false);
+			} finally {
+				proxy = null;
+			}
 		}
 
-		protected override TestSuiteClient CreateClientProxy (ClientProxy proxy)
+		public override void Read (Connection connection, XElement node)
 		{
-			throw new ServerErrorException ();
+			base.Read (connection, node);
+
+			var instanceID = long.Parse (node.Attribute ("InstanceID").Value);
+			if (!connection.TryGetRemoteObject (instanceID, out proxy))
+				throw new ServerErrorException ();
 		}
 
+		public override void Write (Connection connection, XElement node)
+		{
+			base.Write (connection, node);
+
+			node.SetAttributeValue ("InstanceID", proxy.ObjectID);
+		}
+
+		protected sealed override Task<R> Run (Connection connection, A argument, CancellationToken cancellationToken)
+		{
+			return Run (connection, proxy, argument, cancellationToken);
+		}
+
+		protected abstract Task<R> Run (
+			Connection connection, T proxy, A argument, CancellationToken cancellationToken);
 	}
 }
 

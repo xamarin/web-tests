@@ -34,25 +34,40 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class PathBasedTestCase : TestCase
 	{
+		public TestSuite Suite {
+			get;
+			private set;
+		}
+
+		public TestName Name {
+			get;
+			private set;
+		}
+
 		public TestPathNode Node {
 			get;
 			private set;
 		}
 
-		public PathBasedTestCase (TestPathNode node)
-			: base (node.Tree.Builder.Suite, TestPath.GetTestName (node.Path))
-		{
-			Node = node;
+		ITestPath TestCase.Path {
+			get { return Node.Path; }
 		}
 
-		public override IEnumerable<TestCase> GetChildren (TestContext ctx)
+		public PathBasedTestCase (TestPathNode node)
 		{
-			return ResolveChildren (ctx);
+			Node = node;
+			Suite = node.Tree.Builder.Suite;
+			Name = TestPath.GetTestName (node.Path);
+		}
+
+		public Task<IReadOnlyCollection<TestCase>> GetChildren (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Task.Run<IReadOnlyCollection<TestCase>> (() => ResolveChildren (ctx));
 		}
 
 		List<PathBasedTestCase> children;
 
-		IEnumerable<PathBasedTestCase> ResolveChildren (TestContext ctx)
+		List<PathBasedTestCase> ResolveChildren (TestContext ctx)
 		{
 			if (children != null)
 				return children;
@@ -74,7 +89,7 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		internal override Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
+		public Task<bool> Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			TestSerializer.Debug ("RUN: {0}", this);
 
@@ -82,7 +97,7 @@ namespace Xamarin.AsyncTests.Framework
 			return invoker.Invoke (ctx, null, cancellationToken);
 		}
 
-		public override XElement Serialize ()
+		public XElement Serialize ()
 		{
 			return TestSerializer.SerializePath (Node.Path);
 		}
@@ -108,8 +123,12 @@ namespace Xamarin.AsyncTests.Framework
 			return firstTime;
 		}
 
-		public override void Resolve (TestContext ctx)
+		public async Task Resolve (TestContext ctx, CancellationToken cancellationToken)
 		{
+			await Task.Yield ();
+
+			cancellationToken.ThrowIfCancellationRequested ();
+
 			var element = TestSerialize (ctx);
 			TestSerializer.Debug ("RESOLVE: {0}\n{1}", this, element);
 
@@ -120,7 +139,7 @@ namespace Xamarin.AsyncTests.Framework
 			}
 
 			foreach (var child in children) {
-				child.Resolve (ctx);
+				await child.Resolve (ctx, cancellationToken);
 			}
 		}
 

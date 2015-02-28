@@ -31,13 +31,8 @@ namespace Xamarin.AsyncTests.Server
 {
 	using Framework;
 
-	class TestFrameworkServant : IRemoteObject
+	class TestFrameworkServant : ObjectServant, RemoteTestFramework
 	{
-		public RemoteTestFramework.ServerProxy Proxy {
-			get;
-			private set;
-		}
-
 		public TestApp App {
 			get;
 			private set;
@@ -48,17 +43,23 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public long ObjectID {
-			get;
-			private set;
+		public override string Type {
+			get { return "TestFramework"; }
 		}
 
 		public TestFrameworkServant (ServerConnection connection)
+			: base (connection)
 		{
 			App = connection.App;
 			LocalFramework = App.GetLocalTestFramework ();
+		}
 
-			Proxy = new RemoteTestFramework.ServerProxy (connection, this);
+		TestFrameworkClient RemoteObject<TestFrameworkClient,TestFrameworkServant>.Client {
+			get { throw new ServerErrorException (); }
+		}
+
+		TestFrameworkServant RemoteObject<TestFrameworkClient, TestFrameworkServant>.Servant {
+			get { return this; }
 		}
 
 		public Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)

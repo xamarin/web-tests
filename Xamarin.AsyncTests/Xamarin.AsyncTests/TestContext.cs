@@ -64,7 +64,7 @@ namespace Xamarin.AsyncTests
 		{
 			Name = name;
 			this.support = support;
-			this.config = suite.Configuration.AsReadOnly ();
+			this.config = suite.Framework.Configuration.AsReadOnly ();
 			this.logger = logger;
 			this.suite = suite;
 			this.result = result;

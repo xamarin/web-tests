@@ -1,10 +1,10 @@
 ﻿//
-// HelloCommand.cs
+// ObjectServant.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,32 +24,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml;
-using System.Xml.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class HelloCommand : Command<Handshake,object>
+	abstract class ObjectServant : ObjectProxy
 	{
-		protected override XElement WriteArgument (Connection connection, Handshake instance)
-		{
-			return Serializer.Handshake.Write (connection, this, instance);
+		readonly Connection connection;
+		readonly long objectID;
+
+		public Connection Connection {
+			get { return connection; }
 		}
 
-		protected override Handshake ReadArgument (Connection connection, XElement node)
-		{
-			return Serializer.Handshake.Read (connection, this, node);
+		public long ObjectID {
+			get { return objectID; }
 		}
 
-		protected async override Task<object> Run (Connection connection, Handshake argument, CancellationToken cancellationToken)
+		public abstract string Type {
+			get;
+		}
+
+		protected ObjectServant (Connection connection)
 		{
-			var serverConnection = (ServerConnection)connection;
-			await serverConnection.OnHello (argument, cancellationToken);
-			return null;
+			this.connection = connection;
+			this.objectID = connection.RegisterObjectServant (this);
 		}
 	}
 }

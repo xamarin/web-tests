@@ -32,14 +32,19 @@ namespace Xamarin.AsyncTests.Server
 	using Portable;
 	using Framework;
 
-	class TestFrameworkClient : TestFramework
+	class TestFrameworkClient : TestFramework, ObjectClient<TestFrameworkClient>, RemoteTestFramework
 	{
-		public RemoteTestFramework.ClientProxy Proxy {
+		public Connection Connection {
 			get;
 			private set;
 		}
 
-		public ClientConnection Connection {
+		public long ObjectID {
+			get;
+			private set;
+		}
+
+		public TestFramework LocalFramework {
 			get;
 			private set;
 		}
@@ -47,15 +52,25 @@ namespace Xamarin.AsyncTests.Server
 		public TestFrameworkClient (ClientConnection connection, long objectID)
 		{
 			Connection = connection;
-			Proxy = new RemoteTestFramework.ClientProxy (connection, this, objectID);
+			ObjectID = objectID;
+
+			LocalFramework = connection.LocalFramework;
+		}
+
+		TestFrameworkClient RemoteObject<TestFrameworkClient,TestFrameworkServant>.Client {
+			get { return this; }
+		}
+
+		TestFrameworkServant RemoteObject<TestFrameworkClient,TestFrameworkServant>.Servant {
+			get { throw new ServerErrorException (); }
 		}
 
 		public override TestName Name {
-			get { return Connection.LocalFramework.Name; }
+			get { return LocalFramework.Name; }
 		}
 
 		public override IPortableSupport PortableSupport {
-			get { return Connection.PortableSupport; }
+			get { return LocalFramework.PortableSupport; }
 		}
 
 		protected override TestLogger Logger {
@@ -63,12 +78,12 @@ namespace Xamarin.AsyncTests.Server
 		}
 
 		public override TestConfiguration Configuration {
-			get { return Connection.LocalFramework.Configuration; }
+			get { return LocalFramework.Configuration; }
 		}
 
 		public override Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
 		{
-			return RemoteObjectManager.GetRemoteTestSuite (Proxy, cancellationToken);
+			return RemoteObjectManager.GetRemoteTestSuite (this, cancellationToken);
 		}
 
 		public override Task<TestCase> ResolveTest (TestContext ctx, ITestPath path, CancellationToken cancellationToken)

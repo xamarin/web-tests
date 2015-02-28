@@ -49,7 +49,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				TestSerializer.GetStringParameter (suite.Assembly.FullName))
 		{
 			Assembly = suite.Assembly;
-			Configuration = suite.Configuration;
+			Configuration = suite.Framework.Configuration;
 
 			Resolve ();
 		}

@@ -1,10 +1,10 @@
 ﻿//
-// HelloCommand.cs
+// TestLoggerServant.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,32 +24,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml;
-using System.Xml.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
+using SD = System.Diagnostics;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class HelloCommand : Command<Handshake,object>
+	class TestLoggerServant : ObjectServant, RemoteTestLogger
 	{
-		protected override XElement WriteArgument (Connection connection, Handshake instance)
-		{
-			return Serializer.Handshake.Write (connection, this, instance);
+		public TestLoggerBackend Backend {
+			get;
+			private set;
 		}
 
-		protected override Handshake ReadArgument (Connection connection, XElement node)
-		{
-			return Serializer.Handshake.Read (connection, this, node);
+		public override string Type {
+			get { return "TestLogger"; }
 		}
 
-		protected async override Task<object> Run (Connection connection, Handshake argument, CancellationToken cancellationToken)
+		public TestLoggerServant (ClientConnection connection)
+			: base (connection)
 		{
-			var serverConnection = (ServerConnection)connection;
-			await serverConnection.OnHello (argument, cancellationToken);
-			return null;
+			Backend = connection.App.Logger.Backend;
+		}
+
+		public void LogEvent (TestLoggerBackend.LogEntry entry)
+		{
+			SD.Debug.WriteLine ("ON LOG EVENT: {0}", entry);
+			Backend.OnLogEvent (entry);
+		}
+
+		public void StatisticsEvent (TestLoggerBackend.StatisticsEventArgs args)
+		{
+			SD.Debug.WriteLine ("ON STATISTICS EVENT: {0}", args);
+			Backend.OnStatisticsEvent (args);
+		}
+
+		TestLoggerClient RemoteObject<TestLoggerClient,TestLoggerServant>.Client {
+			get { throw new ServerErrorException (); }
+		}
+
+		TestLoggerServant RemoteObject<TestLoggerClient,TestLoggerServant>.Servant {
+			get { return this; }
 		}
 	}
 }

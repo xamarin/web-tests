@@ -47,8 +47,6 @@
     <Compile Include="Command.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="SavedException.cs" />
-    <Compile Include="RemoteTestCase.cs" />
-    <Compile Include="RemoteTestSuite.cs" />
     <Compile Include="ShutdownCommand.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Response.cs" />
@@ -57,12 +55,9 @@
     <Compile Include="CancelCommand.cs" />
     <Compile Include="OneWayCommand.cs" />
     <Compile Include="HelloCommand.cs" />
-    <Compile Include="ObjectCommand.cs" />
     <Compile Include="RemoteObject.cs" />
-    <Compile Include="RemoteTestLogger.cs" />
     <Compile Include="RemoteObjectManager.cs" />
     <Compile Include="TestServer.cs" />
-    <Compile Include="RemoteTestFramework.cs" />
     <Compile Include="ServerErrorException.cs" />
     <Compile Include="Handshake.cs" />
     <Compile Include="TestCaseClient.cs" />
@@ -73,6 +68,12 @@
     <Compile Include="TestSuiteServant.cs" />
     <Compile Include="TestFrameworkClient.cs" />
     <Compile Include="TestSuiteClient.cs" />
+    <Compile Include="TestLoggerServant.cs" />
+    <Compile Include="TestLoggerClient.cs" />
+    <Compile Include="ObjectServant.cs" />
+    <Compile Include="ObjectClient.cs" />
+    <Compile Include="ObjectProxy.cs" />
+    <Compile Include="RemoteObjectCommand.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

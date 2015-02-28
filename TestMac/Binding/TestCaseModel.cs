@@ -26,6 +26,8 @@
 using System;
 using System.Xml.Linq;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using AppKit;
 using Foundation;
 using Xamarin.AsyncTests;
@@ -48,23 +50,44 @@ namespace TestMac
 		string fullName;
 		string serialized;
 
+		IReadOnlyCollection<TestCase> children;
+
 		public TestCaseModel (TestContext ctx, TestCase test)
 		{
 			Context = ctx;
 			Test = test;
 			fullName = test.Name.FullName;
-			serialized = Test.Serialize ().ToString ();
+			serialized = Test.Path.Serialize ().ToString ();
+
+			Initialize ();
+		}
+
+		async void Initialize ()
+		{
+			WillChangeValue ("isLeaf");
+			WillChangeValue ("childNodes");
+
+			var result = await Test.GetChildren (Context, CancellationToken.None);
+			lock (this) {
+				children = result;
+			}
+
+			DidChangeValue ("isLeaf");
+			DidChangeValue ("childNodes");
 		}
 
 		#region implemented abstract members of TestListNode
 
 		protected override IEnumerable<TestListNode> ResolveChildren ()
 		{
-			var children = Test.GetChildren (Context);
-			foreach (var child in children) {
-				yield return new TestCaseModel (Context, child);
+			lock (this) {
+				if (children == null)
+					yield break;
+
+				foreach (var child in children) {
+					yield return new TestCaseModel (Context, child);
+				}
 			}
-			yield break;
 		}
 
 		public override string Name {

@@ -1,10 +1,10 @@
 ﻿//
-// RemoteTestCase.cs
+// ObjectClient.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,31 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	using Framework;
-
-	class RemoteTestCase : RemoteObject<TestCaseClient,TestCaseServant>
+	interface ObjectClient<T> : ObjectProxy
 	{
-		internal static ServerProxy CreateServer (ServerConnection connection, TestSuiteServant suite, TestCase test)
-		{
-			return new TestCaseServant (connection, suite, test).Proxy;
-		}
-
-		internal static ClientProxy CreateClient (RemoteTestSuite.ClientProxy suite, long objectID)
-		{
-			return new TestCaseClient (suite, objectID).Proxy;
-		}
-
-		protected override TestCaseClient CreateClientProxy (ClientProxy proxy)
-		{
-			throw new ServerErrorException ();
-		}
 	}
 }
 

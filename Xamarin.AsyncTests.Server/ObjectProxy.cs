@@ -1,10 +1,10 @@
 ﻿//
-// HelloCommand.cs
+// ObjectProxy.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,32 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml;
-using System.Xml.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class HelloCommand : Command<Handshake,object>
+	interface ObjectProxy
 	{
-		protected override XElement WriteArgument (Connection connection, Handshake instance)
-		{
-			return Serializer.Handshake.Write (connection, this, instance);
+		Connection Connection {
+			get;
 		}
 
-		protected override Handshake ReadArgument (Connection connection, XElement node)
-		{
-			return Serializer.Handshake.Read (connection, this, node);
-		}
-
-		protected async override Task<object> Run (Connection connection, Handshake argument, CancellationToken cancellationToken)
-		{
-			var serverConnection = (ServerConnection)connection;
-			await serverConnection.OnHello (argument, cancellationToken);
-			return null;
+		long ObjectID {
+			get;
 		}
 	}
 }

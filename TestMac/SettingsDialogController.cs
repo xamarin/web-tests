@@ -59,13 +59,13 @@ namespace TestMac
 
 			var ui = AppDelegate.Instance.MacUI;
 			ui.ServerManager.TestSuite.PropertyChanged += (sender, e) => OnTestSuiteChanged (e);
-			OnTestSuiteChanged (ui.ServerManager.TestSuite);
+			OnTestSuiteChanged (ui.ServerManager.TestSuite.Value);
 		}
 
 		void OnTestSuiteChanged (TestSuite suite)
 		{
 			if (suite != null) {
-				Configuration = suite.Configuration;
+				Configuration = suite.Framework.Configuration;
 				foreach (var category in Configuration.Categories) {
 					var model = new TestCategoryModel (category);
 					CategoriesController.AddObject (model);

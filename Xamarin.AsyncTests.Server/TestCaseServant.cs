@@ -25,16 +25,14 @@
 // THE SOFTWARE.
 using System;
 using System.Xml.Linq;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class TestCaseServant
+	class TestCaseServant : ObjectServant, RemoteTestCase
 	{
-		public RemoteTestCase.ServerProxy Proxy {
-			get;
-			private set;
-		}
-
 		public TestSuiteServant Suite {
 			get;
 			private set;
@@ -45,17 +43,47 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
+		public override string Type {
+			get { return "TestCase"; }
+		}
+
 		public TestCaseServant (ServerConnection connection, TestSuiteServant suite, TestCase test)
+			: base (connection)
 		{
 			Suite = suite;
 			Test = test;
-
-			Proxy = new RemoteTestCase.ServerProxy (connection, this);
 		}
 
-		public XElement Serialize ()
+		internal XElement SerializeServant ()
 		{
-			return Test.Serialize ();
+			var node = new XElement ("TestCase");
+			node.Add (Serializer.TestName.Write (Test.Name));
+			node.Add (Test.Path.Serialize ());
+			return node;
+		}
+
+		List<TestCaseServant> children;
+
+		public async Task<IEnumerable<TestCaseServant>> GetChildren (CancellationToken cancellationToken)
+		{
+			if (children != null)
+				return children;
+
+			children = new List<TestCaseServant> ();
+			foreach (var child in await Test.GetChildren (Suite.Session.Context, cancellationToken)) {
+				var childServant = new TestCaseServant ((ServerConnection)Connection, Suite, child);
+				children.Add (childServant);
+			}
+
+			return children;
+		}
+
+		TestCaseClient RemoteObject<TestCaseClient,TestCaseServant>.Client {
+			get { throw new ServerErrorException (); }
+		}
+
+		TestCaseServant RemoteObject<TestCaseClient,TestCaseServant>.Servant {
+			get { return this; }
 		}
 	}
 }

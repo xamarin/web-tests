@@ -29,22 +29,47 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	class TestSuiteClient : TestSuite
+	using Framework;
+
+	class TestSuiteClient : TestSuite, ObjectClient<TestSuiteClient>, RemoteTestSuite
 	{
-		public RemoteTestSuite.ClientProxy Proxy {
+		public TestFramework Framework {
 			get;
 			private set;
 		}
 
-		public TestSuiteClient (RemoteTestFramework.ClientProxy framework, long objectID)
-			: base (framework.Instance)
-		{
-			Proxy = new RemoteTestSuite.ClientProxy (framework.Connection, this, objectID);
+		ITestFramework TestSuite.Framework {
+			get { return Framework; }
 		}
 
-		public override Task<TestCase> Resolve (TestContext ctx, CancellationToken cancellationToken)
+		public Connection Connection {
+			get;
+			private set;
+		}
+
+		public long ObjectID {
+			get;
+			private set;
+		}
+
+		public TestSuiteClient (TestFrameworkClient framework, long objectID)
 		{
-			return RemoteObjectManager.ResolveTestSuite (Proxy, cancellationToken);
+			Framework = framework;
+			Connection = framework.Connection;
+			ObjectID = objectID;
+		}
+
+		public Task<TestCase> Resolve (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return RemoteObjectManager.ResolveTestSuite (this, cancellationToken);
+		}
+
+		TestSuiteClient RemoteObject<TestSuiteClient,TestSuiteServant>.Client {
+			get { return this; }
+		}
+
+		TestSuiteServant RemoteObject<TestSuiteClient, TestSuiteServant>.Servant {
+			get { throw new ServerErrorException (); }
 		}
 	}
 }

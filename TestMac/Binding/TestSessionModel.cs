@@ -86,7 +86,7 @@ namespace TestMac
 		#region implemented abstract members of TestListItem
 
 		public override string Name {
-			get { return Suite.Name.FullName; }
+			get { return Suite.Framework.Name.FullName; }
 		}
 
 		public override TestStatus TestStatus {

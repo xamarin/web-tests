@@ -27,81 +27,21 @@ using System;
 
 namespace Xamarin.AsyncTests.Server
 {
-	abstract class RemoteObject<T,U>
+	interface RemoteObject : ObjectProxy
 	{
-		public abstract class Proxy
-		{
-			public abstract Connection Connection {
-				get;
-			}
+	}
 
-			public abstract long ObjectID {
-				get;
-			}
+	interface RemoteObject<C,S> : RemoteObject
+		where C : class, ObjectClient<C>
+		where S : ObjectServant
+	{
+		C Client {
+			get;
 		}
 
-		public sealed class ClientProxy : Proxy
-		{
-			readonly Connection connection;
-			readonly long objectID;
-
-			public override Connection Connection {
-				get { return connection; }
-			}
-
-			public override long ObjectID {
-				get { return objectID; }
-			}
-
-			public T Instance {
-				get;
-				private set;
-			}
-
-			public ClientProxy (Connection connection, RemoteObject<T,U> parent, long objectID)
-			{
-				this.connection = connection;
-				this.objectID = objectID;
-
-				Instance = parent.CreateClientProxy (this);
-			}
-
-			public ClientProxy (Connection connection, T instance, long objectID)
-			{
-				this.connection = connection;
-				this.objectID = objectID;
-
-				Instance = instance;
-			}
+		S Servant {
+			get;
 		}
-
-		public sealed class ServerProxy : Proxy
-		{
-			readonly Connection connection;
-			readonly long objectID;
-
-			public override Connection Connection {
-				get { return connection; }
-			}
-
-			public override long ObjectID {
-				get { return objectID; }
-			}
-
-			public U Instance {
-				get;
-				private set;
-			}
-
-			public ServerProxy (Connection connection, U instance)
-			{
-				this.connection = Connection;
-				Instance = instance;
-				objectID = connection.RegisterRemoteObject (this);
-			}
-		}
-
-		protected abstract T CreateClientProxy (ClientProxy proxy);
 	}
 }
 

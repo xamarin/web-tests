@@ -36,32 +36,22 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests
 {
-	public abstract class TestCase :  ITestPath
+	public interface TestCase
 	{
-		public TestSuite Suite {
+		TestSuite Suite {
 			get;
-			private set;
 		}
 
-		public TestName Name {
+		TestName Name {
 			get;
-			private set;
 		}
 
-		public TestCase (TestSuite suite, TestName name)
-		{
-			Suite = suite;
-			Name = name;
+		ITestPath Path {
+			get;
 		}
 
-		public virtual void Resolve (TestContext ctx)
-		{
-		}
+		Task<IReadOnlyCollection<TestCase>> GetChildren (TestContext ctx, CancellationToken cancellationToken);
 
-		public abstract XElement Serialize ();
-
-		public abstract IEnumerable<TestCase> GetChildren (TestContext ctx);
-
-		internal abstract Task<bool> Run (TestContext ctx, CancellationToken cancellationToken);
+		Task<bool> Run (TestContext ctx, CancellationToken cancellationToken);
 	}
 }

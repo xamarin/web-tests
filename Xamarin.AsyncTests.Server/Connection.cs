@@ -61,7 +61,7 @@ namespace Xamarin.AsyncTests.Server
 
 		public async Task Shutdown ()
 		{
-			await new ShutdownCommand ().Send (this);
+			await new ShutdownCommand ().Send (this, CancellationToken.None);
 		}
 
 		#endregion
@@ -109,12 +109,12 @@ namespace Xamarin.AsyncTests.Server
 
 		public static TestResult ReadTestResult (XElement node)
 		{
-			return Serializer.TestResult.Read (null, node);
+			return Serializer.TestResult.Read (node);
 		}
 
 		public static XElement WriteTestResult (TestResult result)
 		{
-			return Serializer.TestResult.Write (null, result);
+			return Serializer.TestResult.Write (result);
 		}
 
 		#endregion
@@ -188,6 +188,8 @@ namespace Xamarin.AsyncTests.Server
 
 		internal async Task<bool> SendCommand (Command command, Response response, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
 			Task<bool> responseTask = null;
 			if (!command.IsOneWay)
 				responseTask = RegisterResponse (command, response, cancellationToken);
@@ -376,7 +378,7 @@ namespace Xamarin.AsyncTests.Server
 				try {
 					if (shutdownRequested)
 						return;
-					await new CancelCommand { ObjectID = operation.ObjectID }.Send (this);
+					await new CancelCommand { ObjectID = operation.ObjectID }.Send (this, CancellationToken.None);
 				} catch (Exception ex) {
 					if (shutdownRequested)
 						return;
@@ -437,19 +439,24 @@ namespace Xamarin.AsyncTests.Server
 
 		Dictionary<long,object> remoteObjects = new Dictionary<long,object> ();
 
-		internal long RegisterRemoteObject (object obj)
+		internal long RegisterObjectServant (ObjectServant servant)
 		{
 			lock (this) {
-				if (remoteObjects.ContainsValue (obj))
-					return remoteObjects.First (e => e.Value == obj).Key;
-
-				var remoteObj = obj as IRemoteObject;
-				if (remoteObj != null)
-					return remoteObj.ObjectID;
+				if (remoteObjects.ContainsValue (servant))
+					throw new ServerErrorException ();
 
 				var id = GetNextObjectId ();
-				remoteObjects.Add (id, obj);
+				remoteObjects.Add (id, servant);
 				return id;
+			}
+		}
+
+		internal void RegisterObjectClient (ObjectProxy proxy)
+		{
+			lock (this) {
+				if (remoteObjects.ContainsKey (proxy.ObjectID))
+					throw new ServerErrorException ();
+				remoteObjects.Add (proxy.ObjectID, proxy);
 			}
 		}
 

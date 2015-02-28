@@ -1,10 +1,10 @@
 ﻿//
-// RemoteTestFramework.cs
+// TestLoggerClient.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,26 +29,40 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	using Portable;
-	using Framework;
-
-	class RemoteTestFramework : RemoteObject<TestFrameworkClient,TestFrameworkServant>
+	class TestLoggerClient : TestLoggerBackend, ObjectClient<TestLoggerClient>, RemoteTestLogger
 	{
-		internal static ServerProxy CreateServer (ServerConnection connection)
-		{
-			return new TestFrameworkServant (connection).Proxy;
+		public Connection Connection {
+			get;
+			private set;
 		}
 
-		internal static ClientProxy CreateClient (ClientConnection connection, long objectID)
-		{
-			return new TestFrameworkClient (connection, objectID).Proxy;
+		public long ObjectID {
+			get;
+			private set;
 		}
 
-		protected override TestFrameworkClient CreateClientProxy (ClientProxy proxy)
+		public TestLoggerClient (Connection connection, long objectID)
 		{
-			throw new ServerErrorException ();
+			Connection = connection;
+			ObjectID = objectID;
 		}
 
+		async protected internal override void OnLogEvent (LogEntry entry)
+		{
+			await RemoteObjectManager.LogEvent (this, entry, CancellationToken.None);
+		}
+
+		protected internal override void OnStatisticsEvent (StatisticsEventArgs args)
+		{
+		}
+
+		TestLoggerClient RemoteObject<TestLoggerClient,TestLoggerServant>.Client {
+			get { return this; }
+		}
+
+		TestLoggerServant RemoteObject<TestLoggerClient,TestLoggerServant>.Servant {
+			get { throw new ServerErrorException (); }
+		}
 	}
 }
 

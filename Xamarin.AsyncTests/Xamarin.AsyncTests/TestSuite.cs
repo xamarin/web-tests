@@ -37,26 +37,12 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests
 {
-	public abstract class TestSuite
+	public interface TestSuite
 	{
-		public TestSuite (ITestFramework framework)
-		{
-			Framework = framework;
-		}
-
-		public TestName Name {
-			get { return Framework.Name; }
-		}
-
-		public ITestFramework Framework {
+		ITestFramework Framework {
 			get;
-			private set;
 		}
 
-		public TestConfiguration Configuration {
-			get { return Framework.Configuration; }
-		}
-
-		public abstract Task<TestCase> Resolve (TestContext ctx, CancellationToken cancellationToken);
+		Task<TestCase> Resolve (TestContext ctx, CancellationToken cancellationToken);
 	}
 }

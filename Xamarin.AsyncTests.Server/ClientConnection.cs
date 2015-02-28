@@ -70,7 +70,7 @@ namespace Xamarin.AsyncTests.Server
 
 		internal override async Task OnStart (CancellationToken cancellationToken)
 		{
-			var handshake = new Handshake { WantStatisticsEvents = true, Settings = App.Settings, Logger = App.Logger };
+			var handshake = new Handshake { WantStatisticsEvents = true, Settings = App.Settings, Logger = App.Logger.Backend };
 
 			await Hello (handshake, cancellationToken);
 
@@ -81,8 +81,8 @@ namespace Xamarin.AsyncTests.Server
 		{
 			Debug ("Client Handshake: {0}", handshake);
 
-			var hello = new HelloCommand { Argument = handshake };
-			await hello.Send (this, cancellationToken);
+			var hello = new HelloCommand ();
+			await hello.Send (this, handshake, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			var remoteFramework = await RemoteObjectManager.GetRemoteTestFramework (this, cancellationToken);

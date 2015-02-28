@@ -37,10 +37,6 @@ namespace Xamarin.AsyncTests.Server
 			get { return true; }
 		}
 
-		protected override Serializer<object> ResponseSerializer {
-			get { return null; }
-		}
-
 		protected sealed override Task<object> Run (Connection connection, T argument, CancellationToken cancellationToken)
 		{
 			Run (connection, argument);
@@ -52,10 +48,6 @@ namespace Xamarin.AsyncTests.Server
 
 	abstract class OneWayCommand : OneWayCommand<object>
 	{
-		protected override Serializer<object> ArgumentSerializer {
-			get { return null; }
-		}
-
 		protected sealed override void Run (Connection connection, object argument)
 		{
 			Run (connection);

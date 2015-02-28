@@ -34,6 +34,15 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	class ReflectionTestSuite : TestSuite, IPathResolver
 	{
+		public TestFramework Framework {
+			get;
+			private set;
+		}
+
+		ITestFramework TestSuite.Framework {
+			get { return Framework; }
+		}
+
 		public Assembly Assembly {
 			get;
 			private set;
@@ -50,8 +59,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		internal ReflectionTestSuite (ReflectionTestFramework framework)
-			: base (framework)
 		{
+			Framework = framework;
 			Assembly = framework.Assembly;
 			Builder = new ReflectionTestSuiteBuilder (this);
 
@@ -62,7 +71,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		TestCase test;
 
-		public override Task<TestCase> Resolve (TestContext ctx, CancellationToken cancellationToken)
+		public Task<TestCase> Resolve (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return Task.FromResult (test);
 		}

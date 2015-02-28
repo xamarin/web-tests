@@ -31,13 +31,8 @@ namespace Xamarin.AsyncTests.Server
 {
 	using Framework;
 
-	class TestSuiteServant
+	class TestSuiteServant : ObjectServant, RemoteTestSuite
 	{
-		public RemoteTestSuite.ServerProxy Proxy {
-			get;
-			private set;
-		}
-
 		public TestFrameworkServant Framework {
 			get;
 			private set;
@@ -53,10 +48,14 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
+		public override string Type {
+			get { return "TestSuite"; }
+		}
+
 		public TestSuiteServant (ServerConnection connection, TestFrameworkServant framework)
+			: base (connection)
 		{
 			Framework = framework;
-			Proxy = new RemoteTestSuite.ServerProxy (connection, this);
 		}
 
 		public async Task Initialize (TestLogger logger, CancellationToken cancellationToken)
@@ -72,6 +71,14 @@ namespace Xamarin.AsyncTests.Server
 		public Task<TestCase> Resolve (CancellationToken cancellationToken)
 		{
 			return Suite.Resolve (Session.Context, cancellationToken);
+		}
+
+		TestSuiteClient RemoteObject<TestSuiteClient,TestSuiteServant>.Client {
+			get { throw new ServerErrorException (); }
+		}
+
+		TestSuiteServant RemoteObject<TestSuiteClient,TestSuiteServant>.Servant {
+			get { return this; }
 		}
 	}
 }
