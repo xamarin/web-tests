@@ -112,6 +112,7 @@ namespace TestMac
 				var serialized = Result.Path.Serialize ();
 				sb.AppendLine (serialized.ToString ());
 				sb.AppendLine ();
+				sb.AppendLine ();
 			}
 
 			var aggregate = Result.Error as AggregateException;
@@ -127,8 +128,11 @@ namespace TestMac
 					sb.AppendLine (aggregate.InnerExceptions [i].ToString ());
 					sb.AppendLine ();
 				}
+				sb.AppendLine ();
 			} else if (Result.Error != null) {
 				sb.Append (Result.Error.ToString ());
+				sb.AppendLine ();
+				sb.AppendLine ();
 			}
 
 			if (Result.Messages != null) {

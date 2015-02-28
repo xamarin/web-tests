@@ -222,6 +222,10 @@ namespace Xamarin.AsyncTests.Server
 				if (error != null)
 					result.AddError (new SavedException (error.Value));
 
+				foreach (var message in node.Elements ("Message")) {
+					result.AddMessage (message.Attribute ("Text").Value);
+				}
+
 				foreach (var child in node.Elements ("TestResult")) {
 					result.AddChild (Read (child));
 				}
@@ -238,6 +242,14 @@ namespace Xamarin.AsyncTests.Server
 					element.SetAttributeValue ("Error", instance.Error.ToString ());
 
 				element.Add (Serializer.TestName.Write (instance.Name));
+
+				if (instance.HasMessages) {
+					foreach (var message in instance.Messages) {
+						var msgElement = new XElement ("Message");
+						msgElement.SetAttributeValue ("Text", message);
+						element.Add (msgElement);
+					}
+				}
 
 				foreach (var child in instance.Children)
 					element.Add (Write (child));

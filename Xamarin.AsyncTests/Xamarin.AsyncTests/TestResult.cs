@@ -135,6 +135,10 @@ namespace Xamarin.AsyncTests
 			get { return children; }
 		}
 
+		public bool HasMessages {
+			get { return messages != null && messages.Count > 0; }
+		}
+
 		public IReadOnlyCollection<string> Messages {
 			get { return messages; }
 		}
