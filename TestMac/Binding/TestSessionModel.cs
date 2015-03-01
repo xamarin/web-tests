@@ -36,7 +36,7 @@ namespace TestMac
 {
 	public class TestSessionModel : TestListNode
 	{
-		public TestSession Session {
+		public OldTestSession Session {
 			get;
 			private set;
 		}
@@ -51,7 +51,7 @@ namespace TestMac
 			private set;
 		}
 
-		public TestSessionModel (TestSession session)
+		public TestSessionModel (OldTestSession session)
 		{
 			Session = session;
 			Suite = session.Suite;

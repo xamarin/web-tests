@@ -76,7 +76,7 @@ namespace TestMac
 				if (e == null)
 					CurrentSession = null;
 				else {
-					var session = new TestSession (ui, e);
+					var session = new OldTestSession (ui, e);
 					CurrentSession = new TestSessionModel (session);
 				}
 			};

@@ -60,7 +60,6 @@
     <Compile Include="Xamarin.AsyncTests.Framework\ForkedTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ForkedTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ForkedTestInvoker.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestSession.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestFramework.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestFramework.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestApp.cs" />
@@ -86,6 +85,7 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestPathNode.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSuite.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\OldTestSession.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>
