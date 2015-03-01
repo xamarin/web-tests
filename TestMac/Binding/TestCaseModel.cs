@@ -37,6 +37,11 @@ namespace TestMac
 {
 	public class TestCaseModel : TestListNode
 	{
+		public TestSuite Suite {
+			get;
+			private set;
+		}
+
 		public TestContext Context {
 			get;
 			private set;
@@ -52,8 +57,9 @@ namespace TestMac
 
 		IReadOnlyCollection<TestCase> children;
 
-		public TestCaseModel (TestContext ctx, TestCase test)
+		public TestCaseModel (TestSuite suite, TestContext ctx, TestCase test)
 		{
+			Suite = suite;
 			Context = ctx;
 			Test = test;
 			fullName = test.Name.FullName;
@@ -93,7 +99,7 @@ namespace TestMac
 					yield break;
 
 				foreach (var child in children) {
-					yield return new TestCaseModel (Context, child);
+					yield return new TestCaseModel (Suite, Context, child);
 				}
 			}
 		}

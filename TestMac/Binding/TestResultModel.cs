@@ -39,6 +39,11 @@ namespace TestMac
 {
 	public class TestResultModel : TestListNode
 	{
+		public TestSuite Suite {
+			get;
+			private set;
+		}
+
 		public TestContext Context {
 			get;
 			private set;
@@ -54,8 +59,9 @@ namespace TestMac
 			private set;
 		}
 
-		public TestResultModel (TestContext ctx, TestResult result, TestName name = null)
+		public TestResultModel (TestSuite suite, TestContext ctx, TestResult result, TestName name = null)
 		{
+			Suite = suite;
 			Context = ctx;
 			Result = result;
 			TestName = name ?? result.Name;
@@ -63,7 +69,7 @@ namespace TestMac
 
 		protected override IEnumerable<TestListNode> ResolveChildren ()
 		{
-			return Result.Children.Select (c => new TestResultModel (Context, c));
+			return Result.Children.Select (c => new TestResultModel (Suite, Context, c));
 		}
 
 		public override string Name {
@@ -171,10 +177,10 @@ namespace TestMac
 		async void ResolveTestCase ()
 		{
 			var serialized = Result.Path.SerializePath ();
-			var result = await Context.Suite.ResolveFromPath (Context, serialized, CancellationToken.None);
+			var result = await Suite.ResolveFromPath (Context, serialized, CancellationToken.None);
 
 			WillChangeValue ("TestCase");
-			testCase = new TestCaseModel (Context, result);
+			testCase = new TestCaseModel (Suite, Context, result);
 			DidChangeValue ("TestCase");
 		}
 

@@ -37,7 +37,6 @@ namespace Xamarin.AsyncTests
 	{
 		readonly TestContext parent;
 		readonly IPortableSupport support;
-		readonly TestSuite suite;
 		readonly TestResult result;
 		readonly TestLogger logger;
 		readonly SynchronizationContext syncContext;
@@ -52,22 +51,17 @@ namespace Xamarin.AsyncTests
 			get { return result ?? parent.Result; }
 		}
 
-		public TestSuite Suite {
-			get { return parent != null ? parent.Suite : suite; }
-		}
-
 		public IPortableSupport PortableSupport {
 			get { return support; }
 		}
 
-		internal TestContext (IPortableSupport support, TestLogger logger, TestSuite suite, TestName name, TestResult result,
+		internal TestContext (IPortableSupport support, TestLogger logger, ITestConfiguration config, TestName name, TestResult result,
 			SynchronizationContext syncContext = null)
 		{
 			Name = name;
 			this.support = support;
-			this.config = suite.Framework.Configuration.AsReadOnly ();
+			this.config = config;
 			this.logger = logger;
-			this.suite = suite;
 			this.result = result;
 			this.syncContext = syncContext;
 		}

@@ -80,7 +80,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		public Task<TestCase> ResolveFromPath (TestContext ctx, XElement node, CancellationToken cancellationToken)
 		{
 			return Task.Run<TestCase> (() => {
-				var path = TestSerializer.DeserializePath (ctx, node);
+				var path = TestSerializer.DeserializePath (this, ctx, node);
 				return new PathBasedTestCase (path);
 			});
 		}

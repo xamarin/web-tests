@@ -68,7 +68,7 @@ namespace TestMac
 			Console.WriteLine ("GOT ROOT TEST: {0}", test);
 
 			if (test != null) {
-				var model = new TestCaseModel (Session.Context, test);
+				var model = new TestCaseModel (Suite, Session.Context, test);
 				AddChild (model);
 			}
 		}

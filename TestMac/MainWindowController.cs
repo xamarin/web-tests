@@ -90,7 +90,7 @@ namespace TestMac
 			var parameters = new RunParameters (node.TestCase.Context, node.TestCase.Test);
 			var result = await ui.TestRunner.Run.Execute (parameters);
 
-			var model = new TestResultModel (node.TestCase.Context, result);
+			var model = new TestResultModel (node.TestCase.Suite, node.TestCase.Context, result);
 			node.AddChild (model);
 		}
 
@@ -131,7 +131,7 @@ namespace TestMac
 				var root = doc.Root;
 				var result = Connection.ReadTestResult (root);
 
-				var model = new TestResultModel (null, result);
+				var model = new TestResultModel (null, null, result);
 				TestResultController.AddObject (model);
 			}
 		}
