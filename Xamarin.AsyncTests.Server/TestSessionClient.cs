@@ -87,22 +87,22 @@ namespace Xamarin.AsyncTests.Server
 
 		public override Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException ();
+			return RemoteObjectManager.ResolveFromPath (suite, path, cancellationToken);
 		}
 
 		public override Task<IReadOnlyCollection<TestCase>> GetTestChildren (TestCase test, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException ();
+			return ((TestCaseClient)test).GetTestChildren (cancellationToken);
 		}
 
 		public override Task<IReadOnlyCollection<TestCase>> GetTestParameters (TestCase test, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException ();
+			return ((TestCaseClient)test).GetTestParameters (cancellationToken);
 		}
 
 		public override Task<TestResult> Run (TestCase test, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException ();
+			return ((TestCaseClient)test).Run (cancellationToken);
 		}
 	}
 }

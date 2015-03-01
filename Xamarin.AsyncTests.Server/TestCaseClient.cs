@@ -83,21 +83,37 @@ namespace Xamarin.AsyncTests.Server
 		List<TestCaseClient> children;
 		List<TestCaseClient> parameters;
 
-		async Task<IReadOnlyCollection<TestCase>> TestCase.GetParameters (TestContext ctx, CancellationToken cancellationToken)
+		Task<IReadOnlyCollection<TestCase>> TestCase.GetParameters (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return GetTestParameters (cancellationToken);
+		}
+
+		public async Task<IReadOnlyCollection<TestCase>> GetTestParameters (CancellationToken cancellationToken)
 		{
 			if (parameters != null)
 				return parameters;
 
-			parameters = await GetParameters (cancellationToken);
+			var command = new GetParametersCommand ();
+			var response = await command.Send (this, null, cancellationToken).ConfigureAwait (false);
+			parameters = await ReadTestCaseList (response, cancellationToken);
+
 			return parameters;
 		}
 
-		async Task<IReadOnlyCollection<TestCase>> TestCase.GetChildren (CancellationToken cancellationToken)
+		Task<IReadOnlyCollection<TestCase>> TestCase.GetChildren (CancellationToken cancellationToken)
+		{
+			return GetTestChildren (cancellationToken);
+		}
+
+		public async Task<IReadOnlyCollection<TestCase>> GetTestChildren (CancellationToken cancellationToken)
 		{
 			if (children != null)
 				return children;
 
-			children = await GetChildren (cancellationToken);
+			var command = new GetChildrenCommand ();
+			var response = await command.Send (this, null, cancellationToken).ConfigureAwait (false);
+			children = await ReadTestCaseList (response, cancellationToken);
+
 			return children;
 		}
 
@@ -111,7 +127,12 @@ namespace Xamarin.AsyncTests.Server
 			HasParameters = bool.Parse (node.Attribute ("HasParameters").Value);
 		}
 
-		public async Task<TestResult> Run (TestContext ctx, CancellationToken cancellationToken)
+		Task<TestResult> TestCase.Run (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Run (cancellationToken);
+		}
+
+		public async Task<TestResult> Run (CancellationToken cancellationToken)
 		{
 			var runCommand = new RunCommand ();
 			var result = await runCommand.Send (this, null, cancellationToken);
@@ -161,13 +182,6 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		async Task<List<TestCaseClient>> GetParameters (CancellationToken cancellationToken)
-		{
-			var command = new GetParametersCommand ();
-			var response = await command.Send (this, null, cancellationToken).ConfigureAwait (false);
-			return await ReadTestCaseList (response, cancellationToken);
-		}
-
 		class GetChildrenCommand : RemoteObjectCommand<RemoteTestCase,object,XElement>
 		{
 			protected override async Task<XElement> Run (
@@ -176,13 +190,6 @@ namespace Xamarin.AsyncTests.Server
 				var list = await proxy.Servant.GetChildren (cancellationToken).ConfigureAwait (false);
 				return WriteTestCaseList (list);
 			}
-		}
-
-		async Task<List<TestCaseClient>> GetChildren (CancellationToken cancellationToken)
-		{
-			var command = new GetChildrenCommand ();
-			var response = await command.Send (this, null, cancellationToken).ConfigureAwait (false);
-			return await ReadTestCaseList (response, cancellationToken);
 		}
 
 		class RunCommand : RemoteObjectCommand<RemoteTestCase,object,TestResult>
