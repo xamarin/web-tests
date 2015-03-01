@@ -3,6 +3,7 @@
 using Foundation;
 using AppKit;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
 
 namespace TestMac
 {

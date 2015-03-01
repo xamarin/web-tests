@@ -52,7 +52,6 @@
     <Compile Include="Xamarin.AsyncTests\ITestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestParameterSource.cs" />
     <Compile Include="Xamarin.AsyncTests\RepeatAttribute.cs" />
-    <Compile Include="Xamarin.AsyncTests\TestCase.cs" />
     <Compile Include="Xamarin.AsyncTests\TestCategoryAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\TestFlags.cs" />
     <Compile Include="Xamarin.AsyncTests\TestHostAttribute.cs" />
@@ -99,7 +98,6 @@
     <Compile Include="Xamarin.AsyncTests\ITestConfiguration.cs" />
     <Compile Include="Xamarin.AsyncTests\TestConfiguration.cs" />
     <Compile Include="Xamarin.AsyncTests\TestLoggerBackend.cs" />
-    <Compile Include="Xamarin.AsyncTests\TestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests.Portable\IPortableSupport.cs" />
     <Compile Include="Xamarin.AsyncTests.Portable\IServerConnection.cs" />
     <Compile Include="Xamarin.AsyncTests.Portable\IServerHost.cs" />

@@ -34,7 +34,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.Framework
 {
 	public interface TestCase
 	{

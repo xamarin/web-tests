@@ -38,8 +38,6 @@ namespace Xamarin.AsyncTests
 		TestConfiguration Configuration {
 			get;
 		}
-
-		Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken);
 	}
 }
 

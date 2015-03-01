@@ -36,7 +36,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.Framework
 {
 	public interface TestSuite
 	{

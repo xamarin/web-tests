@@ -73,7 +73,7 @@ namespace TestMac
 			WillChangeValue ("isLeaf");
 			WillChangeValue ("childNodes");
 
-			List<TestCase> list = new List<Xamarin.AsyncTests.TestCase> ();
+			List<TestCase> list = new List<TestCase> ();
 
 			if (Test.HasParameters) {
 				var parameterResult = await Test.GetParameters (Context, CancellationToken.None);

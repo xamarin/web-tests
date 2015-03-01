@@ -31,6 +31,8 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
+	using Framework;
+
 	class TestCaseClient : TestCase, ObjectClient<TestCaseClient>, RemoteTestCase
 	{
 		TestSuite TestCase.Suite {
