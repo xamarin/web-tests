@@ -11,7 +11,7 @@ using AppKit;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.Server;
+using Xamarin.AsyncTests.Remoting;
 
 namespace Xamarin.AsyncTests.MacUI
 {

@@ -34,7 +34,7 @@ using Xamarin.AsyncTests.Framework;
 namespace Xamarin.AsyncTests.MacUI
 {
 	using Framework;
-	using Server;
+	using Remoting;
 
 	public class ServerManager : CommandProvider<TestServer>
 	{
