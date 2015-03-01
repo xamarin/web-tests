@@ -1,5 +1,5 @@
 ﻿//
-// TestFrameworkClient.cs
+// TestSessionClient.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -29,10 +29,9 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
-	using Portable;
 	using Framework;
 
-	class TestFrameworkClient : TestFramework, ObjectClient<TestFrameworkClient>, RemoteTestFramework
+	class TestSessionClient : TestSession, ObjectClient<TestSessionClient>, RemoteTestSession
 	{
 		public Connection Connection {
 			get;
@@ -44,45 +43,23 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public TestFramework LocalFramework {
-			get;
-			private set;
-		}
-
 		public string Type {
-			get { return "TestFramework"; }
+			get { return "TestSession"; }
 		}
 
-		public TestFrameworkClient (ClientConnection connection, long objectID)
+		public TestSessionClient (ClientConnection connection, long objectID)
+			: base (connection.App, connection.LocalFramework)
 		{
 			Connection = connection;
 			ObjectID = objectID;
-
-			LocalFramework = connection.LocalFramework;
 		}
 
-		TestFrameworkClient RemoteObject<TestFrameworkClient,TestFrameworkServant>.Client {
+		TestSessionClient RemoteObject<TestSessionClient, TestSessionServant>.Client {
 			get { return this; }
 		}
 
-		TestFrameworkServant RemoteObject<TestFrameworkClient,TestFrameworkServant>.Servant {
+		TestSessionServant RemoteObject<TestSessionClient, TestSessionServant>.Servant {
 			get { throw new ServerErrorException (); }
-		}
-
-		public override TestName Name {
-			get { return LocalFramework.Name; }
-		}
-
-		public override IPortableSupport PortableSupport {
-			get { return LocalFramework.PortableSupport; }
-		}
-
-		protected override TestLogger Logger {
-			get { return Connection.App.Logger; }
-		}
-
-		public override TestConfiguration Configuration {
-			get { return LocalFramework.Configuration; }
 		}
 
 		public override Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)

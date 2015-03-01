@@ -37,7 +37,7 @@ namespace Xamarin.AsyncTests.Server
 	{
 	}
 
-	interface RemoteTestFramework : RemoteObject<TestFrameworkClient,TestFrameworkServant>
+	interface RemoteTestSession : RemoteObject<TestSessionClient,TestSessionServant>
 	{
 	}
 
@@ -142,35 +142,35 @@ namespace Xamarin.AsyncTests.Server
 			Connection.Debug ("Client Handshake done");
 		}
 
-		class GetRemoteTestFrameworkCommand : Command<object,ObjectProxy>
+		class GetRemoteTestSessionCommand : Command<object,ObjectProxy>
 		{
 			protected override ObjectProxy ReadResponse (Connection connection, XElement node)
 			{
 				var clientConnection = (ClientConnection)connection;
-				return ReadProxy (connection, node, (objectID) => new TestFrameworkClient (clientConnection, objectID));
+				return ReadProxy (connection, node, (objectID) => new TestSessionClient (clientConnection, objectID));
 			}
 
 			protected override Task<ObjectProxy> Run (Connection connection, object argument, CancellationToken cancellationToken)
 			{
-				return Task.FromResult<ObjectProxy> (new TestFrameworkServant ((ServerConnection)connection));
+				return Task.FromResult<ObjectProxy> (new TestSessionServant ((ServerConnection)connection));
 			}
 		}
 
-		public static async Task<TestFramework> GetRemoteTestFramework (
+		public static async Task<TestSession> GetRemoteTestSession (
 			ClientConnection connection, CancellationToken cancellationToken)
 		{
-			var command = new GetRemoteTestFrameworkCommand ();
-			return (TestFrameworkClient)await command.Send (connection, cancellationToken);
+			var command = new GetRemoteTestSessionCommand ();
+			return (TestSessionClient)await command.Send (connection, cancellationToken);
 		}
 
-		class GetRemoteTestSuiteCommand : RemoteObjectCommand<RemoteTestFramework,object,ObjectProxy>
+		class GetRemoteTestSuiteCommand : RemoteObjectCommand<RemoteTestSession,object,ObjectProxy>
 		{
 			protected override ObjectProxy ReadResponse (Connection connection, XElement node)
 			{
 				return ReadProxy (connection, node, (objectID) => new TestSuiteClient (Proxy.Client, objectID));
 			}
 
-			protected override async Task<ObjectProxy> Run (Connection connection, RemoteTestFramework proxy, object argument, CancellationToken cancellationToken)
+			protected override async Task<ObjectProxy> Run (Connection connection, RemoteTestSession proxy, object argument, CancellationToken cancellationToken)
 			{
 				var serverConnection = (ServerConnection)connection;
 				var suite = new TestSuiteServant (serverConnection, proxy.Servant);
@@ -180,10 +180,10 @@ namespace Xamarin.AsyncTests.Server
 		}
 
 		public static async Task<TestSuite> GetRemoteTestSuite (
-			TestFrameworkClient framework, CancellationToken cancellationToken)
+			TestSessionClient session, CancellationToken cancellationToken)
 		{
 			var command = new GetRemoteTestSuiteCommand ();
-			return (TestSuiteClient)await command.Send (framework, null, cancellationToken);
+			return (TestSuiteClient)await command.Send (session, null, cancellationToken);
 		}
 
 		class GetRootTestCaseCommand : RemoteObjectCommand<RemoteTestSuite,object,ObjectProxy>

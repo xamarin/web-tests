@@ -76,11 +76,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Resolve ();
 		}
 
-		public override Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
-		{
-			return Task.FromResult<TestSuite> (new ReflectionTestSuite (this));
-		}
-
 		void Resolve ()
 		{
 			var cattr = Assembly.GetCustomAttributes<AsyncTestSuiteAttribute> ().First ();

@@ -39,7 +39,7 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public TestFramework Framework {
+		public TestSession Session {
 			get;
 			private set;
 		}
@@ -101,12 +101,12 @@ namespace Xamarin.AsyncTests.Server
 			Connection.Debug ("INITIALIZE");
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			Framework = await GetTestFramework (cancellationToken);
+			Session = await GetTestSession (cancellationToken);
 
-			Connection.Debug ("GOT FRAMEWORK: {0}", Framework);
+			Connection.Debug ("GOT SESSION: {0}", Session);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			TestSuite = await Framework.LoadTestSuite (cancellationToken);
+			TestSuite = await Session.LoadTestSuite (cancellationToken);
 
 			Connection.Debug ("GOT TEST SUITE: {0}", TestSuite);
 		}
@@ -115,7 +115,7 @@ namespace Xamarin.AsyncTests.Server
 
 		public abstract Task Stop (CancellationToken cancellationToken);
 
-		public abstract Task<TestFramework> GetTestFramework (CancellationToken cancellationToken);
+		public abstract Task<TestSession> GetTestSession (CancellationToken cancellationToken);
 
 		class LocalTestServer : TestServer
 		{
@@ -134,9 +134,9 @@ namespace Xamarin.AsyncTests.Server
 				return Task.FromResult<object> (null);
 			}
 
-			public override Task<TestFramework> GetTestFramework (CancellationToken cancellationToken)
+			public override Task<TestSession> GetTestSession (CancellationToken cancellationToken)
 			{
-				return Task.FromResult (App.Framework);
+				return Task.FromResult (TestSession.CreateLocal (App, App.Framework));
 			}
 		}
 
@@ -226,9 +226,9 @@ namespace Xamarin.AsyncTests.Server
 				}
 			}
 
-			public override Task<TestFramework> GetTestFramework (CancellationToken cancellationToken)
+			public override Task<TestSession> GetTestSession (CancellationToken cancellationToken)
 			{
-				return RemoteObjectManager.GetRemoteTestFramework (client, cancellationToken);
+				return RemoteObjectManager.GetRemoteTestSession (client, cancellationToken);
 			}
 		}
 	}

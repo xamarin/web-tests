@@ -1,5 +1,5 @@
 ﻿//
-// TestFrameworkServant.cs
+// TestSession.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,44 +27,33 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Server
+namespace Xamarin.AsyncTests.Framework
 {
-	using Framework;
+	using Reflection;
 
-	class TestFrameworkServant : ObjectServant, RemoteTestFramework
+	public abstract class TestSession
 	{
 		public TestApp App {
 			get;
 			private set;
 		}
 
-		public TestFramework LocalFramework {
+		public TestFramework Framework {
 			get;
 			private set;
 		}
 
-		public override string Type {
-			get { return "TestFramework"; }
-		}
-
-		public TestFrameworkServant (ServerConnection connection)
-			: base (connection)
+		public TestSession (TestApp app, TestFramework framework)
 		{
-			App = connection.App;
-			LocalFramework = App.Framework;
+			App = app;
+			Framework = framework;
 		}
 
-		TestFrameworkClient RemoteObject<TestFrameworkClient,TestFrameworkServant>.Client {
-			get { throw new ServerErrorException (); }
-		}
+		public abstract Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken);
 
-		TestFrameworkServant RemoteObject<TestFrameworkClient, TestFrameworkServant>.Servant {
-			get { return this; }
-		}
-
-		public Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
+		public static TestSession CreateLocal (TestApp app, TestFramework framework)
 		{
-			return LocalFramework.LoadTestSuite (cancellationToken);
+			return new ReflectionTestSession (app, (ReflectionTestFramework)framework);
 		}
 	}
 }

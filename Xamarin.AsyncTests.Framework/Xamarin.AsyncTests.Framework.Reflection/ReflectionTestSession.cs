@@ -1,5 +1,5 @@
 ﻿//
-// TestSuiteClient.cs
+// ReflectionTestSession.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,62 +24,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Server
+namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	using Framework;
-
-	class TestSuiteClient : TestSuite, ObjectClient<TestSuiteClient>, RemoteTestSuite
+	class ReflectionTestSession : TestSession
 	{
-		public TestSession Session {
-			get;
-			private set;
+		new public ReflectionTestFramework Framework {
+			get { return (ReflectionTestFramework)base.Framework; }
 		}
 
-		public TestFramework Framework {
-			get { return Session.Framework; }
-		}
-
-		public Connection Connection {
-			get;
-			private set;
-		}
-
-		public long ObjectID {
-			get;
-			private set;
-		}
-
-		public string Type {
-			get { return "TestSuite"; }
-		}
-
-		public TestSuiteClient (TestSessionClient session, long objectID)
+		public ReflectionTestSession (TestApp app, ReflectionTestFramework framework)
+			: base (app, framework)
 		{
-			Session = session;
-			Connection = session.Connection;
-			ObjectID = objectID;
 		}
 
-		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
+		public override Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
 		{
-			return RemoteObjectManager.GetRootTestCase (this, cancellationToken);
-		}
-
-		public Task<TestCase> ResolveFromPath (TestContext ctx, XElement node, CancellationToken cancellationToken)
-		{
-			return RemoteObjectManager.ResolveFromPath (this, node, cancellationToken);
-		}
-
-		TestSuiteClient RemoteObject<TestSuiteClient,TestSuiteServant>.Client {
-			get { return this; }
-		}
-
-		TestSuiteServant RemoteObject<TestSuiteClient, TestSuiteServant>.Servant {
-			get { throw new ServerErrorException (); }
+			return Task.FromResult<TestSuite> (new ReflectionTestSuite (Framework));
 		}
 	}
 }

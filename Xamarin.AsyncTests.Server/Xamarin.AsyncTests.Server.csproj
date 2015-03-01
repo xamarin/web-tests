@@ -60,11 +60,9 @@
     <Compile Include="Handshake.cs" />
     <Compile Include="TestCaseClient.cs" />
     <Compile Include="TestCaseServant.cs" />
-    <Compile Include="TestFrameworkServant.cs" />
     <Compile Include="ServerConnection.cs" />
     <Compile Include="ClientConnection.cs" />
     <Compile Include="TestSuiteServant.cs" />
-    <Compile Include="TestFrameworkClient.cs" />
     <Compile Include="TestSuiteClient.cs" />
     <Compile Include="ObjectServant.cs" />
     <Compile Include="ObjectClient.cs" />
@@ -72,6 +70,8 @@
     <Compile Include="RemoteObjectCommand.cs" />
     <Compile Include="EventSinkServant.cs" />
     <Compile Include="EventSinkClient.cs" />
+    <Compile Include="TestSessionClient.cs" />
+    <Compile Include="TestSessionServant.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

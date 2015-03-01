@@ -56,8 +56,6 @@ namespace Xamarin.AsyncTests.Framework
 		protected internal abstract TestLogger Logger {
 			get;
 		}
-
-		public abstract Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken);
 	}
 }
 

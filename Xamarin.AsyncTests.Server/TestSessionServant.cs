@@ -1,5 +1,5 @@
 ﻿//
-// TestSuiteServant.cs
+// TestSessionServant.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,65 +24,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Server
 {
+	using Portable;
 	using Framework;
 
-	class TestSuiteServant : ObjectServant, RemoteTestSuite
+	class TestSessionServant : ObjectServant, RemoteTestSession
 	{
-		public TestSessionServant Session {
-			get;
-			private set;
-		}
-
-		public TestSuite Suite {
-			get;
-			private set;
-		}
-
-		public TestContext Context {
+		public TestSession LocalSession {
 			get;
 			private set;
 		}
 
 		public override string Type {
-			get { return "TestSuite"; }
+			get { return "TestSession"; }
 		}
 
-		public TestSuiteServant (ServerConnection connection, TestSessionServant session)
+		public TestSessionServant (ServerConnection connection)
 			: base (connection)
 		{
-			Session = session;
+			LocalSession = TestSession.CreateLocal (connection.App, connection.App.Framework);
 		}
 
-		public async Task Initialize (EventSinkClient sink, TestLogger logger, CancellationToken cancellationToken)
-		{
-			cancellationToken.ThrowIfCancellationRequested ();
-			Suite = await Session.LoadTestSuite (cancellationToken).ConfigureAwait (false);
-
-			Context = sink.CreateContext (this);
-		}
-
-		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
-		{
-			return Suite.GetRootTestCase (cancellationToken);
-		}
-
-		public Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken)
-		{
-			return Suite.ResolveFromPath (Context, path, cancellationToken);
-		}
-
-		TestSuiteClient RemoteObject<TestSuiteClient,TestSuiteServant>.Client {
+		TestSessionClient RemoteObject<TestSessionClient, TestSessionServant>.Client {
 			get { throw new ServerErrorException (); }
 		}
 
-		TestSuiteServant RemoteObject<TestSuiteClient,TestSuiteServant>.Servant {
+		TestSessionServant RemoteObject<TestSessionClient, TestSessionServant>.Servant {
 			get { return this; }
+		}
+
+		public Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
+		{
+			return LocalSession.LoadTestSuite (cancellationToken);
 		}
 	}
 }

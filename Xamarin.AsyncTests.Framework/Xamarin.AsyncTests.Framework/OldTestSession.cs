@@ -31,7 +31,7 @@ namespace Xamarin.AsyncTests.Framework
 {
 	using Portable;
 
-	public class TestSession
+	public class OldTestSession
 	{
 		public DateTime Created {
 			get;
@@ -68,12 +68,12 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestSession (TestApp app, TestSuite suite)
+		public OldTestSession (TestApp app, TestSuite suite)
 			: this (app, suite, new TestResult (suite.Framework.Name))
 		{
 		}
 
-		public TestSession (TestSuite suite, IPortableSupport support, TestLogger logger, TestResult result = null)
+		public OldTestSession (TestSuite suite, IPortableSupport support, TestLogger logger, TestResult result = null)
 		{
 			Suite = suite;
 			Result = result ?? new TestResult (suite.Framework.Name);
@@ -86,7 +86,7 @@ namespace Xamarin.AsyncTests.Framework
 			Context = CreateContext ();
 		}
 
-		public TestSession (TestApp app, TestSuite suite, TestResult result)
+		public OldTestSession (TestApp app, TestSuite suite, TestResult result)
 		{
 			Suite = suite;
 			Result = result;
