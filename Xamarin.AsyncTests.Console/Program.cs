@@ -197,6 +197,8 @@ namespace Xamarin.AsyncTests.Console
 			Debug ("Got test: {0}", test);
 			var result = await session.Run (test, CancellationToken.None);
 			Debug ("Got result: {0}", result);
+
+			Debug ("{0} tests, {1} passed, {2} errors, {3} ignored.", countTests, countSuccess, countErrors, countIgnored);
 		}
 
 		void OnLogMessage (string message)
@@ -211,14 +213,35 @@ namespace Xamarin.AsyncTests.Console
 			Debug (message);
 		}
 
-		void OnStatisticsEvent (TestLoggerBackend.StatisticsEventArgs e)
+		int countTests;
+		int countSuccess;
+		int countErrors;
+		int countIgnored;
+
+		void OnStatisticsEvent (TestLoggerBackend.StatisticsEventArgs args)
 		{
-			switch (e.Type) {
+			switch (args.Type) {
 			case TestLoggerBackend.StatisticsEventType.Running:
-				Debug ("Running {0}.", e.Name);
+				++countTests;
+				Debug ("Running {0}", args.Name);
 				break;
 			case TestLoggerBackend.StatisticsEventType.Finished:
-				Debug ("Finished {0}: {1}", e.Name, e.Status);
+				switch (args.Status) {
+				case TestStatus.Success:
+					++countSuccess;
+					break;
+				case TestStatus.Ignored:
+				case TestStatus.None:
+					++countIgnored;
+					break;
+				default:
+					++countErrors;
+					break;
+				}
+
+				Debug ("Finished {0}: {1}", args.Name, args.Status);
+				break;
+			case TestLoggerBackend.StatisticsEventType.Reset:
 				break;
 			}
 		}
