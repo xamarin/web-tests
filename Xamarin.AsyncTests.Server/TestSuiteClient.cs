@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -66,6 +67,11 @@ namespace Xamarin.AsyncTests.Server
 		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
 		{
 			return RemoteObjectManager.GetRootTestCase (this, cancellationToken);
+		}
+
+		public Task<TestCase> ResolveFromPath (TestContext ctx, XElement node, CancellationToken cancellationToken)
+		{
+			return RemoteObjectManager.ResolveFromPath (this, node, cancellationToken);
 		}
 
 		TestSuiteClient RemoteObject<TestSuiteClient,TestSuiteServant>.Client {

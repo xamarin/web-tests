@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
+using System.Xml.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Threading;
@@ -74,6 +75,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
 		{
 			return Task.FromResult (test);
+		}
+
+		public Task<TestCase> ResolveFromPath (TestContext ctx, XElement node, CancellationToken cancellationToken)
+		{
+			return Task.Run<TestCase> (() => {
+				var path = TestSerializer.DeserializePath (ctx, node);
+				return new PathBasedTestCase (path);
+			});
 		}
 
 		TestPathNode IPathResolver.Node {

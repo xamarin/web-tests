@@ -27,6 +27,8 @@ using System;
 using System.Text;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using AppKit;
 using Foundation;
 using Xamarin.AsyncTests;
@@ -159,11 +161,21 @@ namespace TestMac
 		{
 			if (testCase != null)
 				return testCase;
-			if (Result == null || Result.Test == null || Context == null)
+			if (Result == null || Result.Path == null || Context == null)
 				return null;
 
-			testCase = new TestCaseModel (Context, Result.Test);
-			return testCase;
+			ResolveTestCase ();
+			return null;
+		}
+
+		async void ResolveTestCase ()
+		{
+			var serialized = Result.Path.SerializePath ();
+			var result = await Context.Suite.ResolveFromPath (Context, serialized, CancellationToken.None);
+
+			WillChangeValue ("TestCase");
+			testCase = new TestCaseModel (Context, result);
+			DidChangeValue ("TestCase");
 		}
 
 		TestCaseModel testCase;

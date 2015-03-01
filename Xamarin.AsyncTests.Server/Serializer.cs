@@ -240,6 +240,10 @@ namespace Xamarin.AsyncTests.Server
 
 				var result = new TestResult (name, status);
 
+				var path = node.Element ("TestPath");
+				if (path != null)
+					result.Path = new PathWrapper (path);
+
 				foreach (var error in node.Elements ("Error")) {
 					result.AddError (ReadError (error));
 				}
@@ -261,6 +265,10 @@ namespace Xamarin.AsyncTests.Server
 				element.SetAttributeValue ("Status", instance.Status.ToString ());
 
 				element.Add (Serializer.TestName.Write (instance.Name));
+
+				if (instance.Path != null) {
+					element.Add (instance.Path.SerializePath ());
+				}
 
 				foreach (var error in instance.Errors) {
 					element.Add (WriteError (error));
@@ -366,6 +374,8 @@ namespace Xamarin.AsyncTests.Server
 			public PathWrapper (XElement node)
 			{
 				this.node = node;
+				if (node == null)
+					throw new InvalidOperationException();
 			}
 
 			public XElement SerializePath ()

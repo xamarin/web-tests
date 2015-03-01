@@ -209,6 +209,31 @@ namespace Xamarin.AsyncTests.Server
 
 			return await TestCaseClient.FromProxy (proxy, cancellationToken);
 		}
+
+		class ResolveFromPathCommand : RemoteObjectCommand<RemoteTestSuite,XElement,ObjectProxy>
+		{
+			protected override ObjectProxy ReadResponse (Connection connection, XElement node)
+			{
+				return ReadTestCase (Proxy.Client, node);
+			}
+
+			protected override async Task<ObjectProxy> Run (
+				Connection connection, RemoteTestSuite proxy, XElement argument, CancellationToken cancellationToken)
+			{
+				var test = await proxy.Servant.ResolveFromPath (argument, cancellationToken);
+				return new TestCaseServant ((ServerConnection)connection, proxy.Servant, test);
+			}
+		}
+
+		public static async Task<TestCase> ResolveFromPath (
+			TestSuiteClient suite, XElement path, CancellationToken cancellationToken)
+		{
+			var command = new ResolveFromPathCommand ();
+			var proxy = await command.Send (suite, path, cancellationToken);
+
+			return await TestCaseClient.FromProxy (proxy, cancellationToken);
+		}
+
 	}
 }
 

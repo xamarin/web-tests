@@ -29,6 +29,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,5 +45,7 @@ namespace Xamarin.AsyncTests
 		}
 
 		Task<TestCase> GetRootTestCase (CancellationToken cancellationToken);
+
+		Task<TestCase> ResolveFromPath (TestContext ctx, XElement path, CancellationToken cancellationToken);
 	}
 }
