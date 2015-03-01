@@ -39,10 +39,6 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		ITestFramework TestSuite.Framework {
-			get { return Framework; }
-		}
-
 		public Connection Connection {
 			get;
 			private set;

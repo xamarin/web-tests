@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests.Framework
 {
 	public interface TestSuite
 	{
-		ITestFramework Framework {
+		TestFramework Framework {
 			get;
 		}
 

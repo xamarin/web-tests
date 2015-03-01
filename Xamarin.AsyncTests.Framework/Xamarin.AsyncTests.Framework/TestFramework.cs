@@ -33,7 +33,7 @@ namespace Xamarin.AsyncTests.Framework
 	using Portable;
 	using Reflection;
 
-	public abstract class TestFramework : ITestFramework
+	public abstract class TestFramework
 	{
 		public static TestFramework GetLocalFramework (
 			Assembly assembly, IPortableSupport support, TestLogger logger, SettingsBag settings)

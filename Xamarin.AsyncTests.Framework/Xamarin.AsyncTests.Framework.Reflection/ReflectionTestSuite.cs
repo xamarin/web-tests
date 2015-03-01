@@ -40,10 +40,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		ITestFramework TestSuite.Framework {
-			get { return Framework; }
-		}
-
 		public Assembly Assembly {
 			get;
 			private set;
