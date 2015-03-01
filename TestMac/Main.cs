@@ -27,7 +27,7 @@ using System;
 
 using AppKit;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	static class MainClass
 	{

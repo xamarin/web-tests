@@ -27,7 +27,7 @@ using System;
 using AppKit;
 using Xamarin.AsyncTests.UI;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	public static class UIBinding
 	{

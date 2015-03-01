@@ -4,7 +4,7 @@ using System.Linq;
 using Foundation;
 using AppKit;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	public partial class TestResultDetails : AppKit.NSView
 	{

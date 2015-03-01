@@ -7,7 +7,7 @@
 using Foundation;
 using System.CodeDom.Compiler;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	[Register ("SettingsDialogController")]
 	partial class SettingsDialogController

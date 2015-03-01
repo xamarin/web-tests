@@ -7,7 +7,7 @@
 using Foundation;
 using System.CodeDom.Compiler;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	[Register ("AppDelegate")]
 	partial class AppDelegate

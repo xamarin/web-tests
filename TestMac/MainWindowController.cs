@@ -14,7 +14,7 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Server;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	public partial class MainWindowController : NSWindowController
 	{

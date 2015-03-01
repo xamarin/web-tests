@@ -28,7 +28,7 @@ using AppKit;
 using Foundation;
 using Xamarin.AsyncTests;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	static class ValueTransformers
 	{

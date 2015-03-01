@@ -27,7 +27,7 @@ using System;
 
 using Xamarin.Forms;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	public class MyPage : ContentPage
 	{

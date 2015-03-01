@@ -35,7 +35,7 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using ObjCRuntime;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	public class TestResultModel : TestListNode
 	{

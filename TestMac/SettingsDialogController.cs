@@ -5,7 +5,7 @@ using AppKit;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	public partial class SettingsDialogController : NSWindowController
 	{

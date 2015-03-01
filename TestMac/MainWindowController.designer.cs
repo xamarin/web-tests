@@ -7,7 +7,7 @@
 using Foundation;
 using System.CodeDom.Compiler;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	[Register ("MainWindowController")]
 	partial class MainWindowController
@@ -25,10 +25,10 @@ namespace TestMac
 		AppKit.NSTreeController TestResultController { get; set; }
 
 		[Outlet]
-		TestMac.TestResultDetails TestResultDetails { get; set; }
+		Xamarin.AsyncTests.MacUI.TestResultDetails TestResultDetails { get; set; }
 
 		[Outlet]
-		TestMac.TestResultList TestResultList { get; set; }
+		Xamarin.AsyncTests.MacUI.TestResultList TestResultList { get; set; }
 
 		[Outlet]
 		AppKit.NSOutlineView TestResultView { get; set; }

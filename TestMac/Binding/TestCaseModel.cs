@@ -33,7 +33,7 @@ using Foundation;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	public class TestCaseModel : TestListNode
 	{

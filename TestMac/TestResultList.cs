@@ -5,7 +5,7 @@ using Foundation;
 using AppKit;
 using CoreGraphics;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	public partial class TestResultList : AppKit.NSView
 	{

@@ -32,7 +32,7 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.UI;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	public partial class AppDelegate : NSApplicationDelegate
 	{

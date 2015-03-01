@@ -1,4 +1,4 @@
-﻿namespace TestMac
+﻿namespace Xamarin.AsyncTests.MacUI
 {
 
 	// Should subclass AppKit.NSView

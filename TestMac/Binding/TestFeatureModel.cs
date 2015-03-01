@@ -27,7 +27,7 @@ using System;
 using Foundation;
 using Xamarin.AsyncTests;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	public class TestFeatureModel : NSObject
 	{

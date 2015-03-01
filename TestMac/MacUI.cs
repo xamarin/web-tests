@@ -33,7 +33,7 @@ using Xamarin.AsyncTests.Sample;
 using Xamarin.WebTests;
 using Xamarin.WebTests.Portable;
 
-namespace TestMac
+namespace Xamarin.AsyncTests.MacUI
 {
 	public class MacUI : UITestApp
 	{
