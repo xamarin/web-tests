@@ -199,6 +199,15 @@ namespace Xamarin.AsyncTests.Console
 			Debug ("Got result: {0}", result);
 
 			Debug ("{0} tests, {1} passed, {2} errors, {3} ignored.", countTests, countSuccess, countErrors, countIgnored);
+
+			if (ResultOutput != null) {
+				var serialized = TestSerializer.WriteTestResult (result);
+				var settings = new XmlWriterSettings ();
+				settings.Indent = true;
+				using (var writer = XmlTextWriter.Create (ResultOutput, settings))
+					serialized.WriteTo (writer);
+				Debug ("Result writting to {0}.", ResultOutput);
+			}
 		}
 
 		void OnLogMessage (string message)
