@@ -99,12 +99,12 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public static SettingsBag LoadSettings (XElement node)
 		{
-			return Serializer.ReadSettings (node);
+			return TestSerializer.ReadSettings (node);
 		}
 
 		public static XElement WriteSettings (SettingsBag settings)
 		{
-			return Serializer.WriteSettings (settings);
+			return TestSerializer.WriteSettings (settings);
 		}
 
 		public static TestResult ReadTestResult (XElement node)

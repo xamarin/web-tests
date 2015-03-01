@@ -87,7 +87,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 			var settings = node.Element ("Settings");
 			if (settings != null)
-				instance.Settings = Serializer.Settings.Read (settings);
+				instance.Settings = TestSerializer.ReadSettings (settings);
 
 			var logger = node.Element ("EventSink");
 			instance.EventSink = ReadProxy (connection, logger, (objectID) => new EventSinkClient (connection, objectID));
@@ -101,7 +101,7 @@ namespace Xamarin.AsyncTests.Remoting
 			element.SetAttributeValue ("WantStatisticsEvents", instance.WantStatisticsEvents);
 
 			if (instance.Settings != null)
-				element.Add (Serializer.Settings.Write (instance.Settings));
+				element.Add (TestSerializer.WriteSettings (instance.Settings));
 
 			element.Add (WriteProxy (instance.EventSink));
 

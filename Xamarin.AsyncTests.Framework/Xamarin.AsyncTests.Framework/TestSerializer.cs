@@ -155,6 +155,35 @@ namespace Xamarin.AsyncTests.Framework
 				return string.Format ("[TestPathNode: Identifier={0}, Name={1}{2}]", Identifier, Name, parameter);
 			}
 		}
+
+		public static SettingsBag ReadSettings (XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("Settings"))
+				throw new InternalErrorException ();
+
+			var settings = SettingsBag.CreateDefault ();
+			foreach (var element in node.Elements ("Setting")) {
+				var key = element.Attribute ("Key");
+				var value = element.Attribute ("Value");
+				settings.Add (key.Value, value.Value);
+			}
+			return settings;
+		}
+
+		public static XElement WriteSettings (SettingsBag instance)
+		{
+			var node = new XElement ("Settings");
+
+			foreach (var entry in instance.Settings) {
+				var item = new XElement ("Setting");
+				node.Add (item);
+
+				item.SetAttributeValue ("Key", entry.Key);
+				item.SetAttributeValue ("Value", entry.Value);
+			}
+
+			return node;
+		}
 	}
 }
 

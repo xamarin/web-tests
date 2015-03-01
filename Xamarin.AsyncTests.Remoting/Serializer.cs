@@ -81,54 +81,6 @@ namespace Xamarin.AsyncTests.Remoting
 				throw new ServerErrorException ();
 		}
 
-		static readonly SettingsSerializer settingsSerializer = new SettingsSerializer ();
-
-		public static IValueSerializer<SettingsBag> Settings {
-			get { return settingsSerializer; }
-		}
-
-		internal static SettingsBag ReadSettings (XElement node)
-		{
-			return settingsSerializer.Read (node);
-		}
-
-		internal static XElement WriteSettings (SettingsBag settings)
-		{
-			return settingsSerializer.Write (settings);
-		}
-
-		class SettingsSerializer : IValueSerializer<SettingsBag>
-		{
-			public XElement Write (SettingsBag instance)
-			{
-				var settings = new XElement ("Settings");
-
-				foreach (var entry in instance.Settings) {
-					var item = new XElement ("Setting");
-					settings.Add (item);
-
-					item.SetAttributeValue ("Key", entry.Key);
-					item.SetAttributeValue ("Value", entry.Value);
-				}
-
-				return settings;
-			}
-
-			public SettingsBag Read (XElement node)
-			{
-				if (!node.Name.LocalName.Equals ("Settings"))
-					throw new ServerErrorException ();
-
-				var settings = SettingsBag.CreateDefault ();
-				foreach (var element in node.Elements ("Setting")) {
-					var key = element.Attribute ("Key");
-					var value = element.Attribute ("Value");
-					settings.Add (key.Value, value.Value);
-				}
-				return settings;
-			}
-		}
-
 		class StringSerializer : IValueSerializer<string>
 		{
 			public string Read (XElement node)
