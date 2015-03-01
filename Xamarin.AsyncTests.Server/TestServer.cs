@@ -68,8 +68,7 @@ namespace Xamarin.AsyncTests.Server
 			cancellationToken.ThrowIfCancellationRequested ();
 			var connection = await app.PortableSupport.ServerHost.CreatePipe (cancellationToken);
 
-			var framework = app.GetLocalTestFramework ();
-			var serverApp = new PipeApp (app.PortableSupport, framework);
+			var serverApp = new PipeApp (app.PortableSupport, app.Framework);
 
 			var server = await StartServer (serverApp, connection.Server, cancellationToken);
 			var client = await StartClient (app, connection.Client, cancellationToken);
@@ -137,41 +136,39 @@ namespace Xamarin.AsyncTests.Server
 
 			public override Task<TestFramework> GetTestFramework (CancellationToken cancellationToken)
 			{
-				return Task.Run (() => App.GetLocalTestFramework ());
+				return Task.FromResult (App.Framework);
 			}
 		}
 
 		class PipeApp : TestApp
 		{
+			IPortableSupport support;
 			SettingsBag settings;
 			TestFramework framework;
 
 			public PipeApp (IPortableSupport support, TestFramework framework)
-				: base (support)
 			{
+				this.support = support;
 				this.framework = framework;
 
 				settings = SettingsBag.CreateDefault ();
 			}
 
-			#region implemented abstract members of TestApp
-
-			public override TestFramework GetLocalTestFramework ()
-			{
-				return framework;
+			public IPortableSupport PortableSupport {
+				get { return support; }
 			}
 
-			public override TestLogger Logger {
-				get {
-					throw new NotImplementedException ();
-				}
+			public TestFramework Framework {
+				get { return framework; }
 			}
 
-			public override SettingsBag Settings {
+			public TestLogger Logger {
+				get { throw new ServerErrorException (); }
+			}
+
+			public SettingsBag Settings {
 				get { return settings; }
 			}
-
-			#endregion
 		}
 
 		class PipeServer : TestServer

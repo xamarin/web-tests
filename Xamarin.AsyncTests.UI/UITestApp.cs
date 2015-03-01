@@ -58,25 +58,37 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public override TestLogger Logger {
+		public IPortableSupport PortableSupport {
+			get { return support; }
+		}
+
+		public TestFramework Framework {
+			get { return framework; }
+		}
+
+		public TestLogger Logger {
 			get { return logger; }
 		}
 
-		public override SettingsBag Settings {
+		public SettingsBag Settings {
 			get { return settings; }
 		}
 
 		readonly TestLogger logger;
 		readonly SettingsBag settings;
+		readonly TestFramework framework;
+		readonly IPortableSupport support;
 
 		public UITestApp (IPortableSupport support, SettingsBag settings, Assembly assembly)
-			: base (support)
 		{
+			this.support = support;
 			this.settings = settings;
 
 			Assembly = assembly;
 
 			logger = new TestLogger (new UILogger (this));
+
+			framework = TestFramework.GetLocalFramework (Assembly, PortableSupport, Logger, Settings);
 
 			ServerManager = new ServerManager (this);
 
@@ -133,11 +145,6 @@ namespace Xamarin.AsyncTests.UI
 		protected internal void LogMessage (string message)
 		{
 			SD.Debug.WriteLine (message);
-		}
-
-		public override TestFramework GetLocalTestFramework ()
-		{
-			return TestFramework.GetLocalFramework (Assembly, PortableSupport, Logger, Settings);
 		}
 	}
 }

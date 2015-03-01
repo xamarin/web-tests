@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.Server
 			: base (app, stream)
 		{
 			support = app.PortableSupport;
-			localFramework = app.GetLocalTestFramework ();
+			localFramework = app.Framework;
 			startTcs = new TaskCompletionSource<object> ();
 		}
 

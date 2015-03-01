@@ -51,7 +51,7 @@ namespace Xamarin.AsyncTests.Server
 			: base (connection)
 		{
 			App = connection.App;
-			LocalFramework = App.GetLocalTestFramework ();
+			LocalFramework = App.Framework;
 		}
 
 		TestFrameworkClient RemoteObject<TestFrameworkClient,TestFrameworkServant>.Client {

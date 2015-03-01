@@ -40,27 +40,22 @@ namespace Xamarin.AsyncTests.Framework
 {
 	using Portable;
 
-	public abstract class TestApp
+	public interface TestApp
 	{
-		readonly IPortableSupport support;
-
-		public abstract TestLogger Logger {
+		TestLogger Logger {
 			get;
 		}
 
-		public abstract SettingsBag Settings {
+		SettingsBag Settings {
 			get;
 		}
 
-		public IPortableSupport PortableSupport {
-			get { return support; }
+		TestFramework Framework {
+			get;
 		}
 
-		public TestApp (IPortableSupport support)
-		{
-			this.support = support;
+		IPortableSupport PortableSupport {
+			get;
 		}
-
-		public abstract TestFramework GetLocalTestFramework ();
 	}
 }
