@@ -15,7 +15,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Xamarin.WebTests.PortableIm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.AsyncTests.Sample", "Xamarin.AsyncTests.Sample\Xamarin.AsyncTests.Sample.csproj", "{50F3B858-C105-4599-8B52-81372E172F47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMac", "TestMac\TestMac.csproj", "{B215EC4B-1B74-446D-A51B-2CC9DDAE1252}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MacUI", "MacUI\MacUI.csproj", "{B215EC4B-1B74-446D-A51B-2CC9DDAE1252}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
