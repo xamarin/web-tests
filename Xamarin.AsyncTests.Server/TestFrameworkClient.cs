@@ -89,11 +89,6 @@ namespace Xamarin.AsyncTests.Server
 		{
 			return RemoteObjectManager.GetRemoteTestSuite (this, cancellationToken);
 		}
-
-		public override Task<TestCase> ResolveTest (TestContext ctx, ITestPath path, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException ();
-		}
 	}
 }
 

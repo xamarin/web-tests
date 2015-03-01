@@ -66,11 +66,6 @@ namespace Xamarin.AsyncTests.Server
 		{
 			return LocalFramework.LoadTestSuite (cancellationToken);
 		}
-
-		public Task<TestCase> ResolveTest (TestContext ctx, ITestPath path, CancellationToken cancellationToken)
-		{
-			return LocalFramework.ResolveTest (ctx, path, cancellationToken);
-		}
 	}
 }
 

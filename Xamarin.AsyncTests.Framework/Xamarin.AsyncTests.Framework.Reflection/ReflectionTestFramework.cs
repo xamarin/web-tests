@@ -91,13 +91,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			configuration = new TestConfiguration (provider, Settings);
 			name = new TestName (Assembly.GetName ().Name);
 		}
-
-		public override Task<TestCase> ResolveTest (TestContext ctx, ITestPath path, CancellationToken cancellationToken)
-		{
-			var element = path.SerializePath ();
-			var node = TestSerializer.DeserializePath (ctx, element);
-			return Task.FromResult<TestCase> (new PathBasedTestCase (node));
-		}
 	}
 }
 

@@ -57,8 +57,6 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public abstract Task<TestCase> ResolveTest (TestContext ctx, ITestPath path, CancellationToken cancellationToken);
-
 		public abstract Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken);
 	}
 }
