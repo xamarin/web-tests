@@ -39,12 +39,7 @@ namespace TestMac
 {
 	public class TestResultModel : TestListNode
 	{
-		public TestSuite Suite {
-			get;
-			private set;
-		}
-
-		public TestContext Context {
+		public TestSession Session {
 			get;
 			private set;
 		}
@@ -59,17 +54,16 @@ namespace TestMac
 			private set;
 		}
 
-		public TestResultModel (TestSuite suite, TestContext ctx, TestResult result, TestName name = null)
+		public TestResultModel (TestSession session, TestResult result, TestName name = null)
 		{
-			Suite = suite;
-			Context = ctx;
+			Session = session;
 			Result = result;
 			TestName = name ?? result.Name;
 		}
 
 		protected override IEnumerable<TestListNode> ResolveChildren ()
 		{
-			return Result.Children.Select (c => new TestResultModel (Suite, Context, c));
+			return Result.Children.Select (c => new TestResultModel (Session, c));
 		}
 
 		public override string Name {
@@ -167,7 +161,7 @@ namespace TestMac
 		{
 			if (testCase != null)
 				return testCase;
-			if (Result == null || Result.Path == null || Context == null)
+			if (Result == null || Result.Path == null || Session == null)
 				return null;
 
 			ResolveTestCase ();
@@ -176,12 +170,14 @@ namespace TestMac
 
 		async void ResolveTestCase ()
 		{
+			#if FIXME
 			var serialized = Result.Path.SerializePath ();
-			var result = await Suite.ResolveFromPath (Context, serialized, CancellationToken.None);
+			var result = await Session.Suite.ResolveFromPath (Context, serialized, CancellationToken.None);
 
 			WillChangeValue ("TestCase");
-			testCase = new TestCaseModel (Suite, Context, result);
+			testCase = new TestCaseModel (Session, result);
 			DidChangeValue ("TestCase");
+			#endif
 		}
 
 		TestCaseModel testCase;

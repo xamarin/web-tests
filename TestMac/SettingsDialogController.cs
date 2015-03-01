@@ -59,14 +59,14 @@ namespace TestMac
 			base.AwakeFromNib ();
 
 			var ui = AppDelegate.Instance.MacUI;
-			ui.ServerManager.TestSuite.PropertyChanged += (sender, e) => OnTestSuiteChanged (e);
-			OnTestSuiteChanged (ui.ServerManager.TestSuite.Value);
+			ui.ServerManager.TestSession.PropertyChanged += (sender, e) => OnTestSessionChanged (e);
+			OnTestSessionChanged (ui.ServerManager.TestSession.Value);
 		}
 
-		void OnTestSuiteChanged (TestSuite suite)
+		void OnTestSessionChanged (TestSession session)
 		{
-			if (suite != null) {
-				Configuration = suite.Framework.Configuration;
+			if (session != null) {
+				Configuration = session.Framework.Configuration;
 				foreach (var category in Configuration.Categories) {
 					var model = new TestCategoryModel (category);
 					CategoriesController.AddObject (model);

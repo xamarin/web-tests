@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.UI
 			get { return startCommand; }
 		}
 
-		public readonly InstanceProperty<TestSuite> TestSuite = new InstanceProperty<TestSuite> ("TestSuite", null);
+		public readonly InstanceProperty<TestSession> TestSession = new InstanceProperty<TestSession> ("TestSession", null);
 
 		public ServerManager (UITestApp app)
 			: base (app, null)
@@ -54,15 +54,14 @@ namespace Xamarin.AsyncTests.UI
 
 		protected async Task<bool> OnRun (TestServer instance, CancellationToken cancellationToken)
 		{
-			var suite = instance.Session.Suite;
-			SetStatusMessage ("Got test suite from server: {0}", suite);
-			TestSuite.Value = suite;
+			TestSession.Value = instance.Session;
+			SetStatusMessage ("Got test session from server: {0}", instance.Session);
 			return await instance.WaitForExit (cancellationToken).ConfigureAwait (false);
 		}
 
 		protected async Task OnStop (TestServer instance, CancellationToken cancellationToken)
 		{
-			TestSuite.Value = null;
+			TestSession.Value = null;
 			SetStatusMessage ("Server stopped.");
 			await instance.Stop (cancellationToken);
 		}

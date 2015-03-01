@@ -65,7 +65,10 @@ namespace Xamarin.AsyncTests.UI
 
 			startTime = DateTime.Now;
 
-			var result = await parameters.Test.Run (parameters.Context, cancellationToken);
+			throw new NotImplementedException ();
+
+			#if FIXME
+			var result = await parameters.Test.Run (parameters.Session, cancellationToken);
 
 			var elapsed = DateTime.Now - startTime;
 
@@ -77,6 +80,7 @@ namespace Xamarin.AsyncTests.UI
 			OnRefresh ();
 
 			return result;
+			#endif
 		}
 
 		void OnClear ()
@@ -134,7 +138,7 @@ namespace Xamarin.AsyncTests.UI
 
 		string GetStatusMessage (string prefix = null)
 		{
-			if (!App.ServerManager.TestSuite.HasValue)
+			if (!App.ServerManager.TestSession.HasValue)
 				return prefix ?? "No test loaded.";
 			var sb = new StringBuilder ();
 			if (prefix != null) {

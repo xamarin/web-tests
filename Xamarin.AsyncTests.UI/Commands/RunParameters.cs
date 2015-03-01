@@ -31,7 +31,7 @@ namespace Xamarin.AsyncTests.UI
 
 	public class RunParameters
 	{
-		public TestContext Context {
+		public TestSession Session {
 			get;
 			private set;
 		}
@@ -51,9 +51,9 @@ namespace Xamarin.AsyncTests.UI
 			private set;
 		}
 
-		public RunParameters (TestContext context, TestCase test, TestName name = null, int repeat = 0)
+		public RunParameters (TestSession session, TestCase test, TestName name = null, int repeat = 0)
 		{
-			Context = context;
+			Session = session;
 			Test = test;
 			Name = name ?? test.Name;
 			RepeatCount = repeat;

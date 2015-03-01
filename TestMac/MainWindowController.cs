@@ -87,10 +87,10 @@ namespace TestMac
 		{
 			var ui = AppDelegate.Instance.MacUI;
 
-			var parameters = new RunParameters (node.TestCase.Context, node.TestCase.Test);
+			var parameters = new RunParameters (node.TestCase.Session, node.TestCase.Test);
 			var result = await ui.TestRunner.Run.Execute (parameters);
 
-			var model = new TestResultModel (node.TestCase.Suite, node.TestCase.Context, result);
+			var model = new TestResultModel (node.TestCase.Session, result);
 			node.AddChild (model);
 		}
 
@@ -131,7 +131,7 @@ namespace TestMac
 				var root = doc.Root;
 				var result = Connection.ReadTestResult (root);
 
-				var model = new TestResultModel (null, null, result);
+				var model = new TestResultModel (null, result);
 				TestResultController.AddObject (model);
 			}
 		}

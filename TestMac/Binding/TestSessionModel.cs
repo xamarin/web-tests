@@ -36,12 +36,7 @@ namespace TestMac
 {
 	public class TestSessionModel : TestListNode
 	{
-		public OldTestSession Session {
-			get;
-			private set;
-		}
-
-		public TestSuite Suite {
+		public TestSession Session {
 			get;
 			private set;
 		}
@@ -51,21 +46,20 @@ namespace TestMac
 			private set;
 		}
 
-		public TestSessionModel (OldTestSession session)
+		public TestSessionModel (TestSession session)
 		{
 			Session = session;
-			Suite = session.Suite;
 
 			Initialize ();
 		}
 
 		async void Initialize ()
 		{
-			var test = await Suite.GetRootTestCase (CancellationToken.None);
+			var test = await Session.Suite.GetRootTestCase (CancellationToken.None);
 			Console.WriteLine ("GOT ROOT TEST: {0}", test);
 
 			if (test != null) {
-				var model = new TestCaseModel (Suite, Session.Context, test);
+				var model = new TestCaseModel (Session, test);
 				AddChild (model);
 			}
 		}
@@ -83,7 +77,7 @@ namespace TestMac
 		#region implemented abstract members of TestListItem
 
 		public override string Name {
-			get { return Suite.Framework.Name; }
+			get { return Session.Framework.Name; }
 		}
 
 		public override TestStatus TestStatus {

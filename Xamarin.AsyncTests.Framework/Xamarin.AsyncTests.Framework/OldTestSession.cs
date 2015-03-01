@@ -63,6 +63,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		[Obsolete ("REMOVE")]
 		public TestContext Context {
 			get;
 			private set;
