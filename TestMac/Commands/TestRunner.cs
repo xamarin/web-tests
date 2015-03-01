@@ -45,7 +45,7 @@ namespace Xamarin.AsyncTests.MacUI
 			get { return App.Context; }
 		}
 
-		public TestRunner (UITestApp app)
+		public TestRunner (MacUI app)
 			: base (app, app.ServerManager)
 		{
 			runCommand = new RunCommand (this);

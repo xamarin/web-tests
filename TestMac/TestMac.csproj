@@ -88,7 +88,6 @@
     <Compile Include="AppDelegate.designer.cs">
       <DependentUpon>AppDelegate.cs</DependentUpon>
     </Compile>
-    <Compile Include="MacUI.cs" />
     <Compile Include="Binding\UIBinding.cs" />
     <Compile Include="Binding\TestResultModel.cs" />
     <Compile Include="TestResultList.cs" />
@@ -126,7 +125,7 @@
     <Compile Include="Commands\ServerMode.cs" />
     <Compile Include="Commands\ServerParameters.cs" />
     <Compile Include="Commands\TestRunner.cs" />
-    <Compile Include="UITestApp.cs" />
+    <Compile Include="MacUI.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />

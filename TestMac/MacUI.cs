@@ -1,10 +1,10 @@
 ﻿//
-// MacUI.cs
+// UITestApp.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,22 +24,62 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Text;
+using SD = System.Diagnostics;
+using System.ComponentModel;
 using System.Reflection;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Sample;
-using Xamarin.WebTests;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.WebTests.Portable;
+using Xamarin.AsyncTests.Sample;
 
 namespace Xamarin.AsyncTests.MacUI
 {
-	public class MacUI : UITestApp
+	using Portable;
+	using Framework;
+
+	public class MacUI : TestApp
 	{
-		MacUI (IPortableSupport support, SettingsBag settings, Assembly assembly)
-			: base (support, settings, assembly)
-		{
+		public Assembly Assembly {
+			get;
+			private set;
 		}
+
+		public TestApp Context {
+			get { return this; }
+		}
+
+		public ServerManager ServerManager {
+			get;
+			private set;
+		}
+
+		public TestRunner TestRunner {
+			get;
+			private set;
+		}
+
+		public IPortableSupport PortableSupport {
+			get { return support; }
+		}
+
+		public TestFramework Framework {
+			get { return framework; }
+		}
+
+		public TestLogger Logger {
+			get { return logger; }
+		}
+
+		public SettingsBag Settings {
+			get { return settings; }
+		}
+
+		readonly TestLogger logger;
+		readonly SettingsBag settings;
+		readonly TestFramework framework;
+		readonly IPortableSupport support;
 
 		public static MacUI Create ()
 		{
@@ -49,6 +89,72 @@ namespace Xamarin.AsyncTests.MacUI
 			return new MacUI (portable, settings, assembly);
 		}
 
+		MacUI (IPortableSupport support, SettingsBag settings, Assembly assembly)
+		{
+			this.support = support;
+			this.settings = settings;
+
+			Assembly = assembly;
+
+			logger = new TestLogger (new UILogger (this));
+
+			framework = TestFramework.GetLocalFramework (Assembly, Settings);
+
+			ServerManager = new ServerManager (this);
+
+			TestRunner = new TestRunner (this);
+		}
+
+		class UILogger : TestLoggerBackend
+		{
+			readonly MacUI App;
+
+			public UILogger (MacUI app)
+			{
+				App = app;
+			}
+
+			protected override void OnLogEvent (LogEntry entry)
+			{
+				switch (entry.Kind) {
+				case EntryKind.Debug:
+					App.LogDebug (entry.LogLevel, entry.Text);
+					break;
+
+				case EntryKind.Error:
+					if (entry.Error != null)
+						App.LogMessage (string.Format ("ERROR: {0}", entry.Error));
+					else
+						App.LogMessage (entry.Text);
+					break;
+
+				default:
+					App.LogMessage (entry.Text);
+					break;
+				}
+			}
+
+			protected override void OnStatisticsEvent (StatisticsEventArgs args)
+			{
+				App.TestRunner.OnStatisticsEvent (args);
+			}
+		}
+
+		protected internal void LogDebug (int level, string message)
+		{
+			if (level > Logger.LogLevel)
+				return;
+			SD.Debug.WriteLine (message);
+		}
+
+		protected internal void LogMessage (string format, params object[] args)
+		{
+			LogMessage (string.Format (format, args));
+		}
+
+		protected internal void LogMessage (string message)
+		{
+			SD.Debug.WriteLine (message);
+		}
 	}
 }
-

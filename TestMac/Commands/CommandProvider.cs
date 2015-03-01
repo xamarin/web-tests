@@ -34,12 +34,12 @@ namespace Xamarin.AsyncTests.MacUI
 {
 	public abstract class CommandProvider
 	{
-		public UITestApp App {
+		public MacUI App {
 			get;
 			private set;
 		}
 
-		public CommandProvider (UITestApp app, CommandProvider parent)
+		public CommandProvider (MacUI app, CommandProvider parent)
 		{
 			App = app;
 
@@ -97,7 +97,7 @@ namespace Xamarin.AsyncTests.MacUI
 	public abstract class CommandProvider<T> : CommandProvider
 		where T : class
 	{
-		public CommandProvider (UITestApp app, CommandProvider parent)
+		public CommandProvider (MacUI app, CommandProvider parent)
 			: base (app, parent)
 		{
 			instanceProperty = new InstanceProperty<T> ("Instance", null);

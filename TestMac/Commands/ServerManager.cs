@@ -46,7 +46,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 		public readonly InstanceProperty<TestSession> TestSession = new InstanceProperty<TestSession> ("TestSession", null);
 
-		public ServerManager (UITestApp app)
+		public ServerManager (MacUI app)
 			: base (app, null)
 		{
 			startCommand = new ServerCommand (this);
