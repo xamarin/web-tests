@@ -46,10 +46,6 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		SettingsBag Settings {
-			get;
-		}
-
 		TestFramework Framework {
 			get;
 		}

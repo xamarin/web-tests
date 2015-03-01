@@ -40,38 +40,26 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public SettingsBag Settings {
-			get;
-			private set;
-		}
-
 		public override TestName Name {
 			get { return name; }
-		}
-
-		public override IPortableSupport PortableSupport {
-			get { return support; }
-		}
-
-		protected internal override TestLogger Logger {
-			get { return logger; }
 		}
 
 		public override TestConfiguration Configuration {
 			get { return configuration; }
 		}
 
+		public override SettingsBag Settings {
+			get { return settings; }
+		}
+
 		TestName name;
 		TestConfiguration configuration;
-		IPortableSupport support;
-		TestLogger logger;
+		SettingsBag settings;
 
-		public ReflectionTestFramework (Assembly assembly, IPortableSupport support, TestLogger logger, SettingsBag settings)
+		public ReflectionTestFramework (Assembly assembly, SettingsBag settings)
 		{
 			Assembly = assembly;
-			this.support = support;
-			this.logger = logger;
-			Settings = settings;
+			this.settings = settings;
 
 			Resolve ();
 		}

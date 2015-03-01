@@ -88,7 +88,7 @@ namespace Xamarin.AsyncTests.UI
 
 			logger = new TestLogger (new UILogger (this));
 
-			framework = TestFramework.GetLocalFramework (Assembly, PortableSupport, Logger, Settings);
+			framework = TestFramework.GetLocalFramework (Assembly, Settings);
 
 			ServerManager = new ServerManager (this);
 

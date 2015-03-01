@@ -35,25 +35,20 @@ namespace Xamarin.AsyncTests.Framework
 
 	public abstract class TestFramework
 	{
-		public static TestFramework GetLocalFramework (
-			Assembly assembly, IPortableSupport support, TestLogger logger, SettingsBag settings)
+		public static TestFramework GetLocalFramework (Assembly assembly, SettingsBag settings)
 		{
-			return new ReflectionTestFramework (assembly, support, logger, settings);
+			return new ReflectionTestFramework (assembly, settings);
 		}
 
 		public abstract TestName Name {
 			get;
 		}
 
-		public abstract IPortableSupport PortableSupport {
+		public abstract SettingsBag Settings {
 			get;
 		}
 
 		public abstract TestConfiguration Configuration {
-			get;
-		}
-
-		protected internal abstract TestLogger Logger {
 			get;
 		}
 	}
