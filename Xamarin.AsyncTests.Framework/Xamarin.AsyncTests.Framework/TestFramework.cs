@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests.Framework
 			return new ReflectionTestFramework (assembly, settings);
 		}
 
-		public abstract TestName Name {
+		public abstract string Name {
 			get;
 		}
 

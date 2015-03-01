@@ -69,14 +69,14 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public OldTestSession (TestApp app, TestSuite suite)
-			: this (app, suite, new TestResult (suite.Framework.Name))
+			: this (app, suite, new TestResult (new TestName (suite.Framework.Name)))
 		{
 		}
 
 		public OldTestSession (TestSuite suite, IPortableSupport support, TestLogger logger, TestResult result = null)
 		{
 			Suite = suite;
-			Result = result ?? new TestResult (suite.Framework.Name);
+			Result = result ?? new TestResult (new TestName (suite.Framework.Name));
 			Logger = new TestLogger (TestLoggerBackend.CreateForResult (Result, logger));
 			PortableSupport = support;
 
