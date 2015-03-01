@@ -57,9 +57,6 @@ namespace TestMac
 			Suite = session.Suite;
 
 			Initialize ();
-
-			// Test = new TestCaseModel (Session.Context, Session.Test);
-			// Test.Test.Resolve (Session.Context);
 		}
 
 		async void Initialize ()

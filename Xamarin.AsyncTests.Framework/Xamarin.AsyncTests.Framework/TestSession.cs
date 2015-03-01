@@ -31,7 +31,6 @@ namespace Xamarin.AsyncTests.Framework
 {
 	using Portable;
 
-	[Obsolete ("Will probably go away.")]
 	public class TestSession
 	{
 		public DateTime Created {
