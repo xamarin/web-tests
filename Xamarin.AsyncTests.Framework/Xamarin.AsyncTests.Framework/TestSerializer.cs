@@ -393,6 +393,34 @@ namespace Xamarin.AsyncTests.Framework
 
 			return element;
 		}
+
+		public static string ReadString (XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("Text"))
+				throw new InternalErrorException ();
+
+			return node.Attribute ("Value").Value;
+		}
+
+		public static XElement WriteString (string instance)
+		{
+			var element = new XElement ("Text");
+			element.SetAttributeValue ("Value", instance);
+			return element;
+		}
+
+		public static XElement ReadElement (XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("Element"))
+				throw new InternalErrorException ();
+
+			return (XElement)node.FirstNode;
+		}
+
+		public static XElement WriteElement (XElement instance)
+		{
+			return new XElement ("Element", instance);
+		}
 	}
 }
 

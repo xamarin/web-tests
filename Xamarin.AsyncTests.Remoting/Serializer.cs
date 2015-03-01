@@ -36,15 +36,12 @@ namespace Xamarin.AsyncTests.Remoting
 
 	static class Serializer
 	{
-		public static readonly IValueSerializer<string> String = new StringSerializer ();
-		public static readonly IValueSerializer<XElement> Element = new ElementSerializer ();
-
 		public static XElement Write (object instance)
 		{
 			if (instance is string)
-				return String.Write ((string)instance);
+				return TestSerializer.WriteString ((string)instance);
 			else if (instance is XElement)
-				return Element.Write ((XElement)instance);
+				return TestSerializer.WriteElement ((XElement)instance);
 			else if (instance is TestName)
 				return TestSerializer.WriteTestName ((TestName)instance);
 			else if (instance is TestResult)
@@ -62,9 +59,9 @@ namespace Xamarin.AsyncTests.Remoting
 		public static T Read<T> (XElement node)
 		{
 			if (typeof(T) == typeof(string))
-				return ((IValueSerializer<T>)String).Read (node);
+				return (T)(object)TestSerializer.ReadString (node);
 			else if (typeof(T) == typeof(XElement))
-				return ((IValueSerializer<T>)Element).Read (node);
+				return (T)(object)TestSerializer.ReadElement (node);
 			else if (typeof(T) == typeof(TestName))
 				return (T)(object)TestSerializer.ReadTestName (node);
 			else if (typeof(T) == typeof(TestResult))
@@ -76,47 +73,6 @@ namespace Xamarin.AsyncTests.Remoting
 			else
 				throw new ServerErrorException ();
 		}
-
-		class StringSerializer : IValueSerializer<string>
-		{
-			public string Read (XElement node)
-			{
-				if (!node.Name.LocalName.Equals ("Text"))
-					throw new ServerErrorException ();
-
-				return node.Attribute ("Value").Value;
-			}
-
-			public XElement Write (string instance)
-			{
-				var element = new XElement ("Text");
-				element.SetAttributeValue ("Value", instance);
-				return element;
-			}
-		}
-
-		class ElementSerializer : IValueSerializer<XElement>
-		{
-			public XElement Read (XElement node)
-			{
-				if (!node.Name.LocalName.Equals ("Element"))
-					throw new ServerErrorException ();
-
-				return (XElement)node.FirstNode;
-			}
-
-			public XElement Write (XElement instance)
-			{
-				return new XElement ("Element", instance);
-			}
-		}
-	}
-
-	interface IValueSerializer<T>
-	{
-		T Read (XElement node);
-
-		XElement Write (T instance);
 	}
 }
 
