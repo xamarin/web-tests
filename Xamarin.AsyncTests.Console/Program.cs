@@ -36,9 +36,9 @@ using Xamarin.WebTests;
 using Xamarin.WebTests.Portable;
 using NDesk.Options;
 
-namespace Xamarin.AsyncTests.Client
+namespace Xamarin.AsyncTests.Console
 {
-	using Server;
+	using Remoting;
 	using Portable;
 	using Framework;
 
@@ -59,12 +59,20 @@ namespace Xamarin.AsyncTests.Client
 			private set;
 		}
 
-		public override SettingsBag Settings {
+		public SettingsBag Settings {
 			get { return settings; }
 		}
 
-		public override TestLogger Logger {
+		public TestLogger Logger {
 			get { return logger; }
+		}
+
+		public TestFramework Framework {
+			get { return framework; }
+		}
+
+		public IPortableSupport PortableSupport {
+			get { return support; }
 		}
 
 		public int LogLevel {
@@ -72,28 +80,15 @@ namespace Xamarin.AsyncTests.Client
 			private set;
 		}
 
-		public bool LogRemotely {
-			get;
-			private set;
-		}
-
-		public bool IsServer {
-			get { return Endpoint == null; }
-		}
-
 		public bool Wait {
 			get;
 			private set;
 		}
 
-		public bool Run {
-			get;
-			private set;
-		}
-
-		ConsoleClient connection;
+		TestSession session;
+		IPortableSupport support;
 		SettingsBag settings;
-		TestConfiguration config;
+		TestFramework framework;
 		TestLogger logger;
 
 		public static void Main (string[] args)
@@ -103,43 +98,40 @@ namespace Xamarin.AsyncTests.Client
 
 			var support = PortableSupportImpl.Initialize ();
 
-			var program = new Program (support, WebTestFeatures.Instance, args);
+			var program = new Program (support, args);
 
 			try {
-				var task = program.RunMain ();
+				var task = program.RunLocal ();
 				task.Wait ();
 			} catch (Exception ex) {
 				Debug ("ERROR: {0}", ex);
 			}
 		}
 
-		Program (IPortableSupport support, ITestConfigurationProvider configProvider, string[] args)
-			: base (support)
+		Program (IPortableSupport support, string[] args)
 		{
+			this.support = support;
+
 			LogLevel = -1;
 
 			var p = new OptionSet ();
 			p.Add ("settings=", v => SettingsFile = v);
 			p.Add ("connect=", v => Endpoint = GetEndpoint (v));
 			p.Add ("wait", v => Wait = true);
-			p.Add ("run", v => Run = true);
 			p.Add ("result=", v => ResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
-			p.Add ("log-remotely", v => LogRemotely = true);
 			var remaining = p.Parse (args);
 
 			settings = LoadSettings (SettingsFile);
 
-			if (remaining.Count > 0) {
-				Console.Error.WriteLine ("Failed to parse command-line args!");
-				Environment.Exit (255);
-				return;
-			}
-
-			config = new TestConfiguration (configProvider, settings);
+			if (remaining.Count > 0)
+				throw new InvalidOperationException ();
 
 			logger = new TestLogger (new ConsoleLogger (this));
 			logger.LogLevel = LogLevel;
+
+			var assembly = typeof(Sample.SampleFeatures).Assembly;
+			framework = TestFramework.GetLocalFramework (assembly, settings);
 		}
 
 		static void Debug (string message, params object[] args)
@@ -192,71 +184,26 @@ namespace Xamarin.AsyncTests.Client
 			}
 		}
 
-		Task RunMain ()
+		async Task RunLocal ()
 		{
-			if (Endpoint == null)
-				return RunServer ();
-			else
-				return RunClient ();
+			session = TestSession.CreateLocal (this, framework);
+			var test = await session.GetRootTestCase (CancellationToken.None);
+
+			Debug ("Got test: {0}", test);
+			var result = await session.Run (test, CancellationToken.None);
+			Debug ("Got result: {0}", result);
 		}
 
-		async Task RunServer ()
-		{
-			var listener = new TcpListener (IPAddress.Any, 8888);
-			listener.Start ();
-			await RunServer (listener);
-			listener.Stop ();
-		}
-
-		async Task RunServer (TcpListener listener)
-		{
-			Debug ("Server running");
-
-			var socket = await listener.AcceptSocketAsync ();
-			var stream = new NetworkStream (socket);
-
-			Debug ("Got remote connection from {0}.", socket.RemoteEndPoint);
-
-			connection = new ConsoleClient (this, stream);
-			await connection.RunClient (CancellationToken.None);
-
-			Debug ("Closed remote connection.");
-
-			connection = null;
-		}
-
-		async Task RunClient ()
-		{
-			await Task.Yield ();
-
-			var client = new TcpClient ();
-			await client.ConnectAsync (Endpoint.Address, Endpoint.Port);
-
-			var stream = client.GetStream ();
-			connection = new ConsoleClient (this, stream);
-			await connection.RunClient (CancellationToken.None);
-
-			Debug ("Closed remote connection.");
-
-			connection = null;
-		}
-
-		async void OnLogMessage (string message)
+		void OnLogMessage (string message)
 		{
 			Debug (message);
-			if (connection == null || !LogRemotely)
-				return;
-			await connection.LogMessage (message);
 		}
 
-		async void OnLogDebug (int level, string message)
+		void OnLogDebug (int level, string message)
 		{
 			if (level > Logger.LogLevel)
 				return;
 			Debug (message);
-			if (connection == null || !LogRemotely)
-				return;
-			await connection.LogMessage (message);
 		}
 
 		void OnStatisticsEvent (TestLoggerBackend.StatisticsEventArgs e)
@@ -304,11 +251,6 @@ namespace Xamarin.AsyncTests.Client
 			{
 				Program.OnStatisticsEvent (args);
 			}
-		}
-
-		public override TestFramework GetLocalTestFramework ()
-		{
-			return TestFramework.GetLocalFramework (typeof(WebTestFeatures).Assembly);
 		}
 	}
 }

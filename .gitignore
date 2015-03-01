@@ -11,3 +11,4 @@ TestResults
 *.userprefs
 /packages/
 result.xml
+/.DS_Store
