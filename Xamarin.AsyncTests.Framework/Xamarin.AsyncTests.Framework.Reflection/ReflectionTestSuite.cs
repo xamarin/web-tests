@@ -55,6 +55,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
+		public ReflectionTestCase RootTestCase {
+			get;
+			private set;
+		}
+
 		internal ReflectionTestSuite (ReflectionTestFramework framework)
 		{
 			Framework = framework;
@@ -63,6 +68,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var rootPath = new TestPath (Builder.Host, null, Builder.Parameter);
 			RootPath = new TestPathNode (Builder.TreeRoot, rootPath);
+			RootTestCase = new ReflectionTestCase (RootPath);
+		}
+
+		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
+		{
+			return Task.FromResult<TestCase> (RootTestCase);
 		}
 
 		TestPathNode IPathResolver.Node {
@@ -77,6 +88,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				throw new InternalErrorException ();
 			return RootPath;
 		}
+
+
 	}
 }
 

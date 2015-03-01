@@ -34,7 +34,7 @@ namespace Xamarin.AsyncTests.Server
 
 	class TestSuiteClient : TestSuite, ObjectClient<TestSuiteClient>, RemoteTestSuite
 	{
-		public TestSession Session {
+		public TestSessionClient Session {
 			get;
 			private set;
 		}
@@ -75,6 +75,11 @@ namespace Xamarin.AsyncTests.Server
 		internal static Task<TestSuiteClient> FromProxy (ObjectProxy proxy, CancellationToken cancellationToken)
 		{
 			return Task.FromResult ((TestSuiteClient)proxy);
+		}
+
+		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
+		{
+			return RemoteObjectManager.GetRootTestCase (Session, cancellationToken);
 		}
 	}
 }

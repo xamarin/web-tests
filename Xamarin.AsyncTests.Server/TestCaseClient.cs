@@ -83,11 +83,6 @@ namespace Xamarin.AsyncTests.Server
 		List<TestCaseClient> children;
 		List<TestCaseClient> parameters;
 
-		Task<IReadOnlyCollection<TestCase>> TestCase.GetParameters (TestSession session, CancellationToken cancellationToken)
-		{
-			return GetTestParameters (cancellationToken);
-		}
-
 		public async Task<IReadOnlyCollection<TestCase>> GetTestParameters (CancellationToken cancellationToken)
 		{
 			if (parameters != null)
@@ -125,11 +120,6 @@ namespace Xamarin.AsyncTests.Server
 			Path = new Serializer.PathWrapper (node.Element ("TestPath"));
 			Name = Serializer.TestName.Read (node.Element ("TestName"));
 			HasParameters = bool.Parse (node.Attribute ("HasParameters").Value);
-		}
-
-		Task<TestResult> TestCase.Run (TestSession session, CancellationToken cancellationToken)
-		{
-			return Run (cancellationToken);
 		}
 
 		public async Task<TestResult> Run (CancellationToken cancellationToken)

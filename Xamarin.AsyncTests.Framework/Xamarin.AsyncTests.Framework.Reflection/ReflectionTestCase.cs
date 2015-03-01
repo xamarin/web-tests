@@ -64,7 +64,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return Node.HasParameters; }
 		}
 
-		public Task<IReadOnlyCollection<TestCase>> GetParameters (TestSession session, CancellationToken cancellationToken)
+		public Task<IReadOnlyCollection<TestCase>> GetParameters (ReflectionTestSession session, CancellationToken cancellationToken)
 		{
 			return Task.Run<IReadOnlyCollection<TestCase>> (() => ResolveParameters ((ReflectionTestSession)session));
 		}
@@ -121,14 +121,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 		}
 
-		public Task<TestResult> Run (TestSession session, CancellationToken cancellationToken)
+		public async Task<TestResult> Run (ReflectionTestSession session, CancellationToken cancellationToken)
 		{
-			var ctx = ((ReflectionTestSession)session).RootContext;
-			return Run (ctx, cancellationToken);
-		}
+			var ctx = session.RootContext;
 
-		async Task<TestResult> Run (TestContext ctx, CancellationToken cancellationToken)
-		{
 			TestSerializer.Debug ("RUN: {0}", this);
 
 			var result = new TestResult (Name);

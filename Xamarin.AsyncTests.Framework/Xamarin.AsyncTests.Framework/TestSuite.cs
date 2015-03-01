@@ -43,5 +43,7 @@ namespace Xamarin.AsyncTests.Framework
 		TestFramework Framework {
 			get;
 		}
+
+		Task<TestCase> GetRootTestCase (CancellationToken cancellationToken);
 	}
 }

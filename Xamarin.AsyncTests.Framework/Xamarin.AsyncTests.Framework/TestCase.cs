@@ -54,10 +54,6 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		Task<IReadOnlyCollection<TestCase>> GetParameters (TestSession session, CancellationToken cancellationToken);
-
 		Task<IReadOnlyCollection<TestCase>> GetChildren (CancellationToken cancellationToken);
-
-		Task<TestResult> Run (TestSession session, CancellationToken cancellationToken);
 	}
 }
