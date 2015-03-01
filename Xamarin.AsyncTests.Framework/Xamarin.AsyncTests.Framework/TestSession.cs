@@ -43,13 +43,15 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public abstract TestSuite Suite {
+			get;
+		}
+
 		public TestSession (TestApp app, TestFramework framework)
 		{
 			App = app;
 			Framework = framework;
 		}
-
-		public abstract Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken);
 
 		public static TestSession CreateLocal (TestApp app, TestFramework framework)
 		{

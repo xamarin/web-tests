@@ -57,14 +57,8 @@ namespace Xamarin.AsyncTests.Server
 			: base (connection)
 		{
 			Session = session;
-		}
-
-		public async Task Initialize (EventSinkClient sink, TestLogger logger, CancellationToken cancellationToken)
-		{
-			cancellationToken.ThrowIfCancellationRequested ();
-			Suite = await Session.LoadTestSuite (cancellationToken).ConfigureAwait (false);
-
-			Context = sink.CreateContext (this);
+			Suite = Session.LocalSession.Suite;
+			Context = connection.EventSink.CreateContext (this);
 		}
 
 		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)

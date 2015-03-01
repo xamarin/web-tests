@@ -54,7 +54,7 @@ namespace Xamarin.AsyncTests.UI
 
 		protected async Task<bool> OnRun (TestServer instance, CancellationToken cancellationToken)
 		{
-			var suite = await instance.Session.LoadTestSuite (cancellationToken);
+			var suite = instance.Session.Suite;
 			SetStatusMessage ("Got test suite from server: {0}", suite);
 			TestSuite.Value = suite;
 			return await instance.WaitForExit (cancellationToken).ConfigureAwait (false);

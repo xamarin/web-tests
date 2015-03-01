@@ -56,11 +56,6 @@ namespace Xamarin.AsyncTests.Server
 		TestSessionServant RemoteObject<TestSessionClient, TestSessionServant>.Servant {
 			get { return this; }
 		}
-
-		public Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
-		{
-			return LocalSession.LoadTestSuite (cancellationToken);
-		}
 	}
 }
 

@@ -35,14 +35,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return (ReflectionTestFramework)base.Framework; }
 		}
 
+		public override TestSuite Suite {
+			get { return suite; }
+		}
+
+		TestSuite suite;
+
 		public ReflectionTestSession (TestApp app, ReflectionTestFramework framework)
 			: base (app, framework)
 		{
-		}
-
-		public override Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
-		{
-			return Task.FromResult<TestSuite> (new ReflectionTestSuite (Framework));
+			suite = new ReflectionTestSuite (framework);
 		}
 	}
 }

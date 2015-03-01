@@ -47,6 +47,12 @@ namespace Xamarin.AsyncTests.Server
 			get { return "TestSession"; }
 		}
 
+		public override TestSuite Suite {
+			get { return suite; }
+		}
+
+		TestSuite suite;
+
 		public TestSessionClient (ClientConnection connection, long objectID)
 			: base (connection.App, connection.LocalFramework)
 		{
@@ -62,9 +68,19 @@ namespace Xamarin.AsyncTests.Server
 			get { throw new ServerErrorException (); }
 		}
 
-		public override Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
+		public Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
 		{
 			return RemoteObjectManager.GetRemoteTestSuite (this, cancellationToken);
+		}
+
+		internal static async Task<TestSessionClient> FromProxy (ObjectProxy proxy, CancellationToken cancellationToken)
+		{
+			var session = (TestSessionClient)proxy;
+			if (session.suite != null)
+				return session;
+
+			session.suite = await RemoteObjectManager.GetRemoteTestSuite (session, cancellationToken).ConfigureAwait (false);
+			return session;
 		}
 	}
 }

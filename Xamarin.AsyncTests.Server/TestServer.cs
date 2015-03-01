@@ -106,7 +106,7 @@ namespace Xamarin.AsyncTests.Server
 			Connection.Debug ("GOT SESSION: {0}", Session);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			TestSuite = await Session.LoadTestSuite (cancellationToken);
+			TestSuite = Session.Suite;
 
 			Connection.Debug ("GOT TEST SUITE: {0}", TestSuite);
 		}
