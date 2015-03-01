@@ -72,7 +72,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		public override Task<IReadOnlyCollection<TestCase>> GetTestParameters (TestCase test, CancellationToken cancellationToken)
 		{
-			return test.GetParameters (RootContext, cancellationToken);
+			return test.GetParameters (this, cancellationToken);
 		}
 
 		public override Task<IReadOnlyCollection<TestCase>> GetTestChildren (TestCase test, CancellationToken cancellationToken)
@@ -82,7 +82,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		public override Task<TestResult> Run (TestCase test, CancellationToken cancellationToken)
 		{
-			return test.Run (RootContext, cancellationToken);
+			return test.Run (this, cancellationToken);
 		}
 	}
 }
