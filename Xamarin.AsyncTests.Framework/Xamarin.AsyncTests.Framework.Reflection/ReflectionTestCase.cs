@@ -30,9 +30,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class PathBasedTestCase : TestCase
+	class ReflectionTestCase : TestCase
 	{
 		public TestSuite Suite {
 			get;
@@ -53,7 +53,7 @@ namespace Xamarin.AsyncTests.Framework
 			get { return Node.Path; }
 		}
 
-		public PathBasedTestCase (TestPathNode node)
+		public ReflectionTestCase (TestPathNode node)
 		{
 			Node = node;
 			Suite = node.Tree.Builder.Suite;
@@ -74,27 +74,27 @@ namespace Xamarin.AsyncTests.Framework
 			return Task.Run<IReadOnlyCollection<TestCase>> (() => ResolveChildren ());
 		}
 
-		List<PathBasedTestCase> parameters;
-		List<PathBasedTestCase> children;
+		List<ReflectionTestCase> parameters;
+		List<ReflectionTestCase> children;
 
-		List<PathBasedTestCase> ResolveParameters (TestContext ctx)
+		List<ReflectionTestCase> ResolveParameters (TestContext ctx)
 		{
 			if (parameters != null)
 				return parameters;
 
 			Node.Resolve (ctx);
-			parameters = new List<PathBasedTestCase> ();
+			parameters = new List<ReflectionTestCase> ();
 			AddParameters (ctx, Node);
 			return parameters;
 		}
 
-		List<PathBasedTestCase> ResolveChildren ()
+		List<ReflectionTestCase> ResolveChildren ()
 		{
 			if (children != null)
 				return children;
 
 			Node.Resolve ();
-			children = new List<PathBasedTestCase> ();
+			children = new List<ReflectionTestCase> ();
 			AddChildren (Node);
 			return children;
 		}
@@ -105,7 +105,7 @@ namespace Xamarin.AsyncTests.Framework
 				if (child.Path.IsHidden || !child.Path.IsBrowseable) {
 					AddChildren (child);
 				} else {
-					children.Add (new PathBasedTestCase (child));
+					children.Add (new ReflectionTestCase (child));
 				}
 			}
 		}
@@ -116,7 +116,7 @@ namespace Xamarin.AsyncTests.Framework
 				if (child.Path.IsHidden || !child.Path.IsBrowseable) {
 					AddParameters (ctx, child);
 				} else {
-					parameters.Add (new PathBasedTestCase (child));
+					parameters.Add (new ReflectionTestCase (child));
 				}
 			}
 		}

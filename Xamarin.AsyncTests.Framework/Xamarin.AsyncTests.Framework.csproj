@@ -81,12 +81,12 @@
     <Compile Include="Xamarin.AsyncTests.Framework\IPathNode.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\IPathResolver.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestPathTree.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\PathBasedTestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestPathNode.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSession.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestSession.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestCase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

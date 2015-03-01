@@ -54,7 +54,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			RootContext = rootCtx;
 			suite = new ReflectionTestSuite (framework);
-			rootTest = new PathBasedTestCase (suite.RootPath);
+			rootTest = new ReflectionTestCase (suite.RootPath);
 		}
 
 		public override Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
@@ -66,7 +66,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			return Task.Run<TestCase> (() => {
 				var path = TestSerializer.DeserializePath (suite, RootContext, node);
-				return new PathBasedTestCase (path);
+				return new ReflectionTestCase (path);
 			});
 		}
 
