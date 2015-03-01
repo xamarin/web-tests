@@ -156,6 +156,23 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
+		class PathWrapper : ITestPath
+		{
+			readonly XElement node;
+
+			public PathWrapper (XElement node)
+			{
+				this.node = node;
+				if (node == null)
+					throw new InvalidOperationException();
+			}
+
+			public XElement SerializePath ()
+			{
+				return node;
+			}
+		}
+
 		public static SettingsBag ReadSettings (XElement node)
 		{
 			if (!node.Name.LocalName.Equals ("Settings"))
@@ -224,6 +241,88 @@ namespace Xamarin.AsyncTests.Framework
 
 			return element;
 		}
+
+		public static XElement WriteError (Exception error)
+		{
+			var element = new XElement ("Error");
+			element.SetAttributeValue ("Type", error.GetType ().FullName);
+			element.SetAttributeValue ("Message", error.Message);
+			if (error.StackTrace != null)
+				element.SetAttributeValue ("StackTrace", error.StackTrace);
+			return element;
+		}
+
+		public static Exception ReadError (XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("Error"))
+				throw new InternalErrorException ();
+
+			var type = node.Attribute ("Type").Value;
+			var message = node.Attribute ("Message").Value;
+			var stackAttr = node.Attribute ("StackTrace");
+			var stackTrace = stackAttr != null ? stackAttr.Value : null;
+			return new SavedException (type, message, stackTrace);
+		}
+
+		public static TestResult ReadTestResult (XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("TestResult"))
+				throw new InternalErrorException ();
+
+			var name = TestSerializer.ReadTestName (node.Element ("TestName"));
+			var status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
+
+			var result = new TestResult (name, status);
+
+			var path = node.Element ("TestPath");
+			if (path != null)
+				result.Path = new PathWrapper (path);
+
+			foreach (var error in node.Elements ("Error")) {
+				result.AddError (ReadError (error));
+			}
+
+			foreach (var message in node.Elements ("Message")) {
+				result.AddMessage (message.Attribute ("Text").Value);
+			}
+
+			foreach (var child in node.Elements ("TestResult")) {
+				result.AddChild (ReadTestResult (child));
+			}
+
+			return result;
+		}
+
+		public static XElement WriteTestResult (TestResult instance)
+		{
+			var element = new XElement ("TestResult");
+			element.SetAttributeValue ("Status", instance.Status.ToString ());
+
+			element.Add (TestSerializer.WriteTestName (instance.Name));
+
+			if (instance.Path != null) {
+				element.Add (instance.Path.SerializePath ());
+			}
+
+			foreach (var error in instance.Errors) {
+				element.Add (WriteError (error));
+			}
+
+			if (instance.HasMessages) {
+				foreach (var message in instance.Messages) {
+					var msgElement = new XElement ("Message");
+					msgElement.SetAttributeValue ("Text", message);
+					element.Add (msgElement);
+				}
+			}
+
+			foreach (var child in instance.Children)
+				element.Add (WriteTestResult (child));
+
+			return element;
+		}
+
+
 	}
 }
 

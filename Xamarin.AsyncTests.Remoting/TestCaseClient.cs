@@ -122,10 +122,27 @@ namespace Xamarin.AsyncTests.Remoting
 			if (!node.Name.LocalName.Equals ("TestCase"))
 				throw new ServerErrorException ();
 
-			Path = new Serializer.PathWrapper (node.Element ("TestPath"));
+			Path = new PathWrapper (node.Element ("TestPath"));
 			Name = TestSerializer.ReadTestName (node.Element ("TestName"));
 			HasParameters = bool.Parse (node.Attribute ("HasParameters").Value);
 			HasChildren = bool.Parse (node.Attribute ("HasChildren").Value);
+		}
+
+		class PathWrapper : ITestPath
+		{
+			readonly XElement node;
+
+			public PathWrapper (XElement node)
+			{
+				this.node = node;
+				if (node == null)
+					throw new InvalidOperationException();
+			}
+
+			public XElement SerializePath ()
+			{
+				return node;
+			}
 		}
 
 		public async Task<TestResult> Run (CancellationToken cancellationToken)

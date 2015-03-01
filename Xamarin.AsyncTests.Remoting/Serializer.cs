@@ -38,7 +38,6 @@ namespace Xamarin.AsyncTests.Remoting
 	{
 		public static readonly IValueSerializer<string> String = new StringSerializer ();
 		public static readonly IValueSerializer<XElement> Element = new ElementSerializer ();
-		public static readonly IValueSerializer<TestResult> TestResult = new TestResultSerializer ();
 		public static readonly IValueSerializer<TestLoggerBackend.LogEntry> LogEntry = new LogEntrySerializer ();
 		public static readonly IValueSerializer<TestLoggerBackend.StatisticsEventArgs> StatisticsEventArgs = new StatisticsEventArgsSerializer ();
 
@@ -51,7 +50,7 @@ namespace Xamarin.AsyncTests.Remoting
 			else if (instance is TestName)
 				return TestSerializer.WriteTestName ((TestName)instance);
 			else if (instance is TestResult)
-				return TestResult.Write ((TestResult)instance);
+				return TestSerializer.WriteTestResult ((TestResult)instance);
 			else if (instance is TestLoggerBackend.LogEntry)
 				return LogEntry.Write ((TestLoggerBackend.LogEntry)instance);
 			else if (instance is TestLoggerBackend.StatisticsEventArgs)
@@ -71,7 +70,7 @@ namespace Xamarin.AsyncTests.Remoting
 			else if (typeof(T) == typeof(TestName))
 				return (T)(object)TestSerializer.ReadTestName (node);
 			else if (typeof(T) == typeof(TestResult))
-				return ((IValueSerializer<T>)TestResult).Read (node);
+				return (T)(object)TestSerializer.ReadTestResult (node);
 			else if (typeof(T) == typeof(TestLoggerBackend.LogEntry))
 				return ((IValueSerializer<T>)LogEntry).Read (node);
 			else if (typeof(T) == typeof(TestLoggerBackend.StatisticsEventArgs))
@@ -111,89 +110,6 @@ namespace Xamarin.AsyncTests.Remoting
 			public XElement Write (XElement instance)
 			{
 				return new XElement ("Element", instance);
-			}
-		}
-
-		static XElement WriteError (Exception error)
-		{
-			var element = new XElement ("Error");
-			element.SetAttributeValue ("Type", error.GetType ().FullName);
-			element.SetAttributeValue ("Message", error.Message);
-			if (error.StackTrace != null)
-				element.SetAttributeValue ("StackTrace", error.StackTrace);
-			return element;
-		}
-
-		static Exception ReadError (XElement node)
-		{
-			if (!node.Name.LocalName.Equals ("Error"))
-				throw new ServerErrorException ();
-
-			var type = node.Attribute ("Type").Value;
-			var message = node.Attribute ("Message").Value;
-			var stackAttr = node.Attribute ("StackTrace");
-			var stackTrace = stackAttr != null ? stackAttr.Value : null;
-			return new SavedException (type, message, stackTrace);
-		}
-
-		class TestResultSerializer : IValueSerializer<TestResult>
-		{
-			public TestResult Read (XElement node)
-			{
-				if (!node.Name.LocalName.Equals ("TestResult"))
-					throw new ServerErrorException ();
-
-				var name = TestSerializer.ReadTestName (node.Element ("TestName"));
-				var status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
-
-				var result = new TestResult (name, status);
-
-				var path = node.Element ("TestPath");
-				if (path != null)
-					result.Path = new PathWrapper (path);
-
-				foreach (var error in node.Elements ("Error")) {
-					result.AddError (ReadError (error));
-				}
-
-				foreach (var message in node.Elements ("Message")) {
-					result.AddMessage (message.Attribute ("Text").Value);
-				}
-
-				foreach (var child in node.Elements ("TestResult")) {
-					result.AddChild (Read (child));
-				}
-
-				return result;
-			}
-
-			public XElement Write (TestResult instance)
-			{
-				var element = new XElement ("TestResult");
-				element.SetAttributeValue ("Status", instance.Status.ToString ());
-
-				element.Add (TestSerializer.WriteTestName (instance.Name));
-
-				if (instance.Path != null) {
-					element.Add (instance.Path.SerializePath ());
-				}
-
-				foreach (var error in instance.Errors) {
-					element.Add (WriteError (error));
-				}
-
-				if (instance.HasMessages) {
-					foreach (var message in instance.Messages) {
-						var msgElement = new XElement ("Message");
-						msgElement.SetAttributeValue ("Text", message);
-						element.Add (msgElement);
-					}
-				}
-
-				foreach (var child in instance.Children)
-					element.Add (Write (child));
-
-				return element;
 			}
 		}
 
@@ -272,23 +188,6 @@ namespace Xamarin.AsyncTests.Remoting
 				}
 
 				return element;
-			}
-		}
-
-		internal class PathWrapper : ITestPath
-		{
-			readonly XElement node;
-
-			public PathWrapper (XElement node)
-			{
-				this.node = node;
-				if (node == null)
-					throw new InvalidOperationException();
-			}
-
-			public XElement SerializePath ()
-			{
-				return node;
 			}
 		}
 	}

@@ -109,12 +109,12 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public static TestResult ReadTestResult (XElement node)
 		{
-			return Serializer.TestResult.Read (node);
+			return TestSerializer.ReadTestResult (node);
 		}
 
 		public static XElement WriteTestResult (TestResult result)
 		{
-			return Serializer.TestResult.Write (result);
+			return TestSerializer.WriteTestResult (result);
 		}
 
 		#endregion
