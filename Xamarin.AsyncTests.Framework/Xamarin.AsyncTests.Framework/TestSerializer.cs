@@ -322,7 +322,77 @@ namespace Xamarin.AsyncTests.Framework
 			return element;
 		}
 
+		public static TestLoggerBackend.StatisticsEventArgs ReadStatisticsEvent (XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("TestStatisticsEventArgs"))
+				throw new InternalErrorException ();
 
+			var instance = new TestLoggerBackend.StatisticsEventArgs ();
+			instance.Type = (TestLoggerBackend.StatisticsEventType)Enum.Parse (typeof(TestLoggerBackend.StatisticsEventType), node.Attribute ("Type").Value);
+			instance.Status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
+			instance.IsRemote = true;
+
+			var name = node.Element ("TestName");
+			if (name != null)
+				instance.Name = TestSerializer.ReadTestName (name);
+
+			return instance;
+		}
+
+		public static XElement WriteStatisticsEvent (TestLoggerBackend.StatisticsEventArgs instance)
+		{
+			if (instance.IsRemote)
+				throw new InternalErrorException ();
+
+			var element = new XElement ("TestStatisticsEventArgs");
+			element.SetAttributeValue ("Type", instance.Type.ToString ());
+			element.SetAttributeValue ("Status", instance.Status.ToString ());
+
+			if (instance.Name != null)
+				element.Add (TestSerializer.WriteTestName (instance.Name));
+
+			return element;
+		}
+
+		public static TestLoggerBackend.LogEntry ReadLogEntry (XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("LogEntry"))
+				throw new InternalErrorException ();
+
+			TestLoggerBackend.EntryKind kind;
+			if (!Enum.TryParse (node.Attribute ("Kind").Value, out kind))
+				throw new InternalErrorException ();
+
+			var text = node.Attribute ("Text").Value;
+			var logLevel = int.Parse (node.Attribute ("LogLevel").Value);
+
+			Exception exception = null;
+			var error = node.Element ("Error");
+			if (error != null) {
+				var errorMessage = error.Attribute ("Text").Value;
+				var stackTrace = error.Attribute ("StackTrace");
+				exception = new SavedException (errorMessage, stackTrace != null ? stackTrace.Value : null);
+			}
+
+			return new TestLoggerBackend.LogEntry (kind, logLevel, text, exception);
+		}
+
+		public static XElement WriteLogEntry (TestLoggerBackend.LogEntry instance)
+		{
+			var element = new XElement ("LogEntry");
+			element.SetAttributeValue ("Kind", instance.Kind);
+			element.SetAttributeValue ("LogLevel", instance.LogLevel);
+			element.SetAttributeValue ("Text", instance.Text);
+
+			if (instance.Error != null) {
+				var error = new XElement ("Error");
+				error.SetAttributeValue ("Text", instance.Error.Message);
+				error.SetAttributeValue ("StackTrace", instance.Error.StackTrace);
+				element.Add (error);
+			}
+
+			return element;
+		}
 	}
 }
 
