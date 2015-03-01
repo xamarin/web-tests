@@ -55,16 +55,6 @@ namespace Xamarin.AsyncTests.Server
 			Suite = Session.LocalSession.Suite;
 		}
 
-		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
-		{
-			return Suite.GetRootTestCase (cancellationToken);
-		}
-
-		public Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken)
-		{
-			return Suite.ResolveFromPath (Session.RootContext, path, cancellationToken);
-		}
-
 		TestSuiteClient RemoteObject<TestSuiteClient,TestSuiteServant>.Client {
 			get { throw new ServerErrorException (); }
 		}

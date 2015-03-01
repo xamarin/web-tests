@@ -36,10 +36,10 @@ namespace Xamarin.AsyncTests.Server
 	class TestCaseClient : TestCase, ObjectClient<TestCaseClient>, RemoteTestCase
 	{
 		TestSuite TestCase.Suite {
-			get { return Suite; }
+			get { return Session.Suite; }
 		}
 
-		public TestSuiteClient Suite {
+		public TestSessionClient Session {
 			get;
 			private set;
 		}
@@ -73,10 +73,10 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public TestCaseClient (TestSuiteClient suite, long objectID)
+		public TestCaseClient (TestSessionClient session, long objectID)
 		{
-			Suite = suite;
-			Connection = suite.Connection;
+			Session = session;
+			Connection = session.Connection;
 			ObjectID = objectID;
 		}
 
@@ -164,7 +164,7 @@ namespace Xamarin.AsyncTests.Server
 			var list = new List<TestCaseClient> ();
 
 			foreach (var element in node.Elements ()) {
-				var proxy = RemoteObjectManager.ReadTestCase (Suite, element);
+				var proxy = RemoteObjectManager.ReadTestCase (Session, element);
 				var test = await FromProxy (proxy, cancellationToken);
 				list.Add (test);
 			}

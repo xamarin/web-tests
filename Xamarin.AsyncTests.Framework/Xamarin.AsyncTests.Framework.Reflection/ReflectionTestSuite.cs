@@ -63,22 +63,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var rootPath = new TestPath (Builder.Host, null, Builder.Parameter);
 			RootPath = new TestPathNode (Builder.TreeRoot, rootPath);
-			test = new PathBasedTestCase (RootPath);
-		}
-
-		TestCase test;
-
-		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
-		{
-			return Task.FromResult (test);
-		}
-
-		public Task<TestCase> ResolveFromPath (TestContext ctx, XElement node, CancellationToken cancellationToken)
-		{
-			return Task.Run<TestCase> (() => {
-				var path = TestSerializer.DeserializePath (this, ctx, node);
-				return new PathBasedTestCase (path);
-			});
 		}
 
 		TestPathNode IPathResolver.Node {

@@ -64,16 +64,6 @@ namespace Xamarin.AsyncTests.Server
 			ObjectID = objectID;
 		}
 
-		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
-		{
-			return RemoteObjectManager.GetRootTestCase (this, cancellationToken);
-		}
-
-		public Task<TestCase> ResolveFromPath (TestContext ctx, XElement node, CancellationToken cancellationToken)
-		{
-			return RemoteObjectManager.ResolveFromPath (this, node, cancellationToken);
-		}
-
 		TestSuiteClient RemoteObject<TestSuiteClient,TestSuiteServant>.Client {
 			get { return this; }
 		}

@@ -35,7 +35,7 @@ namespace Xamarin.AsyncTests.Server
 
 	class TestCaseServant : ObjectServant, RemoteTestCase
 	{
-		public TestSuiteServant Suite {
+		public TestSessionServant Session {
 			get;
 			private set;
 		}
@@ -49,10 +49,10 @@ namespace Xamarin.AsyncTests.Server
 			get { return "TestCase"; }
 		}
 
-		public TestCaseServant (ServerConnection connection, TestSuiteServant suite, TestCase test)
+		public TestCaseServant (ServerConnection connection, TestSessionServant session, TestCase test)
 			: base (connection)
 		{
-			Suite = suite;
+			Session = session;
 			Test = test;
 		}
 
@@ -74,8 +74,8 @@ namespace Xamarin.AsyncTests.Server
 				return parameters;
 
 			parameters = new List<TestCaseServant> ();
-			foreach (var parameter in await Test.GetParameters (Suite.Session.RootContext, cancellationToken)) {
-				var parameterServant = new TestCaseServant ((ServerConnection)Connection, Suite, parameter);
+			foreach (var parameter in await Test.GetParameters (Session.RootContext, cancellationToken)) {
+				var parameterServant = new TestCaseServant ((ServerConnection)Connection, Session, parameter);
 				parameters.Add (parameterServant);
 			}
 
@@ -89,7 +89,7 @@ namespace Xamarin.AsyncTests.Server
 
 			children = new List<TestCaseServant> ();
 			foreach (var child in await Test.GetChildren (cancellationToken)) {
-				var childServant = new TestCaseServant ((ServerConnection)Connection, Suite, child);
+				var childServant = new TestCaseServant ((ServerConnection)Connection, Session, child);
 				children.Add (childServant);
 			}
 
@@ -109,7 +109,7 @@ namespace Xamarin.AsyncTests.Server
 			var tcs = new TaskCompletionSource<TestResult> ();
 
 			Task.Factory.StartNew (() => {
-				Test.Run (Suite.Session.RootContext, cancellationToken).ContinueWith (task => {
+				Test.Run (Session.RootContext, cancellationToken).ContinueWith (task => {
 					if (task.IsFaulted)
 						tcs.SetException (task.Exception);
 					else if (task.IsCanceled)

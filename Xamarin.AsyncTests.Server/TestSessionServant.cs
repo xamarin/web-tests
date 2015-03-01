@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -51,13 +52,12 @@ namespace Xamarin.AsyncTests.Server
 		public TestSessionServant (ServerConnection connection)
 			: base (connection)
 		{
-			LocalSession = TestSession.CreateLocal (connection.App, connection.App.Framework);
-
 			RootContext = new TestContext (
 				connection.App.PortableSupport, connection.EventSink.LoggerClient,
-				LocalSession.Framework.Configuration.AsReadOnly (),
-				new TestName (LocalSession.Framework.Name), null);
+				connection.App.Framework.Configuration.AsReadOnly (),
+				new TestName (connection.App.Framework.Name), null);
 
+			LocalSession = TestSession.CreateLocal (connection.App, connection.App.Framework, RootContext);
 		}
 
 		TestSessionClient RemoteObject<TestSessionClient, TestSessionServant>.Client {
@@ -66,6 +66,16 @@ namespace Xamarin.AsyncTests.Server
 
 		TestSessionServant RemoteObject<TestSessionClient, TestSessionServant>.Servant {
 			get { return this; }
+		}
+
+		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
+		{
+			return LocalSession.GetRootTestCase (cancellationToken);
+		}
+
+		public Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken)
+		{
+			return LocalSession.ResolveFromPath (path, cancellationToken);
 		}
 	}
 }

@@ -64,6 +64,11 @@ namespace Xamarin.AsyncTests.Framework
 			return new ReflectionTestSession (app, (ReflectionTestFramework)framework, rootCtx);
 		}
 
+		public static TestSession CreateLocal (TestApp app, TestFramework framework, TestContext rootCtx)
+		{
+			return new ReflectionTestSession (app, (ReflectionTestFramework)framework, rootCtx);
+		}
+
 		public abstract Task<TestCase> GetRootTestCase (CancellationToken cancellationToken);
 
 		public abstract Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken);

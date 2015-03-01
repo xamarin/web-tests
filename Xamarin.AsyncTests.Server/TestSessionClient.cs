@@ -82,12 +82,12 @@ namespace Xamarin.AsyncTests.Server
 
 		public override Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
 		{
-			return suite.GetRootTestCase (cancellationToken);
+			return RemoteObjectManager.GetRootTestCase (this, cancellationToken);
 		}
 
 		public override Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken)
 		{
-			return RemoteObjectManager.ResolveFromPath (suite, path, cancellationToken);
+			return RemoteObjectManager.ResolveFromPath (this, path, cancellationToken);
 		}
 
 		public override Task<IReadOnlyCollection<TestCase>> GetTestChildren (TestCase test, CancellationToken cancellationToken)
