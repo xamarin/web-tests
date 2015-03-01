@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
+using System.Reflection;
 using SD = System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
@@ -124,13 +125,17 @@ namespace Xamarin.AsyncTests.Console
 
 			settings = LoadSettings (SettingsFile);
 
-			if (remaining.Count > 0)
+			Assembly assembly;
+			if (remaining.Count == 1)
+				assembly = Assembly.LoadFile (remaining [0]);
+			else if (remaining.Count == 0)
+				assembly = typeof(Sample.SampleFeatures).Assembly;
+			else
 				throw new InvalidOperationException ();
 
 			logger = new TestLogger (new ConsoleLogger (this));
 			logger.LogLevel = LogLevel;
 
-			var assembly = typeof(Sample.SampleFeatures).Assembly;
 			framework = TestFramework.GetLocalFramework (assembly, settings);
 		}
 
