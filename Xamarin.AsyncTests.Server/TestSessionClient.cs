@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -51,7 +53,7 @@ namespace Xamarin.AsyncTests.Server
 			get { return suite; }
 		}
 
-		TestSuite suite;
+		TestSuiteClient suite;
 
 		public TestSessionClient (ClientConnection connection, long objectID)
 			: base (connection.App, connection.LocalFramework)
@@ -68,11 +70,6 @@ namespace Xamarin.AsyncTests.Server
 			get { throw new ServerErrorException (); }
 		}
 
-		public Task<TestSuite> LoadTestSuite (CancellationToken cancellationToken)
-		{
-			return RemoteObjectManager.GetRemoteTestSuite (this, cancellationToken);
-		}
-
 		internal static async Task<TestSessionClient> FromProxy (ObjectProxy proxy, CancellationToken cancellationToken)
 		{
 			var session = (TestSessionClient)proxy;
@@ -81,6 +78,31 @@ namespace Xamarin.AsyncTests.Server
 
 			session.suite = await RemoteObjectManager.GetRemoteTestSuite (session, cancellationToken).ConfigureAwait (false);
 			return session;
+		}
+
+		public override Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
+		{
+			return suite.GetRootTestCase (cancellationToken);
+		}
+
+		public override Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
+		}
+
+		public override Task<IReadOnlyCollection<TestCase>> GetTestChildren (TestCase test, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
+		}
+
+		public override Task<IReadOnlyCollection<TestCase>> GetTestParameters (TestCase test, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
+		}
+
+		public override Task<TestResult> Run (TestCase test, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }

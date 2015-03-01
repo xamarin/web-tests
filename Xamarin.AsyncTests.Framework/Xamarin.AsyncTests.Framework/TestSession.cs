@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -57,6 +59,16 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			return new ReflectionTestSession (app, (ReflectionTestFramework)framework);
 		}
+
+		public abstract Task<TestCase> GetRootTestCase (CancellationToken cancellationToken);
+
+		public abstract Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken);
+
+		public abstract Task<IReadOnlyCollection<TestCase>> GetTestParameters (TestCase test, CancellationToken cancellationToken);
+
+		public abstract Task<IReadOnlyCollection<TestCase>> GetTestChildren (TestCase test, CancellationToken cancellationToken);
+
+		public abstract Task<TestResult> Run (TestCase test, CancellationToken cancellationToken);
 	}
 }
 

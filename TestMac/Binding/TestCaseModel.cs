@@ -69,12 +69,10 @@ namespace TestMac
 
 			List<TestCase> list = new List<TestCase> ();
 
-			#if FIXME
 			if (Test.HasParameters) {
-				var parameterResult = await Test.GetParameters (Context, CancellationToken.None);
+				var parameterResult = await Session.GetTestParameters (Test, CancellationToken.None);
 				list.AddRange (parameterResult);
 			}
-			#endif
 
 			var childrenResult = await Test.GetChildren (CancellationToken.None);
 			list.AddRange (childrenResult);

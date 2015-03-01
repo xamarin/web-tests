@@ -177,7 +177,7 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		public static async Task<TestSuite> GetRemoteTestSuite (
+		public static async Task<TestSuiteClient> GetRemoteTestSuite (
 			TestSessionClient session, CancellationToken cancellationToken)
 		{
 			var command = new GetRemoteTestSuiteCommand ();

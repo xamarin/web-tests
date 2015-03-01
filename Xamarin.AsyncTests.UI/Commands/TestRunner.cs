@@ -65,10 +65,7 @@ namespace Xamarin.AsyncTests.UI
 
 			startTime = DateTime.Now;
 
-			throw new NotImplementedException ();
-
-			#if FIXME
-			var result = await parameters.Test.Run (parameters.Session, cancellationToken);
+			var result = await parameters.Session.Run (parameters.Test, cancellationToken);
 
 			var elapsed = DateTime.Now - startTime;
 
@@ -80,7 +77,6 @@ namespace Xamarin.AsyncTests.UI
 			OnRefresh ();
 
 			return result;
-			#endif
 		}
 
 		void OnClear ()

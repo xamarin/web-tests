@@ -81,6 +81,11 @@ namespace Xamarin.AsyncTests.Server
 		TestSuiteServant RemoteObject<TestSuiteClient, TestSuiteServant>.Servant {
 			get { throw new ServerErrorException (); }
 		}
+
+		internal static Task<TestSuiteClient> FromProxy (ObjectProxy proxy, CancellationToken cancellationToken)
+		{
+			return Task.FromResult ((TestSuiteClient)proxy);
+		}
 	}
 }
 

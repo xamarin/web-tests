@@ -170,14 +170,12 @@ namespace TestMac
 
 		async void ResolveTestCase ()
 		{
-			#if FIXME
 			var serialized = Result.Path.SerializePath ();
-			var result = await Session.Suite.ResolveFromPath (Context, serialized, CancellationToken.None);
+			var result = await Session.ResolveFromPath (serialized, CancellationToken.None);
 
 			WillChangeValue ("TestCase");
 			testCase = new TestCaseModel (Session, result);
 			DidChangeValue ("TestCase");
-			#endif
 		}
 
 		TestCaseModel testCase;

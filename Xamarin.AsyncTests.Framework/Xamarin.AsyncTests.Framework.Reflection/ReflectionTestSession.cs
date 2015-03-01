@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -45,6 +47,31 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			: base (app, framework)
 		{
 			suite = new ReflectionTestSuite (framework);
+		}
+
+		public override Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
+		{
+			return suite.GetRootTestCase (cancellationToken);
+		}
+
+		public override Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
+		}
+
+		public override Task<IReadOnlyCollection<TestCase>> GetTestParameters (TestCase test, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
+		}
+
+		public override Task<IReadOnlyCollection<TestCase>> GetTestChildren (TestCase test, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
+		}
+
+		public override Task<TestResult> Run (TestCase test, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }
