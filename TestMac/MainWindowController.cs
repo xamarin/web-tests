@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Foundation;
 using AppKit;
 
-using Xamarin.AsyncTests.UI;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Server;

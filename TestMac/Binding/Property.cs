@@ -26,7 +26,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests.MacUI
 {
 	public abstract class Property<T>
 	{

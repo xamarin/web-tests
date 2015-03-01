@@ -27,7 +27,6 @@ using System;
 using System.Reflection;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.UI;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.AsyncTests.Sample;
 using Xamarin.WebTests;

@@ -1,5 +1,5 @@
 ﻿//
-// InstanceProperty.cs
+// NotifyCanExecute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,32 +24,58 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests.MacUI
 {
-	public class InstanceProperty<T> : Property<T>, INotifyStateChanged
-		where T : class
+	class NotifyStateChanged : INotifyStateChanged
 	{
-		public InstanceProperty (string name, T defaultValue)
-			: base (name, defaultValue)
+		List<INotifyStateChanged> listeners;
+		bool currentState;
+
+		public NotifyStateChanged (params INotifyStateChanged[] parentListeners)
 		{
+			listeners = new List<INotifyStateChanged> (parentListeners);
+
+			foreach (var listener in listeners)
+				listener.StateChanged += (sender, e) => Update ();
+			Update ();
 		}
 
-		public bool HasValue {
-			get { return Value != null; }
+		public void Register (INotifyStateChanged listener)
+		{
+			listeners.Add (listener);
+			listener.StateChanged += (sender, e) => Update ();
+			Update ();
 		}
 
-		protected override void OnPropertyChanged (T value)
+		void OnStateChanged ()
 		{
-			base.OnPropertyChanged (value);
 			if (StateChanged != null)
-				StateChanged (this, value != null);
+				StateChanged (null, currentState);
+		}
+
+		internal void Update ()
+		{
+			var newState = true;
+			foreach (var listener in listeners) {
+				if (!listener.State) {
+					newState = false;
+					break;
+				}
+			}
+
+			if (newState == currentState)
+				return;
+
+			currentState = newState;
+			OnStateChanged ();
 		}
 
 		public event EventHandler<bool> StateChanged;
 
-		bool INotifyStateChanged.State {
-			get { return HasValue; }
+		public bool State {
+			get { return currentState; }
 		}
 	}
 }

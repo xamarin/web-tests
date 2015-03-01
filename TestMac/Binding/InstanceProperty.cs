@@ -1,5 +1,5 @@
 ﻿//
-// RunParameters.cs
+// InstanceProperty.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,38 +25,31 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests.MacUI
 {
-	using Framework;
-
-	public class RunParameters
+	public class InstanceProperty<T> : Property<T>, INotifyStateChanged
+		where T : class
 	{
-		public TestSession Session {
-			get;
-			private set;
-		}
-
-		public TestCase Test {
-			get;
-			private set;
-		}
-
-		public TestName Name {
-			get;
-			private set;
-		}
-
-		public int RepeatCount {
-			get;
-			private set;
-		}
-
-		public RunParameters (TestSession session, TestCase test, TestName name = null, int repeat = 0)
+		public InstanceProperty (string name, T defaultValue)
+			: base (name, defaultValue)
 		{
-			Session = session;
-			Test = test;
-			Name = name ?? test.Name;
-			RepeatCount = repeat;
+		}
+
+		public bool HasValue {
+			get { return Value != null; }
+		}
+
+		protected override void OnPropertyChanged (T value)
+		{
+			base.OnPropertyChanged (value);
+			if (StateChanged != null)
+				StateChanged (this, value != null);
+		}
+
+		public event EventHandler<bool> StateChanged;
+
+		bool INotifyStateChanged.State {
+			get { return HasValue; }
 		}
 	}
 }

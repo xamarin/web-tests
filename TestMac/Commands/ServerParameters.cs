@@ -1,5 +1,5 @@
 ﻿//
-// NotifyCanExecute.cs
+// ServerParameters.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,58 +24,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests.MacUI
 {
-	class NotifyStateChanged : INotifyStateChanged
+	public class ServerParameters
 	{
-		List<INotifyStateChanged> listeners;
-		bool currentState;
-
-		public NotifyStateChanged (params INotifyStateChanged[] parentListeners)
-		{
-			listeners = new List<INotifyStateChanged> (parentListeners);
-
-			foreach (var listener in listeners)
-				listener.StateChanged += (sender, e) => Update ();
-			Update ();
+		public ServerMode Mode {
+			get;
+			private set;
 		}
 
-		public void Register (INotifyStateChanged listener)
-		{
-			listeners.Add (listener);
-			listener.StateChanged += (sender, e) => Update ();
-			Update ();
+		public string Address {
+			get;
+			private set;
 		}
 
-		void OnStateChanged ()
+		public ServerParameters (ServerMode mode = ServerMode.Local, string address = null)
 		{
-			if (StateChanged != null)
-				StateChanged (null, currentState);
+			Mode = mode;
+			Address = address;
 		}
 
-		internal void Update ()
+		public static ServerParameters CreateLocal ()
 		{
-			var newState = true;
-			foreach (var listener in listeners) {
-				if (!listener.State) {
-					newState = false;
-					break;
-				}
-			}
-
-			if (newState == currentState)
-				return;
-
-			currentState = newState;
-			OnStateChanged ();
+			return new ServerParameters (ServerMode.Local);
 		}
 
-		public event EventHandler<bool> StateChanged;
-
-		public bool State {
-			get { return currentState; }
+		public static ServerParameters CreatePipe ()
+		{
+			return new ServerParameters (ServerMode.CreatePipe);
 		}
 	}
 }

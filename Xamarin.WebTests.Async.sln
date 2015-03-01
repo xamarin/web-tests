@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Portable",
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Xamarin.WebTests.PortableImpl", "support\Xamarin.WebTests.PortableImpl\Xamarin.WebTests.PortableImpl.shproj", "{751E9E00-2330-4A9D-938B-FF7C86B55E22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.AsyncTests.UI", "Xamarin.AsyncTests.UI\Xamarin.AsyncTests.UI.csproj", "{3BB74FFF-573D-4685-94D8-850D719DE99E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.AsyncTests.Sample", "Xamarin.AsyncTests.Sample\Xamarin.AsyncTests.Sample.csproj", "{50F3B858-C105-4599-8B52-81372E172F47}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMac", "TestMac\TestMac.csproj", "{B215EC4B-1B74-446D-A51B-2CC9DDAE1252}"
@@ -35,30 +33,6 @@ Global
 		DebugWin|Any CPU = DebugWin|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Ad-Hoc|iPhone.ActiveCfg = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Ad-Hoc|iPhone.Build.0 = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.AppStore|iPhone.ActiveCfg = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.AppStore|iPhone.Build.0 = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Debug|x86.Build.0 = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Debug-Alpha|x86.ActiveCfg = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Debug-Alpha|x86.Build.0 = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Release|iPhone.Build.0 = Release|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Release|x86.ActiveCfg = Release|Any CPU
-		{3BB74FFF-573D-4685-94D8-850D719DE99E}.Release|x86.Build.0 = Release|Any CPU
 		{50F3B858-C105-4599-8B52-81372E172F47}.Ad-Hoc|iPhone.ActiveCfg = Debug|Any CPU
 		{50F3B858-C105-4599-8B52-81372E172F47}.Ad-Hoc|iPhone.Build.0 = Debug|Any CPU
 		{50F3B858-C105-4599-8B52-81372E172F47}.AppStore|iPhone.ActiveCfg = Debug|Any CPU

@@ -30,7 +30,6 @@ using Foundation;
 using AppKit;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.UI;
 
 namespace Xamarin.AsyncTests.MacUI
 {

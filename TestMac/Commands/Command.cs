@@ -28,7 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests.MacUI
 {
 	public abstract class Command
 	{

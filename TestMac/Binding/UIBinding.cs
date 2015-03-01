@@ -25,7 +25,6 @@
 // THE SOFTWARE.
 using System;
 using AppKit;
-using Xamarin.AsyncTests.UI;
 
 namespace Xamarin.AsyncTests.MacUI
 {

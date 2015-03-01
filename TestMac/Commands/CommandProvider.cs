@@ -30,7 +30,7 @@ using System.Windows.Input;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests.MacUI
 {
 	public abstract class CommandProvider
 	{

@@ -114,6 +114,19 @@
     <Compile Include="UISettings.cs" />
     <Compile Include="Binding\TestSessionModel.cs" />
     <Compile Include="Binding\TestListNode.cs" />
+    <Compile Include="Binding\BooleanProperty.cs" />
+    <Compile Include="Binding\InstanceProperty.cs" />
+    <Compile Include="Binding\Property.cs" />
+    <Compile Include="Commands\Command.cs" />
+    <Compile Include="Commands\CommandProvider.cs" />
+    <Compile Include="Commands\INotifyStateChanged.cs" />
+    <Compile Include="Commands\NotifyStateChanged.cs" />
+    <Compile Include="Commands\RunParameters.cs" />
+    <Compile Include="Commands\ServerManager.cs" />
+    <Compile Include="Commands\ServerMode.cs" />
+    <Compile Include="Commands\ServerParameters.cs" />
+    <Compile Include="Commands\TestRunner.cs" />
+    <Compile Include="UITestApp.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -137,10 +150,6 @@
     <ProjectReference Include="..\Xamarin.AsyncTests.Sample\Xamarin.AsyncTests.Sample.csproj">
       <Project>{50F3B858-C105-4599-8B52-81372E172F47}</Project>
       <Name>Xamarin.AsyncTests.Sample</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xamarin.AsyncTests.UI\Xamarin.AsyncTests.UI.csproj">
-      <Project>{3BB74FFF-573D-4685-94D8-850D719DE99E}</Project>
-      <Name>Xamarin.AsyncTests.UI</Name>
     </ProjectReference>
     <ProjectReference Include="..\Xamarin.AsyncTests.Server\Xamarin.AsyncTests.Server.csproj">
       <Project>{584654DF-6888-4B18-AB82-3C773CD45436}</Project>

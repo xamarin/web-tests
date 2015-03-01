@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.UI
+namespace Xamarin.AsyncTests.MacUI
 {
 	public class BooleanProperty : Property<bool>, INotifyStateChanged
 	{
