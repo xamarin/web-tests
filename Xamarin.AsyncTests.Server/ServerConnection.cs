@@ -68,7 +68,7 @@ namespace Xamarin.AsyncTests.Server
 			eventSink = await EventSinkClient.FromProxy (handshake.EventSink, cancellationToken);
 
 			if (handshake.Settings != null)
-				App.Framework.Settings.Merge (handshake.Settings);
+				App.Settings.Merge (handshake.Settings);
 
 			Debug ("Server Handshake done");
 

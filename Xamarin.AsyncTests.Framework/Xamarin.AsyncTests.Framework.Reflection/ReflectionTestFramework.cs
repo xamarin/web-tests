@@ -48,10 +48,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return configuration; }
 		}
 
-		public override SettingsBag Settings {
-			get { return settings; }
-		}
-
 		TestName name;
 		TestConfiguration configuration;
 		SettingsBag settings;
@@ -71,7 +67,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var instanceMember = type.GetRuntimeField ("Instance");
 			var provider = (ITestConfigurationProvider)instanceMember.GetValue (null);
 
-			configuration = new TestConfiguration (provider, Settings);
+			configuration = new TestConfiguration (provider, settings);
 			name = new TestName (Assembly.GetName ().Name);
 		}
 	}

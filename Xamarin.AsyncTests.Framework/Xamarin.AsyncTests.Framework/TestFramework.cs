@@ -44,10 +44,6 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public abstract SettingsBag Settings {
-			get;
-		}
-
 		public abstract TestConfiguration Configuration {
 			get;
 		}

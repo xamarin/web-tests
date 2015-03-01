@@ -64,7 +64,7 @@ namespace Xamarin.AsyncTests.Server
 
 		internal override async Task OnStart (CancellationToken cancellationToken)
 		{
-			var handshake = new Handshake { WantStatisticsEvents = true, Settings = App.Framework.Settings };
+			var handshake = new Handshake { WantStatisticsEvents = true, Settings = App.Settings };
 
 			await RemoteObjectManager.Handshake (this, App.Logger.Backend, handshake, cancellationToken);
 
