@@ -38,7 +38,6 @@ namespace Xamarin.AsyncTests
 	{
 		TestName name;
 		TestStatus status = TestStatus.None;
-		TestCase test;
 		ITestPath path;
 		TestResult parent;
 
@@ -66,19 +65,6 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		[Obsolete ("KILL")]
-		public TestCase Test {
-			get { return test; }
-			internal set {
-				lock (this) {
-					WantToModify ();
-					test = value;
-				}
-				OnPropertyChanged ("Test");
-				OnPropertyChanged ("CanRun");
-			}
-		}
-
 		public ITestPath Path {
 			get { return path; }
 			internal set {
@@ -88,10 +74,6 @@ namespace Xamarin.AsyncTests
 				}
 				OnPropertyChanged ("Path");
 			}
-		}
-
-		public bool CanRun {
-			get { return test != null; }
 		}
 
 		public TestResult (TestName name, Exception error)
