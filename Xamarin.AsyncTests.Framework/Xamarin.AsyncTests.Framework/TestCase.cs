@@ -50,6 +50,10 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		bool HasChildren {
+			get;
+		}
+
 		bool HasParameters {
 			get;
 		}

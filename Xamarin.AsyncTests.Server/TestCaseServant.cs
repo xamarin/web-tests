@@ -60,6 +60,7 @@ namespace Xamarin.AsyncTests.Server
 		{
 			var node = new XElement ("TestCase");
 			node.SetAttributeValue ("HasParameters", Test.HasParameters);
+			node.SetAttributeValue ("HasChildren", Test.HasChildren);
 			node.Add (Serializer.TestName.Write (Test.Name));
 			node.Add (Test.Path.SerializePath ());
 			return node;

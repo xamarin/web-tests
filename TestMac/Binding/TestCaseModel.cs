@@ -59,7 +59,8 @@ namespace TestMac
 			fullName = test.Name.FullName;
 			serialized = Test.Path.SerializePath ().ToString ();
 
-			Initialize ();
+			if (Test.HasChildren || Test.HasParameters)
+				Initialize ();
 		}
 
 		async void Initialize ()
@@ -74,8 +75,10 @@ namespace TestMac
 				list.AddRange (parameterResult);
 			}
 
-			var childrenResult = await Test.GetChildren (CancellationToken.None);
-			list.AddRange (childrenResult);
+			if (Test.HasChildren) {
+				var childrenResult = await Test.GetChildren (CancellationToken.None);
+				list.AddRange (childrenResult);
+			}
 
 			lock (this) {
 				children = list;

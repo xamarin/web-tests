@@ -57,6 +57,10 @@ namespace Xamarin.AsyncTests.Framework
 			get { return Path.Host.HasParameters; }
 		}
 
+		public bool HasChildren {
+			get { return Tree.Builder.HasChildren; }
+		}
+
 		public TestPathNode Clone ()
 		{
 			return new TestPathNode (Tree, Path.Clone ());

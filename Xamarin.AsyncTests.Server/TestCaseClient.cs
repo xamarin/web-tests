@@ -73,6 +73,11 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
+		public bool HasChildren {
+			get;
+			private set;
+		}
+
 		public TestCaseClient (TestSessionClient session, long objectID)
 		{
 			Session = session;
@@ -120,6 +125,7 @@ namespace Xamarin.AsyncTests.Server
 			Path = new Serializer.PathWrapper (node.Element ("TestPath"));
 			Name = Serializer.TestName.Read (node.Element ("TestName"));
 			HasParameters = bool.Parse (node.Attribute ("HasParameters").Value);
+			HasChildren = bool.Parse (node.Attribute ("HasChildren").Value);
 		}
 
 		public async Task<TestResult> Run (CancellationToken cancellationToken)

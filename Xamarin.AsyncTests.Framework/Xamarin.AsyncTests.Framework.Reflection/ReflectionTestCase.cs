@@ -60,6 +60,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Name = node.Path.Name;
 		}
 
+		public bool HasChildren {
+			get { return Node.HasChildren; }
+		}
+
 		public bool HasParameters {
 			get { return Node.HasParameters; }
 		}
