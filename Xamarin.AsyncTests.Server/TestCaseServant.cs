@@ -74,7 +74,7 @@ namespace Xamarin.AsyncTests.Server
 				return parameters;
 
 			parameters = new List<TestCaseServant> ();
-			foreach (var parameter in await Test.GetParameters (Suite.Context, cancellationToken)) {
+			foreach (var parameter in await Test.GetParameters (Suite.Session.RootContext, cancellationToken)) {
 				var parameterServant = new TestCaseServant ((ServerConnection)Connection, Suite, parameter);
 				parameters.Add (parameterServant);
 			}
@@ -109,7 +109,7 @@ namespace Xamarin.AsyncTests.Server
 			var tcs = new TaskCompletionSource<TestResult> ();
 
 			Task.Factory.StartNew (() => {
-				Test.Run (Suite.Context, cancellationToken).ContinueWith (task => {
+				Test.Run (Suite.Session.RootContext, cancellationToken).ContinueWith (task => {
 					if (task.IsFaulted)
 						tcs.SetException (task.Exception);
 					else if (task.IsCanceled)

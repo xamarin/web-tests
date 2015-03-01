@@ -41,11 +41,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return suite; }
 		}
 
+		internal TestContext RootContext {
+			get;
+			private set;
+		}
+
 		TestSuite suite;
 
-		public ReflectionTestSession (TestApp app, ReflectionTestFramework framework)
+		public ReflectionTestSession (TestApp app, ReflectionTestFramework framework, TestContext rootCtx)
 			: base (app, framework)
 		{
+			RootContext = rootCtx;
 			suite = new ReflectionTestSuite (framework);
 		}
 
@@ -56,22 +62,22 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		public override Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException ();
+			return suite.ResolveFromPath (RootContext, path, cancellationToken);
 		}
 
 		public override Task<IReadOnlyCollection<TestCase>> GetTestParameters (TestCase test, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException ();
+			return test.GetParameters (RootContext, cancellationToken);
 		}
 
 		public override Task<IReadOnlyCollection<TestCase>> GetTestChildren (TestCase test, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException ();
+			return test.GetChildren (cancellationToken);
 		}
 
 		public override Task<TestResult> Run (TestCase test, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException ();
+			return test.Run (RootContext, cancellationToken);
 		}
 	}
 }

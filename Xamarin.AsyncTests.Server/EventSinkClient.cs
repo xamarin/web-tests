@@ -61,19 +61,6 @@ namespace Xamarin.AsyncTests.Server
 			ObjectID = objectID;
 		}
 
-		public TestContext CreateContext (TestSuiteServant suite)
-		{
-			return new TestContext (
-				Connection.App.PortableSupport, LoggerClient,
-				suite.Session.LocalSession.Framework.Configuration.AsReadOnly (),
-				new TestName (suite.Session.LocalSession.Framework.Name), null, null);
-		}
-
-		public TestContext CreateContext (TestContext parent, TestName name, TestResult result)
-		{
-			return parent.CreateChild (name, result, null);
-		}
-
 		void Initialize ()
 		{
 			if (LoggerClient != null)

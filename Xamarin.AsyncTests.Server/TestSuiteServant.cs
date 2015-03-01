@@ -44,11 +44,6 @@ namespace Xamarin.AsyncTests.Server
 			private set;
 		}
 
-		public TestContext Context {
-			get;
-			private set;
-		}
-
 		public override string Type {
 			get { return "TestSuite"; }
 		}
@@ -58,7 +53,6 @@ namespace Xamarin.AsyncTests.Server
 		{
 			Session = session;
 			Suite = Session.LocalSession.Suite;
-			Context = connection.EventSink.CreateContext (this);
 		}
 
 		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
@@ -68,7 +62,7 @@ namespace Xamarin.AsyncTests.Server
 
 		public Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken)
 		{
-			return Suite.ResolveFromPath (Context, path, cancellationToken);
+			return Suite.ResolveFromPath (Session.RootContext, path, cancellationToken);
 		}
 
 		TestSuiteClient RemoteObject<TestSuiteClient,TestSuiteServant>.Client {

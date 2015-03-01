@@ -85,7 +85,6 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestPathNode.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSuite.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\OldTestSession.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSession.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestSession.cs" />
   </ItemGroup>

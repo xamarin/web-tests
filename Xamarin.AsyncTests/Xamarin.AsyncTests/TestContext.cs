@@ -55,14 +55,13 @@ namespace Xamarin.AsyncTests
 			get { return support; }
 		}
 
-		internal TestContext (IPortableSupport support, TestLogger logger, ITestConfiguration config, TestName name, TestResult result,
-			SynchronizationContext syncContext = null)
+		internal TestContext (IPortableSupport support, TestLogger logger, ITestConfiguration config, TestName name,
+			SynchronizationContext syncContext)
 		{
 			Name = name;
 			this.support = support;
 			this.config = config;
 			this.logger = logger;
-			this.result = result;
 			this.syncContext = syncContext;
 		}
 
@@ -258,7 +257,7 @@ namespace Xamarin.AsyncTests
 		}
 
 		public bool HasPendingException {
-			get { return Result.HasErrors; }
+			get { return Result != null && Result.HasErrors; }
 		}
 
 		#endregion
