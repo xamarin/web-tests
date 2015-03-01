@@ -123,7 +123,7 @@ namespace Xamarin.AsyncTests.Remoting
 				throw new ServerErrorException ();
 
 			Path = new Serializer.PathWrapper (node.Element ("TestPath"));
-			Name = Serializer.TestName.Read (node.Element ("TestName"));
+			Name = TestSerializer.ReadTestName (node.Element ("TestName"));
 			HasParameters = bool.Parse (node.Attribute ("HasParameters").Value);
 			HasChildren = bool.Parse (node.Attribute ("HasChildren").Value);
 		}

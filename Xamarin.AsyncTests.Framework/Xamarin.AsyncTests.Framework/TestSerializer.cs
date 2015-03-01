@@ -184,6 +184,46 @@ namespace Xamarin.AsyncTests.Framework
 
 			return node;
 		}
+
+		public static TestName ReadTestName (XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("TestName"))
+				throw new InternalErrorException ();
+
+			var builder = new TestNameBuilder ();
+			var nameAttr = node.Attribute ("Name");
+			if (nameAttr != null)
+				builder.PushName (nameAttr.Value);
+
+			foreach (var child in node.Elements ("Parameter")) {
+				var name = child.Attribute ("Name").Value;
+				var value = child.Attribute ("Value").Value;
+				var isHidden = bool.Parse (child.Attribute ("IsHidden").Value);
+				builder.PushParameter (name, value, isHidden);
+			}
+
+			return builder.GetName ();
+		}
+
+		public static XElement WriteTestName (TestName instance)
+		{
+			var element = new XElement ("TestName");
+			if (instance.Name != null)
+				element.SetAttributeValue ("Name", instance.Name);
+
+			if (instance.HasParameters) {
+				foreach (var parameter in instance.Parameters) {
+					var node = new XElement ("Parameter");
+					element.Add (node);
+
+					node.SetAttributeValue ("Name", parameter.Name);
+					node.SetAttributeValue ("Value", parameter.Value);
+					node.SetAttributeValue ("IsHidden", parameter.IsHidden.ToString ());
+				}
+			}
+
+			return element;
+		}
 	}
 }
 

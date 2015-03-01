@@ -38,7 +38,6 @@ namespace Xamarin.AsyncTests.Remoting
 	{
 		public static readonly IValueSerializer<string> String = new StringSerializer ();
 		public static readonly IValueSerializer<XElement> Element = new ElementSerializer ();
-		public static readonly IValueSerializer<TestName> TestName = new TestNameSerializer ();
 		public static readonly IValueSerializer<TestResult> TestResult = new TestResultSerializer ();
 		public static readonly IValueSerializer<TestLoggerBackend.LogEntry> LogEntry = new LogEntrySerializer ();
 		public static readonly IValueSerializer<TestLoggerBackend.StatisticsEventArgs> StatisticsEventArgs = new StatisticsEventArgsSerializer ();
@@ -50,7 +49,7 @@ namespace Xamarin.AsyncTests.Remoting
 			else if (instance is XElement)
 				return Element.Write ((XElement)instance);
 			else if (instance is TestName)
-				return TestName.Write ((TestName)instance);
+				return TestSerializer.WriteTestName ((TestName)instance);
 			else if (instance is TestResult)
 				return TestResult.Write ((TestResult)instance);
 			else if (instance is TestLoggerBackend.LogEntry)
@@ -70,7 +69,7 @@ namespace Xamarin.AsyncTests.Remoting
 			else if (typeof(T) == typeof(XElement))
 				return ((IValueSerializer<T>)Element).Read (node);
 			else if (typeof(T) == typeof(TestName))
-				return ((IValueSerializer<T>)TestName).Read (node);
+				return (T)(object)TestSerializer.ReadTestName (node);
 			else if (typeof(T) == typeof(TestResult))
 				return ((IValueSerializer<T>)TestResult).Read (node);
 			else if (typeof(T) == typeof(TestLoggerBackend.LogEntry))
@@ -115,49 +114,6 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
-		class TestNameSerializer : IValueSerializer<TestName>
-		{
-			public TestName Read (XElement node)
-			{
-				if (!node.Name.LocalName.Equals ("TestName"))
-					throw new ServerErrorException ();
-
-				var builder = new TestNameBuilder ();
-				var nameAttr = node.Attribute ("Name");
-				if (nameAttr != null)
-					builder.PushName (nameAttr.Value);
-
-				foreach (var child in node.Elements ("Parameter")) {
-					var name = child.Attribute ("Name").Value;
-					var value = child.Attribute ("Value").Value;
-					var isHidden = bool.Parse (child.Attribute ("IsHidden").Value);
-					builder.PushParameter (name, value, isHidden);
-				}
-
-				return builder.GetName ();
-			}
-
-			public XElement Write (TestName instance)
-			{
-				var element = new XElement ("TestName");
-				if (instance.Name != null)
-					element.SetAttributeValue ("Name", instance.Name);
-
-				if (instance.HasParameters) {
-					foreach (var parameter in instance.Parameters) {
-						var node = new XElement ("Parameter");
-						element.Add (node);
-
-						node.SetAttributeValue ("Name", parameter.Name);
-						node.SetAttributeValue ("Value", parameter.Value);
-						node.SetAttributeValue ("IsHidden", parameter.IsHidden.ToString ());
-					}
-				}
-
-				return element;
-			}
-		}
-
 		static XElement WriteError (Exception error)
 		{
 			var element = new XElement ("Error");
@@ -187,7 +143,7 @@ namespace Xamarin.AsyncTests.Remoting
 				if (!node.Name.LocalName.Equals ("TestResult"))
 					throw new ServerErrorException ();
 
-				var name = Serializer.TestName.Read (node.Element ("TestName"));
+				var name = TestSerializer.ReadTestName (node.Element ("TestName"));
 				var status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
 
 				var result = new TestResult (name, status);
@@ -216,7 +172,7 @@ namespace Xamarin.AsyncTests.Remoting
 				var element = new XElement ("TestResult");
 				element.SetAttributeValue ("Status", instance.Status.ToString ());
 
-				element.Add (Serializer.TestName.Write (instance.Name));
+				element.Add (TestSerializer.WriteTestName (instance.Name));
 
 				if (instance.Path != null) {
 					element.Add (instance.Path.SerializePath ());
@@ -255,7 +211,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 				var name = node.Element ("TestName");
 				if (name != null)
-					instance.Name = Serializer.TestName.Read (name);
+					instance.Name = TestSerializer.ReadTestName (name);
 
 				return instance;
 			}
@@ -270,7 +226,7 @@ namespace Xamarin.AsyncTests.Remoting
 				element.SetAttributeValue ("Status", instance.Status.ToString ());
 
 				if (instance.Name != null)
-					element.Add (Serializer.TestName.Write (instance.Name));
+					element.Add (TestSerializer.WriteTestName (instance.Name));
 
 				return element;
 			}
