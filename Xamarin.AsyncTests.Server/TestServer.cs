@@ -111,7 +111,7 @@ namespace Xamarin.AsyncTests.Server
 			Connection.Debug ("GOT TEST SUITE: {0}", TestSuite);
 		}
 
-		public abstract Task<bool> Run (CancellationToken cancellationToken);
+		public abstract Task<bool> WaitForExit (CancellationToken cancellationToken);
 
 		public abstract Task Stop (CancellationToken cancellationToken);
 
@@ -124,7 +124,7 @@ namespace Xamarin.AsyncTests.Server
 			{
 			}
 
-			public override Task<bool> Run (CancellationToken cancellationToken)
+			public override Task<bool> WaitForExit (CancellationToken cancellationToken)
 			{
 				return Task.FromResult (true);
 			}
@@ -194,10 +194,8 @@ namespace Xamarin.AsyncTests.Server
 				await base.Initialize (cancellationToken);
 			}
 
-			public override async Task<bool> Run (CancellationToken cancellationToken)
+			public override async Task<bool> WaitForExit (CancellationToken cancellationToken)
 			{
-				await Task.Yield ();
-				Connection.Debug ("RUN PIPE");
 				await Task.WhenAll (serverTask, clientTask);
 				return false;
 			}

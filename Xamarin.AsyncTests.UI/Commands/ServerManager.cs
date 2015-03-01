@@ -44,76 +44,20 @@ namespace Xamarin.AsyncTests.UI
 			get { return startCommand; }
 		}
 
-		public SettingsBag Settings {
-			get;
-			private set;
-		}
-
 		public readonly InstanceProperty<TestSuite> TestSuite = new InstanceProperty<TestSuite> ("TestSuite", null);
 
 		public ServerManager (UITestApp app)
 			: base (app, null)
 		{
-			Settings = app.Settings;
-
 			startCommand = new ServerCommand (this);
-
-			serverAddress = string.Empty;
-			Settings.PropertyChanged += (sender, e) => LoadSettings ();
-			LoadSettings ();
 		}
-
-		#region Options
-
-		string serverAddress;
-
-		public string ServerAddress {
-			get { return serverAddress; }
-			set {
-				serverAddress = value;
-				Settings.SetValue ("ServerAddress", value);
-			}
-		}
-
-		void LoadSettings ()
-		{
-			string value;
-			if (Settings.TryGetValue ("ServerAddress", out value))
-				serverAddress = value;
-
-			if (Settings.TryGetValue ("StartupAction", out value))
-				Enum.TryParse<StartupActionKind> (value, out startupAction);
-		}
-
-		#endregion
-
-		#region Startup Action
-
-		StartupActionKind startupAction;
-
-		public StartupActionKind StartupAction {
-			get { return startupAction; }
-			set {
-				if (value == startupAction)
-					return;
-				startupAction = value;
-				Settings.SetValue ("StartupAction", value.ToString ());
-			}
-		}
-
-		public enum StartupActionKind {
-			Nothing,
-			LoadLocal,
-			Start,
-			Connect,
-		}
-
-		#endregion
 
 		protected async Task<bool> OnRun (TestServer instance, CancellationToken cancellationToken)
 		{
-			TestSuite.Value = instance.TestSuite;
-			return await instance.Run (cancellationToken);
+			var suite = await instance.Session.LoadTestSuite (cancellationToken);
+			SetStatusMessage ("Got test suite from server: {0}", suite);
+			TestSuite.Value = suite;
+			return await instance.WaitForExit (cancellationToken).ConfigureAwait (false);
 		}
 
 		protected async Task OnStop (TestServer instance, CancellationToken cancellationToken)
@@ -145,19 +89,9 @@ namespace Xamarin.AsyncTests.UI
 				}
 			}
 
-			internal sealed async override Task<bool> Run (TestServer instance, CancellationToken cancellationToken)
+			internal sealed override Task<bool> Run (TestServer instance, CancellationToken cancellationToken)
 			{
-				Manager.App.LogMessage ("RUN SERVER");
-				try {
-					var retval = await Manager.OnRun (instance, cancellationToken);
-					Manager.App.LogMessage ("RUN SERVER DONE: {0}", retval);
-					return retval;
-				} catch (Exception ex) {
-					Manager.App.LogMessage ("RUN SERVER EX: {0}", ex);
-					throw;
-				} finally {
-					Manager.App.LogMessage ("RUN SERVER FINALLY");
-				}
+				return Manager.OnRun (instance, cancellationToken);
 			}
 
 			internal sealed override Task Stop (TestServer instance, CancellationToken cancellationToken)
