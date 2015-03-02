@@ -77,6 +77,12 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			return LocalSession.ResolveFromPath (path, cancellationToken);
 		}
+
+		public XElement GetConfiguration ()
+		{
+			return TestSerializer.WriteConfiguration (LocalSession.Framework.ConfigurationProvider);
+			
+		}
 	}
 }
 

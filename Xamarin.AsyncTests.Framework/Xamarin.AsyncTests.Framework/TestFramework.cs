@@ -44,6 +44,10 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		public abstract ITestConfigurationProvider ConfigurationProvider {
+			get;
+		}
+
 		public abstract TestConfiguration Configuration {
 			get;
 		}

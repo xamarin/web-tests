@@ -184,6 +184,23 @@ namespace Xamarin.AsyncTests.Remoting
 			return (TestSuiteClient)await command.Send (session, null, cancellationToken);
 		}
 
+		class GetRemoteTestConfigurationCommand : RemoteObjectCommand<RemoteTestSession,object,XElement>
+		{
+			protected override Task<XElement> Run (Connection connection, RemoteTestSession proxy, object argument, CancellationToken cancellationToken)
+			{
+				return Task.FromResult (proxy.Servant.GetConfiguration ());
+			}
+		}
+
+		public static async Task<TestConfiguration> GetRemoteTestConfiguration (
+			TestSessionClient session, CancellationToken cancellationToken)
+		{
+			var command = new GetRemoteTestConfigurationCommand ();
+			var result = await command.Send (session, null, cancellationToken);
+			Connection.Debug ("GET REMOTE CONFIG: {0}", result);
+			throw new NotImplementedException ();
+		}
+
 		class GetRootTestCaseCommand : RemoteObjectCommand<RemoteTestSession,object,ObjectProxy>
 		{
 			protected override ObjectProxy ReadResponse (Connection connection, XElement node)

@@ -76,6 +76,8 @@ namespace Xamarin.AsyncTests.Remoting
 			if (session.suite != null)
 				return session;
 
+			await RemoteObjectManager.GetRemoteTestConfiguration (session, cancellationToken).ConfigureAwait (false);
+
 			session.suite = await RemoteObjectManager.GetRemoteTestSuite (session, cancellationToken).ConfigureAwait (false);
 			return session;
 		}

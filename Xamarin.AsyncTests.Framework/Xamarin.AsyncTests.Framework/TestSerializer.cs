@@ -421,6 +421,44 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			return new XElement ("Element", instance);
 		}
+
+		static XElement WriteTestFeature (TestFeature instance)
+		{
+			var element = new XElement ("TestFeature");
+			element.SetAttributeValue ("Name", instance.Name);
+			if (instance.Description != null)
+				element.SetAttributeValue ("Description", instance.Description);
+			element.SetAttributeValue ("CanModify", instance.CanModify);
+			if (instance.DefaultValue != null)
+				element.SetAttributeValue ("DefaultValue", instance.DefaultValue);
+			if (instance.Constant != null)
+				element.SetAttributeValue ("Constant", instance.Constant);
+			return element;
+		}
+
+		static XElement WriteTestCategory (TestCategory instance)
+		{
+			var element = new XElement ("TestCategory");
+			element.SetAttributeValue ("Name", instance.Name);
+			element.SetAttributeValue ("IsBuiltin", instance.IsBuiltin);
+			element.SetAttributeValue ("IsExplicit", instance.IsExplicit);
+			return element;
+		}
+
+		public static XElement WriteConfiguration (ITestConfigurationProvider configuration)
+		{
+			var element = new XElement ("TestConfiguration");
+
+			foreach (var feature in configuration.Features) {
+				element.Add (WriteTestFeature (feature));
+			}
+
+			foreach (var category in configuration.Categories) {
+				element.Add (WriteTestCategory (category));
+			}
+
+			return element;
+		}
 	}
 }
 

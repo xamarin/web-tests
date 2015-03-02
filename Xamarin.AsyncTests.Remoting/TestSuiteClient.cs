@@ -57,6 +57,11 @@ namespace Xamarin.AsyncTests.Remoting
 			get { return "TestSuite"; }
 		}
 
+		public string Name {
+			get;
+			private set;
+		}
+
 		public TestSuiteClient (TestSessionClient session, long objectID)
 		{
 			Session = session;
