@@ -37,6 +37,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return name; }
 		}
 
+		public override ITestConfigurationProvider ConfigurationProvider {
+			get { return provider; }
+		}
+
 		public override TestConfiguration Configuration {
 			get { return configuration; }
 		}
@@ -51,13 +55,15 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		string name;
+		ITestConfigurationProvider provider;
 		TestConfiguration configuration;
 		ReflectionTestSuite suite;
 
 		public ReflectionTestSession (TestApp app, ReflectionTestFramework framework, TestContext rootCtx)
-			: base (app, framework)
+			: base (app)
 		{
 			RootContext = rootCtx;
+			provider = framework.ConfigurationProvider;
 			configuration = framework.Configuration;
 			name = framework.Assembly.GetName ().Name;
 			suite = new ReflectionTestSuite (framework);

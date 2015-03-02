@@ -80,7 +80,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public XElement GetConfiguration ()
 		{
-			return TestSerializer.WriteConfiguration (LocalSession.Framework.ConfigurationProvider);
+			return TestSerializer.WriteConfiguration (LocalSession.ConfigurationProvider);
 			
 		}
 	}

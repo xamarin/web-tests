@@ -46,11 +46,6 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		[ObsoleteAttribute ("MUST GO")]
-		TestFramework Framework {
-			get;
-		}
-
 		SettingsBag Settings {
 			get;
 		}

@@ -37,20 +37,13 @@ namespace Xamarin.AsyncTests.Remoting
 	public class ClientConnection : Connection
 	{
 		IPortableSupport support;
-		TestFramework localFramework;
 		TaskCompletionSource<object> startTcs;
 
 		public ClientConnection (TestApp app, Stream stream, IServerConnection connection)
 			: base (app, stream)
 		{
 			support = app.PortableSupport;
-			localFramework = app.Framework;
 			startTcs = new TaskCompletionSource<object> ();
-		}
-
-		[Obsolete ("MUST GO")]
-		public TestFramework LocalFramework {
-			get { return localFramework; }
 		}
 
 		public IPortableSupport PortableSupport {

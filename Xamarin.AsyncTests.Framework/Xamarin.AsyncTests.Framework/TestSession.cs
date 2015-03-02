@@ -44,10 +44,8 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		[Obsolete ("MUST GO")]
-		public TestFramework Framework {
+		public abstract ITestConfigurationProvider ConfigurationProvider {
 			get;
-			private set;
 		}
 
 		public abstract TestConfiguration Configuration {
@@ -58,10 +56,9 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public TestSession (TestApp app, TestFramework framework)
+		public TestSession (TestApp app)
 		{
 			App = app;
-			Framework = framework;
 		}
 
 		public static TestSession CreateLocal (TestApp app, TestFramework framework, SynchronizationContext syncContext = null)

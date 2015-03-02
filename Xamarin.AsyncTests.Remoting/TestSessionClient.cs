@@ -61,16 +61,21 @@ namespace Xamarin.AsyncTests.Remoting
 			get { return name; }
 		}
 
+		public override ITestConfigurationProvider ConfigurationProvider {
+			get { return provider; }
+		}
+
 		public override TestConfiguration Configuration {
 			get { return configuration; }
 		}
 
 		string name;
+		ITestConfigurationProvider provider;
 		TestConfiguration configuration;
 		TestSuiteClient suite;
 
 		public TestSessionClient (ClientConnection connection, long objectID)
-			: base (connection.App, connection.LocalFramework)
+			: base (connection.App)
 		{
 			Connection = connection;
 			ObjectID = objectID;
@@ -90,9 +95,9 @@ namespace Xamarin.AsyncTests.Remoting
 			if (session.suite != null)
 				return session;
 
-			var provider = await RemoteObjectManager.GetRemoteTestConfiguration (session, cancellationToken).ConfigureAwait (false);
-			session.configuration = new TestConfiguration (provider, session.Connection.App.Settings);
-			session.name = provider.Name;
+			session.provider = await RemoteObjectManager.GetRemoteTestConfiguration (session, cancellationToken).ConfigureAwait (false);
+			session.configuration = new TestConfiguration (session.provider, session.Connection.App.Settings);
+			session.name = session.provider.Name;
 
 			session.suite = await RemoteObjectManager.GetRemoteTestSuite (session, cancellationToken).ConfigureAwait (false);
 			return session;

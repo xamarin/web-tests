@@ -66,7 +66,7 @@ namespace Xamarin.AsyncTests.MacUI
 		void OnTestSessionChanged (TestSession session)
 		{
 			if (session != null) {
-				Configuration = session.Framework.Configuration;
+				Configuration = session.Configuration;
 				foreach (var category in Configuration.Categories) {
 					var model = new TestCategoryModel (category);
 					CategoriesController.AddObject (model);

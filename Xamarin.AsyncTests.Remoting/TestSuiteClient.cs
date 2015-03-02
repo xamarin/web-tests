@@ -39,10 +39,6 @@ namespace Xamarin.AsyncTests.Remoting
 			private set;
 		}
 
-		public TestFramework Framework {
-			get { return Session.Framework; }
-		}
-
 		public Connection Connection {
 			get;
 			private set;
