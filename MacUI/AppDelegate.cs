@@ -78,7 +78,7 @@ namespace Xamarin.AsyncTests.MacUI
 					CurrentSession = new TestSessionModel (e);
 			};
 
-			LoadLocalTestSuite ();
+			ConnectToRemoteServer ();
 		}
 
 		[Export ("ShowPreferences:")]
@@ -91,6 +91,12 @@ namespace Xamarin.AsyncTests.MacUI
 		public async void LoadLocalTestSuite ()
 		{
 			await ui.ServerManager.Start.Execute (ServerParameters.CreatePipe ());
+		}
+
+		[Export ("ConnectToRemoteServer:")]
+		public async void ConnectToRemoteServer ()
+		{
+			await ui.ServerManager.Start.Execute (ServerParameters.ConnectToServer ());
 		}
 
 		[Export ("UnloadTestSuite:")]

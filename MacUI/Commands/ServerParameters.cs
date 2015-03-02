@@ -54,6 +54,11 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			return new ServerParameters (ServerMode.CreatePipe);
 		}
+
+		public static ServerParameters ConnectToServer ()
+		{
+			return new ServerParameters (ServerMode.ConnectToServer);
+		}
 	}
 }
 
