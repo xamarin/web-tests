@@ -39,17 +39,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public TestConfiguration Configuration {
-			get;
-			private set;
-		}
-
 		public ReflectionTestSuiteBuilder (ReflectionTestSuite suite)
 			: base (suite, TestSerializer.TestSuiteIdentifier, suite.Assembly.GetName ().Name,
 				TestSerializer.GetStringParameter (suite.Assembly.FullName))
 		{
 			Assembly = suite.Assembly;
-			Configuration = suite.Framework.Configuration;
 
 			Resolve ();
 		}

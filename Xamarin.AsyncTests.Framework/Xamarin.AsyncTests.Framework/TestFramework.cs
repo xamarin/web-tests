@@ -35,9 +35,9 @@ namespace Xamarin.AsyncTests.Framework
 
 	public abstract class TestFramework
 	{
-		public static TestFramework GetLocalFramework (Assembly assembly, SettingsBag settings)
+		public static TestFramework GetLocalFramework (Assembly assembly)
 		{
-			return new ReflectionTestFramework (assembly, settings);
+			return new ReflectionTestFramework (assembly);
 		}
 
 		public abstract string Name {
@@ -45,10 +45,6 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public abstract ITestConfigurationProvider ConfigurationProvider {
-			get;
-		}
-
-		public abstract TestConfiguration Configuration {
 			get;
 		}
 	}

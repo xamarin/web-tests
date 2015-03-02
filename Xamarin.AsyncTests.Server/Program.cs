@@ -135,7 +135,7 @@ namespace Xamarin.AsyncTests.Server
 			logger = new TestLogger (new ConsoleLogger (this));
 			logger.LogLevel = LogLevel;
 
-			framework = TestFramework.GetLocalFramework (assembly, settings);
+			framework = TestFramework.GetLocalFramework (assembly);
 		}
 
 		static void Debug (string message, params object[] args)

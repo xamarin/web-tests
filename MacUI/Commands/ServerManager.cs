@@ -78,7 +78,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 			internal override Task<TestServer> Start (ServerParameters parameters, CancellationToken cancellationToken)
 			{
-				var framework = TestFramework.GetLocalFramework (Manager.App.Assembly, Manager.App.Settings);
+				var framework = TestFramework.GetLocalFramework (Manager.App.Assembly);
 
 				switch (parameters.Mode) {
 				case ServerMode.Local:
