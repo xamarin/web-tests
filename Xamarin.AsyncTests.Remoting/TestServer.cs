@@ -78,6 +78,26 @@ namespace Xamarin.AsyncTests.Remoting
 			return pipe;
 		}
 
+		public static async Task<TestServer> StartServer (TestApp app, CancellationToken cancellationToken)
+		{
+			var connection = await app.PortableSupport.ServerHost.Start (cancellationToken);
+
+			var serverConnection = await StartServer (app, connection, cancellationToken);
+			var server = new Server (app, serverConnection);
+			await server.Initialize (cancellationToken);
+			return server;
+		}
+
+		public static async Task<TestServer> ConnectToServer (TestApp app, CancellationToken cancellationToken)
+		{
+			var connection = await app.PortableSupport.ServerHost.Connect ("127.0.0.1:8888", cancellationToken);
+
+			var clientConnection = await StartClient (app, connection, cancellationToken);
+			var client = new Client (app, clientConnection);
+			await client.Initialize (cancellationToken);
+			return client;
+		}
+
 		static async Task<ServerConnection> StartServer (TestApp app, IServerConnection connection, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
@@ -219,6 +239,96 @@ namespace Xamarin.AsyncTests.Remoting
 				}
 				try {
 					server.Stop ();
+				} catch {
+					;
+				}
+			}
+
+			public override Task<TestSession> GetTestSession (CancellationToken cancellationToken)
+			{
+				return RemoteObjectManager.GetRemoteTestSession (client, cancellationToken);
+			}
+		}
+
+		class Server : TestServer
+		{
+			ServerConnection server;
+			Task serverTask;
+
+			public Server (TestApp app, ServerConnection server)
+				: base (app)
+			{
+				this.server = server;
+			}
+
+			protected override async Task Initialize (CancellationToken cancellationToken)
+			{
+				await server.Start (cancellationToken);
+
+				serverTask = server.Run (cancellationToken);
+				await base.Initialize (cancellationToken);
+			}
+
+			public override async Task<bool> WaitForExit (CancellationToken cancellationToken)
+			{
+				await Task.WhenAll (serverTask);
+				return false;
+			}
+
+			public override async Task Stop (CancellationToken cancellationToken)
+			{
+				try {
+					await server.Shutdown ();
+				} catch {
+					;
+				}
+				try {
+					server.Stop ();
+				} catch {
+					;
+				}
+			}
+
+			public override Task<TestSession> GetTestSession (CancellationToken cancellationToken)
+			{
+				return Task.FromResult (TestSession.CreateLocal (App, App.Framework));
+			}
+		}
+
+		class Client : TestServer
+		{
+			ClientConnection client;
+			Task clientTask;
+
+			public Client (TestApp app, ClientConnection client)
+				: base (app)
+			{
+				this.client = client;
+			}
+
+			protected override async Task Initialize (CancellationToken cancellationToken)
+			{
+				await client.Start (cancellationToken);
+
+				clientTask = client.Run (cancellationToken);
+				await base.Initialize (cancellationToken);
+			}
+
+			public override async Task<bool> WaitForExit (CancellationToken cancellationToken)
+			{
+				await Task.WhenAll (clientTask);
+				return false;
+			}
+
+			public override async Task Stop (CancellationToken cancellationToken)
+			{
+				try {
+					await client.Shutdown ();
+				} catch {
+					;
+				}
+				try {
+					client.Stop ();
 				} catch {
 					;
 				}

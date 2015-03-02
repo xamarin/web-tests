@@ -48,6 +48,10 @@ namespace Xamarin.AsyncTests.Remoting
 			get { return eventSink.LoggerClient; }
 		}
 
+		protected override bool IsServer {
+			get { return true; }
+		}
+
 		public ServerConnection (TestApp context, Stream stream, IServerConnection connection)
 			: base (context, stream)
 		{

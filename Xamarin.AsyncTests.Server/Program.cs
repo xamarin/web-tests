@@ -4,7 +4,7 @@
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,11 +33,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Xamarin.WebTests;
-using Xamarin.WebTests.Portable;
 using NDesk.Options;
+using Xamarin.WebTests.Portable;
 
-namespace Xamarin.AsyncTests.Console
+namespace Xamarin.AsyncTests.Server
 {
 	using Remoting;
 	using Portable;
@@ -102,7 +101,7 @@ namespace Xamarin.AsyncTests.Console
 			var program = new Program (support, args);
 
 			try {
-				var task = program.ConnectToServer (CancellationToken.None);
+				var task = program.RunServer ();
 				task.Wait ();
 			} catch (Exception ex) {
 				Debug ("ERROR: {0}", ex);
@@ -189,6 +188,13 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
+		async Task RunServer ()
+		{
+			var server = await TestServer.StartServer (this, CancellationToken.None);
+			Debug ("SERVER STARTED: {0}", server);
+			await server.WaitForExit (CancellationToken.None);
+		}
+
 		async Task RunLocal ()
 		{
 			session = TestSession.CreateLocal (this, framework);
@@ -208,34 +214,6 @@ namespace Xamarin.AsyncTests.Console
 					serialized.WriteTo (writer);
 				Debug ("Result writting to {0}.", ResultOutput);
 			}
-		}
-
-		async Task ConnectToServer (CancellationToken cancellationToken)
-		{
-			var server = await TestServer.ConnectToServer (this, cancellationToken);
-			cancellationToken.ThrowIfCancellationRequested ();
-
-			session = server.Session;
-			var test = await session.GetRootTestCase (cancellationToken);
-			cancellationToken.ThrowIfCancellationRequested ();
-
-			Debug ("Got test: {0}", test);
-			var result = await session.Run (test, cancellationToken);
-			cancellationToken.ThrowIfCancellationRequested ();
-			Debug ("Got result: {0}", result);
-
-			Debug ("{0} tests, {1} passed, {2} errors, {3} ignored.", countTests, countSuccess, countErrors, countIgnored);
-
-			if (ResultOutput != null) {
-				var serialized = TestSerializer.WriteTestResult (result);
-				var settings = new XmlWriterSettings ();
-				settings.Indent = true;
-				using (var writer = XmlTextWriter.Create (ResultOutput, settings))
-					serialized.WriteTo (writer);
-				Debug ("Result writting to {0}.", ResultOutput);
-			}
-
-			await server.Stop (cancellationToken);
 		}
 
 		void OnLogMessage (string message)

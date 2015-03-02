@@ -159,8 +159,6 @@ namespace Xamarin.AsyncTests.Framework
 
 			var parameterHosts = new LinkedList<TestHost> ();
 
-			TestSerializer.Debug ("RESOLVE: {0} {1}", this, Parent);
-
 			tree = treeRoot = new TestPathTree (this, host, parentTree);
 
 			foreach (var current in CreateParameterHosts ()) {

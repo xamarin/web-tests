@@ -56,6 +56,10 @@ namespace Xamarin.AsyncTests.Remoting
 			get { return support; }
 		}
 
+		protected override bool IsServer {
+			get { return false; }
+		}
+
 		public async Task StartClient (CancellationToken cancellationToken)
 		{
 			await Start (cancellationToken);

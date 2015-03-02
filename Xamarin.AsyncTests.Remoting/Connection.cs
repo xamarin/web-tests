@@ -57,6 +57,10 @@ namespace Xamarin.AsyncTests.Remoting
 			get { return app; }
 		}
 
+		protected abstract bool IsServer {
+			get;
+		}
+
 		#region Public Client API
 
 		public async Task Shutdown ()
@@ -353,7 +357,8 @@ namespace Xamarin.AsyncTests.Remoting
 		static long next_id;
 		long GetNextObjectId ()
 		{
-			return ++next_id;
+			var id = ++next_id;
+			return IsServer ? id : -id;
 		}
 
 		Dictionary<long, ClientOperation> clientOperations = new Dictionary<long, ClientOperation> ();
@@ -468,23 +473,6 @@ namespace Xamarin.AsyncTests.Remoting
 
 				value = (T)obj;
 				return true;
-			}
-		}
-
-		internal void UnregisterRemoteObject (object obj)
-		{
-			lock (this) {
-				var remoteObj = obj as IRemoteObject;
-				if (remoteObj != null) {
-					remoteObjects.Remove (remoteObj.ObjectID);
-					return;
-				}
-
-				if (!remoteObjects.ContainsValue (obj))
-					return;
-
-				var id = remoteObjects.First (e => e.Value == obj).Key;
-				remoteObjects.Remove (id);
 			}
 		}
 
