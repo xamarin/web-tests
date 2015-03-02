@@ -64,10 +64,6 @@ namespace Xamarin.AsyncTests.MacUI
 			get { return support; }
 		}
 
-		public TestFramework Framework {
-			get { return framework; }
-		}
-
 		public TestLogger Logger {
 			get { return logger; }
 		}
@@ -78,7 +74,6 @@ namespace Xamarin.AsyncTests.MacUI
 
 		readonly TestLogger logger;
 		readonly SettingsBag settings;
-		readonly TestFramework framework;
 		readonly IPortableSupport support;
 
 		public static MacUI Create ()
@@ -97,8 +92,6 @@ namespace Xamarin.AsyncTests.MacUI
 			Assembly = assembly;
 
 			logger = new TestLogger (new UILogger (this));
-
-			framework = TestFramework.GetLocalFramework (Assembly, Settings);
 
 			ServerManager = new ServerManager (this);
 
