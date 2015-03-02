@@ -139,7 +139,11 @@ namespace Xamarin.WebTests
 		public static readonly TestCategory HeavyCategory = new TestCategory ("Heavy") { IsExplicit = true };
 		public static readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
 
-		#region ITestSuite implementation
+		#region ITestConfigurationProvider implementation
+		public string Name {
+			get { return "Xamarin.WebTests"; }
+		}
+
 		public IEnumerable<TestFeature> Features {
 			get {
 				yield return NTLM;

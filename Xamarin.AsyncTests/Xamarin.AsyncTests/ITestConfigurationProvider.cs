@@ -30,6 +30,10 @@ namespace Xamarin.AsyncTests
 {
 	public interface ITestConfigurationProvider
 	{
+		string Name {
+			get;
+		}
+
 		IEnumerable<TestFeature> Features {
 			get;
 		}

@@ -40,6 +40,10 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public abstract string Name {
+			get;
+		}
+
 		public TestFramework Framework {
 			get;
 			private set;

@@ -37,6 +37,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return (ReflectionTestFramework)base.Framework; }
 		}
 
+		public override string Name {
+			get { return name; }
+		}
+
 		public override TestSuite Suite {
 			get { return suite; }
 		}
@@ -46,12 +50,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
+		string name;
 		ReflectionTestSuite suite;
 
 		public ReflectionTestSession (TestApp app, ReflectionTestFramework framework, TestContext rootCtx)
 			: base (app, framework)
 		{
 			RootContext = rootCtx;
+			name = framework.Assembly.GetName ().Name;
 			suite = new ReflectionTestSuite (framework);
 		}
 

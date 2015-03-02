@@ -479,6 +479,7 @@ namespace Xamarin.AsyncTests.Framework
 		public static XElement WriteConfiguration (ITestConfigurationProvider configuration)
 		{
 			var element = new XElement ("TestConfiguration");
+			element.SetAttributeValue ("Name", configuration.Name);
 
 			foreach (var feature in configuration.Features) {
 				element.Add (WriteTestFeature (feature));
@@ -496,7 +497,9 @@ namespace Xamarin.AsyncTests.Framework
 			if (!node.Name.LocalName.Equals ("TestConfiguration"))
 				throw new InternalErrorException ();
 
-			var config = new ConfigurationWrapper ();
+			var name = node.Attribute ("Name").Value;
+
+			var config = new ConfigurationWrapper (name);
 
 			foreach (var feature in node.Elements ("TestFeature")) {
 				config.Add (ReadTestFeature (feature));
@@ -511,8 +514,8 @@ namespace Xamarin.AsyncTests.Framework
 
 		class ConfigurationWrapper : ITestConfigurationProvider
 		{
-			List<TestFeature> features = new List<TestFeature> ();
-			List<TestCategory> categories = new List<TestCategory> ();
+			List<TestFeature> features;
+			List<TestCategory> categories;
 
 			public void Add (TestFeature feature)
 			{
@@ -522,6 +525,18 @@ namespace Xamarin.AsyncTests.Framework
 			public void Add (TestCategory category)
 			{
 				categories.Add (category);
+			}
+
+			public ConfigurationWrapper (string name)
+			{
+				Name = name;
+				features = new List<TestFeature> ();
+				categories = new List<TestCategory> ();
+			}
+
+			public string Name {
+				get;
+				private set;
 			}
 
 			public IEnumerable<TestFeature> Features {

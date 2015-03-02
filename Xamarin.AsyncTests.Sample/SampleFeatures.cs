@@ -60,6 +60,10 @@ namespace Xamarin.AsyncTests.Sample
 			Instance = new SampleFeatures ();
 		}
 
+		public string Name {
+			get { return "Xamarin.AsyncTests.Sample"; }
+		}
+
 		public IEnumerable<TestFeature> Features {
 			get {
 				yield return Hello;
