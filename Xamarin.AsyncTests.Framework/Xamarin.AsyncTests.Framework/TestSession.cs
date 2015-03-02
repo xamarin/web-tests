@@ -44,9 +44,14 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		[Obsolete ("MUST GO")]
 		public TestFramework Framework {
 			get;
 			private set;
+		}
+
+		public abstract TestConfiguration Configuration {
+			get;
 		}
 
 		public abstract TestSuite Suite {

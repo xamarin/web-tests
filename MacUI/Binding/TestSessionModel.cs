@@ -77,7 +77,7 @@ namespace Xamarin.AsyncTests.MacUI
 		#region implemented abstract members of TestListItem
 
 		public override string Name {
-			get { return Session.Framework.Name; }
+			get { return Session.Name; }
 		}
 
 		public override TestStatus TestStatus {
