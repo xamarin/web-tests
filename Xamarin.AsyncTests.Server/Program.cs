@@ -190,7 +190,7 @@ namespace Xamarin.AsyncTests.Server
 
 		async Task RunServer ()
 		{
-			var server = await TestServer.StartServer (this, CancellationToken.None);
+			var server = await TestServer.StartServer (this, Framework, CancellationToken.None);
 			Debug ("SERVER STARTED: {0}", server);
 			await server.WaitForExit (CancellationToken.None);
 		}

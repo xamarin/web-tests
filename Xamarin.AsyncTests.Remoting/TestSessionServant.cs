@@ -54,10 +54,10 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			RootContext = new TestContext (
 				connection.App.PortableSupport, connection.EventSink.LoggerClient,
-				connection.App.Framework.Configuration.AsReadOnly (),
-				new TestName (connection.App.Framework.Name), null);
+				connection.Framework.Configuration.AsReadOnly (),
+				new TestName (connection.Framework.Name), null);
 
-			LocalSession = TestSession.CreateLocal (connection.App, connection.App.Framework, RootContext);
+			LocalSession = TestSession.CreateLocal (connection.App, connection.Framework, RootContext);
 		}
 
 		TestSessionClient RemoteObject<TestSessionClient, TestSessionServant>.Client {

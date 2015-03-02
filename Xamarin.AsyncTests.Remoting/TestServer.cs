@@ -54,23 +54,23 @@ namespace Xamarin.AsyncTests.Remoting
 			App = app;
 		}
 
-		public static async Task<TestServer> StartLocal (TestApp app, CancellationToken cancellationToken)
+		public static async Task<TestServer> StartLocal (TestApp app, TestFramework framework, CancellationToken cancellationToken)
 		{
-			var server = new LocalTestServer (app);
+			var server = new LocalTestServer (app, framework);
 			await server.Initialize (cancellationToken);
 			return server;
 		}
 
-		public static async Task<TestServer> CreatePipe (TestApp app, CancellationToken cancellationToken)
+		public static async Task<TestServer> CreatePipe (TestApp app, TestFramework framework, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			var connection = await app.PortableSupport.ServerHost.CreatePipe (cancellationToken);
 
-			var serverApp = new PipeApp (app.PortableSupport, app.Framework);
+			var serverApp = new PipeApp (app.PortableSupport, framework);
 
-			var server = await StartServer (serverApp, connection.Server, cancellationToken);
+			var server = await StartServer (serverApp, framework, connection.Server, cancellationToken);
 			var client = await StartClient (app, connection.Client, cancellationToken);
 
 			var pipe = new PipeServer (app, client, server);
@@ -78,12 +78,12 @@ namespace Xamarin.AsyncTests.Remoting
 			return pipe;
 		}
 
-		public static async Task<TestServer> StartServer (TestApp app, CancellationToken cancellationToken)
+		public static async Task<TestServer> StartServer (TestApp app, TestFramework framework, CancellationToken cancellationToken)
 		{
 			var connection = await app.PortableSupport.ServerHost.Start (cancellationToken);
 
-			var serverConnection = await StartServer (app, connection, cancellationToken);
-			var server = new Server (app, serverConnection);
+			var serverConnection = await StartServer (app, framework, connection, cancellationToken);
+			var server = new Server (app, framework, serverConnection);
 			await server.Initialize (cancellationToken);
 			return server;
 		}
@@ -98,13 +98,13 @@ namespace Xamarin.AsyncTests.Remoting
 			return client;
 		}
 
-		static async Task<ServerConnection> StartServer (TestApp app, IServerConnection connection, CancellationToken cancellationToken)
+		static async Task<ServerConnection> StartServer (TestApp app, TestFramework framework, IServerConnection connection, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			var stream = await connection.Open (cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			return new ServerConnection (app, stream, connection);
+			return new ServerConnection (app, framework, stream, connection);
 		}
 
 		static async Task<ClientConnection> StartClient (TestApp app, IServerConnection connection, CancellationToken cancellationToken)
@@ -139,9 +139,15 @@ namespace Xamarin.AsyncTests.Remoting
 
 		class LocalTestServer : TestServer
 		{
-			public LocalTestServer (TestApp app)
+			public TestFramework Framework {
+				get;
+				private set;
+			}
+
+			public LocalTestServer (TestApp app, TestFramework framework)
 				: base (app)
 			{
+				Framework = framework;
 			}
 
 			public override Task<bool> WaitForExit (CancellationToken cancellationToken)
@@ -156,7 +162,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 			public override Task<TestSession> GetTestSession (CancellationToken cancellationToken)
 			{
-				return Task.FromResult (TestSession.CreateLocal (App, App.Framework));
+				return Task.FromResult (TestSession.CreateLocal (App, Framework));
 			}
 		}
 
@@ -252,12 +258,14 @@ namespace Xamarin.AsyncTests.Remoting
 
 		class Server : TestServer
 		{
+			TestFramework framework;
 			ServerConnection server;
 			Task serverTask;
 
-			public Server (TestApp app, ServerConnection server)
+			public Server (TestApp app, TestFramework framework, ServerConnection server)
 				: base (app)
 			{
+				this.framework = framework;
 				this.server = server;
 			}
 
@@ -291,7 +299,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 			public override Task<TestSession> GetTestSession (CancellationToken cancellationToken)
 			{
-				return Task.FromResult (TestSession.CreateLocal (App, App.Framework));
+				return Task.FromResult (TestSession.CreateLocal (App, framework));
 			}
 		}
 

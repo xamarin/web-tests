@@ -36,12 +36,17 @@ namespace Xamarin.AsyncTests.Remoting
 
 	class ServerConnection : Connection
 	{
+		TestFramework framework;
 		IServerConnection connection;
 		TaskCompletionSource<EventSinkClient> helloTcs;
 		EventSinkClient eventSink;
 
 		internal EventSinkClient EventSink {
 			get { return eventSink; }
+		}
+
+		public TestFramework Framework {
+			get { return framework; }
 		}
 
 		public TestLogger Logger {
@@ -52,9 +57,10 @@ namespace Xamarin.AsyncTests.Remoting
 			get { return true; }
 		}
 
-		public ServerConnection (TestApp context, Stream stream, IServerConnection connection)
+		public ServerConnection (TestApp context, TestFramework framework, Stream stream, IServerConnection connection)
 			: base (context, stream)
 		{
+			this.framework = framework;
 			this.connection = connection;
 			helloTcs = new TaskCompletionSource<EventSinkClient> ();
 		}

@@ -48,6 +48,7 @@ namespace Xamarin.AsyncTests.Remoting
 			startTcs = new TaskCompletionSource<object> ();
 		}
 
+		[Obsolete ("MUST GO")]
 		public TestFramework LocalFramework {
 			get { return localFramework; }
 		}

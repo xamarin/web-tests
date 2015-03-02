@@ -80,9 +80,9 @@ namespace Xamarin.AsyncTests.MacUI
 			{
 				switch (parameters.Mode) {
 				case ServerMode.Local:
-					return TestServer.StartLocal (Manager.App, cancellationToken);
+					return TestServer.StartLocal (Manager.App, Manager.App.Framework, cancellationToken);
 				case ServerMode.CreatePipe:
-					return TestServer.CreatePipe (Manager.App, cancellationToken);
+					return TestServer.CreatePipe (Manager.App, Manager.App.Framework, cancellationToken);
 				default:
 					throw new InternalErrorException ();
 				}
