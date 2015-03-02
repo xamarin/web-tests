@@ -59,18 +59,23 @@ namespace Xamarin.AsyncTests
 		}
 
 		public TestFeature (string name, string description, Func<bool> func)
-			: this (name, description, null, func)
+			: this (name, description, null, GetConstantValue (func))
 		{
 		}
 
-		TestFeature (string name, string description, bool? defaultValue, Func<bool> func)
+		static bool? GetConstantValue (Func<bool> func)
+		{
+			if (func != null)
+				return func ();
+			return null;
+		}
+
+		internal TestFeature (string name, string description, bool? defaultValue, bool? constant)
 		{
 			Name = name;
 			Description = description;
 			DefaultValue = defaultValue;
-
-			if (func != null)
-				Constant = func ();
+			Constant = constant;
 		}
 
 		public override string ToString ()

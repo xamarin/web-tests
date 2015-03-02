@@ -192,13 +192,13 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
-		public static async Task<TestConfiguration> GetRemoteTestConfiguration (
+		public static async Task<ITestConfigurationProvider> GetRemoteTestConfiguration (
 			TestSessionClient session, CancellationToken cancellationToken)
 		{
 			var command = new GetRemoteTestConfigurationCommand ();
 			var result = await command.Send (session, null, cancellationToken);
 			Connection.Debug ("GET REMOTE CONFIG: {0}", result);
-			throw new NotImplementedException ();
+			return TestSerializer.ReadConfiguration (result);
 		}
 
 		class GetRootTestCaseCommand : RemoteObjectCommand<RemoteTestSession,object,ObjectProxy>

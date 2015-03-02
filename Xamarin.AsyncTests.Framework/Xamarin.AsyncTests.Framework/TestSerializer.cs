@@ -428,12 +428,34 @@ namespace Xamarin.AsyncTests.Framework
 			element.SetAttributeValue ("Name", instance.Name);
 			if (instance.Description != null)
 				element.SetAttributeValue ("Description", instance.Description);
-			element.SetAttributeValue ("CanModify", instance.CanModify);
 			if (instance.DefaultValue != null)
 				element.SetAttributeValue ("DefaultValue", instance.DefaultValue);
 			if (instance.Constant != null)
 				element.SetAttributeValue ("Constant", instance.Constant);
 			return element;
+		}
+
+		static bool? GetNullableBool (XElement node, string name)
+		{
+			var attr = node.Attribute (name);
+			if (attr == null)
+				return null;
+			return bool.Parse (attr.Value);
+		}
+
+		static TestFeature ReadTestFeature (XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("TestFeature"))
+				throw new InternalErrorException ();
+
+			var name = node.Attribute ("Name");
+			var descriptionAttr = node.Attribute ("Description");
+			var description = descriptionAttr != null ? descriptionAttr.Value : null;
+
+			var defaultValue = GetNullableBool (node, "DefaultValue");
+			var constant = GetNullableBool (node, "Constant");
+
+			return new TestFeature (name.Value, description, defaultValue, constant);
 		}
 
 		static XElement WriteTestCategory (TestCategory instance)
@@ -443,6 +465,15 @@ namespace Xamarin.AsyncTests.Framework
 			element.SetAttributeValue ("IsBuiltin", instance.IsBuiltin);
 			element.SetAttributeValue ("IsExplicit", instance.IsExplicit);
 			return element;
+		}
+
+		static TestCategory ReadTestCategory (XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("TestCategory"))
+				throw new InternalErrorException ();
+
+			var name = node.Attribute ("Name");
+			return new TestCategory (name.Value);
 		}
 
 		public static XElement WriteConfiguration (ITestConfigurationProvider configuration)
@@ -458,6 +489,48 @@ namespace Xamarin.AsyncTests.Framework
 			}
 
 			return element;
+		}
+
+		public static ITestConfigurationProvider ReadConfiguration (XElement node)
+		{
+			if (!node.Name.LocalName.Equals ("TestConfiguration"))
+				throw new InternalErrorException ();
+
+			var config = new ConfigurationWrapper ();
+
+			foreach (var feature in node.Elements ("TestFeature")) {
+				config.Add (ReadTestFeature (feature));
+			}
+
+			foreach (var category in node.Elements ("TestCategory")) {
+				config.Add (ReadTestCategory (category));
+			}
+
+			return config;
+		}
+
+		class ConfigurationWrapper : ITestConfigurationProvider
+		{
+			List<TestFeature> features = new List<TestFeature> ();
+			List<TestCategory> categories = new List<TestCategory> ();
+
+			public void Add (TestFeature feature)
+			{
+				features.Add (feature);
+			}
+
+			public void Add (TestCategory category)
+			{
+				categories.Add (category);
+			}
+
+			public IEnumerable<TestFeature> Features {
+				get { return features; }
+			}
+
+			public IEnumerable<TestCategory> Categories {
+				get { return categories; }
+			}
 		}
 	}
 }
