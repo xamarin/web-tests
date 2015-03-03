@@ -319,7 +319,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var source = Activator.CreateInstance (sourceType);
 			return (ParameterizedTestHost)Activator.CreateInstance (
-				hostType, member.Name, source, serializer, TestFlags.None);
+				hostType, member.Name, source, serializer, null, TestFlags.None);
 		}
 
 		static TestHost CreateBoolean (IMemberInfo member)
