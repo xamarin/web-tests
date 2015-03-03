@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Constraints
 {
@@ -56,6 +58,22 @@ namespace Xamarin.AsyncTests.Constraints
 				return CompareString ((string)Expected, actualString, out message);
 			}
 
+			if (Expected is IList) {
+				if (actual == null) {
+					message = "Expected list, but got <null>.";
+					return false;
+				}
+
+				var actualList = actual as IList;
+				if (actualList == null) {
+					message = string.Format (
+						"Expected list, but got instance of Type `{0}'.", actual.GetType ());
+					return false;
+				}
+
+				return CompareList ((IList)Expected, actualList, out message);
+			}
+
 			message = null;
 			return object.Equals (actual, Expected);
 		}
@@ -70,6 +88,32 @@ namespace Xamarin.AsyncTests.Constraints
 
 			message = null;
 			return string.Compare (expected, actual) == 0;
+		}
+
+		bool CompareElement (object expected, object actual)
+		{
+			return expected.Equals (actual);
+		}
+
+		bool CompareList (IList expected, IList actual, out string message)
+		{
+			if (expected.Count != actual.Count) {
+				message = string.Format (
+					"Collections differ in size: expected {0}, got {1}.", expected.Count, actual.Count);
+				return false;
+			}
+
+			for (int i = 0; i < expected.Count; i++) {
+				var ok = CompareElement (expected [i], actual [i]);
+				if (!ok) {
+					message = string.Format (
+						"Collections differ at element {0}: expected {1}, got {2}.", i, expected [i], actual [i]);
+					return false;
+				}
+			}
+
+			message = null;
+			return true;
 		}
 
 		public override string Print ()
