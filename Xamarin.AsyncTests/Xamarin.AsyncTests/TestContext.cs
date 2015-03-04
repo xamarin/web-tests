@@ -288,6 +288,28 @@ namespace Xamarin.AsyncTests
 		{
 			return support.GetStackTrace (false);
 		}
+
+		public T GetParameter<T> (string name = null)
+		{
+			var path = (ITestPathInternal)result.Path;
+			if (path == null) {
+				AssertFail ("Should never happen!");
+				throw new SkipRestOfThisTestException ();
+			}
+
+			while (path != null) {
+				if (path.IsParameterized && path.ParameterMatches<T> (name))
+					return path.GetParameter<T> ();
+
+				path = path.Parent;
+			}
+
+			if (name != null)
+				AssertFail (string.Format ("No such parameter '{0}'.", name));
+			else
+				AssertFail (string.Format ("No parameter of type '{0}'.", typeof (T)));
+			throw new SkipRestOfThisTestException ();
+		}
 	}
 }
 

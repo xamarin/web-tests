@@ -24,12 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
 using System.Xml.Linq;
 using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	sealed class TestPath : ITestPath
+	sealed class TestPath : ITestPath, ITestPathInternal
 	{
 		public TestHost Host {
 			get;
@@ -44,6 +45,14 @@ namespace Xamarin.AsyncTests.Framework
 		public TestPath Parent {
 			get;
 			private set;
+		}
+
+		ITestPathInternal ITestPathInternal.Parent {
+			get { return Parent; }
+		}
+
+		string ITestPathInternal.ParameterName {
+			get { return Host.Name; }
 		}
 
 		public TestName Name {
@@ -141,6 +150,28 @@ namespace Xamarin.AsyncTests.Framework
 				return false;
 
 			return true;
+		}
+
+		public bool ParameterMatches<T> (string name = null)
+		{
+			if (!IsParameterized)
+				return false;
+
+			if (name != null)
+				return Host.Name.Equals (name);
+			else {
+				var friendlyName = TestSerializer.GetFriendlyName (typeof(T));
+				return friendlyName.Equals (Host.ParameterType);
+			}
+		}
+
+		public T GetParameter<T> ()
+		{
+			var typeInfo = typeof(T).GetTypeInfo ();
+			if (typeInfo.IsEnum)
+				return (T)Enum.Parse (typeof (T), Parameter.Value);
+
+			return (T)Parameter;
 		}
 
 		public XElement SerializePath ()
