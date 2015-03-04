@@ -75,7 +75,14 @@ namespace Xamarin.AsyncTests.Constraints
 			}
 
 			message = null;
-			return object.Equals (actual, Expected);
+			if (object.Equals (actual, Expected))
+				return true;
+
+			var actualType = actual.GetType ();
+			var ExpectedType = Expected.GetType ();
+
+			message = string.Format ("Expected '{0}', got '{1}'.", Expected, actual);
+			return false;
 		}
 
 		bool CompareString (string expected, string actual, out string message)

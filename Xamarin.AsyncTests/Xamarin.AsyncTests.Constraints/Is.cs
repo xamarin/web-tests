@@ -59,6 +59,31 @@ namespace Xamarin.AsyncTests.Constraints
 			return new InstanceOfTypeConstraint (type);
 		}
 
+		public static Constraint InstanceOf<T> ()
+		{
+			return new InstanceOfTypeConstraint (typeof (T));
+		}
+
+		public static Constraint GreaterThanOrEqualTo (object expected)
+		{
+			return new GreaterThanOrEqualConstraint (expected);
+		}
+
+		public static Constraint LessThanOrEqualTo (object expected)
+		{
+			return new LessThanOrEqualConstraint (expected);
+		}
+
+		public static Constraint GreaterThan (object expected)
+		{
+			return new GreaterThanConstraint (expected);
+		}
+
+		public static Constraint LessThan (object expected)
+		{
+			return new LessThanConstraint (expected);
+		}
+
 		public static ConstraintOperator Not {
 			get { return new NotOperator (); }
 		}

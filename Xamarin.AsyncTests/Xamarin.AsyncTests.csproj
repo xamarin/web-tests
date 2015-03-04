@@ -107,6 +107,10 @@
     <Compile Include="Xamarin.AsyncTests.Portable\IPipeConnection.cs" />
     <Compile Include="Xamarin.AsyncTests\SavedException.cs" />
     <Compile Include="Xamarin.AsyncTests\IgnoreException.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\GreaterThanOrEqualConstraint.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\LessThanOrEqualConstraint.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\GreaterThanConstraint.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\LessThanConstraint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />

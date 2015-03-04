@@ -256,6 +256,14 @@ namespace Xamarin.AsyncTests
 			Expect (actual, constraint, true, format, args);
 		}
 
+		[HideStackFrame]
+		public void AssertFail (string message)
+		{
+			var exception = new AssertionException (message, GetStackTrace ());
+			OnError (exception);
+			throw new SkipRestOfThisTestException ();
+		}
+
 		public bool HasPendingException {
 			get { return Result != null && Result.HasErrors; }
 		}
