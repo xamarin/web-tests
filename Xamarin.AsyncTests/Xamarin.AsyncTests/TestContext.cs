@@ -291,7 +291,7 @@ namespace Xamarin.AsyncTests
 
 		public T GetParameter<T> (string name = null)
 		{
-			var path = (ITestPathInternal)result.Path;
+			var path = Result.Path as ITestPathInternal;
 			if (path == null) {
 				AssertFail ("Should never happen!");
 				throw new SkipRestOfThisTestException ();
