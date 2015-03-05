@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>{4D53941A-ABBE-4B89-A362-C56F7BC0B20A}</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Xamarin.AsyncTests.PortableImpl</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)PortableSupportImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerHost.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IPortableEndPoint.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IPortableEndPointSupport.cs" />
+  </ItemGroup>
+</Project>
