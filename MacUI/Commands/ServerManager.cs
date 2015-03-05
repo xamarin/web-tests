@@ -86,7 +86,7 @@ namespace Xamarin.AsyncTests.MacUI
 				case ServerMode.CreatePipe:
 					return TestServer.CreatePipe (Manager.App, framework, cancellationToken);
 				case ServerMode.ConnectToServer:
-					return TestServer.ConnectToServer (Manager.App, cancellationToken);
+					return TestServer.ConnectToServer (Manager.App, "127.0.0.1:8888", cancellationToken);
 				default:
 					throw new InternalErrorException ();
 				}

@@ -55,7 +55,7 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
-		public IPEndPoint Endpoint {
+		public IPEndPoint EndPoint {
 			get;
 			private set;
 		}
@@ -111,7 +111,7 @@ namespace Xamarin.AsyncTests.Console
 
 			var p = new OptionSet ();
 			p.Add ("settings=", v => SettingsFile = v);
-			p.Add ("connect=", v => Endpoint = GetEndpoint (v));
+			p.Add ("connect=", v => EndPoint = GetEndPoint (v));
 			p.Add ("wait", v => Wait = true);
 			p.Add ("result=", v => ResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
@@ -138,7 +138,7 @@ namespace Xamarin.AsyncTests.Console
 			SD.Debug.WriteLine (message, args);
 		}
 
-		static IPEndPoint GetEndpoint (string text)
+		static IPEndPoint GetEndPoint (string text)
 		{
 			int port;
 			string host;
@@ -153,6 +153,11 @@ namespace Xamarin.AsyncTests.Console
 
 			var address = IPAddress.Parse (host);
 			return new IPEndPoint (address, port);
+		}
+
+		static string PrintEndPoint (IPEndPoint endpoint)
+		{
+			return string.Format ("{0}:{1}", endpoint.Address, endpoint.Port);
 		}
 
 		static SettingsBag LoadSettings (string filename)
@@ -206,7 +211,8 @@ namespace Xamarin.AsyncTests.Console
 
 		async Task ConnectToServer (CancellationToken cancellationToken)
 		{
-			var server = await TestServer.ConnectToServer (this, cancellationToken);
+			var endpoint = PrintEndPoint (EndPoint);
+			var server = await TestServer.ConnectToServer (this, endpoint, cancellationToken);
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			session = server.Session;
