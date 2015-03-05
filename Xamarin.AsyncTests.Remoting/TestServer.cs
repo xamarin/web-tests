@@ -65,10 +65,10 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			await Task.Yield ();
 
-			var support = DependencyInjector.Get<IPortableSupport> ();
+			var support = DependencyInjector.Get<IServerHost> ();
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			var connection = await support.ServerHost.CreatePipe (cancellationToken);
+			var connection = await support.CreatePipe (cancellationToken);
 
 			var serverApp = new PipeApp (framework);
 
@@ -82,8 +82,8 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public static async Task<TestServer> StartServer (TestApp app, TestFramework framework, CancellationToken cancellationToken)
 		{
-			var support = DependencyInjector.Get<IPortableSupport> ();
-			var connection = await support.ServerHost.Start (cancellationToken);
+			var support = DependencyInjector.Get<IServerHost> ();
+			var connection = await support.Start (cancellationToken);
 
 			var serverConnection = await StartServer (app, framework, connection, cancellationToken);
 			var server = new Server (app, framework, serverConnection);
@@ -93,8 +93,8 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public static async Task<TestServer> ConnectToServer (TestApp app, CancellationToken cancellationToken)
 		{
-			var support = DependencyInjector.Get<IPortableSupport> ();
-			var connection = await support.ServerHost.Connect ("127.0.0.1:8888", cancellationToken);
+			var support = DependencyInjector.Get<IServerHost> ();
+			var connection = await support.Connect ("127.0.0.1:8888", cancellationToken);
 
 			var clientConnection = await StartClient (app, connection, cancellationToken);
 			var client = new Client (app, clientConnection);

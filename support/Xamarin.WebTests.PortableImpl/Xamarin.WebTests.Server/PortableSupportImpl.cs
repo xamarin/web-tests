@@ -96,6 +96,7 @@ namespace Xamarin.WebTests.Portable
 			if (instance == null) {
 				instance = new PortableSupportImpl ();
 				PortableSupport.Initialize (instance, instance);
+				DependencyInjector.Register<IServerHost> (instance.ServerHost);
 			}
 			return instance;
 		}

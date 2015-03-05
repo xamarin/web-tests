@@ -42,10 +42,6 @@ namespace Xamarin.AsyncTests.Portable
 		Version MonoRuntimeVersion {
 			get;
 		}
-
-		IServerHost ServerHost {
-			get;
-		}
 	}
 }
 
