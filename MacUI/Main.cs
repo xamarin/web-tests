@@ -26,6 +26,8 @@
 using System;
 
 using AppKit;
+using Xamarin.AsyncTests.Portable;
+using Xamarin.WebTests.Portable;
 
 namespace Xamarin.AsyncTests.MacUI
 {
@@ -33,6 +35,9 @@ namespace Xamarin.AsyncTests.MacUI
 	{
 		static void Main (string[] args)
 		{
+			PortableSupportImpl.Initialize ();
+			PortableWebSupportImpl.Initialize ();
+
 			NSApplication.Init ();
 			NSApplication.Main (args);
 		}

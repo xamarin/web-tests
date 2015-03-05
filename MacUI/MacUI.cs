@@ -60,10 +60,6 @@ namespace Xamarin.AsyncTests.MacUI
 			private set;
 		}
 
-		public IPortableSupport PortableSupport {
-			get { return support; }
-		}
-
 		public TestLogger Logger {
 			get { return logger; }
 		}
@@ -79,16 +75,12 @@ namespace Xamarin.AsyncTests.MacUI
 		public static MacUI Create ()
 		{
 			var settings = new UISettings ();
-			var portable = PortableSupportImpl.Initialize ();
 			var assembly = typeof(SampleFeatures).Assembly;
-			return new MacUI (portable, settings, assembly);
+			return new MacUI (settings, assembly);
 		}
 
-		MacUI (IPortableSupport support, SettingsBag settings, Assembly assembly)
+		MacUI (SettingsBag settings, Assembly assembly)
 		{
-			this.support = support;
-			this.settings = settings;
-
 			Assembly = assembly;
 
 			logger = new TestLogger (new UILogger (this));

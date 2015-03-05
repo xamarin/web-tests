@@ -71,10 +71,6 @@ namespace Xamarin.AsyncTests.Server
 			get { return framework; }
 		}
 
-		public IPortableSupport PortableSupport {
-			get { return support; }
-		}
-
 		public int LogLevel {
 			get;
 			private set;
@@ -86,7 +82,6 @@ namespace Xamarin.AsyncTests.Server
 		}
 
 		TestSession session;
-		IPortableSupport support;
 		SettingsBag settings;
 		TestFramework framework;
 		TestLogger logger;
@@ -96,9 +91,10 @@ namespace Xamarin.AsyncTests.Server
 			SD.Debug.AutoFlush = true;
 			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
 
-			var support = PortableSupportImpl.Initialize ();
+			PortableSupportImpl.Initialize ();
+			PortableWebSupportImpl.Initialize ();
 
-			var program = new Program (support, args);
+			var program = new Program (args);
 
 			try {
 				var task = program.RunServer ();
@@ -108,10 +104,8 @@ namespace Xamarin.AsyncTests.Server
 			}
 		}
 
-		Program (IPortableSupport support, string[] args)
+		Program (string[] args)
 		{
-			this.support = support;
-
 			LogLevel = -1;
 
 			var p = new OptionSet ();

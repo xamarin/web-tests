@@ -33,7 +33,7 @@ using System.Threading.Tasks;
 
 using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.AsyncTests.PortableImpl
+namespace Xamarin.AsyncTests.Portable
 {
 	using Portable;
 

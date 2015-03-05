@@ -40,9 +40,8 @@ using System.Collections.Specialized;
 using Mono.Security.Protocol.Ntlm;
 
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.AsyncTests.PortableImpl
+namespace Xamarin.AsyncTests.Portable
 {
 	using Framework;
 
@@ -90,7 +89,7 @@ namespace Xamarin.AsyncTests.PortableImpl
 			serverHost = new ServerHost ();
 		}
 
-		public static IPortableSupport Initialize ()
+		public static void Initialize ()
 		{
 			if (instance == null) {
 				instance = new PortableSupportImpl ();
@@ -98,7 +97,6 @@ namespace Xamarin.AsyncTests.PortableImpl
 				DependencyInjector.Register<IPortableEndPointSupport> (instance);
 				DependencyInjector.Register<IServerHost> (instance.ServerHost);
 			}
-			return instance;
 		}
 
 		static readonly bool hasNetwork;
