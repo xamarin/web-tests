@@ -34,6 +34,7 @@ using System.Collections.Generic;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Framework
 {

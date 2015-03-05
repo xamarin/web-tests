@@ -34,6 +34,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Server
 {

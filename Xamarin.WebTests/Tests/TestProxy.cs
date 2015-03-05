@@ -33,6 +33,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Tests
 {

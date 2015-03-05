@@ -38,6 +38,7 @@ using System.Security.Cryptography.X509Certificates;
 using SD = System.Diagnostics;
 
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Server
 {

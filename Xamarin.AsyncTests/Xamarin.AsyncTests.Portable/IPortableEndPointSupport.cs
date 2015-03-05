@@ -1,10 +1,10 @@
 ﻿//
-// IEndPoint.cs
+// IPortableEndPointSupport.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,23 +25,13 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.AsyncTests.Portable
 {
-	public interface IPortableEndPoint
+	public interface IPortableEndPointSupport
 	{
-		int Port {
-			get;
-		}
+		IPortableEndPoint GetLoopbackEndpoint (int port);
 
-		string Address {
-			get;
-		}
-
-		bool IsLoopback {
-			get;
-		}
-
-		IPortableEndPoint CopyWithPort (int port);
+		IPortableEndPoint GetEndpoint (int port);
 	}
 }
 

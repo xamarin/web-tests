@@ -11,7 +11,5 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)PortableSupportImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerHost.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)IPortableEndPoint.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)IPortableEndPointSupport.cs" />
   </ItemGroup>
 </Project>

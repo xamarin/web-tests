@@ -45,7 +45,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IHttpServer.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IListener.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IPortableEndPoint.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IPortableWebSupport.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IWebClient.cs" />
     <Compile Include="Xamarin.WebTests.Portable\AuthenticationType.cs" />
