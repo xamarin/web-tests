@@ -36,6 +36,7 @@ namespace Xamarin.WebTests.Portable
 		{
 			instance = setInstance;
 			web = setWeb;
+			DependencyInjector.Register<IPortableSupport> (setInstance);
 		}
 
 		static IPortableSupport instance;

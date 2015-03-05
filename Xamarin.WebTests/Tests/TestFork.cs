@@ -33,6 +33,7 @@ using System.Collections.Generic;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Tests
 {
@@ -83,11 +84,12 @@ namespace Xamarin.WebTests.Tests
 			[Fork (5, RandomDelay = 1500)] IFork fork, [Repeat (50)] int repeat,
 			[ForkHandler] Handler handler, CancellationToken cancellationToken)
 		{
-			ctx.LogMessage ("FORK START: {0} {1}", fork.ID, ctx.PortableSupport.CurrentThreadId);
+			var support = DependencyInjector.Get<IPortableSupport> ();
+			ctx.LogMessage ("FORK START: {0} {1}", fork.ID, support.CurrentThreadId);
 
 			var ok = await TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 
-			ctx.LogMessage ("FORK DONE: {0} {1} {2}", fork.ID, ctx.PortableSupport.CurrentThreadId, ok);
+			ctx.LogMessage ("FORK DONE: {0} {1} {2}", fork.ID, support.CurrentThreadId, ok);
 
 			return ok;
 		}
@@ -98,7 +100,8 @@ namespace Xamarin.WebTests.Tests
 			[Fork (5, RandomDelay = 1500)] IFork fork, [Repeat (50)] int repeat,
 			[ForkHandler] Handler handler, CancellationToken cancellationToken)
 		{
-			ctx.LogMessage ("FORK START: {0} {1}", fork.ID, ctx.PortableSupport.CurrentThreadId);
+			var support = DependencyInjector.Get<IPortableSupport> ();
+			ctx.LogMessage ("FORK START: {0} {1}", fork.ID, support.CurrentThreadId);
 
 			var uri = new Uri (PostPuppy);
 
@@ -120,7 +123,7 @@ namespace Xamarin.WebTests.Tests
 					ok &= ctx.Expect (response.IsSuccess, Is.True, "success status");
 			}
 
-			ctx.LogMessage ("FORK DONE: {0} {1} {2}", fork.ID, ctx.PortableSupport.CurrentThreadId, ok);
+			ctx.LogMessage ("FORK DONE: {0} {1} {2}", fork.ID, support.CurrentThreadId, ok);
 
 			return ok;
 		}

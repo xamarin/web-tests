@@ -34,6 +34,7 @@ using System.Collections.Generic;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Tests
 {
@@ -162,7 +163,8 @@ namespace Xamarin.WebTests.Tests
 			[PostHandler ("post")] Handler handler, CancellationToken cancellationToken)
 		{
 			var post = (PostHandler)handler;
-			var isWindows = ctx.PortableSupport.IsMicrosoftRuntime;
+			var support = DependencyInjector.Get<IPortableSupport> ();
+			var isWindows = support.IsMicrosoftRuntime;
 			var hasBody = post.Content != null || ((post.Flags & RequestFlags.ExplicitlySetLength) != 0) || (post.Mode == TransferMode.ContentLength);
 
 			if ((hasBody || !isWindows) && (code == HttpStatusCode.MovedPermanently || code == HttpStatusCode.Found))

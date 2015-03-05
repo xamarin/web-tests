@@ -65,7 +65,7 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			var name = new TestName (framework.Name);
 			var config = new TestConfiguration (framework.ConfigurationProvider, app.Settings);
-			var rootCtx = new TestContext (app.PortableSupport, app.Logger, config, name, syncContext ?? SynchronizationContext.Current);
+			var rootCtx = new TestContext (app.Logger, config, name, syncContext ?? SynchronizationContext.Current);
 
 			return new ReflectionTestSession (app, (ReflectionTestFramework)framework, rootCtx);
 		}

@@ -49,9 +49,5 @@ namespace Xamarin.AsyncTests.Framework
 		SettingsBag Settings {
 			get;
 		}
-
-		IPortableSupport PortableSupport {
-			get;
-		}
 	}
 }

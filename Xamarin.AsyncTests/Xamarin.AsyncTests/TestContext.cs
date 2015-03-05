@@ -36,7 +36,6 @@ namespace Xamarin.AsyncTests
 	public sealed class TestContext : ITestConfiguration
 	{
 		readonly TestContext parent;
-		readonly IPortableSupport support;
 		readonly TestResult result;
 		readonly TestLogger logger;
 		readonly SynchronizationContext syncContext;
@@ -51,15 +50,9 @@ namespace Xamarin.AsyncTests
 			get { return result ?? parent.Result; }
 		}
 
-		public IPortableSupport PortableSupport {
-			get { return support; }
-		}
-
-		internal TestContext (IPortableSupport support, TestLogger logger, ITestConfiguration config, TestName name,
-			SynchronizationContext syncContext)
+		internal TestContext (TestLogger logger, ITestConfiguration config, TestName name, SynchronizationContext syncContext)
 		{
 			Name = name;
-			this.support = support;
 			this.config = config;
 			this.logger = logger;
 			this.syncContext = syncContext;
@@ -69,7 +62,6 @@ namespace Xamarin.AsyncTests
 		{
 			Name = name;
 			this.parent = parent;
-			this.support = parent.support;
 			this.result = result;
 			this.syncContext = syncContext ?? parent.syncContext;
 
@@ -291,6 +283,7 @@ namespace Xamarin.AsyncTests
 		[HideStackFrame]
 		public string GetStackTrace ()
 		{
+			var support = DependencyInjector.Get<IPortableSupport> ();
 			return support.GetStackTrace (false);
 		}
 

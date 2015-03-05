@@ -65,10 +65,12 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			await Task.Yield ();
 
-			cancellationToken.ThrowIfCancellationRequested ();
-			var connection = await app.PortableSupport.ServerHost.CreatePipe (cancellationToken);
+			var support = DependencyInjector.Get<IPortableSupport> ();
 
-			var serverApp = new PipeApp (app.PortableSupport, framework);
+			cancellationToken.ThrowIfCancellationRequested ();
+			var connection = await support.ServerHost.CreatePipe (cancellationToken);
+
+			var serverApp = new PipeApp (framework);
 
 			var server = await StartServer (serverApp, framework, connection.Server, cancellationToken);
 			var client = await StartClient (app, connection.Client, cancellationToken);
@@ -80,7 +82,8 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public static async Task<TestServer> StartServer (TestApp app, TestFramework framework, CancellationToken cancellationToken)
 		{
-			var connection = await app.PortableSupport.ServerHost.Start (cancellationToken);
+			var support = DependencyInjector.Get<IPortableSupport> ();
+			var connection = await support.ServerHost.Start (cancellationToken);
 
 			var serverConnection = await StartServer (app, framework, connection, cancellationToken);
 			var server = new Server (app, framework, serverConnection);
@@ -90,7 +93,8 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public static async Task<TestServer> ConnectToServer (TestApp app, CancellationToken cancellationToken)
 		{
-			var connection = await app.PortableSupport.ServerHost.Connect ("127.0.0.1:8888", cancellationToken);
+			var support = DependencyInjector.Get<IPortableSupport> ();
+			var connection = await support.ServerHost.Connect ("127.0.0.1:8888", cancellationToken);
 
 			var clientConnection = await StartClient (app, connection, cancellationToken);
 			var client = new Client (app, clientConnection);
@@ -168,20 +172,14 @@ namespace Xamarin.AsyncTests.Remoting
 
 		class PipeApp : TestApp
 		{
-			IPortableSupport support;
 			SettingsBag settings;
 			TestFramework framework;
 
-			public PipeApp (IPortableSupport support, TestFramework framework)
+			public PipeApp (TestFramework framework)
 			{
-				this.support = support;
 				this.framework = framework;
 
 				settings = SettingsBag.CreateDefault ();
-			}
-
-			public IPortableSupport PortableSupport {
-				get { return support; }
 			}
 
 			public TestFramework Framework {
