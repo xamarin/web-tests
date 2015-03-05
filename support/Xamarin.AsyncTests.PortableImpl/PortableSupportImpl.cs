@@ -341,14 +341,12 @@ namespace Xamarin.AsyncTests.Portable
 							return address.Address;
 					}
 				}
-				#elif FIXME
 				#else
-				return IPAddress.Loopback;
 				var hostname = Dns.GetHostName ();
 				var hostent = Dns.GetHostEntry (hostname);
 				foreach (var address in hostent.AddressList) {
-				if (address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback (address))
-				return address;
+					if (address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback (address))
+						return address;
 				}
 				#endif
 			} catch {
