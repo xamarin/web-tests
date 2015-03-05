@@ -75,7 +75,7 @@ namespace Xamarin.WebTests.Server
 
 		static Stream GetResourceStream (string name)
 		{
-			var asm = typeof(PortableSupport).Assembly;
+			var asm = typeof(IPortableWebSupport).Assembly;
 			return asm.GetManifestResourceStream ("Xamarin.WebTests.Server." + name);
 		}
 

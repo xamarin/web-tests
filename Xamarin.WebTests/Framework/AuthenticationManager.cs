@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Framework
 {
@@ -94,7 +95,8 @@ namespace Xamarin.WebTests.Framework
 
 			var bytes = Convert.FromBase64String (arg);
 
-			if (PortableSupport.HandleNTLM (ref bytes, ref haveChallenge))
+			var handler = DependencyInjector.Get<NTLMHandler> ();
+			if (handler.HandleNTLM (ref bytes, ref haveChallenge))
 				return null;
 
 			var token = "NTLM " + Convert.ToBase64String (bytes);

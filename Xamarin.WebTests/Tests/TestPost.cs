@@ -66,7 +66,8 @@ namespace Xamarin.WebTests.Tests
 
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			return new HttpServer (PortableSupport.Web.GetLoopbackEndpoint (9999), false, UseSSL);
+			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+			return new HttpServer (support.GetLoopbackEndpoint (9999), false, UseSSL);
 		}
 
 		public static IEnumerable<PostHandler> GetPostTests ()
@@ -188,7 +189,8 @@ namespace Xamarin.WebTests.Tests
 			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
 
 			await redirect.RunWithContext (ctx, server, async (uri) => {
-				using (var wc = PortableSupport.Web.CreateWebClient ()) {
+				var support = DependencyInjector.Get<IPortableWebSupport> ();
+				using (var wc = support.CreateWebClient ()) {
 					var res = await wc.UploadStringTaskAsync (uri, post.Content.AsString ());
 					ctx.LogDebug (2, "Test18750: {0}", res);
 					return res;
@@ -235,7 +237,8 @@ namespace Xamarin.WebTests.Tests
 			var handler = CreateAuthMaybeNone (post, authType);
 
 			await handler.RunWithContext (ctx, server, async (uri) => {
-				using (var client = PortableSupport.Web.CreateWebClient ()) {
+				var support = DependencyInjector.Get<IPortableWebSupport> ();
+				using (var client = support.CreateWebClient ()) {
 					ConfigureWebClient (client, handler);
 
 					var stream = await client.OpenWriteAsync (uri, "PUT");
@@ -267,7 +270,8 @@ namespace Xamarin.WebTests.Tests
 			var handler = CreateAuthMaybeNone (post, authType);
 
 			await handler.RunWithContext (ctx, server, async (uri) => {
-				using (var client = PortableSupport.Web.CreateWebClient ()) {
+				var support = DependencyInjector.Get<IPortableWebSupport> ();
+				using (var client = support.CreateWebClient ()) {
 					ConfigureWebClient (client, handler);
 
 					var collection = new List<KeyValuePair<string, string>> ();

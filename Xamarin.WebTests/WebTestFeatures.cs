@@ -29,6 +29,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 [assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures))]
 
@@ -129,7 +130,7 @@ namespace Xamarin.WebTests
 		public static readonly TestFeature Martin = new TestFeature ("Martin", "Martin's Lab", false);
 
 		public static readonly TestFeature HasNetwork = new TestFeature (
-			"Network", "HasNetwork", () => PortableSupport.Web.HasNetwork);
+			"Network", "HasNetwork", () => DependencyInjector.Get<IPortableWebSupport> ().HasNetwork);
 
 		public static readonly TestFeature Mono38;
 		public static readonly TestFeature Mono381;
@@ -260,7 +261,7 @@ namespace Xamarin.WebTests
 
 		static bool HasMonoVersion (Version version)
 		{
-			var support = PortableSupport.Instance;
+			var support = DependencyInjector.Get<IPortableSupport> ();
 			if (support.IsMicrosoftRuntime)
 				return true;
 			return support.MonoRuntimeVersion != null && support.MonoRuntimeVersion >= version;

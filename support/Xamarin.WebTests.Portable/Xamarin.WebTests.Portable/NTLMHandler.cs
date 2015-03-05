@@ -1,10 +1,10 @@
 ﻿//
-// PortableSupport.cs
+// NTLMHandler.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,36 +24,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Mono.Security.Protocol.Ntlm;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
+using Mono.Security.Protocol.Ntlm;
 
 namespace Xamarin.WebTests.Portable
 {
-	public static class PortableSupport
+	public class NTLMHandler
 	{
-		public static void Initialize (IPortableSupport setInstance, IPortableWebSupport setWeb)
+		NTLMHandler ()
 		{
-			instance = setInstance;
-			web = setWeb;
-			DependencyInjector.Register<IPortableSupport> (setInstance);
 		}
 
-		static IPortableSupport instance;
-		static IPortableWebSupport web;
+		static NTLMHandler instance;
 
-		public static IPortableSupport Instance {
-			get { return instance; }
+		public static void Initialize () 
+		{
+			if (instance == null) {
+				instance = new NTLMHandler ();
+				DependencyInjector.Register<NTLMHandler> (instance);
+			}
 		}
 
-		public static IPortableWebSupport Web {
-			get { return web; }
-		}
-
-
-		#region NTLM Authentication
-
-		public static bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge)
+		public bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge)
 		{
 			if (haveChallenge) {
 				// FIXME: We don't actually check the result.
@@ -73,8 +65,6 @@ namespace Xamarin.WebTests.Portable
 				return false;
 			}
 		}
-
-		#endregion
 	}
 }
 

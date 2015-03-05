@@ -69,7 +69,8 @@ namespace Xamarin.WebTests.Tests
 
 		static TestProxy ()
 		{
-			address = PortableSupport.Web.GetEndpoint (0);
+			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+			address = support.GetEndpoint (0);
 			hasNetwork = !address.IsLoopback;
 		}
 

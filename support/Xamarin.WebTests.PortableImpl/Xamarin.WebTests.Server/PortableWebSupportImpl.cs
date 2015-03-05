@@ -71,6 +71,7 @@ namespace Xamarin.WebTests.Portable
 			if (instance == null) {
 				instance = new PortableWebSupportImpl ();
 				DependencyInjector.Register<IPortableWebSupport> (instance);
+				NTLMHandler.Initialize ();
 			}
 		}
 

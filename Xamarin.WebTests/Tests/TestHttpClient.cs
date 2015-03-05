@@ -33,6 +33,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests
 {
@@ -64,7 +65,8 @@ namespace Xamarin.WebTests
 
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			return new HttpServer (PortableSupport.Web.GetLoopbackEndpoint (9999), false, UseSSL);
+			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+			return new HttpServer (support.GetLoopbackEndpoint (9999), false, UseSSL);
 		}
 
 		static IEnumerable<HttpClientHandler> GetStableTests ()

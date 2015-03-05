@@ -48,7 +48,6 @@
     <Compile Include="Xamarin.WebTests.Portable\IPortableWebSupport.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IWebClient.cs" />
     <Compile Include="Xamarin.WebTests.Portable\AuthenticationType.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\PortableSupport.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IPortableProxy.cs" />
     <Compile Include="Mono.Security\BitConverterLE.cs" />
     <Compile Include="Mono.Security\Locale.cs" />
@@ -59,6 +58,7 @@
     <Compile Include="Mono.Security.Protocol.Ntlm\Type1Message.cs" />
     <Compile Include="Mono.Security.Protocol.Ntlm\Type2Message.cs" />
     <Compile Include="Mono.Security.Protocol.Ntlm\Type3Message.cs" />
+    <Compile Include="Xamarin.WebTests.Portable\NTLMHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />

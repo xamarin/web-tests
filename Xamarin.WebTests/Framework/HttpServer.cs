@@ -48,6 +48,7 @@ namespace Xamarin.WebTests.Framework
 		readonly Uri uri;
 		readonly bool reuseConnection;
 		readonly bool ssl;
+		readonly IPortableWebSupport WebSupport;
 
 		IPortableEndPoint endpoint;
 		IListener listener;
@@ -60,6 +61,8 @@ namespace Xamarin.WebTests.Framework
 			this.endpoint = endpoint;
 			this.reuseConnection = reuseConnection;
 			this.ssl = ssl;
+
+			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
 
 			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", endpoint.Address, endpoint.Port));
 		}
@@ -122,7 +125,7 @@ namespace Xamarin.WebTests.Framework
 
 		public virtual Task Start (CancellationToken cancellationToken)
 		{
-			listener = PortableSupport.Web.CreateHttpListener (endpoint, this, ReuseConnection, UseSSL);
+			listener = WebSupport.CreateHttpListener (endpoint, this, ReuseConnection, UseSSL);
 			return listener.Start ();
 		}
 
