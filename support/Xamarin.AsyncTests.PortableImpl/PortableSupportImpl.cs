@@ -26,7 +26,6 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -37,7 +36,6 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using Mono.Security.Protocol.Ntlm;
 
 using Xamarin.AsyncTests;
 
