@@ -112,6 +112,7 @@
     <Compile Include="Xamarin.AsyncTests.Constraints\GreaterThanConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\LessThanConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestPathInternal.cs" />
+    <Compile Include="Xamarin.AsyncTests\DependencyInjector.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />
