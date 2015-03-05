@@ -46,7 +46,7 @@ namespace Xamarin.AsyncTests
 
 		void OnLogEvent (TestLoggerBackend.LogEntry entry)
 		{
-			if (entry.LogLevel <= LogLevel)
+			if (LogLevel < 0 || entry.LogLevel <= LogLevel)
 				backend.OnLogEvent (entry);
 		}
 
