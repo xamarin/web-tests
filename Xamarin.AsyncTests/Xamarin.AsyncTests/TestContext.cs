@@ -157,6 +157,11 @@ namespace Xamarin.AsyncTests
 			LogMessage (string.Format (message, args));
 		}
 
+		public void LogError (string message, Exception error)
+		{
+			Invoke (() => logger.LogError (message, error));
+		}
+
 		public void LogError (Exception error)
 		{
 			Invoke (() => logger.LogError (error));

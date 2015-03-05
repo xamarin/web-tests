@@ -70,6 +70,11 @@ namespace Xamarin.AsyncTests
 			LogMessage (string.Format (format, args));
 		}
 
+		public void LogError (string message, Exception error)
+		{
+			OnLogEvent (new TestLoggerBackend.LogEntry (TestLoggerBackend.EntryKind.Error, 0, message, error));
+		}
+
 		public void LogError (Exception error)
 		{
 			OnLogEvent (new TestLoggerBackend.LogEntry (TestLoggerBackend.EntryKind.Error, 0, error.Message, error));
