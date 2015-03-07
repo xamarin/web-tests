@@ -70,16 +70,21 @@ namespace Xamarin.AsyncTests.Framework
 			base.Initialize (ctx);
 
 			if (Path.Parameter != null) {
-				current = Host.Deserialize (Path.Parameter);
-				var cloneable = current as ICloneable;
-				if (cloneable != null)
-					current = (T)cloneable.Clone ();
+				current = Clone (Host.Deserialize (Path.Parameter));
 				hasNext = true;
 				return;
 			}
 
 			parameters = new List<T> (SourceInstance.GetParameters (ctx, Filter));
 			index = 0;
+		}
+
+		static T Clone (T value)
+		{
+			var cloneable = value as ICloneable;
+			if (cloneable != null)
+				value = (T)cloneable.Clone ();
+			return value;
 		}
 
 		public override void Destroy (TestContext ctx)
@@ -101,7 +106,7 @@ namespace Xamarin.AsyncTests.Framework
 				return false;
 
 			if (parameters != null) {
-				current = parameters [index];
+				current = Clone (parameters [index]);
 				index++;
 				return true;
 			} else {
