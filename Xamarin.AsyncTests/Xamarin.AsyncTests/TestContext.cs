@@ -261,6 +261,12 @@ namespace Xamarin.AsyncTests
 			throw new SkipRestOfThisTestException ();
 		}
 
+		[HideStackFrame]
+		public void AssertFail (string format, params object[] args)
+		{
+			AssertFail (string.Format (format, args));
+		}
+
 		public bool HasPendingException {
 			get { return Result != null && Result.HasErrors; }
 		}
