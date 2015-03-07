@@ -95,7 +95,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (innerInstance == null)
 				return false;
 
-			var innerCtx = ctx.CreateChild (TestInstance.GetTestName (innerInstance));
+			var innerCtx = ctx.CreateChild (TestInstance.GetTestName (innerInstance), innerInstance);
 
 			var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
 

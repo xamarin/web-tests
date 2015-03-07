@@ -51,10 +51,6 @@ namespace Xamarin.AsyncTests.Framework
 			get { return Parent; }
 		}
 
-		string ITestPathInternal.ParameterName {
-			get { return Host.Name; }
-		}
-
 		public TestName Name {
 			get { return name; }
 		}
@@ -158,7 +154,7 @@ namespace Xamarin.AsyncTests.Framework
 				return false;
 
 			if (name != null)
-				return Host.Name.Equals (name);
+				return Host.Identifier.Equals (name);
 			else {
 				var friendlyName = TestSerializer.GetFriendlyName (typeof(T));
 				return friendlyName.Equals (Host.ParameterType);

@@ -40,6 +40,7 @@ namespace Xamarin.AsyncTests
 		readonly TestLogger logger;
 		readonly SynchronizationContext syncContext;
 		readonly ITestConfiguration config;
+		readonly ITestPathInternal path;
 
 		public TestName Name {
 			get;
@@ -50,6 +51,10 @@ namespace Xamarin.AsyncTests
 			get { return result ?? parent.Result; }
 		}
 
+		internal ITestPathInternal Path {
+			get { return path ?? parent.Path; }
+		}
+
 		internal TestContext (TestLogger logger, ITestConfiguration config, TestName name, SynchronizationContext syncContext)
 		{
 			Name = name;
@@ -58,10 +63,11 @@ namespace Xamarin.AsyncTests
 			this.syncContext = syncContext;
 		}
 
-		TestContext (TestContext parent, TestName name, TestResult result, SynchronizationContext syncContext = null)
+		TestContext (TestContext parent, TestName name, ITestPathInternal path, TestResult result, SynchronizationContext syncContext = null)
 		{
 			Name = name;
 			this.parent = parent;
+			this.path = path;
 			this.result = result;
 			this.syncContext = syncContext ?? parent.syncContext;
 
@@ -81,9 +87,9 @@ namespace Xamarin.AsyncTests
 				syncContext.Post (d => action (), null);
 		}
 
-		internal TestContext CreateChild (TestName name, TestResult result = null, SynchronizationContext syncContext = null)
+		internal TestContext CreateChild (TestName name, ITestPathInternal path, TestResult result = null, SynchronizationContext syncContext = null)
 		{
-			return new TestContext (this, name, result, syncContext);
+			return new TestContext (this, name, path, result, syncContext);
 		}
 
 		#region Statistics
@@ -308,14 +314,14 @@ namespace Xamarin.AsyncTests
 
 		public bool TryGetParameter<T> (out T value, string name = null)
 		{
-			var path = Result.Path as ITestPathInternal;
+			var path = Path;
 			if (path == null) {
 				AssertFail ("Should never happen!");
 				throw new SkipRestOfThisTestException ();
 			}
 
 			while (path != null) {
-				if (path.IsParameterized && path.ParameterMatches<T> (name)) {
+				if (path.ParameterMatches<T> (name)) {
 					value = path.GetParameter<T> ();
 					return true;
 				}

@@ -49,6 +49,16 @@ namespace Xamarin.AsyncTests.Framework
 			return null;
 		}
 
+		public override bool ParameterMatches<T> (string name)
+		{
+			return typeof(T).Equals (Host.Type);
+		}
+
+		public override T GetParameter<T> ()
+		{
+			return (T)Current;
+		}
+
 		[StackTraceEntryPoint]
 		public abstract Task Initialize (TestContext ctx, CancellationToken cancellationToken);
 

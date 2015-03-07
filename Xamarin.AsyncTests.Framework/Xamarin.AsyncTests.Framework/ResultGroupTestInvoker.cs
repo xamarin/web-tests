@@ -59,7 +59,7 @@ namespace Xamarin.AsyncTests.Framework
 			var innerResult = new TestResult (innerName);
 			innerResult.Path = currentPath;
 
-			var innerCtx = ctx.CreateChild (innerResult.Name, innerResult);
+			var innerCtx = ctx.CreateChild (innerResult.Name, currentPath, innerResult);
 
 			bool success;
 			try {

@@ -122,7 +122,7 @@ namespace Xamarin.AsyncTests.Framework
 
 				found = true;
 
-				var innerCtx = ctx.CreateChild (name, ctx.Result);
+				var innerCtx = ctx.CreateChild (name, parameterizedInstance, ctx.Result);
 
 				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2} {3}", name.FullName,
 					TestLogger.Print (Host), TestLogger.Print (parameterizedInstance), Inner);

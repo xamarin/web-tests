@@ -24,13 +24,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
 using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestInstance
+	abstract class TestInstance : ITestPathInternal
 	{
 		public TestHost Host {
 			get;
@@ -40,6 +41,10 @@ namespace Xamarin.AsyncTests.Framework
 		public TestInstance Parent {
 			get;
 			private set;
+		}
+
+		ITestPathInternal ITestPathInternal.Parent {
+			get { return Parent; }
 		}
 
 		public TestPath Path {
@@ -101,6 +106,21 @@ namespace Xamarin.AsyncTests.Framework
 		public static TestName GetTestName (TestInstance instance)
 		{
 			return GetCurrentPath (instance).Name;
+		}
+
+		public virtual bool ParameterMatches<T> (string name)
+		{
+			return Path.ParameterMatches<T> (name);
+		}
+
+		public virtual T GetParameter<T> ()
+		{
+			var parameter = GetCurrentParameter ();
+			if (parameter == null)
+				throw new InternalErrorException ();
+
+			var path = new TestPath (Parent.Host, Parent.Path, parameter);
+			return path.GetParameter<T> ();
 		}
 
 		public override string ToString ()

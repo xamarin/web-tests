@@ -27,17 +27,9 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	internal interface ITestPathInternal : ITestPath
+	internal interface ITestPathInternal
 	{
 		ITestPathInternal Parent {
-			get;
-		}
-
-		bool IsParameterized {
-			get;
-		}
-
-		string ParameterName {
 			get;
 		}
 

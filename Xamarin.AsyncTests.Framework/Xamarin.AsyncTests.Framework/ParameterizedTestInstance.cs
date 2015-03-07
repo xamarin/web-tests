@@ -64,6 +64,16 @@ namespace Xamarin.AsyncTests.Framework
 			return Serialize ();
 		}
 
+		public override bool ParameterMatches<T> (string name)
+		{
+			return Path.ParameterMatches<T> (name);
+		}
+
+		public override T GetParameter<T> ()
+		{
+			return (T)Current;
+		}
+
 		[StackTraceEntryPoint]
 		public abstract bool HasNext ();
 
