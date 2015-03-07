@@ -34,6 +34,10 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
+		public string Identifier {
+			get; set;
+		}
+
 		public TestFlags Flags {
 			get;
 			private set;

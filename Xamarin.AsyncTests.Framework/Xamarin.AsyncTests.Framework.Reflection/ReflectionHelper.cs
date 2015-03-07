@@ -256,7 +256,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			bool useFixtureInstance;
 			var hostType = GetCustomHostType (fixture, member, attr, out useFixtureInstance);
 
-			return new CustomTestHost (member.Name, member.Type.AsType (), hostType, useFixtureInstance);
+			return new CustomTestHost (attr.Identifier ?? member.Name, member.Type.AsType (), hostType, useFixtureInstance);
 		}
 
 		static void Debug (string format, params object[] args)
@@ -302,7 +302,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var type = typeof(ParameterSourceHost<>).MakeGenericType (member.Type.AsType ());
 			return (TestHost)Activator.CreateInstance (
-				type, member.Name, sourceInstance, serializer, attr.Filter, attr.Flags);
+				type, attr.Identifier ?? member.Name, sourceInstance, serializer, attr.Filter, attr.Flags);
 		}
 
 		static TestHost CreateEnum (IMemberInfo member)
