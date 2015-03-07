@@ -289,6 +289,19 @@ namespace Xamarin.AsyncTests
 
 		public T GetParameter<T> (string name = null)
 		{
+			T value;
+			if (TryGetParameter<T> (out value, name))
+				return value;
+
+			if (name != null)
+				AssertFail (string.Format ("No such parameter '{0}'.", name));
+			else
+				AssertFail (string.Format ("No parameter of type '{0}'.", typeof (T)));
+			throw new SkipRestOfThisTestException ();
+		}
+
+		public bool TryGetParameter<T> (out T value, string name = null)
+		{
 			var path = Result.Path as ITestPathInternal;
 			if (path == null) {
 				AssertFail ("Should never happen!");
@@ -296,17 +309,16 @@ namespace Xamarin.AsyncTests
 			}
 
 			while (path != null) {
-				if (path.IsParameterized && path.ParameterMatches<T> (name))
-					return path.GetParameter<T> ();
+				if (path.IsParameterized && path.ParameterMatches<T> (name)) {
+					value = path.GetParameter<T> ();
+					return true;
+				}
 
 				path = path.Parent;
 			}
 
-			if (name != null)
-				AssertFail (string.Format ("No such parameter '{0}'.", name));
-			else
-				AssertFail (string.Format ("No parameter of type '{0}'.", typeof (T)));
-			throw new SkipRestOfThisTestException ();
+			value = default(T);
+			return false;
 		}
 	}
 }
