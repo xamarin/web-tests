@@ -312,6 +312,16 @@ namespace Xamarin.AsyncTests
 			throw new SkipRestOfThisTestException ();
 		}
 
+		public object GetFixtureInstance ()
+		{
+			object value;
+			if (TryGetParameter<object> (out value, "fixture"))
+				return value;
+
+			AssertFail ("Unable to get fixture instance.");
+			throw new SkipRestOfThisTestException ();
+		}
+
 		public bool TryGetParameter<T> (out T value, string name = null)
 		{
 			var path = Path;
