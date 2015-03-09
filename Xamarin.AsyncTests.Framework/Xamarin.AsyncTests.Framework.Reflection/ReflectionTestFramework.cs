@@ -72,9 +72,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				var cattr = asm.GetCustomAttribute<DependencyProviderAttribute> ();
 				if (cattr == null)
 					continue;
-				var type = cattr.Type;
-				var instanceMember = type.GetRuntimeField ("Instance");
-				var provider = (IDependencyProvider)instanceMember.GetValue (null);
+				var provider = (IDependencyProvider)Activator.CreateInstance (cattr.Type);
 				provider.Initialize ();
 			}
 		}
