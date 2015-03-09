@@ -40,6 +40,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
+		public Assembly[] Dependencies {
+			get;
+			private set;
+		}
+
 		public override string Name {
 			get { return name; }
 		}
@@ -51,16 +56,33 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		string name;
 		ITestConfigurationProvider provider;
 
-		public ReflectionTestFramework (Assembly assembly)
+		public ReflectionTestFramework (Assembly assembly, params Assembly[] dependencies)
 		{
 			Assembly = assembly;
+			Dependencies = dependencies;
 
+			ResolveDependencies ();
 			Resolve ();
+		}
+
+		void ResolveDependencies ()
+		{
+			foreach (var asm in Dependencies) {
+				var cattr = asm.GetCustomAttribute<DependencyProviderAttribute> ();
+				if (cattr == null)
+					continue;
+				var type = cattr.Type;
+				var instanceMember = type.GetRuntimeField ("Instance");
+				var provider = (IDependencyProvider)instanceMember.GetValue (null);
+				provider.Initialize ();
+			}
 		}
 
 		void Resolve ()
 		{
-			var cattr = Assembly.GetCustomAttributes<AsyncTestSuiteAttribute> ().First ();
+			var cattr = Assembly.GetCustomAttribute<AsyncTestSuiteAttribute> ();
+			if (cattr == null)
+				throw new InternalErrorException ("Assembly '{0}' is not a Xamarin.AsyncTests test suite.", Assembly);
 			var type = cattr.Type;
 			var instanceMember = type.GetRuntimeField ("Instance");
 			provider = (ITestConfigurationProvider)instanceMember.GetValue (null);

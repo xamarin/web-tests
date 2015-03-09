@@ -29,6 +29,14 @@ namespace Xamarin.AsyncTests.Framework
 {
 	public class InternalErrorException : InvalidOperationException
 	{
+		public InternalErrorException ()
+		{
+		}
+
+		public InternalErrorException (string format, params object[] args)
+			: base (string.Format (format, args))
+		{
+		}
 	}
 }
 

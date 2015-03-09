@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
+using System.Collections.Generic;
 using System.Reflection;
 using SD = System.Diagnostics;
 using System.Net;
@@ -98,7 +99,7 @@ namespace Xamarin.AsyncTests.Console
 			var program = new Program (args);
 
 			try {
-				var task = program.ConnectToServer (CancellationToken.None);
+				var task = program.Run (CancellationToken.None);
 				task.Wait ();
 			} catch (Exception ex) {
 				Debug ("ERROR: {0}", ex);
@@ -109,15 +110,23 @@ namespace Xamarin.AsyncTests.Console
 		{
 			LogLevel = -1;
 
+			var dependencies = new List<string> ();
+
 			var p = new OptionSet ();
 			p.Add ("settings=", v => SettingsFile = v);
 			p.Add ("connect=", v => EndPoint = GetEndPoint (v));
 			p.Add ("wait", v => Wait = true);
 			p.Add ("result=", v => ResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
+			p.Add ("dependency=", v => dependencies.Add (v));
 			var remaining = p.Parse (args);
 
 			settings = LoadSettings (SettingsFile);
+
+			var dependencyAsms = new Assembly [dependencies.Count];
+			for (int i = 0; i < dependencyAsms.Length; i++) {
+				dependencyAsms [i] = Assembly.LoadFile (dependencies [i]);
+			}
 
 			Assembly assembly;
 			if (remaining.Count == 1)
@@ -130,7 +139,7 @@ namespace Xamarin.AsyncTests.Console
 			logger = new TestLogger (new ConsoleLogger (this));
 			logger.LogLevel = LogLevel;
 
-			framework = TestFramework.GetLocalFramework (assembly);
+			framework = TestFramework.GetLocalFramework (assembly, dependencyAsms);
 		}
 
 		static void Debug (string message, params object[] args)
@@ -188,13 +197,21 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		async Task RunLocal ()
+		Task Run (CancellationToken cancellationToken)
+		{
+			if (EndPoint != null)
+				return ConnectToServer (cancellationToken);
+			else
+				return RunLocal (cancellationToken);
+		}
+
+		async Task RunLocal (CancellationToken cancellationToken)
 		{
 			session = TestSession.CreateLocal (this, framework);
-			var test = await session.GetRootTestCase (CancellationToken.None);
+			var test = await session.GetRootTestCase (cancellationToken);
 
 			Debug ("Got test: {0}", test);
-			var result = await session.Run (test, CancellationToken.None);
+			var result = await session.Run (test, cancellationToken);
 			Debug ("Got result: {0}", result);
 
 			Debug ("{0} tests, {1} passed, {2} errors, {3} ignored.", countTests, countSuccess, countErrors, countIgnored);
