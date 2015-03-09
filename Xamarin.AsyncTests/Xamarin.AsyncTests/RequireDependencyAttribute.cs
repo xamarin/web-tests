@@ -1,5 +1,5 @@
 ﻿//
-// DependencyInjector.cs
+// RequireDependencyAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,38 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests
 {
-	public static class DependencyInjector
+	[AttributeUsage (AttributeTargets.Assembly, AllowMultiple = true)]
+	public class RequireDependencyAttribute : Attribute
 	{
-		static Dictionary<Type,object> dict = new Dictionary<Type,object> ();
-		static object syncRoot = new object ();
-
-		public static void Register<T> (T instance)
-		{
-			lock (syncRoot) {
-				if (dict.ContainsKey (typeof (T)))
-					throw new InvalidOperationException ();
-				dict.Add (typeof (T), instance);
-			}
+		public Type Type {
+			get;
+			private set;
 		}
 
-		public static T Get<T> ()
+		public RequireDependencyAttribute (Type type)
 		{
-			lock (syncRoot) {
-				if (!dict.ContainsKey (typeof(T)))
-					throw new InvalidOperationException ();
-				return (T)dict [typeof(T)];
-			}
-		}
-
-		public static bool IsAvailable (Type type)
-		{
-			lock (syncRoot) {
-				return dict.ContainsKey (type);
-			}
+			Type = type;
 		}
 	}
 }

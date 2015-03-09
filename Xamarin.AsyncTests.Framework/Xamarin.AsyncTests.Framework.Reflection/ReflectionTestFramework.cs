@@ -62,6 +62,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Dependencies = dependencies;
 
 			ResolveDependencies ();
+			CheckDependencies ();
 			Resolve ();
 		}
 
@@ -87,6 +88,15 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var instanceMember = type.GetRuntimeField ("Instance");
 			provider = (ITestConfigurationProvider)instanceMember.GetValue (null);
 			name = Assembly.GetName ().Name;
+		}
+
+		void CheckDependencies ()
+		{
+			var cattrs = Assembly.GetCustomAttributes<RequireDependencyAttribute> ();
+			foreach (var cattr in cattrs) {
+				if (!DependencyInjector.IsAvailable (cattr.Type))
+					throw new InternalErrorException ("Missing '{0}' dependency.", cattr.Type);
+			}
 		}
 	}
 }

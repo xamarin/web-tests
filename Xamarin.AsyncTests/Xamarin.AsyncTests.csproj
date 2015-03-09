@@ -117,6 +117,7 @@
     <Compile Include="Xamarin.AsyncTests.Portable\IPortableEndPointSupport.cs" />
     <Compile Include="Xamarin.AsyncTests\IDependencyProvider.cs" />
     <Compile Include="Xamarin.AsyncTests\DependencyProviderAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests\RequireDependencyAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />
