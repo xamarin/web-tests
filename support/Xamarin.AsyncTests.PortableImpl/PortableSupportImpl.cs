@@ -39,16 +39,14 @@ using System.Collections.Specialized;
 
 using Xamarin.AsyncTests;
 
+[assembly: DependencyProvider (typeof (Xamarin.AsyncTests.Portable.PortableSupportImpl))]
+
 namespace Xamarin.AsyncTests.Portable
 {
 	using Framework;
 
-	public class PortableSupportImpl : IPortableSupport, IPortableEndPointSupport
+	public class PortableSupportImpl : IDependencyProvider, IPortableSupport, IPortableEndPointSupport
 	{
-		PortableSupportImpl ()
-		{
-		}
-
 		#region Misc
 
 		public string CurrentThreadId {
@@ -87,15 +85,16 @@ namespace Xamarin.AsyncTests.Portable
 			serverHost = new ServerHost ();
 		}
 
-		public static void Initialize ()
+		public void Initialize ()
 		{
-			if (instance == null) {
-				instance = new PortableSupportImpl ();
-				DependencyInjector.Register<IPortableSupport> (instance);
-				DependencyInjector.Register<IPortableEndPointSupport> (instance);
-				DependencyInjector.Register<IServerHost> (instance.ServerHost);
+			if (Interlocked.CompareExchange (ref initialized, 1, 0) == 0) {
+				DependencyInjector.Register<IPortableSupport> (this);
+				DependencyInjector.Register<IPortableEndPointSupport> (this);
+				DependencyInjector.Register<IServerHost> (ServerHost);
 			}
 		}
+
+		static int initialized;
 
 		static readonly bool hasNetwork;
 		static readonly IPAddress address;
@@ -104,8 +103,6 @@ namespace Xamarin.AsyncTests.Portable
 		static readonly Version runtimeVersion;
 
 		static readonly ServerHost serverHost;
-
-		static PortableSupportImpl instance;
 
 		static Version GetRuntimeVersion ()
 		{

@@ -35,8 +35,8 @@ namespace Xamarin.AsyncTests.MacUI
 	{
 		static void Main (string[] args)
 		{
-			PortableSupportImpl.Initialize ();
-			PortableWebSupportImpl.Initialize ();
+			new PortableSupportImpl ().Initialize ();
+			new PortableWebSupportImpl ().Initialize ();
 
 			NSApplication.Init ();
 			NSApplication.Main (args);

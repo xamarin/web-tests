@@ -69,11 +69,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		void ResolveDependencies ()
 		{
 			foreach (var asm in Dependencies) {
-				var cattr = asm.GetCustomAttribute<DependencyProviderAttribute> ();
-				if (cattr == null)
-					continue;
-				var provider = (IDependencyProvider)Activator.CreateInstance (cattr.Type);
-				provider.Initialize ();
+				foreach (var cattr in asm.GetCustomAttributes<DependencyProviderAttribute> ()) {
+					var provider = (IDependencyProvider)Activator.CreateInstance (cattr.Type);
+					provider.Initialize ();
+				}
 			}
 		}
 

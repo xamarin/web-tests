@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	[AttributeUsage (AttributeTargets.Assembly, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Assembly, AllowMultiple = true)]
 	public class DependencyProviderAttribute : Attribute
 	{
 		public Type Type {

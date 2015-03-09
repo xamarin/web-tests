@@ -42,17 +42,15 @@ using Mono.Security.Protocol.Ntlm;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
+[assembly: DependencyProvider (typeof (Xamarin.WebTests.Portable.PortableWebSupportImpl))]
+
 namespace Xamarin.WebTests.Portable
 {
 	using Framework;
 	using Server;
 
-	public class PortableWebSupportImpl : IPortableWebSupport
+	public class PortableWebSupportImpl : IDependencyProvider, IPortableWebSupport
 	{
-		PortableWebSupportImpl ()
-		{
-		}
-
 		#region Misc
 
 		static PortableWebSupportImpl ()
@@ -66,19 +64,17 @@ namespace Xamarin.WebTests.Portable
 			}
 		}
 
-		public static void Initialize ()
+		public void Initialize ()
 		{
-			if (instance == null) {
-				instance = new PortableWebSupportImpl ();
-				DependencyInjector.Register<IPortableWebSupport> (instance);
+			if (Interlocked.CompareExchange (ref initialized, 1, 0) == 0) {
+				DependencyInjector.Register<IPortableWebSupport> (this);
 				NTLMHandler.Initialize ();
 			}
 		}
 
+		static int initialized;
 		static readonly bool hasNetwork;
 		static readonly IPAddress address;
-
-		static PortableWebSupportImpl instance;
 
 		#endregion
 
