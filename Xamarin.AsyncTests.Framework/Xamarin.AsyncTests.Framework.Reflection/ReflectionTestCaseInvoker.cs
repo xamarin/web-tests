@@ -46,8 +46,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		public override Task<bool> Invoke (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			// instance = MartinTest (ctx, instance);
-
 			ctx.OnTestRunning ();
 
 			if (Builder.ExpectedExceptionType != null)
@@ -55,19 +53,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			else
 				return ExpectingSuccess (ctx, instance, cancellationToken);
 		}
-
-		#if FIXME
-		static TestInstance MartinTest (TestContext ctx, TestInstance instance)
-		{
-			var name = TestInstance.GetTestName (instance);
-			var node = TestSerializer.Serialize (instance);
-			ctx.LogMessage ("MARTIN TEST: {0} {1}", name, node);
-
-			var result = TestSerializer.Deserialize (ctx, node);
-			ctx.LogMessage ("MARTIN TEST DONE: {0}", result);
-			return result;
-		}
-		#endif
 
 		int GetTimeout ()
 		{
