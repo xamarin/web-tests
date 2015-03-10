@@ -84,21 +84,6 @@ namespace Xamarin.WebTests.Portable
 			get { return hasNetwork; }
 		}
 
-		public IPortableEndPoint GetLoopbackEndpoint (int port)
-		{
-			return new PortableEndpoint (new IPEndPoint (IPAddress.Loopback, port));
-		}
-
-		public IPortableEndPoint GetEndpoint (int port)
-		{
-			return new PortableEndpoint (new IPEndPoint (address, port));
-		}
-
-		public static IPEndPoint GetEndpoint (IPortableEndPoint endpoint)
-		{
-			return (PortableEndpoint)endpoint;
-		}
-
 		static IPAddress LookupAddress ()
 		{
 			try {
@@ -127,43 +112,6 @@ namespace Xamarin.WebTests.Portable
 			}
 
 			return IPAddress.Loopback;
-		}
-
-		class PortableEndpoint : IPortableEndPoint
-		{
-			readonly IPEndPoint endpoint;
-
-			public PortableEndpoint (IPEndPoint endpoint)
-			{
-				this.endpoint = endpoint;
-			}
-
-			public int Port {
-				get { return endpoint.Port; }
-			}
-
-			public string Address {
-				get { return endpoint.Address.ToString (); }
-			}
-
-			public bool IsLoopback {
-				get { return IPAddress.IsLoopback (endpoint.Address); }
-			}
-
-			public IPortableEndPoint CopyWithPort (int port)
-			{
-				return new PortableEndpoint (new IPEndPoint (endpoint.Address, port));
-			}
-
-			public static implicit operator IPEndPoint (PortableEndpoint portable)
-			{
-				return portable.endpoint;
-			}
-
-			public override string ToString ()
-			{
-				return string.Format ("[PortableEndpoint {0}]", endpoint);
-			}
 		}
 
 		IPortableProxy IPortableWebSupport.CreateProxy (Uri uri)

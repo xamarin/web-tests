@@ -40,10 +40,6 @@ namespace Xamarin.WebTests.Portable
 			get;
 		}
 
-		IPortableEndPoint GetLoopbackEndpoint (int port);
-
-		IPortableEndPoint GetEndpoint (int port);
-
 		IPortableProxy CreateProxy (Uri uri);
 
 		IListener CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, bool ssl);
