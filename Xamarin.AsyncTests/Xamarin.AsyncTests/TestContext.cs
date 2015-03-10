@@ -71,9 +71,10 @@ namespace Xamarin.AsyncTests
 			this.result = result;
 			this.syncContext = syncContext ?? parent.syncContext;
 
-			if (result != null)
+			if (result != null) {
 				logger = new TestLogger (TestLoggerBackend.CreateForResult (result, parent.logger));
-			else
+				logger.LogLevel = parent.logger.LogLevel;
+			} else
 				logger = parent.logger;
 
 			config = parent.config;
@@ -135,7 +136,7 @@ namespace Xamarin.AsyncTests
 
 		public void LogDebug (int level, string message)
 		{
-			if (level > logger.LogLevel)
+			if (logger.LogLevel >= 0 && level > logger.LogLevel)
 				return;
 			Invoke (() => logger.LogDebug (level, message));
 		}
