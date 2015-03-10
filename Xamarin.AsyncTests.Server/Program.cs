@@ -91,9 +91,6 @@ namespace Xamarin.AsyncTests.Server
 			SD.Debug.AutoFlush = true;
 			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
 
-			PortableSupportImpl.Initialize ();
-			PortableWebSupportImpl.Initialize ();
-
 			var program = new Program (args);
 
 			try {

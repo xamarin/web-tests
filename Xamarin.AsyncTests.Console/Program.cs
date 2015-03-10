@@ -34,8 +34,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Xamarin.WebTests;
-using Xamarin.WebTests.Portable;
 using NDesk.Options;
 
 namespace Xamarin.AsyncTests.Console
@@ -92,9 +90,6 @@ namespace Xamarin.AsyncTests.Console
 		{
 			SD.Debug.AutoFlush = true;
 			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
-
-			PortableSupportImpl.Initialize ();
-			PortableWebSupportImpl.Initialize ();
 
 			var program = new Program (args);
 
