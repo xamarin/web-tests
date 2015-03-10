@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -119,12 +120,55 @@ namespace Xamarin.AsyncTests.MacUI
 			case "connect":
 				if (parts.Length != 2)
 					throw new AlertException ("Usage: connect <address>");
-
 				return ServerParameters.ConnectToServer (ParseEndPoint (parts [1]));
+
+			case "local":
+				if (parts.Length < 3)
+					throw new AlertException ("Usage: local <runtime-prefix> <assembly> [<dependency-asm> ... <dependency-asm>]");
+
+				var runtime = parts [1];
+				var monoPath = Path.Combine (runtime, "bin", "mono");
+				if (!File.Exists (monoPath))
+					throw new AlertException ("Invalid runtime prefix: {0}", runtime);
+
+				var pipeArgs = new PipeArguments ();
+				pipeArgs.MonoPrefix = runtime;
+				pipeArgs.ConsolePath = FindFile ("Xamarin.AsyncTests.Console.exe");
+				pipeArgs.Assembly = FindFile (parts [2]);
+
+				pipeArgs.Dependencies = new string [parts.Length - 3];
+
+				for (int i = 3; i < parts.Length; i++) {
+					var file = FindFile (parts [i]);
+					pipeArgs.Dependencies [i - 3] = file;
+				}
+
+				var endpoint = endpointSupport.GetLoopbackEndpoint (8888);
+				return ServerParameters.CreatePipe (endpoint, pipeArgs);
 
 			default:
 				throw new AlertException ("Unknown command: '{0}'", parts [0]);
 			}
+		}
+
+		static string FindFile (string filename)
+		{
+			if (Path.IsPathRooted (filename))
+				return filename;
+
+			var appDir = Path.GetDirectoryName (Path.GetDirectoryName (Environment.CurrentDirectory));
+			appDir = Path.GetDirectoryName (appDir);
+			var projectDir = Path.GetDirectoryName (Path.GetDirectoryName (appDir));
+			var solutionDir = Path.GetDirectoryName (projectDir);
+			var outDir = Path.Combine (solutionDir, "out");
+
+			var outFile = Path.Combine (outDir, filename);
+			Console.WriteLine ("TEST: {0} {1} {2} - {3}", appDir, projectDir, solutionDir, outFile);
+
+			if (!File.Exists (outFile))
+				throw new AlertException ("Cannot find file: {0}", filename);
+
+			return outFile;
 		}
 
 		static IPortableEndPoint ParseEndPoint (string address)

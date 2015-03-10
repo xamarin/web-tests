@@ -27,15 +27,8 @@ using System;
 
 namespace Xamarin.AsyncTests.Portable
 {
-	public interface IPipeConnection
+	public interface IPipeConnection : IServerConnection
 	{
-		IServerConnection Client {
-			get;
-		}
-
-		IServerConnection Server {
-			get;
-		}
 	}
 }
 

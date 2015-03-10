@@ -1,10 +1,10 @@
 ﻿//
-// IServerHost.cs
+// PipeArguments.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,19 +24,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Portable
 {
-	public interface IServerHost
+	public class PipeArguments
 	{
-		Task<IServerConnection> Listen (IPortableEndPoint address, CancellationToken cancellationToken);
+		public string MonoPrefix {
+			get; set;
+		}
 
-		Task<IServerConnection> Connect (IPortableEndPoint address, CancellationToken cancellationToken);
+		public string ConsolePath {
+			get; set;
+		}
 
-		Task<IServerConnection> CreatePipe (IPortableEndPoint endpoint, PipeArguments arguments, CancellationToken cancellationToken);
+		public string Assembly {
+			get; set;
+		}
+
+		public string[] Dependencies {
+			get; set;
+		}
 	}
 }
 

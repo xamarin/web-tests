@@ -35,20 +35,19 @@ namespace Xamarin.AsyncTests.MacUI
 			private set;
 		}
 
-		public string Address {
-			get;
-			private set;
-		}
-
 		public IPortableEndPoint EndPoint {
 			get;
 			private set;
 		}
 
-		public ServerParameters (ServerMode mode = ServerMode.Local, string address = null)
+		public PipeArguments Arguments {
+			get;
+			private set;
+		}
+
+		public ServerParameters (ServerMode mode = ServerMode.Local)
 		{
 			Mode = mode;
-			Address = address;
 		}
 
 		public static ServerParameters CreateLocal ()
@@ -56,9 +55,9 @@ namespace Xamarin.AsyncTests.MacUI
 			return new ServerParameters (ServerMode.Local);
 		}
 
-		public static ServerParameters CreatePipe ()
+		public static ServerParameters CreatePipe (IPortableEndPoint endpoint, PipeArguments arguments)
 		{
-			return new ServerParameters (ServerMode.CreatePipe);
+			return new ServerParameters (ServerMode.CreatePipe) { EndPoint = endpoint, Arguments = arguments };
 		}
 
 		public static ServerParameters ConnectToServer (IPortableEndPoint endpoint)

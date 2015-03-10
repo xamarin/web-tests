@@ -25,6 +25,9 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Text;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
@@ -58,23 +61,64 @@ namespace Xamarin.AsyncTests.Portable
 			return new ClientConnection (client);
 		}
 
-		class PipeConnection : IPipeConnection
+		public Task<IServerConnection> CreatePipe (IPortableEndPoint endpoint, PipeArguments arguments, CancellationToken cancellationToken)
 		{
-			public IServerConnection Client {
+			return Task.Run<IServerConnection> (() => {
+				var networkEndpoint = PortableSupportImpl.GetEndpoint (endpoint);
+				var listener = new TcpListener (networkEndpoint);
+				listener.Start ();
+
+				var monoPath = Path.Combine (arguments.MonoPrefix, "bin", "mono");
+
+				var cmd = new StringBuilder ();
+				cmd.Append (arguments.ConsolePath);
+				foreach (var dependency in arguments.Dependencies) {
+					cmd.AppendFormat (" --dependency={0}", dependency);
+				}
+				cmd.AppendFormat ("  --gui={0}:{1}", networkEndpoint.Address, networkEndpoint.Port);
+				cmd.Append (" ");
+				cmd.Append (arguments.Assembly);
+
+				var psi = new ProcessStartInfo (monoPath, cmd.ToString ());
+				psi.UseShellExecute = false;
+
+				foreach (var reserved in ReservedNames) {
+					psi.EnvironmentVariables.Remove (reserved);
+				}
+			
+				var process = Process.Start (psi);
+
+				return new PipeConnection (listener, process);
+			});
+		}
+
+		static readonly string[] ReservedNames = { "MONO_RUNTIME", "MONO_PATH", "MONO_GAC_PREFIX" };
+
+		class PipeConnection : ServerConnection, IPipeConnection
+		{
+			public Process Process {
 				get;
 				private set;
 			}
 
-			public IServerConnection Server {
-				get;
-				private set;
-			}
-
-			public PipeConnection (IServerConnection client, IServerConnection server)
+			public PipeConnection (TcpListener listener, Process process)
+				: base (listener)
 			{
-				Client = client;
-				Server = server;
+				Process = process;
 			}
+
+			public override void Close ()
+			{
+				base.Close ();
+
+				try {
+					if (Process != null) {
+						Process.Kill ();
+						Process = null;
+					}
+				} catch {
+				}
+			}	
 		}
 
 		class ClientConnection : IServerConnection
@@ -155,7 +199,7 @@ namespace Xamarin.AsyncTests.Portable
 				return stream;
 			}
 
-			public void Close ()
+			public virtual void Close ()
 			{
 				try {
 					if (socket != null) {
