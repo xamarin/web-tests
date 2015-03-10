@@ -76,6 +76,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (timeout > 0) {
 				timeoutCts = new CancellationTokenSource (timeout);
 				methodCts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken, timeoutCts.Token);
+				methodCts.CancelAfter (timeout);
 				methodToken = methodCts.Token;
 			} else {
 				methodToken = cancellationToken;
@@ -83,7 +84,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var parameters = Builder.Method.GetParameters ();
 
-			ctx.LogDebug (10, "INVOKE: {0} {1} {2}", Builder.TestName, Builder.Method, instance);
+			ctx.LogDebug (10, "INVOKE: {0} {1} {2} {3}", Builder.TestName, Builder.Method, instance, timeout);
 
 			var index = parameters.Length - 1;
 			while (index >= 0) {
