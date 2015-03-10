@@ -10,6 +10,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)PortableSupportImpl.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ServerHost.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PortableEndPointSupportImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DependencyProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerHostImpl.cs" />
   </ItemGroup>
 </Project>

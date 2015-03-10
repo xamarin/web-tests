@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// DependencyProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,20 +24,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
+using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.Portable;
+using Xamarin.AsyncTests.Portable;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.Console.DependencyProvider))]
+[assembly: DependencyProvider (typeof (Xamarin.AsyncTests.Portable.DependencyProvider))]
 
-namespace Xamarin.WebTests.Console
+namespace Xamarin.AsyncTests.Portable
 {
-	public class DependencyProvider : IDependencyProvider
+	class DependencyProvider : IDependencyProvider
 	{
 		public void Initialize ()
 		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
+			DependencyInjector.RegisterDependency<IPortableSupport> (() => new PortableSupportImpl ());
+			DependencyInjector.RegisterDependency<IPortableEndPointSupport> (() => new PortableEndPointSupportImpl ());
+			DependencyInjector.RegisterDependency<IServerHost> (() => new ServerHostImpl ());
 		}
 	}
 }

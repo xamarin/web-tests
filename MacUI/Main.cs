@@ -33,7 +33,7 @@ namespace Xamarin.AsyncTests.MacUI
 	{
 		static void Main (string[] args)
 		{
-			new PortableSupportImpl ().Initialize ();
+			DependencyInjector.RegisterAssembly (typeof(PortableSupportImpl).Assembly);
 
 			NSApplication.Init ();
 			NSApplication.Main (args);

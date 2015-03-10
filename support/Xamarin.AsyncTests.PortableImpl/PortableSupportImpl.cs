@@ -39,13 +39,11 @@ using System.Collections.Specialized;
 
 using Xamarin.AsyncTests;
 
-[assembly: DependencyProvider (typeof (Xamarin.AsyncTests.Portable.PortableSupportImpl))]
-
 namespace Xamarin.AsyncTests.Portable
 {
 	using Framework;
 
-	public class PortableSupportImpl : IDependencyProvider, IPortableSupport, IPortableEndPointSupport
+	class PortableSupportImpl : IPortableSupport
 	{
 		#region Misc
 
@@ -82,19 +80,8 @@ namespace Xamarin.AsyncTests.Portable
 			}
 
 			isMsRuntime = Environment.OSVersion.Platform == PlatformID.Win32NT && runtimeVersion == null;
-			serverHost = new ServerHost ();
+			serverHost = new ServerHostImpl ();
 		}
-
-		public void Initialize ()
-		{
-			if (Interlocked.CompareExchange (ref initialized, 1, 0) == 0) {
-				DependencyInjector.Register<IPortableSupport> (this);
-				DependencyInjector.Register<IPortableEndPointSupport> (this);
-				DependencyInjector.Register<IServerHost> (ServerHost);
-			}
-		}
-
-		static int initialized;
 
 		static readonly bool hasNetwork;
 		static readonly IPAddress address;
@@ -102,7 +89,7 @@ namespace Xamarin.AsyncTests.Portable
 		static readonly bool isMsRuntime;
 		static readonly Version runtimeVersion;
 
-		static readonly ServerHost serverHost;
+		static readonly ServerHostImpl serverHost;
 
 		static Version GetRuntimeVersion ()
 		{
@@ -310,43 +297,8 @@ namespace Xamarin.AsyncTests.Portable
 			get { return hasNetwork; }
 		}
 
-		public IPortableEndPoint GetLoopbackEndpoint (int port)
-		{
-			return new PortableEndpoint (new IPEndPoint (IPAddress.Loopback, port));
-		}
-
-		public IPortableEndPoint GetEndpoint (int port)
-		{
-			return new PortableEndpoint (new IPEndPoint (address, port));
-		}
-
-		public IPortableEndPoint GetEndpoint (string address, int port)
-		{
-			var ip = IPAddress.Parse (address);
-			return new PortableEndpoint (new IPEndPoint (ip, port));
-		}
-
-		public static IPEndPoint GetEndpoint (IPortableEndPoint endpoint)
-		{
-			return (PortableEndpoint)endpoint;
-		}
-
-		public IPortableEndPoint ParseEndpoint (string address)
-		{
-			int port;
-			string host;
-			var pos = address.IndexOf (":");
-			if (pos < 0) {
-				host = address;
-				port = 8888;
-			} else {
-				host = address.Substring (0, pos);
-				port = int.Parse (address.Substring (pos + 1));
-			}
-
-			var ip = IPAddress.Parse (host);
-			var endpoint = new IPEndPoint (ip, port);
-			return new PortableEndpoint (endpoint);
+		public static IPAddress LocalAddress {
+			get { return address; }
 		}
 
 		static IPAddress LookupAddress ()
@@ -376,44 +328,6 @@ namespace Xamarin.AsyncTests.Portable
 
 			return IPAddress.Loopback;
 		}
-
-		class PortableEndpoint : IPortableEndPoint
-		{
-			readonly IPEndPoint endpoint;
-
-			public PortableEndpoint (IPEndPoint endpoint)
-			{
-				this.endpoint = endpoint;
-			}
-
-			public int Port {
-				get { return endpoint.Port; }
-			}
-
-			public string Address {
-				get { return endpoint.Address.ToString (); }
-			}
-
-			public bool IsLoopback {
-				get { return IPAddress.IsLoopback (endpoint.Address); }
-			}
-
-			public IPortableEndPoint CopyWithPort (int port)
-			{
-				return new PortableEndpoint (new IPEndPoint (endpoint.Address, port));
-			}
-
-			public static implicit operator IPEndPoint (PortableEndpoint portable)
-			{
-				return portable.endpoint;
-			}
-
-			public override string ToString ()
-			{
-				return string.Format ("[PortableEndpoint {0}]", endpoint);
-			}
-		}
-
 
 		#endregion
 	}

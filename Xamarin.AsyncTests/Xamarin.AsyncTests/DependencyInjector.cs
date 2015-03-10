@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
 using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests
@@ -33,12 +34,32 @@ namespace Xamarin.AsyncTests
 		static Dictionary<Type,object> dict = new Dictionary<Type,object> ();
 		static object syncRoot = new object ();
 
-		public static void Register<T> (T instance)
+		static void Register<T> (T instance)
 		{
 			lock (syncRoot) {
 				if (dict.ContainsKey (typeof (T)))
 					throw new InvalidOperationException ();
 				dict.Add (typeof (T), instance);
+			}
+		}
+
+		public static void RegisterDependency<T> (Func<T> constructor)
+		{
+			lock (syncRoot) {
+				if (dict.ContainsKey (typeof(T)))
+					return;
+				var instance = constructor ();
+				dict.Add (typeof(T), instance);
+			}
+		}
+
+		public static void RegisterAssembly (Assembly assembly)
+		{
+			lock (syncRoot) {
+				foreach (var cattr in assembly.GetCustomAttributes<DependencyProviderAttribute> ()) {
+					var provider = (IDependencyProvider)Activator.CreateInstance (cattr.Type);
+					provider.Initialize ();
+				}
 			}
 		}
 

@@ -31,20 +31,6 @@ namespace Xamarin.WebTests.Portable
 {
 	public class NTLMHandler
 	{
-		NTLMHandler ()
-		{
-		}
-
-		static NTLMHandler instance;
-
-		public static void Initialize () 
-		{
-			if (instance == null) {
-				instance = new NTLMHandler ();
-				DependencyInjector.Register<NTLMHandler> (instance);
-			}
-		}
-
 		public bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge)
 		{
 			if (haveChallenge) {

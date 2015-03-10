@@ -40,12 +40,12 @@ namespace Xamarin.AsyncTests.Portable
 {
 	using Portable;
 
-	public class ServerHost : IServerHost
+	class ServerHostImpl : IServerHost
 	{
 		public Task<IServerConnection> Listen (IPortableEndPoint endpoint, CancellationToken cancellationToken)
 		{
 			return Task.Run<IServerConnection> (() => {
-				var networkEndpoint = PortableSupportImpl.GetEndpoint (endpoint);
+				var networkEndpoint = PortableEndPointSupportImpl.GetEndpoint (endpoint);
 				var listener = new TcpListener (networkEndpoint);
 				listener.Start ();
 				Debug.WriteLine ("Server started: {0}", listener.LocalEndpoint);
@@ -55,7 +55,7 @@ namespace Xamarin.AsyncTests.Portable
 
 		public async Task<IServerConnection> Connect (IPortableEndPoint endpoint, CancellationToken cancellationToken)
 		{
-			var networkEndpoint = PortableSupportImpl.GetEndpoint (endpoint);
+			var networkEndpoint = PortableEndPointSupportImpl.GetEndpoint (endpoint);
 			var client = new TcpClient ();
 			await client.ConnectAsync (networkEndpoint.Address, networkEndpoint.Port);
 			return new ClientConnection (client);
@@ -64,7 +64,7 @@ namespace Xamarin.AsyncTests.Portable
 		public Task<IServerConnection> CreatePipe (IPortableEndPoint endpoint, PipeArguments arguments, CancellationToken cancellationToken)
 		{
 			return Task.Run<IServerConnection> (() => {
-				var networkEndpoint = PortableSupportImpl.GetEndpoint (endpoint);
+				var networkEndpoint = PortableEndPointSupportImpl.GetEndpoint (endpoint);
 				var listener = new TcpListener (networkEndpoint);
 				listener.Start ();
 
