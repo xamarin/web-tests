@@ -282,7 +282,7 @@ namespace Xamarin.AsyncTests.Console
 
 		void OnLogDebug (int level, string message)
 		{
-			if (level > Logger.LogLevel)
+			if (logger.LogLevel >= 0 && level > Logger.LogLevel)
 				return;
 			Debug (message);
 		}
