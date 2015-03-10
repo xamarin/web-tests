@@ -12,39 +12,9 @@ namespace Xamarin.AsyncTests.MacUI
 	[Register ("AppDelegate")]
 	partial class AppDelegate
 	{
-		[Outlet]
-		AppKit.NSMenuItem ConnectToServer { get; set; }
-
-		[Outlet]
-		AppKit.NSMenuItem LoadLocal { get; set; }
-
-		[Outlet]
-		AppKit.NSMenuItem StartServer { get; set; }
-
-		[Outlet]
-		AppKit.NSMenuItem Unload { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (LoadLocal != null) {
-				LoadLocal.Dispose ();
-				LoadLocal = null;
-			}
-
-			if (StartServer != null) {
-				StartServer.Dispose ();
-				StartServer = null;
-			}
-
-			if (ConnectToServer != null) {
-				ConnectToServer.Dispose ();
-				ConnectToServer = null;
-			}
-
-			if (Unload != null) {
-				Unload.Dispose ();
-				Unload = null;
-			}
 		}
 	}
 }

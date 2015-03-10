@@ -31,8 +31,6 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Xamarin.WebTests.Portable;
-using Xamarin.AsyncTests.Sample;
 
 namespace Xamarin.AsyncTests.MacUI
 {
@@ -41,11 +39,6 @@ namespace Xamarin.AsyncTests.MacUI
 
 	public class MacUI : TestApp
 	{
-		public Assembly Assembly {
-			get;
-			private set;
-		}
-
 		public TestApp Context {
 			get { return this; }
 		}
@@ -72,16 +65,9 @@ namespace Xamarin.AsyncTests.MacUI
 		readonly SettingsBag settings;
 		readonly IPortableSupport support;
 
-		public static MacUI Create ()
+		public MacUI ()
 		{
-			var settings = new UISettings ();
-			var assembly = typeof(SampleFeatures).Assembly;
-			return new MacUI (settings, assembly);
-		}
-
-		MacUI (SettingsBag settings, Assembly assembly)
-		{
-			Assembly = assembly;
+			settings = new UISettings ();
 
 			logger = new TestLogger (new UILogger (this));
 

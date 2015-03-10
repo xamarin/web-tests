@@ -78,13 +78,9 @@ namespace Xamarin.AsyncTests.MacUI
 
 			internal override Task<TestServer> Start (ServerParameters parameters, CancellationToken cancellationToken)
 			{
-				var framework = TestFramework.GetLocalFramework (Manager.App.Assembly);
-
 				switch (parameters.Mode) {
-				case ServerMode.Local:
-					return TestServer.StartLocal (Manager.App, framework, cancellationToken);
-				case ServerMode.CreatePipe:
-					return TestServer.CreatePipe (Manager.App, framework, cancellationToken);
+				case ServerMode.StartServer:
+					return TestServer.WaitForConnection (Manager.App, cancellationToken);
 				case ServerMode.ConnectToServer:
 					return TestServer.ConnectToServer (Manager.App, "127.0.0.1:8888", cancellationToken);
 				default:

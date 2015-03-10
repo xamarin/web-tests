@@ -24,10 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-
-using AppKit;
 using Xamarin.AsyncTests.Portable;
-using Xamarin.WebTests.Portable;
+using AppKit;
 
 namespace Xamarin.AsyncTests.MacUI
 {
@@ -36,7 +34,6 @@ namespace Xamarin.AsyncTests.MacUI
 		static void Main (string[] args)
 		{
 			new PortableSupportImpl ().Initialize ();
-			new PortableWebSupportImpl ().Initialize ();
 
 			NSApplication.Init ();
 			NSApplication.Main (args);

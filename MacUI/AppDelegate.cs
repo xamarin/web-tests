@@ -60,7 +60,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 		public override void DidFinishLaunching (NSNotification notification)
 		{
-			ui = MacUI.Create ();
+			ui = new MacUI ();
 
 			isStopped = true;
 			ui.TestRunner.Stop.NotifyStateChanged.StateChanged += (sender, e) => IsStopped = !e;
@@ -78,7 +78,7 @@ namespace Xamarin.AsyncTests.MacUI
 					CurrentSession = new TestSessionModel (e);
 			};
 
-			ConnectToRemoteServer ();
+			StartServer ();
 		}
 
 		[Export ("ShowPreferences:")]
@@ -91,6 +91,12 @@ namespace Xamarin.AsyncTests.MacUI
 		public async void LoadLocalTestSuite ()
 		{
 			await ui.ServerManager.Start.Execute (ServerParameters.CreatePipe ());
+		}
+
+		[Export ("StartServer:")]
+		public async void StartServer ()
+		{
+			await ui.ServerManager.Start.Execute (ServerParameters.StartServer ());
 		}
 
 		[Export ("ConnectToRemoteServer:")]

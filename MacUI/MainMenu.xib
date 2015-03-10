@@ -11,14 +11,7 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
-            <connections>
-                <outlet property="ConnectToServer" destination="zIR-FN-kdF" id="IgQ-Jy-g2E"/>
-                <outlet property="LoadLocal" destination="KkW-Ct-M8D" id="caE-TG-2k9"/>
-                <outlet property="StartServer" destination="H8C-3P-b6k" id="7fN-Gc-9PR"/>
-                <outlet property="Unload" destination="boh-Pj-TRt" id="Ph6-H4-GSu"/>
-            </connections>
-        </customObject>
+        <customObject id="Voe-Tx-rLC" customClass="AppDelegate"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
                 <menuItem title="MacUI" id="1Xt-HY-uBw">
