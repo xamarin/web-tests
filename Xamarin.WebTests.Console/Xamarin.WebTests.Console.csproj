@@ -39,7 +39,6 @@
     <Compile Include="Xamarin.WebTests.Server\PortableWebSupportImpl.cs" />
     <Compile Include="Xamarin.WebTests.Server\ProxyListener.cs" />
   </ItemGroup>
-  <Import Project="..\support\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\support\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\support\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj">

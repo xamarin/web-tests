@@ -83,9 +83,10 @@ namespace Xamarin.WebTests.Server
 		{
 			this.ssl = ssl;
 
-			var networkEndpoint = PortableEndPointSupportImpl.GetEndpoint (endpoint);
+			var address = IPAddress.Parse (endpoint.Address);
+			var networkEndpoint = new IPEndPoint (address, endpoint.Port);
 
-			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", networkEndpoint.Address, networkEndpoint.Port));
+			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", endpoint.Address, endpoint.Port));
 
 			server = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			server.Bind (networkEndpoint);
