@@ -223,6 +223,11 @@ namespace Xamarin.WebTests.Portable
 				client.Credentials = credentials;
 			}
 
+			public void Cancel ()
+			{
+				client.CancelAsync ();
+			}
+
 			public void Dispose ()
 			{
 				Dispose (true);

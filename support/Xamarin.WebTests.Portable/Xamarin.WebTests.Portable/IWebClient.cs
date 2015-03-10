@@ -34,6 +34,8 @@ namespace Xamarin.WebTests.Portable
 {
 	public interface IWebClient : IDisposable
 	{
+		void Cancel ();
+
 		void SetCredentials (ICredentials credentials);
 
 		Task<string> UploadStringTaskAsync (Uri uri, string data);

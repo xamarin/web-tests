@@ -218,8 +218,9 @@ namespace Xamarin.WebTests.Tests
 			return auth;
 		}
 
-		void ConfigureWebClient (IWebClient client, Handler handler)
+		void ConfigureWebClient (IWebClient client, Handler handler, CancellationToken cancellationToken)
 		{
+			cancellationToken.Register (() => client.Cancel ());
 			var authHandler = handler as AuthenticationHandler;
 			if (authHandler != null)
 				client.SetCredentials (authHandler.GetCredentials ());
@@ -239,7 +240,7 @@ namespace Xamarin.WebTests.Tests
 			await handler.RunWithContext (ctx, server, async (uri) => {
 				var support = DependencyInjector.Get<IPortableWebSupport> ();
 				using (var client = support.CreateWebClient ()) {
-					ConfigureWebClient (client, handler);
+					ConfigureWebClient (client, handler, cancellationToken);
 
 					var stream = await client.OpenWriteAsync (uri, "PUT");
 
@@ -272,7 +273,7 @@ namespace Xamarin.WebTests.Tests
 			await handler.RunWithContext (ctx, server, async (uri) => {
 				var support = DependencyInjector.Get<IPortableWebSupport> ();
 				using (var client = support.CreateWebClient ()) {
-					ConfigureWebClient (client, handler);
+					ConfigureWebClient (client, handler, cancellationToken);
 
 					var collection = new List<KeyValuePair<string, string>> ();
 					collection.Add (new KeyValuePair<string, string> ("var1", "value"));
