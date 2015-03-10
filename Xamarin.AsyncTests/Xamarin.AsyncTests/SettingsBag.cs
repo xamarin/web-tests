@@ -99,6 +99,19 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public string Arguments {
+			get {
+				string value;
+				if (TryGetValue ("Arguments", out value))
+					return value;
+				return null;
+			}
+			set {
+				SetValue ("Arguments", value);
+				OnPropertyChanged ("Arguments");
+			}
+		}
+
 		protected void OnPropertyChanged (string propertyName)
 		{
 			if (PropertyChanged != null)

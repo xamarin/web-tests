@@ -172,6 +172,12 @@ namespace Xamarin.AsyncTests.Console
 			return string.Format ("{0}:{1}", endpoint.Address, endpoint.Port);
 		}
 
+		static IPortableEndPoint GetPortableEndPoint (IPEndPoint endpoint)
+		{
+			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+			return support.GetEndpoint (endpoint.Address.ToString (), endpoint.Port);
+		}
+
 		static SettingsBag LoadSettings (string filename)
 		{
 			if (filename == null || !File.Exists (filename))
@@ -212,7 +218,7 @@ namespace Xamarin.AsyncTests.Console
 
 		async Task ConnectToGui (CancellationToken cancellationToken)
 		{
-			var endpoint = PrintEndPoint (GuiEndPoint);
+			var endpoint = GetPortableEndPoint (GuiEndPoint);
 			var server = await TestServer.ConnectToGui (this, endpoint, framework, cancellationToken);
 			cancellationToken.ThrowIfCancellationRequested ();
 
@@ -242,7 +248,7 @@ namespace Xamarin.AsyncTests.Console
 
 		async Task ConnectToServer (CancellationToken cancellationToken)
 		{
-			var endpoint = PrintEndPoint (EndPoint);
+			var endpoint = GetPortableEndPoint (EndPoint);
 			var server = await TestServer.ConnectToServer (this, endpoint, cancellationToken);
 			cancellationToken.ThrowIfCancellationRequested ();
 

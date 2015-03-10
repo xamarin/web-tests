@@ -39,54 +39,23 @@ namespace Xamarin.AsyncTests.Portable
 
 	public class ServerHost : IServerHost
 	{
-		public Task<IServerConnection> Listen (string address, CancellationToken cancellationToken)
+		public Task<IServerConnection> Listen (IPortableEndPoint endpoint, CancellationToken cancellationToken)
 		{
 			return Task.Run<IServerConnection> (() => {
-				IPEndPoint endpoint;
-				if (address != null) {
-					var pos = address.IndexOf (':');
-					if (pos < 0)
-						endpoint = new IPEndPoint (IPAddress.Parse (address), 8888);
-					else {
-						var host = address.Substring (0, pos);
-						var port = int.Parse (address.Substring (pos + 1));
-						endpoint = new IPEndPoint (IPAddress.Parse (host), port);
-					}
-				} else {
-					endpoint = new IPEndPoint (IPAddress.Loopback, 8888);
-				}
-
-				var listener = new TcpListener (endpoint);
-
+				var networkEndpoint = PortableSupportImpl.GetEndpoint (endpoint);
+				var listener = new TcpListener (networkEndpoint);
 				listener.Start ();
 				Debug.WriteLine ("Server started: {0}", listener.LocalEndpoint);
 				return new ServerConnection (listener);
 			});
 		}
 
-		public async Task<IServerConnection> Connect (string address, CancellationToken cancellationToken)
+		public async Task<IServerConnection> Connect (IPortableEndPoint endpoint, CancellationToken cancellationToken)
 		{
-			IPEndPoint endpoint;
-			var pos = address.IndexOf (':');
-			if (pos < 0)
-				endpoint = new IPEndPoint (IPAddress.Parse (address), 8888);
-			else {
-				var host = address.Substring (0, pos);
-				var port = int.Parse (address.Substring (pos + 1));
-				endpoint = new IPEndPoint (IPAddress.Parse (host), port);
-			}
-
+			var networkEndpoint = PortableSupportImpl.GetEndpoint (endpoint);
 			var client = new TcpClient ();
-			await client.ConnectAsync (endpoint.Address, endpoint.Port);
+			await client.ConnectAsync (networkEndpoint.Address, networkEndpoint.Port);
 			return new ClientConnection (client);
-		}
-
-		public async Task<IPipeConnection> CreatePipe (CancellationToken cancellationToken)
-		{
-			var server = await Listen (null, cancellationToken);
-			var client = await Connect (server.Name, cancellationToken);
-
-			return new PipeConnection (client, server);
 		}
 
 		class PipeConnection : IPipeConnection

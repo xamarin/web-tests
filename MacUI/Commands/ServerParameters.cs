@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.AsyncTests.MacUI
 {
@@ -35,6 +36,11 @@ namespace Xamarin.AsyncTests.MacUI
 		}
 
 		public string Address {
+			get;
+			private set;
+		}
+
+		public IPortableEndPoint EndPoint {
 			get;
 			private set;
 		}
@@ -55,14 +61,14 @@ namespace Xamarin.AsyncTests.MacUI
 			return new ServerParameters (ServerMode.CreatePipe);
 		}
 
-		public static ServerParameters ConnectToServer ()
+		public static ServerParameters ConnectToServer (IPortableEndPoint endpoint)
 		{
-			return new ServerParameters (ServerMode.ConnectToServer);
+			return new ServerParameters (ServerMode.ConnectToServer) { EndPoint = endpoint };
 		}
 
-		public static ServerParameters WaitForConnection (string address = null)
+		public static ServerParameters WaitForConnection (IPortableEndPoint endpoint)
 		{
-			return new ServerParameters (ServerMode.WaitForConnection, address);
+			return new ServerParameters (ServerMode.WaitForConnection) { EndPoint = endpoint };
 		}
 	}
 }

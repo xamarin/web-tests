@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using Foundation;
 using AppKit;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.AsyncTests.MacUI
@@ -80,9 +81,14 @@ namespace Xamarin.AsyncTests.MacUI
 					CurrentSession = new TestSessionModel (e);
 			};
 
-			var parameters = GetParameters ();
-			if (parameters == null)
-				throw new InvalidOperationException ();
+			ServerParameters parameters;
+			try {
+				parameters = GetParameters ();
+			} catch (AlertException ex) {
+				var alert = NSAlert.WithMessage ("Failed to parse command-line arguments", "Ok", string.Empty, string.Empty, ex.Message);
+				alert.RunModal ();
+				return;
+			}
 
 			Start (parameters);
 		}
@@ -94,25 +100,47 @@ namespace Xamarin.AsyncTests.MacUI
 
 		ServerParameters GetParameters ()
 		{
-			return ServerParameters.WaitForConnection ();
+			var endpointSupport = DependencyInjector.Get<IPortableEndPointSupport> ();
+
+			var args = Settings.Arguments;
+			if (args == null)
+				return ServerParameters.WaitForConnection (endpointSupport.GetLoopbackEndpoint (8888));
+
+			var parts = args.Split (' ');
+			switch (parts [0]) {
+			case "listen":
+				if (parts.Length == 1)
+					return ServerParameters.WaitForConnection (endpointSupport.GetLoopbackEndpoint (8888));
+				else if (parts.Length == 2)
+					return ServerParameters.WaitForConnection (ParseEndPoint (parts [1]));
+				else
+					throw new AlertException ("Usage: listen [<optional address>]");
+
+			case "connect":
+				if (parts.Length != 2)
+					throw new AlertException ("Usage: connect <address>");
+
+				return ServerParameters.ConnectToServer (ParseEndPoint (parts [1]));
+
+			default:
+				throw new AlertException ("Unknown command: '{0}'", parts [0]);
+			}
+		}
+
+		static IPortableEndPoint ParseEndPoint (string address)
+		{
+			var endpointSupport = DependencyInjector.Get<IPortableEndPointSupport> ();
+			try {
+				return endpointSupport.ParseEndpoint (address);
+			} catch {
+				throw new AlertException ("Failed to parse endpoint: '{0}'", address);
+			}
 		}
 
 		[Export ("ShowPreferences:")]
 		public void ShowPreferences ()
 		{
 			settingsDialogController.Window.MakeKeyAndOrderFront (this);
-		}
-
-		[Export ("LoadLocalTestSuite:")]
-		public async void LoadLocalTestSuite ()
-		{
-			await ui.ServerManager.Start.Execute (ServerParameters.CreatePipe ());
-		}
-
-		[Export ("ConnectToRemoteServer:")]
-		public async void ConnectToRemoteServer ()
-		{
-			await ui.ServerManager.Start.Execute (ServerParameters.ConnectToServer ());
 		}
 
 		[Export ("UnloadTestSuite:")]

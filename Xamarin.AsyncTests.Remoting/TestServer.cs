@@ -61,26 +61,7 @@ namespace Xamarin.AsyncTests.Remoting
 			return server;
 		}
 
-		public static async Task<TestServer> CreatePipe (TestApp app, TestFramework framework, CancellationToken cancellationToken)
-		{
-			await Task.Yield ();
-
-			var support = DependencyInjector.Get<IServerHost> ();
-
-			cancellationToken.ThrowIfCancellationRequested ();
-			var connection = await support.CreatePipe (cancellationToken);
-
-			var serverApp = new PipeApp (framework);
-
-			var server = await StartServer (serverApp, framework, connection.Server, cancellationToken);
-			var client = await StartClient (app, connection.Client, cancellationToken);
-
-			var pipe = new PipeServer (app, client, server);
-			await pipe.Initialize (cancellationToken);
-			return pipe;
-		}
-
-		public static async Task<TestServer> WaitForConnection (TestApp app, string address, CancellationToken cancellationToken)
+		public static async Task<TestServer> WaitForConnection (TestApp app, IPortableEndPoint address, CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IServerHost> ();
 			var connection = await support.Listen (address, cancellationToken);
@@ -96,7 +77,7 @@ namespace Xamarin.AsyncTests.Remoting
 			return client;
 		}
 
-		public static async Task<TestServer> ConnectToGui (TestApp app, string address, TestFramework framework, CancellationToken cancellationToken)
+		public static async Task<TestServer> ConnectToGui (TestApp app, IPortableEndPoint address, TestFramework framework, CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IServerHost> ();
 			var connection = await support.Connect (address, cancellationToken);
@@ -118,7 +99,7 @@ namespace Xamarin.AsyncTests.Remoting
 			return server;
 		}
 
-		public static async Task<TestServer> ConnectToServer (TestApp app, string address, CancellationToken cancellationToken)
+		public static async Task<TestServer> ConnectToServer (TestApp app, IPortableEndPoint address, CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IServerHost> ();
 			var connection = await support.Connect (address, cancellationToken);

@@ -128,6 +128,16 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
+		[Export ("Arguments")]
+		public string Arguments {
+			get { return SettingsBag.Arguments; }
+			set {
+				WillChangeValue ("Arguments");
+				SettingsBag.Arguments = value;
+				DidChangeValue ("Arguments");
+			}
+		}
+
 		public bool IsEnabled (TestFeature feature)
 		{
 			if (Configuration != null)

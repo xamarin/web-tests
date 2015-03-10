@@ -80,9 +80,9 @@ namespace Xamarin.AsyncTests.MacUI
 			{
 				switch (parameters.Mode) {
 				case ServerMode.WaitForConnection:
-					return TestServer.WaitForConnection (Manager.App, parameters.Address, cancellationToken);
+					return TestServer.WaitForConnection (Manager.App, parameters.EndPoint, cancellationToken);
 				case ServerMode.ConnectToServer:
-					return TestServer.ConnectToServer (Manager.App, "127.0.0.1:8888", cancellationToken);
+					return TestServer.ConnectToServer (Manager.App, parameters.EndPoint, cancellationToken);
 				default:
 					throw new InternalErrorException ();
 				}

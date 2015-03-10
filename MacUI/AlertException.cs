@@ -1,5 +1,5 @@
 ﻿//
-// IPortableEndPointSupport.cs
+// AlertException.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,17 +25,19 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.Portable
+namespace Xamarin.AsyncTests.MacUI
 {
-	public interface IPortableEndPointSupport
+	public class AlertException : Exception
 	{
-		IPortableEndPoint ParseEndpoint (string address);
+		public AlertException (string message, params object[] args)
+			: this (string.Format (message, args))
+		{
+		}
 
-		IPortableEndPoint GetLoopbackEndpoint (int port);
-
-		IPortableEndPoint GetEndpoint (int port);
-
-		IPortableEndPoint GetEndpoint (string address, int port);
+		public AlertException (string message)
+			: base (message)
+		{
+		}
 	}
 }
 

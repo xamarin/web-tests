@@ -320,9 +320,33 @@ namespace Xamarin.AsyncTests.Portable
 			return new PortableEndpoint (new IPEndPoint (address, port));
 		}
 
+		public IPortableEndPoint GetEndpoint (string address, int port)
+		{
+			var ip = IPAddress.Parse (address);
+			return new PortableEndpoint (new IPEndPoint (ip, port));
+		}
+
 		public static IPEndPoint GetEndpoint (IPortableEndPoint endpoint)
 		{
 			return (PortableEndpoint)endpoint;
+		}
+
+		public IPortableEndPoint ParseEndpoint (string address)
+		{
+			int port;
+			string host;
+			var pos = address.IndexOf (":");
+			if (pos < 0) {
+				host = address;
+				port = 8888;
+			} else {
+				host = address.Substring (0, pos);
+				port = int.Parse (address.Substring (pos + 1));
+			}
+
+			var ip = IPAddress.Parse (host);
+			var endpoint = new IPEndPoint (ip, port);
+			return new PortableEndpoint (endpoint);
 		}
 
 		static IPAddress LookupAddress ()

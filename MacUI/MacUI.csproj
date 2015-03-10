@@ -133,6 +133,7 @@
     <Compile Include="Commands\ServerParameters.cs" />
     <Compile Include="Commands\TestRunner.cs" />
     <Compile Include="MacUI.cs" />
+    <Compile Include="AlertException.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
