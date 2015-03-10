@@ -39,14 +39,24 @@ namespace Xamarin.AsyncTests.Portable
 
 	public class ServerHost : IServerHost
 	{
-		public Task<IServerConnection> Start (CancellationToken cancellationToken)
+		public Task<IServerConnection> Listen (string address, CancellationToken cancellationToken)
 		{
 			return Task.Run<IServerConnection> (() => {
-				var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-				var endpoint = support.GetEndpoint (8888);
-				var networkEndpoint = PortableSupportImpl.GetEndpoint (endpoint);
+				IPEndPoint endpoint;
+				if (address != null) {
+					var pos = address.IndexOf (':');
+					if (pos < 0)
+						endpoint = new IPEndPoint (IPAddress.Parse (address), 8888);
+					else {
+						var host = address.Substring (0, pos);
+						var port = int.Parse (address.Substring (pos + 1));
+						endpoint = new IPEndPoint (IPAddress.Parse (host), port);
+					}
+				} else {
+					endpoint = new IPEndPoint (IPAddress.Loopback, 8888);
+				}
 
-				var listener = new TcpListener (networkEndpoint);
+				var listener = new TcpListener (endpoint);
 
 				listener.Start ();
 				Debug.WriteLine ("Server started: {0}", listener.LocalEndpoint);
@@ -73,7 +83,7 @@ namespace Xamarin.AsyncTests.Portable
 
 		public async Task<IPipeConnection> CreatePipe (CancellationToken cancellationToken)
 		{
-			var server = await Start (cancellationToken);
+			var server = await Listen (null, cancellationToken);
 			var client = await Connect (server.Name, cancellationToken);
 
 			return new PipeConnection (client, server);

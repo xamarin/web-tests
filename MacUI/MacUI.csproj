@@ -30,6 +30,11 @@
     <CreatePackage>false</CreatePackage>
     <PackageSigningKey>Developer ID Installer</PackageSigningKey>
     <XamMacArch>x86_64</XamMacArch>
+    <EnvironmentVariables>
+      <EnvironmentVariables>
+        <Variable name="XAMARIN_ASYNCTESTS_GUI_ARGS" value="listen 0.0.0.0:8888" />
+      </EnvironmentVariables>
+    </EnvironmentVariables>
     <Commandlineparameters>test</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">

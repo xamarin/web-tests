@@ -60,9 +60,9 @@ namespace Xamarin.AsyncTests.MacUI
 			return new ServerParameters (ServerMode.ConnectToServer);
 		}
 
-		public static ServerParameters StartServer ()
+		public static ServerParameters WaitForConnection (string address = null)
 		{
-			return new ServerParameters (ServerMode.StartServer);
+			return new ServerParameters (ServerMode.WaitForConnection, address);
 		}
 	}
 }

@@ -59,6 +59,11 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public IPEndPoint GuiEndPoint {
+			get;
+			private set;
+		}
+
 		public SettingsBag Settings {
 			get { return settings; }
 		}
@@ -91,6 +96,8 @@ namespace Xamarin.AsyncTests.Console
 			SD.Debug.AutoFlush = true;
 			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
 
+			new PortableSupportImpl ().Initialize ();
+
 			var program = new Program (args);
 
 			try {
@@ -110,6 +117,7 @@ namespace Xamarin.AsyncTests.Console
 			var p = new OptionSet ();
 			p.Add ("settings=", v => SettingsFile = v);
 			p.Add ("connect=", v => EndPoint = GetEndPoint (v));
+			p.Add ("gui=", v => GuiEndPoint = GetEndPoint (v));
 			p.Add ("wait", v => Wait = true);
 			p.Add ("result=", v => ResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
@@ -194,10 +202,21 @@ namespace Xamarin.AsyncTests.Console
 
 		Task Run (CancellationToken cancellationToken)
 		{
-			if (EndPoint != null)
+			if (GuiEndPoint != null)
+				return ConnectToGui (cancellationToken);
+			else if (EndPoint != null)
 				return ConnectToServer (cancellationToken);
 			else
 				return RunLocal (cancellationToken);
+		}
+
+		async Task ConnectToGui (CancellationToken cancellationToken)
+		{
+			var endpoint = PrintEndPoint (GuiEndPoint);
+			var server = await TestServer.ConnectToGui (this, endpoint, framework, cancellationToken);
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			await server.WaitForExit (cancellationToken);
 		}
 
 		async Task RunLocal (CancellationToken cancellationToken)

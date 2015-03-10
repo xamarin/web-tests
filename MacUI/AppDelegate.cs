@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Foundation;
@@ -78,7 +80,21 @@ namespace Xamarin.AsyncTests.MacUI
 					CurrentSession = new TestSessionModel (e);
 			};
 
-			StartServer ();
+			var parameters = GetParameters ();
+			if (parameters == null)
+				throw new InvalidOperationException ();
+
+			Start (parameters);
+		}
+
+		async void Start (ServerParameters parameters)
+		{
+			await ui.ServerManager.Start.Execute (parameters);
+		}
+
+		ServerParameters GetParameters ()
+		{
+			return ServerParameters.WaitForConnection ();
 		}
 
 		[Export ("ShowPreferences:")]
@@ -91,12 +107,6 @@ namespace Xamarin.AsyncTests.MacUI
 		public async void LoadLocalTestSuite ()
 		{
 			await ui.ServerManager.Start.Execute (ServerParameters.CreatePipe ());
-		}
-
-		[Export ("StartServer:")]
-		public async void StartServer ()
-		{
-			await ui.ServerManager.Start.Execute (ServerParameters.StartServer ());
 		}
 
 		[Export ("ConnectToRemoteServer:")]

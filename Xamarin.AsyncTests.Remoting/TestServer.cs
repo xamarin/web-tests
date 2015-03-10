@@ -80,10 +80,10 @@ namespace Xamarin.AsyncTests.Remoting
 			return pipe;
 		}
 
-		public static async Task<TestServer> WaitForConnection (TestApp app, CancellationToken cancellationToken)
+		public static async Task<TestServer> WaitForConnection (TestApp app, string address, CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IServerHost> ();
-			var connection = await support.Start (cancellationToken);
+			var connection = await support.Listen (address, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
@@ -96,10 +96,21 @@ namespace Xamarin.AsyncTests.Remoting
 			return client;
 		}
 
+		public static async Task<TestServer> ConnectToGui (TestApp app, string address, TestFramework framework, CancellationToken cancellationToken)
+		{
+			var support = DependencyInjector.Get<IServerHost> ();
+			var connection = await support.Connect (address, cancellationToken);
+
+			var serverConnection = await StartServer (app, framework, connection, cancellationToken);
+			var server = new Server (app, framework, serverConnection);
+			await server.Initialize (cancellationToken);
+			return server;
+		}
+
 		public static async Task<TestServer> StartServer (TestApp app, TestFramework framework, CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IServerHost> ();
-			var connection = await support.Start (cancellationToken);
+			var connection = await support.Listen (null, cancellationToken);
 
 			var serverConnection = await StartServer (app, framework, connection, cancellationToken);
 			var server = new Server (app, framework, serverConnection);

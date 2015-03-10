@@ -30,7 +30,7 @@ namespace Xamarin.AsyncTests.MacUI
 	public enum ServerMode
 	{
 		Local,
-		StartServer,
+		WaitForConnection,
 		ConnectToServer,
 		CreatePipe
 	}

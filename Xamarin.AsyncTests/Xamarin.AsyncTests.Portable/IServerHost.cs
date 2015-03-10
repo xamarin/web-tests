@@ -32,7 +32,7 @@ namespace Xamarin.AsyncTests.Portable
 {
 	public interface IServerHost
 	{
-		Task<IServerConnection> Start (CancellationToken cancellationToken);
+		Task<IServerConnection> Listen (string address, CancellationToken cancellationToken);
 
 		Task<IServerConnection> Connect (string address, CancellationToken cancellationToken);
 

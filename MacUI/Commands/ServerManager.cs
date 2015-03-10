@@ -79,8 +79,8 @@ namespace Xamarin.AsyncTests.MacUI
 			internal override Task<TestServer> Start (ServerParameters parameters, CancellationToken cancellationToken)
 			{
 				switch (parameters.Mode) {
-				case ServerMode.StartServer:
-					return TestServer.WaitForConnection (Manager.App, cancellationToken);
+				case ServerMode.WaitForConnection:
+					return TestServer.WaitForConnection (Manager.App, parameters.Address, cancellationToken);
 				case ServerMode.ConnectToServer:
 					return TestServer.ConnectToServer (Manager.App, "127.0.0.1:8888", cancellationToken);
 				default:
