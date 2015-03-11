@@ -225,7 +225,8 @@ namespace Xamarin.WebTests.Portable
 
 			public void Cancel ()
 			{
-				client.CancelAsync ();
+				if (client != null)
+					client.CancelAsync ();
 			}
 
 			public void Dispose ()
