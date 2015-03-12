@@ -102,6 +102,52 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
+		[Register ("ServerModeIsAndroidValueTransformer")]
+		public class ServerModeIsAndroidValueTransformer : NSValueTransformer
+		{
+			public override NSObject TransformedValue (NSObject value)
+			{
+				var mode = value as ServerModeModel;
+				var ok = mode.Mode == ServerMode.Android;
+				return NSNumber.FromBoolean (ok);
+			}
+
+		}
+
+		[Register ("ServerModeIsIOSValueTransformer")]
+		public class ServerModeIsIOSValueTransformer : NSValueTransformer
+		{
+			public override NSObject TransformedValue (NSObject value)
+			{
+				var mode = value as ServerModeModel;
+				var ok = mode.Mode == ServerMode.iOS;
+				return NSNumber.FromBoolean (ok);
+			}
+
+		}
+
+		[Register ("ServerModeIsLocalValueTransformer")]
+		public class ServerModeIsLocalValueTransformer : NSValueTransformer
+		{
+			public override NSObject TransformedValue (NSObject value)
+			{
+				var mode = value as ServerModeModel;
+				var ok = mode.Mode == ServerMode.Local;
+				return NSNumber.FromBoolean (ok);
+			}
+
+		}
+
+		[Register ("ServerModeHasListenAddressValueTransformer")]
+		public class ServerModeHasListenAddressValueTransformer : NSValueTransformer
+		{
+			public override NSObject TransformedValue (NSObject value)
+			{
+				var mode = value as ServerModeModel;
+				var ok = mode.Mode == ServerMode.WaitForConnection || mode.Mode == ServerMode.Local;
+				return NSNumber.FromBoolean (ok);
+			}
+		}
 	}
 }
 

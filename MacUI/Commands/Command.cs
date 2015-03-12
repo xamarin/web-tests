@@ -83,6 +83,8 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			try {
 				return await Provider.ExecuteStart (this, argument);
+			} catch (TaskCanceledException) {
+				throw;
 			} catch (Exception ex) {
 				Provider.App.Logger.LogError (ex);
 				throw;

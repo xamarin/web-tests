@@ -1,5 +1,5 @@
 ﻿//
-// ServerMode.cs
+// ServerModeModel.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,15 +24,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Foundation;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.AsyncTests.MacUI
 {
-	public enum ServerMode
+	public class ServerModeModel : NSObject
 	{
-		Local,
-		WaitForConnection,
-		Android,
-		iOS
+		public ServerMode Mode {
+			get;
+			private set;
+		}
+
+		[Export ("description")]
+		public string Name {
+			get;
+			private set;
+		}
+
+		public ServerModeModel (ServerMode mode, string name = null)
+		{
+			Mode = mode;
+			Name = name ?? mode.ToString ();
+		}
 	}
 }
 

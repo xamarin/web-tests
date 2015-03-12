@@ -85,21 +85,6 @@
                                     </binding>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Listen" id="5cJ-Ri-eB5">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="HasServer" id="mAe-kE-Y7b">
-                                        <dictionary key="options">
-                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
-                                        </dictionary>
-                                    </binding>
-                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="iyS-rq-9JI">
-                                        <dictionary key="options">
-                                            <string key="NSSelectorName">ListenForConnection:</string>
-                                        </dictionary>
-                                    </binding>
-                                </connections>
-                            </menuItem>
                             <menuItem title="Stop" enabled="NO" id="boh-Pj-TRt">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>

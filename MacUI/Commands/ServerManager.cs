@@ -82,8 +82,10 @@ namespace Xamarin.AsyncTests.MacUI
 				switch (parameters.Mode) {
 				case ServerMode.WaitForConnection:
 					return TestServer.WaitForConnection (Manager.App, parameters.EndPoint, cancellationToken);
+					#if FIXME
 				case ServerMode.ConnectToServer:
 					return TestServer.ConnectToServer (Manager.App, parameters.EndPoint, cancellationToken);
+					#endif
 				case ServerMode.Local:
 					return TestServer.CreatePipe (Manager.App, parameters.EndPoint, parameters.Arguments, cancellationToken);
 				default:

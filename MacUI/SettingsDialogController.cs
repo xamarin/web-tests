@@ -6,11 +6,14 @@ using Foundation;
 using AppKit;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.AsyncTests.MacUI
 {
 	public partial class SettingsDialogController : NSWindowController
 	{
+		NSMutableArray serverModeArray;
+		ServerModeModel currentServerMode;
 		NSMutableArray testCategoriesArray;
 		NSMutableArray testFeaturesArray;
 		TestCategoryModel currentCategory;
@@ -46,6 +49,22 @@ namespace Xamarin.AsyncTests.MacUI
 
 		void Initialize ()
 		{
+			serverModeArray = new NSMutableArray ();
+			serverModeArray.Add (new ServerModeModel (ServerMode.WaitForConnection, "Wait for connection"));
+			serverModeArray.Add (new ServerModeModel (ServerMode.Local, "Run locally"));
+			serverModeArray.Add (new ServerModeModel (ServerMode.Android, "Connect to Android"));
+			serverModeArray.Add (new ServerModeModel (ServerMode.iOS, "Connect to iOS"));
+
+			string currentMode;
+			if (!SettingsBag.TryGetValue ("ServerMode", out currentMode))
+				currentMode = "WaitForConnection";
+
+			for (nuint i = 0; i < serverModeArray.Count; i++) {
+				var model = serverModeArray.GetItem<ServerModeModel> ((nint)i);
+				if (currentServerMode == null || model.Mode.ToString ().Equals (currentMode))
+					currentServerMode = model;
+			}
+
 			testCategoriesArray = new NSMutableArray ();
 			allCategory = new TestCategoryModel (TestCategory.All);
 			currentCategory = allCategory;
@@ -102,6 +121,23 @@ namespace Xamarin.AsyncTests.MacUI
 			set { testCategoriesArray = value; }
 		}
 
+		[Export ("ServerModeArray")]
+		public NSMutableArray ServerModeArray {
+			get { return serverModeArray; }
+			set { serverModeArray = value; }
+		}
+
+		[Export ("CurrentServerMode")]
+		public ServerModeModel CurrentServerMode {
+			get { return currentServerMode; }
+			set {
+				WillChangeValue ("CurrentServerMode");
+				currentServerMode = value;
+				SettingsBag.SetValue ("ServerMode", value.Mode.ToString ());
+				DidChangeValue ("CurrentServerMode");
+			}
+		}
+
 		[Export ("CurrentCategory")]
 		public TestCategoryModel CurrentCategory {
 			get { return currentCategory; }
@@ -140,43 +176,134 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
-		[Export ("Arguments")]
+		const string ArgumentsKey = "Arguments";
+
+		[Export (ArgumentsKey)]
 		public string Arguments {
-			get { return SettingsBag.Arguments; }
+			get {
+				string arguments;
+				if (!SettingsBag.TryGetValue (ArgumentsKey, out arguments))
+					arguments = null;
+				return arguments;
+			}
 			set {
-				WillChangeValue ("Arguments");
-				SettingsBag.Arguments = value;
-				DidChangeValue ("Arguments");
+				WillChangeValue (ArgumentsKey);
+				SettingsBag.SetValue (ArgumentsKey, value);
+				DidChangeValue (ArgumentsKey);
 			}
 		}
 
-		[Export ("MonoRuntime")]
+		const string MonoRuntimeKey = "MonoRuntime";
+		const string DefaultMonoRuntime = "/Library/Frameworks/Mono.framework/Versions/Current";
+
+		[Export (MonoRuntimeKey)]
 		public string MonoRuntime {
-			get { return SettingsBag.MonoRuntime; }
+			get {
+				string runtime;
+				if (SettingsBag.TryGetValue (MonoRuntimeKey, out runtime))
+					return runtime;
+
+				runtime = DefaultMonoRuntime;
+				SettingsBag.SetValue (MonoRuntimeKey, runtime);
+				return runtime;
+			}
 			set {
-				WillChangeValue ("MonoRuntime");
-				SettingsBag.MonoRuntime = value;
-				DidChangeValue ("MonoRuntime");
+				WillChangeValue (MonoRuntimeKey);
+				SettingsBag.SetValue (MonoRuntimeKey, value);
+				DidChangeValue (MonoRuntimeKey);
 			}
 		}
 
-		[Export ("LauncherPath")]
+		const string LauncherPathKey = "LauncherPath";
+
+		[Export (LauncherPathKey)]
 		public string LauncherPath {
-			get { return SettingsBag.LauncherPath; }
+			get {
+				string launcher;
+				if (SettingsBag.TryGetValue (LauncherPathKey, out launcher))
+					return launcher;
+				return null;
+			}
 			set {
-				WillChangeValue ("LauncherPath");
-				SettingsBag.LauncherPath = value;
-				DidChangeValue ("LauncherPath");
+				WillChangeValue (LauncherPathKey);
+				SettingsBag.SetValue (LauncherPathKey, value);
+				DidChangeValue (LauncherPathKey);
 			}
 		}
 
-		[Export ("TestSuite")]
+		const string TestSuiteKey = "TestSuite";
+		const string DefaultTestSuite = "Xamarin.WebTests.TestProvider.exe";
+
+		[Export (TestSuiteKey)]
 		public string TestSuite {
-			get { return SettingsBag.TestSuite; }
+			get {
+				string testsuite;
+				if (SettingsBag.TryGetValue (TestSuiteKey, out testsuite))
+					return testsuite;
+
+				testsuite = DefaultTestSuite;
+				SettingsBag.SetValue (TestSuiteKey, testsuite);
+				return testsuite;
+			}
 			set {
-				WillChangeValue ("TestSuite");
-				SettingsBag.TestSuite = value;
-				DidChangeValue ("TestSuite");
+				WillChangeValue (TestSuiteKey);
+				SettingsBag.SetValue (TestSuiteKey, value);
+				DidChangeValue (TestSuiteKey);
+			}
+		}
+
+		const string ListenAddressKey = "ListenAddress";
+
+		[Export (ListenAddressKey)]
+		public string ListenAddress {
+			get {
+				string address;
+				if (SettingsBag.TryGetValue (ListenAddressKey, out address))
+					return address;
+				var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+				var endpoint = support.GetEndpoint (8888);
+				address = string.Format ("{0}:{1}", endpoint.Address, endpoint.Port);
+				SettingsBag.SetValue (ListenAddressKey, address);
+				return address;
+			}
+			set {
+				WillChangeValue (ListenAddressKey);
+				SettingsBag.SetValue (ListenAddressKey, value);
+				DidChangeValue (ListenAddressKey);
+			}
+		}
+
+		const string AndroidEndpointKey = "AndroidEndpoint";
+
+		[Export (AndroidEndpointKey)]
+		public string AndroidEndpoint {
+			get {
+				string endpoint;
+				if (!SettingsBag.TryGetValue (AndroidEndpointKey, out endpoint))
+					endpoint = null;
+				return endpoint;
+			}
+			set {
+				WillChangeValue (AndroidEndpointKey);
+				SettingsBag.SetValue (AndroidEndpointKey, value);
+				DidChangeValue (AndroidEndpointKey);
+			}
+		}
+
+		const string IOSEndpointKey = "IOSEndpoint";
+
+		[Export ("IOSEndpoint")]
+		public string IOSEndpoint {
+			get {
+				string endpoint;
+				if (!SettingsBag.TryGetValue (IOSEndpointKey, out endpoint))
+					endpoint = null;
+				return endpoint;
+			}
+			set {
+				WillChangeValue (IOSEndpointKey);
+				SettingsBag.SetValue (IOSEndpointKey, value);
+				DidChangeValue (IOSEndpointKey);
 			}
 		}
 
@@ -196,7 +323,6 @@ namespace Xamarin.AsyncTests.MacUI
 		[Export ("Apply:")]
 		public void Apply ()
 		{
-			Console.WriteLine ("APPLY!");
 			var session = AppDelegate.Instance.CurrentSession;
 			if (session == null)
 				return;

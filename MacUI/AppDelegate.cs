@@ -89,26 +89,54 @@ namespace Xamarin.AsyncTests.MacUI
 
 		ServerParameters GetParameters ()
 		{
-			var endpointSupport = DependencyInjector.Get<IPortableEndPointSupport> ();
+			var serverMode = Settings.CurrentServerMode.Mode;
 
-			if (string.IsNullOrEmpty (ui.Settings.MonoRuntime))
-				throw new AlertException ("Must set Mono Runtime in Settings Dialog.");
-			if (string.IsNullOrEmpty (ui.Settings.TestSuite))
-				throw new AlertException ("Must set Test Suite in Settings Dialog.");
+			switch (serverMode) {
+			case ServerMode.Local:
+				return GetLocalParameters ();
+			case ServerMode.WaitForConnection:
+				return GetListenParameters ();
+			default:
+				throw new AlertException ("Invalid server mode: {0}", serverMode);
+			}
+		}
 
+		ServerParameters GetListenParameters ()
+		{
+			var address = Settings.ListenAddress;
+			if (string.IsNullOrEmpty (address))
+				throw new AlertException ("Must set Listen Address in Settings Dialog.");
+
+			var endpoint = ParseEndPoint (address);
+			return ServerParameters.WaitForConnection (endpoint);
+		}
+
+		ServerParameters GetLocalParameters ()
+		{
 			var pipeArgs = new PipeArguments ();
+			pipeArgs.MonoPrefix = Settings.MonoRuntime;
+			if (string.IsNullOrEmpty (pipeArgs.MonoPrefix))
+				throw new AlertException ("Must set Mono Runtime in Settings Dialog.");
 
-			pipeArgs.MonoPrefix = ui.Settings.MonoRuntime;
 			var monoPath = Path.Combine (pipeArgs.MonoPrefix, "bin", "mono");
 			if (!File.Exists (monoPath))
 				throw new AlertException ("Invalid runtime prefix: {0}", pipeArgs.MonoPrefix);
 
-			if (!string.IsNullOrEmpty (ui.Settings.LauncherPath))
-				pipeArgs.ConsolePath = FindFile (ui.Settings.LauncherPath);
-			pipeArgs.Assembly = FindFile (ui.Settings.TestSuite);
-			pipeArgs.ExtraArguments = ui.Settings.Arguments;
+			var launcherPath = Settings.LauncherPath;
+			if (!string.IsNullOrEmpty (launcherPath))
+				pipeArgs.ConsolePath = FindFile (launcherPath);
 
-			var endpoint = endpointSupport.GetLoopbackEndpoint (8888);
+			var assembly = Settings.TestSuite;
+			if (string.IsNullOrEmpty (assembly))
+				throw new AlertException ("Must set Test Suite in Settings Dialog.");
+			pipeArgs.Assembly = FindFile (assembly);
+			pipeArgs.ExtraArguments = Settings.Arguments;
+
+			var address = Settings.ListenAddress;
+			if (string.IsNullOrEmpty (address))
+				throw new AlertException ("Must set Listen Address in Settings Dialog.");
+
+			var endpoint = ParseEndPoint (address);
 			return ServerParameters.CreatePipe (endpoint, pipeArgs);
 		}
 
@@ -151,22 +179,6 @@ namespace Xamarin.AsyncTests.MacUI
 		public void ShowPreferences ()
 		{
 			settingsDialogController.Window.MakeKeyAndOrderFront (this);
-		}
-
-		[Export ("ListenForConnection:")]
-		public async void ListenForConnection ()
-		{
-			var endpointSupport = DependencyInjector.Get<IPortableEndPointSupport> ();
-			var parameters = ServerParameters.WaitForConnection (endpointSupport.GetLoopbackEndpoint (8888));
-
-			try {
-				await ui.ServerManager.Start.Execute (parameters);
-			} catch (TaskCanceledException) {
-				;
-			} catch (Exception ex) {
-				ShowAlertForException ("Failed to start server", ex);
-				return;
-			}
 		}
 
 		[Export ("StartServer:")]

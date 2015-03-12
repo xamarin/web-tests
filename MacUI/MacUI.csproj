@@ -136,6 +136,7 @@
     <Compile Include="Commands\TestRunner.cs" />
     <Compile Include="MacUI.cs" />
     <Compile Include="AlertException.cs" />
+    <Compile Include="Binding\ServerModeModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />

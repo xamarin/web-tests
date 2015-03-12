@@ -57,7 +57,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 		public static ServerParameters ConnectToServer (IPortableEndPoint endpoint)
 		{
-			return new ServerParameters (ServerMode.ConnectToServer) { EndPoint = endpoint };
+			return new ServerParameters (ServerMode.Android) { EndPoint = endpoint };
 		}
 
 		public static ServerParameters WaitForConnection (IPortableEndPoint endpoint)
