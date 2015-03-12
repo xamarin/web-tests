@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -62,6 +63,18 @@ namespace Xamarin.AsyncTests.MacUI
 				var model = new TestCaseModel (Session, test);
 				AddChild (model);
 			}
+		}
+
+		public void LoadResult (string filename)
+		{
+			var doc = XDocument.Load (filename);
+			Console.WriteLine ("LOAD #1: {0}", doc);
+
+			var result = TestSerializer.ReadTestResult (doc.Root);
+			Console.WriteLine ("LOAD #2: {0}", result);
+
+			var model = new TestResultModel (Session, result, result.Name);
+			AddChild (model);
 		}
 
 		#region implemented abstract members of TestListNode

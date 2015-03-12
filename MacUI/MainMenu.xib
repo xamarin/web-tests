@@ -88,6 +88,7 @@
                             <menuItem title="Stop" enabled="NO" id="boh-Pj-TRt">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
+                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="HasServer" id="4aO-PE-xfh"/>
                                     <binding destination="Voe-Tx-rLC" name="enabled2" keyPath="IsStopped" previousBinding="4aO-PE-xfh" id="ahv-Fl-iPp">
                                         <dictionary key="options">
                                             <integer key="NSMultipleValuesPlaceholder" value="-1"/>
@@ -96,7 +97,6 @@
                                             <integer key="NSNullPlaceholder" value="-1"/>
                                         </dictionary>
                                     </binding>
-                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="HasServer" id="4aO-PE-xfh"/>
                                     <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="woK-eH-JpP">
                                         <dictionary key="options">
                                             <string key="NSSelectorName">StopServer:</string>
@@ -114,9 +114,9 @@
                             <menuItem title="Load" id="Zrm-2K-bTw">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="CurrentSession" id="QrM-Lr-pa5">
+                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="CurrentSession" id="GI4-fY-Rg9">
                                         <dictionary key="options">
-                                            <string key="NSValueTransformerName">NSIsNil</string>
+                                            <string key="NSValueTransformerName">NSIsNotNil</string>
                                         </dictionary>
                                     </binding>
                                     <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="2pD-5y-VIs">

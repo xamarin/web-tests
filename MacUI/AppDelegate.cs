@@ -70,6 +70,7 @@ namespace Xamarin.AsyncTests.MacUI
 			isStopped = true;
 			ui.TestRunner.Stop.NotifyStateChanged.StateChanged += (sender, e) => IsStopped = !e;
 			ui.ServerManager.Start.NotifyStateChanged.StateChanged += (sender, e) => HasServer = !e;
+			IsStopped = true;
 
 			mainWindowController = new MainWindowController ();
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
@@ -150,7 +151,6 @@ namespace Xamarin.AsyncTests.MacUI
 			var outDir = Path.Combine (solutionDir, "out");
 
 			var outFile = Path.Combine (outDir, filename);
-			Console.WriteLine ("TEST: {0} {1} {2} - {3}", appDir, projectDir, solutionDir, outFile);
 
 			if (!File.Exists (outFile))
 				throw new AlertException ("Cannot find file: {0}", filename);
@@ -168,13 +168,10 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
-		void Load ()
+		static void ShowAlertForException (string message, Exception ex)
 		{
-			var open = new NSOpenPanel {
-				CanChooseDirectories = false, CanChooseFiles = true, AllowsMultipleSelection = false,
-				AllowedFileTypes = new string[] { ".xml" }
-			};
-			open.RunModal ();
+			var alert = NSAlert.WithMessage (message, "Ok", string.Empty, string.Empty, ex.Message);
+			alert.RunModal ();
 		}
 
 		[Export ("ShowPreferences:")]
@@ -183,6 +180,7 @@ namespace Xamarin.AsyncTests.MacUI
 			settingsDialogController.Window.MakeKeyAndOrderFront (this);
 		}
 
+		[HideStackFrame]
 		[Export ("StartServer:")]
 		public async void StartServer ()
 		{
@@ -198,8 +196,7 @@ namespace Xamarin.AsyncTests.MacUI
 			try {
 				await ui.ServerManager.Start.Execute (parameters);
 			} catch (Exception ex) {
-				var alert = NSAlert.WithMessage ("Failed to start server", "Ok", string.Empty, string.Empty, ex.Message);
-				alert.RunModal ();
+				ShowAlertForException ("Failed to start server", ex);
 				return;
 			}
 		}
@@ -226,8 +223,21 @@ namespace Xamarin.AsyncTests.MacUI
 		[Export ("LoadSession:")]
 		public void LoadSession ()
 		{
-			Console.WriteLine ("LOAD SESSION");
-			Load ();
+			var open = new NSOpenPanel {
+				CanChooseDirectories = false, CanChooseFiles = true, AllowsMultipleSelection = false,
+				AllowedFileTypes = new string[] { "xml" }
+			};
+			var ret = open.RunModal ();
+			if (ret == 0 || open.Urls.Length != 1)
+				return;
+
+			try {
+				var file = open.Urls [0].AbsoluteString;
+				CurrentSession.LoadResult (file);
+			} catch (Exception ex) {
+				ShowAlertForException ("Failed to load result", ex);
+				return;
+			}
 		}
 
 		[Export ("SaveSession:")]
@@ -271,7 +281,6 @@ namespace Xamarin.AsyncTests.MacUI
 		public bool HasServer {
 			get { return hasServer; }
 			set {
-				Console.WriteLine ("HAS SERVER: {0} {1}", hasServer, value);
 				WillChangeValue (HasServerKey);
 				hasServer = value;
 				DidChangeValue (HasServerKey);
