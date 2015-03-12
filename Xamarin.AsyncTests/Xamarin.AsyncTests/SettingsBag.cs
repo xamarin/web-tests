@@ -125,6 +125,45 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public string MonoRuntime {
+			get {
+				string value;
+				if (TryGetValue ("MonoRuntime", out value))
+					return value;
+				return null;
+			}
+			set {
+				SetValue ("MonoRuntime", value);
+				OnPropertyChanged ("MonoRuntime");
+			}
+		}
+
+		public string LauncherPath {
+			get {
+				string value;
+				if (TryGetValue ("LauncherPath", out value))
+					return value;
+				return null;
+			}
+			set {
+				SetValue ("LauncherPath", value);
+				OnPropertyChanged ("LauncherPath");
+			}
+		}
+
+		public string TestSuite {
+			get {
+				string value;
+				if (TryGetValue ("TestSuite", out value))
+					return value;
+				return null;
+			}
+			set {
+				SetValue ("TestSuite", value);
+				OnPropertyChanged ("TestSuite");
+			}
+		}
+
 		protected void OnPropertyChanged (string propertyName)
 		{
 			if (PropertyChanged != null)

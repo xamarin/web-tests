@@ -150,6 +150,36 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
+		[Export ("MonoRuntime")]
+		public string MonoRuntime {
+			get { return SettingsBag.MonoRuntime; }
+			set {
+				WillChangeValue ("MonoRuntime");
+				SettingsBag.MonoRuntime = value;
+				DidChangeValue ("MonoRuntime");
+			}
+		}
+
+		[Export ("LauncherPath")]
+		public string LauncherPath {
+			get { return SettingsBag.LauncherPath; }
+			set {
+				WillChangeValue ("LauncherPath");
+				SettingsBag.LauncherPath = value;
+				DidChangeValue ("LauncherPath");
+			}
+		}
+
+		[Export ("TestSuite")]
+		public string TestSuite {
+			get { return SettingsBag.TestSuite; }
+			set {
+				WillChangeValue ("TestSuite");
+				SettingsBag.TestSuite = value;
+				DidChangeValue ("TestSuite");
+			}
+		}
+
 		public bool IsEnabled (TestFeature feature)
 		{
 			if (Configuration != null)
