@@ -127,6 +127,11 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			return ((TestCaseClient)test).Run (cancellationToken);
 		}
+
+		public override Task UpdateSettings (CancellationToken cancellationToken)
+		{
+			return RemoteObjectManager.UpdateSettings (this, cancellationToken);
+		}
 	}
 }
 

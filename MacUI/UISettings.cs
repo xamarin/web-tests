@@ -75,7 +75,7 @@ namespace Xamarin.AsyncTests.MacUI
 					if (!key.StartsWith (Prefix))
 						continue;
 					var value = (NSString)entry.Value;
-					dict.Add (key, value);
+					dict.Add (key.Substring (Prefix.Length), value);
 				}
 				return dict;
 			}

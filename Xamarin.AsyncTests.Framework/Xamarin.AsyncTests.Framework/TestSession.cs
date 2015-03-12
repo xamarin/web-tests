@@ -84,6 +84,8 @@ namespace Xamarin.AsyncTests.Framework
 		public abstract Task<IReadOnlyCollection<TestCase>> GetTestChildren (TestCase test, CancellationToken cancellationToken);
 
 		public abstract Task<TestResult> Run (TestCase test, CancellationToken cancellationToken);
+
+		public abstract Task UpdateSettings (CancellationToken cancellationToken);
 	}
 }
 

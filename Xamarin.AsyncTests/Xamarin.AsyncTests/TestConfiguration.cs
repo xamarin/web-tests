@@ -56,6 +56,11 @@ namespace Xamarin.AsyncTests
 			settings.PropertyChanged += (sender, e) => Load (true);
 		}
 
+		internal void Reload ()
+		{
+			Load (false);
+		}
+
 		bool Load (bool sendEvent)
 		{
 			bool modified = false;
@@ -112,7 +117,7 @@ namespace Xamarin.AsyncTests
 			
 		bool? IsFeatureEnabled (string name)
 		{
-			var key = "/Feature/" + name;
+			var key = "Feature." + name;
 			string value;
 			if (!settings.TryGetValue (key, out value))
 				return null;
@@ -124,7 +129,7 @@ namespace Xamarin.AsyncTests
 			if (features [name] == enabled)
 				return;
 			features [name] = enabled;
-			var key = "/Feature/" + name;
+			var key = "Feature." + name;
 			settings.SetValue (key, enabled.ToString ());
 			OnPropertyChanged ("Feature");
 		}

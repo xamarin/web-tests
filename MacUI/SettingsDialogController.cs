@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Foundation;
 using AppKit;
@@ -149,6 +151,16 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			if (Configuration != null)
 				Configuration.SetIsEnabled (feature, value);
+		}
+
+		[Export ("Apply:")]
+		public void Apply ()
+		{
+			Console.WriteLine ("APPLY!");
+			var session = AppDelegate.Instance.CurrentSession;
+			if (session == null)
+				return;
+			session.Session.UpdateSettings (CancellationToken.None);
 		}
 	}
 }

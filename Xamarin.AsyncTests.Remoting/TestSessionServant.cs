@@ -89,6 +89,13 @@ namespace Xamarin.AsyncTests.Remoting
 			return TestSerializer.WriteConfiguration (LocalSession.ConfigurationProvider);
 			
 		}
+
+		public void UpdateSettings (XElement settings)
+		{
+			var remoteSettings = TestSerializer.ReadSettings (settings);
+			Connection.App.Settings.Merge (remoteSettings);
+			Configuration.Reload ();
+		}
 	}
 }
 

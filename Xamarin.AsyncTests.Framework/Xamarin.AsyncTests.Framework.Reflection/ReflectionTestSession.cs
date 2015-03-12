@@ -96,6 +96,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			return ((ReflectionTestCase)test).Run (this, cancellationToken);
 		}
+
+		public override Task UpdateSettings (CancellationToken cancellationToken)
+		{
+			return Task.Run (() => {
+				Configuration.Reload ();
+			});
+		}
 	}
 }
 

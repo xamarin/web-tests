@@ -248,6 +248,21 @@ namespace Xamarin.AsyncTests.Remoting
 			return await TestCaseClient.FromProxy (proxy, cancellationToken);
 		}
 
+		class UpdateSettingsCommand : RemoteObjectCommand<RemoteTestSession,XElement,object>
+		{
+			protected override Task<object> Run (Connection connection, RemoteTestSession proxy, XElement argument, CancellationToken cancellationToken)
+			{
+				proxy.Servant.UpdateSettings (argument);
+				return Task.FromResult<object> (null);
+			}
+		}
+
+		public static async Task UpdateSettings (TestSessionClient session, CancellationToken cancellationToken)
+		{
+			var settings = TestSerializer.WriteSettings (session.App.Settings);
+			var command = new UpdateSettingsCommand ();
+			await command.Send (session, settings, cancellationToken);
+		}
 	}
 }
 
