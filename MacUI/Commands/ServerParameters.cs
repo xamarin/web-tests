@@ -50,14 +50,9 @@ namespace Xamarin.AsyncTests.MacUI
 			Mode = mode;
 		}
 
-		public static ServerParameters CreateLocal ()
-		{
-			return new ServerParameters (ServerMode.Local);
-		}
-
 		public static ServerParameters CreatePipe (IPortableEndPoint endpoint, PipeArguments arguments)
 		{
-			return new ServerParameters (ServerMode.CreatePipe) { EndPoint = endpoint, Arguments = arguments };
+			return new ServerParameters (ServerMode.Local) { EndPoint = endpoint, Arguments = arguments };
 		}
 
 		public static ServerParameters ConnectToServer (IPortableEndPoint endpoint)

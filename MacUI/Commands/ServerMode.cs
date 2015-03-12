@@ -31,8 +31,7 @@ namespace Xamarin.AsyncTests.MacUI
 	{
 		Local,
 		WaitForConnection,
-		ConnectToServer,
-		CreatePipe
+		ConnectToServer
 	}
 }
 
