@@ -99,11 +99,23 @@ namespace Xamarin.AsyncTests.MacUI
 			node.RemoveAllChildren ();
 		}
 
-		[Export ("SaveTestResult:")]
-		public void SaveResult ()
+		public void LoadSession (string filename)
+		{
+			var doc = XDocument.Load (filename);
+			var result = TestSerializer.ReadTestResult (doc.Root);
+			var currentSession = AppDelegate.Instance.CurrentSession;
+			var session = currentSession != null ? currentSession.Session : null;
+			var model = new TestResultModel (session, result);
+			TestResultController.AddObject (model);
+		}
+
+		public void SaveSession (string filename)
 		{
 			// Get root node from current selection
 			var indexPath = TestResultController.SelectionIndexPath;
+			if (indexPath == null)
+				return;
+
 			var index = indexPath.IndexAtPosition (0);
 
 			var internalArray = (NSArray)TestResultController.Content;
@@ -117,19 +129,9 @@ namespace Xamarin.AsyncTests.MacUI
 			var element = TestSerializer.WriteTestResult (result);
 
 			var settings = new XmlWriterSettings { Indent = true };
-			using (var writer = XmlTextWriter.Create ("TestResult.xml", settings)) {
+			using (var writer = XmlTextWriter.Create (filename, settings)) {
 				element.WriteTo (writer);
 			}
-		}
-
-		public void LoadTestResult (string filename)
-		{
-			var doc = XDocument.Load (filename);
-			var result = TestSerializer.ReadTestResult (doc.Root);
-			var currentSession = AppDelegate.Instance.CurrentSession;
-			var session = currentSession != null ? currentSession.Session : null;
-			var model = new TestResultModel (session, result);
-			TestResultController.AddObject (model);
 		}
 
 		bool canRun;

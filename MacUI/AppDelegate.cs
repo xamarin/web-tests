@@ -232,9 +232,28 @@ namespace Xamarin.AsyncTests.MacUI
 				return;
 
 			try {
-				MainController.LoadTestResult (open.Urls [0].AbsoluteString);
+				MainController.LoadSession (open.Urls [0].Path);
 			} catch (Exception ex) {
-				ShowAlertForException ("Failed to load result", ex);
+				ShowAlertForException ("Failed to load session", ex);
+				return;
+			}
+		}
+
+		[Export ("SaveSession:")]
+		public void SaveSession ()
+		{
+			var save = new NSSavePanel {
+				CanCreateDirectories = false, CanSelectHiddenExtension = false,
+				AllowedFileTypes = new string[] { "xml" }
+			};
+			var ret = save.RunModal ();
+			if (ret == 0 || save.Url == null)
+				return;
+
+			try {
+				MainController.SaveSession (save.Url.Path);
+			} catch (Exception ex) {
+				ShowAlertForException ("Failed to save session", ex);
 				return;
 			}
 		}

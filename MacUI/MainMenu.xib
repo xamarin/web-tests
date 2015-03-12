@@ -122,6 +122,17 @@
                                     </binding>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Save" id="X6y-X3-Pfm">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="IsStopped" id="e5F-LO-7Zl"/>
+                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="PJl-Cn-Ld2">
+                                        <dictionary key="options">
+                                            <string key="NSSelectorName">SaveSession:</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Clear" id="YQL-g7-J1K">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
