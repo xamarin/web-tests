@@ -89,7 +89,24 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (expectedException != null)
 				expectedExceptionType = expectedException.ExceptionType.GetTypeInfo ();
 
+			if (!CheckReturnType ()) {
+				var declaringType = ReflectionHelper.GetTypeFullName (Method.DeclaringType.GetTypeInfo ());
+				var returnType = ReflectionHelper.GetTypeFullName (Method.ReturnType.GetTypeInfo ());
+				throw new InternalErrorException ("Method '{0}.{1}' has invalid return type '{2}'.", declaringType, FullName, returnType);
+			}
+
 			base.ResolveMembers ();
+		}
+
+		bool CheckReturnType ()
+		{
+			var returnType = Method.ReturnType;
+			if (returnType.Equals (typeof(void)))
+				return true;
+			else if (returnType.Equals (typeof(Task)))
+				return true;
+
+			return false;
 		}
 
 		protected override IEnumerable<TestBuilder> CreateChildren ()

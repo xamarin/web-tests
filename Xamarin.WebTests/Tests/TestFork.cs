@@ -81,23 +81,21 @@ namespace Xamarin.WebTests.Tests
 		const string PostPuppy = "http://localhost/~martin/work/bugfree-octo-nemesis/www/cgi-bin/post-puppy.pl";
 
 		[AsyncTest]
-		public async Task<bool> Run (TestContext ctx, [TestHost] HttpServer server,
+		public async Task Run (TestContext ctx, [TestHost] HttpServer server,
 			[Fork (5, RandomDelay = 1500)] IFork fork, [Repeat (50)] int repeat,
 			[ForkHandler] Handler handler, CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IPortableSupport> ();
 			ctx.LogMessage ("FORK START: {0} {1}", fork.ID, support.CurrentThreadId);
 
-			var ok = await TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+			await TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 
-			ctx.LogMessage ("FORK DONE: {0} {1} {2}", fork.ID, support.CurrentThreadId, ok);
-
-			return ok;
+			ctx.LogMessage ("FORK DONE: {0} {1}", fork.ID, support.CurrentThreadId);
 		}
 
 		[Martin]
 		[AsyncTest]
-		public async Task<bool> RunPuppy (TestContext ctx, [TestHost] HttpServer server,
+		public async Task RunPuppy (TestContext ctx, [TestHost] HttpServer server,
 			[Fork (5, RandomDelay = 1500)] IFork fork, [Repeat (50)] int repeat,
 			[ForkHandler] Handler handler, CancellationToken cancellationToken)
 		{
@@ -125,8 +123,6 @@ namespace Xamarin.WebTests.Tests
 			}
 
 			ctx.LogMessage ("FORK DONE: {0} {1} {2}", fork.ID, support.CurrentThreadId, ok);
-
-			return ok;
 		}
 	}
 }

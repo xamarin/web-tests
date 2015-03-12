@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.Framework
 			ctx.LogDebug (level, sb.ToString ());
 		}
 
-		public static async Task<bool> RunTraditional (
+		public static async Task RunTraditional (
 			TestContext ctx, HttpServer server, Handler handler,
 			CancellationToken cancellationToken, bool sendAsync = false,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
@@ -62,7 +62,7 @@ namespace Xamarin.WebTests.Framework
 		{
 			Debug (ctx, server, 1, handler, "RUN TRADITIONAL");
 
-			var retval = await handler.RunWithContext (ctx, server, async (uri) => {
+			await handler.RunWithContext (ctx, server, async (uri) => {
 				var request = new TraditionalRequest (uri);
 				handler.ConfigureRequest (request, uri);
 
@@ -74,14 +74,12 @@ namespace Xamarin.WebTests.Framework
 				else
 					response = await request.Send (ctx, cancellationToken);
 
-				return CheckResponse (
+				CheckResponse (
 					ctx, server, response, handler, cancellationToken, expectedStatus, expectException);
 			});
-
-			return retval;
 		}
 
-		public static Task<bool> RunHttpClient (
+		public static Task RunHttpClient (
 			TestContext ctx, HttpServer server, HttpClientHandler handler, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			bool expectException = false)
@@ -107,12 +105,12 @@ namespace Xamarin.WebTests.Framework
 					throw new InvalidOperationException ();
 				}
 
-				return CheckResponse (
+				CheckResponse (
 					ctx, server, response, handler, cancellationToken, expectedStatus, expectException);
 			});
 		}
 
-		static bool CheckResponse (
+		static void CheckResponse (
 			TestContext ctx, HttpServer server, Response response, Handler handler,
 			CancellationToken cancellationToken, HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			bool expectException = false)
@@ -120,19 +118,17 @@ namespace Xamarin.WebTests.Framework
 			Debug (ctx, server, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error);
 
 			if (ctx.HasPendingException)
-				return false;
+				return;
 
 			if (cancellationToken.IsCancellationRequested) {
 				ctx.OnTestCanceled ();
-				return false;
+				return;
 			}
 
-			bool ok;
-
 			if (expectException) {
-				ok = ctx.Expect (response.Error, Is.Not.Null, "expecting exception");
-				ok &= ctx.Expect (response.Status, Is.EqualTo (expectedStatus));
-				return ok;
+				ctx.Expect (response.Error, Is.Not.Null, "expecting exception");
+				ctx.Expect (response.Status, Is.EqualTo (expectedStatus));
+				return;
 			}
 
 			if (response.Error != null) {
@@ -140,17 +136,14 @@ namespace Xamarin.WebTests.Framework
 					ctx.OnError (new WebException (response.Content.AsString (), response.Error));
 				else
 					ctx.OnError (response.Error);
-				ok = false;
 			} else {
-				ok = ctx.Expect (expectedStatus, Is.EqualTo (response.Status), "status code");
+				var ok = ctx.Expect (expectedStatus, Is.EqualTo (response.Status), "status code");
 				if (ok)
-					ok &= ctx.Expect (expectException, Is.EqualTo (!response.IsSuccess), "success status");
+					ctx.Expect (expectException, Is.EqualTo (!response.IsSuccess), "success status");
 			}
 
 			if (response.Content != null)
 				Debug (ctx, server, 5, handler, "GOT RESPONSE BODY", response.Content);
-
-			return ok;
 		}
 	}
 }

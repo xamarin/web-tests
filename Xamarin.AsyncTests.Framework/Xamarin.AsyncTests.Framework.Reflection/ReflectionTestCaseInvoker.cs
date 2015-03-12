@@ -170,15 +170,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 		}
 
-		bool CheckFinalStatus (TestContext ctx, bool ok)
+		bool CheckFinalStatus (TestContext ctx)
 		{
 			if (ctx.HasPendingException) {
 				ctx.OnTestFinished (TestStatus.Error);
 				return false;
 			} else if (ctx.IsCanceled) {
-				return false;
-			} else if (!ok) {
-				ctx.OnError (new AssertionException ("Test failed", ctx.GetStackTrace ()));
 				return false;
 			} else {
 				ctx.OnTestFinished (TestStatus.Success);
@@ -198,19 +195,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var task = retval as Task;
 			if (task == null)
-				return CheckFinalStatus (ctx, true);
+				return CheckFinalStatus (ctx);
 
 			try {
-				bool ok;
-				var btask = retval as Task<bool>;
-				if (btask != null)
-					ok = await btask;
-				else {
-					await task;
-					ok = true;
-				}
+				await task;
 
-				return CheckFinalStatus (ctx, ok);
+				return CheckFinalStatus (ctx);
 			} catch (OperationCanceledException) {
 				ctx.OnTestFinished (TestStatus.Canceled);
 				return false;

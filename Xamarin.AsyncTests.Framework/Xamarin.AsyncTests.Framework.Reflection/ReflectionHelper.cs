@@ -51,6 +51,24 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return sb.ToString ();
 		}
 
+		public static string GetTypeFullName (TypeInfo type)
+		{
+			if (!type.IsGenericType)
+				return type.FullName;
+			var tdecl = type.GetGenericTypeDefinition ();
+			var targs = type.GenericTypeArguments;
+			var sb = new StringBuilder ();
+			sb.Append (tdecl.FullName);
+			sb.Append ("<");
+			for (int i = 0; i < targs.Length; i++) {
+				if (i > 0)
+					sb.Append (",");
+				sb.Append (GetTypeFullName (targs [i].GetTypeInfo ()));
+			}
+			sb.Append (">");
+			return sb.ToString ();
+		}
+
 		public static IMemberInfo GetMethodInfo (MethodInfo member)
 		{
 			return new _MethodInfo (member);
