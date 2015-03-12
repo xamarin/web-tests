@@ -92,14 +92,14 @@ namespace Xamarin.AsyncTests.Console
 		TestLogger logger;
 		bool optionalGui;
 
-		public static void Main (string[] args)
+		public static void Run (Assembly assembly, string[] args)
 		{
 			SD.Debug.AutoFlush = true;
 			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
 
 			DependencyInjector.RegisterAssembly (typeof(PortableSupportImpl).Assembly);
 
-			var program = new Program (args);
+			var program = new Program (assembly, args);
 
 			try {
 				var task = program.Run (CancellationToken.None);
@@ -109,7 +109,12 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		Program (string[] args)
+		static void Main (string[] args)
+		{
+			Run (null, args);
+		}
+
+		Program (Assembly assembly, string[] args)
 		{
 			LogLevel = -1;
 
@@ -136,8 +141,7 @@ namespace Xamarin.AsyncTests.Console
 				dependencyAsms [i] = Assembly.LoadFile (dependencies [i]);
 			}
 
-			Assembly assembly;
-			if (remaining.Count == 1)
+			if (assembly == null && remaining.Count == 1)
 				assembly = Assembly.LoadFile (remaining [0]);
 			else
 				throw new InvalidOperationException ();
