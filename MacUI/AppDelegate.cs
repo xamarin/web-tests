@@ -161,6 +161,8 @@ namespace Xamarin.AsyncTests.MacUI
 
 			try {
 				await ui.ServerManager.Start.Execute (parameters);
+			} catch (TaskCanceledException) {
+				;
 			} catch (Exception ex) {
 				ShowAlertForException ("Failed to start server", ex);
 				return;
@@ -181,6 +183,8 @@ namespace Xamarin.AsyncTests.MacUI
 
 			try {
 				await ui.ServerManager.Start.Execute (parameters);
+			} catch (TaskCanceledException) {
+				;
 			} catch (Exception ex) {
 				ShowAlertForException ("Failed to start server", ex);
 				return;
@@ -192,6 +196,8 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			try {
 				await ui.ServerManager.Stop.Execute ();
+			} catch (TaskCanceledException) {
+				;
 			} catch (Exception ex) {
 				var alert = NSAlert.WithMessage ("Failed to stop server", "Ok", string.Empty, string.Empty, ex.Message);
 				alert.RunModal ();

@@ -63,7 +63,8 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			TestSession.Value = null;
 			SetStatusMessage ("Server stopped.");
-			await instance.Stop (cancellationToken);
+			if (instance != null)
+				await instance.Stop (cancellationToken);
 		}
 
 		class ServerCommand : Command<TestServer,ServerParameters>

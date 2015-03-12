@@ -198,8 +198,14 @@ namespace Xamarin.AsyncTests.Portable
 				var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 				cts.Token.Register (() => listener.Stop ());
 
-				socket = await listener.AcceptSocketAsync ();
-				cts.Token.ThrowIfCancellationRequested ();
+				try {
+					socket = await listener.AcceptSocketAsync ();
+					cts.Token.ThrowIfCancellationRequested ();
+				} catch (Exception ex) {
+					cts.Token.ThrowIfCancellationRequested ();
+					Debug.WriteLine ("Failed to start server: {0}", ex);
+					throw;
+				}
 
 				Debug.WriteLine ("Server accepted connection from {0}.", socket.RemoteEndPoint);
 				stream = new NetworkStream (socket);
