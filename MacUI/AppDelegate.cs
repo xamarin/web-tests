@@ -43,6 +43,7 @@ namespace Xamarin.AsyncTests.MacUI
 		SettingsDialogController settingsDialogController;
 		TestSessionModel currentSession;
 		bool isStopped;
+		bool hasServer;
 		MacUI ui;
 
 		public MacUI MacUI {
@@ -68,6 +69,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 			isStopped = true;
 			ui.TestRunner.Stop.NotifyStateChanged.StateChanged += (sender, e) => IsStopped = !e;
+			ui.ServerManager.Start.NotifyStateChanged.StateChanged += (sender, e) => HasServer = !e;
 
 			mainWindowController = new MainWindowController ();
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
@@ -81,21 +83,7 @@ namespace Xamarin.AsyncTests.MacUI
 					CurrentSession = new TestSessionModel (e);
 			};
 
-			ServerParameters parameters;
-			try {
-				parameters = GetParameters ();
-			} catch (AlertException ex) {
-				var alert = NSAlert.WithMessage ("Failed to parse command-line arguments", "Ok", string.Empty, string.Empty, ex.Message);
-				alert.RunModal ();
-				return;
-			}
-
-			Start (parameters);
-		}
-
-		async void Start (ServerParameters parameters)
-		{
-			await ui.ServerManager.Start.Execute (parameters);
+			StartServer ();
 		}
 
 		ServerParameters GetParameters ()
@@ -180,16 +168,52 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
+		void Load ()
+		{
+			var open = new NSOpenPanel {
+				CanChooseDirectories = false, CanChooseFiles = true, AllowsMultipleSelection = false,
+				AllowedFileTypes = new string[] { ".xml" }
+			};
+			open.RunModal ();
+		}
+
 		[Export ("ShowPreferences:")]
 		public void ShowPreferences ()
 		{
 			settingsDialogController.Window.MakeKeyAndOrderFront (this);
 		}
 
-		[Export ("UnloadTestSuite:")]
-		public async void UnloadTestSuite ()
+		[Export ("StartServer:")]
+		public async void StartServer ()
 		{
-			await ui.ServerManager.Stop.Execute ();
+			ServerParameters parameters;
+			try {
+				parameters = GetParameters ();
+			} catch (AlertException ex) {
+				var alert = NSAlert.WithMessage ("Failed to parse command-line arguments", "Ok", string.Empty, string.Empty, ex.Message);
+				alert.RunModal ();
+				return;
+			}
+
+			try {
+				await ui.ServerManager.Start.Execute (parameters);
+			} catch (Exception ex) {
+				var alert = NSAlert.WithMessage ("Failed to start server", "Ok", string.Empty, string.Empty, ex.Message);
+				alert.RunModal ();
+				return;
+			}
+		}
+
+		[Export ("StopServer:")]
+		public async void StopServer ()
+		{
+			try {
+				await ui.ServerManager.Stop.Execute ();
+			} catch (Exception ex) {
+				var alert = NSAlert.WithMessage ("Failed to stop server", "Ok", string.Empty, string.Empty, ex.Message);
+				alert.RunModal ();
+				return;
+			}
 		}
 
 		[Export ("ClearSession:")]
@@ -203,6 +227,7 @@ namespace Xamarin.AsyncTests.MacUI
 		public void LoadSession ()
 		{
 			Console.WriteLine ("LOAD SESSION");
+			Load ();
 		}
 
 		[Export ("SaveSession:")]
@@ -240,7 +265,18 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
+		public const string HasServerKey = "HasServer";
 
+		[Export (HasServerKey)]
+		public bool HasServer {
+			get { return hasServer; }
+			set {
+				Console.WriteLine ("HAS SERVER: {0} {1}", hasServer, value);
+				WillChangeValue (HasServerKey);
+				hasServer = value;
+				DidChangeValue (HasServerKey);
+			}
+		}
 	}
 }
 
