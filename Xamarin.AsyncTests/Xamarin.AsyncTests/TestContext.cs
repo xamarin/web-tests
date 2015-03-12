@@ -41,6 +41,7 @@ namespace Xamarin.AsyncTests
 		readonly SynchronizationContext syncContext;
 		readonly ITestConfiguration config;
 		readonly ITestPathInternal path;
+		bool isCanceled;
 
 		public TestName Name {
 			get;
@@ -108,6 +109,7 @@ namespace Xamarin.AsyncTests
 
 		public void OnTestCanceled ()
 		{
+			isCanceled = true;
 			OnTestFinished (TestStatus.Canceled);
 		}
 
@@ -276,6 +278,17 @@ namespace Xamarin.AsyncTests
 
 		public bool HasPendingException {
 			get { return Result != null && Result.HasErrors; }
+		}
+
+		public bool IsCanceled {
+			get {
+				if (isCanceled)
+					return true;
+				else if (parent != null)
+					return parent.IsCanceled;
+				else
+					return false;
+			}
 		}
 
 		#endregion

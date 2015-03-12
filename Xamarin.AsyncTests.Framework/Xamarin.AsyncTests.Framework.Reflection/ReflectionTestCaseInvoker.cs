@@ -175,6 +175,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (ctx.HasPendingException) {
 				ctx.OnTestFinished (TestStatus.Error);
 				return false;
+			} else if (ctx.IsCanceled) {
+				return false;
 			} else if (!ok) {
 				ctx.OnError (new AssertionException ("Test failed", ctx.GetStackTrace ()));
 				return false;

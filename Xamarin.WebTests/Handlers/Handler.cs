@@ -164,6 +164,11 @@ namespace Xamarin.WebTests.Handlers
 				tcs.SetException (ex);
 				return false;
 			} catch (Exception ex) {
+				if (ctx.IsCanceled) {
+					Debug (ctx, 0, "HANDLE REQUEST - CANCELED", ex);
+					tcs.SetCanceled ();
+					return false;
+				}
 				Debug (ctx, 0, "HANDLE REQUEST EX", ex);
 				var response = HttpResponse.CreateError ("Caught unhandled exception", ex);
 				connection.WriteResponse (response);

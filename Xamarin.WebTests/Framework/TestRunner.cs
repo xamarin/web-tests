@@ -122,6 +122,11 @@ namespace Xamarin.WebTests.Framework
 			if (ctx.HasPendingException)
 				return false;
 
+			if (cancellationToken.IsCancellationRequested) {
+				ctx.OnTestCanceled ();
+				return false;
+			}
+
 			bool ok;
 
 			if (expectException) {
