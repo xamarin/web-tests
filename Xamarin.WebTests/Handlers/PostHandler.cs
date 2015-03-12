@@ -41,8 +41,6 @@ namespace Xamarin.WebTests.Handlers
 
 	public class PostHandler : Handler
 	{
-		TransferMode mode;
-		HttpContent content;
 		bool? allowWriteBuffering;
 		Func<HttpRequest, HttpResponse> customHandler;
 

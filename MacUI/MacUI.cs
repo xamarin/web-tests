@@ -63,7 +63,6 @@ namespace Xamarin.AsyncTests.MacUI
 
 		readonly TestLogger logger;
 		readonly SettingsBag settings;
-		readonly IPortableSupport support;
 
 		public MacUI ()
 		{
