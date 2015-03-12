@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// HttpClient.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,23 +24,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Threading;
-using Xamarin.AsyncTests;
-using Xamarin.WebTests.Portable;
+using System.Threading.Tasks;
+using Http = System.Net.Http;
+using Xamarin.WebTests.Portable.HttpClient;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.Console.DependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
-
-namespace Xamarin.WebTests.Console
+namespace Xamarin.WebTests.HttpClient
 {
-	using Server;
-
-	public class DependencyProvider : IDependencyProvider
+	public class HttpClient : IHttpClient
 	{
-		public void Initialize ()
+		readonly Http.HttpClient client;
+
+		public HttpClient (Http.HttpClient client)
 		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
+			this.client = client;
+		}
+
+		public void CancelPendingRequests ()
+		{
+			client.CancelPendingRequests ();
+		}
+
+		public Task<string> GetStringAsync (Uri requestUri)
+		{
+			return client.GetStringAsync (requestUri);
+		}
+
+		public async Task<IHttpResponseMessage> SendAsync (IHttpRequestMessage request, HttpCompletionOption completionOption, CancellationToken cancellationToken)
+		{
+			var message = ((HttpRequestMessage)request).Message;
+			var response = await client.SendAsync (message, (Http.HttpCompletionOption)completionOption, cancellationToken);
+			return new HttpResponseMessage (response);
 		}
 	}
 }

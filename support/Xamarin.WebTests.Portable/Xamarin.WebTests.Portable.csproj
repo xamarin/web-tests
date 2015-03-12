@@ -59,9 +59,16 @@
     <Compile Include="Mono.Security.Protocol.Ntlm\Type2Message.cs" />
     <Compile Include="Mono.Security.Protocol.Ntlm\Type3Message.cs" />
     <Compile Include="Xamarin.WebTests.Portable\NTLMHandler.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpClientHandler.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpClient.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpContent.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpMessage.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\HttpMethod.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpRequestMessage.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\HttpCompletionOption.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpResponseMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
@@ -70,22 +77,20 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Net.Http">
-      <HintPath>..\..\packages\Microsoft.Net.Http.2.2.29\lib\portable-net40+sl4+win8+wp71+wpa81\System.Net.Http.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http.Primitives">
-      <HintPath>..\..\packages\Microsoft.Net.Http.2.2.29\lib\portable-net40+sl4+win8+wp71+wpa81\System.Net.Http.Primitives.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http.Extensions">
-      <HintPath>..\..\packages\Microsoft.Net.Http.2.2.29\lib\portable-net40+sl4+win8+wp71+wpa81\System.Net.Http.Extensions.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="cert.pfx">
       <LogicalName>Xamarin.WebTests.Server.cert.pfx</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Xamarin.WebTests.Portable.HttpClient\" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="Flat" ResourceNamePolicy="FileFormatDefault" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
 </Project>

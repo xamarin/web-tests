@@ -25,7 +25,6 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
-using Http = System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,23 +35,24 @@ namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
 	using Portable;
+	using Portable.HttpClient;
 
 	public class HttpClientRequest : Request
 	{
 		public readonly Uri RequestUri;
-		public readonly Http.HttpClientHandler Handler;
-		public readonly Http.HttpClient Client;
+		public readonly IHttpClientHandler Handler;
+		public readonly IHttpClient Client;
 		readonly IPortableWebSupport WebSupport;
-		Http.HttpMethod method = Http.HttpMethod.Get;
-		Http.Headers.MediaTypeHeaderValue contentType;
+		HttpMethod method = HttpMethod.Get;
+		string contentType;
 		long? contentLength;
 
 		public HttpClientRequest (HttpClientHandler parent, Uri uri)
 		{
 			RequestUri = uri;
 			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
-			Handler = new Http.HttpClientHandler ();
-			Client = new Http.HttpClient (Handler, true);
+			Handler = WebSupport.CreateHttpClientHandler ();
+			Client = Handler.CreateHttpClient ();
 		}
 
 		public override string Method {
@@ -60,19 +60,19 @@ namespace Xamarin.WebTests.Handlers
 			set {
 				switch (value.ToUpper ()) {
 				case "GET":
-					method = Http.HttpMethod.Get;
+					method = HttpMethod.Get;
 					break;
 				case "POST":
-					method = Http.HttpMethod.Post;
+					method = HttpMethod.Post;
 					break;
 				case "PUT":
-					method = Http.HttpMethod.Put;
+					method = HttpMethod.Put;
 					break;
 				case "HEAD":
-					method = Http.HttpMethod.Head;
+					method = HttpMethod.Head;
 					break;
 				case "DELETE":
-					method = Http.HttpMethod.Delete;
+					method = HttpMethod.Delete;
 					break;
 				default:
 					throw new NotImplementedException ();
@@ -87,8 +87,7 @@ namespace Xamarin.WebTests.Handlers
 
 		public override void SetContentType (string contentType)
 		{
-			if (!Http.Headers.MediaTypeHeaderValue.TryParse (contentType, out this.contentType))
-				throw new InvalidOperationException ();
+			this.contentType = contentType;
 		}
 
 		public override void SendChunked ()
@@ -123,18 +122,18 @@ namespace Xamarin.WebTests.Handlers
 		public async Task<Response> PostString (
 			TestContext ctx, HttpContent returnContent, CancellationToken cancellationToken)
 		{
-			var message = new Http.HttpRequestMessage ();
-			message.Method = Http.HttpMethod.Post;
+			var message = Handler.CreateRequestMessage ();
+			message.Method = HttpMethod.Post;
 			message.RequestUri = RequestUri;
-			message.Content = new Http.StringContent (Content.AsString ());
+			message.Content = Handler.CreateStringContent (Content.AsString ());
 
 			if (contentLength != null)
-				message.Content.Headers.ContentLength = contentLength;
+				message.Content.ContentLength = contentLength;
 			if (contentType != null)
-				message.Content.Headers.ContentType = contentType;
+				message.Content.ContentType = contentType;
 
 			var response = await Client.SendAsync (
-				message, Http.HttpCompletionOption.ResponseContentRead, cancellationToken);
+				message, HttpCompletionOption.ResponseContentRead, cancellationToken);
 
 			ctx.Assert (response, Is.Not.Null, "response");
 

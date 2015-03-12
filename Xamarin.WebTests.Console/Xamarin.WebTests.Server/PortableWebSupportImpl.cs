@@ -26,7 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Net.Http;
+using Http = System.Net.Http;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -42,8 +42,11 @@ using Mono.Security.Protocol.Ntlm;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.Server
 {
+	using HttpClient;
+	using Portable;
+	using Portable.HttpClient;
 	using Framework;
 	using Server;
 
@@ -115,7 +118,7 @@ namespace Xamarin.WebTests.Portable
 			request.Proxy = (PortableProxy)proxy;
 		}
 
-		void IPortableWebSupport.SetProxy (HttpClientHandler handler, IPortableProxy proxy)
+		void IPortableWebSupport.SetProxy (IHttpClientHandler handler, IPortableProxy proxy)
 		{
 			handler.Proxy = (PortableProxy)proxy;
 		}
@@ -259,6 +262,16 @@ namespace Xamarin.WebTests.Portable
 		IListener IPortableWebSupport.CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType)
 		{
 			return new ProxyListener ((HttpListener)httpListener, proxyEndpoint, authType);
+		}
+
+		#endregion
+
+		#region HttpClient
+
+		public IHttpClientHandler CreateHttpClientHandler ()
+		{
+			var handler = new Http.HttpClientHandler ();
+			return new HttpClientHandler (handler);
 		}
 
 		#endregion

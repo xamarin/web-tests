@@ -25,7 +25,6 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
-using Http = System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 

@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// IHttpContent.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,23 +25,21 @@
 // THE SOFTWARE.
 using System;
 using System.Threading;
-using Xamarin.AsyncTests;
-using Xamarin.WebTests.Portable;
+using System.Threading.Tasks;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.Console.DependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
-
-namespace Xamarin.WebTests.Console
+namespace Xamarin.WebTests.Portable.HttpClient
 {
-	using Server;
-
-	public class DependencyProvider : IDependencyProvider
+	public interface IHttpContent
 	{
-		public void Initialize ()
-		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
+		long? ContentLength {
+			get; set;
 		}
+
+		string ContentType {
+			get; set;
+		}
+
+		Task<string> ReadAsStringAsync ();
 	}
 }
 

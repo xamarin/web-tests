@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// HttpContent.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,23 +24,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Threading;
-using Xamarin.AsyncTests;
+using System.Threading.Tasks;
+using Http = System.Net.Http;
 using Xamarin.WebTests.Portable;
+using Xamarin.WebTests.Portable.HttpClient;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.Console.DependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
-
-namespace Xamarin.WebTests.Console
+namespace Xamarin.WebTests.HttpClient
 {
-	using Server;
-
-	public class DependencyProvider : IDependencyProvider
+	public abstract class HttpContent : IHttpContent
 	{
-		public void Initialize ()
+		readonly Http.HttpContent content;
+
+		public HttpContent (Http.HttpContent content)
 		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
+			this.content = content;
+		}
+
+		public Http.HttpContent Content {
+			get { return content; }
+		}
+
+		public Task<string> ReadAsStringAsync ()
+		{
+			return content.ReadAsStringAsync ();
+		}
+
+		public long? ContentLength {
+			get { return content.Headers.ContentLength; }
+			set { content.Headers.ContentLength = value; }
+		}
+
+		public string ContentType {
+			get {
+				var header = content.Headers.ContentType;
+				if (header == null)
+					return null;
+				return header.MediaType;
+			}
+			set {
+				if (value == null) {
+					content.Headers.ContentType = null;
+					return;
+				}
+
+				Http.Headers.MediaTypeHeaderValue contentType;
+				if (!Http.Headers.MediaTypeHeaderValue.TryParse (value, out contentType))
+					throw new InvalidOperationException ();
+				content.Headers.ContentType = contentType;
+			}
 		}
 	}
 }

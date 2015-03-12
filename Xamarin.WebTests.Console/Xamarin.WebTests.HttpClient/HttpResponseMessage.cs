@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// HttpResponseMessage.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,23 +24,58 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Threading;
-using Xamarin.AsyncTests;
+using System.Threading.Tasks;
+using Http = System.Net.Http;
 using Xamarin.WebTests.Portable;
+using Xamarin.WebTests.Portable.HttpClient;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.Console.DependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
-
-namespace Xamarin.WebTests.Console
+namespace Xamarin.WebTests.HttpClient
 {
-	using Server;
-
-	public class DependencyProvider : IDependencyProvider
+	public class HttpResponseMessage : IHttpResponseMessage
 	{
-		public void Initialize ()
+		readonly Http.HttpResponseMessage message;
+		HttpContent content;
+
+		public HttpResponseMessage (Http.HttpResponseMessage message)
 		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
+			this.message = message;
+		}
+
+		public HttpStatusCode StatusCode {
+			get { return message.StatusCode; }
+		}
+
+		public bool IsSuccessStatusCode {
+			get { return message.IsSuccessStatusCode; }
+		}
+
+		void InitializeContent ()
+		{
+			if (message.Content == null)
+				return;
+
+			var stringContent = message.Content as Http.StringContent;
+			if (stringContent != null) {
+				content = new StringContent (stringContent);
+				return;
+			}
+
+			var streamContent = message.Content as Http.StreamContent;
+			if (streamContent != null) {
+				content = new StreamContent (streamContent);
+				return;
+			}
+
+			throw new NotImplementedException ();
+		}
+
+		public IHttpContent Content {
+			get {
+				InitializeContent ();
+				return content;
+			}
 		}
 	}
 }

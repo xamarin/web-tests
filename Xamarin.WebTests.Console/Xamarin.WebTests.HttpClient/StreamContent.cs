@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// StreamContent.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,23 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Threading;
-using Xamarin.AsyncTests;
+using System.Threading.Tasks;
+using Http = System.Net.Http;
 using Xamarin.WebTests.Portable;
+using Xamarin.WebTests.Portable.HttpClient;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.Console.DependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
-
-namespace Xamarin.WebTests.Console
+namespace Xamarin.WebTests.HttpClient
 {
-	using Server;
-
-	public class DependencyProvider : IDependencyProvider
+	public class StreamContent : HttpContent
 	{
-		public void Initialize ()
+		public StreamContent (Http.StreamContent content)
+			: base (content)
 		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
 		}
 	}
 }
