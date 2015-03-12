@@ -104,8 +104,6 @@ namespace Xamarin.AsyncTests.MacUI
 
 		internal void OnStatisticsEvent (TestLoggerBackend.StatisticsEventArgs args)
 		{
-			StatusMessage.Value = GetStatusMessage ();
-
 			switch (args.Type) {
 			case TestLoggerBackend.StatisticsEventType.Running:
 				++countTests;
@@ -130,6 +128,8 @@ namespace Xamarin.AsyncTests.MacUI
 			default:
 				break;
 			}
+
+			StatusMessage.Value = GetStatusMessage (CurrentTestName.Value);
 		}
 
 		string GetStatusMessage (string prefix = null)
