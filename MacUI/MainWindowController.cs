@@ -122,17 +122,14 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
-		[Export ("LoadTestResult:")]
-		public void LoadResult ()
+		public void LoadTestResult (string filename)
 		{
-			using (var reader = XmlTextReader.Create ("TestResult.xml")) {
-				var doc = XDocument.Load (reader);
-				var root = doc.Root;
-				var result = TestSerializer.ReadTestResult (root);
-
-				var model = new TestResultModel (null, result);
-				TestResultController.AddObject (model);
-			}
+			var doc = XDocument.Load (filename);
+			var result = TestSerializer.ReadTestResult (doc.Root);
+			var currentSession = AppDelegate.Instance.CurrentSession;
+			var session = currentSession != null ? currentSession.Session : null;
+			var model = new TestResultModel (session, result);
+			TestResultController.AddObject (model);
 		}
 
 		bool canRun;

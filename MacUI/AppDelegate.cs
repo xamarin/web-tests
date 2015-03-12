@@ -232,8 +232,7 @@ namespace Xamarin.AsyncTests.MacUI
 				return;
 
 			try {
-				var file = open.Urls [0].AbsoluteString;
-				CurrentSession.LoadResult (file);
+				MainController.LoadTestResult (open.Urls [0].AbsoluteString);
 			} catch (Exception ex) {
 				ShowAlertForException ("Failed to load result", ex);
 				return;

@@ -114,11 +114,7 @@
                             <menuItem title="Load" id="Zrm-2K-bTw">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="CurrentSession" id="GI4-fY-Rg9">
-                                        <dictionary key="options">
-                                            <string key="NSValueTransformerName">NSIsNotNil</string>
-                                        </dictionary>
-                                    </binding>
+                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="IsStopped" id="UeW-pR-r2I"/>
                                     <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="2pD-5y-VIs">
                                         <dictionary key="options">
                                             <string key="NSSelectorName">LoadSession:</string>
