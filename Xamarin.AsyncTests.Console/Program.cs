@@ -90,6 +90,7 @@ namespace Xamarin.AsyncTests.Console
 		SettingsBag settings;
 		TestFramework framework;
 		TestLogger logger;
+		bool optionalGui;
 
 		public static void Main (string[] args)
 		{
@@ -122,6 +123,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("result=", v => ResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
 			p.Add ("dependency=", v => dependencies.Add (v));
+			p.Add ("optional-gui", v => optionalGui = true);
 			var remaining = p.Parse (args);
 
 			settings = LoadSettings (SettingsFile);
@@ -218,15 +220,25 @@ namespace Xamarin.AsyncTests.Console
 
 		async Task ConnectToGui (CancellationToken cancellationToken)
 		{
-			var endpoint = GetPortableEndPoint (GuiEndPoint);
-			var server = await TestServer.ConnectToGui (this, endpoint, framework, cancellationToken);
-			cancellationToken.ThrowIfCancellationRequested ();
+			TestServer server;
+			try {
+				var endpoint = GetPortableEndPoint (GuiEndPoint);
+				server = await TestServer.ConnectToGui (this, endpoint, framework, cancellationToken);
+			} catch (SocketException ex) {
+				if (ex.SocketErrorCode == SocketError.ConnectionRefused && optionalGui) {
+					await RunLocal (cancellationToken);
+					return;
+				}
+				throw;
+			}
 
+			cancellationToken.ThrowIfCancellationRequested ();
 			await server.WaitForExit (cancellationToken);
 		}
 
 		async Task RunLocal (CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested ();
 			session = TestSession.CreateLocal (this, framework);
 			var test = await session.GetRootTestCase (cancellationToken);
 
