@@ -71,16 +71,20 @@ namespace Xamarin.AsyncTests.Portable
 				var monoPath = Path.Combine (arguments.MonoPrefix, "bin", "mono");
 
 				var cmd = new StringBuilder ();
-				cmd.Append (arguments.ConsolePath);
+				if (arguments.ConsolePath != null)
+					cmd.Append (arguments.ConsolePath);
+				else
+					cmd.Append (arguments.Assembly);
 				if (arguments.Dependencies != null) {
 					foreach (var dependency in arguments.Dependencies) {
 						cmd.AppendFormat (" --dependency={0}", dependency);
 					}
 				}
-				cmd.AppendFormat ("  --gui={0}:{1} ", networkEndpoint.Address, networkEndpoint.Port);
+				cmd.AppendFormat (" --gui={0}:{1}", networkEndpoint.Address, networkEndpoint.Port);
 				if (arguments.ExtraArguments != null)
-					cmd.AppendFormat ("{0} ", arguments.ExtraArguments);
-				cmd.Append (arguments.Assembly);
+					cmd.AppendFormat (" {0}", arguments.ExtraArguments);
+				if (arguments.ConsolePath != null)
+					cmd.Append (arguments.Assembly);
 
 				var psi = new ProcessStartInfo (monoPath, cmd.ToString ());
 				psi.UseShellExecute = false;

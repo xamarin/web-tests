@@ -93,8 +93,6 @@ namespace Xamarin.AsyncTests.MacUI
 
 			if (string.IsNullOrEmpty (ui.Settings.MonoRuntime))
 				throw new AlertException ("Must set Mono Runtime in Settings Dialog.");
-			if (string.IsNullOrEmpty (ui.Settings.LauncherPath))
-				throw new AlertException ("Must set Launcher Path in Settings Dialog.");
 			if (string.IsNullOrEmpty (ui.Settings.TestSuite))
 				throw new AlertException ("Must set Test Suite in Settings Dialog.");
 
@@ -105,7 +103,8 @@ namespace Xamarin.AsyncTests.MacUI
 			if (!File.Exists (monoPath))
 				throw new AlertException ("Invalid runtime prefix: {0}", pipeArgs.MonoPrefix);
 
-			pipeArgs.ConsolePath = FindFile (ui.Settings.LauncherPath);
+			if (!string.IsNullOrEmpty (ui.Settings.LauncherPath))
+				pipeArgs.ConsolePath = FindFile (ui.Settings.LauncherPath);
 			pipeArgs.Assembly = FindFile (ui.Settings.TestSuite);
 			pipeArgs.ExtraArguments = ui.Settings.Arguments;
 

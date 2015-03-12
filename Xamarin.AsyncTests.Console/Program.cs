@@ -141,10 +141,14 @@ namespace Xamarin.AsyncTests.Console
 				dependencyAsms [i] = Assembly.LoadFile (dependencies [i]);
 			}
 
-			if (assembly == null && remaining.Count == 1)
+			if (assembly != null) {
+				if (remaining.Count != 0)
+					throw new InvalidOperationException ();
+			} else if (remaining.Count == 1) {
 				assembly = Assembly.LoadFile (remaining [0]);
-			else
+			} else {
 				throw new InvalidOperationException ();
+			}
 
 			logger = new TestLogger (new ConsoleLogger (this));
 
