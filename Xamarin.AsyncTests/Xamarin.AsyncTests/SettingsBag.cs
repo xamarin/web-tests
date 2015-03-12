@@ -73,16 +73,16 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		public int RemoteLogLevel {
+		public int LocalLogLevel {
 			get {
 				string value;
-				if (TryGetValue ("RemoteLogLevel", out value))
+				if (TryGetValue ("LocalLogLevel", out value))
 					return int.Parse (value);
 				return 0;
 			}
 			set {
-				SetValue ("RemoteLogLevel", value.ToString ());
-				OnPropertyChanged ("RemoteLogLevel");
+				SetValue ("LocalLogLevel", value.ToString ());
+				OnPropertyChanged ("LocalLogLevel");
 			}
 		}
 

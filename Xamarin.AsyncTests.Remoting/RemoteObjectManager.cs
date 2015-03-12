@@ -86,11 +86,11 @@ namespace Xamarin.AsyncTests.Remoting
 			instance.WantStatisticsEvents = bool.Parse (node.Attribute ("WantStatisticsEvents").Value);
 
 			var settings = node.Element ("Settings");
-			if (settings != null)
-				instance.Settings = TestSerializer.ReadSettings (settings);
+			Connection.Debug ("Handshake: {0}", settings);
+			instance.Settings = TestSerializer.ReadSettings (settings);
 
 			var logger = node.Element ("EventSink");
-			instance.EventSink = ReadProxy (connection, logger, (objectID) => new EventSinkClient (connection, objectID));
+			instance.EventSink = ReadProxy (connection, logger, (objectID) => new EventSinkClient ((ServerConnection)connection, objectID));
 
 			return instance;
 		}
@@ -100,8 +100,7 @@ namespace Xamarin.AsyncTests.Remoting
 			var element = new XElement ("Handshake");
 			element.SetAttributeValue ("WantStatisticsEvents", instance.WantStatisticsEvents);
 
-			if (instance.Settings != null)
-				element.Add (TestSerializer.WriteSettings (instance.Settings));
+			element.Add (TestSerializer.WriteSettings (instance.Settings));
 
 			element.Add (WriteProxy (instance.EventSink));
 
@@ -197,7 +196,6 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			var command = new GetRemoteTestConfigurationCommand ();
 			var result = await command.Send (session, null, cancellationToken);
-			Connection.Debug ("GET REMOTE CONFIG: {0}", result);
 			return TestSerializer.ReadConfiguration (result);
 		}
 
@@ -252,6 +250,7 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			protected override Task<object> Run (Connection connection, RemoteTestSession proxy, XElement argument, CancellationToken cancellationToken)
 			{
+				Connection.Debug ("Update settings: {0}", argument);
 				proxy.Servant.UpdateSettings (argument);
 				return Task.FromResult<object> (null);
 			}

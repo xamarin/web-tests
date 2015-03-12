@@ -75,7 +75,6 @@ namespace Xamarin.AsyncTests.MacUI
 			settingsDialogController = new SettingsDialogController ();
 
 			ui.ServerManager.TestSession.PropertyChanged += (sender, e) => {
-				Console.WriteLine ("AD SESSION CHANGED: {0}", e);
 				if (e == null)
 					CurrentSession = null;
 				else

@@ -61,30 +61,19 @@ namespace Xamarin.AsyncTests
 			Load (false);
 		}
 
-		bool Load (bool sendEvent)
+		void Load (bool sendEvent)
 		{
-			bool modified = false;
+			bool featuresModified = false;
 			foreach (var feature in provider.Features) {
-				bool enabled;
-				if (feature.Constant != null)
-					enabled = feature.Constant.Value;
-				else
-					enabled = IsFeatureEnabled (feature.Name) ?? feature.DefaultValue ?? false;
-				if (features [feature.Name] != enabled) {
-					features [feature.Name] = enabled;
-					modified = true;
-					OnPropertyChanged ("Feature");
-				}
+				featuresModified |= LoadFeature (feature);
 			}
 
-			var category = GetCurrentCategory ();
-			if (category != null && category != currentCategory) {
-				currentCategory = category;
-				modified = true;
-				OnPropertyChanged ("Category");
-			}
+			if (featuresModified && sendEvent)
+				OnPropertyChanged ("Feature");
 
-			return modified;
+			var categoryModifed = LoadCurrentCategory ();
+			if (categoryModifed && sendEvent)
+				OnPropertyChanged ("CurrentCategory");
 		}
 
 		public IEnumerable<TestFeature> Features {
@@ -114,14 +103,28 @@ namespace Xamarin.AsyncTests
 		{
 			SetIsFeatureEnabled (feature.Name, enabled);
 		}
-			
-		bool? IsFeatureEnabled (string name)
+
+		bool LoadFeature (TestFeature feature)
 		{
-			var key = "Feature." + name;
+			if (feature.Constant != null) {
+				features [feature.Name] = feature.Constant.Value;
+				return false;
+			}
+
+			var key = provider.Name + ".Feature." + feature.Name;
 			string value;
-			if (!settings.TryGetValue (key, out value))
-				return null;
-			return bool.Parse (value);
+			if (settings.TryGetValue (key, out value)) {
+				var enabled = bool.Parse (value);
+				if (features [feature.Name] == enabled)
+					return false;
+				features [feature.Name] = enabled;
+				return true;
+			} else {
+				var enabled = feature.DefaultValue ?? false;
+				settings.SetValue (key, enabled.ToString ());
+				features [feature.Name] = enabled;
+				return true;
+			}
 		}
 
 		void SetIsFeatureEnabled (string name, bool enabled)
@@ -129,23 +132,33 @@ namespace Xamarin.AsyncTests
 			if (features [name] == enabled)
 				return;
 			features [name] = enabled;
-			var key = "Feature." + name;
+			var key = provider.Name + ".Feature." + name;
 			settings.SetValue (key, enabled.ToString ());
 			OnPropertyChanged ("Feature");
 		}
 
-		TestCategory GetCurrentCategory ()
+		bool LoadCurrentCategory ()
 		{
-			string key;
-			if (!settings.TryGetValue ("CurrentCategory", out key))
-				return TestCategory.All;
+			var key = provider.Name + ".CurrentCategory";
+			string value;
 
-			return categories.FirstOrDefault (c => c.Name.Equals (key)) ?? TestCategory.All;
+			if (settings.TryGetValue (key, out value)) {
+				var category = categories.FirstOrDefault (c => c.Name.Equals (value)) ?? TestCategory.All;
+				if (category == currentCategory)
+					return false;
+				currentCategory = category;
+				return true;
+			}
+
+			currentCategory = TestCategory.All;
+			settings.SetValue (key, currentCategory.Name);
+			return true;
 		}
 
 		void SetCurrentCategory (string value)
 		{
-			settings.SetValue ("CurrentCategory", value);
+			var key = provider.Name + ".CurrentCategory";
+			settings.SetValue (key, value);
 			OnPropertyChanged ("CurrentCategory");
 		}
 

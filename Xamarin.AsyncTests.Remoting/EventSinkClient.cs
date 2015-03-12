@@ -51,14 +51,20 @@ namespace Xamarin.AsyncTests.Remoting
 			private set;
 		}
 
+		public TestLoggerBackend LocalLogger {
+			get;
+			private set;
+		}
+
 		public string Type {
 			get { return "EventSink"; }
 		}
 
-		internal EventSinkClient (Connection connection, long objectID)
+		internal EventSinkClient (ServerConnection connection, long objectID)
 		{
 			Connection = connection;
 			ObjectID = objectID;
+			LocalLogger = connection.LocalLogger;
 		}
 
 		void Initialize ()
@@ -85,6 +91,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public async Task LogEvent (TestLoggerBackend.LogEntry entry, CancellationToken cancellationToken)
 		{
+			LocalLogger.OnLogEvent (entry);
 			var command = new LogCommand ();
 			await command.Send (this, entry, cancellationToken);
 		}

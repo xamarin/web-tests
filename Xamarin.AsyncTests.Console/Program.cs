@@ -129,7 +129,7 @@ namespace Xamarin.AsyncTests.Console
 			settings = LoadSettings (SettingsFile);
 
 			if (LogLevel != null)
-				settings.LogLevel = LogLevel.Value;
+				settings.LocalLogLevel = LogLevel.Value;
 
 			var dependencyAsms = new Assembly [dependencies.Count];
 			for (int i = 0; i < dependencyAsms.Length; i++) {
@@ -296,7 +296,7 @@ namespace Xamarin.AsyncTests.Console
 
 		void OnLogDebug (int level, string message)
 		{
-			if (Settings.LogLevel >= 0 && level > Settings.LogLevel)
+			if (Settings.LocalLogLevel >= 0 && level > Settings.LocalLogLevel)
 				return;
 			Debug (message);
 		}

@@ -53,13 +53,19 @@ namespace Xamarin.AsyncTests.Remoting
 			get { return eventSink.LoggerClient; }
 		}
 
+		public TestLoggerBackend LocalLogger {
+			get;
+			private set;
+		}
+
 		protected override bool IsServer {
 			get { return true; }
 		}
 
-		public ServerConnection (TestApp context, TestFramework framework, Stream stream, IServerConnection connection)
-			: base (context, stream)
+		public ServerConnection (TestApp app, TestFramework framework, Stream stream, IServerConnection connection)
+			: base (app, stream)
 		{
+			LocalLogger = app.Logger.Backend;
 			this.framework = framework;
 			this.connection = connection;
 			helloTcs = new TaskCompletionSource<EventSinkClient> ();
