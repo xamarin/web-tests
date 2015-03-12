@@ -130,6 +130,16 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
+		[Export ("LogLevel")]
+		public int LogLevel {
+			get { return SettingsBag.LogLevel; }
+			set {
+				WillChangeValue ("LogLevel");
+				SettingsBag.LogLevel = value;
+				DidChangeValue ("LogLevel");
+			}
+		}
+
 		[Export ("Arguments")]
 		public string Arguments {
 			get { return SettingsBag.Arguments; }

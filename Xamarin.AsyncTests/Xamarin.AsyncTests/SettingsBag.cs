@@ -73,6 +73,19 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public int RemoteLogLevel {
+			get {
+				string value;
+				if (TryGetValue ("RemoteLogLevel", out value))
+					return int.Parse (value);
+				return 0;
+			}
+			set {
+				SetValue ("RemoteLogLevel", value.ToString ());
+				OnPropertyChanged ("RemoteLogLevel");
+			}
+		}
+
 		public bool HideIgnoredTests {
 			get {
 				string value;
