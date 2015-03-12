@@ -56,7 +56,7 @@ namespace Xamarin.WebTests.Tests
 		}
 	}
 
-	[AsyncTestFixture (Timeout = 5000)]
+	[AsyncTestFixture (Timeout = 10000)]
 	public class TestPost : ITestHost<HttpServer>
 	{
 		[WebTestFeatures.SelectSSL]
