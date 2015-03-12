@@ -35,9 +35,15 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
-		public AsyncTestSuiteAttribute (Type type)
+		public bool IsReference {
+			get;
+			private set;
+		}
+
+		public AsyncTestSuiteAttribute (Type type, bool isReference = false)
 		{
 			Type = type;
+			IsReference = isReference;
 		}
 	}
 }

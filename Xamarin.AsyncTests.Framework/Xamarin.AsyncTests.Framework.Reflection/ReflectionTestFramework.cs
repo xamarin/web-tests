@@ -35,6 +35,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 	class ReflectionTestFramework : TestFramework
 	{
+		public Assembly RootAssembly {
+			get;
+			private set;
+		}
+
 		public Assembly Assembly {
 			get;
 			private set;
@@ -58,7 +63,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		public ReflectionTestFramework (Assembly assembly, params Assembly[] dependencies)
 		{
-			Assembly = assembly;
+			Assembly = RootAssembly = assembly;
 			Dependencies = dependencies;
 
 			ResolveDependencies ();
@@ -78,10 +83,32 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		void Resolve ()
 		{
-			var cattr = Assembly.GetCustomAttribute<AsyncTestSuiteAttribute> ();
-			if (cattr == null)
+			DependencyInjector.RegisterAssembly (Assembly);
+			var cattrs = RootAssembly.GetCustomAttributes<AsyncTestSuiteAttribute> ().ToList ();
+			if (cattrs.Count == 0)
 				throw new InternalErrorException ("Assembly '{0}' is not a Xamarin.AsyncTests test suite.", Assembly);
+			else if (cattrs.Count > 1)
+				throw new InternalErrorException ("Assembly '{0}' contains multiple '[AsyncTestSuite]' attributes.", Assembly);
+			var cattr = cattrs.First ();
 			var type = cattr.Type;
+
+			if (cattr.IsReference) {
+				Assembly = type.GetTypeInfo ().Assembly;
+				DependencyInjector.RegisterAssembly (Assembly);
+				cattrs = Assembly.GetCustomAttributes<AsyncTestSuiteAttribute> ().ToList ();
+				if (cattrs.Count == 0)
+					throw new InternalErrorException ("Referenced assembly '{0}' (referenced by '{1}') is not a Xamarin.AsyncTests test suite.", Assembly, RootAssembly);
+				else if (cattrs.Count > 1)
+					throw new InternalErrorException ("Referenced assembly '{0}' (referenced by '{1}') contains multiple '[AsyncTestSuite]' attributes.", Assembly, RootAssembly);
+				cattr = cattrs.First ();
+
+				if (cattr.IsReference)
+					throw new InternalErrorException ("Assembly '{0}' references '{1}', which is a reference itself.", RootAssembly, Assembly);
+				type = cattr.Type;
+			} else {
+				Assembly = RootAssembly;
+			}
+
 			var instanceMember = type.GetRuntimeField ("Instance");
 			provider = (ITestConfigurationProvider)instanceMember.GetValue (null);
 			name = Assembly.GetName ().Name;
