@@ -160,9 +160,5 @@
       <Project>{584654DF-6888-4B18-AB82-3C773CD45436}</Project>
       <Name>Xamarin.AsyncTests.Remoting</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.AsyncTests.Sample\Xamarin.AsyncTests.Sample.csproj">
-      <Project>{50F3B858-C105-4599-8B52-81372E172F47}</Project>
-      <Name>Xamarin.AsyncTests.Sample</Name>
-    </ProjectReference>
   </ItemGroup>
 </Project>
