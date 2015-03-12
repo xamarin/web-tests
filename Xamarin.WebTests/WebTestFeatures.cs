@@ -72,10 +72,10 @@ namespace Xamarin.WebTests
 	}
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class NotWorking : TestFeatureAttribute
+	public class NotWorking : TestCategoryAttribute
 	{
-		public override TestFeature Feature {
-			get { return WebTestFeatures.NotWorking; }
+		public override TestCategory Category {
+			get { return WebTestFeatures.NotWorkingCategory; }
 		}
 	}
 
@@ -122,8 +122,6 @@ namespace Xamarin.WebTests
 		public static readonly TestFeature ProxyAuth = new TestFeature ("ProxyAuth", "Proxy Authentication", true);
 		public static readonly TestFeature Experimental = new TestFeature ("Experimental", "Experimental Tests", false);
 
-		public static readonly TestFeature NotWorking = new TestFeature ("NotWorking", "Not Working", false);
-
 		public static readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", false);
 
 		// Requires special local setup
@@ -139,6 +137,7 @@ namespace Xamarin.WebTests
 		public static readonly TestCategory WorkCategory = new TestCategory ("Work") { IsExplicit = true };
 		public static readonly TestCategory HeavyCategory = new TestCategory ("Heavy") { IsExplicit = true };
 		public static readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
+		public static readonly TestCategory NotWorkingCategory = new TestCategory ("NotWorking") { IsExplicit = true };
 
 		#region ITestConfigurationProvider implementation
 		public string Name {
@@ -154,7 +153,6 @@ namespace Xamarin.WebTests
 				yield return ProxyAuth;
 				yield return Experimental;
 				yield return ReuseConnection;
-				yield return NotWorking;
 				yield return Martin;
 
 				yield return HasNetwork;
@@ -169,6 +167,7 @@ namespace Xamarin.WebTests
 				yield return WorkCategory;
 				yield return HeavyCategory;
 				yield return RecentlyFixedCategory;
+				yield return NotWorkingCategory;
 			}
 		}
 		#endregion
