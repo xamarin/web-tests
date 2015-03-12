@@ -38,6 +38,7 @@ namespace Xamarin.AsyncTests
 		readonly TestContext parent;
 		readonly TestResult result;
 		readonly TestLogger logger;
+		readonly SettingsBag settings;
 		readonly SynchronizationContext syncContext;
 		readonly ITestConfiguration config;
 		readonly ITestPathInternal path;
@@ -52,13 +53,18 @@ namespace Xamarin.AsyncTests
 			get { return result ?? parent.Result; }
 		}
 
+		internal SettingsBag Settings {
+			get { return settings ?? parent.Settings; }
+		}
+
 		internal ITestPathInternal Path {
 			get { return path ?? parent.Path; }
 		}
 
-		internal TestContext (TestLogger logger, ITestConfiguration config, TestName name, SynchronizationContext syncContext)
+		internal TestContext (SettingsBag settings, TestLogger logger, ITestConfiguration config, TestName name, SynchronizationContext syncContext)
 		{
 			Name = name;
+			this.settings = settings;
 			this.config = config;
 			this.logger = logger;
 			this.syncContext = syncContext;
@@ -72,10 +78,9 @@ namespace Xamarin.AsyncTests
 			this.result = result;
 			this.syncContext = syncContext ?? parent.syncContext;
 
-			if (result != null) {
+			if (result != null)
 				logger = new TestLogger (TestLoggerBackend.CreateForResult (result, parent.logger));
-				logger.LogLevel = parent.logger.LogLevel;
-			} else
+			else
 				logger = parent.logger;
 
 			config = parent.config;
@@ -138,7 +143,8 @@ namespace Xamarin.AsyncTests
 
 		public void LogDebug (int level, string message)
 		{
-			if (logger.LogLevel >= 0 && level > logger.LogLevel)
+			var logLevel = Settings.LogLevel;
+			if (logLevel >= 0 && level > logLevel)
 				return;
 			Invoke (() => logger.LogDebug (level, message));
 		}

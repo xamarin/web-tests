@@ -76,7 +76,7 @@ namespace Xamarin.AsyncTests.Console
 			get { return framework; }
 		}
 
-		public int LogLevel {
+		public int? LogLevel {
 			get;
 			private set;
 		}
@@ -128,6 +128,9 @@ namespace Xamarin.AsyncTests.Console
 
 			settings = LoadSettings (SettingsFile);
 
+			if (LogLevel != null)
+				settings.LogLevel = LogLevel.Value;
+
 			var dependencyAsms = new Assembly [dependencies.Count];
 			for (int i = 0; i < dependencyAsms.Length; i++) {
 				dependencyAsms [i] = Assembly.LoadFile (dependencies [i]);
@@ -142,7 +145,6 @@ namespace Xamarin.AsyncTests.Console
 				throw new InvalidOperationException ();
 
 			logger = new TestLogger (new ConsoleLogger (this));
-			logger.LogLevel = LogLevel;
 
 			framework = TestFramework.GetLocalFramework (assembly, dependencyAsms);
 		}
@@ -294,7 +296,7 @@ namespace Xamarin.AsyncTests.Console
 
 		void OnLogDebug (int level, string message)
 		{
-			if (logger.LogLevel >= 0 && level > Logger.LogLevel)
+			if (Settings.LogLevel >= 0 && level > Settings.LogLevel)
 				return;
 			Debug (message);
 		}

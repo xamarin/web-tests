@@ -40,14 +40,9 @@ namespace Xamarin.AsyncTests
 			this.backend = backend;
 		}
 
-		public int LogLevel {
-			get; set;
-		}
-
 		void OnLogEvent (TestLoggerBackend.LogEntry entry)
 		{
-			if (LogLevel < 0 || entry.LogLevel <= LogLevel)
-				backend.OnLogEvent (entry);
+			backend.OnLogEvent (entry);
 		}
 
 		public void LogDebug (int level, string message)
