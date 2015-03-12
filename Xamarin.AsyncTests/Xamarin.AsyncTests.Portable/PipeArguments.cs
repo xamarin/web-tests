@@ -41,6 +41,10 @@ namespace Xamarin.AsyncTests.Portable
 			get; set;
 		}
 
+		public string ExtraArguments {
+			get; set;
+		}
+
 		public string[] Dependencies {
 			get; set;
 		}

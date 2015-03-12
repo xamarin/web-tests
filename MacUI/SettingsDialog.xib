@@ -180,7 +180,7 @@
                     </scrollView>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1Qo-TX-YTU">
                         <rect key="frame" x="18" y="649" width="530" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Arguments:" id="jF4-Y4-5VN">
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Test Suite" id="jF4-Y4-5VN">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -194,7 +194,7 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                         <connections>
-                            <binding destination="-2" name="value" keyPath="Arguments" id="KsZ-g9-IUi"/>
+                            <binding destination="-2" name="value" keyPath="TestSuite" id="b7j-Hp-X18"/>
                         </connections>
                     </textField>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="29U-RY-Oaj">
@@ -251,7 +251,7 @@
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Pga-3K-W6d">
                         <rect key="frame" x="18" y="457" width="530" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Test Suite:" id="oR5-4s-XiR">
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Extra Arguments:" id="oR5-4s-XiR">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -295,7 +295,7 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                         <connections>
-                            <binding destination="-2" name="value" keyPath="TestSuite" id="Nib-9M-UZH"/>
+                            <binding destination="-2" name="value" keyPath="Arguments" id="J4F-ID-cAN"/>
                         </connections>
                     </textField>
                 </subviews>
@@ -312,6 +312,7 @@
                     <constraint firstItem="apd-Y7-ARb" firstAttribute="top" secondItem="BXU-wD-elm" secondAttribute="bottom" constant="20" id="82c-kg-j8h"/>
                     <constraint firstItem="ilG-dS-Rhu" firstAttribute="trailing" secondItem="m51-J3-1b1" secondAttribute="trailing" id="8lv-zL-hKa"/>
                     <constraint firstItem="apd-Y7-ARb" firstAttribute="leading" secondItem="BXU-wD-elm" secondAttribute="leading" id="9aV-nw-X17"/>
+                    <constraint firstItem="jTw-47-Fwc" firstAttribute="trailing" secondItem="BXU-wD-elm" secondAttribute="trailing" id="BGb-DV-TFc"/>
                     <constraint firstItem="o3T-ot-Dyo" firstAttribute="leading" secondItem="Qda-XC-Qpw" secondAttribute="leading" id="Cm8-cl-5pZ"/>
                     <constraint firstItem="apd-Y7-ARb" firstAttribute="trailing" secondItem="fU3-7b-Rq2" secondAttribute="trailing" id="Cni-tA-uva"/>
                     <constraint firstItem="BXU-wD-elm" firstAttribute="top" secondItem="1Qo-TX-YTU" secondAttribute="bottom" constant="5" id="DBr-8w-Bn7"/>
@@ -344,6 +345,7 @@
                     <constraint firstItem="PDa-97-qD3" firstAttribute="centerY" secondItem="ta5-pG-m9g" secondAttribute="centerY" id="ad5-hV-G51"/>
                     <constraint firstItem="ilG-dS-Rhu" firstAttribute="top" secondItem="m51-J3-1b1" secondAttribute="bottom" constant="20" id="eHp-SH-Xwm"/>
                     <constraint firstAttribute="bottom" secondItem="29U-RY-Oaj" secondAttribute="bottom" constant="20" id="ejb-op-UUo"/>
+                    <constraint firstItem="jTw-47-Fwc" firstAttribute="leading" secondItem="BXU-wD-elm" secondAttribute="leading" id="gbP-K6-2Ks"/>
                     <constraint firstItem="1Qo-TX-YTU" firstAttribute="leading" secondItem="BXU-wD-elm" secondAttribute="leading" id="ixE-tH-sUR"/>
                     <constraint firstItem="jTw-47-Fwc" firstAttribute="top" secondItem="apd-Y7-ARb" secondAttribute="bottom" constant="5" id="jyX-Hm-6vY"/>
                     <constraint firstItem="qQj-gR-TfD" firstAttribute="trailing" secondItem="hac-Sm-mLl" secondAttribute="trailing" id="kVb-gc-3Fa"/>

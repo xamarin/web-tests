@@ -72,11 +72,14 @@ namespace Xamarin.AsyncTests.Portable
 
 				var cmd = new StringBuilder ();
 				cmd.Append (arguments.ConsolePath);
-				foreach (var dependency in arguments.Dependencies) {
-					cmd.AppendFormat (" --dependency={0}", dependency);
+				if (arguments.Dependencies != null) {
+					foreach (var dependency in arguments.Dependencies) {
+						cmd.AppendFormat (" --dependency={0}", dependency);
+					}
 				}
-				cmd.AppendFormat ("  --gui={0}:{1}", networkEndpoint.Address, networkEndpoint.Port);
-				cmd.Append (" ");
+				cmd.AppendFormat ("  --gui={0}:{1} ", networkEndpoint.Address, networkEndpoint.Port);
+				if (arguments.ExtraArguments != null)
+					cmd.AppendFormat ("{0} ", arguments.ExtraArguments);
 				cmd.Append (arguments.Assembly);
 
 				var psi = new ProcessStartInfo (monoPath, cmd.ToString ());

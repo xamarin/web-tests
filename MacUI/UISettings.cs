@@ -63,7 +63,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 		protected override void DoSetValue (string key, string value)
 		{
-			defaults.SetString (value, Prefix + key);
+			defaults.SetString (value ?? string.Empty, Prefix + key);
 			defaults.Synchronize ();
 		}
 

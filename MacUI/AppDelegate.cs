@@ -91,52 +91,26 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			var endpointSupport = DependencyInjector.Get<IPortableEndPointSupport> ();
 
-			var args = Settings.Arguments;
-			if (args == null)
-				return ServerParameters.WaitForConnection (endpointSupport.GetLoopbackEndpoint (8888));
+			if (string.IsNullOrEmpty (ui.Settings.MonoRuntime))
+				throw new AlertException ("Must set Mono Runtime in Settings Dialog.");
+			if (string.IsNullOrEmpty (ui.Settings.LauncherPath))
+				throw new AlertException ("Must set Launcher Path in Settings Dialog.");
+			if (string.IsNullOrEmpty (ui.Settings.TestSuite))
+				throw new AlertException ("Must set Test Suite in Settings Dialog.");
 
-			var parts = args.Split (' ');
-			switch (parts [0]) {
-			case "listen":
-				if (parts.Length == 1)
-					return ServerParameters.WaitForConnection (endpointSupport.GetLoopbackEndpoint (8888));
-				else if (parts.Length == 2)
-					return ServerParameters.WaitForConnection (ParseEndPoint (parts [1]));
-				else
-					throw new AlertException ("Usage: listen [<optional address>]");
+			var pipeArgs = new PipeArguments ();
 
-			case "connect":
-				if (parts.Length != 2)
-					throw new AlertException ("Usage: connect <address>");
-				return ServerParameters.ConnectToServer (ParseEndPoint (parts [1]));
+			pipeArgs.MonoPrefix = ui.Settings.MonoRuntime;
+			var monoPath = Path.Combine (pipeArgs.MonoPrefix, "bin", "mono");
+			if (!File.Exists (monoPath))
+				throw new AlertException ("Invalid runtime prefix: {0}", pipeArgs.MonoPrefix);
 
-			case "local":
-				if (parts.Length < 3)
-					throw new AlertException ("Usage: local <runtime-prefix> <assembly> [<dependency-asm> ... <dependency-asm>]");
+			pipeArgs.ConsolePath = FindFile (ui.Settings.LauncherPath);
+			pipeArgs.Assembly = FindFile (ui.Settings.TestSuite);
+			pipeArgs.ExtraArguments = ui.Settings.Arguments;
 
-				var runtime = parts [1];
-				var monoPath = Path.Combine (runtime, "bin", "mono");
-				if (!File.Exists (monoPath))
-					throw new AlertException ("Invalid runtime prefix: {0}", runtime);
-
-				var pipeArgs = new PipeArguments ();
-				pipeArgs.MonoPrefix = runtime;
-				pipeArgs.ConsolePath = FindFile ("Xamarin.AsyncTests.Console.exe");
-				pipeArgs.Assembly = FindFile (parts [2]);
-
-				pipeArgs.Dependencies = new string [parts.Length - 3];
-
-				for (int i = 3; i < parts.Length; i++) {
-					var file = FindFile (parts [i]);
-					pipeArgs.Dependencies [i - 3] = file;
-				}
-
-				var endpoint = endpointSupport.GetLoopbackEndpoint (8888);
-				return ServerParameters.CreatePipe (endpoint, pipeArgs);
-
-			default:
-				throw new AlertException ("Unknown command: '{0}'", parts [0]);
-			}
+			var endpoint = endpointSupport.GetLoopbackEndpoint (8888);
+			return ServerParameters.CreatePipe (endpoint, pipeArgs);
 		}
 
 		static string FindFile (string filename)
@@ -180,7 +154,20 @@ namespace Xamarin.AsyncTests.MacUI
 			settingsDialogController.Window.MakeKeyAndOrderFront (this);
 		}
 
-		[HideStackFrame]
+		[Export ("ListenForConnection:")]
+		public async void ListenForConnection ()
+		{
+			var endpointSupport = DependencyInjector.Get<IPortableEndPointSupport> ();
+			var parameters = ServerParameters.WaitForConnection (endpointSupport.GetLoopbackEndpoint (8888));
+
+			try {
+				await ui.ServerManager.Start.Execute (parameters);
+			} catch (Exception ex) {
+				ShowAlertForException ("Failed to start server", ex);
+				return;
+			}
+		}
+
 		[Export ("StartServer:")]
 		public async void StartServer ()
 		{
@@ -188,7 +175,7 @@ namespace Xamarin.AsyncTests.MacUI
 			try {
 				parameters = GetParameters ();
 			} catch (AlertException ex) {
-				var alert = NSAlert.WithMessage ("Failed to parse command-line arguments", "Ok", string.Empty, string.Empty, ex.Message);
+				var alert = NSAlert.WithMessage ("Failed to start server", "Ok", string.Empty, string.Empty, ex.Message);
 				alert.RunModal ();
 				return;
 			}
