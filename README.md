@@ -19,10 +19,10 @@ runtime.  To automate this, a platform-specific implementation assembly may use
 tool instead of the actual test suite.  The framework then automatically registers all the
 dependencies.
 
-For an example, see Xamarin.WebTests.TestProvider.dll.  The main test suite is Xamarin.WebTests.dll,
+For an example, see Xamarin.WebTests.TestProvider.exe.  The main test suite is Xamarin.WebTests.dll,
 which is a PCL, so it needs a platform-specific implementation.  Yon can either use
 
-$ mono --debug Xamarin.AsyncTests.Console.exe --dependency=Xamarin.WebTests.TestProvider.dll Xamartin.WebTests.dll
+$ mono --debug Xamarin.AsyncTests.Console.exe --dependency=Xamarin.WebTests.TestProvider.exe Xamartin.WebTests.dll
 
 or
 
@@ -39,7 +39,7 @@ at 0.0.0.0:8888.  FIXME: this endpoint should be configurable.
 
 Then connect from the Xamarin.AsyncTests.Console.exe command-line tool:
 
-$ mono --debug Xamarin.AsyncTests.Console.exe --gui=127.0.0.1:8888 Xamarin.WebTests.TestProvider.dll
+$ mono --debug Xamarin.AsyncTests.Console.exe --gui=127.0.0.1:8888 Xamarin.WebTests.TestProvider.exe
 
 This tool understands some additional command-line options:
 
@@ -93,7 +93,7 @@ some values:
   Full path name of the `Xamarin.AsyncTests.Console.exe` assembly.
   
 * "Test Suite"
-  Full path name of the platform-specific test suite (for instance `Xamarin.WebTests.TestProvider.dll`).
+  Full path name of the platform-specific test suite (for instance `Xamarin.WebTests.TestProvider.exe`).
   
 * "Arguments"
   Optional arguments to be passed to the launcher.

@@ -26,6 +26,7 @@
 using System;
 using System.Threading;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Console;
 using Xamarin.WebTests.Portable;
 
 [assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.DependencyProvider))]
@@ -41,6 +42,11 @@ namespace Xamarin.WebTests.TestProvider
 		{
 			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
 			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
+		}
+
+		static void Main (string[] args)
+		{
+			Program.Run (typeof (DependencyProvider).Assembly, args);
 		}
 	}
 }
