@@ -59,10 +59,6 @@ namespace Xamarin.AsyncTests.Portable
 			get { return runtimeVersion; }
 		}
 
-		public IServerHost ServerHost {
-			get { return serverHost; }
-		}
-
 		static PortableSupportImpl ()
 		{
 			try {
@@ -80,7 +76,6 @@ namespace Xamarin.AsyncTests.Portable
 			}
 
 			isMsRuntime = Environment.OSVersion.Platform == PlatformID.Win32NT && runtimeVersion == null;
-			serverHost = new ServerHostImpl ();
 		}
 
 		static readonly bool hasNetwork;
@@ -88,8 +83,6 @@ namespace Xamarin.AsyncTests.Portable
 
 		static readonly bool isMsRuntime;
 		static readonly Version runtimeVersion;
-
-		static readonly ServerHostImpl serverHost;
 
 		static Version GetRuntimeVersion ()
 		{
