@@ -68,13 +68,14 @@ namespace Xamarin.AsyncTests.MacUI
 		public void LoadResult (string filename)
 		{
 			var doc = XDocument.Load (filename);
-			Console.WriteLine ("LOAD #1: {0}", doc);
-
 			var result = TestSerializer.ReadTestResult (doc.Root);
-			Console.WriteLine ("LOAD #2: {0}", result);
 
 			var model = new TestResultModel (Session, result, result.Name);
 			AddChild (model);
+		}
+
+		public void SaveResult (string filename)
+		{
 		}
 
 		#region implemented abstract members of TestListNode

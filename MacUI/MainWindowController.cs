@@ -114,7 +114,7 @@ namespace Xamarin.AsyncTests.MacUI
 				return;
 
 			var result = model.Result;
-			var element = Connection.WriteTestResult (result);
+			var element = TestSerializer.WriteTestResult (result);
 
 			var settings = new XmlWriterSettings { Indent = true };
 			using (var writer = XmlTextWriter.Create ("TestResult.xml", settings)) {
@@ -128,7 +128,7 @@ namespace Xamarin.AsyncTests.MacUI
 			using (var reader = XmlTextReader.Create ("TestResult.xml")) {
 				var doc = XDocument.Load (reader);
 				var root = doc.Root;
-				var result = Connection.ReadTestResult (root);
+				var result = TestSerializer.ReadTestResult (root);
 
 				var model = new TestResultModel (null, result);
 				TestResultController.AddObject (model);

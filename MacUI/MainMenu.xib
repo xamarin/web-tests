@@ -126,21 +126,6 @@
                                     </binding>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Save" id="5h9-AO-Waf">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <binding destination="Voe-Tx-rLC" name="enabled" keyPath="CurrentSession" id="YX3-3W-PPl">
-                                        <dictionary key="options">
-                                            <string key="NSValueTransformerName">NSIsNotNil</string>
-                                        </dictionary>
-                                    </binding>
-                                    <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="bOK-Wp-0QF">
-                                        <dictionary key="options">
-                                            <string key="NSSelectorName">SaveSession:</string>
-                                        </dictionary>
-                                    </binding>
-                                </connections>
-                            </menuItem>
                             <menuItem title="Clear" id="YQL-g7-J1K">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>

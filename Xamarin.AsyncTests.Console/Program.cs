@@ -189,7 +189,7 @@ namespace Xamarin.AsyncTests.Console
 
 			using (var reader = new StreamReader (filename)) {
 				var doc = XDocument.Load (reader);
-				return Connection.LoadSettings (doc.Root);
+				return TestSerializer.ReadSettings (doc.Root);
 			}
 		}
 
@@ -203,7 +203,7 @@ namespace Xamarin.AsyncTests.Console
 				xws.Indent = true;
 
 				using (var xml = XmlTextWriter.Create (writer, xws)) {
-					var node = Connection.WriteSettings (Settings);
+					var node = TestSerializer.WriteSettings (Settings);
 					node.WriteTo (xml);
 					xml.Flush ();
 				}

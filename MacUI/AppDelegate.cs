@@ -240,12 +240,6 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
-		[Export ("SaveSession:")]
-		public void SaveSession ()
-		{
-			Console.WriteLine ("SAVE SESSION");
-		}
-
 		public override string ToString ()
 		{
 			return string.Format ("[AppDelegate: {0:x}]", Handle.ToInt64 ());

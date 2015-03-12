@@ -101,26 +101,6 @@ namespace Xamarin.AsyncTests.Remoting
 			System.Diagnostics.Debug.WriteLine (message, args);
 		}
 
-		public static SettingsBag LoadSettings (XElement node)
-		{
-			return TestSerializer.ReadSettings (node);
-		}
-
-		public static XElement WriteSettings (SettingsBag settings)
-		{
-			return TestSerializer.WriteSettings (settings);
-		}
-
-		public static TestResult ReadTestResult (XElement node)
-		{
-			return TestSerializer.ReadTestResult (node);
-		}
-
-		public static XElement WriteTestResult (TestResult result)
-		{
-			return TestSerializer.WriteTestResult (result);
-		}
-
 		#endregion
 
 		#region Start and Stop
