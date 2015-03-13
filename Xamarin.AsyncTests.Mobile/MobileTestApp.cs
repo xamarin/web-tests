@@ -67,6 +67,11 @@ namespace Xamarin.AsyncTests.Mobile
 			private set;
 		}
 
+		public Label StatisticsLabel {
+			get;
+			private set;
+		}
+
 		public StackLayout Content {
 			get;
 			private set;
@@ -85,11 +90,13 @@ namespace Xamarin.AsyncTests.Mobile
 
 			MainLabel = new Label { XAlign = TextAlignment.Center, Text = "Welcome to Xamarin AsyncTests!" };
 
-			StatusLabel = new Label { XAlign = TextAlignment.Center };
+			StatusLabel = new Label { XAlign = TextAlignment.Start };
+
+			StatisticsLabel = new Label { XAlign = TextAlignment.Start };
 
 			Content = new StackLayout {
 				VerticalOptions = LayoutOptions.Center,
-				Children = { MainLabel, StatusLabel }
+				Children = { MainLabel, StatusLabel, StatisticsLabel }
 			};
 
 			MainPage = new ContentPage { Content = Content };
@@ -157,6 +164,7 @@ namespace Xamarin.AsyncTests.Mobile
 			case TestLoggerBackend.StatisticsEventType.Running:
 				++countTests;
 				Debug ("Running {0}", args.Name);
+				Device.BeginInvokeOnMainThread (() => StatusLabel.Text = string.Format ("Running {0}", args.Name));
 				break;
 			case TestLoggerBackend.StatisticsEventType.Finished:
 				switch (args.Status) {
@@ -173,13 +181,20 @@ namespace Xamarin.AsyncTests.Mobile
 				}
 
 				Debug ("Finished {0}: {1}", args.Name, args.Status);
+				Device.BeginInvokeOnMainThread (() => {
+					StatusLabel.Text = string.Format ("Finished {0}: {1}", args.Name, args.Status);
+					StatisticsLabel.Text = string.Format ("{0} test run, {1} ignored, {2} passed, {3} errors.",
+						countTests, countIgnored, countSuccess, countErrors);
+				});
 				break;
 			case TestLoggerBackend.StatisticsEventType.Reset:
+				Device.BeginInvokeOnMainThread (() => {
+					StatusLabel.Text = string.Empty;
+					StatisticsLabel.Text = string.Empty;
+					countTests = countSuccess = countErrors = countIgnored = 0;
+				});
 				break;
 			}
-
-			Device.BeginInvokeOnMainThread (() => StatusLabel.Text = string.Format (
-				"Running {0}: {1}", args.Name, args.Status));
 		}
 
 		class MobileLogger : TestLoggerBackend
