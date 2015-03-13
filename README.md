@@ -19,6 +19,8 @@ runtime.  To automate this, a platform-specific implementation assembly may use
 tool instead of the actual test suite.  The framework then automatically registers all the
 dependencies.
 
+Each platform-specific implementation should be an executable, which references `Xamarin.AsyncTests.Console` and calls [`Xamarin.AsyncTests.Console.Program.Run(Assembly,string[])`](https://github.com/xamarin/web-tests/blob/martin-newtls/Xamarin.AsyncTests.Console/Program.cs#L95). 
+
 For an example, see `Xamarin.WebTests.Console.exe`.  The main test suite is `Xamarin.WebTests.dll`,
 which is a PCL, so it needs a platform-specific implementation.  Yon can either use
 
@@ -26,7 +28,11 @@ which is a PCL, so it needs a platform-specific implementation.  Yon can either 
 
 or
 
-    $ mono --debug Xamarin.AsyncTests.Console.exe Xamartin.WebTests.Console.dll
+    $ mono --debug Xamarin.AsyncTests.Console.exe Xamartin.WebTests.Console.exe
+
+or simply run it directly
+
+    $ mono --debug Xamarin.WebTests.Console.exe
 
 Unfortunately, this technique does not work on Mobile, so a custom test app is required for
 each test suite on each platform.
