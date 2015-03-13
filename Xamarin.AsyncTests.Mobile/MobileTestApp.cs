@@ -57,6 +57,16 @@ namespace Xamarin.AsyncTests.Mobile
 			private set;
 		}
 
+		public Label MainLabel {
+			get;
+			private set;
+		}
+
+		public StackLayout Content {
+			get;
+			private set;
+		}
+
 		public MobileTestApp (TestFramework framework)
 		{
 			Framework = framework;
@@ -66,18 +76,14 @@ namespace Xamarin.AsyncTests.Mobile
 
 			EndPoint = GetEndPoint ();
 
-			// The root page of your application
-			MainPage = new ContentPage {
-				Content = new StackLayout {
-					VerticalOptions = LayoutOptions.Center,
-					Children = {
-						new Label {
-							XAlign = TextAlignment.Center,
-							Text = "Welcome to Xamarin Forms!"
-						}
-					}
-				}
+			MainLabel = new Label { XAlign = TextAlignment.Center, Text = "Welcome to Xamarin AsyncTests!" };
+
+			Content = new StackLayout {
+				VerticalOptions = LayoutOptions.Center,
+				Children = { MainLabel }
 			};
+
+			MainPage = new ContentPage { Content = Content };
 		}
 
 		static IPortableEndPoint GetEndPoint ()
@@ -88,7 +94,10 @@ namespace Xamarin.AsyncTests.Mobile
 
 		protected override async void OnStart ()
 		{
+			MainLabel.Text = string.Format ("Listening at {0}:{1}.", EndPoint.Address, EndPoint.Port);
+
 			var server = await TestServer.StartServer (this, EndPoint, Framework, CancellationToken.None);
+
 			var session = server.GetTestSession (CancellationToken.None);
 			Debug ("GOT SESSION: {0}", session);
 
