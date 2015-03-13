@@ -98,6 +98,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public async Task StatisticsEvent (TestLoggerBackend.StatisticsEventArgs args, CancellationToken cancellationToken)
 		{
+			LocalLogger.OnStatisticsEvent (args);
 			var command = new StatisticsCommand ();
 			await command.Send (this, args, cancellationToken);
 		}

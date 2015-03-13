@@ -62,6 +62,11 @@ namespace Xamarin.AsyncTests.Mobile
 			private set;
 		}
 
+		public Label StatusLabel {
+			get;
+			private set;
+		}
+
 		public StackLayout Content {
 			get;
 			private set;
@@ -72,15 +77,19 @@ namespace Xamarin.AsyncTests.Mobile
 			Framework = framework;
 
 			Settings = SettingsBag.CreateDefault ();
+			Settings.LocalLogLevel = -1;
+
 			Logger = new TestLogger (new MobileLogger (this));
 
 			EndPoint = GetEndPoint ();
 
 			MainLabel = new Label { XAlign = TextAlignment.Center, Text = "Welcome to Xamarin AsyncTests!" };
 
+			StatusLabel = new Label { XAlign = TextAlignment.Center };
+
 			Content = new StackLayout {
 				VerticalOptions = LayoutOptions.Center,
-				Children = { MainLabel }
+				Children = { MainLabel, StatusLabel }
 			};
 
 			MainPage = new ContentPage { Content = Content };
@@ -115,9 +124,14 @@ namespace Xamarin.AsyncTests.Mobile
 			// Handle when your app resumes
 		}
 
-		static void Debug (string message, params object[] args)
+		void Debug (string format, params object[] args)
 		{
-			SD.Debug.WriteLine (message, args);
+			Debug (string.Format (format, args));
+		}
+
+		void Debug (string message)
+		{
+			SD.Debug.WriteLine (message);
 		}
 
 		void OnLogMessage (string message)
@@ -163,6 +177,9 @@ namespace Xamarin.AsyncTests.Mobile
 			case TestLoggerBackend.StatisticsEventType.Reset:
 				break;
 			}
+
+			Device.BeginInvokeOnMainThread (() => StatusLabel.Text = string.Format (
+				"Running {0}: {1}", args.Name, args.Status));
 		}
 
 		class MobileLogger : TestLoggerBackend
