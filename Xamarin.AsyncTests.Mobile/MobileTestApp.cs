@@ -64,6 +64,8 @@ namespace Xamarin.AsyncTests.Mobile
 			Settings = SettingsBag.CreateDefault ();
 			Logger = new TestLogger (new MobileLogger (this));
 
+			EndPoint = GetEndPoint ();
+
 			// The root page of your application
 			MainPage = new ContentPage {
 				Content = new StackLayout {
@@ -86,7 +88,7 @@ namespace Xamarin.AsyncTests.Mobile
 
 		protected override async void OnStart ()
 		{
-			var server = await TestServer.StartServer (this, Framework, CancellationToken.None);
+			var server = await TestServer.StartServer (this, EndPoint, Framework, CancellationToken.None);
 			var session = server.GetTestSession (CancellationToken.None);
 			Debug ("GOT SESSION: {0}", session);
 

@@ -88,10 +88,10 @@ namespace Xamarin.AsyncTests.Remoting
 			return server;
 		}
 
-		public static async Task<TestServer> StartServer (TestApp app, TestFramework framework, CancellationToken cancellationToken)
+		public static async Task<TestServer> StartServer (TestApp app, IPortableEndPoint address, TestFramework framework, CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IServerHost> ();
-			var connection = await support.Listen (null, cancellationToken);
+			var connection = await support.Listen (address, cancellationToken);
 
 			var serverConnection = await StartServer (app, framework, connection, cancellationToken);
 			var server = new Server (app, framework, serverConnection);
