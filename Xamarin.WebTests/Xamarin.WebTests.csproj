@@ -83,21 +83,21 @@
     <Compile Include="Mono.Security.Protocol.Ntlm\Type1Message.cs" />
     <Compile Include="Mono.Security.Protocol.Ntlm\Type2Message.cs" />
     <Compile Include="Mono.Security.Protocol.Ntlm\Type3Message.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\AuthenticationType.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IHttpServer.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IListener.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IPortableProxy.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IPortableWebSupport.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IWebClient.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\NTLMHandler.cs" />
-    <Compile Include="Xamarin.WebTests.Portable.HttpClient\HttpCompletionOption.cs" />
-    <Compile Include="Xamarin.WebTests.Portable.HttpClient\HttpMethod.cs" />
-    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpClient.cs" />
-    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpClientHandler.cs" />
-    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpContent.cs" />
-    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpMessage.cs" />
-    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpRequestMessage.cs" />
-    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpResponseMessage.cs" />
+    <Compile Include="Portable\AuthenticationType.cs" />
+    <Compile Include="Portable\IHttpServer.cs" />
+    <Compile Include="Portable\IListener.cs" />
+    <Compile Include="Portable\IPortableProxy.cs" />
+    <Compile Include="Portable\IPortableWebSupport.cs" />
+    <Compile Include="Portable\IWebClient.cs" />
+    <Compile Include="Portable\NTLMHandler.cs" />
+    <Compile Include="HttpClient\HttpCompletionOption.cs" />
+    <Compile Include="HttpClient\HttpMethod.cs" />
+    <Compile Include="HttpClient\IHttpClient.cs" />
+    <Compile Include="HttpClient\IHttpClientHandler.cs" />
+    <Compile Include="HttpClient\IHttpContent.cs" />
+    <Compile Include="HttpClient\IHttpMessage.cs" />
+    <Compile Include="HttpClient\IHttpRequestMessage.cs" />
+    <Compile Include="HttpClient\IHttpResponseMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />
