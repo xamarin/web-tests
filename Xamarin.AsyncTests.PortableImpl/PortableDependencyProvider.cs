@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// DependencyProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,29 +24,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
+using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Console;
-using Xamarin.WebTests.Portable;
+using Xamarin.AsyncTests.Portable;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.Console.DependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
+[assembly: DependencyProvider (typeof (Xamarin.AsyncTests.Portable.PortableDependencyProvider))]
 
-namespace Xamarin.WebTests.Console
+namespace Xamarin.AsyncTests.Portable
 {
-	using Server;
-
-	public class DependencyProvider : IDependencyProvider
+	class PortableDependencyProvider : IDependencyProvider
 	{
 		public void Initialize ()
 		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
-		}
-
-		static void Main (string[] args)
-		{
-			Program.Run (typeof (DependencyProvider).Assembly, args);
+			DependencyInjector.RegisterDependency<IPortableSupport> (() => new PortableSupportImpl ());
+			DependencyInjector.RegisterDependency<IPortableEndPointSupport> (() => new PortableEndPointSupportImpl ());
+			DependencyInjector.RegisterDependency<IServerHost> (() => new ServerHostImpl ());
 		}
 	}
 }

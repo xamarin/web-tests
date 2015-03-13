@@ -33,7 +33,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DependencyProvider.cs" />
     <Compile Include="Xamarin.WebTests.Server\HttpListener.cs" />
     <Compile Include="Xamarin.WebTests.Server\Listener.cs" />
     <Compile Include="Xamarin.WebTests.Server\PortableWebSupportImpl.cs" />
@@ -45,6 +44,7 @@
     <Compile Include="Xamarin.WebTests.HttpClient\HttpResponseMessage.cs" />
     <Compile Include="Xamarin.WebTests.HttpClient\HttpContent.cs" />
     <Compile Include="Xamarin.WebTests.HttpClient\StreamContent.cs" />
+    <Compile Include="WebDependencyProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
