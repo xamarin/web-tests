@@ -19,17 +19,32 @@ runtime.  To automate this, a platform-specific implementation assembly may use
 tool instead of the actual test suite.  The framework then automatically registers all the
 dependencies.
 
-For an example, see Xamarin.WebTests.Console.exe.  The main test suite is Xamarin.WebTests.dll,
+For an example, see `Xamarin.WebTests.Console.exe`.  The main test suite is `Xamarin.WebTests.dll`,
 which is a PCL, so it needs a platform-specific implementation.  Yon can either use
 
-$ mono --debug Xamarin.AsyncTests.Console.exe --dependency=Xamarin.WebTests.Console.exe Xamartin.WebTests.dll
+    $ mono --debug Xamarin.AsyncTests.Console.exe --dependency=Xamarin.WebTests.Console.exe Xamartin.WebTests.dll
 
 or
 
-$ mono --debug Xamarin.AsyncTests.Console.exe Xamartin.WebTests.Console.dll
+    $ mono --debug Xamarin.AsyncTests.Console.exe Xamartin.WebTests.Console.dll
 
 Unfortunately, this technique does not work on Mobile, so a custom test app is required for
 each test suite on each platform.
+
+Settings Dialog
+---------------
+
+When starting the GUI for the first time, you need to open the Settings Dialog and configure a few things in there.
+
+At the top, you can select one of the 4 currently supported modes of operation:
+
+* You can wait for incoming connections (from `Xamarin.AsyncTests.Console.exe` or a platform-specific test implementation projects which includes it).  This requires the "Listen Address" to be set (must be an actual IP address, can be `127.0.0.1`, but not `0.0.0.0`).
+
+* You can launch the tests from the GUI.  This will fork an external test runner.  Specify the platform-specific test implementation assembly (`Xamarin.WebTests.Console.exe` or `Mono.Security.NewTls.TestProvider.exe`), the Mono runtime prefix (such as `/Workspace/INSTALL` or `/Library/Frameworks/Mono.framework/Versions/Current`) and a listen address (will be used internally for the external test runner to connect).
+
+* You can connect to Android or iOS.  Each needs its corresponding endpoint to be set (the Android / iOS test app will display the correct address on startup).
+
+When done, use "TestSession / Start" from the main menu.
 
 Listening for Connections
 -------------------------
