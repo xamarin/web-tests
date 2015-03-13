@@ -6,7 +6,7 @@
     <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{B215EC4B-1B74-446D-A51B-2CC9DDAE1252}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>MacUI</RootNamespace>
+    <RootNamespace>Xamarin.AsyncTests.MacUI</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <AssemblyName>XamarinAsyncTestsMacUI</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>

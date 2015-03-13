@@ -88,7 +88,7 @@ namespace Xamarin.AsyncTests.Mobile
 
 			EndPoint = GetEndPoint ();
 
-			MainLabel = new Label { XAlign = TextAlignment.Center, Text = "Welcome to Xamarin AsyncTests!" };
+			MainLabel = new Label { XAlign = TextAlignment.Start, Text = "Welcome to Xamarin AsyncTests!" };
 
 			StatusLabel = new Label { XAlign = TextAlignment.Start };
 
@@ -110,7 +110,7 @@ namespace Xamarin.AsyncTests.Mobile
 
 		protected override async void OnStart ()
 		{
-			MainLabel.Text = string.Format ("Listening at {0}:{1}.", EndPoint.Address, EndPoint.Port);
+			MainLabel.Text = string.Format ("Server address is {0}:{1}.", EndPoint.Address, EndPoint.Port);
 
 			var server = await TestServer.StartServer (this, EndPoint, Framework, CancellationToken.None);
 
