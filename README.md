@@ -49,44 +49,43 @@ When done, use "TestSession / Start" from the main menu.
 Listening for Connections
 -------------------------
 
-All you have to do is select Test Session / Listen from the main menu and it will listen
-at 0.0.0.0:8888.  FIXME: this endpoint should be configurable.
+Select "Wait for connection" as "Server Mode" in the settings dialog.
 
 Then connect from the Xamarin.AsyncTests.Console.exe command-line tool:
 
-$ mono --debug Xamarin.AsyncTests.Console.exe --gui=127.0.0.1:8888 Xamarin.WebTests.Console.exe
+    $ mono --debug Xamarin.AsyncTests.Console.exe --gui=127.0.0.1:8888 Xamarin.WebTests.Console.exe
 
 This tool understands some additional command-line options:
 
-* --result=FILE
+* `--result=FILE`
   Dump full test result in XML form into that file.
 
-* --log-level=LEVEL
+* `--log-level=LEVEL`
   Modify local log level.
   
-* --optional-gui
-  Fall back to running tests locally if GUI connection fails with SocketError.ConnectionRefused.
+* `--optional-gui`
+  Fall back to running tests locally if GUI connection fails with `SocketError.ConnectionRefused`.
   
-* --settings=FILE
+* `--settings=FILE`
   Load settings from that file.  The GUI will override those.
 
-* --connect=ENDPOINT
+* `--connect=ENDPOINT`
   Connect to a remote server.  Cannot be used together with the GUI.  Used for Mobile.
   
-* --gui=ENDPOINT
+* `--gui=ENDPOINT`
   Connect to the GUI and wait for commands.
   
-* --dependency=ASSEMBLY
+* `--dependency=ASSEMBLY`
   Loads the specified assembly as a dependency.  Can be used multiple times.
   
 This is the recommended mode of operation for debugging and fixing bugs.  You launch the
-GUI from a terminal, then run Xamarin.AsyncTests.Console from within Xamarin Studio.  This
+GUI from a terminal, then run `Xamarin.AsyncTests.Console` from within Xamarin Studio.  This
 gives you the full Xamarin Studio debugging functionality while still being able to use the
 GUI to view test results, select which tests to run, etc.
 
 The external process is required because the TLS tests need to be run with a custom Mono
 runtime which has the new TLS changes.  Without an external process, you would have to either
-install this custom runtime as the default /Library/Frameworks/Mono.framework or build
+install this custom runtime as the default `/Library/Frameworks/Mono.framework` or build
 Xamarin.Mac for your custom prefix.
 
 The inter-process communication layer only uses Sockets and XML, so it won't interfer with
@@ -96,7 +95,7 @@ Running from the GUI
 --------------------
 
 The tests can also be run directly from the GUI, in which case the GUI will launch the external
-Xamarin.WebTests.Console process.
+`Xamarin.WebTests.Console` process.
 
 Before you can do that for the first time, you need to open the settings dialog and configure
 some values:
@@ -116,9 +115,11 @@ some values:
 Running on Mobile
 -----------------
 
-TODO
+For mobile, a custom platform-specific test app is required for each platform and each test suite.  You can use the `Xamarin.AsyncTests.Mobile` PCL to get a simple Xamarin Forms based UI.  The `MobileTestApp` will also take care of the server stuff for you.
+
+To run the tests, first launch the `Xamarin.WebTests.Android` / `Xamarin.WebTests.iOS` project.  Then start the GUI, select the correct server mode and start.
 
 
-Last changed March 12th, 2015
+Last changed March 13th, 2015
 Martin Baulig <martin.baulig@xamarin.com>
 
