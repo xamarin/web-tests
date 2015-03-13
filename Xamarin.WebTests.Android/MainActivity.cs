@@ -9,7 +9,7 @@ namespace Xamarin.WebTests.Android
 	using Forms.Platform.Android;
 	using AsyncTests.Mobile;
 
-	[Activity (Label = "Xamarin.WebTests.Android", MainLauncher = true, Icon = "@drawable/icon")]
+	[Activity (Label = "Xamarin.WebTests.Android", MainLauncher = true)]
 	public class MainActivity : FormsApplicationActivity
 	{
 		protected override void OnCreate (Bundle bundle)
