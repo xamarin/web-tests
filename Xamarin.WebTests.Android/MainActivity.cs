@@ -7,6 +7,8 @@ namespace Xamarin.WebTests.Android
 {
 	using Forms;
 	using Forms.Platform.Android;
+	using AsyncTests;
+	using AsyncTests.Portable;
 	using AsyncTests.Mobile;
 
 	[Activity (Label = "Xamarin.WebTests.Android", MainLauncher = true)]
@@ -17,6 +19,8 @@ namespace Xamarin.WebTests.Android
 			base.OnCreate (bundle);
 
 			Forms.Init (this, bundle);
+
+			DependencyInjector.RegisterAssembly (typeof(PortableSupportImpl).Assembly);
 
 			LoadApplication (new App ());
 		}
