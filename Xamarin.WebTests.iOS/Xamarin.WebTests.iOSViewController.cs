@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// Xamarin.WebTests.iOSViewController.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,34 +24,61 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using Xamarin.AsyncTests;
-#if !__MOBILE__
-using Xamarin.AsyncTests.Console;
-#endif
-using Xamarin.WebTests.Portable;
+using System.Drawing;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
+using Foundation;
+using UIKit;
 
-namespace Xamarin.WebTests.TestProvider
+namespace Xamarin.WebTests.iOS
 {
-	using Server;
-
-	class WebDependencyProvider : IDependencyProvider
+	public partial class Xamarin_WebTests_iOSViewController : UIViewController
 	{
-		public void Initialize ()
-		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
+		static bool UserInterfaceIdiomIsPhone {
+			get { return UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Phone; }
 		}
 
-#if !__MOBILE__
-		static void Main (string[] args)
+		public Xamarin_WebTests_iOSViewController (IntPtr handle) : base (handle)
 		{
-			Program.Run (typeof (WebDependencyProvider).Assembly, args);
 		}
-#endif
+
+		public override void DidReceiveMemoryWarning ()
+		{
+			// Releases the view if it doesn't have a superview.
+			base.DidReceiveMemoryWarning ();
+			
+			// Release any cached data, images, etc that aren't in use.
+		}
+
+		#region View lifecycle
+
+		public override void ViewDidLoad ()
+		{
+			base.ViewDidLoad ();
+			
+			// Perform any additional setup after loading the view, typically from a nib.
+		}
+
+		public override void ViewWillAppear (bool animated)
+		{
+			base.ViewWillAppear (animated);
+		}
+
+		public override void ViewDidAppear (bool animated)
+		{
+			base.ViewDidAppear (animated);
+		}
+
+		public override void ViewWillDisappear (bool animated)
+		{
+			base.ViewWillDisappear (animated);
+		}
+
+		public override void ViewDidDisappear (bool animated)
+		{
+			base.ViewDidDisappear (animated);
+		}
+
+		#endregion
 	}
 }
 

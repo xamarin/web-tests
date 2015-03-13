@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// Main.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,34 +24,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using Xamarin.AsyncTests;
-#if !__MOBILE__
-using Xamarin.AsyncTests.Console;
-#endif
-using Xamarin.WebTests.Portable;
+using System.Collections.Generic;
+using System.Linq;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
+using Foundation;
+using UIKit;
 
-namespace Xamarin.WebTests.TestProvider
+namespace Xamarin.WebTests.iOS
 {
-	using Server;
-
-	class WebDependencyProvider : IDependencyProvider
+	public class Application
 	{
-		public void Initialize ()
-		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
-		}
-
-#if !__MOBILE__
+		// This is the main entry point of the application.
 		static void Main (string[] args)
 		{
-			Program.Run (typeof (WebDependencyProvider).Assembly, args);
+			// if you want to use a different Application Delegate class from "AppDelegate"
+			// you can specify it here.
+			UIApplication.Main (args, null, "AppDelegate");
 		}
-#endif
 	}
 }
-

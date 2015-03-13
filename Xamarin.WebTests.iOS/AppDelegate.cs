@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// AppDelegate.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,34 +24,53 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using Xamarin.AsyncTests;
-#if !__MOBILE__
-using Xamarin.AsyncTests.Console;
-#endif
-using Xamarin.WebTests.Portable;
+using System.Linq;
+using System.Collections.Generic;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
+using Foundation;
+using UIKit;
 
-namespace Xamarin.WebTests.TestProvider
+namespace Xamarin.WebTests.iOS
 {
-	using Server;
+	using Forms;
+	using Forms.Platform.iOS;
+	using AsyncTests;
+	using AsyncTests.Framework;
+	using AsyncTests.Portable;
+	using AsyncTests.Mobile;
 
-	class WebDependencyProvider : IDependencyProvider
+	// The UIApplicationDelegate for the application. This class is responsible for launching the
+	// User Interface of the application, as well as listening (and optionally responding) to
+	// application events from iOS.
+	[Register ("AppDelegate")]
+	public partial class AppDelegate : FormsApplicationDelegate
 	{
-		public void Initialize ()
-		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
+		public TestFramework Framework {
+			get;
+			private set;
 		}
 
-#if !__MOBILE__
-		static void Main (string[] args)
-		{
-			Program.Run (typeof (WebDependencyProvider).Assembly, args);
+		public override UIWindow Window {
+			get;
+			set;
 		}
-#endif
+
+		public override bool FinishedLaunching(UIApplication app, NSDictionary options)
+		{
+			Forms.Init ();
+
+			Window = new UIWindow (UIScreen.MainScreen.Bounds);
+
+			DependencyInjector.RegisterAssembly (typeof(PortableSupportImpl).Assembly);
+			DependencyInjector.RegisterAssembly (typeof(AppDelegate).Assembly);
+
+			Framework = TestFramework.GetLocalFramework (typeof(AppDelegate).Assembly);
+
+			LoadApplication (new MobileTestApp (Framework));
+
+			return base.FinishedLaunching (app, options);
+		}
+		
 	}
 }
 
