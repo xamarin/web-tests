@@ -95,7 +95,6 @@
     <Compile Include="HttpClient\IHttpClient.cs" />
     <Compile Include="HttpClient\IHttpClientHandler.cs" />
     <Compile Include="HttpClient\IHttpContent.cs" />
-    <Compile Include="HttpClient\IHttpMessage.cs" />
     <Compile Include="HttpClient\IHttpRequestMessage.cs" />
     <Compile Include="HttpClient\IHttpResponseMessage.cs" />
   </ItemGroup>

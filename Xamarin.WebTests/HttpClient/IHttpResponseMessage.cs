@@ -28,7 +28,7 @@ using System.Net;
 
 namespace Xamarin.WebTests.HttpClient
 {
-	public interface IHttpResponseMessage : IHttpMessage
+	public interface IHttpResponseMessage
 	{
 		HttpStatusCode StatusCode {
 			get;

@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.WebTests.HttpClient
 {
-	public interface IHttpRequestMessage : IHttpMessage
+	public interface IHttpRequestMessage
 	{
 		HttpMethod Method {
 			get; set;
