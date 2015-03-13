@@ -98,6 +98,8 @@ namespace Xamarin.AsyncTests.MacUI
 				return GetListenParameters ();
 			case ServerMode.Android:
 				return GetAndroidParameters ();
+			case ServerMode.iOS:
+				return GetIOSParameters ();
 			default:
 				throw new AlertException ("Invalid server mode: {0}", serverMode);
 			}
@@ -111,6 +113,16 @@ namespace Xamarin.AsyncTests.MacUI
 
 			var endpoint = ParseEndPoint (address);
 			return ServerParameters.Android (endpoint);
+		}
+
+		ServerParameters GetIOSParameters ()
+		{
+			var address = Settings.IOSEndpoint;
+			if (string.IsNullOrEmpty (address))
+				throw new AlertException ("Must set iOS Endpoint in Settings Dialog.");
+
+			var endpoint = ParseEndPoint (address);
+			return ServerParameters.IOS (endpoint);
 		}
 
 		ServerParameters GetListenParameters ()

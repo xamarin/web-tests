@@ -83,6 +83,7 @@ namespace Xamarin.AsyncTests.MacUI
 				case ServerMode.WaitForConnection:
 					return TestServer.WaitForConnection (Manager.App, parameters.EndPoint, cancellationToken);
 				case ServerMode.Android:
+				case ServerMode.iOS:
 					return TestServer.ConnectToServer (Manager.App, parameters.EndPoint, cancellationToken);
 				case ServerMode.Local:
 					return TestServer.CreatePipe (Manager.App, parameters.EndPoint, parameters.Arguments, cancellationToken);
