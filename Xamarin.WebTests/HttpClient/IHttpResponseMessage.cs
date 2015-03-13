@@ -26,7 +26,7 @@
 using System;
 using System.Net;
 
-namespace Xamarin.WebTests.Portable.HttpClient
+namespace Xamarin.WebTests.HttpClient
 {
 	public interface IHttpResponseMessage : IHttpMessage
 	{

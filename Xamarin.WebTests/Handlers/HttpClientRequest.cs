@@ -35,7 +35,7 @@ namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
 	using Portable;
-	using Portable.HttpClient;
+	using HttpClient;
 
 	public class HttpClientRequest : Request
 	{

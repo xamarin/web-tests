@@ -27,7 +27,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Portable.HttpClient
+namespace Xamarin.WebTests.HttpClient
 {
 	public interface IHttpContent
 	{

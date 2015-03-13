@@ -46,7 +46,6 @@ namespace Xamarin.WebTests.Server
 {
 	using HttpClient;
 	using Portable;
-	using Portable.HttpClient;
 	using Framework;
 	using Server;
 
