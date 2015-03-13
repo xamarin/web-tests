@@ -232,7 +232,7 @@ namespace Xamarin.AsyncTests.MacUI
 		}
 
 		const string TestSuiteKey = "TestSuite";
-		const string DefaultTestSuite = "Xamarin.WebTests.TestProvider.exe";
+		const string DefaultTestSuite = "Xamarin.WebTests.Console.exe";
 
 		[Export (TestSuiteKey)]
 		public string TestSuite {

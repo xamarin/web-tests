@@ -29,7 +29,7 @@ using System.Runtime.CompilerServices;
 // Information about this assembly is defined by the following attributes.
 // Change them to the values specific to your project.
 
-[assembly: AssemblyTitle ("Xamarin.WebTests.TestProvider")]
+[assembly: AssemblyTitle ("Xamarin.WebTests.Console")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("Xamarin")]

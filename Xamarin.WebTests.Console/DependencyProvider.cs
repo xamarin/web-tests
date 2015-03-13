@@ -29,10 +29,10 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Console;
 using Xamarin.WebTests.Portable;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.DependencyProvider))]
+[assembly: DependencyProvider (typeof (Xamarin.WebTests.Console.DependencyProvider))]
 [assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
 
-namespace Xamarin.WebTests.TestProvider
+namespace Xamarin.WebTests.Console
 {
 	using Server;
 

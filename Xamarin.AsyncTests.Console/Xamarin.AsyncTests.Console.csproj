@@ -20,7 +20,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <Commandlineparameters>--gui=127.0.0.1:8888 --optional-gui --log-level=-1 Xamarin.WebTests.TestProvider.exe</Commandlineparameters>
+    <Commandlineparameters>--gui=127.0.0.1:8888 --optional-gui --log-level=-1 Xamarin.WebTests.Console.exe</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
