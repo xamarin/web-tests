@@ -92,6 +92,9 @@
     <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\ProxyListener.cs">
       <Link>Xamarin.WebTests.Server\ProxyListener.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests.Console\WebDependencyProvider.cs">
+      <Link>WebDependencyProvider.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\AboutAssets.txt" />

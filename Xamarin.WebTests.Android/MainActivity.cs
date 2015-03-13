@@ -21,6 +21,7 @@ namespace Xamarin.WebTests.Android
 			Forms.Init (this, bundle);
 
 			DependencyInjector.RegisterAssembly (typeof(PortableSupportImpl).Assembly);
+			DependencyInjector.RegisterAssembly (typeof(MainActivity).Assembly);
 
 			LoadApplication (new App ());
 		}

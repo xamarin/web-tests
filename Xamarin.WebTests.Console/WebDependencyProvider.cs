@@ -26,7 +26,9 @@
 using System;
 using System.Threading;
 using Xamarin.AsyncTests;
+#if !__MOBILE__
 using Xamarin.AsyncTests.Console;
+#endif
 using Xamarin.WebTests.Portable;
 
 [assembly: DependencyProvider (typeof (Xamarin.WebTests.Console.WebDependencyProvider))]
@@ -44,10 +46,12 @@ namespace Xamarin.WebTests.Console
 			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
 		}
 
+#if !__MOBILE__
 		static void Main (string[] args)
 		{
 			Program.Run (typeof (WebDependencyProvider).Assembly, args);
 		}
+#endif
 	}
 }
 
