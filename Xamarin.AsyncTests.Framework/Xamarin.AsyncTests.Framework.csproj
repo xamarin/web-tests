@@ -87,6 +87,34 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestSession.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestSession.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestCase.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\CancelCommand.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ClientConnection.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\Command.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\Connection.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\EventSinkClient.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\EventSinkServant.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\Handshake.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\IRemoteObject.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\Message.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ObjectClient.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ObjectProxy.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ObjectServant.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\OneWayCommand.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\RemoteObject.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\RemoteObjectCommand.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\RemoteObjectManager.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\Response.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\Serializer.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ServerConnection.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ServerErrorException.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ShutdownCommand.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\TestCaseClient.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\TestCaseServant.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\TestServer.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\TestSessionClient.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\TestSessionServant.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\TestSuiteClient.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\TestSuiteServant.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>
@@ -104,5 +132,8 @@
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
       <Name>Xamarin.AsyncTests</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Xamarin.AsyncTests.Remoting\" />
   </ItemGroup>
 </Project>
