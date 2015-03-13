@@ -18,19 +18,19 @@
     <WarningLevel>4</WarningLevel>
     <Optimize>false</Optimize>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>DEBUG</DefineConstants>
+    <DefineConstants>DEBUG;XAMARIN_WEBTESTS</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <OutputPath>bin\Release\</OutputPath>
     <WarningLevel>4</WarningLevel>
     <Optimize>false</Optimize>
+    <DefineConstants>XAMARIN_WEBTESTS</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugWin|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <OutputPath>bin\DebugWin\</OutputPath>
     <WarningLevel>4</WarningLevel>
     <Optimize>false</Optimize>
+    <DefineConstants>XAMARIN_WEBTESTS</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,6 +74,30 @@
     <Compile Include="Tests\TestFork.cs" />
     <Compile Include="Framework\RandomContent.cs" />
     <Compile Include="Tests\RedirectStatusAttribute.cs" />
+    <Compile Include="Mono.Security\BitConverterLE.cs" />
+    <Compile Include="Mono.Security\Locale.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\MessageBase.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\NtlmAuthLevel.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\NtlmFlags.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\NtlmSettings.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\Type1Message.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\Type2Message.cs" />
+    <Compile Include="Mono.Security.Protocol.Ntlm\Type3Message.cs" />
+    <Compile Include="Xamarin.WebTests.Portable\AuthenticationType.cs" />
+    <Compile Include="Xamarin.WebTests.Portable\IHttpServer.cs" />
+    <Compile Include="Xamarin.WebTests.Portable\IListener.cs" />
+    <Compile Include="Xamarin.WebTests.Portable\IPortableProxy.cs" />
+    <Compile Include="Xamarin.WebTests.Portable\IPortableWebSupport.cs" />
+    <Compile Include="Xamarin.WebTests.Portable\IWebClient.cs" />
+    <Compile Include="Xamarin.WebTests.Portable\NTLMHandler.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\HttpCompletionOption.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\HttpMethod.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpClient.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpClientHandler.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpContent.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpMessage.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpRequestMessage.cs" />
+    <Compile Include="Xamarin.WebTests.Portable.HttpClient\IHttpResponseMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />
@@ -86,9 +110,10 @@
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>Xamarin.AsyncTests.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\support\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj">
-      <Project>{9A328159-EF48-4082-B8FA-FB4FC2E44B0C}</Project>
-      <Name>Xamarin.WebTests.Portable</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="cert.pfx">
+      <LogicalName>Xamarin.WebTests.Server.cert.pfx</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

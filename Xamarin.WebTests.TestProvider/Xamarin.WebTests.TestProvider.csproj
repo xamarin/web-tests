@@ -48,10 +48,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\support\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj">
-      <Project>{9A328159-EF48-4082-B8FA-FB4FC2E44B0C}</Project>
-      <Name>Xamarin.WebTests.Portable</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Xamarin.WebTests\Xamarin.WebTests.csproj">
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
       <Name>Xamarin.WebTests</Name>
