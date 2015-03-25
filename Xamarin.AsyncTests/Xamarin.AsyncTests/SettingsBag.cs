@@ -112,6 +112,19 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public bool DisableTimeouts {
+			get {
+				string value;
+				if (TryGetValue ("DisableTimeouts", out value))
+					return bool.Parse (value);
+				return false;
+			}
+			set {
+				SetValue ("DisableTimeouts", value.ToString ());
+				OnPropertyChanged ("DisableTimeouts");
+			}
+		}
+
 		protected void OnPropertyChanged (string propertyName)
 		{
 			if (PropertyChanged != null)

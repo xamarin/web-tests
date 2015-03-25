@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using System.Collections.Generic;
@@ -86,11 +87,17 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public bool DebugMode {
+			get;
+			private set;
+		}
+
 		TestSession session;
 		SettingsBag settings;
 		TestFramework framework;
 		TestLogger logger;
 		bool optionalGui;
+		string category;
 
 		public static void Run (Assembly assembly, string[] args)
 		{
@@ -129,12 +136,21 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
 			p.Add ("dependency=", v => dependencies.Add (v));
 			p.Add ("optional-gui", v => optionalGui = true);
+			p.Add ("category=", v => category = v);
+			p.Add ("debug", v => DebugMode = true);
 			var remaining = p.Parse (args);
 
 			settings = LoadSettings (SettingsFile);
 
+			if (DebugMode) {
+				settings.LocalLogLevel = -1;
+				settings.DisableTimeouts = true;
+			}
+
 			if (LogLevel != null)
 				settings.LocalLogLevel = LogLevel.Value;
+
+			settings.LogLevel = settings.LocalLogLevel;
 
 			var dependencyAsms = new Assembly [dependencies.Count];
 			for (int i = 0; i < dependencyAsms.Length; i++) {
@@ -244,10 +260,19 @@ namespace Xamarin.AsyncTests.Console
 			await server.WaitForExit (cancellationToken);
 		}
 
+		void OnSessionCreated (TestSession session)
+		{
+			var config = session.Configuration;
+			if (category != null)
+				config.CurrentCategory = config.Categories.First (c => c.Name.Equals (category));
+		}
+
 		async Task RunLocal (CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			session = TestSession.CreateLocal (this, framework);
+			OnSessionCreated (session);
+
 			var test = await session.GetRootTestCase (cancellationToken);
 
 			Debug ("Got test: {0}", test);
@@ -273,6 +298,8 @@ namespace Xamarin.AsyncTests.Console
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			session = server.Session;
+			OnSessionCreated (session);
+
 			var test = await session.GetRootTestCase (cancellationToken);
 			cancellationToken.ThrowIfCancellationRequested ();
 

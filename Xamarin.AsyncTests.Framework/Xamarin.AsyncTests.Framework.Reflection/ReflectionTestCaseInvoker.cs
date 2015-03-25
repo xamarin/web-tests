@@ -54,8 +54,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return ExpectingSuccess (ctx, instance, cancellationToken);
 		}
 
-		int GetTimeout ()
+		int GetTimeout (TestContext ctx)
 		{
+			if (ctx.Settings.DisableTimeouts)
+				return -1;
 			if (Builder.Attribute.Timeout != 0)
 				return Builder.Attribute.Timeout;
 			else if (Builder.Fixture.Attribute.Timeout != 0)
@@ -68,7 +70,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			var args = new LinkedList<object> ();
 
-			int timeout = GetTimeout ();
+			int timeout = GetTimeout (ctx);
 			CancellationTokenSource timeoutCts = null;
 			CancellationTokenSource methodCts = null;
 			CancellationToken methodToken;

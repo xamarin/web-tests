@@ -117,6 +117,8 @@ namespace Xamarin.WebTests.Handlers
 				return HttpResponse.CreateSuccess ();
 			}
 
+			Debug (ctx, 2, "HANDLE POST #1", haveContentLength, haveTransferEncoding);
+
 			var content = request.ReadBody ();
 
 			switch (Mode) {
