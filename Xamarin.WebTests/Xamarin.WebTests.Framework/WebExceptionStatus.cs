@@ -27,10 +27,9 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace System.Net 
+namespace Xamarin.WebTests.Framework
 {
-	public
-	enum WebExceptionStatus 
+	public enum WebExceptionStatus
 	{
 		Success = 0,
 		NameResolutionFailure = 1,
@@ -49,13 +48,11 @@ namespace System.Net
 		Timeout = 14,
 		ProxyNameResolutionFailure = 15,
 
-
 		UnknownError = 16,
 		MessageLengthLimitExceeded = 17,
 
 		CacheEntryNotFound = 18,
 		RequestProhibitedByCachePolicy = 19,
 		RequestProhibitedByProxy = 20,
-
 	}
 }

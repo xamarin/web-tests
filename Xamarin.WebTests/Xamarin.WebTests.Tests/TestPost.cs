@@ -147,7 +147,7 @@ namespace Xamarin.WebTests.Tests
 			var handler = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
 			return TestRunner.RunTraditional (
 				ctx, server, handler, cancellationToken, false,
-				HttpStatusCode.TemporaryRedirect, true);
+				HttpStatusCode.TemporaryRedirect, WebExceptionStatus.ProtocolError);
 		}
 
 		[AsyncTest]

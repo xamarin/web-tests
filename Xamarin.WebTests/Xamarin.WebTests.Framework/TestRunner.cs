@@ -58,7 +58,7 @@ namespace Xamarin.WebTests.Framework
 			TestContext ctx, HttpServer server, Handler handler,
 			CancellationToken cancellationToken, bool sendAsync = false,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
-			bool expectException = false)
+			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
 			Debug (ctx, server, 1, handler, "RUN TRADITIONAL");
 
@@ -75,14 +75,14 @@ namespace Xamarin.WebTests.Framework
 					response = await request.Send (ctx, cancellationToken);
 
 				CheckResponse (
-					ctx, server, response, handler, cancellationToken, expectedStatus, expectException);
+					ctx, server, response, handler, cancellationToken, expectedStatus, expectedError);
 			});
 		}
 
 		public static Task RunHttpClient (
 			TestContext ctx, HttpServer server, HttpClientHandler handler, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
-			bool expectException = false)
+			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
 			Debug (ctx, server, 1, handler, "RUN HTTP CLIENT");
 
@@ -106,14 +106,14 @@ namespace Xamarin.WebTests.Framework
 				}
 
 				CheckResponse (
-					ctx, server, response, handler, cancellationToken, expectedStatus, expectException);
+					ctx, server, response, handler, cancellationToken, expectedStatus, expectedError);
 			});
 		}
 
 		static void CheckResponse (
 			TestContext ctx, HttpServer server, Response response, Handler handler,
 			CancellationToken cancellationToken, HttpStatusCode expectedStatus = HttpStatusCode.OK,
-			bool expectException = false)
+			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
 			Debug (ctx, server, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error);
 
@@ -125,9 +125,12 @@ namespace Xamarin.WebTests.Framework
 				return;
 			}
 
-			if (expectException) {
+			if (expectedError != WebExceptionStatus.Success) {
 				ctx.Expect (response.Error, Is.Not.Null, "expecting exception");
 				ctx.Expect (response.Status, Is.EqualTo (expectedStatus));
+				var wexc = response.Error as WebException;
+				ctx.Expect (wexc, Is.Not.Null, "WebException");
+				ctx.Expect ((WebExceptionStatus)wexc.Status, Is.EqualTo (expectedError));
 				return;
 			}
 
@@ -139,7 +142,7 @@ namespace Xamarin.WebTests.Framework
 			} else {
 				var ok = ctx.Expect (expectedStatus, Is.EqualTo (response.Status), "status code");
 				if (ok)
-					ctx.Expect (expectException, Is.EqualTo (!response.IsSuccess), "success status");
+					ctx.Expect (response.IsSuccess, Is.True, "success status");
 			}
 
 			if (response.Content != null)

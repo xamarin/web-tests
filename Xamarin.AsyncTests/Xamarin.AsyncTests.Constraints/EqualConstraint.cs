@@ -74,6 +74,19 @@ namespace Xamarin.AsyncTests.Constraints
 				return CompareList ((IList)Expected, actualList, out message);
 			}
 
+			if (Expected is Enum) {
+				if (actual.GetType () != Expected.GetType ()) {
+					message = string.Format (
+						"Expected enum of type `{0}', but got `{1}'.", Expected.GetType (), actual.GetType ());
+					return false;
+				}
+
+				if (Enum.Equals (Expected, actual)) {
+					message = null;
+					return true;
+				}
+			}
+
 			message = null;
 			if (object.Equals (actual, Expected))
 				return true;
