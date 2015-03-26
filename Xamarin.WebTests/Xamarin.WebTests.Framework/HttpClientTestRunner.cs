@@ -45,9 +45,7 @@ namespace Xamarin.WebTests.Framework
 		{
 			var httpClientHandler = (HttpClientHandler)handler;
 			var request = new HttpClientRequest (httpClientHandler, uri);
-			handler.ConfigureRequest (request, uri);
-
-			request.SetProxy (server.GetProxy ());
+			ConfigureRequest (ctx, server, uri, handler, request);
 
 			Response response;
 

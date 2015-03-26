@@ -48,9 +48,7 @@ namespace Xamarin.WebTests.Framework
 		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Uri uri, Handler handler)
 		{
 			var request = new TraditionalRequest (uri);
-			handler.ConfigureRequest (request, uri);
-
-			request.SetProxy (server.GetProxy ());
+			ConfigureRequest (ctx, server, uri, handler, request);
 
 			Response response;
 			if (SendAsync)

@@ -58,6 +58,13 @@ namespace Xamarin.WebTests.Framework
 		public static readonly TestRunner TraditionalAsyncRunner = new TraditionalTestRunner { SendAsync = true };
 		public static readonly TestRunner HttpClientRunner = new HttpClientTestRunner ();
 
+		protected virtual void ConfigureRequest (TestContext ctx, HttpServer server, Uri uri, Handler handler, Request request)
+		{
+			handler.ConfigureRequest (request, uri);
+
+			request.SetProxy (server.GetProxy ());
+		}
+
 		protected abstract Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Uri uri, Handler handler);
 
 		public Task Run (
