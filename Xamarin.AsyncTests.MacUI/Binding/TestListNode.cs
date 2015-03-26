@@ -65,8 +65,8 @@ namespace Xamarin.AsyncTests.MacUI
 			WillChangeValue ("isLeaf");
 			WillChangeValue ("childNodes");
 
-			var length = (nint)children.Count;
-			for (nint i = 0; i < length; i++) {
+			var length = children.Count;
+			for (nuint i = 0; i < length; i++) {
 				if (children.GetItem<TestListNode> (i) == child) {
 					children.RemoveObject ((nint)i);
 					break;

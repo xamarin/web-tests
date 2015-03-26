@@ -60,7 +60,7 @@ namespace Xamarin.AsyncTests.MacUI
 				currentMode = "WaitForConnection";
 
 			for (nuint i = 0; i < serverModeArray.Count; i++) {
-				var model = serverModeArray.GetItem<ServerModeModel> ((nint)i);
+				var model = serverModeArray.GetItem<ServerModeModel> (i);
 				if (currentServerMode == null || model.Mode.ToString ().Equals (currentMode))
 					currentServerMode = model;
 			}

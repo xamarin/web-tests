@@ -70,7 +70,7 @@ namespace Xamarin.AsyncTests.MacUI
 		public override IReadOnlyDictionary<string, string> Settings {
 			get {
 				var dict = new Dictionary<string, string> ();
-				foreach (var entry in defaults.AsDictionary ()) {
+				foreach (var entry in defaults.ToDictionary ()) {
 					var key = (string)(NSString)entry.Key;
 					if (!key.StartsWith (Prefix))
 						continue;

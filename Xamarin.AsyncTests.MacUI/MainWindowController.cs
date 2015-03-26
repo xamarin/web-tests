@@ -119,7 +119,7 @@ namespace Xamarin.AsyncTests.MacUI
 			var index = indexPath.IndexAtPosition (0);
 
 			var internalArray = (NSArray)TestResultController.Content;
-			var rootNode = internalArray.GetItem<TestListNode> ((nint)index);
+			var rootNode = internalArray.GetItem<TestListNode> (index);
 
 			var model = rootNode as TestResultModel;
 			if (model == null)
