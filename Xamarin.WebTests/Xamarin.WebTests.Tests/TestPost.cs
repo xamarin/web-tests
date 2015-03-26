@@ -135,7 +135,6 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		[NotWorking]
 		public Task RedirectNoBuffering (
 			TestContext ctx, [TestHost] HttpServer server,
 			CancellationToken cancellationToken)
