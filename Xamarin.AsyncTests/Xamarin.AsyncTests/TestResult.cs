@@ -93,10 +93,13 @@ namespace Xamarin.AsyncTests
 			((INotifyPropertyChanged)children).PropertyChanged += (sender, e) => OnChildrenChanged ();
 			errors = new ObservableCollection<Exception> ();
 			((INotifyPropertyChanged)errors).PropertyChanged += (sender, e) => OnErrorsChanged ();
+			log = new ObservableCollection<TestLoggerBackend.LogEntry> ();
+			((INotifyPropertyChanged)log).PropertyChanged += (sender, e) => OnLogEntriesChanged ();
 		}
 
 		ObservableCollection<TestResult> children;
 		ObservableCollection<string> messages;
+		ObservableCollection<TestLoggerBackend.LogEntry> log;
 		ObservableCollection<Exception> errors;
 
 		public bool HasChildren {
@@ -115,6 +118,14 @@ namespace Xamarin.AsyncTests
 			get { return messages; }
 		}
 
+		public bool HasLogEntries {
+			get { return log != null && log.Count > 0; }
+		}
+
+		public IReadOnlyCollection<TestLoggerBackend.LogEntry> LogEntries {
+			get { return log; }
+		}
+
 		public bool HasErrors {
 			get { return errors.Count > 0; }
 		}
@@ -131,6 +142,11 @@ namespace Xamarin.AsyncTests
 		void OnErrorsChanged ()
 		{
 			OnPropertyChanged ("Errors");
+		}
+
+		void OnLogEntriesChanged ()
+		{
+			OnPropertyChanged ("LogEntries");
 		}
 
 		void OnChildrenChanged ()
@@ -155,6 +171,14 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public void AddLogMessage (TestLoggerBackend.LogEntry entry)
+		{
+			lock (this) {
+				WantToModify ();
+				log.Add (entry);
+			}
+		}
+
 		public void AddChild (TestResult child)
 		{
 			lock (this) {
@@ -170,11 +194,13 @@ namespace Xamarin.AsyncTests
 			lock (this) {
 				children.Clear ();
 				messages.Clear ();
+				log.Clear ();
 				errors.Clear ();
 				status = TestStatus.None;
 			}
 			OnPropertyChanged ("Children");
 			OnPropertyChanged ("Messages");
+			OnPropertyChanged ("LogEntries");
 			OnPropertyChanged ("Errors");
 			OnPropertyChanged ("Status");
 		}

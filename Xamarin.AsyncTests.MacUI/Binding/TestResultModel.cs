@@ -147,6 +147,12 @@ namespace Xamarin.AsyncTests.MacUI
 				}
 			}
 
+			if (Result.LogEntries != null) {
+				foreach (var entry in Result.LogEntries) {
+					sb.AppendLine (entry.Text);
+				}
+			}
+
 			var font = NSFont.FromFontName ("Courier New", 18.0f);
 			error = new NSAttributedString (sb.ToString (), font);
 

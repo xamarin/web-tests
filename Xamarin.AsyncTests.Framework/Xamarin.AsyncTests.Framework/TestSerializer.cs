@@ -286,6 +286,10 @@ namespace Xamarin.AsyncTests.Framework
 				result.AddMessage (message.Attribute ("Text").Value);
 			}
 
+			foreach (var log in node.Elements ("LogEntry")) {
+				result.AddLogMessage (ReadLogEntry (log));
+			}
+
 			foreach (var child in node.Elements ("TestResult")) {
 				result.AddChild (ReadTestResult (child));
 			}
@@ -313,6 +317,13 @@ namespace Xamarin.AsyncTests.Framework
 					var msgElement = new XElement ("Message");
 					msgElement.SetAttributeValue ("Text", message);
 					element.Add (msgElement);
+				}
+			}
+
+			if (instance.HasLogEntries) {
+				foreach (var entry in instance.LogEntries) {
+					element.Add (WriteLogEntry (entry));
+
 				}
 			}
 

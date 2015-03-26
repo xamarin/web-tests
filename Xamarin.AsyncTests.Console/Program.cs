@@ -82,6 +82,11 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public int? LocalLogLevel {
+			get;
+			private set;
+		}
+
 		public bool Wait {
 			get;
 			private set;
@@ -135,6 +140,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("no-result", v => ResultOutput = null);
 			p.Add ("result=", v => ResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
+			p.Add ("local-log-level=", v => LocalLogLevel = int.Parse (v));
 			p.Add ("dependency=", v => dependencies.Add (v));
 			p.Add ("optional-gui", v => optionalGui = true);
 			p.Add ("category=", v => category = v);
@@ -144,14 +150,15 @@ namespace Xamarin.AsyncTests.Console
 			settings = LoadSettings (SettingsFile);
 
 			if (DebugMode) {
+				settings.LogLevel = -1;
 				settings.LocalLogLevel = -1;
 				settings.DisableTimeouts = true;
 			}
 
 			if (LogLevel != null)
-				settings.LocalLogLevel = LogLevel.Value;
-
-			settings.LogLevel = settings.LocalLogLevel;
+				settings.LogLevel = LogLevel.Value;
+			if (LocalLogLevel != null)
+				settings.LocalLogLevel = LocalLogLevel.Value;
 
 			var dependencyAsms = new Assembly [dependencies.Count];
 			for (int i = 0; i < dependencyAsms.Length; i++) {

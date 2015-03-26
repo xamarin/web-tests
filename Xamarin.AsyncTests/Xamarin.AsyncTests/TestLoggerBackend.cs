@@ -140,8 +140,10 @@ namespace Xamarin.AsyncTests
 							Result.AddError (entry.Error);
 						else
 							Result.AddError (new AssertionException (entry.Text, null));
-					} else {
+					} else if (entry.Kind == EntryKind.Message) {
 						Result.AddMessage (entry.Text);
+					} else {
+						Result.AddLogMessage (entry);
 					}
 
 					entry.AddedToResult = true;
