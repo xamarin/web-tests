@@ -98,6 +98,8 @@
     <Compile Include="Xamarin.WebTests.Tests\TestFork.cs" />
     <Compile Include="Xamarin.WebTests.Tests\RedirectStatusAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Framework\WebExceptionStatus.cs" />
+    <Compile Include="Xamarin.WebTests.Framework\TraditionalTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.Framework\HttpClientTestRunner.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />
