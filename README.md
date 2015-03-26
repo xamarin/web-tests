@@ -64,7 +64,14 @@ Then connect from the Xamarin.AsyncTests.Console.exe command-line tool:
 This tool understands some additional command-line options:
 
 * `--result=FILE`
-  Dump full test result in XML form into that file.
+  Dump full test result in XML form into that file.  The default is `TestResult.xml`.
+  
+* `--no-result`
+  Do not dump XML results.
+  
+* `--debug`
+  Set log-level to a -1 (maximum logging) and disable any timeouts.  This is intended for
+  single-stepping in the debugger.
 
 * `--log-level=LEVEL`
   Modify local log level.
@@ -83,6 +90,9 @@ This tool understands some additional command-line options:
   
 * `--dependency=ASSEMBLY`
   Loads the specified assembly as a dependency.  Can be used multiple times.
+  
+* `--category=CATEGORY`
+  Select test category to run.
   
 This is the recommended mode of operation for debugging and fixing bugs.  You launch the
 GUI from a terminal, then run `Xamarin.AsyncTests.Console` from within Xamarin Studio.  This
