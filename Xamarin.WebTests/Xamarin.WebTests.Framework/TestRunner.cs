@@ -80,13 +80,16 @@ namespace Xamarin.WebTests.Framework
 		}
 
 		public static Task RunHttpClient (
-			TestContext ctx, HttpServer server, HttpClientHandler handler, CancellationToken cancellationToken,
+			TestContext ctx, CancellationToken cancellationToken, HttpServer server,
+			HttpClientHandler handler, RedirectHandler redirect = null,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
 			Debug (ctx, server, 1, handler, "RUN HTTP CLIENT");
 
-			return handler.RunWithContext (ctx, server, async (uri) => {
+			Handler target = (Handler)redirect ?? handler;
+
+			return target.RunWithContext (ctx, server, async (uri) => {
 				var request = new HttpClientRequest (handler, uri);
 				handler.ConfigureRequest (request, uri);
 
@@ -100,6 +103,9 @@ namespace Xamarin.WebTests.Framework
 					break;
 				case HttpClientOperation.PostString:
 					response = await request.PostString (ctx, handler.ReturnContent, cancellationToken);
+					break;
+				case HttpClientOperation.Put:
+					response = await request.Put (ctx, cancellationToken);
 					break;
 				default:
 					throw new InvalidOperationException ();

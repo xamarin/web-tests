@@ -79,6 +79,9 @@ namespace Xamarin.WebTests.Handlers
 			case HttpClientOperation.PostString:
 				return HandlePostString (ctx, connection, request, effectiveFlags);
 
+			case HttpClientOperation.Put:
+				return HandlePut (ctx, connection, request, effectiveFlags);
+
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -86,6 +89,24 @@ namespace Xamarin.WebTests.Handlers
 
 		HttpResponse HandlePostString (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
+			ctx.Assert (request.Method, Is.EqualTo ("POST"), "method");
+
+			var body = request.ReadBody ();
+
+			Debug (ctx, 5, "BODY", body);
+			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
+				ctx.Assert (body, Is.Not.Null, "body");
+				return HttpResponse.CreateSuccess ();
+			}
+
+			HttpContent.Compare (ctx, body, Content, false);
+			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
+		}
+
+		HttpResponse HandlePut (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		{
+			ctx.Assert (request.Method, Is.EqualTo ("PUT"), "method");
+
 			var body = request.ReadBody ();
 
 			Debug (ctx, 5, "BODY", body);
@@ -111,6 +132,10 @@ namespace Xamarin.WebTests.Handlers
 				request.Method = "POST";
 				if (Content == null)
 					throw new InvalidOperationException ();
+				request.Content = Content;
+				break;
+			case HttpClientOperation.Put:
+				request.Method = "PUT";
 				request.Content = Content;
 				break;
 			default:

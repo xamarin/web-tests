@@ -76,7 +76,7 @@ namespace Xamarin.WebTests.Framework
 			bool ignoreType, string message = null)
 		{
 			if (expected == null)
-				return ctx.Expect (actual, Is.Null, message);
+				return ctx.Expect (IsNullOrEmpty (actual), Is.True, message);
 			if (!ctx.Expect (actual, Is.Not.Null))
 				return false;
 

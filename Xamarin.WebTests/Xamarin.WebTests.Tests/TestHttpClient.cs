@@ -78,6 +78,8 @@ namespace Xamarin.WebTests
 			yield return new HttpClientHandler (
 				"Post string with result", HttpClientOperation.PostString,
 				HttpContent.HelloWorld, new StringContent ("Returned body"));
+			yield return new HttpClientHandler (
+				"Put", HttpClientOperation.Put, HttpContent.HelloWorld);
 		}
 
 		static IEnumerable<HttpClientHandler> GetMono38Tests ()
@@ -106,14 +108,22 @@ namespace Xamarin.WebTests
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
 			[TestHost] HttpServer server, [HttpClientHandler ("stable")] HttpClientHandler handler)
 		{
-			return TestRunner.RunHttpClient (ctx, server, handler, cancellationToken);
+			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
 		}
 
 		[AsyncTest]
 		public Task RunMono38 (TestContext ctx, CancellationToken cancellationToken,
 			[TestHost] HttpServer server, [HttpClientHandler ("mono38")] HttpClientHandler handler)
 		{
-			return TestRunner.RunHttpClient (ctx, server, handler, cancellationToken);
+			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
+		}
+
+		[AsyncTest]
+		public Task Run (TestContext ctx, CancellationToken cancellationToken, [TestHost] HttpServer server)
+		{
+			var handler = new HttpClientHandler ("PutRedirectEmptyBody", HttpClientOperation.Put);
+			var redirect = new RedirectHandler (handler, HttpStatusCode.TemporaryRedirect);
+			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler, redirect);
 		}
 
 		class Bug20583Content : HttpContent

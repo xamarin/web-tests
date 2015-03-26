@@ -30,7 +30,8 @@ namespace Xamarin.WebTests
 	public enum HttpClientOperation
 	{
 		GetString,
-		PostString
+		PostString,
+		Put
 	}
 }
 
