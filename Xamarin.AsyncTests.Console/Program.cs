@@ -123,15 +123,16 @@ namespace Xamarin.AsyncTests.Console
 
 		Program (Assembly assembly, string[] args)
 		{
-			LogLevel = -1;
-
 			var dependencies = new List<string> ();
+
+			ResultOutput = "TestResult.xml";
 
 			var p = new OptionSet ();
 			p.Add ("settings=", v => SettingsFile = v);
 			p.Add ("connect=", v => EndPoint = GetEndPoint (v));
 			p.Add ("gui=", v => GuiEndPoint = GetEndPoint (v));
 			p.Add ("wait", v => Wait = true);
+			p.Add ("no-result", v => ResultOutput = null);
 			p.Add ("result=", v => ResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
 			p.Add ("dependency=", v => dependencies.Add (v));
