@@ -105,6 +105,7 @@ namespace Xamarin.AsyncTests.Console
 		bool showCategories;
 		bool showFeatures;
 		string category;
+		string features;
 
 		public static void Run (Assembly assembly, string[] args)
 		{
@@ -146,6 +147,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("dependency=", v => dependencies.Add (v));
 			p.Add ("optional-gui", v => optionalGui = true);
 			p.Add ("category=", v => category = v);
+			p.Add ("features=", v => features = v);
 			p.Add ("debug", v => DebugMode = true);
 			p.Add ("show-categories", v => showCategories = true);
 			p.Add ("show-features", v => showFeatures = true);
@@ -314,6 +316,31 @@ namespace Xamarin.AsyncTests.Console
 			var config = session.Configuration;
 			if (category != null)
 				config.CurrentCategory = config.Categories.First (c => c.Name.Equals (category));
+
+			if (features != null) {
+				var parts = features.Split (',');
+				foreach (var part in parts) {
+					var name = part;
+					bool enable = true;
+					if (part [0] == '-') {
+						name = part.Substring (1);
+						enable = false;
+					} else if (part [0] == '+') {
+						name = part.Substring (1);
+						enable = true;
+					}
+
+					if (name.Equals ("all")) {
+						foreach (var feature in config.Features) {
+							if (feature.CanModify)
+								config.SetIsEnabled (feature, enable);
+						}
+					} else {
+						var feature = config.Features.First (f => f.Name.Equals (name));
+						config.SetIsEnabled (feature, enable);
+					}
+				}
+			}
 		}
 
 		async Task RunLocal (CancellationToken cancellationToken)
