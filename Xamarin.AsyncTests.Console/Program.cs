@@ -102,6 +102,8 @@ namespace Xamarin.AsyncTests.Console
 		TestFramework framework;
 		TestLogger logger;
 		bool optionalGui;
+		bool showCategories;
+		bool showFeatures;
 		string category;
 
 		public static void Run (Assembly assembly, string[] args)
@@ -145,6 +147,9 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("optional-gui", v => optionalGui = true);
 			p.Add ("category=", v => category = v);
 			p.Add ("debug", v => DebugMode = true);
+			p.Add ("show-categories", v => showCategories = true);
+			p.Add ("show-features", v => showFeatures = true);
+			p.Add ("show-config", v => showCategories = showFeatures = true);
 			var remaining = p.Parse (args);
 
 			settings = LoadSettings (SettingsFile);
@@ -177,6 +182,42 @@ namespace Xamarin.AsyncTests.Console
 			logger = new TestLogger (new ConsoleLogger (this));
 
 			framework = TestFramework.GetLocalFramework (assembly, dependencyAsms);
+
+			bool done = false;
+			if (showCategories) {
+				WriteLine ("Test Categories:");
+				foreach (var category in framework.ConfigurationProvider.Categories) {
+					var builtinText = category.IsBuiltin ? " (builtin)" : string.Empty;
+					var explicitText = category.IsExplicit ? " (explicit)" : string.Empty;
+					WriteLine ("  {0}{1}{2}", category.Name, builtinText, explicitText);
+				}
+				WriteLine ();
+				done = true;
+			}
+
+			if (showFeatures) {
+				WriteLine ("Test Features:");
+				foreach (var feature in framework.ConfigurationProvider.Features) {
+					var constText = feature.Constant != null ? string.Format (" (const = {0})", feature.Constant.Value ? "true" : "false") : string.Empty;
+					var defaultText = feature.DefaultValue != null ? string.Format (" (default = {0})", feature.DefaultValue.Value ? "true" : "false") : string.Empty;
+					WriteLine ("  {0,-30} {1}{2}{3}", feature.Name, feature.Description, constText, defaultText);
+				}
+				WriteLine ();
+				done = true;
+			}
+
+			if (done)
+				Environment.Exit (0);
+		}
+
+		static void WriteLine ()
+		{
+			global::System.Console.WriteLine();
+		}
+
+		static void WriteLine (string message, params object[] args)
+		{
+			global::System.Console.WriteLine (message, args);
 		}
 
 		static void Debug (string message, params object[] args)
