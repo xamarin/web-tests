@@ -41,23 +41,27 @@ namespace Xamarin.WebTests.Framework
 
 	public class HttpClientTestRunner : TestRunner
 	{
-		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Uri uri, Handler handler)
+		protected override Request CreateRequest (TestContext ctx, HttpServer server, Handler handler, Uri uri)
+		{
+			return new HttpClientRequest ((HttpClientHandler)handler, uri);
+		}
+
+		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler, Request request)
 		{
 			var httpClientHandler = (HttpClientHandler)handler;
-			var request = new HttpClientRequest (httpClientHandler, uri);
-			ConfigureRequest (ctx, server, uri, handler, request);
+			var httpClientRequest = (HttpClientRequest)request;
 
 			Response response;
 
 			switch (httpClientHandler.Operation) {
 			case HttpClientOperation.GetString:
-				response = await request.GetString (ctx, cancellationToken);
+				response = await httpClientRequest.GetString (ctx, cancellationToken);
 				break;
 			case HttpClientOperation.PostString:
-				response = await request.PostString (ctx, httpClientHandler.ReturnContent, cancellationToken);
+				response = await httpClientRequest.PostString (ctx, httpClientHandler.ReturnContent, cancellationToken);
 				break;
 			case HttpClientOperation.Put:
-				response = await request.Put (ctx, cancellationToken);
+				response = await httpClientRequest.Put (ctx, cancellationToken);
 				break;
 			default:
 				throw new InvalidOperationException ();

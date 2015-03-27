@@ -49,6 +49,13 @@ namespace Xamarin.WebTests.Handlers
 			WebSupport.SetKeepAlive (Request, true);
 		}
 
+		public TraditionalRequest (HttpWebRequest request)
+		{
+			Request = request;
+			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
+			WebSupport.SetKeepAlive (Request, true);
+		}
+
 		#region implemented abstract members of Request
 
 		public override void SetCredentials (ICredentials credentials)

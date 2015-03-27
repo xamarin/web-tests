@@ -58,6 +58,8 @@ namespace Xamarin.WebTests.Framework
 		public static readonly TestRunner TraditionalAsyncRunner = new TraditionalTestRunner { SendAsync = true };
 		public static readonly TestRunner HttpClientRunner = new HttpClientTestRunner ();
 
+		protected abstract Request CreateRequest (TestContext ctx, HttpServer server, Handler handler, Uri uri);
+
 		protected virtual void ConfigureRequest (TestContext ctx, HttpServer server, Uri uri, Handler handler, Request request)
 		{
 			handler.ConfigureRequest (request, uri);
@@ -65,7 +67,7 @@ namespace Xamarin.WebTests.Framework
 			request.SetProxy (server.GetProxy ());
 		}
 
-		protected abstract Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Uri uri, Handler handler);
+		protected abstract Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler, Request request);
 
 		public Task Run (
 			TestContext ctx, CancellationToken cancellationToken, HttpServer server,
@@ -78,7 +80,10 @@ namespace Xamarin.WebTests.Framework
 			Handler target = (Handler)redirect ?? handler;
 
 			return target.RunWithContext (ctx, server, async (uri) => {
-				var response = await RunInner (ctx, cancellationToken, server, uri, handler);
+				var request = CreateRequest (ctx, server, handler, uri);
+				ConfigureRequest (ctx, server, uri, handler, request);
+
+				var response = await RunInner (ctx, cancellationToken, server, handler, request);
 
 				CheckResponse (ctx, server, response, handler, cancellationToken, expectedStatus, expectedError);
 			});

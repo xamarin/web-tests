@@ -45,16 +45,20 @@ namespace Xamarin.WebTests.Framework
 			get; set;
 		}
 
-		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Uri uri, Handler handler)
+		protected override Request CreateRequest (TestContext ctx, HttpServer server, Handler handler, Uri uri)
 		{
-			var request = new TraditionalRequest (uri);
-			ConfigureRequest (ctx, server, uri, handler, request);
+			return new TraditionalRequest (uri);
+		}
+
+		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler, Request request)
+		{
+			var traditionalRequest = (TraditionalRequest)request;
 
 			Response response;
 			if (SendAsync)
-				response = await request.SendAsync (ctx, cancellationToken);
+				response = await traditionalRequest.SendAsync (ctx, cancellationToken);
 			else
-				response = await request.Send (ctx, cancellationToken);
+				response = await traditionalRequest.Send (ctx, cancellationToken);
 
 			return response;
 		}
