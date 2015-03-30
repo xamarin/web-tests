@@ -47,7 +47,7 @@ namespace Xamarin.WebTests.Server
 		ProxyAuthManager authManager;
 
 		public ProxyListener (HttpListener target, IPortableEndPoint endpoint, AuthenticationType authType)
-			: base (endpoint, false, false)
+			: base (endpoint, false)
 		{
 			this.target = target;
 			if (authType != AuthenticationType.None)

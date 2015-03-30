@@ -253,9 +253,19 @@ namespace Xamarin.WebTests.Server
 
 		#region Listeners
 
-		IListener IPortableWebSupport.CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, bool ssl)
+		IServerCertificate IPortableWebSupport.GetDefaultServerCertificate ()
 		{
-			return new HttpListener (endpoint, server, reuseConnection, ssl);
+			return Listener.DefaultServerCertificate;
+		}
+
+		IListener IPortableWebSupport.CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, IServerCertificate serverCertificate)
+		{
+			return new HttpListener (endpoint, server, reuseConnection, (ServerCertificate)serverCertificate);
+		}
+
+		IListener IPortableWebSupport.CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection)
+		{
+			return new HttpListener (endpoint, server, reuseConnection);
 		}
 
 		IListener IPortableWebSupport.CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType)

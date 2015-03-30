@@ -46,6 +46,7 @@
     <Compile Include="Xamarin.WebTests.HttpClient\HttpContent.cs" />
     <Compile Include="Xamarin.WebTests.HttpClient\StreamContent.cs" />
     <Compile Include="WebDependencyProvider.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ServerCertificate.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

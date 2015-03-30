@@ -125,7 +125,12 @@ namespace Xamarin.WebTests.Framework
 
 		public virtual Task Start (CancellationToken cancellationToken)
 		{
-			listener = WebSupport.CreateHttpListener (endpoint, this, ReuseConnection, UseSSL);
+			if (UseSSL) {
+				var certificate = WebSupport.GetDefaultServerCertificate ();
+				listener = WebSupport.CreateHttpListener (endpoint, this, ReuseConnection, certificate);
+			} else {
+				listener = WebSupport.CreateHttpListener (endpoint, this, ReuseConnection);
+			}
 			return listener.Start ();
 		}
 

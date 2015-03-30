@@ -54,7 +54,8 @@ namespace Xamarin.WebTests.Server
 		bool ssl;
 		Uri uri;
 
-		static X509Certificate2 cert;
+		static ServerCertificate defaultServerCertificate;
+		ServerCertificate serverCertificate;
 
 		static Listener ()
 		{
@@ -65,12 +66,12 @@ namespace Xamarin.WebTests.Server
 				var ret = stream.Read (buffer, 0, buffer.Length);
 				if (ret != buffer.Length)
 					throw new InvalidOperationException ();
-				cert = new X509Certificate2 (buffer, "monkey", X509KeyStorageFlags.Exportable);
+				var cert = new X509Certificate2 (buffer, "monkey", X509KeyStorageFlags.Exportable);
+				defaultServerCertificate = new ServerCertificate {
+					InstallDefaultValidationCallback = true,
+					Certificate = cert
+				};
 			}
-
-			ServicePointManager.ServerCertificateValidationCallback = (o,c,chain,errors) => {
-				return c.GetCertHashString ().Equals (cert.GetCertHashString ());
-			};
 		}
 
 		static Stream GetResourceStream (string name)
@@ -79,10 +80,25 @@ namespace Xamarin.WebTests.Server
 			return asm.GetManifestResourceStream ("Xamarin.WebTests.Server." + name);
 		}
 
-		public Listener (IPortableEndPoint endpoint, bool reuseConnection, bool ssl)
-		{
-			this.ssl = ssl;
+		internal static ServerCertificate DefaultServerCertificate {
+			get { return defaultServerCertificate; }
+		}
 
+		public Listener (IPortableEndPoint endpoint, bool reuseConnection, ServerCertificate serverCertificate)
+			: this (endpoint, reuseConnection)
+		{
+			this.ssl = true;
+			this.serverCertificate = serverCertificate ?? defaultServerCertificate;
+
+			if (serverCertificate.InstallDefaultValidationCallback) {
+				ServicePointManager.ServerCertificateValidationCallback = (o, c, chain, errors) => {
+					return c.GetCertHashString ().Equals (serverCertificate.Certificate.GetCertHashString ());
+				};
+			}
+		}
+
+		public Listener (IPortableEndPoint endpoint, bool reuseConnection)
+		{
 			var address = IPAddress.Parse (endpoint.Address);
 			var networkEndpoint = new IPEndPoint (address, endpoint.Port);
 
@@ -256,7 +272,7 @@ namespace Xamarin.WebTests.Server
 				return stream;
 
 			var authStream = new SslStream (stream);
-			authStream.AuthenticateAsServer (cert);
+			authStream.AuthenticateAsServer (serverCertificate.Certificate);
 			return authStream;
 		}
 
