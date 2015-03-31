@@ -66,7 +66,14 @@ namespace Xamarin.WebTests
 		public HttpServer CreateInstance (TestContext ctx)
 		{
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			return new HttpServer (support.GetLoopbackEndpoint (9999), false, UseSSL);
+			var endpoint = support.GetLoopbackEndpoint (9999);
+			if (UseSSL) {
+				var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
+				var certificate = webSupport.GetDefaultServerCertificate ();
+				return new HttpServer (endpoint, false, certificate);
+			}
+
+			return new HttpServer (endpoint, false);
 		}
 
 		static IEnumerable<HttpClientHandler> GetStableTests ()

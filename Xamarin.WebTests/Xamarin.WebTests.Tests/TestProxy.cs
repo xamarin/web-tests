@@ -65,6 +65,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		readonly static IPortableEndPoint address;
+		readonly static IServerCertificate serverCertificate;
 		readonly static bool hasNetwork;
 
 		static TestProxy ()
@@ -72,6 +73,9 @@ namespace Xamarin.WebTests.Tests
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			address = support.GetEndpoint (0);
 			hasNetwork = !address.IsLoopback;
+
+			var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
+			serverCertificate = webSupport.GetDefaultServerCertificate ();
 		}
 
 		public ProxyServer CreateInstance (TestContext ctx)
@@ -101,7 +105,7 @@ namespace Xamarin.WebTests.Tests
 				};
 
 			case ProxyKind.SSL:
-				return new ProxyServer (address.CopyWithPort (9991), address.CopyWithPort (9990), true);
+				return new ProxyServer (address.CopyWithPort (9991), address.CopyWithPort (9990), serverCertificate);
 
 			default:
 				throw new InvalidOperationException ();

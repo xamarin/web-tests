@@ -48,6 +48,7 @@ namespace Xamarin.WebTests.Framework
 		readonly Uri uri;
 		readonly bool reuseConnection;
 		readonly bool ssl;
+		readonly IServerCertificate serverCertificate;
 		readonly IPortableWebSupport WebSupport;
 
 		IPortableEndPoint endpoint;
@@ -56,11 +57,12 @@ namespace Xamarin.WebTests.Framework
 		static long nextId;
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
 
-		public HttpServer (IPortableEndPoint endpoint, bool reuseConnection, bool ssl)
+		public HttpServer (IPortableEndPoint endpoint, bool reuseConnection, IServerCertificate serverCertificate = null)
 		{
 			this.endpoint = endpoint;
 			this.reuseConnection = reuseConnection;
-			this.ssl = ssl;
+			this.serverCertificate = serverCertificate;
+			this.ssl = serverCertificate != null;
 
 			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
 
@@ -125,12 +127,7 @@ namespace Xamarin.WebTests.Framework
 
 		public virtual Task Start (CancellationToken cancellationToken)
 		{
-			if (UseSSL) {
-				var certificate = WebSupport.GetDefaultServerCertificate ();
-				listener = WebSupport.CreateHttpListener (endpoint, this, ReuseConnection, certificate);
-			} else {
-				listener = WebSupport.CreateHttpListener (endpoint, this, ReuseConnection);
-			}
+			listener = WebSupport.CreateHttpListener (endpoint, this, ReuseConnection, serverCertificate);
 			return listener.Start ();
 		}
 
