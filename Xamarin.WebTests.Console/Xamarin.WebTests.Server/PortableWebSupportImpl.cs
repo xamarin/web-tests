@@ -117,11 +117,6 @@ namespace Xamarin.WebTests.Server
 			request.Proxy = (PortableProxy)proxy;
 		}
 
-		void IPortableWebSupport.SetProxy (IHttpClientHandler handler, IPortableProxy proxy)
-		{
-			handler.Proxy = (PortableProxy)proxy;
-		}
-
 		class PortableProxy : IPortableProxy, IWebProxy
 		{
 			readonly Uri uri;
@@ -271,16 +266,6 @@ namespace Xamarin.WebTests.Server
 		IListener IPortableWebSupport.CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType)
 		{
 			return new ProxyListener ((HttpListener)httpListener, proxyEndpoint, authType);
-		}
-
-		#endregion
-
-		#region HttpClient
-
-		public IHttpClientHandler CreateHttpClientHandler ()
-		{
-			var handler = new Http.HttpClientHandler ();
-			return new HttpClientHandler (handler);
 		}
 
 		#endregion

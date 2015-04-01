@@ -42,7 +42,7 @@ namespace Xamarin.WebTests.Handlers
 		public readonly Uri RequestUri;
 		public readonly IHttpClientHandler Handler;
 		public readonly IHttpClient Client;
-		readonly IPortableWebSupport WebSupport;
+		readonly IHttpClientProvider Provider;
 		HttpMethod method = HttpMethod.Get;
 		string contentType;
 		long? contentLength;
@@ -50,8 +50,8 @@ namespace Xamarin.WebTests.Handlers
 		public HttpClientRequest (HttpClientHandler parent, Uri uri)
 		{
 			RequestUri = uri;
-			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
-			Handler = WebSupport.CreateHttpClientHandler ();
+			Provider = DependencyInjector.Get<IHttpClientProvider> ();
+			Handler = Provider.Create ();
 			Client = Handler.CreateHttpClient ();
 		}
 
@@ -97,7 +97,7 @@ namespace Xamarin.WebTests.Handlers
 
 		public override void SetProxy (IPortableProxy proxy)
 		{
-			WebSupport.SetProxy (Handler, proxy);
+			Handler.Proxy = proxy;
 		}
 		public override void SetCredentials (ICredentials credentials)
 		{

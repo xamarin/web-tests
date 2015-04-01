@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// HttpClientProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,36 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using Xamarin.AsyncTests;
-#if !__MOBILE__
-using Xamarin.AsyncTests.Console;
-#endif
-using Xamarin.WebTests.Portable;
+using Http = System.Net.Http;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
-
-namespace Xamarin.WebTests.TestProvider
+namespace Xamarin.WebTests.HttpClient
 {
-	using Server;
-	using HttpClient;
-
-	class WebDependencyProvider : IDependencyProvider
+	public class HttpClientProvider : IHttpClientProvider
 	{
-		public void Initialize ()
+		public IHttpClientHandler Create ()
 		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
+			var handler = new Http.HttpClientHandler ();
+			return new HttpClientHandler (handler);
 		}
-
-#if !__MOBILE__
-		static void Main (string[] args)
-		{
-			Program.Run (typeof (WebDependencyProvider).Assembly, args);
-		}
-#endif
 	}
 }
 

@@ -101,6 +101,7 @@
     <Compile Include="Xamarin.WebTests.Framework\TraditionalTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.Framework\HttpClientTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IServerCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClient\IHttpClientProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

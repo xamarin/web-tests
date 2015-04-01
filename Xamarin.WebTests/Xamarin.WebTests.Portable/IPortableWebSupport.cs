@@ -33,8 +33,6 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Portable
 {
-	using HttpClient;
-
 	public interface IPortableWebSupport
 	{
 		bool HasNetwork {
@@ -53,8 +51,6 @@ namespace Xamarin.WebTests.Portable
 
 		void SetProxy (HttpWebRequest request, IPortableProxy proxy);
 
-		void SetProxy (IHttpClientHandler handler, IPortableProxy proxy);
-
 		void SetAllowWriteStreamBuffering (HttpWebRequest request, bool value);
 
 		void SetKeepAlive (HttpWebRequest request, bool value);
@@ -72,8 +68,6 @@ namespace Xamarin.WebTests.Portable
 		Task<HttpWebResponse> GetResponseAsync (HttpWebRequest request);
 
 		IWebClient CreateWebClient ();
-
-		IHttpClientHandler CreateHttpClientHandler ();
 	}
 }
 
