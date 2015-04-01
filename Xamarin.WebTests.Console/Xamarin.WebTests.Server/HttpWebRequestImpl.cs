@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// HttpWebRequestImpl.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,37 +24,71 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Net;
 using System.Threading;
-using Xamarin.AsyncTests;
-#if !__MOBILE__
-using Xamarin.AsyncTests.Console;
-#endif
-using Xamarin.WebTests.Portable;
+using System.Threading.Tasks;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
-
-namespace Xamarin.WebTests.TestProvider
+namespace Xamarin.WebTests.Server
 {
-	using Server;
-	using HttpClient;
+	using Portable;
 
-	class WebDependencyProvider : IDependencyProvider
+	class HttpWebRequestImpl : IHttpWebRequest
 	{
-		public void Initialize ()
-		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());
-			DependencyInjector.RegisterDependency<IHttpWebRequestProvider> (() => new HttpWebRequestProvider ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
+		public HttpWebRequest Request {
+			get;
+			private set;
 		}
 
-#if !__MOBILE__
-		static void Main (string[] args)
+		public HttpWebRequestImpl (HttpWebRequest request)
 		{
-			Program.Run (typeof (WebDependencyProvider).Assembly, args);
+			Request = request;	
 		}
-#endif
+
+		public void SetProxy (IPortableProxy proxy)
+		{
+			Request.Proxy = (PortableProxy)proxy;
+		}
+
+		public void SetAllowWriteStreamBuffering (bool value)
+		{
+			Request.AllowWriteStreamBuffering = value;
+		}
+
+		public void SetKeepAlive (bool value)
+		{
+			Request.KeepAlive = value;
+		}
+
+		public void SetSendChunked (bool value)
+		{
+			Request.SendChunked = value;
+		}
+
+		public void SetContentLength (long length)
+		{
+			Request.ContentLength = length;
+		}
+
+		public Stream GetRequestStream ()
+		{
+			return Request.GetRequestStream ();
+		}
+
+		public Task<Stream> GetRequestStreamAsync ()
+		{
+			return Request.GetRequestStreamAsync ();
+		}
+
+		public HttpWebResponse GetResponse ()
+		{
+			return (HttpWebResponse)Request.GetResponse ();
+		}
+
+		public async Task<HttpWebResponse> GetResponseAsync ()
+		{
+			return (HttpWebResponse)await Request.GetResponseAsync ();
+		}
 	}
 }
 

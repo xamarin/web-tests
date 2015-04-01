@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// IHttpWebRequestProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,37 +24,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using Xamarin.AsyncTests;
-#if !__MOBILE__
-using Xamarin.AsyncTests.Console;
-#endif
-using Xamarin.WebTests.Portable;
+using System.Net;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
-
-namespace Xamarin.WebTests.TestProvider
+namespace Xamarin.WebTests.Portable
 {
-	using Server;
-	using HttpClient;
-
-	class WebDependencyProvider : IDependencyProvider
+	public interface IHttpWebRequestProvider
 	{
-		public void Initialize ()
-		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());
-			DependencyInjector.RegisterDependency<IHttpWebRequestProvider> (() => new HttpWebRequestProvider ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
-		}
+		IHttpWebRequest Create (Uri uri);
 
-#if !__MOBILE__
-		static void Main (string[] args)
-		{
-			Program.Run (typeof (WebDependencyProvider).Assembly, args);
-		}
-#endif
+		IHttpWebRequest Create (HttpWebRequest request);
 	}
 }
 

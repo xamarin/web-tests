@@ -105,7 +105,7 @@ namespace Xamarin.WebTests.Tests
 			var uri = new Uri (PostPuppy);
 
 			var request = new TraditionalRequest (uri);
-			handler.ConfigureRequest (request, request.Request.RequestUri);
+			handler.ConfigureRequest (request, request.Request.Request.RequestUri);
 
 			var response = await request.Send (ctx, cancellationToken);
 

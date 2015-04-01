@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// PortableProxy.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,37 +24,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using Xamarin.AsyncTests;
-#if !__MOBILE__
-using Xamarin.AsyncTests.Console;
-#endif
-using Xamarin.WebTests.Portable;
+using System.Net;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
-
-namespace Xamarin.WebTests.TestProvider
+namespace Xamarin.WebTests.Server
 {
-	using Server;
-	using HttpClient;
+	using Portable;
 
-	class WebDependencyProvider : IDependencyProvider
+	class PortableProxy : IPortableProxy, IWebProxy
 	{
-		public void Initialize ()
+		readonly Uri uri;
+
+		public PortableProxy (Uri uri)
 		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());
-			DependencyInjector.RegisterDependency<IHttpWebRequestProvider> (() => new HttpWebRequestProvider ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
+			this.uri = uri;
 		}
 
-#if !__MOBILE__
-		static void Main (string[] args)
-		{
-			Program.Run (typeof (WebDependencyProvider).Assembly, args);
+		public Uri Uri {
+			get { return uri; }
 		}
-#endif
+
+		public ICredentials Credentials {
+			get; set;
+		}
+
+		public Uri GetProxy (Uri destination)
+		{
+			return uri;
+		}
+
+		public bool IsBypassed (Uri host)
+		{
+			return false;
+		}
 	}
 }
 

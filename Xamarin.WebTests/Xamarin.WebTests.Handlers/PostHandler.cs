@@ -173,10 +173,8 @@ namespace Xamarin.WebTests.Handlers
 			base.ConfigureRequest (request, uri);
 			request.Method = "POST";
 
-			var support = DependencyInjector.Get<IPortableWebSupport> ();
-
 			if (AllowWriteStreamBuffering != null)
-				support.SetAllowWriteStreamBuffering (((TraditionalRequest)request).Request, AllowWriteStreamBuffering.Value);
+				((TraditionalRequest)request).Request.SetAllowWriteStreamBuffering (AllowWriteStreamBuffering.Value);
 
 			if (Content != null)
 				request.SetContentType ("text/plain");

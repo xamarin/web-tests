@@ -49,24 +49,6 @@ namespace Xamarin.WebTests.Portable
 
 		IListener CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType);
 
-		void SetProxy (HttpWebRequest request, IPortableProxy proxy);
-
-		void SetAllowWriteStreamBuffering (HttpWebRequest request, bool value);
-
-		void SetKeepAlive (HttpWebRequest request, bool value);
-
-		void SetSendChunked (HttpWebRequest request, bool value);
-
-		void SetContentLength (HttpWebRequest request, long length);
-
-		Stream GetRequestStream (HttpWebRequest request);
-
-		Task<Stream> GetRequestStreamAsync (HttpWebRequest request);
-
-		HttpWebResponse GetResponse (HttpWebRequest request);
-
-		Task<HttpWebResponse> GetResponseAsync (HttpWebRequest request);
-
 		IWebClient CreateWebClient ();
 	}
 }

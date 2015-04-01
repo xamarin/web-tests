@@ -38,60 +38,60 @@ namespace Xamarin.WebTests.Handlers
 
 	public class TraditionalRequest : Request
 	{
-		public readonly HttpWebRequest Request;
+		public readonly IHttpWebRequest Request;
 
-		readonly IPortableWebSupport WebSupport;
+		readonly IHttpWebRequestProvider Provider;
 
 		public TraditionalRequest (Uri uri)
 		{
-			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
-			Request = (HttpWebRequest)HttpWebRequest.Create (uri);
-			WebSupport.SetKeepAlive (Request, true);
+			Provider = DependencyInjector.Get<IHttpWebRequestProvider> ();
+			Request = Provider.Create (uri);
+			Request.SetKeepAlive (true);
 		}
 
 		public TraditionalRequest (HttpWebRequest request)
 		{
-			Request = request;
-			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
-			WebSupport.SetKeepAlive (Request, true);
+			Provider = DependencyInjector.Get<IHttpWebRequestProvider> ();
+			Request = Provider.Create (request);
+			Request.SetKeepAlive (true);
 		}
 
 		#region implemented abstract members of Request
 
 		public override void SetCredentials (ICredentials credentials)
 		{
-			Request.Credentials = credentials;
+			Request.Request.Credentials = credentials;
 		}
 
 		public override void SetProxy (IPortableProxy proxy)
 		{
-			WebSupport.SetProxy (Request, proxy);
+			Request.SetProxy (proxy);
 		}
 
 		public override string Method {
-			get { return Request.Method; }
-			set { Request.Method = value; }
+			get { return Request.Request.Method; }
+			set { Request.Request.Method = value; }
 		}
 
 		public override void SetContentLength (long contentLength)
 		{
-			WebSupport.SetContentLength (Request, contentLength);
+			Request.SetContentLength (contentLength);
 		}
 
 		public override void SetContentType (string contentType)
 		{
-			Request.ContentType = contentType;
+			Request.Request.ContentType = contentType;
 		}
 
 		public override void SendChunked ()
 		{
-			WebSupport.SetSendChunked (Request, true);
+			Request.SetSendChunked (true);
 		}
 
 		public async Task<Response> Send (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-			cts.Token.Register (() => Request.Abort ());
+			cts.Token.Register (() => Request.Request.Abort ());
 
 			var task = Task.Factory.StartNew (() => {
 				return Send ();
@@ -107,11 +107,11 @@ namespace Xamarin.WebTests.Handlers
 		public async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-			cts.Token.Register (() => Request.Abort ());
+			cts.Token.Register (() => Request.Request.Abort ());
 
 			try {
 				if (Content != null) {
-					using (var stream = await WebSupport.GetRequestStreamAsync (Request)) {
+					using (var stream = await Request.GetRequestStreamAsync ()) {
 						using (var writer = new StreamWriter (stream)) {
 							await Content.WriteToAsync (writer);
 							await writer.FlushAsync ();
@@ -119,7 +119,7 @@ namespace Xamarin.WebTests.Handlers
 					}
 				}
 
-				var response = await WebSupport.GetResponseAsync (Request);
+				var response = await Request.GetResponseAsync ();
 				return FromHttpResponse (response);
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
@@ -150,12 +150,12 @@ namespace Xamarin.WebTests.Handlers
 		{
 			try {
 				if (Content != null) {
-					using (var writer = new StreamWriter (WebSupport.GetRequestStream (Request))) {
+					using (var writer = new StreamWriter (Request.GetRequestStream ())) {
 						Content.WriteToAsync (writer).Wait ();
 					}
 				}
 
-				var response = WebSupport.GetResponse (Request);
+				var response = Request.GetResponse ();
 				return FromHttpResponse (response);
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
