@@ -65,16 +65,17 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public Assembly Assembly {
+			get;
+			private set;
+		}
+
 		public SettingsBag Settings {
 			get { return settings; }
 		}
 
 		public TestLogger Logger {
 			get { return logger; }
-		}
-
-		public TestFramework Framework {
-			get { return framework; }
 		}
 
 		public int? LogLevel {
@@ -99,8 +100,8 @@ namespace Xamarin.AsyncTests.Console
 
 		TestSession session;
 		SettingsBag settings;
-		TestFramework framework;
 		TestLogger logger;
+		Assembly[] dependencyAssemblies;
 		bool optionalGui;
 		bool showCategories;
 		bool showFeatures;
@@ -167,52 +168,22 @@ namespace Xamarin.AsyncTests.Console
 			if (LocalLogLevel != null)
 				settings.LocalLogLevel = LocalLogLevel.Value;
 
-			var dependencyAsms = new Assembly [dependencies.Count];
-			for (int i = 0; i < dependencyAsms.Length; i++) {
-				dependencyAsms [i] = Assembly.LoadFile (dependencies [i]);
+			dependencyAssemblies = new Assembly [dependencies.Count];
+			for (int i = 0; i < dependencyAssemblies.Length; i++) {
+				dependencyAssemblies [i] = Assembly.LoadFile (dependencies [i]);
 			}
 
 			if (assembly != null) {
 				if (remaining.Count != 0)
 					throw new InvalidOperationException ();
+				Assembly = assembly;
 			} else if (remaining.Count == 1) {
-				assembly = Assembly.LoadFile (remaining [0]);
+				Assembly = Assembly.LoadFile (remaining [0]);
 			} else if (EndPoint == null) {
 				throw new InvalidOperationException ();
 			}
 
 			logger = new TestLogger (new ConsoleLogger (this));
-
-			if (EndPoint != null)
-				return;
-
-			framework = TestFramework.GetLocalFramework (assembly, dependencyAsms);
-
-			bool done = false;
-			if (showCategories) {
-				WriteLine ("Test Categories:");
-				foreach (var category in framework.ConfigurationProvider.Categories) {
-					var builtinText = category.IsBuiltin ? " (builtin)" : string.Empty;
-					var explicitText = category.IsExplicit ? " (explicit)" : string.Empty;
-					WriteLine ("  {0}{1}{2}", category.Name, builtinText, explicitText);
-				}
-				WriteLine ();
-				done = true;
-			}
-
-			if (showFeatures) {
-				WriteLine ("Test Features:");
-				foreach (var feature in framework.ConfigurationProvider.Features) {
-					var constText = feature.Constant != null ? string.Format (" (const = {0})", feature.Constant.Value ? "true" : "false") : string.Empty;
-					var defaultText = feature.DefaultValue != null ? string.Format (" (default = {0})", feature.DefaultValue.Value ? "true" : "false") : string.Empty;
-					WriteLine ("  {0,-30} {1}{2}{3}", feature.Name, feature.Description, constText, defaultText);
-				}
-				WriteLine ();
-				done = true;
-			}
-
-			if (done)
-				Environment.Exit (0);
 		}
 
 		static void WriteLine ()
@@ -298,6 +269,8 @@ namespace Xamarin.AsyncTests.Console
 
 		async Task ConnectToGui (CancellationToken cancellationToken)
 		{
+			var framework = TestFramework.GetLocalFramework (Assembly, dependencyAssemblies);
+
 			TestServer server;
 			try {
 				var endpoint = GetPortableEndPoint (GuiEndPoint);
@@ -310,17 +283,50 @@ namespace Xamarin.AsyncTests.Console
 				throw;
 			}
 
+			OnSessionCreated (server.Session);
+
 			cancellationToken.ThrowIfCancellationRequested ();
 			await server.WaitForExit (cancellationToken);
 		}
 
-		void OnSessionCreated (TestSession session)
+		bool OnSessionCreated (TestSession session)
 		{
+			bool done = false;
+			if (showCategories) {
+				WriteLine ("Test Categories:");
+				foreach (var category in session.ConfigurationProvider.Categories) {
+					var builtinText = category.IsBuiltin ? " (builtin)" : string.Empty;
+					var explicitText = category.IsExplicit ? " (explicit)" : string.Empty;
+					WriteLine ("  {0}{1}{2}", category.Name, builtinText, explicitText);
+				}
+				WriteLine ();
+				done = true;
+			}
+
+			if (showFeatures) {
+				WriteLine ("Test Features:");
+				foreach (var feature in session.ConfigurationProvider.Features) {
+					var constText = feature.Constant != null ? string.Format (" (const = {0})", feature.Constant.Value ? "true" : "false") : string.Empty;
+					var defaultText = feature.DefaultValue != null ? string.Format (" (default = {0})", feature.DefaultValue.Value ? "true" : "false") : string.Empty;
+					WriteLine ("  {0,-30} {1}{2}{3}", feature.Name, feature.Description, constText, defaultText);
+				}
+				WriteLine ();
+				done = true;
+			}
+
+			if (done)
+				Environment.Exit (0);
+
+			bool modified = false;
+
 			var config = session.Configuration;
-			if (category != null)
+			if (category != null) {
 				config.CurrentCategory = config.Categories.First (c => c.Name.Equals (category));
+				modified = true;
+			}
 
 			if (features != null) {
+				modified = true;
 				var parts = features.Split (',');
 				foreach (var part in parts) {
 					var name = part;
@@ -344,10 +350,14 @@ namespace Xamarin.AsyncTests.Console
 					}
 				}
 			}
+
+			return modified;
 		}
 
 		async Task RunLocal (CancellationToken cancellationToken)
 		{
+			var framework = TestFramework.GetLocalFramework (Assembly, dependencyAssemblies);
+
 			cancellationToken.ThrowIfCancellationRequested ();
 			session = TestSession.CreateLocal (this, framework);
 			OnSessionCreated (session);
@@ -377,7 +387,8 @@ namespace Xamarin.AsyncTests.Console
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			session = server.Session;
-			OnSessionCreated (session);
+			if (OnSessionCreated (session))
+				await session.UpdateSettings (cancellationToken);
 
 			var test = await session.GetRootTestCase (cancellationToken);
 			cancellationToken.ThrowIfCancellationRequested ();

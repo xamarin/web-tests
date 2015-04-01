@@ -112,13 +112,22 @@ namespace Xamarin.AsyncTests.Mobile
 		{
 			MainLabel.Text = string.Format ("Server address is {0}:{1}.", EndPoint.Address, EndPoint.Port);
 
-			var server = await TestServer.StartServer (this, EndPoint, Framework, CancellationToken.None);
+			while (true) {
+				var server = await TestServer.StartServer (this, EndPoint, Framework, CancellationToken.None);
 
-			var session = server.GetTestSession (CancellationToken.None);
-			Debug ("GOT SESSION: {0}", session);
+				var session = await server.GetTestSession (CancellationToken.None);
+				MainLabel.Text = string.Format ("Got test session {0}.", session);
+				Debug ("GOT SESSION: {0}", session);
 
-			var running = await server.WaitForExit (CancellationToken.None);
-			Debug ("WAIT FOR EXIT: {0}", running);
+				OnResetStatistics ();
+
+				var running = await server.WaitForExit (CancellationToken.None);
+				Debug ("WAIT FOR EXIT: {0}", running);
+
+				await server.Stop (CancellationToken.None);
+
+				MainLabel.Text = string.Format ("Done running.");
+			}
 		}
 
 		protected override void OnSleep ()
@@ -151,6 +160,13 @@ namespace Xamarin.AsyncTests.Mobile
 			if (Settings.LocalLogLevel >= 0 && level > Settings.LocalLogLevel)
 				return;
 			Debug (message);
+		}
+
+		void OnResetStatistics ()
+		{
+			StatusLabel.Text = string.Empty;
+			StatisticsLabel.Text = string.Empty;
+			countTests = countSuccess = countErrors = countIgnored = 0;
 		}
 
 		int countTests;
@@ -188,11 +204,7 @@ namespace Xamarin.AsyncTests.Mobile
 				});
 				break;
 			case TestLoggerBackend.StatisticsEventType.Reset:
-				Device.BeginInvokeOnMainThread (() => {
-					StatusLabel.Text = string.Empty;
-					StatisticsLabel.Text = string.Empty;
-					countTests = countSuccess = countErrors = countIgnored = 0;
-				});
+				Device.BeginInvokeOnMainThread (() => OnResetStatistics ());
 				break;
 			}
 		}
