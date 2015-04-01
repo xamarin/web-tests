@@ -320,7 +320,7 @@ namespace Xamarin.AsyncTests.MacUI
 				Configuration.SetIsEnabled (feature, value);
 		}
 
-		[Export ("Apply:")]
+		[Export ("Apply")]
 		public void Apply ()
 		{
 			var session = AppDelegate.Instance.CurrentSession;

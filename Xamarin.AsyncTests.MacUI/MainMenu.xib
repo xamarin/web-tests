@@ -29,7 +29,7 @@
                                 <connections>
                                     <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="MhW-yS-xcA">
                                         <dictionary key="options">
-                                            <string key="NSSelectorName">ShowPreferences:</string>
+                                            <string key="NSSelectorName">ShowPreferences</string>
                                         </dictionary>
                                     </binding>
                                 </connections>
@@ -80,7 +80,7 @@
                                     </binding>
                                     <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="nrg-uQ-JJl">
                                         <dictionary key="options">
-                                            <string key="NSSelectorName">StartServer:</string>
+                                            <string key="NSSelectorName">StartServer</string>
                                         </dictionary>
                                     </binding>
                                 </connections>
@@ -99,7 +99,7 @@
                                     </binding>
                                     <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="woK-eH-JpP">
                                         <dictionary key="options">
-                                            <string key="NSSelectorName">StopServer:</string>
+                                            <string key="NSSelectorName">StopServer</string>
                                         </dictionary>
                                     </binding>
                                 </connections>
@@ -117,7 +117,7 @@
                                     <binding destination="Voe-Tx-rLC" name="enabled" keyPath="IsStopped" id="UeW-pR-r2I"/>
                                     <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="2pD-5y-VIs">
                                         <dictionary key="options">
-                                            <string key="NSSelectorName">LoadSession:</string>
+                                            <string key="NSSelectorName">LoadSession</string>
                                         </dictionary>
                                     </binding>
                                 </connections>
@@ -128,7 +128,7 @@
                                     <binding destination="Voe-Tx-rLC" name="enabled" keyPath="IsStopped" id="e5F-LO-7Zl"/>
                                     <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="PJl-Cn-Ld2">
                                         <dictionary key="options">
-                                            <string key="NSSelectorName">SaveSession:</string>
+                                            <string key="NSSelectorName">SaveSession</string>
                                         </dictionary>
                                     </binding>
                                 </connections>
@@ -143,7 +143,7 @@
                                     </binding>
                                     <binding destination="Voe-Tx-rLC" name="target" keyPath="self" id="tyv-aO-KiV">
                                         <dictionary key="options">
-                                            <string key="NSSelectorName">ClearSession:</string>
+                                            <string key="NSSelectorName">ClearSession</string>
                                         </dictionary>
                                     </binding>
                                 </connections>

@@ -81,7 +81,7 @@ namespace Xamarin.AsyncTests.MacUI
 			get { return (MainWindow)base.Window; }
 		}
 
-		[Export ("Run:node:")]
+		[Export ("Run:node")]
 		public async void Run (TestListNode node)
 		{
 			var ui = AppDelegate.Instance.MacUI;
@@ -93,7 +93,7 @@ namespace Xamarin.AsyncTests.MacUI
 			node.AddChild (model);
 		}
 
-		[Export ("Clear:node:")]
+		[Export ("Clear:node")]
 		public void Clear (TestListNode node)
 		{
 			node.RemoveAllChildren ();
@@ -157,7 +157,7 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
-		[Export ("Stop:")]
+		[Export ("Stop")]
 		public async void Stop ()
 		{
 			var ui = AppDelegate.Instance.MacUI;

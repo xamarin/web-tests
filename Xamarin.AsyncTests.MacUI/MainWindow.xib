@@ -99,12 +99,12 @@
                                 </binding>
                                 <binding destination="oII-JR-BBP" name="argument" keyPath="selection.self" id="l3V-Qb-1OP">
                                     <dictionary key="options">
-                                        <string key="NSSelectorName">Run:node:</string>
+                                        <string key="NSSelectorName">Run:node</string>
                                     </dictionary>
                                 </binding>
                                 <binding destination="-2" name="target" keyPath="self" previousBinding="l3V-Qb-1OP" id="ehk-qD-8E5">
                                     <dictionary key="options">
-                                        <string key="NSSelectorName">Run:node:</string>
+                                        <string key="NSSelectorName">Run:node</string>
                                     </dictionary>
                                 </binding>
                             </connections>
@@ -138,7 +138,7 @@
                                 <binding destination="-2" name="enabled" keyPath="CanStop" id="6od-Xn-Xfy"/>
                                 <binding destination="-2" name="target" keyPath="self" id="dAC-wY-mN4">
                                     <dictionary key="options">
-                                        <string key="NSSelectorName">Stop:</string>
+                                        <string key="NSSelectorName">Stop</string>
                                     </dictionary>
                                 </binding>
                             </connections>
@@ -159,12 +159,12 @@
                                 <binding destination="-3" name="enabled" keyPath="delegate.IsStopped" id="kiU-3u-fT3"/>
                                 <binding destination="oII-JR-BBP" name="argument" keyPath="selection.self" id="HON-kI-kn1">
                                     <dictionary key="options">
-                                        <string key="NSSelectorName">Clear:node:</string>
+                                        <string key="NSSelectorName">Clear:node</string>
                                     </dictionary>
                                 </binding>
                                 <binding destination="-2" name="target" keyPath="self" previousBinding="HON-kI-kn1" id="LHh-Wl-Xp2">
                                     <dictionary key="options">
-                                        <string key="NSSelectorName">Clear:node:</string>
+                                        <string key="NSSelectorName">Clear:node</string>
                                     </dictionary>
                                 </binding>
                             </connections>

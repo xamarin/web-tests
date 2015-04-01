@@ -214,7 +214,7 @@
                             <connections>
                                 <binding destination="-2" name="target" keyPath="self" id="tyl-UJ-PQA">
                                     <dictionary key="options">
-                                        <string key="NSSelectorName">Apply:</string>
+                                        <string key="NSSelectorName">Apply</string>
                                     </dictionary>
                                 </binding>
                             </connections>

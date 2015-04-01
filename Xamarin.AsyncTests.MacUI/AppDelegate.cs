@@ -199,13 +199,13 @@ namespace Xamarin.AsyncTests.MacUI
 			alert.RunModal ();
 		}
 
-		[Export ("ShowPreferences:")]
+		[Export ("ShowPreferences")]
 		public void ShowPreferences ()
 		{
 			settingsDialogController.Window.MakeKeyAndOrderFront (this);
 		}
 
-		[Export ("StartServer:")]
+		[Export ("StartServer")]
 		public async void StartServer ()
 		{
 			ServerParameters parameters;
@@ -227,7 +227,7 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
-		[Export ("StopServer:")]
+		[Export ("StopServer")]
 		public async void StopServer ()
 		{
 			try {
@@ -241,14 +241,14 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
-		[Export ("ClearSession:")]
+		[Export ("ClearSession")]
 		public void ClearSession ()
 		{
 			if (CurrentSession != null)
 				CurrentSession.RemoveAllChildren ();
 		}
 
-		[Export ("LoadSession:")]
+		[Export ("LoadSession")]
 		public void LoadSession ()
 		{
 			var open = new NSOpenPanel {
@@ -267,7 +267,7 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
-		[Export ("SaveSession:")]
+		[Export ("SaveSession")]
 		public void SaveSession ()
 		{
 			var save = new NSSavePanel {
