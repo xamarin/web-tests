@@ -177,11 +177,14 @@ namespace Xamarin.AsyncTests.Console
 					throw new InvalidOperationException ();
 			} else if (remaining.Count == 1) {
 				assembly = Assembly.LoadFile (remaining [0]);
-			} else {
+			} else if (EndPoint == null) {
 				throw new InvalidOperationException ();
 			}
 
 			logger = new TestLogger (new ConsoleLogger (this));
+
+			if (EndPoint != null)
+				return;
 
 			framework = TestFramework.GetLocalFramework (assembly, dependencyAsms);
 
