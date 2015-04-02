@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Reflection;
 
 namespace Xamarin.WebTests.Server
 {
@@ -32,6 +33,20 @@ namespace Xamarin.WebTests.Server
 
 	class HttpWebRequestProvider : IHttpWebRequestProvider
 	{
+		readonly PropertyInfo callbackProp;
+
+		public HttpWebRequestProvider ()
+		{
+			/*
+			 * We use reflection to support older Mono runtimes, which don't have the property.
+			 *
+			 * HttpWebRequest.ServerCertificateValidationCallback is a new public property in .NET 4.5,
+			 * but has not been added to mono/master yet.
+			 */
+			var type = typeof(HttpWebRequest);
+			callbackProp = type.GetProperty ("ServerCertificateValidationCallback", BindingFlags.Public | BindingFlags.Instance);
+		}
+
 		public IHttpWebRequest Create (Uri uri)
 		{
 			var request = (HttpWebRequest)HttpWebRequest.Create (uri);
@@ -41,6 +56,22 @@ namespace Xamarin.WebTests.Server
 		public IHttpWebRequest Create (HttpWebRequest request)
 		{
 			return new HttpWebRequestImpl (request);
+		}
+
+		public void InstallDefaultCertificateValidator (ICertificateValidator validator)
+		{
+			ServicePointManager.ServerCertificateValidationCallback = ((CertificateValidator)validator).ValidationCallback;
+		}
+
+		public bool SupportsPerRequestValidator {
+			get { return callbackProp != null; }
+		}
+
+		public void InstallCertificateValidator (IHttpWebRequest request, ICertificateValidator validator)
+		{
+			if (!SupportsPerRequestValidator)
+				throw new NotSupportedException ();
+			callbackProp.SetValue (request.Request, ((CertificateValidator)validator).ValidationCallback);
 		}
 	}
 }
