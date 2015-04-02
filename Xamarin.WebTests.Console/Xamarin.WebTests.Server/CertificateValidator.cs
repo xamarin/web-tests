@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// CertificateValidator.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,38 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using Xamarin.AsyncTests;
-#if !__MOBILE__
-using Xamarin.AsyncTests.Console;
-#endif
-using Xamarin.WebTests.Portable;
+using System.Net;
+using System.Net.Security;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
-
-namespace Xamarin.WebTests.TestProvider
+namespace Xamarin.WebTests.Server
 {
-	using Server;
-	using Framework;
-	using HttpClient;
+	using Portable;
 
-	class WebDependencyProvider : IDependencyProvider
+	class CertificateValidator : ICertificateValidator
 	{
-		public void Initialize ()
-		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());
-			DependencyInjector.RegisterDependency<IHttpWebRequestProvider> (() => new HttpWebRequestProvider ());
-			DependencyInjector.RegisterDependency<ICertificateValidationProvider> (() => new CertificateValidationProvider ());
+		public RemoteCertificateValidationCallback ValidationCallback {
+			get;
+			private set;
 		}
 
-#if !__MOBILE__
-		static void Main (string[] args)
+		public CertificateValidator (RemoteCertificateValidationCallback callback)
 		{
-			Program.Run (typeof (WebDependencyProvider).Assembly, args);
+			ValidationCallback = callback;
 		}
-#endif
 	}
 }
 

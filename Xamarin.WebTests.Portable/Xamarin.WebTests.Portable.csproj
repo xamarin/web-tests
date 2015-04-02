@@ -54,6 +54,8 @@
     <Compile Include="Xamarin.WebTests.Portable\ICertificateAndKeyAsPFX.cs" />
     <Compile Include="Xamarin.WebTests.Portable\ICertificateAsPEM.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.Portable\ICertificateValidationProvider.cs" />
+    <Compile Include="Xamarin.WebTests.Portable\ICertificateValidator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

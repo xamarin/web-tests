@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// CertificateValidationProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,38 +24,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using Xamarin.AsyncTests;
-#if !__MOBILE__
-using Xamarin.AsyncTests.Console;
-#endif
-using Xamarin.WebTests.Portable;
+using System.Net;
+using System.Net.Security;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
-
-namespace Xamarin.WebTests.TestProvider
+namespace Xamarin.WebTests.Server
 {
-	using Server;
-	using Framework;
-	using HttpClient;
+	using Portable;
 
-	class WebDependencyProvider : IDependencyProvider
+	class CertificateValidationProvider : ICertificateValidationProvider
 	{
-		public void Initialize ()
+		public ICertificateValidator GetDefault ()
 		{
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
-			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());
-			DependencyInjector.RegisterDependency<IHttpWebRequestProvider> (() => new HttpWebRequestProvider ());
-			DependencyInjector.RegisterDependency<ICertificateValidationProvider> (() => new CertificateValidationProvider ());
+			return RejectAll ();
 		}
 
-#if !__MOBILE__
-		static void Main (string[] args)
+		public ICertificateValidator AcceptThisCertificate (IServerCertificate certificate)
 		{
-			Program.Run (typeof (WebDependencyProvider).Assembly, args);
+			var serverCertificate = (ServerCertificate)certificate;
+			var serverHash = serverCertificate.Certificate.GetCertHash ();
+
+			return new CertificateValidator ((s, c, ch, e) => {
+				return c.GetCertHash ().Equals (serverHash);
+			});
 		}
-#endif
+
+		public ICertificateValidator RejectAll ()
+		{
+			return new CertificateValidator ((s, c, ch, e) => false);
+		}
 	}
 }
 
