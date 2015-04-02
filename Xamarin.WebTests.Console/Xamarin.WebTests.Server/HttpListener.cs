@@ -53,12 +53,6 @@ namespace Xamarin.WebTests.Server
 			this.server = server;
 		}
 
-		public HttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection)
-			: base (endpoint, reuseConnection)
-		{
-			this.server = server;
-		}
-
 		protected override bool HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken)
 		{
 			return server.HandleConnection (stream);

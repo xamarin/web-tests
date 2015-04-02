@@ -32,7 +32,11 @@ namespace Xamarin.WebTests.Server
 
 	public class ServerCertificate : IServerCertificate
 	{
-		public bool InstallDefaultValidationCallback {
+		public byte[] Data {
+			get; set;
+		}
+
+		public string Password {
 			get; set;
 		}
 

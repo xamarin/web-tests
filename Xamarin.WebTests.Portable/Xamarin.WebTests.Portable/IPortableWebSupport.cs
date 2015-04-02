@@ -45,8 +45,6 @@ namespace Xamarin.WebTests.Portable
 
 		IListener CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, IServerCertificate serverCertificate);
 
-		IListener CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection);
-
 		IListener CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType);
 
 		IWebClient CreateWebClient ();

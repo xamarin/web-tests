@@ -56,6 +56,7 @@ namespace Xamarin.WebTests.Server
 
 		static ServerCertificate defaultServerCertificate;
 		ServerCertificate serverCertificate;
+		bool installDefaultCallback;
 
 		static Listener ()
 		{
@@ -68,8 +69,7 @@ namespace Xamarin.WebTests.Server
 					throw new InvalidOperationException ();
 				var cert = new X509Certificate2 (buffer, "monkey", X509KeyStorageFlags.Exportable);
 				defaultServerCertificate = new ServerCertificate {
-					InstallDefaultValidationCallback = true,
-					Certificate = cert
+					Data = buffer, Password = "monkey", Certificate = cert
 				};
 			}
 		}
@@ -84,21 +84,18 @@ namespace Xamarin.WebTests.Server
 			get { return defaultServerCertificate; }
 		}
 
-		public Listener (IPortableEndPoint endpoint, bool reuseConnection, ServerCertificate serverCertificate)
-			: this (endpoint, reuseConnection)
+		public Listener (IPortableEndPoint endpoint, bool reuseConnection, ServerCertificate serverCertificate, bool? installDefaultCallback = null)
 		{
-			this.ssl = true;
-			this.serverCertificate = serverCertificate ?? defaultServerCertificate;
+			this.installDefaultCallback = installDefaultCallback ?? (serverCertificate == defaultServerCertificate);
+			this.serverCertificate = serverCertificate;
+			this.ssl = serverCertificate != null;
 
-			if (serverCertificate.InstallDefaultValidationCallback) {
+			if (this.installDefaultCallback) {
 				ServicePointManager.ServerCertificateValidationCallback = (o, c, chain, errors) => {
 					return c.GetCertHashString ().Equals (serverCertificate.Certificate.GetCertHashString ());
 				};
 			}
-		}
 
-		public Listener (IPortableEndPoint endpoint, bool reuseConnection)
-		{
 			var address = IPAddress.Parse (endpoint.Address);
 			var networkEndpoint = new IPEndPoint (address, endpoint.Port);
 

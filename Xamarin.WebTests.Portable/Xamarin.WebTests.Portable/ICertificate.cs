@@ -1,5 +1,5 @@
 ﻿//
-// IServerCertificate.cs
+// ICertificate.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,8 +27,11 @@ using System;
 
 namespace Xamarin.WebTests.Portable
 {
-	public interface IServerCertificate : ICertificateAndKeyAsPFX
+	public interface ICertificate
 	{
+		byte[] Data {
+			get;
+		}
 	}
 }
 
