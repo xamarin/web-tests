@@ -47,7 +47,6 @@ namespace Xamarin.WebTests.TestProvider
 			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
 			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());
 			DependencyInjector.RegisterDependency<IHttpWebRequestProvider> (() => new HttpWebRequestProvider ());
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandler ());
 		}
 
 #if !__MOBILE__

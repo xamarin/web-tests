@@ -30,8 +30,15 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.WebTests;
+using Xamarin.WebTests.Portable;
+using Xamarin.WebTests.HttpClient;
 
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures))]
+[assembly: AsyncTestSuite (typeof (WebTestFeatures))]
+[assembly: RequireDependency (typeof (IPortableProxy))]
+[assembly: RequireDependency (typeof (IPortableWebSupport))]
+[assembly: RequireDependency (typeof (IHttpClientProvider))]
+[assembly: RequireDependency (typeof (IHttpWebRequestProvider))]
 
 namespace Xamarin.WebTests
 {

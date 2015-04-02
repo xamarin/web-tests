@@ -29,7 +29,7 @@ using Mono.Security.Protocol.Ntlm;
 
 namespace Xamarin.WebTests.Framework
 {
-	public class NTLMHandler
+	class NTLMHandler
 	{
 		public bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge)
 		{

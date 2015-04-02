@@ -95,7 +95,7 @@ namespace Xamarin.WebTests.Framework
 
 			var bytes = Convert.FromBase64String (arg);
 
-			var handler = DependencyInjector.Get<NTLMHandler> ();
+			var handler = new NTLMHandler ();
 			if (handler.HandleNTLM (ref bytes, ref haveChallenge))
 				return null;
 
