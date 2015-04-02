@@ -38,6 +38,7 @@ namespace Xamarin.WebTests.Framework
 {
 	using Handlers;
 	using Framework;
+	using Portable;
 
 	public abstract class TestRunner
 	{
@@ -70,22 +71,24 @@ namespace Xamarin.WebTests.Framework
 		protected abstract Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler, Request request);
 
 		public Task Run (
-			TestContext ctx, CancellationToken cancellationToken, HttpServer server,
+			TestContext ctx, CancellationToken cancellationToken, IHttpServer server,
 			Handler handler, RedirectHandler redirect = null,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
-			Debug (ctx, server, 1, handler, "RUN");
+			var httpServer = (HttpServer)server;
+
+			Debug (ctx, httpServer, 1, handler, "RUN");
 
 			Handler target = (Handler)redirect ?? handler;
 
-			return target.RunWithContext (ctx, server, async (uri) => {
-				var request = CreateRequest (ctx, server, handler, uri);
-				ConfigureRequest (ctx, server, uri, handler, request);
+			return target.RunWithContext (ctx, httpServer, async (uri) => {
+				var request = CreateRequest (ctx, httpServer, handler, uri);
+				ConfigureRequest (ctx, httpServer, uri, handler, request);
 
-				var response = await RunInner (ctx, cancellationToken, server, handler, request);
+				var response = await RunInner (ctx, cancellationToken, httpServer, handler, request);
 
-				CheckResponse (ctx, server, response, handler, cancellationToken, expectedStatus, expectedError);
+				CheckResponse (ctx, httpServer, response, handler, cancellationToken, expectedStatus, expectedError);
 			});
 		}
 

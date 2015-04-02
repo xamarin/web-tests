@@ -35,7 +35,6 @@ using Xamarin.WebTests.Portable;
 using Xamarin.WebTests.HttpClient;
 
 [assembly: AsyncTestSuite (typeof (WebTestFeatures))]
-[assembly: RequireDependency (typeof (IPortableProxy))]
 [assembly: RequireDependency (typeof (IPortableWebSupport))]
 [assembly: RequireDependency (typeof (IHttpClientProvider))]
 [assembly: RequireDependency (typeof (IHttpWebRequestProvider))]

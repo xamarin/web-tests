@@ -25,10 +25,11 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Portable
 {
-	public interface IHttpServer
+	public interface IHttpServer : ITestInstance
 	{
 		bool HandleConnection (Stream stream);
 	}
