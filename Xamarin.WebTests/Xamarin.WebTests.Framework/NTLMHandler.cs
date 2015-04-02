@@ -27,7 +27,7 @@ using System;
 using Xamarin.AsyncTests;
 using Mono.Security.Protocol.Ntlm;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.Framework
 {
 	public class NTLMHandler
 	{

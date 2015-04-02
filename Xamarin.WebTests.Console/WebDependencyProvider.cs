@@ -37,6 +37,7 @@ using Xamarin.WebTests.Portable;
 namespace Xamarin.WebTests.TestProvider
 {
 	using Server;
+	using Framework;
 	using HttpClient;
 
 	class WebDependencyProvider : IDependencyProvider

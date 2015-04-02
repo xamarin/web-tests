@@ -75,20 +75,6 @@
     <Compile Include="Xamarin.WebTests.Handlers\SimpleResponse.cs" />
     <Compile Include="Xamarin.WebTests.Handlers\GetHandler.cs" />
     <Compile Include="Xamarin.WebTests.Handlers\HttpClientRequest.cs" />
-    <Compile Include="Xamarin.WebTests.HttpClient\HttpCompletionOption.cs" />
-    <Compile Include="Xamarin.WebTests.HttpClient\HttpMethod.cs" />
-    <Compile Include="Xamarin.WebTests.HttpClient\IHttpClient.cs" />
-    <Compile Include="Xamarin.WebTests.HttpClient\IHttpClientHandler.cs" />
-    <Compile Include="Xamarin.WebTests.HttpClient\IHttpContent.cs" />
-    <Compile Include="Xamarin.WebTests.HttpClient\IHttpRequestMessage.cs" />
-    <Compile Include="Xamarin.WebTests.HttpClient\IHttpResponseMessage.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\AuthenticationType.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IHttpServer.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IListener.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IPortableProxy.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IPortableWebSupport.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IWebClient.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\NTLMHandler.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestPost.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestProxy.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestAuthentication.cs" />
@@ -100,10 +86,7 @@
     <Compile Include="Xamarin.WebTests.Framework\WebExceptionStatus.cs" />
     <Compile Include="Xamarin.WebTests.Framework\TraditionalTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.Framework\HttpClientTestRunner.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IServerCertificate.cs" />
-    <Compile Include="Xamarin.WebTests.HttpClient\IHttpClientProvider.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IHttpWebRequest.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IHttpWebRequestProvider.cs" />
+    <Compile Include="Xamarin.WebTests.Framework\NTLMHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
@@ -116,6 +99,10 @@
     <ProjectReference Include="..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>Xamarin.AsyncTests.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj">
+      <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>
+      <Name>Xamarin.WebTests.Portable</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
