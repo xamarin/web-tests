@@ -153,6 +153,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[Test]
+		[Ignore ("Disbaled")]
 		public void RedirectNoBuffering ()
 		{
 			var post = new PostHandler {
