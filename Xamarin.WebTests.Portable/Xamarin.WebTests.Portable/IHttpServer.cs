@@ -31,6 +31,10 @@ namespace Xamarin.WebTests.Portable
 {
 	public interface IHttpServer : ITestInstance
 	{
+		IServerCertificate ServerCertificate {
+			get;
+		}
+
 		bool HandleConnection (Stream stream);
 	}
 }

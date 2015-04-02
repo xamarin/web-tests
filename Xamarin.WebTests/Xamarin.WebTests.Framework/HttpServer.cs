@@ -81,6 +81,10 @@ namespace Xamarin.WebTests.Framework
 			get { return reuseConnection; }
 		}
 
+		public IServerCertificate ServerCertificate {
+			get { return serverCertificate; }
+		}
+
 		public virtual IPortableProxy GetProxy ()
 		{
 			return null;

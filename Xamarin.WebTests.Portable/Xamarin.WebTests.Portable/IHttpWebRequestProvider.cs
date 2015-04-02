@@ -35,12 +35,6 @@ namespace Xamarin.WebTests.Portable
 		IHttpWebRequest Create (HttpWebRequest request);
 
 		void InstallDefaultCertificateValidator (ICertificateValidator validator);
-
-		bool SupportsPerRequestValidator {
-			get;
-		}
-
-		void InstallCertificateValidator (IHttpWebRequest request, ICertificateValidator validator);
 	}
 }
 

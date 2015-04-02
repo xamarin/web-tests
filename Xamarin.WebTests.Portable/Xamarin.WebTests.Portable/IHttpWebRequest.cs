@@ -33,6 +33,10 @@ namespace Xamarin.WebTests.Portable
 {
 	public interface IHttpWebRequest
 	{
+		IHttpWebRequestProvider Provider {
+			get;
+		}
+
 		HttpWebRequest Request {
 			get;
 		}
@@ -54,6 +58,12 @@ namespace Xamarin.WebTests.Portable
 		HttpWebResponse GetResponse ();
 
 		Task<HttpWebResponse> GetResponseAsync ();
+
+		bool SupportsCertificateValidator {
+			get;
+		}
+
+		void InstallCertificateValidator (ICertificateValidator validator);
 	}
 }
 
