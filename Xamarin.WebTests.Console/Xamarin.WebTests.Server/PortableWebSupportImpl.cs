@@ -180,9 +180,10 @@ namespace Xamarin.WebTests.Server
 			return Listener.DefaultServerCertificate;
 		}
 
-		IListener IPortableWebSupport.CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, IServerCertificate serverCertificate)
+		IListener IPortableWebSupport.CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, IServerCertificate serverCertificate,
+			ISslStreamProvider sslStreamProvider)
 		{
-			return new HttpListener (endpoint, server, reuseConnection, (ServerCertificate)serverCertificate);
+			return new HttpListener (endpoint, server, reuseConnection, serverCertificate, sslStreamProvider);
 		}
 
 		IListener IPortableWebSupport.CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType)

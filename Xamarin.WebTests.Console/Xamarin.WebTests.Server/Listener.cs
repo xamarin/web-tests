@@ -51,12 +51,12 @@ namespace Xamarin.WebTests.Server
 		volatile Exception currentError;
 		volatile TaskCompletionSource<bool> tcs;
 		volatile CancellationTokenSource cts;
-		bool ssl;
-		Uri uri;
 
 		static ServerCertificate defaultServerCertificate;
-		ServerCertificate serverCertificate;
-		bool installDefaultCallback;
+		readonly IServerCertificate serverCertificate;
+		readonly ISslStreamProvider sslStreamProvider;
+		readonly bool ssl;
+		readonly Uri uri;
 
 		static Listener ()
 		{
@@ -84,16 +84,16 @@ namespace Xamarin.WebTests.Server
 			get { return defaultServerCertificate; }
 		}
 
-		public Listener (IPortableEndPoint endpoint, bool reuseConnection, ServerCertificate serverCertificate, bool? installDefaultCallback = null)
+		public Listener (IPortableEndPoint endpoint, bool reuseConnection, IServerCertificate serverCertificate, ISslStreamProvider sslStreamProvider = null)
 		{
-			this.installDefaultCallback = installDefaultCallback ?? (serverCertificate == defaultServerCertificate);
 			this.serverCertificate = serverCertificate;
 			this.ssl = serverCertificate != null;
+			this.sslStreamProvider = sslStreamProvider;
 
-			if (this.installDefaultCallback) {
-				ServicePointManager.ServerCertificateValidationCallback = (o, c, chain, errors) => {
-					return c.GetCertHashString ().Equals (serverCertificate.Certificate.GetCertHashString ());
-				};
+			if (serverCertificate != null && sslStreamProvider == null) {
+				var validationProvider = DependencyInjector.Get<ICertificateValidationProvider> ();
+				var defaultValidator = (CertificateValidator)validationProvider.AcceptThisCertificate (serverCertificate);
+				ServicePointManager.ServerCertificateValidationCallback = defaultValidator.ValidationCallback;
 			}
 
 			var address = IPAddress.Parse (endpoint.Address);
@@ -268,8 +268,13 @@ namespace Xamarin.WebTests.Server
 			if (!ssl)
 				return stream;
 
+			if (sslStreamProvider != null)
+				return sslStreamProvider.CreateServerStream (stream, serverCertificate);
+
+			var certificate = new X509Certificate2 (serverCertificate.Data, serverCertificate.Password);
+
 			var authStream = new SslStream (stream);
-			authStream.AuthenticateAsServer (serverCertificate.Certificate);
+			authStream.AuthenticateAsServer (certificate);
 			return authStream;
 		}
 

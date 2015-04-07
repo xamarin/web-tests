@@ -1,5 +1,5 @@
 ﻿//
-// CertificateValidationProvider.cs
+// ISslStreamProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,46 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
+using System.IO;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Portable
 {
-	using Portable;
-
-	class CertificateValidationProvider : ICertificateValidationProvider
+	public interface ISslStreamProvider
 	{
-		public ICertificateValidator GetDefault ()
-		{
-			return RejectAll ();
-		}
-
-		public ICertificateValidator AcceptThisCertificate (IServerCertificate certificate)
-		{
-			var cert = new X509Certificate2 (certificate.Data, certificate.Password);
-			var serverHash = cert.GetCertHash ();
-
-			return new CertificateValidator ((s, c, ch, e) => {
-				return Compare (c.GetCertHash (), serverHash);
-			});
-		}
-
-		static bool Compare (byte[] first, byte[] second)
-		{
-			if (first.Length != second.Length)
-				return false;
-			for (int i = 0; i < first.Length; i++) {
-				if (first[i] != second[i])
-					return false;
-			}
-			return true;
-		}
-
-		public ICertificateValidator RejectAll ()
-		{
-			return new CertificateValidator ((s, c, ch, e) => false);
-		}
+		Stream CreateServerStream (Stream stream, IServerCertificate certificate);
 	}
 }
 

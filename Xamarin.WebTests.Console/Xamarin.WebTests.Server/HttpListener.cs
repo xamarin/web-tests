@@ -47,8 +47,9 @@ namespace Xamarin.WebTests.Server
 	{
 		readonly IHttpServer server;
 
-		public HttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, ServerCertificate serverCertificate)
-			: base (endpoint, reuseConnection, serverCertificate)
+		public HttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, IServerCertificate serverCertificate,
+			ISslStreamProvider sslStreamProvider)
+			: base (endpoint, reuseConnection, serverCertificate, sslStreamProvider)
 		{
 			this.server = server;
 		}
