@@ -87,9 +87,17 @@ namespace Xamarin.AsyncTests.MacUI
 					return TestServer.ConnectToServer (Manager.App, parameters.EndPoint, cancellationToken);
 				case ServerMode.Local:
 					return TestServer.CreatePipe (Manager.App, parameters.EndPoint, parameters.Arguments, cancellationToken);
+				case ServerMode.Builtin:
+					return StartBuiltin (cancellationToken);
 				default:
 					throw new InternalErrorException ();
 				}
+			}
+
+			Task<TestServer> StartBuiltin (CancellationToken cancellationToken)
+			{
+				var builtin = DependencyInjector.Get<IBuiltinTestServer> ();
+				return builtin.Start (cancellationToken);
 			}
 
 			internal sealed override Task<bool> Run (TestServer instance, CancellationToken cancellationToken)

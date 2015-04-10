@@ -1,5 +1,5 @@
 ﻿//
-// ServerMode.cs
+// IBuiltinTestServer.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,16 +24,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Xamarin.AsyncTests.Remoting;
 
 namespace Xamarin.AsyncTests.MacUI
 {
-	public enum ServerMode
+	public interface IBuiltinTestServer
 	{
-		Builtin,
-		Local,
-		WaitForConnection,
-		Android,
-		iOS
+		Task<TestServer> Start (CancellationToken cancellationToken);
 	}
 }
 

@@ -63,6 +63,10 @@ namespace Xamarin.AsyncTests.MacUI
 			get { return Instance.settingsDialogController; }
 		}
 
+		public bool HasBuiltinFramework {
+			get { return DependencyInjector.IsAvailable (typeof (IBuiltinTestServer)); }
+		}
+
 		public override void DidFinishLaunching (NSNotification notification)
 		{
 			ui = new MacUI ();
@@ -100,6 +104,8 @@ namespace Xamarin.AsyncTests.MacUI
 				return GetAndroidParameters ();
 			case ServerMode.iOS:
 				return GetIOSParameters ();
+			case ServerMode.Builtin:
+				return new ServerParameters (ServerMode.Builtin);
 			default:
 				throw new AlertException ("Invalid server mode: {0}", serverMode);
 			}

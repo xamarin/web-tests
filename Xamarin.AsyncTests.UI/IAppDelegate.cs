@@ -43,6 +43,10 @@ namespace Xamarin.AsyncTests.MacUI
 			get;
 		}
 
+		bool HasBuiltinFramework {
+			get;
+		}
+
 		string CurrentSessionKey {
 			get;
 		}

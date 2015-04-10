@@ -50,6 +50,8 @@ namespace Xamarin.AsyncTests.MacUI
 		void Initialize ()
 		{
 			serverModeArray = new NSMutableArray ();
+			if (MacUI.AppDelegate.HasBuiltinFramework)
+				serverModeArray.Add (new ServerModeModel (ServerMode.Builtin, "Builtin test framework"));
 			serverModeArray.Add (new ServerModeModel (ServerMode.WaitForConnection, "Wait for connection"));
 			serverModeArray.Add (new ServerModeModel (ServerMode.Local, "Run locally"));
 			serverModeArray.Add (new ServerModeModel (ServerMode.Android, "Connect to Android"));
@@ -57,7 +59,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 			string currentMode;
 			if (!SettingsBag.TryGetValue ("ServerMode", out currentMode))
-				currentMode = "WaitForConnection";
+				currentMode = MacUI.AppDelegate.HasBuiltinFramework ? "Builtin" : "WaitForConnection";
 
 			for (nuint i = 0; i < serverModeArray.Count; i++) {
 				var model = serverModeArray.GetItem<ServerModeModel> (i);
