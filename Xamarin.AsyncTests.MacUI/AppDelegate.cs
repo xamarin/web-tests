@@ -37,7 +37,7 @@ using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.AsyncTests.MacUI
 {
-	public partial class AppDelegate : NSApplicationDelegate
+	public partial class AppDelegate : NSApplicationDelegate, IAppDelegate
 	{
 		MainWindowController mainWindowController;
 		SettingsDialogController settingsDialogController;
@@ -325,6 +325,18 @@ namespace Xamarin.AsyncTests.MacUI
 				hasServer = value;
 				DidChangeValue (HasServerKey);
 			}
+		}
+
+		NSApplicationDelegate IAppDelegate.Delegate {
+			get { return this; }
+		}
+
+		string IAppDelegate.CurrentSessionKey {
+			get { return CurrentSessionKey; }
+		}
+
+		SettingsDialogController IAppDelegate.Settings {
+			get { return Settings; }
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// MyPage.cs
+// IAppDelegate.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,22 +24,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-
-using Xamarin.Forms;
+using AppKit;
+using Foundation;
 
 namespace Xamarin.AsyncTests.MacUI
 {
-	public class MyPage : ContentPage
+	public interface IAppDelegate
 	{
-		public MyPage ()
-		{
-			Content = new StackLayout { 
-				Children = {
-					new Label { Text = "Hello ContentPage" }
-				}
-			};
+		NSApplicationDelegate Delegate {
+			get;
+		}
+
+		SettingsDialogController Settings {
+			get;
+		}
+
+		MacUI MacUI {
+			get;
+		}
+
+		string CurrentSessionKey {
+			get;
+		}
+
+		TestSessionModel CurrentSession {
+			get;
 		}
 	}
 }
-
 

@@ -39,7 +39,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 		void Initialize ()
 		{
-			var app = AppDelegate.Instance;
+			var app = MacUI.AppDelegate;
 
 			app.MacUI.TestRunner.Run.NotifyStateChanged.StateChanged += (sender, e) => CanRun = e;
 			app.MacUI.TestRunner.Stop.NotifyStateChanged.StateChanged += (sender, e) => CanStop = e;
@@ -50,13 +50,14 @@ namespace Xamarin.AsyncTests.MacUI
 			SplitView.AddSubview (TestResultList);
 			SplitView.AddSubview (TestResultDetails);
 
-			app.AddObserver (this, (NSString)AppDelegate.CurrentSessionKey, NSKeyValueObservingOptions.New, IntPtr.Zero);
+			app.Delegate.AddObserver (this, (NSString)app.CurrentSessionKey, NSKeyValueObservingOptions.New, IntPtr.Zero);
 		}
 
 		public override void ObserveValue (NSString keyPath, NSObject ofObject, NSDictionary change, IntPtr context)
 		{
-			if (string.Equals (keyPath, AppDelegate.CurrentSessionKey)) {
-				OnTestSuiteLoaded (AppDelegate.Instance.CurrentSession);
+			var app = MacUI.AppDelegate;
+			if (string.Equals (keyPath, app.CurrentSessionKey)) {
+				OnTestSuiteLoaded (app.CurrentSession);
 			} else {
 				// would otherwise crash in native code.
 				throw new InvalidOperationException ();
@@ -84,7 +85,7 @@ namespace Xamarin.AsyncTests.MacUI
 		[Export ("Run:node")]
 		public async void Run (TestListNode node)
 		{
-			var ui = AppDelegate.Instance.MacUI;
+			var ui = MacUI.Instance;
 
 			var parameters = new RunParameters (node.TestCase.Session, node.TestCase.Test);
 			var result = await ui.TestRunner.Run.Execute (parameters);
@@ -103,7 +104,7 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			var doc = XDocument.Load (filename);
 			var result = TestSerializer.ReadTestResult (doc.Root);
-			var currentSession = AppDelegate.Instance.CurrentSession;
+			var currentSession = MacUI.AppDelegate.CurrentSession;
 			var session = currentSession != null ? currentSession.Session : null;
 			var model = new TestResultModel (session, result);
 			TestResultController.AddObject (model);
@@ -160,7 +161,7 @@ namespace Xamarin.AsyncTests.MacUI
 		[Export ("Stop")]
 		public async void Stop ()
 		{
-			var ui = AppDelegate.Instance.MacUI;
+			var ui = MacUI.Instance;
 			await ui.TestRunner.Stop.Execute ();
 		}
 	}

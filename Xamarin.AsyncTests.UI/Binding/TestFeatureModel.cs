@@ -58,8 +58,8 @@ namespace Xamarin.AsyncTests.MacUI
 
 		[Export ("State")]
 		public int State {
-			get { return AppDelegate.Settings.IsEnabled (Feature) ? 1 : 0; }
-			set { AppDelegate.Settings.SetIsEnabled (Feature, value != 0); }
+			get { return MacUI.AppDelegate.Settings.IsEnabled (Feature) ? 1 : 0; }
+			set { MacUI.AppDelegate.Settings.SetIsEnabled (Feature, value != 0); }
 		}
 	}
 }

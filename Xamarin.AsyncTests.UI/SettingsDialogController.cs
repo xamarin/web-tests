@@ -19,11 +19,11 @@ namespace Xamarin.AsyncTests.MacUI
 		TestCategoryModel currentCategory;
 
 		public static MacUI MacUI {
-			get { return AppDelegate.Instance.MacUI; }
+			get { return MacUI.Instance; }
 		}
 
 		public static SettingsBag SettingsBag {
-			get { return AppDelegate.Instance.MacUI.Settings; }
+			get { return MacUI.Settings; }
 		}
 
 		public TestConfiguration Configuration {
@@ -79,7 +79,7 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			base.AwakeFromNib ();
 
-			var ui = AppDelegate.Instance.MacUI;
+			var ui = MacUI.Instance;
 			ui.ServerManager.TestSession.PropertyChanged += (sender, e) => OnTestSessionChanged (e);
 			OnTestSessionChanged (ui.ServerManager.TestSession.Value);
 		}
@@ -323,7 +323,7 @@ namespace Xamarin.AsyncTests.MacUI
 		[Export ("Apply")]
 		public void Apply ()
 		{
-			var session = AppDelegate.Instance.CurrentSession;
+			var session = MacUI.AppDelegate.CurrentSession;
 			if (session == null)
 				return;
 			session.Session.UpdateSettings (CancellationToken.None);

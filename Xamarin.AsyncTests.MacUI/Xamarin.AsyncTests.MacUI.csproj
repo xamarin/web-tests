@@ -81,67 +81,13 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
-    <Folder Include="Binding\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainWindow.cs" />
-    <Compile Include="MainWindow.designer.cs">
-      <DependentUpon>MainWindow.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MainWindowController.cs" />
-    <Compile Include="MainWindowController.designer.cs">
-      <DependentUpon>MainWindowController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="AppDelegate.designer.cs">
       <DependentUpon>AppDelegate.cs</DependentUpon>
     </Compile>
-    <Compile Include="Binding\UIBinding.cs" />
-    <Compile Include="Binding\TestResultModel.cs" />
-    <Compile Include="TestResultList.cs" />
-    <Compile Include="TestResultList.designer.cs">
-      <DependentUpon>TestResultList.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TestResultDetails.cs" />
-    <Compile Include="TestResultDetails.designer.cs">
-      <DependentUpon>TestResultDetails.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Binding\ValueTransformers.cs" />
-    <Compile Include="Binding\TestCaseModel.cs" />
-    <Compile Include="SettingsDialog.cs" />
-    <Compile Include="SettingsDialog.designer.cs">
-      <DependentUpon>SettingsDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="SettingsDialogController.cs" />
-    <Compile Include="SettingsDialogController.designer.cs">
-      <DependentUpon>SettingsDialogController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Binding\TestCategoryModel.cs" />
-    <Compile Include="Binding\TestFeatureModel.cs" />
-    <Compile Include="UISettings.cs" />
-    <Compile Include="Binding\TestSessionModel.cs" />
-    <Compile Include="Binding\TestListNode.cs" />
-    <Compile Include="Binding\BooleanProperty.cs" />
-    <Compile Include="Binding\InstanceProperty.cs" />
-    <Compile Include="Binding\Property.cs" />
-    <Compile Include="Commands\Command.cs" />
-    <Compile Include="Commands\CommandProvider.cs" />
-    <Compile Include="Commands\INotifyStateChanged.cs" />
-    <Compile Include="Commands\NotifyStateChanged.cs" />
-    <Compile Include="Commands\RunParameters.cs" />
-    <Compile Include="Commands\ServerManager.cs" />
-    <Compile Include="Commands\ServerMode.cs" />
-    <Compile Include="Commands\ServerParameters.cs" />
-    <Compile Include="Commands\TestRunner.cs" />
-    <Compile Include="MacUI.cs" />
-    <Compile Include="AlertException.cs" />
-    <Compile Include="Binding\ServerModeModel.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <InterfaceDefinition Include="MainWindow.xib" />
-    <InterfaceDefinition Include="MainMenu.xib" />
-    <InterfaceDefinition Include="SettingsDialog.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -158,5 +104,12 @@
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>Xamarin.AsyncTests.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Xamarin.AsyncTests.UI\Xamarin.AsyncTests.UI.csproj">
+      <Project>{49780FD0-2761-4C20-ACC5-5956FFEBD51F}</Project>
+      <Name>Xamarin.AsyncTests.UI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <InterfaceDefinition Include="MainMenu.xib" />
   </ItemGroup>
 </Project>

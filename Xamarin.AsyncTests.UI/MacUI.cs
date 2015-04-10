@@ -31,6 +31,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using AppKit;
 
 namespace Xamarin.AsyncTests.MacUI
 {
@@ -125,6 +126,14 @@ namespace Xamarin.AsyncTests.MacUI
 		protected internal void LogMessage (string message)
 		{
 			SD.Debug.WriteLine (message);
+		}
+
+		public static IAppDelegate AppDelegate {
+			get { return (IAppDelegate)NSApplication.SharedApplication.Delegate; }
+		}
+
+		public static MacUI Instance {
+			get { return AppDelegate.MacUI; }
 		}
 	}
 }
