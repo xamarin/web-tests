@@ -44,6 +44,7 @@ namespace Xamarin.WebTests
 	using Framework;
 	using Portable;
 	using Resources;
+	using Internal;
 	using Tests;
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
@@ -306,6 +307,8 @@ namespace Xamarin.WebTests
 				"CertificateTests", "Whether the SSL Certificate tests are supported", () => SupportsCertificateTests ());
 
 			Instance = new WebTestFeatures ();
+
+			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandlerImpl ());
 		}
 
 		static bool SupportsCertificateTests ()

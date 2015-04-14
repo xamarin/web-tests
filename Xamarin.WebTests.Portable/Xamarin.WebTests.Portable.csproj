@@ -63,6 +63,7 @@
     <Compile Include="Xamarin.WebTests.Resources\SelfSignedServerCertificate.cs" />
     <Compile Include="Xamarin.WebTests.Resources\ServerCertificateFromCA.cs" />
     <Compile Include="Xamarin.WebTests.Resources\ServerCertificateType.cs" />
+    <Compile Include="Xamarin.WebTests.Portable\NTLMHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">
