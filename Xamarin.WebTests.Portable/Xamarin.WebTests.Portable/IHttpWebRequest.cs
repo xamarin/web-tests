@@ -59,10 +59,6 @@ namespace Xamarin.WebTests.Portable
 
 		Task<HttpWebResponse> GetResponseAsync ();
 
-		bool SupportsCertificateValidator {
-			get;
-		}
-
 		void InstallCertificateValidator (ICertificateValidator validator);
 
 		ICertificate GetCertificate ();

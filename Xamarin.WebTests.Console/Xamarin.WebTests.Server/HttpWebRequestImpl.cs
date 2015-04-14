@@ -111,7 +111,7 @@ namespace Xamarin.WebTests.Server
 			return (HttpWebResponse)await Request.GetResponseAsync ();
 		}
 
-		public bool SupportsCertificateValidator {
+		internal static bool SupportsCertificateValidator {
 			get { return callbackProp != null; }
 		}
 

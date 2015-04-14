@@ -44,6 +44,10 @@ namespace Xamarin.WebTests.Server
 			return new HttpWebRequestImpl (this, request);
 		}
 
+		public bool SupportsCertificateValidator {
+			get { return HttpWebRequestImpl.SupportsCertificateValidator; }
+		}
+
 		public void InstallDefaultCertificateValidator (ICertificateValidator validator)
 		{
 			ServicePointManager.ServerCertificateValidationCallback = ((CertificateValidator)validator).ValidationCallback;
