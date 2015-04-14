@@ -47,6 +47,7 @@ namespace Xamarin.WebTests.Server
 	using HttpClient;
 	using Portable;
 	using Framework;
+	using Resources;
 	using Server;
 
 	class PortableWebSupportImpl : IPortableWebSupport
@@ -177,7 +178,7 @@ namespace Xamarin.WebTests.Server
 
 		IServerCertificate IPortableWebSupport.GetDefaultServerCertificate ()
 		{
-			return Listener.DefaultServerCertificate;
+			return ResourceManager.DefaultServerCertificate;
 		}
 
 		IListener IPortableWebSupport.CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, IServerCertificate serverCertificate,

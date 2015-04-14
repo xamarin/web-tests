@@ -52,36 +52,15 @@ namespace Xamarin.WebTests.Server
 		volatile TaskCompletionSource<bool> tcs;
 		volatile CancellationTokenSource cts;
 
-		static ServerCertificate defaultServerCertificate;
 		readonly IServerCertificate serverCertificate;
 		readonly ISslStreamProvider sslStreamProvider;
 		readonly bool ssl;
 		readonly Uri uri;
 
-		static Listener ()
-		{
-			// openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days XXX
-			// openssl pkcs12 -export -in cert.pem -inkey key.pem -out cert.pfx
-			using (var stream = GetResourceStream ("cert.pfx")) {
-				var buffer = new byte [stream.Length];
-				var ret = stream.Read (buffer, 0, buffer.Length);
-				if (ret != buffer.Length)
-					throw new InvalidOperationException ();
-				var cert = new X509Certificate2 (buffer, "monkey", X509KeyStorageFlags.Exportable);
-				defaultServerCertificate = new ServerCertificate {
-					Data = buffer, Password = "monkey", Certificate = cert
-				};
-			}
-		}
-
 		static Stream GetResourceStream (string name)
 		{
 			var asm = typeof(WebTestFeatures).Assembly;
 			return asm.GetManifestResourceStream ("Xamarin.WebTests.Server." + name);
-		}
-
-		internal static ServerCertificate DefaultServerCertificate {
-			get { return defaultServerCertificate; }
 		}
 
 		public Listener (IPortableEndPoint endpoint, bool reuseConnection, IServerCertificate serverCertificate, ISslStreamProvider sslStreamProvider = null)

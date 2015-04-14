@@ -125,9 +125,4 @@
       <Name>Xamarin.WebTests.Portable</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="cert.pfx">
-      <LogicalName>Xamarin.WebTests.Server.cert.pfx</LogicalName>
-    </EmbeddedResource>
-  </ItemGroup>
 </Project>
