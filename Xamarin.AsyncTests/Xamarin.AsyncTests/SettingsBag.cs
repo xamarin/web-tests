@@ -126,6 +126,19 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public bool Debug_DumpTestPath {
+			get {
+				string value;
+				if (TryGetValue ("Debug_DumpTestPath", out value))
+					return bool.Parse (value);
+				return false;
+			}
+			set {
+				SetValue ("Debug_DumpTestPath", value.ToString ());
+				OnPropertyChanged ("Debug_DumpTestPath");
+			}
+		}
+
 		protected void OnPropertyChanged (string propertyName)
 		{
 			if (PropertyChanged != null)
