@@ -74,9 +74,9 @@
       <Project>{8FA04E17-8E60-45C4-A9A7-51C5047CCABF}</Project>
       <Name>Xamarin.AsyncTests.Console</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj">
+    <ProjectReference Include="..\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
       <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>
-      <Name>Xamarin.WebTests.Portable</Name>
+      <Name>Xamarin.WebTests.Framework</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
