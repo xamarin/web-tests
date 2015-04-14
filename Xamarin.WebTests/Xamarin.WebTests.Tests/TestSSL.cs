@@ -94,14 +94,6 @@ namespace Xamarin.WebTests.Tests
 			var runner = new HttpsTestRunner ();
 			return runner.Run (ctx, cancellationToken, server, handler);
 		}
-
-		[Work]
-		[AsyncTest]
-		public Task RunDefault (TestContext ctx, CancellationToken cancellationToken, [TestHost] HttpServer server, [GetHandler ("hello")] Handler handler)
-		{
-			var runner = new TraditionalTestRunner ();
-			return runner.Run (ctx, cancellationToken, server, handler);
-		}
 	}
 }
 

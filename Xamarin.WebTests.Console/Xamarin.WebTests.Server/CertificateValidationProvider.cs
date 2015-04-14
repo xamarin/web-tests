@@ -31,15 +31,29 @@ using System.Security.Cryptography.X509Certificates;
 namespace Xamarin.WebTests.Server
 {
 	using Portable;
+	using Resources;
 
 	class CertificateValidationProvider : ICertificateValidationProvider
 	{
+		internal CertificateValidationProvider (bool installDefaultValidator)
+		{
+			if (installDefaultValidator) {
+				var validator = AcceptThisCertificate (ResourceManager.DefaultServerCertificate);
+				ServicePointManager.ServerCertificateValidationCallback = validator.ValidationCallback;
+			}
+		}
+
 		public ICertificateValidator GetDefault ()
 		{
 			return RejectAll ();
 		}
 
-		public ICertificateValidator AcceptThisCertificate (IServerCertificate certificate)
+		ICertificateValidator ICertificateValidationProvider.AcceptThisCertificate (IServerCertificate certificate)
+		{
+			return AcceptThisCertificate (certificate);
+		}
+
+		internal CertificateValidator AcceptThisCertificate (IServerCertificate certificate)
 		{
 			var cert = new X509Certificate2 (certificate.Data, certificate.Password);
 			var serverHash = cert.GetCertHash ();

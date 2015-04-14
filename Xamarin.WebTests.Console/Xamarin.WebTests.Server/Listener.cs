@@ -57,23 +57,11 @@ namespace Xamarin.WebTests.Server
 		readonly bool ssl;
 		readonly Uri uri;
 
-		static Stream GetResourceStream (string name)
-		{
-			var asm = typeof(WebTestFeatures).Assembly;
-			return asm.GetManifestResourceStream ("Xamarin.WebTests.Server." + name);
-		}
-
 		public Listener (IPortableEndPoint endpoint, bool reuseConnection, IServerCertificate serverCertificate, ISslStreamProvider sslStreamProvider = null)
 		{
 			this.serverCertificate = serverCertificate;
 			this.ssl = serverCertificate != null;
 			this.sslStreamProvider = sslStreamProvider;
-
-			if (serverCertificate != null && sslStreamProvider == null) {
-				var validationProvider = DependencyInjector.Get<ICertificateValidationProvider> ();
-				var defaultValidator = (CertificateValidator)validationProvider.AcceptThisCertificate (serverCertificate);
-				ServicePointManager.ServerCertificateValidationCallback = defaultValidator.ValidationCallback;
-			}
 
 			var address = IPAddress.Parse (endpoint.Address);
 			var networkEndpoint = new IPEndPoint (address, endpoint.Port);
