@@ -43,6 +43,7 @@ namespace Xamarin.WebTests
 {
 	using Framework;
 	using Portable;
+	using Resources;
 	using Tests;
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
@@ -269,6 +270,27 @@ namespace Xamarin.WebTests
 					if (ctx.IsEnabled (WebTestFeatures.SSL))
 						yield return ProxyKind.SSL;
 				}
+			}
+		}
+
+		[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+		public class SelectServerCertificateAttribute : TestParameterAttribute, ITestParameterSource<ServerCertificateType>
+		{
+			public SelectServerCertificateAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+				: base (filter, flags)
+			{
+			}
+
+			public IEnumerable<ServerCertificateType> GetParameters (TestContext ctx, string filter)
+			{
+				if (!ctx.IsEnabled (SSL))
+					yield break;
+
+				yield return ServerCertificateType.Default;
+				if (!ctx.IsEnabled (CertificateTests))
+					yield break;
+
+				yield return ServerCertificateType.SelfSigned;
 			}
 		}
 

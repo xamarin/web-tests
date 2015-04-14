@@ -40,6 +40,18 @@ namespace Xamarin.WebTests.Resources
 			get { return monkeyCert; }
 		}
 
+		public static IServerCertificate GetServerCertificate (ServerCertificateType type)
+		{
+			switch (type) {
+			case ServerCertificateType.Default:
+				return serverCert;
+			case ServerCertificateType.SelfSigned:
+				return selfServer;
+			default:
+				throw new InvalidOperationException ();
+			}
+		}
+
 		internal static byte[] ReadResource (string name)
 		{
 			var assembly = typeof(ResourceManager).GetTypeInfo ().Assembly;
