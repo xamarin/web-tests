@@ -29,6 +29,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace Xamarin.AsyncTests
 {
@@ -117,7 +118,7 @@ namespace Xamarin.AsyncTests
 				string value;
 				if (TryGetValue ("DisableTimeouts", out value))
 					return bool.Parse (value);
-				return false;
+				return Debugger.IsAttached;
 			}
 			set {
 				SetValue ("DisableTimeouts", value.ToString ());
