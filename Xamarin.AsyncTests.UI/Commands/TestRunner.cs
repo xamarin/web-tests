@@ -125,6 +125,10 @@ namespace Xamarin.AsyncTests.MacUI
 
 				CurrentTestName.Value = string.Format ("Finished {0}: {1}", args.Name, args.Status);
 				break;
+			case TestLoggerBackend.StatisticsEventType.Reset:
+				countTests = countSuccess = countErrors = countIgnored = 0;
+				CurrentTestName.Value = string.Empty;
+				break;
 			default:
 				break;
 			}
