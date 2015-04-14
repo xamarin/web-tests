@@ -43,7 +43,7 @@ namespace Xamarin.WebTests.Server
 	using Framework;
 	using Portable;
 
-	public class HttpListener : Listener
+	class HttpListener : Listener
 	{
 		readonly IHttpServer server;
 

@@ -30,7 +30,7 @@ namespace Xamarin.WebTests.Server
 {
 	using Portable;
 
-	public class ServerCertificate : IServerCertificate
+	class ServerCertificate : IServerCertificate
 	{
 		public byte[] Data {
 			get; set;

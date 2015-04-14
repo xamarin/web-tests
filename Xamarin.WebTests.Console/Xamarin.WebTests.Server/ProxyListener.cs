@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.Server
 	using Framework;
 	using Portable;
 
-	public class ProxyListener : Listener
+	class ProxyListener : Listener
 	{
 		readonly HttpListener target;
 		ProxyAuthManager authManager;
