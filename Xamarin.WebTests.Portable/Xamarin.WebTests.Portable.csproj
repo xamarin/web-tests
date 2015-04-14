@@ -57,6 +57,26 @@
     <Compile Include="Xamarin.WebTests.Portable\ICertificateValidationProvider.cs" />
     <Compile Include="Xamarin.WebTests.Portable\ICertificateValidator.cs" />
     <Compile Include="Xamarin.WebTests.Portable\ISslStreamProvider.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\LocalCACertificate.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\MonkeyCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\ResourceManager.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\SelfSignedServerCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\ServerCertificateFromCA.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\ServerCertificateType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\CA\server-cert.pfx">
+      <Link>CA\server-cert.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\Hamiller-Tube-CA.pem">
+      <Link>CA\Hamiller-Tube-CA.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-self.pfx">
+      <Link>CA\server-self.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\monkey.pfx">
+      <Link>CA\monkey.pfx</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

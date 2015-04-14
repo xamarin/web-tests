@@ -88,26 +88,6 @@
     <Compile Include="Xamarin.WebTests.Framework\HttpClientTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.Framework\NTLMHandler.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestSSL.cs" />
-    <Compile Include="Resources\LocalCACertificate.cs" />
-    <Compile Include="Resources\MonkeyCertificate.cs" />
-    <Compile Include="Resources\ResourceManager.cs" />
-    <Compile Include="Resources\SelfSignedServerCertificate.cs" />
-    <Compile Include="Resources\ServerCertificateFromCA.cs" />
-    <Compile Include="Resources\ServerCertificateType.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="..\CA\server-cert.pfx">
-      <Link>CA\server-cert.pfx</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\CA\Hamiller-Tube-CA.pem">
-      <Link>CA\Hamiller-Tube-CA.pem</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\CA\server-self.pfx">
-      <Link>CA\server-self.pfx</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\CA\monkey.pfx">
-      <Link>CA\monkey.pfx</Link>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
