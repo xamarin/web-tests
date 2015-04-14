@@ -39,7 +39,6 @@ namespace Xamarin.AsyncTests
 		readonly TestResult result;
 		readonly TestLogger logger;
 		readonly SettingsBag settings;
-		readonly SynchronizationContext syncContext;
 		readonly ITestConfiguration config;
 		readonly ITestPathInternal path;
 		bool isCanceled;
@@ -61,22 +60,20 @@ namespace Xamarin.AsyncTests
 			get { return path ?? parent.Path; }
 		}
 
-		internal TestContext (SettingsBag settings, TestLogger logger, ITestConfiguration config, TestName name, SynchronizationContext syncContext)
+		internal TestContext (SettingsBag settings, TestLogger logger, ITestConfiguration config, TestName name)
 		{
 			Name = name;
 			this.settings = settings;
 			this.config = config;
 			this.logger = logger;
-			this.syncContext = syncContext;
 		}
 
-		TestContext (TestContext parent, TestName name, ITestPathInternal path, TestResult result, SynchronizationContext syncContext = null)
+		TestContext (TestContext parent, TestName name, ITestPathInternal path, TestResult result)
 		{
 			Name = name;
 			this.parent = parent;
 			this.path = path;
 			this.result = result;
-			this.syncContext = syncContext ?? parent.syncContext;
 
 			if (result != null)
 				logger = new TestLogger (TestLoggerBackend.CreateForResult (result, parent.logger));
@@ -86,30 +83,22 @@ namespace Xamarin.AsyncTests
 			config = parent.config;
 		}
 
-		void Invoke (Action action)
+		internal TestContext CreateChild (TestName name, ITestPathInternal path, TestResult result = null)
 		{
-			if (syncContext == null)
-				action ();
-			else
-				syncContext.Post (d => action (), null);
-		}
-
-		internal TestContext CreateChild (TestName name, ITestPathInternal path, TestResult result = null, SynchronizationContext syncContext = null)
-		{
-			return new TestContext (this, name, path, result, syncContext);
+			return new TestContext (this, name, path, result);
 		}
 
 		#region Statistics
 
 		public void OnTestRunning ()
 		{
-			Invoke (() => logger.OnTestRunning (Name));
+			logger.OnTestRunning (Name);
 		}
 
 		public void OnTestFinished (TestStatus status)
 		{
 			Result.Status = status;
-			Invoke (() => logger.OnTestFinished (Name, status));
+			logger.OnTestFinished (Name, status);
 		}
 
 		public void OnTestCanceled ()
@@ -120,10 +109,8 @@ namespace Xamarin.AsyncTests
 
 		public void OnTestIgnored ()
 		{
-			Invoke (() => {
-				if (Result.Status == TestStatus.None)
-					Result.Status = TestStatus.Ignored;
-			});
+			if (Result.Status == TestStatus.None)
+				Result.Status = TestStatus.Ignored;
 		}
 
 		#endregion
@@ -135,10 +122,8 @@ namespace Xamarin.AsyncTests
 			if (error is SkipRestOfThisTestException)
 				return;
 
-			Invoke (() => {
-				logger.OnException (Name, error);
-				logger.LogError (error);
-			});
+			logger.OnException (Name, error);
+			logger.LogError (error);
 		}
 
 		public void LogDebug (int level, string message)
@@ -146,7 +131,7 @@ namespace Xamarin.AsyncTests
 			var logLevel = Settings.LogLevel;
 			if (logLevel >= 0 && level > logLevel)
 				return;
-			Invoke (() => logger.LogDebug (level, message));
+			logger.LogDebug (level, message);
 		}
 
 		public void LogDebug (int level, string format, params object[] args)
@@ -156,7 +141,7 @@ namespace Xamarin.AsyncTests
 
 		public void LogMessage (string message)
 		{
-			Invoke (() => logger.LogMessage (message));
+			logger.LogMessage (message);
 		}
 
 		public void LogMessage (string message, params object[] args)
@@ -166,12 +151,12 @@ namespace Xamarin.AsyncTests
 
 		public void LogError (string message, Exception error)
 		{
-			Invoke (() => logger.LogError (message, error));
+			logger.LogError (message, error);
 		}
 
 		public void LogError (Exception error)
 		{
-			Invoke (() => logger.LogError (error));
+			logger.LogError (error);
 		}
 
 		#endregion

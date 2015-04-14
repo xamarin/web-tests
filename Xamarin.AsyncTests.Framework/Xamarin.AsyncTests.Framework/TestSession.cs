@@ -61,11 +61,11 @@ namespace Xamarin.AsyncTests.Framework
 			App = app;
 		}
 
-		public static TestSession CreateLocal (TestApp app, TestFramework framework, SynchronizationContext syncContext = null)
+		public static TestSession CreateLocal (TestApp app, TestFramework framework)
 		{
 			var name = new TestName (framework.Name);
 			var config = new TestConfiguration (framework.ConfigurationProvider, app.Settings);
-			var rootCtx = new TestContext (app.Settings, app.Logger, config, name, syncContext ?? SynchronizationContext.Current);
+			var rootCtx = new TestContext (app.Settings, app.Logger, config, name);
 
 			return new ReflectionTestSession (app, (ReflectionTestFramework)framework, rootCtx);
 		}
