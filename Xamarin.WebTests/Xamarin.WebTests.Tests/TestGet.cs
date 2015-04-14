@@ -82,6 +82,11 @@ namespace Xamarin.WebTests.Tests
 
 		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
+			if (string.Equals (filter, "hello")) {
+				yield return new HelloWorldHandler ("Hello World");
+				yield break;
+			}
+
 			yield return new HelloWorldHandler ("First Hello");
 			yield return new HelloWorldHandler ("Second Hello");
 		}
