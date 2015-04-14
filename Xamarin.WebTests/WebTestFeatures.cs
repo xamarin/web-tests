@@ -117,6 +117,22 @@ namespace Xamarin.WebTests
 		}
 	}
 
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class SSLAttribute : TestFeatureAttribute
+	{
+		public override TestFeature Feature {
+			get { return WebTestFeatures.SSL; }
+		}
+	}
+
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class CertificateTestsAttribute : TestFeatureAttribute
+	{
+		public override TestFeature Feature {
+			get { return WebTestFeatures.CertificateTests; }
+		}
+	}
+
 	public class WebTestFeatures : ITestConfigurationProvider
 	{
 		public static readonly WebTestFeatures Instance;
@@ -139,6 +155,8 @@ namespace Xamarin.WebTests
 		public static readonly TestFeature Mono38;
 		public static readonly TestFeature Mono381;
 		public static readonly TestFeature Mono361;
+
+		public static readonly TestFeature CertificateTests;
 
 		public static readonly TestCategory WorkCategory = new TestCategory ("Work") { IsExplicit = true };
 		public static readonly TestCategory HeavyCategory = new TestCategory ("Heavy") { IsExplicit = true };
@@ -165,6 +183,8 @@ namespace Xamarin.WebTests
 				yield return Mono38;
 				yield return Mono381;
 				yield return Mono361;
+
+				yield return CertificateTests;
 			}
 		}
 
@@ -260,8 +280,16 @@ namespace Xamarin.WebTests
 				"Mono381", "Mono 3.8.1", () => HasMonoVersion (new Version (3, 8, 1)));
 			Mono361 = new TestFeature (
 				"Mono361", "Mono 3.6.1", () => HasMonoVersion (new Version (3, 6, 1)));
+			CertificateTests = new TestFeature (
+				"CertificateTests", "Whether the SSL Certificate tests are supported", () => SupportsCertificateTests ());
 
 			Instance = new WebTestFeatures ();
+		}
+
+		static bool SupportsCertificateTests ()
+		{
+			var provider = DependencyInjector.Get<IHttpWebRequestProvider> ();
+			return provider.SupportsCertificateValidator;
 		}
 
 		static bool HasMonoVersion (Version version)
