@@ -26,7 +26,11 @@
 using System;
 using System.Threading;
 using Xamarin.AsyncTests;
-#if !__MOBILE__
+#if MACUI
+using AppKit;
+using Xamarin.AsyncTests.MacUI;
+using Xamarin.WebTests.MacUI;
+#elif !__MOBILE__
 using Xamarin.AsyncTests.Console;
 #endif
 using Xamarin.WebTests.Portable;
@@ -48,9 +52,21 @@ namespace Xamarin.WebTests.TestProvider
 			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());
 			DependencyInjector.RegisterDependency<IHttpWebRequestProvider> (() => new HttpWebRequestProvider ());
 			DependencyInjector.RegisterDependency<ICertificateValidationProvider> (() => new CertificateValidationProvider ());
+
+#if MACUI
+			DependencyInjector.RegisterDependency<IBuiltinTestServer> (() => new BuiltinTestServer ());
+#endif
 		}
 
-#if !__MOBILE__
+#if MACUI
+		static void Main (string[] args)
+		{
+			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
+
+			NSApplication.Init ();
+			NSApplication.Main (args);
+		}
+#elif !__MOBILE__
 		static void Main (string[] args)
 		{
 			Program.Run (typeof (WebDependencyProvider).Assembly, args);
