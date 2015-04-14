@@ -111,21 +111,6 @@ namespace Xamarin.WebTests.Tests
 
 			return TestRunner.RunTraditional (ctx, server, redirect, cancellationToken, sendAsync);
 		}
-
-		[Work]
-		[AsyncTest]
-		public void MartinTest (TestContext ctx, CancellationToken cancellationToken, bool test)
-		{
-			ctx.LogMessage ("HELLO WORLD: {0}", test);
-		}
-
-		[Work]
-		[AsyncTest]
-		public void MartinTest2 (TestContext ctx, [GetHandler] Handler handler)
-		{
-			ctx.LogMessage ("HELLO WORLD: {0}", handler);
-		}
-
 	}
 }
 
