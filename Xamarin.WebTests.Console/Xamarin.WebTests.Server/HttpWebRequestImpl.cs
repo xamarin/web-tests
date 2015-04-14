@@ -121,6 +121,14 @@ namespace Xamarin.WebTests.Server
 				throw new NotSupportedException ();
 			callbackProp.SetValue (Request, ((CertificateValidator)validator).ValidationCallback);
 		}
+
+		public ICertificate GetCertificate ()
+		{
+			var certificate = Request.ServicePoint.Certificate;
+			if (certificate == null)
+				return null;
+			return new Certificate (certificate.GetRawCertData ());
+		}
 	}
 }
 

@@ -1,5 +1,5 @@
 ﻿//
-// IHttpWebRequest.cs
+// Certificate.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,48 +24,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.Server
 {
-	public interface IHttpWebRequest
+	using Portable;
+
+	class Certificate : ICertificate
 	{
-		IHttpWebRequestProvider Provider {
+		public byte[] Data {
 			get;
+			private set;
 		}
 
-		HttpWebRequest Request {
-			get;
+		public Certificate (byte[] data)
+		{
+			Data = data;
 		}
-
-		void SetProxy (IPortableProxy proxy);
-
-		void SetAllowWriteStreamBuffering (bool value);
-
-		void SetKeepAlive (bool value);
-
-		void SetSendChunked (bool value);
-
-		void SetContentLength (long length);
-
-		Stream GetRequestStream ();
-
-		Task<Stream> GetRequestStreamAsync ();
-
-		HttpWebResponse GetResponse ();
-
-		Task<HttpWebResponse> GetResponseAsync ();
-
-		bool SupportsCertificateValidator {
-			get;
-		}
-
-		void InstallCertificateValidator (ICertificateValidator validator);
-
-		ICertificate GetCertificate ();
 	}
 }
 

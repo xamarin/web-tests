@@ -53,6 +53,7 @@
     <Compile Include="Xamarin.WebTests.Server\PortableProxy.cs" />
     <Compile Include="Xamarin.WebTests.Server\CertificateValidationProvider.cs" />
     <Compile Include="Xamarin.WebTests.Server\CertificateValidator.cs" />
+    <Compile Include="Xamarin.WebTests.Server\Certificate.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
