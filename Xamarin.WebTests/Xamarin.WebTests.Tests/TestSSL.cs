@@ -52,12 +52,18 @@ namespace Xamarin.WebTests.Tests
 			private set;
 		}
 
+		public bool RejectServerCertificate {
+			get;
+			private set;
+		}
+
 		public HttpServer CreateInstance (TestContext ctx)
 		{
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			var endpoint = support.GetLoopbackEndpoint (9999);
 			var certificate = ResourceManager.GetServerCertificate (ServerCertificateType);
-			return new HttpServer (endpoint, false, certificate);
+			var flags = RejectServerCertificate ? ListenerFlags.ExpectTrustFailure : ListenerFlags.None;
+			return new HttpServer (endpoint, flags, certificate);
 		}
 
 		class HttpsTestRunner : TestRunner
@@ -67,9 +73,13 @@ namespace Xamarin.WebTests.Tests
 				var request = new TraditionalRequest (uri);
 
 				var validationProvider = DependencyInjector.Get<ICertificateValidationProvider> ();
-				var validator = validationProvider.AcceptThisCertificate (server.ServerCertificate);
 
-				request.Request.InstallCertificateValidator (validator);
+				if (server.Flags == ListenerFlags.ExpectTrustFailure)
+					request.Request.InstallCertificateValidator (validationProvider.RejectAll ());
+				else {
+					var validator = validationProvider.AcceptThisCertificate (server.ServerCertificate);
+					request.Request.InstallCertificateValidator (validator);
+				}
 
 				return request;
 			}
@@ -92,7 +102,10 @@ namespace Xamarin.WebTests.Tests
 		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [TestHost] HttpServer server, [GetHandler ("hello")] Handler handler)
 		{
 			var runner = new HttpsTestRunner ();
-			return runner.Run (ctx, cancellationToken, server, handler);
+			if (server.Flags == ListenerFlags.ExpectTrustFailure)
+				return runner.Run (ctx, cancellationToken, server, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
+			else
+				return runner.Run (ctx, cancellationToken, server, handler);
 		}
 	}
 }
