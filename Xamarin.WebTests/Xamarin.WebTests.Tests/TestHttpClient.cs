@@ -70,10 +70,10 @@ namespace Xamarin.WebTests
 			if (UseSSL) {
 				var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
 				var certificate = webSupport.GetDefaultServerCertificate ();
-				return new HttpServer (endpoint, false, certificate);
+				return new HttpServer (endpoint, ListenerFlags.None, certificate);
 			}
 
-			return new HttpServer (endpoint, false);
+			return new HttpServer (endpoint, ListenerFlags.None);
 		}
 
 		static IEnumerable<HttpClientHandler> GetStableTests ()

@@ -47,7 +47,7 @@ namespace Xamarin.WebTests.Framework
 		readonly IPortableWebSupport WebSupport;
 
 		public ProxyServer (IPortableEndPoint endpoint, IPortableEndPoint proxyEndpoint, IServerCertificate serverCertificate = null)
-			: base (endpoint, false, serverCertificate)
+			: base (endpoint, ListenerFlags.Proxy, serverCertificate)
 		{
 			this.proxyEndpoint = proxyEndpoint;
 
@@ -64,20 +64,20 @@ namespace Xamarin.WebTests.Framework
 			get; set;
 		}
 
-		public override async Task Start (CancellationToken cancellationToken)
+		public override async Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			await base.Start (cancellationToken);
+			await base.Start (ctx, cancellationToken);
 
 			proxyListener = WebSupport.CreateProxyListener (Listener, proxyEndpoint, authType);
 			await proxyListener.Start ();
 		}
 
-		public override async Task Stop (CancellationToken cancellationToken)
+		public override async Task Stop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			await proxyListener.Stop ();
 			proxyListener = null;
 
-			await base.Stop (cancellationToken);
+			await base.Stop (ctx, cancellationToken);
 		}
 
 		public override IPortableProxy GetProxy ()

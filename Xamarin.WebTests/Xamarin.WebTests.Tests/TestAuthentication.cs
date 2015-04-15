@@ -71,13 +71,14 @@ namespace Xamarin.WebTests.Tests
 		{
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			var endpoint = support.GetLoopbackEndpoint (9999);
+			var flags = ReuseConnection ? ListenerFlags.ReuseConnection : ListenerFlags.None;
 			if (UseSSL) {
 				var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
 				var certificate = webSupport.GetDefaultServerCertificate ();
-				return new HttpServer (endpoint, ReuseConnection, certificate);
+				return new HttpServer (endpoint, flags, certificate);
 			}
 
-			return new HttpServer (endpoint, ReuseConnection);
+			return new HttpServer (endpoint, flags);
 		}
 
 		public static IEnumerable<AuthenticationType> GetAuthenticationTypes (TestContext ctx, string filter)

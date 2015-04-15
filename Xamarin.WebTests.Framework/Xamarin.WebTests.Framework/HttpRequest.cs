@@ -50,6 +50,9 @@ namespace Xamarin.WebTests.Framework
 		protected override void Read ()
 		{
 			var header = reader.ReadLine ();
+			if (header == null)
+				throw new IOException ("Connection has been closed.");
+
 			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
 			if (fields.Length != 3)
 				throw new InvalidOperationException ();

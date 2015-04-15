@@ -46,7 +46,7 @@ namespace Xamarin.WebTests.Framework
 	public class HttpServer : ITestInstance, IHttpServer
 	{
 		readonly Uri uri;
-		readonly bool reuseConnection;
+		readonly ListenerFlags flags;
 		readonly bool ssl;
 		readonly IServerCertificate serverCertificate;
 		readonly ISslStreamProvider sslStreamProvider;
@@ -58,10 +58,10 @@ namespace Xamarin.WebTests.Framework
 		static long nextId;
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
 
-		public HttpServer (IPortableEndPoint endpoint, bool reuseConnection, IServerCertificate serverCertificate = null, ISslStreamProvider sslStreamProvider = null)
+		public HttpServer (IPortableEndPoint endpoint, ListenerFlags flags, IServerCertificate serverCertificate = null, ISslStreamProvider sslStreamProvider = null)
 		{
 			this.endpoint = endpoint;
-			this.reuseConnection = reuseConnection;
+			this.flags = flags;
 			this.serverCertificate = serverCertificate;
 			this.sslStreamProvider = sslStreamProvider;
 			this.ssl = serverCertificate != null;
@@ -80,7 +80,11 @@ namespace Xamarin.WebTests.Framework
 		}
 
 		public bool ReuseConnection {
-			get { return reuseConnection; }
+			get { return flags == ListenerFlags.ReuseConnection; }
+		}
+
+		public ListenerFlags Flags {
+			get { return flags; }
 		}
 
 		public IServerCertificate ServerCertificate {
@@ -103,19 +107,19 @@ namespace Xamarin.WebTests.Framework
 			initialized = true;
 
 			if (ReuseConnection)
-				await Start (cancellationToken);
+				await Start (ctx, cancellationToken);
 		}
 
 		public async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (!ReuseConnection)
-				await Start (cancellationToken);
+				await Start (ctx, cancellationToken);
 		}
 
 		public async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (!ReuseConnection)
-				await Stop (cancellationToken);
+				await Stop (ctx, cancellationToken);
 		}
 
 		public async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
@@ -124,20 +128,20 @@ namespace Xamarin.WebTests.Framework
 				throw new InvalidOperationException ();
 
 			if (ReuseConnection)
-				await Stop (cancellationToken);
+				await Stop (ctx, cancellationToken);
 
 			initialized = false;
 		}
 
 		#endregion
 
-		public virtual Task Start (CancellationToken cancellationToken)
+		public virtual Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			listener = WebSupport.CreateHttpListener (endpoint, this, ReuseConnection, serverCertificate, sslStreamProvider);
+			listener = WebSupport.CreateHttpListener (endpoint, this, Flags, serverCertificate, sslStreamProvider);
 			return listener.Start ();
 		}
 
-		public virtual Task Stop (CancellationToken cancellationToken)
+		public virtual Task Stop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return Task.Run (() => listener.Stop ());
 		}
@@ -158,6 +162,12 @@ namespace Xamarin.WebTests.Framework
 		{
 			var connection = new HttpConnection (this, stream);
 			var request = connection.ReadRequest ();
+
+			if (Flags == ListenerFlags.ExpectTrustFailure) {
+				if (request != null)
+					throw new InvalidOperationException ();
+				return false;
+			}
 
 			var path = request.Path;
 			var handler = handlers [path];

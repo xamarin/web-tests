@@ -1,10 +1,10 @@
 ﻿//
-// Listener.cs
+// ListenerFlags.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,40 +24,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Text;
-using System.Net;
-using System.Net.Sockets;
-using System.Net.Security;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Threading.Tasks;
 
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
-
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Portable
 {
-	using Handlers;
-	using Framework;
-	using Portable;
-
-	class HttpListener : Listener
+	public enum ListenerFlags
 	{
-		readonly IHttpServer server;
-
-		public HttpListener (IPortableEndPoint endpoint, IHttpServer server, ListenerFlags flags, IServerCertificate serverCertificate,
-			ISslStreamProvider sslStreamProvider)
-			: base (endpoint, flags, serverCertificate, sslStreamProvider)
-		{
-			this.server = server;
-		}
-
-		protected override bool HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken)
-		{
-			return server.HandleConnection (stream);
-		}
+		None,
+		Proxy,
+		ReuseConnection,
+		ExpectTrustFailure
 	}
 }
 

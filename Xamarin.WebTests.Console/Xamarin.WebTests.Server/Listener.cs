@@ -54,14 +54,19 @@ namespace Xamarin.WebTests.Server
 
 		readonly IServerCertificate serverCertificate;
 		readonly ISslStreamProvider sslStreamProvider;
+		readonly ListenerFlags flags;
 		readonly bool ssl;
 		readonly Uri uri;
 
-		public Listener (IPortableEndPoint endpoint, bool reuseConnection, IServerCertificate serverCertificate, ISslStreamProvider sslStreamProvider = null)
+		public Listener (IPortableEndPoint endpoint, ListenerFlags flags, IServerCertificate serverCertificate, ISslStreamProvider sslStreamProvider = null)
 		{
+			this.flags = flags;
 			this.serverCertificate = serverCertificate;
 			this.ssl = serverCertificate != null;
 			this.sslStreamProvider = sslStreamProvider;
+
+			if (flags == ListenerFlags.ExpectTrustFailure && !ssl)
+				throw new InvalidOperationException ();
 
 			var address = IPAddress.Parse (endpoint.Address);
 			var networkEndpoint = new IPEndPoint (address, endpoint.Port);
@@ -235,14 +240,27 @@ namespace Xamarin.WebTests.Server
 			if (!ssl)
 				return stream;
 
-			if (sslStreamProvider != null)
-				return sslStreamProvider.CreateServerStream (stream, serverCertificate);
+			try {
+				Stream authenticatedStream;
+				if (sslStreamProvider != null)
+					authenticatedStream = sslStreamProvider.CreateServerStream (stream, serverCertificate);
+				else {
+					var certificate = new X509Certificate2 (serverCertificate.Data, serverCertificate.Password);
 
-			var certificate = new X509Certificate2 (serverCertificate.Data, serverCertificate.Password);
+					var sslStream = new SslStream (stream);
+					sslStream.AuthenticateAsServer (certificate);
+					authenticatedStream = sslStream;
+				}
 
-			var authStream = new SslStream (stream);
-			authStream.AuthenticateAsServer (certificate);
-			return authStream;
+				if (flags == ListenerFlags.ExpectTrustFailure)
+					throw new InvalidOperationException ("Expected TLS Trust Failure error.");
+
+				return authenticatedStream;
+			} catch {
+				if (flags == ListenerFlags.ExpectTrustFailure)
+					return null;
+				throw;
+			}
 		}
 
 		bool IsStillConnected (Socket socket)
