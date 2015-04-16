@@ -102,7 +102,7 @@ namespace Xamarin.WebTests.Tests
 		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [TestHost] HttpServer server, [GetHandler ("hello")] Handler handler)
 		{
 			var runner = new HttpsTestRunner ();
-			if (server.Flags == ListenerFlags.ExpectTrustFailure)
+			if (RejectServerCertificate)
 				return runner.Run (ctx, cancellationToken, server, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
 			else
 				return runner.Run (ctx, cancellationToken, server, handler);
