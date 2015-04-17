@@ -41,8 +41,6 @@
     <Compile Include="Xamarin.WebTests.HttpClient\IHttpContent.cs" />
     <Compile Include="Xamarin.WebTests.HttpClient\IHttpRequestMessage.cs" />
     <Compile Include="Xamarin.WebTests.HttpClient\IHttpResponseMessage.cs" />
-    <Compile Include="Xamarin.WebTests.Resources\LocalCACertificate.cs" />
-    <Compile Include="Xamarin.WebTests.Resources\MonkeyCertificate.cs" />
     <Compile Include="Xamarin.WebTests.Resources\ResourceManager.cs" />
     <Compile Include="Xamarin.WebTests.Resources\ServerCertificateType.cs" />
     <Compile Include="Xamarin.WebTests.Handlers\AbstractRedirectHandler.cs" />

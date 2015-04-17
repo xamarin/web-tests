@@ -9,7 +9,7 @@ namespace Xamarin.WebTests.Resources
 	public static class ResourceManager
 	{
 		static readonly ICertificateProvider provider;
-		static readonly LocalCACertificate cacert;
+		static readonly ICertificate cacert;
 		static readonly IServerCertificate selfServer;
 		static readonly IServerCertificate serverCert;
 		static readonly IClientCertificate monkeyCert;
@@ -17,13 +17,13 @@ namespace Xamarin.WebTests.Resources
 		static ResourceManager ()
 		{
 			provider = DependencyInjector.Get<ICertificateProvider> ();
-			cacert = new LocalCACertificate ();
-			selfServer = provider.ServerCertificateFromPFX (ReadResource ("CA.server-self.pfx"), "monkey");
-			serverCert = provider.ServerCertificateFromPFX (ReadResource ("CA.server-cert.pfx"), "monkey");
-			monkeyCert = provider.ClientCertificateFromPFX (ReadResource ("CA.monkey.pfx"), "monkey");
+			cacert = provider.GetCertificateFromData (ResourceManager.ReadResource ("CA.Hamiller-Tube-CA.pem"));				
+			selfServer = provider.GetServerCertificate (ReadResource ("CA.server-self.pfx"), "monkey");
+			serverCert = provider.GetServerCertificate (ReadResource ("CA.server-cert.pfx"), "monkey");
+			monkeyCert = provider.GetClientCertificate (ReadResource ("CA.monkey.pfx"), "monkey");
 		}
 
-		public static LocalCACertificate LocalCACertificate {
+		public static ICertificate LocalCACertificate {
 			get { return cacert; }
 		}
 

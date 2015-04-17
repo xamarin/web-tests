@@ -128,14 +128,14 @@ namespace Xamarin.WebTests.Server
 			var certificate = Request.ServicePoint.Certificate;
 			if (certificate == null)
 				return null;
-			return new Certificate (certificate.GetRawCertData ());
+			return CertificateProvider.GetCertificate (certificate);
 		}
 
 		public void SetClientCertificates (IClientCertificate[] clientCertificates)
 		{
 			var certificates = new X509CertificateCollection ();
 			foreach (var certificate in clientCertificates) {
-				certificates.Add (new X509Certificate2 (certificate.Data, certificate.Password));
+				certificates.Add (CertificateProvider.GetCertificate (certificate));
 			}
 			Request.ClientCertificates = certificates;
 		}

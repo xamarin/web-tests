@@ -46,13 +46,11 @@
     <Compile Include="Xamarin.WebTests.HttpClient\HttpContent.cs" />
     <Compile Include="Xamarin.WebTests.HttpClient\StreamContent.cs" />
     <Compile Include="WebDependencyProvider.cs" />
-    <Compile Include="Xamarin.WebTests.Server\ServerCertificate.cs" />
     <Compile Include="Xamarin.WebTests.HttpClient\HttpClientProvider.cs" />
     <Compile Include="Xamarin.WebTests.Server\HttpWebRequestImpl.cs" />
     <Compile Include="Xamarin.WebTests.Server\HttpWebRequestProvider.cs" />
     <Compile Include="Xamarin.WebTests.Server\PortableProxy.cs" />
     <Compile Include="Xamarin.WebTests.Server\CertificateValidator.cs" />
-    <Compile Include="Xamarin.WebTests.Server\Certificate.cs" />
     <Compile Include="Xamarin.WebTests.Server\CertificateProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

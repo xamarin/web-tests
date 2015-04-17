@@ -83,21 +83,88 @@ namespace Xamarin.WebTests.Server
 			return new CertificateValidator ((s, c, ch, e) => false);
 		}
 
-		public IServerCertificate ServerCertificateFromPFX (byte[] data, string password)
+		public IServerCertificate GetServerCertificate (byte[] data, string password)
 		{
-			return new ServerCertificate {
-				Data = data, Password = password,
-				Certificate = new X509Certificate2 (data, password)
-			};
+			return new CertificateFromPFX (data, password);
 		}
 
-		public IClientCertificate ClientCertificateFromPFX (byte[] data, string password)
+		public IClientCertificate GetClientCertificate (byte[] data, string password)
 		{
-			return new ServerCertificate {
-				Data = data, Password = password,
-				Certificate = new X509Certificate2 (data, password)
-			};
+			return new CertificateFromPFX (data, password);
 		}
+
+		public static ICertificate GetCertificate (X509Certificate certificate)
+		{
+			return new CertificateFromData (certificate);
+		}
+
+		public static X509Certificate GetCertificate (ICertificate certificate)
+		{
+			var fromData = certificate as CertificateFromData;
+			if (fromData != null)
+				return fromData.Certificate;
+
+			var fromPFX = certificate as ICertificateAndKeyAsPFX;
+			if (fromPFX != null)
+				return new X509Certificate2 (fromPFX.Data, fromPFX.Password);
+
+			return new X509Certificate (certificate.Data);
+		}
+
+		public ICertificate GetCertificateFromData (byte[] data)
+		{
+			return new CertificateFromData (data);
+		}
+
+		class CertificateFromData : ICertificate
+		{
+			public byte[] Data {
+				get;
+				private set;
+			}
+
+			public X509Certificate Certificate {
+				get;
+				private set;
+			}
+
+			public CertificateFromData (X509Certificate certificate)
+			{
+				Certificate = certificate;
+				Data = certificate.GetRawCertData ();
+			}
+
+			public CertificateFromData (byte[] data)
+			{
+				Data = data;
+				Certificate = new X509Certificate (data);
+			}
+
+			protected CertificateFromData (byte[] data, X509Certificate certificate)
+			{
+				Data = data;
+				Certificate = certificate;
+			}
+		}
+
+		class CertificateFromPFX : CertificateFromData, IServerCertificate, IClientCertificate
+		{
+			public string Password {
+				get;
+				private set;
+			}
+
+			new public X509Certificate2 Certificate {
+				get { return (X509Certificate2)base.Certificate; }
+			}
+
+			public CertificateFromPFX (byte[] data, string password)
+				: base (data, new X509Certificate2 (data, password))
+			{
+				Password = password;
+			}
+		}
+
 	}
 }
 

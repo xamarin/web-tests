@@ -27,12 +27,8 @@ using System;
 
 namespace Xamarin.WebTests.Portable
 {
-	public interface ICertificateAndKeyAsPFX
+	public interface ICertificateAndKeyAsPFX : ICertificate
 	{
-		byte[] Data {
-			get;
-		}
-
 		string Password {
 			get;
 		}

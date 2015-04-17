@@ -95,9 +95,6 @@
     <Compile Include="..\Xamarin.WebTests.Console\WebDependencyProvider.cs">
       <Link>WebDependencyProvider.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\ServerCertificate.cs">
-      <Link>Xamarin.WebTests.Server\ServerCertificate.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.HttpClient\HttpClientProvider.cs">
       <Link>Xamarin.WebTests.HttpClient\HttpClientProvider.cs</Link>
     </Compile>
