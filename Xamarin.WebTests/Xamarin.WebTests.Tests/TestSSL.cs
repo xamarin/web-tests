@@ -91,12 +91,12 @@ namespace Xamarin.WebTests.Tests
 			{
 				var request = new TraditionalRequest (uri);
 
-				var validationProvider = DependencyInjector.Get<ICertificateProvider> ();
+				var provider = DependencyInjector.Get<ICertificateProvider> ();
 
 				if (server.Flags == ListenerFlags.ExpectTrustFailure)
-					request.Request.InstallCertificateValidator (validationProvider.RejectAll ());
+					request.Request.InstallCertificateValidator (provider.RejectAll ());
 				else {
-					var validator = validationProvider.AcceptThisCertificate (server.ServerCertificate);
+					var validator = provider.AcceptThisCertificate (server.ServerCertificate);
 					request.Request.InstallCertificateValidator (validator);
 				}
 
@@ -113,8 +113,11 @@ namespace Xamarin.WebTests.Tests
 				var traditionalRequest = (TraditionalRequest)request;
 				var response = await traditionalRequest.SendAsync (ctx, cancellationToken);
 
+				var provider = DependencyInjector.Get<ICertificateProvider> ();
+
 				var certificate = traditionalRequest.Request.GetCertificate ();
 				ctx.Assert (certificate, Is.Not.Null, "certificate");
+				ctx.Assert (provider.AreEqual (certificate, server.ServerCertificate), Is.True, "correct certificate");
 
 				return response;
 			}
