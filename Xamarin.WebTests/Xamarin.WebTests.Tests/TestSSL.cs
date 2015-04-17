@@ -52,7 +52,8 @@ namespace Xamarin.WebTests.Tests
 			private set;
 		}
 
-		public bool RejectServerCertificate {
+		[WebTestFeatures.SelectHttpTestMode]
+		public HttpTestMode TestMode {
 			get;
 			private set;
 		}
@@ -62,7 +63,24 @@ namespace Xamarin.WebTests.Tests
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			var endpoint = support.GetLoopbackEndpoint (9999);
 			var certificate = ResourceManager.GetServerCertificate (ServerCertificateType);
-			var flags = RejectServerCertificate ? ListenerFlags.ExpectTrustFailure : ListenerFlags.None;
+
+			ListenerFlags flags;
+			switch (TestMode) {
+			case HttpTestMode.Default:
+				flags = ListenerFlags.None;
+				break;
+			case HttpTestMode.ReuseConnection:
+				flags = ListenerFlags.ReuseConnection;
+				break;
+			case HttpTestMode.RejectServerCertificate:
+				flags = ListenerFlags.ExpectTrustFailure;
+				break;
+			case HttpTestMode.RequireClientCertificate:
+				throw new NotImplementedException ();
+			default:
+				throw new InvalidOperationException ();
+			}
+
 			return new HttpServer (endpoint, flags, certificate);
 		}
 
@@ -99,10 +117,10 @@ namespace Xamarin.WebTests.Tests
 		[Work]
 		[CertificateTests]
 		[AsyncTest]
-		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [TestHost] HttpServer server, [GetHandler ("hello")] Handler handler)
+		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [TestHost] HttpServer server, [GetHandler] Handler handler)
 		{
 			var runner = new HttpsTestRunner ();
-			if (RejectServerCertificate)
+			if (TestMode == HttpTestMode.RejectServerCertificate)
 				return runner.Run (ctx, cancellationToken, server, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
 			else
 				return runner.Run (ctx, cancellationToken, server, handler);

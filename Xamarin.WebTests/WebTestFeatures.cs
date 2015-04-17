@@ -295,6 +295,35 @@ namespace Xamarin.WebTests
 			}
 		}
 
+		[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+		public class SelectHttpTestMode : TestParameterAttribute, ITestParameterSource<HttpTestMode>
+		{
+			public SelectHttpTestMode (string filter = null, TestFlags flags = TestFlags.Browsable)
+				: base (filter, flags)
+			{
+			}
+
+			public IEnumerable<HttpTestMode> GetParameters (TestContext ctx, string filter)
+			{
+				if (filter == null) {
+					yield return HttpTestMode.Default;
+					if (ctx.IsEnabled (ReuseConnection))
+						yield return HttpTestMode.ReuseConnection;
+					yield break;
+				}
+
+				if (filter.Equals ("ssl")) {
+					if (!ctx.IsEnabled (SSL))
+						yield break;
+					yield return HttpTestMode.Default;
+					yield return HttpTestMode.ReuseConnection;
+					yield return HttpTestMode.RejectServerCertificate;
+				} else {
+					throw new InvalidOperationException ();
+				}
+			}
+		}
+
 		static WebTestFeatures ()
 		{
 			Mono38 = new TestFeature (
