@@ -246,7 +246,7 @@ namespace Xamarin.WebTests.Server
 				if (sslStreamProvider != null)
 					authenticatedStream = sslStreamProvider.CreateServerStream (stream, serverCertificate);
 				else {
-					var certificate = new X509Certificate2 (serverCertificate.Data, serverCertificate.Password);
+					var certificate = CertificateProvider.GetCertificate (serverCertificate);
 
 					var clientCertificateRequired = flags == ListenerFlags.RequireClientCertificate;
 					var protocols = (SslProtocols)ServicePointManager.SecurityProtocol;

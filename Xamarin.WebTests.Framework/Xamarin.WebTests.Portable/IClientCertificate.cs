@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.WebTests.Portable
 {
-	public interface IClientCertificate : ICertificateAndKeyAsPFX
+	public interface IClientCertificate : ICertificate
 	{
 	}
 }

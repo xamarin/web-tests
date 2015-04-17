@@ -79,8 +79,6 @@
     <Compile Include="Xamarin.WebTests.Framework\WebExceptionStatus.cs" />
     <Compile Include="Xamarin.WebTests.Portable\AuthenticationType.cs" />
     <Compile Include="Xamarin.WebTests.Portable\ICertificate.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\ICertificateAndKeyAsPFX.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\ICertificateAsPEM.cs" />
     <Compile Include="Xamarin.WebTests.Portable\ICertificateValidator.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IClientCertificate.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IHttpServer.cs" />

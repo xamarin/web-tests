@@ -46,7 +46,7 @@ namespace Xamarin.WebTests.Server
 
 		internal CertificateValidator AcceptThisCertificate (IServerCertificate certificate)
 		{
-			var cert = new X509Certificate2 (certificate.Data, certificate.Password);
+			var cert = GetCertificate (certificate);
 			var serverHash = cert.GetCertHash ();
 
 			return new CertificateValidator ((s, c, ch, e) => {
@@ -100,15 +100,7 @@ namespace Xamarin.WebTests.Server
 
 		public static X509Certificate GetCertificate (ICertificate certificate)
 		{
-			var fromData = certificate as CertificateFromData;
-			if (fromData != null)
-				return fromData.Certificate;
-
-			var fromPFX = certificate as ICertificateAndKeyAsPFX;
-			if (fromPFX != null)
-				return new X509Certificate2 (fromPFX.Data, fromPFX.Password);
-
-			return new X509Certificate (certificate.Data);
+			return ((CertificateFromData)certificate).Certificate;
 		}
 
 		public ICertificate GetCertificateFromData (byte[] data)
