@@ -131,6 +131,14 @@ namespace Xamarin.WebTests.Server
 			return CertificateProvider.GetCertificate (certificate);
 		}
 
+		public ICertificate GetClientCertificate ()
+		{
+			var certificate = Request.ServicePoint.ClientCertificate;
+			if (certificate == null)
+				return null;
+			return CertificateProvider.GetCertificate (certificate);
+		}
+
 		public void SetClientCertificates (IClientCertificate[] clientCertificates)
 		{
 			var certificates = new X509CertificateCollection ();

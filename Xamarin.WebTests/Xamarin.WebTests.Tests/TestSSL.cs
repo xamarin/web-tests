@@ -117,7 +117,13 @@ namespace Xamarin.WebTests.Tests
 
 				var certificate = traditionalRequest.Request.GetCertificate ();
 				ctx.Assert (certificate, Is.Not.Null, "certificate");
-				ctx.Assert (provider.AreEqual (certificate, server.ServerCertificate), Is.True, "correct certificate");
+				ctx.Assert (provider.AreEqual (certificate, server.ServerCertificate), "correct certificate");
+
+				if (server.Flags == ListenerFlags.RequireClientCertificate) {
+					var clientCertificate = traditionalRequest.Request.GetClientCertificate ();
+					ctx.Assert (clientCertificate, Is.Not.Null, "client certificate");
+					ctx.Assert (provider.AreEqual (clientCertificate, ResourceManager.MonkeyCertificate), "correct client certificate");
+				}
 
 				return response;
 			}
