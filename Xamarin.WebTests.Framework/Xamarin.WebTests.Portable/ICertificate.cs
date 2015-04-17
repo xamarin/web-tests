@@ -29,6 +29,17 @@ namespace Xamarin.WebTests.Portable
 {
 	public interface ICertificate
 	{
+		string Issuer {
+			get;
+		}
+
+		string Subject {
+			get;
+		}
+
+		string GetSerialNumber ();
+
+		string GetCertificateHash ();
 	}
 }
 

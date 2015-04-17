@@ -120,6 +120,24 @@ namespace Xamarin.WebTests.Server
 				private set;
 			}
 
+			public string Issuer {
+				get { return Certificate.Issuer; }
+			}
+
+			public string Subject {
+				get { return Certificate.Subject; }
+			}
+
+			public string GetSerialNumber ()
+			{
+				return Certificate.GetSerialNumberString ();
+			}
+
+			public string GetCertificateHash ()
+			{
+				return Certificate.GetCertHashString ();
+			}
+
 			public CertificateFromData (X509Certificate certificate)
 			{
 				Certificate = certificate;
