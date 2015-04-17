@@ -110,9 +110,6 @@
     <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\CertificateValidator.cs">
       <Link>Xamarin.WebTests.Server\CertificateValidator.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\Certificate.cs">
-      <Link>Xamarin.WebTests.Server\Certificate.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\CertificateProvider.cs">
       <Link>Xamarin.WebTests.Server\CertificateProvider.cs</Link>
     </Compile>
