@@ -32,7 +32,8 @@ namespace Xamarin.WebTests.Portable
 		None,
 		Proxy,
 		ReuseConnection,
-		ExpectTrustFailure
+		ExpectTrustFailure,
+		RequireClientCertificate
 	}
 }
 

@@ -62,6 +62,8 @@ namespace Xamarin.WebTests.Portable
 		void InstallCertificateValidator (ICertificateValidator validator);
 
 		ICertificate GetCertificate ();
+
+		void SetClientCertificates (IClientCertificate[] clientCertificates);
 	}
 }
 

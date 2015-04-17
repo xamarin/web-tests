@@ -52,7 +52,7 @@ namespace Xamarin.WebTests.Tests
 			private set;
 		}
 
-		[WebTestFeatures.SelectHttpTestMode]
+		[WebTestFeatures.SelectHttpTestMode ("ssl")]
 		public HttpTestMode TestMode {
 			get;
 			private set;
@@ -76,7 +76,8 @@ namespace Xamarin.WebTests.Tests
 				flags = ListenerFlags.ExpectTrustFailure;
 				break;
 			case HttpTestMode.RequireClientCertificate:
-				throw new NotImplementedException ();
+				flags = ListenerFlags.RequireClientCertificate;
+				break;
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -97,6 +98,11 @@ namespace Xamarin.WebTests.Tests
 				else {
 					var validator = validationProvider.AcceptThisCertificate (server.ServerCertificate);
 					request.Request.InstallCertificateValidator (validator);
+				}
+
+				if (server.Flags == ListenerFlags.RequireClientCertificate) {
+					var clientCertificate = ResourceManager.MonkeyCertificate;
+					request.Request.SetClientCertificates (new IClientCertificate[] { clientCertificate });
 				}
 
 				return request;

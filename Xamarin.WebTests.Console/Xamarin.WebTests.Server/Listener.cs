@@ -34,6 +34,7 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Net.Security;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using SD = System.Diagnostics;
 
@@ -247,8 +248,11 @@ namespace Xamarin.WebTests.Server
 				else {
 					var certificate = new X509Certificate2 (serverCertificate.Data, serverCertificate.Password);
 
-					var sslStream = new SslStream (stream);
-					sslStream.AuthenticateAsServer (certificate);
+					var clientCertificateRequired = flags == ListenerFlags.RequireClientCertificate;
+					var protocols = (SslProtocols)ServicePointManager.SecurityProtocol;
+
+					var sslStream = new SslStream (stream, false, (s,c,ch,e) => true);
+					sslStream.AuthenticateAsServer (certificate, clientCertificateRequired, protocols, false);
 					authenticatedStream = sslStream;
 				}
 

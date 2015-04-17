@@ -29,6 +29,7 @@ using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.Server
 {
@@ -128,6 +129,15 @@ namespace Xamarin.WebTests.Server
 			if (certificate == null)
 				return null;
 			return new Certificate (certificate.GetRawCertData ());
+		}
+
+		public void SetClientCertificates (IClientCertificate[] clientCertificates)
+		{
+			var certificates = new X509CertificateCollection ();
+			foreach (var certificate in clientCertificates) {
+				certificates.Add (new X509Certificate2 (certificate.Data, certificate.Password));
+			}
+			Request.ClientCertificates = certificates;
 		}
 	}
 }
