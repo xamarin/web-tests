@@ -108,6 +108,16 @@ namespace Xamarin.WebTests.Server
 			return new CertificateFromData (data);
 		}
 
+		public bool AreEqual (ICertificate a, ICertificate b)
+		{
+			if (a == b)
+				return true;
+
+			var aImpl = (CertificateFromData)a;
+			var bImpl = (CertificateFromData)b;
+			return string.Equals (aImpl.GetCertificateHash (), bImpl.GetCertificateHash ());
+		}
+
 		class CertificateFromData : ICertificate
 		{
 			public byte[] Data {

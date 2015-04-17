@@ -42,6 +42,8 @@ namespace Xamarin.WebTests.Portable
 		IServerCertificate GetServerCertificate (byte[] data, string password);
 
 		IClientCertificate GetClientCertificate (byte[] data, string password);
+
+		bool AreEqual (ICertificate a, ICertificate b);
 	}
 }
 
