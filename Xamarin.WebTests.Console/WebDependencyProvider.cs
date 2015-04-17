@@ -41,6 +41,7 @@ using Xamarin.WebTests.Portable;
 namespace Xamarin.WebTests.TestProvider
 {
 	using Server;
+	using Resources;
 	using Framework;
 	using HttpClient;
 
@@ -51,11 +52,21 @@ namespace Xamarin.WebTests.TestProvider
 			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
 			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());
 			DependencyInjector.RegisterDependency<IHttpWebRequestProvider> (() => new HttpWebRequestProvider ());
-			DependencyInjector.RegisterDependency<ICertificateProvider> (() => new CertificateProvider (true));
+			DependencyInjector.RegisterDependency<ICertificateProvider> (() => new CertificateProvider ());
 
 #if MACUI
 			DependencyInjector.RegisterDependency<IBuiltinTestServer> (() => new BuiltinTestServer ());
 #endif
+
+			InstallDefaultCertificateValidator ();
+		}
+
+		void InstallDefaultCertificateValidator ()
+		{
+			var provider = DependencyInjector.Get<ICertificateProvider> ();
+
+			var defaultValidator = provider.AcceptThisCertificate (ResourceManager.DefaultServerCertificate);
+			provider.InstallDefaultValidator (defaultValidator);
 		}
 
 #if MACUI

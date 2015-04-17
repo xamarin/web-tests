@@ -34,6 +34,12 @@ namespace Xamarin.WebTests.Portable
 		ICertificateValidator AcceptThisCertificate (IServerCertificate certificate);
 
 		ICertificateValidator RejectAll ();
+
+		void InstallDefaultValidator (ICertificateValidator validator);
+
+		IServerCertificate ServerCertificateFromPFX (byte[] data, string password);
+
+		IClientCertificate ClientCertificateFromPFX (byte[] data, string password);
 	}
 }
 

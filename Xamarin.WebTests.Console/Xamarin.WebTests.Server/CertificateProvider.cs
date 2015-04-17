@@ -31,18 +31,9 @@ using System.Security.Cryptography.X509Certificates;
 namespace Xamarin.WebTests.Server
 {
 	using Portable;
-	using Resources;
 
 	class CertificateProvider : ICertificateProvider
 	{
-		internal CertificateProvider (bool installDefaultValidator)
-		{
-			if (installDefaultValidator) {
-				var validator = AcceptThisCertificate (ResourceManager.DefaultServerCertificate);
-				ServicePointManager.ServerCertificateValidationCallback = validator.ValidationCallback;
-			}
-		}
-
 		public ICertificateValidator GetDefault ()
 		{
 			return RejectAll ();
@@ -63,6 +54,19 @@ namespace Xamarin.WebTests.Server
 			});
 		}
 
+		void ICertificateProvider.InstallDefaultValidator (ICertificateValidator validator)
+		{
+			InstallDefaultValidator ((CertificateValidator)validator);
+		}
+
+		public void InstallDefaultValidator (CertificateValidator validator)
+		{
+			if (validator != null)
+				ServicePointManager.ServerCertificateValidationCallback = validator.ValidationCallback;
+			else
+				ServicePointManager.ServerCertificateValidationCallback = null;
+		}
+
 		static bool Compare (byte[] first, byte[] second)
 		{
 			if (first.Length != second.Length)
@@ -77,6 +81,22 @@ namespace Xamarin.WebTests.Server
 		public ICertificateValidator RejectAll ()
 		{
 			return new CertificateValidator ((s, c, ch, e) => false);
+		}
+
+		public IServerCertificate ServerCertificateFromPFX (byte[] data, string password)
+		{
+			return new ServerCertificate {
+				Data = data, Password = password,
+				Certificate = new X509Certificate2 (data, password)
+			};
+		}
+
+		public IClientCertificate ClientCertificateFromPFX (byte[] data, string password)
+		{
+			return new ServerCertificate {
+				Data = data, Password = password,
+				Certificate = new X509Certificate2 (data, password)
+			};
 		}
 	}
 }
