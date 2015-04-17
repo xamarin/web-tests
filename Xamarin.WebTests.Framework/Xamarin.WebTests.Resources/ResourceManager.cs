@@ -1,19 +1,22 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using Xamarin.AsyncTests;
 using Xamarin.WebTests.Portable;
 
 namespace Xamarin.WebTests.Resources
 {
 	public static class ResourceManager
 	{
-		static LocalCACertificate cacert;
-		static SelfSignedServerCertificate selfServer;
-		static ServerCertificateFromCA serverCert;
-		static MonkeyCertificate monkeyCert;
+		static readonly ICertificateProvider provider;
+		static readonly LocalCACertificate cacert;
+		static readonly SelfSignedServerCertificate selfServer;
+		static readonly ServerCertificateFromCA serverCert;
+		static readonly MonkeyCertificate monkeyCert;
 
 		static ResourceManager ()
 		{
+			provider = DependencyInjector.Get<ICertificateProvider> ();
 			cacert = new LocalCACertificate ();
 			selfServer = new SelfSignedServerCertificate ();
 			serverCert = new ServerCertificateFromCA ();

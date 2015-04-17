@@ -1,5 +1,5 @@
 ﻿//
-// CertificateValidationProvider.cs
+// CertificateProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -33,9 +33,9 @@ namespace Xamarin.WebTests.Server
 	using Portable;
 	using Resources;
 
-	class CertificateValidationProvider : ICertificateValidationProvider
+	class CertificateProvider : ICertificateProvider
 	{
-		internal CertificateValidationProvider (bool installDefaultValidator)
+		internal CertificateProvider (bool installDefaultValidator)
 		{
 			if (installDefaultValidator) {
 				var validator = AcceptThisCertificate (ResourceManager.DefaultServerCertificate);
@@ -48,7 +48,7 @@ namespace Xamarin.WebTests.Server
 			return RejectAll ();
 		}
 
-		ICertificateValidator ICertificateValidationProvider.AcceptThisCertificate (IServerCertificate certificate)
+		ICertificateValidator ICertificateProvider.AcceptThisCertificate (IServerCertificate certificate)
 		{
 			return AcceptThisCertificate (certificate);
 		}

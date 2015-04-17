@@ -91,7 +91,7 @@ namespace Xamarin.WebTests.Tests
 			{
 				var request = new TraditionalRequest (uri);
 
-				var validationProvider = DependencyInjector.Get<ICertificateValidationProvider> ();
+				var validationProvider = DependencyInjector.Get<ICertificateProvider> ();
 
 				if (server.Flags == ListenerFlags.ExpectTrustFailure)
 					request.Request.InstallCertificateValidator (validationProvider.RejectAll ());

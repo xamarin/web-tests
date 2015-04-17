@@ -1,5 +1,5 @@
 ﻿//
-// ICertificateValidationProvider.cs
+// ICertificateProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.WebTests.Portable
 {
-	public interface ICertificateValidationProvider
+	public interface ICertificateProvider
 	{
 		ICertificateValidator GetDefault ();
 

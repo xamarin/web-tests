@@ -178,14 +178,14 @@
     <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\PortableProxy.cs">
       <Link>Xamarin.WebTests.Server\PortableProxy.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\CertificateValidationProvider.cs">
-      <Link>Xamarin.WebTests.Server\CertificateValidationProvider.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\CertificateValidator.cs">
       <Link>Xamarin.WebTests.Server\CertificateValidator.cs</Link>
     </Compile>
     <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\Certificate.cs">
       <Link>Xamarin.WebTests.Server\Certificate.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\CertificateProvider.cs">
+      <Link>Xamarin.WebTests.Server\CertificateProvider.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
