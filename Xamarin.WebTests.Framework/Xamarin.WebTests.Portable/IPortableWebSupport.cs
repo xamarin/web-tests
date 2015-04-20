@@ -33,6 +33,8 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Portable
 {
+	using Framework;
+
 	public interface IPortableWebSupport
 	{
 		bool HasNetwork {
@@ -43,7 +45,7 @@ namespace Xamarin.WebTests.Portable
 
 		IServerCertificate GetDefaultServerCertificate ();
 
-		IListener CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, ListenerFlags flags, IServerCertificate serverCertificate,
+		IListener CreateHttpListener (IPortableEndPoint endpoint, HttpServer server, ListenerFlags flags, IServerCertificate serverCertificate,
 			ISslStreamProvider sslStreamProvider = null);
 
 		IListener CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType);

@@ -45,9 +45,9 @@ namespace Xamarin.WebTests.Server
 
 	class HttpListener : Listener
 	{
-		readonly IHttpServer server;
+		readonly HttpServer server;
 
-		public HttpListener (IPortableEndPoint endpoint, IHttpServer server, ListenerFlags flags, IServerCertificate serverCertificate,
+		public HttpListener (IPortableEndPoint endpoint, HttpServer server, ListenerFlags flags, IServerCertificate serverCertificate,
 			ISslStreamProvider sslStreamProvider)
 			: base (endpoint, flags, serverCertificate, sslStreamProvider)
 		{

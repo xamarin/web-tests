@@ -43,7 +43,7 @@ namespace Xamarin.WebTests.Framework
 	using Portable;
 
 	[FriendlyName ("[HttpServer]")]
-	public class HttpServer : ITestInstance, IHttpServer
+	public class HttpServer : ITestInstance
 	{
 		readonly Uri uri;
 		readonly ListenerFlags flags;
