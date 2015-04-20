@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.Tests
 
 	[SSL]
 	[AsyncTestFixture (Timeout = 5000)]
-	public class TestSSL : ITestHost<HttpServer>
+	public class TestSSL
 	{
 		[WebTestFeatures.SelectServerCertificate]
 		public ServerCertificateType ServerCertificateType {
@@ -58,21 +58,12 @@ namespace Xamarin.WebTests.Tests
 			private set;
 		}
 
-		public HttpServer CreateInstance (TestContext ctx)
-		{
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			var endpoint = support.GetLoopbackEndpoint (9999);
-			var certificate = ResourceManager.GetServerCertificate (ServerCertificateType);
-
-			return HttpsTestRunner.CreateServer (ctx, endpoint, TestMode, certificate);
-		}
-
 		[Work]
 		[CertificateTests]
 		[AsyncTest]
-		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [TestHost] HttpServer server, [GetHandler] Handler handler)
+		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [HttpsTestHost] HttpServer server, [GetHandler] Handler handler)
 		{
-			return HttpsTestRunner.RunStatic (ctx,  cancellationToken, server, handler);
+			return HttpsTestRunner.Run (ctx, cancellationToken, server, handler);
 		}
 	}
 }

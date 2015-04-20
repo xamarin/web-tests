@@ -37,10 +37,22 @@ namespace Xamarin.WebTests.Framework
 	using Portable;
 	using Resources;
 
-	public class HttpsTestRunner : TestRunner
+	public class HttpsTestHost : TestHostAttribute, ITestHost<HttpServer>
 	{
-		public static HttpServer CreateServer (TestContext ctx, IPortableEndPoint endpoint, HttpTestMode mode, IServerCertificate certificate)
+		public HttpsTestHost ()
+			: base (typeof (HttpsTestHost))
 		{
+		}
+
+		#region ITestHost implementation
+		public HttpServer CreateInstance (TestContext ctx)
+		{
+			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+			var endpoint = support.GetLoopbackEndpoint (9999);
+
+			var mode = ctx.GetParameter<HttpTestMode> ();
+			var certificateType = ctx.GetParameter<ServerCertificateType> ();
+
 			ListenerFlags flags;
 			switch (mode) {
 			case HttpTestMode.Default:
@@ -59,12 +71,22 @@ namespace Xamarin.WebTests.Framework
 				throw new InvalidOperationException ();
 			}
 
+			var certificate = ResourceManager.GetServerCertificate (certificateType);
 			return new HttpServer (endpoint, flags, certificate);
+		}
+		#endregion
+	}
+
+	public class HttpsTestRunner : TestRunner
+	{
+		protected virtual TraditionalRequest CreateRequest (TestContext ctx, Uri uri)
+		{
+			return new TraditionalRequest (uri);
 		}
 
 		protected override Request CreateRequest (TestContext ctx, HttpServer server, Handler handler, Uri uri)
 		{
-			var request = new TraditionalRequest (uri);
+			var request = CreateRequest (ctx, uri);
 
 			var provider = DependencyInjector.Get<ICertificateProvider> ();
 
@@ -103,13 +125,13 @@ namespace Xamarin.WebTests.Framework
 			return response;
 		}
 
-		public static Task RunStatic (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler)
+		public static Task Run (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler)
 		{
 			var runner = new HttpsTestRunner ();
 			if (server.Flags == ListenerFlags.ExpectTrustFailure)
 				return runner.Run (ctx, cancellationToken, server, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
 			else
-				return runner.Run (ctx, cancellationToken, server, handler);
+				return runner.Run (ctx, cancellationToken, server, handler, null, HttpStatusCode.OK, WebExceptionStatus.Success);
 		}
 	}
 }
