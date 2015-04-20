@@ -2,10 +2,12 @@
 using System.IO;
 using System.Reflection;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.Portable;
 
 namespace Xamarin.WebTests.Resources
 {
+	using Portable;
+	using Providers;
+
 	public static class ResourceManager
 	{
 		static readonly ICertificateProvider provider;

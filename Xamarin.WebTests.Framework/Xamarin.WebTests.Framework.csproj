@@ -86,16 +86,16 @@
     <Compile Include="Xamarin.WebTests.Portable\IPortableProxy.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IPortableWebSupport.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IServerCertificate.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\ISslStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IWebClient.cs" />
     <Compile Include="Xamarin.WebTests.Portable\NTLMHandler.cs" />
     <Compile Include="Xamarin.WebTests.Portable\ListenerFlags.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\ICertificateProvider.cs" />
     <Compile Include="Xamarin.WebTests.Framework\HttpsTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.Framework\HttpTestMode.cs" />
     <Compile Include="Xamarin.WebTests.Providers\IHttpProvider.cs" />
     <Compile Include="Xamarin.WebTests.Providers\HttpProviderType.cs" />
     <Compile Include="Xamarin.WebTests.Providers\IHttpProviderFactory.cs" />
+    <Compile Include="Xamarin.WebTests.Providers\ISslStreamProvider.cs" />
+    <Compile Include="Xamarin.WebTests.Providers\ICertificateProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">

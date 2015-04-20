@@ -34,6 +34,7 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.Portable
 {
 	using Framework;
+	using Providers;
 
 	public interface IPortableWebSupport
 	{

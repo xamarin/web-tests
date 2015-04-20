@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.Server
 {
 	using Handlers;
 	using Framework;
+	using Providers;
 	using Portable;
 
 	class HttpListener : Listener

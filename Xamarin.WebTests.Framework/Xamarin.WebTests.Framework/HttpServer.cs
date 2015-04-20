@@ -40,6 +40,7 @@ namespace Xamarin.WebTests.Framework
 {
 	using Handlers;
 	using Framework;
+	using Providers;
 	using Portable;
 
 	[FriendlyName ("[HttpServer]")]
