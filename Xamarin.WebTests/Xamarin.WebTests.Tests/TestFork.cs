@@ -40,6 +40,7 @@ namespace Xamarin.WebTests.Tests
 	using Handlers;
 	using Framework;
 	using Portable;
+	using Providers;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class ForkHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
@@ -61,8 +62,9 @@ namespace Xamarin.WebTests.Tests
 	{
 		public HttpServer CreateInstance (TestContext ctx)
 		{
+			var provider = DependencyInjector.Get<IHttpProviderFactory> ().Default;
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			return new HttpServer (support.GetLoopbackEndpoint (9999), ListenerFlags.ReuseConnection);
+			return new HttpServer (provider, support.GetLoopbackEndpoint (9999), ListenerFlags.ReuseConnection);
 		}
 
 		static HttpContent CreateRandomContent (TestContext ctx)

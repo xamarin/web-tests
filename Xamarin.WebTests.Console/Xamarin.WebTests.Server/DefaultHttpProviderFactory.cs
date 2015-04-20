@@ -35,6 +35,10 @@ namespace Xamarin.WebTests.Server
 	{
 		static readonly DefaultHttpProvider defaultProvider = new DefaultHttpProvider ();
 
+		public IHttpProvider Default {
+			get { return defaultProvider; }
+		}
+
 		public bool IsSupported (HttpProviderType type)
 		{
 			return type == HttpProviderType.Default;

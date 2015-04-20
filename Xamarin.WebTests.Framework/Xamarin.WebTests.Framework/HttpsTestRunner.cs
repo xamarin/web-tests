@@ -72,22 +72,27 @@ namespace Xamarin.WebTests.Framework
 				throw new InvalidOperationException ();
 			}
 
+			HttpProviderType providerType;
+			if (!ctx.TryGetParameter (out providerType))
+				providerType = HttpProviderType.Default;
+
+			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
+			var provider = factory.GetProvider (providerType);
+
 			var certificate = ResourceManager.GetServerCertificate (certificateType);
-			return new HttpServer (endpoint, flags, certificate);
+			return provider.CreateServer (endpoint, flags, certificate);
 		}
 		#endregion
 	}
 
 	public class HttpsTestRunner : TestRunner
 	{
-		protected virtual TraditionalRequest CreateRequest (TestContext ctx, Uri uri)
-		{
-			return new TraditionalRequest (uri);
-		}
-
 		protected override Request CreateRequest (TestContext ctx, HttpServer server, Handler handler, Uri uri)
 		{
-			var request = CreateRequest (ctx, uri);
+			var webRequest = server.HttpProvider.CreateWebRequest (uri);
+			webRequest.SetKeepAlive (true);
+
+			var request = new TraditionalRequest (webRequest);
 
 			var provider = DependencyInjector.Get<ICertificateProvider> ();
 

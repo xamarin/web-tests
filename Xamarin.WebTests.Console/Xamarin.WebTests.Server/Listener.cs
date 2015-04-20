@@ -54,18 +54,18 @@ namespace Xamarin.WebTests.Server
 		volatile TaskCompletionSource<bool> tcs;
 		volatile CancellationTokenSource cts;
 
+		readonly IHttpProvider provider;
 		readonly IServerCertificate serverCertificate;
-		readonly ISslStreamProvider sslStreamProvider;
 		readonly ListenerFlags flags;
 		readonly bool ssl;
 		readonly Uri uri;
 
-		public Listener (IPortableEndPoint endpoint, ListenerFlags flags, IServerCertificate serverCertificate, ISslStreamProvider sslStreamProvider = null)
+		public Listener (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, IServerCertificate serverCertificate)
 		{
+			this.provider = provider;
 			this.flags = flags;
 			this.serverCertificate = serverCertificate;
 			this.ssl = serverCertificate != null;
-			this.sslStreamProvider = sslStreamProvider;
 
 			if (flags == ListenerFlags.ExpectTrustFailure && !ssl)
 				throw new InvalidOperationException ();
@@ -78,6 +78,10 @@ namespace Xamarin.WebTests.Server
 			server = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			server.Bind (networkEndpoint);
 			server.Listen (1);
+		}
+
+		public IHttpProvider HttpProvider {
+			get { return provider; }
 		}
 
 		public Uri Uri {
@@ -244,8 +248,8 @@ namespace Xamarin.WebTests.Server
 
 			try {
 				Stream authenticatedStream;
-				if (sslStreamProvider != null)
-					authenticatedStream = sslStreamProvider.CreateServerStream (stream, serverCertificate);
+				if (provider.SslStreamProvider != null)
+					authenticatedStream = provider.SslStreamProvider.CreateServerStream (stream, serverCertificate);
 				else {
 					var certificate = CertificateProvider.GetCertificate (serverCertificate);
 

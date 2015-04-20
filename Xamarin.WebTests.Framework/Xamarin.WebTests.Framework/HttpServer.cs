@@ -49,8 +49,8 @@ namespace Xamarin.WebTests.Framework
 		readonly Uri uri;
 		readonly ListenerFlags flags;
 		readonly bool ssl;
+		readonly IHttpProvider provider;
 		readonly IServerCertificate serverCertificate;
-		readonly ISslStreamProvider sslStreamProvider;
 		readonly IPortableWebSupport WebSupport;
 
 		IPortableEndPoint endpoint;
@@ -59,12 +59,12 @@ namespace Xamarin.WebTests.Framework
 		static long nextId;
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
 
-		public HttpServer (IPortableEndPoint endpoint, ListenerFlags flags, IServerCertificate serverCertificate = null, ISslStreamProvider sslStreamProvider = null)
+		public HttpServer (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, IServerCertificate serverCertificate = null)
 		{
+			this.provider = provider;
 			this.endpoint = endpoint;
 			this.flags = flags;
 			this.serverCertificate = serverCertificate;
-			this.sslStreamProvider = sslStreamProvider;
 			this.ssl = serverCertificate != null;
 
 			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
@@ -74,6 +74,14 @@ namespace Xamarin.WebTests.Framework
 
 		protected IListener Listener {
 			get { return listener; }
+		}
+
+		public IHttpProvider HttpProvider {
+			get { return provider; }
+		}
+
+		public IPortableEndPoint EndPoint {
+			get { return endpoint; }
 		}
 
 		public bool UseSSL {
@@ -138,7 +146,7 @@ namespace Xamarin.WebTests.Framework
 
 		public virtual Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			listener = WebSupport.CreateHttpListener (endpoint, this, Flags, serverCertificate, sslStreamProvider);
+			listener = WebSupport.CreateHttpListener (this);
 			return listener.Start ();
 		}
 

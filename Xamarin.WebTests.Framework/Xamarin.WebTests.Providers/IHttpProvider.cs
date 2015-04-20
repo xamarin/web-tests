@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Providers
 {
@@ -47,6 +48,12 @@ namespace Xamarin.WebTests.Providers
 		IHttpWebRequest CreateWebRequest (Uri uri);
 
 		IHttpWebRequest CreateWebRequest (HttpWebRequest request);
+
+		ISslStreamProvider SslStreamProvider {
+			get;
+		}
+
+		HttpServer CreateServer (IPortableEndPoint endpoint, ListenerFlags flags, IServerCertificate serverCertificate);
 	}
 }
 

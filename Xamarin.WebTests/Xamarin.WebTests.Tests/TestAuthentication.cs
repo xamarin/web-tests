@@ -39,6 +39,7 @@ namespace Xamarin.WebTests.Tests
 	using Handlers;
 	using Framework;
 	using Portable;
+	using Providers;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class AuthenticationTypeAttribute : TestParameterAttribute, ITestParameterSource<AuthenticationType>
@@ -69,16 +70,17 @@ namespace Xamarin.WebTests.Tests
 
 		public HttpServer CreateInstance (TestContext ctx)
 		{
+			var provider = DependencyInjector.Get<IHttpProviderFactory> ().Default;
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			var endpoint = support.GetLoopbackEndpoint (9999);
 			var flags = ReuseConnection ? ListenerFlags.ReuseConnection : ListenerFlags.None;
 			if (UseSSL) {
 				var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
 				var certificate = webSupport.GetDefaultServerCertificate ();
-				return new HttpServer (endpoint, flags, certificate);
+				return new HttpServer (provider, endpoint, flags, certificate);
 			}
 
-			return new HttpServer (endpoint, flags);
+			return new HttpServer (provider, endpoint, flags);
 		}
 
 		public static IEnumerable<AuthenticationType> GetAuthenticationTypes (TestContext ctx, string filter)

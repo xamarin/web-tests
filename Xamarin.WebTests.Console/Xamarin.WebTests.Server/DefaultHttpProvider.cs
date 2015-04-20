@@ -27,6 +27,7 @@ using System;
 using System.Net;
 using Http = System.Net.Http;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Server
 {
@@ -60,6 +61,15 @@ namespace Xamarin.WebTests.Server
 		public IHttpWebRequest CreateWebRequest (HttpWebRequest request)
 		{
 			return new HttpWebRequestImpl (request);
+		}
+
+		public ISslStreamProvider SslStreamProvider {
+			get { return null; }
+		}
+
+		public HttpServer CreateServer (IPortableEndPoint endpoint, ListenerFlags flags, IServerCertificate serverCertificate)
+		{
+			return new HttpServer (this, endpoint, flags, serverCertificate);
 		}
 	}
 }

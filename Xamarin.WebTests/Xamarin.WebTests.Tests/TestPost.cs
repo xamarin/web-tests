@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.Tests
 	using Handlers;
 	using Framework;
 	using Portable;
+	using Providers;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class PostHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
@@ -66,15 +67,16 @@ namespace Xamarin.WebTests.Tests
 
 		public HttpServer CreateInstance (TestContext ctx)
 		{
+			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			var endpoint = support.GetLoopbackEndpoint (9999);
 			if (UseSSL) {
 				var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
 				var certificate = webSupport.GetDefaultServerCertificate ();
-				return new HttpServer (endpoint, ListenerFlags.None, certificate);
+				return new HttpServer (factory.Default, endpoint, ListenerFlags.None, certificate);
 			}
 
-			return new HttpServer (endpoint, ListenerFlags.None);
+			return new HttpServer (factory.Default, endpoint, ListenerFlags.None);
 		}
 
 		public static IEnumerable<PostHandler> GetPostTests ()

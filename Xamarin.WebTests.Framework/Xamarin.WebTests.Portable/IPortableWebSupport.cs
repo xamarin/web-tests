@@ -46,8 +46,7 @@ namespace Xamarin.WebTests.Portable
 
 		IServerCertificate GetDefaultServerCertificate ();
 
-		IListener CreateHttpListener (IPortableEndPoint endpoint, HttpServer server, ListenerFlags flags, IServerCertificate serverCertificate,
-			ISslStreamProvider sslStreamProvider = null);
+		IListener CreateHttpListener (HttpServer server);
 
 		IListener CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType);
 

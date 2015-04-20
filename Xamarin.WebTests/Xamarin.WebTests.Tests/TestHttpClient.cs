@@ -40,6 +40,7 @@ namespace Xamarin.WebTests
 	using Handlers;
 	using Framework;
 	using Portable;
+	using Providers;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class HttpClientHandlerAttribute : TestParameterAttribute, ITestParameterSource<HttpClientHandler>
@@ -65,15 +66,16 @@ namespace Xamarin.WebTests
 
 		public HttpServer CreateInstance (TestContext ctx)
 		{
+			var provider = DependencyInjector.Get<IHttpProviderFactory> ().Default;
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			var endpoint = support.GetLoopbackEndpoint (9999);
 			if (UseSSL) {
 				var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
 				var certificate = webSupport.GetDefaultServerCertificate ();
-				return new HttpServer (endpoint, ListenerFlags.None, certificate);
+				return new HttpServer (provider, endpoint, ListenerFlags.None, certificate);
 			}
 
-			return new HttpServer (endpoint, ListenerFlags.None);
+			return new HttpServer (provider, endpoint, ListenerFlags.None);
 		}
 
 		static IEnumerable<HttpClientHandler> GetStableTests ()

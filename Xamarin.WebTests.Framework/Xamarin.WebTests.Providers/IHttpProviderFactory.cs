@@ -31,6 +31,10 @@ namespace Xamarin.WebTests.Providers
 
 	public interface IHttpProviderFactory
 	{
+		IHttpProvider Default {
+			get;
+		}
+
 		bool IsSupported (HttpProviderType type);
 
 		IHttpProvider GetProvider (HttpProviderType type);
