@@ -83,7 +83,6 @@
     <Compile Include="Xamarin.WebTests.Portable\IClientCertificate.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IHttpServer.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IHttpWebRequest.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IHttpWebRequestProvider.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IListener.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IPortableProxy.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IPortableWebSupport.cs" />
@@ -95,6 +94,9 @@
     <Compile Include="Xamarin.WebTests.Portable\ICertificateProvider.cs" />
     <Compile Include="Xamarin.WebTests.Framework\HttpsTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.Framework\HttpTestMode.cs" />
+    <Compile Include="Xamarin.WebTests.Providers\IHttpProvider.cs" />
+    <Compile Include="Xamarin.WebTests.Providers\HttpProviderType.cs" />
+    <Compile Include="Xamarin.WebTests.Providers\IHttpProviderFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">
@@ -115,6 +117,7 @@
   <ItemGroup>
     <Folder Include="Xamarin.WebTests.Portable\" />
     <Folder Include="Xamarin.WebTests.HttpClient\" />
+    <Folder Include="Xamarin.WebTests.Providers\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">

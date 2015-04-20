@@ -35,24 +35,27 @@ namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
 	using Portable;
+	using Providers;
 
 	public class TraditionalRequest : Request
 	{
 		public readonly IHttpWebRequest Request;
 
-		readonly IHttpWebRequestProvider Provider;
-
 		public TraditionalRequest (Uri uri)
 		{
-			Provider = DependencyInjector.Get<IHttpWebRequestProvider> ();
-			Request = Provider.Create (uri);
+			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
+			var provider = factory.GetProvider (HttpProviderType.Default);
+
+			Request = provider.CreateWebRequest (uri);
 			Request.SetKeepAlive (true);
 		}
 
 		public TraditionalRequest (HttpWebRequest request)
 		{
-			Provider = DependencyInjector.Get<IHttpWebRequestProvider> ();
-			Request = Provider.Create (request);
+			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
+			var provider = factory.GetProvider (HttpProviderType.Default);
+
+			Request = provider.CreateWebRequest (request);
 			Request.SetKeepAlive (true);
 		}
 

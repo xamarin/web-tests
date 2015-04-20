@@ -33,11 +33,12 @@ using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests;
 using Xamarin.WebTests.Portable;
 using Xamarin.WebTests.HttpClient;
+using Xamarin.WebTests.Providers;
 
 [assembly: AsyncTestSuite (typeof (WebTestFeatures))]
 [assembly: RequireDependency (typeof (IPortableWebSupport))]
 [assembly: RequireDependency (typeof (IHttpClientProvider))]
-[assembly: RequireDependency (typeof (IHttpWebRequestProvider))]
+[assembly: RequireDependency (typeof (IHttpProviderFactory))]
 
 namespace Xamarin.WebTests
 {
@@ -45,6 +46,7 @@ namespace Xamarin.WebTests
 	using Portable;
 	using Resources;
 	using Internal;
+	using Providers;
 	using Tests;
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
@@ -347,8 +349,8 @@ namespace Xamarin.WebTests
 
 		static bool SupportsCertificateTests ()
 		{
-			var provider = DependencyInjector.Get<IHttpWebRequestProvider> ();
-			return provider.SupportsCertificateValidator;
+			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
+			return factory.SupportsPerRequestCertificateValidator;
 		}
 
 		static bool HasMonoVersion (Version version)

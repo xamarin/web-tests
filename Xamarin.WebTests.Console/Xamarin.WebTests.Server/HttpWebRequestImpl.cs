@@ -51,19 +51,13 @@ namespace Xamarin.WebTests.Server
 			callbackProp = type.GetProperty ("ServerCertificateValidationCallback", BindingFlags.Public | BindingFlags.Instance);
 		}
 
-		public IHttpWebRequestProvider Provider {
-			get;
-			private set;
-		}
-
 		public HttpWebRequest Request {
 			get;
 			private set;
 		}
 
-		public HttpWebRequestImpl (HttpWebRequestProvider provider, HttpWebRequest request)
+		public HttpWebRequestImpl (HttpWebRequest request)
 		{
-			Provider = provider;
 			Request = request;	
 		}
 

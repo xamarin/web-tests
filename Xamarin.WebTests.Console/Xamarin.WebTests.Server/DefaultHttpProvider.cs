@@ -1,5 +1,5 @@
 ﻿//
-// IHttpWebRequest.cs
+// DefaultHttpProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,44 +24,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
+using Http = System.Net.Http;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.Server
 {
-	public interface IHttpWebRequest
+	using Framework;
+	using Portable;
+	using Providers;
+	using HttpClient;
+
+	class DefaultHttpProvider : IHttpProvider
 	{
-		HttpWebRequest Request {
-			get;
+		public bool SupportsHttpClient {
+			get { return true; }
 		}
 
-		void SetProxy (IPortableProxy proxy);
+		public IHttpClientHandler CreateHttpClient ()
+		{
+			var handler = new Http.HttpClientHandler ();
+			return new HttpClientHandler (handler);
+		}
 
-		void SetAllowWriteStreamBuffering (bool value);
+		public bool SupportsWebRequest {
+			get { return true; }
+		}
 
-		void SetKeepAlive (bool value);
+		public IHttpWebRequest CreateWebRequest (Uri uri)
+		{
+			var request = (HttpWebRequest)HttpWebRequest.Create (uri);
+			return new HttpWebRequestImpl (request);
+		}
 
-		void SetSendChunked (bool value);
-
-		void SetContentLength (long length);
-
-		Stream GetRequestStream ();
-
-		Task<Stream> GetRequestStreamAsync ();
-
-		HttpWebResponse GetResponse ();
-
-		Task<HttpWebResponse> GetResponseAsync ();
-
-		void InstallCertificateValidator (ICertificateValidator validator);
-
-		ICertificate GetCertificate ();
-
-		ICertificate GetClientCertificate ();
-
-		void SetClientCertificates (IClientCertificate[] clientCertificates);
+		public IHttpWebRequest CreateWebRequest (HttpWebRequest request)
+		{
+			return new HttpWebRequestImpl (request);
+		}
 	}
 }
 

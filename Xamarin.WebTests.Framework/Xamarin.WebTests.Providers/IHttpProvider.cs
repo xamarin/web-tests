@@ -1,5 +1,5 @@
 ﻿//
-// IHttpWebRequestProvider.cs
+// IHttpProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -26,19 +26,27 @@
 using System;
 using System.Net;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.Providers
 {
-	public interface IHttpWebRequestProvider
+	using Portable;
+	using Framework;
+	using HttpClient;
+
+	public interface IHttpProvider
 	{
-		IHttpWebRequest Create (Uri uri);
-
-		IHttpWebRequest Create (HttpWebRequest request);
-
-		bool SupportsCertificateValidator {
+		bool SupportsHttpClient {
 			get;
 		}
 
-		void InstallDefaultCertificateValidator (ICertificateValidator validator);
+		IHttpClientHandler CreateHttpClient ();
+
+		bool SupportsWebRequest {
+			get;
+		}
+
+		IHttpWebRequest CreateWebRequest (Uri uri);
+
+		IHttpWebRequest CreateWebRequest (HttpWebRequest request);
 	}
 }
 

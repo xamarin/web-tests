@@ -43,6 +43,7 @@ namespace Xamarin.WebTests.TestProvider
 	using Server;
 	using Resources;
 	using Framework;
+	using Providers;
 	using HttpClient;
 
 	class WebDependencyProvider : IDependencyProvider
@@ -51,8 +52,8 @@ namespace Xamarin.WebTests.TestProvider
 		{
 			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
 			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());
-			DependencyInjector.RegisterDependency<IHttpWebRequestProvider> (() => new HttpWebRequestProvider ());
 			DependencyInjector.RegisterDependency<ICertificateProvider> (() => new CertificateProvider ());
+			DependencyInjector.RegisterDependency<IHttpProviderFactory> (() => new DefaultHttpProviderFactory ());
 
 #if MACUI
 			DependencyInjector.RegisterDependency<IBuiltinTestServer> (() => new BuiltinTestServer ());

@@ -1,5 +1,5 @@
 ﻿//
-// IHttpWebRequest.cs
+// IHttpProviderFactory.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,44 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.Providers
 {
-	public interface IHttpWebRequest
+	using Portable;
+
+	public interface IHttpProviderFactory
 	{
-		HttpWebRequest Request {
+		bool IsSupported (HttpProviderType type);
+
+		IHttpProvider GetProvider (HttpProviderType type);
+
+		bool SupportsPerRequestCertificateValidator {
 			get;
 		}
 
-		void SetProxy (IPortableProxy proxy);
+		void InstallCertificateValidator (IHttpWebRequest request, ICertificateValidator validator);
 
-		void SetAllowWriteStreamBuffering (bool value);
-
-		void SetKeepAlive (bool value);
-
-		void SetSendChunked (bool value);
-
-		void SetContentLength (long length);
-
-		Stream GetRequestStream ();
-
-		Task<Stream> GetRequestStreamAsync ();
-
-		HttpWebResponse GetResponse ();
-
-		Task<HttpWebResponse> GetResponseAsync ();
-
-		void InstallCertificateValidator (ICertificateValidator validator);
-
-		ICertificate GetCertificate ();
-
-		ICertificate GetClientCertificate ();
-
-		void SetClientCertificates (IClientCertificate[] clientCertificates);
+		void InstallDefaultCertificateValidator (ICertificateValidator validator);
 	}
 }
 

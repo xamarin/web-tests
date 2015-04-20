@@ -1,5 +1,5 @@
 ﻿//
-// HttpWebRequestProvider.cs
+// DefaultHttpProviderFactory.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,27 +25,35 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
-using System.Reflection;
 
 namespace Xamarin.WebTests.Server
 {
+	using Providers;
 	using Portable;
 
-	class HttpWebRequestProvider : IHttpWebRequestProvider
+	class DefaultHttpProviderFactory : IHttpProviderFactory
 	{
-		public IHttpWebRequest Create (Uri uri)
+		static readonly DefaultHttpProvider defaultProvider = new DefaultHttpProvider ();
+
+		public bool IsSupported (HttpProviderType type)
 		{
-			var request = (HttpWebRequest)HttpWebRequest.Create (uri);
-			return new HttpWebRequestImpl (this, request);
+			return type == HttpProviderType.Default;
 		}
 
-		public IHttpWebRequest Create (HttpWebRequest request)
+		public IHttpProvider GetProvider (HttpProviderType type)
 		{
-			return new HttpWebRequestImpl (this, request);
+			if (type == HttpProviderType.Default)
+				return defaultProvider;
+			throw new NotSupportedException ();
 		}
 
-		public bool SupportsCertificateValidator {
+		public bool SupportsPerRequestCertificateValidator {
 			get { return HttpWebRequestImpl.SupportsCertificateValidator; }
+		}
+
+		public void InstallCertificateValidator (IHttpWebRequest request, ICertificateValidator validator)
+		{
+			((HttpWebRequestImpl)request).InstallCertificateValidator (validator);
 		}
 
 		public void InstallDefaultCertificateValidator (ICertificateValidator validator)

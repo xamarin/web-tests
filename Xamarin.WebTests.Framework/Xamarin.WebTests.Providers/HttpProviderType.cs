@@ -1,5 +1,5 @@
 ﻿//
-// IHttpWebRequest.cs
+// HttpProviderType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,44 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.Providers
 {
-	public interface IHttpWebRequest
+	public enum HttpProviderType
 	{
-		HttpWebRequest Request {
-			get;
-		}
-
-		void SetProxy (IPortableProxy proxy);
-
-		void SetAllowWriteStreamBuffering (bool value);
-
-		void SetKeepAlive (bool value);
-
-		void SetSendChunked (bool value);
-
-		void SetContentLength (long length);
-
-		Stream GetRequestStream ();
-
-		Task<Stream> GetRequestStreamAsync ();
-
-		HttpWebResponse GetResponse ();
-
-		Task<HttpWebResponse> GetResponseAsync ();
-
-		void InstallCertificateValidator (ICertificateValidator validator);
-
-		ICertificate GetCertificate ();
-
-		ICertificate GetClientCertificate ();
-
-		void SetClientCertificates (IClientCertificate[] clientCertificates);
+		Default
 	}
 }
 
