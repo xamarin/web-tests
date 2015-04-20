@@ -51,7 +51,7 @@ namespace Xamarin.AsyncTests.MacUI
 			WillChangeValue ("isLeaf");
 			WillChangeValue ("childNodes");
 
-			Console.WriteLine ("ADD CHILD: {0} {1}", this, child);
+			InitializeChildren ();
 
 			children.Add (child);
 			child.parent = this;
@@ -64,6 +64,8 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			WillChangeValue ("isLeaf");
 			WillChangeValue ("childNodes");
+
+			InitializeChildren ();
 
 			var length = children.Count;
 			for (nuint i = 0; i < length; i++) {
@@ -83,6 +85,8 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			WillChangeValue ("isLeaf");
 			WillChangeValue ("childNodes");
+
+			InitializeChildren ();
 
 			children.RemoveAllObjects ();
 
