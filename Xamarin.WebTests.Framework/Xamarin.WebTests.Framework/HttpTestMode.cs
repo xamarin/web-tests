@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests
+namespace Xamarin.WebTests.Framework
 {
 	public enum HttpTestMode
 	{

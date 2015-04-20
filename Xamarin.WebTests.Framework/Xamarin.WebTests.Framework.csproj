@@ -93,6 +93,8 @@
     <Compile Include="Xamarin.WebTests.Portable\NTLMHandler.cs" />
     <Compile Include="Xamarin.WebTests.Portable\ListenerFlags.cs" />
     <Compile Include="Xamarin.WebTests.Portable\ICertificateProvider.cs" />
+    <Compile Include="Xamarin.WebTests.Framework\HttpsTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.Framework\HttpTestMode.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">

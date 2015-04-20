@@ -64,69 +64,7 @@ namespace Xamarin.WebTests.Tests
 			var endpoint = support.GetLoopbackEndpoint (9999);
 			var certificate = ResourceManager.GetServerCertificate (ServerCertificateType);
 
-			ListenerFlags flags;
-			switch (TestMode) {
-			case HttpTestMode.Default:
-				flags = ListenerFlags.None;
-				break;
-			case HttpTestMode.ReuseConnection:
-				flags = ListenerFlags.ReuseConnection;
-				break;
-			case HttpTestMode.RejectServerCertificate:
-				flags = ListenerFlags.ExpectTrustFailure;
-				break;
-			case HttpTestMode.RequireClientCertificate:
-				flags = ListenerFlags.RequireClientCertificate;
-				break;
-			default:
-				throw new InvalidOperationException ();
-			}
-
-			return new HttpServer (endpoint, flags, certificate);
-		}
-
-		class HttpsTestRunner : TestRunner
-		{
-			protected override Request CreateRequest (TestContext ctx, HttpServer server, Handler handler, Uri uri)
-			{
-				var request = new TraditionalRequest (uri);
-
-				var provider = DependencyInjector.Get<ICertificateProvider> ();
-
-				if (server.Flags == ListenerFlags.ExpectTrustFailure)
-					request.Request.InstallCertificateValidator (provider.RejectAll ());
-				else {
-					var validator = provider.AcceptThisCertificate (server.ServerCertificate);
-					request.Request.InstallCertificateValidator (validator);
-				}
-
-				if (server.Flags == ListenerFlags.RequireClientCertificate) {
-					var clientCertificate = ResourceManager.MonkeyCertificate;
-					request.Request.SetClientCertificates (new IClientCertificate[] { clientCertificate });
-				}
-
-				return request;
-			}
-
-			protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler, Request request)
-			{
-				var traditionalRequest = (TraditionalRequest)request;
-				var response = await traditionalRequest.SendAsync (ctx, cancellationToken);
-
-				var provider = DependencyInjector.Get<ICertificateProvider> ();
-
-				var certificate = traditionalRequest.Request.GetCertificate ();
-				ctx.Assert (certificate, Is.Not.Null, "certificate");
-				ctx.Assert (provider.AreEqual (certificate, server.ServerCertificate), "correct certificate");
-
-				if (server.Flags == ListenerFlags.RequireClientCertificate) {
-					var clientCertificate = traditionalRequest.Request.GetClientCertificate ();
-					ctx.Assert (clientCertificate, Is.Not.Null, "client certificate");
-					ctx.Assert (provider.AreEqual (clientCertificate, ResourceManager.MonkeyCertificate), "correct client certificate");
-				}
-
-				return response;
-			}
+			return HttpsTestRunner.CreateServer (ctx, endpoint, TestMode, certificate);
 		}
 
 		[Work]
@@ -134,11 +72,7 @@ namespace Xamarin.WebTests.Tests
 		[AsyncTest]
 		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [TestHost] HttpServer server, [GetHandler] Handler handler)
 		{
-			var runner = new HttpsTestRunner ();
-			if (TestMode == HttpTestMode.RejectServerCertificate)
-				return runner.Run (ctx, cancellationToken, server, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
-			else
-				return runner.Run (ctx, cancellationToken, server, handler);
+			return HttpsTestRunner.RunStatic (ctx,  cancellationToken, server, handler);
 		}
 	}
 }
