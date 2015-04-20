@@ -29,7 +29,9 @@ namespace Xamarin.WebTests.Providers
 {
 	public enum HttpProviderType
 	{
-		Default
+		Default,
+		MonoWithOldTLS,
+		MonoWithNewTLS
 	}
 }
 

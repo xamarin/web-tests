@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Collections.Generic;
 
 namespace Xamarin.WebTests.Server
 {
@@ -34,6 +35,13 @@ namespace Xamarin.WebTests.Server
 	class DefaultHttpProviderFactory : IHttpProviderFactory
 	{
 		static readonly DefaultHttpProvider defaultProvider = new DefaultHttpProvider ();
+		readonly Dictionary<HttpProviderType,IHttpProvider> providers;
+
+		internal DefaultHttpProviderFactory ()
+		{
+			providers = new Dictionary<HttpProviderType, IHttpProvider> ();
+			providers.Add (HttpProviderType.Default, defaultProvider);
+		}
 
 		public IHttpProvider Default {
 			get { return defaultProvider; }
@@ -41,14 +49,17 @@ namespace Xamarin.WebTests.Server
 
 		public bool IsSupported (HttpProviderType type)
 		{
-			return type == HttpProviderType.Default;
+			return providers.ContainsKey (type);
+		}
+
+		protected void Install (HttpProviderType type, IHttpProvider provider)
+		{
+			providers.Add (type, provider);
 		}
 
 		public IHttpProvider GetProvider (HttpProviderType type)
 		{
-			if (type == HttpProviderType.Default)
-				return defaultProvider;
-			throw new NotSupportedException ();
+			return providers [type];
 		}
 
 		public bool SupportsPerRequestCertificateValidator {

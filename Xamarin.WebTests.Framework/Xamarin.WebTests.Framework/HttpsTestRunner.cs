@@ -52,7 +52,6 @@ namespace Xamarin.WebTests.Framework
 			var endpoint = support.GetLoopbackEndpoint (9999);
 
 			var mode = ctx.GetParameter<HttpTestMode> ();
-			var certificateType = ctx.GetParameter<ServerCertificateType> ();
 
 			ListenerFlags flags;
 			switch (mode) {
@@ -78,6 +77,10 @@ namespace Xamarin.WebTests.Framework
 
 			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
 			var provider = factory.GetProvider (providerType);
+
+			ServerCertificateType certificateType;
+			if (!ctx.TryGetParameter (out certificateType))
+				certificateType = ServerCertificateType.Default;
 
 			var certificate = ResourceManager.GetServerCertificate (certificateType);
 			return provider.CreateServer (endpoint, flags, certificate);
