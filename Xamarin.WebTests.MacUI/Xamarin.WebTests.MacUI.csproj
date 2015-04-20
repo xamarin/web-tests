@@ -96,9 +96,6 @@
     <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\HttpWebRequestImpl.cs">
       <Link>Xamarin.WebTests.Server\HttpWebRequestImpl.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\HttpWebRequestProvider.cs">
-      <Link>Xamarin.WebTests.Server\HttpWebRequestProvider.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\Listener.cs">
       <Link>Xamarin.WebTests.Server\Listener.cs</Link>
     </Compile>
@@ -113,6 +110,12 @@
     </Compile>
     <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\CertificateProvider.cs">
       <Link>Xamarin.WebTests.Server\CertificateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\DefaultHttpProvider.cs">
+      <Link>Xamarin.WebTests.Server\DefaultHttpProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests.Console\Xamarin.WebTests.Server\DefaultHttpProviderFactory.cs">
+      <Link>Xamarin.WebTests.Server\DefaultHttpProviderFactory.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
