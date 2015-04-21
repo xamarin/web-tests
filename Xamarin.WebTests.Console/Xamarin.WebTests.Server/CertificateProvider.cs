@@ -84,6 +84,11 @@ namespace Xamarin.WebTests.Server
 			return new CertificateValidator ((s, c, ch, e) => false);
 		}
 
+		public ICertificateValidator AcceptAll ()
+		{
+			return new CertificateValidator ((s, c, ch, e) => true);
+		}
+
 		public IServerCertificate GetServerCertificate (byte[] data, string password)
 		{
 			return new CertificateFromPFX (data, password);

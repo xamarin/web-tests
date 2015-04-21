@@ -37,6 +37,8 @@ namespace Xamarin.WebTests.Providers
 
 		ICertificateValidator RejectAll ();
 
+		ICertificateValidator AcceptAll ();
+
 		void InstallDefaultValidator (ICertificateValidator validator);
 
 		ICertificate GetCertificateFromData (byte[] data);
