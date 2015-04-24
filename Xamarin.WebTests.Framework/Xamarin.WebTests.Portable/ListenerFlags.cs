@@ -27,13 +27,24 @@ using System;
 
 namespace Xamarin.WebTests.Portable
 {
+	[Flags]
 	public enum ListenerFlags
 	{
-		None,
-		Proxy,
-		ReuseConnection,
-		ExpectTrustFailure,
-		RequireClientCertificate
+		None				= 0,
+		Proxy				= 1,
+		ReuseConnection			= 2,
+
+		ExpectError			= 4,
+		ExpectTrustFailure		= 8,
+
+		RejectServerCertificate		= 16,
+		ProvideClientCertificate	= 32,
+		RequireClientCertificate	= 64,
+		RejectClientCertificate		= 128,
+
+		SSLErrorMask			= ExpectError | ExpectTrustFailure,
+		SSLMask				= SSLErrorMask | RejectServerCertificate | ProvideClientCertificate |  RequireClientCertificate | RejectClientCertificate,
+		SSLIncompatibleMask		= Proxy
 	}
 }
 

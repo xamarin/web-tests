@@ -32,7 +32,9 @@ namespace Xamarin.WebTests.Framework
 		Default,
 		ReuseConnection,
 		RejectServerCertificate,
-		RequireClientCertificate
+		RequireClientCertificate,
+		RejectClientCertificate,
+		MissingClientCertificate
 	}
 }
 

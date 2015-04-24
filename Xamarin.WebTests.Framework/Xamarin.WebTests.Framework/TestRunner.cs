@@ -117,7 +117,7 @@ namespace Xamarin.WebTests.Framework
 			CancellationToken cancellationToken, HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
-			Debug (ctx, server, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error);
+			Debug (ctx, server, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error != null ? response.Error.Message : string.Empty);
 
 			if (ctx.HasPendingException)
 				return;
@@ -132,7 +132,8 @@ namespace Xamarin.WebTests.Framework
 				ctx.Expect (response.Status, Is.EqualTo (expectedStatus));
 				var wexc = response.Error as WebException;
 				ctx.Expect (wexc, Is.Not.Null, "WebException");
-				ctx.Expect ((WebExceptionStatus)wexc.Status, Is.EqualTo (expectedError));
+				if (expectedError != WebExceptionStatus.AnyErrorStatus)
+					ctx.Expect ((WebExceptionStatus)wexc.Status, Is.EqualTo (expectedError));
 				return;
 			}
 

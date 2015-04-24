@@ -67,8 +67,13 @@ namespace Xamarin.WebTests.Server
 			this.serverCertificate = serverCertificate;
 			this.ssl = serverCertificate != null;
 
-			if (flags == ListenerFlags.ExpectTrustFailure && !ssl)
-				throw new InvalidOperationException ();
+			if (ssl) {
+				if ((flags & ListenerFlags.SSLIncompatibleMask) != 0)
+					throw new InvalidOperationException ();
+			} else {
+				if ((flags & ListenerFlags.SSLMask) != 0)
+					throw new InvalidOperationException ();
+			}
 
 			var address = IPAddress.Parse (endpoint.Address);
 			var networkEndpoint = new IPEndPoint (address, endpoint.Port);
@@ -253,20 +258,26 @@ namespace Xamarin.WebTests.Server
 				else {
 					var certificate = CertificateProvider.GetCertificate (serverCertificate);
 
-					var clientCertificateRequired = flags == ListenerFlags.RequireClientCertificate;
+					var clientCertificateRequired = (flags & ListenerFlags.RequireClientCertificate) != 0;
 					var protocols = (SslProtocols)ServicePointManager.SecurityProtocol;
 
-					var sslStream = new SslStream (stream, false, (s,c,ch,e) => true);
+					RemoteCertificateValidationCallback validationCallback = (s,c,ch,e) => {
+						if ((flags & ListenerFlags.RejectClientCertificate) != 0)
+							return false;
+						return true;
+					};
+
+					var sslStream = new SslStream (stream, false, validationCallback);
 					sslStream.AuthenticateAsServer (certificate, clientCertificateRequired, protocols, false);
 					authenticatedStream = sslStream;
 				}
 
-				if (flags == ListenerFlags.ExpectTrustFailure)
+				if ((flags & ListenerFlags.ExpectTrustFailure) != 0)
 					throw new InvalidOperationException ("Expected TLS Trust Failure error.");
 
 				return authenticatedStream;
 			} catch {
-				if (flags == ListenerFlags.ExpectTrustFailure)
+				if ((flags & ListenerFlags.SSLErrorMask) != 0)
 					return null;
 				throw;
 			}

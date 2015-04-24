@@ -62,9 +62,16 @@ namespace Xamarin.WebTests.Framework
 				flags = ListenerFlags.ReuseConnection;
 				break;
 			case HttpTestMode.RejectServerCertificate:
-				flags = ListenerFlags.ExpectTrustFailure;
+				flags = ListenerFlags.ExpectTrustFailure | ListenerFlags.RejectServerCertificate;
 				break;
 			case HttpTestMode.RequireClientCertificate:
+				flags = ListenerFlags.ProvideClientCertificate | ListenerFlags.RequireClientCertificate;
+				break;
+			case HttpTestMode.RejectClientCertificate:
+				flags = ListenerFlags.RejectClientCertificate | ListenerFlags.ExpectError |
+					ListenerFlags.ProvideClientCertificate | ListenerFlags.RequireClientCertificate;
+				break;
+			case HttpTestMode.MissingClientCertificate:
 				flags = ListenerFlags.RequireClientCertificate;
 				break;
 			default:
@@ -99,14 +106,14 @@ namespace Xamarin.WebTests.Framework
 
 			var provider = DependencyInjector.Get<ICertificateProvider> ();
 
-			if (server.Flags == ListenerFlags.ExpectTrustFailure)
+			if ((server.Flags & ListenerFlags.RejectServerCertificate) != 0)
 				request.Request.InstallCertificateValidator (provider.RejectAll ());
 			else {
 				var validator = provider.AcceptThisCertificate (server.ServerCertificate);
 				request.Request.InstallCertificateValidator (validator);
 			}
 
-			if (server.Flags == ListenerFlags.RequireClientCertificate) {
+			if ((server.Flags & ListenerFlags.ProvideClientCertificate) != 0) {
 				var clientCertificate = ResourceManager.MonkeyCertificate;
 				request.Request.SetClientCertificates (new IClientCertificate[] { clientCertificate });
 			}
@@ -125,10 +132,12 @@ namespace Xamarin.WebTests.Framework
 			ctx.Assert (certificate, Is.Not.Null, "certificate");
 			ctx.Assert (provider.AreEqual (certificate, server.ServerCertificate), "correct certificate");
 
-			if (server.Flags == ListenerFlags.RequireClientCertificate) {
-				var clientCertificate = traditionalRequest.Request.GetClientCertificate ();
+			var clientCertificate = traditionalRequest.Request.GetClientCertificate ();
+			if ((server.Flags & ListenerFlags.ProvideClientCertificate) != 0) {
 				ctx.Assert (clientCertificate, Is.Not.Null, "client certificate");
 				ctx.Assert (provider.AreEqual (clientCertificate, ResourceManager.MonkeyCertificate), "correct client certificate");
+			} else {
+				ctx.Assert (clientCertificate, Is.Null, "no client certificate");
 			}
 
 			return response;
@@ -137,8 +146,10 @@ namespace Xamarin.WebTests.Framework
 		public static Task Run (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler)
 		{
 			var runner = new HttpsTestRunner ();
-			if (server.Flags == ListenerFlags.ExpectTrustFailure)
+			if ((server.Flags & ListenerFlags.ExpectTrustFailure) != 0)
 				return runner.Run (ctx, cancellationToken, server, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
+			else if ((server.Flags & ListenerFlags.ExpectError) != 0)
+				return runner.Run (ctx, cancellationToken, server, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.AnyErrorStatus);
 			else
 				return runner.Run (ctx, cancellationToken, server, handler, null, HttpStatusCode.OK, WebExceptionStatus.Success);
 		}

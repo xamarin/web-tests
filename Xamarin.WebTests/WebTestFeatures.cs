@@ -321,10 +321,13 @@ namespace Xamarin.WebTests
 					yield return HttpTestMode.ReuseConnection;
 					yield return HttpTestMode.RejectServerCertificate;
 					// This requires a new Mono.
-					if (ctx.IsEnabled (CertificateTests))
+					if (ctx.IsEnabled (CertificateTests)) {
 						yield return HttpTestMode.RequireClientCertificate;
+						yield return HttpTestMode.RejectClientCertificate;
+						yield return HttpTestMode.MissingClientCertificate;
+					}
 				} else if (filter.Equals ("work")) {
-					yield return HttpTestMode.RequireClientCertificate;
+					yield return HttpTestMode.RejectClientCertificate;
 				} else {
 					throw new InvalidOperationException ();
 				}

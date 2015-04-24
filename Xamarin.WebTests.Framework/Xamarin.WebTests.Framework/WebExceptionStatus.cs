@@ -54,5 +54,8 @@ namespace Xamarin.WebTests.Framework
 		CacheEntryNotFound = 18,
 		RequestProhibitedByCachePolicy = 19,
 		RequestProhibitedByProxy = 20,
+
+		// Allow any value.
+		AnyErrorStatus = 255
 	}
 }
