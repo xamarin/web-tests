@@ -327,7 +327,7 @@ namespace Xamarin.WebTests
 						yield return HttpTestMode.MissingClientCertificate;
 					}
 				} else if (filter.Equals ("work")) {
-					yield return HttpTestMode.RejectClientCertificate;
+					yield return HttpTestMode.MissingClientCertificate;
 				} else {
 					throw new InvalidOperationException ();
 				}

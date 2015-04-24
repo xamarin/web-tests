@@ -72,7 +72,7 @@ namespace Xamarin.WebTests.Framework
 					ListenerFlags.ProvideClientCertificate | ListenerFlags.RequireClientCertificate;
 				break;
 			case HttpTestMode.MissingClientCertificate:
-				flags = ListenerFlags.RequireClientCertificate;
+				flags = ListenerFlags.RequireClientCertificate | ListenerFlags.ExpectError;
 				break;
 			default:
 				throw new InvalidOperationException ();

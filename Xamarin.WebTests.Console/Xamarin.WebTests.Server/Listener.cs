@@ -270,6 +270,9 @@ namespace Xamarin.WebTests.Server
 					var sslStream = new SslStream (stream, false, validationCallback);
 					sslStream.AuthenticateAsServer (certificate, clientCertificateRequired, protocols, false);
 					authenticatedStream = sslStream;
+
+					if (clientCertificateRequired && !sslStream.IsMutuallyAuthenticated)
+						throw new WebException ("Not mutually authenticated", WebExceptionStatus.TrustFailure);
 				}
 
 				if ((flags & ListenerFlags.ExpectTrustFailure) != 0)
