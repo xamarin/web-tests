@@ -35,9 +35,20 @@ namespace Xamarin.WebTests.Server
 
 	class CertificateProvider : ICertificateProvider
 	{
+		static readonly ICertificateValidator acceptAll = new CertificateValidator ((s, c, ch, e) => true);
+		static readonly ICertificateValidator rejectAll = new CertificateValidator ((s, c, ch, e) => false);
+
+		public static ICertificateValidator AcceptAll {
+			get { return acceptAll; }
+		}
+
+		public static ICertificateValidator RejectAll {
+			get { return rejectAll; }
+		}
+
 		public ICertificateValidator GetDefault ()
 		{
-			return RejectAll ();
+			return RejectAll;
 		}
 
 		ICertificateValidator ICertificateProvider.AcceptThisCertificate (IServerCertificate certificate)
@@ -79,14 +90,14 @@ namespace Xamarin.WebTests.Server
 			return true;
 		}
 
-		public ICertificateValidator RejectAll ()
+		ICertificateValidator ICertificateProvider.RejectAll ()
 		{
-			return new CertificateValidator ((s, c, ch, e) => false);
+			return RejectAll;
 		}
 
-		public ICertificateValidator AcceptAll ()
+		ICertificateValidator ICertificateProvider.AcceptAll ()
 		{
-			return new CertificateValidator ((s, c, ch, e) => true);
+			return AcceptAll;
 		}
 
 		public IServerCertificate GetServerCertificate (byte[] data, string password)
@@ -121,7 +132,9 @@ namespace Xamarin.WebTests.Server
 
 			var aImpl = (CertificateFromData)a;
 			var bImpl = (CertificateFromData)b;
-			return string.Equals (aImpl.GetCertificateHash (), bImpl.GetCertificateHash ());
+			var aHash = aImpl.GetCertificateHash ();
+			var bHash = bImpl.GetCertificateHash ();
+			return string.Equals (aHash, bHash);
 		}
 
 		class CertificateFromData : ICertificate

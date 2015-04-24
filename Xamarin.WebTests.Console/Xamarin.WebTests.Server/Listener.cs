@@ -253,9 +253,10 @@ namespace Xamarin.WebTests.Server
 
 			try {
 				Stream authenticatedStream;
-				if (provider.SslStreamProvider != null)
-					authenticatedStream = provider.SslStreamProvider.CreateServerStream (stream, serverCertificate);
-				else {
+				if (provider.SslStreamProvider != null) {
+					var validator = CertificateProvider.AcceptAll;
+					authenticatedStream = provider.SslStreamProvider.CreateServerStream (stream, serverCertificate, validator, flags);
+				} else {
 					var certificate = CertificateProvider.GetCertificate (serverCertificate);
 
 					var clientCertificateRequired = (flags & ListenerFlags.RequireClientCertificate) != 0;

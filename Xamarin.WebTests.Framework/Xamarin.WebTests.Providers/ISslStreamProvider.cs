@@ -32,7 +32,7 @@ namespace Xamarin.WebTests.Providers
 
 	public interface ISslStreamProvider
 	{
-		Stream CreateServerStream (Stream stream, IServerCertificate certificate);
+		Stream CreateServerStream (Stream stream, IServerCertificate certificate, ICertificateValidator validator, ListenerFlags flags);
 	}
 }
 
