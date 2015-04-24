@@ -24,7 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
+using System.Security.Authentication;
+using System.Net.Security;
 using Http = System.Net.Http;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
@@ -36,7 +39,7 @@ namespace Xamarin.WebTests.Server
 	using Providers;
 	using HttpClient;
 
-	class DefaultHttpProvider : IHttpProvider
+	class DefaultHttpProvider : IHttpProvider, ISslStreamProvider
 	{
 		public bool SupportsHttpClient {
 			get { return true; }
@@ -67,9 +70,29 @@ namespace Xamarin.WebTests.Server
 			get { return null; }
 		}
 
+		public ISslStreamProvider DefaultSslStreamProvider {
+			get { return this; }
+		}
+
 		public HttpServer CreateServer (IPortableEndPoint endpoint, ListenerFlags flags, IServerCertificate serverCertificate)
 		{
 			return new HttpServer (this, endpoint, flags, serverCertificate);
+		}
+
+		public Stream CreateServerStream (Stream stream, IServerCertificate serverCertificate, ICertificateValidator validator, ListenerFlags flags)
+		{
+			var certificate = CertificateProvider.GetCertificate (serverCertificate);
+
+			var clientCertificateRequired = (flags & ListenerFlags.RequireClientCertificate) != 0;
+			var protocols = (SslProtocols)ServicePointManager.SecurityProtocol;
+
+			var sslStream = new SslStream (stream, false, ((CertificateValidator)validator).ValidationCallback);
+			sslStream.AuthenticateAsServer (certificate, clientCertificateRequired, protocols, false);
+
+			if (clientCertificateRequired && !sslStream.IsMutuallyAuthenticated)
+				throw new WebException ("Not mutually authenticated", System.Net.WebExceptionStatus.TrustFailure);
+
+			return sslStream;
 		}
 	}
 }

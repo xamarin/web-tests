@@ -252,29 +252,15 @@ namespace Xamarin.WebTests.Server
 				return stream;
 
 			try {
-				Stream authenticatedStream;
-				if (provider.SslStreamProvider != null) {
-					var validator = CertificateProvider.AcceptAll;
-					authenticatedStream = provider.SslStreamProvider.CreateServerStream (stream, serverCertificate, validator, flags);
-				} else {
-					var certificate = CertificateProvider.GetCertificate (serverCertificate);
+				var sslStreamProvider = provider.SslStreamProvider ?? provider.DefaultSslStreamProvider;
 
-					var clientCertificateRequired = (flags & ListenerFlags.RequireClientCertificate) != 0;
-					var protocols = (SslProtocols)ServicePointManager.SecurityProtocol;
+				ICertificateValidator validator;
+				if ((flags & ListenerFlags.RejectClientCertificate) != 0)
+					validator = CertificateProvider.RejectAll;
+				else
+					validator = CertificateProvider.AcceptAll;
 
-					RemoteCertificateValidationCallback validationCallback = (s,c,ch,e) => {
-						if ((flags & ListenerFlags.RejectClientCertificate) != 0)
-							return false;
-						return true;
-					};
-
-					var sslStream = new SslStream (stream, false, validationCallback);
-					sslStream.AuthenticateAsServer (certificate, clientCertificateRequired, protocols, false);
-					authenticatedStream = sslStream;
-
-					if (clientCertificateRequired && !sslStream.IsMutuallyAuthenticated)
-						throw new WebException ("Not mutually authenticated", WebExceptionStatus.TrustFailure);
-				}
+				var authenticatedStream = sslStreamProvider.CreateServerStream (stream, serverCertificate, validator, flags);
 
 				if ((flags & ListenerFlags.ExpectTrustFailure) != 0)
 					throw new InvalidOperationException ("Expected TLS Trust Failure error.");
