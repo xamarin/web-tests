@@ -1,5 +1,5 @@
 ﻿//
-// ChunkedContent.cs
+// StringContent.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,72 +25,60 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Linq;
-using System.Globalization;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.HttpFramework
 {
-	public class ChunkedContent : HttpContent
+	public class StringContent : HttpContent
 	{
-		List<string> chunks;
+		string content;
 
-		public ChunkedContent (params string[] chunks)
+		public StringContent (string content)
 		{
-			this.chunks = new List<string> (chunks);
+			this.content = content;
 		}
 
-		public ChunkedContent (IEnumerable<string> chunks)
+		public static readonly StringContent Empty = new StringContent (string.Empty);
+
+		public static HttpContent CreateMaybeNull (string content)
 		{
-			this.chunks = new List<string> (chunks);
+			return content != null ? new StringContent (content) : null;
 		}
 
-		public static async Task<ChunkedContent> Read (StreamReader reader)
+		public async static Task<StringContent> Read (StreamReader reader, int length)
 		{
-			var chunks = new List<string> ();
-
-			do {
-				var header = reader.ReadLine ();
-				var length = int.Parse (header, NumberStyles.HexNumber);
-				if (length == 0)
-					break;
-
-				var buffer = new char [length];
-				var ret = await reader.ReadAsync (buffer, 0, length);
-				if (ret != length)
+			var buffer = new char [length];
+			int offset = 0;
+			while (offset < length) {
+				var len = Math.Min (4096, length - offset);
+				var ret = await reader.ReadAsync (buffer, offset, len);
+				if (ret <= 0)
 					throw new InvalidOperationException ();
 
-				chunks.Add (new string (buffer));
+				offset += ret;
+			}
 
-				var empty = reader.ReadLine ();
-				if (!string.IsNullOrEmpty (empty))
-					throw new InvalidOperationException ();
-			} while (true);
-
-			return new ChunkedContent (chunks);
-		}
-
-		public override int Length {
-			get { return chunks.Sum (c => c.Length); }
+			return new StringContent (new string (buffer));
 		}
 
 		public override string AsString ()
 		{
-			return string.Join (string.Empty, chunks);
+			return content;
 		}
 
 		public override void AddHeadersTo (HttpMessage message)
 		{
-			message.SetHeader ("Transfer-Encoding", "chunked");
+			if (!message.Headers.ContainsKey ("Content-Length"))
+				message.AddHeader ("Content-Length", content.Length);
+			if (!message.Headers.ContainsKey ("Content-Type"))
+				message.AddHeader ("Content-Type", "text/plain");
 		}
 
 		public override async Task WriteToAsync (StreamWriter writer)
 		{
-			foreach (var chunk in chunks)
-				await writer.WriteAsync (string.Format ("{0:x}\r\n{1}\r\n", chunk.Length, chunk));
-			await writer.WriteAsync ("0\r\n\r\n\r\n");
+			if (!string.IsNullOrEmpty (content))
+				await writer.WriteAsync (content);
 		}
 	}
 }

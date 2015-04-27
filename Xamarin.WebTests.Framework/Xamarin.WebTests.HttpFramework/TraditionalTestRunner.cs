@@ -1,5 +1,5 @@
 ﻿//
-// HttpTestMode.cs
+// TraditionalTestRunner.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Text;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections;
+using System.Collections.Generic;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.HttpFramework
 {
-	public enum HttpTestMode
+	using Handlers;
+
+	public class TraditionalTestRunner : TestRunner
 	{
-		Default,
-		ReuseConnection,
-		RejectServerCertificate,
-		RequireClientCertificate,
-		RejectClientCertificate,
-		MissingClientCertificate
+		public bool SendAsync {
+			get; set;
+		}
+
+		protected override Request CreateRequest (TestContext ctx, HttpServer server, Handler handler, Uri uri)
+		{
+			return new TraditionalRequest (uri);
+		}
+
+		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler, Request request)
+		{
+			var traditionalRequest = (TraditionalRequest)request;
+
+			Response response;
+			if (SendAsync)
+				response = await traditionalRequest.SendAsync (ctx, cancellationToken);
+			else
+				response = await traditionalRequest.Send (ctx, cancellationToken);
+
+			return response;
+		}
 	}
 }
 

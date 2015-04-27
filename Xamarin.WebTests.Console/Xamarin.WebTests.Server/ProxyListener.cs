@@ -38,7 +38,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Server
 {
-	using Framework;
+	using HttpFramework;
 	using Portable;
 
 	class ProxyListener : Listener

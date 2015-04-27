@@ -42,7 +42,7 @@ namespace Xamarin.WebTests.TestProvider
 {
 	using Server;
 	using Resources;
-	using Framework;
+	using HttpFramework;
 	using Providers;
 	using HttpClient;
 

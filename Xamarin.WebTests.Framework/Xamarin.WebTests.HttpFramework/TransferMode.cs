@@ -1,5 +1,5 @@
 ﻿//
-// RequestFlags.cs
+// TransferMode.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,17 +25,13 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.HttpFramework
 {
-	public enum RequestFlags
+	public enum TransferMode
 	{
-		None,
-		Redirected		= 1,
-		RedirectedAsGet		= 2,
-		ExplicitlySetLength	= 4,
-		SendContinue		= 8,
-		NoBody			= 16,
-		KeepAlive		= 32
+		Default,
+		Chunked,
+		ContentLength
 	}
 }
 

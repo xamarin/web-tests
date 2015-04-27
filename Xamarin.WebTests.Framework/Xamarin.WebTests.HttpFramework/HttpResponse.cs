@@ -27,7 +27,7 @@ using System;
 using System.IO;
 using System.Net;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.HttpFramework
 {
 	public class HttpResponse : HttpMessage
 	{

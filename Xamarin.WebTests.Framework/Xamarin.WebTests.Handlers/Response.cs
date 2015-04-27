@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Handlers
 {
-	using Framework;
+	using HttpFramework;
 
 	public abstract class Response
 	{

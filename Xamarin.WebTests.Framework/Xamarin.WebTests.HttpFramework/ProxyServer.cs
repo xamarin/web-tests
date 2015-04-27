@@ -31,9 +31,8 @@ using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.HttpFramework
 {
-	using Framework;
 	using Handlers;
 	using Portable;
 	using Providers;

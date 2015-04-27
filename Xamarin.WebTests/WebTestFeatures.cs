@@ -42,7 +42,7 @@ using Xamarin.WebTests.Providers;
 
 namespace Xamarin.WebTests
 {
-	using Framework;
+	using HttpFramework;
 	using Portable;
 	using Resources;
 	using Internal;

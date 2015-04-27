@@ -1,5 +1,5 @@
 ﻿//
-// HttpConnection.cs
+// HttpRequest.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,23 +25,57 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Net;
-using System.Collections.Generic;
+using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Globalization;
+using System.Collections.Generic;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.HttpFramework
 {
-	public class HttpConnection : Connection
+	public class HttpRequest : HttpMessage
 	{
-		public HttpServer Server {
+		public HttpRequest (Connection connection, StreamReader reader)
+			: base (connection, reader)
+		{
+		}
+
+		public string Method {
 			get; private set;
 		}
 
-		public HttpConnection (HttpServer server, Stream stream)
-			: base (stream)
+		public string Path {
+			get; private set;
+		}
+
+		protected override void Read ()
 		{
-			Server = server;
+			var header = reader.ReadLine ();
+			if (header == null)
+				throw new IOException ("Connection has been closed.");
+
+			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
+			if (fields.Length != 3)
+				throw new InvalidOperationException ();
+
+			Method = fields [0];
+			Protocol = ProtocolFromString (fields [2]);
+			if (Method.Equals ("CONNECT"))
+				Path = fields [1];
+			else
+				Path = fields [1].StartsWith ("/") ? fields [1] : new Uri (fields [1]).AbsolutePath;
+
+			ReadHeaders ();
+		}
+
+		public void Write (StreamWriter writer)
+		{
+			writer.Write ("{0} {1} {2}\r\n", Method, Path, ProtocolToString (Protocol));
+			WriteHeaders (writer);
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[HttpRequest: Method={0}, Path={1}]", Method, Path);
 		}
 	}
 }

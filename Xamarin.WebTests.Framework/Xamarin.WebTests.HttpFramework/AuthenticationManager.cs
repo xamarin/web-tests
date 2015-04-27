@@ -27,7 +27,7 @@ using System;
 using System.Net;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.HttpFramework
 {
 	using Portable;
 

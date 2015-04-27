@@ -1,5 +1,5 @@
 ﻿//
-// TraditionalTestRunner.cs
+// HttpClientTestRunner.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -34,31 +34,37 @@ using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.HttpFramework
 {
 	using Handlers;
-	using Framework;
 
-	public class TraditionalTestRunner : TestRunner
+	public class HttpClientTestRunner : TestRunner
 	{
-		public bool SendAsync {
-			get; set;
-		}
-
 		protected override Request CreateRequest (TestContext ctx, HttpServer server, Handler handler, Uri uri)
 		{
-			return new TraditionalRequest (uri);
+			return new HttpClientRequest ((HttpClientHandler)handler, uri);
 		}
 
 		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler, Request request)
 		{
-			var traditionalRequest = (TraditionalRequest)request;
+			var httpClientHandler = (HttpClientHandler)handler;
+			var httpClientRequest = (HttpClientRequest)request;
 
 			Response response;
-			if (SendAsync)
-				response = await traditionalRequest.SendAsync (ctx, cancellationToken);
-			else
-				response = await traditionalRequest.Send (ctx, cancellationToken);
+
+			switch (httpClientHandler.Operation) {
+			case HttpClientOperation.GetString:
+				response = await httpClientRequest.GetString (ctx, cancellationToken);
+				break;
+			case HttpClientOperation.PostString:
+				response = await httpClientRequest.PostString (ctx, httpClientHandler.ReturnContent, cancellationToken);
+				break;
+			case HttpClientOperation.Put:
+				response = await httpClientRequest.Put (ctx, cancellationToken);
+				break;
+			default:
+				throw new InvalidOperationException ();
+			}
 
 			return response;
 		}

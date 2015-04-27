@@ -28,7 +28,7 @@ using System.Net;
 
 namespace Xamarin.WebTests.Handlers
 {
-	using Framework;
+	using HttpFramework;
 
 	public class SimpleResponse : Response
 	{

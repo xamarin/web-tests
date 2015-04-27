@@ -1,5 +1,5 @@
 ﻿//
-// Connection.cs
+// RequestFlags.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,63 +24,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Text;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.HttpFramework
 {
-	using Portable;
-
-	public class Connection
+	public enum RequestFlags
 	{
-		StreamReader reader;
-		StreamWriter writer;
-
-		public Connection (Stream stream)
-		{
-			reader = new StreamReader (stream);
-			writer = new StreamWriter (stream);
-			writer.AutoFlush = true;
-		}
-
-		protected StreamReader RequestReader {
-			get { return reader; }
-		}
-
-		protected StreamWriter ResponseWriter {
-			get { return writer; }
-		}
-
-		public HttpRequest ReadRequest ()
-		{
-			if (reader.Peek () < 0 && reader.EndOfStream)
-				return null;
-			return new HttpRequest (this, reader);
-		}
-
-		protected HttpResponse ReadResponse ()
-		{
-			return new HttpResponse (this, reader);
-		}
-
-		protected void WriteRequest (HttpRequest request)
-		{
-			request.Write (writer);
-		}
-
-		public void WriteResponse (HttpResponse response)
-		{
-			response.Write (writer);
-		}
-
-		public void Close ()
-		{
-			writer.Flush ();
-		}
+		None,
+		Redirected		= 1,
+		RedirectedAsGet		= 2,
+		ExplicitlySetLength	= 4,
+		SendContinue		= 8,
+		NoBody			= 16,
+		KeepAlive		= 32
 	}
 }
 

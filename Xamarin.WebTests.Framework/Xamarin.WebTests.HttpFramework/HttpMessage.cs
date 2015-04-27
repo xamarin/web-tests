@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.Collections.Generic;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.HttpFramework
 {
 	public enum HttpProtocol {
 		Http10,

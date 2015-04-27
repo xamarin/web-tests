@@ -1,5 +1,5 @@
 ﻿//
-// StringContent.cs
+// ProxyConnection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,60 +25,43 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Text;
+using System.Net;
+using System.Globalization;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.HttpFramework
 {
-	public class StringContent : HttpContent
+	public class ProxyConnection : Connection
 	{
-		string content;
+		Connection proxy;
 
-		public StringContent (string content)
+		public ProxyConnection (Connection proxy, Stream stream)
+			: base (stream)
 		{
-			this.content = content;
+			this.proxy = proxy;
 		}
 
-		public static readonly StringContent Empty = new StringContent (string.Empty);
-
-		public static HttpContent CreateMaybeNull (string content)
+		public void HandleRequest (HttpRequest request)
 		{
-			return content != null ? new StringContent (content) : null;
+			var task = Task.Factory.StartNew (() => CopyResponse ());
+
+			WriteRequest (request);
+			var body = request.ReadBody ();
+			if (body != null)
+				body.WriteToAsync (ResponseWriter).Wait ();
+
+			task.Wait ();
 		}
 
-		public async static Task<StringContent> Read (StreamReader reader, int length)
+		void CopyResponse ()
 		{
-			var buffer = new char [length];
-			int offset = 0;
-			while (offset < length) {
-				var len = Math.Min (4096, length - offset);
-				var ret = await reader.ReadAsync (buffer, offset, len);
-				if (ret <= 0)
-					throw new InvalidOperationException ();
-
-				offset += ret;
-			}
-
-			return new StringContent (new string (buffer));
-		}
-
-		public override string AsString ()
-		{
-			return content;
-		}
-
-		public override void AddHeadersTo (HttpMessage message)
-		{
-			if (!message.Headers.ContainsKey ("Content-Length"))
-				message.AddHeader ("Content-Length", content.Length);
-			if (!message.Headers.ContainsKey ("Content-Type"))
-				message.AddHeader ("Content-Type", "text/plain");
-		}
-
-		public override async Task WriteToAsync (StreamWriter writer)
-		{
-			if (!string.IsNullOrEmpty (content))
-				await writer.WriteAsync (content);
+			var response = ReadResponse ();
+			response.SetHeader ("Connection", "close");
+			response.SetHeader ("Proxy-Connection", "close");
+			proxy.WriteResponse (response);
 		}
 	}
 }

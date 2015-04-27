@@ -30,7 +30,7 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.Providers
 {
 	using Portable;
-	using Framework;
+	using HttpFramework;
 	using HttpClient;
 
 	public interface IHttpProvider

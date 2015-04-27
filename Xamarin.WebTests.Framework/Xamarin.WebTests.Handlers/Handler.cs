@@ -32,7 +32,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Handlers
 {
-	using Framework;
+	using HttpFramework;
 
 	public abstract class Handler : Xamarin.AsyncTests.ICloneable, ITestFilter, ITestParameter
 	{

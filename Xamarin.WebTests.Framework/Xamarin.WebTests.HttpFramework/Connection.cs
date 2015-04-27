@@ -1,5 +1,5 @@
 ﻿//
-// HttpRequest.cs
+// Connection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,57 +25,61 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net;
 using System.Text;
-using System.Threading;
-using System.Globalization;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.HttpFramework
 {
-	public class HttpRequest : HttpMessage
+	using Portable;
+
+	public class Connection
 	{
-		public HttpRequest (Connection connection, StreamReader reader)
-			: base (connection, reader)
+		StreamReader reader;
+		StreamWriter writer;
+
+		public Connection (Stream stream)
 		{
+			reader = new StreamReader (stream);
+			writer = new StreamWriter (stream);
+			writer.AutoFlush = true;
 		}
 
-		public string Method {
-			get; private set;
+		protected StreamReader RequestReader {
+			get { return reader; }
 		}
 
-		public string Path {
-			get; private set;
+		protected StreamWriter ResponseWriter {
+			get { return writer; }
 		}
 
-		protected override void Read ()
+		public HttpRequest ReadRequest ()
 		{
-			var header = reader.ReadLine ();
-			if (header == null)
-				throw new IOException ("Connection has been closed.");
-
-			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
-			if (fields.Length != 3)
-				throw new InvalidOperationException ();
-
-			Method = fields [0];
-			Protocol = ProtocolFromString (fields [2]);
-			if (Method.Equals ("CONNECT"))
-				Path = fields [1];
-			else
-				Path = fields [1].StartsWith ("/") ? fields [1] : new Uri (fields [1]).AbsolutePath;
-
-			ReadHeaders ();
+			if (reader.Peek () < 0 && reader.EndOfStream)
+				return null;
+			return new HttpRequest (this, reader);
 		}
 
-		public void Write (StreamWriter writer)
+		protected HttpResponse ReadResponse ()
 		{
-			writer.Write ("{0} {1} {2}\r\n", Method, Path, ProtocolToString (Protocol));
-			WriteHeaders (writer);
+			return new HttpResponse (this, reader);
 		}
 
-		public override string ToString ()
+		protected void WriteRequest (HttpRequest request)
 		{
-			return string.Format ("[HttpRequest: Method={0}, Path={1}]", Method, Path);
+			request.Write (writer);
+		}
+
+		public void WriteResponse (HttpResponse response)
+		{
+			response.Write (writer);
+		}
+
+		public void Close ()
+		{
+			writer.Flush ();
 		}
 	}
 }

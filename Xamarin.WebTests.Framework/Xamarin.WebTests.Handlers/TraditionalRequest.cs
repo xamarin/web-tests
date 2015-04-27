@@ -33,7 +33,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Handlers
 {
-	using Framework;
+	using HttpFramework;
 	using Portable;
 	using Providers;
 
