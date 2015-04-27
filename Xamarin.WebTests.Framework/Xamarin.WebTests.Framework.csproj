@@ -96,6 +96,15 @@
     <Compile Include="Xamarin.WebTests.Providers\IHttpProviderFactory.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ISslStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ICertificateProvider.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionParameters.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ICommonConnectionParameters.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IServerParameters.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IClientParameters.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IClientAndServerParameters.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ServerParameters.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientParameters.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServerParameters.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionParameters.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">
@@ -117,6 +126,7 @@
     <Folder Include="Xamarin.WebTests.Portable\" />
     <Folder Include="Xamarin.WebTests.HttpClient\" />
     <Folder Include="Xamarin.WebTests.Providers\" />
+    <Folder Include="Xamarin.WebTests.ConnectionFramework\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
