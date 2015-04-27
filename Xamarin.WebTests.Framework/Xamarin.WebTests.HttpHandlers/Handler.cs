@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.WebTests.HttpHandlers
 {
 	using HttpFramework;
 

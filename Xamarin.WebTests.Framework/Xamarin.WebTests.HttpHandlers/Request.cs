@@ -1,5 +1,5 @@
 ﻿//
-// GetHandler.cs
+// IRequest.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,42 +24,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
-using System.Globalization;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.WebTests.HttpHandlers
 {
 	using HttpFramework;
+	using Portable;
 
-	public class GetHandler : Handler
+	public abstract class Request
 	{
-		public GetHandler (string identifier, HttpContent content)
-			: base (identifier)
-		{
+		public abstract string Method {
+			get; set;
 		}
 
 		public HttpContent Content {
-			get;
-			private set;
+			get; set;
 		}
 
-		public override object Clone ()
-		{
-			return new GetHandler (Value, Content);
-		}
+		public abstract void SetContentLength (long contentLength);
 
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
-		{
-			ctx.Assert (request.Method, Is.EqualTo ("get"), "method");
-			return new HttpResponse (HttpStatusCode.OK, Content);
-		}
+		public abstract void SetContentType (string contentType);
+
+		public abstract void SendChunked ();
+
+		public abstract void SetProxy (IPortableProxy proxy);
+
+		public abstract void SetCredentials (ICredentials credentials);
 	}
 }
 

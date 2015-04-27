@@ -1,5 +1,5 @@
 ﻿//
-// IRequest.cs
+// RedirectHandler.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,35 +25,52 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Text;
+using System.Globalization;
 
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.WebTests.HttpHandlers
 {
 	using HttpFramework;
-	using Portable;
 
-	public abstract class Request
+	public class RedirectHandler : AbstractRedirectHandler
 	{
-		public abstract string Method {
-			get; set;
+		public HttpStatusCode Code {
+			get;
+			private set;
 		}
 
-		public HttpContent Content {
-			get; set;
+		public override object Clone ()
+		{
+			return new RedirectHandler (Target, Code);
 		}
 
-		public abstract void SetContentLength (long contentLength);
+		public RedirectHandler (Handler target, HttpStatusCode code, string identifier = null)
+			: base (target, identifier ?? CreateIdentifier (target, code))
+		{
+			Code = code;
 
-		public abstract void SetContentType (string contentType);
+			if (!IsRedirectStatus (code))
+				throw new InvalidOperationException ();
+		}
 
-		public abstract void SendChunked ();
+		static string CreateIdentifier (Handler target, HttpStatusCode code)
+		{
+			return string.Format ("Redirect({0}): {1}", code, target.Value);
+		}
 
-		public abstract void SetProxy (IPortableProxy proxy);
+		static bool IsRedirectStatus (HttpStatusCode code)
+		{
+			var icode = (int)code;
+			return icode == 301 || icode == 302 || icode == 303 || icode == 307;
+		}
 
-		public abstract void SetCredentials (ICredentials credentials);
+		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		{
+			var targetUri = Target.RegisterRequest (connection.Server);
+			return HttpResponse.CreateRedirect (Code, targetUri);
+		}
 	}
 }
 

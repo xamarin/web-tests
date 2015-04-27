@@ -1,5 +1,5 @@
 ﻿//
-// RedirectHandler.cs
+// GetHandler.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,52 +24,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Globalization;
+using System.Collections.Generic;
 
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.WebTests.HttpHandlers
 {
 	using HttpFramework;
 
-	public class RedirectHandler : AbstractRedirectHandler
+	public class GetHandler : Handler
 	{
-		public HttpStatusCode Code {
+		public GetHandler (string identifier, HttpContent content)
+			: base (identifier)
+		{
+		}
+
+		public HttpContent Content {
 			get;
 			private set;
 		}
 
 		public override object Clone ()
 		{
-			return new RedirectHandler (Target, Code);
-		}
-
-		public RedirectHandler (Handler target, HttpStatusCode code, string identifier = null)
-			: base (target, identifier ?? CreateIdentifier (target, code))
-		{
-			Code = code;
-
-			if (!IsRedirectStatus (code))
-				throw new InvalidOperationException ();
-		}
-
-		static string CreateIdentifier (Handler target, HttpStatusCode code)
-		{
-			return string.Format ("Redirect({0}): {1}", code, target.Value);
-		}
-
-		static bool IsRedirectStatus (HttpStatusCode code)
-		{
-			var icode = (int)code;
-			return icode == 301 || icode == 302 || icode == 303 || icode == 307;
+			return new GetHandler (Value, Content);
 		}
 
 		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			var targetUri = Target.RegisterRequest (connection.Server);
-			return HttpResponse.CreateRedirect (Code, targetUri);
+			ctx.Assert (request.Method, Is.EqualTo ("get"), "method");
+			return new HttpResponse (HttpStatusCode.OK, Content);
 		}
 	}
 }

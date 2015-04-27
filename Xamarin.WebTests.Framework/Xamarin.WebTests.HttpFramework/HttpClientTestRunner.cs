@@ -36,7 +36,7 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpFramework
 {
-	using Handlers;
+	using HttpHandlers;
 
 	public class HttpClientTestRunner : TestRunner
 	{

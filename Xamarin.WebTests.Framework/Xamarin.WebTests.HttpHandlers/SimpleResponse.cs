@@ -1,5 +1,5 @@
 ﻿//
-// HelloWorldBehavior.cs
+// TraditionalResponse.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,31 +24,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
+using System.Net;
 
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.WebTests.HttpHandlers
 {
 	using HttpFramework;
 
-	public class HelloWorldHandler : Handler
+	public class SimpleResponse : Response
 	{
-		public HelloWorldHandler (string identifier)
-			: base (identifier)
-		{
+		HttpStatusCode code;
+		HttpContent content;
+		Exception error;
+
+		public override HttpStatusCode Status {
+			get { return code; }
 		}
 
-		static int next_id;
-
-		public override object Clone ()
-		{
-			return new HelloWorldHandler (Value);
+		public override HttpContent Content {
+			get { return content; }
 		}
 
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		public override bool IsSuccess {
+			get { return error == null; }
+		}
+
+		public override Exception Error {
+			get { return error; }
+		}
+
+		public SimpleResponse (Request request, HttpStatusCode code, HttpContent content, Exception error = null)
+			: base (request)
 		{
-			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
+			this.code = code;
+			this.content = content;
+			this.error = error;
 		}
 	}
 }
