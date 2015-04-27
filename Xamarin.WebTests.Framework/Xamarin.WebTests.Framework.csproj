@@ -105,6 +105,7 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientParameters.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServerParameters.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionParameters.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionException.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">
