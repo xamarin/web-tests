@@ -51,27 +51,24 @@ namespace Xamarin.WebTests.HttpFramework
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			var endpoint = support.GetLoopbackEndpoint (9999);
 
-			var mode = ctx.GetParameter<HttpTestMode> ();
+			var mode = ctx.GetParameter<SslTestMode> ();
 
 			ListenerFlags flags;
 			switch (mode) {
-			case HttpTestMode.Default:
+			case SslTestMode.Default:
 				flags = ListenerFlags.None;
 				break;
-			case HttpTestMode.ReuseConnection:
-				flags = ListenerFlags.ReuseConnection;
-				break;
-			case HttpTestMode.RejectServerCertificate:
+			case SslTestMode.RejectServerCertificate:
 				flags = ListenerFlags.ExpectTrustFailure | ListenerFlags.RejectServerCertificate;
 				break;
-			case HttpTestMode.RequireClientCertificate:
+			case SslTestMode.RequireClientCertificate:
 				flags = ListenerFlags.ProvideClientCertificate | ListenerFlags.RequireClientCertificate;
 				break;
-			case HttpTestMode.RejectClientCertificate:
+			case SslTestMode.RejectClientCertificate:
 				flags = ListenerFlags.RejectClientCertificate | ListenerFlags.ExpectError |
 					ListenerFlags.ProvideClientCertificate | ListenerFlags.RequireClientCertificate;
 				break;
-			case HttpTestMode.MissingClientCertificate:
+			case SslTestMode.MissingClientCertificate:
 				flags = ListenerFlags.RequireClientCertificate | ListenerFlags.ExpectError;
 				break;
 			default:

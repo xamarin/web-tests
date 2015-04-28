@@ -298,38 +298,24 @@ namespace Xamarin.WebTests
 		}
 
 		[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-		public class SelectHttpTestMode : TestParameterAttribute, ITestParameterSource<HttpTestMode>
+		public class SelectSslTestModeAttribute : TestParameterAttribute, ITestParameterSource<SslTestMode>
 		{
-			public SelectHttpTestMode (string filter = null, TestFlags flags = TestFlags.Browsable)
+			public SelectSslTestModeAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
 				: base (filter, flags)
 			{
 			}
 
-			public IEnumerable<HttpTestMode> GetParameters (TestContext ctx, string filter)
+			public IEnumerable<SslTestMode> GetParameters (TestContext ctx, string filter)
 			{
-				if (filter == null) {
-					yield return HttpTestMode.Default;
-					if (ctx.IsEnabled (ReuseConnection))
-						yield return HttpTestMode.ReuseConnection;
+				if (!ctx.IsEnabled (SSL))
 					yield break;
-				}
-
-				if (filter.Equals ("ssl")) {
-					if (!ctx.IsEnabled (SSL))
-						yield break;
-					yield return HttpTestMode.Default;
-					yield return HttpTestMode.ReuseConnection;
-					yield return HttpTestMode.RejectServerCertificate;
-					// This requires a new Mono.
-					if (ctx.IsEnabled (CertificateTests)) {
-						yield return HttpTestMode.RequireClientCertificate;
-						yield return HttpTestMode.RejectClientCertificate;
-						yield return HttpTestMode.MissingClientCertificate;
-					}
-				} else if (filter.Equals ("work")) {
-					yield return HttpTestMode.MissingClientCertificate;
-				} else {
-					throw new InvalidOperationException ();
+				yield return SslTestMode.Default;
+				yield return SslTestMode.RejectServerCertificate;
+				// This requires a new Mono.
+				if (ctx.IsEnabled (CertificateTests)) {
+					yield return SslTestMode.RequireClientCertificate;
+					yield return SslTestMode.RejectClientCertificate;
+					yield return SslTestMode.MissingClientCertificate;
 				}
 			}
 		}

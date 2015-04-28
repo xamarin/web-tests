@@ -52,8 +52,8 @@ namespace Xamarin.WebTests.Tests
 			private set;
 		}
 
-		[WebTestFeatures.SelectHttpTestMode ("ssl")]
-		public HttpTestMode TestMode {
+		[WebTestFeatures.SelectSslTestMode]
+		public SslTestMode TestMode {
 			get;
 			private set;
 		}

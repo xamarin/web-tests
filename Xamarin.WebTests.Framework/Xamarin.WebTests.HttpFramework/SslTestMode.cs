@@ -27,10 +27,9 @@ using System;
 
 namespace Xamarin.WebTests.HttpFramework
 {
-	public enum HttpTestMode
+	public enum SslTestMode
 	{
 		Default,
-		ReuseConnection,
 		RejectServerCertificate,
 		RequireClientCertificate,
 		RejectClientCertificate,
