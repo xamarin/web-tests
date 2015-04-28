@@ -59,6 +59,7 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetClient.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetConnection.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetServer.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DefaultSslStreamProviderFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
