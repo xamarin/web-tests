@@ -53,6 +53,7 @@
     <Compile Include="Xamarin.WebTests.Server\CertificateProvider.cs" />
     <Compile Include="Xamarin.WebTests.Server\DefaultHttpProvider.cs" />
     <Compile Include="Xamarin.WebTests.Server\DefaultHttpProviderFactory.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DefaultConnectionProviderFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
@@ -80,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Xamarin.WebTests.HttpClient\" />
+    <Folder Include="Xamarin.WebTests.ConnectionFramework\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
