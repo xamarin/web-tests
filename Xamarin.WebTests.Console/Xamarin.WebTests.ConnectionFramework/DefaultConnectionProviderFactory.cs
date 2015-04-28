@@ -53,13 +53,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			public IClient CreateClient (IClientParameters parameters)
 			{
-				throw new NotImplementedException ();
-				// return new DotNetClient (GetEndPoint (parameters), parameters);
+				return new DotNetClient (GetEndPoint (parameters), parameters);
 			}
 			public IServer CreateServer (IServerParameters parameters)
 			{
-				throw new NotImplementedException ();
-				// return new DotNetServer (GetEndPoint (parameters), parameters);
+				return new DotNetServer (GetEndPoint (parameters), parameters);
 			}
 		}
 
