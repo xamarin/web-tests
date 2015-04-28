@@ -118,6 +118,9 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\StreamWrapper.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServerHandler.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServerHandlerFactory.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderType.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionProvider.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionProviderFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">
