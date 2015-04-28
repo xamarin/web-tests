@@ -20,8 +20,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return (IClientParameters)base.Parameters; }
 		}
 
-		public DotNetClient (IPEndPoint endpoint, IClientParameters parameters)
-			: base (endpoint, parameters.ConnectionParameters)
+		public DotNetClient (IPEndPoint endpoint, SslProtocols protocols, IClientParameters parameters)
+			: base (endpoint, protocols, parameters.ConnectionParameters)
 		{
 		}
 
@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			var stream = new NetworkStream (socket);
 			var server = new SslStream (stream, false, RemoteValidationCallback, null);
-			await server.AuthenticateAsClientAsync (targetHost, clientCerts, SslProtocols.Tls12, false);
+			await server.AuthenticateAsClientAsync (targetHost, clientCerts, SslProtocols, false);
 
 			ctx.LogDebug (1, "Successfully authenticated.");
 

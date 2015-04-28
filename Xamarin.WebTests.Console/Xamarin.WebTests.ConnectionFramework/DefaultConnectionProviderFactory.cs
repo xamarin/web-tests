@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Security.Authentication;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -53,12 +54,17 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			public IClient CreateClient (IClientParameters parameters)
 			{
-				return new DotNetClient (GetEndPoint (parameters), parameters);
+				return new DotNetClient (GetEndPoint (parameters), SslProtocols, parameters);
 			}
+
 			public IServer CreateServer (IServerParameters parameters)
 			{
-				return new DotNetServer (GetEndPoint (parameters), parameters);
+				return new DotNetServer (GetEndPoint (parameters), SslProtocols, parameters);
 			}
+		}
+
+		static SslProtocols SslProtocols {
+			get { return SslProtocols.Default; }
 		}
 
 		static IPEndPoint GetEndPoint (ICommonConnectionParameters parameters)

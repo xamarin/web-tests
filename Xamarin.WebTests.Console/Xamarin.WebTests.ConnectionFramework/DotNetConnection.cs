@@ -40,9 +40,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public abstract class DotNetConnection : Connection, ICommonConnection
 	{
-		public DotNetConnection (IPEndPoint endpoint, IConnectionParameters parameters)
+		public DotNetConnection (IPEndPoint endpoint, SslProtocols protocols, IConnectionParameters parameters)
 			: base (endpoint, parameters)
 		{
+			this.protocols = protocols;
+		}
+
+		protected SslProtocols SslProtocols {
+			get { return protocols; }
 		}
 
 		Socket socket;
@@ -50,6 +55,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		TaskCompletionSource<Stream> tcs;
 
 		Stream sslStream;
+		SslProtocols protocols;
 
 		protected bool RemoteValidationCallback (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
 		{
