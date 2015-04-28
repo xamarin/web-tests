@@ -53,16 +53,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return ((CertificateValidator)validator).ValidationCallback;
 		}
 
-		static X509Certificate2Collection GetCertificates (ICollection<IClientCertificate> clientCertificates)
+		static X509Certificate2Collection GetClientCertificates (IClientParameters parameters)
 		{
-			if (clientCertificates == null)
+			if (parameters.ClientCertificate == null)
 				return null;
 
 			var clientCertificateCollection = new X509Certificate2Collection ();
-			foreach (var clientCertificate in clientCertificates) {
-				var certificate = (X509Certificate2)CertificateProvider.GetCertificate (clientCertificate);
-				clientCertificateCollection.Add (certificate);
-			}
+			var certificate = (X509Certificate2)CertificateProvider.GetCertificate (parameters.ClientCertificate);
+			clientCertificateCollection.Add (certificate);
 
 			return clientCertificateCollection;
 		}
@@ -84,28 +82,31 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public async Task<Stream> CreateServerStreamAsync (
-			Stream stream, IServerCertificate serverCertificate, ICertificateValidator validator,
-			SslStreamFlags flags, CancellationToken cancellationToken)
+			Stream stream, IServerParameters parameters, CancellationToken cancellationToken)
 		{
-			var certificate = CertificateProvider.GetCertificate (serverCertificate);
+			var certificate = CertificateProvider.GetCertificate (parameters.ServerCertificate);
 
-			var clientCertificateRequired = (flags & SslStreamFlags.RequireClientCertificate) != 0;
+			var protocol = GetSslProtocol ();
+			var validator = GetValidationCallback (parameters.ConnectionParameters.CertificateValidator);
 
-			var sslStream = new SslStream (stream, false, GetValidationCallback (validator));
-			await sslStream.AuthenticateAsServerAsync (certificate, clientCertificateRequired, GetSslProtocol (), false);
+			var sslStream = new SslStream (stream, false, validator);
+			await sslStream.AuthenticateAsServerAsync (certificate, parameters.RequireClientCertificate, protocol, false);
 
-			if (clientCertificateRequired && !sslStream.IsMutuallyAuthenticated)
+			if (parameters.RequireClientCertificate && !sslStream.IsMutuallyAuthenticated)
 				throw new WebException ("Not mutually authenticated", System.Net.WebExceptionStatus.TrustFailure);
 
 			return sslStream;
 		}
 
 		public async Task<Stream> CreateClientStreamAsync (
-			Stream stream, string targetHost, ICollection<IClientCertificate> clientCertificates,
-			ICertificateValidator validator, SslStreamFlags flags, CancellationToken cancellationToken)
+			Stream stream, string targetHost, IClientParameters parameters, CancellationToken cancellationToken)
 		{
-			var server = new SslStream (stream, false, GetValidationCallback (validator), null);
-			await server.AuthenticateAsClientAsync (targetHost, GetCertificates (clientCertificates), GetSslProtocol (), false);
+			var protocol = GetSslProtocol ();
+			var clientCertificates = GetClientCertificates (parameters);
+			var validator = GetValidationCallback (parameters.ConnectionParameters.CertificateValidator);
+
+			var server = new SslStream (stream, false, validator, null);
+			await server.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false);
 
 			return server;
 		}

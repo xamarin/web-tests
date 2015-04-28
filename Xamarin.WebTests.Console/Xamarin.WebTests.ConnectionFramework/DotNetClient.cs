@@ -32,17 +32,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			ctx.LogDebug (1, "Connected.");
 
-			List<IClientCertificate> clientCertificates = null;
-			if (Parameters.ClientCertificate != null) {
-				clientCertificates = new List<IClientCertificate> ();
-				clientCertificates.Add (Parameters.ClientCertificate);
-			}
-
 			var targetHost = "Hamiller-Tube.local";
 
 			var stream = new NetworkStream (socket);
 			var server = await SslStreamProvider.CreateClientStreamAsync (
-				stream, targetHost, clientCertificates, null, SslStreamFlags.None, cancellationToken);
+				stream, targetHost, Parameters, cancellationToken);
 
 			ctx.LogDebug (1, "Successfully authenticated.");
 

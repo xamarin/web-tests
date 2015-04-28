@@ -17,6 +17,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		ICertificate TrustedCA {
 			get; set;
 		}
+
+		ICertificateValidator CertificateValidator {
+			get; set;
+		}
 	}
 }
 

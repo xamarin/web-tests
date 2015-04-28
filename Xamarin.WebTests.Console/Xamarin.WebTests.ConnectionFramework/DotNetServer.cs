@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new NotSupportedException ();
 
 			var stream = new NetworkStream (socket);
-			var server = await SslStreamProvider.CreateServerStreamAsync (stream, Certificate, null, SslStreamFlags.None, cancellationToken);
+			var server = await SslStreamProvider.CreateServerStreamAsync (stream, Parameters, cancellationToken);
 
 			ctx.LogMessage ("Successfully authenticated.");
 

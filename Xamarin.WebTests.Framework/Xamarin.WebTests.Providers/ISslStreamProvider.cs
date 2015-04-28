@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Providers
 {
+	using ConnectionFramework;
 	using Portable;
 
 	public interface ISslStreamProvider
@@ -40,12 +41,10 @@ namespace Xamarin.WebTests.Providers
 			SslStreamFlags flags);
 
 		Task<Stream> CreateServerStreamAsync (
-			Stream stream, IServerCertificate serverCertificate, ICertificateValidator certificateValidator,
-			SslStreamFlags flags, CancellationToken cancellationToken);
+			Stream stream, IServerParameters parameters, CancellationToken cancellationToken);
 
 		Task<Stream> CreateClientStreamAsync (
-			Stream stream, string targetHost, ICollection<IClientCertificate> clientCertificates,
-			ICertificateValidator certificateValidator, SslStreamFlags flags, CancellationToken cancellationToken);
+			Stream stream, string targetHost, IClientParameters parameters, CancellationToken cancellationToken);
 	}
 }
 

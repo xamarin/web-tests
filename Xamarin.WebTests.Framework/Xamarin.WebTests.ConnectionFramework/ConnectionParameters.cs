@@ -29,6 +29,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			verifyPeerCertificate = other.verifyPeerCertificate;
 			EnableDebugging = other.EnableDebugging;
 			TrustedCA = other.TrustedCA;
+			CertificateValidator = other.CertificateValidator;
 		}
 
 		object ICloneable.Clone ()
@@ -59,6 +60,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
+		public ICertificateValidator CertificateValidator {
+			get; set;
+		}
 	}
 }
 
