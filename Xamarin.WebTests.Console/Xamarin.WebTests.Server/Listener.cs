@@ -252,7 +252,11 @@ namespace Xamarin.WebTests.Server
 				return stream;
 
 			try {
-				var sslStreamProvider = provider.SslStreamProvider ?? provider.DefaultSslStreamProvider;
+				var sslStreamProvider = provider.SslStreamProvider;
+				if (sslStreamProvider == null) {
+					var factory = DependencyInjector.Get<ISslStreamProviderFactory> ();
+					sslStreamProvider = factory.GetDefaultProvider ();
+				}
 
 				ICertificateValidator validator;
 				if ((flags & ListenerFlags.RejectClientCertificate) != 0)
