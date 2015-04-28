@@ -52,8 +52,8 @@
     <Compile Include="Xamarin.WebTests.Tests\TestHttpClient.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestFork.cs" />
     <Compile Include="Xamarin.WebTests.Tests\RedirectStatusAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestSSL.cs" />
     <Compile Include="Xamarin.WebTests.Internal\NTLMHandlerImpl.cs" />
+    <Compile Include="Xamarin.WebTests.Tests\TestHttps.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

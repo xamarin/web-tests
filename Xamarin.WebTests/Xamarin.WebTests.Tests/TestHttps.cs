@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.Tests
 
 	[SSL]
 	[AsyncTestFixture (Timeout = 5000)]
-	public class TestSSL
+	public class TestHttps
 	{
 		[WebTestFeatures.SelectServerCertificate]
 		public ServerCertificateType ServerCertificateType {
