@@ -38,16 +38,18 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	using Providers;
+
 	public abstract class DotNetConnection : Connection, ICommonConnection
 	{
-		public DotNetConnection (IPEndPoint endpoint, SslProtocols protocols, IConnectionParameters parameters)
+		public DotNetConnection (IPEndPoint endpoint, ISslStreamProvider provider, IConnectionParameters parameters)
 			: base (endpoint, parameters)
 		{
-			this.protocols = protocols;
+			this.provider = provider;
 		}
 
-		protected SslProtocols SslProtocols {
-			get { return protocols; }
+		protected ISslStreamProvider SslStreamProvider {
+			get { return provider; }
 		}
 
 		Socket socket;
@@ -55,7 +57,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		TaskCompletionSource<Stream> tcs;
 
 		Stream sslStream;
-		SslProtocols protocols;
+		ISslStreamProvider provider;
 
 		protected bool RemoteValidationCallback (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
 		{

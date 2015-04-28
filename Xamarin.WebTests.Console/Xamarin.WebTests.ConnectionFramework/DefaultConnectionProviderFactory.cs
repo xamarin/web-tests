@@ -26,9 +26,12 @@
 using System;
 using System.Net;
 using System.Security.Authentication;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	using Providers;
+
 	class DefaultConnectionProviderFactory : IConnectionProviderFactory
 	{
 		readonly IConnectionProvider dotNetProvider;
@@ -47,24 +50,28 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		internal DefaultConnectionProviderFactory ()
 		{
-			dotNetProvider = new DotNetProvider ();
+			var factory = DependencyInjector.Get<ISslStreamProviderFactory> ();
+			dotNetProvider = new DotNetProvider (factory.GetDefaultProvider ());
 		}
 
 		class DotNetProvider : IConnectionProvider
 		{
+			readonly ISslStreamProvider provider;
+
+			public DotNetProvider (ISslStreamProvider provider)
+			{
+				this.provider = provider;
+			}
+	
 			public IClient CreateClient (IClientParameters parameters)
 			{
-				return new DotNetClient (GetEndPoint (parameters), SslProtocols, parameters);
+				return new DotNetClient (GetEndPoint (parameters), provider, parameters);
 			}
 
 			public IServer CreateServer (IServerParameters parameters)
 			{
-				return new DotNetServer (GetEndPoint (parameters), SslProtocols, parameters);
+				return new DotNetServer (GetEndPoint (parameters), provider, parameters);
 			}
-		}
-
-		static SslProtocols SslProtocols {
-			get { return SslProtocols.Default; }
 		}
 
 		static IPEndPoint GetEndPoint (ICommonConnectionParameters parameters)

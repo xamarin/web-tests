@@ -25,6 +25,9 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Providers
 {
@@ -32,7 +35,17 @@ namespace Xamarin.WebTests.Providers
 
 	public interface ISslStreamProvider
 	{
-		Stream CreateServerStream (Stream stream, IServerCertificate certificate, ICertificateValidator validator, ListenerFlags flags);
+		Stream CreateServerStream (
+			Stream stream, IServerCertificate certificate, ICertificateValidator certificateValidator,
+			ListenerFlags flags);
+
+		Task<Stream> CreateServerStreamAsync (
+			Stream stream, IServerCertificate serverCertificate, ICertificateValidator certificateValidator,
+			ListenerFlags flags, CancellationToken cancellationToken);
+
+		Task<Stream> CreateClientStreamAsync (
+			Stream stream, string targetHost, ICollection<IClientCertificate> clientCertificates,
+			ICertificateValidator certificateValidator, ListenerFlags flags, CancellationToken cancellationToken);
 	}
 }
 

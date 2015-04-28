@@ -42,7 +42,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		internal DefaultSslStreamProviderFactory ()
 		{
-			defaultProvider = new DotNetProvider ();
+			defaultProvider = new DotNetSslStreamProvider ();
 		}
 
 		public bool IsSupported (SslStreamProviderType type)
@@ -65,25 +65,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public ISslStreamProvider GetDefaultProvider ()
 		{
 			return defaultProvider;
-		}
-
-		class DotNetProvider : ISslStreamProvider
-		{
-			public Stream CreateServerStream (Stream stream, IServerCertificate serverCertificate, ICertificateValidator validator, ListenerFlags flags)
-			{
-				var certificate = CertificateProvider.GetCertificate (serverCertificate);
-
-				var clientCertificateRequired = (flags & ListenerFlags.RequireClientCertificate) != 0;
-				var protocols = (SslProtocols)ServicePointManager.SecurityProtocol;
-
-				var sslStream = new SslStream (stream, false, ((CertificateValidator)validator).ValidationCallback);
-				sslStream.AuthenticateAsServer (certificate, clientCertificateRequired, protocols, false);
-
-				if (clientCertificateRequired && !sslStream.IsMutuallyAuthenticated)
-					throw new WebException ("Not mutually authenticated", System.Net.WebExceptionStatus.TrustFailure);
-
-				return sslStream;
-			}
 		}
 	}
 }

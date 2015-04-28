@@ -14,14 +14,17 @@ using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	using Providers;
+	using Portable;
+
 	public class DotNetClient : DotNetConnection, IClient
 	{
 		new public IClientParameters Parameters {
 			get { return (IClientParameters)base.Parameters; }
 		}
 
-		public DotNetClient (IPEndPoint endpoint, SslProtocols protocols, IClientParameters parameters)
-			: base (endpoint, protocols, parameters.ConnectionParameters)
+		public DotNetClient (IPEndPoint endpoint, ISslStreamProvider provider, IClientParameters parameters)
+			: base (endpoint, provider, parameters.ConnectionParameters)
 		{
 		}
 
@@ -29,17 +32,17 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			ctx.LogDebug (1, "Connected.");
 
-			var clientCerts = new X509Certificate2Collection ();
+			List<IClientCertificate> clientCertificates = null;
 			if (Parameters.ClientCertificate != null) {
-				var clientCert = CertificateProvider.GetCertificate (Parameters.ClientCertificate);
-				clientCerts.Add (clientCert);
+				clientCertificates = new List<IClientCertificate> ();
+				clientCertificates.Add (Parameters.ClientCertificate);
 			}
 
 			var targetHost = "Hamiller-Tube.local";
 
 			var stream = new NetworkStream (socket);
-			var server = new SslStream (stream, false, RemoteValidationCallback, null);
-			await server.AuthenticateAsClientAsync (targetHost, clientCerts, SslProtocols, false);
+			var server = await SslStreamProvider.CreateClientStreamAsync (
+				stream, targetHost, clientCertificates, null, ListenerFlags.None, cancellationToken);
 
 			ctx.LogDebug (1, "Successfully authenticated.");
 

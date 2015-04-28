@@ -15,6 +15,8 @@ using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	using Providers;
+
 	public class DotNetServer : DotNetConnection, IServer
 	{
 		public IServerCertificate Certificate {
@@ -25,8 +27,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return (IServerParameters)base.Parameters; }
 		}
 
-		public DotNetServer (IPEndPoint endpoint, SslProtocols protocols, IServerParameters parameters)
-			: base (endpoint, protocols, parameters.ConnectionParameters)
+		public DotNetServer (IPEndPoint endpoint, ISslStreamProvider provider, IServerParameters parameters)
+			: base (endpoint, provider, parameters.ConnectionParameters)
 		{
 		}
 
@@ -37,11 +39,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (Parameters.AskForClientCertificate || Parameters.RequireClientCertificate)
 				throw new NotSupportedException ();
 
-			var serverCert = CertificateProvider.GetCertificate (Certificate);
-
 			var stream = new NetworkStream (socket);
-			var server = new SslStream (stream, false);
-			await server.AuthenticateAsServerAsync (serverCert, false, SslProtocols, false);
+			var server = await SslStreamProvider.CreateServerStreamAsync (stream, Certificate, null, ListenerFlags.None, cancellationToken);
 
 			ctx.LogMessage ("Successfully authenticated.");
 
