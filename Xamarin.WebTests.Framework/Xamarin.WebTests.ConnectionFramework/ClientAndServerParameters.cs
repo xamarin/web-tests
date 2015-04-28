@@ -5,16 +5,16 @@ using Xamarin.WebTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public abstract class ClientAndServerParameters : ConnectionParameters, IClientAndServerParameters, ICloneable
+	public abstract class ClientAndServerParameters : ConnectionParameters, IClientAndServerParameters
 	{
 		protected ClientAndServerParameters (string identifier)
 			: base (identifier)
 		{
 		}
 
-		object ICloneable.Clone ()
+		protected ClientAndServerParameters (ClientAndServerParameters other)
+			: base (other)
 		{
-			return DeepClone ();
 		}
 
 		public abstract IClientParameters ClientParameters {
@@ -24,8 +24,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public abstract IServerParameters ServerParameters {
 			get;
 		}
-
-		public abstract ClientAndServerParameters DeepClone ();
 
 		public static ClientAndServerParameters Create (ClientParameters clientParameters, ServerParameters serverParameters)
 		{
@@ -44,9 +42,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 				this.serverParameters = serverParameters;
 			}
 
-			public override ClientAndServerParameters DeepClone ()
+			public override ConnectionParameters DeepClone ()
 			{
-				return new SimpleClientAndServerParameters (clientParameters.DeepClone (), serverParameters.DeepClone ());
+				var clonedClient = (ClientParameters)clientParameters.DeepClone ();
+				var clonedServer = (ServerParameters)serverParameters.DeepClone ();
+				return new SimpleClientAndServerParameters (clonedClient, clonedServer);
 			}
 
 			public override IClientParameters ClientParameters {

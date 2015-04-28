@@ -4,7 +4,7 @@ using Xamarin.WebTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class ServerParameters : ConnectionParameters, IServerParameters, ICloneable
+	public class ServerParameters : ConnectionParameters, IServerParameters
 	{
 		bool askForCert;
 		bool requireCert;
@@ -23,12 +23,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			requireCert = other.requireCert;
 		}
 
-		object ICloneable.Clone ()
-		{
-			return DeepClone ();
-		}
-
-		public virtual ServerParameters DeepClone ()
+		public override ConnectionParameters DeepClone ()
 		{
 			return new ServerParameters (this);
 		}

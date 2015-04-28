@@ -43,7 +43,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		CombinedClientAndServerParameters (CombinedClientAndServerParameters other)
-			: base (other.Identifier)
+			: base (other)
 		{
 			ServerCertificate = other.ServerCertificate;
 			ClientCertificate = other.ClientCertificate;
@@ -59,7 +59,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return this; }
 		}
 
-		public override ClientAndServerParameters DeepClone ()
+		public override ConnectionParameters DeepClone ()
 		{
 			return new CombinedClientAndServerParameters (this);
 		}

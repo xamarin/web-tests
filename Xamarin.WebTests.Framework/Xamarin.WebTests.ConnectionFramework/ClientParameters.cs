@@ -31,7 +31,7 @@ using Xamarin.WebTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class ClientParameters : ConnectionParameters, IClientParameters, ICloneable
+	public class ClientParameters : ConnectionParameters, IClientParameters
 	{
 		public ClientParameters (string identifier)
 			: base (identifier)
@@ -44,12 +44,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			ClientCertificate = other.ClientCertificate;
 		}
 
-		object ICloneable.Clone ()
-		{
-			return DeepClone ();
-		}
-
-		public virtual ClientParameters DeepClone ()
+		public override ConnectionParameters DeepClone ()
 		{
 			return new ClientParameters (this);
 		}
