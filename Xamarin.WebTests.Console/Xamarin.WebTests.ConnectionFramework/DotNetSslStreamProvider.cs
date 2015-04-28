@@ -68,11 +68,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public Stream CreateServerStream (
-			Stream stream, IServerCertificate serverCertificate, ICertificateValidator validator, ListenerFlags flags)
+			Stream stream, IServerCertificate serverCertificate, ICertificateValidator validator, SslStreamFlags flags)
 		{
 			var certificate = CertificateProvider.GetCertificate (serverCertificate);
 
-			var clientCertificateRequired = (flags & ListenerFlags.RequireClientCertificate) != 0;
+			var clientCertificateRequired = (flags & SslStreamFlags.RequireClientCertificate) != 0;
 
 			var sslStream = new SslStream (stream, false, GetValidationCallback (validator));
 			sslStream.AuthenticateAsServer (certificate, clientCertificateRequired, GetSslProtocol (), false);
@@ -85,11 +85,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public async Task<Stream> CreateServerStreamAsync (
 			Stream stream, IServerCertificate serverCertificate, ICertificateValidator validator,
-			ListenerFlags flags, CancellationToken cancellationToken)
+			SslStreamFlags flags, CancellationToken cancellationToken)
 		{
 			var certificate = CertificateProvider.GetCertificate (serverCertificate);
 
-			var clientCertificateRequired = (flags & ListenerFlags.RequireClientCertificate) != 0;
+			var clientCertificateRequired = (flags & SslStreamFlags.RequireClientCertificate) != 0;
 
 			var sslStream = new SslStream (stream, false, GetValidationCallback (validator));
 			await sslStream.AuthenticateAsServerAsync (certificate, clientCertificateRequired, GetSslProtocol (), false);
@@ -102,7 +102,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public async Task<Stream> CreateClientStreamAsync (
 			Stream stream, string targetHost, ICollection<IClientCertificate> clientCertificates,
-			ICertificateValidator validator, ListenerFlags flags, CancellationToken cancellationToken)
+			ICertificateValidator validator, SslStreamFlags flags, CancellationToken cancellationToken)
 		{
 			var server = new SslStream (stream, false, GetValidationCallback (validator), null);
 			await server.AuthenticateAsClientAsync (targetHost, GetCertificates (clientCertificates), GetSslProtocol (), false);

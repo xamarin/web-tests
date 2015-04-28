@@ -124,6 +124,7 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\SslTestMode.cs" />
     <Compile Include="Xamarin.WebTests.Providers\SslStreamProviderType.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ISslStreamProviderFactory.cs" />
+    <Compile Include="Xamarin.WebTests.Providers\SslStreamFlags.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">

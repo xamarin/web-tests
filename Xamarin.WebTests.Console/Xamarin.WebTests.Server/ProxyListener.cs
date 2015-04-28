@@ -39,6 +39,7 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
+	using Providers;
 	using Portable;
 
 	class ProxyListener : Listener
@@ -47,7 +48,7 @@ namespace Xamarin.WebTests.Server
 		ProxyAuthManager authManager;
 
 		public ProxyListener (HttpListener target, IPortableEndPoint endpoint, AuthenticationType authType)
-			: base (target.HttpProvider, endpoint, ListenerFlags.Proxy, null)
+			: base (target.HttpProvider, endpoint, ListenerFlags.Proxy, SslStreamFlags.None, null)
 		{
 			this.target = target;
 			if (authType != AuthenticationType.None)

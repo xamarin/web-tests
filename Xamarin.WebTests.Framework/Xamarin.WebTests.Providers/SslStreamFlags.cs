@@ -1,5 +1,5 @@
 ﻿//
-// ListenerFlags.cs
+// SslStreamFlags.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,14 +25,21 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.Providers
 {
 	[Flags]
-	public enum ListenerFlags
+	public enum SslStreamFlags
 	{
 		None				= 0,
-		Proxy				= 1,
-		ReuseConnection			= 2
+
+		ExpectError			= 4,
+		ExpectTrustFailure		= 8,
+
+		RejectServerCertificate		= 16,
+		ProvideClientCertificate	= 32,
+		RequireClientCertificate	= 64,
+		RejectClientCertificate		= 128,
+
+		SSLErrorMask			= ExpectError | ExpectTrustFailure
 	}
 }
-

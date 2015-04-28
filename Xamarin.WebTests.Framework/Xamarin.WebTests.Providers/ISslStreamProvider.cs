@@ -37,15 +37,15 @@ namespace Xamarin.WebTests.Providers
 	{
 		Stream CreateServerStream (
 			Stream stream, IServerCertificate certificate, ICertificateValidator certificateValidator,
-			ListenerFlags flags);
+			SslStreamFlags flags);
 
 		Task<Stream> CreateServerStreamAsync (
 			Stream stream, IServerCertificate serverCertificate, ICertificateValidator certificateValidator,
-			ListenerFlags flags, CancellationToken cancellationToken);
+			SslStreamFlags flags, CancellationToken cancellationToken);
 
 		Task<Stream> CreateClientStreamAsync (
 			Stream stream, string targetHost, ICollection<IClientCertificate> clientCertificates,
-			ICertificateValidator certificateValidator, ListenerFlags flags, CancellationToken cancellationToken);
+			ICertificateValidator certificateValidator, SslStreamFlags flags, CancellationToken cancellationToken);
 	}
 }
 

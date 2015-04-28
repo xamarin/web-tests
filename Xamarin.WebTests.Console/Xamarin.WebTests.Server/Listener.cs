@@ -57,10 +57,11 @@ namespace Xamarin.WebTests.Server
 		readonly IHttpProvider provider;
 		readonly IServerCertificate serverCertificate;
 		readonly ListenerFlags flags;
+		readonly SslStreamFlags sslStreamFlags;
 		readonly bool ssl;
 		readonly Uri uri;
 
-		public Listener (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, IServerCertificate serverCertificate)
+		public Listener (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, SslStreamFlags sslStreamFlags, IServerCertificate serverCertificate)
 		{
 			this.provider = provider;
 			this.flags = flags;
@@ -68,10 +69,10 @@ namespace Xamarin.WebTests.Server
 			this.ssl = serverCertificate != null;
 
 			if (ssl) {
-				if ((flags & ListenerFlags.SSLIncompatibleMask) != 0)
+				if ((flags & ListenerFlags.Proxy) != 0)
 					throw new InvalidOperationException ();
 			} else {
-				if ((flags & ListenerFlags.SSLMask) != 0)
+				if (sslStreamFlags != 0)
 					throw new InvalidOperationException ();
 			}
 
@@ -259,19 +260,19 @@ namespace Xamarin.WebTests.Server
 				}
 
 				ICertificateValidator validator;
-				if ((flags & ListenerFlags.RejectClientCertificate) != 0)
+				if ((sslStreamFlags & SslStreamFlags.RejectClientCertificate) != 0)
 					validator = CertificateProvider.RejectAll;
 				else
 					validator = CertificateProvider.AcceptAll;
 
-				var authenticatedStream = sslStreamProvider.CreateServerStream (stream, serverCertificate, validator, flags);
+				var authenticatedStream = sslStreamProvider.CreateServerStream (stream, serverCertificate, validator, sslStreamFlags);
 
-				if ((flags & ListenerFlags.ExpectTrustFailure) != 0)
+				if ((sslStreamFlags & SslStreamFlags.ExpectTrustFailure) != 0)
 					throw new InvalidOperationException ("Expected TLS Trust Failure error.");
 
 				return authenticatedStream;
 			} catch {
-				if ((flags & ListenerFlags.SSLErrorMask) != 0)
+				if ((sslStreamFlags & SslStreamFlags.SSLErrorMask) != 0)
 					return null;
 				throw;
 			}

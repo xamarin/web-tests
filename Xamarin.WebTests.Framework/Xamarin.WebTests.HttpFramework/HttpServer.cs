@@ -47,6 +47,7 @@ namespace Xamarin.WebTests.HttpFramework
 	{
 		readonly Uri uri;
 		readonly ListenerFlags flags;
+		readonly SslStreamFlags sslStreamFlags;
 		readonly bool ssl;
 		readonly IHttpProvider provider;
 		readonly IServerCertificate serverCertificate;
@@ -58,11 +59,13 @@ namespace Xamarin.WebTests.HttpFramework
 		static long nextId;
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
 
-		public HttpServer (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, IServerCertificate serverCertificate = null)
+		public HttpServer (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags,
+			IServerCertificate serverCertificate = null, SslStreamFlags sslStreamFlags = SslStreamFlags.None)
 		{
 			this.provider = provider;
 			this.endpoint = endpoint;
 			this.flags = flags;
+			this.sslStreamFlags = sslStreamFlags;
 			this.serverCertificate = serverCertificate;
 			this.ssl = serverCertificate != null;
 
@@ -93,6 +96,10 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public ListenerFlags Flags {
 			get { return flags; }
+		}
+
+		public SslStreamFlags SslStreamFlags {
+			get { return sslStreamFlags; }
 		}
 
 		public IServerCertificate ServerCertificate {
@@ -171,7 +178,7 @@ namespace Xamarin.WebTests.HttpFramework
 			var connection = new HttpConnection (this, stream);
 			var request = connection.ReadRequest ();
 
-			if (Flags == ListenerFlags.ExpectTrustFailure) {
+			if ((SslStreamFlags & SslStreamFlags.ExpectTrustFailure) != 0) {
 				if (request != null)
 					throw new InvalidOperationException ();
 				return false;
