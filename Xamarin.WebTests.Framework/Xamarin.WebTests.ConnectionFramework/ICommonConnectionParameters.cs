@@ -24,11 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public interface ICommonConnectionParameters
+	public interface ICommonConnectionParameters : ITestParameter
 	{
 		IConnectionParameters ConnectionParameters {
 			get;

@@ -36,7 +36,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		bool askForCert;
 		bool requireCert;
 
-		public CombinedClientAndServerParameters (string identifier, IServerCertificate certificate)
+		public CombinedClientAndServerParameters (string identifier, IServerCertificate certificate = null)
 			: base (identifier)
 		{
 			ServerCertificate = certificate;

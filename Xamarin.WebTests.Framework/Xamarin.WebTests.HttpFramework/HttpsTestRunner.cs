@@ -46,6 +46,10 @@ namespace Xamarin.WebTests.HttpFramework
 			set;
 		}
 
+		public IConnectionParameters ConnectionParameters {
+			get { return Server.ServerParameters.ConnectionParameters; }
+		}
+
 		public HttpsTestRunner (HttpServer server, Handler handler)
 			: base (server, handler)
 		{
@@ -99,10 +103,9 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var flags = Server.ServerParameters.ConnectionParameters.SslStreamFlags;
-			if ((flags & SslStreamFlags.ExpectTrustFailure) != 0)
+			if (ConnectionParameters.ExpectTrustFailure)
 				return Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
-			else if ((flags & SslStreamFlags.ExpectError) != 0)
+			else if (ConnectionParameters.ExpectException)
 				return Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.AnyErrorStatus);
 			else
 				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);

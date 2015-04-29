@@ -27,6 +27,7 @@ using System;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Features
 {
@@ -45,6 +46,29 @@ namespace Xamarin.WebTests.Features
 
 		protected override IServerParameters GetServerParameters (TestContext ctx)
 		{
+			IServerParameters serverParameters;
+			if (!ctx.TryGetParameter<IServerParameters> (out serverParameters)) {
+				IClientAndServerParameters clientAndServerParameters;
+				if (ctx.TryGetParameter<IClientAndServerParameters> (out clientAndServerParameters))
+					serverParameters = clientAndServerParameters.ServerParameters;
+			}
+
+			IServerCertificate certificate = null;
+			ServerCertificateType certificateType;
+			if (ctx.TryGetParameter (out certificateType))
+				certificate = ResourceManager.GetServerCertificate (certificateType);
+
+			if (serverParameters == null) {
+				ctx.Assert (certificate, Is.Not.Null, "server certificate");
+				serverParameters = new ServerParameters ("https", certificate);
+			} else {
+				if (certificate != null)
+					serverParameters.ServerCertificate = certificate;
+				ctx.Assert (serverParameters.ServerCertificate, Is.Not.Null, "server certificate");
+			}
+
+			return serverParameters;
+
 			var mode = ctx.GetParameter<SslTestMode> ();
 
 			SslStreamFlags flags;
@@ -69,15 +93,7 @@ namespace Xamarin.WebTests.Features
 				throw new InvalidOperationException ();
 			}
 
-			ServerCertificateType certificateType;
-			if (!ctx.TryGetParameter (out certificateType))
-				certificateType = ServerCertificateType.Default;
-
-			var certificate = ResourceManager.GetServerCertificate (certificateType);
-
-			return new ServerParameters ("https", certificate) {
-				SslStreamFlags = flags
-			};
+			throw new NotImplementedException ();
 		}
 	}
 }

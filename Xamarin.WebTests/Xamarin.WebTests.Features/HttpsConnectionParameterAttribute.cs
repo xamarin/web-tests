@@ -1,5 +1,5 @@
 ﻿//
-// TestSsl.cs
+// HttpsConnectionParameterAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,48 +24,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections;
 using System.Collections.Generic;
-
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Tests
+namespace Xamarin.WebTests.Features
 {
 	using ConnectionFramework;
-	using HttpHandlers;
 	using HttpFramework;
 	using Portable;
+	using Providers;
 	using Resources;
-	using Features;
 
-	[SSL]
-	[AsyncTestFixture (Timeout = 5000)]
-	public class TestHttps
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+	public class HttpsConnectionParameterAttribute : TestParameterAttribute, ITestParameterSource<IClientAndServerParameters>
 	{
-		[WebTestFeatures.SelectServerCertificate]
-		public ServerCertificateType ServerCertificateType {
-			get;
-			private set;
-		}
-
-		[HttpsConnectionParameter]
-		public IClientAndServerParameters ConnectionParameters {
-			get;
-			private set;
-		}
-
-		[Work]
-		[CertificateTests]
-		[AsyncTest]
-		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [HttpsServer] HttpServer server, [GetHandler] Handler handler)
+		public HttpsConnectionParameterAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (filter, flags)
 		{
-			return HttpsTestRunner.Run (ctx, cancellationToken, server, handler);
+		}
+
+		public IEnumerable<IClientAndServerParameters> GetParameters (TestContext ctx, string filter)
+		{
+			yield return new CombinedClientAndServerParameters ("default");
 		}
 	}
 }
