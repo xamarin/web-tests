@@ -39,64 +39,6 @@ namespace Xamarin.WebTests.HttpFramework
 	using Providers;
 	using Resources;
 
-	public class HttpsTestHost : TestHostAttribute, ITestHost<HttpServer>
-	{
-		public HttpsTestHost ()
-			: base (typeof (HttpsTestHost))
-		{
-		}
-
-		#region ITestHost implementation
-		public HttpServer CreateInstance (TestContext ctx)
-		{
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			var endpoint = support.GetLoopbackEndpoint (9999);
-
-			var mode = ctx.GetParameter<SslTestMode> ();
-
-			SslStreamFlags flags;
-			switch (mode) {
-			case SslTestMode.Default:
-				flags = SslStreamFlags.None;
-				break;
-			case SslTestMode.RejectServerCertificate:
-				flags = SslStreamFlags.ExpectTrustFailure | SslStreamFlags.RejectServerCertificate;
-				break;
-			case SslTestMode.RequireClientCertificate:
-				flags = SslStreamFlags.ProvideClientCertificate | SslStreamFlags.RequireClientCertificate;
-				break;
-			case SslTestMode.RejectClientCertificate:
-				flags = SslStreamFlags.RejectClientCertificate | SslStreamFlags.ExpectError |
-					SslStreamFlags.ProvideClientCertificate | SslStreamFlags.RequireClientCertificate;
-				break;
-			case SslTestMode.MissingClientCertificate:
-				flags = SslStreamFlags.RequireClientCertificate | SslStreamFlags.ExpectError;
-				break;
-			default:
-				throw new InvalidOperationException ();
-			}
-
-			HttpProviderType providerType;
-			if (!ctx.TryGetParameter (out providerType))
-				providerType = HttpProviderType.Default;
-
-			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
-			var provider = factory.GetProvider (providerType);
-
-			ServerCertificateType certificateType;
-			if (!ctx.TryGetParameter (out certificateType))
-				certificateType = ServerCertificateType.Default;
-
-			var certificate = ResourceManager.GetServerCertificate (certificateType);
-			var parameters = new ServerParameters ("https", certificate) {
-				SslStreamFlags = flags
-			};
-
-			return provider.CreateServer (endpoint, ListenerFlags.None, parameters);
-		}
-		#endregion
-	}
-
 	public class HttpsTestRunner : TestRunner
 	{
 		public SslStreamFlags SslStreamFlags {

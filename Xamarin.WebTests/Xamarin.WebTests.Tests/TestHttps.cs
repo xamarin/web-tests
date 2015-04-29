@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.Tests
 	using HttpFramework;
 	using Portable;
 	using Resources;
+	using Features;
 
 	[SSL]
 	[AsyncTestFixture (Timeout = 5000)]
@@ -58,9 +59,10 @@ namespace Xamarin.WebTests.Tests
 			private set;
 		}
 
+		[Work]
 		[CertificateTests]
 		[AsyncTest]
-		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [HttpsTestHost] HttpServer server, [GetHandler] Handler handler)
+		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [HttpsServer] HttpServer server, [GetHandler] Handler handler)
 		{
 			return HttpsTestRunner.Run (ctx, cancellationToken, server, handler);
 		}

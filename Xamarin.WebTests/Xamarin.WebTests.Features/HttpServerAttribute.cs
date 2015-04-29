@@ -42,17 +42,14 @@ namespace Xamarin.WebTests.Features
 		{
 		}
 
-		public HttpServer CreateInstance (TestContext ctx)
+		protected HttpServerAttribute (Type type, TestFlags flags = TestFlags.None)
+			: base (type, flags)
+		{
+		}
+
+		protected virtual IHttpProvider GetHttpProvider (TestContext ctx)
 		{
 			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
-			var endpoint = DependencyInjector.Get<IPortableEndPointSupport> ().GetLoopbackEndpoint (9999);
-
-			ListenerFlags flags = ListenerFlags.None;
-
-			bool reuseConnection;
-			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)
-				flags |= ListenerFlags.ReuseConnection;
-
 			IHttpProvider provider;
 			HttpProviderType providerType;
 			if (ctx.TryGetParameter (out providerType))
@@ -60,15 +57,46 @@ namespace Xamarin.WebTests.Features
 			else
 				provider = factory.Default;
 
-			bool useSSL;
-			IServerParameters parameters = null;
-			if (ctx.TryGetParameter<bool> (out useSSL, "UseSSL") && useSSL) {
-				var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
-				var certificate = webSupport.GetDefaultServerCertificate ();
-				parameters = new ServerParameters ("http", certificate);
-			}
+			return provider;
+		}
 
-			return provider.CreateServer (endpoint, flags, parameters);
+		protected virtual IPortableEndPoint GetEndPoint (TestContext ctx)
+		{
+			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+			return support.GetLoopbackEndpoint (9999);
+		}
+
+		protected virtual ListenerFlags GetListenerFlags (TestContext ctx)
+		{
+			ListenerFlags flags = ListenerFlags.None;
+
+			bool reuseConnection;
+			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)
+				flags |= ListenerFlags.ReuseConnection;
+
+			return flags;
+		}
+
+		protected virtual IServerParameters GetServerParameters (TestContext ctx)
+		{
+			bool useSSL;
+			if (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL)
+				return null;
+
+			var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
+			var certificate = webSupport.GetDefaultServerCertificate ();
+			return new ServerParameters ("http", certificate);
+		}
+
+		public HttpServer CreateInstance (TestContext ctx)
+		{
+			var endpoint = GetEndPoint (ctx);
+			var httpProvider = GetHttpProvider (ctx);
+
+			var listenerFlags = GetListenerFlags (ctx);
+			var serverParameters = GetServerParameters (ctx);
+
+			return httpProvider.CreateServer (endpoint, listenerFlags, serverParameters);
 		}
 	}
 }
