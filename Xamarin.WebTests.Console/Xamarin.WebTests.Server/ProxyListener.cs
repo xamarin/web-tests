@@ -48,11 +48,16 @@ namespace Xamarin.WebTests.Server
 		ProxyAuthManager authManager;
 
 		public ProxyListener (HttpListener target, IPortableEndPoint endpoint, AuthenticationType authType)
-			: base (target.HttpProvider, endpoint, ListenerFlags.Proxy, null)
+			: base (target.HttpProvider, endpoint, ListenerFlags.Proxy)
 		{
 			this.target = target;
 			if (authType != AuthenticationType.None)
 				authManager = new ProxyAuthManager (authType);
+		}
+
+		protected override Stream CreateStream (NetworkStream stream)
+		{
+			return stream;
 		}
 
 		protected override bool HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken)

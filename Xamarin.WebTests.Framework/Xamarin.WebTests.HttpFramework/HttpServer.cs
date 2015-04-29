@@ -49,8 +49,8 @@ namespace Xamarin.WebTests.HttpFramework
 		readonly Uri uri;
 		readonly ListenerFlags flags;
 		readonly IServerParameters parameters;
-		readonly bool ssl;
 		readonly IHttpProvider provider;
+		readonly ISslStreamProvider sslStreamProvider;
 		readonly IPortableWebSupport WebSupport;
 
 		IPortableEndPoint endpoint;
@@ -65,11 +65,21 @@ namespace Xamarin.WebTests.HttpFramework
 			this.endpoint = endpoint;
 			this.flags = flags;
 			this.parameters = parameters;
-			this.ssl = parameters != null;
+
+			if (parameters != null)
+				flags |= ListenerFlags.SSL;
+
+			if ((flags & ListenerFlags.SSL) != 0) {
+				sslStreamProvider = provider.SslStreamProvider;
+				if (sslStreamProvider == null) {
+					var factory = DependencyInjector.Get<ISslStreamProviderFactory> ();
+					sslStreamProvider = factory.GetDefaultProvider ();
+				}
+			}
 
 			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
 
-			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", endpoint.Address, endpoint.Port));
+			uri = new Uri (string.Format ("http{0}://{1}:{2}/", sslStreamProvider != null ? "s" : "", endpoint.Address, endpoint.Port));
 		}
 
 		protected IListener Listener {
@@ -85,11 +95,11 @@ namespace Xamarin.WebTests.HttpFramework
 		}
 
 		public bool UseSSL {
-			get { return ssl; }
+			get { return sslStreamProvider != null; }
 		}
 
 		public bool ReuseConnection {
-			get { return flags == ListenerFlags.ReuseConnection; }
+			get { return (flags & ListenerFlags.ReuseConnection) != 0; }
 		}
 
 		public ListenerFlags Flags {
@@ -165,6 +175,25 @@ namespace Xamarin.WebTests.HttpFramework
 		public void RegisterHandler (string path, Handler handler)
 		{
 			handlers.Add (path, handler);
+		}
+
+		public Stream CreateStream (Stream innerStream)
+		{
+			if (sslStreamProvider == null)
+				return innerStream;
+
+			try {
+				var sslStream = sslStreamProvider.CreateServerStream (innerStream, ServerParameters);
+
+				if (ServerParameters.ExpectException)
+					throw new InvalidOperationException ("Expected error.");
+
+				return sslStream.AuthenticatedStream;
+			} catch {
+				if (ServerParameters.ExpectException)
+					return null;
+				throw;
+			}
 		}
 
 		public bool HandleConnection (Stream stream)

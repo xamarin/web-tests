@@ -32,7 +32,8 @@ namespace Xamarin.WebTests.Portable
 	{
 		None				= 0,
 		Proxy				= 1,
-		ReuseConnection			= 2
+		ReuseConnection			= 2,
+		SSL				= 4
 	}
 }
 

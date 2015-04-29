@@ -56,16 +56,13 @@ namespace Xamarin.WebTests.Server
 		volatile CancellationTokenSource cts;
 
 		readonly IHttpProvider provider;
-		readonly IServerParameters serverParameters;
-		readonly bool ssl;
 		readonly Uri uri;
 
-		public Listener (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, IServerParameters serverParameters)
+		public Listener (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags)
 		{
 			this.provider = provider;
-			this.serverParameters = serverParameters;
-			this.ssl = serverParameters != null;
 
+			var ssl = (flags & ListenerFlags.SSL) != 0;
 			if (ssl & (flags & ListenerFlags.Proxy) != 0)
 				throw new InvalidOperationException ();
 
@@ -169,7 +166,7 @@ namespace Xamarin.WebTests.Server
 			Stream stream;
 
 			try {
-				stream = CreateStream (socket);
+				stream = CreateStream (new NetworkStream (socket));
 			} catch (OperationCanceledException) {
 				stream = null;
 			} catch (Exception ex) {
@@ -239,31 +236,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		Stream CreateStream (Socket socket)
-		{
-			var stream = new NetworkStream (socket);
-			if (!ssl)
-				return stream;
-
-			try {
-				var sslStreamProvider = provider.SslStreamProvider;
-				if (sslStreamProvider == null) {
-					var factory = DependencyInjector.Get<ISslStreamProviderFactory> ();
-					sslStreamProvider = factory.GetDefaultProvider ();
-				}
-
-				var sslStream = sslStreamProvider.CreateServerStream (stream, serverParameters);
-
-				if (serverParameters.ExpectException)
-					throw new InvalidOperationException ("Expected error.");
-
-				return sslStream.AuthenticatedStream;
-			} catch {
-				if (serverParameters.ExpectException)
-					return null;
-				throw;
-			}
-		}
+		protected abstract Stream CreateStream (NetworkStream stream);
 
 		bool IsStillConnected (Socket socket)
 		{

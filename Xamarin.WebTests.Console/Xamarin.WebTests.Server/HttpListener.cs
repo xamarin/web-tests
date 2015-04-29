@@ -49,9 +49,14 @@ namespace Xamarin.WebTests.Server
 		readonly HttpServer server;
 
 		public HttpListener (HttpServer server)
-			: base (server.HttpProvider, server.EndPoint, server.Flags, server.ServerParameters)
+			: base (server.HttpProvider, server.EndPoint, server.Flags)
 		{
 			this.server = server;
+		}
+
+		protected override Stream CreateStream (NetworkStream stream)
+		{
+			return server.CreateStream (stream);
 		}
 
 		protected override bool HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken)
