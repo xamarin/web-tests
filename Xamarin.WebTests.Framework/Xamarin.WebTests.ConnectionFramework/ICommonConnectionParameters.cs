@@ -33,8 +33,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	public interface ICommonConnectionParameters : ITestParameter
 	{
-		IConnectionParameters ConnectionParameters {
-			get;
+		bool EnableDebugging {
+			get; set;
 		}
 
 		bool ExpectTrustFailure {

@@ -24,7 +24,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public ClientAndServer (IServer server, IClient client, IClientAndServerParameters parameters)
-			: base (server.EndPoint, parameters.ConnectionParameters)
+			: base (server.EndPoint, parameters)
 		{
 			this.server = server;
 			this.client = client;

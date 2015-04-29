@@ -27,18 +27,18 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return PrintEndPoint (EndPoint); }
 		}
 
-		public IConnectionParameters Parameters {
+		public ICommonConnectionParameters Parameters {
 			get;
 			private set;
 		}
 
-		protected Connection (IPEndPoint endpoint, IConnectionParameters parameters)
+		protected Connection (IPEndPoint endpoint, ICommonConnectionParameters parameters)
 		{
 			EndPoint = endpoint;
 			Parameters = parameters;
 		}
 
-		protected Connection (string endpoint, IConnectionParameters parameters)
+		protected Connection (string endpoint, ICommonConnectionParameters parameters)
 			: this (ParseEndPoint (endpoint), parameters)
 		{
 		}

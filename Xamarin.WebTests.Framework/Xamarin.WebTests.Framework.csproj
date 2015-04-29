@@ -95,7 +95,6 @@
     <Compile Include="Xamarin.WebTests.Providers\IHttpProviderFactory.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ISslStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ICertificateProvider.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionParameters.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ICommonConnectionParameters.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IServerParameters.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IClientParameters.cs" />

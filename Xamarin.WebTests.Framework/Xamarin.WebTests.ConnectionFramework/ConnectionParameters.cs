@@ -5,7 +5,7 @@ using Xamarin.WebTests.Providers;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public abstract class ConnectionParameters : IConnectionParameters, ICommonConnectionParameters, ITestParameter, ICloneable
+	public abstract class ConnectionParameters : ICommonConnectionParameters, ITestParameter, ICloneable
 	{
 		bool verifyPeerCertificate = true;
 		SslStreamFlags sslStreamFlags = SslStreamFlags.None;
@@ -42,10 +42,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public abstract ConnectionParameters DeepClone ();
-
-		IConnectionParameters ICommonConnectionParameters.ConnectionParameters {
-			get { return this; }
-		}
 
 		public IPortableEndPoint EndPoint {
 			get; set;

@@ -46,10 +46,6 @@ namespace Xamarin.WebTests.HttpFramework
 			set;
 		}
 
-		public IConnectionParameters ConnectionParameters {
-			get { return Server.ServerParameters.ConnectionParameters; }
-		}
-
 		public IClientParameters ClientParameters {
 			get;
 			private set;
