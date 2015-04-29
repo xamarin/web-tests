@@ -94,6 +94,11 @@ namespace Xamarin.WebTests.HttpFramework
 
 	public class HttpsTestRunner : TestRunner
 	{
+		public HttpsTestRunner (HttpServer server)
+			: base (server)
+		{
+		}
+
 		protected override Request CreateRequest (TestContext ctx, HttpServer server, Handler handler, Uri uri)
 		{
 			var webRequest = server.HttpProvider.CreateWebRequest (uri);
@@ -142,7 +147,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public static Task Run (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler)
 		{
-			var runner = new HttpsTestRunner ();
+			var runner = new HttpsTestRunner (server);
 			if ((server.SslStreamFlags & SslStreamFlags.ExpectTrustFailure) != 0)
 				return runner.Run (ctx, cancellationToken, server, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
 			else if ((server.SslStreamFlags & SslStreamFlags.ExpectError) != 0)

@@ -41,6 +41,16 @@ namespace Xamarin.WebTests.HttpFramework
 
 	public abstract class TestRunner
 	{
+		public HttpServer Server {
+			get;
+			private set;
+		}
+
+		protected TestRunner (HttpServer server)
+		{
+			Server = server;
+		}
+
 		static void Debug (TestContext ctx, HttpServer server, int level,
 			Handler handler, string message, params object[] args)
 		{
@@ -53,10 +63,6 @@ namespace Xamarin.WebTests.HttpFramework
 
 			ctx.LogDebug (level, sb.ToString ());
 		}
-
-		public static readonly TestRunner TraditionalRunner = new TraditionalTestRunner ();
-		public static readonly TestRunner TraditionalAsyncRunner = new TraditionalTestRunner { SendAsync = true };
-		public static readonly TestRunner HttpClientRunner = new HttpClientTestRunner ();
 
 		protected abstract Request CreateRequest (TestContext ctx, HttpServer server, Handler handler, Uri uri);
 
@@ -96,10 +102,8 @@ namespace Xamarin.WebTests.HttpFramework
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
-			if (sendAsync)
-				return TraditionalAsyncRunner.Run (ctx, cancellationToken, server, handler, null, expectedStatus, expectedError);
-			else
-				return TraditionalRunner.Run (ctx, cancellationToken, server, handler, null, expectedStatus, expectedError);
+			var runner = new TraditionalTestRunner (server, sendAsync);
+			return runner.Run (ctx, cancellationToken, server, handler, null, expectedStatus, expectedError);
 		}
 
 		public static Task RunHttpClient (
@@ -108,7 +112,8 @@ namespace Xamarin.WebTests.HttpFramework
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
-			return HttpClientRunner.Run (ctx, cancellationToken, server, handler, redirect, expectedStatus, expectedError);
+			var runner = new HttpClientTestRunner (server);
+			return runner.Run (ctx, cancellationToken, server, handler, redirect, expectedStatus, expectedError);
 		}
 
 		protected virtual void CheckResponse (
