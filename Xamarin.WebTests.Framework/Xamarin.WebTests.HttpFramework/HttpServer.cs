@@ -38,6 +38,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.HttpFramework
 {
+	using ConnectionFramework;
 	using HttpHandlers;
 	using Providers;
 	using Portable;
@@ -47,10 +48,9 @@ namespace Xamarin.WebTests.HttpFramework
 	{
 		readonly Uri uri;
 		readonly ListenerFlags flags;
-		readonly SslStreamFlags sslStreamFlags;
+		readonly IServerParameters parameters;
 		readonly bool ssl;
 		readonly IHttpProvider provider;
-		readonly IServerCertificate serverCertificate;
 		readonly IPortableWebSupport WebSupport;
 
 		IPortableEndPoint endpoint;
@@ -59,15 +59,13 @@ namespace Xamarin.WebTests.HttpFramework
 		static long nextId;
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
 
-		public HttpServer (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags,
-			IServerCertificate serverCertificate = null, SslStreamFlags sslStreamFlags = SslStreamFlags.None)
+		public HttpServer (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, IServerParameters parameters = null)
 		{
 			this.provider = provider;
 			this.endpoint = endpoint;
 			this.flags = flags;
-			this.sslStreamFlags = sslStreamFlags;
-			this.serverCertificate = serverCertificate;
-			this.ssl = serverCertificate != null;
+			this.parameters = parameters;
+			this.ssl = parameters != null;
 
 			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
 
@@ -98,12 +96,8 @@ namespace Xamarin.WebTests.HttpFramework
 			get { return flags; }
 		}
 
-		public SslStreamFlags SslStreamFlags {
-			get { return sslStreamFlags; }
-		}
-
-		public IServerCertificate ServerCertificate {
-			get { return serverCertificate; }
+		public IServerParameters ServerParameters {
+			get { return parameters; }
 		}
 
 		public virtual IPortableProxy GetProxy ()
@@ -178,10 +172,12 @@ namespace Xamarin.WebTests.HttpFramework
 			var connection = new HttpConnection (this, stream);
 			var request = connection.ReadRequest ();
 
-			if ((SslStreamFlags & SslStreamFlags.ExpectTrustFailure) != 0) {
-				if (request != null)
-					throw new InvalidOperationException ();
-				return false;
+			if (ServerParameters != null) {
+				if ((ServerParameters.ConnectionParameters.SslStreamFlags & SslStreamFlags.ExpectTrustFailure) != 0) {
+					if (request != null)
+						throw new InvalidOperationException ();
+					return false;
+				}
 			}
 
 			var path = request.Path;

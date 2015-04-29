@@ -61,13 +61,14 @@ namespace Xamarin.WebTests.Features
 				provider = factory.Default;
 
 			bool useSSL;
-			IServerCertificate serverCertificate = null;
+			IServerParameters parameters = null;
 			if (ctx.TryGetParameter<bool> (out useSSL, "UseSSL") && useSSL) {
 				var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
-				serverCertificate = webSupport.GetDefaultServerCertificate ();
+				var certificate = webSupport.GetDefaultServerCertificate ();
+				parameters = new ServerParameters ("http", certificate);
 			}
 
-			return provider.CreateServer (endpoint, flags, SslStreamFlags.None, serverCertificate);
+			return provider.CreateServer (endpoint, flags, parameters);
 		}
 	}
 }

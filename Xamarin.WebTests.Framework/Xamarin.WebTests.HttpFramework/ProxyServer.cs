@@ -33,6 +33,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.HttpFramework
 {
+	using ConnectionFramework;
 	using HttpHandlers;
 	using Portable;
 	using Providers;
@@ -46,8 +47,8 @@ namespace Xamarin.WebTests.HttpFramework
 		IListener proxyListener;
 		readonly IPortableWebSupport WebSupport;
 
-		public ProxyServer (IHttpProvider provider, IPortableEndPoint endpoint, IPortableEndPoint proxyEndpoint, IServerCertificate serverCertificate = null)
-			: base (provider, endpoint, ListenerFlags.Proxy, serverCertificate)
+		public ProxyServer (IHttpProvider provider, IPortableEndPoint endpoint, IPortableEndPoint proxyEndpoint, IServerParameters parameters = null)
+			: base (provider, endpoint, ListenerFlags.Proxy, parameters)
 		{
 			this.proxyEndpoint = proxyEndpoint;
 

@@ -43,6 +43,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Server
 {
+	using ConnectionFramework;
 	using Portable;
 	using Providers;
 
@@ -55,26 +56,20 @@ namespace Xamarin.WebTests.Server
 		volatile CancellationTokenSource cts;
 
 		readonly IHttpProvider provider;
-		readonly IServerCertificate serverCertificate;
+		readonly IServerParameters serverParameters;
 		readonly ListenerFlags flags;
-		readonly SslStreamFlags sslStreamFlags;
 		readonly bool ssl;
 		readonly Uri uri;
 
-		public Listener (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, SslStreamFlags sslStreamFlags, IServerCertificate serverCertificate)
+		public Listener (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, IServerParameters serverParameters)
 		{
 			this.provider = provider;
 			this.flags = flags;
-			this.serverCertificate = serverCertificate;
-			this.ssl = serverCertificate != null;
+			this.serverParameters = serverParameters;
+			this.ssl = serverParameters != null;
 
-			if (ssl) {
-				if ((flags & ListenerFlags.Proxy) != 0)
-					throw new InvalidOperationException ();
-			} else {
-				if (sslStreamFlags != 0)
-					throw new InvalidOperationException ();
-			}
+			if (ssl & (flags & ListenerFlags.Proxy) != 0)
+				throw new InvalidOperationException ();
 
 			var address = IPAddress.Parse (endpoint.Address);
 			var networkEndpoint = new IPEndPoint (address, endpoint.Port);
@@ -252,6 +247,8 @@ namespace Xamarin.WebTests.Server
 			if (!ssl)
 				return stream;
 
+			var sslStreamFlags = serverParameters.ConnectionParameters.SslStreamFlags;
+
 			try {
 				var sslStreamProvider = provider.SslStreamProvider;
 				if (sslStreamProvider == null) {
@@ -265,7 +262,7 @@ namespace Xamarin.WebTests.Server
 				else
 					validator = CertificateProvider.AcceptAll;
 
-				var authenticatedStream = sslStreamProvider.CreateServerStream (stream, serverCertificate, validator, sslStreamFlags);
+				var authenticatedStream = sslStreamProvider.CreateServerStream (stream, serverParameters.ServerCertificate, validator, sslStreamFlags);
 
 				if ((sslStreamFlags & SslStreamFlags.ExpectTrustFailure) != 0)
 					throw new InvalidOperationException ("Expected TLS Trust Failure error.");

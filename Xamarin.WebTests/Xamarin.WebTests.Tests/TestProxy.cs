@@ -37,6 +37,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Tests
 {
+	using ConnectionFramework;
 	using HttpHandlers;
 	using HttpFramework;
 	using Portable;
@@ -67,6 +68,7 @@ namespace Xamarin.WebTests.Tests
 
 		readonly static IPortableEndPoint address;
 		readonly static IServerCertificate serverCertificate;
+		readonly static IServerParameters serverParameters;
 		readonly static bool hasNetwork;
 
 		static TestProxy ()
@@ -77,6 +79,7 @@ namespace Xamarin.WebTests.Tests
 
 			var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
 			serverCertificate = webSupport.GetDefaultServerCertificate ();
+			serverParameters = new ServerParameters ("proxy", serverCertificate);
 		}
 
 		public ProxyServer CreateInstance (TestContext ctx)
@@ -108,7 +111,7 @@ namespace Xamarin.WebTests.Tests
 				};
 
 			case ProxyKind.SSL:
-				return new ProxyServer (provider, address.CopyWithPort (9991), address.CopyWithPort (9990), serverCertificate);
+				return new ProxyServer (provider, address.CopyWithPort (9991), address.CopyWithPort (9990), serverParameters);
 
 			default:
 				throw new InvalidOperationException ();

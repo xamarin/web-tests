@@ -29,9 +29,10 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Providers
 {
-	using Portable;
+	using ConnectionFramework;
 	using HttpFramework;
 	using HttpClient;
+	using Portable;
 
 	public interface IHttpProvider
 	{
@@ -53,7 +54,7 @@ namespace Xamarin.WebTests.Providers
 			get;
 		}
 
-		HttpServer CreateServer (IPortableEndPoint endpoint, ListenerFlags flags, SslStreamFlags sslFlags, IServerCertificate serverCertificate);
+		HttpServer CreateServer (IPortableEndPoint endpoint, ListenerFlags flags, IServerParameters parameters);
 	}
 }
 
