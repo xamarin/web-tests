@@ -4,6 +4,8 @@ using Xamarin.WebTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	using Providers;
+
 	public interface IConnectionParameters
 	{
 		bool VerifyPeerCertificate {
@@ -15,6 +17,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		ICertificateValidator CertificateValidator {
+			get; set;
+		}
+
+		SslStreamFlags SslStreamFlags {
 			get; set;
 		}
 	}
