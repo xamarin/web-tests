@@ -93,7 +93,7 @@ namespace Xamarin.WebTests.Tests
 			: base (filter)
 		{
 			certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
-			acceptFromLocalCA = certificateProvider.AcceptFromThisCA (ResourceManager.LocalCACertificate);
+			acceptFromLocalCA = certificateProvider.AcceptFromCA (ResourceManager.LocalCACertificate);
 		}
 
 		public IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx, string filter)

@@ -66,16 +66,21 @@ namespace Xamarin.WebTests.Server
 			});
 		}
 
-		ICertificateValidator ICertificateProvider.AcceptFromThisCA (ICertificate certificate)
+		ICertificateValidator ICertificateProvider.AcceptFromCA (ICertificate certificate)
 		{
-			return AcceptFromThisCA (certificate);
+			return AcceptFromCA (certificate);
 		}
 
-		internal CertificateValidator AcceptFromThisCA (ICertificate certificate)
+		internal CertificateValidator AcceptFromCA (ICertificate certificate)
 		{
 			var cert = GetCertificate (certificate);
 
 			return new CertificateValidator ((s, c, ch, e) => {
+				if (c == null) {
+					if (e == SslPolicyErrors.None || e == SslPolicyErrors.RemoteCertificateNotAvailable)
+						return true;
+					return false;
+				}
 				return c.Issuer.Equals (cert.Issuer);
 			});
 		}

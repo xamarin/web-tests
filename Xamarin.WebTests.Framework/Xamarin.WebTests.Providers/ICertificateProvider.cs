@@ -35,7 +35,7 @@ namespace Xamarin.WebTests.Providers
 
 		ICertificateValidator AcceptThisCertificate (IServerCertificate certificate);
 
-		ICertificateValidator AcceptFromThisCA (ICertificate certificate);
+		ICertificateValidator AcceptFromCA (ICertificate certificate);
 
 		ICertificateValidator RejectAll ();
 

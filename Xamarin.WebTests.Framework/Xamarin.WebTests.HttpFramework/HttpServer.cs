@@ -172,10 +172,16 @@ namespace Xamarin.WebTests.HttpFramework
 			var connection = new HttpConnection (this, stream);
 			var request = connection.ReadRequest ();
 
-			if (ServerParameters != null && ServerParameters.ExpectTrustFailure) {
-				if (request != null)
-					throw new InvalidOperationException ("Expected TLS Trust Failure error.");
-				return false;
+			if (ServerParameters != null) {
+				if (ServerParameters.ExpectTrustFailure) {
+					if (request != null)
+						throw new InvalidOperationException ("Expected TLS Trust Failure error.");
+					return false;
+				} else if (ServerParameters.ExpectException) {
+					if (request != null)
+						throw new InvalidOperationException ("Expected exception");
+					return false;
+				}
 			}
 
 			var path = request.Path;

@@ -67,21 +67,8 @@ namespace Xamarin.WebTests.HttpFramework
 			if (ClientParameters.CertificateValidator != null)
 				request.Request.InstallCertificateValidator (ClientParameters.CertificateValidator);
 
-#if FIXME
-			var provider = DependencyInjector.Get<ICertificateProvider> ();
-
-			if ((SslStreamFlags & SslStreamFlags.RejectServerCertificate) != 0)
-				request.Request.InstallCertificateValidator (provider.RejectAll ());
-			else {
-				var validator = provider.AcceptThisCertificate (Server.ServerParameters.ServerCertificate);
-				request.Request.InstallCertificateValidator (validator);
-			}
-
-			if ((SslStreamFlags & SslStreamFlags.ProvideClientCertificate) != 0) {
-				var clientCertificate = ResourceManager.MonkeyCertificate;
-				request.Request.SetClientCertificates (new IClientCertificate[] { clientCertificate });
-			}
-#endif
+			if (ClientParameters.ClientCertificate != null)
+				request.Request.SetClientCertificates (new IClientCertificate[] { ClientParameters.ClientCertificate });
 
 			return request;
 		}
@@ -98,9 +85,9 @@ namespace Xamarin.WebTests.HttpFramework
 			ctx.Assert (provider.AreEqual (certificate, Server.ServerParameters.ServerCertificate), "correct certificate");
 
 			var clientCertificate = traditionalRequest.Request.GetClientCertificate ();
-			if ((SslStreamFlags & SslStreamFlags.ProvideClientCertificate) != 0) {
+			if (Server.ServerParameters.AskForClientCertificate && ClientParameters.ClientCertificate != null) {
 				ctx.Assert (clientCertificate, Is.Not.Null, "client certificate");
-				ctx.Assert (provider.AreEqual (clientCertificate, ResourceManager.MonkeyCertificate), "correct client certificate");
+				ctx.Assert (provider.AreEqual (clientCertificate, ClientParameters.ClientCertificate), "correct client certificate");
 			} else {
 				ctx.Assert (clientCertificate, Is.Null, "no client certificate");
 			}
