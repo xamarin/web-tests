@@ -90,10 +90,10 @@ namespace Xamarin.WebTests
 	}
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class MartinAttribute : TestFeatureAttribute
+	public class MartinAttribute : TestCategoryAttribute
 	{
-		public override TestFeature Feature {
-			get { return WebTestFeatures.Martin; }
+		public override TestCategory Category {
+			get { return WebTestFeatures.MartinCategory; }
 		}
 	}
 
@@ -151,7 +151,7 @@ namespace Xamarin.WebTests
 		public static readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", false);
 
 		// Requires special local setup
-		public static readonly TestFeature Martin = new TestFeature ("Martin", "Martin's Lab", false);
+		public static readonly TestCategory MartinCategory = new TestCategory ("Martin") { IsExplicit = true };
 
 		public static readonly TestFeature HasNetwork = new TestFeature (
 			"Network", "HasNetwork", () => DependencyInjector.Get<IPortableWebSupport> ().HasNetwork);
@@ -181,7 +181,6 @@ namespace Xamarin.WebTests
 				yield return ProxyAuth;
 				yield return Experimental;
 				yield return ReuseConnection;
-				yield return Martin;
 
 				yield return HasNetwork;
 				yield return Mono38;
@@ -195,6 +194,7 @@ namespace Xamarin.WebTests
 		public IEnumerable<TestCategory> Categories {
 			get {
 				yield return WorkCategory;
+				yield return MartinCategory;
 				yield return HeavyCategory;
 				yield return RecentlyFixedCategory;
 				yield return NotWorkingCategory;
