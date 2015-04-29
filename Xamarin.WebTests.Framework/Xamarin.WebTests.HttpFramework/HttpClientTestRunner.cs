@@ -40,8 +40,8 @@ namespace Xamarin.WebTests.HttpFramework
 
 	public class HttpClientTestRunner : TestRunner
 	{
-		public HttpClientTestRunner (HttpServer server, HttpClientHandler handler)
-			: base (server, handler)
+		public HttpClientTestRunner (HttpServer server, HttpClientHandler handler, RedirectHandler redirect = null)
+			: base (server, handler, redirect)
 		{
 		}
 

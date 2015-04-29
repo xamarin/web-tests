@@ -51,10 +51,16 @@ namespace Xamarin.WebTests.HttpFramework
 			private set;
 		}
 
-		protected TestRunner (HttpServer server, Handler handler)
+		public RedirectHandler Redirect {
+			get;
+			private set;
+		}
+
+		protected TestRunner (HttpServer server, Handler handler, RedirectHandler redirect = null)
 		{
 			Server = server;
 			Handler = handler;
+			Redirect = redirect;
 		}
 
 		protected void Debug (TestContext ctx, int level, string message, params object[] args)
@@ -81,13 +87,13 @@ namespace Xamarin.WebTests.HttpFramework
 		protected abstract Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Request request);
 
 		public Task Run (
-			TestContext ctx, CancellationToken cancellationToken, RedirectHandler redirect = null,
+			TestContext ctx, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
 			Debug (ctx, 1, "RUN");
 
-			Handler target = (Handler)redirect ?? Handler;
+			Handler target = (Handler)Redirect ?? Handler;
 
 			return target.RunWithContext (ctx, Server, async (uri) => {
 				var request = CreateRequest (ctx, uri);
@@ -107,7 +113,7 @@ namespace Xamarin.WebTests.HttpFramework
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
 			var runner = new TraditionalTestRunner (server, handler, sendAsync);
-			return runner.Run (ctx, cancellationToken, null, expectedStatus, expectedError);
+			return runner.Run (ctx, cancellationToken, expectedStatus, expectedError);
 		}
 
 		public static Task RunHttpClient (
@@ -116,8 +122,8 @@ namespace Xamarin.WebTests.HttpFramework
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
-			var runner = new HttpClientTestRunner (server, handler);
-			return runner.Run (ctx, cancellationToken, redirect, expectedStatus, expectedError);
+			var runner = new HttpClientTestRunner (server, handler, redirect);
+			return runner.Run (ctx, cancellationToken, expectedStatus, expectedError);
 		}
 
 		protected virtual void CheckResponse (

@@ -149,11 +149,11 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			var runner = new HttpsTestRunner (server, handler);
 			if ((server.SslStreamFlags & SslStreamFlags.ExpectTrustFailure) != 0)
-				return runner.Run (ctx, cancellationToken, null, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
+				return runner.Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
 			else if ((server.SslStreamFlags & SslStreamFlags.ExpectError) != 0)
-				return runner.Run (ctx, cancellationToken, null, HttpStatusCode.InternalServerError, WebExceptionStatus.AnyErrorStatus);
+				return runner.Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.AnyErrorStatus);
 			else
-				return runner.Run (ctx, cancellationToken, null, HttpStatusCode.OK, WebExceptionStatus.Success);
+				return runner.Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);
 		}
 	}
 }
