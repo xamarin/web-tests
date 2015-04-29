@@ -40,19 +40,19 @@ namespace Xamarin.WebTests.HttpFramework
 
 	public class HttpClientTestRunner : TestRunner
 	{
-		public HttpClientTestRunner (HttpServer server)
-			: base (server)
+		public HttpClientTestRunner (HttpServer server, HttpClientHandler handler)
+			: base (server, handler)
 		{
 		}
 
-		protected override Request CreateRequest (TestContext ctx, Handler handler, Uri uri)
+		protected override Request CreateRequest (TestContext ctx, Uri uri)
 		{
-			return new HttpClientRequest ((HttpClientHandler)handler, uri);
+			return new HttpClientRequest ((HttpClientHandler)Handler, uri);
 		}
 
-		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Handler handler, Request request)
+		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Request request)
 		{
-			var httpClientHandler = (HttpClientHandler)handler;
+			var httpClientHandler = (HttpClientHandler)Handler;
 			var httpClientRequest = (HttpClientRequest)request;
 
 			Response response;

@@ -40,8 +40,8 @@ namespace Xamarin.WebTests.HttpFramework
 
 	public class TraditionalTestRunner : TestRunner
 	{
-		public TraditionalTestRunner (HttpServer server, bool sendAsync)
-			: base (server)
+		public TraditionalTestRunner (HttpServer server, Handler handler, bool sendAsync)
+			: base (server, handler)
 		{
 			SendAsync = sendAsync;
 		}
@@ -51,12 +51,12 @@ namespace Xamarin.WebTests.HttpFramework
 			private set;
 		}
 
-		protected override Request CreateRequest (TestContext ctx, Handler handler, Uri uri)
+		protected override Request CreateRequest (TestContext ctx, Uri uri)
 		{
 			return new TraditionalRequest (uri);
 		}
 
-		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Handler handler, Request request)
+		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Request request)
 		{
 			var traditionalRequest = (TraditionalRequest)request;
 

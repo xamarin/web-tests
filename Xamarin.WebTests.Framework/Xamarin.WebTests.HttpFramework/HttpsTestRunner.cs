@@ -94,12 +94,12 @@ namespace Xamarin.WebTests.HttpFramework
 
 	public class HttpsTestRunner : TestRunner
 	{
-		public HttpsTestRunner (HttpServer server)
-			: base (server)
+		public HttpsTestRunner (HttpServer server, Handler handler)
+			: base (server, handler)
 		{
 		}
 
-		protected override Request CreateRequest (TestContext ctx, Handler handler, Uri uri)
+		protected override Request CreateRequest (TestContext ctx, Uri uri)
 		{
 			var webRequest = Server.HttpProvider.CreateWebRequest (uri);
 			webRequest.SetKeepAlive (true);
@@ -123,7 +123,7 @@ namespace Xamarin.WebTests.HttpFramework
 			return request;
 		}
 
-		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Handler handler, Request request)
+		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Request request)
 		{
 			var traditionalRequest = (TraditionalRequest)request;
 			var response = await traditionalRequest.SendAsync (ctx, cancellationToken);
@@ -147,13 +147,13 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public static Task Run (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler)
 		{
-			var runner = new HttpsTestRunner (server);
+			var runner = new HttpsTestRunner (server, handler);
 			if ((server.SslStreamFlags & SslStreamFlags.ExpectTrustFailure) != 0)
-				return runner.Run (ctx, cancellationToken, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
+				return runner.Run (ctx, cancellationToken, null, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
 			else if ((server.SslStreamFlags & SslStreamFlags.ExpectError) != 0)
-				return runner.Run (ctx, cancellationToken, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.AnyErrorStatus);
+				return runner.Run (ctx, cancellationToken, null, HttpStatusCode.InternalServerError, WebExceptionStatus.AnyErrorStatus);
 			else
-				return runner.Run (ctx, cancellationToken, handler, null, HttpStatusCode.OK, WebExceptionStatus.Success);
+				return runner.Run (ctx, cancellationToken, null, HttpStatusCode.OK, WebExceptionStatus.Success);
 		}
 	}
 }
