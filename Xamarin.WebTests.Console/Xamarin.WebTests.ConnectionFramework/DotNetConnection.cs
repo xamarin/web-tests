@@ -42,7 +42,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	public abstract class DotNetConnection : Connection, ICommonConnection
 	{
-		public DotNetConnection (IPEndPoint endpoint, ISslStreamProvider provider, ICommonConnectionParameters parameters)
+		public DotNetConnection (IPEndPoint endpoint, ISslStreamProvider provider, IConnectionParameters parameters)
 			: base (endpoint, parameters)
 		{
 			this.provider = provider;

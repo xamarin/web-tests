@@ -1,6 +1,6 @@
 ﻿namespace Xamarin.WebTests.ConnectionFramework
 {
-	public interface IClientAndServerParameters : ICommonConnectionParameters
+	public interface IClientAndServerParameters : IConnectionParameters
 	{
 		IClientParameters ClientParameters {
 			get;

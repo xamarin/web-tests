@@ -1,5 +1,5 @@
 ﻿//
-// ICommonConnectionParameters.cs
+// IConnectionParameters.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -31,7 +31,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Portable;
 
-	public interface ICommonConnectionParameters : ITestParameter
+	public interface IConnectionParameters : ITestParameter
 	{
 		bool EnableDebugging {
 			get; set;

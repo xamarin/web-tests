@@ -5,7 +5,7 @@ using Xamarin.WebTests.Providers;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public abstract class ConnectionParameters : ICommonConnectionParameters, ITestParameter, ICloneable
+	public abstract class ConnectionParameters : IConnectionParameters, ITestParameter, ICloneable
 	{
 		bool verifyPeerCertificate = true;
 		SslStreamFlags sslStreamFlags = SslStreamFlags.None;

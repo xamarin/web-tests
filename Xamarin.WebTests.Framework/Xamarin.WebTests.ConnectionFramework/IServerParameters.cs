@@ -3,7 +3,7 @@ using Xamarin.WebTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public interface IServerParameters : ICommonConnectionParameters
+	public interface IServerParameters : IConnectionParameters
 	{
 		IServerCertificate ServerCertificate {
 			get; set;
