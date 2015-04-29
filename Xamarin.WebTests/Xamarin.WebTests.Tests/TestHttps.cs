@@ -48,14 +48,6 @@ namespace Xamarin.WebTests.Tests
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestHttps
 	{
-		#if FIXME
-		[WebTestFeatures.SelectServerCertificate]
-		public ServerCertificateType ServerCertificateType {
-			get;
-			private set;
-		}
-		#endif
-
 		[HttpsConnectionParameter]
 		public IClientAndServerParameters ConnectionParameters {
 			get;

@@ -75,14 +75,24 @@ namespace Xamarin.WebTests.Features
 		{
 			var defaultServer = new ServerParameters ("default", DefaultCertificate);
 			var selfSignedServer = new ServerParameters ("self-signed", SelfSignedCertificate);
-			var selfSignedError = new ServerParameters ("self-signed-error", SelfSignedCertificate) { ExpectException = true };
 
 			var acceptAllClient = new ClientParameters ("accept-all") { CertificateValidator = AcceptAll };
 
 			yield return ClientAndServerParameters.Create (acceptAllClient, defaultServer);
 			yield return ClientAndServerParameters.Create (acceptAllClient, selfSignedServer);
 
-			yield return ClientAndServerParameters.Create (new ClientParameters ("no-validator") { ExpectTrustFailure = true }, selfSignedError);
+			yield return ClientAndServerParameters.Create (new ClientParameters ("no-validator") {
+				ExpectTrustFailure = true
+			}, new ServerParameters ("self-signed-error", SelfSignedCertificate) {
+				ExpectException = true
+			});
+
+			// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
+			yield return ClientAndServerParameters.Create (new ClientParameters ("reject-all") {
+				ExpectTrustFailure = true, CertificateValidator = RejectAll
+			}, new ServerParameters ("default-error", DefaultCertificate) {
+				ExpectException = true
+			});
 		}
 	}
 }
