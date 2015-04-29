@@ -53,6 +53,22 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return ((CertificateValidator)validator).ValidationCallback;
 		}
 
+		static RemoteCertificateValidationCallback GetClientValidationCallback (IConnectionParameters parameters)
+		{
+			var validator = parameters.CertificateValidator;
+			if (validator == null) {
+				if (!parameters.VerifyPeerCertificate)
+					validator = CertificateProvider.AcceptAll;
+				else if (parameters.TrustedCA != null)
+					throw new NotImplementedException ();
+			}
+
+			if (validator == null)
+				return null;
+
+			return ((CertificateValidator)validator).ValidationCallback;
+		}
+
 		static X509Certificate2Collection GetClientCertificates (IClientParameters parameters)
 		{
 			if (parameters.ClientCertificate == null)
@@ -103,7 +119,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			var protocol = GetSslProtocol ();
 			var clientCertificates = GetClientCertificates (parameters);
-			var validator = GetValidationCallback (parameters.ConnectionParameters.CertificateValidator);
+			var validator = GetClientValidationCallback (parameters.ConnectionParameters);
 
 			var server = new SslStream (stream, false, validator, null);
 			await server.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false);

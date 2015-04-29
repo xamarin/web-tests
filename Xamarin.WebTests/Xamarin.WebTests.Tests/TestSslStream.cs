@@ -39,6 +39,7 @@ namespace Xamarin.WebTests.Tests
 {
 	using ConnectionFramework;
 	using Portable;
+	using Providers;
 	using Resources;
 
 	public class ServerTestHostAttribute : TestHostAttribute, ITestHost<IServer>
@@ -85,9 +86,14 @@ namespace Xamarin.WebTests.Tests
 
 	class ConnectionParameterAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
 	{
+		readonly ICertificateProvider certificateProvider;
+		readonly ICertificateValidator acceptFromLocalCA;
+
 		public ConnectionParameterAttribute (string filter = null)
 			: base (filter)
 		{
+			certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
+			acceptFromLocalCA = certificateProvider.AcceptFromThisCA (ResourceManager.LocalCACertificate);
 		}
 
 		public IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx, string filter)
@@ -97,14 +103,14 @@ namespace Xamarin.WebTests.Tests
 
 			};
 			yield return new CombinedClientAndServerParameters ("verify-certificate", ResourceManager.ServerCertificateFromCA) {
-				VerifyPeerCertificate = true, TrustedCA = ResourceManager.LocalCACertificate
+				VerifyPeerCertificate = true, CertificateValidator = acceptFromLocalCA
 			};
 			yield return new CombinedClientAndServerParameters ("ask-for-certificate", ResourceManager.ServerCertificateFromCA) {
-				VerifyPeerCertificate = true, TrustedCA = ResourceManager.LocalCACertificate,
+				VerifyPeerCertificate = true, CertificateValidator = acceptFromLocalCA,
 				AskForClientCertificate = true
 			};
 			yield return new CombinedClientAndServerParameters ("require-certificate", ResourceManager.ServerCertificateFromCA) {
-				VerifyPeerCertificate = true, TrustedCA = ResourceManager.LocalCACertificate,
+				VerifyPeerCertificate = true, CertificateValidator = acceptFromLocalCA,
 				RequireClientCertificate = true, ClientCertificate = ResourceManager.MonkeyCertificate
 			};
 		}

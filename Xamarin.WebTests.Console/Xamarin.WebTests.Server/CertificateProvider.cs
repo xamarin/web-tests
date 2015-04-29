@@ -66,6 +66,20 @@ namespace Xamarin.WebTests.Server
 			});
 		}
 
+		ICertificateValidator ICertificateProvider.AcceptFromThisCA (ICertificate certificate)
+		{
+			return AcceptFromThisCA (certificate);
+		}
+
+		internal CertificateValidator AcceptFromThisCA (ICertificate certificate)
+		{
+			var cert = GetCertificate (certificate);
+
+			return new CertificateValidator ((s, c, ch, e) => {
+				return c.Issuer.Equals (cert.Issuer);
+			});
+		}
+
 		void ICertificateProvider.InstallDefaultValidator (ICertificateValidator validator)
 		{
 			InstallDefaultValidator ((CertificateValidator)validator);
