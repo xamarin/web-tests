@@ -41,6 +41,7 @@ namespace Xamarin.WebTests
 	using HttpFramework;
 	using Portable;
 	using Providers;
+	using Features;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class HttpClientHandlerAttribute : TestParameterAttribute, ITestParameterSource<HttpClientHandler>
@@ -57,25 +58,11 @@ namespace Xamarin.WebTests
 	}
 
 	[AsyncTestFixture (Timeout = 10000)]
-	public class TestHttpClient : ITestHost<HttpServer>
+	public class TestHttpClient
 	{
 		[WebTestFeatures.SelectSSL]
 		public bool UseSSL {
 			get; set;
-		}
-
-		public HttpServer CreateInstance (TestContext ctx)
-		{
-			var provider = DependencyInjector.Get<IHttpProviderFactory> ().Default;
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			var endpoint = support.GetLoopbackEndpoint (9999);
-			if (UseSSL) {
-				var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
-				var certificate = webSupport.GetDefaultServerCertificate ();
-				return new HttpServer (provider, endpoint, ListenerFlags.None, certificate);
-			}
-
-			return new HttpServer (provider, endpoint, ListenerFlags.None);
 		}
 
 		static IEnumerable<HttpClientHandler> GetStableTests ()
@@ -115,20 +102,20 @@ namespace Xamarin.WebTests
 
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] HttpServer server, [HttpClientHandler ("stable")] HttpClientHandler handler)
+			[HttpServer] HttpServer server, [HttpClientHandler ("stable")] HttpClientHandler handler)
 		{
 			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
 		}
 
 		[AsyncTest]
 		public Task RunMono38 (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] HttpServer server, [HttpClientHandler ("mono38")] HttpClientHandler handler)
+			[HttpServer] HttpServer server, [HttpClientHandler ("mono38")] HttpClientHandler handler)
 		{
 			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
 		}
 
 		[AsyncTest]
-		public Task Run (TestContext ctx, CancellationToken cancellationToken, [TestHost] HttpServer server)
+		public Task Run (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server)
 		{
 			var handler = new HttpClientHandler ("PutRedirectEmptyBody", HttpClientOperation.Put);
 			var redirect = new RedirectHandler (handler, HttpStatusCode.TemporaryRedirect);

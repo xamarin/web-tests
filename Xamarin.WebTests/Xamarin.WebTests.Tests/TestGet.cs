@@ -40,6 +40,7 @@ namespace Xamarin.WebTests.Tests
 	using HttpFramework;
 	using Portable;
 	using Providers;
+	using Features;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class GetHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
@@ -56,7 +57,7 @@ namespace Xamarin.WebTests.Tests
 	}
 
 	[AsyncTestFixture (Timeout = 5000)]
-	public class TestGet : ITestHost<HttpServer>
+	public class TestGet
 	{
 		[WebTestFeatures.SelectSSL]
 		public bool UseSSL {
@@ -66,21 +67,6 @@ namespace Xamarin.WebTests.Tests
 		[WebTestFeatures.SelectReuseConnection]
 		public bool ReuseConnection {
 			get; set;
-		}
-
-		public HttpServer CreateInstance (TestContext ctx)
-		{
-			var provider = DependencyInjector.Get<IHttpProviderFactory> ().Default;
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			var endpoint = support.GetLoopbackEndpoint (9999);
-			var flags = ReuseConnection ? ListenerFlags.ReuseConnection : ListenerFlags.None;
-			if (UseSSL) {
-				var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
-				var certificate = webSupport.GetDefaultServerCertificate ();
-				return new HttpServer (provider, endpoint, flags, certificate);
-			}
-
-			return new HttpServer (provider, endpoint, flags);
 		}
 
 		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
@@ -95,23 +81,22 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task Run (TestContext ctx, CancellationToken cancellationToken, [TestHost] HttpServer server, [GetHandler] Handler handler)
+		public Task Run (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server, [GetHandler] Handler handler)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] HttpServer server, bool sendAsync,
-			[GetHandler] Handler handler)
+			[HttpServer] HttpServer server, bool sendAsync, [GetHandler] Handler handler)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}
 
 		[AsyncTest]
 		public Task Redirect (TestContext ctx, CancellationToken cancellationToken,
-			[TestHost] HttpServer server, bool sendAsync,
-			[RedirectStatusAttribute] HttpStatusCode code,
+			[HttpServer] HttpServer server, bool sendAsync,
+			[RedirectStatus] HttpStatusCode code,
 			[GetHandler] Handler handler)
 		{
 			var description = string.Format ("{0}: {1}", code, handler.Value);

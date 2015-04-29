@@ -117,10 +117,10 @@ namespace Xamarin.WebTests.Tests
 	}
 
 	[SSL]
+	[Martin]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestSslStream
 	{
-		[Work]
 		[AsyncTest]
 		public async Task TestConnection (TestContext ctx,
 			[ConnectionParameterAttribute] ClientAndServerParameters parameters,

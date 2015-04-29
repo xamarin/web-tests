@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.Tests
 	using HttpFramework;
 	using Portable;
 	using Providers;
+	using Features;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class PostHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
@@ -58,25 +59,11 @@ namespace Xamarin.WebTests.Tests
 	}
 
 	[AsyncTestFixture (Timeout = 10000)]
-	public class TestPost : ITestHost<HttpServer>
+	public class TestPost
 	{
 		[WebTestFeatures.SelectSSL]
 		public bool UseSSL {
 			get; set;
-		}
-
-		public HttpServer CreateInstance (TestContext ctx)
-		{
-			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			var endpoint = support.GetLoopbackEndpoint (9999);
-			if (UseSSL) {
-				var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
-				var certificate = webSupport.GetDefaultServerCertificate ();
-				return new HttpServer (factory.Default, endpoint, ListenerFlags.None, certificate);
-			}
-
-			return new HttpServer (factory.Default, endpoint, ListenerFlags.None);
 		}
 
 		public static IEnumerable<PostHandler> GetPostTests ()
@@ -132,7 +119,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task RedirectAsGetNoBuffering (
-			TestContext ctx, [TestHost] HttpServer server,
+			TestContext ctx, [HttpServer] HttpServer server,
 			CancellationToken cancellationToken)
 		{
 			var post = new PostHandler ("RedirectAsGetNoBuffering", HttpContent.HelloChunked, TransferMode.Chunked) {
@@ -145,7 +132,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task RedirectNoBuffering (
-			TestContext ctx, [TestHost] HttpServer server,
+			TestContext ctx, [HttpServer] HttpServer server,
 			CancellationToken cancellationToken)
 		{
 			var post = new PostHandler ("RedirectNoBuffering", HttpContent.HelloChunked, TransferMode.Chunked) {
@@ -160,7 +147,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Run (
-			TestContext ctx, [TestHost] HttpServer server, bool sendAsync,
+			TestContext ctx, [HttpServer] HttpServer server, bool sendAsync,
 			[PostHandler] Handler handler, CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
@@ -168,8 +155,8 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Redirect (
-			TestContext ctx, [TestHost] HttpServer server, bool sendAsync,
-			[RedirectStatusAttribute] HttpStatusCode code,
+			TestContext ctx, [HttpServer] HttpServer server, bool sendAsync,
+			[RedirectStatus] HttpStatusCode code,
 			[PostHandler ("post")] Handler handler, CancellationToken cancellationToken)
 		{
 			var post = (PostHandler)handler;
@@ -189,7 +176,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public async Task Test18750 (
-			TestContext ctx, [TestHost] HttpServer server,
+			TestContext ctx, [HttpServer] HttpServer server,
 			CancellationToken cancellationToken)
 		{
 			var post = new PostHandler ("First post", new StringContent ("var1=value&var2=value2")) {
@@ -213,7 +200,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task TestChunked (
-			TestContext ctx, [TestHost] HttpServer server, bool sendAsync,
+			TestContext ctx, [HttpServer] HttpServer server, bool sendAsync,
 			[PostHandler ("chunked")] Handler handler, CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
@@ -238,7 +225,7 @@ namespace Xamarin.WebTests.Tests
 		[Mono381]
 		[AsyncTest]
 		public async Task Test10163 (
-			TestContext ctx, [TestHost] HttpServer server,
+			TestContext ctx, [HttpServer] HttpServer server,
 			[AuthenticationType] AuthenticationType authType,
 			CancellationToken cancellationToken)
 		{
@@ -263,7 +250,7 @@ namespace Xamarin.WebTests.Tests
 		[Mono381]
 		[AsyncTest]
 		public async Task Test20359 (
-			TestContext ctx, [TestHost] HttpServer server,
+			TestContext ctx, [HttpServer] HttpServer server,
 			[AuthenticationType] AuthenticationType authType,
 			CancellationToken cancellationToken)
 		{

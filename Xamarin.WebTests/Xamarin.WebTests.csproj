@@ -55,6 +55,7 @@
     <Compile Include="Xamarin.WebTests.Internal\NTLMHandlerImpl.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttps.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestSslStream.cs" />
+    <Compile Include="Xamarin.WebTests.Features\HttpServerAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
@@ -75,5 +76,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Xamarin.WebTests.Internal\" />
+    <Folder Include="Xamarin.WebTests.Features\" />
   </ItemGroup>
 </Project>

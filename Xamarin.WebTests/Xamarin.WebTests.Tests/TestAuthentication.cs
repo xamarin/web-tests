@@ -40,6 +40,7 @@ namespace Xamarin.WebTests.Tests
 	using HttpFramework;
 	using Portable;
 	using Providers;
+	using Features;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class AuthenticationTypeAttribute : TestParameterAttribute, ITestParameterSource<AuthenticationType>
@@ -56,7 +57,7 @@ namespace Xamarin.WebTests.Tests
 	}
 
 	[AsyncTestFixture (Timeout = 10000)]
-	public class TestAuthentication : ITestHost<HttpServer>
+	public class TestAuthentication
 	{
 		[WebTestFeatures.SelectSSL]
 		public bool UseSSL {
@@ -66,21 +67,6 @@ namespace Xamarin.WebTests.Tests
 		[WebTestFeatures.SelectReuseConnection]
 		public bool ReuseConnection {
 			get; set;
-		}
-
-		public HttpServer CreateInstance (TestContext ctx)
-		{
-			var provider = DependencyInjector.Get<IHttpProviderFactory> ().Default;
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			var endpoint = support.GetLoopbackEndpoint (9999);
-			var flags = ReuseConnection ? ListenerFlags.ReuseConnection : ListenerFlags.None;
-			if (UseSSL) {
-				var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
-				var certificate = webSupport.GetDefaultServerCertificate ();
-				return new HttpServer (provider, endpoint, flags, certificate);
-			}
-
-			return new HttpServer (provider, endpoint, flags);
 		}
 
 		public static IEnumerable<AuthenticationType> GetAuthenticationTypes (TestContext ctx, string filter)
@@ -102,7 +88,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Run (
-			TestContext ctx, [TestHost] HttpServer server, bool sendAsync,
+			TestContext ctx, [HttpServer] HttpServer server, bool sendAsync,
 			[AuthenticationType] AuthenticationType authType, [PostHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
@@ -112,7 +98,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task MustClearAuthOnRedirect (
-			TestContext ctx, [TestHost] HttpServer server, bool sendAsync,
+			TestContext ctx, [HttpServer] HttpServer server, bool sendAsync,
 			CancellationToken cancellationToken)
 		{
 			var target = new HelloWorldHandler ("Hello World");
