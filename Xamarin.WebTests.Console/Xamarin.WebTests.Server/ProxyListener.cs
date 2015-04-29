@@ -55,14 +55,14 @@ namespace Xamarin.WebTests.Server
 				authManager = new ProxyAuthManager (authType);
 		}
 
-		protected override Stream CreateStream (NetworkStream stream)
+		protected override Connection CreateConnection (Socket socket)
 		{
-			return stream;
+			var stream = new NetworkStream (socket);
+			return new Connection (stream);
 		}
 
-		protected override bool HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken)
+		protected override bool HandleConnection (Socket socket, Connection connection, CancellationToken cancellationToken)
 		{
-			var connection = new Connection (stream);
 			var request = connection.ReadRequest ();
 
 			var remoteAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
@@ -84,7 +84,7 @@ namespace Xamarin.WebTests.Server
 			}
 
 			if (request.Method.Equals ("CONNECT")) {
-				CreateTunnel (connection, socket, stream, request, cancellationToken);
+				CreateTunnel (connection, socket, connection.Stream, request, cancellationToken);
 				return false;
 			}
 

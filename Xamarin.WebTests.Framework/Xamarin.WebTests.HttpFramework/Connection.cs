@@ -37,14 +37,20 @@ namespace Xamarin.WebTests.HttpFramework
 
 	public class Connection
 	{
+		Stream stream;
 		StreamReader reader;
 		StreamWriter writer;
 
 		public Connection (Stream stream)
 		{
+			this.stream = stream;
 			reader = new StreamReader (stream);
 			writer = new StreamWriter (stream);
 			writer.AutoFlush = true;
+		}
+
+		public Stream Stream {
+			get { return stream; }
 		}
 
 		protected StreamReader RequestReader {

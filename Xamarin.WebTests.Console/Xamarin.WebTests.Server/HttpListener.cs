@@ -54,14 +54,15 @@ namespace Xamarin.WebTests.Server
 			this.server = server;
 		}
 
-		protected override Stream CreateStream (NetworkStream stream)
+		protected override Connection CreateConnection (Socket socket)
 		{
-			return server.CreateStream (stream);
+			var stream = new NetworkStream (socket);
+			return server.CreateConnection (stream);
 		}
 
-		protected override bool HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken)
+		protected override bool HandleConnection (Socket socket, Connection connection, CancellationToken cancellationToken)
 		{
-			return server.HandleConnection (stream);
+			return server.HandleConnection ((HttpConnection)connection);
 		}
 	}
 }

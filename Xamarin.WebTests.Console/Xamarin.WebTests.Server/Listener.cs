@@ -43,7 +43,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Server
 {
-	using ConnectionFramework;
+	using HttpFramework;
 	using Portable;
 	using Providers;
 
@@ -163,21 +163,21 @@ namespace Xamarin.WebTests.Server
 			}
 
 			var socket = args.AcceptSocket;
-			Stream stream;
+			Connection connection;
 
 			try {
-				stream = CreateStream (new NetworkStream (socket));
+				connection = CreateConnection (socket);
 			} catch (OperationCanceledException) {
-				stream = null;
+				connection = null;
 			} catch (Exception ex) {
 				if (!cts.IsCancellationRequested)
 					OnException (ex);
-				stream = null;
+				connection = null;
 			}
 
 			try {
-				if (stream != null)
-					HandleConnection_internal (socket, stream, cts.Token);
+				if (connection != null)
+					HandleConnection_internal (socket, connection, cts.Token);
 				Close (socket);
 			} catch (OperationCanceledException) {
 				;
@@ -236,7 +236,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected abstract Stream CreateStream (NetworkStream stream);
+		protected abstract Connection CreateConnection (Socket socket);
 
 		bool IsStillConnected (Socket socket)
 		{
@@ -249,10 +249,10 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		void HandleConnection_internal (Socket socket, Stream stream, CancellationToken cancellationToken)
+		void HandleConnection_internal (Socket socket, Connection connection, CancellationToken cancellationToken)
 		{
 			while (!cancellationToken.IsCancellationRequested) {
-				var wantToReuse = HandleConnection (socket, stream, cancellationToken);
+				var wantToReuse = HandleConnection (socket, connection, cancellationToken);
 				if (!wantToReuse || cancellationToken.IsCancellationRequested)
 					break;
 
@@ -262,6 +262,6 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected abstract bool HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken);
+		protected abstract bool HandleConnection (Socket socket, Connection connection, CancellationToken cancellationToken);
 	}
 }

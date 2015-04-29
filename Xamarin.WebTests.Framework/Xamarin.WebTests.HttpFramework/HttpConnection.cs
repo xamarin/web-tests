@@ -32,16 +32,23 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.HttpFramework
 {
+	using Providers;
+
 	public class HttpConnection : Connection
 	{
 		public HttpServer Server {
 			get; private set;
 		}
 
-		public HttpConnection (HttpServer server, Stream stream)
+		public ISslStream SslStream {
+			get; private set;
+		}
+
+		public HttpConnection (HttpServer server, Stream stream, ISslStream sslStream = null)
 			: base (stream)
 		{
 			Server = server;
+			SslStream = sslStream;
 		}
 	}
 }

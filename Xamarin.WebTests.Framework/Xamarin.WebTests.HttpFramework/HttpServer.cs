@@ -177,18 +177,18 @@ namespace Xamarin.WebTests.HttpFramework
 			handlers.Add (path, handler);
 		}
 
-		public Stream CreateStream (Stream innerStream)
+		public HttpConnection CreateConnection (Stream stream)
 		{
 			if (sslStreamProvider == null)
-				return innerStream;
+				return new HttpConnection (this, stream);
 
 			try {
-				var sslStream = sslStreamProvider.CreateServerStream (innerStream, ServerParameters);
+				var sslStream = sslStreamProvider.CreateServerStream (stream, ServerParameters);
 
 				if (ServerParameters.ExpectException)
 					throw new InvalidOperationException ("Expected error.");
 
-				return sslStream.AuthenticatedStream;
+				return new HttpConnection (this, sslStream.AuthenticatedStream, sslStream);
 			} catch {
 				if (ServerParameters.ExpectException)
 					return null;
@@ -196,17 +196,14 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		public bool HandleConnection (Stream stream)
+		public bool HandleConnection (HttpConnection connection)
 		{
-			var connection = new HttpConnection (this, stream);
 			var request = connection.ReadRequest ();
 
-			if (ServerParameters != null) {
-				if (ServerParameters.ExpectException) {
-					if (request != null)
-						throw new InvalidOperationException ("Expected exception");
-					return false;
-				}
+			if (ServerParameters != null && ServerParameters.ExpectException) {
+				if (request != null)
+					throw new InvalidOperationException ("Expected exception");
+				return false;
 			}
 
 			var path = request.Path;
