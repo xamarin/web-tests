@@ -51,11 +51,10 @@ namespace Xamarin.WebTests.HttpFramework
 			Server = server;
 		}
 
-		static void Debug (TestContext ctx, HttpServer server, int level,
-			Handler handler, string message, params object[] args)
+		protected void Debug (TestContext ctx, int level, Handler handler, string message, params object[] args)
 		{
 			var sb = new StringBuilder ();
-			sb.AppendFormat ("{0}:{1}: {2}", server, handler, message);
+			sb.AppendFormat ("{0}:{1}: {2}", Server, handler, message);
 			for (int i = 0; i < args.Length; i++) {
 				sb.Append (" ");
 				sb.Append (args [i] != null ? args [i].ToString () : "<null>");
@@ -64,34 +63,34 @@ namespace Xamarin.WebTests.HttpFramework
 			ctx.LogDebug (level, sb.ToString ());
 		}
 
-		protected abstract Request CreateRequest (TestContext ctx, HttpServer server, Handler handler, Uri uri);
+		protected abstract Request CreateRequest (TestContext ctx, Handler handler, Uri uri);
 
-		protected virtual void ConfigureRequest (TestContext ctx, HttpServer server, Uri uri, Handler handler, Request request)
+		protected virtual void ConfigureRequest (TestContext ctx, Uri uri, Handler handler, Request request)
 		{
 			handler.ConfigureRequest (request, uri);
 
-			request.SetProxy (server.GetProxy ());
+			request.SetProxy (Server.GetProxy ());
 		}
 
-		protected abstract Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler, Request request);
+		protected abstract Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Handler handler, Request request);
 
 		public Task Run (
-			TestContext ctx, CancellationToken cancellationToken, HttpServer server,
+			TestContext ctx, CancellationToken cancellationToken,
 			Handler handler, RedirectHandler redirect = null,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
-			Debug (ctx, server, 1, handler, "RUN");
+			Debug (ctx, 1, handler, "RUN");
 
 			Handler target = (Handler)redirect ?? handler;
 
-			return target.RunWithContext (ctx, server, async (uri) => {
-				var request = CreateRequest (ctx, server, handler, uri);
-				ConfigureRequest (ctx, server, uri, handler, request);
+			return target.RunWithContext (ctx, Server, async (uri) => {
+				var request = CreateRequest (ctx, handler, uri);
+				ConfigureRequest (ctx, uri, handler, request);
 
-				var response = await RunInner (ctx, cancellationToken, server, handler, request);
+				var response = await RunInner (ctx, cancellationToken, handler, request);
 
-				CheckResponse (ctx, server, response, handler, cancellationToken, expectedStatus, expectedError);
+				CheckResponse (ctx, response, handler, cancellationToken, expectedStatus, expectedError);
 			});
 		}
 
@@ -103,7 +102,7 @@ namespace Xamarin.WebTests.HttpFramework
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
 			var runner = new TraditionalTestRunner (server, sendAsync);
-			return runner.Run (ctx, cancellationToken, server, handler, null, expectedStatus, expectedError);
+			return runner.Run (ctx, cancellationToken, handler, null, expectedStatus, expectedError);
 		}
 
 		public static Task RunHttpClient (
@@ -113,15 +112,15 @@ namespace Xamarin.WebTests.HttpFramework
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
 			var runner = new HttpClientTestRunner (server);
-			return runner.Run (ctx, cancellationToken, server, handler, redirect, expectedStatus, expectedError);
+			return runner.Run (ctx, cancellationToken, handler, redirect, expectedStatus, expectedError);
 		}
 
 		protected virtual void CheckResponse (
-			TestContext ctx, HttpServer server, Response response, Handler handler,
+			TestContext ctx, Response response, Handler handler,
 			CancellationToken cancellationToken, HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
-			Debug (ctx, server, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error != null ? response.Error.Message : string.Empty);
+			Debug (ctx, 1, handler, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error != null ? response.Error.Message : string.Empty);
 
 			if (ctx.HasPendingException)
 				return;
@@ -153,7 +152,7 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 
 			if (response.Content != null)
-				Debug (ctx, server, 5, handler, "GOT RESPONSE BODY", response.Content);
+				Debug (ctx, 5, handler, "GOT RESPONSE BODY", response.Content);
 		}
 	}
 }

@@ -51,12 +51,12 @@ namespace Xamarin.WebTests.HttpFramework
 			private set;
 		}
 
-		protected override Request CreateRequest (TestContext ctx, HttpServer server, Handler handler, Uri uri)
+		protected override Request CreateRequest (TestContext ctx, Handler handler, Uri uri)
 		{
 			return new TraditionalRequest (uri);
 		}
 
-		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler, Request request)
+		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Handler handler, Request request)
 		{
 			var traditionalRequest = (TraditionalRequest)request;
 

@@ -99,23 +99,23 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 		}
 
-		protected override Request CreateRequest (TestContext ctx, HttpServer server, Handler handler, Uri uri)
+		protected override Request CreateRequest (TestContext ctx, Handler handler, Uri uri)
 		{
-			var webRequest = server.HttpProvider.CreateWebRequest (uri);
+			var webRequest = Server.HttpProvider.CreateWebRequest (uri);
 			webRequest.SetKeepAlive (true);
 
 			var request = new TraditionalRequest (webRequest);
 
 			var provider = DependencyInjector.Get<ICertificateProvider> ();
 
-			if ((server.SslStreamFlags & SslStreamFlags.RejectServerCertificate) != 0)
+			if ((Server.SslStreamFlags & SslStreamFlags.RejectServerCertificate) != 0)
 				request.Request.InstallCertificateValidator (provider.RejectAll ());
 			else {
-				var validator = provider.AcceptThisCertificate (server.ServerCertificate);
+				var validator = provider.AcceptThisCertificate (Server.ServerCertificate);
 				request.Request.InstallCertificateValidator (validator);
 			}
 
-			if ((server.SslStreamFlags & SslStreamFlags.ProvideClientCertificate) != 0) {
+			if ((Server.SslStreamFlags & SslStreamFlags.ProvideClientCertificate) != 0) {
 				var clientCertificate = ResourceManager.MonkeyCertificate;
 				request.Request.SetClientCertificates (new IClientCertificate[] { clientCertificate });
 			}
@@ -123,7 +123,7 @@ namespace Xamarin.WebTests.HttpFramework
 			return request;
 		}
 
-		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler, Request request)
+		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Handler handler, Request request)
 		{
 			var traditionalRequest = (TraditionalRequest)request;
 			var response = await traditionalRequest.SendAsync (ctx, cancellationToken);
@@ -132,10 +132,10 @@ namespace Xamarin.WebTests.HttpFramework
 
 			var certificate = traditionalRequest.Request.GetCertificate ();
 			ctx.Assert (certificate, Is.Not.Null, "certificate");
-			ctx.Assert (provider.AreEqual (certificate, server.ServerCertificate), "correct certificate");
+			ctx.Assert (provider.AreEqual (certificate, Server.ServerCertificate), "correct certificate");
 
 			var clientCertificate = traditionalRequest.Request.GetClientCertificate ();
-			if ((server.SslStreamFlags & SslStreamFlags.ProvideClientCertificate) != 0) {
+			if ((Server.SslStreamFlags & SslStreamFlags.ProvideClientCertificate) != 0) {
 				ctx.Assert (clientCertificate, Is.Not.Null, "client certificate");
 				ctx.Assert (provider.AreEqual (clientCertificate, ResourceManager.MonkeyCertificate), "correct client certificate");
 			} else {
@@ -149,11 +149,11 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			var runner = new HttpsTestRunner (server);
 			if ((server.SslStreamFlags & SslStreamFlags.ExpectTrustFailure) != 0)
-				return runner.Run (ctx, cancellationToken, server, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
+				return runner.Run (ctx, cancellationToken, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
 			else if ((server.SslStreamFlags & SslStreamFlags.ExpectError) != 0)
-				return runner.Run (ctx, cancellationToken, server, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.AnyErrorStatus);
+				return runner.Run (ctx, cancellationToken, handler, null, HttpStatusCode.InternalServerError, WebExceptionStatus.AnyErrorStatus);
 			else
-				return runner.Run (ctx, cancellationToken, server, handler, null, HttpStatusCode.OK, WebExceptionStatus.Success);
+				return runner.Run (ctx, cancellationToken, handler, null, HttpStatusCode.OK, WebExceptionStatus.Success);
 		}
 	}
 }
