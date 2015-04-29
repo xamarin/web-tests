@@ -57,14 +57,12 @@ namespace Xamarin.WebTests.Server
 
 		readonly IHttpProvider provider;
 		readonly IServerParameters serverParameters;
-		readonly ListenerFlags flags;
 		readonly bool ssl;
 		readonly Uri uri;
 
 		public Listener (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, IServerParameters serverParameters)
 		{
 			this.provider = provider;
-			this.flags = flags;
 			this.serverParameters = serverParameters;
 			this.ssl = serverParameters != null;
 
