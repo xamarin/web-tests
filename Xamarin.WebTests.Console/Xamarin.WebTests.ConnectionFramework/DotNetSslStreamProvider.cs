@@ -59,8 +59,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (validator == null) {
 				if (!parameters.VerifyPeerCertificate)
 					validator = CertificateProvider.AcceptAll;
-				else if (parameters.TrustedCA != null)
-					throw new NotImplementedException ();
 			}
 
 			if (validator == null)

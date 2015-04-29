@@ -66,39 +66,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		protected abstract void Stop ();
 
-		protected Task FinishedTask {
+		internal static Task FinishedTask {
 			get { return Task.FromResult<object> (null); }
-		}
-
-		public ICertificateValidator GetCertificateValidator ()
-		{
-			throw new NotImplementedException ();
-		}
-
-		protected bool RemoteValidationCallback (bool ok, X509Certificate certificate)
-		{
-			Debug ("REMOTE VALIDATION CALLBACK: {0} {1}", ok, certificate.Subject);
-
-			if (ok)
-				return true;
-			if (!Parameters.VerifyPeerCertificate)
-				return true;
-			if (Parameters.TrustedCA == null)
-				return false;
-
-			var caCert = CertificateProvider.GetCertificate (Parameters.TrustedCA);
-			Debug ("Got Trusted CA Certificate: {0}", caCert.Subject);
-			Debug ("Remote Certificate: {0}", certificate.Subject);
-
-			Debug ("Remote Certificate Issuer: {0}", certificate.Issuer);
-
-			return caCert.Subject.Equals (certificate.Issuer);
-		}
-
-		protected X509Certificate LocalCertificateSelectionCallback (string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
-		{
-			Debug ("LOCAL SELECTION CALLBACK: {0}", targetHost);
-			return null;
 		}
 
 		protected void Debug (string message, params object[] args)

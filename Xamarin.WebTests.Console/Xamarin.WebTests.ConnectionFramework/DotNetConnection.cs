@@ -59,18 +59,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		Stream sslStream;
 		ISslStreamProvider provider;
 
-		protected bool RemoteValidationCallback (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
-		{
-			Debug ("REMOTE VALIDATION CALLBACK: {0} {1}", certificate.Subject, errors);
-			return RemoteValidationCallback (errors == SslPolicyErrors.None, certificate);
-		}
-
-		protected X509Certificate LocalCertificateSelectionCallback (object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
-		{
-			Debug ("LOCAL SELECTION CALLBACK: {0}", targetHost);
-			return LocalCertificateSelectionCallback (targetHost, localCertificates, remoteCertificate, acceptableIssuers);
-		}
-
 		public Stream Stream {
 			get { return sslStream; }
 		}
