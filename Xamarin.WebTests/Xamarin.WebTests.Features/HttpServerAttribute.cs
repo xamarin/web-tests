@@ -45,8 +45,7 @@ namespace Xamarin.WebTests.Features
 		public HttpServer CreateInstance (TestContext ctx)
 		{
 			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			var endpoint = support.GetLoopbackEndpoint (9999);
+			var endpoint = DependencyInjector.Get<IPortableEndPointSupport> ().GetLoopbackEndpoint (9999);
 
 			ListenerFlags flags = ListenerFlags.None;
 
@@ -54,14 +53,21 @@ namespace Xamarin.WebTests.Features
 			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)
 				flags |= ListenerFlags.ReuseConnection;
 
+			IHttpProvider provider;
+			HttpProviderType providerType;
+			if (ctx.TryGetParameter (out providerType))
+				provider = factory.GetProvider (providerType);
+			else
+				provider = factory.Default;
+
 			bool useSSL;
+			IServerCertificate serverCertificate = null;
 			if (ctx.TryGetParameter<bool> (out useSSL, "UseSSL") && useSSL) {
 				var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
-				var certificate = webSupport.GetDefaultServerCertificate ();
-				return new HttpServer (factory.Default, endpoint, flags, certificate);
+				serverCertificate = webSupport.GetDefaultServerCertificate ();
 			}
 
-			return new HttpServer (factory.Default, endpoint, flags);
+			return provider.CreateServer (endpoint, flags, SslStreamFlags.None, serverCertificate);
 		}
 	}
 }

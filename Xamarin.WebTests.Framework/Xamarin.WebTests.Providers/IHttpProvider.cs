@@ -53,7 +53,7 @@ namespace Xamarin.WebTests.Providers
 			get;
 		}
 
-		HttpServer CreateServer (IPortableEndPoint endpoint, SslStreamFlags flags, IServerCertificate serverCertificate);
+		HttpServer CreateServer (IPortableEndPoint endpoint, ListenerFlags flags, SslStreamFlags sslFlags, IServerCertificate serverCertificate);
 	}
 }
 

@@ -87,7 +87,7 @@ namespace Xamarin.WebTests.HttpFramework
 				certificateType = ServerCertificateType.Default;
 
 			var certificate = ResourceManager.GetServerCertificate (certificateType);
-			return provider.CreateServer (endpoint, flags, certificate);
+			return provider.CreateServer (endpoint, ListenerFlags.None, flags, certificate);
 		}
 		#endregion
 	}
