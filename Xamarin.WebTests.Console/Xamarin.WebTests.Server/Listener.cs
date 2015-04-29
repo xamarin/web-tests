@@ -252,12 +252,12 @@ namespace Xamarin.WebTests.Server
 					sslStreamProvider = factory.GetDefaultProvider ();
 				}
 
-				var authenticatedStream = sslStreamProvider.CreateServerStream (stream, serverParameters);
+				var sslStream = sslStreamProvider.CreateServerStream (stream, serverParameters);
 
 				if (serverParameters.ExpectException)
 					throw new InvalidOperationException ("Expected error.");
 
-				return authenticatedStream;
+				return sslStream.AuthenticatedStream;
 			} catch {
 				if (serverParameters.ExpectException)
 					return null;

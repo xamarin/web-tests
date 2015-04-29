@@ -1,5 +1,5 @@
 ﻿//
-// ISslStreamProvider.cs
+// ISslStream.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,24 +25,18 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Providers
 {
-	using ConnectionFramework;
-	using Portable;
-
-	public interface ISslStreamProvider
+	public interface ISslStream
 	{
-		ISslStream CreateServerStream (Stream stream, IServerParameters parameters);
+		bool HasClientCertificate {
+			get;
+		}
 
-		Task<ISslStream> CreateServerStreamAsync (
-			Stream stream, IServerParameters parameters, CancellationToken cancellationToken);
-
-		Task<ISslStream> CreateClientStreamAsync (
-			Stream stream, string targetHost, IClientParameters parameters, CancellationToken cancellationToken);
+		Stream AuthenticatedStream {
+			get;
+		}
 	}
 }
 

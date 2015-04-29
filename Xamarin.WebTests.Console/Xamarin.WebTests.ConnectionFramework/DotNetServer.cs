@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			ctx.LogMessage ("Successfully authenticated.");
 
-			return server;
+			return server.AuthenticatedStream;
 		}
 	}
 }

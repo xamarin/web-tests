@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return clientCertificateCollection;
 		}
 
-		public Stream CreateServerStream (Stream stream, IServerParameters serverParameters)
+		public ISslStream CreateServerStream (Stream stream, IServerParameters serverParameters)
 		{
 			var certificate = CertificateProvider.GetCertificate (serverParameters.ServerCertificate);
 
@@ -77,13 +77,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var sslStream = new SslStream (stream, false, validator);
 			sslStream.AuthenticateAsServer (certificate, serverParameters.AskForClientCertificate, protocol, false);
 
-			if (serverParameters.RequireClientCertificate && !sslStream.IsMutuallyAuthenticated)
-				throw new WebException ("Not mutually authenticated", System.Net.WebExceptionStatus.TrustFailure);
-
-			return sslStream;
+			return new DotNetSslStream (sslStream);
 		}
 
-		public async Task<Stream> CreateServerStreamAsync (
+		public async Task<ISslStream> CreateServerStreamAsync (
 			Stream stream, IServerParameters parameters, CancellationToken cancellationToken)
 		{
 			var certificate = CertificateProvider.GetCertificate (parameters.ServerCertificate);
@@ -94,23 +91,20 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var sslStream = new SslStream (stream, false, validator);
 			await sslStream.AuthenticateAsServerAsync (certificate, parameters.AskForClientCertificate, protocol, false);
 
-			if (parameters.RequireClientCertificate && !sslStream.IsMutuallyAuthenticated)
-				throw new WebException ("Not mutually authenticated", System.Net.WebExceptionStatus.TrustFailure);
-
-			return sslStream;
+			return new DotNetSslStream (sslStream);
 		}
 
-		public async Task<Stream> CreateClientStreamAsync (
+		public async Task<ISslStream> CreateClientStreamAsync (
 			Stream stream, string targetHost, IClientParameters parameters, CancellationToken cancellationToken)
 		{
 			var protocol = GetSslProtocol ();
 			var clientCertificates = GetClientCertificates (parameters);
 			var validator = GetValidationCallback (parameters);
 
-			var server = new SslStream (stream, false, validator, null);
-			await server.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false);
+			var sslStream = new SslStream (stream, false, validator, null);
+			await sslStream.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false);
 
-			return server;
+			return new DotNetSslStream (sslStream);
 		}
 	}
 }
