@@ -401,7 +401,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return new IntegerSerializer ();
 		}
 
-		class ParameterWrapper : ITestParameter
+		class ParameterWrapper : ITestParameter, ITestParameterWrapper
 		{
 			public object Value {
 				get;

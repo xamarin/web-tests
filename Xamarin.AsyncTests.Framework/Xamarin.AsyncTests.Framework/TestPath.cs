@@ -167,6 +167,10 @@ namespace Xamarin.AsyncTests.Framework
 			if (typeInfo.IsEnum)
 				return (T)Enum.Parse (typeof (T), Parameter.Value);
 
+			var wrapper = Parameter as ITestParameterWrapper;
+			if (wrapper != null)
+				return (T)wrapper.Value;
+
 			return (T)Parameter;
 		}
 
