@@ -49,6 +49,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			ClientCertificate = other.ClientCertificate;
 			askForCert = other.askForCert;
 			requireCert = other.requireCert;
+			ExpectTrustFailure = other.ExpectTrustFailure;
 		}
 
 		public override IClientParameters ClientParameters {
@@ -83,6 +84,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public IClientCertificate ClientCertificate {
+			get; set;
+		}
+
+		public bool ExpectTrustFailure {
 			get; set;
 		}
 	}

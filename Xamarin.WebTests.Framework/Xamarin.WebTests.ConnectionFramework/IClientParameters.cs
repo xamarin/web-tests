@@ -8,6 +8,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		IClientCertificate ClientCertificate {
 			get; set;
 		}
+
+		bool ExpectTrustFailure {
+			get; set;
+		}
 	}
 }
 

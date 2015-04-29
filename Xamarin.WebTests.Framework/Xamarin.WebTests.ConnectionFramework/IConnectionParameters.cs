@@ -37,10 +37,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		bool ExpectTrustFailure {
-			get; set;
-		}
-
 		bool ExpectException {
 			get; set;
 		}

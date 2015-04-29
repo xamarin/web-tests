@@ -254,8 +254,8 @@ namespace Xamarin.WebTests.Server
 
 				var authenticatedStream = sslStreamProvider.CreateServerStream (stream, serverParameters);
 
-				if (serverParameters.ExpectTrustFailure)
-					throw new InvalidOperationException ("Expected TLS Trust Failure error.");
+				if (serverParameters.ExpectException)
+					throw new InvalidOperationException ("Expected error.");
 
 				return authenticatedStream;
 			} catch {

@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			: base (other)
 		{
 			ClientCertificate = other.ClientCertificate;
+			ExpectTrustFailure = other.ExpectTrustFailure;
 		}
 
 		public override ConnectionParameters DeepClone ()
@@ -50,6 +51,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public IClientCertificate ClientCertificate {
+			get; set;
+		}
+
+		public bool ExpectTrustFailure {
 			get; set;
 		}
 	}
