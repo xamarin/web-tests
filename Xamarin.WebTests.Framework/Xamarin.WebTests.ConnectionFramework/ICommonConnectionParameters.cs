@@ -29,10 +29,24 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	using Portable;
+
 	public interface ICommonConnectionParameters : ITestParameter
 	{
 		IConnectionParameters ConnectionParameters {
 			get;
+		}
+
+		bool ExpectTrustFailure {
+			get; set;
+		}
+
+		bool ExpectException {
+			get; set;
+		}
+
+		ICertificateValidator CertificateValidator {
+			get; set;
 		}
 
 		IPortableEndPoint EndPoint {

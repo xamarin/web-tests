@@ -48,11 +48,13 @@ namespace Xamarin.WebTests.Tests
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestHttps
 	{
+		#if FIXME
 		[WebTestFeatures.SelectServerCertificate]
 		public ServerCertificateType ServerCertificateType {
 			get;
 			private set;
 		}
+		#endif
 
 		[HttpsConnectionParameter]
 		public IClientAndServerParameters ConnectionParameters {
@@ -65,7 +67,7 @@ namespace Xamarin.WebTests.Tests
 		[AsyncTest]
 		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [HttpsServer] HttpServer server, [GetHandler] Handler handler)
 		{
-			return HttpsTestRunner.Run (ctx, cancellationToken, server, handler);
+			return HttpsTestRunner.Run (ctx, cancellationToken, server, handler, ConnectionParameters.ClientParameters);
 		}
 	}
 }

@@ -40,14 +40,49 @@ namespace Xamarin.WebTests.Features
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class HttpsConnectionParameterAttribute : TestParameterAttribute, ITestParameterSource<IClientAndServerParameters>
 	{
+		public ICertificateValidator AcceptAll {
+			get;
+			private set;
+		}
+
+		public ICertificateValidator RejectAll {
+			get;
+			private set;
+		}
+
+		public IServerCertificate DefaultCertificate {
+			get;
+			private set;
+		}
+
+		public IServerCertificate SelfSignedCertificate {
+			get;
+			private set;
+		}
+
 		public HttpsConnectionParameterAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
 			: base (filter, flags)
 		{
+			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
+			AcceptAll = certificateProvider.AcceptAll ();
+			RejectAll = certificateProvider.RejectAll ();
+
+			DefaultCertificate = ResourceManager.DefaultServerCertificate;
+			SelfSignedCertificate = ResourceManager.SelfSignedServerCertificate;
 		}
 
 		public IEnumerable<IClientAndServerParameters> GetParameters (TestContext ctx, string filter)
 		{
-			yield return new CombinedClientAndServerParameters ("default");
+			var defaultServer = new ServerParameters ("default", DefaultCertificate);
+			var selfSignedServer = new ServerParameters ("self-signed", SelfSignedCertificate);
+			var selfSignedError = new ServerParameters ("self-signed-error", SelfSignedCertificate) { ExpectException = true };
+
+			var acceptAllClient = new ClientParameters ("accept-all") { CertificateValidator = AcceptAll };
+
+			yield return ClientAndServerParameters.Create (acceptAllClient, defaultServer);
+			yield return ClientAndServerParameters.Create (acceptAllClient, selfSignedServer);
+
+			yield return ClientAndServerParameters.Create (new ClientParameters ("no-validator") { ExpectTrustFailure = true }, selfSignedError);
 		}
 	}
 }

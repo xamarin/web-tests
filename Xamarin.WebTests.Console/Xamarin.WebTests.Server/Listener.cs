@@ -245,9 +245,6 @@ namespace Xamarin.WebTests.Server
 			if (!ssl)
 				return stream;
 
-			var sslStreamFlags = serverParameters.ConnectionParameters.SslStreamFlags;
-			var connectionParameters = serverParameters.ConnectionParameters;
-
 			try {
 				var sslStreamProvider = provider.SslStreamProvider;
 				if (sslStreamProvider == null) {
@@ -255,20 +252,14 @@ namespace Xamarin.WebTests.Server
 					sslStreamProvider = factory.GetDefaultProvider ();
 				}
 
-				ICertificateValidator validator;
-				if ((sslStreamFlags & SslStreamFlags.RejectClientCertificate) != 0)
-					validator = CertificateProvider.RejectAll;
-				else
-					validator = CertificateProvider.AcceptAll;
+				var authenticatedStream = sslStreamProvider.CreateServerStream (stream, serverParameters);
 
-				var authenticatedStream = sslStreamProvider.CreateServerStream (stream, serverParameters.ServerCertificate, validator, sslStreamFlags);
-
-				if (connectionParameters.ExpectTrustFailure)
+				if (serverParameters.ExpectTrustFailure)
 					throw new InvalidOperationException ("Expected TLS Trust Failure error.");
 
 				return authenticatedStream;
 			} catch {
-				if (connectionParameters.ExpectException)
+				if (serverParameters.ExpectException)
 					return null;
 				throw;
 			}

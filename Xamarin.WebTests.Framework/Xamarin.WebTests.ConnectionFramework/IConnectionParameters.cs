@@ -16,18 +16,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		bool ExpectTrustFailure {
-			get; set;
-		}
-
-		bool ExpectException {
-			get; set;
-		}
-
-		ICertificateValidator CertificateValidator {
-			get; set;
-		}
-
 		SslStreamFlags SslStreamFlags {
 			get; set;
 		}

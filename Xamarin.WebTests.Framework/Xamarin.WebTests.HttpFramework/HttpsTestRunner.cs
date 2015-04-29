@@ -50,9 +50,15 @@ namespace Xamarin.WebTests.HttpFramework
 			get { return Server.ServerParameters.ConnectionParameters; }
 		}
 
-		public HttpsTestRunner (HttpServer server, Handler handler)
+		public IClientParameters ClientParameters {
+			get;
+			private set;
+		}
+
+		public HttpsTestRunner (HttpServer server, Handler handler, IClientParameters clientParameters)
 			: base (server, handler)
 		{
+			ClientParameters = clientParameters;
 		}
 
 		protected override Request CreateRequest (TestContext ctx, Uri uri)
@@ -62,6 +68,10 @@ namespace Xamarin.WebTests.HttpFramework
 
 			var request = new TraditionalRequest (webRequest);
 
+			if (ClientParameters.CertificateValidator != null)
+				request.Request.InstallCertificateValidator (ClientParameters.CertificateValidator);
+
+#if FIXME
 			var provider = DependencyInjector.Get<ICertificateProvider> ();
 
 			if ((SslStreamFlags & SslStreamFlags.RejectServerCertificate) != 0)
@@ -75,6 +85,7 @@ namespace Xamarin.WebTests.HttpFramework
 				var clientCertificate = ResourceManager.MonkeyCertificate;
 				request.Request.SetClientCertificates (new IClientCertificate[] { clientCertificate });
 			}
+#endif
 
 			return request;
 		}
@@ -103,17 +114,17 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (ConnectionParameters.ExpectTrustFailure)
+			if (ClientParameters.ExpectTrustFailure)
 				return Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
-			else if (ConnectionParameters.ExpectException)
+			else if (ClientParameters.ExpectException)
 				return Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.AnyErrorStatus);
 			else
 				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);
 		}
 
-		public static Task Run (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler)
+		public static Task Run (TestContext ctx, CancellationToken cancellationToken, HttpServer server, Handler handler, IClientParameters clientParameters)
 		{
-			var runner = new HttpsTestRunner (server, handler);
+			var runner = new HttpsTestRunner (server, handler, clientParameters);
 			return runner.Run (ctx, cancellationToken);
 		}
 	}
