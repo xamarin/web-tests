@@ -1,5 +1,5 @@
 ﻿//
-// HttpsConnectionParameterAttribute.cs
+// CommonHttpFeatures.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,31 +24,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Features
 {
-	using TestRunners;
 	using ConnectionFramework;
 	using HttpFramework;
 	using Portable;
 	using Providers;
-	using Resources;
 
-	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class HttpsConnectionParameterAttribute : TestParameterAttribute, ITestParameterSource<IClientAndServerParameters>
+	 static class CommonHttpFeatures
 	{
-		public HttpsConnectionParameterAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (filter, flags)
+		internal static IHttpProvider GetHttpProvider (TestContext ctx)
 		{
+			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
+			IHttpProvider provider;
+			HttpProviderType providerType;
+			if (ctx.TryGetParameter (out providerType))
+				provider = factory.GetProvider (providerType);
+			else
+				provider = factory.Default;
+
+			return provider;
 		}
 
-		public IEnumerable<IClientAndServerParameters> GetParameters (TestContext ctx, string filter)
+		internal static IPortableEndPoint GetEndPoint (TestContext ctx)
 		{
-			return HttpsTestRunner.GetParameters (ctx, filter);
+			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+			return support.GetLoopbackEndpoint (9999);
 		}
 	}
 }

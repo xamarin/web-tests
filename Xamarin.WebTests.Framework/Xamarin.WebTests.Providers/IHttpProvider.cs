@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.Providers
 			get;
 		}
 
-		HttpServer CreateServer (IPortableEndPoint endpoint, ListenerFlags flags, IServerParameters parameters);
+		HttpServer CreateServer (IPortableEndPoint endpoint, ListenerFlags flags, IServerParameters parameters = null);
 	}
 }
 

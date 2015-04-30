@@ -1,5 +1,5 @@
 ﻿//
-// HttpsConnectionParameterAttribute.cs
+// HttpsServerAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,10 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Features
 {
@@ -38,17 +38,27 @@ namespace Xamarin.WebTests.Features
 	using Providers;
 	using Resources;
 
-	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class HttpsConnectionParameterAttribute : TestParameterAttribute, ITestParameterSource<IClientAndServerParameters>
+	public class HttpsTestRunnerAttribute : TestHostAttribute, ITestHost<HttpsTestRunner>
 	{
-		public HttpsConnectionParameterAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (filter, flags)
+		public HttpsTestRunnerAttribute ()
+			: base (typeof (HttpsTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
 		{
 		}
 
-		public IEnumerable<IClientAndServerParameters> GetParameters (TestContext ctx, string filter)
+		protected HttpsTestRunnerAttribute (Type type, TestFlags flags = TestFlags.Hidden)
+			: base (type, flags)
 		{
-			return HttpsTestRunner.GetParameters (ctx, filter);
+		}
+
+		public HttpsTestRunner CreateInstance (TestContext ctx)
+		{
+			var endpoint = CommonHttpFeatures.GetEndPoint (ctx);
+			var httpProvider = CommonHttpFeatures.GetHttpProvider (ctx);
+
+			var listenerFlags = ListenerFlags.SSL;
+			var parameters = ctx.GetParameter<IClientAndServerParameters> ();
+
+			return new HttpsTestRunner (httpProvider, endpoint, listenerFlags, parameters);
 		}
 	}
 }

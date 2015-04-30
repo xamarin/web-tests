@@ -47,25 +47,6 @@ namespace Xamarin.WebTests.Features
 		{
 		}
 
-		protected virtual IHttpProvider GetHttpProvider (TestContext ctx)
-		{
-			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
-			IHttpProvider provider;
-			HttpProviderType providerType;
-			if (ctx.TryGetParameter (out providerType))
-				provider = factory.GetProvider (providerType);
-			else
-				provider = factory.Default;
-
-			return provider;
-		}
-
-		protected virtual IPortableEndPoint GetEndPoint (TestContext ctx)
-		{
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			return support.GetLoopbackEndpoint (9999);
-		}
-
 		protected virtual ListenerFlags GetListenerFlags (TestContext ctx)
 		{
 			ListenerFlags flags = ListenerFlags.None;
@@ -90,8 +71,8 @@ namespace Xamarin.WebTests.Features
 
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			var endpoint = GetEndPoint (ctx);
-			var httpProvider = GetHttpProvider (ctx);
+			var endpoint = CommonHttpFeatures.GetEndPoint (ctx);
+			var httpProvider = CommonHttpFeatures.GetHttpProvider (ctx);
 
 			var listenerFlags = GetListenerFlags (ctx);
 			var serverParameters = GetServerParameters (ctx);

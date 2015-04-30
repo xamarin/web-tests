@@ -37,6 +37,7 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Tests
 {
+	using TestRunners;
 	using ConnectionFramework;
 	using HttpHandlers;
 	using HttpFramework;
@@ -57,9 +58,9 @@ namespace Xamarin.WebTests.Tests
 		[Work]
 		[CertificateTests]
 		[AsyncTest]
-		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [HttpsServer] HttpServer server, [GetHandler] Handler handler)
+		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [HttpsTestRunner] HttpsTestRunner runner, [GetHandler] Handler handler)
 		{
-			return HttpsTestRunner.Run (ctx, cancellationToken, server, handler, ConnectionParameters.ClientParameters);
+			return runner.Run (ctx, handler, cancellationToken);
 		}
 	}
 }

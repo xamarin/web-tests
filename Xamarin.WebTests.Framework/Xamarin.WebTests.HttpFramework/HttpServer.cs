@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -55,6 +56,8 @@ namespace Xamarin.WebTests.HttpFramework
 
 		IPortableEndPoint endpoint;
 		IListener listener;
+
+		TestContext currentCtx;
 
 		static long nextId;
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
@@ -157,12 +160,18 @@ namespace Xamarin.WebTests.HttpFramework
 		public virtual Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
 			listener = WebSupport.CreateHttpListener (this);
+			if (Interlocked.CompareExchange<TestContext> (ref currentCtx, ctx, null) != null)
+				throw new InternalErrorException ();
 			return listener.Start ();
 		}
 
 		public virtual Task Stop (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Task.Run (() => listener.Stop ());
+			return Task.Run (() => {
+				if (Interlocked.CompareExchange<TestContext> (ref currentCtx, null, ctx) != ctx)
+					throw new InternalErrorException();
+				listener.Stop ();
+			});
 		}
 
 		public Uri RegisterHandler (Handler handler)
@@ -179,33 +188,31 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public HttpConnection CreateConnection (Stream stream)
 		{
-			if (sslStreamProvider == null)
-				return new HttpConnection (this, stream);
-
-			try {
-				var sslStream = sslStreamProvider.CreateServerStream (stream, ServerParameters);
-
-				if (ServerParameters.ExpectException)
-					throw new InvalidOperationException ("Expected error.");
-
-				return new HttpConnection (this, sslStream.AuthenticatedStream, sslStream);
-			} catch {
-				if (ServerParameters.ExpectException)
-					return null;
-				throw;
-			}
+			return CreateConnection (currentCtx, stream);
 		}
 
 		public bool HandleConnection (HttpConnection connection)
 		{
+			return HandleConnection (currentCtx, connection);
+		}
+
+		protected virtual HttpConnection CreateConnection (TestContext ctx, Stream stream)
+		{
+			if (sslStreamProvider == null)
+				return new HttpConnection (this, stream);
+
+			var sslStream = sslStreamProvider.CreateServerStream (stream, ServerParameters);
+			return new HttpConnection (this, sslStream.AuthenticatedStream, sslStream);
+		}
+
+		protected virtual bool HandleConnection (TestContext ctx, HttpConnection connection)
+		{
 			var request = connection.ReadRequest ();
+			return HandleConnection (ctx, connection, request);
+		}
 
-			if (ServerParameters != null && ServerParameters.ExpectException) {
-				if (request != null)
-					throw new InvalidOperationException ("Expected exception");
-				return false;
-			}
-
+		protected bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request)
+		{
 			var path = request.Path;
 			var handler = handlers [path];
 			handlers.Remove (path);

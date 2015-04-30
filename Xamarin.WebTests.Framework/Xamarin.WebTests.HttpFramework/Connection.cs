@@ -61,6 +61,11 @@ namespace Xamarin.WebTests.HttpFramework
 			get { return writer; }
 		}
 
+		public bool HasRequest ()
+		{
+			return reader.Peek () >= 0 && !reader.EndOfStream;
+		}
+
 		public HttpRequest ReadRequest ()
 		{
 			if (reader.Peek () < 0 && reader.EndOfStream)
