@@ -53,7 +53,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public CustomTestHost (string name, Type type, Type hostType, bool useFixtureInstance)
-			: base (name, name, type, TestSerializer.GetFriendlyName (hostType))
+			: base (name, name, type, hostType)
 		{
 			HostType = hostType;
 			UseFixtureInstance = useFixtureInstance;

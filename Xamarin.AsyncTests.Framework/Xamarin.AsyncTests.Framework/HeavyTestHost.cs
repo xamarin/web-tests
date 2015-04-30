@@ -41,8 +41,8 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public HeavyTestHost (string identifier, string name, Type type, string parameterType)
-			: base (identifier, name, parameterType)
+		public HeavyTestHost (string identifier, string name, Type type, Type hostType)
+			: base (identifier, name, TestSerializer.GetFriendlyName (hostType))
 		{
 			Type = type;
 		}

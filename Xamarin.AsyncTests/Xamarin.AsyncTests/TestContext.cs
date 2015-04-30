@@ -320,7 +320,7 @@ namespace Xamarin.AsyncTests
 		public object GetFixtureInstance ()
 		{
 			object value;
-			if (TryGetParameter<object> (out value, "fixture"))
+			if (TryGetParameter<object> (out value, "instance"))
 				return value;
 
 			AssertFail ("Unable to get fixture instance.");

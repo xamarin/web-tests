@@ -46,7 +46,27 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal sealed override ITestParameter GetCurrentParameter ()
 		{
-			return null;
+			return new InstanceWrapper (Host, Current);
+		}
+
+		class InstanceWrapper : ITestParameter, ITestParameterWrapper
+		{
+			readonly HeavyTestHost host;
+			readonly object value;
+
+			public InstanceWrapper (HeavyTestHost host, object value)
+			{
+				this.host = host;
+				this.value = value;
+			}
+
+			public string Value {
+				get { return host.Identifier; }
+			}
+
+			object ITestParameterWrapper.Value {
+				get { return value; }
+			}
 		}
 
 		public override bool ParameterMatches<T> (string name)
