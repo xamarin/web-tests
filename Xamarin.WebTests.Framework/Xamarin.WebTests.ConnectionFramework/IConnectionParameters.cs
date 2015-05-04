@@ -37,10 +37,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		bool ExpectException {
-			get; set;
-		}
-
 		ICertificateValidator CertificateValidator {
 			get; set;
 		}

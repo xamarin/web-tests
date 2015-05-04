@@ -30,7 +30,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			EndPoint = other.EndPoint;
 			verifyPeerCertificate = other.verifyPeerCertificate;
 			EnableDebugging = other.EnableDebugging;
-			ExpectException = other.ExpectException;
 			CertificateValidator = other.CertificateValidator;
 			sslStreamFlags = other.sslStreamFlags;
 		}
@@ -52,10 +51,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public bool EnableDebugging {
-			get; set;
-		}
-
-		public bool ExpectException {
 			get; set;
 		}
 

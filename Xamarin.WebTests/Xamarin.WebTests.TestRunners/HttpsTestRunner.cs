@@ -128,7 +128,7 @@ namespace Xamarin.WebTests.TestRunners
 			// Reject client certificate.
 			yield return ClientAndServerParameters.Create (new ClientParameters ("reject-certificate") {
 				ClientCertificate = ResourceManager.MonkeyCertificate, CertificateValidator = acceptSelfSigned,
-				ExpectException = true
+				ExpectWebException = true
 			}, new ServerParameters ("request-certificate", ResourceManager.SelfSignedServerCertificate) {
 				AskForClientCertificate = true, CertificateValidator = rejectAll, ExpectEmptyRequest = true
 			});
@@ -139,26 +139,10 @@ namespace Xamarin.WebTests.TestRunners
 			var impl = new TestRunnerImpl (this, handler);
 			if (ClientParameters.ExpectTrustFailure)
 				return impl.Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
-			else if (ClientParameters.ExpectException)
+			else if (ClientParameters.ExpectWebException)
 				return impl.Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.AnyErrorStatus);
 			else
 				return impl.Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);
-		}
-
-		protected override HttpConnection CreateConnection (TestContext ctx, Stream stream)
-		{
-			var connection = base.CreateConnection (ctx, stream);
-
-			try {
-				var hasCert = connection.SslStream.HasClientCertificate;
-				var hasRequest = connection.HasRequest ();
-				ctx.LogMessage ("TEST: {0} {1}", hasCert, hasRequest);
-			} catch (Exception ex) {
-				ctx.LogMessage ("TEST ERROR: {0}", ex);
-				throw;
-			}
-
-			return connection;
 		}
 
 		protected override bool HandleConnection (TestContext ctx, HttpConnection connection)

@@ -50,6 +50,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			askForCert = other.askForCert;
 			requireCert = other.requireCert;
 			ExpectTrustFailure = other.ExpectTrustFailure;
+			ExpectWebException = other.ExpectWebException;
 			ExpectEmptyRequest = other.ExpectEmptyRequest;
 		}
 
@@ -89,6 +90,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public bool ExpectTrustFailure {
+			get; set;
+		}
+
+		public bool ExpectWebException {
 			get; set;
 		}
 
