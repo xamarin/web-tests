@@ -48,11 +48,14 @@ namespace Xamarin.WebTests.TestRunners
 				return;
 			}
 
-			ctx.Assert (Server.Parameters.ExpectException, Is.False, "expecting server exception");
-			ctx.Assert (Server.Parameters.ClientAbortsHandshake, Is.False, "expecting client to abort handshake");
-			ctx.Assert (Client.Parameters.ExpectWebException || Client.Parameters.ExpectTrustFailure, Is.False, "expecting client exception");
+			if ((Server.Parameters.Flags & ServerFlags.ExpectServerException) != 0)
+				ctx.AssertFail ("expecting server exception");
+			if ((Server.Parameters.Flags & ServerFlags.ClientAbortsHandshake) != 0)
+				ctx.AssertFail ("expecting client to abort handshake");
+			if ((Client.Parameters.Flags & (ClientFlags.ExpectTrustFailure | ClientFlags.ExpectWebException)) != 0)
+				ctx.AssertFail ("expecting client exception");
 
-			if (Server.Parameters.RequireClientCertificate)
+			if ((Server.Parameters.Flags & ServerFlags.RequireClientCertificate) != 0)
 				ctx.Expect (Server.SslStream.HasClientCertificate, Is.True, "client certificate");
 
 			var serverWrapper = new StreamWrapper (Server.Stream);
@@ -64,11 +67,11 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			try {
 				await base.WaitForServerConnection (ctx, cancellationToken);
-				ctx.Assert (Server.Parameters.ExpectException, Is.False, "expecting exception");
+				if ((Server.Parameters.Flags & ServerFlags.ExpectServerException) != 0)
+					ctx.AssertFail ("expecting exception");
 			} catch {
-				if (Server.Parameters.ExpectException || Server.Parameters.ClientAbortsHandshake) {
+				if ((Server.Parameters.Flags & (ServerFlags.ClientAbortsHandshake|ServerFlags.ExpectServerException)) != 0)
 					throw new ConnectionFinishedException ();
-				}
 				throw;
 			}
 		}
@@ -78,7 +81,7 @@ namespace Xamarin.WebTests.TestRunners
 			try {
 				await base.WaitForClientConnection (ctx, cancellationToken);
 			} catch {
-				if (Client.Parameters.ExpectWebException || Client.Parameters.ExpectTrustFailure)
+				if ((Client.Parameters.Flags & (ClientFlags.ExpectWebException|ClientFlags.ExpectTrustFailure)) != 0)
 					throw new ConnectionFinishedException ();
 				throw;
 			}

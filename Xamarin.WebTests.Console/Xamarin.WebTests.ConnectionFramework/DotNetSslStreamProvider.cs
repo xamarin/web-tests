@@ -76,15 +76,17 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return clientCertificateCollection;
 		}
 
-		public ISslStream CreateServerStream (Stream stream, ServerParameters serverParameters)
+		public ISslStream CreateServerStream (Stream stream, ServerParameters parameters)
 		{
-			var certificate = CertificateProvider.GetCertificate (serverParameters.ServerCertificate);
+			var certificate = CertificateProvider.GetCertificate (parameters.ServerCertificate);
 
 			var protocol = GetSslProtocol ();
-			var validator = GetValidationCallback (serverParameters);
+			var validator = GetValidationCallback (parameters);
+
+			var askForCert = (parameters.Flags & (ServerFlags.AskForClientCertificate|ServerFlags.RequireClientCertificate)) != 0;
 
 			var sslStream = new SslStream (stream, false, validator);
-			sslStream.AuthenticateAsServer (certificate, serverParameters.AskForClientCertificate, protocol, false);
+			sslStream.AuthenticateAsServer (certificate, askForCert, protocol, false);
 
 			return new DotNetSslStream (sslStream);
 		}
@@ -97,8 +99,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var protocol = GetSslProtocol ();
 			var validator = GetValidationCallback (parameters);
 
+			var askForCert = (parameters.Flags & (ServerFlags.AskForClientCertificate|ServerFlags.RequireClientCertificate)) != 0;
+
 			var sslStream = new SslStream (stream, false, validator);
-			await sslStream.AuthenticateAsServerAsync (certificate, parameters.AskForClientCertificate, protocol, false);
+			await sslStream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false);
 
 			return new DotNetSslStream (sslStream);
 		}

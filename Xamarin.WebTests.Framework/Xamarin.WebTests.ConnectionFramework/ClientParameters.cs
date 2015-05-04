@@ -44,8 +44,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			ClientCertificate = other.ClientCertificate;
 			ClientCertificateValidator = other.ClientCertificateValidator;
 			Flags = other.Flags;
-			ExpectTrustFailure = other.ExpectTrustFailure;
-			ExpectWebException = other.ExpectWebException;
 		}
 
 		public override ConnectionParameters DeepClone ()
@@ -62,14 +60,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public ClientFlags Flags {
-			get; set;
-		}
-
-		public bool ExpectTrustFailure {
-			get; set;
-		}
-
-		public bool ExpectWebException {
 			get; set;
 		}
 	}
