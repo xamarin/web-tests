@@ -56,12 +56,16 @@ namespace Xamarin.WebTests.ConnectionFramework
 		Socket socket;
 		Socket accepted;
 		IPEndPoint endpoint;
-		TaskCompletionSource<Stream> tcs;
+		TaskCompletionSource<ISslStream> tcs;
 
-		Stream sslStream;
+		ISslStream sslStream;
 		ISslStreamProvider provider;
 
 		public Stream Stream {
+			get { return sslStream.AuthenticatedStream; }
+		}
+
+		public ISslStream SslStream {
 			get { return sslStream; }
 		}
 
@@ -69,7 +73,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return false; }
 		}
 
-		protected abstract Task<Stream> Start (TestContext ctx, Socket socket, CancellationToken cancellationToken);
+		protected abstract Task<ISslStream> Start (TestContext ctx, Socket socket, CancellationToken cancellationToken);
 
 		public sealed override Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
@@ -86,7 +90,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			socket.Bind (endpoint);
 			socket.Listen (1);
 
-			tcs = new TaskCompletionSource<Stream> ();
+			tcs = new TaskCompletionSource<ISslStream> ();
 
 			socket.BeginAccept (async ar => {
 				try {
@@ -104,7 +108,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-			tcs = new TaskCompletionSource<Stream> ();
+			tcs = new TaskCompletionSource<ISslStream> ();
 
 			socket.BeginConnect (endpoint, async ar => {
 				try {
@@ -166,7 +170,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 			try {
 				if (sslStream != null) {
-					sslStream.Dispose ();
+					sslStream.AuthenticatedStream.Dispose ();
 					sslStream = null;
 				}
 			} catch {

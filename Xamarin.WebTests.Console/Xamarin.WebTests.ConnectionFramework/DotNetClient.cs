@@ -28,7 +28,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 		}
 
-		protected override async Task<Stream> Start (TestContext ctx, Socket socket, CancellationToken cancellationToken)
+		protected override async Task<ISslStream> Start (TestContext ctx, Socket socket, CancellationToken cancellationToken)
 		{
 			ctx.LogDebug (1, "Connected.");
 
@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			ctx.LogDebug (1, "Successfully authenticated client.");
 
-			return server.AuthenticatedStream;
+			return server;
 		}
 	}
 }

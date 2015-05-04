@@ -28,8 +28,14 @@ using System.IO;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	using Providers;
+
 	public interface ICommonConnection : IConnection
 	{
+		ISslStream SslStream {
+			get;
+		}
+
 		Stream Stream {
 			get;
 		}

@@ -52,6 +52,9 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.Assert (Server.Parameters.ExpectEmptyRequest, Is.False, "expecting empty request");
 			ctx.Assert (Client.Parameters.ExpectWebException || Client.Parameters.ExpectTrustFailure, Is.False, "expecting client exception");
 
+			if (Server.Parameters.RequireClientCertificate)
+				ctx.Expect (Server.SslStream.HasClientCertificate, Is.True, "client certificate");
+
 			var serverWrapper = new StreamWrapper (Server.Stream);
 			var clientWrapper = new StreamWrapper (Client.Stream);
 			await MainLoop (ctx, serverWrapper, clientWrapper, cancellationToken);

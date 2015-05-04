@@ -32,7 +32,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 		}
 
-		protected override async Task<Stream> Start (TestContext ctx, Socket socket, CancellationToken cancellationToken)
+		protected override async Task<ISslStream> Start (TestContext ctx, Socket socket, CancellationToken cancellationToken)
 		{
 			ctx.LogMessage ("Accepted connection from {0}.", socket.RemoteEndPoint);
 
@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			ctx.LogMessage ("Successfully authenticated server.");
 
-			return server.AuthenticatedStream;
+			return server;
 		}
 	}
 }
