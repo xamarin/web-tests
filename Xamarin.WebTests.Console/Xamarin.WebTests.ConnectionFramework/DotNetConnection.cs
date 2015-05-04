@@ -43,8 +43,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 	public abstract class DotNetConnection : Connection, ICommonConnection
 	{
 		public DotNetConnection (IPEndPoint endpoint, ISslStreamProvider provider, IConnectionParameters parameters)
-			: base (endpoint, parameters)
+			: base (ConnectionHelper.GetEndPoint (endpoint), parameters)
 		{
+			this.endpoint = endpoint;
 			this.provider = provider;
 		}
 
@@ -54,6 +55,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		Socket socket;
 		Socket accepted;
+		IPEndPoint endpoint;
 		TaskCompletionSource<Stream> tcs;
 
 		Stream sslStream;
@@ -81,7 +83,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		void StartServer (TestContext ctx, CancellationToken cancellationToken)
 		{
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			socket.Bind (EndPoint);
+			socket.Bind (endpoint);
 			socket.Listen (1);
 
 			tcs = new TaskCompletionSource<Stream> ();
@@ -93,7 +95,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 					sslStream = await Start (ctx, accepted, cancellationToken);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
-					Debug ("Error starting server: {0}", ex);
+					ctx.LogMessage ("Error starting server: {0}", ex);
 					tcs.SetException (ex);
 				}
 			}, null);
@@ -105,14 +107,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			tcs = new TaskCompletionSource<Stream> ();
 
-			socket.BeginConnect (EndPoint, async ar => {
+			socket.BeginConnect (endpoint, async ar => {
 				try {
 					socket.EndConnect (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
 					sslStream = await Start (ctx, socket, cancellationToken);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
-					Debug ("Error starting client: {0}", ex);
+					ctx.LogMessage ("Error starting client: {0}", ex);
 					tcs.SetException (ex);
 				}
 			}, null);

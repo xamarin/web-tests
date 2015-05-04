@@ -4,13 +4,12 @@ using System.Net;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Portable;
-	using Server;
 
 	public abstract class Connection : IConnection, IDisposable
 	{
@@ -18,13 +17,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		public IPEndPoint EndPoint {
+		public IPortableEndPoint EndPoint {
 			get;
 			private set;
-		}
-
-		string IConnection.EndPoint {
-			get { return PrintEndPoint (EndPoint); }
 		}
 
 		public IConnectionParameters Parameters {
@@ -32,30 +27,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			private set;
 		}
 
-		protected Connection (IPEndPoint endpoint, IConnectionParameters parameters)
+		protected Connection (IPortableEndPoint endpoint, IConnectionParameters parameters)
 		{
 			EndPoint = endpoint;
 			Parameters = parameters;
-		}
-
-		protected Connection (string endpoint, IConnectionParameters parameters)
-			: this (ParseEndPoint (endpoint), parameters)
-		{
-		}
-
-		static string PrintEndPoint (IPEndPoint endpoint)
-		{
-			return string.Format ("{0}:{1}", endpoint.Address, endpoint.Port);
-		}
-
-		static IPEndPoint ParseEndPoint (string text)
-		{
-			var pos = text.IndexOf (":");
-			if (pos < 0)
-				return new IPEndPoint (IPAddress.Parse (text), 4433);
-			var address = IPAddress.Parse (text.Substring (0, pos));
-			var port = int.Parse (text.Substring (pos + 1));
-			return new IPEndPoint (address, port);
 		}
 
 		public abstract Task Start (TestContext ctx, CancellationToken cancellationToken);
@@ -66,14 +41,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		protected abstract void Stop ();
 
-		internal static Task FinishedTask {
+		protected internal static Task FinishedTask {
 			get { return Task.FromResult<object> (null); }
-		}
-
-		protected void Debug (string message, params object[] args)
-		{
-			if (Parameters.EnableDebugging)
-				global::System.Console.WriteLine ("[{0}]: {1}", GetType ().Name, string.Format (message, args));
 		}
 
 		#region ITestInstance implementation

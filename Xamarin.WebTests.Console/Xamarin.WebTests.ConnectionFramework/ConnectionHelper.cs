@@ -1,10 +1,10 @@
 ﻿//
-// IConnection.cs
+// ConnectionHelper.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,32 +25,34 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public interface IConnection : ITestInstance, IDisposable
+	static class ConnectionHelper
 	{
-		bool SupportsCleanShutdown {
-			get;
+		internal static string PrintEndPoint (IPEndPoint endpoint)
+		{
+			return string.Format ("{0}:{1}", endpoint.Address, endpoint.Port);
 		}
 
-		IPortableEndPoint EndPoint {
-			get;
+		internal static IPEndPoint ParseEndPoint (string text)
+		{
+			var pos = text.IndexOf (":");
+			if (pos < 0)
+				return new IPEndPoint (IPAddress.Parse (text), 4433);
+			var address = IPAddress.Parse (text.Substring (0, pos));
+			var port = int.Parse (text.Substring (pos + 1));
+			return new IPEndPoint (address, port);
 		}
 
-		IConnectionParameters Parameters {
-			get;
+		internal static IPortableEndPoint GetEndPoint (IPEndPoint endpoint)
+		{
+			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+			return support.GetEndpoint (endpoint.Address.ToString (), endpoint.Port);
 		}
-
-		Task Start (TestContext ctx, CancellationToken cancellationToken);
-
-		Task WaitForConnection ();
-
-		Task<bool> Shutdown (bool attemptCleanShutdown, bool waitForReply);
 	}
 }
 
