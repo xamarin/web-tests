@@ -48,9 +48,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		Task Start (TestContext ctx, CancellationToken cancellationToken);
 
-		Task WaitForConnection ();
+		Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken);
 
-		Task<bool> Shutdown (bool attemptCleanShutdown, bool waitForReply);
+		Task<bool> Shutdown (TestContext ctx, bool attemptCleanShutdown, bool waitForReply, CancellationToken cancellationToken);
 	}
 }
 

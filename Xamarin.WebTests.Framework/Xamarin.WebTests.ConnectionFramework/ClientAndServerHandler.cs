@@ -30,7 +30,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			return Connection.WaitForConnection ();
+			return Connection.WaitForConnection (ctx,cancellationToken);
 		}
 
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
@@ -47,7 +47,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public Task<bool> Shutdown (TestContext ctx, bool attemptCleanShutdown, bool waitForReply, CancellationToken cancellationToken)
 		{
-			return Connection.Shutdown (attemptCleanShutdown, waitForReply);
+			return Connection.Shutdown (ctx, attemptCleanShutdown, waitForReply, cancellationToken);
 		}
 
 		public void Close ()
