@@ -145,17 +145,38 @@ namespace Xamarin.WebTests.TestRunners
 				return impl.Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);
 		}
 
+		protected override HttpConnection CreateConnection (TestContext ctx, Stream stream)
+		{
+			try {
+				var connection = base.CreateConnection (ctx, stream);
+
+				/*
+				 * There seems to be some kind of a race condition here.
+				 *
+				 * When the client shuts down the connection due to auth failure, then we
+				 * either crash during the TLS handshake or receive a closed connection
+				 * when the handshake is completed.
+				 *
+				 */
+				var haveReq = connection.HasRequest();
+				if (ServerParameters.ExpectEmptyRequest) {
+					ctx.Assert (haveReq, Is.False, "expected empty request");
+					return null;
+				} else {
+					ctx.Assert (haveReq, Is.True, "expected non-empty request");
+				}
+				return connection;
+			} catch {
+				if (ServerParameters.ExpectEmptyRequest)
+					return null;
+				throw;
+			}
+		}
+
 		protected override bool HandleConnection (TestContext ctx, HttpConnection connection)
 		{
 			if (ServerParameters.RequireClientCertificate)
 				ctx.Expect (connection.SslStream.HasClientCertificate, Is.True, "client certificate");
-
-			if (ServerParameters.ExpectEmptyRequest) {
-				ctx.Assert (connection.HasRequest (), Is.False, "expected empty request");
-				return false;
-			} else {
-				ctx.Assert (connection.HasRequest (), Is.True, "expected non-empty request");
-			}
 
 			return base.HandleConnection (ctx, connection);
 		}
