@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.Features
 		{
 		}
 
-		protected HttpsTestRunnerAttribute (Type type, TestFlags flags = TestFlags.Hidden)
+		protected HttpsTestRunnerAttribute (Type type, TestFlags flags = TestFlags.Hidden | TestFlags.PathHidden)
 			: base (type, flags)
 		{
 		}

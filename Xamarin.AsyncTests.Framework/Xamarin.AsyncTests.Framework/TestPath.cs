@@ -101,7 +101,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (host.Name != null) {
 				if (parameter != null && ((host.Flags & TestFlags.PathHidden) == 0))
 					builder.PushParameter (host.Name, parameter.Value, (host.Flags & TestFlags.Hidden) != 0);
-				else
+				else if ((host.Flags & TestFlags.Hidden) == 0)
 					builder.PushName (host.Name);
 			}
 			return builder.GetName ();

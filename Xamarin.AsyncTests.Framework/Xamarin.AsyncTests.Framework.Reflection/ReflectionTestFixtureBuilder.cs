@@ -121,9 +121,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 
 			public FixtureInstanceTestHost (ReflectionTestFixtureBuilder builder)
-				: base (TestSerializer.FixtureInstanceIdentifier, null, builder.Type.AsType (), builder.Type.AsType ())
+				: base (TestSerializer.FixtureInstanceIdentifier, null, builder.Type.AsType (), builder.Type.AsType (),
+					TestFlags.ContinueOnError | TestFlags.PathHidden | TestFlags.Hidden)
 			{
-				Flags = TestFlags.ContinueOnError | TestFlags.PathHidden | TestFlags.Hidden;
 				Builder = builder;
 			}
 
