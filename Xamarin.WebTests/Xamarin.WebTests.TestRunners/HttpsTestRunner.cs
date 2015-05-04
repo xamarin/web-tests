@@ -130,14 +130,15 @@ namespace Xamarin.WebTests.TestRunners
 				ClientCertificate = ResourceManager.MonkeyCertificate, CertificateValidator = acceptSelfSigned,
 				ExpectWebException = true
 			}, new ServerParameters ("request-certificate", ResourceManager.SelfSignedServerCertificate) {
-				AskForClientCertificate = true, CertificateValidator = rejectAll, ExpectEmptyRequest = true
+				AskForClientCertificate = true, CertificateValidator = rejectAll, ExpectEmptyRequest = true,
+				ExpectException = true
 			});
 
 			// Missing client certificate.
 			yield return ClientAndServerParameters.Create (new ClientParameters ("no-certificate") {
 				CertificateValidator = acceptSelfSigned, ExpectWebException = true
 			}, new ServerParameters ("missing-certificate", ResourceManager.SelfSignedServerCertificate) {
-				RequireClientCertificate = true, ExpectEmptyRequest = true
+				RequireClientCertificate = true, ExpectEmptyRequest = true, ExpectException = true
 			});
 
 		}

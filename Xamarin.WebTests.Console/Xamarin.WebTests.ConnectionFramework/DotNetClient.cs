@@ -38,7 +38,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var server = await SslStreamProvider.CreateClientStreamAsync (
 				stream, targetHost, Parameters, cancellationToken);
 
-			ctx.LogDebug (1, "Successfully authenticated.");
+			ctx.LogDebug (1, "Successfully authenticated client.");
 
 			return server.AuthenticatedStream;
 		}

@@ -95,7 +95,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 					sslStream = await Start (ctx, accepted, cancellationToken);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
-					ctx.LogMessage ("Error starting server: {0}", ex);
 					tcs.SetException (ex);
 				}
 			}, null);
@@ -114,7 +113,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 					sslStream = await Start (ctx, socket, cancellationToken);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
-					ctx.LogMessage ("Error starting client: {0}", ex);
 					tcs.SetException (ex);
 				}
 			}, null);

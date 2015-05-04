@@ -22,6 +22,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			askForCert = other.askForCert;
 			requireCert = other.requireCert;
 			ExpectEmptyRequest = other.ExpectEmptyRequest;
+			ExpectException = other.ExpectException;
 		}
 
 		public override ConnectionParameters DeepClone ()
@@ -48,6 +49,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public bool ExpectEmptyRequest {
+			get; set;
+		}
+
+		public bool ExpectException {
 			get; set;
 		}
 	}

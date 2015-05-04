@@ -36,13 +36,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			ctx.LogMessage ("Accepted connection from {0}.", socket.RemoteEndPoint);
 
-			if (Parameters.AskForClientCertificate || Parameters.RequireClientCertificate)
-				throw new NotSupportedException ();
-
 			var stream = new NetworkStream (socket);
 			var server = await SslStreamProvider.CreateServerStreamAsync (stream, Parameters, cancellationToken);
 
-			ctx.LogMessage ("Successfully authenticated.");
+			ctx.LogMessage ("Successfully authenticated server.");
 
 			return server.AuthenticatedStream;
 		}

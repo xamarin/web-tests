@@ -36,10 +36,20 @@ namespace Xamarin.WebTests.ConnectionFramework
 			await client.Start (ctx, cancellationToken);
 		}
 
+		protected virtual Task WaitForServerConnection (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return server.WaitForConnection (ctx, cancellationToken);
+		}
+
+		protected virtual Task WaitForClientConnection (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return client.WaitForConnection (ctx, cancellationToken);
+		}
+
 		public override async Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var serverTask = server.WaitForConnection (ctx, cancellationToken);
-			var clientTask = client.WaitForConnection (ctx, cancellationToken);
+			var serverTask = WaitForServerConnection (ctx, cancellationToken);
+			var clientTask = WaitForClientConnection (ctx, cancellationToken);
 
 			var t1 = clientTask.ContinueWith (t => {
 				if (t.IsFaulted || t.IsCanceled)

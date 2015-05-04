@@ -46,7 +46,7 @@ namespace Xamarin.WebTests.Tests
 	public class ServerTestHostAttribute : TestHostAttribute, ITestHost<IServer>
 	{
 		public ServerTestHostAttribute ()
-			: base (typeof (ServerTestHostAttribute))
+			: base (typeof (ServerTestHostAttribute), TestFlags.Hidden)
 		{
 		}
 
@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.Tests
 	public class ClientTestHostAttribute : TestHostAttribute, ITestHost<IClient>
 	{
 		public ClientTestHostAttribute ()
-			: base (typeof (ClientTestHostAttribute))
+			: base (typeof (ClientTestHostAttribute), TestFlags.Hidden)
 		{
 		}
 

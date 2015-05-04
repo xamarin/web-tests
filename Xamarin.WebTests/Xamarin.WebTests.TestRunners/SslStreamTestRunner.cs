@@ -27,6 +27,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.TestRunners
 {
@@ -41,11 +42,47 @@ namespace Xamarin.WebTests.TestRunners
 
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
-			await WaitForConnection (ctx, cancellationToken);
+			try {
+				await WaitForConnection (ctx, cancellationToken);
+			} catch (ConnectionFinishedException) {
+				return;
+			}
+
+			ctx.Assert (Server.Parameters.ExpectException, Is.False, "expecting server exception");
+			ctx.Assert (Server.Parameters.ExpectEmptyRequest, Is.False, "expecting empty request");
+			ctx.Assert (Client.Parameters.ExpectWebException || Client.Parameters.ExpectTrustFailure, Is.False, "expecting client exception");
 
 			var serverWrapper = new StreamWrapper (Server.Stream);
 			var clientWrapper = new StreamWrapper (Client.Stream);
 			await MainLoop (ctx, serverWrapper, clientWrapper, cancellationToken);
+		}
+
+		protected override async Task WaitForServerConnection (TestContext ctx, CancellationToken cancellationToken)
+		{
+			try {
+				await base.WaitForServerConnection (ctx, cancellationToken);
+				ctx.Assert (Server.Parameters.ExpectException, Is.False, "expecting exception");
+			} catch {
+				if (Server.Parameters.ExpectException) {
+					throw new ConnectionFinishedException ();
+				}
+				throw;
+			}
+		}
+
+		protected override async Task WaitForClientConnection (TestContext ctx, CancellationToken cancellationToken)
+		{
+			try {
+				await base.WaitForClientConnection (ctx, cancellationToken);
+			} catch {
+				if (Client.Parameters.ExpectWebException || Client.Parameters.ExpectTrustFailure)
+					throw new ConnectionFinishedException ();
+				throw;
+			}
+		}
+
+		class ConnectionFinishedException : Exception
+		{
 		}
 
 		protected async Task MainLoop (TestContext ctx, ILineBasedStream serverStream, ILineBasedStream clientStream, CancellationToken cancellationToken)
