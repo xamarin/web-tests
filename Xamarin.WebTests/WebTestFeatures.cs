@@ -297,29 +297,6 @@ namespace Xamarin.WebTests
 			}
 		}
 
-		[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-		public class SelectSslTestModeAttribute : TestParameterAttribute, ITestParameterSource<SslTestMode>
-		{
-			public SelectSslTestModeAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-				: base (filter, flags)
-			{
-			}
-
-			public IEnumerable<SslTestMode> GetParameters (TestContext ctx, string filter)
-			{
-				if (!ctx.IsEnabled (SSL))
-					yield break;
-				yield return SslTestMode.Default;
-				yield return SslTestMode.RejectServerCertificate;
-				// This requires a new Mono.
-				if (ctx.IsEnabled (CertificateTests)) {
-					yield return SslTestMode.RequireClientCertificate;
-					yield return SslTestMode.RejectClientCertificate;
-					yield return SslTestMode.MissingClientCertificate;
-				}
-			}
-		}
-
 		static WebTestFeatures ()
 		{
 			Mono38 = new TestFeature (
