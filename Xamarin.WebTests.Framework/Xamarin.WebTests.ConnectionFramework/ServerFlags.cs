@@ -1,5 +1,5 @@
 ﻿//
-// ClientParameters.cs
+// ServerFlags.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,54 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
-using System.Collections.Generic;
-using Xamarin.AsyncTests;
-using Xamarin.WebTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class ClientParameters : ConnectionParameters
+	[Flags]
+	public enum ServerFlags
 	{
-		public ClientParameters (string identifier)
-			: base (identifier)
-		{
-		}
+		None				= 0,
 
-		protected ClientParameters (ClientParameters other)
-			: base (other)
-		{
-			ClientCertificate = other.ClientCertificate;
-			ClientCertificateValidator = other.ClientCertificateValidator;
-			Flags = other.Flags;
-			ExpectTrustFailure = other.ExpectTrustFailure;
-			ExpectWebException = other.ExpectWebException;
-		}
+		ExpectServerException		= 1,
+		ClientAbortsHandshake		= 2,
 
-		public override ConnectionParameters DeepClone ()
-		{
-			return new ClientParameters (this);
-		}
-
-		public IClientCertificate ClientCertificate {
-			get; set;
-		}
-
-		public ICertificateValidator ClientCertificateValidator {
-			get; set;
-		}
-
-		public ClientFlags Flags {
-			get; set;
-		}
-
-		public bool ExpectTrustFailure {
-			get; set;
-		}
-
-		public bool ExpectWebException {
-			get; set;
-		}
+		AskForClientCertificate		= 4,
+		RequireClientCertificate	= 8
 	}
 }
 

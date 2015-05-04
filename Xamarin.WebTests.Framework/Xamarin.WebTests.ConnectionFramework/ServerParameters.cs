@@ -20,6 +20,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			ServerCertificate = other.ServerCertificate;
 			ServerCertificateValidator = other.ServerCertificateValidator;
+			Flags = other.Flags;
 			askForCert = other.askForCert;
 			requireCert = other.requireCert;
 			ClientAbortsHandshake = other.ClientAbortsHandshake;
@@ -36,6 +37,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public ICertificateValidator ServerCertificateValidator {
+			get; set;
+		}
+
+		public ServerFlags Flags {
 			get; set;
 		}
 

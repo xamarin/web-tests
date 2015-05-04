@@ -22,6 +22,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 			this.serverParameters = serverParameters;
 		}
 
+		public ClientAndServerParameters (string identifier, IServerCertificate serverCertificate)
+			: base (identifier)
+		{
+			clientParameters = new ClientParameters (identifier);
+			serverParameters = new ServerParameters (identifier, serverCertificate);
+		}
+
 		public override ConnectionParameters DeepClone ()
 		{
 			var clonedClient = (ClientParameters)clientParameters.DeepClone ();
@@ -35,6 +42,31 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public ServerParameters ServerParameters {
 			get { return serverParameters; }
+		}
+
+		public IClientCertificate ClientCertificate {
+			get { return ClientParameters.ClientCertificate; }
+			set { ClientParameters.ClientCertificate = value; }
+		}
+
+		public ICertificateValidator ClientCertificateValidator {
+			get { return ClientParameters.ClientCertificateValidator; }
+			set { ClientParameters.ClientCertificateValidator = value; }
+		}
+
+		public ICertificateValidator ServerCertificateValidator {
+			get { return ServerParameters.ServerCertificateValidator; }
+			set { ServerParameters.ServerCertificateValidator = value; }
+		}
+
+		public ClientFlags ClientFlags {
+			get { return ClientParameters.Flags; }
+			set { ClientParameters.Flags = value; }
+		}
+
+		public ServerFlags ServerFlags {
+			get { return ServerParameters.Flags; }
+			set { ServerParameters.Flags = value; }
 		}
 
 		public static ClientAndServerParameters Create (ClientParameters clientParameters, ServerParameters serverParameters)

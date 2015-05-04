@@ -74,16 +74,15 @@ namespace Xamarin.WebTests.TestRunners
 
 			var defaultServer = new ServerParameters ("default", ResourceManager.DefaultServerCertificate);
 			var selfSignedServer = new ServerParameters ("self-signed", ResourceManager.SelfSignedServerCertificate);
-			var serverFromCA = new ServerParameters ("server-ca", ResourceManager.ServerCertificateFromCA);
 
 			var acceptAllClient = new ClientParameters ("accept-all") { ClientCertificateValidator = acceptAll };
 
 			yield return ClientAndServerParameters.Create (acceptAllClient, defaultServer);
 			yield return ClientAndServerParameters.Create (acceptAllClient, selfSignedServer);
 
-			yield return ClientAndServerParameters.Create (new ClientParameters ("accept-local-ca") {
+			yield return new ClientAndServerParameters ("accept-local-ca", ResourceManager.ServerCertificateFromCA) {
 				ClientCertificateValidator = acceptFromLocalCA
-			}, serverFromCA);
+			};
 
 			// The default validator only allows ResourceManager.DefaultServerCertificate.
 			yield return ClientAndServerParameters.Create (new ClientParameters ("no-validator") {

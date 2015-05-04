@@ -120,6 +120,8 @@
     <Compile Include="Xamarin.WebTests.Providers\ISslStream.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\Connection.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServer.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientFlags.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ServerFlags.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">
