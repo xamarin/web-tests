@@ -22,12 +22,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			private set;
 		}
 
-		public IConnectionParameters Parameters {
+		public ConnectionParameters Parameters {
 			get;
 			private set;
 		}
 
-		protected Connection (IPortableEndPoint endpoint, IConnectionParameters parameters)
+		protected Connection (IPortableEndPoint endpoint, ConnectionParameters parameters)
 		{
 			EndPoint = endpoint;
 			Parameters = parameters;

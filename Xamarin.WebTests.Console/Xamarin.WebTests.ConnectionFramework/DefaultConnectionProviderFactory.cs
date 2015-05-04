@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
-		static IPEndPoint GetEndPoint (IConnectionParameters parameters)
+		static IPEndPoint GetEndPoint (ConnectionParameters parameters)
 		{
 			if (parameters.EndPoint != null)
 				return new IPEndPoint (IPAddress.Parse (parameters.EndPoint.Address), parameters.EndPoint.Port);

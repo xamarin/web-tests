@@ -5,7 +5,7 @@ using Xamarin.WebTests.Providers;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public abstract class ConnectionParameters : IConnectionParameters, ITestParameter, ICloneable
+	public abstract class ConnectionParameters : ITestParameter, ICloneable
 	{
 		bool verifyPeerCertificate = true;
 		SslStreamFlags sslStreamFlags = SslStreamFlags.None;
@@ -29,7 +29,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			Identifier = other.Identifier;
 			EndPoint = other.EndPoint;
 			verifyPeerCertificate = other.verifyPeerCertificate;
-			EnableDebugging = other.EnableDebugging;
 			CertificateValidator = other.CertificateValidator;
 			sslStreamFlags = other.sslStreamFlags;
 		}
@@ -45,22 +44,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		public bool VerifyPeerCertificate {
-			get { return verifyPeerCertificate; }
-			set { verifyPeerCertificate = value; }
-		}
-
-		public bool EnableDebugging {
-			get; set;
-		}
-
 		public ICertificateValidator CertificateValidator {
 			get; set;
-		}
-
-		public SslStreamFlags SslStreamFlags {
-			get { return sslStreamFlags; }
-			set { sslStreamFlags = value; }
 		}
 	}
 }
