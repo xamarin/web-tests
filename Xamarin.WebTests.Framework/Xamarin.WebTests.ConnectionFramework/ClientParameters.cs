@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			: base (other)
 		{
 			ClientCertificate = other.ClientCertificate;
+			ClientCertificateValidator = other.ClientCertificateValidator;
 			ExpectTrustFailure = other.ExpectTrustFailure;
 			ExpectWebException = other.ExpectWebException;
 		}
@@ -52,6 +53,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public IClientCertificate ClientCertificate {
+			get; set;
+		}
+
+		public ICertificateValidator ClientCertificateValidator {
 			get; set;
 		}
 

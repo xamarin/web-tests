@@ -7,9 +7,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public abstract class ConnectionParameters : ITestParameter, ICloneable
 	{
-		bool verifyPeerCertificate = true;
-		SslStreamFlags sslStreamFlags = SslStreamFlags.None;
-
 		public string Identifier {
 			get;
 			private set;
@@ -28,9 +25,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			Identifier = other.Identifier;
 			EndPoint = other.EndPoint;
-			verifyPeerCertificate = other.verifyPeerCertificate;
-			CertificateValidator = other.CertificateValidator;
-			sslStreamFlags = other.sslStreamFlags;
 		}
 
 		object ICloneable.Clone ()
@@ -41,10 +35,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public abstract ConnectionParameters DeepClone ();
 
 		public IPortableEndPoint EndPoint {
-			get; set;
-		}
-
-		public ICertificateValidator CertificateValidator {
 			get; set;
 		}
 	}

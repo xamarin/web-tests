@@ -76,13 +76,13 @@ namespace Xamarin.WebTests.TestRunners
 			var selfSignedServer = new ServerParameters ("self-signed", ResourceManager.SelfSignedServerCertificate);
 			var serverFromCA = new ServerParameters ("server-ca", ResourceManager.ServerCertificateFromCA);
 
-			var acceptAllClient = new ClientParameters ("accept-all") { CertificateValidator = acceptAll };
+			var acceptAllClient = new ClientParameters ("accept-all") { ClientCertificateValidator = acceptAll };
 
 			yield return ClientAndServerParameters.Create (acceptAllClient, defaultServer);
 			yield return ClientAndServerParameters.Create (acceptAllClient, selfSignedServer);
 
 			yield return ClientAndServerParameters.Create (new ClientParameters ("accept-local-ca") {
-				CertificateValidator = acceptFromLocalCA
+				ClientCertificateValidator = acceptFromLocalCA
 			}, serverFromCA);
 
 			// The default validator only allows ResourceManager.DefaultServerCertificate.
@@ -94,14 +94,14 @@ namespace Xamarin.WebTests.TestRunners
 
 			// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
 			yield return ClientAndServerParameters.Create (new ClientParameters ("reject-all") {
-				ExpectTrustFailure = true, CertificateValidator = rejectAll
+				ExpectTrustFailure = true, ClientCertificateValidator = rejectAll
 			}, new ServerParameters ("default", ResourceManager.DefaultServerCertificate) {
 				ClientAbortsHandshake = true
 			});
 
 			// Provide a client certificate, but do not require it.
 			yield return ClientAndServerParameters.Create (new ClientParameters ("client-certificate") {
-				ClientCertificate = ResourceManager.MonkeyCertificate, CertificateValidator = acceptSelfSigned
+				ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned
 			}, selfSignedServer);
 
 			/*
@@ -111,16 +111,16 @@ namespace Xamarin.WebTests.TestRunners
 			 * SslStream with Mono's old implementation fails here.
 			 */
 			yield return ClientAndServerParameters.Create (new ClientParameters ("client-certificate") {
-				ClientCertificate = ResourceManager.MonkeyCertificate, CertificateValidator = acceptSelfSigned
+				ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned
 			}, new ServerParameters ("request-certificate", ResourceManager.SelfSignedServerCertificate) {
-				AskForClientCertificate = true, CertificateValidator = acceptFromLocalCA
+				AskForClientCertificate = true, ServerCertificateValidator = acceptFromLocalCA
 			});
 
 			// Require client certificate.
 			yield return ClientAndServerParameters.Create (new ClientParameters ("client-certificate") {
-				ClientCertificate = ResourceManager.MonkeyCertificate, CertificateValidator = acceptSelfSigned
+				ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned
 			}, new ServerParameters ("require-certificate", ResourceManager.SelfSignedServerCertificate) {
-				RequireClientCertificate = true, CertificateValidator = acceptFromLocalCA
+				RequireClientCertificate = true, ServerCertificateValidator = acceptFromLocalCA
 			});
 
 			/*
@@ -130,23 +130,23 @@ namespace Xamarin.WebTests.TestRunners
 			 * Mono with the old TLS implementation throws SecureChannelFailure.
 			 */
 			yield return ClientAndServerParameters.Create (new ClientParameters ("no-certificate") {
-				CertificateValidator = acceptSelfSigned
+				ClientCertificateValidator = acceptSelfSigned
 			}, new ServerParameters ("request-certificate", ResourceManager.SelfSignedServerCertificate) {
-				AskForClientCertificate = true, CertificateValidator = acceptFromLocalCA
+				AskForClientCertificate = true, ServerCertificateValidator = acceptFromLocalCA
 			});
 
 			// Reject client certificate.
 			yield return ClientAndServerParameters.Create (new ClientParameters ("reject-certificate") {
-				ClientCertificate = ResourceManager.MonkeyCertificate, CertificateValidator = acceptSelfSigned,
+				ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
 				ExpectWebException = true
 			}, new ServerParameters ("request-certificate", ResourceManager.SelfSignedServerCertificate) {
-				AskForClientCertificate = true, CertificateValidator = rejectAll, ClientAbortsHandshake = true,
+				AskForClientCertificate = true, ServerCertificateValidator = rejectAll, ClientAbortsHandshake = true,
 				ExpectException = true
 			});
 
 			// Missing client certificate.
 			yield return ClientAndServerParameters.Create (new ClientParameters ("no-certificate") {
-				CertificateValidator = acceptSelfSigned, ExpectWebException = true
+				ClientCertificateValidator = acceptSelfSigned, ExpectWebException = true
 			}, new ServerParameters ("missing-certificate", ResourceManager.SelfSignedServerCertificate) {
 				RequireClientCertificate = true, ClientAbortsHandshake = true, ExpectException = true
 			});
@@ -207,8 +207,8 @@ namespace Xamarin.WebTests.TestRunners
 
 			var request = new TraditionalRequest (webRequest);
 
-			if (ClientParameters.CertificateValidator != null)
-				request.Request.InstallCertificateValidator (ClientParameters.CertificateValidator);
+			if (ClientParameters.ClientCertificateValidator != null)
+				request.Request.InstallCertificateValidator (ClientParameters.ClientCertificateValidator);
 
 			if (ClientParameters.ClientCertificate != null)
 				request.Request.SetClientCertificates (new IClientCertificate[] { ClientParameters.ClientCertificate });

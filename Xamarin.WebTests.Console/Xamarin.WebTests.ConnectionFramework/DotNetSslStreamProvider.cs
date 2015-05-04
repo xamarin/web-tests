@@ -46,9 +46,18 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return (SslProtocols)ServicePointManager.SecurityProtocol;
 		}
 
-		static RemoteCertificateValidationCallback GetValidationCallback (ConnectionParameters parameters)
+		static RemoteCertificateValidationCallback GetValidationCallback (ServerParameters parameters)
 		{
-			var validator = parameters.CertificateValidator;
+			var validator = parameters.ServerCertificateValidator;
+			if (validator == null)
+				return null;
+
+			return ((CertificateValidator)validator).ValidationCallback;
+		}
+
+		static RemoteCertificateValidationCallback GetValidationCallback (ClientParameters parameters)
+		{
+			var validator = parameters.ClientCertificateValidator;
 			if (validator == null)
 				return null;
 
