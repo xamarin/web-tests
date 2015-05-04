@@ -55,7 +55,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return ((CertificateValidator)validator).ValidationCallback;
 		}
 
-		static X509Certificate2Collection GetClientCertificates (IClientParameters parameters)
+		static X509Certificate2Collection GetClientCertificates (ClientParameters parameters)
 		{
 			if (parameters.ClientCertificate == null)
 				return null;
@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return clientCertificateCollection;
 		}
 
-		public ISslStream CreateServerStream (Stream stream, IServerParameters serverParameters)
+		public ISslStream CreateServerStream (Stream stream, ServerParameters serverParameters)
 		{
 			var certificate = CertificateProvider.GetCertificate (serverParameters.ServerCertificate);
 
@@ -81,7 +81,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public async Task<ISslStream> CreateServerStreamAsync (
-			Stream stream, IServerParameters parameters, CancellationToken cancellationToken)
+			Stream stream, ServerParameters parameters, CancellationToken cancellationToken)
 		{
 			var certificate = CertificateProvider.GetCertificate (parameters.ServerCertificate);
 
@@ -95,7 +95,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public async Task<ISslStream> CreateClientStreamAsync (
-			Stream stream, string targetHost, IClientParameters parameters, CancellationToken cancellationToken)
+			Stream stream, string targetHost, ClientParameters parameters, CancellationToken cancellationToken)
 		{
 			var protocol = GetSslProtocol ();
 			var clientCertificates = GetClientCertificates (parameters);

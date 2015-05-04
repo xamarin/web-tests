@@ -19,11 +19,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	public class DotNetClient : DotNetConnection, IClient
 	{
-		new public IClientParameters Parameters {
-			get { return (IClientParameters)base.Parameters; }
+		new public ClientParameters Parameters {
+			get { return (ClientParameters)base.Parameters; }
 		}
 
-		public DotNetClient (IPEndPoint endpoint, ISslStreamProvider provider, IClientParameters parameters)
+		public DotNetClient (IPEndPoint endpoint, ISslStreamProvider provider, ClientParameters parameters)
 			: base (endpoint, provider, parameters)
 		{
 		}

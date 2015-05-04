@@ -23,11 +23,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return Parameters.ServerCertificate; }
 		}
 
-		new public IServerParameters Parameters {
-			get { return (IServerParameters)base.Parameters; }
+		new public ServerParameters Parameters {
+			get { return (ServerParameters)base.Parameters; }
 		}
 
-		public DotNetServer (IPEndPoint endpoint, ISslStreamProvider provider, IServerParameters parameters)
+		public DotNetServer (IPEndPoint endpoint, ISslStreamProvider provider, ServerParameters parameters)
 			: base (endpoint, provider, parameters)
 		{
 		}

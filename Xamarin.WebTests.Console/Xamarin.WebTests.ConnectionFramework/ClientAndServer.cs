@@ -23,7 +23,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return server.SupportsCleanShutdown && client.SupportsCleanShutdown; }
 		}
 
-		public ClientAndServer (IServer server, IClient client, IClientAndServerParameters parameters)
+		public ClientAndServer (IServer server, IClient client, ClientAndServerParameters parameters)
 			: base (server.EndPoint, parameters)
 		{
 			this.server = server;

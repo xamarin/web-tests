@@ -34,7 +34,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		new IServerParameters Parameters {
+		new ServerParameters Parameters {
 			get;
 		}
 	}

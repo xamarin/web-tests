@@ -4,7 +4,7 @@ using Xamarin.WebTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class ServerParameters : ConnectionParameters, IServerParameters
+	public class ServerParameters : ConnectionParameters
 	{
 		bool askForCert;
 		bool requireCert;

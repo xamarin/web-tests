@@ -63,12 +63,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 				this.provider = provider;
 			}
 	
-			public IClient CreateClient (IClientParameters parameters)
+			public IClient CreateClient (ClientParameters parameters)
 			{
 				return new DotNetClient (GetEndPoint (parameters), provider, parameters);
 			}
 
-			public IServer CreateServer (IServerParameters parameters)
+			public IServer CreateServer (ServerParameters parameters)
 			{
 				return new DotNetServer (GetEndPoint (parameters), provider, parameters);
 			}

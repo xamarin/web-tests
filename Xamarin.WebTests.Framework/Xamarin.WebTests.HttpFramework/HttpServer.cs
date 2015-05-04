@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.HttpFramework
 	{
 		readonly Uri uri;
 		readonly ListenerFlags flags;
-		readonly IServerParameters parameters;
+		readonly ServerParameters parameters;
 		readonly IHttpProvider provider;
 		readonly ISslStreamProvider sslStreamProvider;
 		readonly IPortableWebSupport WebSupport;
@@ -62,7 +62,7 @@ namespace Xamarin.WebTests.HttpFramework
 		static long nextId;
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
 
-		public HttpServer (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, IServerParameters parameters = null)
+		public HttpServer (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, ServerParameters parameters = null)
 		{
 			this.provider = provider;
 			this.endpoint = endpoint;
@@ -109,7 +109,7 @@ namespace Xamarin.WebTests.HttpFramework
 			get { return flags; }
 		}
 
-		public IServerParameters ServerParameters {
+		public ServerParameters ServerParameters {
 			get { return parameters; }
 		}
 

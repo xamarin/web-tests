@@ -29,9 +29,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public interface IConnectionProvider
 	{
-		IClient CreateClient (IClientParameters parameters);
+		IClient CreateClient (ClientParameters parameters);
 
-		IServer CreateServer (IServerParameters parameters);
+		IServer CreateServer (ServerParameters parameters);
 	}
 }
 

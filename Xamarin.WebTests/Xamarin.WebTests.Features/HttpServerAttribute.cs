@@ -58,7 +58,7 @@ namespace Xamarin.WebTests.Features
 			return flags;
 		}
 
-		protected virtual IServerParameters GetServerParameters (TestContext ctx)
+		protected virtual ServerParameters GetServerParameters (TestContext ctx)
 		{
 			bool useSSL;
 			if (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL)

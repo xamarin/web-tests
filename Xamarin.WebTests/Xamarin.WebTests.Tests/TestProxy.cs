@@ -68,7 +68,7 @@ namespace Xamarin.WebTests.Tests
 
 		readonly static IPortableEndPoint address;
 		readonly static IServerCertificate serverCertificate;
-		readonly static IServerParameters serverParameters;
+		readonly static ServerParameters serverParameters;
 		readonly static bool hasNetwork;
 
 		static TestProxy ()

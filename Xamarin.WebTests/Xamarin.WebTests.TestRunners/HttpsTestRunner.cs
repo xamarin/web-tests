@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.TestRunners
 			private set;
 		}
 
-		public IClientParameters ClientParameters {
+		public ClientParameters ClientParameters {
 			get { return Parameters.ClientParameters; }
 		}
 

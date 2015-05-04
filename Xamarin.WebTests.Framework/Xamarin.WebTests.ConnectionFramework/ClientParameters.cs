@@ -31,7 +31,7 @@ using Xamarin.WebTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class ClientParameters : ConnectionParameters, IClientParameters
+	public class ClientParameters : ConnectionParameters
 	{
 		public ClientParameters (string identifier)
 			: base (identifier)
