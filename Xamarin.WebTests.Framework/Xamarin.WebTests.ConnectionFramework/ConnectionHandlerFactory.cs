@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -36,10 +37,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			{
 			}
 
-			protected override async Task MainLoop (ILineBasedStream stream)
+			protected override async Task MainLoop (TestContext ctx, ILineBasedStream stream, CancellationToken cancellationToken)
 			{
 				await stream.WriteLineAsync ("OK");
-				await Shutdown (Connection.SupportsCleanShutdown, true);
+				await Shutdown (ctx, Connection.SupportsCleanShutdown, true, cancellationToken);
 				Connection.Dispose ();
 			}
 		}
@@ -51,7 +52,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			{
 			}
 
-			protected override async Task MainLoop (ILineBasedStream stream)
+			protected override async Task MainLoop (TestContext ctx, ILineBasedStream stream, CancellationToken cancellationToken)
 			{
 				string line;
 				while ((line = await stream.ReadLineAsync ()) != null)

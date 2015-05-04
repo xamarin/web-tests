@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -26,22 +27,25 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return Connection.SupportsCleanShutdown; }
 		}
 
-		public Task WaitForConnection ()
+		public Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested ();
 			return Connection.WaitForConnection ();
 		}
 
-		public async Task Run ()
+		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
-			await WaitForConnection ();
+			await WaitForConnection (ctx, cancellationToken);
+
+			cancellationToken.ThrowIfCancellationRequested ();
 			var serverWrapper = new StreamWrapper (Connection.Server.Stream);
 			var clientWrapper = new StreamWrapper (Connection.Client.Stream);
-			await MainLoop (serverWrapper, clientWrapper);
+			await MainLoop (ctx, serverWrapper, clientWrapper, cancellationToken);
 		}
 
-		protected abstract Task MainLoop (ILineBasedStream serverStream, ILineBasedStream clientStream);
+		protected abstract Task MainLoop (TestContext ctx, ILineBasedStream serverStream, ILineBasedStream clientStream, CancellationToken cancellationToken);
 
-		public Task<bool> Shutdown (bool attemptCleanShutdown, bool waitForReply)
+		public Task<bool> Shutdown (TestContext ctx, bool attemptCleanShutdown, bool waitForReply, CancellationToken cancellationToken)
 		{
 			return Connection.Shutdown (attemptCleanShutdown, waitForReply);
 		}

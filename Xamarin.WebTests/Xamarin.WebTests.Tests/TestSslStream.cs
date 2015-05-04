@@ -104,14 +104,14 @@ namespace Xamarin.WebTests.Tests
 	public class TestSslStream
 	{
 		[AsyncTest]
-		public async Task TestConnection (TestContext ctx,
+		public async Task TestConnection (TestContext ctx, CancellationToken cancellationToken,
 			[ConnectionParameterAttribute] ClientAndServerParameters parameters,
 			[ServerTestHost] IServer server, [ClientTestHost] IClient client)
 		{
 			var handler = ClientAndServerHandlerFactory.HandshakeAndDone.Create (server, client);
-			await handler.WaitForConnection ();
+			await handler.WaitForConnection (ctx, cancellationToken);
 
-			await handler.Run ();
+			await handler.Run (ctx, cancellationToken);
 		}
 	}
 }

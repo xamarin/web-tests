@@ -26,6 +26,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -61,13 +62,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 			{
 			}
 
-			protected override async Task MainLoop (ILineBasedStream serverStream, ILineBasedStream clientStream)
+			protected override async Task MainLoop (TestContext ctx, ILineBasedStream serverStream, ILineBasedStream clientStream, CancellationToken cancellationToken)
 			{
 				await serverStream.WriteLineAsync ("OK");
 				var line = await clientStream.ReadLineAsync ();
 				if (!line.Equals ("OK"))
 					throw new ConnectionException ("Got unexpected output '{0}'", line);
-				await Shutdown (SupportsCleanShutdown, true);
+				await Shutdown (ctx, SupportsCleanShutdown, true, cancellationToken);
 				Close ();
 			}
 		}
@@ -79,7 +80,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			{
 			}
 
-			protected override async Task MainLoop (ILineBasedStream serverStream, ILineBasedStream clientStream)
+			protected override async Task MainLoop (TestContext ctx, ILineBasedStream serverStream, ILineBasedStream clientStream, CancellationToken cancellationToken)
 			{
 				await serverStream.WriteLineAsync ("SERVER OK");
 				var line = await clientStream.ReadLineAsync ();
@@ -89,7 +90,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				line = await serverStream.ReadLineAsync ();
 				if (!line.Equals ("CLIENT OK"))
 					throw new ConnectionException ("Got unexpected output from client: '{0}'", line);
-				await Shutdown (SupportsCleanShutdown, true);
+				await Shutdown (ctx, SupportsCleanShutdown, true, cancellationToken);
 				Close ();
 			}
 		}

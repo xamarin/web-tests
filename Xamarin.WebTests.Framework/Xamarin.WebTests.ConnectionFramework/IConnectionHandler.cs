@@ -26,6 +26,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -35,11 +36,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		Task WaitForConnection ();
+		Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken);
 
-		Task Run ();
+		Task Run (TestContext ctx, CancellationToken cancellationToken);
 
-		Task<bool> Shutdown (bool attemptCleanShutdown, bool waitForReply);
+		Task<bool> Shutdown (TestContext ctx, bool attemptCleanShutdown, bool waitForReply, CancellationToken cancellationToken);
 
 		void Close ();
 	}
