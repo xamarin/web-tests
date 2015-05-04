@@ -39,14 +39,14 @@ namespace Xamarin.WebTests.Features
 	using Resources;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class HttpsConnectionParameterAttribute : TestParameterAttribute, ITestParameterSource<IClientAndServerParameters>
+	public class HttpsConnectionParameterAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
 	{
 		public HttpsConnectionParameterAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
 			: base (filter, flags)
 		{
 		}
 
-		public IEnumerable<IClientAndServerParameters> GetParameters (TestContext ctx, string filter)
+		public IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx, string filter)
 		{
 			return HttpsTestRunner.GetParameters (ctx, filter);
 		}

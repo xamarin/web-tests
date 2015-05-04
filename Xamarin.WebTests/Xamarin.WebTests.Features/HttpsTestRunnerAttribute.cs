@@ -56,7 +56,7 @@ namespace Xamarin.WebTests.Features
 			var httpProvider = CommonHttpFeatures.GetHttpProvider (ctx);
 
 			var listenerFlags = ListenerFlags.SSL;
-			var parameters = ctx.GetParameter<IClientAndServerParameters> ();
+			var parameters = ctx.GetParameter<ClientAndServerParameters> ();
 
 			return new HttpsTestRunner (httpProvider, endpoint, listenerFlags, parameters);
 		}

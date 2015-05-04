@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.TestRunners
 	[FriendlyName ("[HttpsTestRunner]")]
 	public class HttpsTestRunner : HttpServer
 	{
-		public IClientAndServerParameters Parameters {
+		public ClientAndServerParameters Parameters {
 			get;
 			private set;
 		}
@@ -58,13 +58,13 @@ namespace Xamarin.WebTests.TestRunners
 			get { return Parameters.ClientParameters; }
 		}
 
-		public HttpsTestRunner (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, IClientAndServerParameters parameters)
+		public HttpsTestRunner (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, ClientAndServerParameters parameters)
 			: base (provider, endpoint, flags, parameters.ServerParameters)
 		{
 			Parameters = parameters;
 		}
 
-		public static IEnumerable<IClientAndServerParameters> GetParameters (TestContext ctx, string filter)
+		public static IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx, string filter)
 		{
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 			var acceptAll = certificateProvider.AcceptAll ();

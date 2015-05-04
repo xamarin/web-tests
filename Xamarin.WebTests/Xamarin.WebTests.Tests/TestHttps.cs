@@ -50,7 +50,7 @@ namespace Xamarin.WebTests.Tests
 	public class TestHttps
 	{
 		[HttpsConnectionParameter]
-		public IClientAndServerParameters ConnectionParameters {
+		public ClientAndServerParameters ConnectionParameters {
 			get;
 			private set;
 		}

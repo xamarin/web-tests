@@ -38,6 +38,7 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.Tests
 {
 	using ConnectionFramework;
+	using TestRunners;
 	using Portable;
 	using Providers;
 	using Resources;
@@ -86,33 +87,14 @@ namespace Xamarin.WebTests.Tests
 
 	class ConnectionParameterAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
 	{
-		readonly ICertificateProvider certificateProvider;
-		readonly ICertificateValidator acceptFromLocalCA;
-
 		public ConnectionParameterAttribute (string filter = null)
 			: base (filter)
 		{
-			certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
-			acceptFromLocalCA = certificateProvider.AcceptFromCA (ResourceManager.LocalCACertificate);
 		}
 
 		public IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx, string filter)
 		{
-			yield return new CombinedClientAndServerParameters ("simple", ResourceManager.SelfSignedServerCertificate) {
-				VerifyPeerCertificate = false
-
-			};
-			yield return new CombinedClientAndServerParameters ("verify-certificate", ResourceManager.ServerCertificateFromCA) {
-				VerifyPeerCertificate = true, CertificateValidator = acceptFromLocalCA
-			};
-			yield return new CombinedClientAndServerParameters ("ask-for-certificate", ResourceManager.ServerCertificateFromCA) {
-				VerifyPeerCertificate = true, CertificateValidator = acceptFromLocalCA,
-				AskForClientCertificate = true
-			};
-			yield return new CombinedClientAndServerParameters ("require-certificate", ResourceManager.ServerCertificateFromCA) {
-				VerifyPeerCertificate = true, CertificateValidator = acceptFromLocalCA,
-				RequireClientCertificate = true, ClientCertificate = ResourceManager.MonkeyCertificate
-			};
+			return HttpsTestRunner.GetParameters (ctx, filter);
 		}
 	}
 
