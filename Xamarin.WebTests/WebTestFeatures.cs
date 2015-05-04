@@ -168,11 +168,11 @@ namespace Xamarin.WebTests
 		public static readonly TestCategory NotWorkingCategory = new TestCategory ("NotWorking") { IsExplicit = true };
 
 		#region ITestConfigurationProvider implementation
-		public string Name {
+		public virtual string Name {
 			get { return "Xamarin.WebTests"; }
 		}
 
-		public IEnumerable<TestFeature> Features {
+		public virtual IEnumerable<TestFeature> Features {
 			get {
 				yield return NTLM;
 				yield return SSL;
@@ -191,7 +191,7 @@ namespace Xamarin.WebTests
 			}
 		}
 
-		public IEnumerable<TestCategory> Categories {
+		public virtual IEnumerable<TestCategory> Categories {
 			get {
 				yield return WorkCategory;
 				yield return MartinCategory;
