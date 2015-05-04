@@ -108,10 +108,8 @@ namespace Xamarin.WebTests.Tests
 			[ConnectionParameterAttribute] ClientAndServerParameters parameters,
 			[ServerTestHost] IServer server, [ClientTestHost] IClient client)
 		{
-			var handler = ClientAndServerHandlerFactory.HandshakeAndDone.Create (server, client);
-			await handler.WaitForConnection (ctx, cancellationToken);
-
-			await handler.Run (ctx, cancellationToken);
+			var runner = new SslStreamTestRunner (server, client);
+			await runner.Run (ctx, cancellationToken);
 		}
 	}
 }

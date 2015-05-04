@@ -15,7 +15,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public ClientAndServerHandler (IServer server, IClient client)
 		{
-			Connection = new ClientAndServer (server, client, ClientAndServerParameters.Create (client.Parameters, server.Parameters));
+			Connection = new ClientAndServer (server, client);
 		}
 
 		public ClientAndServerHandler (ClientAndServer connection)
