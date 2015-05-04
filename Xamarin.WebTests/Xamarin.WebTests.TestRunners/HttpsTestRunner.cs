@@ -89,13 +89,15 @@ namespace Xamarin.WebTests.TestRunners
 			yield return ClientAndServerParameters.Create (new ClientParameters ("no-validator") {
 				ExpectTrustFailure = true
 			}, new ServerParameters ("self-signed-error", ResourceManager.SelfSignedServerCertificate) {
-				ExpectException = true
+				ExpectEmptyRequest = true
 			});
 
 			// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
 			yield return ClientAndServerParameters.Create (new ClientParameters ("reject-all") {
 				ExpectTrustFailure = true, CertificateValidator = rejectAll
-			}, new ServerParameters ("default", ResourceManager.DefaultServerCertificate));
+			}, new ServerParameters ("default", ResourceManager.DefaultServerCertificate) {
+				ExpectEmptyRequest = true
+			});
 
 			// Provide a client certificate, but do not require it.
 			yield return ClientAndServerParameters.Create (new ClientParameters ("client-certificate") {
@@ -128,7 +130,7 @@ namespace Xamarin.WebTests.TestRunners
 				ClientCertificate = ResourceManager.MonkeyCertificate, CertificateValidator = acceptSelfSigned,
 				ExpectException = true
 			}, new ServerParameters ("request-certificate", ResourceManager.SelfSignedServerCertificate) {
-				AskForClientCertificate = true, CertificateValidator = rejectAll, ExpectException = true
+				AskForClientCertificate = true, CertificateValidator = rejectAll, ExpectEmptyRequest = true
 			});
 		}
 
@@ -143,14 +145,32 @@ namespace Xamarin.WebTests.TestRunners
 				return impl.Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);
 		}
 
+		protected override HttpConnection CreateConnection (TestContext ctx, Stream stream)
+		{
+			var connection = base.CreateConnection (ctx, stream);
+
+			try {
+				var hasCert = connection.SslStream.HasClientCertificate;
+				var hasRequest = connection.HasRequest ();
+				ctx.LogMessage ("TEST: {0} {1}", hasCert, hasRequest);
+			} catch (Exception ex) {
+				ctx.LogMessage ("TEST ERROR: {0}", ex);
+				throw;
+			}
+
+			return connection;
+		}
+
 		protected override bool HandleConnection (TestContext ctx, HttpConnection connection)
 		{
 			if (ServerParameters.RequireClientCertificate)
 				ctx.Expect (connection.SslStream.HasClientCertificate, Is.True, "client certificate");
 
-			if (ServerParameters.ExpectException) {
+			if (ServerParameters.ExpectEmptyRequest) {
 				ctx.Assert (connection.HasRequest (), Is.False, "expected empty request");
 				return false;
+			} else {
+				ctx.Assert (connection.HasRequest (), Is.True, "expected non-empty request");
 			}
 
 			return base.HandleConnection (ctx, connection);

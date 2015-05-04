@@ -16,6 +16,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		bool RequireClientCertificate {
 			get; set;
 		}
+
+		bool ExpectEmptyRequest {
+			get; set;
+		}
 	}
 }
 

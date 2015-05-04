@@ -50,6 +50,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			askForCert = other.askForCert;
 			requireCert = other.requireCert;
 			ExpectTrustFailure = other.ExpectTrustFailure;
+			ExpectEmptyRequest = other.ExpectEmptyRequest;
 		}
 
 		public override IClientParameters ClientParameters {
@@ -88,6 +89,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public bool ExpectTrustFailure {
+			get; set;
+		}
+
+		public bool ExpectEmptyRequest {
 			get; set;
 		}
 	}
