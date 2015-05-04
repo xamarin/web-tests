@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.TestRunners
 			}
 
 			ctx.Assert (Server.Parameters.ExpectException, Is.False, "expecting server exception");
-			ctx.Assert (Server.Parameters.ExpectEmptyRequest, Is.False, "expecting empty request");
+			ctx.Assert (Server.Parameters.ClientAbortsHandshake, Is.False, "expecting client to abort handshake");
 			ctx.Assert (Client.Parameters.ExpectWebException || Client.Parameters.ExpectTrustFailure, Is.False, "expecting client exception");
 
 			if (Server.Parameters.RequireClientCertificate)

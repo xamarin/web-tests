@@ -89,14 +89,14 @@ namespace Xamarin.WebTests.TestRunners
 			yield return ClientAndServerParameters.Create (new ClientParameters ("no-validator") {
 				ExpectTrustFailure = true
 			}, new ServerParameters ("self-signed-error", ResourceManager.SelfSignedServerCertificate) {
-				ExpectEmptyRequest = true
+				ClientAbortsHandshake = true
 			});
 
 			// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
 			yield return ClientAndServerParameters.Create (new ClientParameters ("reject-all") {
 				ExpectTrustFailure = true, CertificateValidator = rejectAll
 			}, new ServerParameters ("default", ResourceManager.DefaultServerCertificate) {
-				ExpectEmptyRequest = true
+				ClientAbortsHandshake = true
 			});
 
 			// Provide a client certificate, but do not require it.
@@ -130,7 +130,7 @@ namespace Xamarin.WebTests.TestRunners
 				ClientCertificate = ResourceManager.MonkeyCertificate, CertificateValidator = acceptSelfSigned,
 				ExpectWebException = true
 			}, new ServerParameters ("request-certificate", ResourceManager.SelfSignedServerCertificate) {
-				AskForClientCertificate = true, CertificateValidator = rejectAll, ExpectEmptyRequest = true,
+				AskForClientCertificate = true, CertificateValidator = rejectAll, ClientAbortsHandshake = true,
 				ExpectException = true
 			});
 
@@ -138,7 +138,7 @@ namespace Xamarin.WebTests.TestRunners
 			yield return ClientAndServerParameters.Create (new ClientParameters ("no-certificate") {
 				CertificateValidator = acceptSelfSigned, ExpectWebException = true
 			}, new ServerParameters ("missing-certificate", ResourceManager.SelfSignedServerCertificate) {
-				RequireClientCertificate = true, ExpectEmptyRequest = true, ExpectException = true
+				RequireClientCertificate = true, ClientAbortsHandshake = true, ExpectException = true
 			});
 
 		}
@@ -162,21 +162,21 @@ namespace Xamarin.WebTests.TestRunners
 				/*
 				 * There seems to be some kind of a race condition here.
 				 *
-				 * When the client shuts down the connection due to auth failure, then we
-				 * either crash during the TLS handshake or receive a closed connection
-				 * when the handshake is completed.
+				 * When the client aborts the handshake due the a certificate validation failure,
+				 * then we either receive an exception during the TLS handshake or the connection
+				 * will be closed when the handshake is completed.
 				 *
 				 */
 				var haveReq = connection.HasRequest();
-				if (ServerParameters.ExpectEmptyRequest) {
-					ctx.Assert (haveReq, Is.False, "expected empty request");
+				if (ServerParameters.ClientAbortsHandshake) {
+					ctx.Assert (haveReq, Is.False, "expected client to abort handshake");
 					return null;
 				} else {
 					ctx.Assert (haveReq, Is.True, "expected non-empty request");
 				}
 				return connection;
 			} catch {
-				if (ServerParameters.ExpectEmptyRequest)
+				if (ServerParameters.ClientAbortsHandshake)
 					return null;
 				throw;
 			}

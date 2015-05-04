@@ -21,7 +21,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			ServerCertificate = other.ServerCertificate;
 			askForCert = other.askForCert;
 			requireCert = other.requireCert;
-			ExpectEmptyRequest = other.ExpectEmptyRequest;
+			ClientAbortsHandshake = other.ClientAbortsHandshake;
 			ExpectException = other.ExpectException;
 		}
 
@@ -48,7 +48,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
-		public bool ExpectEmptyRequest {
+		public bool ClientAbortsHandshake {
 			get; set;
 		}
 
