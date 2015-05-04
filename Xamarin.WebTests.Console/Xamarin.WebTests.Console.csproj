@@ -54,7 +54,6 @@
     <Compile Include="Xamarin.WebTests.Server\DefaultHttpProvider.cs" />
     <Compile Include="Xamarin.WebTests.Server\DefaultHttpProviderFactory.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DefaultConnectionProviderFactory.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServer.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetClient.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetConnection.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetServer.cs" />

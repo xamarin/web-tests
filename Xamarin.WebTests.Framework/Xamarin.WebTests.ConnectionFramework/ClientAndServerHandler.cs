@@ -7,65 +7,43 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public abstract class ClientAndServerHandler : IConnectionHandler
 	{
-		public IServer Server {
-			get;
-			private set;
-		}
-
-		public IClient Client {
+		public IClientAndServer Connection {
 			get;
 			private set;
 		}
 
 		public ClientAndServerHandler (IServer server, IClient client)
 		{
-			Server = server;
-			Client = client;
+			Connection = new ClientAndServer (server, client, ClientAndServerParameters.Create (client.Parameters, server.Parameters));
 		}
 
 		public bool SupportsCleanShutdown {
-			get { return Server.SupportsCleanShutdown && Client.SupportsCleanShutdown; }
+			get { return Connection.SupportsCleanShutdown; }
 		}
 
-		public async Task WaitForConnection ()
+		public Task WaitForConnection ()
 		{
-			var serverTask = Server.WaitForConnection ();
-			var clientTask = Client.WaitForConnection ();
-
-			var t1 = clientTask.ContinueWith (t => {
-				if (t.IsFaulted || t.IsCanceled)
-					Server.Dispose ();
-			});
-			var t2 = serverTask.ContinueWith (t => {
-				if (t.IsFaulted || t.IsCanceled)
-					Client.Dispose ();
-			});
-
-			await Task.WhenAll (serverTask, clientTask, t1, t2);
+			return Connection.WaitForConnection ();
 		}
 
 		public async Task Run ()
 		{
 			await WaitForConnection ();
-			var serverWrapper = new StreamWrapper (Server.Stream);
-			var clientWrapper = new StreamWrapper (Client.Stream);
+			var serverWrapper = new StreamWrapper (Connection.Server.Stream);
+			var clientWrapper = new StreamWrapper (Connection.Client.Stream);
 			await MainLoop (serverWrapper, clientWrapper);
 		}
 
 		protected abstract Task MainLoop (ILineBasedStream serverStream, ILineBasedStream clientStream);
 
-		public async Task<bool> Shutdown (bool attemptCleanShutdown, bool waitForReply)
+		public Task<bool> Shutdown (bool attemptCleanShutdown, bool waitForReply)
 		{
-			var clientShutdown = Client.Shutdown (attemptCleanShutdown, waitForReply);
-			var serverShutdown = Server.Shutdown (attemptCleanShutdown, waitForReply);
-			await Task.WhenAll (clientShutdown, serverShutdown);
-			return clientShutdown.Result && serverShutdown.Result;
+			return Connection.Shutdown (attemptCleanShutdown, waitForReply);
 		}
 
 		public void Close ()
 		{
-			Client.Dispose ();
-			Server.Dispose ();
+			Connection.Dispose ();
 		}
 	}
 }
