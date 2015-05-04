@@ -10,11 +10,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		readonly ClientParameters clientParameters;
 		readonly ServerParameters serverParameters;
 
-		protected ClientAndServerParameters (ClientAndServerParameters other)
-			: base (other)
-		{
-		}
-
 		public ClientAndServerParameters (ClientParameters clientParameters, ServerParameters serverParameters)
 			: base (clientParameters.Identifier + ":" + serverParameters.Identifier)
 		{
