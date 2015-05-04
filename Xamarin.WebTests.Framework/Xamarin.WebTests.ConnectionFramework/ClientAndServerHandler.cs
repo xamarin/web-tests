@@ -7,7 +7,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public abstract class ClientAndServerHandler : IConnectionHandler
 	{
-		public IClientAndServer Connection {
+		public ClientAndServer Connection {
 			get;
 			private set;
 		}
@@ -15,6 +15,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public ClientAndServerHandler (IServer server, IClient client)
 		{
 			Connection = new ClientAndServer (server, client, ClientAndServerParameters.Create (client.Parameters, server.Parameters));
+		}
+
+		public ClientAndServerHandler (ClientAndServer connection)
+		{
+			Connection = connection;
 		}
 
 		public bool SupportsCleanShutdown {

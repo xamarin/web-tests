@@ -6,7 +6,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class ClientAndServer : Connection, IClientAndServer
+	public class ClientAndServer : Connection
 	{
 		IServer server;
 		IClient client;

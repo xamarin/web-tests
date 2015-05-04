@@ -103,7 +103,6 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ICommonConnection.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IClient.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IServer.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\IClientAndServer.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionHandler.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionHandlerFactory.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\CommonConnectionHandler.cs" />
