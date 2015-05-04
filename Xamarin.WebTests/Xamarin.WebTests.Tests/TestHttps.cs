@@ -58,7 +58,7 @@ namespace Xamarin.WebTests.Tests
 		[Work]
 		[CertificateTests]
 		[AsyncTest]
-		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [HttpsTestRunner] HttpsTestRunner runner, [GetHandler] Handler handler)
+		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [HttpsTestRunner] HttpsTestRunner runner, [GetHandler ("hello")] Handler handler)
 		{
 			return runner.Run (ctx, handler, cancellationToken);
 		}

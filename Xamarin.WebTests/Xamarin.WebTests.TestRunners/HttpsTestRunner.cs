@@ -104,7 +104,12 @@ namespace Xamarin.WebTests.TestRunners
 				ClientCertificate = ResourceManager.MonkeyCertificate, CertificateValidator = acceptSelfSigned
 			}, selfSignedServer);
 
-			// Request client certificate, but do not require it.
+			/*
+			 * Request client certificate, but do not require it.
+			 *
+			 * FIXME:
+			 * SslStream with Mono's old implementation fails here.
+			 */
 			yield return ClientAndServerParameters.Create (new ClientParameters ("client-certificate") {
 				ClientCertificate = ResourceManager.MonkeyCertificate, CertificateValidator = acceptSelfSigned
 			}, new ServerParameters ("request-certificate", ResourceManager.SelfSignedServerCertificate) {
@@ -118,7 +123,12 @@ namespace Xamarin.WebTests.TestRunners
 				RequireClientCertificate = true, CertificateValidator = acceptFromLocalCA
 			});
 
-			// Request client certificate without requiring one and do not provide it.
+			/*
+			 * Request client certificate without requiring one and do not provide it.
+			 *
+			 * FIXME:
+			 * Mono with the old TLS implementation throws SecureChannelFailure.
+			 */
 			yield return ClientAndServerParameters.Create (new ClientParameters ("no-certificate") {
 				CertificateValidator = acceptSelfSigned
 			}, new ServerParameters ("request-certificate", ResourceManager.SelfSignedServerCertificate) {

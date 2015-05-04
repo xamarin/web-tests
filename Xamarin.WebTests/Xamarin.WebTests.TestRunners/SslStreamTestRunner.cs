@@ -66,7 +66,7 @@ namespace Xamarin.WebTests.TestRunners
 				await base.WaitForServerConnection (ctx, cancellationToken);
 				ctx.Assert (Server.Parameters.ExpectException, Is.False, "expecting exception");
 			} catch {
-				if (Server.Parameters.ExpectException) {
+				if (Server.Parameters.ExpectException || Server.Parameters.ClientAbortsHandshake) {
 					throw new ConnectionFinishedException ();
 				}
 				throw;
