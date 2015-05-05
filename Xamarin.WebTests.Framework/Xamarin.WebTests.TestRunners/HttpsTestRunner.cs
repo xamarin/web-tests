@@ -144,6 +144,12 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
+		public Task Run (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var handler = new HelloWorldHandler ("hello");
+			return Run (ctx, handler, cancellationToken);
+		}
+
 		public Task Run (TestContext ctx, Handler handler, CancellationToken cancellationToken)
 		{
 			var impl = new TestRunnerImpl (this, handler);
