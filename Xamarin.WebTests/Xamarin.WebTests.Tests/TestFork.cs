@@ -63,7 +63,7 @@ namespace Xamarin.WebTests.Tests
 	{
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			var provider = DependencyInjector.Get<IHttpProviderFactory> ().Default;
+			var provider = DependencyInjector.Get<IConnectionProviderFactory> ().DefaultHttpProvider;
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			return new HttpServer (provider, support.GetLoopbackEndpoint (9999), ListenerFlags.ReuseConnection);
 		}

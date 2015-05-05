@@ -52,7 +52,6 @@
     <Compile Include="Xamarin.WebTests.Server\CertificateValidator.cs" />
     <Compile Include="Xamarin.WebTests.Server\CertificateProvider.cs" />
     <Compile Include="Xamarin.WebTests.Server\DefaultHttpProvider.cs" />
-    <Compile Include="Xamarin.WebTests.Server\DefaultHttpProviderFactory.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DefaultConnectionProviderFactory.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetClient.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetConnection.cs" />

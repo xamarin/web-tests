@@ -88,7 +88,6 @@
     <Compile Include="Xamarin.WebTests.Portable\ListenerFlags.cs" />
     <Compile Include="Xamarin.WebTests.Providers\IHttpProvider.cs" />
     <Compile Include="Xamarin.WebTests.Providers\HttpProviderType.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\IHttpProviderFactory.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ISslStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ICertificateProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ServerParameters.cs" />
@@ -120,8 +119,6 @@
     <Compile Include="Xamarin.WebTests.Features\CommonHttpFeatures.cs" />
     <Compile Include="Xamarin.WebTests.Features\HttpServerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\HttpsTestRunnerAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\HttpProviderFactory.cs" />
-    <Compile Include="Xamarin.WebTests.Features\HttpProviderAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\ClientTestHostAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\ServerTestHostAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\ClientAndServerParametersAttribute.cs" />

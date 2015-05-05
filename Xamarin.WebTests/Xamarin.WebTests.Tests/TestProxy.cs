@@ -88,7 +88,7 @@ namespace Xamarin.WebTests.Tests
 			if (!hasNetwork)
 				throw new InvalidOperationException ();
 
-			var provider = DependencyInjector.Get<IHttpProviderFactory> ().Default;
+			var provider = DependencyInjector.Get<IConnectionProviderFactory> ().DefaultHttpProvider;
 
 			switch (Kind) {
 			case ProxyKind.Simple:

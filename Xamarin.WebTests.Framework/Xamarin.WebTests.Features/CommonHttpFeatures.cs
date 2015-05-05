@@ -39,13 +39,13 @@ namespace Xamarin.WebTests.Features
 	{
 		internal static IHttpProvider GetHttpProvider (TestContext ctx)
 		{
-			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
+			var factory = DependencyInjector.Get<IConnectionProviderFactory> ();
 			IHttpProvider provider;
-			HttpProviderType providerType;
+			ConnectionProviderType providerType;
 			if (ctx.TryGetParameter (out providerType))
-				provider = factory.GetProvider (providerType);
+				provider = factory.GetProvider (providerType).HttpProvider;
 			else
-				provider = factory.Default;
+				provider = factory.DefaultHttpProvider;
 
 			return provider;
 		}
