@@ -29,9 +29,18 @@ namespace Xamarin.WebTests.Providers
 {
 	public enum ConnectionProviderType
 	{
+		// Directly use SslStream
 		DotNet,
+
+		// Use Mono.Security.Interface.MonoTlsProviderFactory to select the old or new TLS implementation.
 		NewTLS,
-		Mono,
+		OldTLS,
+
+		// Same, but with Mono-specific extensions.  This will return IMonoConnectionProvider.
+		MonoWithNewTLS,
+		MonoWithOldTLS,
+
+		// Just for testing.
 		OpenSsl
 	}
 }
