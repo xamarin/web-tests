@@ -31,17 +31,13 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Features
 {
-	using TestRunners;
 	using ConnectionFramework;
-	using HttpFramework;
-	using Portable;
-	using Providers;
-	using Resources;
+	using TestRunners;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class ConnectionParameterAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
+	public class ClientAndServerParametersAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
 	{
-		public ConnectionParameterAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+		public ClientAndServerParametersAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
 			: base (filter, flags)
 		{
 		}

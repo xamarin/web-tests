@@ -37,19 +37,15 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Tests
 {
-	using TestRunners;
 	using ConnectionFramework;
-	using HttpHandlers;
-	using HttpFramework;
-	using Portable;
-	using Resources;
+	using TestRunners;
 	using Features;
 
 	[SSL]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestHttps
 	{
-		[ConnectionParameter]
+		[ClientAndServerParametersAttribute]
 		public ClientAndServerParameters ConnectionParameters {
 			get;
 			private set;
