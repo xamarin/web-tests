@@ -36,33 +36,17 @@ namespace Xamarin.WebTests.ConnectionFramework
 	using Portable;
 	using Providers;
 
-	class DefaultSslStreamProviderFactory : ISslStreamProviderFactory
+	class DefaultSslStreamProviderFactory : SslStreamProviderFactory
 	{
 		readonly ISslStreamProvider defaultProvider;
 
 		internal DefaultSslStreamProviderFactory ()
 		{
 			defaultProvider = new DotNetSslStreamProvider ();
+			Install (SslStreamProviderType.DotNet, defaultProvider);
 		}
 
-		public bool IsSupported (SslStreamProviderType type)
-		{
-			return type == SslStreamProviderType.DotNet;
-		}
-
-		public IEnumerable<SslStreamProviderType> GetSupportedProviders ()
-		{
-			yield return SslStreamProviderType.DotNet;
-		}
-
-		public ISslStreamProvider GetProvider (SslStreamProviderType type)
-		{
-			if (type == SslStreamProviderType.DotNet)
-				return defaultProvider;
-			throw new NotSupportedException ();
-		}
-
-		public ISslStreamProvider GetDefaultProvider ()
+		public override ISslStreamProvider GetDefaultProvider ()
 		{
 			return defaultProvider;
 		}

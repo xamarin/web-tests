@@ -1,5 +1,5 @@
 ﻿//
-// ConnectionProviderType.cs
+// SslStreamProviderFactory.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,15 +24,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.Providers
 {
-	public enum ConnectionProviderType
+	public abstract class SslStreamProviderFactory : ISslStreamProviderFactory
 	{
-		DotNet,
-		NewTLS,
-		Mono,
-		OpenSsl
+		readonly Dictionary<SslStreamProviderType,ISslStreamProvider> providers;
+
+		protected SslStreamProviderFactory ()
+		{
+			providers = new Dictionary<SslStreamProviderType, ISslStreamProvider> ();
+		}
+
+		public bool IsSupported (SslStreamProviderType type)
+		{
+			return providers.ContainsKey (type);
+		}
+
+		public IEnumerable<SslStreamProviderType> GetSupportedProviders ()
+		{
+			return providers.Keys;
+		}
+
+		public ISslStreamProvider GetProvider (SslStreamProviderType type)
+		{
+			return providers [type];
+		}
+
+		protected void Install (SslStreamProviderType type, ISslStreamProvider provider)
+		{
+			providers.Add (type, provider);
+		}
+
+		public abstract ISslStreamProvider GetDefaultProvider ();
 	}
 }
 

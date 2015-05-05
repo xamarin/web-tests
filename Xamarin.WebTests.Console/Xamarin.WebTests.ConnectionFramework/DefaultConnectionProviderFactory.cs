@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Collections.Generic;
 using System.Security.Authentication;
 using Xamarin.AsyncTests;
 
@@ -34,24 +35,42 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	class DefaultConnectionProviderFactory : IConnectionProviderFactory
 	{
+		readonly Dictionary<ConnectionProviderType,IConnectionProvider> providers;
 		readonly IConnectionProvider dotNetProvider;
 
 		public bool IsSupported (ConnectionProviderType type)
 		{
-			return type == ConnectionProviderType.DotNet;
+			return providers.ContainsKey (type);
 		}
 
 		public IConnectionProvider GetProvider (ConnectionProviderType type)
 		{
-			if (type == ConnectionProviderType.DotNet)
-				return dotNetProvider;
-			throw new InvalidOperationException ();
+			return providers [type];
+		}
+
+		protected void Install (ConnectionProviderType type, IConnectionProvider provider)
+		{
+			providers.Add (type, provider);
+		}
+
+		public IEnumerable<ConnectionProviderType> GetSupportedProviders ()
+		{
+			return providers.Keys;
 		}
 
 		internal DefaultConnectionProviderFactory ()
 		{
+			providers = new Dictionary<ConnectionProviderType,IConnectionProvider> ();
+
 			var factory = DependencyInjector.Get<ISslStreamProviderFactory> ();
 			dotNetProvider = new DotNetProvider (factory.GetDefaultProvider ());
+			Install (ConnectionProviderType.DotNet, dotNetProvider);
+
+			if (factory.IsSupported (SslStreamProviderType.MonoNewTls)) {
+				var newTlsStreamProvider = factory.GetProvider (SslStreamProviderType.MonoNewTls);
+				var newTlsConnectionProvider = new DotNetProvider (newTlsStreamProvider);
+				Install (ConnectionProviderType.NewTLS, newTlsConnectionProvider);
+			}
 		}
 
 		class DotNetProvider : IConnectionProvider

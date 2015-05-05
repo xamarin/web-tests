@@ -1,5 +1,5 @@
 ﻿//
-// IConnectionProviderFactory.cs
+// ConnectionProviderAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
+using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.Features
 {
-	public interface IConnectionProviderFactory
+	using TestRunners;
+	using ConnectionFramework;
+	using HttpFramework;
+	using Portable;
+	using Providers;
+	using Resources;
+
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+	public class ConnectionProviderAttribute : TestParameterAttribute, ITestParameterSource<ConnectionProviderType>
 	{
-		bool IsSupported (ConnectionProviderType type);
+		public ConnectionProviderAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (filter, flags)
+		{
+		}
 
-		IConnectionProvider GetProvider (ConnectionProviderType type);
+		static bool MatchesFilter (ConnectionProviderType type, string filter)
+		{
+			if (filter == null)
+				return true;
 
-		IEnumerable<ConnectionProviderType> GetSupportedProviders ();
+			var parts = filter.Split (',');
+			foreach (var part in parts) {
+				if (type.ToString ().Equals (part))
+					return true;
+			}
+
+			return false;
+		}
+
+		public IEnumerable<ConnectionProviderType> GetParameters (TestContext ctx, string filter)
+		{
+			var factory = DependencyInjector.Get<IConnectionProviderFactory> ();
+			return factory.GetSupportedProviders ().Where (p => MatchesFilter (p, filter));
+		}
 	}
 }
 
