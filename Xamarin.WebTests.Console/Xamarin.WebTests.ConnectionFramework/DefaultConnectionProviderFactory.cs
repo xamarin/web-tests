@@ -63,42 +63,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			providers = new Dictionary<ConnectionProviderType,IConnectionProvider> ();
 
 			var factory = DependencyInjector.Get<ISslStreamProviderFactory> ();
-			dotNetProvider = new DotNetProvider (factory.GetDefaultProvider ());
+			dotNetProvider = new DefaultConnectionProvider (factory.GetDefaultProvider ());
 			Install (ConnectionProviderType.DotNet, dotNetProvider);
 
 			if (factory.IsSupported (SslStreamProviderType.MonoNewTls)) {
 				var newTlsStreamProvider = factory.GetProvider (SslStreamProviderType.MonoNewTls);
-				var newTlsConnectionProvider = new DotNetProvider (newTlsStreamProvider);
+				var newTlsConnectionProvider = new DefaultConnectionProvider (newTlsStreamProvider);
 				Install (ConnectionProviderType.NewTLS, newTlsConnectionProvider);
 			}
-		}
-
-		class DotNetProvider : IConnectionProvider
-		{
-			readonly ISslStreamProvider provider;
-
-			public DotNetProvider (ISslStreamProvider provider)
-			{
-				this.provider = provider;
-			}
-	
-			public IClient CreateClient (ClientParameters parameters)
-			{
-				return new DotNetClient (GetEndPoint (parameters), provider, parameters);
-			}
-
-			public IServer CreateServer (ServerParameters parameters)
-			{
-				return new DotNetServer (GetEndPoint (parameters), provider, parameters);
-			}
-		}
-
-		static IPEndPoint GetEndPoint (ConnectionParameters parameters)
-		{
-			if (parameters.EndPoint != null)
-				return new IPEndPoint (IPAddress.Parse (parameters.EndPoint.Address), parameters.EndPoint.Port);
-			else
-				return new IPEndPoint (IPAddress.Loopback, 4433);
 		}
 	}
 }
