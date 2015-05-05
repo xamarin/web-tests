@@ -30,9 +30,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Providers;
 
-	class DefaultConnectionProvider : ConnectionProvider
+	class DotNetConnectionProvider : ConnectionProvider
 	{
-		public DefaultConnectionProvider (DefaultConnectionProviderFactory factory, ISslStreamProvider provider)
+		public DotNetConnectionProvider (ConnectionProviderFactory factory, ISslStreamProvider provider)
 			: base (factory, provider)
 		{
 		}

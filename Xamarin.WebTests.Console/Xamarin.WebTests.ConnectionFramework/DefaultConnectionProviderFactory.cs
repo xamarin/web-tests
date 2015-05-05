@@ -36,12 +36,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 	class DefaultConnectionProviderFactory : ConnectionProviderFactory
 	{
 		readonly DotNetSslStreamProvider dotNetStreamProvider;
-		readonly DefaultConnectionProvider defaultConnectionProvider;
+		readonly DotNetConnectionProvider defaultConnectionProvider;
 
 		internal DefaultConnectionProviderFactory ()
 		{
 			dotNetStreamProvider = new DotNetSslStreamProvider ();
-			defaultConnectionProvider = new DefaultConnectionProvider (this, dotNetStreamProvider);
+			defaultConnectionProvider = new DotNetConnectionProvider (this, dotNetStreamProvider);
 			Install (ConnectionProviderType.DotNet, defaultConnectionProvider);
 		}
 
