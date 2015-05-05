@@ -35,7 +35,7 @@ namespace Xamarin.WebTests.Features
 	using Portable;
 	using Providers;
 
-	 static class CommonHttpFeatures
+	static class CommonHttpFeatures
 	{
 		internal static IHttpProvider GetHttpProvider (TestContext ctx)
 		{
@@ -54,6 +54,16 @@ namespace Xamarin.WebTests.Features
 		{
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			return support.GetLoopbackEndpoint (9999);
+		}
+
+		internal static IConnectionProvider GetConnectionProvider (TestContext ctx)
+		{
+			ConnectionProviderType providerType;
+			if (!ctx.TryGetParameter<ConnectionProviderType> (out providerType))
+				providerType = ConnectionProviderType.DotNet;
+
+			var factory = DependencyInjector.Get<IConnectionProviderFactory> ();
+			return factory.GetProvider (providerType);
 		}
 	}
 }

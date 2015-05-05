@@ -128,6 +128,8 @@
     <Compile Include="Xamarin.WebTests.Providers\HttpProviderFactory.cs" />
     <Compile Include="Xamarin.WebTests.Features\HttpProviderAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\ConnectionParameterAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.Features\ClientTestHostAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.Features\ServerTestHostAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">
