@@ -1,5 +1,5 @@
 ﻿//
-// IConnectionProvider.cs
+// ConnectionProviderType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,13 +25,14 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.Providers
 {
-	public interface IConnectionProvider
+	public enum ConnectionProviderType
 	{
-		IClient CreateClient (ClientParameters parameters);
-
-		IServer CreateServer (ServerParameters parameters);
+		DotNet,
+		NewTLS,
+		Mono,
+		OpenSsl
 	}
 }
 

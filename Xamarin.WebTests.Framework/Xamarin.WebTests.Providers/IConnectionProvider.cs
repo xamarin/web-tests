@@ -1,5 +1,5 @@
 ﻿//
-// IConnectionProviderFactory.cs
+// IConnectionProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.Providers
 {
-	public interface IConnectionProviderFactory
+	using ConnectionFramework;
+
+	public interface IConnectionProvider
 	{
-		bool IsSupported (ConnectionProviderType type);
+		IClient CreateClient (ClientParameters parameters);
 
-		IConnectionProvider GetProvider (ConnectionProviderType type);
-
-		IEnumerable<ConnectionProviderType> GetSupportedProviders ();
+		IServer CreateServer (ServerParameters parameters);
 	}
 }
 
