@@ -1,5 +1,5 @@
 ﻿//
-// DefaultConnectionProviderFactory.cs
+// ConnectionProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,29 +24,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Collections.Generic;
-using System.Security.Authentication;
-using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.Providers
 {
-	using Providers;
+	using ConnectionFramework;
 
-	class DefaultConnectionProviderFactory : ConnectionProviderFactory
+	public abstract class ConnectionProvider : IConnectionProvider
 	{
-		readonly ConnectionProvider dotNetProvider;
+		readonly ISslStreamProvider sslStreamProvider;
 
-		internal DefaultConnectionProviderFactory ()
+		protected ConnectionProvider (ISslStreamProvider sslStreamProvider = null)
 		{
-			var factory = DependencyInjector.Get<ISslStreamProviderFactory> ();
-			dotNetProvider = new DefaultConnectionProvider (factory.GetDefaultProvider ());
-			Install (ConnectionProviderType.DotNet, dotNetProvider);
+			this.sslStreamProvider = sslStreamProvider;
+		}
 
-			if (factory.IsSupported (SslStreamProviderType.MonoNewTls)) {
-				var newTlsStreamProvider = factory.GetProvider (SslStreamProviderType.MonoNewTls);
-				var newTlsConnectionProvider = new DefaultConnectionProvider (newTlsStreamProvider);
-				Install (ConnectionProviderType.NewTLS, newTlsConnectionProvider);
+		public abstract IClient CreateClient (ClientParameters parameters);
+
+		public abstract IServer CreateServer (ServerParameters parameters);
+
+		public bool SupportsSslStreams {
+			get { return sslStreamProvider != null; }
+		}
+
+		public ISslStreamProvider SslStreamProvider {
+			get {
+				if (!SupportsSslStreams)
+					throw new InvalidOperationException ();
+				return sslStreamProvider;
 			}
 		}
 	}

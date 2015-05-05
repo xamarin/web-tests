@@ -34,6 +34,14 @@ namespace Xamarin.WebTests.Providers
 		IClient CreateClient (ClientParameters parameters);
 
 		IServer CreateServer (ServerParameters parameters);
+
+		bool SupportsSslStreams {
+			get;
+		}
+
+		ISslStreamProvider SslStreamProvider {
+			get;
+		}
 	}
 }
 

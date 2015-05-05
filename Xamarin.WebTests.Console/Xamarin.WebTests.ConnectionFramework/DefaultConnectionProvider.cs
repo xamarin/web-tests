@@ -30,23 +30,21 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Providers;
 
-	class DefaultConnectionProvider : IConnectionProvider
+	class DefaultConnectionProvider : ConnectionProvider
 	{
-		readonly ISslStreamProvider provider;
-
 		public DefaultConnectionProvider (ISslStreamProvider provider)
+			: base (provider)
 		{
-			this.provider = provider;
 		}
 
-		public IClient CreateClient (ClientParameters parameters)
+		public override IClient CreateClient (ClientParameters parameters)
 		{
-			return new DotNetClient (GetEndPoint (parameters), provider, parameters);
+			return new DotNetClient (GetEndPoint (parameters), SslStreamProvider, parameters);
 		}
 
-		public IServer CreateServer (ServerParameters parameters)
+		public override IServer CreateServer (ServerParameters parameters)
 		{
-			return new DotNetServer (GetEndPoint (parameters), provider, parameters);
+			return new DotNetServer (GetEndPoint (parameters), SslStreamProvider, parameters);
 		}
 
 		static IPEndPoint GetEndPoint (ConnectionParameters parameters)

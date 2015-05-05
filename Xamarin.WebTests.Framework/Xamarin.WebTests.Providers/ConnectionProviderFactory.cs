@@ -1,5 +1,5 @@
 ﻿//
-// DefaultConnectionProviderFactory.cs
+// ConnectionProviderFactory.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,30 +24,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
 using System.Collections.Generic;
-using System.Security.Authentication;
-using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.Providers
 {
-	using Providers;
-
-	class DefaultConnectionProviderFactory : ConnectionProviderFactory
+	public abstract class ConnectionProviderFactory : IConnectionProviderFactory
 	{
-		readonly ConnectionProvider dotNetProvider;
+		readonly Dictionary<ConnectionProviderType,ConnectionProvider> providers;
 
-		internal DefaultConnectionProviderFactory ()
+		protected ConnectionProviderFactory ()
 		{
-			var factory = DependencyInjector.Get<ISslStreamProviderFactory> ();
-			dotNetProvider = new DefaultConnectionProvider (factory.GetDefaultProvider ());
-			Install (ConnectionProviderType.DotNet, dotNetProvider);
+			providers = new Dictionary<ConnectionProviderType,ConnectionProvider> ();
+		}
 
-			if (factory.IsSupported (SslStreamProviderType.MonoNewTls)) {
-				var newTlsStreamProvider = factory.GetProvider (SslStreamProviderType.MonoNewTls);
-				var newTlsConnectionProvider = new DefaultConnectionProvider (newTlsStreamProvider);
-				Install (ConnectionProviderType.NewTLS, newTlsConnectionProvider);
-			}
+		public bool IsSupported (ConnectionProviderType type)
+		{
+			return providers.ContainsKey (type);
+		}
+
+		public bool SupportsSslStreams (ConnectionProviderType type)
+		{
+			ConnectionProvider provider;
+			if (!providers.TryGetValue (type, out provider))
+				return false;
+			return provider.SupportsSslStreams;
+		}
+
+		public IEnumerable<ConnectionProviderType> GetSupportedProviders ()
+		{
+			return providers.Keys;
+		}
+
+		public IConnectionProvider GetProvider (ConnectionProviderType type)
+		{
+			return providers [type];
+		}
+
+		protected void Install (ConnectionProviderType type, ConnectionProvider provider)
+		{
+			providers.Add (type, provider);
 		}
 	}
 }

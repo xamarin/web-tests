@@ -34,6 +34,8 @@ namespace Xamarin.WebTests.Providers
 	{
 		bool IsSupported (ConnectionProviderType type);
 
+		bool SupportsSslStreams (ConnectionProviderType type);
+
 		IConnectionProvider GetProvider (ConnectionProviderType type);
 
 		IEnumerable<ConnectionProviderType> GetSupportedProviders ();
