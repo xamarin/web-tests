@@ -47,8 +47,18 @@ namespace Xamarin.WebTests.Features
 		{
 		}
 
-		static bool MatchesFilter (ConnectionProviderType type, string filter)
+		public bool RequireHttp {
+			get; set;
+		}
+
+		bool MatchesFilter (ConnectionProviderType type, string filter)
 		{
+			if (RequireHttp) {
+				var factory = DependencyInjector.Get<IConnectionProviderFactory> ();
+				if (!factory.SupportsHttp (type))
+					return false;
+			}
+
 			if (filter == null)
 				return true;
 

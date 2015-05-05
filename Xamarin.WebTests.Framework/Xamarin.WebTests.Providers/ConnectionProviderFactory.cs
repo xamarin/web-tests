@@ -42,6 +42,14 @@ namespace Xamarin.WebTests.Providers
 			return providers.ContainsKey (type);
 		}
 
+		public bool SupportsHttp (ConnectionProviderType type)
+		{
+			ConnectionProvider provider;
+			if (!providers.TryGetValue (type, out provider))
+				return false;
+			return provider.SupportsHttp;
+		}
+
 		public bool SupportsSslStreams (ConnectionProviderType type)
 		{
 			ConnectionProvider provider;
