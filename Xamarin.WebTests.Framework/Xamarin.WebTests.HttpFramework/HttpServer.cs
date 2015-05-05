@@ -75,8 +75,8 @@ namespace Xamarin.WebTests.HttpFramework
 			if ((flags & ListenerFlags.SSL) != 0) {
 				sslStreamProvider = provider.SslStreamProvider;
 				if (sslStreamProvider == null) {
-					var factory = DependencyInjector.Get<ISslStreamProviderFactory> ();
-					sslStreamProvider = factory.GetDefaultProvider ();
+					var factory = DependencyInjector.Get<IConnectionProviderFactory> ();
+					sslStreamProvider = factory.GetDefaultSslStreamProvider ();
 				}
 			}
 

@@ -55,7 +55,6 @@ namespace Xamarin.WebTests.TestProvider
 			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());
 			DependencyInjector.RegisterDependency<ICertificateProvider> (() => new CertificateProvider ());
 			DependencyInjector.RegisterDependency<IHttpProviderFactory> (() => new DefaultHttpProviderFactory ());
-			DependencyInjector.RegisterDependency<ISslStreamProviderFactory> (() => new DefaultSslStreamProviderFactory ());
 			DependencyInjector.RegisterDependency<IConnectionProviderFactory> (() => new DefaultConnectionProviderFactory ());
 
 #if MACUI

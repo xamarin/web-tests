@@ -57,7 +57,6 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetClient.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetConnection.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetServer.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\DefaultSslStreamProviderFactory.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetSslStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetSslStream.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionHelper.cs" />
