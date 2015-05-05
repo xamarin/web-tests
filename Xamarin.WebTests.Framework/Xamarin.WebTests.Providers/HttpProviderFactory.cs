@@ -1,5 +1,5 @@
 ﻿//
-// DefaultHttpProviderFactory.cs
+// HttpProviderFactory.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,35 +24,53 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
 using System.Collections.Generic;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Providers
 {
-	using Providers;
 	using Portable;
 
-	class DefaultHttpProviderFactory : HttpProviderFactory
+	public abstract class HttpProviderFactory : IHttpProviderFactory
 	{
-		static readonly DefaultHttpProvider defaultProvider = new DefaultHttpProvider ();
+		readonly Dictionary<HttpProviderType,IHttpProvider> providers;
 
-		public override IHttpProvider Default {
-			get { return defaultProvider; }
-		}
-
-		public override bool SupportsPerRequestCertificateValidator {
-			get { return HttpWebRequestImpl.SupportsCertificateValidator; }
-		}
-
-		public override void InstallCertificateValidator (IHttpWebRequest request, ICertificateValidator validator)
+		protected HttpProviderFactory ()
 		{
-			((HttpWebRequestImpl)request).InstallCertificateValidator (validator);
+			providers = new Dictionary<HttpProviderType, IHttpProvider> ();
+			providers.Add (HttpProviderType.Default, Default);
 		}
 
-		public override void InstallDefaultCertificateValidator (ICertificateValidator validator)
-		{
-			ServicePointManager.ServerCertificateValidationCallback = ((CertificateValidator)validator).ValidationCallback;
+		public abstract IHttpProvider Default {
+			get;
 		}
+
+		public bool IsSupported (HttpProviderType type)
+		{
+			return providers.ContainsKey (type);
+		}
+
+		protected void Install (HttpProviderType type, IHttpProvider provider)
+		{
+			providers.Add (type, provider);
+		}
+
+		public IHttpProvider GetProvider (HttpProviderType type)
+		{
+			return providers [type];
+		}
+
+		public IEnumerable<HttpProviderType> GetSupportedProviders ()
+		{
+			return providers.Keys;
+		}
+
+		public abstract bool SupportsPerRequestCertificateValidator {
+			get;
+		}
+
+		public abstract void InstallCertificateValidator (IHttpWebRequest request, ICertificateValidator validator);
+
+		public abstract void InstallDefaultCertificateValidator (ICertificateValidator validator);
 	}
 }
 

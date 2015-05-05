@@ -53,6 +53,18 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public static void RegisterDependency<T,U> (Func<T> constructor)
+			where T : U
+		{
+			lock (syncRoot) {
+				if (dict.ContainsKey (typeof(U)))
+					return;
+				var instance = constructor ();
+				dict.Add (typeof(U), instance);
+				dict.Add (typeof(T), instance);
+			}
+		}
+
 		public static void RegisterAssembly (Assembly assembly)
 		{
 			lock (syncRoot) {

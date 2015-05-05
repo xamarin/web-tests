@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 
 namespace Xamarin.WebTests.Providers
 {
@@ -38,6 +39,8 @@ namespace Xamarin.WebTests.Providers
 		bool IsSupported (HttpProviderType type);
 
 		IHttpProvider GetProvider (HttpProviderType type);
+
+		IEnumerable<HttpProviderType> GetSupportedProviders ();
 
 		bool SupportsPerRequestCertificateValidator {
 			get;

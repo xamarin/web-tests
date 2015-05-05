@@ -1,5 +1,5 @@
 ﻿//
-// DefaultHttpProviderFactory.cs
+// HttpProviderAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,34 +24,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
+using System.Linq;
 using System.Collections.Generic;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
+using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Features
 {
-	using Providers;
+	using TestRunners;
+	using ConnectionFramework;
+	using HttpFramework;
 	using Portable;
+	using Providers;
+	using Resources;
 
-	class DefaultHttpProviderFactory : HttpProviderFactory
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+	public class HttpProviderAttribute : TestParameterAttribute, ITestParameterSource<HttpProviderType>
 	{
-		static readonly DefaultHttpProvider defaultProvider = new DefaultHttpProvider ();
-
-		public override IHttpProvider Default {
-			get { return defaultProvider; }
-		}
-
-		public override bool SupportsPerRequestCertificateValidator {
-			get { return HttpWebRequestImpl.SupportsCertificateValidator; }
-		}
-
-		public override void InstallCertificateValidator (IHttpWebRequest request, ICertificateValidator validator)
+		public HttpProviderAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (filter, flags)
 		{
-			((HttpWebRequestImpl)request).InstallCertificateValidator (validator);
 		}
 
-		public override void InstallDefaultCertificateValidator (ICertificateValidator validator)
+		static bool MatchesFilter (HttpProviderType type, string filter)
 		{
-			ServicePointManager.ServerCertificateValidationCallback = ((CertificateValidator)validator).ValidationCallback;
+			if (filter == null)
+				return true;
+
+			var parts = filter.Split (',');
+			foreach (var part in parts) {
+				if (type.ToString ().Equals (part))
+					return true;
+			}
+
+			return false;
+		}
+
+		public IEnumerable<HttpProviderType> GetParameters (TestContext ctx, string filter)
+		{
+			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
+			return factory.GetSupportedProviders ().Where (p => MatchesFilter (p, filter));
 		}
 	}
 }
