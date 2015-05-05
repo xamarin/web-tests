@@ -46,6 +46,14 @@ namespace Xamarin.WebTests.Providers
 		ISslStreamProvider SslStreamProvider {
 			get;
 		}
+
+		bool SupportsHttp {
+			get;
+		}
+
+		IHttpProvider HttpProvider {
+			get;
+		}
 	}
 }
 

@@ -42,15 +42,11 @@ namespace Xamarin.WebTests.Server
 
 	class DefaultHttpProvider : IHttpProvider
 	{
-		readonly DefaultHttpProviderFactory factory;
+		readonly ISslStreamProvider provider;
 
-		internal DefaultHttpProvider (DefaultHttpProviderFactory factory)
+		internal DefaultHttpProvider (ISslStreamProvider provider)
 		{
-			this.factory = factory;
-		}
-
-		public IHttpProviderFactory Factory {
-			get { return factory; }
+			this.provider = provider;
 		}
 
 		public bool SupportsHttpClient {
@@ -79,7 +75,7 @@ namespace Xamarin.WebTests.Server
 		}
 
 		public ISslStreamProvider SslStreamProvider {
-			get { return null; }
+			get { return provider; }
 		}
 
 		public HttpServer CreateServer (IPortableEndPoint endpoint, ListenerFlags flags, ServerParameters parameters)

@@ -29,12 +29,18 @@ using System.Net;
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Providers;
+	using Server;
 
 	class DotNetConnectionProvider : ConnectionProvider
 	{
-		public DotNetConnectionProvider (ConnectionProviderFactory factory, ISslStreamProvider provider)
-			: base (factory, provider)
+		readonly ISslStreamProvider sslStreamProvider;
+		readonly IHttpProvider httpProvider;
+
+		public DotNetConnectionProvider (ConnectionProviderFactory factory, ISslStreamProvider sslStreamProvider)
+			: base (factory)
 		{
+			this.sslStreamProvider = sslStreamProvider;
+			this.httpProvider = new DefaultHttpProvider (sslStreamProvider);
 		}
 
 		public override IClient CreateClient (ClientParameters parameters)
@@ -45,6 +51,24 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public override IServer CreateServer (ServerParameters parameters)
 		{
 			return new DotNetServer (GetEndPoint (parameters), SslStreamProvider, parameters);
+		}
+
+		public override bool SupportsSslStreams {
+			get { return true; }
+		}
+
+		protected override ISslStreamProvider GetSslStreamProvider ()
+		{
+			return sslStreamProvider;
+		}
+
+		public override bool SupportsHttp {
+			get { return true; }
+		}
+
+		protected override IHttpProvider GetHttpProvider ()
+		{
+			return httpProvider;
 		}
 
 		static IPEndPoint GetEndPoint (ConnectionParameters parameters)

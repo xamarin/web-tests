@@ -31,6 +31,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	using Server;
 	using Providers;
 
 	class DefaultConnectionProviderFactory : ConnectionProviderFactory
