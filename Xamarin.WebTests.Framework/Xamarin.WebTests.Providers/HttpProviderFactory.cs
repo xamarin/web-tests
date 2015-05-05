@@ -63,14 +63,6 @@ namespace Xamarin.WebTests.Providers
 		{
 			return providers.Keys;
 		}
-
-		public abstract bool SupportsPerRequestCertificateValidator {
-			get;
-		}
-
-		public abstract void InstallCertificateValidator (IHttpWebRequest request, ICertificateValidator validator);
-
-		public abstract void InstallDefaultCertificateValidator (ICertificateValidator validator);
 	}
 }
 

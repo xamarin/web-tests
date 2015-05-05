@@ -41,14 +41,6 @@ namespace Xamarin.WebTests.Providers
 		IHttpProvider GetProvider (HttpProviderType type);
 
 		IEnumerable<HttpProviderType> GetSupportedProviders ();
-
-		bool SupportsPerRequestCertificateValidator {
-			get;
-		}
-
-		void InstallCertificateValidator (IHttpWebRequest request, ICertificateValidator validator);
-
-		void InstallDefaultCertificateValidator (ICertificateValidator validator);
 	}
 }
 

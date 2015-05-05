@@ -193,6 +193,24 @@ namespace Xamarin.WebTests.Server
 		}
 
 		#endregion
+
+		#region Certificate Validation
+
+		public bool SupportsPerRequestCertificateValidator {
+			get { return HttpWebRequestImpl.SupportsCertificateValidator; }
+		}
+
+		public void InstallCertificateValidator (IHttpWebRequest request, ICertificateValidator validator)
+		{
+			((HttpWebRequestImpl)request).InstallCertificateValidator (validator);
+		}
+
+		public void InstallDefaultCertificateValidator (ICertificateValidator validator)
+		{
+			ServicePointManager.ServerCertificateValidationCallback = ((CertificateValidator)validator).ValidationCallback;
+		}
+
+		#endregion
 	}
 }
 

@@ -315,8 +315,8 @@ namespace Xamarin.WebTests
 
 		static bool SupportsCertificateTests ()
 		{
-			var factory = DependencyInjector.Get<IHttpProviderFactory> ();
-			return factory.SupportsPerRequestCertificateValidator;
+			var support = DependencyInjector.Get<IPortableWebSupport> ();
+			return support.SupportsPerRequestCertificateValidator;
 		}
 
 		static bool HasMonoVersion (Version version)

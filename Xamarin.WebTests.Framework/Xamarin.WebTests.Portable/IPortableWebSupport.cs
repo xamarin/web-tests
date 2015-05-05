@@ -51,6 +51,14 @@ namespace Xamarin.WebTests.Portable
 		IListener CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType);
 
 		IWebClient CreateWebClient ();
+
+		bool SupportsPerRequestCertificateValidator {
+			get;
+		}
+
+		void InstallCertificateValidator (IHttpWebRequest request, ICertificateValidator validator);
+
+		void InstallDefaultCertificateValidator (ICertificateValidator validator);
 	}
 }
 
