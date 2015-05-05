@@ -34,8 +34,9 @@ using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.HttpFramework
+namespace Xamarin.WebTests.TestRunners
 {
+	using HttpFramework;
 	using HttpHandlers;
 
 	public class HttpClientTestRunner : TestRunner

@@ -61,7 +61,6 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\AuthenticationManager.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\ChunkedContent.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\Connection.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\HttpClientTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpConnection.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpContent.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpMessage.cs" />
@@ -73,8 +72,6 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\RandomContent.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\RequestFlags.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\StringContent.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\TestRunner.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\TraditionalTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\TransferMode.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\WebExceptionStatus.cs" />
     <Compile Include="Xamarin.WebTests.Portable\AuthenticationType.cs" />
@@ -120,6 +117,11 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServer.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientFlags.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ServerFlags.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\HttpsTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\SslStreamTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\TestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\HttpClientTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\TraditionalTestRunner.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">
