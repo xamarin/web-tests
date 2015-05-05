@@ -65,7 +65,13 @@ namespace Xamarin.WebTests.Providers
 			providers.Add (type, provider);
 		}
 
-		public abstract ISslStreamProvider GetDefaultSslStreamProvider ();
+		public abstract IHttpProvider DefaultHttpProvider {
+			get;
+		}
+
+		public abstract ISslStreamProvider DefaultSslStreamProvider {
+			get;
+		}
 	}
 }
 

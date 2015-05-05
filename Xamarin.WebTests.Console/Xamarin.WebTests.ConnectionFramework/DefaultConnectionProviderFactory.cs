@@ -37,18 +37,24 @@ namespace Xamarin.WebTests.ConnectionFramework
 	class DefaultConnectionProviderFactory : ConnectionProviderFactory
 	{
 		readonly DotNetSslStreamProvider dotNetStreamProvider;
+		readonly DefaultHttpProvider defaultHttpProvider;
 		readonly DotNetConnectionProvider defaultConnectionProvider;
 
 		internal DefaultConnectionProviderFactory ()
 		{
 			dotNetStreamProvider = new DotNetSslStreamProvider ();
-			defaultConnectionProvider = new DotNetConnectionProvider (this, dotNetStreamProvider);
+			defaultHttpProvider = new DefaultHttpProvider (dotNetStreamProvider);
+
+			defaultConnectionProvider = new DotNetConnectionProvider (this, dotNetStreamProvider, defaultHttpProvider);
 			Install (ConnectionProviderType.DotNet, defaultConnectionProvider);
 		}
 
-		public override ISslStreamProvider GetDefaultSslStreamProvider ()
-		{
-			return dotNetStreamProvider;
+		public override IHttpProvider DefaultHttpProvider {
+			get { return defaultHttpProvider; }
+		}
+
+		public override ISslStreamProvider DefaultSslStreamProvider {
+			get { return dotNetStreamProvider; }
 		}
 	}
 }

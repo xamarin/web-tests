@@ -36,11 +36,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		readonly ISslStreamProvider sslStreamProvider;
 		readonly IHttpProvider httpProvider;
 
-		public DotNetConnectionProvider (ConnectionProviderFactory factory, ISslStreamProvider sslStreamProvider)
+		public DotNetConnectionProvider (ConnectionProviderFactory factory, ISslStreamProvider sslStreamProvider, IHttpProvider httpProvider)
 			: base (factory)
 		{
 			this.sslStreamProvider = sslStreamProvider;
-			this.httpProvider = new DefaultHttpProvider (sslStreamProvider);
+			this.httpProvider = httpProvider;
 		}
 
 		public override IClient CreateClient (ClientParameters parameters)

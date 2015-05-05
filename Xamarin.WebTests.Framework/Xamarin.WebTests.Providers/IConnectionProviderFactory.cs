@@ -40,7 +40,13 @@ namespace Xamarin.WebTests.Providers
 
 		IEnumerable<ConnectionProviderType> GetSupportedProviders ();
 
-		ISslStreamProvider GetDefaultSslStreamProvider ();
+		IHttpProvider DefaultHttpProvider {
+			get;
+		}
+
+		ISslStreamProvider DefaultSslStreamProvider {
+			get;
+		}
 	}
 }
 
