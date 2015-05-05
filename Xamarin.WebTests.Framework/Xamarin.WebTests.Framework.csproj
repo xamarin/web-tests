@@ -87,7 +87,6 @@
     <Compile Include="Xamarin.WebTests.Portable\NTLMHandler.cs" />
     <Compile Include="Xamarin.WebTests.Portable\ListenerFlags.cs" />
     <Compile Include="Xamarin.WebTests.Providers\IHttpProvider.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\HttpProviderType.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ISslStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ICertificateProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ServerParameters.cs" />
