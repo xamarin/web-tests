@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.Tests
 	using TestRunners;
 	using Portable;
 	using Providers;
+	using Features;
 	using Resources;
 
 	public class ServerTestHostAttribute : TestHostAttribute, ITestHost<IServer>
@@ -85,19 +86,6 @@ namespace Xamarin.WebTests.Tests
 		}
 	}
 
-	class ConnectionParameterAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
-	{
-		public ConnectionParameterAttribute (string filter = null)
-			: base (filter)
-		{
-		}
-
-		public IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx, string filter)
-		{
-			return HttpsTestRunner.GetParameters (ctx, filter);
-		}
-	}
-
 	[SSL]
 	[Martin]
 	[AsyncTestFixture (Timeout = 5000)]
@@ -105,7 +93,7 @@ namespace Xamarin.WebTests.Tests
 	{
 		[AsyncTest]
 		public async Task TestConnection (TestContext ctx, CancellationToken cancellationToken,
-			[ConnectionParameterAttribute] ClientAndServerParameters parameters,
+			[ConnectionParameter] ClientAndServerParameters parameters,
 			[ServerTestHost] IServer server, [ClientTestHost] IClient client)
 		{
 			var runner = new SslStreamTestRunner (server, client);

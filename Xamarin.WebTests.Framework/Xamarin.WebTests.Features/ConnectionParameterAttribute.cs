@@ -39,9 +39,9 @@ namespace Xamarin.WebTests.Features
 	using Resources;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class HttpsConnectionParameterAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
+	public class ConnectionParameterAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
 	{
-		public HttpsConnectionParameterAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+		public ConnectionParameterAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
 			: base (filter, flags)
 		{
 		}

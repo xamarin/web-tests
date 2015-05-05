@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.Tests
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestHttps
 	{
-		[HttpsConnectionParameter]
+		[ConnectionParameter]
 		public ClientAndServerParameters ConnectionParameters {
 			get;
 			private set;
