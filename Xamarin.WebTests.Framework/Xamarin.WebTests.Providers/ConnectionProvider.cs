@@ -31,11 +31,17 @@ namespace Xamarin.WebTests.Providers
 
 	public abstract class ConnectionProvider : IConnectionProvider
 	{
+		readonly ConnectionProviderFactory factory;
 		readonly ISslStreamProvider sslStreamProvider;
 
-		protected ConnectionProvider (ISslStreamProvider sslStreamProvider = null)
+		protected ConnectionProvider (ConnectionProviderFactory factory, ISslStreamProvider sslStreamProvider = null)
 		{
+			this.factory = factory;
 			this.sslStreamProvider = sslStreamProvider;
+		}
+
+		public IConnectionProviderFactory Factory {
+			get { return factory; }
 		}
 
 		public abstract IClient CreateClient (ClientParameters parameters);

@@ -34,7 +34,12 @@ namespace Xamarin.WebTests.Server
 
 	class DefaultHttpProviderFactory : HttpProviderFactory
 	{
-		static readonly DefaultHttpProvider defaultProvider = new DefaultHttpProvider ();
+		readonly DefaultHttpProvider defaultProvider;
+
+		internal DefaultHttpProviderFactory ()
+		{
+			defaultProvider = new DefaultHttpProvider (this);
+		}
 
 		public override IHttpProvider Default {
 			get { return defaultProvider; }

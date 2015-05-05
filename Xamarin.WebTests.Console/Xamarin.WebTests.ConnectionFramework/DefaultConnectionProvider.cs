@@ -32,8 +32,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	class DefaultConnectionProvider : ConnectionProvider
 	{
-		public DefaultConnectionProvider (ISslStreamProvider provider)
-			: base (provider)
+		public DefaultConnectionProvider (DefaultConnectionProviderFactory factory, ISslStreamProvider provider)
+			: base (factory, provider)
 		{
 		}
 

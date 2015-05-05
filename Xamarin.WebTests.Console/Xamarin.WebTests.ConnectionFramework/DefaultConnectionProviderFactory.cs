@@ -35,19 +35,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	class DefaultConnectionProviderFactory : ConnectionProviderFactory
 	{
-		readonly ConnectionProvider dotNetProvider;
-
 		internal DefaultConnectionProviderFactory ()
 		{
-			var factory = DependencyInjector.Get<ISslStreamProviderFactory> ();
-			dotNetProvider = new DefaultConnectionProvider (factory.GetDefaultProvider ());
+			var dotNetStreamProvider = new DotNetSslStreamProvider ();
+			var dotNetProvider = new DefaultConnectionProvider (this, dotNetStreamProvider);
 			Install (ConnectionProviderType.DotNet, dotNetProvider);
-
-			if (factory.IsSupported (SslStreamProviderType.MonoNewTls)) {
-				var newTlsStreamProvider = factory.GetProvider (SslStreamProviderType.MonoNewTls);
-				var newTlsConnectionProvider = new DefaultConnectionProvider (newTlsStreamProvider);
-				Install (ConnectionProviderType.NewTLS, newTlsConnectionProvider);
-			}
 		}
 	}
 }

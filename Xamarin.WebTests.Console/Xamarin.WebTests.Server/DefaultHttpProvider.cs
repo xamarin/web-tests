@@ -42,6 +42,17 @@ namespace Xamarin.WebTests.Server
 
 	class DefaultHttpProvider : IHttpProvider
 	{
+		readonly DefaultHttpProviderFactory factory;
+
+		internal DefaultHttpProvider (DefaultHttpProviderFactory factory)
+		{
+			this.factory = factory;
+		}
+
+		public IHttpProviderFactory Factory {
+			get { return factory; }
+		}
+
 		public bool SupportsHttpClient {
 			get { return true; }
 		}
