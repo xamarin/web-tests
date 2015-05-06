@@ -9,13 +9,15 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.Server;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Providers;
 	using Portable;
+	using Server;
 
 	public class DotNetClient : DotNetConnection, IClient
 	{
@@ -23,9 +25,16 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return (ClientParameters)base.Parameters; }
 		}
 
-		public DotNetClient (IPEndPoint endpoint, ISslStreamProvider provider, ClientParameters parameters)
-			: base (endpoint, provider, parameters)
+		readonly ISslStreamProvider provider;
+
+		public DotNetClient (ClientParameters parameters, ISslStreamProvider provider)
+			: base (parameters)
 		{
+			this.provider = provider;
+		}
+
+		protected override bool IsServer {
+			get { return false; }
 		}
 
 		protected override async Task<ISslStream> Start (TestContext ctx, Socket socket, CancellationToken cancellationToken)
@@ -35,7 +44,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var targetHost = "Hamiller-Tube.local";
 
 			var stream = new NetworkStream (socket);
-			var server = await SslStreamProvider.CreateClientStreamAsync (
+			var server = await provider.CreateClientStreamAsync (
 				stream, targetHost, Parameters, cancellationToken);
 
 			ctx.LogDebug (1, "Successfully authenticated client.");

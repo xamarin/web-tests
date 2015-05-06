@@ -45,12 +45,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override IClient CreateClient (ClientParameters parameters)
 		{
-			return new DotNetClient (GetEndPoint (parameters), SslStreamProvider, parameters);
+			return new DotNetClient (parameters, SslStreamProvider);
 		}
 
 		public override IServer CreateServer (ServerParameters parameters)
 		{
-			return new DotNetServer (GetEndPoint (parameters), SslStreamProvider, parameters);
+			return new DotNetServer (parameters, SslStreamProvider);
 		}
 
 		public override bool SupportsSslStreams {

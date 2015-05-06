@@ -9,13 +9,15 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.Portable;
-using Xamarin.WebTests.Server;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Providers;
+	using Portable;
+	using Server;
 
 	public class DotNetServer : DotNetConnection, IServer
 	{
@@ -27,9 +29,16 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return (ServerParameters)base.Parameters; }
 		}
 
-		public DotNetServer (IPEndPoint endpoint, ISslStreamProvider provider, ServerParameters parameters)
-			: base (endpoint, provider, parameters)
+		readonly ISslStreamProvider provider;
+
+		public DotNetServer (ServerParameters parameters, ISslStreamProvider provider)
+			: base (parameters)
 		{
+			this.provider = provider;
+		}
+
+		protected override bool IsServer {
+			get { return true; }
 		}
 
 		protected override async Task<ISslStream> Start (TestContext ctx, Socket socket, CancellationToken cancellationToken)
@@ -37,7 +46,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			ctx.LogMessage ("Accepted connection from {0}.", socket.RemoteEndPoint);
 
 			var stream = new NetworkStream (socket);
-			var server = await SslStreamProvider.CreateServerStreamAsync (stream, Parameters, cancellationToken);
+			var server = await provider.CreateServerStreamAsync (stream, Parameters, cancellationToken);
 
 			ctx.LogMessage ("Successfully authenticated server.");
 
