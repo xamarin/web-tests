@@ -1,5 +1,5 @@
 ﻿//
-// IConnectionProviderFactory.cs
+// ConnectionProviderFlags.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,29 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 
 namespace Xamarin.WebTests.Providers
 {
-	using ConnectionFramework;
-
-	public interface IConnectionProviderFactory
+	[Flags]
+	public enum ConnectionProviderFlags
 	{
-		bool IsSupported (ConnectionProviderType type);
-
-		ConnectionProviderFlags GetProviderFlags (ConnectionProviderType type);
-
-		IConnectionProvider GetProvider (ConnectionProviderType type);
-
-		IEnumerable<ConnectionProviderType> GetSupportedProviders ();
-
-		IHttpProvider DefaultHttpProvider {
-			get;
-		}
-
-		ISslStreamProvider DefaultSslStreamProvider {
-			get;
-		}
+		None			= 0,
+		SupportsSslStream	= 1,
+		SupportsHttp		= 2,
+		CanSelectCiphers	= 4,
+		SupportsMonoExtensions	= 8
 	}
 }
 

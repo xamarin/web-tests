@@ -32,22 +32,28 @@ namespace Xamarin.WebTests.Providers
 	public abstract class ConnectionProvider : IConnectionProvider
 	{
 		readonly ConnectionProviderFactory factory;
+		readonly ConnectionProviderFlags flags;
 
-		protected ConnectionProvider (ConnectionProviderFactory factory)
+		protected ConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderFlags flags)
 		{
 			this.factory = factory;
+			this.flags = flags;
 		}
 
 		public IConnectionProviderFactory Factory {
 			get { return factory; }
 		}
 
+		public ConnectionProviderFlags Flags {
+			get { return flags; }
+		}
+
 		public abstract IClient CreateClient (ClientParameters parameters);
 
 		public abstract IServer CreateServer (ServerParameters parameters);
 
-		public abstract bool SupportsSslStreams {
-			get;
+		public bool SupportsSslStreams {
+			get { return (Flags & ConnectionProviderFlags.SupportsSslStream) != 0; }
 		}
 
 		public ISslStreamProvider SslStreamProvider {
@@ -60,8 +66,8 @@ namespace Xamarin.WebTests.Providers
 
 		protected abstract ISslStreamProvider GetSslStreamProvider ();
 
-		public abstract bool SupportsHttp {
-			get;
+		public bool SupportsHttp {
+			get { return (Flags & ConnectionProviderFlags.SupportsHttp) != 0; }
 		}
 
 		public IHttpProvider HttpProvider {

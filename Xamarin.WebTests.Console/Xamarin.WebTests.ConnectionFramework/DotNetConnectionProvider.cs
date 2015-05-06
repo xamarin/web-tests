@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		readonly IHttpProvider httpProvider;
 
 		public DotNetConnectionProvider (ConnectionProviderFactory factory, ISslStreamProvider sslStreamProvider, IHttpProvider httpProvider)
-			: base (factory)
+			: base (factory, ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsSslStream)
 		{
 			this.sslStreamProvider = sslStreamProvider;
 			this.httpProvider = httpProvider;
@@ -53,30 +53,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return new DotNetServer (parameters, SslStreamProvider);
 		}
 
-		public override bool SupportsSslStreams {
-			get { return true; }
-		}
-
 		protected override ISslStreamProvider GetSslStreamProvider ()
 		{
 			return sslStreamProvider;
 		}
 
-		public override bool SupportsHttp {
-			get { return true; }
-		}
-
 		protected override IHttpProvider GetHttpProvider ()
 		{
 			return httpProvider;
-		}
-
-		static IPEndPoint GetEndPoint (ConnectionParameters parameters)
-		{
-			if (parameters.EndPoint != null)
-				return new IPEndPoint (IPAddress.Parse (parameters.EndPoint.Address), parameters.EndPoint.Port);
-			else
-				return new IPEndPoint (IPAddress.Loopback, 4433);
 		}
 	}
 }

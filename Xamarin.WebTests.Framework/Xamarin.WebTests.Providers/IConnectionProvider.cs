@@ -35,19 +35,15 @@ namespace Xamarin.WebTests.Providers
 			get;
 		}
 
+		ConnectionProviderFlags Flags {
+			get;
+		}
+
 		IClient CreateClient (ClientParameters parameters);
 
 		IServer CreateServer (ServerParameters parameters);
 
-		bool SupportsSslStreams {
-			get;
-		}
-
 		ISslStreamProvider SslStreamProvider {
-			get;
-		}
-
-		bool SupportsHttp {
 			get;
 		}
 

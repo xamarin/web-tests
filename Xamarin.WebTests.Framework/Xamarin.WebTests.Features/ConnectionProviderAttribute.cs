@@ -42,22 +42,23 @@ namespace Xamarin.WebTests.Features
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class ConnectionProviderAttribute : TestParameterAttribute, ITestParameterSource<ConnectionProviderType>
 	{
+		readonly IConnectionProviderFactory factory;
+
 		public ConnectionProviderAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
 			: base (filter, flags)
 		{
+			factory = DependencyInjector.Get<IConnectionProviderFactory> ();
 		}
 
-		public bool RequireHttp {
+		public ConnectionProviderFlags ProviderFlags {
 			get; set;
 		}
 
 		bool MatchesFilter (ConnectionProviderType type, string filter)
 		{
-			if (RequireHttp) {
-				var factory = DependencyInjector.Get<IConnectionProviderFactory> ();
-				if (!factory.SupportsHttp (type))
-					return false;
-			}
+			var supportedFlags = factory.GetProviderFlags (type);
+			if ((supportedFlags & ProviderFlags) != ProviderFlags)
+				return false;
 
 			if (filter == null)
 				return true;
@@ -73,7 +74,6 @@ namespace Xamarin.WebTests.Features
 
 		public IEnumerable<ConnectionProviderType> GetParameters (TestContext ctx, string filter)
 		{
-			var factory = DependencyInjector.Get<IConnectionProviderFactory> ();
 			return factory.GetSupportedProviders ().Where (p => MatchesFilter (p, filter));
 		}
 	}
