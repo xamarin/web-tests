@@ -29,24 +29,32 @@ namespace Xamarin.WebTests.Providers
 {
 	using ConnectionFramework;
 
-	public abstract class ConnectionProvider : IConnectionProvider
+	public abstract class ConnectionProvider
 	{
 		readonly ConnectionProviderFactory factory;
+		readonly ConnectionProviderType type;
 		readonly ConnectionProviderFlags flags;
 
-		protected ConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderFlags flags)
+		protected ConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderType type, ConnectionProviderFlags flags)
 		{
 			this.factory = factory;
+			this.type = type;
 			this.flags = flags;
 		}
 
-		public IConnectionProviderFactory Factory {
+		public ConnectionProviderFactory Factory {
 			get { return factory; }
+		}
+
+		public ConnectionProviderType Type {
+			get { return type; }
 		}
 
 		public ConnectionProviderFlags Flags {
 			get { return flags; }
 		}
+
+		public abstract bool IsCompatibleWith (ConnectionProviderType type);
 
 		public abstract IClient CreateClient (ClientParameters parameters);
 

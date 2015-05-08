@@ -53,6 +53,7 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			HostType = hostType;
 			UseFixtureInstance = useFixtureInstance;
+			customHost = host.Attribute as ITestHost<ITestInstance>;
 		}
 
 		public override object Current {
@@ -61,12 +62,14 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (UseFixtureInstance)
-				customHost = (ITestHost<ITestInstance>)GetFixtureInstance ().Instance;
-			else if (HostType != null)
-				customHost = (ITestHost<ITestInstance>)Activator.CreateInstance (HostType);
-			else
-				throw new InternalErrorException ();
+			if (customHost == null) {
+				if (UseFixtureInstance)
+					customHost = (ITestHost<ITestInstance>)GetFixtureInstance ().Instance;
+				else if (HostType != null)
+					customHost = (ITestHost<ITestInstance>)Activator.CreateInstance (HostType);
+				else
+					throw new InternalErrorException ();
+			}
 
 			instance = customHost.CreateInstance (ctx);
 			await instance.Initialize (ctx, cancellationToken);

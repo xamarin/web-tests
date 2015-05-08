@@ -32,13 +32,19 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public abstract class ClientAndServerHandlerFactory
 	{
-		public abstract IConnectionHandler Create (IServer server, IClient client);
+		public abstract IConnectionHandler Create (ClientAndServer connection);
 
-		public static readonly ClientAndServerHandlerFactory WaitForOkAndDone = new SimpleFactory ((s,c) => new WaitForOkAndDoneHandler (s,c));
+		public IConnectionHandler Create (IServer server, IClient client)
+		{
+			var connection = new ClientAndServer (server, client);
+			return Create (connection);
+		}
 
-		public static readonly ClientAndServerHandlerFactory HandshakeAndDone = new SimpleFactory ((s,c) => new HandshakeAndDoneHandler (s,c));
+		public static readonly ClientAndServerHandlerFactory WaitForOkAndDone = new SimpleFactory (c => new WaitForOkAndDoneHandler (c));
 
-		delegate IConnectionHandler FactoryDelegate (IServer server, IClient client);
+		public static readonly ClientAndServerHandlerFactory HandshakeAndDone = new SimpleFactory (c => new HandshakeAndDoneHandler (c));
+
+		delegate IConnectionHandler FactoryDelegate (ClientAndServer connection);
 
 		class SimpleFactory : ClientAndServerHandlerFactory
 		{
@@ -49,16 +55,16 @@ namespace Xamarin.WebTests.ConnectionFramework
 				this.func = func;
 			}
 
-			public override IConnectionHandler Create (IServer server, IClient client)
+			public override IConnectionHandler Create (ClientAndServer connection)
 			{
-				return func (server, client);
+				return func (connection);
 			}
 		}
 
 		class WaitForOkAndDoneHandler : ClientAndServerHandler
 		{
-			public WaitForOkAndDoneHandler (IServer server, IClient client)
-				: base (server, client)
+			public WaitForOkAndDoneHandler (ClientAndServer connection)
+				: base (connection)
 			{
 			}
 
@@ -75,8 +81,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		class HandshakeAndDoneHandler : ClientAndServerHandler
 		{
-			public HandshakeAndDoneHandler (IServer server, IClient client)
-				: base (server, client)
+			public HandshakeAndDoneHandler (ClientAndServer connection)
+				: base (connection)
 			{
 			}
 

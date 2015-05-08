@@ -31,16 +31,27 @@ namespace Xamarin.WebTests.ConnectionFramework
 	using Providers;
 	using Server;
 
-	class DotNetConnectionProvider : ConnectionProvider
+	sealed class DotNetConnectionProvider : ConnectionProvider
 	{
 		readonly ISslStreamProvider sslStreamProvider;
 		readonly IHttpProvider httpProvider;
 
 		public DotNetConnectionProvider (ConnectionProviderFactory factory, ISslStreamProvider sslStreamProvider, IHttpProvider httpProvider)
-			: base (factory, ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsSslStream)
+			: base (factory, ConnectionProviderType.DotNet, ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsSslStream)
 		{
 			this.sslStreamProvider = sslStreamProvider;
 			this.httpProvider = httpProvider;
+		}
+
+		public override bool IsCompatibleWith (ConnectionProviderType type)
+		{
+			switch (type) {
+			case ConnectionProviderType.DotNet:
+			case ConnectionProviderType.OpenSsl:
+				return true;
+			default:
+				return false;
+			}
 		}
 
 		public override IClient CreateClient (ClientParameters parameters)

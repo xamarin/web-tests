@@ -122,12 +122,12 @@
     <Compile Include="Xamarin.WebTests.Features\ServerTestHostAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\ClientAndServerParametersAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\ConnectionProviderAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\IConnectionProvider.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\IConnectionProviderFactory.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ConnectionProviderType.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ConnectionProviderFactory.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ConnectionProvider.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ConnectionProviderFlags.cs" />
+    <Compile Include="Xamarin.WebTests.Providers\ClientAndServerType.cs" />
+    <Compile Include="Xamarin.WebTests.Features\ClientAndServerTypeAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">

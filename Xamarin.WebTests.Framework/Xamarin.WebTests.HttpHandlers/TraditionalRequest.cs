@@ -43,7 +43,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public TraditionalRequest (Uri uri)
 		{
-			var factory = DependencyInjector.Get<IConnectionProviderFactory> ();
+			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 			var provider = factory.DefaultHttpProvider;
 
 			Request = provider.CreateWebRequest (uri);
@@ -52,7 +52,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public TraditionalRequest (HttpWebRequest request)
 		{
-			var factory = DependencyInjector.Get<IConnectionProviderFactory> ();
+			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 			var provider = factory.DefaultHttpProvider;
 
 			Request = provider.CreateWebRequest (request);

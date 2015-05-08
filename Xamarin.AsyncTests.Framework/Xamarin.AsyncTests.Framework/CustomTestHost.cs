@@ -52,10 +52,16 @@ namespace Xamarin.AsyncTests.Framework
 			get { return TestSerializer.GetFriendlyName (Type); }
 		}
 
-		public CustomTestHost (string name, Type type, Type hostType, TestFlags flags, bool useFixtureInstance)
+		public TestHostAttribute Attribute {
+			get;
+			private set;
+		}
+
+		public CustomTestHost (string name, Type type, Type hostType, TestFlags flags, TestHostAttribute attr, bool useFixtureInstance)
 			: base (name, name, type, hostType, flags)
 		{
 			HostType = hostType;
+			Attribute = attr;
 			UseFixtureInstance = useFixtureInstance;
 		}
 

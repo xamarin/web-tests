@@ -1,5 +1,5 @@
 ﻿//
-// IConnectionProviderFactory.cs
+// ClientAndServerType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,28 +24,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Providers
 {
-	using ConnectionFramework;
-
-	public interface IConnectionProviderFactory
+	public struct ClientAndServerType : ITestParameter
 	{
-		bool IsSupported (ConnectionProviderType type);
+		public readonly ConnectionProviderType Client;
+		public readonly ConnectionProviderType Server;
 
-		ConnectionProviderFlags GetProviderFlags (ConnectionProviderType type);
-
-		IConnectionProvider GetProvider (ConnectionProviderType type);
-
-		IEnumerable<ConnectionProviderType> GetSupportedProviders ();
-
-		IHttpProvider DefaultHttpProvider {
-			get;
+		public ClientAndServerType (ConnectionProviderType client, ConnectionProviderType server)
+		{
+			Client = client;
+			Server = server;
 		}
 
-		ISslStreamProvider DefaultSslStreamProvider {
-			get;
+		public string Value {
+			get { return string.Format ("{0}:{1}", Client, Server); }
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[ClientAndServerType: Client={0}, Server={1}]", Client, Server);
 		}
 	}
 }

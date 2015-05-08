@@ -28,7 +28,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.WebTests.Providers
 {
-	public abstract class ConnectionProviderFactory : IConnectionProviderFactory
+	public abstract class ConnectionProviderFactory
 	{
 		readonly Dictionary<ConnectionProviderType,ConnectionProvider> providers;
 
@@ -55,14 +55,30 @@ namespace Xamarin.WebTests.Providers
 			return providers.Keys;
 		}
 
-		public IConnectionProvider GetProvider (ConnectionProviderType type)
+		public ConnectionProvider GetProvider (ConnectionProviderType type)
 		{
 			return providers [type];
 		}
 
-		protected void Install (ConnectionProviderType type, ConnectionProvider provider)
+		public bool IsCompatible (ConnectionProviderType clientType, ConnectionProviderType serverType)
 		{
-			providers.Add (type, provider);
+			ConnectionProvider clientProvider, serverProvider;
+			if (!providers.TryGetValue (clientType, out clientProvider))
+				return false;
+			if (!providers.TryGetValue (serverType, out serverProvider))
+				return false;
+
+			if (!clientProvider.IsCompatibleWith (serverType))
+				return false;
+			if (!serverProvider.IsCompatibleWith (clientType))
+				return false;
+
+			return true;
+		}
+
+		protected void Install (ConnectionProvider provider)
+		{
+			providers.Add (provider.Type, provider);
 		}
 
 		public abstract IHttpProvider DefaultHttpProvider {

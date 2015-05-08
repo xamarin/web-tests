@@ -1,5 +1,5 @@
 ﻿//
-// ConnectionProviderAttribute.cs
+// ClientAndServerTypeAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -40,11 +40,11 @@ namespace Xamarin.WebTests.Features
 	using Resources;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class ConnectionProviderAttribute : TestParameterAttribute, ITestParameterSource<ConnectionProviderType>
+	public class ClientAndServerTypeAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerType>
 	{
 		readonly ConnectionProviderFactory factory;
 
-		public ConnectionProviderAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+		public ClientAndServerTypeAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
 			: base (filter, flags)
 		{
 			factory = DependencyInjector.Get<ConnectionProviderFactory> ();
@@ -72,9 +72,20 @@ namespace Xamarin.WebTests.Features
 			return false;
 		}
 
-		public IEnumerable<ConnectionProviderType> GetParameters (TestContext ctx, string filter)
+		public IEnumerable<ConnectionProviderType> GetSupportedProviders (TestContext ctx, string filter)
 		{
 			return factory.GetSupportedProviders ().Where (p => MatchesFilter (p, filter));
+		}
+
+		public IEnumerable<ClientAndServerType> GetParameters (TestContext ctx, string filter)
+		{
+			var supportedProviders = GetSupportedProviders (ctx, filter);
+			foreach (var server in supportedProviders) {
+				foreach (var client in supportedProviders) {
+					if (factory.IsCompatible (client, server))
+						yield return new ClientAndServerType (client, server);
+				}
+			}
 		}
 	}
 }

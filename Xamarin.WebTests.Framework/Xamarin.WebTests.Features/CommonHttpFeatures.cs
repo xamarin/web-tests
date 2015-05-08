@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.Features
 	{
 		internal static IHttpProvider GetHttpProvider (TestContext ctx)
 		{
-			var factory = DependencyInjector.Get<IConnectionProviderFactory> ();
+			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 			IHttpProvider provider;
 			ConnectionProviderType providerType;
 			if (ctx.TryGetParameter (out providerType))
@@ -56,13 +56,13 @@ namespace Xamarin.WebTests.Features
 			return support.GetLoopbackEndpoint (9999);
 		}
 
-		internal static IConnectionProvider GetConnectionProvider (TestContext ctx)
+		internal static ConnectionProvider GetConnectionProvider (TestContext ctx)
 		{
 			ConnectionProviderType providerType;
 			if (!ctx.TryGetParameter<ConnectionProviderType> (out providerType))
 				providerType = ConnectionProviderType.DotNet;
 
-			var factory = DependencyInjector.Get<IConnectionProviderFactory> ();
+			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 			return factory.GetProvider (providerType);
 		}
 	}
