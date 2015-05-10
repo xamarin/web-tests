@@ -54,6 +54,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
+		public override ProtocolVersions SupportedProtocols {
+			get { return ProtocolVersions.Default; }
+		}
+
 		public override IClient CreateClient (ClientParameters parameters)
 		{
 			return new DotNetClient (parameters, SslStreamProvider);

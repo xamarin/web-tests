@@ -37,6 +37,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public IPortableEndPoint EndPoint {
 			get; set;
 		}
+
+		public ProtocolVersions ProtocolVersion {
+			get; set;
+		}
 	}
 }
 

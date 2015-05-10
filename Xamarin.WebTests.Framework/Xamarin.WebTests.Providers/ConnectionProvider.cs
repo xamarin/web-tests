@@ -64,6 +64,10 @@ namespace Xamarin.WebTests.Providers
 			get { return (Flags & ConnectionProviderFlags.SupportsSslStream) != 0; }
 		}
 
+		public abstract ProtocolVersions SupportedProtocols {
+			get;
+		}
+
 		public ISslStreamProvider SslStreamProvider {
 			get {
 				if (!SupportsSslStreams)

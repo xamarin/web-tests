@@ -76,6 +76,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return clientCertificateCollection;
 		}
 
+		public ProtocolVersions SupportedProtocols {
+			get { return (ProtocolVersions)GetSslProtocol (); }
+		}
+
 		public ISslStream CreateServerStream (Stream stream, ServerParameters parameters)
 		{
 			var certificate = CertificateProvider.GetCertificate (parameters.ServerCertificate);

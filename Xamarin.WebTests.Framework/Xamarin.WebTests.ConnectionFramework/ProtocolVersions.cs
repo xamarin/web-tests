@@ -1,5 +1,5 @@
 ﻿//
-// ISslStreamProvider.cs
+// ProtocolVersion.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,29 +24,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Providers
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	using ConnectionFramework;
-	using Portable;
-
-	public interface ISslStreamProvider
+	[Flags]
+	public enum ProtocolVersions
 	{
-		ProtocolVersions SupportedProtocols {
-			get;
-		}
-
-		ISslStream CreateServerStream (Stream stream, ServerParameters parameters);
-
-		Task<ISslStream> CreateServerStreamAsync (
-			Stream stream, ServerParameters parameters, CancellationToken cancellationToken);
-
-		Task<ISslStream> CreateClientStreamAsync (
-			Stream stream, string targetHost, ClientParameters parameters, CancellationToken cancellationToken);
+		Default = 0,
+		Tls10 = 192,
+		Tls11 = 768,
+		Tls12 = 3072
 	}
 }
 
