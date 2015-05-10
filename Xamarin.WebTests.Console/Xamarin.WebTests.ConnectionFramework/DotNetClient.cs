@@ -25,12 +25,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return (ClientParameters)base.Parameters; }
 		}
 
-		readonly ISslStreamProvider provider;
+		readonly ISslStreamProvider sslStreamProvider;
 
-		public DotNetClient (ClientParameters parameters, ISslStreamProvider provider)
-			: base (parameters)
+		public DotNetClient (ConnectionProvider provider, ClientParameters parameters, ISslStreamProvider sslStreamProvider)
+			: base (provider, parameters)
 		{
-			this.provider = provider;
+			this.sslStreamProvider = sslStreamProvider;
 		}
 
 		protected override bool IsServer {
@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var targetHost = "Hamiller-Tube.local";
 
 			var stream = new NetworkStream (socket);
-			var server = await provider.CreateClientStreamAsync (
+			var server = await sslStreamProvider.CreateClientStreamAsync (
 				stream, targetHost, Parameters, cancellationToken);
 
 			ctx.LogDebug (1, "Successfully authenticated client.");

@@ -43,11 +43,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	public abstract class DotNetConnection : Connection, ICommonConnection
 	{
-		public DotNetConnection (ConnectionParameters parameters)
+		public DotNetConnection (ConnectionProvider provider, ConnectionParameters parameters)
 			: base (GetEndPoint (parameters), parameters)
 		{
+			this.provider = provider;
 		}
 
+		ConnectionProvider provider;
 		Socket socket;
 		Socket accepted;
 		TaskCompletionSource<ISslStream> tcs;
@@ -64,6 +66,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override bool SupportsCleanShutdown {
 			get { return false; }
+		}
+
+		public override ProtocolVersions SupportedProtocols {
+			get { return provider.SupportedProtocols; }
 		}
 
 		protected abstract bool IsServer {

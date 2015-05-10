@@ -32,6 +32,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	public interface ICommonConnection : IConnection
 	{
+		ProtocolVersions SupportedProtocols {
+			get;
+		}
+
 		ISslStream SslStream {
 			get;
 		}

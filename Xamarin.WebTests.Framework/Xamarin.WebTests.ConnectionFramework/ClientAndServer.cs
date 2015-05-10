@@ -23,15 +23,79 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return server.SupportsCleanShutdown && client.SupportsCleanShutdown; }
 		}
 
+		new public ClientAndServerParameters Parameters {
+			get { return (ClientAndServerParameters)base.Parameters; }
+		}
+
+		public override ProtocolVersions SupportedProtocols {
+			get {
+				return GetSupportedProtocols () ?? ProtocolVersions.Default;
+			}
+		}
+
+		public ProtocolVersions? GetSupportedProtocols ()
+		{
+			if (server.SupportedProtocols != ProtocolVersions.Default) {
+				if (client.SupportedProtocols == ProtocolVersions.Default)
+					return server.SupportedProtocols;
+				return server.SupportedProtocols & client.SupportedProtocols;
+			} else if (client.SupportedProtocols != ProtocolVersions.Default) {
+				if (server.SupportedProtocols == ProtocolVersions.Default)
+					return client.SupportedProtocols;
+				return server.SupportedProtocols & client.SupportedProtocols;
+			}
+			return null;
+		}
+
+		public ProtocolVersions? GetRequestedProtocol ()
+		{
+			var supported = GetSupportedProtocols ();
+			var bothVersion = Parameters.ProtocolVersion;
+			var serverVersion = Parameters.ServerParameters.ProtocolVersion;
+			var clientVersion = Parameters.ServerParameters.ProtocolVersion;
+
+			if (bothVersion != ProtocolVersions.Default) {
+				if (supported != null)
+					bothVersion &= supported.Value;
+				return bothVersion;
+			}
+
+			if (serverVersion != ProtocolVersions.Default) {
+				if (supported != null)
+					serverVersion &= supported.Value;
+				if (clientVersion != ProtocolVersions.Default)
+					serverVersion &= supported.Value;
+				return serverVersion;
+			}
+
+			if (clientVersion != ProtocolVersions.Default) {
+				if (supported != null)
+					clientVersion &= supported.Value;
+				if (serverVersion != ProtocolVersions.Default)
+					clientVersion &= supported.Value;
+				return clientVersion;
+			}
+
+			return supported;
+		}
+
 		public ClientAndServer (IServer server, IClient client)
 			: base (server.EndPoint, ClientAndServerParameters.Create (client.Parameters, server.Parameters))
 		{
 			this.server = server;
 			this.client = client;
+
+			var requested = GetRequestedProtocol ();
+			if (requested != null) {
+				Parameters.ProtocolVersion = requested.Value;
+				Parameters.ServerParameters.ProtocolVersion = requested.Value;
+				Parameters.ClientParameters.ProtocolVersion = requested.Value;
+			}
 		}
 
 		public override async Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
+			ctx.LogMessage ("Starting client and server: {0} {1}", client, server);
 			await server.Start (ctx, cancellationToken);
 			await client.Start (ctx, cancellationToken);
 		}
