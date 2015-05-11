@@ -11,9 +11,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 		readonly ServerParameters serverParameters;
 
 		public ClientAndServerParameters (ClientParameters clientParameters, ServerParameters serverParameters)
-			: base (clientParameters.Identifier + ":" + serverParameters.Identifier)
+			: this (clientParameters.Identifier + ":" + serverParameters.Identifier, clientParameters, serverParameters)
 		{
-			this.clientParameters= clientParameters;
+		}
+
+		protected ClientAndServerParameters (string identifier, ClientParameters clientParameters, ServerParameters serverParameters)
+			: base (identifier)
+		{
+			this.clientParameters = clientParameters;
 			this.serverParameters = serverParameters;
 		}
 
@@ -24,11 +29,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			serverParameters = new ServerParameters (identifier, serverCertificate);
 		}
 
+		protected ClientAndServerParameters (ClientAndServerParameters other)
+			: this (other.Identifier, (ClientParameters)other.ClientParameters.DeepClone (), (ServerParameters)other.ServerParameters.DeepClone ())
+		{
+		}
+
 		public override ConnectionParameters DeepClone ()
 		{
-			var clonedClient = (ClientParameters)clientParameters.DeepClone ();
-			var clonedServer = (ServerParameters)serverParameters.DeepClone ();
-			return new ClientAndServerParameters (clonedClient, clonedServer);
+			return new ClientAndServerParameters (this);
 		}
 
 		public ClientParameters ClientParameters {
@@ -62,11 +70,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public ServerFlags ServerFlags {
 			get { return ServerParameters.Flags; }
 			set { ServerParameters.Flags = value; }
-		}
-
-		public static ClientAndServerParameters Create (ClientParameters clientParameters, ServerParameters serverParameters)
-		{
-			return new ClientAndServerParameters (clientParameters, serverParameters);
 		}
 	}
 }

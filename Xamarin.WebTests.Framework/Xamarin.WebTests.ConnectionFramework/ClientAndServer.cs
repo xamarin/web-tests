@@ -94,7 +94,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public ClientAndServer (IServer server, IClient client)
-			: this (server, client, ClientAndServerParameters.Create (client.Parameters, server.Parameters))
+			: this (server, client, new ClientAndServerParameters (client.Parameters, server.Parameters))
 		{
 		}
 
