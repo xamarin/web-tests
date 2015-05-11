@@ -79,6 +79,7 @@ namespace Xamarin.WebTests.TestRunners
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 			var acceptAll = certificateProvider.AcceptAll ();
 			var rejectAll = certificateProvider.RejectAll ();
+			var acceptNull = certificateProvider.AcceptNull ();
 			var acceptSelfSigned = certificateProvider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
 			var acceptFromLocalCA = certificateProvider.AcceptFromCA (ResourceManager.LocalCACertificate);
 
@@ -134,9 +135,9 @@ namespace Xamarin.WebTests.TestRunners
 			 * FIXME:
 			 * Mono with the old TLS implementation throws SecureChannelFailure.
 			 */
-			yield return new ClientAndServerParameters ("dont-provide-optional-client-certificate", ResourceManager.SelfSignedServerCertificate) {
+			yield return new ClientAndServerParameters ("optional-client-certificate", ResourceManager.SelfSignedServerCertificate) {
 				ClientCertificateValidator = acceptSelfSigned, ServerFlags = ServerFlags.AskForClientCertificate,
-				ServerCertificateValidator = acceptFromLocalCA
+				ServerCertificateValidator = acceptNull
 			};
 
 			// Reject client certificate.

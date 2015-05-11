@@ -37,6 +37,10 @@ namespace Xamarin.WebTests.Server
 	{
 		static readonly ICertificateValidator acceptAll = new CertificateValidator ((s, c, ch, e) => true);
 		static readonly ICertificateValidator rejectAll = new CertificateValidator ((s, c, ch, e) => false);
+		static readonly ICertificateValidator acceptNull = new CertificateValidator ((s, c, ch, e) => {
+			Console.Error.WriteLine ("ACCEPT NULL: {0} {1}", c != null, e);
+			return c == null && e == SslPolicyErrors.RemoteCertificateNotAvailable;
+		});
 
 		public static ICertificateValidator AcceptAll {
 			get { return acceptAll; }
@@ -46,9 +50,18 @@ namespace Xamarin.WebTests.Server
 			get { return rejectAll; }
 		}
 
+		public static ICertificateValidator AcceptNull {
+			get { return acceptNull; }
+		}
+
 		public ICertificateValidator GetDefault ()
 		{
 			return RejectAll;
+		}
+
+		ICertificateValidator ICertificateProvider.AcceptNull ()
+		{
+			return AcceptNull;
 		}
 
 		ICertificateValidator ICertificateProvider.AcceptThisCertificate (IServerCertificate certificate)
@@ -62,6 +75,8 @@ namespace Xamarin.WebTests.Server
 			var serverHash = cert.GetCertHash ();
 
 			return new CertificateValidator ((s, c, ch, e) => {
+				if (c == null || e == SslPolicyErrors.RemoteCertificateNotAvailable)
+					return false;
 				return Compare (c.GetCertHash (), serverHash);
 			});
 		}
@@ -76,11 +91,8 @@ namespace Xamarin.WebTests.Server
 			var cert = GetCertificate (certificate);
 
 			return new CertificateValidator ((s, c, ch, e) => {
-				if (c == null) {
-					if (e == SslPolicyErrors.None || e == SslPolicyErrors.RemoteCertificateNotAvailable)
-						return true;
+				if (c == null || e == SslPolicyErrors.RemoteCertificateNotAvailable)
 					return false;
-				}
 				return c.Issuer.Equals (cert.Issuer);
 			});
 		}

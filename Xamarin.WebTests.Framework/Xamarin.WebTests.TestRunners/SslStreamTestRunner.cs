@@ -70,7 +70,7 @@ namespace Xamarin.WebTests.TestRunners
 				if ((Server.Parameters.Flags & ServerFlags.ExpectServerException) != 0)
 					ctx.AssertFail ("expecting exception");
 			} catch {
-				if ((Server.Parameters.Flags & (ServerFlags.ClientAbortsHandshake|ServerFlags.ExpectServerException)) != 0)
+				if ((Server.Parameters.Flags & (ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException)) != 0)
 					throw new ConnectionFinishedException ();
 				throw;
 			}
