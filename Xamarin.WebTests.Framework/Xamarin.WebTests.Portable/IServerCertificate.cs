@@ -29,6 +29,13 @@ namespace Xamarin.WebTests.Portable
 {
 	public interface IServerCertificate : ICertificate
 	{
+		byte[] Data {
+			get;
+		}
+
+		string Password {
+			get;
+		}
 	}
 }
 
