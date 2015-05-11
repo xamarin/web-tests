@@ -38,7 +38,7 @@ using Xamarin.WebTests.Providers;
 [assembly: AsyncTestSuite (typeof (WebTestFeatures))]
 [assembly: RequireDependency (typeof (IPortableWebSupport))]
 [assembly: RequireDependency (typeof (IHttpClientProvider))]
-[assembly: RequireDependency (typeof (IConnectionProviderFactory))]
+[assembly: RequireDependency (typeof (ConnectionProviderFactory))]
 
 namespace Xamarin.WebTests
 {

@@ -46,7 +46,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			defaultHttpProvider = new DefaultHttpProvider (dotNetStreamProvider);
 
 			defaultConnectionProvider = new DotNetConnectionProvider (this, dotNetStreamProvider, defaultHttpProvider);
-			Install (ConnectionProviderType.DotNet, defaultConnectionProvider);
+			Install (defaultConnectionProvider);
 		}
 
 		public override IHttpProvider DefaultHttpProvider {
