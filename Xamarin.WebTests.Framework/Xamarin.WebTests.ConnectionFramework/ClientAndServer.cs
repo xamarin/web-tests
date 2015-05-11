@@ -79,8 +79,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return supported;
 		}
 
-		public ClientAndServer (IServer server, IClient client)
-			: base (server.EndPoint, ClientAndServerParameters.Create (client.Parameters, server.Parameters))
+		protected ClientAndServer (IServer server, IClient client, ClientAndServerParameters parameters)
+			: base (server.EndPoint, parameters)
 		{
 			this.server = server;
 			this.client = client;
@@ -91,6 +91,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 				Parameters.ServerParameters.ProtocolVersion = requested.Value;
 				Parameters.ClientParameters.ProtocolVersion = requested.Value;
 			}
+		}
+
+		public ClientAndServer (IServer server, IClient client)
+			: this (server, client, ClientAndServerParameters.Create (client.Parameters, server.Parameters))
+		{
 		}
 
 		public override async Task Start (TestContext ctx, CancellationToken cancellationToken)
