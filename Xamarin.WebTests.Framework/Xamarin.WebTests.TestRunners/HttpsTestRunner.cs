@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -65,6 +66,15 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		public static IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx, string filter)
+		{
+			if (filter == null)
+				return GetParameters (ctx);
+
+			var parts = filter.Split (',');
+			return GetParameters (ctx).Where (p => parts.Contains (p.Identifier));
+		}
+
+		public static IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx)
 		{
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 			var acceptAll = certificateProvider.AcceptAll ();
