@@ -132,6 +132,9 @@ namespace Xamarin.WebTests.TestRunners
 			/*
 			 * Request client certificate without requiring one and do not provide it.
 			 *
+			 * To ask for an optional client certificate (without requiring it), you need to specify a custom validation
+			 * callback and then accept the null certificate with `SslPolicyErrors.RemoteCertificateNotAvailable' in it.
+			 *
 			 * FIXME:
 			 * Mono with the old TLS implementation throws SecureChannelFailure.
 			 */

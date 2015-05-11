@@ -38,7 +38,6 @@ namespace Xamarin.WebTests.Server
 		static readonly ICertificateValidator acceptAll = new CertificateValidator ((s, c, ch, e) => true);
 		static readonly ICertificateValidator rejectAll = new CertificateValidator ((s, c, ch, e) => false);
 		static readonly ICertificateValidator acceptNull = new CertificateValidator ((s, c, ch, e) => {
-			Console.Error.WriteLine ("ACCEPT NULL: {0} {1}", c != null, e);
 			return c == null && e == SslPolicyErrors.RemoteCertificateNotAvailable;
 		});
 
