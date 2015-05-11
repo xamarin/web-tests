@@ -34,7 +34,8 @@ namespace Xamarin.WebTests.Providers
 		SupportsSslStream	= 1,
 		SupportsHttp		= 2,
 		CanSelectCiphers	= 4,
-		SupportsMonoExtensions	= 8
+		SupportsMonoExtensions	= 8,
+		IsNewTls		= 16
 	}
 }
 
