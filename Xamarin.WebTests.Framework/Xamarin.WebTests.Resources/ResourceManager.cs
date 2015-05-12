@@ -15,6 +15,7 @@ namespace Xamarin.WebTests.Resources
 		static readonly IServerCertificate selfServer;
 		static readonly IServerCertificate serverCert;
 		static readonly IClientCertificate monkeyCert;
+		static readonly IClientCertificate penguinCert;
 
 		static ResourceManager ()
 		{
@@ -23,6 +24,7 @@ namespace Xamarin.WebTests.Resources
 			selfServer = provider.GetServerCertificate (ReadResource ("CA.server-self.pfx"), "monkey");
 			serverCert = provider.GetServerCertificate (ReadResource ("CA.server-cert.pfx"), "monkey");
 			monkeyCert = provider.GetClientCertificate (ReadResource ("CA.monkey.pfx"), "monkey");
+			penguinCert = provider.GetClientCertificate (ReadResource ("CA.penguin.pfx"), "penguin");
 		}
 
 		public static ICertificate LocalCACertificate {
@@ -43,6 +45,10 @@ namespace Xamarin.WebTests.Resources
 
 		public static IClientCertificate MonkeyCertificate {
 			get { return monkeyCert; }
+		}
+
+		public static IClientCertificate PenguinCertificate {
+			get { return penguinCert; }
 		}
 
 		public static IServerCertificate GetServerCertificate (ServerCertificateType type)
