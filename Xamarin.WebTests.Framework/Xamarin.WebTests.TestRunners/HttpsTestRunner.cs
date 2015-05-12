@@ -123,6 +123,11 @@ namespace Xamarin.WebTests.TestRunners
 				ServerFlags = ServerFlags.AskForClientCertificate, ServerCertificateValidator = acceptFromLocalCA
 			};
 
+			// Require client certificate.
+			yield return new ClientAndServerParameters ("no-client-certificate", ResourceManager.SelfSignedServerCertificate) {
+				ClientCertificateValidator = acceptSelfSigned
+			};
+
 			// Let's try to provide an unsolicited client certificate again.
 			yield return new ClientAndServerParameters ("second-unrequested-client-certificate", ResourceManager.SelfSignedServerCertificate) {
 				ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
