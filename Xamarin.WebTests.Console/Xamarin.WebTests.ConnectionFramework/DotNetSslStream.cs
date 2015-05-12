@@ -40,8 +40,20 @@ namespace Xamarin.WebTests.ConnectionFramework
 			this.stream = stream;
 		}
 
-		public bool HasClientCertificate {
-			get { return stream.IsAuthenticated && stream.IsMutuallyAuthenticated && stream.RemoteCertificate != null; }
+		public bool IsAuthenticated {
+			get { return stream.IsAuthenticated; }
+		}
+
+		public bool IsMutuallyAuthenticated {
+			get { return stream.IsMutuallyAuthenticated; }
+		}
+
+		public bool HasLocalCertificate {
+			get { return stream.LocalCertificate != null; }
+		}
+
+		public bool HasRemoteCertificate {
+			get { return stream.RemoteCertificate != null; }
 		}
 
 		public Stream AuthenticatedStream {

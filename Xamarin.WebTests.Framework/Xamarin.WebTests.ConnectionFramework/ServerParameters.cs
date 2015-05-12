@@ -36,6 +36,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public ServerFlags Flags {
 			get; set;
 		}
+
+		public bool AskForCertificate {
+			get { return (Flags & ServerFlags.AskForClientCertificate) != 0; }
+		}
+
+		public bool RequireCertificate {
+			get { return (Flags & ServerFlags.RequireClientCertificate) != 0; }
+		}
 	}
 }
 

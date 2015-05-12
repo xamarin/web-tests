@@ -217,8 +217,9 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override bool HandleConnection (TestContext ctx, HttpConnection connection)
 		{
+			ctx.Expect (connection.SslStream.IsAuthenticated, "server is authenticated");
 			if ((ServerParameters.Flags & ServerFlags.RequireClientCertificate) != 0)
-				ctx.Expect (connection.SslStream.HasClientCertificate, Is.True, "client certificate");
+				ctx.Expect (connection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
 
 			return base.HandleConnection (ctx, connection);
 		}

@@ -30,7 +30,19 @@ namespace Xamarin.WebTests.Providers
 {
 	public interface ISslStream
 	{
-		bool HasClientCertificate {
+		bool IsAuthenticated {
+			get;
+		}
+
+		bool IsMutuallyAuthenticated {
+			get;
+		}
+
+		bool HasLocalCertificate {
+			get;
+		}
+
+		bool HasRemoteCertificate {
 			get;
 		}
 

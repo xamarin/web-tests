@@ -60,8 +60,18 @@ namespace Xamarin.WebTests.TestRunners
 			if ((Client.Parameters.Flags & (ClientFlags.ExpectTrustFailure | ClientFlags.ExpectWebException)) != 0)
 				ctx.AssertFail ("expecting client exception");
 
-			if ((Server.Parameters.Flags & ServerFlags.RequireClientCertificate) != 0)
-				ctx.Expect (Server.SslStream.HasClientCertificate, Is.True, "client certificate");
+			ctx.Expect (Client.SslStream.IsAuthenticated, "client is authenticated");
+			ctx.Expect (Server.SslStream.IsAuthenticated, "server is authenticated");
+
+			ctx.Expect (Client.SslStream.HasRemoteCertificate, "client has server certificate");
+
+			if (Server.Parameters.AskForCertificate && Client.Parameters.ClientCertificate != null)
+				ctx.Expect (Client.SslStream.HasLocalCertificate, "client has local certificate");
+
+			if (Server.Parameters.RequireCertificate) {
+				ctx.Expect (Server.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
+				ctx.Expect (Server.SslStream.HasRemoteCertificate, "server has client certificate");
+			}
 
 			var serverWrapper = new StreamWrapper (Server.Stream);
 			var clientWrapper = new StreamWrapper (Client.Stream);
