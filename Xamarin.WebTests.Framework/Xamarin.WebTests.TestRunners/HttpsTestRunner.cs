@@ -108,7 +108,8 @@ namespace Xamarin.WebTests.TestRunners
 
 			// Provide a client certificate, but do not require it.
 			yield return new ClientAndServerParameters ("unrequested-client-certificate", ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned
+				ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
+				ServerCertificateValidator = acceptAll
 			};
 
 			/*
@@ -124,7 +125,8 @@ namespace Xamarin.WebTests.TestRunners
 
 			// Let's try to provide an unsolicited client certificate again.
 			yield return new ClientAndServerParameters ("second-unrequested-client-certificate", ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned
+				ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
+				ServerCertificateValidator = acceptAll
 			};
 
 			// Require client certificate.
