@@ -1,5 +1,5 @@
 ﻿//
-// TestSslStream.cs
+// ClientAndServerAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,35 +24,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
-
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Tests
+namespace Xamarin.WebTests.Features
 {
 	using ConnectionFramework;
 	using TestRunners;
-	using Features;
 
-	[SSL]
-	[Martin]
-	[AsyncTestFixture (Timeout = 5000)]
-	public class TestSslStream
+	public class SslStreamTestRunnerAttribute : TestHostAttribute, ITestHost<SslStreamTestRunner>
 	{
-		[AsyncTest]
-		public async Task TestConnection (TestContext ctx, CancellationToken cancellationToken,
-			[ClientAndServerParametersAttribute] ClientAndServerParameters parameters,
-			[SslStreamTestRunner] SslStreamTestRunner connection)
+		public SslStreamTestRunnerAttribute ()
+			: base (typeof (SslStreamTestRunnerAttribute), TestFlags.Hidden)
 		{
-			await connection.Run (ctx, cancellationToken);
+		}
+
+		public SslStreamTestRunner CreateInstance (TestContext ctx)
+		{
+			var parameters = ctx.GetParameter<ClientAndServerParameters> ();
+			var provider = CommonHttpFeatures.GetConnectionProvider (ctx);
+
+			var server = provider.CreateServer (parameters.ServerParameters);
+			var client = provider.CreateClient (parameters.ClientParameters);
+			return new SslStreamTestRunner (server, client, parameters);
 		}
 	}
+
 }
 

@@ -40,6 +40,11 @@ namespace Xamarin.WebTests.TestRunners
 		{
 		}
 
+		public SslStreamTestRunner (IServer server, IClient client, ClientAndServerParameters parameters)
+			: base (server, client, parameters)
+		{
+		}
+
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			try {

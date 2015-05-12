@@ -79,7 +79,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return supported;
 		}
 
-		protected ClientAndServer (IServer server, IClient client, ClientAndServerParameters parameters)
+		public ClientAndServer (IServer server, IClient client, ClientAndServerParameters parameters)
 			: base (server.EndPoint, parameters)
 		{
 			this.server = server;
