@@ -248,8 +248,6 @@ namespace Xamarin.WebTests.TestRunners
 			if (((ServerParameters.Flags & (ServerFlags.AskForClientCertificate|ServerFlags.RequireClientCertificate)) != 0) && ClientParameters.ClientCertificate != null) {
 				ctx.Assert (clientCertificate, Is.Not.Null, "client certificate");
 				ctx.Assert (provider.AreEqual (clientCertificate, ClientParameters.ClientCertificate), "correct client certificate");
-			} else {
-				ctx.Assert (clientCertificate, Is.Null, "no client certificate");
 			}
 
 			return response;
