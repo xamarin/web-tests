@@ -30,10 +30,10 @@ namespace Xamarin.WebTests.Features
 {
 	using ConnectionFramework;
 
-	public class ServerTestHostAttribute : TestHostAttribute, ITestHost<IServer>
+	public class ServerAttribute : TestHostAttribute, ITestHost<IServer>
 	{
-		public ServerTestHostAttribute ()
-			: base (typeof (ServerTestHostAttribute), TestFlags.Hidden)
+		public ServerAttribute ()
+			: base (typeof (ServerAttribute), TestFlags.Hidden)
 		{
 		}
 
