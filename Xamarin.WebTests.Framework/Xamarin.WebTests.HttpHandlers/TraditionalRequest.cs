@@ -112,7 +112,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			}
 		}
 
-		public async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
+		public override async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.Token.Register (() => Request.Request.Abort ());

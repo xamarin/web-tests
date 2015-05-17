@@ -54,6 +54,8 @@ namespace Xamarin.WebTests.HttpHandlers
 		public abstract void SetProxy (IPortableProxy proxy);
 
 		public abstract void SetCredentials (ICredentials credentials);
+
+		public abstract Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken);
 	}
 }
 

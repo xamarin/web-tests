@@ -183,6 +183,11 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			return new SimpleResponse (this, response.StatusCode, null);
 		}
+
+		public override Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return GetString (ctx, cancellationToken);
+		}
 	}
 }
 

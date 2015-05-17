@@ -46,6 +46,12 @@ namespace Xamarin.WebTests.Tests
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestPuppy
 	{
+		[AsyncTest]
+		public Task Run (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var runner = new PuppyTestRunner ();
+			return runner.Run (ctx, cancellationToken);
+		}
 	}
 }
 

@@ -56,6 +56,13 @@ namespace Xamarin.WebTests.TestRunners
 			var uri = new Uri (GetPuppyURL (ctx));
 			return new TraditionalRequest (uri);
 		}
+
+		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var request = CreateRequest (ctx);
+			var response = await request.SendAsync (ctx, cancellationToken);
+			ctx.Expect (response.IsSuccess, "is success");
+		}
 	}
 }
 
