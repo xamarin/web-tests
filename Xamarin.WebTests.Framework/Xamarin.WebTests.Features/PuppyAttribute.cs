@@ -1,5 +1,5 @@
 ﻿//
-// TestSslStream.cs
+// PuppyAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,35 +24,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
-
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Tests
+namespace Xamarin.WebTests.Features
 {
-	using ConnectionFramework;
 	using TestRunners;
-	using Features;
 
-	[SSL]
-	[Work]
-	[AsyncTestFixture (Timeout = 5000)]
-	public class TestSslStream
+	public class PuppyAttribute : TestFeatureAttribute
 	{
-		[AsyncTest]
-		public async Task TestConnection (TestContext ctx, CancellationToken cancellationToken,
-			[ClientAndServerParametersAttribute] ClientAndServerParameters parameters,
-			[ServerAttribute] IServer server, [ClientAttribute] IClient client)
+		static readonly PuppyFeature feature = new PuppyFeature ();
+
+		public static TestFeature Instance {
+			get { return feature; }
+		}
+
+		public override TestFeature Feature {
+			get { return feature; }
+		}
+
+		class PuppyFeature : TestFeature
 		{
-			var runner = new SslStreamTestRunner (server, client);
-			await runner.Run (ctx, cancellationToken);
+			public PuppyFeature ()
+				: base ("puppy", "Use get/post puppy test server", settings => PuppyTestRunner.IsSupported (settings))
+			{
+			}
 		}
 	}
 }

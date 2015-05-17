@@ -44,6 +44,11 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
+		public Func<SettingsBag,bool> Function {
+			get;
+			private set;
+		}
+
 		public bool? DefaultValue {
 			get;
 			private set;
@@ -61,6 +66,12 @@ namespace Xamarin.AsyncTests
 		public TestFeature (string name, string description, Func<bool> func)
 			: this (name, description, null, GetConstantValue (func))
 		{
+		}
+
+		public TestFeature (string name, string description, Func<SettingsBag,bool> func)
+			: this (name, description, null, null)
+		{
+			Function = func;
 		}
 
 		static bool? GetConstantValue (Func<bool> func)

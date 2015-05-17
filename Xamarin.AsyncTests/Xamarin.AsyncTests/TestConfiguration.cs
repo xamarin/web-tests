@@ -96,6 +96,8 @@ namespace Xamarin.AsyncTests
 
 		public bool IsEnabled (TestFeature feature)
 		{
+			if (feature.Function != null)
+				return feature.Function (settings);
 			return features [feature.Name];
 		}
 
@@ -106,6 +108,9 @@ namespace Xamarin.AsyncTests
 
 		bool LoadFeature (TestFeature feature)
 		{
+			if (feature.Function != null)
+				return false;
+
 			if (feature.Constant != null) {
 				features [feature.Name] = feature.Constant.Value;
 				return false;

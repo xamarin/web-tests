@@ -1,5 +1,5 @@
 ﻿//
-// TestSslStream.cs
+// PuppyTestRunner.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,35 +24,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
-
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Tests
+namespace Xamarin.WebTests.TestRunners
 {
-	using ConnectionFramework;
-	using TestRunners;
-	using Features;
+	using HttpHandlers;
+	using HttpFramework;
 
-	[SSL]
-	[Work]
-	[AsyncTestFixture (Timeout = 5000)]
-	public class TestSslStream
+	public class PuppyTestRunner
 	{
-		[AsyncTest]
-		public async Task TestConnection (TestContext ctx, CancellationToken cancellationToken,
-			[ClientAndServerParametersAttribute] ClientAndServerParameters parameters,
-			[ServerAttribute] IServer server, [ClientAttribute] IClient client)
+		const string PuppyKey = "PuppyURL";
+
+		public static bool IsSupported (SettingsBag settings)
 		{
-			var runner = new SslStreamTestRunner (server, client);
-			await runner.Run (ctx, cancellationToken);
+			string value;
+			return settings.TryGetValue (PuppyKey, out value);
+		}
+
+		public static string GetPuppyURL (TestContext ctx)
+		{
+			string value;
+			if (!ctx.Settings.TryGetValue (PuppyKey, out value))
+				throw new InvalidOperationException ();
+			return value;
+		}
+
+		public Request CreateRequest (TestContext ctx)
+		{
+			var uri = new Uri (GetPuppyURL (ctx));
+			return new TraditionalRequest (uri);
 		}
 	}
 }

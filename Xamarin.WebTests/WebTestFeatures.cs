@@ -46,6 +46,7 @@ namespace Xamarin.WebTests
 	using Portable;
 	using Resources;
 	using Internal;
+	using Features;
 	using Providers;
 	using Tests;
 
@@ -188,6 +189,7 @@ namespace Xamarin.WebTests
 				yield return Mono361;
 
 				yield return CertificateTests;
+				yield return PuppyAttribute.Instance;
 			}
 		}
 

@@ -52,7 +52,7 @@ namespace Xamarin.AsyncTests
 			get { return result ?? parent.Result; }
 		}
 
-		internal SettingsBag Settings {
+		public SettingsBag Settings {
 			get { return settings ?? parent.Settings; }
 		}
 

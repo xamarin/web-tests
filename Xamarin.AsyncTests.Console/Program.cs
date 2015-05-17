@@ -105,6 +105,7 @@ namespace Xamarin.AsyncTests.Console
 		bool optionalGui;
 		bool showCategories;
 		bool showFeatures;
+		string customSettings;
 		string category;
 		string features;
 
@@ -147,6 +148,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("local-log-level=", v => LocalLogLevel = int.Parse (v));
 			p.Add ("dependency=", v => dependencies.Add (v));
 			p.Add ("optional-gui", v => optionalGui = true);
+			p.Add ("set=", v => customSettings = v);
 			p.Add ("category=", v => category = v);
 			p.Add ("features=", v => features = v);
 			p.Add ("debug", v => DebugMode = true);
@@ -156,6 +158,9 @@ namespace Xamarin.AsyncTests.Console
 			var remaining = p.Parse (args);
 
 			settings = LoadSettings (SettingsFile);
+
+			if (customSettings != null)
+				ParseSettings (customSettings);
 
 			if (DebugMode) {
 				settings.LogLevel = -1;
@@ -216,6 +221,29 @@ namespace Xamarin.AsyncTests.Console
 
 			var address = IPAddress.Parse (host);
 			return new IPEndPoint (address, port);
+		}
+
+		void ParseSettings (string arg)
+		{
+			var parts = arg.Split (',');
+			foreach (var part in parts) {
+				var pos = part.IndexOf ('=');
+				if (pos > 0) {
+					var key = part.Substring (0, pos);
+					var value = part.Substring (pos + 1);
+					Debug ("SET: |{0}|{1}|", key, value);
+					if (key [0] == '-')
+						throw new InvalidOperationException ();
+					settings.SetValue (key, value);
+				} else if (part [0] == '-') {
+					var key = part.Substring (1);
+					settings.RemoveValue (key);
+				} else {
+					throw new InvalidOperationException ();
+				}
+			}
+
+			SaveSettings ();
 		}
 
 		static string PrintEndPoint (IPEndPoint endpoint)

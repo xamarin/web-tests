@@ -1,5 +1,5 @@
 ﻿//
-// TestSslStream.cs
+// TestPuppy.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -41,19 +41,11 @@ namespace Xamarin.WebTests.Tests
 	using TestRunners;
 	using Features;
 
-	[SSL]
-	[Work]
+	[Puppy]
+	[Martin]
 	[AsyncTestFixture (Timeout = 5000)]
-	public class TestSslStream
+	public class TestPuppy
 	{
-		[AsyncTest]
-		public async Task TestConnection (TestContext ctx, CancellationToken cancellationToken,
-			[ClientAndServerParametersAttribute] ClientAndServerParameters parameters,
-			[ServerAttribute] IServer server, [ClientAttribute] IClient client)
-		{
-			var runner = new SslStreamTestRunner (server, client);
-			await runner.Run (ctx, cancellationToken);
-		}
 	}
 }
 
