@@ -157,6 +157,23 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("show-config", v => showCategories = showFeatures = true);
 			var remaining = p.Parse (args);
 
+			dependencyAssemblies = new Assembly [dependencies.Count];
+			for (int i = 0; i < dependencyAssemblies.Length; i++) {
+				dependencyAssemblies [i] = Assembly.LoadFile (dependencies [i]);
+			}
+
+			if (assembly != null) {
+				if (remaining.Count != 0)
+					throw new InvalidOperationException ();
+				Assembly = assembly;
+			} else if (remaining.Count == 1) {
+				Assembly = Assembly.LoadFile (remaining [0]);
+			} else if (EndPoint == null) {
+				throw new InvalidOperationException ();
+			}
+
+			CheckSettingsFile ();
+
 			settings = LoadSettings (SettingsFile);
 
 			if (customSettings != null)
@@ -172,21 +189,6 @@ namespace Xamarin.AsyncTests.Console
 				settings.LogLevel = LogLevel.Value;
 			if (LocalLogLevel != null)
 				settings.LocalLogLevel = LocalLogLevel.Value;
-
-			dependencyAssemblies = new Assembly [dependencies.Count];
-			for (int i = 0; i < dependencyAssemblies.Length; i++) {
-				dependencyAssemblies [i] = Assembly.LoadFile (dependencies [i]);
-			}
-
-			if (assembly != null) {
-				if (remaining.Count != 0)
-					throw new InvalidOperationException ();
-				Assembly = assembly;
-			} else if (remaining.Count == 1) {
-				Assembly = Assembly.LoadFile (remaining [0]);
-			} else if (EndPoint == null) {
-				throw new InvalidOperationException ();
-			}
 
 			logger = new TestLogger (new ConsoleLogger (this));
 		}
@@ -257,11 +259,27 @@ namespace Xamarin.AsyncTests.Console
 			return support.GetEndpoint (endpoint.Address.ToString (), endpoint.Port);
 		}
 
+		void CheckSettingsFile ()
+		{
+			if (SettingsFile != null)
+				return;
+
+			var name = Assembly.GetName ().Name;
+			var path = Environment.GetFolderPath (Environment.SpecialFolder.LocalApplicationData);
+			path = Path.Combine (path, "Xamarin", "AsyncTests");
+
+			if (!Directory.Exists (path))
+				Directory.CreateDirectory (path);
+
+			SettingsFile = Path.Combine (path, name + ".xml");
+		}
+
 		static SettingsBag LoadSettings (string filename)
 		{
 			if (filename == null || !File.Exists (filename))
 				return SettingsBag.CreateDefault ();
 
+			Debug ("Loading settings from {0}.", filename);
 			using (var reader = new StreamReader (filename)) {
 				var doc = XDocument.Load (reader);
 				return TestSerializer.ReadSettings (doc.Root);
@@ -273,6 +291,7 @@ namespace Xamarin.AsyncTests.Console
 			if (SettingsFile == null)
 				return;
 
+			Debug ("Saving settings to {0}.", SettingsFile);
 			using (var writer = new StreamWriter (SettingsFile)) {
 				var xws = new XmlWriterSettings ();
 				xws.Indent = true;
