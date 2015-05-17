@@ -76,6 +76,8 @@ namespace Xamarin.WebTests.Server
 			return new CertificateValidator ((s, c, ch, e) => {
 				if (c == null || e == SslPolicyErrors.RemoteCertificateNotAvailable)
 					return false;
+				if (e == SslPolicyErrors.None)
+					return true;
 				return Compare (c.GetCertHash (), serverHash);
 			});
 		}
@@ -92,6 +94,8 @@ namespace Xamarin.WebTests.Server
 			return new CertificateValidator ((s, c, ch, e) => {
 				if (c == null || e == SslPolicyErrors.RemoteCertificateNotAvailable)
 					return false;
+				if (e == SslPolicyErrors.None)
+					return true;
 				return c.Issuer.Equals (cert.Issuer);
 			});
 		}

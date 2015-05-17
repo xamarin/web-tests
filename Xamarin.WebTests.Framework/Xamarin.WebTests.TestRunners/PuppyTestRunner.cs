@@ -48,6 +48,7 @@ namespace Xamarin.WebTests.TestRunners
 			string value;
 			if (!ctx.Settings.TryGetValue (PuppyKey, out value))
 				throw new InvalidOperationException ();
+			ctx.LogMessage ("Got puppy URL: {0}", value);
 			return value;
 		}
 
