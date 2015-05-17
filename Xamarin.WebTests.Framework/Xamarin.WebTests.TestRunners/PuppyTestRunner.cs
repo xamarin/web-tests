@@ -33,6 +33,10 @@ namespace Xamarin.WebTests.TestRunners
 	using HttpHandlers;
 	using HttpFramework;
 
+	/*
+	 * Used to make request against an actual web server.
+	 *
+	 */
 	public class PuppyTestRunner
 	{
 		const string PuppyKey = "PuppyURL";
@@ -62,6 +66,9 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			var request = CreateRequest (ctx);
 			var response = await request.SendAsync (ctx, cancellationToken);
+			ctx.LogMessage ("PUPPY DONE: {0}", response.IsSuccess);
+			if (!response.IsSuccess)
+				ctx.LogMessage ("PUPPY ERROR: {0}", response.Error);
 			ctx.Expect (response.IsSuccess, "is success");
 		}
 	}
