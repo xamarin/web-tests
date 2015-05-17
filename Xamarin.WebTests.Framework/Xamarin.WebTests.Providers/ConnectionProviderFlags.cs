@@ -35,7 +35,9 @@ namespace Xamarin.WebTests.Providers
 		SupportsHttp		= 2,
 		CanSelectCiphers	= 4,
 		SupportsMonoExtensions	= 8,
-		IsNewTls		= 16
+		SupportsInstrumentation	= 16,
+		IsNewTls		= 32,
+		SupportsTls12		= 64
 	}
 }
 

@@ -33,7 +33,7 @@ namespace Xamarin.WebTests.TestRunners
 {
 	using ConnectionFramework;
 
-	public class SslStreamTestRunner : ClientAndServer
+	public class SslStreamTestRunner : ClientAndServerTestRunner
 	{
 		public SslStreamTestRunner (IServer server, IClient client)
 			: base (server, client)
@@ -45,20 +45,9 @@ namespace Xamarin.WebTests.TestRunners
 		{
 		}
 
-		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
+		protected override void OnRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			try {
-				await WaitForConnection (ctx, cancellationToken);
-			} catch (ConnectionFinishedException) {
-				return;
-			}
-
-			if ((Server.Parameters.Flags & ServerFlags.ExpectServerException) != 0)
-				ctx.AssertFail ("expecting server exception");
-			if ((Server.Parameters.Flags & ServerFlags.ClientAbortsHandshake) != 0)
-				ctx.AssertFail ("expecting client to abort handshake");
-			if ((Client.Parameters.Flags & (ClientFlags.ExpectTrustFailure | ClientFlags.ExpectWebException)) != 0)
-				ctx.AssertFail ("expecting client exception");
+			base.OnRun (ctx, cancellationToken);
 
 			ctx.Expect (Client.SslStream.IsAuthenticated, "client is authenticated");
 			ctx.Expect (Server.SslStream.IsAuthenticated, "server is authenticated");
@@ -75,51 +64,6 @@ namespace Xamarin.WebTests.TestRunners
 
 			if (!Server.Parameters.AskForCertificate)
 				ctx.Expect (Server.SslStream.HasRemoteCertificate, Is.False, "server has no client certificate");
-
-			var serverWrapper = new StreamWrapper (Server.Stream);
-			var clientWrapper = new StreamWrapper (Client.Stream);
-			await MainLoop (ctx, serverWrapper, clientWrapper, cancellationToken);
-		}
-
-		protected override async Task WaitForServerConnection (TestContext ctx, CancellationToken cancellationToken)
-		{
-			try {
-				await base.WaitForServerConnection (ctx, cancellationToken);
-				if ((Server.Parameters.Flags & ServerFlags.ExpectServerException) != 0)
-					ctx.AssertFail ("expecting exception");
-			} catch {
-				if ((Server.Parameters.Flags & (ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException)) != 0)
-					throw new ConnectionFinishedException ();
-				throw;
-			}
-		}
-
-		protected override async Task WaitForClientConnection (TestContext ctx, CancellationToken cancellationToken)
-		{
-			try {
-				await base.WaitForClientConnection (ctx, cancellationToken);
-			} catch {
-				if ((Client.Parameters.Flags & (ClientFlags.ExpectWebException|ClientFlags.ExpectTrustFailure)) != 0)
-					throw new ConnectionFinishedException ();
-				throw;
-			}
-		}
-
-		class ConnectionFinishedException : Exception
-		{
-		}
-
-		protected async Task MainLoop (TestContext ctx, ILineBasedStream serverStream, ILineBasedStream clientStream, CancellationToken cancellationToken)
-		{
-			await serverStream.WriteLineAsync ("SERVER OK");
-			var line = await clientStream.ReadLineAsync ();
-			if (!line.Equals ("SERVER OK"))
-				throw new ConnectionException ("Got unexpected output from server: '{0}'", line);
-			await clientStream.WriteLineAsync ("CLIENT OK");
-			line = await serverStream.ReadLineAsync ();
-			if (!line.Equals ("CLIENT OK"))
-				throw new ConnectionException ("Got unexpected output from client: '{0}'", line);
-			await Shutdown (ctx, SupportsCleanShutdown, true, cancellationToken);
 		}
 	}
 }
