@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using XWebExceptionStatus = System.Net.WebExceptionStatus;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -146,8 +147,15 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			string content;
 			var status = response.StatusCode;
-			using (var reader = new StreamReader (response.GetResponseStream ())) {
-				content = reader.ReadToEnd ();
+
+			try {
+				using (var reader = new StreamReader (response.GetResponseStream ())) {
+					content = reader.ReadToEnd ();
+				}
+			} catch (IOException ex) {
+				if (error == null)
+					error = new WebException ("failed to read response", ex, (XWebExceptionStatus)WebExceptionStatus.FailedToReadResponseContent, response);
+				content = null;
 			}
 			response.Dispose ();
 

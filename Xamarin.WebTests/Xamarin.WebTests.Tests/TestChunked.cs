@@ -1,10 +1,10 @@
 ﻿//
-// GetHandler.cs
+// TestChunked.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,40 +26,54 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
-using System.Globalization;
+using System.Threading.Tasks;
+using System.Collections;
 using System.Collections.Generic;
 
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.HttpHandlers
+namespace Xamarin.WebTests.Tests
 {
+	using HttpHandlers;
 	using HttpFramework;
+	using TestRunners;
+	using Portable;
+	using Providers;
+	using Features;
 
-	public class GetHandler : Handler
+	[AsyncTestFixture (Timeout = 5000)]
+	public class TestChunked
 	{
-		public GetHandler (string identifier, HttpContent content)
-			: base (identifier)
+		[Martin]
+		[AsyncTest]
+		public Task IncompleChunk (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server, bool sendAsync)
 		{
-			Content = content;
+			var handler = new GetHandler ("incomplete-chunk", new IncompleteChunkContent ());
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync, HttpStatusCode.OK, WebExceptionStatus.FailedToReadResponseContent);
 		}
 
-		public HttpContent Content {
-			get;
-			private set;
-		}
-
-		public override object Clone ()
+		class IncompleteChunkContent : HttpContent
 		{
-			return new GetHandler (Value, Content);
-		}
-
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
-		{
-			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-			return new HttpResponse (HttpStatusCode.OK, Content);
+			#region implemented abstract members of HttpContent
+			public override string AsString ()
+			{
+				return "AAAA";
+			}
+			public override void AddHeadersTo (HttpMessage message)
+			{
+				message.SetHeader ("Transfer-Encoding", "chunked");
+				message.SetHeader ("Content-Type", "text/plain");
+			}
+			public override async Task WriteToAsync (StreamWriter writer)
+			{
+				writer.AutoFlush = true;
+				await writer.WriteAsync ("4\r\n");
+				await writer.WriteAsync ("AAAA\r\n");
+			}
+			#endregion
 		}
 	}
 }

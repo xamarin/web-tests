@@ -55,7 +55,15 @@ namespace Xamarin.WebTests.HttpFramework
 		RequestProhibitedByCachePolicy = 19,
 		RequestProhibitedByProxy = 20,
 
+		//
+		// Private additions for this test suite.
+		//
+
+		// Error while reading the response's content.
+		FailedToReadResponseContent = 254,
+
 		// Allow any value.
-		AnyErrorStatus = 255
+		AnyErrorStatus = 255,
+
 	}
 }
