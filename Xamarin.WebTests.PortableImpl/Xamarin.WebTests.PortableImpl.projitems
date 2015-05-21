@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>{D578985A-B8C0-4083-8F3E-1AE2B680E85B}</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Xamarin.WebTests.PortableImpl</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\ConnectionHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DefaultConnectionProviderFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DotNetClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DotNetConnection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DotNetConnectionProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DotNetServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DotNetSslStream.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DotNetSslStreamProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpClientHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpClientProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpContent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpRequestMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpResponseMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\StreamContent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\StringContent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\CertificateProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\CertificateValidator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\DefaultHttpProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\HttpListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\HttpWebRequestImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\Listener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\PortableProxy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\PortableWebSupportImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\ProxyListener.cs" />
+  </ItemGroup>
+</Project>
