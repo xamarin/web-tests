@@ -26,7 +26,6 @@
 using System;
 using System.IO;
 using System.Net;
-using XWebExceptionStatus = System.Net.WebExceptionStatus;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -103,7 +102,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			cts.Token.Register (() => Request.Request.Abort ());
 
 			var task = Task.Factory.StartNew (() => {
-				return Send ();
+				return Send (ctx);
 			});
 
 			try {
@@ -129,13 +128,13 @@ namespace Xamarin.WebTests.HttpHandlers
 				}
 
 				var response = await Request.GetResponseAsync ();
-				return FromHttpResponse (response);
+				return await GetResponseFromHttp (ctx, response, null, cancellationToken);
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
 				if (response == null)
 					return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, wexc);
 
-				return FromHttpResponse (response, wexc);
+				return GetResponseFromHttpSync (ctx, response, wexc);
 			} catch (Exception ex) {
 				return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, ex);
 			} finally {
@@ -143,31 +142,25 @@ namespace Xamarin.WebTests.HttpHandlers
 			}
 		}
 
-		protected virtual Task<Response> GetResponseFromHttp (TestContext ctx, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
+		Response GetResponseFromHttpSync (TestContext ctx, HttpWebResponse response, WebException error)
 		{
-			return Task.Run (() => FromHttpResponse (response, error));
+			return GetResponseFromHttp (ctx, response, error, CancellationToken.None).Result;
 		}
 
-		Response FromHttpResponse (HttpWebResponse response, WebException error = null)
+		protected async virtual Task<Response> GetResponseFromHttp (TestContext ctx, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
 		{
 			string content;
 			var status = response.StatusCode;
 
-			try {
-				using (var reader = new StreamReader (response.GetResponseStream ())) {
-					content = reader.ReadToEnd ();
-				}
-			} catch (IOException ex) {
-				if (error == null)
-					error = new WebException ("failed to read response", ex, (XWebExceptionStatus)WebExceptionStatus.FailedToReadResponseContent, response);
-				content = null;
+			using (var reader = new StreamReader (response.GetResponseStream ())) {
+				content = await reader.ReadToEndAsync ().ConfigureAwait (false);
 			}
 			response.Dispose ();
 
 			return new SimpleResponse (this, status, StringContent.CreateMaybeNull (content), error);
 		}
 
-		Response Send ()
+		Response Send (TestContext ctx)
 		{
 			try {
 				if (Content != null) {
@@ -177,13 +170,13 @@ namespace Xamarin.WebTests.HttpHandlers
 				}
 
 				var response = Request.GetResponse ();
-				return FromHttpResponse (response);
+				return GetResponseFromHttpSync (ctx, response, null);
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
 				if (response == null)
 					return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, wexc);
 
-				return FromHttpResponse (response, wexc);
+				return GetResponseFromHttpSync (ctx, response, wexc);
 			} catch (Exception ex) {
 				return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, ex);
 			}

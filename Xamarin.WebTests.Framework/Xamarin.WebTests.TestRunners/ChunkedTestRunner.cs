@@ -26,9 +26,11 @@
 using System;
 using System.IO;
 using System.Net;
+using XWebExceptionStatus = System.Net.WebExceptionStatus;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.TestRunners
 {
@@ -50,7 +52,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override Request CreateRequest (TestContext ctx, Uri uri)
 		{
-			return new ChunkedRequest (uri);
+			return new ChunkedRequest (this, uri);
 		}
 
 		public Task Run (TestContext ctx, CancellationToken cancellationToken)
@@ -58,6 +60,10 @@ namespace Xamarin.WebTests.TestRunners
 			switch (Type) {
 			case ChunkContentType.NormalChunk:
 				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);
+			case ChunkContentType.MissingTrailer:
+				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.ResponseContentException);
+			case ChunkContentType.TruncatedChunk:
+				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.ResponseContentTruncated);
 			default:
 				throw new NotImplementedException ();
 			}
@@ -65,15 +71,51 @@ namespace Xamarin.WebTests.TestRunners
 
 		class ChunkedRequest : TraditionalRequest
 		{
-			public ChunkedRequest (Uri uri)
+			public ChunkedTestRunner Runner {
+				get;
+				private set;
+			}
+
+			public ChunkedRequest (ChunkedTestRunner runner, Uri uri)
 				: base (uri)
 			{
+				Runner = runner;
 			}
 
 			protected override Task<Response> GetResponseFromHttp (TestContext ctx, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
 			{
-				return base.GetResponseFromHttp (ctx, response, error, cancellationToken);
+				return Runner.GetResponseFromHttp (ctx, this, response, error, cancellationToken);
 			}
+		}
+
+		async Task<Response> GetResponseFromHttp (TestContext ctx, ChunkedRequest request, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
+		{
+			string content;
+			var status = response.StatusCode;
+
+			ctx.Assert (status, Is.EqualTo (HttpStatusCode.OK), "success");
+			ctx.Assert (error, Is.Null, "null error");
+
+			try {
+				using (var reader = new StreamReader (response.GetResponseStream ())) {
+					content = await reader.ReadToEndAsync ();
+				}
+
+				if (Type != ChunkContentType.NormalChunk)
+					ctx.AssertFail ("expected exception");
+			} catch (IOException ex) {
+				error = new WebException ("failed to read response", ex, (XWebExceptionStatus)WebExceptionStatus.ResponseContentException, response);
+				content = null;
+			} catch (WebException ex) {
+				if (Type != ChunkContentType.TruncatedChunk)
+					throw;
+				ctx.Assert ((WebExceptionStatus)ex.Status, Is.EqualTo (WebExceptionStatus.ConnectionClosed), "expected ConnectionClosed");
+				error = new WebException (ex.Message, ex, (XWebExceptionStatus)WebExceptionStatus.ResponseContentTruncated, response);
+				content = null;
+			}
+			response.Dispose ();
+
+			return new SimpleResponse (request, status, StringContent.CreateMaybeNull (content), error);
 		}
 
 		static string ChunkTypeName (ChunkContentType type)

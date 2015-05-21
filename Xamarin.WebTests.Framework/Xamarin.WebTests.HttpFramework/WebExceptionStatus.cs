@@ -59,8 +59,8 @@ namespace Xamarin.WebTests.HttpFramework
 		// Private additions for this test suite.
 		//
 
-		// Error while reading the response's content.
-		FailedToReadResponseContent = 254,
+		ResponseContentException = 253,
+		ResponseContentTruncated = 254,
 
 		// Allow any value.
 		AnyErrorStatus = 255,

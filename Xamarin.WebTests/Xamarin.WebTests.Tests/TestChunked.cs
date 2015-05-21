@@ -49,9 +49,9 @@ namespace Xamarin.WebTests.Tests
 	{
 		[Martin]
 		[AsyncTest]
-		public Task IncompleChunk (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server, bool sendAsync)
+		public Task Run (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server, ChunkContentType type, bool sendAsync)
 		{
-			var runner = new ChunkedTestRunner (server, ChunkContentType.NormalChunk, sendAsync);
+			var runner = new ChunkedTestRunner (server, type, sendAsync);
 			return runner.Run (ctx, cancellationToken);
 		}
 	}
