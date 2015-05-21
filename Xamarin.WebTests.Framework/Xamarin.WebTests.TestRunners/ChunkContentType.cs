@@ -1,5 +1,5 @@
 ﻿//
-// TestChunked.cs
+// ChunkContentType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,36 +24,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
 
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Constraints;
-
-namespace Xamarin.WebTests.Tests
+namespace Xamarin.WebTests.TestRunners
 {
-	using HttpHandlers;
-	using HttpFramework;
-	using TestRunners;
-	using Portable;
-	using Providers;
-	using Features;
-
-	[AsyncTestFixture (Timeout = 5000)]
-	public class TestChunked
+	public enum ChunkContentType
 	{
-		[Martin]
-		[AsyncTest]
-		public Task IncompleChunk (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server, bool sendAsync)
-		{
-			var runner = new ChunkedTestRunner (server, ChunkContentType.NormalChunk, sendAsync);
-			return runner.Run (ctx, cancellationToken);
-		}
+		NormalChunk,
+		TruncatedChunk,
+		MissingTrailer
 	}
 }
 

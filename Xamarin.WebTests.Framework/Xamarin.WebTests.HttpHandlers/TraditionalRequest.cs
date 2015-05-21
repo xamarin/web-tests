@@ -143,6 +143,11 @@ namespace Xamarin.WebTests.HttpHandlers
 			}
 		}
 
+		protected virtual Task<Response> GetResponseFromHttp (TestContext ctx, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => FromHttpResponse (response, error));
+		}
+
 		Response FromHttpResponse (HttpWebResponse response, WebException error = null)
 		{
 			string content;
