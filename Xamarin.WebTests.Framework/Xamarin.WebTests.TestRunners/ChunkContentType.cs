@@ -31,7 +31,8 @@ namespace Xamarin.WebTests.TestRunners
 	{
 		NormalChunk,
 		TruncatedChunk,
-		MissingTrailer
+		MissingTrailer,
+		BeginEndAsyncRead,
 	}
 }
 

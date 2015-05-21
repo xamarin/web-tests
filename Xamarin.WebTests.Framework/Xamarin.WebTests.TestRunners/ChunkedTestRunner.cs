@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Text;
 using System.Net;
 using XWebExceptionStatus = System.Net.WebExceptionStatus;
 using System.Threading;
@@ -36,12 +37,17 @@ namespace Xamarin.WebTests.TestRunners
 {
 	using HttpFramework;
 	using HttpHandlers;
+	using Providers;
 
 	public class ChunkedTestRunner : TraditionalTestRunner
 	{
 		public ChunkContentType Type {
 			get;
 			private set;
+		}
+
+		bool ExpectException {
+			get { return Type != ChunkContentType.NormalChunk && Type != ChunkContentType.BeginEndAsyncRead; }
 		}
 
 		public ChunkedTestRunner (HttpServer server, ChunkContentType type, bool sendAsync)
@@ -59,6 +65,7 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			switch (Type) {
 			case ChunkContentType.NormalChunk:
+			case ChunkContentType.BeginEndAsyncRead:
 				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);
 			case ChunkContentType.MissingTrailer:
 				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.ResponseContentException);
@@ -96,12 +103,28 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.Assert (status, Is.EqualTo (HttpStatusCode.OK), "success");
 			ctx.Assert (error, Is.Null, "null error");
 
+			var stream = response.GetResponseStream ();
+
 			try {
-				using (var reader = new StreamReader (response.GetResponseStream ())) {
+				if (Type == ChunkContentType.BeginEndAsyncRead) {
+					var provider = DependencyInjector.Get<IStreamProvider> ();
+
+					var buffer = new byte [1024];
+					var result = provider.BeginRead (stream, buffer, 0, buffer.Length, null, null);
+
+					await Task.Run (() => {
+						var waitResult = result.AsyncWaitHandle.WaitOne (500);
+						ctx.Assert (waitResult, "WaitOne");
+					});
+					var ret = provider.EndRead (stream, result);
+					ctx.Assert (ret, Is.GreaterThan (0), "non-zero read");
+					content = Encoding.UTF8.GetString (buffer, 0, ret);
+				} else {
+					var reader = new StreamReader (stream);
 					content = await reader.ReadToEndAsync ();
 				}
 
-				if (Type != ChunkContentType.NormalChunk)
+				if (ExpectException)
 					ctx.AssertFail ("expected exception");
 			} catch (IOException ex) {
 				error = new WebException ("failed to read response", ex, (XWebExceptionStatus)WebExceptionStatus.ResponseContentException, response);
@@ -112,8 +135,10 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Assert ((WebExceptionStatus)ex.Status, Is.EqualTo (WebExceptionStatus.ConnectionClosed), "expected ConnectionClosed");
 				error = new WebException (ex.Message, ex, (XWebExceptionStatus)WebExceptionStatus.ResponseContentTruncated, response);
 				content = null;
+			} finally {
+				stream.Dispose ();
+				response.Dispose ();
 			}
-			response.Dispose ();
 
 			return new SimpleResponse (request, status, StringContent.CreateMaybeNull (content), error);
 		}
@@ -158,6 +183,7 @@ namespace Xamarin.WebTests.TestRunners
 
 				switch (Type) {
 				case ChunkContentType.NormalChunk:
+				case ChunkContentType.BeginEndAsyncRead:
 					await writer.WriteAsync ("0\r\n\r\n\r\n");
 					break;
 				case ChunkContentType.TruncatedChunk:
