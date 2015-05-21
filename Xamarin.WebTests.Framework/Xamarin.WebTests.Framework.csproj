@@ -134,6 +134,7 @@
     <Compile Include="Xamarin.WebTests.TestRunners\ClientAndServerTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\ChunkedTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\ChunkContentType.cs" />
+    <Compile Include="Xamarin.WebTests.Providers\IStreamProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">
