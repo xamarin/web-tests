@@ -44,10 +44,10 @@ namespace Xamarin.WebTests.Tests
 	using Providers;
 	using Features;
 
+	[NotWorking]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestChunked
 	{
-		[Martin]
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server, ChunkContentType type, bool sendAsync)
 		{
