@@ -113,16 +113,19 @@ namespace Xamarin.WebTests.TestRunners
 					var result = provider.BeginRead (stream, buffer, 0, buffer.Length, null, null);
 
 					await Task.Run (() => {
-						var waitResult = result.AsyncWaitHandle.WaitOne (500);
+						var timeout = ctx.Settings.DisableTimeouts ? -1 : 500;
+						var waitResult = result.AsyncWaitHandle.WaitOne (timeout);
 						ctx.Assert (waitResult, "WaitOne");
 					});
 					var ret = provider.EndRead (stream, result);
 					ctx.Assert (ret, Is.GreaterThan (0), "non-zero read");
 					content = Encoding.UTF8.GetString (buffer, 0, ret);
 				} else {
-					var reader = new StreamReader (stream);
-					content = await reader.ReadToEndAsync ();
+					content = string.Empty;
 				}
+
+				var reader = new StreamReader (stream);
+				content += await reader.ReadToEndAsync ();
 
 				if (ExpectException)
 					ctx.AssertFail ("expected exception");
@@ -180,11 +183,15 @@ namespace Xamarin.WebTests.TestRunners
 				writer.AutoFlush = true;
 				await writer.WriteAsync ("4\r\n");
 				await writer.WriteAsync ("AAAA\r\n");
+				if (Type == ChunkContentType.BeginEndAsyncRead)
+					await Task.Delay (50);
+				await writer.WriteAsync ("8\r\n");
+				await writer.WriteAsync ("BBBBBBBB\r\n");
 
 				switch (Type) {
 				case ChunkContentType.NormalChunk:
 				case ChunkContentType.BeginEndAsyncRead:
-					await writer.WriteAsync ("0\r\n\r\n\r\n");
+					await writer.WriteAsync ("0\r\n\r\n");
 					break;
 				case ChunkContentType.TruncatedChunk:
 					await writer.WriteAsync ("8\r\n");

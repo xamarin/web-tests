@@ -63,6 +63,15 @@ namespace Xamarin.WebTests.Tests
 			var runner = new ChunkedTestRunner (server, ChunkContentType.BeginEndAsyncRead, true);
 			return runner.Run (ctx, cancellationToken);
 		}
+
+		[Martin]
+		[NotWorking]
+		[AsyncTest]
+		public Task NormalChunk (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server)
+		{
+			var runner = new ChunkedTestRunner (server, ChunkContentType.NormalChunk, true);
+			return runner.Run (ctx, cancellationToken);
+		}
 	}
 }
 
