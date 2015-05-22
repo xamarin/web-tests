@@ -62,6 +62,14 @@ namespace Xamarin.WebTests.Portable
 		ICertificate GetClientCertificate ();
 
 		void SetClientCertificates (IClientCertificate[] clientCertificates);
+
+		int ReadWriteTimeout {
+			get; set;
+		}
+
+		int Timeout {
+			get; set;
+		}
 	}
 }
 

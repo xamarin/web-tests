@@ -141,6 +141,16 @@ namespace Xamarin.WebTests.Server
 			}
 			Request.ClientCertificates = certificates;
 		}
+
+		public int ReadWriteTimeout {
+			get { return Request.ReadWriteTimeout; }
+			set { Request.ReadWriteTimeout = value; }
+		}
+
+		public int Timeout {
+			get { return Request.Timeout; }
+			set { Request.Timeout = value; }
+		}
 	}
 }
 

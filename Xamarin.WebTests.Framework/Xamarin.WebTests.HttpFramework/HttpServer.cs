@@ -165,11 +165,16 @@ namespace Xamarin.WebTests.HttpFramework
 			return listener.Start ();
 		}
 
-		public virtual Task Stop (TestContext ctx, CancellationToken cancellationToken)
+		public virtual async Task Stop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (Interlocked.CompareExchange<TestContext> (ref currentCtx, null, ctx) != ctx)
 				throw new InternalErrorException ();
-			return listener.Stop ();
+			try {
+				await listener.Stop ().ConfigureAwait (false);
+			} catch {
+				if ((Flags & ListenerFlags.ExpectException) == 0)
+					throw;
+			}
 		}
 
 		public Uri RegisterHandler (Handler handler)

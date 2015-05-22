@@ -37,9 +37,12 @@ namespace Xamarin.WebTests.Features
 
 	public class HttpServerAttribute : TestHostAttribute, ITestHost<HttpServer>
 	{
-		public HttpServerAttribute ()
+		ListenerFlags listenerFlags;
+
+		public HttpServerAttribute (ListenerFlags listenerFlags = ListenerFlags.None)
 			: base (typeof (HttpServerAttribute))
 		{
+			this.listenerFlags = listenerFlags;
 		}
 
 		protected HttpServerAttribute (Type type, TestFlags flags = TestFlags.None)
@@ -49,7 +52,7 @@ namespace Xamarin.WebTests.Features
 
 		protected virtual ListenerFlags GetListenerFlags (TestContext ctx)
 		{
-			ListenerFlags flags = ListenerFlags.None;
+			ListenerFlags flags = listenerFlags;
 
 			bool reuseConnection;
 			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)

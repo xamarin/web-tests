@@ -47,7 +47,17 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		bool ExpectException {
-			get { return Type != ChunkContentType.NormalChunk && Type != ChunkContentType.BeginEndAsyncRead; }
+			get {
+				switch (Type) {
+				case ChunkContentType.NormalChunk:
+				case ChunkContentType.SyncRead:
+				case ChunkContentType.BeginEndAsyncRead:
+				case ChunkContentType.BeginEndAsyncReadNoWait:
+					return false;
+				default:
+					return true;
+				}
+			}
 		}
 
 		public ChunkedTestRunner (HttpServer server, ChunkContentType type, bool sendAsync)
@@ -58,15 +68,30 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override Request CreateRequest (TestContext ctx, Uri uri)
 		{
-			return new ChunkedRequest (this, uri);
+			var request = new ChunkedRequest (this, uri);
+			// May need to adjust these values a bit.
+			if (Type == ChunkContentType.SyncReadTimeout)
+				request.Request.ReadWriteTimeout = 500;
+			else
+				request.Request.ReadWriteTimeout = 1500;
+			return request;
+		}
+
+		protected override void ConfigureRequest (TestContext ctx, Uri uri, Request request)
+		{
+			base.ConfigureRequest (ctx, uri, request);
 		}
 
 		public Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			switch (Type) {
+			case ChunkContentType.SyncRead:
 			case ChunkContentType.NormalChunk:
 			case ChunkContentType.BeginEndAsyncRead:
+			case ChunkContentType.BeginEndAsyncReadNoWait:
 				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);
+			case ChunkContentType.SyncReadTimeout:
+				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Timeout);
 			case ChunkContentType.MissingTrailer:
 				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.ResponseContentException);
 			case ChunkContentType.TruncatedChunk:
@@ -97,7 +122,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		async Task<Response> GetResponseFromHttp (TestContext ctx, ChunkedRequest request, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
 		{
-			string content;
+			var content = string.Empty;
 			var status = response.StatusCode;
 
 			ctx.Assert (status, Is.EqualTo (HttpStatusCode.OK), "success");
@@ -106,37 +131,49 @@ namespace Xamarin.WebTests.TestRunners
 			var stream = response.GetResponseStream ();
 
 			try {
-				if (Type == ChunkContentType.BeginEndAsyncRead) {
+				if (Type == ChunkContentType.BeginEndAsyncRead || Type == ChunkContentType.BeginEndAsyncReadNoWait) {
 					var provider = DependencyInjector.Get<IStreamProvider> ();
 
 					var buffer = new byte [1024];
 					var result = provider.BeginRead (stream, buffer, 0, buffer.Length, null, null);
 
-					await Task.Run (() => {
-						var timeout = ctx.Settings.DisableTimeouts ? -1 : 500;
-						var waitResult = result.AsyncWaitHandle.WaitOne (timeout);
-						ctx.Assert (waitResult, "WaitOne");
-					});
+					if (Type != ChunkContentType.BeginEndAsyncReadNoWait) {
+						await Task.Run (() => {
+							var timeout = ctx.Settings.DisableTimeouts ? -1 : 500;
+							var waitResult = result.AsyncWaitHandle.WaitOne (timeout);
+							ctx.Assert (waitResult, "WaitOne");
+						});
+					}
+
 					var ret = provider.EndRead (stream, result);
 					ctx.Assert (ret, Is.GreaterThan (0), "non-zero read");
 					content = Encoding.UTF8.GetString (buffer, 0, ret);
-				} else {
-					content = string.Empty;
 				}
 
 				var reader = new StreamReader (stream);
-				content += await reader.ReadToEndAsync ();
+				if (Type == ChunkContentType.SyncRead || Type == ChunkContentType.SyncReadTimeout) {
+					content += reader.ReadToEnd ();
+				} else {
+					content += await reader.ReadToEndAsync ();
+				}
 
 				if (ExpectException)
 					ctx.AssertFail ("expected exception");
 			} catch (IOException ex) {
+				ctx.LogMessage ("GOT IOE: {0} {1}", ex.InnerException != null, ex);
 				error = new WebException ("failed to read response", ex, (XWebExceptionStatus)WebExceptionStatus.ResponseContentException, response);
 				content = null;
 			} catch (WebException ex) {
-				if (Type != ChunkContentType.TruncatedChunk)
+				ctx.LogMessage ("GOT WEX: {0} {1}", ex.Status, ex);
+				if (Type == ChunkContentType.SyncReadTimeout) {
+					ctx.Assert ((WebExceptionStatus)ex.Status, Is.EqualTo (WebExceptionStatus.Timeout), "expected Timeout");
+					error = new WebException (ex.Message, ex, (XWebExceptionStatus)WebExceptionStatus.Timeout, response);
+				} else if (Type == ChunkContentType.TruncatedChunk) {
+					ctx.Assert ((WebExceptionStatus)ex.Status, Is.EqualTo (WebExceptionStatus.ConnectionClosed), "expected ConnectionClosed");
+					error = new WebException (ex.Message, ex, (XWebExceptionStatus)WebExceptionStatus.ResponseContentTruncated, response);
+				} else {
 					throw;
-				ctx.Assert ((WebExceptionStatus)ex.Status, Is.EqualTo (WebExceptionStatus.ConnectionClosed), "expected ConnectionClosed");
-				error = new WebException (ex.Message, ex, (XWebExceptionStatus)WebExceptionStatus.ResponseContentTruncated, response);
+				}
 				content = null;
 			} finally {
 				stream.Dispose ();
@@ -183,14 +220,19 @@ namespace Xamarin.WebTests.TestRunners
 				writer.AutoFlush = true;
 				await writer.WriteAsync ("4\r\n");
 				await writer.WriteAsync ("AAAA\r\n");
-				if (Type == ChunkContentType.BeginEndAsyncRead)
+				if (Type == ChunkContentType.BeginEndAsyncRead || Type == ChunkContentType.BeginEndAsyncReadNoWait)
 					await Task.Delay (50);
+				else if (Type == ChunkContentType.SyncReadTimeout)
+					await Task.Delay (5000);
 				await writer.WriteAsync ("8\r\n");
 				await writer.WriteAsync ("BBBBBBBB\r\n");
 
 				switch (Type) {
+				case ChunkContentType.SyncRead:
+				case ChunkContentType.SyncReadTimeout:
 				case ChunkContentType.NormalChunk:
 				case ChunkContentType.BeginEndAsyncRead:
+				case ChunkContentType.BeginEndAsyncReadNoWait:
 					await writer.WriteAsync ("0\r\n\r\n");
 					break;
 				case ChunkContentType.TruncatedChunk:

@@ -1,5 +1,5 @@
 ﻿//
-// ListenerFlags.cs
+// ChunkContentTypeAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,17 +24,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.Features
 {
-	[Flags]
-	public enum ListenerFlags
+	using TestRunners;
+
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+	public class ChunkContentTypeAttribute : TestParameterAttribute, ITestParameterSource<ChunkContentType>
 	{
-		None				= 0,
-		Proxy				= 1,
-		ReuseConnection			= 2,
-		SSL				= 4,
-		ExpectException			= 8
+		public ChunkContentTypeAttribute (string filter = null, TestFlags flags = TestFlags.Browsable | TestFlags.ContinueOnError)
+			: base (filter, flags)
+		{
+		}
+
+		public bool ServerError {
+			get; set;
+		}
+
+		public IEnumerable<ChunkContentType> GetParameters (TestContext ctx, string filter)
+		{
+			if (ServerError) {
+				yield return ChunkContentType.SyncReadTimeout;
+				yield break;
+			}
+
+			yield return ChunkContentType.SyncRead;
+			yield return ChunkContentType.NormalChunk;
+			yield return ChunkContentType.TruncatedChunk;
+			yield return ChunkContentType.MissingTrailer;
+			yield return ChunkContentType.BeginEndAsyncRead;
+			yield return ChunkContentType.BeginEndAsyncReadNoWait;
+		}
 	}
 }
 
