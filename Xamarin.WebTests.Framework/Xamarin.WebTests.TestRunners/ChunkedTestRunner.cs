@@ -160,11 +160,9 @@ namespace Xamarin.WebTests.TestRunners
 				if (ExpectException)
 					ctx.AssertFail ("expected exception");
 			} catch (IOException ex) {
-				ctx.LogMessage ("GOT IOE: {0} {1}", ex.InnerException != null, ex);
 				error = new WebException ("failed to read response", ex, (XWebExceptionStatus)WebExceptionStatus.ResponseContentException, response);
 				content = null;
 			} catch (WebException ex) {
-				ctx.LogMessage ("GOT WEX: {0} {1}", ex.Status, ex);
 				if (Type == ChunkContentType.SyncReadTimeout) {
 					ctx.Assert ((WebExceptionStatus)ex.Status, Is.EqualTo (WebExceptionStatus.Timeout), "expected Timeout");
 					error = new WebException (ex.Message, ex, (XWebExceptionStatus)WebExceptionStatus.Timeout, response);

@@ -44,12 +44,11 @@ namespace Xamarin.WebTests.Tests
 	using Providers;
 	using Features;
 
+	[WorkAttribute]
+	[MonoNewTls]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestChunked
 	{
-		// [Martin]
-		[Work]
-		[NotWorking]
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server,
 			[ChunkContentType] ChunkContentType type, bool sendAsync)
@@ -58,8 +57,6 @@ namespace Xamarin.WebTests.Tests
 			return runner.Run (ctx, cancellationToken);
 		}
 
-		// [Martin]
-		[NotWorking]
 		[AsyncTest]
 		public Task TraditionalBeginEndAsync (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server)
 		{
@@ -67,8 +64,6 @@ namespace Xamarin.WebTests.Tests
 			return runner.Run (ctx, cancellationToken);
 		}
 
-		[Work]
-		[NotWorking]
 		[AsyncTest]
 		public Task ServerErrorTests (TestContext ctx, CancellationToken cancellationToken,
 			[HttpServer (ListenerFlags.ExpectException)] HttpServer server,
@@ -78,12 +73,10 @@ namespace Xamarin.WebTests.Tests
 			return runner.Run (ctx, cancellationToken);
 		}
 
-		[Martin]
-		[NotWorking]
 		[AsyncTest]
 		public Task NormalChunk (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server, bool sendAsync)
 		{
-			var runner = new ChunkedTestRunner (server, ChunkContentType.SyncRead, sendAsync);
+			var runner = new ChunkedTestRunner (server, ChunkContentType.BeginEndAsyncReadNoWait, sendAsync);
 			return runner.Run (ctx, cancellationToken);
 		}
 	}
