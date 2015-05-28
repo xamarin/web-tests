@@ -68,6 +68,15 @@ namespace Xamarin.WebTests.TestRunners
 
 		public static IEnumerable<HttpsTestType> GetHttpsTestTypes (TestContext ctx, string filter)
 		{
+			if (filter == null)
+				return GetHttpsTestTypes (ctx);
+
+			var parts = filter.Split (':');
+			return GetHttpsTestTypes (ctx).Where (t => parts.Contains (t.ToString ()));
+		}
+
+		public static IEnumerable<HttpsTestType> GetHttpsTestTypes (TestContext ctx)
+		{
 			yield return HttpsTestType.Default;
 			yield return HttpsTestType.SelfSignedServer;
 			yield return HttpsTestType.AcceptFromLocalCA;
