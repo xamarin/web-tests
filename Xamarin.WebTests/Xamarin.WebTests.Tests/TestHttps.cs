@@ -45,15 +45,10 @@ namespace Xamarin.WebTests.Tests
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestHttps
 	{
-		[HttpsTestType]
-		public HttpsTestType HttpsTestType {
-			get;
-			private set;
-		}
-
 		[CertificateTests]
 		[AsyncTest]
-		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken, [HttpsTestRunner] HttpsTestRunner runner)
+		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken,
+			[HttpsTestType] HttpsTestType type, [HttpsTestRunner] HttpsTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
 		}

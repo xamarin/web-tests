@@ -69,23 +69,28 @@ namespace Xamarin.WebTests.TestRunners
 		public static IEnumerable<HttpsTestType> GetHttpsTestTypes (TestContext ctx, string filter)
 		{
 			if (filter == null)
-				return GetHttpsTestTypes (ctx);
+				return GetDefaultHttpsTestTypes (ctx);
 
 			var parts = filter.Split (':');
-			return GetHttpsTestTypes (ctx).Where (t => parts.Contains (t.ToString ()));
+			return GetAllHttpsTestTypes (ctx).Where (t => parts.Contains (t.ToString ()));
 		}
 
-		public static IEnumerable<HttpsTestType> GetHttpsTestTypes (TestContext ctx)
+		public static IEnumerable<HttpsTestType> GetDefaultHttpsTestTypes (TestContext ctx)
+		{
+			return GetAllHttpsTestTypes (ctx);
+		}
+
+		public static IEnumerable<HttpsTestType> GetAllHttpsTestTypes (TestContext ctx)
 		{
 			yield return HttpsTestType.Default;
 			yield return HttpsTestType.SelfSignedServer;
 			yield return HttpsTestType.AcceptFromLocalCA;
 			yield return HttpsTestType.NoValidator;
 			yield return HttpsTestType.RejectAll;
-			yield return HttpsTestType.UnrequestedClientCertificate;
 			yield return HttpsTestType.RequestClientCertificate;
-			yield return HttpsTestType.SecondUnrequestedClientCertificate;
 			yield return HttpsTestType.RequireClientCertificate;
+			yield return HttpsTestType.RejectClientCertificate;
+			yield return HttpsTestType.UnrequestedClientCertificate;
 			yield return HttpsTestType.OptionalClientCertificate;
 			yield return HttpsTestType.RejectClientCertificate;
 			yield return HttpsTestType.MissingClientCertificate;
@@ -131,7 +136,8 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpsTestType.UnrequestedClientCertificate:
 				// Provide a client certificate, but do not require it.
 				return new ClientAndServerParameters ("unrequested-client-certificate", ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned
+					ClientCertificate = ResourceManager.PenguinCertificate, ClientCertificateValidator = acceptSelfSigned,
+					ServerCertificateValidator = acceptNull
 				};
 
 			case HttpsTestType.RequestClientCertificate:
@@ -144,12 +150,6 @@ namespace Xamarin.WebTests.TestRunners
 				return new ClientAndServerParameters ("request-client-certificate", ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
 					ServerFlags = ServerFlags.AskForClientCertificate, ServerCertificateValidator = acceptFromLocalCA
-				};
-
-			case HttpsTestType.SecondUnrequestedClientCertificate:
-				// Let's try to provide an unsolicited client certificate again.
-				return new ClientAndServerParameters ("second-unrequested-client-certificate", ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificate = ResourceManager.PenguinCertificate, ClientCertificateValidator = acceptSelfSigned
 				};
 
 			case HttpsTestType.RequireClientCertificate:

@@ -36,7 +36,6 @@ namespace Xamarin.WebTests.Features
 		RejectAll,
 		UnrequestedClientCertificate,
 		RequestClientCertificate,
-		SecondUnrequestedClientCertificate,
 		RequireClientCertificate,
 		OptionalClientCertificate,
 		RejectClientCertificate,
