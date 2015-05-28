@@ -45,16 +45,23 @@ namespace Xamarin.WebTests.Features
 
 		public IEnumerable<ChunkContentType> GetParameters (TestContext ctx, string filter)
 		{
+			var includeAll = ctx.IsEnabled (MonoWithNewTlsAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
+
 			if (ServerError) {
-				yield return ChunkContentType.SyncReadTimeout;
+				if (includeAll)
+					yield return ChunkContentType.SyncReadTimeout;
 				yield break;
 			}
 
 			yield return ChunkContentType.SyncRead;
 			yield return ChunkContentType.NormalChunk;
-			yield return ChunkContentType.TruncatedChunk;
-			yield return ChunkContentType.MissingTrailer;
-			yield return ChunkContentType.BeginEndAsyncRead;
+
+			if (includeAll) {
+				yield return ChunkContentType.TruncatedChunk;
+				yield return ChunkContentType.MissingTrailer;
+				yield return ChunkContentType.BeginEndAsyncRead;
+			}
+
 			yield return ChunkContentType.BeginEndAsyncReadNoWait;
 		}
 	}

@@ -44,8 +44,7 @@ namespace Xamarin.WebTests.Tests
 	using Providers;
 	using Features;
 
-	[WorkAttribute]
-	[MonoNewTls]
+	[Work]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestChunked
 	{
@@ -58,25 +57,11 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task TraditionalBeginEndAsync (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server)
-		{
-			var runner = new ChunkedTestRunner (server, ChunkContentType.BeginEndAsyncRead, true);
-			return runner.Run (ctx, cancellationToken);
-		}
-
-		[AsyncTest]
 		public Task ServerErrorTests (TestContext ctx, CancellationToken cancellationToken,
 			[HttpServer (ListenerFlags.ExpectException)] HttpServer server,
 			[ChunkContentType (ServerError = true)] ChunkContentType type, bool sendAsync)
 		{
 			var runner = new ChunkedTestRunner (server, type, sendAsync);
-			return runner.Run (ctx, cancellationToken);
-		}
-
-		[AsyncTest]
-		public Task NormalChunk (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server, bool sendAsync)
-		{
-			var runner = new ChunkedTestRunner (server, ChunkContentType.BeginEndAsyncReadNoWait, sendAsync);
 			return runner.Run (ctx, cancellationToken);
 		}
 	}
