@@ -83,14 +83,6 @@ namespace Xamarin.WebTests
 	}
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class NotWorking : TestCategoryAttribute
-	{
-		public override TestCategory Category {
-			get { return WebTestFeatures.NotWorkingCategory; }
-		}
-	}
-
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class MartinAttribute : TestCategoryAttribute
 	{
 		public override TestCategory Category {
@@ -175,7 +167,6 @@ namespace Xamarin.WebTests
 		public static readonly TestCategory WorkCategory = new TestCategory ("Work") { IsExplicit = true };
 		public static readonly TestCategory HeavyCategory = new TestCategory ("Heavy") { IsExplicit = true };
 		public static readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
-		public static readonly TestCategory NotWorkingCategory = new TestCategory ("NotWorking") { IsExplicit = true };
 
 		#region ITestConfigurationProvider implementation
 		public virtual string Name {
@@ -210,7 +201,8 @@ namespace Xamarin.WebTests
 				yield return MartinCategory;
 				yield return HeavyCategory;
 				yield return RecentlyFixedCategory;
-				yield return NotWorkingCategory;
+
+				yield return NotWorkingAttribute.Instance;
 			}
 		}
 		#endregion
