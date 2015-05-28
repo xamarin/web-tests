@@ -137,6 +137,7 @@
     <Compile Include="Xamarin.WebTests.Providers\IStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.Features\ChunkContentTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\NotWorkingAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.Features\MonoWithNewTlsAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">

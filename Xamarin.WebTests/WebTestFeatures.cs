@@ -130,14 +130,6 @@ namespace Xamarin.WebTests
 		}
 	}
 
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class MonoNewTlsAttribute : TestFeatureAttribute
-	{
-		public override TestFeature Feature {
-			get { return WebTestFeatures.MonoNewTls; }
-		}
-	}
-
 	public class WebTestFeatures : ITestConfigurationProvider
 	{
 		public static readonly WebTestFeatures Instance;
@@ -160,7 +152,6 @@ namespace Xamarin.WebTests
 		public static readonly TestFeature Mono38;
 		public static readonly TestFeature Mono381;
 		public static readonly TestFeature Mono361;
-		public static readonly TestFeature MonoNewTls;
 
 		public static readonly TestFeature CertificateTests;
 
@@ -188,7 +179,7 @@ namespace Xamarin.WebTests
 				yield return Mono381;
 				yield return Mono361;
 
-				yield return MonoNewTls;
+				yield return MonoWithNewTlsAttribute.Instance;
 
 				yield return CertificateTests;
 				yield return PuppyAttribute.Instance;
@@ -312,8 +303,6 @@ namespace Xamarin.WebTests
 				"Mono361", "Mono 3.6.1", () => HasMonoVersion (new Version (3, 6, 1)));
 			CertificateTests = new TestFeature (
 				"CertificateTests", "Whether the SSL Certificate tests are supported", () => SupportsCertificateTests ());
-			MonoNewTls = new TestFeature (
-				"MonoNewTls", "Implemented in the work-newtls branch", () => SupportsCertificateTests ());
 
 			Instance = new WebTestFeatures ();
 
