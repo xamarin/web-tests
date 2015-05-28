@@ -29,6 +29,7 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.Features
 {
 	using ConnectionFramework;
+	using TestRunners;
 
 	public class ClientAttribute : TestHostAttribute, ITestHost<IClient>
 	{
@@ -39,9 +40,14 @@ namespace Xamarin.WebTests.Features
 
 		public IClient CreateInstance (TestContext ctx)
 		{
-			var parameters = ctx.GetParameter<ClientAndServerParameters> ().ClientParameters;
+			ClientAndServerParameters parameters;
+			if (!ctx.TryGetParameter<ClientAndServerParameters> (out parameters)) {
+				var type = ctx.GetParameter<HttpsTestType> ();
+				parameters = HttpsTestRunner.GetParameters (ctx, type);
+			}
+
 			var provider = CommonHttpFeatures.GetConnectionProvider (ctx);
-			return provider.CreateClient (parameters);
+			return provider.CreateClient (parameters.ClientParameters);
 		}
 	}
 }

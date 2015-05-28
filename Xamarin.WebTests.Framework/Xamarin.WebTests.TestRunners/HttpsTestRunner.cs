@@ -43,6 +43,7 @@ namespace Xamarin.WebTests.TestRunners
 	using ConnectionFramework;
 	using HttpFramework;
 	using HttpHandlers;
+	using Features;
 	using Providers;
 	using Portable;
 	using Resources;
@@ -65,16 +66,23 @@ namespace Xamarin.WebTests.TestRunners
 			Parameters = parameters;
 		}
 
-		public static IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx, string filter)
+		public static IEnumerable<HttpsTestType> GetHttpsTestTypes (TestContext ctx, string filter)
 		{
-			if (filter == null)
-				return GetParameters (ctx);
-
-			var parts = filter.Split (',');
-			return GetParameters (ctx).Where (p => parts.Contains (p.Identifier));
+			yield return HttpsTestType.Default;
+			yield return HttpsTestType.SelfSignedServer;
+			yield return HttpsTestType.AcceptFromLocalCA;
+			yield return HttpsTestType.NoValidator;
+			yield return HttpsTestType.RejectAll;
+			yield return HttpsTestType.UnrequestedClientCertificate;
+			yield return HttpsTestType.RequestClientCertificate;
+			yield return HttpsTestType.SecondUnrequestedClientCertificate;
+			yield return HttpsTestType.RequireClientCertificate;
+			yield return HttpsTestType.OptionalClientCertificate;
+			yield return HttpsTestType.RejectClientCertificate;
+			yield return HttpsTestType.MissingClientCertificate;
 		}
 
-		public static IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx)
+		public static ClientAndServerParameters GetParameters (TestContext ctx, HttpsTestType type)
 		{
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 			var acceptAll = certificateProvider.AcceptAll ();
@@ -88,79 +96,95 @@ namespace Xamarin.WebTests.TestRunners
 
 			var acceptAllClient = new ClientParameters ("accept-all") { ClientCertificateValidator = acceptAll };
 
-			yield return new ClientAndServerParameters (acceptAllClient, defaultServer);
-			yield return new ClientAndServerParameters (acceptAllClient, selfSignedServer);
+			switch (type) {
+			case HttpsTestType.Default:
+				return new ClientAndServerParameters (acceptAllClient, defaultServer);
+			case HttpsTestType.SelfSignedServer:
+				return new ClientAndServerParameters (acceptAllClient, selfSignedServer);
+			case HttpsTestType.AcceptFromLocalCA:
+				return new ClientAndServerParameters ("accept-local-ca", ResourceManager.ServerCertificateFromCA) {
+					ClientCertificateValidator = acceptFromLocalCA
+				};
 
-			yield return new ClientAndServerParameters ("accept-local-ca", ResourceManager.ServerCertificateFromCA) {
-				ClientCertificateValidator = acceptFromLocalCA
-			};
+			case HttpsTestType.NoValidator:
+				// The default validator only allows ResourceManager.DefaultServerCertificate.
+				return new ClientAndServerParameters ("no-validator", ResourceManager.SelfSignedServerCertificate) {
+					ClientFlags = ClientFlags.ExpectTrustFailure, ServerFlags = ServerFlags.ClientAbortsHandshake
+				};
 
-			// The default validator only allows ResourceManager.DefaultServerCertificate.
-			yield return new ClientAndServerParameters ("no-validator", ResourceManager.SelfSignedServerCertificate) {
-				ClientFlags = ClientFlags.ExpectTrustFailure, ServerFlags = ServerFlags.ClientAbortsHandshake
-			};
+			case HttpsTestType.RejectAll:
+				// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
+				return new ClientAndServerParameters ("reject-all", ResourceManager.DefaultServerCertificate) {
+					ClientFlags = ClientFlags.ExpectTrustFailure, ClientCertificateValidator = rejectAll,
+					ServerFlags = ServerFlags.ClientAbortsHandshake
+				};
 
-			// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
-			yield return new ClientAndServerParameters ("reject-all", ResourceManager.DefaultServerCertificate) {
-				ClientFlags = ClientFlags.ExpectTrustFailure, ClientCertificateValidator = rejectAll,
-				ServerFlags = ServerFlags.ClientAbortsHandshake
-			};
+			case HttpsTestType.UnrequestedClientCertificate:
+				// Provide a client certificate, but do not require it.
+				return new ClientAndServerParameters ("unrequested-client-certificate", ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned
+				};
 
-			// Provide a client certificate, but do not require it.
-			yield return new ClientAndServerParameters ("unrequested-client-certificate", ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned
-			};
+			case HttpsTestType.RequestClientCertificate:
+				/*
+				 * Request client certificate, but do not require it.
+				 *
+				 * FIXME:
+				 * SslStream with Mono's old implementation fails here.
+				 */
+				return new ClientAndServerParameters ("request-client-certificate", ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
+					ServerFlags = ServerFlags.AskForClientCertificate, ServerCertificateValidator = acceptFromLocalCA
+				};
 
-			/*
-			 * Request client certificate, but do not require it.
-			 *
-			 * FIXME:
-			 * SslStream with Mono's old implementation fails here.
-			 */
-			yield return new ClientAndServerParameters ("request-client-certificate", ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
-				ServerFlags = ServerFlags.AskForClientCertificate, ServerCertificateValidator = acceptFromLocalCA
-			};
+			case HttpsTestType.SecondUnrequestedClientCertificate:
+				// Let's try to provide an unsolicited client certificate again.
+				return new ClientAndServerParameters ("second-unrequested-client-certificate", ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificate = ResourceManager.PenguinCertificate, ClientCertificateValidator = acceptSelfSigned
+				};
 
-			// Let's try to provide an unsolicited client certificate again.
-			yield return new ClientAndServerParameters ("second-unrequested-client-certificate", ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificate = ResourceManager.PenguinCertificate, ClientCertificateValidator = acceptSelfSigned
-			};
+			case HttpsTestType.RequireClientCertificate:
+				// Require client certificate.
+				return new ClientAndServerParameters ("require-client-certificate", ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
+					ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.RequireClientCertificate,
+					ServerCertificateValidator = acceptFromLocalCA
+				};
 
-			// Require client certificate.
-			yield return new ClientAndServerParameters ("require-client-certificate", ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
-				ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.RequireClientCertificate,
-				ServerCertificateValidator = acceptFromLocalCA
-			};
+			case HttpsTestType.OptionalClientCertificate:
+				/*
+				 * Request client certificate without requiring one and do not provide it.
+				 *
+				 * To ask for an optional client certificate (without requiring it), you need to specify a custom validation
+				 * callback and then accept the null certificate with `SslPolicyErrors.RemoteCertificateNotAvailable' in it.
+				 *
+				 * FIXME:
+				 * Mono with the old TLS implementation throws SecureChannelFailure.
+				 */
+				return new ClientAndServerParameters ("optional-client-certificate", ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptSelfSigned, ServerFlags = ServerFlags.AskForClientCertificate,
+					ServerCertificateValidator = acceptNull
+				};
 
-			/*
-			 * Request client certificate without requiring one and do not provide it.
-			 *
-			 * To ask for an optional client certificate (without requiring it), you need to specify a custom validation
-			 * callback and then accept the null certificate with `SslPolicyErrors.RemoteCertificateNotAvailable' in it.
-			 *
-			 * FIXME:
-			 * Mono with the old TLS implementation throws SecureChannelFailure.
-			 */
-			yield return new ClientAndServerParameters ("optional-client-certificate", ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificateValidator = acceptSelfSigned, ServerFlags = ServerFlags.AskForClientCertificate,
-				ServerCertificateValidator = acceptNull
-			};
+			case HttpsTestType.RejectClientCertificate:
+				// Reject client certificate.
+				return new ClientAndServerParameters ("reject-client-certificate", ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
+					ClientFlags = ClientFlags.ExpectWebException, ServerCertificateValidator = rejectAll,
+					ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException
+				};
 
-			// Reject client certificate.
-			yield return new ClientAndServerParameters ("reject-client-certificate", ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
-				ClientFlags = ClientFlags.ExpectWebException, ServerCertificateValidator = rejectAll,
-				ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException
-			};
+			case HttpsTestType.MissingClientCertificate:
+				// Missing client certificate.
+				return new ClientAndServerParameters ("missing-client-certificate", ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptSelfSigned, ClientFlags = ClientFlags.ExpectWebException,
+					ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.RequireClientCertificate |
+					ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException
+				};
 
-			// Missing client certificate.
-			yield return new ClientAndServerParameters ("missing-client-certificate", ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificateValidator = acceptSelfSigned, ClientFlags = ClientFlags.ExpectWebException,
-				ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.RequireClientCertificate |
-				ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException
-			};
+			default:
+				throw new InvalidOperationException ();
+			}
 		}
 
 		public Task Run (TestContext ctx, CancellationToken cancellationToken)

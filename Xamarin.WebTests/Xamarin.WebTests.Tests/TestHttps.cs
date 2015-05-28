@@ -45,8 +45,8 @@ namespace Xamarin.WebTests.Tests
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestHttps
 	{
-		[ClientAndServerParametersAttribute]
-		public ClientAndServerParameters ConnectionParameters {
+		[HttpsTestType]
+		public HttpsTestType HttpsTestType {
 			get;
 			private set;
 		}

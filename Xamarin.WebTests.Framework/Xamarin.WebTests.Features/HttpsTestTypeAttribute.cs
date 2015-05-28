@@ -1,5 +1,5 @@
 ﻿//
-// HttpsConnectionParameterAttribute.cs
+// HttpsTestTypeAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -26,25 +26,22 @@
 using System;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Features
 {
-	using ConnectionFramework;
 	using TestRunners;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class ClientAndServerParametersAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
+	public class HttpsTestTypeAttribute : TestParameterAttribute, ITestParameterSource<HttpsTestType>
 	{
-		public ClientAndServerParametersAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+		public HttpsTestTypeAttribute (string filter = null, TestFlags flags = TestFlags.Browsable | TestFlags.ContinueOnError)
 			: base (filter, flags)
 		{
 		}
 
-		public IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx, string filter)
+		public IEnumerable<HttpsTestType> GetParameters (TestContext ctx, string filter)
 		{
-			return HttpsTestRunner.GetParameters (ctx, filter);
+			return HttpsTestRunner.GetHttpsTestTypes (ctx, filter);
 		}
 	}
 }

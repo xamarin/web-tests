@@ -1,5 +1,5 @@
 ﻿//
-// ServerTestHostAttribute.cs
+// HttpsTestType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,32 +24,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Features
 {
-	using ConnectionFramework;
-	using TestRunners;
-
-	public class ServerAttribute : TestHostAttribute, ITestHost<IServer>
+	public enum HttpsTestType
 	{
-		public ServerAttribute ()
-			: base (typeof (ServerAttribute), TestFlags.Hidden)
-		{
-		}
-
-		public IServer CreateInstance (TestContext ctx)
-		{
-			ClientAndServerParameters parameters;
-			if (!ctx.TryGetParameter<ClientAndServerParameters> (out parameters)) {
-				var type = ctx.GetParameter<HttpsTestType> ();
-				parameters = HttpsTestRunner.GetParameters (ctx, type);
-			}
-
-			var provider = CommonHttpFeatures.GetConnectionProvider (ctx);
-			return provider.CreateServer (parameters.ServerParameters);
-		}
+		Default,
+		SelfSignedServer,
+		AcceptFromLocalCA,
+		NoValidator,
+		RejectAll,
+		UnrequestedClientCertificate,
+		RequestClientCertificate,
+		SecondUnrequestedClientCertificate,
+		RequireClientCertificate,
+		OptionalClientCertificate,
+		RejectClientCertificate,
+		MissingClientCertificate
 	}
-
 }
 
