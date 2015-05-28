@@ -72,28 +72,50 @@ namespace Xamarin.WebTests.TestRunners
 				return GetDefaultHttpsTestTypes (ctx);
 
 			var parts = filter.Split (':');
-			return GetAllHttpsTestTypes (ctx).Where (t => parts.Contains (t.ToString ()));
+			return AllHttpsTestTypes.Where (t => parts.Contains (t.ToString ()));
 		}
 
 		public static IEnumerable<HttpsTestType> GetDefaultHttpsTestTypes (TestContext ctx)
 		{
-			return GetAllHttpsTestTypes (ctx);
+			var providerType = CommonHttpFeatures.GetConnectionProviderType (ctx);
+
+			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
+			var isNewTls = CommonHttpFeatures.IsNewTls (providerType);
+
+			if (isNewTls || includeNotWorking || CommonHttpFeatures.IsMicrosoftRuntime)
+				return AllHttpsTestTypes;
+			else
+				return OldMonoTestTypes;
 		}
 
-		public static IEnumerable<HttpsTestType> GetAllHttpsTestTypes (TestContext ctx)
-		{
-			yield return HttpsTestType.Default;
-			yield return HttpsTestType.SelfSignedServer;
-			yield return HttpsTestType.AcceptFromLocalCA;
-			yield return HttpsTestType.NoValidator;
-			yield return HttpsTestType.RejectAll;
-			yield return HttpsTestType.RequestClientCertificate;
-			yield return HttpsTestType.RequireClientCertificate;
-			yield return HttpsTestType.RejectClientCertificate;
-			yield return HttpsTestType.UnrequestedClientCertificate;
-			yield return HttpsTestType.OptionalClientCertificate;
-			yield return HttpsTestType.RejectClientCertificate;
-			yield return HttpsTestType.MissingClientCertificate;
+		static IEnumerable<HttpsTestType> OldMonoTestTypes {
+			get {
+				yield return HttpsTestType.Default;
+				yield return HttpsTestType.SelfSignedServer;
+				yield return HttpsTestType.AcceptFromLocalCA;
+				yield return HttpsTestType.RejectAll;
+				yield return HttpsTestType.RejectClientCertificate;
+				yield return HttpsTestType.UnrequestedClientCertificate;
+				yield return HttpsTestType.RejectClientCertificate;
+				yield return HttpsTestType.MissingClientCertificate;
+			}
+		}
+
+		public static IEnumerable<HttpsTestType> AllHttpsTestTypes {
+			get {
+				yield return HttpsTestType.Default;
+				yield return HttpsTestType.SelfSignedServer;
+				yield return HttpsTestType.AcceptFromLocalCA;
+				yield return HttpsTestType.NoValidator;
+				yield return HttpsTestType.RejectAll;
+				yield return HttpsTestType.RequestClientCertificate;
+				yield return HttpsTestType.RequireClientCertificate;
+				yield return HttpsTestType.RejectClientCertificate;
+				yield return HttpsTestType.UnrequestedClientCertificate;
+				yield return HttpsTestType.OptionalClientCertificate;
+				yield return HttpsTestType.RejectClientCertificate;
+				yield return HttpsTestType.MissingClientCertificate;
+			}
 		}
 
 		public static ClientAndServerParameters GetParameters (TestContext ctx, HttpsTestType type)

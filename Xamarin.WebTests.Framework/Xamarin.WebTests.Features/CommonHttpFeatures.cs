@@ -57,12 +57,35 @@ namespace Xamarin.WebTests.Features
 			return support.GetLoopbackEndpoint (port);
 		}
 
-		internal static ConnectionProvider GetConnectionProvider (TestContext ctx)
+		internal static bool IsMicrosoftRuntime {
+			get { return DependencyInjector.Get<IPortableSupport> ().IsMicrosoftRuntime; }
+		}
+
+		internal static bool IsNewTls (ConnectionProviderType type)
+		{
+			switch (type) {
+			case ConnectionProviderType.DotNet:
+				return IsMicrosoftRuntime;
+			case ConnectionProviderType.NewTLS:
+			case ConnectionProviderType.MonoWithNewTLS:
+			case ConnectionProviderType.OpenSsl:
+				return true;
+			default:
+				return false;
+			}
+		}
+
+		internal static ConnectionProviderType GetConnectionProviderType (TestContext ctx)
 		{
 			ConnectionProviderType providerType;
 			if (!ctx.TryGetParameter<ConnectionProviderType> (out providerType))
 				providerType = ConnectionProviderType.DotNet;
+			return providerType;
+		}
 
+		internal static ConnectionProvider GetConnectionProvider (TestContext ctx)
+		{
+			var providerType = GetConnectionProviderType (ctx);
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 			return factory.GetProvider (providerType);
 		}
