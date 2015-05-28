@@ -139,6 +139,7 @@
     <Compile Include="Xamarin.WebTests.Features\MonoWithNewTlsAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\HttpsTestType.cs" />
     <Compile Include="Xamarin.WebTests.Features\HttpsTestTypeAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.Features\IncludeNotWorkingAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">

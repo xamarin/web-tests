@@ -179,6 +179,7 @@ namespace Xamarin.WebTests
 				yield return Mono381;
 				yield return Mono361;
 
+				yield return IncludeNotWorkingAttribute.Instance;
 				yield return MonoWithNewTlsAttribute.Instance;
 
 				yield return CertificateTests;

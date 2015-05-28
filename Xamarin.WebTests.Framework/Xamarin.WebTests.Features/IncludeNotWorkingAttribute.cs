@@ -1,5 +1,5 @@
 ﻿//
-// ChunkContentTypeAttribute.cs
+// IncludeNotWorkingAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,46 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Features
 {
-	using TestRunners;
-
-	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class ChunkContentTypeAttribute : TestParameterAttribute, ITestParameterSource<ChunkContentType>
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class IncludeNotWorkingAttribute : TestFeatureAttribute
 	{
-		public ChunkContentTypeAttribute (string filter = null, TestFlags flags = TestFlags.Browsable | TestFlags.ContinueOnError)
-			: base (filter, flags)
-		{
-		}
+		public static readonly TestFeature Instance = new TestFeature ("NotWorking", "Include not working tests");
 
-		public bool ServerError {
-			get; set;
-		}
-
-		public IEnumerable<ChunkContentType> GetParameters (TestContext ctx, string filter)
-		{
-			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
-			var hasNewTls = ctx.IsEnabled (MonoWithNewTlsAttribute.Instance);
-
-			if (ServerError) {
-				if (hasNewTls || includeNotWorking)
-					yield return ChunkContentType.SyncReadTimeout;
-				yield break;
-			}
-
-			yield return ChunkContentType.SyncRead;
-			yield return ChunkContentType.NormalChunk;
-
-			if (hasNewTls || includeNotWorking) {
-				yield return ChunkContentType.TruncatedChunk;
-				yield return ChunkContentType.MissingTrailer;
-				yield return ChunkContentType.BeginEndAsyncRead;
-			}
-
-			yield return ChunkContentType.BeginEndAsyncReadNoWait;
+		public override TestFeature Feature {
+			get { return Instance; }
 		}
 	}
 }
