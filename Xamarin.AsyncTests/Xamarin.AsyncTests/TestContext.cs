@@ -347,6 +347,15 @@ namespace Xamarin.AsyncTests
 			value = default(T);
 			return false;
 		}
+
+		static int nextPort;
+
+		public int GetUniquePort ()
+		{
+			if (parent != null)
+				return parent.GetUniquePort ();
+			return 9000 + (++nextPort);
+		}
 	}
 }
 

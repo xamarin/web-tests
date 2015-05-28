@@ -111,6 +111,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			socket.Bind (endpoint);
 			socket.Listen (1);
 
+			ctx.LogMessage ("Listening at {0}.", endpoint);
+
 			tcs = new TaskCompletionSource<ISslStream> ();
 
 			socket.BeginAccept (async ar => {

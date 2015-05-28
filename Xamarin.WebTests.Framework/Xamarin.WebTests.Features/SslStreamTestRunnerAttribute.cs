@@ -1,5 +1,5 @@
 ﻿//
-// HttpsServerAttribute.cs
+// SslStreamTestRunnerAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -38,24 +38,20 @@ namespace Xamarin.WebTests.Features
 	using Providers;
 	using Resources;
 
-	public class HttpsTestRunnerAttribute : TestHostAttribute, ITestHost<HttpsTestRunner>
+	public class SslStreamTestRunnerAttribute : TestHostAttribute, ITestHost<SslStreamTestRunner>
 	{
-		public HttpsTestRunnerAttribute ()
-			: base (typeof (HttpsTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
+		public SslStreamTestRunnerAttribute ()
+			: base (typeof (SslStreamTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
 		{
 		}
 
-		protected HttpsTestRunnerAttribute (Type type, TestFlags flags = TestFlags.Hidden | TestFlags.PathHidden)
+		protected SslStreamTestRunnerAttribute (Type type, TestFlags flags = TestFlags.Hidden | TestFlags.PathHidden)
 			: base (type, flags)
 		{
 		}
 
-		public HttpsTestRunner CreateInstance (TestContext ctx)
+		public SslStreamTestRunner CreateInstance (TestContext ctx)
 		{
-			var endpoint = CommonHttpFeatures.GetEndPoint (ctx);
-			var httpProvider = CommonHttpFeatures.GetHttpProvider (ctx);
-			var listenerFlags = ListenerFlags.SSL;
-
 			ClientAndServerParameters parameters;
 			if (!ctx.TryGetParameter<ClientAndServerParameters> (out parameters)) {
 				var type = ctx.GetParameter<HttpsTestType> ();
@@ -64,7 +60,12 @@ namespace Xamarin.WebTests.Features
 
 			CommonHttpFeatures.GetUniqueEndPoint (ctx, parameters);
 
-			return new HttpsTestRunner (httpProvider, endpoint, listenerFlags, parameters);
+			var provider = CommonHttpFeatures.GetConnectionProvider (ctx);
+
+			var client = provider.CreateClient (parameters.ClientParameters);
+			var server = provider.CreateServer (parameters.ServerParameters);
+
+			return new SslStreamTestRunner (server, client, parameters);
 		}
 	}
 }

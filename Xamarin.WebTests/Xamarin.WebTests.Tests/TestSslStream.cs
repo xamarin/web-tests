@@ -47,10 +47,8 @@ namespace Xamarin.WebTests.Tests
 	{
 		[AsyncTest]
 		public async Task TestConnection (TestContext ctx, CancellationToken cancellationToken,
-			[HttpsTestType] HttpsTestType type,
-			[ServerAttribute] IServer server, [ClientAttribute] IClient client)
+			[HttpsTestType] HttpsTestType type, [SslStreamTestRunner] SslStreamTestRunner runner)
 		{
-			var runner = new SslStreamTestRunner (server, client);
 			await runner.Run (ctx, cancellationToken);
 		}
 	}

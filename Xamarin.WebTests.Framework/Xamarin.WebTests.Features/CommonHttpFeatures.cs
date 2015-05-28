@@ -53,7 +53,8 @@ namespace Xamarin.WebTests.Features
 		internal static IPortableEndPoint GetEndPoint (TestContext ctx)
 		{
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			return support.GetLoopbackEndpoint (9999);
+			var port = ctx.GetUniquePort ();
+			return support.GetLoopbackEndpoint (port);
 		}
 
 		internal static ConnectionProvider GetConnectionProvider (TestContext ctx)
@@ -64,6 +65,18 @@ namespace Xamarin.WebTests.Features
 
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 			return factory.GetProvider (providerType);
+		}
+
+		internal static void GetUniqueEndPoint (TestContext ctx, ClientAndServerParameters parameters)
+		{
+			if (parameters.EndPoint == null)
+				parameters.EndPoint = GetEndPoint (ctx);
+
+			if (parameters.ServerParameters.EndPoint == null)
+				parameters.ServerParameters.EndPoint = parameters.EndPoint;
+			if (parameters.ClientParameters.EndPoint == null)
+				parameters.ClientParameters.EndPoint = parameters.EndPoint ?? parameters.ServerParameters.EndPoint;
+
 		}
 	}
 }

@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -100,7 +101,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override async Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			ctx.LogMessage ("Starting client and server: {0} {1}", client, server);
+			ctx.LogMessage ("Starting client and server: {0} {1} {2}", client, server, server.EndPoint);
 			await server.Start (ctx, cancellationToken);
 			await client.Start (ctx, cancellationToken);
 		}
