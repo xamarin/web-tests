@@ -158,18 +158,18 @@ namespace Xamarin.WebTests.HttpHandlers
 				tcs.SetResult (response.IsSuccess);
 				return response.KeepAlive ?? false;
 			} catch (AssertionException ex) {
-				Debug (ctx, 0, "HANDLE REQUEST - ASSERTION FAILED", ex);
+				Debug (ctx, 1, "HANDLE REQUEST - ASSERTION FAILED", ex);
 				var response = HttpResponse.CreateError (ex.Message);
 				connection.WriteResponse (response);
 				tcs.SetException (ex);
 				return false;
 			} catch (Exception ex) {
 				if (ctx.IsCanceled) {
-					Debug (ctx, 0, "HANDLE REQUEST - CANCELED", ex);
+					Debug (ctx, 1, "HANDLE REQUEST - CANCELED", ex);
 					tcs.SetCanceled ();
 					return false;
 				}
-				Debug (ctx, 0, "HANDLE REQUEST EX", ex);
+				Debug (ctx, 1, "HANDLE REQUEST EX", ex);
 				var response = HttpResponse.CreateError ("Caught unhandled exception", ex);
 				connection.WriteResponse (response);
 				tcs.SetException (ex);
