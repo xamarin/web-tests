@@ -37,7 +37,6 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using Mono.Security.Protocol.Ntlm;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
