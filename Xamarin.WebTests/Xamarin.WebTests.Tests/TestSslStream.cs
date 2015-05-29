@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.Tests
 	using Features;
 
 	[SSL]
+	[Martin]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestSslStream
 	{
@@ -49,6 +50,9 @@ namespace Xamarin.WebTests.Tests
 		public async Task TestConnection (TestContext ctx, CancellationToken cancellationToken,
 			[HttpsTestType] HttpsTestType type, [SslStreamTestRunner] SslStreamTestRunner runner)
 		{
+			if (!HttpsTestRunner.IsSupported (ctx, type))
+				ctx.IgnoreThisTest ();
+
 			await runner.Run (ctx, cancellationToken);
 		}
 	}

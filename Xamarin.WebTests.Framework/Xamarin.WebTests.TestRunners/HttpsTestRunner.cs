@@ -69,23 +69,23 @@ namespace Xamarin.WebTests.TestRunners
 		public static IEnumerable<HttpsTestType> GetHttpsTestTypes (TestContext ctx, string filter)
 		{
 			if (filter == null)
-				return GetDefaultHttpsTestTypes (ctx);
+				return AllHttpsTestTypes;
 
 			var parts = filter.Split (':');
 			return AllHttpsTestTypes.Where (t => parts.Contains (t.ToString ()));
 		}
 
-		public static IEnumerable<HttpsTestType> GetDefaultHttpsTestTypes (TestContext ctx)
+		public static bool IsSupported (TestContext ctx, HttpsTestType type)
 		{
 			var providerType = CommonHttpFeatures.GetConnectionProviderType (ctx);
 
 			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
 			var isNewTls = CommonHttpFeatures.IsNewTls (providerType);
 
-			if (isNewTls || includeNotWorking || CommonHttpFeatures.IsMicrosoftRuntime)
-				return AllHttpsTestTypes;
-			else
-				return OldMonoTestTypes;
+			if (isNewTls || includeNotWorking)
+				return true;
+
+			return OldMonoTestTypes.Contains (type);
 		}
 
 		static IEnumerable<HttpsTestType> OldMonoTestTypes {

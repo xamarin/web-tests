@@ -231,6 +231,13 @@ namespace Xamarin.AsyncTests
 			return false;
 		}
 
+		[HideStackFrame]
+		public void IgnoreThisTest ()
+		{
+			OnTestIgnored ();
+			throw new SkipRestOfThisTestException ();
+		}
+
 		class SkipRestOfThisTestException : Exception
 		{
 		}

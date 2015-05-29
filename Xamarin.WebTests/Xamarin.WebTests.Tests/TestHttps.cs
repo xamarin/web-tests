@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.Tests
 	using Features;
 
 	[SSL]
+	[Martin]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestHttps
 	{
@@ -50,6 +51,9 @@ namespace Xamarin.WebTests.Tests
 		public Task RunCertificateTests (TestContext ctx, CancellationToken cancellationToken,
 			[HttpsTestType] HttpsTestType type, [HttpsTestRunner] HttpsTestRunner runner)
 		{
+			if (!HttpsTestRunner.IsSupported (ctx, type))
+				ctx.IgnoreThisTest ();
+
 			return runner.Run (ctx, cancellationToken);
 		}
 	}
