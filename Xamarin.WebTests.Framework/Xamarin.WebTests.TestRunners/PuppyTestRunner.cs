@@ -56,7 +56,7 @@ namespace Xamarin.WebTests.TestRunners
 			return value;
 		}
 
-		public Request CreateRequest (TestContext ctx)
+		public virtual Request CreateRequest (TestContext ctx)
 		{
 			var uri = new Uri (GetPuppyURL (ctx));
 			return new TraditionalRequest (uri);
