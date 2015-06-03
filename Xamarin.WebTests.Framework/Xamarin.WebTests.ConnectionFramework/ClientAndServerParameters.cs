@@ -30,8 +30,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		protected ClientAndServerParameters (ClientAndServerParameters other)
-			: this (other.Identifier, (ClientParameters)other.ClientParameters.DeepClone (), (ServerParameters)other.ServerParameters.DeepClone ())
+			: base (other)
 		{
+			this.clientParameters = (ClientParameters)other.ClientParameters.DeepClone ();
+			this.serverParameters = (ServerParameters)other.serverParameters.DeepClone ();
 		}
 
 		public override ConnectionParameters DeepClone ()

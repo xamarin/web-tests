@@ -25,6 +25,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			Identifier = other.Identifier;
 			EndPoint = other.EndPoint;
+			ProtocolVersion = other.ProtocolVersion;
 		}
 
 		object ICloneable.Clone ()
