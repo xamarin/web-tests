@@ -28,6 +28,7 @@ using System.Net;
 using System.Collections.Generic;
 using System.Security.Authentication;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -45,8 +46,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			dotNetStreamProvider = new DotNetSslStreamProvider ();
 			defaultHttpProvider = new DefaultHttpProvider (dotNetStreamProvider);
 
-			defaultConnectionProvider = new DotNetConnectionProvider (this, dotNetStreamProvider, defaultHttpProvider);
+			defaultConnectionProvider = new DotNetConnectionProvider (this, ConnectionProviderType.DotNet, dotNetStreamProvider, defaultHttpProvider);
 			Install (defaultConnectionProvider);
+
+			var support = DependencyInjector.Get<IPortableSupport> ();
+			if (support.IsMicrosoftRuntime) {
+				var newTls = new DotNetConnectionProvider (this, ConnectionProviderType.NewTLS, dotNetStreamProvider, defaultHttpProvider);
+				Install (newTls);
+			}
 		}
 
 		public override IHttpProvider DefaultHttpProvider {

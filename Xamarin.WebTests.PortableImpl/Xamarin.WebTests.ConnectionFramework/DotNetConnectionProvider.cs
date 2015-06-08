@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -36,8 +38,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		readonly ISslStreamProvider sslStreamProvider;
 		readonly IHttpProvider httpProvider;
 
-		public DotNetConnectionProvider (ConnectionProviderFactory factory, ISslStreamProvider sslStreamProvider, IHttpProvider httpProvider)
-			: base (factory, ConnectionProviderType.DotNet, ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsSslStream)
+		public DotNetConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderType type, ISslStreamProvider sslStreamProvider, IHttpProvider httpProvider)
+			: base (factory, type, ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsSslStream)
 		{
 			this.sslStreamProvider = sslStreamProvider;
 			this.httpProvider = httpProvider;
@@ -45,10 +47,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override bool IsCompatibleWith (ConnectionProviderType type)
 		{
+			var support = DependencyInjector.Get<IPortableSupport> ();
+
 			switch (type) {
 			case ConnectionProviderType.DotNet:
-			case ConnectionProviderType.OpenSsl:
 				return true;
+			case ConnectionProviderType.NewTLS:
+				return support.IsMicrosoftRuntime;
+			case ConnectionProviderType.OpenSsl:
+				return !support.IsMicrosoftRuntime;
 			default:
 				return false;
 			}
