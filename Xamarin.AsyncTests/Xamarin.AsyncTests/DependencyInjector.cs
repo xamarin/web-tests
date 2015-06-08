@@ -79,8 +79,22 @@ namespace Xamarin.AsyncTests
 		{
 			lock (syncRoot) {
 				if (!dict.ContainsKey (typeof(T)))
-					throw new InvalidOperationException ();
+					throw new InvalidOperationException (string.Format ("Missing dependency: `{0}'", typeof(T)));
 				return (T)dict [typeof(T)];
+			}
+		}
+
+		public static bool TryGet<T> (out T dependency)
+			where T : class
+		{
+			lock (syncRoot) {
+				object value;
+				if (dict.TryGetValue (typeof(T), out value)) {
+					dependency = (T)value;
+					return true;
+				}
+				dependency = null;
+				return false;
 			}
 		}
 

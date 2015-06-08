@@ -80,11 +80,23 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return (ProtocolVersions)GetSslProtocol (); }
 		}
 
+		SslProtocols GetProtocol (ConnectionParameters parameters, bool server)
+		{
+			var protocol = (ProtocolVersions)GetSslProtocol ();
+			protocol &= server ? ProtocolVersions.ServerMask : ProtocolVersions.ClientMask;
+			if (parameters.ProtocolVersion != ProtocolVersions.Unspecified) {
+				protocol &= parameters.ProtocolVersion;
+				if (protocol == ProtocolVersions.Unspecified)
+					throw new NotSupportedException ();
+			}
+			return (SslProtocols)protocol;
+		}
+
 		public ISslStream CreateServerStream (Stream stream, ServerParameters parameters)
 		{
 			var certificate = CertificateProvider.GetCertificate (parameters.ServerCertificate);
 
-			var protocol = GetSslProtocol ();
+			var protocol = GetProtocol (parameters, true);
 			var validator = GetValidationCallback (parameters);
 
 			var askForCert = (parameters.Flags & (ServerFlags.AskForClientCertificate|ServerFlags.RequireClientCertificate)) != 0;
@@ -100,7 +112,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			var certificate = CertificateProvider.GetCertificate (parameters.ServerCertificate);
 
-			var protocol = GetSslProtocol ();
+			var protocol = GetProtocol (parameters, true);
 			var validator = GetValidationCallback (parameters);
 
 			var askForCert = (parameters.Flags & (ServerFlags.AskForClientCertificate|ServerFlags.RequireClientCertificate)) != 0;
@@ -114,7 +126,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public async Task<ISslStream> CreateClientStreamAsync (
 			Stream stream, string targetHost, ClientParameters parameters, CancellationToken cancellationToken)
 		{
-			var protocol = GetSslProtocol ();
+			var protocol = GetProtocol (parameters, false);
 			var clientCertificates = GetClientCertificates (parameters);
 			var validator = GetValidationCallback (parameters);
 
