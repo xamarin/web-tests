@@ -72,6 +72,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return provider.SupportedProtocols; }
 		}
 
+		public ProtocolVersionCode ProtocolVersion {
+			get { return SslStream.ProtocolVersion; }
+		}
+
 		protected abstract bool IsServer {
 			get;
 		}

@@ -28,6 +28,8 @@ using System.IO;
 
 namespace Xamarin.WebTests.Providers
 {
+	using ConnectionFramework;
+
 	public interface ISslStream
 	{
 		bool IsAuthenticated {
@@ -47,6 +49,10 @@ namespace Xamarin.WebTests.Providers
 		}
 
 		Stream AuthenticatedStream {
+			get;
+		}
+
+		ProtocolVersionCode ProtocolVersion {
 			get;
 		}
 	}

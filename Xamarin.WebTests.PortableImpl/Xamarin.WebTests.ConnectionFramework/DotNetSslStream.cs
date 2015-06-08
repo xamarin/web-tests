@@ -59,6 +59,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public Stream AuthenticatedStream {
 			get { return stream; }
 		}
+
+		public ProtocolVersionCode ProtocolVersion {
+			get { return (ProtocolVersionCode)stream.SslProtocol; }
+		}
 	}
 }
 
