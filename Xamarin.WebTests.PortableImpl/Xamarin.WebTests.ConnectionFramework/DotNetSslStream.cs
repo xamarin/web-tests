@@ -60,8 +60,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return stream; }
 		}
 
-		public ProtocolVersionCode ProtocolVersion {
-			get { return (ProtocolVersionCode)stream.SslProtocol; }
+		public ProtocolVersions ProtocolVersion {
+			get { return (ProtocolVersions)stream.SslProtocol; }
 		}
 	}
 }

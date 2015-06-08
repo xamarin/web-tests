@@ -52,7 +52,7 @@ namespace Xamarin.WebTests.Providers
 			get;
 		}
 
-		ProtocolVersionCode ProtocolVersion {
+		ProtocolVersions ProtocolVersion {
 			get;
 		}
 	}
