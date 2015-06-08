@@ -30,18 +30,18 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override ProtocolVersions SupportedProtocols {
 			get {
-				return GetSupportedProtocols () ?? ProtocolVersions.Default;
+				return GetSupportedProtocols () ?? ProtocolVersions.Unspecified;
 			}
 		}
 
 		public ProtocolVersions? GetSupportedProtocols ()
 		{
-			if (server.SupportedProtocols != ProtocolVersions.Default) {
-				if (client.SupportedProtocols == ProtocolVersions.Default)
+			if (server.SupportedProtocols != ProtocolVersions.Unspecified) {
+				if (client.SupportedProtocols == ProtocolVersions.Unspecified)
 					return server.SupportedProtocols;
 				return server.SupportedProtocols & client.SupportedProtocols;
-			} else if (client.SupportedProtocols != ProtocolVersions.Default) {
-				if (server.SupportedProtocols == ProtocolVersions.Default)
+			} else if (client.SupportedProtocols != ProtocolVersions.Unspecified) {
+				if (server.SupportedProtocols == ProtocolVersions.Unspecified)
 					return client.SupportedProtocols;
 				return server.SupportedProtocols & client.SupportedProtocols;
 			}
@@ -55,24 +55,24 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var serverVersion = Parameters.ServerParameters.ProtocolVersion;
 			var clientVersion = Parameters.ServerParameters.ProtocolVersion;
 
-			if (bothVersion != ProtocolVersions.Default) {
+			if (bothVersion != ProtocolVersions.Unspecified) {
 				if (supported != null)
 					bothVersion &= supported.Value;
 				return bothVersion;
 			}
 
-			if (serverVersion != ProtocolVersions.Default) {
+			if (serverVersion != ProtocolVersions.Unspecified) {
 				if (supported != null)
 					serverVersion &= supported.Value;
-				if (clientVersion != ProtocolVersions.Default)
+				if (clientVersion != ProtocolVersions.Unspecified)
 					serverVersion &= supported.Value;
 				return serverVersion;
 			}
 
-			if (clientVersion != ProtocolVersions.Default) {
+			if (clientVersion != ProtocolVersions.Unspecified) {
 				if (supported != null)
 					clientVersion &= supported.Value;
-				if (serverVersion != ProtocolVersions.Default)
+				if (serverVersion != ProtocolVersions.Unspecified)
 					clientVersion &= supported.Value;
 				return clientVersion;
 			}
@@ -88,6 +88,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			var requested = GetRequestedProtocol ();
 			if (requested != null) {
+				if (requested == ProtocolVersions.None)
+					throw new NotSupportedException ();
 				Parameters.ProtocolVersion = requested.Value;
 				Parameters.ServerParameters.ProtocolVersion = requested.Value;
 				Parameters.ClientParameters.ProtocolVersion = requested.Value;

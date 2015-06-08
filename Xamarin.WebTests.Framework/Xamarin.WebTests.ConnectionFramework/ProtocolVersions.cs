@@ -30,7 +30,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 	[Flags]
 	public enum ProtocolVersions
 	{
-		Default		= 0,
+		None		= 0,
+		Unspecified	= 0,
 
 		Tls10Server	= 0x0040,
 		Tls10Client	= 0x0080,

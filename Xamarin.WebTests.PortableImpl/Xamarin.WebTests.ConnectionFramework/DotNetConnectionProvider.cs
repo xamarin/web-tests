@@ -55,7 +55,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public override ProtocolVersions SupportedProtocols {
-			get { return ProtocolVersions.Default; }
+			get { return ProtocolVersions.Unspecified; }
 		}
 
 		public override IClient CreateClient (ClientParameters parameters)
