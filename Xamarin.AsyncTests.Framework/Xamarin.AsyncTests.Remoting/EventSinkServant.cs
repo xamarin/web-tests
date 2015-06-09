@@ -48,13 +48,11 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public void LogEvent (TestLoggerBackend.LogEntry entry)
 		{
-			SD.Debug.WriteLine ("ON LOG EVENT: {0}", entry);
 			Logger.OnLogEvent (entry);
 		}
 
 		public void StatisticsEvent (TestLoggerBackend.StatisticsEventArgs args)
 		{
-			SD.Debug.WriteLine ("ON STATISTICS EVENT: {0}", args);
 			Logger.OnStatisticsEvent (args);
 		}
 
