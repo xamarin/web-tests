@@ -54,7 +54,7 @@ namespace Xamarin.WebTests
 	public class WorkAttribute : TestCategoryAttribute
 	{
 		public override TestCategory Category {
-			get { return WebTestFeatures.WorkCategory; }
+			get { return WebTestFeatures.Instance.WorkCategory; }
 		}
 	}
 
@@ -62,7 +62,7 @@ namespace Xamarin.WebTests
 	public class RecentlyFixedAttribute : TestCategoryAttribute
 	{
 		public override TestCategory Category {
-			get { return WebTestFeatures.RecentlyFixedCategory; }
+			get { return WebTestFeatures.Instance.RecentlyFixedCategory; }
 		}
 	}
 
@@ -70,7 +70,7 @@ namespace Xamarin.WebTests
 	public class HeavyAttribute : TestCategoryAttribute
 	{
 		public override TestCategory Category {
-			get { return WebTestFeatures.HeavyCategory; }
+			get { return WebTestFeatures.Instance.HeavyCategory; }
 		}
 	}
 
@@ -78,7 +78,7 @@ namespace Xamarin.WebTests
 	public class ProxyAttribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {
-			get { return WebTestFeatures.Proxy; }
+			get { return WebTestFeatures.Instance.Proxy; }
 		}
 	}
 
@@ -86,7 +86,7 @@ namespace Xamarin.WebTests
 	public class MartinAttribute : TestCategoryAttribute
 	{
 		public override TestCategory Category {
-			get { return WebTestFeatures.MartinCategory; }
+			get { return WebTestFeatures.Instance.MartinCategory; }
 		}
 	}
 
@@ -94,7 +94,7 @@ namespace Xamarin.WebTests
 	public class Mono38Attribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {
-			get { return WebTestFeatures.Mono38; }
+			get { return WebTestFeatures.Instance.Mono38; }
 		}
 	}
 
@@ -102,7 +102,7 @@ namespace Xamarin.WebTests
 	public class Mono381Attribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {
-			get { return WebTestFeatures.Mono381; }
+			get { return WebTestFeatures.Instance.Mono381; }
 		}
 	}
 
@@ -110,7 +110,7 @@ namespace Xamarin.WebTests
 	public class Mono61Attribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {
-			get { return WebTestFeatures.Mono361; }
+			get { return WebTestFeatures.Instance.Mono361; }
 		}
 	}
 
@@ -118,7 +118,7 @@ namespace Xamarin.WebTests
 	public class SSLAttribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {
-			get { return WebTestFeatures.SSL; }
+			get { return WebTestFeatures.Instance.SSL; }
 		}
 	}
 
@@ -126,38 +126,40 @@ namespace Xamarin.WebTests
 	public class CertificateTestsAttribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {
-			get { return WebTestFeatures.CertificateTests; }
+			get { return WebTestFeatures.Instance.CertificateTests; }
 		}
 	}
 
 	public class WebTestFeatures : ITestConfigurationProvider
 	{
-		public static readonly WebTestFeatures Instance;
+		public static WebTestFeatures Instance {
+			get { return DependencyInjector.Get<WebTestFeatures> (); }
+		}
 
-		public static readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
-		public static readonly TestFeature SSL = new TestFeature ("SSL", "Use SSL", true);
-		public static readonly TestFeature Redirect = new TestFeature ("Redirect", "Redirect Tests", true);
-		public static readonly TestFeature Proxy = new TestFeature ("Proxy", "Proxy Tests", true);
-		public static readonly TestFeature ProxyAuth = new TestFeature ("ProxyAuth", "Proxy Authentication", true);
-		public static readonly TestFeature Experimental = new TestFeature ("Experimental", "Experimental Tests", false);
+		public readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
+		public readonly TestFeature SSL = new TestFeature ("SSL", "Use SSL", true);
+		public readonly TestFeature Redirect = new TestFeature ("Redirect", "Redirect Tests", true);
+		public readonly TestFeature Proxy = new TestFeature ("Proxy", "Proxy Tests", true);
+		public readonly TestFeature ProxyAuth = new TestFeature ("ProxyAuth", "Proxy Authentication", true);
+		public readonly TestFeature Experimental = new TestFeature ("Experimental", "Experimental Tests", false);
 
-		public static readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", false);
+		public readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", false);
 
 		// Requires special local setup
-		public static readonly TestCategory MartinCategory = new TestCategory ("Martin") { IsExplicit = true };
+		public readonly TestCategory MartinCategory = new TestCategory ("Martin") { IsExplicit = true };
 
-		public static readonly TestFeature HasNetwork = new TestFeature (
+		public readonly TestFeature HasNetwork = new TestFeature (
 			"Network", "HasNetwork", () => DependencyInjector.Get<IPortableWebSupport> ().HasNetwork);
 
-		public static readonly TestFeature Mono38;
-		public static readonly TestFeature Mono381;
-		public static readonly TestFeature Mono361;
+		public readonly TestFeature Mono38;
+		public readonly TestFeature Mono381;
+		public readonly TestFeature Mono361;
 
-		public static readonly TestFeature CertificateTests;
+		public readonly TestFeature CertificateTests;
 
-		public static readonly TestCategory WorkCategory = new TestCategory ("Work") { IsExplicit = true };
-		public static readonly TestCategory HeavyCategory = new TestCategory ("Heavy") { IsExplicit = true };
-		public static readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
+		public readonly TestCategory WorkCategory = new TestCategory ("Work") { IsExplicit = true };
+		public readonly TestCategory HeavyCategory = new TestCategory ("Heavy") { IsExplicit = true };
+		public readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
 
 		#region ITestConfigurationProvider implementation
 		public virtual string Name {
@@ -211,7 +213,7 @@ namespace Xamarin.WebTests
 			public IEnumerable<bool> GetParameters (TestContext ctx, string filter)
 			{
 				yield return false;
-				if (ctx.IsEnabled (SSL))
+				if (ctx.IsEnabled (Instance.SSL))
 					yield return true;
 			}
 			#endregion
@@ -229,7 +231,7 @@ namespace Xamarin.WebTests
 			public IEnumerable<bool> GetParameters (TestContext ctx, string filter)
 			{
 				yield return false;
-				if (ctx.IsEnabled (ReuseConnection))
+				if (ctx.IsEnabled (Instance.ReuseConnection))
 					yield return true;
 			}
 			#endregion
@@ -245,29 +247,29 @@ namespace Xamarin.WebTests
 
 			public IEnumerable<ProxyKind> GetParameters (TestContext ctx, string filter)
 			{
-				if (!ctx.IsEnabled (WebTestFeatures.HasNetwork))
+				if (!ctx.IsEnabled (Instance.HasNetwork))
 					yield break;
 
-				if (!ctx.IsEnabled (WebTestFeatures.Proxy))
+				if (!ctx.IsEnabled (Instance.Proxy))
 					yield break;
 
-				if (ctx.CurrentCategory == WebTestFeatures.WorkCategory) {
+				if (ctx.CurrentCategory == Instance.WorkCategory) {
 					yield return ProxyKind.SSL;
 					yield break;
 				}
 
 				yield return ProxyKind.Simple;
 
-				if (ctx.IsEnabled (WebTestFeatures.ProxyAuth)) {
+				if (ctx.IsEnabled (Instance.ProxyAuth)) {
 					yield return ProxyKind.BasicAuth;
-					if (ctx.IsEnabled (WebTestFeatures.NTLM))
+					if (ctx.IsEnabled (Instance.NTLM))
 						yield return ProxyKind.NtlmAuth;
 				}
 
-				if (ctx.IsEnabled (WebTestFeatures.Mono361)) {
+				if (ctx.IsEnabled (Instance.Mono361)) {
 					yield return ProxyKind.Unauthenticated;
 
-					if (ctx.IsEnabled (WebTestFeatures.SSL))
+					if (ctx.IsEnabled (Instance.SSL))
 						yield return ProxyKind.SSL;
 				}
 			}
@@ -283,18 +285,18 @@ namespace Xamarin.WebTests
 
 			public IEnumerable<ServerCertificateType> GetParameters (TestContext ctx, string filter)
 			{
-				if (!ctx.IsEnabled (SSL))
+				if (!ctx.IsEnabled (Instance.SSL))
 					yield break;
 
 				yield return ServerCertificateType.Default;
-				if (!ctx.IsEnabled (CertificateTests))
+				if (!ctx.IsEnabled (Instance.CertificateTests))
 					yield break;
 
 				yield return ServerCertificateType.SelfSigned;
 			}
 		}
 
-		static WebTestFeatures ()
+		public WebTestFeatures ()
 		{
 			Mono38 = new TestFeature (
 				"Mono38", "Mono 3.8.0", () => HasMonoVersion (new Version (3, 8, 0)));
@@ -305,18 +307,16 @@ namespace Xamarin.WebTests
 			CertificateTests = new TestFeature (
 				"CertificateTests", "Whether the SSL Certificate tests are supported", () => SupportsCertificateTests ());
 
-			Instance = new WebTestFeatures ();
-
 			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandlerImpl ());
 		}
 
-		static bool SupportsCertificateTests ()
+		bool SupportsCertificateTests ()
 		{
 			var support = DependencyInjector.Get<IPortableWebSupport> ();
 			return support.SupportsPerRequestCertificateValidator;
 		}
 
-		static bool HasMonoVersion (Version version)
+		bool HasMonoVersion (Version version)
 		{
 			var support = DependencyInjector.Get<IPortableSupport> ();
 			if (support.IsMicrosoftRuntime)

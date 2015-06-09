@@ -84,7 +84,7 @@ namespace Xamarin.WebTests
 			yield return new HttpClientHandler (
 				"Bug #20583", HttpClientOperation.PostString,
 				HttpContent.HelloWorld, new Bug20583Content ()) {
-				Filter = (ctx) => ctx.IsEnabled (WebTestFeatures.Mono38)
+				Filter = (ctx) => ctx.IsEnabled (WebTestFeatures.Instance.Mono38)
 			};
 		}
 

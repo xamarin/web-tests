@@ -109,8 +109,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				Assembly = RootAssembly;
 			}
 
-			var instanceMember = type.GetRuntimeField ("Instance");
-			provider = (ITestConfigurationProvider)instanceMember.GetValue (null);
+			provider = (ITestConfigurationProvider)DependencyInjector.Get (type);
 			name = Assembly.GetName ().Name;
 		}
 

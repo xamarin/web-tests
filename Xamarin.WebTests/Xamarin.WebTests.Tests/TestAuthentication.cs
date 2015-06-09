@@ -83,7 +83,7 @@ namespace Xamarin.WebTests.Tests
 			}
 
 			yield return AuthenticationType.Basic;
-			if (ctx.IsEnabled (WebTestFeatures.NTLM))
+			if (ctx.IsEnabled (WebTestFeatures.Instance.NTLM))
 				yield return AuthenticationType.NTLM;
 		}
 

@@ -61,6 +61,8 @@ namespace Xamarin.WebTests.TestProvider
 			DependencyInjector.RegisterDependency<IBuiltinTestServer> (() => new BuiltinTestServer ());
 #endif
 
+			DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
+
 			InstallDefaultCertificateValidator ();
 		}
 

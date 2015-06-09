@@ -32,6 +32,7 @@ namespace Xamarin.AsyncTests
 	public static class DependencyInjector
 	{
 		static Dictionary<Type,object> dict = new Dictionary<Type,object> ();
+		static Dictionary<string,object> assemblies = new Dictionary<string,object> ();
 		static object syncRoot = new object ();
 
 		static void Register<T> (T instance)
@@ -68,6 +69,10 @@ namespace Xamarin.AsyncTests
 		public static void RegisterAssembly (Assembly assembly)
 		{
 			lock (syncRoot) {
+				var aname = assembly.FullName;
+				if (assemblies.ContainsKey (aname))
+					return;
+				assemblies.Add (aname, assembly);
 				foreach (var cattr in assembly.GetCustomAttributes<DependencyProviderAttribute> ()) {
 					var provider = (IDependencyProvider)Activator.CreateInstance (cattr.Type);
 					provider.Initialize ();
@@ -81,6 +86,15 @@ namespace Xamarin.AsyncTests
 				if (!dict.ContainsKey (typeof(T)))
 					throw new InvalidOperationException (string.Format ("Missing dependency: `{0}'", typeof(T)));
 				return (T)dict [typeof(T)];
+			}
+		}
+
+		public static object Get (Type type)
+		{
+			lock (syncRoot) {
+				if (!dict.ContainsKey (type))
+					throw new InvalidOperationException (string.Format ("Missing dependency: `{0}'", type));
+				return dict [type];
 			}
 		}
 

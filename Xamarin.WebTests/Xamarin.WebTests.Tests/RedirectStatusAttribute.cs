@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.Tests
 		#region ITestParameterSource implementation
 		public IEnumerable<HttpStatusCode> GetParameters (TestContext ctx, string filter)
 		{
-			if (!ctx.IsEnabled (WebTestFeatures.Redirect))
+			if (!ctx.IsEnabled (WebTestFeatures.Instance.Redirect))
 				yield break;
 
 			yield return HttpStatusCode.Moved;
