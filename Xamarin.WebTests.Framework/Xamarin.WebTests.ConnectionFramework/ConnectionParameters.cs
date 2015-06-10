@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		public ProtocolVersions ProtocolVersion {
+		public ProtocolVersions? ProtocolVersion {
 			get; set;
 		}
 	}
