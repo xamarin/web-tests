@@ -1,5 +1,5 @@
 ﻿//
-// ClientParameters.cs
+// DummyConnection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,48 +24,67 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
-using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.Portable;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class ClientParameters : ConnectionParameters
+	using Providers;
+
+	public class DummyConnection : Connection, ICommonConnection
 	{
-		public ClientParameters (string identifier)
-			: base (identifier)
+		public DummyConnection (IPortableEndPoint endpoint, ConnectionParameters parameters)
+			: base (endpoint, parameters)
 		{
 		}
 
-		protected ClientParameters (ClientParameters other)
-			: base (other)
+		public override Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			TargetHost = other.TargetHost;
-			ClientCertificate = other.ClientCertificate;
-			ClientCertificateValidator = other.ClientCertificateValidator;
-			Flags = other.Flags;
+			return FinishedTask;
 		}
 
-		public override ConnectionParameters DeepClone ()
+		public override Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return new ClientParameters (this);
+			return FinishedTask;
 		}
 
-		public string TargetHost {
-			get; set;
+		public override Task<bool> Shutdown (TestContext ctx, bool attemptCleanShutdown, bool waitForReply, CancellationToken cancellationToken)
+		{
+			return Task.FromResult (false);
 		}
 
-		public IClientCertificate ClientCertificate {
-			get; set;
+		protected override void Stop ()
+		{
+			;
 		}
 
-		public ICertificateValidator ClientCertificateValidator {
-			get; set;
+		public override bool SupportsCleanShutdown {
+			get { return false; }
 		}
 
-		public ClientFlags Flags {
-			get; set;
+		public override ProtocolVersions SupportedProtocols {
+			get { return ProtocolVersions.Tls10 | ProtocolVersions.Tls11 | ProtocolVersions.Tls12; }
+		}
+
+		public ProtocolVersions ProtocolVersion {
+			get {
+				throw new NotImplementedException ();
+			}
+		}
+
+		public ISslStream SslStream {
+			get {
+				throw new NotSupportedException ();
+			}
+		}
+
+		public Stream Stream {
+			get {
+				throw new NotSupportedException ();
+			}
 		}
 	}
 }

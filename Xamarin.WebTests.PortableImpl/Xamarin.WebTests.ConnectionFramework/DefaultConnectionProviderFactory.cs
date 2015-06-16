@@ -54,6 +54,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 				var newTls = new DotNetConnectionProvider (this, ConnectionProviderType.NewTLS, dotNetStreamProvider, defaultHttpProvider);
 				Install (newTls);
 			}
+
+			var manual = new ManualConnectionProvider (this, ConnectionProviderFlags.None);
+			Install (manual);
 		}
 
 		public override IHttpProvider DefaultHttpProvider {

@@ -115,6 +115,10 @@ namespace Xamarin.AsyncTests.Portable
 			return new Version (major, minor, build);
 		}
 
+		public Encoding ASCIIEncoding {
+			get { return Encoding.ASCII; }
+		}
+
 		#endregion
 
 		#region Stack Trace

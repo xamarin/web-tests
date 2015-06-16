@@ -87,6 +87,26 @@ namespace Xamarin.WebTests.HttpFramework
 				AddHeader ("Connection", (KeepAlive ?? false) ? "keep-alive" : "close");
 		}
 
+		public static bool ParseResponseHeader (string header, out HttpProtocol protocol, out HttpStatusCode status)
+		{
+			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
+			if (fields.Length < 2) {
+				protocol = HttpProtocol.Http10;
+				status = HttpStatusCode.InternalServerError;
+				return false;
+			}
+
+			try {
+				protocol = ProtocolFromString (fields [0]);
+				status = (HttpStatusCode)int.Parse (fields [1]);
+				return true;
+			} catch {
+				protocol = HttpProtocol.Http10;
+				status = HttpStatusCode.InternalServerError;
+				return false;
+			}
+		}
+
 		protected override void Read ()
 		{
 			var header = reader.ReadLine ();

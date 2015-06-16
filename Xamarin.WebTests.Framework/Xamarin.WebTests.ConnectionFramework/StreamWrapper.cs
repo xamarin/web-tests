@@ -3,6 +3,8 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -19,8 +21,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public StreamWrapper (Stream innerStream)
 		{
 			InnerStream = innerStream;
-			reader = new StreamReader (innerStream, Encoding.UTF8);
-			writer = new StreamWriter (innerStream, Encoding.UTF8);
+
+			var support = DependencyInjector.Get<IPortableSupport> ();
+			var ascii = support.ASCIIEncoding;
+
+			reader = new StreamReader (innerStream, ascii);
+			writer = new StreamWriter (innerStream, ascii);
 			writer.AutoFlush = true;
 		}
 
@@ -32,6 +38,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public Task WriteLineAsync (string line)
 		{
 			return writer.WriteLineAsync (line);
+		}
+
+		public Task WriteLineAsync ()
+		{
+			return writer.WriteLineAsync ();
 		}
 	}
 }

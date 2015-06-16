@@ -80,15 +80,22 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return (ProtocolVersions)GetSslProtocol (); }
 		}
 
-		SslProtocols GetProtocol (ConnectionParameters parameters, bool server)
+		static SslProtocols GetProtocol (ConnectionParameters parameters)
 		{
 			var protocol = (ProtocolVersions)GetSslProtocol ();
-			protocol &= server ? ProtocolVersions.ServerMask : ProtocolVersions.ClientMask;
-			if (parameters.ProtocolVersion != ProtocolVersions.Unspecified) {
+			if (parameters.ProtocolVersion != null) {
 				protocol &= parameters.ProtocolVersion;
 				if (protocol == ProtocolVersions.Unspecified)
 					throw new NotSupportedException ();
 			}
+
+			if ((protocol & ProtocolVersions.Tls10) != 0)
+				protocol |= ProtocolVersions.Tls10;
+			if ((protocol & ProtocolVersions.Tls11) != 0)
+				protocol |= ProtocolVersions.Tls11;
+			if ((protocol & ProtocolVersions.Tls12) != 0)
+				protocol |= ProtocolVersions.Tls12;
+
 			return (SslProtocols)protocol;
 		}
 
@@ -96,7 +103,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			var certificate = CertificateProvider.GetCertificate (parameters.ServerCertificate);
 
-			var protocol = GetProtocol (parameters, true);
+			var protocol = GetProtocol (parameters);
 			var validator = GetValidationCallback (parameters);
 
 			var askForCert = (parameters.Flags & (ServerFlags.AskForClientCertificate|ServerFlags.RequireClientCertificate)) != 0;
@@ -112,7 +119,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			var certificate = CertificateProvider.GetCertificate (parameters.ServerCertificate);
 
-			var protocol = GetProtocol (parameters, true);
+			var protocol = GetProtocol (parameters);
 			var validator = GetValidationCallback (parameters);
 
 			var askForCert = (parameters.Flags & (ServerFlags.AskForClientCertificate|ServerFlags.RequireClientCertificate)) != 0;
@@ -126,7 +133,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public async Task<ISslStream> CreateClientStreamAsync (
 			Stream stream, string targetHost, ClientParameters parameters, CancellationToken cancellationToken)
 		{
-			var protocol = GetProtocol (parameters, false);
+			var protocol = GetProtocol (parameters);
 			var clientCertificates = GetClientCertificates (parameters);
 			var validator = GetValidationCallback (parameters);
 

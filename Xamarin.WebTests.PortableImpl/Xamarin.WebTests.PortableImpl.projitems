@@ -35,5 +35,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\PortableWebSupportImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\ProxyListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\StreamProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\ManualConnectionProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DummyServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DummyConnection.cs" />
   </ItemGroup>
 </Project>

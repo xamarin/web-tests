@@ -1,10 +1,10 @@
 ﻿//
-// IPortableSupport.cs
+// ManualConnectionProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,28 +24,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Text;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.AsyncTests.Portable
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	public interface IPortableSupport
+	using Providers;
+
+	public class ManualConnectionProvider : ConnectionProvider
 	{
-		string GetStackTrace (bool full);
-
-		string CurrentThreadId {
-			get;
+		public ManualConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderFlags flags)
+			: base (factory, ConnectionProviderType.Manual, flags)
+		{
 		}
 
-		bool IsMicrosoftRuntime {
-			get;
+		public override bool IsCompatibleWith (ConnectionProviderType type)
+		{
+			return true;
 		}
 
-		Version MonoRuntimeVersion {
-			get;
+		public override IClient CreateClient (ClientParameters parameters)
+		{
+			throw new NotImplementedException ();
 		}
 
-		Encoding ASCIIEncoding {
-			get;
+		public override IServer CreateServer (ServerParameters parameters)
+		{
+			return new DummyServer (parameters.EndPoint, parameters);
+		}
+
+		protected override ISslStreamProvider GetSslStreamProvider ()
+		{
+			throw new NotImplementedException ();
+		}
+
+		protected override IHttpProvider GetHttpProvider ()
+		{
+			throw new NotImplementedException ();
+		}
+
+		public override ProtocolVersions SupportedProtocols {
+			get { return ProtocolVersions.Tls10 | ProtocolVersions.Tls11 | ProtocolVersions.Tls12; }
 		}
 	}
 }

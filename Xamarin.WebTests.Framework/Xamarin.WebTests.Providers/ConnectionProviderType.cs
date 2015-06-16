@@ -41,7 +41,10 @@ namespace Xamarin.WebTests.Providers
 		MonoWithOldTLS,
 
 		// Just for testing.
-		OpenSsl
+		OpenSsl,
+
+		// Manually started custom client / server
+		Manual
 	}
 }
 

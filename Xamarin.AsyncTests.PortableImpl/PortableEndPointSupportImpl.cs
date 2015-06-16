@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Net.Sockets;
 
 namespace Xamarin.AsyncTests.Portable
 {
@@ -51,31 +52,43 @@ namespace Xamarin.AsyncTests.Portable
 			return (PortableEndpoint)endpoint;
 		}
 
-		public IPortableEndPoint ParseEndpoint (string address)
+		public IPortableEndPoint ParseEndpoint (string address, int defaultPort = 8888, bool dnsLookup = false)
 		{
 			int port;
 			string host;
 			var pos = address.IndexOf (":");
 			if (pos < 0) {
 				host = address;
-				port = 8888;
+				port = defaultPort;
 			} else {
 				host = address.Substring (0, pos);
 				port = int.Parse (address.Substring (pos + 1));
 			}
 
-			var ip = IPAddress.Parse (host);
-			var endpoint = new IPEndPoint (ip, port);
-			return new PortableEndpoint (endpoint);
+			IPAddress ip;
+			if (IPAddress.TryParse (host, out ip))
+				return new PortableEndpoint (new IPEndPoint (ip, port));
+
+			if (!dnsLookup)
+				throw new InvalidOperationException (string.Format ("Not a valid IP Address: '{0}'.", host));
+
+			var entry = Dns.GetHostEntry (host);
+			foreach (var ipaddr in entry.AddressList) {
+				if (ipaddr.AddressFamily == AddressFamily.InterNetwork)
+					return new PortableEndpoint (new IPEndPoint (ipaddr, port), host);
+			}
+			throw new InvalidOperationException (string.Format ("Failed to resolve host '{0}'.", host));
 		}
 
 		class PortableEndpoint : IPortableEndPoint
 		{
 			readonly IPEndPoint endpoint;
+			readonly string hostName;
 
-			public PortableEndpoint (IPEndPoint endpoint)
+			public PortableEndpoint (IPEndPoint endpoint, string hostName = null)
 			{
 				this.endpoint = endpoint;
+				this.hostName = hostName;
 			}
 
 			public int Port {
@@ -84,6 +97,10 @@ namespace Xamarin.AsyncTests.Portable
 
 			public string Address {
 				get { return endpoint.Address.ToString (); }
+			}
+
+			public string HostName {
+				get { return hostName; }
 			}
 
 			public bool IsLoopback {

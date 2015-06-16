@@ -37,6 +37,10 @@ namespace Xamarin.AsyncTests.Portable
 			get;
 		}
 
+		string HostName {
+			get;
+		}
+
 		bool IsLoopback {
 			get;
 		}

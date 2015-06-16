@@ -41,7 +41,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			ctx.LogDebug (1, "Connected.");
 
-			var targetHost = "Hamiller-Tube.local";
+			var targetHost = Parameters.TargetHost ?? EndPoint.HostName ?? EndPoint.Address;
+			ctx.LogDebug (1, "Using '{0}' as target host.", targetHost);
 
 			var stream = new NetworkStream (socket);
 			var server = await sslStreamProvider.CreateClientStreamAsync (

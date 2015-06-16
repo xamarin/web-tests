@@ -136,6 +136,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var endpoint = GetEndPoint ();
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
+			ctx.LogMessage ("Connecting to {0}.", endpoint);
+
 			tcs = new TaskCompletionSource<ISslStream> ();
 
 			socket.BeginConnect (endpoint, async ar => {

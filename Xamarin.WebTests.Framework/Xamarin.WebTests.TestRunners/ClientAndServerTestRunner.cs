@@ -66,6 +66,11 @@ namespace Xamarin.WebTests.TestRunners
 
 			OnRun (ctx, cancellationToken);
 
+			await MainLoop (ctx, cancellationToken);
+		}
+
+		protected virtual async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
+		{
 			var serverWrapper = new StreamWrapper (Server.Stream);
 			var clientWrapper = new StreamWrapper (Client.Stream);
 			await MainLoop (ctx, serverWrapper, clientWrapper, cancellationToken);
