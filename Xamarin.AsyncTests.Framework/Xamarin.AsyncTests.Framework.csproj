@@ -23,7 +23,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugFull|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>bin\DebugFull</OutputPath>
     <DefineConstants>DEBUG</DefineConstants>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
