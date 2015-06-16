@@ -5,7 +5,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>XamarinWebTests</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.Xamarin.WebTests.iOS</string>
+	<string>XamarinWebTests.iOS</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
