@@ -32,8 +32,10 @@
     <WarningLevel>4</WarningLevel>
     <MtouchArch>i386</MtouchArch>
     <ConsolePause>false</ConsolePause>
-    <MtouchLink>None</MtouchLink>
     <AssemblyName>XamarinWebTestsIOS</AssemblyName>
+    <MtouchUseRefCounting>true</MtouchUseRefCounting>
+    <MtouchI18n>
+    </MtouchI18n>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
