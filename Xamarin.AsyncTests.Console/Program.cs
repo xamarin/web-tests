@@ -412,10 +412,13 @@ namespace Xamarin.AsyncTests.Console
 			var test = await session.GetRootTestCase (cancellationToken);
 
 			Debug ("Got test: {0}", test);
+			var start = DateTime.Now;
 			var result = await session.Run (test, cancellationToken);
+			var end = DateTime.Now;
 			Debug ("Got result: {0}", result);
 
 			Debug ("{0} tests, {1} passed, {2} errors, {3} ignored.", countTests, countSuccess, countErrors, countIgnored);
+			Debug ("Total time: {0}.", end - start);
 
 			if (ResultOutput != null) {
 				var serialized = TestSerializer.WriteTestResult (result);
