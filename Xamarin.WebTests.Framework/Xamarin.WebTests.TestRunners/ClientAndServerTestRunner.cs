@@ -76,31 +76,46 @@ namespace Xamarin.WebTests.TestRunners
 			await MainLoop (ctx, serverWrapper, clientWrapper, cancellationToken);
 		}
 
-		protected override async Task WaitForServerConnection (TestContext ctx, CancellationToken cancellationToken)
+		protected virtual void OnWaitForServerConnectionCompleted (TestContext ctx, Task task)
 		{
-			try {
-				await base.WaitForServerConnection (ctx, cancellationToken);
-				if ((Server.Parameters.Flags & ServerFlags.ExpectServerException) != 0)
-					ctx.AssertFail ("expecting exception");
-			} catch {
+			if ((Server.Parameters.Flags & ServerFlags.ExpectServerException) != 0) {
+				ctx.Assert (task.IsFaulted, "expecting exception");
+				throw new ConnectionFinishedException ();
+			}
+
+			if (task.IsFaulted) {
 				if ((Server.Parameters.Flags & (ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException)) != 0)
 					throw new ConnectionFinishedException ();
-				throw;
+				throw task.Exception;
 			}
+
+			ctx.Assert (task.IsCompleted, "expecting success");
 		}
 
-		protected override async Task WaitForClientConnection (TestContext ctx, CancellationToken cancellationToken)
+		protected virtual void OnWaitForClientConnectionCompleted (TestContext ctx, Task task)
 		{
-			try {
-				await base.WaitForClientConnection (ctx, cancellationToken);
-			} catch {
-				if ((Client.Parameters.Flags & (ClientFlags.ExpectWebException|ClientFlags.ExpectTrustFailure)) != 0)
+			if (task.IsFaulted) {
+				if ((Client.Parameters.Flags & (ClientFlags.ExpectWebException | ClientFlags.ExpectTrustFailure)) != 0)
 					throw new ConnectionFinishedException ();
-				throw;
+				throw task.Exception;
 			}
+
+			ctx.Assert (task.IsCompleted, "expecting success");
 		}
 
-		class ConnectionFinishedException : Exception
+		protected override Task WaitForServerConnection (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var task = base.WaitForServerConnection (ctx, cancellationToken);
+			return task.ContinueWith (t => OnWaitForServerConnectionCompleted (ctx, t));
+		}
+
+		protected override Task WaitForClientConnection (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var task = base.WaitForClientConnection (ctx, cancellationToken);
+			return task.ContinueWith (t => OnWaitForClientConnectionCompleted (ctx, t));
+		}
+
+		protected class ConnectionFinishedException : Exception
 		{
 		}
 
