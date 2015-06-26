@@ -89,7 +89,7 @@ namespace Xamarin.WebTests.TestRunners
 				throw task.Exception;
 			}
 
-			ctx.Assert (task.IsCompleted, "expecting success");
+			ctx.Assert (task.Status, Is.EqualTo (TaskStatus.RanToCompletion), "expecting success");
 		}
 
 		protected virtual void OnWaitForClientConnectionCompleted (TestContext ctx, Task task)
@@ -100,7 +100,7 @@ namespace Xamarin.WebTests.TestRunners
 				throw task.Exception;
 			}
 
-			ctx.Assert (task.IsCompleted, "expecting success");
+			ctx.Assert (task.Status, Is.EqualTo (TaskStatus.RanToCompletion), "expecting success");
 		}
 
 		protected override Task WaitForServerConnection (TestContext ctx, CancellationToken cancellationToken)
