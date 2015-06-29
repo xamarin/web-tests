@@ -1,5 +1,5 @@
 ﻿//
-// ManualConnectionProvider.cs
+// DummyClient.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,46 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Providers;
+	using Portable;
 
-	public class ManualConnectionProvider : ConnectionProvider
+	public class DummyClient : DummyConnection, IClient
 	{
-		public ManualConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderFlags flags)
-			: base (factory, ConnectionProviderType.Manual, flags)
-		{
+		new public ClientParameters Parameters {
+			get { return (ClientParameters)base.Parameters; }
 		}
 
-		public override bool IsCompatibleWith (ConnectionProviderType type)
+		public DummyClient (IPortableEndPoint endpoint, ConnectionParameters parameters)
+			: base (endpoint, parameters)
 		{
-			return true;
-		}
-
-		public override IClient CreateClient (ClientParameters parameters)
-		{
-			return new DummyClient (parameters.EndPoint, parameters);
-		}
-
-		public override IServer CreateServer (ServerParameters parameters)
-		{
-			return new DummyServer (parameters.EndPoint, parameters);
-		}
-
-		protected override ISslStreamProvider GetSslStreamProvider ()
-		{
-			throw new NotImplementedException ();
-		}
-
-		protected override IHttpProvider GetHttpProvider ()
-		{
-			throw new NotImplementedException ();
-		}
-
-		public override ProtocolVersions SupportedProtocols {
-			get { return ProtocolVersions.Tls10 | ProtocolVersions.Tls11 | ProtocolVersions.Tls12; }
 		}
 	}
 }
