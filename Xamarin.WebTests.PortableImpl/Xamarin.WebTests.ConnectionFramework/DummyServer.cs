@@ -32,6 +32,7 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Portable;
+	using Providers;
 
 	public class DummyServer : DummyConnection, IServer
 	{
@@ -39,8 +40,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return (ServerParameters)base.Parameters; }
 		}
 
-		public DummyServer (IPortableEndPoint endpoint, ConnectionParameters parameters)
-			: base (endpoint, parameters)
+		public DummyServer (ConnectionProvider provider, IPortableEndPoint endpoint, ConnectionParameters parameters)
+			: base (provider, endpoint, parameters)
 		{
 		}
 

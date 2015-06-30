@@ -36,9 +36,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	public class DummyConnection : Connection, ICommonConnection
 	{
-		public DummyConnection (IPortableEndPoint endpoint, ConnectionParameters parameters)
+		readonly ConnectionProvider provider;
+
+		public DummyConnection (ConnectionProvider provider, IPortableEndPoint endpoint, ConnectionParameters parameters)
 			: base (endpoint, parameters)
 		{
+			this.provider = provider;
 		}
 
 		public override Task Start (TestContext ctx, CancellationToken cancellationToken)
@@ -59,6 +62,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		protected override void Stop ()
 		{
 			;
+		}
+
+		public ConnectionProvider Provider {
+			get { return provider; }
 		}
 
 		public override bool SupportsCleanShutdown {

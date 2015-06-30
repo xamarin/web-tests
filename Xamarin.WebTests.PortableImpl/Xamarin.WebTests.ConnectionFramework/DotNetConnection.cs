@@ -56,6 +56,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		ISslStream sslStream;
 
+		public ConnectionProvider Provider {
+			get { return provider; }
+		}
+
 		public Stream Stream {
 			get { return sslStream.AuthenticatedStream; }
 		}
