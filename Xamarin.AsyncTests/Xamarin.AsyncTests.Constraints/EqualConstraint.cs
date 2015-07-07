@@ -87,6 +87,20 @@ namespace Xamarin.AsyncTests.Constraints
 				}
 			}
 
+			if (Expected is byte[]) {
+				var expectedBuffer = (byte[])Expected;
+				var actualBuffer = actual as byte[];
+				if (actualBuffer == null) {
+					if (actual == null)
+						message = string.Format ("Expected byte array of length {0}, but got <null>.", expectedBuffer.Length);
+					else
+						message = string.Format ("Expected byte array of length {0}, but got instance of Type `{0}'.", actual.GetType ());
+					return false;
+				}
+
+				return CompareBuffer (expectedBuffer, actualBuffer, out message);
+			}
+
 			message = null;
 			if (object.Equals (actual, Expected))
 				return true;
@@ -125,6 +139,27 @@ namespace Xamarin.AsyncTests.Constraints
 				if (!ok) {
 					message = string.Format (
 						"Collections differ at element {0}: expected {1}, got {2}.", i, expected [i], actual [i]);
+					return false;
+				}
+			}
+
+			message = null;
+			return true;
+		}
+
+		bool CompareBuffer (byte[] expected, byte[] actual, out string message)
+		{
+			if (expected.Length != actual.Length) {
+				message = string.Format (
+					"Buffers differ in size: expected {0}, got {1}.", expected.Length, actual.Length);
+				return false;
+			}
+
+			for (int i = 0; i < expected.Length; i++) {
+				var ok = expected [i] == actual [i];
+				if (!ok) {
+					message = string.Format (
+						"Buffers differ at element {0}: expected {1}, got {2}.", i, expected [i], actual [i]);
 					return false;
 				}
 			}
