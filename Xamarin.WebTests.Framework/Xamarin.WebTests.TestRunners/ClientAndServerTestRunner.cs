@@ -129,7 +129,7 @@ namespace Xamarin.WebTests.TestRunners
 			line = await serverStream.ReadLineAsync ();
 			if (!line.Equals ("CLIENT OK"))
 				throw new ConnectionException ("Got unexpected output from client: '{0}'", line);
-			await Shutdown (ctx, SupportsCleanShutdown, true, cancellationToken);
+			await Shutdown (ctx, SupportsCleanShutdown, cancellationToken);
 		}
 	}
 }

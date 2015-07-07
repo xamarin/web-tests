@@ -161,15 +161,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return tcs.Task;
 		}
 
-		protected virtual Task<bool> TryCleanShutdown (bool waitForReply)
+		protected virtual Task<bool> TryCleanShutdown ()
 		{
 			throw new NotSupportedException ("Clean shutdown not supported yet.");
 		}
 
-		public sealed override async Task<bool> Shutdown (TestContext ctx, bool attemptCleanShutdown, bool waitForReply, CancellationToken cancellationToken)
+		public sealed override async Task<bool> Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
 		{
 			if (attemptCleanShutdown)
-				attemptCleanShutdown = await TryCleanShutdown (waitForReply);
+				attemptCleanShutdown = await TryCleanShutdown ();
 
 			return attemptCleanShutdown;
 		}

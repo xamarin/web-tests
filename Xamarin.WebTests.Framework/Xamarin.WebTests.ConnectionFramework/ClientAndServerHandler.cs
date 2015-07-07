@@ -45,9 +45,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		protected abstract Task MainLoop (TestContext ctx, ILineBasedStream serverStream, ILineBasedStream clientStream, CancellationToken cancellationToken);
 
-		public Task<bool> Shutdown (TestContext ctx, bool attemptCleanShutdown, bool waitForReply, CancellationToken cancellationToken)
+		public Task<bool> Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
 		{
-			return Connection.Shutdown (ctx, attemptCleanShutdown, waitForReply, cancellationToken);
+			return Connection.Shutdown (ctx, attemptCleanShutdown, cancellationToken);
 		}
 
 		public void Close ()

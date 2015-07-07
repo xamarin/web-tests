@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			protected override async Task MainLoop (TestContext ctx, ILineBasedStream stream, CancellationToken cancellationToken)
 			{
 				await stream.WriteLineAsync ("OK");
-				await Shutdown (ctx, Connection.SupportsCleanShutdown, true, cancellationToken);
+				await Shutdown (ctx, Connection.SupportsCleanShutdown, cancellationToken);
 				Connection.Dispose ();
 			}
 		}
