@@ -99,6 +99,11 @@ namespace Xamarin.AsyncTests.Framework
 			public string Value {
 				get; set;
 			}
+
+			public override string ToString ()
+			{
+				return string.Format ("[ParameterWrapper: {0}]", Value);
+			}
 		}
 
 		static IPathNode ReadPathNode (XElement element)

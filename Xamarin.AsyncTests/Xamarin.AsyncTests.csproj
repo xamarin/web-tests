@@ -119,6 +119,7 @@
     <Compile Include="Xamarin.AsyncTests\RequireDependencyAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests.Portable\PipeArguments.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestParameterWrapper.cs" />
+    <Compile Include="Xamarin.AsyncTests\FixedTestParameterAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

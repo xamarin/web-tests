@@ -93,9 +93,11 @@ namespace Xamarin.AsyncTests.Framework
 
 			Resolve ();
 
+			var innerCtx = ctx.CreateChild (Path.Name, Path);
+
 			parameters = new List<TestPathNode> ();
 			if ((Path.Flags & TestFlags.Browsable) != 0) {
-				foreach (var parameter in Tree.Host.GetParameters (ctx)) {
+				foreach (var parameter in Tree.Host.GetParameters (innerCtx)) {
 					parameters.Add (Parameterize (parameter));
 				}
 			}

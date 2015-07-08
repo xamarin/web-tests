@@ -70,6 +70,15 @@ namespace Xamarin.AsyncTests.Framework
 			return instance;
 		}
 
+		internal virtual bool HasFixedParameter {
+			get { return false; }
+		}
+
+		internal virtual ITestParameter GetFixedParameter ()
+		{
+			throw new InternalErrorException ();
+		}
+
 		internal virtual bool HasParameters {
 			get { return false; }
 		}

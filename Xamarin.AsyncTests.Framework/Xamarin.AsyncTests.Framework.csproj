@@ -113,6 +113,8 @@
     <Compile Include="Xamarin.AsyncTests.Remoting\TestSessionServant.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\TestSuiteClient.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\TestSuiteServant.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\FixedParameterHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\FixedParameterInstance.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

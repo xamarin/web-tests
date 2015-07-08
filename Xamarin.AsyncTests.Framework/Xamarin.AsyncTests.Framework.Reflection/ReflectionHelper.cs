@@ -312,7 +312,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var sourceType = GetParameterHostType (member, attr, out sourceInstance);
 
 			IParameterSerializer serializer;
-			if (!GetParameterSerializer (member.Type, sourceType, out serializer))
+			if (!GetParameterSerializer (member.Type, out serializer))
 				throw new InternalErrorException ();
 
 			if (sourceInstance == null)
@@ -321,6 +321,19 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var type = typeof(ParameterSourceHost<>).MakeGenericType (member.Type.AsType ());
 			return (TestHost)Activator.CreateInstance (
 				type, attr.Identifier ?? member.Name, sourceInstance, serializer, attr.Filter, attr.Flags);
+		}
+
+		internal static TestHost CreateFixedParameterHost (TypeInfo fixtureType, FixedTestParameterAttribute attr)
+		{
+			var typeInfo = attr.Type.GetTypeInfo ();
+
+			IParameterSerializer serializer;
+			if (!GetParameterSerializer (typeInfo, out serializer))
+				throw new InternalErrorException ();
+
+			var hostType = typeof(FixedParameterHost<>).MakeGenericType (attr.Type);
+			return (TestHost)Activator.CreateInstance (
+				hostType, attr.Identifier, typeInfo, serializer, attr, attr.Flags);
 		}
 
 		static TestHost CreateEnum (IMemberInfo member)
@@ -365,7 +378,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 		}
 
-		static bool GetParameterSerializer (TypeInfo type, Type sourceType, out IParameterSerializer serializer)
+		static bool GetParameterSerializer (TypeInfo type, out IParameterSerializer serializer)
 		{
 			if (typeof(ITestParameter).GetTypeInfo ().IsAssignableFrom (type)) {
 				serializer = null;

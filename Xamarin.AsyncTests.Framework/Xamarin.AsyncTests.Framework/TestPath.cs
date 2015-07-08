@@ -84,8 +84,8 @@ namespace Xamarin.AsyncTests.Framework
 			Flags = host.Flags;
 			Parent = parent;
 
-			this.parameter = parameter;
-			this.name = GetTestName (host, parent, parameter);
+			this.parameter = host.HasFixedParameter ? host.GetFixedParameter () : parameter;
+			this.name = GetTestName (host, parent, this.parameter);
 		}
 
 		internal TestPath Clone ()

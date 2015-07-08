@@ -119,6 +119,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			bool seenCtx = false;
 			bool seenToken = false;
 
+			var fixedParameters = Method.GetCustomAttributes<FixedTestParameterAttribute> ();
+			foreach (var fixedParameter in fixedParameters) {
+				yield return ReflectionHelper.CreateFixedParameterHost (Fixture.Type, fixedParameter);
+			}
+
 			var parameters = Method.GetParameters ();
 			for (int i = 0; i < parameters.Length; i++) {
 				var paramType = parameters [i].ParameterType;
