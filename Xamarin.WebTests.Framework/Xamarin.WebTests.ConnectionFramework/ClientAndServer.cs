@@ -69,7 +69,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			var requested = GetRequestedProtocol ();
 			if (requested != null) {
-				if (requested == ProtocolVersions.None)
+				if (requested == ProtocolVersions.Unspecified)
 					throw new NotSupportedException ("Incompatible protocol versions between client and server.");
 				Parameters.ProtocolVersion = requested.Value;
 				Parameters.ServerParameters.ProtocolVersion = requested.Value;
