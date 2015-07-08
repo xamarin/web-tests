@@ -53,9 +53,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			ctx.LogMessage ("Initialize: {0}", this);
 			await Start (ctx, cancellationToken);
-			ctx.LogMessage ("Initialize #1: {0}", this);
 		}
 
 		public Task PreRun (TestContext ctx, CancellationToken cancellationToken)
