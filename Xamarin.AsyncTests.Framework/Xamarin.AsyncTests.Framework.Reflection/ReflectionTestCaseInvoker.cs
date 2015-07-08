@@ -136,7 +136,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (instance is FixtureTestInstance)
 					break;
 				var host = instance.Host;
-				if (!(host is RepeatedTestHost || host is ReflectionPropertyHost || host is TestBuilderHost))
+				if (!(host is RepeatedTestHost || host is ReflectionPropertyHost || host is TestBuilderHost || ReflectionHelper.IsFixedTestHost (host)))
 					throw new InternalErrorException ();
 				instance = instance.Parent;
 			}

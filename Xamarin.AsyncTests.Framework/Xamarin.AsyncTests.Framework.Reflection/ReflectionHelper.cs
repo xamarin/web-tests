@@ -546,6 +546,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return new RepeatedTestHost (repeat, TestFlags.None);
 		}
 
+		internal static bool IsFixedTestHost (TestHost host)
+		{
+			var typeInfo = host.GetType ().GetTypeInfo ();
+			if (!typeInfo.IsGenericType)
+				return false;
+
+			var genericType = typeInfo.GetGenericTypeDefinition ();
+			return genericType == typeof(FixedParameterHost<>);
+		}
+
 		#endregion
 	}
 }
