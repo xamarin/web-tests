@@ -45,9 +45,9 @@ namespace Xamarin.WebTests.TestRunners
 		{
 		}
 
-		protected override void OnRun (TestContext ctx, CancellationToken cancellationToken)
+		protected override async Task OnRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			base.OnRun (ctx, cancellationToken);
+			await base.OnRun (ctx, cancellationToken);
 
 			ctx.Expect (Client.SslStream.IsAuthenticated, "client is authenticated");
 			ctx.Expect (Server.SslStream.IsAuthenticated, "server is authenticated");

@@ -45,8 +45,9 @@ namespace Xamarin.WebTests.TestRunners
 		{
 		}
 
-		protected virtual void OnRun (TestContext ctx, CancellationToken cancellationToken)
+		protected virtual Task OnRun (TestContext ctx, CancellationToken cancellationToken)
 		{
+			return FinishedTask;
 		}
 
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
@@ -64,7 +65,7 @@ namespace Xamarin.WebTests.TestRunners
 			if ((Client.Parameters.Flags & (ClientFlags.ExpectTrustFailure | ClientFlags.ExpectWebException)) != 0)
 				ctx.AssertFail ("expecting client exception");
 
-			OnRun (ctx, cancellationToken);
+			await OnRun (ctx, cancellationToken);
 
 			await MainLoop (ctx, cancellationToken);
 		}
