@@ -108,13 +108,8 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ICommonConnection.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IClient.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IServer.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionHandler.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionHandlerFactory.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\CommonConnectionHandler.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ILineBasedStream.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\StreamWrapper.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServerHandler.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServerHandlerFactory.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ISslStream.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\Connection.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServer.cs" />
