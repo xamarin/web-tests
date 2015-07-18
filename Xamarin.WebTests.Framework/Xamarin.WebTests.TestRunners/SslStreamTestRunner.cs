@@ -65,6 +65,21 @@ namespace Xamarin.WebTests.TestRunners
 			if (!Server.Parameters.AskForCertificate)
 				ctx.Expect (Server.SslStream.HasRemoteCertificate, Is.False, "server has no client certificate");
 		}
+
+		protected override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var serverStream = new StreamWrapper (Server.Stream);
+			var clientStream = new StreamWrapper (Client.Stream);
+
+			await serverStream.WriteLineAsync ("SERVER OK");
+			var line = await clientStream.ReadLineAsync ();
+			if (!line.Equals ("SERVER OK"))
+				throw new ConnectionException ("Got unexpected output from server: '{0}'", line);
+			await clientStream.WriteLineAsync ("CLIENT OK");
+			line = await serverStream.ReadLineAsync ();
+			if (!line.Equals ("CLIENT OK"))
+				throw new ConnectionException ("Got unexpected output from client: '{0}'", line);
+		}
 	}
 }
 

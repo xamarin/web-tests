@@ -33,7 +33,7 @@ namespace Xamarin.WebTests.TestRunners
 {
 	using ConnectionFramework;
 
-	public class ClientAndServerTestRunner : ClientAndServer
+	public abstract class ClientAndServerTestRunner : ClientAndServer
 	{
 		public ClientAndServerTestRunner (IServer server, IClient client)
 			: base (server, client)
@@ -65,17 +65,17 @@ namespace Xamarin.WebTests.TestRunners
 			if ((Client.Parameters.Flags & (ClientFlags.ExpectTrustFailure | ClientFlags.ExpectWebException)) != 0)
 				ctx.AssertFail ("expecting client exception");
 
+			cancellationToken.ThrowIfCancellationRequested ();
 			await OnRun (ctx, cancellationToken);
 
+			cancellationToken.ThrowIfCancellationRequested ();
 			await MainLoop (ctx, cancellationToken);
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			await Shutdown (ctx, SupportsCleanShutdown, cancellationToken);
 		}
 
-		protected virtual async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
-		{
-			var serverWrapper = new StreamWrapper (Server.Stream);
-			var clientWrapper = new StreamWrapper (Client.Stream);
-			await MainLoop (ctx, serverWrapper, clientWrapper, cancellationToken);
-		}
+		protected abstract Task MainLoop (TestContext ctx, CancellationToken cancellationToken);
 
 		protected virtual void OnWaitForServerConnectionCompleted (TestContext ctx, Task task)
 		{
@@ -118,19 +118,6 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected class ConnectionFinishedException : Exception
 		{
-		}
-
-		protected async Task MainLoop (TestContext ctx, ILineBasedStream serverStream, ILineBasedStream clientStream, CancellationToken cancellationToken)
-		{
-			await serverStream.WriteLineAsync ("SERVER OK");
-			var line = await clientStream.ReadLineAsync ();
-			if (!line.Equals ("SERVER OK"))
-				throw new ConnectionException ("Got unexpected output from server: '{0}'", line);
-			await clientStream.WriteLineAsync ("CLIENT OK");
-			line = await serverStream.ReadLineAsync ();
-			if (!line.Equals ("CLIENT OK"))
-				throw new ConnectionException ("Got unexpected output from client: '{0}'", line);
-			await Shutdown (ctx, SupportsCleanShutdown, cancellationToken);
 		}
 	}
 }
