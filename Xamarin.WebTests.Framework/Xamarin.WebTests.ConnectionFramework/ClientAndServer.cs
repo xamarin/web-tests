@@ -122,10 +122,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			server.Dispose ();
 		}
 
-		public override async Task<bool> Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
+		public override async Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var clientShutdown = client.Shutdown (ctx, attemptCleanShutdown, cancellationToken);
-			var serverShutdown = server.Shutdown (ctx, attemptCleanShutdown, cancellationToken);
+			var clientShutdown = client.Shutdown (ctx, cancellationToken);
+			var serverShutdown = server.Shutdown (ctx, cancellationToken);
 			await Task.WhenAll (clientShutdown, serverShutdown);
 			return clientShutdown.Result && serverShutdown.Result;
 		}

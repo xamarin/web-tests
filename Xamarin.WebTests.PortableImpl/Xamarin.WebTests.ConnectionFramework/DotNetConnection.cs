@@ -166,12 +166,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			throw new NotSupportedException ("Clean shutdown not supported yet.");
 		}
 
-		public sealed override async Task<bool> Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
+		public sealed override async Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (attemptCleanShutdown)
-				attemptCleanShutdown = await TryCleanShutdown ();
+			if (!SupportsCleanShutdown)
+				return false;
 
-			return attemptCleanShutdown;
+			return await TryCleanShutdown ();
 		}
 
 		protected override void Stop ()

@@ -72,7 +72,8 @@ namespace Xamarin.WebTests.TestRunners
 			await MainLoop (ctx, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			await Shutdown (ctx, SupportsCleanShutdown, cancellationToken);
+			if (SupportsCleanShutdown)
+				await Shutdown (ctx, cancellationToken);
 		}
 
 		protected abstract Task MainLoop (TestContext ctx, CancellationToken cancellationToken);
