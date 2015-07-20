@@ -338,13 +338,16 @@ namespace Xamarin.AsyncTests.Console
 
 		bool OnSessionCreated (TestSession session)
 		{
+			var config = session.Configuration;
+
 			bool done = false;
 			if (showCategories) {
 				WriteLine ("Test Categories:");
 				foreach (var category in session.ConfigurationProvider.Categories) {
 					var builtinText = category.IsBuiltin ? " (builtin)" : string.Empty;
 					var explicitText = category.IsExplicit ? " (explicit)" : string.Empty;
-					WriteLine ("  {0}{1}{2}", category.Name, builtinText, explicitText);
+					var currentText = config.CurrentCategory != null && config.CurrentCategory.Name.Equals (category.Name) ? " (current)" : string.Empty;
+					WriteLine ("  {0}{1}{2}{3}", category.Name, builtinText, explicitText, currentText);
 				}
 				WriteLine ();
 				done = true;
@@ -353,9 +356,10 @@ namespace Xamarin.AsyncTests.Console
 			if (showFeatures) {
 				WriteLine ("Test Features:");
 				foreach (var feature in session.ConfigurationProvider.Features) {
-					var constText = feature.Constant != null ? string.Format (" (const = {0})", feature.Constant.Value ? "true" : "false") : string.Empty;
-					var defaultText = feature.DefaultValue != null ? string.Format (" (default = {0})", feature.DefaultValue.Value ? "true" : "false") : string.Empty;
-					WriteLine ("  {0,-30} {1}{2}{3}", feature.Name, feature.Description, constText, defaultText);
+					var constText = feature.Constant != null ? string.Format (" (const = {0})", feature.Constant.Value ? "enabled" : "disabled") : string.Empty;
+					var defaultText = feature.DefaultValue != null ? string.Format (" (default = {0})", feature.DefaultValue.Value ? "enabled" : "disabled") : string.Empty;
+					var currentText = feature.CanModify ? string.Format (" ({0})", config.IsEnabled (feature) ? "enabled" : "disabled") : string.Empty;
+					WriteLine ("  {0,-30} {1}{2}{3}{4}", feature.Name, feature.Description, constText, defaultText, currentText);
 				}
 				WriteLine ();
 				done = true;
@@ -366,7 +370,6 @@ namespace Xamarin.AsyncTests.Console
 
 			bool modified = false;
 
-			var config = session.Configuration;
 			if (category != null) {
 				config.CurrentCategory = config.Categories.First (c => c.Name.Equals (category));
 				modified = true;
@@ -397,6 +400,9 @@ namespace Xamarin.AsyncTests.Console
 					}
 				}
 			}
+
+			if (modified)
+				SaveSettings ();
 
 			return modified;
 		}
