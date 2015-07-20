@@ -26,6 +26,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			Identifier = other.Identifier;
 			EndPoint = other.EndPoint;
 			ProtocolVersion = other.ProtocolVersion;
+			UseStreamInstrumentation = other.UseStreamInstrumentation;
 		}
 
 		object ICloneable.Clone ()
@@ -40,6 +41,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public ProtocolVersions? ProtocolVersion {
+			get; set;
+		}
+
+		public bool UseStreamInstrumentation {
 			get; set;
 		}
 	}

@@ -41,11 +41,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return true; }
 		}
 
-		protected override async Task<ISslStream> Start (TestContext ctx, Socket socket, CancellationToken cancellationToken)
+		protected override async Task<ISslStream> Start (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
-			ctx.LogMessage ("Accepted connection from {0}.", socket.RemoteEndPoint);
-
-			var stream = new NetworkStream (socket);
 			var server = await sslStreamProvider.CreateServerStreamAsync (stream, Parameters, cancellationToken);
 
 			ctx.LogMessage ("Successfully authenticated server.");

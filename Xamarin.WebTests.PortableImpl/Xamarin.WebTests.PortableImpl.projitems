@@ -39,5 +39,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DummyServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DummyConnection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DummyClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\StreamInstrumentation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReferenceSource\SimpleAsyncResult.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)ReferenceSource\" />
   </ItemGroup>
 </Project>

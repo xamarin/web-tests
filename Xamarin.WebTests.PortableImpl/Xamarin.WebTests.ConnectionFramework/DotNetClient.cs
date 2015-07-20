@@ -37,14 +37,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return false; }
 		}
 
-		protected override async Task<ISslStream> Start (TestContext ctx, Socket socket, CancellationToken cancellationToken)
+		protected override async Task<ISslStream> Start (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
 			ctx.LogDebug (1, "Connected.");
 
 			var targetHost = Parameters.TargetHost ?? EndPoint.HostName ?? EndPoint.Address;
 			ctx.LogDebug (1, "Using '{0}' as target host.", targetHost);
 
-			var stream = new NetworkStream (socket);
 			var server = await sslStreamProvider.CreateClientStreamAsync (
 				stream, targetHost, Parameters, cancellationToken);
 

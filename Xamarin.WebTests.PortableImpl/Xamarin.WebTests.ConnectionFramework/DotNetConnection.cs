@@ -39,6 +39,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	using ConnectionFramework;
 	using Providers;
 
 	public abstract class DotNetConnection : Connection, ICommonConnection
@@ -52,6 +53,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		ConnectionProvider provider;
 		Socket socket;
 		Socket accepted;
+		Stream innerStream;
 		TaskCompletionSource<ISslStream> tcs;
 
 		ISslStream sslStream;
@@ -84,7 +86,20 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		protected abstract Task<ISslStream> Start (TestContext ctx, Socket socket, CancellationToken cancellationToken);
+		public IStreamInstrumentation StreamInstrumentation {
+			get { return innerStream as IStreamInstrumentation; }
+		}
+
+		Stream CreateStream (Socket socket)
+		{
+			if (Parameters.UseStreamInstrumentation)
+				innerStream = new StreamInstrumentation (socket);
+			else
+				innerStream = new NetworkStream (socket);
+			return innerStream;
+		}
+
+		protected abstract Task<ISslStream> Start (TestContext ctx, Stream stream, CancellationToken cancellationToken);
 
 		static IPortableEndPoint GetEndPoint (ConnectionParameters parameters)
 		{
@@ -127,7 +142,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 				try {
 					accepted = socket.EndAccept (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
-					sslStream = await Start (ctx, accepted, cancellationToken);
+					ctx.LogMessage ("Accepted connection from {0}.", accepted.RemoteEndPoint);
+					var stream = CreateStream (accepted);
+					sslStream = await Start (ctx, stream, cancellationToken);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
 					tcs.SetException (ex);
@@ -148,7 +165,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 				try {
 					socket.EndConnect (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
-					sslStream = await Start (ctx, socket, cancellationToken);
+					var stream = CreateStream (socket);
+					sslStream = await Start (ctx, stream, cancellationToken);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
 					tcs.SetException (ex);

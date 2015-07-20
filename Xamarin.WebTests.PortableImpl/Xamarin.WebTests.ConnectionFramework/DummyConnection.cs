@@ -93,6 +93,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new NotSupportedException ();
 			}
 		}
+
+		public IStreamInstrumentation StreamInstrumentation {
+			get {
+				throw new NotSupportedException ();
+			}
+		}
 	}
 }
 

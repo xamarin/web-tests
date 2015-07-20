@@ -1,10 +1,10 @@
 ﻿//
-// ICommonConnection.cs
+// IStreamInstrumentation.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,37 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Providers;
-
-	public interface ICommonConnection : IConnection
+	public interface IStreamInstrumentation
 	{
-		ConnectionProvider Provider {
-			get;
-		}
+		void OnNextBeginRead (Action action);
 
-		ProtocolVersions SupportedProtocols {
-			get;
-		}
+		void OnNextBeginWrite (Action action);
 
-		ProtocolVersions ProtocolVersion {
-			get;
-		}
+		void OnNextRead (Func<Task> before, Func<Task> after);
 
-		ISslStream SslStream {
-			get;
-		}
-
-		IStreamInstrumentation StreamInstrumentation {
-			get;
-		}
-
-		Stream Stream {
-			get;
-		}
+		void OnNextWrite (Func<Task> before, Func<Task> after);
 	}
 }
 
