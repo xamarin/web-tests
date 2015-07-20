@@ -105,6 +105,7 @@ namespace Xamarin.AsyncTests.Console
 		bool optionalGui;
 		bool showCategories;
 		bool showFeatures;
+		bool saveOptions;
 		string customSettings;
 		string category;
 		string features;
@@ -152,6 +153,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("category=", v => category = v);
 			p.Add ("features=", v => features = v);
 			p.Add ("debug", v => DebugMode = true);
+			p.Add ("save-options", v => saveOptions = true);
 			p.Add ("show-categories", v => showCategories = true);
 			p.Add ("show-features", v => showFeatures = true);
 			p.Add ("show-config", v => showCategories = showFeatures = true);
@@ -401,7 +403,7 @@ namespace Xamarin.AsyncTests.Console
 				}
 			}
 
-			if (modified)
+			if (modified && saveOptions)
 				SaveSettings ();
 
 			return modified;
