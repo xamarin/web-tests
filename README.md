@@ -1,3 +1,27 @@
+Xamarin.WebTests - Quick Start Guide
+====================================
+
+I have added a very simple `Makefile` to help quickly and easily run all the tests.
+
+Use the branch called [stable](https://github.com/xamarin/web-tests/tree/stable), "master"
+is outdated and won't be updated anymore.  There is a Xamarin Studio configuration called
+"Console", which will only build the Console tests (no GUI, Android or iOS).
+
+To run, simply run the `Xamarin.WebTests.Console.exe` without arguments.
+
+When filing any bugs or problems, please make sure to attach both the full test output
+and the `TestResult.xml` file which is generated in the current working directory.
+
+If possible, then also re-run the tests with debugging:
+
+   $ mono --debug ./Xamarin.WebTests.Console/bin/Debug/Xamarin.WebTests.Console.exe --debug --log-level=8
+
+
+Last changed July 29th, 2015
+Martin Baulig <martin.baulig@xamarin.com>
+
+
+
 Xamarin.AsyncTests
 ==================
 
