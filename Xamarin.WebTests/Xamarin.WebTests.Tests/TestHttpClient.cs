@@ -123,7 +123,6 @@ namespace Xamarin.WebTests
 			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler, redirect);
 		}
 
-		[Martin]
 		[AsyncTest]
 		public Task SendAsync (TestContext ctx, [HttpServer] HttpServer server, CancellationToken cancellationToken)
 		{
@@ -131,7 +130,6 @@ namespace Xamarin.WebTests
 			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
 		}
 
-		[Martin]
 		[AsyncTest]
 		public Task Test31830 (TestContext ctx, [HttpServer] HttpServer server, CancellationToken cancellationToken)
 		{
