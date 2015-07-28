@@ -42,7 +42,6 @@ namespace Xamarin.WebTests.Tests
 	using Features;
 
 	[SSL]
-	[Martin]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestSslStream
 	{
