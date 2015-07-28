@@ -85,6 +85,11 @@ namespace Xamarin.WebTests.HttpClient
 			set { message.Method = GetMethod (value); }
 		}
 
+		public void SetObscureMethod (string method)
+		{
+			message.Method = new Http.HttpMethod (method);
+		}
+
 		public Uri RequestUri {
 			get { return message.RequestUri; }
 			set { message.RequestUri = value; }

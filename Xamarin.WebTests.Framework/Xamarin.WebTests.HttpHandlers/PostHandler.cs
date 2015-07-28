@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 	public class PostHandler : Handler
 	{
+		string method;
 		bool? allowWriteBuffering;
 		Func<HttpRequest, HttpResponse> customHandler;
 
@@ -59,6 +60,16 @@ namespace Xamarin.WebTests.HttpHandlers
 		public HttpContent Content {
 			get;
 			private set;
+		}
+
+		public string Method {
+			get {
+				return method;
+			}
+			set {
+				WantToModify ();
+				method = value;
+			}
 		}
 
 		public bool? AllowWriteStreamBuffering {
@@ -97,6 +108,9 @@ namespace Xamarin.WebTests.HttpHandlers
 			if ((effectiveFlags & RequestFlags.RedirectedAsGet) != 0) {
 				if (!ctx.Expect (request.Method, Is.EqualTo ("GET"), "method"))
 					return null;
+			} else if (Method != null) {
+				if (!ctx.Expect (request.Method, Is.EqualTo (Method), "method"))
+					return null;
 			} else {
 				if (!ctx.Expect (request.Method, Is.EqualTo ("POST").Or.EqualTo ("PUT"), "method"))
 					return null;
@@ -108,40 +122,45 @@ namespace Xamarin.WebTests.HttpHandlers
 					return customResponse;
 			}
 
-			var haveContentLength = request.Headers.ContainsKey ("Content-Length");
-			var haveTransferEncoding = request.Headers.ContainsKey ("Transfer-Encoding");
+			var hasContentLength = request.Headers.ContainsKey ("Content-Length");
+			var hasTransferEncoding = request.Headers.ContainsKey ("Transfer-Encoding");
 
 			if ((effectiveFlags & RequestFlags.RedirectedAsGet) != 0) {
-				ctx.Expect (haveContentLength, Is.False, "Content-Length header not allowed");
-				ctx.Expect (haveTransferEncoding, Is.False, "Transfer-Encoding header not allowed");
+				ctx.Expect (hasContentLength, Is.False, "Content-Length header not allowed");
+				ctx.Expect (hasTransferEncoding, Is.False, "Transfer-Encoding header not allowed");
 				return HttpResponse.CreateSuccess ();
 			}
 
-			Debug (ctx, 2, "HANDLE POST #1", haveContentLength, haveTransferEncoding);
+			if ((effectiveFlags & RequestFlags.NoContentLength) != 0) {
+				ctx.Expect (hasContentLength, Is.False, "Content-Length header not allowed");
+				ctx.Expect (hasTransferEncoding, Is.False, "Transfer-Encoding header not allowed");
+			}
+
+			Debug (ctx, 2, "HANDLE POST #1", hasContentLength, hasTransferEncoding);
 
 			var content = request.ReadBody ();
 
 			switch (Mode) {
 			case TransferMode.Default:
 				if (Content != null) {
-					ctx.Expect (haveContentLength, Is.True, "Missing Content-Length");
+					ctx.Expect (hasContentLength, Is.True, "Missing Content-Length");
 					break;
 				} else {
-					ctx.Expect (haveContentLength, Is.False, "Content-Length header not allowed");
+					ctx.Expect (hasContentLength, Is.False, "Content-Length header not allowed");
 					return HttpResponse.CreateSuccess ();
 				}
 
 			case TransferMode.ContentLength:
-				ctx.Expect (haveContentLength, Is.True, "Missing Content-Length");
-				ctx.Expect (haveTransferEncoding, Is.False, "Transfer-Encoding header not allowed");
+				ctx.Expect (hasContentLength, Is.True, "Missing Content-Length");
+				ctx.Expect (hasTransferEncoding, Is.False, "Transfer-Encoding header not allowed");
 				break;
 
 			case TransferMode.Chunked:
 				if ((effectiveFlags & RequestFlags.Redirected) != 0)
 					goto case TransferMode.ContentLength;
 
-				ctx.Expect (haveContentLength, Is.False, "Content-Length header not allowed");
-				var ok = ctx.Expect (haveTransferEncoding, Is.True, "Missing Transfer-Encoding header");
+				ctx.Expect (hasContentLength, Is.False, "Content-Length header not allowed");
+				var ok = ctx.Expect (hasTransferEncoding, Is.True, "Missing Transfer-Encoding header");
 				if (!ok)
 					break;
 
@@ -171,7 +190,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		public override void ConfigureRequest (Request request, Uri uri)
 		{
 			base.ConfigureRequest (request, uri);
-			request.Method = "POST";
+			request.Method = Method ?? "POST";
 
 			if (AllowWriteStreamBuffering != null)
 				((TraditionalRequest)request).Request.SetAllowWriteStreamBuffering (AllowWriteStreamBuffering.Value);

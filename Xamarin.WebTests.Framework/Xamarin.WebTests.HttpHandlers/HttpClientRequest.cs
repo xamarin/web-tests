@@ -44,6 +44,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		public readonly IHttpClient Client;
 		readonly IHttpClientProvider Provider;
 		HttpMethod method = HttpMethod.Get;
+		string obscureMethod;
 		string contentType;
 		long? contentLength;
 
@@ -88,6 +89,11 @@ namespace Xamarin.WebTests.HttpHandlers
 		public override void SetContentType (string contentType)
 		{
 			this.contentType = contentType;
+		}
+
+		public void SetObscureMethod (string method)
+		{
+			this.obscureMethod = method;
 		}
 
 		public override void SendChunked ()

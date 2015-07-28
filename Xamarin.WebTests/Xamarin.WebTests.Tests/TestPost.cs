@@ -291,6 +291,16 @@ namespace Xamarin.WebTests.Tests
 				}
 			});
 		}
+
+		[Martin]
+		[AsyncTest]
+		public Task Test31830 (TestContext ctx, [HttpServer] HttpServer server, CancellationToken cancellationToken)
+		{
+			var handler = new PostHandler ("Obscure HTTP verb.");
+			handler.Method = "EXECUTE";
+			handler.Flags |= RequestFlags.NoContentLength;
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+		}
 	}
 }
 

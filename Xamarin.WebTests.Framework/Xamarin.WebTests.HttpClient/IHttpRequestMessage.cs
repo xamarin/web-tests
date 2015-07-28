@@ -33,6 +33,8 @@ namespace Xamarin.WebTests.HttpClient
 			get; set;
 		}
 
+		void SetObscureMethod (string method);
+
 		Uri RequestUri {
 			get; set;
 		}

@@ -62,6 +62,10 @@ namespace Xamarin.WebTests.HttpHandlers
 			private set;
 		}
 
+		public string ObscureHttpMethod {
+			get; set;
+		}
+
 		public override object Clone ()
 		{
 			var handler = new HttpClientHandler (Value, Operation, Content, ReturnContent);
