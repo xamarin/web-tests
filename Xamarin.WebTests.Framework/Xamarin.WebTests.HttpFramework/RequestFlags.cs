@@ -35,7 +35,8 @@ namespace Xamarin.WebTests.HttpFramework
 		ExplicitlySetLength	= 4,
 		SendContinue		= 8,
 		NoBody			= 16,
-		KeepAlive		= 32
+		KeepAlive		= 32,
+		NoContentLength		= 64
 	}
 }
 

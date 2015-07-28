@@ -184,9 +184,33 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new SimpleResponse (this, response.StatusCode, null);
 		}
 
-		public override Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
+		public override async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return GetString (ctx, cancellationToken);
+			var request = Handler.CreateRequestMessage ();
+			request.Method = method;
+			request.RequestUri = RequestUri;
+
+			if (Content != null)
+				request.Content = Handler.CreateStringContent (Content.AsString ());
+
+			var response = await Client.SendAsync (request, HttpCompletionOption.ResponseContentRead, cancellationToken);
+
+			ctx.Assert (response, Is.Not.Null, "response");
+
+			ctx.LogDebug (3, "GOT RESPONSE: {0}", response.StatusCode);
+
+			if (!response.IsSuccessStatusCode)
+				return new SimpleResponse (this, response.StatusCode, null);
+
+			string body = null;
+			if (response.Content != null) {
+				body = await response.Content.ReadAsStringAsync ();
+				ctx.LogDebug (5, "GOT BODY: {0}", body);
+			}
+
+			ctx.Assert (body, Is.Empty, "returned body");
+
+			return new SimpleResponse (this, response.StatusCode, null);
 		}
 	}
 }

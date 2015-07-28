@@ -82,6 +82,9 @@ namespace Xamarin.WebTests.HttpHandlers
 			case HttpClientOperation.Put:
 				return HandlePut (ctx, connection, request, effectiveFlags);
 
+			case HttpClientOperation.SendAsync:
+				return HandleSendAsync (ctx, connection, request, effectiveFlags);
+
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -119,6 +122,30 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 		}
 
+		HttpResponse HandleSendAsync (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		{
+			var body = request.ReadBody ();
+
+			int? contentLength = null;
+			if ((effectiveFlags & RequestFlags.NoContentLength) == 0) {
+				string contentLengthValue;
+				var hasContentLength = request.Headers.TryGetValue ("Content-Length", out contentLengthValue);
+				ctx.Assert (hasContentLength, "Missing Content-Length");
+				contentLength = int.Parse (contentLengthValue);
+			}
+
+			Debug (ctx, 5, "BODY", body);
+			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
+				ctx.Assert (body, Is.Not.Null, "body");
+				if (contentLength != null)
+					ctx.Assert (contentLength.Value, Is.EqualTo (0), "Zero Content-Length");
+				return HttpResponse.CreateSuccess ();
+			}
+
+			HttpContent.Compare (ctx, body, Content, false);
+			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
+		}
+
 		public override void ConfigureRequest (Request request, Uri uri)
 		{
 			base.ConfigureRequest (request, uri);
@@ -136,6 +163,10 @@ namespace Xamarin.WebTests.HttpHandlers
 				break;
 			case HttpClientOperation.Put:
 				request.Method = "PUT";
+				request.Content = Content;
+				break;
+			case HttpClientOperation.SendAsync:
+				request.Method = "POST";
 				request.Content = Content;
 				break;
 			default:

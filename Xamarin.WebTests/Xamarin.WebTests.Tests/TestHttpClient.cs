@@ -123,6 +123,14 @@ namespace Xamarin.WebTests
 			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler, redirect);
 		}
 
+		[Martin]
+		[AsyncTest]
+		public Task SendAsync (TestContext ctx, [HttpServer] HttpServer server, CancellationToken cancellationToken)
+		{
+			var handler = new HttpClientHandler ("SendAsyncEmptyBody", HttpClientOperation.SendAsync);
+			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
+		}
+
 		class Bug20583Content : HttpContent
 		{
 			#region implemented abstract members of HttpContent
