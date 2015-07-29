@@ -14,7 +14,9 @@ and the `TestResult.xml` file which is generated in the current working director
 
 If possible, then also re-run the tests with debugging:
 
-   $ mono --debug ./Xamarin.WebTests.Console/bin/Debug/Xamarin.WebTests.Console.exe --debug --log-level=8
+    $ mono --debug ./Xamarin.WebTests.Console/bin/Debug/Xamarin.WebTests.Console.exe --debug --log-level=8
+
+There is also a very simple `Makefile`, which will build and run all the tests.
 
 
 Last changed July 29th, 2015
