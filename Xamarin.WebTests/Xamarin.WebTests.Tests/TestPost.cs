@@ -293,10 +293,11 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task Test31830 (TestContext ctx, [HttpServer] HttpServer server, CancellationToken cancellationToken)
+		public Task Test31830 (TestContext ctx, [HttpServer] HttpServer server, bool writeStreamBuffering, CancellationToken cancellationToken)
 		{
 			var handler = new PostHandler ("Obscure HTTP verb.");
 			handler.Method = "EXECUTE";
+			handler.AllowWriteStreamBuffering = writeStreamBuffering;
 			handler.Flags |= RequestFlags.NoContentLength;
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
