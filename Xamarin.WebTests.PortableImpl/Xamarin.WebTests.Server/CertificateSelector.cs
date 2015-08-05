@@ -1,5 +1,5 @@
 ﻿//
-// ICertificateProvider.cs
+// CertificateSelector.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,43 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using System.Net.Security;
 
-namespace Xamarin.WebTests.Providers
+namespace Xamarin.WebTests.Server
 {
 	using Portable;
 
-	public delegate bool CertificateValidationDelegate (ICertificate certificate);
-
-	public delegate IClientCertificate CertificateSelectionDelegate (
-		string targetHost, ICertificate[] localCertificates, ICertificate remoteCertificate, string[] acceptableIssuers);
-
-	public interface ICertificateProvider
+	class CertificateSelector : ICertificateSelector
 	{
-		ICertificateValidator GetDefault ();
+		public LocalCertificateSelectionCallback SelectionCallback {
+			get;
+			private set;
+		}
 
-		ICertificateValidator AcceptThisCertificate (IServerCertificate certificate);
-
-		ICertificateValidator AcceptFromCA (ICertificate certificate);
-
-		ICertificateValidator AcceptNull ();
-
-		ICertificateValidator RejectAll ();
-
-		ICertificateValidator AcceptAll ();
-
-		void InstallDefaultValidator (ICertificateValidator validator);
-
-		ICertificate GetCertificateFromData (byte[] data);
-
-		IServerCertificate GetServerCertificate (byte[] data, string password);
-
-		IClientCertificate GetClientCertificate (byte[] data, string password);
-
-		bool AreEqual (ICertificate a, ICertificate b);
-
-		ICertificateValidator GetCustomCertificateValidator (CertificateValidationDelegate func);
-
-		ICertificateSelector GetCustomCertificateSelector (CertificateSelectionDelegate func);
+		public CertificateSelector (LocalCertificateSelectionCallback callback)
+		{
+			SelectionCallback = callback;
+		}
 	}
 }
 

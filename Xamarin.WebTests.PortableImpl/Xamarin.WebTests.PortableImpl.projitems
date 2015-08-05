@@ -41,6 +41,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DummyClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\StreamInstrumentation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReferenceSource\SimpleAsyncResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\CertificateSelector.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)ReferenceSource\" />

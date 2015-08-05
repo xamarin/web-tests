@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
@@ -146,17 +147,42 @@ namespace Xamarin.WebTests.Server
 
 		public static ICertificate GetCertificate (X509Certificate certificate)
 		{
-			return new CertificateFromData (certificate);
+			return certificate != null ? new CertificateFromData (certificate) : null;
 		}
 
 		public static X509Certificate GetCertificate (ICertificate certificate)
 		{
-			return ((CertificateFromData)certificate).Certificate;
+			return certificate != null ? ((CertificateFromData)certificate).Certificate : null;
 		}
 
 		public ICertificate GetCertificateFromData (byte[] data)
 		{
 			return new CertificateFromData (data);
+		}
+
+		static ICertificate[] GetCertificateCollection (X509CertificateCollection collection)
+		{
+			if (collection == null)
+				return null;
+			var array = new ICertificate [collection.Count];
+			for (int i = 0; i < array.Length; i++)
+				array [i] = GetCertificate (collection [i]);
+			return array;
+		}
+
+		public ICertificateValidator GetCustomCertificateValidator (CertificateValidationDelegate func)
+		{
+			return new CertificateValidator ((s, c, ch, e) => func (GetCertificate (c)));
+		}
+
+		public ICertificateSelector GetCustomCertificateSelector (CertificateSelectionDelegate func)
+		{
+			return new CertificateSelector ((s, t, lc, rc, ai) => {
+				var localCertificates = GetCertificateCollection (lc);
+				var remoteCertificate = GetCertificate (rc);
+				var result = func (t, localCertificates, remoteCertificate, ai);
+				return GetCertificate (result);
+			});
 		}
 
 		public bool AreEqual (ICertificate a, ICertificate b)

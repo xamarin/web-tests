@@ -147,6 +147,7 @@
     <Compile Include="Xamarin.WebTests.Features\IncludeNotWorkingAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\SslStreamTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IStreamInstrumentation.cs" />
+    <Compile Include="Xamarin.WebTests.Portable\ICertificateSelector.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\server-cert.pfx">

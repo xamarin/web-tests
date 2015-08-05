@@ -44,6 +44,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			TargetHost = other.TargetHost;
 			ClientCertificate = other.ClientCertificate;
 			ClientCertificateValidator = other.ClientCertificateValidator;
+			ClientCertificateSelector = other.ClientCertificateSelector;
 			Flags = other.Flags;
 		}
 
@@ -61,6 +62,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public ICertificateValidator ClientCertificateValidator {
+			get; set;
+		}
+
+		public ICertificateSelector ClientCertificateSelector {
 			get; set;
 		}
 

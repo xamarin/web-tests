@@ -1,5 +1,5 @@
 ﻿//
-// ICertificateProvider.cs
+// ICertificateSelector.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,42 +25,10 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.Providers
+namespace Xamarin.WebTests.Portable
 {
-	using Portable;
-
-	public delegate bool CertificateValidationDelegate (ICertificate certificate);
-
-	public delegate IClientCertificate CertificateSelectionDelegate (
-		string targetHost, ICertificate[] localCertificates, ICertificate remoteCertificate, string[] acceptableIssuers);
-
-	public interface ICertificateProvider
+	public interface ICertificateSelector
 	{
-		ICertificateValidator GetDefault ();
-
-		ICertificateValidator AcceptThisCertificate (IServerCertificate certificate);
-
-		ICertificateValidator AcceptFromCA (ICertificate certificate);
-
-		ICertificateValidator AcceptNull ();
-
-		ICertificateValidator RejectAll ();
-
-		ICertificateValidator AcceptAll ();
-
-		void InstallDefaultValidator (ICertificateValidator validator);
-
-		ICertificate GetCertificateFromData (byte[] data);
-
-		IServerCertificate GetServerCertificate (byte[] data, string password);
-
-		IClientCertificate GetClientCertificate (byte[] data, string password);
-
-		bool AreEqual (ICertificate a, ICertificate b);
-
-		ICertificateValidator GetCustomCertificateValidator (CertificateValidationDelegate func);
-
-		ICertificateSelector GetCustomCertificateSelector (CertificateSelectionDelegate func);
 	}
 }
 
