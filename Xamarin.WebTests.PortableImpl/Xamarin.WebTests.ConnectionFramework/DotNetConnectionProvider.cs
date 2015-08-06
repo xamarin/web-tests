@@ -39,10 +39,19 @@ namespace Xamarin.WebTests.ConnectionFramework
 		readonly IHttpProvider httpProvider;
 
 		public DotNetConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderType type, ISslStreamProvider sslStreamProvider, IHttpProvider httpProvider)
-			: base (factory, type, ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsSslStream)
+			: base (factory, type, GetFlags ())
 		{
 			this.sslStreamProvider = sslStreamProvider;
 			this.httpProvider = httpProvider;
+		}
+
+		static ConnectionProviderFlags GetFlags ()
+		{
+			var flags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp;
+			var support = DependencyInjector.Get<IPortableSupport> ();
+			if (support.IsMicrosoftRuntime)
+				flags |= ConnectionProviderFlags.IsNewTls | ConnectionProviderFlags.SupportsTls12;
+			return flags;
 		}
 
 		public override bool IsCompatibleWith (ConnectionProviderType type)
