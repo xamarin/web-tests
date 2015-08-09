@@ -70,7 +70,7 @@ namespace Xamarin.WebTests.TestProvider
 		{
 			var provider = DependencyInjector.Get<ICertificateProvider> ();
 
-			var defaultValidator = provider.AcceptThisCertificate (ResourceManager.DefaultServerCertificate);
+			var defaultValidator = provider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
 			provider.InstallDefaultValidator (defaultValidator);
 		}
 

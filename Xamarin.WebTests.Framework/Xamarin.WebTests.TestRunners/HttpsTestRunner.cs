@@ -91,7 +91,6 @@ namespace Xamarin.WebTests.TestRunners
 		static IEnumerable<HttpsTestType> OldMonoTestTypes {
 			get {
 				yield return HttpsTestType.Default;
-				yield return HttpsTestType.SelfSignedServer;
 				yield return HttpsTestType.AcceptFromLocalCA;
 				yield return HttpsTestType.RejectAll;
 				yield return HttpsTestType.RejectClientCertificate;
@@ -104,7 +103,6 @@ namespace Xamarin.WebTests.TestRunners
 		public static IEnumerable<HttpsTestType> AllHttpsTestTypes {
 			get {
 				yield return HttpsTestType.Default;
-				yield return HttpsTestType.SelfSignedServer;
 				yield return HttpsTestType.AcceptFromLocalCA;
 				yield return HttpsTestType.NoValidator;
 				yield return HttpsTestType.RejectAll;
@@ -127,15 +125,12 @@ namespace Xamarin.WebTests.TestRunners
 			var acceptSelfSigned = certificateProvider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
 			var acceptFromLocalCA = certificateProvider.AcceptFromCA (ResourceManager.LocalCACertificate);
 
-			var defaultServer = new ServerParameters ("default", ResourceManager.DefaultServerCertificate);
 			var selfSignedServer = new ServerParameters ("self-signed", ResourceManager.SelfSignedServerCertificate);
 
 			var acceptAllClient = new ClientParameters ("accept-all") { ClientCertificateValidator = acceptAll };
 
 			switch (type) {
 			case HttpsTestType.Default:
-				return new ClientAndServerParameters (acceptAllClient, defaultServer);
-			case HttpsTestType.SelfSignedServer:
 				return new ClientAndServerParameters (acceptAllClient, selfSignedServer);
 			case HttpsTestType.AcceptFromLocalCA:
 				return new ClientAndServerParameters ("accept-local-ca", ResourceManager.ServerCertificateFromCA) {
@@ -150,7 +145,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			case HttpsTestType.RejectAll:
 				// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
-				return new ClientAndServerParameters ("reject-all", ResourceManager.DefaultServerCertificate) {
+				return new ClientAndServerParameters ("reject-all", ResourceManager.SelfSignedServerCertificate) {
 					ClientFlags = ClientFlags.ExpectTrustFailure, ClientCertificateValidator = rejectAll,
 					ServerFlags = ServerFlags.ClientAbortsHandshake
 				};

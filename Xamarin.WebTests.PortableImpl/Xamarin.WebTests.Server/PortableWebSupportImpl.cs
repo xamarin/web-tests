@@ -178,7 +178,7 @@ namespace Xamarin.WebTests.Server
 
 		IServerCertificate IPortableWebSupport.GetDefaultServerCertificate ()
 		{
-			return ResourceManager.DefaultServerCertificate;
+			return ResourceManager.SelfSignedServerCertificate;
 		}
 
 		IListener IPortableWebSupport.CreateHttpListener (HttpServer server)

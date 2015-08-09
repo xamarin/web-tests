@@ -165,6 +165,9 @@
     <EmbeddedResource Include="..\CA\penguin.pfx">
       <Link>CA\penguin.pfx</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert.pfx">
+      <Link>CA\server-cert.pfx</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

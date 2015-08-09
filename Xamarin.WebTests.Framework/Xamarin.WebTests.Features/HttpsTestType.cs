@@ -30,7 +30,6 @@ namespace Xamarin.WebTests.Features
 	public enum HttpsTestType
 	{
 		Default,
-		SelfSignedServer,
 		AcceptFromLocalCA,
 		NoValidator,
 		RejectAll,
