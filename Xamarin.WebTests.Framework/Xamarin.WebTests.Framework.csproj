@@ -150,8 +150,8 @@
     <Compile Include="Xamarin.WebTests.Portable\ICertificateSelector.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\CA\server-cert.pfx">
-      <Link>CA\server-cert.pfx</Link>
+    <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
+      <Link>CA\invalid-server-cert.pfx</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="..\CA\Hamiller-Tube-CA.pem">
       <Link>CA\Hamiller-Tube-CA.pem</Link>

@@ -29,7 +29,7 @@ namespace Xamarin.WebTests.Resources
 {
 	public enum ServerCertificateType
 	{
-		Default,
+		LocalCA,
 		SelfSigned
 	}
 }
