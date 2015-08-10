@@ -37,12 +37,17 @@ namespace Xamarin.WebTests.ConnectionFramework
 	{
 		readonly ISslStreamProvider sslStreamProvider;
 		readonly IHttpProvider httpProvider;
+		readonly ProtocolVersions protocols;
 
 		public DotNetConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderType type, ISslStreamProvider sslStreamProvider, IHttpProvider httpProvider)
 			: base (factory, type, GetFlags ())
 		{
 			this.sslStreamProvider = sslStreamProvider;
 			this.httpProvider = httpProvider;
+
+			protocols = ProtocolVersions.Tls10;
+			if ((Flags & ConnectionProviderFlags.SupportsTls12) != 0)
+				protocols |= ProtocolVersions.Tls11 | ProtocolVersions.Tls12;
 		}
 
 		static ConnectionProviderFlags GetFlags ()
@@ -71,7 +76,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public override ProtocolVersions SupportedProtocols {
-			get { return ProtocolVersions.Unspecified; }
+			get { return protocols; }
 		}
 
 		public override IClient CreateClient (ClientParameters parameters)
