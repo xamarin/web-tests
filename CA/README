@@ -21,14 +21,17 @@ Server Certificate
 ==================
 
 Create Certificate Request:
-$ openssl req -config server-cert.conf -extensions server_exts -nodes -days 3650 -newkey rsa:4096 -keyout server-cert.key -out server-cert.crt
+$ openssl req -config server-cert.conf -days 3650 -newkey rsa:4096 -keyout server-cert.key -out server-cert.req
 
 CA-Sign the CR to create the Certificate:
-$ openssl ca -batch -cert Hamiller-Tube-CA.pem -keyfile Hamiller-Tube-CA.key -key monkey -out server-cert.pem -config openssl.cnf
-  -extfile server-cert.conf -extensions server_exts -days 3650 -infiles server-cert.crt
+$ openssl ca -batch -config openssl.cnf -cert Hamiller-Tube-CA.pem -keyfile Hamiller-Tube-CA.key -key monkey -extfile server-cert.conf -extensions server_exts -out server-cert.pem -in server-cert.req 
 
 Create PFX:
 $ openssl pkcs12 -export -passout pass:monkey -out server-cert.pfx -inkey server-cert.key -in server-cert.pem
+
+This is used when running `openssl s_client` from the command-line:
+$ openssl x509 -in server-cert.pem -text > server-cert.cert
+$ openssl rsa -in server-cert.key -text >> server-cert.cert 
 
 Client Certificate
 ==================
