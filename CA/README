@@ -1,3 +1,6 @@
+Local CA
+========
+
 Initialize:
 $ echo '100001' >serial
 $ touch certindex.txt
@@ -6,10 +9,10 @@ $ mkdir certs
 Create CA:
 /usr/local/bin/openssl req -new -x509 -days 3650 -keyout cakey.pem -out cacert.pem
 
-Create .PFX:
-/usr/local/bin/openssl pkcs12 -export -out monkey.pfx -inkey monkey-key.pem -in monkey-cert.pem 
-
 Password is 'monkey'.
+
+Server Certificate
+==================
 
 Create Certificate Request:
 $ openssl req -config server-cert.conf -extensions server_exts -nodes -days 3650 -newkey rsa:4096 -keyout server-cert.key -out server-cert.crt
@@ -20,4 +23,23 @@ $ openssl ca -batch -cert Hamiller-Tube-CA.pem -keyfile Hamiller-Tube-CA.key -ke
 
 Create PFX:
 $ openssl pkcs12 -export -passout pass:monkey -out server-cert.pfx -inkey server-cert.key -in server-cert.pem
+
+Client Certificate
+==================
+
+Create CR:
+$ openssl req -config monkey.conf -nodes -days 3650 -newkey rsa:4096 -keyout monkey.key -out monkey.req
+
+CA-Sign:
+$ openssl ca -batch -config openssl.cnf -extfile monkey.conf -extensions client_exts -cert Hamiller-Tube-CA.pem -keyfile Hamiller-Tube-CA.key -key monkey -out monkey.pem -days 3650 -infiles monkey.req 
+
+PFX:
+$ openssl pkcs12 -export -passout pass:monkey -out monkey.pfx -inkey monkey.key -in monkey.pem 
+
+Self-Signed Client Certificate:
+===============================
+
+$ openssl req -x509 -config penguin.conf -nodes -days 3650 -newkey rsa:4096 -out penguin.pem -keyout penguin.key -extensions client_exts
+
+$ openssl pkcs12 -export -passout pass:penguin -out penguin.pfx -inkey penguin.key -in penguin.pem
 
