@@ -7,7 +7,7 @@ $ touch certindex.txt
 $ mkdir certs
 
 Create CA:
-/usr/local/bin/openssl req -new -x509 -days 3650 -keyout cakey.pem -out cacert.pem
+$ openssl req -config Hamiller-Tube-CA.conf -new -x509 -days 3650 -keyout Hamiller-Tube-CA.key -passout pass:monkey -out Hamiller-Tube-CA.pem
 
 Password is 'monkey'.
 
