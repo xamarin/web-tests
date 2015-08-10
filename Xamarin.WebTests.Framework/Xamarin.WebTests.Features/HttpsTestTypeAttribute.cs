@@ -39,8 +39,21 @@ namespace Xamarin.WebTests.Features
 		{
 		}
 
+		public HttpsTestTypeAttribute (HttpsTestType type, TestFlags flags = TestFlags.Browsable | TestFlags.ContinueOnError)
+			: base (null, flags)
+		{
+			TestType = type;
+		}
+
+		public HttpsTestType? TestType {
+			get;
+			private set;
+		}
+
 		public IEnumerable<HttpsTestType> GetParameters (TestContext ctx, string filter)
 		{
+			if (TestType != null)
+				return new HttpsTestType[] { TestType.Value };
 			return HttpsTestRunner.GetHttpsTestTypes (ctx, filter);
 		}
 	}
