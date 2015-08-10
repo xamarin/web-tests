@@ -11,6 +11,12 @@ Create CA:
 
 Password is 'monkey'.
 
+X.509v1 Server Certificate (invalid for TLS 1.2)
+================================================
+
+$ openssl req -x509 -config invalid-server-cert.conf -newkey rsa:4096 -out invalid-server-cert.pem -keyout invalid-server-cert.key
+$ openssl pkcs12 -export -passout pass:monkey -out invalid-server-cert.pfx -inkey invalid-server-cert.key -in invalid-server-cert.pem 
+
 Server Certificate
 ==================
 
