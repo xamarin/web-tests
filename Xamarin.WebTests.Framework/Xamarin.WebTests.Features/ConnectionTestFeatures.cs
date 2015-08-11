@@ -214,12 +214,15 @@ namespace Xamarin.WebTests.Features
 			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
 			var isNewTls = CommonHttpFeatures.IsNewTls (type);
 
+			var flags = Factory.GetProviderFlags (type);
+			var supportsSslStream = ((flags & ConnectionProviderFlags.SupportsSslStream) != 0);
+
 			switch (category) {
 			case ConnectionTestCategory.Https:
 			case ConnectionTestCategory.HttpsWithMono:
-				return true;
+				return supportsSslStream;
 			case ConnectionTestCategory.HttpsWithDotNet:
-				return isNewTls || includeNotWorking;
+				return supportsSslStream && (isNewTls || includeNotWorking);
 			default:
 				throw new InvalidOperationException ();
 			}

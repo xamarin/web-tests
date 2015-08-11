@@ -52,20 +52,8 @@ namespace Xamarin.WebTests.Features
 
 		public SslStreamTestRunner CreateInstance (TestContext ctx)
 		{
-			ClientAndServerParameters parameters;
-			if (!ctx.TryGetParameter<ClientAndServerParameters> (out parameters)) {
-				var type = ctx.GetParameter<HttpsTestType> ();
-				parameters = HttpsTestRunner.GetParameters (ctx, type);
-			}
-
-			CommonHttpFeatures.GetUniqueEndPoint (ctx, parameters);
-
-			var provider = CommonHttpFeatures.GetConnectionProvider (ctx);
-
-			var client = provider.CreateClient (parameters.ClientParameters);
-			var server = provider.CreateServer (parameters.ServerParameters);
-
-			return new SslStreamTestRunner (server, client, parameters);
+			return ConnectionTestFeatures.CreateTestRunner<ClientAndServerParameters,SslStreamTestRunner> (
+				ctx, (s, c, p) => new SslStreamTestRunner (s, c, p));
 		}
 	}
 }

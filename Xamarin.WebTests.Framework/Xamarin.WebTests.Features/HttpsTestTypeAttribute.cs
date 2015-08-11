@@ -32,6 +32,7 @@ namespace Xamarin.WebTests.Features
 	using ConnectionFramework;
 	using TestRunners;
 
+	[Obsolete]
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class HttpsTestTypeAttribute : TestParameterAttribute, ITestParameterSource<HttpsTestType>
 	{
