@@ -1,0 +1,49 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            d4:f7:d6:2e:7d:e1:d5:e8
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: CN=Martins Invalid Monkey, C=US, ST=Massachusetts, O=Xamarin, OU=Engineering/emailAddress=martin.baulig@xamarin.com
+        Validity
+            Not Before: Aug 11 14:14:05 2015 GMT
+            Not After : Sep 10 14:14:05 2015 GMT
+        Subject: CN=Martins Invalid Monkey, C=US, ST=Massachusetts, O=Xamarin, OU=Engineering/emailAddress=martin.baulig@xamarin.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (512 bit)
+                Modulus:
+                    00:a8:bd:0e:11:4b:68:c9:87:31:d1:9c:da:57:c6:
+                    e7:6d:02:2f:b9:e6:37:60:ec:be:13:91:12:02:ea:
+                    9e:52:8b:a7:b5:c4:eb:32:f0:82:fb:8b:64:b4:7c:
+                    7d:5e:95:ea:6c:f0:c6:11:98:01:7c:e1:56:7d:83:
+                    61:93:c1:a7:13
+                Exponent: 65537 (0x10001)
+    Signature Algorithm: sha1WithRSAEncryption
+         85:e3:0d:d2:4e:4a:c3:50:72:f5:ab:4d:d3:2c:fb:9e:81:05:
+         2a:c0:92:8b:cc:20:7d:ac:48:73:a7:1d:0e:08:d5:30:6d:d9:
+         84:64:ca:a2:0b:ae:22:2c:8f:1b:d3:a8:c1:92:ff:7c:d8:41:
+         66:ff:bf:8d:01:09:2d:6b:5d:5e
+-----BEGIN CERTIFICATE-----
+MIICKTCCAdOgAwIBAgIJANT31i594dXoMA0GCSqGSIb3DQEBBQUAMIGYMR8wHQYD
+VQQDExZNYXJ0aW5zIEludmFsaWQgTW9ua2V5MQswCQYDVQQGEwJVUzEWMBQGA1UE
+CBMNTWFzc2FjaHVzZXR0czEQMA4GA1UEChMHWGFtYXJpbjEUMBIGA1UECxMLRW5n
+aW5lZXJpbmcxKDAmBgkqhkiG9w0BCQEWGW1hcnRpbi5iYXVsaWdAeGFtYXJpbi5j
+b20wHhcNMTUwODExMTQxNDA1WhcNMTUwOTEwMTQxNDA1WjCBmDEfMB0GA1UEAxMW
+TWFydGlucyBJbnZhbGlkIE1vbmtleTELMAkGA1UEBhMCVVMxFjAUBgNVBAgTDU1h
+c3NhY2h1c2V0dHMxEDAOBgNVBAoTB1hhbWFyaW4xFDASBgNVBAsTC0VuZ2luZWVy
+aW5nMSgwJgYJKoZIhvcNAQkBFhltYXJ0aW4uYmF1bGlnQHhhbWFyaW4uY29tMFww
+DQYJKoZIhvcNAQEBBQADSwAwSAJBAKi9DhFLaMmHMdGc2lfG520CL7nmN2DsvhOR
+EgLqnlKLp7XE6zLwgvuLZLR8fV6V6mzwxhGYAXzhVn2DYZPBpxMCAwEAATANBgkq
+hkiG9w0BAQUFAANBAIXjDdJOSsNQcvWrTdMs+56BBSrAkovMIH2sSHOnHQ4I1TBt
+2YRkyqILriIsjxvTqMGS/3zYQWb/v40BCS1rXV4=
+-----END CERTIFICATE-----
+-----BEGIN RSA PRIVATE KEY-----
+MIIBOQIBAAJBAKi9DhFLaMmHMdGc2lfG520CL7nmN2DsvhOREgLqnlKLp7XE6zLw
+gvuLZLR8fV6V6mzwxhGYAXzhVn2DYZPBpxMCAwEAAQJABltg/UvO/dCnEtOK8kWf
+EF9FtwYyTed9XbVYbV2zaz6h/wBcn0RgJffDmStRoowgBf2jB9kw2pnuyqrpCIvJ
+OQIhANY3P7endYj5lnFGfbMzvOplElGjdj6LetBXALxzEDk3AiEAyabrro34FQi0
+m2hNF7z3N5ghiYgiT4/1QiyOFNqEPwUCIEf8+SS22gDWH4Cht8xpLqt2m9ljnXEX
+XoZ1NoIeCO2xAiA+hqxzfn/a/c0Klwe4gZZiPaDAhV6mLuwMbcZMfwkchQIgdOsE
+DqjhBzS6gD+P7lxWwqnJHRDOvVb5dEd04owW8Pw=
+-----END RSA PRIVATE KEY-----
