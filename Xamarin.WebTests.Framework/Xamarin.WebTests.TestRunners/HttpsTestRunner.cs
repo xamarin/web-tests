@@ -66,16 +66,6 @@ namespace Xamarin.WebTests.TestRunners
 			Parameters = parameters;
 		}
 
-		[Obsolete]
-		public static IEnumerable<HttpsTestType> GetHttpsTestTypes (TestContext ctx, string filter)
-		{
-			if (filter == null)
-				return AllHttpsTestTypes;
-
-			var parts = filter.Split (':');
-			return AllHttpsTestTypes.Where (t => parts.Contains (t.ToString ()));
-		}
-
 		public static IEnumerable<HttpsTestType> GetHttpsTestTypes (TestContext ctx, ConnectionTestCategory category)
 		{
 			switch (category) {
@@ -89,20 +79,6 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.AssertFail ("Unsupported test category: '{0}'.", category);
 				throw new NotImplementedException ();
 			}
-		}
-
-		[Obsolete]
-		public static bool IsSupported (TestContext ctx, HttpsTestType type)
-		{
-			var providerType = CommonHttpFeatures.GetConnectionProviderType (ctx);
-
-			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
-			var isNewTls = CommonHttpFeatures.IsNewTls (providerType);
-
-			if (isNewTls || includeNotWorking)
-				return true;
-
-			return OldMonoTestTypes.Contains (type);
 		}
 
 		static IEnumerable<HttpsTestType> OldMonoTestTypes {

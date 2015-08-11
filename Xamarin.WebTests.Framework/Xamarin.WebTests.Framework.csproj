@@ -132,8 +132,6 @@
     <Compile Include="Xamarin.WebTests.Features\ClientAndServerTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ProtocolVersions.cs" />
     <Compile Include="Xamarin.WebTests.Features\PuppyAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.Features\ServerAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.Features\ClientAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\PuppyTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\ClientAndServerTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\ChunkedTestRunner.cs" />
@@ -142,7 +140,6 @@
     <Compile Include="Xamarin.WebTests.Features\ChunkContentTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\NotWorkingAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\MonoWithNewTlsAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.Features\HttpsTestTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\IncludeNotWorkingAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\SslStreamTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IStreamInstrumentation.cs" />
