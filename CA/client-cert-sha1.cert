@@ -1,0 +1,165 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            9a:54:73:c5:2f:da:03:c5
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: CN=Martins Invalid Monkey, C=US, ST=Massachusetts, O=Xamarin, OU=Engineering/emailAddress=martin.baulig@xamarin.com
+        Validity
+            Not Before: Aug 11 14:05:21 2015 GMT
+            Not After : Sep 10 14:05:21 2015 GMT
+        Subject: CN=Martins Invalid Monkey, C=US, ST=Massachusetts, O=Xamarin, OU=Engineering/emailAddress=martin.baulig@xamarin.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (4096 bit)
+                Modulus:
+                    00:ae:53:9b:af:b9:12:f1:c5:90:b3:9b:76:b9:2f:
+                    18:bf:dd:f8:72:49:c9:62:c4:b3:53:0a:e1:df:f1:
+                    c4:c6:79:c5:53:77:ae:1b:96:07:7e:5c:4b:95:fa:
+                    b4:28:da:55:31:6a:00:2d:a5:c3:e8:d6:3a:22:54:
+                    a6:8a:b2:fe:f7:6b:d5:87:0f:f2:8d:b4:0f:77:ef:
+                    ac:04:b2:77:2e:8e:23:f6:db:c3:21:07:35:e1:b7:
+                    f8:80:c3:70:09:d1:86:0e:4c:8f:9c:15:da:ab:9d:
+                    73:7c:99:22:d0:5c:04:72:02:83:93:f4:bb:9c:46:
+                    48:3e:b0:98:91:d1:82:fa:fd:16:51:0d:b7:59:9e:
+                    84:e4:b6:6f:b5:70:10:db:6e:41:f5:5b:52:6d:41:
+                    95:e3:87:b3:34:de:4c:29:fa:4f:49:4c:4c:14:ec:
+                    9a:8e:7c:9c:d3:b1:e7:66:0a:95:20:2f:ea:cc:b7:
+                    82:f4:9b:ef:45:dd:5e:a5:21:d5:32:e3:ab:15:e6:
+                    3e:d9:79:ab:a5:17:8a:5a:51:c7:b0:12:bd:df:ee:
+                    7a:4e:e1:88:a0:13:34:d9:a2:d9:d9:d2:bf:d0:cd:
+                    6c:e7:73:88:ad:ce:77:2c:9e:86:3b:07:ce:97:66:
+                    4c:6c:68:8e:1d:65:e5:d9:d7:a9:a5:ce:ff:3f:bd:
+                    94:63:f2:ca:bc:ce:a8:75:c9:e5:e0:b0:bc:77:32:
+                    7b:3d:3c:f9:57:6a:24:9c:b7:a5:69:08:be:f2:d2:
+                    28:ae:4f:c7:e7:55:38:07:74:01:d1:28:d1:68:e7:
+                    5c:1a:ee:bd:66:b1:52:e7:31:56:01:00:a9:e2:0c:
+                    86:ef:b4:37:c8:ec:7d:a3:06:10:e2:6d:5c:9c:d6:
+                    4f:6d:1a:7f:d6:79:10:4a:90:dd:dd:b0:04:83:b1:
+                    2a:87:04:c9:04:63:f7:7c:f0:da:1c:49:b6:8e:48:
+                    b9:33:17:92:99:da:4d:a5:64:d3:ed:a7:27:9c:92:
+                    d9:de:a4:46:45:fa:80:7e:38:bd:64:2d:79:83:1d:
+                    fa:f0:58:62:9d:b9:3a:08:ec:a2:fb:31:b3:ab:f4:
+                    0a:b8:be:e8:dd:68:3c:d0:f1:84:4f:2a:6d:a5:3d:
+                    d3:b8:4f:6c:f1:f1:57:af:bd:90:7c:64:23:2a:3a:
+                    a0:fe:01:5a:be:2f:e2:e5:a9:62:9a:53:15:3f:b3:
+                    d0:24:0a:79:cf:09:55:62:3d:4d:eb:40:9b:6f:08:
+                    67:49:0e:ff:76:c6:d7:46:87:7e:82:62:d5:55:d4:
+                    65:53:fa:91:c3:34:1d:fe:fd:4c:f2:42:64:31:28:
+                    56:3f:76:44:96:8c:b1:ab:67:5f:3a:27:72:8e:f5:
+                    4b:b8:0b
+                Exponent: 65537 (0x10001)
+    Signature Algorithm: sha1WithRSAEncryption
+         87:4f:8d:94:92:cf:31:65:a8:1c:43:8d:85:a4:9a:47:32:d5:
+         1a:6c:53:4a:f7:fb:75:a3:4f:3a:8e:07:8d:3f:1f:e3:07:ec:
+         94:7d:49:91:7e:ae:d6:00:be:5e:25:3b:6d:fe:44:d4:0c:1e:
+         2e:da:5d:ee:0f:bb:02:42:17:6b:07:b9:98:26:33:76:56:8e:
+         20:cb:69:b5:78:de:27:1d:23:bf:77:f6:a8:a8:b1:e6:4e:4a:
+         b8:19:87:9d:63:2f:dc:9a:09:6f:ec:e6:2f:0e:5d:67:f8:1b:
+         21:96:e9:32:74:3f:6d:a1:50:c1:d3:73:7d:09:89:ac:2b:47:
+         35:ca:6f:81:4b:58:5b:f5:0b:7a:1c:c3:ac:ac:fe:fe:6b:ce:
+         42:95:6a:fb:53:2a:ca:f6:80:36:90:3f:ba:2b:8d:b0:4b:47:
+         25:57:07:13:c9:cc:b7:a9:c9:84:f1:12:6e:d9:06:05:6b:bb:
+         84:ff:4b:4f:c6:9d:cd:45:80:01:fc:b2:d9:33:48:fa:30:d7:
+         86:9c:86:cf:a4:ea:df:8b:c5:6a:d8:2e:b8:44:17:e7:44:35:
+         7b:82:2f:c7:46:39:1b:a6:f1:43:ea:84:53:b7:29:82:8e:d1:
+         ab:c1:31:7e:06:9c:3b:aa:f0:18:7f:15:cd:26:3c:68:ed:73:
+         b3:8b:e0:07:34:1b:10:55:50:55:e5:fa:3e:ce:fc:42:bb:9a:
+         01:cf:e9:47:e8:5e:f7:27:78:2e:e8:74:3a:71:dd:73:cd:65:
+         22:49:be:04:ff:af:1b:14:36:8a:29:e3:81:ce:8c:55:e6:1b:
+         72:e5:b6:36:e0:9e:62:c5:4e:f8:1a:d3:bd:e3:30:23:9a:e5:
+         21:72:4a:1c:4f:cc:56:7f:fc:27:15:90:ab:a0:cc:72:51:02:
+         30:b2:17:91:86:8b:d1:d5:70:62:15:63:02:cf:f7:65:d3:0d:
+         f8:32:7d:ef:3c:c6:aa:95:9f:83:c8:96:a3:28:61:4e:59:14:
+         26:d2:a5:96:0a:8b:42:5a:2a:30:e0:db:32:8a:b6:6c:97:3f:
+         24:1b:a6:ba:91:44:8a:17:48:f5:b9:cc:63:da:0c:82:e0:82:
+         0d:30:c4:51:42:31:be:82:af:ed:b1:04:1f:f0:10:b6:00:12:
+         45:75:12:a3:e5:30:8e:f3:a7:b2:5f:43:dc:45:49:2e:f3:44:
+         8d:a8:b6:e8:9b:6d:96:6e:d1:11:fb:8a:f7:73:25:0b:90:e8:
+         fa:f7:c9:91:b4:77:2c:4e:56:fb:90:45:60:3f:1d:b4:29:7f:
+         bf:c0:a9:7b:b5:2a:82:6f:25:4c:04:6a:6e:c2:7d:0c:b0:5d:
+         9b:c7:46:52:8c:6d:07:9b
+-----BEGIN CERTIFICATE-----
+MIIFszCCA5ugAwIBAgIJAJpUc8Uv2gPFMA0GCSqGSIb3DQEBBQUAMIGYMR8wHQYD
+VQQDExZNYXJ0aW5zIEludmFsaWQgTW9ua2V5MQswCQYDVQQGEwJVUzEWMBQGA1UE
+CBMNTWFzc2FjaHVzZXR0czEQMA4GA1UEChMHWGFtYXJpbjEUMBIGA1UECxMLRW5n
+aW5lZXJpbmcxKDAmBgkqhkiG9w0BCQEWGW1hcnRpbi5iYXVsaWdAeGFtYXJpbi5j
+b20wHhcNMTUwODExMTQwNTIxWhcNMTUwOTEwMTQwNTIxWjCBmDEfMB0GA1UEAxMW
+TWFydGlucyBJbnZhbGlkIE1vbmtleTELMAkGA1UEBhMCVVMxFjAUBgNVBAgTDU1h
+c3NhY2h1c2V0dHMxEDAOBgNVBAoTB1hhbWFyaW4xFDASBgNVBAsTC0VuZ2luZWVy
+aW5nMSgwJgYJKoZIhvcNAQkBFhltYXJ0aW4uYmF1bGlnQHhhbWFyaW4uY29tMIIC
+IjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEArlObr7kS8cWQs5t2uS8Yv934
+cknJYsSzUwrh3/HExnnFU3euG5YHflxLlfq0KNpVMWoALaXD6NY6IlSmirL+92vV
+hw/yjbQPd++sBLJ3Lo4j9tvDIQc14bf4gMNwCdGGDkyPnBXaq51zfJki0FwEcgKD
+k/S7nEZIPrCYkdGC+v0WUQ23WZ6E5LZvtXAQ225B9VtSbUGV44ezNN5MKfpPSUxM
+FOyajnyc07HnZgqVIC/qzLeC9JvvRd1epSHVMuOrFeY+2XmrpReKWlHHsBK93+56
+TuGIoBM02aLZ2dK/0M1s53OIrc53LJ6GOwfOl2ZMbGiOHWXl2deppc7/P72UY/LK
+vM6odcnl4LC8dzJ7PTz5V2oknLelaQi+8tIork/H51U4B3QB0SjRaOdcGu69ZrFS
+5zFWAQCp4gyG77Q3yOx9owYQ4m1cnNZPbRp/1nkQSpDd3bAEg7EqhwTJBGP3fPDa
+HEm2jki5MxeSmdpNpWTT7acnnJLZ3qRGRfqAfji9ZC15gx368Fhinbk6COyi+zGz
+q/QKuL7o3Wg80PGETyptpT3TuE9s8fFXr72QfGQjKjqg/gFavi/i5alimlMVP7PQ
+JAp5zwlVYj1N60CbbwhnSQ7/dsbXRod+gmLVVdRlU/qRwzQd/v1M8kJkMShWP3ZE
+loyxq2dfOidyjvVLuAsCAwEAATANBgkqhkiG9w0BAQUFAAOCAgEAh0+NlJLPMWWo
+HEONhaSaRzLVGmxTSvf7daNPOo4HjT8f4wfslH1JkX6u1gC+XiU7bf5E1AweLtpd
+7g+7AkIXawe5mCYzdlaOIMtptXjeJx0jv3f2qKix5k5KuBmHnWMv3JoJb+zmLw5d
+Z/gbIZbpMnQ/baFQwdNzfQmJrCtHNcpvgUtYW/ULehzDrKz+/mvOQpVq+1MqyvaA
+NpA/uiuNsEtHJVcHE8nMt6nJhPESbtkGBWu7hP9LT8adzUWAAfyy2TNI+jDXhpyG
+z6Tq34vFatguuEQX50Q1e4Ivx0Y5G6bxQ+qEU7cpgo7Rq8ExfgacO6rwGH8VzSY8
+aO1zs4vgBzQbEFVQVeX6Ps78QruaAc/pR+he9yd4Luh0OnHdc81lIkm+BP+vGxQ2
+iinjgc6MVeYbcuW2NuCeYsVO+BrTveMwI5rlIXJKHE/MVn/8JxWQq6DMclECMLIX
+kYaL0dVwYhVjAs/3ZdMN+DJ97zzGqpWfg8iWoyhhTlkUJtKllgqLQloqMODbMoq2
+bJc/JBumupFEihdI9bnMY9oMguCCDTDEUUIxvoKv7bEEH/AQtgASRXUSo+UwjvOn
+sl9D3EVJLvNEjai26Jttlm7REfuK93MlC5Do+vfJkbR3LE5W+5BFYD8dtCl/v8Cp
+e7Uqgm8lTARqbsJ9DLBdm8dGUoxtB5s=
+-----END CERTIFICATE-----
+-----BEGIN RSA PRIVATE KEY-----
+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
+-----END RSA PRIVATE KEY-----
