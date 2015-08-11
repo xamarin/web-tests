@@ -52,19 +52,29 @@ namespace Xamarin.WebTests.Features
 
 		public HttpsTestRunner CreateInstance (TestContext ctx)
 		{
-			var endpoint = CommonHttpFeatures.GetEndPoint (ctx);
-			var httpProvider = CommonHttpFeatures.GetHttpProvider (ctx);
-			var listenerFlags = ListenerFlags.SSL;
+			var httpProvider = ConnectionTestFeatures.GetHttpProvider (ctx);
 
-			ClientAndServerParameters parameters;
-			if (!ctx.TryGetParameter<ClientAndServerParameters> (out parameters)) {
-				var type = ctx.GetParameter<HttpsTestType> ();
-				parameters = HttpsTestRunner.GetParameters (ctx, type);
+			var parameters = ctx.GetParameter<ClientAndServerParameters> ();
+
+			ProtocolVersions protocolVersion;
+			if (ctx.TryGetParameter<ProtocolVersions> (out protocolVersion))
+				parameters.ProtocolVersion = protocolVersion;
+
+			if (parameters.EndPoint != null) {
+				if (parameters.ClientParameters.EndPoint == null)
+					parameters.ClientParameters.EndPoint = parameters.EndPoint;
+				if (parameters.ServerParameters.EndPoint == null)
+					parameters.ServerParameters.EndPoint = parameters.EndPoint;
+
+				if (parameters.ClientParameters.TargetHost == null)
+					parameters.ClientParameters.TargetHost = parameters.EndPoint.HostName;
+			} else {
+				CommonHttpFeatures.GetUniqueEndPoint (ctx, parameters);
 			}
 
-			CommonHttpFeatures.GetUniqueEndPoint (ctx, parameters);
+			var listenerFlags = ListenerFlags.SSL;
 
-			return new HttpsTestRunner (httpProvider, endpoint, listenerFlags, parameters);
+			return new HttpsTestRunner (httpProvider, parameters.EndPoint, listenerFlags, parameters);
 		}
 	}
 }

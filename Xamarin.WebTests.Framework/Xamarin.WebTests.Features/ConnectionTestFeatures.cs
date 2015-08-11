@@ -127,6 +127,13 @@ namespace Xamarin.WebTests.Features
 			return type;
 		}
 
+		public static IHttpProvider GetHttpProvider (TestContext ctx)
+		{
+			var type = GetClientType (ctx);
+			var provider = Factory.GetProvider (type);
+			return provider.HttpProvider;
+		}
+
 		public static IClient CreateClient (TestContext ctx)
 		{
 			var providerType = GetClientType (ctx);

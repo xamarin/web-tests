@@ -1,5 +1,5 @@
 ﻿//
-// TestSsl.cs
+// HttpsTestParametersAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,49 +24,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
-
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Tests
+namespace Xamarin.WebTests.Features
 {
 	using ConnectionFramework;
 	using TestRunners;
-	using Features;
 
-	[SSL]
-	[Work]
-	[AsyncTestFixture (Timeout = 5000)]
-	public class TestHttps
+	public class HttpsTestParametersAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
 	{
-		[AsyncTest]
-		[CertificateTests]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpsWithMono)]
-		public async Task TestMonoConnection (TestContext ctx, CancellationToken cancellationToken,
-			[ClientAndServerConnectionType] ClientAndServerConnectionType connectionType,
-			[HttpsTestParameters] ClientAndServerParameters parameters,
-			[HttpsTestRunner] HttpsTestRunner runner)
-		{
-			await runner.Run (ctx, cancellationToken);
+		public HttpsTestType? Type {
+			get; set;
 		}
 
-		[AsyncTest]
-		[CertificateTests]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpsWithDotNet)]
-		public async Task TestDotNetConnection (TestContext ctx, CancellationToken cancellationToken,
-			[ClientAndServerConnectionType] ClientAndServerConnectionType connectionType,
-			[HttpsTestParameters] ClientAndServerParameters parameters,
-			[HttpsTestRunner] HttpsTestRunner runner)
+		public HttpsTestParametersAttribute (string filter = null)
+			: base (filter, TestFlags.Browsable | TestFlags.ContinueOnError)
 		{
-			await runner.Run (ctx, cancellationToken);
+		}
+
+		public HttpsTestParametersAttribute (HttpsTestType type)
+			: base (null, TestFlags.Browsable | TestFlags.ContinueOnError)
+		{
+			Type = type;
+		}
+
+		public IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx, string filter)
+		{
+			if (filter != null)
+				throw new NotImplementedException ();
+
+			var category = ctx.GetParameter<ConnectionTestCategory> ();
+
+			if (Type != null)
+				yield return HttpsTestRunner.GetParameters (ctx, Type.Value);
+
+			foreach (var type in HttpsTestRunner.GetHttpsTestTypes (ctx, category))
+				yield return HttpsTestRunner.GetParameters (ctx, type);
 		}
 	}
 }
-
