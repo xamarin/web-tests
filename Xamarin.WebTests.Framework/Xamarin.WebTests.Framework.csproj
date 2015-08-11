@@ -153,6 +153,9 @@
     <Compile Include="Xamarin.WebTests.Features\SslStreamTestParametersAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\HttpsTestType.cs" />
     <Compile Include="Xamarin.WebTests.Features\HttpsTestParametersAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionTestParameters.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\HttpsTestParameters.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\SslStreamTestParameters.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
