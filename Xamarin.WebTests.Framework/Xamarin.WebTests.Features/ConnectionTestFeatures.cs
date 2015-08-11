@@ -111,12 +111,10 @@ namespace Xamarin.WebTests.Features
 			ConnectionProviderType type;
 			if (ctx.TryGetParameter<ConnectionProviderType> (out type, "ClientType"))
 				return type;
-			ClientAndServerType clientAndServerType;
-			if (ctx.TryGetParameter<ClientAndServerType> (out clientAndServerType))
-				return clientAndServerType.Client;
-			if (!ctx.TryGetParameter<ConnectionProviderType> (out type))
-				type = ConnectionProviderType.DotNet;
-			return type;
+			ClientAndServerConnectionType clientAndServerType;
+			if (ctx.TryGetParameter<ClientAndServerConnectionType> (out clientAndServerType))
+				return clientAndServerType.ClientType;
+			throw new InvalidOperationException ();
 		}
 
 		public static ConnectionProviderType GetServerType (TestContext ctx)
@@ -124,12 +122,10 @@ namespace Xamarin.WebTests.Features
 			ConnectionProviderType type;
 			if (ctx.TryGetParameter<ConnectionProviderType> (out type, "ServerType"))
 				return type;
-			ClientAndServerType clientAndServerType;
-			if (ctx.TryGetParameter<ClientAndServerType> (out clientAndServerType))
-				return clientAndServerType.Server;
-			if (!ctx.TryGetParameter<ConnectionProviderType> (out type))
-				type = ConnectionProviderType.DotNet;
-			return type;
+			ClientAndServerConnectionType clientAndServerType;
+			if (ctx.TryGetParameter<ClientAndServerConnectionType> (out clientAndServerType))
+				return clientAndServerType.ServerType;
+			throw new InvalidOperationException ();
 		}
 
 		public static IHttpProvider GetHttpProvider (TestContext ctx)
@@ -159,15 +155,15 @@ namespace Xamarin.WebTests.Features
 			return provider.CreateServer (parameters);
 		}
 
-		public static R CreateTestRunner<P,R> (TestContext ctx, Func<IServer,IClient,P,R> constructor)
+		public static R CreateTestRunner<P,R> (TestContext ctx, ConnectionFlags flags, Func<IServer,IClient,P,ConnectionFlags,R> constructor)
 			where P : ClientAndServerParameters
 			where R : ClientAndServerTestRunner
 		{
 			var parameters = ctx.GetParameter<P> ();
-			return CreateTestRunner (ctx, parameters, constructor);
+			return CreateTestRunner (ctx, parameters, flags, constructor);
 		}
 
-		public static R CreateTestRunner<P,R> (TestContext ctx, P parameters, Func<IServer,IClient,P,R> constructor)
+		public static R CreateTestRunner<P,R> (TestContext ctx, P parameters, ConnectionFlags flags, Func<IServer,IClient,P,ConnectionFlags,R> constructor)
 			where P : ClientAndServerParameters
 			where R : ClientAndServerTestRunner
 		{
@@ -192,7 +188,12 @@ namespace Xamarin.WebTests.Features
 				string serverHost;
 				if (ctx.Settings.TryGetValue ("ServerHost", out serverHost))
 					parameters.ClientParameters.TargetHost = serverHost;
+
+				flags |= ConnectionFlags.ManualServer;
 			}
+
+			if (clientProviderType == ConnectionProviderType.Manual)
+				flags |= ConnectionFlags.ManualClient;
 
 			if (parameters.EndPoint != null) {
 				if (parameters.ClientParameters.EndPoint == null)
@@ -210,7 +211,17 @@ namespace Xamarin.WebTests.Features
 
 			var client = clientProvider.CreateClient (parameters.ClientParameters);
 
-			return constructor (server, client, parameters);
+			return constructor (server, client, parameters, flags);
+		}
+
+		public static R CreateTestRunner<P,R> (TestContext ctx, Func<IServer,IClient,P,ConnectionFlags,R> constructor, ConnectionFlags? flags = null)
+			where P : ConnectionTestParameters
+			where R : ConnectionTestRunner
+		{
+			var parameters = ctx.GetParameter<P> ();
+			if (flags == null)
+				flags = ConnectionTestRunner.GetConnectionFlags (ctx, parameters.Category);
+			return CreateTestRunner (ctx, parameters, flags.Value, constructor);
 		}
 
 		public static IEnumerable<R> Join<T,U,R> (IEnumerable<T> first, IEnumerable<U> second, Func<T, U, R> resultSelector) {

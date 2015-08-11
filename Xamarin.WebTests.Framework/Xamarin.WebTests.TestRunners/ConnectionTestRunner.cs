@@ -37,9 +37,23 @@ namespace Xamarin.WebTests.TestRunners
 
 	public abstract class ConnectionTestRunner : ClientAndServerTestRunner
 	{
-		public ConnectionTestRunner (IServer server, IClient client, ConnectionTestParameters parameters)
+		public ConnectionFlags ConnectionFlags {
+			get;
+			private set;
+		}
+
+		new public ConnectionTestParameters Parameters {
+			get { return (ConnectionTestParameters)base.Parameters; }
+		}
+
+		public ConnectionTestCategory Category {
+			get { return Parameters.Category; }
+		}
+
+		public ConnectionTestRunner (IServer server, IClient client, ConnectionTestParameters parameters, ConnectionFlags flags)
 			: base (server, client, parameters)
 		{
+			ConnectionFlags = flags;
 		}
 
 		public static IEnumerable<ConnectionTestType> GetConnectionTestTypes (TestContext ctx, ConnectionTestCategory category)
@@ -85,10 +99,50 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.RequireClientCertificate;
 				yield break;
 
+			case ConnectionTestCategory.InvalidCertificatesInTls12:
+				yield return ConnectionTestType.InvalidServerCertificate;
+				yield break;
+
+			case ConnectionTestCategory.MartinTest:
+			case ConnectionTestCategory.ManualClient:
+			case ConnectionTestCategory.ManualServer:
+				yield return ConnectionTestType.MartinTest;
+				yield break;
+
 			default:
 				ctx.AssertFail ("Unsupported test category: '{0}'.", category);
 				throw new NotImplementedException ();
 			}
+		}
+
+		public static ConnectionFlags GetConnectionFlags (TestContext ctx, ConnectionTestCategory category)
+		{
+			if (category == ConnectionTestCategory.ManualClient)
+				return ConnectionFlags.ManualClient;
+			else if (category == ConnectionTestCategory.ManualServer)
+				return ConnectionFlags.ManualServer;
+			else
+				return ConnectionFlags.None;
+		}
+
+		public bool IsManualClient {
+			get {
+				if (Category == ConnectionTestCategory.ManualClient)
+					return true;
+				return (ConnectionFlags & ConnectionFlags.ManualClient) != 0;
+			}
+		}
+
+		public bool IsManualServer {
+			get {
+				if (Category == ConnectionTestCategory.ManualServer)
+					return true;
+				return (ConnectionFlags & ConnectionFlags.ManualServer) != 0;
+			}
+		}
+
+		public bool IsManualConnection {
+			get { return IsManualClient || IsManualServer; }
 		}
 
 		public static bool IsClientSupported (TestContext ctx, ConnectionTestCategory category, ConnectionProviderType type)
@@ -106,7 +160,12 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.HttpsWithDotNet:
 				return supportsSslStream && (isNewTls || includeNotWorking);
 			case ConnectionTestCategory.SslStreamWithTls12:
+			case ConnectionTestCategory.InvalidCertificatesInTls12:
 				return supportsSslStream && isNewTls;
+			case ConnectionTestCategory.MartinTest:
+			case ConnectionTestCategory.ManualClient:
+			case ConnectionTestCategory.ManualServer:
+				return true;
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -127,7 +186,12 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.HttpsWithDotNet:
 				return isNewTls || includeNotWorking;
 			case ConnectionTestCategory.SslStreamWithTls12:
+			case ConnectionTestCategory.InvalidCertificatesInTls12:
 				return supportsSslStream && isNewTls;
+			case ConnectionTestCategory.MartinTest:
+			case ConnectionTestCategory.ManualClient:
+			case ConnectionTestCategory.ManualServer:
+				return true;
 			default:
 				throw new InvalidOperationException ();
 			}

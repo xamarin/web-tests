@@ -1,5 +1,5 @@
 ﻿//
-// ConnectionTestCategory.cs
+// ConnectionFlags.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,22 +27,12 @@ using System;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public enum ConnectionTestCategory
+	[Flags]
+	public enum ConnectionFlags
 	{
-		// Run all
-		Https,
-		// Only run tests which are working with the existing Mono.
-		HttpsWithMono,
-		// These tests don't work with Mono yet.
-		HttpsWithDotNet,
-		// TLS 1.2 tests; we can only run these with SslStream because the
-		// HTTP framework doesn't let us specify the protocol version.
-		SslStreamWithTls12,
-		InvalidCertificatesInTls12,
-
-		MartinTest,
-		ManualClient,
-		ManualServer
+		None = 0,
+		ManualClient = 1,
+		ManualServer = 2
 	}
 }
 

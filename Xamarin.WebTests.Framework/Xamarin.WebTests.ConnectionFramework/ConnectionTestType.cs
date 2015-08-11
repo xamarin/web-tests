@@ -38,7 +38,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		RequireClientCertificate,
 		OptionalClientCertificate,
 		RejectClientCertificate,
-		MissingClientCertificate
+		MissingClientCertificate,
+
+		InvalidServerCertificate,
+		MartinTest
 	}
 }
 

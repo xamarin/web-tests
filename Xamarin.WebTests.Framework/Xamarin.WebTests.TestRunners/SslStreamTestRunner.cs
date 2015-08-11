@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.TestRunners
 {
@@ -39,8 +40,8 @@ namespace Xamarin.WebTests.TestRunners
 
 	public class SslStreamTestRunner : ConnectionTestRunner
 	{
-		public SslStreamTestRunner (IServer server, IClient client, SslStreamTestParameters parameters)
-			: base (server, client, parameters)
+		public SslStreamTestRunner (IServer server, IClient client, SslStreamTestParameters parameters, ConnectionFlags flags)
+			: base (server, client, parameters, flags)
 		{
 		}
 
@@ -147,6 +148,15 @@ namespace Xamarin.WebTests.TestRunners
 						ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException
 				};
 
+			case ConnectionTestType.MartinTest:
+				var provider = DependencyInjector.Get<IPortableEndPointSupport> ();
+				var endpoint = provider.GetEndpoint ("0.0.0.0", 4433);
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptSelfSigned, ProtocolVersion = ProtocolVersions.Tls12,
+					ServerFlags = ServerFlags.RequireClientCertificate, ClientCertificate = ResourceManager.InvalidClientCertificate,
+					ServerCertificateValidator = acceptAll, EndPoint = endpoint
+				};
+
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -156,25 +166,31 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			await base.OnRun (ctx, cancellationToken);
 
-			ctx.Expect (Client.SslStream.IsAuthenticated, "client is authenticated");
-			ctx.Expect (Server.SslStream.IsAuthenticated, "server is authenticated");
+			if (!IsManualServer) {
+				ctx.Expect (Server.SslStream.IsAuthenticated, "server is authenticated");
 
-			ctx.Expect (Client.SslStream.HasRemoteCertificate, "client has server certificate");
-
-			if (Server.Parameters.AskForCertificate && Client.Parameters.ClientCertificate != null)
-				ctx.Expect (Client.SslStream.HasLocalCertificate, "client has local certificate");
-
-			if (Server.Parameters.RequireCertificate) {
-				ctx.Expect (Server.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
-				ctx.Expect (Server.SslStream.HasRemoteCertificate, "server has client certificate");
+				if (Server.Parameters.RequireCertificate) {
+					ctx.Expect (Server.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
+					ctx.Expect (Server.SslStream.HasRemoteCertificate, "server has client certificate");
+				}
 			}
 
-			if (!Server.Parameters.AskForCertificate)
-				ctx.Expect (Server.SslStream.HasRemoteCertificate, Is.False, "server has no client certificate");
+			if (!IsManualClient) {
+				ctx.Expect (Client.SslStream.IsAuthenticated, "client is authenticated");
+
+				ctx.Expect (Client.SslStream.HasRemoteCertificate, "client has server certificate");
+			}
+
+			if (!IsManualConnection && Server.Parameters.AskForCertificate && Client.Parameters.ClientCertificate != null)
+				ctx.Expect (Client.SslStream.HasLocalCertificate, "client has local certificate");
+
 		}
 
 		protected override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
 		{
+			if (IsManualConnection)
+				return;
+
 			var serverStream = new StreamWrapper (Server.Stream);
 			var clientStream = new StreamWrapper (Client.Stream);
 

@@ -35,7 +35,7 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
-		public TestFlags Flags {
+		public TestFlags TestFlags {
 			get;
 			private set;
 		}
@@ -47,12 +47,12 @@ namespace Xamarin.AsyncTests
 		public TestHostAttribute (Type type = null, TestFlags flags = TestFlags.None)
 		{
 			HostType = type;
-			Flags = flags;
+			TestFlags = flags;
 		}
 
 		public override string ToString ()
 		{
-			return string.Format ("[TestHostAttribute: Type={0}, Flags={1}]", HostType, Flags);
+			return string.Format ("[TestHostAttribute: Type={0}, Flags={1}]", HostType, TestFlags);
 		}
 	}
 }

@@ -274,7 +274,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			bool useFixtureInstance;
 			var hostType = GetCustomHostType (fixture, member, attr, out useFixtureInstance);
 
-			return new CustomTestHost (attr.Identifier ?? member.Name, member.Type.AsType (), hostType, attr.Flags, attr, useFixtureInstance);
+			return new CustomTestHost (attr.Identifier ?? member.Name, member.Type.AsType (), hostType, attr.TestFlags, attr, useFixtureInstance);
 		}
 
 		static void Debug (string format, params object[] args)
