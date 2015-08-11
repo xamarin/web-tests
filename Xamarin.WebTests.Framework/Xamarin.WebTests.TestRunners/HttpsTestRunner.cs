@@ -143,8 +143,8 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case HttpsTestType.NoValidator:
-				// The default validator only allows ResourceManager.DefaultServerCertificate.
-				return new ClientAndServerParameters ("no-validator", ResourceManager.SelfSignedServerCertificate) {
+				// The default validator only allows ResourceManager.SelfSignedServerCertificate.
+				return new ClientAndServerParameters ("no-validator", ResourceManager.ServerCertificateFromCA) {
 					ClientFlags = ClientFlags.ExpectTrustFailure, ServerFlags = ServerFlags.ClientAbortsHandshake
 				};
 
