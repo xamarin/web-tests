@@ -58,10 +58,10 @@ namespace Xamarin.WebTests.Features
 			var category = ctx.GetParameter<ConnectionTestCategory> ();
 
 			if (Type != null)
-				yield return HttpsTestRunner.GetParameters (ctx, Type.Value);
+				yield return ConnectionTestRunner.GetParameters (ctx, Type.Value);
 
-			foreach (var type in HttpsTestRunner.GetHttpsTestTypes (ctx, category))
-				yield return HttpsTestRunner.GetParameters (ctx, type);
+			foreach (var type in ConnectionTestRunner.GetConnectionTestTypes (ctx, category))
+				yield return ConnectionTestRunner.GetParameters (ctx, type);
 		}
 	}
 }
