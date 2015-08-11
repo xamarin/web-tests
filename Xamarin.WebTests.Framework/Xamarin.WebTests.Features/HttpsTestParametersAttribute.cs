@@ -33,7 +33,7 @@ namespace Xamarin.WebTests.Features
 	using ConnectionFramework;
 	using TestRunners;
 
-	public class HttpsTestParametersAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
+	public class HttpsTestParametersAttribute : TestParameterAttribute, ITestParameterSource<HttpsTestParameters>
 	{
 		public ConnectionTestType? Type {
 			get; set;
@@ -50,7 +50,7 @@ namespace Xamarin.WebTests.Features
 			Type = type;
 		}
 
-		public IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx, string filter)
+		public IEnumerable<HttpsTestParameters> GetParameters (TestContext ctx, string filter)
 		{
 			if (filter != null)
 				throw new NotImplementedException ();
@@ -58,10 +58,10 @@ namespace Xamarin.WebTests.Features
 			var category = ctx.GetParameter<ConnectionTestCategory> ();
 
 			if (Type != null)
-				yield return ConnectionTestRunner.GetParameters (ctx, Type.Value);
+				yield return HttpsTestRunner.GetParameters (ctx, category, Type.Value);
 
 			foreach (var type in ConnectionTestRunner.GetConnectionTestTypes (ctx, category))
-				yield return ConnectionTestRunner.GetParameters (ctx, type);
+				yield return HttpsTestRunner.GetParameters (ctx, category, type);
 		}
 	}
 }

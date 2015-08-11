@@ -42,12 +42,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			Category = category;
 		}
 
-		public ConnectionTestParameters (ConnectionTestCategory category, ClientParameters clientParameters, ServerParameters serverParameters)
-			: base (clientParameters, serverParameters)
-		{
-			Category = category;
-		}
-
 		protected ConnectionTestParameters (ConnectionTestParameters other)
 			: base (other)
 		{

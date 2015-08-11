@@ -33,7 +33,7 @@ namespace Xamarin.WebTests.Features
 	using ConnectionFramework;
 	using TestRunners;
 
-	public class SslStreamTestParametersAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
+	public class SslStreamTestParametersAttribute : TestParameterAttribute, ITestParameterSource<SslStreamTestParameters>
 	{
 		public ConnectionTestType? Type {
 			get; set;
@@ -50,7 +50,7 @@ namespace Xamarin.WebTests.Features
 			Type = type;
 		}
 
-		public IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx, string filter)
+		public IEnumerable<SslStreamTestParameters> GetParameters (TestContext ctx, string filter)
 		{
 			if (filter != null)
 				throw new NotImplementedException ();
@@ -58,10 +58,10 @@ namespace Xamarin.WebTests.Features
 			var category = ctx.GetParameter<ConnectionTestCategory> ();
 
 			if (Type != null)
-				yield return ConnectionTestRunner.GetParameters (ctx, Type.Value);
+				yield return SslStreamTestRunner.GetParameters (ctx, category, Type.Value);
 
 			foreach (var type in ConnectionTestRunner.GetConnectionTestTypes (ctx, category))
-				yield return ConnectionTestRunner.GetParameters (ctx, type);
+				yield return SslStreamTestRunner.GetParameters (ctx, category, type);
 		}
 	}
 }

@@ -50,7 +50,7 @@ namespace Xamarin.WebTests.Tests
 		[ConnectionTestCategory (ConnectionTestCategory.HttpsWithMono)]
 		public async Task TestMonoConnection (TestContext ctx, CancellationToken cancellationToken,
 			[ClientAndServerConnectionType] ClientAndServerConnectionType connectionType,
-			[SslStreamTestParameters] ClientAndServerParameters parameters,
+			[SslStreamTestParameters] SslStreamTestParameters parameters,
 			[SslStreamTestRunner] SslStreamTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
@@ -60,7 +60,7 @@ namespace Xamarin.WebTests.Tests
 		[ConnectionTestCategory (ConnectionTestCategory.HttpsWithDotNet)]
 		public async Task TestDotNetConnection (TestContext ctx, CancellationToken cancellationToken,
 			[ClientAndServerConnectionType] ClientAndServerConnectionType connectionType,
-			[SslStreamTestParameters] ClientAndServerParameters parameters,
+			[SslStreamTestParameters] SslStreamTestParameters parameters,
 			[SslStreamTestRunner] SslStreamTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);

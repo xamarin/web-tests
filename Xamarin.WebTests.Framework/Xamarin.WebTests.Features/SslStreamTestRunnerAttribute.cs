@@ -52,7 +52,7 @@ namespace Xamarin.WebTests.Features
 
 		public SslStreamTestRunner CreateInstance (TestContext ctx)
 		{
-			return ConnectionTestFeatures.CreateTestRunner<ClientAndServerParameters,SslStreamTestRunner> (
+			return ConnectionTestFeatures.CreateTestRunner<SslStreamTestParameters,SslStreamTestRunner> (
 				ctx, (s, c, p) => new SslStreamTestRunner (s, c, p));
 		}
 	}

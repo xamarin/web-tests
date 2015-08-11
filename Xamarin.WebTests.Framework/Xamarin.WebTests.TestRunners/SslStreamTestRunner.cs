@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
@@ -32,17 +33,123 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.TestRunners
 {
 	using ConnectionFramework;
+	using Resources;
+	using Providers;
+	using Portable;
 
-	public class SslStreamTestRunner : ClientAndServerTestRunner
+	public class SslStreamTestRunner : ConnectionTestRunner
 	{
-		public SslStreamTestRunner (IServer server, IClient client)
-			: base (server, client)
+		public SslStreamTestRunner (IServer server, IClient client, SslStreamTestParameters parameters)
+			: base (server, client, parameters)
 		{
 		}
 
-		public SslStreamTestRunner (IServer server, IClient client, ClientAndServerParameters parameters)
-			: base (server, client, parameters)
+		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object[] args)
 		{
+			var sb = new StringBuilder ();
+			sb.Append (type);
+			foreach (var arg in args) {
+				sb.AppendFormat (":{0}", arg);
+			}
+			return sb.ToString ();
+		}
+
+		public static SslStreamTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category, ConnectionTestType type)
+		{
+			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
+			var acceptAll = certificateProvider.AcceptAll ();
+			var rejectAll = certificateProvider.RejectAll ();
+			var acceptNull = certificateProvider.AcceptNull ();
+			var acceptSelfSigned = certificateProvider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
+			var acceptFromLocalCA = certificateProvider.AcceptFromCA (ResourceManager.LocalCACertificate);
+
+			var name = GetTestName (category, type);
+
+			switch (type) {
+			case ConnectionTestType.Default:
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptAll
+				};
+
+			case ConnectionTestType.AcceptFromLocalCA:
+				return new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
+					ClientCertificateValidator = acceptFromLocalCA
+				};
+
+			case ConnectionTestType.NoValidator:
+				// The default validator only allows ResourceManager.SelfSignedServerCertificate.
+				return new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
+					ClientFlags = ClientFlags.ExpectTrustFailure, ServerFlags = ServerFlags.ClientAbortsHandshake
+				};
+
+			case ConnectionTestType.RejectAll:
+				// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientFlags = ClientFlags.ExpectTrustFailure, ClientCertificateValidator = rejectAll,
+					ServerFlags = ServerFlags.ClientAbortsHandshake
+				};
+
+			case ConnectionTestType.UnrequestedClientCertificate:
+				// Provide a client certificate, but do not require it.
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificate = ResourceManager.PenguinCertificate, ClientCertificateValidator = acceptSelfSigned,
+					ServerCertificateValidator = acceptNull
+				};
+
+			case ConnectionTestType.RequestClientCertificate:
+				/*
+				 * Request client certificate, but do not require it.
+				 *
+				 * FIXME:
+				 * SslStream with Mono's old implementation fails here.
+				 */
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
+					ServerFlags = ServerFlags.AskForClientCertificate, ServerCertificateValidator = acceptFromLocalCA
+				};
+
+			case ConnectionTestType.RequireClientCertificate:
+				// Require client certificate.
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
+					ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.RequireClientCertificate,
+					ServerCertificateValidator = acceptFromLocalCA
+				};
+
+			case ConnectionTestType.OptionalClientCertificate:
+				/*
+				 * Request client certificate without requiring one and do not provide it.
+				 *
+				 * To ask for an optional client certificate (without requiring it), you need to specify a custom validation
+				 * callback and then accept the null certificate with `SslPolicyErrors.RemoteCertificateNotAvailable' in it.
+				 *
+				 * FIXME:
+				 * Mono with the old TLS implementation throws SecureChannelFailure.
+				 */
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptSelfSigned, ServerFlags = ServerFlags.AskForClientCertificate,
+					ServerCertificateValidator = acceptNull
+				};
+
+			case ConnectionTestType.RejectClientCertificate:
+				// Reject client certificate.
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
+					ClientFlags = ClientFlags.ExpectWebException, ServerCertificateValidator = rejectAll,
+					ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException
+				};
+
+			case ConnectionTestType.MissingClientCertificate:
+				// Missing client certificate.
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptSelfSigned, ClientFlags = ClientFlags.ExpectWebException,
+					ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.RequireClientCertificate |
+						ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException
+				};
+
+			default:
+				throw new InvalidOperationException ();
+			}
 		}
 
 		protected override async Task OnRun (TestContext ctx, CancellationToken cancellationToken)

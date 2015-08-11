@@ -42,12 +42,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			Type = type;
 		}
 
-		public SslStreamTestParameters (ConnectionTestCategory category, ConnectionTestType type, ClientParameters clientParameters, ServerParameters serverParameters)
-			: base (category, clientParameters, serverParameters)
-		{
-			Type = type;
-		}
-
 		protected SslStreamTestParameters (SslStreamTestParameters other)
 			: base (other)
 		{

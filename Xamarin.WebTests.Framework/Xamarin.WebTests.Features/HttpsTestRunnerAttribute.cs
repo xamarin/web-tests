@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.Features
 		{
 			var httpProvider = ConnectionTestFeatures.GetHttpProvider (ctx);
 
-			var parameters = ctx.GetParameter<ClientAndServerParameters> ();
+			var parameters = ctx.GetParameter<HttpsTestParameters> ();
 
 			ProtocolVersions protocolVersion;
 			if (ctx.TryGetParameter<ProtocolVersions> (out protocolVersion))
