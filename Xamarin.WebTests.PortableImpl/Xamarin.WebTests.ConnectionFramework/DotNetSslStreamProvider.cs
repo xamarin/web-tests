@@ -82,12 +82,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		static SslProtocols GetProtocol (ConnectionParameters parameters)
 		{
-			var protocol = (ProtocolVersions)GetSslProtocol ();
-			if (parameters.ProtocolVersion != null) {
-				protocol &= parameters.ProtocolVersion.Value;
-				if (protocol == ProtocolVersions.Unspecified)
-					throw new NotSupportedException ();
-			}
+			var protocol = parameters.ProtocolVersion ?? (ProtocolVersions)GetSslProtocol ();
 
 			if ((protocol & ProtocolVersions.Tls10) != 0)
 				protocol |= ProtocolVersions.Tls10;
