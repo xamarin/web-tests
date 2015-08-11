@@ -47,6 +47,11 @@ namespace Xamarin.WebTests.Features
 			isProviderSupported = new IsSupportedConstraint<ConnectionProviderType> (f => Factory.IsSupported (f));
 		}
 
+		public static ConnectionProviderFlags GetProviderFlags (ConnectionProviderType type)
+		{
+			return Factory.GetProviderFlags (type);
+		}
+
 		public static Constraint IsProviderSupported {
 			get { return isProviderSupported; }
 		}
@@ -213,41 +218,6 @@ namespace Xamarin.WebTests.Features
 				foreach (var e2 in second) {
 					yield return resultSelector (e1, e2);
 				}
-			}
-		}
-
-		public static bool IsClientSupported (TestContext ctx, ConnectionTestCategory category, ConnectionProviderType type)
-		{
-			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
-			var isNewTls = CommonHttpFeatures.IsNewTls (type);
-
-			var flags = Factory.GetProviderFlags (type);
-			var supportsSslStream = ((flags & ConnectionProviderFlags.SupportsSslStream) != 0);
-
-			switch (category) {
-			case ConnectionTestCategory.Https:
-			case ConnectionTestCategory.HttpsWithMono:
-				return supportsSslStream;
-			case ConnectionTestCategory.HttpsWithDotNet:
-				return supportsSslStream && (isNewTls || includeNotWorking);
-			default:
-				throw new InvalidOperationException ();
-			}
-		}
-
-		public static bool IsServerSupported (TestContext ctx, ConnectionTestCategory category, ConnectionProviderType type)
-		{
-			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
-			var isNewTls = CommonHttpFeatures.IsNewTls (type);
-
-			switch (category) {
-			case ConnectionTestCategory.Https:
-			case ConnectionTestCategory.HttpsWithMono:
-				return true;
-			case ConnectionTestCategory.HttpsWithDotNet:
-				return isNewTls || includeNotWorking;
-			default:
-				throw new InvalidOperationException ();
 			}
 		}
 	}

@@ -24,13 +24,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.Features
 {
-	public class ProtocolVersionAttribute
+	using ConnectionFramework;
+
+	public class ProtocolVersionAttribute : FixedTestParameterAttribute
 	{
-		public ProtocolVersionAttribute ()
+		public override Type Type {
+			get { return typeof(ProtocolVersions); }
+		}
+
+		public override object Value {
+			get { return Protocol; }
+		}
+
+		public override string Identifier {
+			get { return identifier; }
+		}
+
+		public ProtocolVersions Protocol {
+			get { return protocol; }
+		}
+
+		readonly string identifier;
+		readonly ProtocolVersions protocol;
+
+		public ProtocolVersionAttribute (ProtocolVersions protocol)
 		{
+			this.protocol = protocol;
+			this.identifier = Type.Name;
 		}
 	}
 }

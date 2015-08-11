@@ -34,7 +34,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		// Only run tests which are working with the existing Mono.
 		HttpsWithMono,
 		// These tests don't work with Mono yet.
-		HttpsWithDotNet
+		HttpsWithDotNet,
+		// TLS 1.2 tests; we can only run these with SslStream because the
+		// HTTP framework doesn't let us specify the protocol version.
+		SslStreamWithTls12
 	}
 }
 

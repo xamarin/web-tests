@@ -33,6 +33,7 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.Features
 {
 	using ConnectionFramework;
+	using TestRunners;
 	using Providers;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
@@ -80,13 +81,13 @@ namespace Xamarin.WebTests.Features
 			var supportedClientProviders = supportedProviders.Where (p => {
 				if (!string.IsNullOrEmpty (clientFilter))
 					return MatchesFilter (p, clientFilter);
-				return ConnectionTestFeatures.IsClientSupported (ctx, category, p);
+				return ConnectionTestRunner.IsClientSupported (ctx, category, p);
 			});
 
 			var supportedServerProviders = supportedProviders.Where (p => {
 				if (!string.IsNullOrEmpty (serverFilter))
 					return MatchesFilter (p, serverFilter);
-				return ConnectionTestFeatures.IsServerSupported (ctx, category, p);
+				return ConnectionTestRunner.IsServerSupported (ctx, category, p);
 			});
 
 			return ConnectionTestFeatures.Join (supportedClientProviders, supportedServerProviders, (c, s) => new ClientAndServerConnectionType (category, c, s));

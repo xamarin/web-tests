@@ -30,6 +30,7 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.TestRunners
 {
 	using ConnectionFramework;
+	using Features;
 	using Providers;
 	using Resources;
 	using Portable;
@@ -45,54 +46,90 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			switch (category) {
 			case ConnectionTestCategory.Https:
-				return AllTestTypes;
+				yield return ConnectionTestType.Default;
+				yield return ConnectionTestType.AcceptFromLocalCA;
+				yield return ConnectionTestType.NoValidator;
+				yield return ConnectionTestType.RejectAll;
+				yield return ConnectionTestType.RequestClientCertificate;
+				yield return ConnectionTestType.RequireClientCertificate;
+				yield return ConnectionTestType.RejectClientCertificate;
+				yield return ConnectionTestType.UnrequestedClientCertificate;
+				yield return ConnectionTestType.OptionalClientCertificate;
+				yield return ConnectionTestType.RejectClientCertificate;
+				yield return ConnectionTestType.MissingClientCertificate;
+				yield break;
+
 			case ConnectionTestCategory.HttpsWithMono:
-				return OldMonoTestTypes;
+				yield return ConnectionTestType.Default;
+				yield return ConnectionTestType.AcceptFromLocalCA;
+				yield return ConnectionTestType.RejectAll;
+				yield return ConnectionTestType.UnrequestedClientCertificate;
+				yield return ConnectionTestType.RejectClientCertificate;
+				yield return ConnectionTestType.MissingClientCertificate;
+				yield break;
+
 			case ConnectionTestCategory.HttpsWithDotNet:
-				return DotNetTestTypes;
+				yield return ConnectionTestType.NoValidator;
+				yield return ConnectionTestType.RequestClientCertificate;
+				yield return ConnectionTestType.RequireClientCertificate;
+				yield return ConnectionTestType.RejectClientCertificate;
+				yield return ConnectionTestType.UnrequestedClientCertificate;
+				yield return ConnectionTestType.OptionalClientCertificate;
+				yield return ConnectionTestType.RejectClientCertificate;
+				yield return ConnectionTestType.MissingClientCertificate;
+				yield break;
+
+			case ConnectionTestCategory.SslStreamWithTls12:
+				yield return ConnectionTestType.Default;
+				yield return ConnectionTestType.AcceptFromLocalCA;
+				yield return ConnectionTestType.RequireClientCertificate;
+				yield break;
+
 			default:
 				ctx.AssertFail ("Unsupported test category: '{0}'.", category);
 				throw new NotImplementedException ();
 			}
 		}
 
-		static IEnumerable<ConnectionTestType> OldMonoTestTypes {
-			get {
-				yield return ConnectionTestType.Default;
-				yield return ConnectionTestType.AcceptFromLocalCA;
-				yield return ConnectionTestType.RejectAll;
-				yield return ConnectionTestType.UnrequestedClientCertificate;
-				yield return ConnectionTestType.RejectClientCertificate;
-				yield return ConnectionTestType.MissingClientCertificate;
+		public static bool IsClientSupported (TestContext ctx, ConnectionTestCategory category, ConnectionProviderType type)
+		{
+			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
+			var isNewTls = CommonHttpFeatures.IsNewTls (type);
+
+			var flags = ConnectionTestFeatures.GetProviderFlags (type);
+			var supportsSslStream = ((flags & ConnectionProviderFlags.SupportsSslStream) != 0);
+
+			switch (category) {
+			case ConnectionTestCategory.Https:
+			case ConnectionTestCategory.HttpsWithMono:
+				return supportsSslStream;
+			case ConnectionTestCategory.HttpsWithDotNet:
+				return supportsSslStream && (isNewTls || includeNotWorking);
+			case ConnectionTestCategory.SslStreamWithTls12:
+				return supportsSslStream && isNewTls;
+			default:
+				throw new InvalidOperationException ();
 			}
 		}
 
-		static IEnumerable<ConnectionTestType> AllTestTypes {
-			get {
-				yield return ConnectionTestType.Default;
-				yield return ConnectionTestType.AcceptFromLocalCA;
-				yield return ConnectionTestType.NoValidator;
-				yield return ConnectionTestType.RejectAll;
-				yield return ConnectionTestType.RequestClientCertificate;
-				yield return ConnectionTestType.RequireClientCertificate;
-				yield return ConnectionTestType.RejectClientCertificate;
-				yield return ConnectionTestType.UnrequestedClientCertificate;
-				yield return ConnectionTestType.OptionalClientCertificate;
-				yield return ConnectionTestType.RejectClientCertificate;
-				yield return ConnectionTestType.MissingClientCertificate;
-			}
-		}
+		public static bool IsServerSupported (TestContext ctx, ConnectionTestCategory category, ConnectionProviderType type)
+		{
+			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
+			var isNewTls = CommonHttpFeatures.IsNewTls (type);
 
-		static IEnumerable<ConnectionTestType> DotNetTestTypes {
-			get {
-				yield return ConnectionTestType.NoValidator;
-				yield return ConnectionTestType.RequestClientCertificate;
-				yield return ConnectionTestType.RequireClientCertificate;
-				yield return ConnectionTestType.RejectClientCertificate;
-				yield return ConnectionTestType.UnrequestedClientCertificate;
-				yield return ConnectionTestType.OptionalClientCertificate;
-				yield return ConnectionTestType.RejectClientCertificate;
-				yield return ConnectionTestType.MissingClientCertificate;
+			var flags = ConnectionTestFeatures.GetProviderFlags (type);
+			var supportsSslStream = ((flags & ConnectionProviderFlags.SupportsSslStream) != 0);
+
+			switch (category) {
+			case ConnectionTestCategory.Https:
+			case ConnectionTestCategory.HttpsWithMono:
+				return true;
+			case ConnectionTestCategory.HttpsWithDotNet:
+				return isNewTls || includeNotWorking;
+			case ConnectionTestCategory.SslStreamWithTls12:
+				return supportsSslStream && isNewTls;
+			default:
+				throw new InvalidOperationException ();
 			}
 		}
 	}
