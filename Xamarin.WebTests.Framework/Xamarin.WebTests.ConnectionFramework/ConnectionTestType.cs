@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public enum HttpsTestType
+	public enum ConnectionTestType
 	{
 		Default,
 		AcceptFromLocalCA,

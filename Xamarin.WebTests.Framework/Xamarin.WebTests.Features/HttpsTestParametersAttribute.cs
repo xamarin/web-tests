@@ -35,7 +35,7 @@ namespace Xamarin.WebTests.Features
 
 	public class HttpsTestParametersAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
 	{
-		public HttpsTestType? Type {
+		public ConnectionTestType? Type {
 			get; set;
 		}
 
@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.Features
 		{
 		}
 
-		public HttpsTestParametersAttribute (HttpsTestType type)
+		public HttpsTestParametersAttribute (ConnectionTestType type)
 			: base (null, TestFlags.Browsable | TestFlags.ContinueOnError)
 		{
 			Type = type;

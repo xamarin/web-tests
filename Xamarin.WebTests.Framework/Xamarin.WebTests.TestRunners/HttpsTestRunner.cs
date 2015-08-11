@@ -66,7 +66,7 @@ namespace Xamarin.WebTests.TestRunners
 			Parameters = parameters;
 		}
 
-		public static IEnumerable<HttpsTestType> GetHttpsTestTypes (TestContext ctx, ConnectionTestCategory category)
+		public static IEnumerable<ConnectionTestType> GetHttpsTestTypes (TestContext ctx, ConnectionTestCategory category)
 		{
 			switch (category) {
 			case ConnectionTestCategory.Https:
@@ -81,47 +81,47 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		static IEnumerable<HttpsTestType> OldMonoTestTypes {
+		static IEnumerable<ConnectionTestType> OldMonoTestTypes {
 			get {
-				yield return HttpsTestType.Default;
-				yield return HttpsTestType.AcceptFromLocalCA;
-				yield return HttpsTestType.RejectAll;
-				yield return HttpsTestType.UnrequestedClientCertificate;
-				yield return HttpsTestType.RejectClientCertificate;
-				yield return HttpsTestType.MissingClientCertificate;
+				yield return ConnectionTestType.Default;
+				yield return ConnectionTestType.AcceptFromLocalCA;
+				yield return ConnectionTestType.RejectAll;
+				yield return ConnectionTestType.UnrequestedClientCertificate;
+				yield return ConnectionTestType.RejectClientCertificate;
+				yield return ConnectionTestType.MissingClientCertificate;
 			}
 		}
 
-		static IEnumerable<HttpsTestType> AllHttpsTestTypes {
+		static IEnumerable<ConnectionTestType> AllHttpsTestTypes {
 			get {
-				yield return HttpsTestType.Default;
-				yield return HttpsTestType.AcceptFromLocalCA;
-				yield return HttpsTestType.NoValidator;
-				yield return HttpsTestType.RejectAll;
-				yield return HttpsTestType.RequestClientCertificate;
-				yield return HttpsTestType.RequireClientCertificate;
-				yield return HttpsTestType.RejectClientCertificate;
-				yield return HttpsTestType.UnrequestedClientCertificate;
-				yield return HttpsTestType.OptionalClientCertificate;
-				yield return HttpsTestType.RejectClientCertificate;
-				yield return HttpsTestType.MissingClientCertificate;
+				yield return ConnectionTestType.Default;
+				yield return ConnectionTestType.AcceptFromLocalCA;
+				yield return ConnectionTestType.NoValidator;
+				yield return ConnectionTestType.RejectAll;
+				yield return ConnectionTestType.RequestClientCertificate;
+				yield return ConnectionTestType.RequireClientCertificate;
+				yield return ConnectionTestType.RejectClientCertificate;
+				yield return ConnectionTestType.UnrequestedClientCertificate;
+				yield return ConnectionTestType.OptionalClientCertificate;
+				yield return ConnectionTestType.RejectClientCertificate;
+				yield return ConnectionTestType.MissingClientCertificate;
 			}
 		}
 
-		static IEnumerable<HttpsTestType> DotNetTestTypes {
+		static IEnumerable<ConnectionTestType> DotNetTestTypes {
 			get {
-				yield return HttpsTestType.NoValidator;
-				yield return HttpsTestType.RequestClientCertificate;
-				yield return HttpsTestType.RequireClientCertificate;
-				yield return HttpsTestType.RejectClientCertificate;
-				yield return HttpsTestType.UnrequestedClientCertificate;
-				yield return HttpsTestType.OptionalClientCertificate;
-				yield return HttpsTestType.RejectClientCertificate;
-				yield return HttpsTestType.MissingClientCertificate;
+				yield return ConnectionTestType.NoValidator;
+				yield return ConnectionTestType.RequestClientCertificate;
+				yield return ConnectionTestType.RequireClientCertificate;
+				yield return ConnectionTestType.RejectClientCertificate;
+				yield return ConnectionTestType.UnrequestedClientCertificate;
+				yield return ConnectionTestType.OptionalClientCertificate;
+				yield return ConnectionTestType.RejectClientCertificate;
+				yield return ConnectionTestType.MissingClientCertificate;
 			}
 		}
 
-		public static ClientAndServerParameters GetParameters (TestContext ctx, HttpsTestType type)
+		public static ClientAndServerParameters GetParameters (TestContext ctx, ConnectionTestType type)
 		{
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 			var acceptAll = certificateProvider.AcceptAll ();
@@ -135,34 +135,34 @@ namespace Xamarin.WebTests.TestRunners
 			var acceptAllClient = new ClientParameters ("accept-all") { ClientCertificateValidator = acceptAll };
 
 			switch (type) {
-			case HttpsTestType.Default:
+			case ConnectionTestType.Default:
 				return new ClientAndServerParameters (acceptAllClient, selfSignedServer);
-			case HttpsTestType.AcceptFromLocalCA:
+			case ConnectionTestType.AcceptFromLocalCA:
 				return new ClientAndServerParameters ("accept-local-ca", ResourceManager.ServerCertificateFromCA) {
 					ClientCertificateValidator = acceptFromLocalCA
 				};
 
-			case HttpsTestType.NoValidator:
+			case ConnectionTestType.NoValidator:
 				// The default validator only allows ResourceManager.SelfSignedServerCertificate.
 				return new ClientAndServerParameters ("no-validator", ResourceManager.ServerCertificateFromCA) {
 					ClientFlags = ClientFlags.ExpectTrustFailure, ServerFlags = ServerFlags.ClientAbortsHandshake
 				};
 
-			case HttpsTestType.RejectAll:
+			case ConnectionTestType.RejectAll:
 				// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
 				return new ClientAndServerParameters ("reject-all", ResourceManager.SelfSignedServerCertificate) {
 					ClientFlags = ClientFlags.ExpectTrustFailure, ClientCertificateValidator = rejectAll,
 					ServerFlags = ServerFlags.ClientAbortsHandshake
 				};
 
-			case HttpsTestType.UnrequestedClientCertificate:
+			case ConnectionTestType.UnrequestedClientCertificate:
 				// Provide a client certificate, but do not require it.
 				return new ClientAndServerParameters ("unrequested-client-certificate", ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.PenguinCertificate, ClientCertificateValidator = acceptSelfSigned,
 					ServerCertificateValidator = acceptNull
 				};
 
-			case HttpsTestType.RequestClientCertificate:
+			case ConnectionTestType.RequestClientCertificate:
 				/*
 				 * Request client certificate, but do not require it.
 				 *
@@ -174,7 +174,7 @@ namespace Xamarin.WebTests.TestRunners
 					ServerFlags = ServerFlags.AskForClientCertificate, ServerCertificateValidator = acceptFromLocalCA
 				};
 
-			case HttpsTestType.RequireClientCertificate:
+			case ConnectionTestType.RequireClientCertificate:
 				// Require client certificate.
 				return new ClientAndServerParameters ("require-client-certificate", ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
@@ -182,7 +182,7 @@ namespace Xamarin.WebTests.TestRunners
 					ServerCertificateValidator = acceptFromLocalCA
 				};
 
-			case HttpsTestType.OptionalClientCertificate:
+			case ConnectionTestType.OptionalClientCertificate:
 				/*
 				 * Request client certificate without requiring one and do not provide it.
 				 *
@@ -197,7 +197,7 @@ namespace Xamarin.WebTests.TestRunners
 					ServerCertificateValidator = acceptNull
 				};
 
-			case HttpsTestType.RejectClientCertificate:
+			case ConnectionTestType.RejectClientCertificate:
 				// Reject client certificate.
 				return new ClientAndServerParameters ("reject-client-certificate", ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
@@ -205,7 +205,7 @@ namespace Xamarin.WebTests.TestRunners
 					ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException
 				};
 
-			case HttpsTestType.MissingClientCertificate:
+			case ConnectionTestType.MissingClientCertificate:
 				// Missing client certificate.
 				return new ClientAndServerParameters ("missing-client-certificate", ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptSelfSigned, ClientFlags = ClientFlags.ExpectWebException,

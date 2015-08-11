@@ -31,18 +31,18 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	public class HttpsTestParameters : ConnectionTestParameters
 	{
-		public HttpsTestType Type {
+		public ConnectionTestType Type {
 			get;
 			private set;
 		}
 
-		public HttpsTestParameters (ConnectionTestCategory category, HttpsTestType type, string identifier, IServerCertificate certificate)
+		public HttpsTestParameters (ConnectionTestCategory category, ConnectionTestType type, string identifier, IServerCertificate certificate)
 			: base (category, identifier, certificate)
 		{
 			Type = type;
 		}
 
-		public HttpsTestParameters (ConnectionTestCategory category, HttpsTestType type, ClientParameters clientParameters, ServerParameters serverParameters)
+		public HttpsTestParameters (ConnectionTestCategory category, ConnectionTestType type, ClientParameters clientParameters, ServerParameters serverParameters)
 			: base (category, clientParameters, serverParameters)
 		{
 			Type = type;
