@@ -75,23 +75,6 @@ namespace Xamarin.WebTests.Features
 			}
 		}
 
-		[Obsolete]
-		internal static ConnectionProviderType GetConnectionProviderType (TestContext ctx)
-		{
-			ConnectionProviderType providerType;
-			if (!ctx.TryGetParameter<ConnectionProviderType> (out providerType))
-				providerType = ConnectionProviderType.DotNet;
-			return providerType;
-		}
-
-		[Obsolete]
-		internal static ConnectionProvider GetConnectionProvider (TestContext ctx)
-		{
-			var providerType = GetConnectionProviderType (ctx);
-			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-			return factory.GetProvider (providerType);
-		}
-
 		internal static void GetUniqueEndPoint (TestContext ctx, ClientAndServerParameters parameters)
 		{
 			if (parameters.EndPoint == null)

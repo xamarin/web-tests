@@ -29,7 +29,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
-using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.TestRunners
 {
@@ -149,12 +148,10 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case ConnectionTestType.MartinTest:
-				var provider = DependencyInjector.Get<IPortableEndPointSupport> ();
-				var endpoint = provider.GetEndpoint ("0.0.0.0", 4433);
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptSelfSigned, ProtocolVersion = ProtocolVersions.Tls12,
-					ServerFlags = ServerFlags.RequireClientCertificate, ClientCertificate = ResourceManager.InvalidClientCertificate,
-					ServerCertificateValidator = acceptAll, EndPoint = endpoint
+					ServerFlags = ServerFlags.RequireClientCertificate, ClientCertificate = ResourceManager.MonkeyCertificate,
+					ServerCertificateValidator = acceptAll
 				};
 
 			default:

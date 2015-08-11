@@ -203,6 +203,9 @@ namespace Xamarin.WebTests.Features
 
 				if (parameters.ClientParameters.TargetHost == null)
 					parameters.ClientParameters.TargetHost = parameters.EndPoint.HostName;
+			} else if ((flags & (ConnectionFlags.ManualClient | ConnectionFlags.ManualServer)) != 0) {
+				var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+				parameters.EndPoint = support.GetEndpoint ("0.0.0.0", 4433);
 			} else {
 				CommonHttpFeatures.GetUniqueEndPoint (ctx, parameters);
 			}
