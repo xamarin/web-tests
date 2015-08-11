@@ -58,3 +58,11 @@ $ openssl req -x509 -config penguin.conf -nodes -days 3650 -newkey rsa:4096 -out
 
 $ openssl pkcs12 -export -passout pass:penguin -out penguin.pfx -inkey penguin.key -in penguin.pem
 
+Client Certificate with MD5 Signature:
+======================================
+
+$ openssl req -x509 -config invalid.conf -newkey rsa:4096 -md5 -out client-cert-md5.pem -keyout client-cert-md5.key
+$ openssl pkcs12 -export -passout pass:monkey -out client-cert-md5.pfx -inkey client-cert-md5.key -in client-cert-md5.pem
+$ openssl x509 -in client-cert-md5.pem -text > client-cert-md5.cert
+$ openssl rsa -in client-cert-md5.key >> client-cert-md5.cert
+
