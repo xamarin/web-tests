@@ -1,5 +1,5 @@
 ﻿//
-// HttpsTestType.cs
+// SslStreamTestParametersAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,21 +24,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Collections.Generic;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Features
 {
-	public enum HttpsTestType
+	using ConnectionFramework;
+	using TestRunners;
+
+	public class SslStreamTestParametersAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerParameters>
 	{
-		Default,
-		AcceptFromLocalCA,
-		NoValidator,
-		RejectAll,
-		UnrequestedClientCertificate,
-		RequestClientCertificate,
-		RequireClientCertificate,
-		OptionalClientCertificate,
-		RejectClientCertificate,
-		MissingClientCertificate
+		public HttpsTestType? Type {
+			get; set;
+		}
+
+		public SslStreamTestParametersAttribute (string filter = null)
+			: base (filter, TestFlags.Browsable | TestFlags.ContinueOnError)
+		{
+		}
+
+		public SslStreamTestParametersAttribute (HttpsTestType type)
+			: base (null, TestFlags.Browsable | TestFlags.ContinueOnError)
+		{
+			Type = type;
+		}
+
+		public IEnumerable<ClientAndServerParameters> GetParameters (TestContext ctx, string filter)
+		{
+			if (filter != null)
+				throw new NotImplementedException ();
+
+			var category = ctx.GetParameter<ConnectionTestCategory> ();
+
+			if (Type != null)
+				yield return HttpsTestRunner.GetParameters (ctx, Type.Value);
+
+			foreach (var type in HttpsTestRunner.GetHttpsTestTypes (ctx, category))
+				yield return HttpsTestRunner.GetParameters (ctx, type);
+		}
 	}
 }
-

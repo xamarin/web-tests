@@ -1,5 +1,5 @@
 ﻿//
-// HttpsTestTypeAttribute.cs
+// IsSupportedConstraint.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,39 +24,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Features
 {
-	using ConnectionFramework;
-	using TestRunners;
-
-	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class HttpsTestTypeAttribute : TestParameterAttribute, ITestParameterSource<HttpsTestType>
+	public class IsSupportedConstraint<T> : Constraint
 	{
-		public HttpsTestTypeAttribute (string filter = null, TestFlags flags = TestFlags.Browsable | TestFlags.ContinueOnError)
-			: base (filter, flags)
+		Func<T,bool> func;
+
+		public IsSupportedConstraint (Func<T,bool> func)
 		{
+			this.func = func;
 		}
 
-		public HttpsTestTypeAttribute (HttpsTestType type, TestFlags flags = TestFlags.Browsable | TestFlags.ContinueOnError)
-			: base (null, flags)
+		#region implemented abstract members of Constraint
+
+		public override bool Evaluate (object actual, out string message)
 		{
-			TestType = type;
+			if (func ((T)actual)) {
+				message = null;
+				return true;
+			}
+
+			message = string.Format ("Unsupported: '{0}'.", actual);
+			return false;
 		}
 
-		public HttpsTestType? TestType {
-			get;
-			private set;
+		public override string Print ()
+		{
+			return string.Format ("IsSupported({0})", typeof(T).Name);
 		}
 
-		public IEnumerable<HttpsTestType> GetParameters (TestContext ctx, string filter)
-		{
-			if (TestType != null)
-				return new HttpsTestType[] { TestType.Value };
-			return HttpsTestRunner.GetHttpsTestTypes (ctx, filter);
-		}
+		#endregion
 	}
 }
 

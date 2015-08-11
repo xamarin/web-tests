@@ -1,5 +1,5 @@
 ﻿//
-// HttpsTestTypeAttribute.cs
+// HttpsTestType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,39 +24,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
-using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	using ConnectionFramework;
-	using TestRunners;
-
-	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class HttpsTestTypeAttribute : TestParameterAttribute, ITestParameterSource<HttpsTestType>
+	public enum HttpsTestType
 	{
-		public HttpsTestTypeAttribute (string filter = null, TestFlags flags = TestFlags.Browsable | TestFlags.ContinueOnError)
-			: base (filter, flags)
-		{
-		}
-
-		public HttpsTestTypeAttribute (HttpsTestType type, TestFlags flags = TestFlags.Browsable | TestFlags.ContinueOnError)
-			: base (null, flags)
-		{
-			TestType = type;
-		}
-
-		public HttpsTestType? TestType {
-			get;
-			private set;
-		}
-
-		public IEnumerable<HttpsTestType> GetParameters (TestContext ctx, string filter)
-		{
-			if (TestType != null)
-				return new HttpsTestType[] { TestType.Value };
-			return HttpsTestRunner.GetHttpsTestTypes (ctx, filter);
-		}
+		Default,
+		AcceptFromLocalCA,
+		NoValidator,
+		RejectAll,
+		UnrequestedClientCertificate,
+		RequestClientCertificate,
+		RequireClientCertificate,
+		OptionalClientCertificate,
+		RejectClientCertificate,
+		MissingClientCertificate
 	}
 }
 

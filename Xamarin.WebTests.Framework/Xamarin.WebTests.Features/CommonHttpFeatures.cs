@@ -75,6 +75,7 @@ namespace Xamarin.WebTests.Features
 			}
 		}
 
+		[Obsolete]
 		internal static ConnectionProviderType GetConnectionProviderType (TestContext ctx)
 		{
 			ConnectionProviderType providerType;
@@ -83,6 +84,7 @@ namespace Xamarin.WebTests.Features
 			return providerType;
 		}
 
+		[Obsolete]
 		internal static ConnectionProvider GetConnectionProvider (TestContext ctx)
 		{
 			var providerType = GetConnectionProviderType (ctx);

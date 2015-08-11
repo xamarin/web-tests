@@ -142,12 +142,19 @@
     <Compile Include="Xamarin.WebTests.Features\ChunkContentTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\NotWorkingAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\MonoWithNewTlsAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.Features\HttpsTestType.cs" />
     <Compile Include="Xamarin.WebTests.Features\HttpsTestTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\IncludeNotWorkingAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\SslStreamTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IStreamInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.Portable\ICertificateSelector.cs" />
+    <Compile Include="Xamarin.WebTests.Features\IsSupportedConstraint.cs" />
+    <Compile Include="Xamarin.WebTests.Features\ConnectionTestCategoryAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.Features\ConnectionTestFeatures.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServerConnectionType.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionTestCategory.cs" />
+    <Compile Include="Xamarin.WebTests.Features\ClientAndServerConnectionTypeAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.Features\SslStreamTestParametersAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\HttpsTestType.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

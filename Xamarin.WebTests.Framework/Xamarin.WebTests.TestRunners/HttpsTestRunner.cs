@@ -66,6 +66,7 @@ namespace Xamarin.WebTests.TestRunners
 			Parameters = parameters;
 		}
 
+		[Obsolete]
 		public static IEnumerable<HttpsTestType> GetHttpsTestTypes (TestContext ctx, string filter)
 		{
 			if (filter == null)
@@ -75,6 +76,22 @@ namespace Xamarin.WebTests.TestRunners
 			return AllHttpsTestTypes.Where (t => parts.Contains (t.ToString ()));
 		}
 
+		public static IEnumerable<HttpsTestType> GetHttpsTestTypes (TestContext ctx, ConnectionTestCategory category)
+		{
+			switch (category) {
+			case ConnectionTestCategory.Https:
+				return AllHttpsTestTypes;
+			case ConnectionTestCategory.HttpsWithMono:
+				return OldMonoTestTypes;
+			case ConnectionTestCategory.HttpsWithDotNet:
+				return DotNetTestTypes;
+			default:
+				ctx.AssertFail ("Unsupported test category: '{0}'.", category);
+				throw new NotImplementedException ();
+			}
+		}
+
+		[Obsolete]
 		public static bool IsSupported (TestContext ctx, HttpsTestType type)
 		{
 			var providerType = CommonHttpFeatures.GetConnectionProviderType (ctx);
@@ -93,19 +110,31 @@ namespace Xamarin.WebTests.TestRunners
 				yield return HttpsTestType.Default;
 				yield return HttpsTestType.AcceptFromLocalCA;
 				yield return HttpsTestType.RejectAll;
-				yield return HttpsTestType.RejectClientCertificate;
 				yield return HttpsTestType.UnrequestedClientCertificate;
 				yield return HttpsTestType.RejectClientCertificate;
 				yield return HttpsTestType.MissingClientCertificate;
 			}
 		}
 
-		public static IEnumerable<HttpsTestType> AllHttpsTestTypes {
+		static IEnumerable<HttpsTestType> AllHttpsTestTypes {
 			get {
 				yield return HttpsTestType.Default;
 				yield return HttpsTestType.AcceptFromLocalCA;
 				yield return HttpsTestType.NoValidator;
 				yield return HttpsTestType.RejectAll;
+				yield return HttpsTestType.RequestClientCertificate;
+				yield return HttpsTestType.RequireClientCertificate;
+				yield return HttpsTestType.RejectClientCertificate;
+				yield return HttpsTestType.UnrequestedClientCertificate;
+				yield return HttpsTestType.OptionalClientCertificate;
+				yield return HttpsTestType.RejectClientCertificate;
+				yield return HttpsTestType.MissingClientCertificate;
+			}
+		}
+
+		static IEnumerable<HttpsTestType> DotNetTestTypes {
+			get {
+				yield return HttpsTestType.NoValidator;
 				yield return HttpsTestType.RequestClientCertificate;
 				yield return HttpsTestType.RequireClientCertificate;
 				yield return HttpsTestType.RejectClientCertificate;
