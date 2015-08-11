@@ -1,0 +1,118 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            b4:a8:4f:bb:eb:be:cf:a8
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: CN=Martins Invalid Monkey, C=US, ST=Massachusetts, O=Xamarin, OU=Engineering/emailAddress=martin.baulig@xamarin.com
+        Validity
+            Not Before: Aug 11 14:22:16 2015 GMT
+            Not After : Sep 10 14:22:16 2015 GMT
+        Subject: CN=Martins Invalid Monkey, C=US, ST=Massachusetts, O=Xamarin, OU=Engineering/emailAddress=martin.baulig@xamarin.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (1024 bit)
+                Modulus:
+                    00:d8:19:94:f3:fa:22:1d:ce:5f:9c:25:ef:b7:2b:
+                    8c:41:e2:8c:56:08:b8:da:42:a8:22:1d:f0:d4:9e:
+                    94:7f:1e:5b:15:4d:d5:6a:fa:b5:33:7b:f2:70:94:
+                    ce:da:fa:f0:a7:a6:ff:a5:7e:7d:2b:ef:bb:44:2f:
+                    38:2b:ad:72:09:06:b2:a1:d7:51:fb:4f:10:72:6f:
+                    a9:4a:7b:39:12:cb:9e:2e:93:18:86:39:72:e2:33:
+                    5a:59:1b:6b:87:f9:9c:08:89:d3:0c:89:22:ef:df:
+                    57:5a:57:38:85:bb:0e:5e:95:75:cc:94:5d:52:3d:
+                    31:b3:78:36:44:8c:4d:82:b1
+                Exponent: 65537 (0x10001)
+    Signature Algorithm: sha1WithRSAEncryption
+         c1:03:4e:a5:8f:c1:47:48:00:ca:7c:e5:8a:bd:38:84:b2:61:
+         e0:03:52:9a:51:90:80:f0:5e:08:4d:06:70:34:da:c7:60:2e:
+         8a:0f:1c:54:36:05:9c:7e:f1:5c:50:1a:00:8b:44:fa:d3:f2:
+         39:3b:74:ef:3c:81:c0:d8:b0:bd:0e:66:a2:0a:85:a1:fe:b2:
+         fc:b3:2f:11:dd:8a:6e:d5:05:6f:1b:9f:0d:08:cb:71:83:eb:
+         28:1f:be:1a:ce:19:a8:93:7a:a3:a8:08:23:c8:f3:2c:e5:43:
+         6b:47:fd:14:11:a0:44:a5:00:85:27:5a:70:dc:39:ae:17:96:
+         7e:6a
+-----BEGIN CERTIFICATE-----
+MIICrjCCAhegAwIBAgIJALSoT7vrvs+oMA0GCSqGSIb3DQEBBQUAMIGYMR8wHQYD
+VQQDExZNYXJ0aW5zIEludmFsaWQgTW9ua2V5MQswCQYDVQQGEwJVUzEWMBQGA1UE
+CBMNTWFzc2FjaHVzZXR0czEQMA4GA1UEChMHWGFtYXJpbjEUMBIGA1UECxMLRW5n
+aW5lZXJpbmcxKDAmBgkqhkiG9w0BCQEWGW1hcnRpbi5iYXVsaWdAeGFtYXJpbi5j
+b20wHhcNMTUwODExMTQyMjE2WhcNMTUwOTEwMTQyMjE2WjCBmDEfMB0GA1UEAxMW
+TWFydGlucyBJbnZhbGlkIE1vbmtleTELMAkGA1UEBhMCVVMxFjAUBgNVBAgTDU1h
+c3NhY2h1c2V0dHMxEDAOBgNVBAoTB1hhbWFyaW4xFDASBgNVBAsTC0VuZ2luZWVy
+aW5nMSgwJgYJKoZIhvcNAQkBFhltYXJ0aW4uYmF1bGlnQHhhbWFyaW4uY29tMIGf
+MA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDYGZTz+iIdzl+cJe+3K4xB4oxWCLja
+QqgiHfDUnpR/HlsVTdVq+rUze/JwlM7a+vCnpv+lfn0r77tELzgrrXIJBrKh11H7
+TxByb6lKezkSy54ukxiGOXLiM1pZG2uH+ZwIidMMiSLv31daVziFuw5elXXMlF1S
+PTGzeDZEjE2CsQIDAQABMA0GCSqGSIb3DQEBBQUAA4GBAMEDTqWPwUdIAMp85Yq9
+OISyYeADUppRkIDwXghNBnA02sdgLooPHFQ2BZx+8VxQGgCLRPrT8jk7dO88gcDY
+sL0OZqIKhaH+svyzLxHdim7VBW8bnw0Iy3GD6ygfvhrOGaiTeqOoCCPI8yzlQ2tH
+/RQRoESlAIUnWnDcOa4Xln5q
+-----END CERTIFICATE-----
+Private-Key: (1024 bit)
+modulus:
+    00:d8:19:94:f3:fa:22:1d:ce:5f:9c:25:ef:b7:2b:
+    8c:41:e2:8c:56:08:b8:da:42:a8:22:1d:f0:d4:9e:
+    94:7f:1e:5b:15:4d:d5:6a:fa:b5:33:7b:f2:70:94:
+    ce:da:fa:f0:a7:a6:ff:a5:7e:7d:2b:ef:bb:44:2f:
+    38:2b:ad:72:09:06:b2:a1:d7:51:fb:4f:10:72:6f:
+    a9:4a:7b:39:12:cb:9e:2e:93:18:86:39:72:e2:33:
+    5a:59:1b:6b:87:f9:9c:08:89:d3:0c:89:22:ef:df:
+    57:5a:57:38:85:bb:0e:5e:95:75:cc:94:5d:52:3d:
+    31:b3:78:36:44:8c:4d:82:b1
+publicExponent: 65537 (0x10001)
+privateExponent:
+    4b:86:bd:59:7b:ed:9a:8f:3b:39:3e:c5:06:36:b1:
+    21:81:c5:5c:78:55:ea:ea:6b:0a:e9:7d:f7:41:a9:
+    52:b8:50:4b:24:d5:d7:3a:e2:43:a9:29:35:91:bc:
+    ae:2a:10:1b:f8:30:d7:2d:5b:20:14:fc:55:3b:4f:
+    9d:6c:54:33:10:d0:60:40:a9:bf:09:ee:c3:00:4c:
+    67:3f:12:8a:74:3f:8c:90:c7:92:55:c8:10:c2:c0:
+    38:63:87:e2:85:d1:bd:fb:99:41:b1:bf:0e:cf:46:
+    1d:ef:93:01:4b:c8:bb:1a:ec:c4:37:4e:47:13:ca:
+    f4:36:58:65:cf:e4:c5:d5
+prime1:
+    00:f6:32:f2:6c:8c:56:9a:4d:2f:5d:2b:24:0f:62:
+    9b:5f:b1:66:f7:89:17:9d:fc:24:55:77:15:a8:68:
+    d8:70:be:eb:72:8a:d0:84:9b:23:83:db:56:f4:08:
+    98:84:38:2e:09:95:5c:4d:d6:c6:c8:70:da:66:12:
+    c0:6e:db:a3:e3
+prime2:
+    00:e0:b3:e3:ef:7b:a5:7d:f7:52:c6:51:d9:e3:c6:
+    b6:78:9c:3e:44:14:5a:a4:55:65:53:e9:b0:3e:bc:
+    06:d0:e4:d9:9d:2f:b2:d3:2d:68:2a:a7:99:80:f9:
+    37:f7:35:3f:72:da:8e:e0:4f:5f:6e:3f:88:dd:3e:
+    87:35:2a:8b:5b
+exponent1:
+    00:f5:68:fd:6b:a4:4c:63:4c:d3:0c:ad:07:29:ea:
+    e1:f3:f6:53:2c:25:d4:8b:df:9d:9c:2f:b3:40:07:
+    1a:d0:f0:0e:a4:43:a8:ec:b5:f4:25:e8:8a:f9:80:
+    63:ff:50:3c:db:c2:ad:9a:cd:9f:a2:87:93:bc:31:
+    ae:ee:12:34:7f
+exponent2:
+    00:90:d3:61:15:f9:9b:b0:94:b7:c5:1a:fc:54:d2:
+    be:c8:fd:eb:23:f5:fa:75:f0:94:5e:81:40:17:2f:
+    19:35:8a:4a:b8:05:06:3d:16:07:0d:76:f8:79:28:
+    27:ea:2d:67:b7:9f:26:77:6c:b1:15:5d:dd:d8:bb:
+    74:69:d0:02:01
+coefficient:
+    05:ee:8b:af:6c:e5:a4:9b:13:0c:35:ad:c9:37:90:
+    db:d6:1b:58:4a:45:93:da:cb:46:b9:6a:c5:f2:eb:
+    37:9b:60:dd:c8:22:a9:ad:ad:f1:f6:88:bb:d9:27:
+    39:7b:6a:ad:9e:8c:e5:53:cf:3f:72:04:95:b9:e3:
+    45:22:8d:e7
+-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQDYGZTz+iIdzl+cJe+3K4xB4oxWCLjaQqgiHfDUnpR/HlsVTdVq
++rUze/JwlM7a+vCnpv+lfn0r77tELzgrrXIJBrKh11H7TxByb6lKezkSy54ukxiG
+OXLiM1pZG2uH+ZwIidMMiSLv31daVziFuw5elXXMlF1SPTGzeDZEjE2CsQIDAQAB
+AoGAS4a9WXvtmo87OT7FBjaxIYHFXHhV6uprCul990GpUrhQSyTV1zriQ6kpNZG8
+rioQG/gw1y1bIBT8VTtPnWxUMxDQYECpvwnuwwBMZz8SinQ/jJDHklXIEMLAOGOH
+4oXRvfuZQbG/Ds9GHe+TAUvIuxrsxDdORxPK9DZYZc/kxdUCQQD2MvJsjFaaTS9d
+KyQPYptfsWb3iRed/CRVdxWoaNhwvutyitCEmyOD21b0CJiEOC4JlVxN1sbIcNpm
+EsBu26PjAkEA4LPj73ulffdSxlHZ48a2eJw+RBRapFVlU+mwPrwG0OTZnS+y0y1o
+KqeZgPk39zU/ctqO4E9fbj+I3T6HNSqLWwJBAPVo/WukTGNM0wytBynq4fP2Uywl
+1IvfnZwvs0AHGtDwDqRDqOy19CXoivmAY/9QPNvCrZrNn6KHk7wxru4SNH8CQQCQ
+02EV+ZuwlLfFGvxU0r7I/esj9fp18JRegUAXLxk1ikq4BQY9FgcNdvh5KCfqLWe3
+nyZ3bLEVXd3Yu3Rp0AIBAkAF7ouvbOWkmxMMNa3JN5Db1htYSkWT2stGuWrF8us3
+m2DdyCKpra3x9oi72Sc5e2qtnozlU88/cgSVueNFIo3n
+-----END RSA PRIVATE KEY-----
