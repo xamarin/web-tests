@@ -150,7 +150,7 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestType.MartinTest:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptSelfSigned, ProtocolVersion = ProtocolVersions.Tls12,
-					ServerFlags = ServerFlags.RequireClientCertificate, ClientCertificate = ResourceManager.MonkeyCertificate,
+					ServerFlags = ServerFlags.RequireClientCertificate, ClientCertificate = ResourceManager.InvalidClientCertificateRsa512,
 					ServerCertificateValidator = acceptAll
 				};
 
@@ -167,6 +167,7 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Expect (Server.SslStream.IsAuthenticated, "server is authenticated");
 
 				if (Server.Parameters.RequireCertificate) {
+					ctx.LogDebug (1, "Client certificate required: {0} {1}", Server.SslStream.IsMutuallyAuthenticated, Server.SslStream.HasRemoteCertificate);
 					ctx.Expect (Server.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
 					ctx.Expect (Server.SslStream.HasRemoteCertificate, "server has client certificate");
 				}

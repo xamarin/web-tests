@@ -17,6 +17,7 @@ namespace Xamarin.WebTests.Resources
 		static readonly IServerCertificate invalidServerCert;
 		static readonly IClientCertificate invalidClientCert;
 		static readonly IClientCertificate invalidClientCaCert;
+		static readonly IClientCertificate invalidClientCertRsa512;
 		static readonly IClientCertificate monkeyCert;
 		static readonly IClientCertificate penguinCert;
 
@@ -29,6 +30,7 @@ namespace Xamarin.WebTests.Resources
 			invalidServerCert = provider.GetServerCertificate (ReadResource ("CA.invalid-server-cert.pfx"), "monkey");
 			invalidClientCert = provider.GetClientCertificate (ReadResource ("CA.invalid-client-cert.pfx"), "monkey");
 			invalidClientCaCert = provider.GetClientCertificate (ReadResource ("CA.invalid-client-ca-cert.pfx"), "monkey");
+			invalidClientCertRsa512 = provider.GetClientCertificate (ReadResource ("CA.client-cert-rsa512.pfx"), "monkey");
 			monkeyCert = provider.GetClientCertificate (ReadResource ("CA.monkey.pfx"), "monkey");
 			penguinCert = provider.GetClientCertificate (ReadResource ("CA.penguin.pfx"), "penguin");
 		}
@@ -55,6 +57,10 @@ namespace Xamarin.WebTests.Resources
 
 		public static IClientCertificate InvalidClientCaCertificate {
 			get { return invalidClientCaCert; }
+		}
+
+		public static IClientCertificate InvalidClientCertificateRsa512 {
+			get { return invalidClientCertRsa512; }
 		}
 
 		public static IClientCertificate MonkeyCertificate {
