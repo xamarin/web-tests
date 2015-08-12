@@ -58,7 +58,7 @@ namespace Xamarin.WebTests.Tests
 		}
 	}
 
-	[Heavy]
+	[WebTestFeatures.Heavy]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestFork : ITestHost<HttpServer>
 	{

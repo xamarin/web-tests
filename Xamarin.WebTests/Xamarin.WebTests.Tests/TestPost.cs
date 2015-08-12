@@ -223,8 +223,8 @@ namespace Xamarin.WebTests.Tests
 				client.SetCredentials (authHandler.GetCredentials ());
 		}
 
-		[Mono381]
 		[AsyncTest]
+		[WebTestFeatures.Mono381]
 		public async Task Test10163 (
 			TestContext ctx, [HttpServer] HttpServer server,
 			[AuthenticationType] AuthenticationType authType,
@@ -248,8 +248,8 @@ namespace Xamarin.WebTests.Tests
 			});
 		}
 
-		[Mono381]
 		[AsyncTest]
+		[WebTestFeatures.Mono381]
 		public async Task Test20359 (
 			TestContext ctx, [HttpServer] HttpServer server,
 			[AuthenticationType] AuthenticationType authType,

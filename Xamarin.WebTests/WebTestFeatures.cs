@@ -50,54 +50,6 @@ namespace Xamarin.WebTests
 	using Providers;
 	using Tests;
 
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class RecentlyFixedAttribute : TestCategoryAttribute
-	{
-		public override TestCategory Category {
-			get { return WebTestFeatures.Instance.RecentlyFixedCategory; }
-		}
-	}
-
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class HeavyAttribute : TestCategoryAttribute
-	{
-		public override TestCategory Category {
-			get { return WebTestFeatures.Instance.HeavyCategory; }
-		}
-	}
-
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class ProxyAttribute : TestFeatureAttribute
-	{
-		public override TestFeature Feature {
-			get { return WebTestFeatures.Instance.Proxy; }
-		}
-	}
-
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class Mono38Attribute : TestFeatureAttribute
-	{
-		public override TestFeature Feature {
-			get { return WebTestFeatures.Instance.Mono38; }
-		}
-	}
-
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class Mono381Attribute : TestFeatureAttribute
-	{
-		public override TestFeature Feature {
-			get { return WebTestFeatures.Instance.Mono381; }
-		}
-	}
-
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class Mono61Attribute : TestFeatureAttribute
-	{
-		public override TestFeature Feature {
-			get { return WebTestFeatures.Instance.Mono361; }
-		}
-	}
-
 	public class WebTestFeatures : SharedWebTestFeatures
 	{
 		public static WebTestFeatures Instance {
@@ -241,6 +193,54 @@ namespace Xamarin.WebTests
 					yield break;
 
 				yield return ServerCertificateType.LocalCA;
+			}
+		}
+
+		[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+		public class RecentlyFixedAttribute : TestCategoryAttribute
+		{
+			public override TestCategory Category {
+				get { return WebTestFeatures.Instance.RecentlyFixedCategory; }
+			}
+		}
+
+		[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+		public class HeavyAttribute : TestCategoryAttribute
+		{
+			public override TestCategory Category {
+				get { return WebTestFeatures.Instance.HeavyCategory; }
+			}
+		}
+
+		[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+		public class ProxyAttribute : TestFeatureAttribute
+		{
+			public override TestFeature Feature {
+				get { return WebTestFeatures.Instance.Proxy; }
+			}
+		}
+
+		[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+		public class Mono38Attribute : TestFeatureAttribute
+		{
+			public override TestFeature Feature {
+				get { return WebTestFeatures.Instance.Mono38; }
+			}
+		}
+
+		[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+		public class Mono381Attribute : TestFeatureAttribute
+		{
+			public override TestFeature Feature {
+				get { return WebTestFeatures.Instance.Mono381; }
+			}
+		}
+
+		[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+		public class Mono61Attribute : TestFeatureAttribute
+		{
+			public override TestFeature Feature {
+				get { return WebTestFeatures.Instance.Mono361; }
 			}
 		}
 
