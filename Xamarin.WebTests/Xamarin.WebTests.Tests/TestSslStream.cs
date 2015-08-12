@@ -88,16 +88,28 @@ namespace Xamarin.WebTests.Tests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-		[Martin]
 		[AsyncTest]
+		[ManualClient]
 		[ConnectionTestCategory (ConnectionTestCategory.ManualClient)]
-		public async Task TestManuelClient (TestContext ctx, CancellationToken cancellationToken,
+		public async Task TestManualClient (TestContext ctx, CancellationToken cancellationToken,
 			[ClientAndServerConnectionType ("Manual:DotNet")] ClientAndServerConnectionType connectionType,
 			[SslStreamTestParameters] SslStreamTestParameters parameters,
 			[SslStreamTestRunner] SslStreamTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
 		}
+
+		[AsyncTest]
+		[ManualServer]
+		[ConnectionTestCategory (ConnectionTestCategory.ManualServer)]
+		public async Task TestManualServer (TestContext ctx, CancellationToken cancellationToken,
+			[ClientAndServerConnectionType ("DotNet:Manual")] ClientAndServerConnectionType connectionType,
+			[SslStreamTestParameters] SslStreamTestParameters parameters,
+			[SslStreamTestRunner] SslStreamTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
 	}
 }
 

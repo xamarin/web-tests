@@ -177,21 +177,20 @@ namespace Xamarin.WebTests.Features
 			if (ctx.TryGetParameter<ProtocolVersions> (out protocolVersion))
 				parameters.ProtocolVersion = protocolVersion;
 
-			if (serverProviderType == ConnectionProviderType.Manual) {
+			if (serverProviderType == ConnectionProviderType.Manual || clientProviderType == ConnectionProviderType.Manual) {
 				string serverAddress;
-				if (!ctx.Settings.TryGetValue ("ServerAddress", out serverAddress))
-					throw new NotSupportedException ("Missing 'ServerAddress' setting.");
+				if (ctx.Settings.TryGetValue ("ServerAddress", out serverAddress)) {
+					var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+					parameters.EndPoint = support.ParseEndpoint (serverAddress, 443, true);
 
-				var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-				parameters.EndPoint = support.ParseEndpoint (serverAddress, 443, true);
-
-				string serverHost;
-				if (ctx.Settings.TryGetValue ("ServerHost", out serverHost))
-					parameters.ClientParameters.TargetHost = serverHost;
-
-				flags |= ConnectionFlags.ManualServer;
+					string serverHost;
+					if (ctx.Settings.TryGetValue ("ServerHost", out serverHost))
+						parameters.ClientParameters.TargetHost = serverHost;
+				}
 			}
 
+			if (serverProviderType == ConnectionProviderType.Manual)
+				flags |= ConnectionFlags.ManualServer;
 			if (clientProviderType == ConnectionProviderType.Manual)
 				flags |= ConnectionFlags.ManualClient;
 

@@ -197,6 +197,8 @@ namespace Xamarin.WebTests
 				yield return RecentlyFixedCategory;
 
 				yield return NotWorkingAttribute.Instance;
+				yield return ManualClientAttribute.Instance;
+				yield return ManualServerAttribute.Instance;
 			}
 		}
 		#endregion
