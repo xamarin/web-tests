@@ -246,7 +246,6 @@ namespace Xamarin.WebTests
 
 		public WebTestFeatures ()
 		{
-			DependencyInjector.RegisterDependency<IWebTestFeatures> (() => this);
 			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandlerImpl ());
 		}
 	}

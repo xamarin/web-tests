@@ -85,6 +85,8 @@ namespace Xamarin.WebTests.Features
 
 		public SharedWebTestFeatures ()
 		{
+			DependencyInjector.RegisterDependency<IWebTestFeatures> (() => this);
+
 			Mono38 = new TestFeature (
 				"Mono38", "Mono 3.8.0", () => HasMonoVersion (new Version (3, 8, 0)));
 			Mono381 = new TestFeature (
