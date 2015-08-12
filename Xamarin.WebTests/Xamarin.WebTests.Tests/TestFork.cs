@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.Tests
 	using TestRunners;
 	using Portable;
 	using Providers;
+	using Features;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class ForkHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>

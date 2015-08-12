@@ -51,14 +51,6 @@ namespace Xamarin.WebTests
 	using Tests;
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class WorkAttribute : TestCategoryAttribute
-	{
-		public override TestCategory Category {
-			get { return WebTestFeatures.Instance.WorkCategory; }
-		}
-	}
-
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class RecentlyFixedAttribute : TestCategoryAttribute
 	{
 		public override TestCategory Category {
@@ -79,14 +71,6 @@ namespace Xamarin.WebTests
 	{
 		public override TestFeature Feature {
 			get { return WebTestFeatures.Instance.Proxy; }
-		}
-	}
-
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class MartinAttribute : TestCategoryAttribute
-	{
-		public override TestCategory Category {
-			get { return WebTestFeatures.Instance.MartinCategory; }
 		}
 	}
 
@@ -145,9 +129,6 @@ namespace Xamarin.WebTests
 
 		public readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", false);
 
-		// Requires special local setup
-		public readonly TestCategory MartinCategory = new TestCategory ("Martin") { IsExplicit = true };
-
 		public readonly TestFeature HasNetwork = new TestFeature (
 			"Network", "HasNetwork", () => DependencyInjector.Get<IPortableWebSupport> ().HasNetwork);
 
@@ -157,7 +138,6 @@ namespace Xamarin.WebTests
 
 		public readonly TestFeature CertificateTests;
 
-		public readonly TestCategory WorkCategory = new TestCategory ("Work") { IsExplicit = true };
 		public readonly TestCategory HeavyCategory = new TestCategory ("Heavy") { IsExplicit = true };
 		public readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
 
@@ -191,8 +171,8 @@ namespace Xamarin.WebTests
 
 		public virtual IEnumerable<TestCategory> Categories {
 			get {
-				yield return WorkCategory;
-				yield return MartinCategory;
+				yield return WorkAttribute.Instance;
+				yield return MartinAttribute.Instance;
 				yield return HeavyCategory;
 				yield return RecentlyFixedCategory;
 
@@ -255,7 +235,7 @@ namespace Xamarin.WebTests
 				if (!ctx.IsEnabled (Instance.Proxy))
 					yield break;
 
-				if (ctx.CurrentCategory == Instance.WorkCategory) {
+				if (ctx.CurrentCategory == WorkAttribute.Instance) {
 					yield return ProxyKind.SSL;
 					yield break;
 				}
