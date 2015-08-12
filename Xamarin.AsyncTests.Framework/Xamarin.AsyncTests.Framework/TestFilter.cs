@@ -69,7 +69,7 @@ namespace Xamarin.AsyncTests.Framework
 				}
 
 				enabled = false;
-				return true;
+				return false;
 			}
 
 			if ((parent != null) && ctx.CurrentCategory == TestCategory.All) {
