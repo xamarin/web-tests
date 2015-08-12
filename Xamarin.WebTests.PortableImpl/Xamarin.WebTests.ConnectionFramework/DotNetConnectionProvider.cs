@@ -64,6 +64,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var support = DependencyInjector.Get<IPortableSupport> ();
 
 			switch (type) {
+			case ConnectionProviderType.PlatformDefault:
 			case ConnectionProviderType.DotNet:
 				return true;
 			case ConnectionProviderType.NewTLS:
