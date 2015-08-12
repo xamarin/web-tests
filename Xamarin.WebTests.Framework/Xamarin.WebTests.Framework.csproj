@@ -163,6 +163,11 @@
     <Compile Include="Xamarin.WebTests.Features\ManualServerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\WorkAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\MartinAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.Features\SharedWebTestFeatures.cs" />
+    <Compile Include="Xamarin.WebTests.Features\ExperimentalAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.Features\IWebTestFeatures.cs" />
+    <Compile Include="Xamarin.WebTests.Features\SSLAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.Features\CertificateTestsAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

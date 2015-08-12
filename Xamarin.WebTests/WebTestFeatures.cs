@@ -98,87 +98,53 @@ namespace Xamarin.WebTests
 		}
 	}
 
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class SSLAttribute : TestFeatureAttribute
-	{
-		public override TestFeature Feature {
-			get { return WebTestFeatures.Instance.SSL; }
-		}
-	}
-
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class CertificateTestsAttribute : TestFeatureAttribute
-	{
-		public override TestFeature Feature {
-			get { return WebTestFeatures.Instance.CertificateTests; }
-		}
-	}
-
-	public class WebTestFeatures : ITestConfigurationProvider
+	public class WebTestFeatures : SharedWebTestFeatures
 	{
 		public static WebTestFeatures Instance {
 			get { return DependencyInjector.Get<WebTestFeatures> (); }
 		}
 
 		public readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
-		public readonly TestFeature SSL = new TestFeature ("SSL", "Use SSL", true);
 		public readonly TestFeature Redirect = new TestFeature ("Redirect", "Redirect Tests", true);
 		public readonly TestFeature Proxy = new TestFeature ("Proxy", "Proxy Tests", true);
 		public readonly TestFeature ProxyAuth = new TestFeature ("ProxyAuth", "Proxy Authentication", true);
-		public readonly TestFeature Experimental = new TestFeature ("Experimental", "Experimental Tests", false);
 
 		public readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", false);
-
-		public readonly TestFeature HasNetwork = new TestFeature (
-			"Network", "HasNetwork", () => DependencyInjector.Get<IPortableWebSupport> ().HasNetwork);
-
-		public readonly TestFeature Mono38;
-		public readonly TestFeature Mono381;
-		public readonly TestFeature Mono361;
-
-		public readonly TestFeature CertificateTests;
 
 		public readonly TestCategory HeavyCategory = new TestCategory ("Heavy") { IsExplicit = true };
 		public readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
 
+		readonly TestFeature sslFeature = new TestFeature ("SSL", "Use SSL", true);
+
+		public override TestFeature SSL {
+			get { return sslFeature; }
+		}
+
 		#region ITestConfigurationProvider implementation
-		public virtual string Name {
+		public override string Name {
 			get { return "Xamarin.WebTests"; }
 		}
 
-		public virtual IEnumerable<TestFeature> Features {
+		public override IEnumerable<TestFeature> Features {
 			get {
+				foreach (var features in base.Features)
+					yield return features;
+
 				yield return NTLM;
-				yield return SSL;
 				yield return Redirect;
 				yield return Proxy;
 				yield return ProxyAuth;
-				yield return Experimental;
 				yield return ReuseConnection;
-
-				yield return HasNetwork;
-				yield return Mono38;
-				yield return Mono381;
-				yield return Mono361;
-
-				yield return IncludeNotWorkingAttribute.Instance;
-				yield return MonoWithNewTlsAttribute.Instance;
-
-				yield return CertificateTests;
-				yield return PuppyAttribute.Instance;
 			}
 		}
 
-		public virtual IEnumerable<TestCategory> Categories {
+		public override IEnumerable<TestCategory> Categories {
 			get {
-				yield return WorkAttribute.Instance;
-				yield return MartinAttribute.Instance;
+				foreach (var category in base.Categories)
+					yield return category;
+
 				yield return HeavyCategory;
 				yield return RecentlyFixedCategory;
-
-				yield return NotWorkingAttribute.Instance;
-				yield return ManualClientAttribute.Instance;
-				yield return ManualServerAttribute.Instance;
 			}
 		}
 		#endregion
@@ -280,30 +246,8 @@ namespace Xamarin.WebTests
 
 		public WebTestFeatures ()
 		{
-			Mono38 = new TestFeature (
-				"Mono38", "Mono 3.8.0", () => HasMonoVersion (new Version (3, 8, 0)));
-			Mono381 = new TestFeature (
-				"Mono381", "Mono 3.8.1", () => HasMonoVersion (new Version (3, 8, 1)));
-			Mono361 = new TestFeature (
-				"Mono361", "Mono 3.6.1", () => HasMonoVersion (new Version (3, 6, 1)));
-			CertificateTests = new TestFeature (
-				"CertificateTests", "Whether the SSL Certificate tests are supported", () => SupportsCertificateTests ());
-
+			DependencyInjector.RegisterDependency<IWebTestFeatures> (() => this);
 			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandlerImpl ());
-		}
-
-		bool SupportsCertificateTests ()
-		{
-			var support = DependencyInjector.Get<IPortableWebSupport> ();
-			return support.SupportsPerRequestCertificateValidator;
-		}
-
-		bool HasMonoVersion (Version version)
-		{
-			var support = DependencyInjector.Get<IPortableSupport> ();
-			if (support.IsMicrosoftRuntime)
-				return true;
-			return support.MonoRuntimeVersion != null && support.MonoRuntimeVersion >= version;
 		}
 	}
 }
