@@ -47,9 +47,6 @@ namespace Xamarin.AsyncTests.Framework
 
 		public bool Filter (TestContext ctx, out bool enabled)
 		{
-			if (parent != null && parent.Filter (ctx, out enabled))
-				return enabled;
-
 			foreach (var feature in features) {
 				if (!ctx.IsEnabled (feature)) {
 					enabled = false;
@@ -67,12 +64,12 @@ namespace Xamarin.AsyncTests.Framework
 						return true;
 					}
 				}
-
-				enabled = false;
-				return false;
 			}
 
-			if ((parent != null) && ctx.CurrentCategory == TestCategory.All) {
+			if (parent != null && parent.Filter (ctx, out enabled))
+				return enabled;
+
+			if (ctx.CurrentCategory == TestCategory.All) {
 				enabled = true;
 				return true;
 			}
