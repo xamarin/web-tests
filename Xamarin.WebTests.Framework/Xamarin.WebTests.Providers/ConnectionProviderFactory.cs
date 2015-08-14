@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Xamarin.WebTests.Providers
@@ -50,9 +51,15 @@ namespace Xamarin.WebTests.Providers
 			return provider.Flags;
 		}
 
+		public bool IsExplicit (ConnectionProviderType type)
+		{
+			var flags = GetProviderFlags (type);
+			return (flags & ConnectionProviderFlags.IsExplicit) != 0;
+		}
+
 		public IEnumerable<ConnectionProviderType> GetSupportedProviders ()
 		{
-			return providers.Keys;
+			return providers.Keys.Where (p => !IsExplicit (p));
 		}
 
 		public ConnectionProvider GetProvider (ConnectionProviderType type)

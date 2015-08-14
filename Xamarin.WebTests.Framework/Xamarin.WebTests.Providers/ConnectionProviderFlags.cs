@@ -37,7 +37,8 @@ namespace Xamarin.WebTests.Providers
 		SupportsMonoExtensions	= 8,
 		SupportsInstrumentation	= 16,
 		IsNewTls		= 32,
-		SupportsTls12		= 64
+		SupportsTls12		= 64,
+		IsExplicit		= 128
 	}
 }
 

@@ -60,7 +60,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			platformDefaultConnectionProvider = new DotNetConnectionProvider (this, ConnectionProviderType.PlatformDefault, dotNetStreamProvider, defaultHttpProvider);
 			Install (platformDefaultConnectionProvider);
 
-			var manual = new ManualConnectionProvider (this, ConnectionProviderFlags.None);
+			var manual = new ManualConnectionProvider (this, ConnectionProviderFlags.IsExplicit);
 			Install (manual);
 		}
 
