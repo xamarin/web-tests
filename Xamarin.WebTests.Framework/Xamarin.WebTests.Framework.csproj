@@ -198,6 +198,12 @@
     <EmbeddedResource Include="..\CA\client-cert-rsa512.pfx">
       <Link>CA\client-cert-rsa512.pfx</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert-rsaonly.pfx">
+      <Link>CA\server-cert-rsaonly.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert-dhonly.pfx">
+      <Link>CA\server-cert-dhonly.pfx</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
