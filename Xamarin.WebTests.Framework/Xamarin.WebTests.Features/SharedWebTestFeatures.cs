@@ -67,6 +67,8 @@ namespace Xamarin.WebTests.Features
 				yield return IncludeNotWorkingAttribute.Instance;
 				yield return MonoWithNewTlsAttribute.Instance;
 
+				yield return ManualSslStreamAttribute.Instance;
+
 				yield return CertificateTests;
 				yield return PuppyAttribute.Instance;
 			}

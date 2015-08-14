@@ -78,6 +78,7 @@ namespace Xamarin.WebTests.Tests
 
 		[Martin]
 		[AsyncTest]
+		[ManualSslStream]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task TestMartin (TestContext ctx, CancellationToken cancellationToken,
 			[ClientAndServerConnectionType ("PlatformDefault:PlatformDefault")] ClientAndServerConnectionType connectionType,
@@ -89,6 +90,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		[ManualClient]
+		[ManualSslStream]
 		[ConnectionTestCategory (ConnectionTestCategory.ManualClient)]
 		public async Task TestManualClient (TestContext ctx, CancellationToken cancellationToken,
 			[ClientAndServerConnectionType ("Manual:PlatformDefault")] ClientAndServerConnectionType connectionType,
@@ -100,6 +102,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		[ManualServer]
+		[ManualSslStream]
 		[ConnectionTestCategory (ConnectionTestCategory.ManualServer)]
 		public async Task TestManualServer (TestContext ctx, CancellationToken cancellationToken,
 			[ClientAndServerConnectionType ("PlatformDefault:Manual")] ClientAndServerConnectionType connectionType,
