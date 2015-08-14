@@ -66,3 +66,11 @@ $ openssl pkcs12 -export -passout pass:monkey -out client-cert-md5.pfx -inkey cl
 $ openssl x509 -in client-cert-md5.pem -text > client-cert-md5.cert
 $ openssl rsa -in client-cert-md5.key >> client-cert-md5.cert
 
+Self-Signed Server Certificate with RSA-KeyExchange restriction:
+================================================================
+
+$ openssl req -x509 -config server-cert-rsaonly.conf -newkey rsa:4096 -out server-cert-rsaonly.pem -keyout server-cert-rsaonly.key
+$ openssl pkcs12 -export -passout pass:monkey -out server-cert-rsaonly.pfx -inkey server-cert-rsaonly.key -in server-cert-rsaonly.pem
+$ openssl x509 -in server-cert-rsaonly.pem -text > server-cert-rsaonly.cert
+$ openssl rsa -in server-cert-rsaonly.key -text >> server-cert-rsaonly.cert
+
