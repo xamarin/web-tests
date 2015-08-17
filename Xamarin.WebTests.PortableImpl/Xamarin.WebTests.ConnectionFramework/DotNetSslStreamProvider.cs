@@ -64,6 +64,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return ((CertificateValidator)validator).ValidationCallback;
 		}
 
+		static LocalCertificateSelectionCallback GetSelectionCallback (ClientParameters parameters)
+		{
+			var selector = parameters.ClientCertificateSelector;
+			if (selector == null)
+				return null;
+
+			return ((CertificateSelector)selector).SelectionCallback;
+		}
+
 		static X509Certificate2Collection GetClientCertificates (ClientParameters parameters)
 		{
 			if (parameters.ClientCertificate == null)
@@ -131,8 +140,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var protocol = GetProtocol (parameters);
 			var clientCertificates = GetClientCertificates (parameters);
 			var validator = GetValidationCallback (parameters);
+			var selector = GetSelectionCallback (parameters);
 
-			var sslStream = new SslStream (stream, false, validator, null);
+			var sslStream = new SslStream (stream, false, validator, selector);
 			await sslStream.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false);
 
 			return new DotNetSslStream (sslStream);

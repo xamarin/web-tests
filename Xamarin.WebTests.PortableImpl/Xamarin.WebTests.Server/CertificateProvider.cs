@@ -147,12 +147,29 @@ namespace Xamarin.WebTests.Server
 
 		public static ICertificate GetCertificate (X509Certificate certificate)
 		{
+			var certificate2 = certificate as X509Certificate2;
+			if (certificate2 != null)
+				return new CertificateFromData2 (certificate2);
 			return certificate != null ? new CertificateFromData (certificate) : null;
 		}
 
 		public static X509Certificate GetCertificate (ICertificate certificate)
 		{
 			return certificate != null ? ((CertificateFromData)certificate).Certificate : null;
+		}
+
+		public static byte[] GetRawCertificateData (IClientCertificate certificate, out string password)
+		{
+			var pfx = (CertificateFromPFX)certificate;
+			password = pfx.Password;
+			return pfx.Data;
+		}
+
+		public static byte[] GetRawCertificateData (IServerCertificate certificate, out string password)
+		{
+			var pfx = (CertificateFromPFX)certificate;
+			password = pfx.Password;
+			return pfx.Data;
 		}
 
 		public ICertificate GetCertificateFromData (byte[] data)
@@ -243,6 +260,18 @@ namespace Xamarin.WebTests.Server
 			{
 				Data = data;
 				Certificate = certificate;
+			}
+		}
+
+		class CertificateFromData2 : CertificateFromData, IServerCertificate, IClientCertificate
+		{
+			public string Password {
+				get { throw new InvalidOperationException (); }
+			}
+
+			public CertificateFromData2 (X509Certificate2 certificate)
+				: base (certificate)
+			{
 			}
 		}
 
