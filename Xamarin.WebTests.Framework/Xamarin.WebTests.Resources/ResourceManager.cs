@@ -23,6 +23,8 @@ namespace Xamarin.WebTests.Resources
 		static readonly IServerCertificate serverCertRsaOnly;
 		static readonly IServerCertificate serverCertDheOnly;
 		static readonly IServerCertificate invalidServerCertRsa512;
+		static readonly IClientCertificate clientCertRsaOnly;
+		static readonly IClientCertificate clientCertDheOnly;
 
 		static ResourceManager ()
 		{
@@ -39,6 +41,8 @@ namespace Xamarin.WebTests.Resources
 			serverCertRsaOnly = provider.GetServerCertificate (ReadResource ("CA.server-cert-rsaonly.pfx"), "monkey");
 			serverCertDheOnly = provider.GetServerCertificate (ReadResource ("CA.server-cert-dhonly.pfx"), "monkey");
 			invalidServerCertRsa512 = provider.GetServerCertificate (ReadResource ("CA.server-cert-rsa512.pfx"), "monkey");
+			clientCertRsaOnly = provider.GetClientCertificate (ReadResource ("CA.client-cert-rsaonly.pfx"), "monkey");
+			clientCertDheOnly = provider.GetClientCertificate (ReadResource ("CA.client-cert-dheonly.pfx"), "monkey");
 		}
 
 		public static ICertificate LocalCACertificate {
@@ -87,6 +91,14 @@ namespace Xamarin.WebTests.Resources
 
 		public static IServerCertificate InvalidServerCertificateRsa512 {
 			get { return invalidServerCertRsa512; }
+		}
+
+		public static IClientCertificate ClientCertificateRsaOnly {
+			get { return clientCertRsaOnly; }
+		}
+
+		public static IClientCertificate ClientCertificateDheOnly {
+			get { return clientCertDheOnly; }
 		}
 
 		public static IServerCertificate GetServerCertificate (ServerCertificateType type)
