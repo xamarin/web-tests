@@ -1,0 +1,84 @@
+Certificate:
+    Data:
+        Version: 1 (0x0)
+        Serial Number:
+            a2:1e:c9:64:a4:9c:d8:c2
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: CN=Hamiller-Tube.local, C=US, ST=Massachusetts, O=Xamarin, OU=Invalid 512-bit Server Certificate/emailAddress=martin.baulig@xamarin.com
+        Validity
+            Not Before: Aug 17 12:35:35 2015 GMT
+            Not After : Sep 16 12:35:35 2015 GMT
+        Subject: CN=Hamiller-Tube.local, C=US, ST=Massachusetts, O=Xamarin, OU=Invalid 512-bit Server Certificate/emailAddress=martin.baulig@xamarin.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (512 bit)
+                Modulus:
+                    00:c7:78:a8:cd:b8:06:70:bf:57:d2:a0:ca:86:99:
+                    74:c4:8a:ae:af:98:54:71:32:fd:bf:6a:23:98:ce:
+                    77:af:e9:24:ed:cf:59:c1:39:ba:d0:99:96:10:2c:
+                    7b:24:b5:dc:5d:ee:c5:d6:c1:0e:af:01:56:d1:1c:
+                    07:25:25:07:11
+                Exponent: 65537 (0x10001)
+    Signature Algorithm: sha1WithRSAEncryption
+         81:08:6e:4a:ed:4c:fc:49:2d:7a:b6:ba:af:ca:f4:32:51:dc:
+         88:e4:06:63:42:80:69:bd:32:20:b0:40:c3:ab:34:3b:a3:8e:
+         ab:a9:a9:ab:3e:48:f0:0b:70:4e:da:0f:1e:2b:e9:c7:96:eb:
+         69:37:b2:e0:a4:bb:77:b1:ed:2f
+-----BEGIN CERTIFICATE-----
+MIICTDCCAfYCCQCiHslkpJzYwjANBgkqhkiG9w0BAQUFADCBrDEcMBoGA1UEAxMT
+SGFtaWxsZXItVHViZS5sb2NhbDELMAkGA1UEBhMCVVMxFjAUBgNVBAgTDU1hc3Nh
+Y2h1c2V0dHMxEDAOBgNVBAoTB1hhbWFyaW4xKzApBgNVBAsTIkludmFsaWQgNTEy
+LWJpdCBTZXJ2ZXIgQ2VydGlmaWNhdGUxKDAmBgkqhkiG9w0BCQEWGW1hcnRpbi5i
+YXVsaWdAeGFtYXJpbi5jb20wHhcNMTUwODE3MTIzNTM1WhcNMTUwOTE2MTIzNTM1
+WjCBrDEcMBoGA1UEAxMTSGFtaWxsZXItVHViZS5sb2NhbDELMAkGA1UEBhMCVVMx
+FjAUBgNVBAgTDU1hc3NhY2h1c2V0dHMxEDAOBgNVBAoTB1hhbWFyaW4xKzApBgNV
+BAsTIkludmFsaWQgNTEyLWJpdCBTZXJ2ZXIgQ2VydGlmaWNhdGUxKDAmBgkqhkiG
+9w0BCQEWGW1hcnRpbi5iYXVsaWdAeGFtYXJpbi5jb20wXDANBgkqhkiG9w0BAQEF
+AANLADBIAkEAx3iozbgGcL9X0qDKhpl0xIqur5hUcTL9v2ojmM53r+kk7c9ZwTm6
+0JmWECx7JLXcXe7F1sEOrwFW0RwHJSUHEQIDAQABMA0GCSqGSIb3DQEBBQUAA0EA
+gQhuSu1M/Ektera6r8r0MlHciOQGY0KAab0yILBAw6s0O6OOq6mpqz5I8AtwTtoP
+Hivpx5braTey4KS7d7HtLw==
+-----END CERTIFICATE-----
+Private-Key: (512 bit)
+modulus:
+    00:c7:78:a8:cd:b8:06:70:bf:57:d2:a0:ca:86:99:
+    74:c4:8a:ae:af:98:54:71:32:fd:bf:6a:23:98:ce:
+    77:af:e9:24:ed:cf:59:c1:39:ba:d0:99:96:10:2c:
+    7b:24:b5:dc:5d:ee:c5:d6:c1:0e:af:01:56:d1:1c:
+    07:25:25:07:11
+publicExponent: 65537 (0x10001)
+privateExponent:
+    00:a7:00:71:2b:92:f7:e9:6b:79:86:c1:d1:ed:f1:
+    0a:9f:06:91:0c:38:97:f2:12:43:f9:ff:4e:00:40:
+    54:5a:74:78:60:8e:31:37:10:3f:61:ae:40:18:e4:
+    15:8f:a6:73:58:e3:54:28:e1:a2:37:d6:e7:9f:3c:
+    5b:5f:d9:23:f5
+prime1:
+    00:e6:14:cc:3e:d7:62:a3:90:58:1f:70:8a:48:00:
+    76:1a:31:03:e1:09:b1:d8:7f:e2:70:9c:34:20:7f:
+    80:02:0f
+prime2:
+    00:dd:f1:1d:ef:09:51:36:5c:a8:44:7c:59:dd:af:
+    c7:b9:a1:8d:1a:be:8f:3c:a2:6c:2b:72:f4:5d:60:
+    b5:04:df
+exponent1:
+    1a:c9:65:16:13:e1:6a:05:8e:1c:ea:ef:4e:7e:af:
+    41:51:5f:90:3d:9e:b5:03:fe:8a:f9:c4:9f:db:f8:
+    3d:45
+exponent2:
+    1e:23:d4:70:d5:cf:15:96:d7:b3:15:40:0e:ff:04:
+    1c:8d:77:e0:1d:e8:cd:cf:30:e9:65:9f:11:df:44:
+    35:f9
+coefficient:
+    00:9a:94:12:89:82:58:1b:08:c1:f5:e3:d4:21:b2:
+    c6:33:70:cd:f8:d5:09:ac:f0:fd:61:e4:21:27:e6:
+    55:c7:87
+-----BEGIN RSA PRIVATE KEY-----
+MIIBOwIBAAJBAMd4qM24BnC/V9KgyoaZdMSKrq+YVHEy/b9qI5jOd6/pJO3PWcE5
+utCZlhAseyS13F3uxdbBDq8BVtEcByUlBxECAwEAAQJBAKcAcSuS9+lreYbB0e3x
+Cp8GkQw4l/ISQ/n/TgBAVFp0eGCOMTcQP2GuQBjkFY+mc1jjVCjhojfW5588W1/Z
+I/UCIQDmFMw+12KjkFgfcIpIAHYaMQPhCbHYf+JwnDQgf4ACDwIhAN3xHe8JUTZc
+qER8Wd2vx7mhjRq+jzyibCty9F1gtQTfAiAayWUWE+FqBY4c6u9Ofq9BUV+QPZ61
+A/6K+cSf2/g9RQIgHiPUcNXPFZbXsxVADv8EHI134B3ozc8w6WWfEd9ENfkCIQCa
+lBKJglgbCMH149QhssYzcM341Qms8P1h5CEn5lXHhw==
+-----END RSA PRIVATE KEY-----

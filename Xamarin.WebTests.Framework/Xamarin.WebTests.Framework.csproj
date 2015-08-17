@@ -204,6 +204,9 @@
     <EmbeddedResource Include="..\CA\server-cert-dhonly.pfx">
       <Link>CA\server-cert-dhonly.pfx</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert-rsa512.pfx">
+      <Link>CA\server-cert-rsa512.pfx</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
