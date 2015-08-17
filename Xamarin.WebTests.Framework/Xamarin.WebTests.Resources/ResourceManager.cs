@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.Resources
 			get { return serverCert; }
 		}
 
-		public static IClientCertificate InvalidClientCertificate {
+		public static IClientCertificate InvalidClientCertificateV1 {
 			get { return invalidClientCert; }
 		}
 
