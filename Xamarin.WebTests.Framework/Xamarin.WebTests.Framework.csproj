@@ -123,13 +123,11 @@
     <Compile Include="Xamarin.WebTests.Features\CommonHttpFeatures.cs" />
     <Compile Include="Xamarin.WebTests.Features\HttpServerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\HttpsTestRunnerAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.Features\ConnectionProviderAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ConnectionProviderType.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ConnectionProviderFactory.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ConnectionProvider.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ConnectionProviderFlags.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ClientAndServerType.cs" />
-    <Compile Include="Xamarin.WebTests.Features\ClientAndServerTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ProtocolVersions.cs" />
     <Compile Include="Xamarin.WebTests.Features\PuppyAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\PuppyTestRunner.cs" />

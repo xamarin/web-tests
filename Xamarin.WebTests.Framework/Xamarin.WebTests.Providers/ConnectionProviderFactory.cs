@@ -57,9 +57,9 @@ namespace Xamarin.WebTests.Providers
 			return (flags & ConnectionProviderFlags.IsExplicit) != 0;
 		}
 
-		public IEnumerable<ConnectionProviderType> GetSupportedProviders ()
+		public IEnumerable<ConnectionProviderType> GetProviders ()
 		{
-			return providers.Keys.Where (p => !IsExplicit (p));
+			return providers.Keys;
 		}
 
 		public ConnectionProvider GetProvider (ConnectionProviderType type)

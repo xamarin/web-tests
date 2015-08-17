@@ -76,17 +76,21 @@ namespace Xamarin.WebTests.Features
 			}
 
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-			var supportedProviders = factory.GetSupportedProviders ();
+			var providers = factory.GetProviders ();
 
-			var supportedClientProviders = supportedProviders.Where (p => {
+			var supportedClientProviders = providers.Where (p => {
 				if (!string.IsNullOrEmpty (clientFilter))
 					return MatchesFilter (p, clientFilter);
+				else if (factory.IsExplicit (p))
+					return false;
 				return ConnectionTestRunner.IsClientSupported (ctx, category, p);
 			});
 
-			var supportedServerProviders = supportedProviders.Where (p => {
+			var supportedServerProviders = providers.Where (p => {
 				if (!string.IsNullOrEmpty (serverFilter))
 					return MatchesFilter (p, serverFilter);
+				else if (factory.IsExplicit (p))
+					return false;
 				return ConnectionTestRunner.IsServerSupported (ctx, category, p);
 			});
 
