@@ -55,7 +55,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var flags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp;
 			var support = DependencyInjector.Get<IPortableSupport> ();
 			if (support.IsMicrosoftRuntime)
-				flags |= ConnectionProviderFlags.IsNewTls | ConnectionProviderFlags.SupportsTls12;
+				flags |= ConnectionProviderFlags.SupportsTls12;
 			return flags;
 		}
 
@@ -64,13 +64,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var support = DependencyInjector.Get<IPortableSupport> ();
 
 			switch (type) {
-			case ConnectionProviderType.PlatformDefault:
 			case ConnectionProviderType.DotNet:
 				return true;
 			case ConnectionProviderType.NewTLS:
 				return support.IsMicrosoftRuntime;
 			case ConnectionProviderType.OpenSsl:
 				return !support.IsMicrosoftRuntime;
+			case ConnectionProviderType.Manual:
+				return true;
 			default:
 				return false;
 			}
@@ -80,12 +81,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return protocols; }
 		}
 
-		public override IClient CreateClient (ClientParameters parameters)
+		public override IClient CreateClient (ConnectionParameters parameters)
 		{
 			return new DotNetClient (this, parameters, SslStreamProvider);
 		}
 
-		public override IServer CreateServer (ServerParameters parameters)
+		public override IServer CreateServer (ConnectionParameters parameters)
 		{
 			return new DotNetServer (this, parameters, SslStreamProvider);
 		}

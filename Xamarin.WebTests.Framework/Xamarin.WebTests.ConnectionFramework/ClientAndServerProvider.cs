@@ -1,5 +1,5 @@
 ﻿//
-// ConnectionFlags.cs
+// ClientAndServerProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -23,16 +23,43 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
 using System;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	[Flags]
-	public enum ConnectionFlags
+	using Providers;
+	using Features;
+
+	public abstract class ClientAndServerProvider : ITestParameter
 	{
-		None = 0,
-		ManualClient = 1,
-		ManualServer = 2
+		public ConnectionProvider Client {
+			get;
+			private set;
+		}
+
+		public ConnectionProvider Server {
+			get;
+			private set;
+		}
+
+		public string Value {
+			get;
+			private set;
+		}
+
+		public ClientAndServerProvider (ConnectionProvider client, ConnectionProvider server, string value = null)
+		{
+			Client = client;
+			Server = server;
+			Value = value ?? string.Format ("{0}:{1}", client.Name, server.Name);
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[ClientAndServerProvider {0}]", Value);
+		}
 	}
 }
 

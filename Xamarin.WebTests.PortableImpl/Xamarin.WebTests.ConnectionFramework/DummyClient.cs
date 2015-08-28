@@ -36,10 +36,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	public class DummyClient : DummyConnection, IClient
 	{
-		new public ClientParameters Parameters {
-			get { return (ClientParameters)base.Parameters; }
-		}
-
 		public DummyClient (ConnectionProvider provider, IPortableEndPoint endpoint, ConnectionParameters parameters)
 			: base (provider, endpoint, parameters)
 		{

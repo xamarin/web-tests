@@ -41,7 +41,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		readonly DefaultHttpProvider defaultHttpProvider;
 		readonly DotNetConnectionProvider defaultConnectionProvider;
 		readonly DotNetConnectionProvider newTlsConnectionProvider;
-		readonly DotNetConnectionProvider platformDefaultConnectionProvider;
 
 		internal DefaultConnectionProviderFactory ()
 		{
@@ -56,9 +55,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 				newTlsConnectionProvider = new DotNetConnectionProvider (this, ConnectionProviderType.NewTLS, dotNetStreamProvider, defaultHttpProvider);
 				Install (newTlsConnectionProvider);
 			}
-
-			platformDefaultConnectionProvider = new DotNetConnectionProvider (this, ConnectionProviderType.PlatformDefault, dotNetStreamProvider, defaultHttpProvider);
-			Install (platformDefaultConnectionProvider);
 
 			var manual = new ManualConnectionProvider (this, ConnectionProviderFlags.IsExplicit);
 			Install (manual);

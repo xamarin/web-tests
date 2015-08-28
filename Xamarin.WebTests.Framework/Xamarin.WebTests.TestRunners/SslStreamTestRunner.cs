@@ -33,14 +33,21 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.TestRunners
 {
 	using ConnectionFramework;
+	using TestFramework;
 	using Resources;
 	using Providers;
+	using Features;
 	using Portable;
 
+	[SslStreamTestRunner]
 	public class SslStreamTestRunner : ConnectionTestRunner
 	{
-		public SslStreamTestRunner (IServer server, IClient client, SslStreamTestParameters parameters, ConnectionFlags flags)
-			: base (server, client, parameters, flags)
+		new public SslStreamTestParameters Parameters {
+			get { return (SslStreamTestParameters)base.Parameters; }
+		}
+
+		public SslStreamTestRunner (IServer server, IClient client, ConnectionTestProvider provider, SslStreamTestParameters parameters)
+			: base (server, client, provider, parameters)
 		{
 		}
 
@@ -79,14 +86,13 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestType.NoValidator:
 				// The default validator only allows ResourceManager.SelfSignedServerCertificate.
 				return new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
-					ClientFlags = ClientFlags.ExpectTrustFailure, ServerFlags = ServerFlags.ClientAbortsHandshake
+					ExpectClientException = true
 				};
 
 			case ConnectionTestType.RejectAll:
 				// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientFlags = ClientFlags.ExpectTrustFailure, ClientCertificateValidator = rejectAll,
-					ServerFlags = ServerFlags.ClientAbortsHandshake
+					ExpectClientException = true, ClientCertificateValidator = rejectAll
 				};
 
 			case ConnectionTestType.UnrequestedClientCertificate:
@@ -105,14 +111,14 @@ namespace Xamarin.WebTests.TestRunners
 				 */
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
-					ServerFlags = ServerFlags.AskForClientCertificate, ServerCertificateValidator = acceptFromLocalCA
+					AskForClientCertificate = true, ServerCertificateValidator = acceptFromLocalCA
 				};
 
 			case ConnectionTestType.RequireClientCertificate:
 				// Require client certificate.
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
-					ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.RequireClientCertificate,
+					AskForClientCertificate = true, RequireClientCertificate = true,
 					ServerCertificateValidator = acceptFromLocalCA
 				};
 
@@ -127,7 +133,7 @@ namespace Xamarin.WebTests.TestRunners
 				 * Mono with the old TLS implementation throws SecureChannelFailure.
 				 */
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptSelfSigned, ServerFlags = ServerFlags.AskForClientCertificate,
+					ClientCertificateValidator = acceptSelfSigned, AskForClientCertificate = true,
 					ServerCertificateValidator = acceptNull
 				};
 
@@ -135,23 +141,21 @@ namespace Xamarin.WebTests.TestRunners
 				// Reject client certificate.
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
-					ClientFlags = ClientFlags.ExpectWebException, ServerCertificateValidator = rejectAll,
-					ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException
+					ServerCertificateValidator = rejectAll, AskForClientCertificate = true,
+					ExpectClientException = true, ExpectServerException = true
 				};
 
 			case ConnectionTestType.MissingClientCertificate:
 				// Missing client certificate.
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptSelfSigned, ClientFlags = ClientFlags.ExpectWebException,
-					ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.RequireClientCertificate |
-						ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException
+					ClientCertificateValidator = acceptSelfSigned,
+					AskForClientCertificate = true, RequireClientCertificate = true,
+					ExpectClientException = true, ExpectServerException = true
 				};
 
 			case ConnectionTestType.MartinTest:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptSelfSigned, ProtocolVersion = ProtocolVersions.Tls12,
-					ServerFlags = ServerFlags.RequireClientCertificate, ClientCertificate = ResourceManager.InvalidClientCertificateRsa512,
-					ServerCertificateValidator = acceptAll
+					ClientCertificateValidator = acceptSelfSigned
 				};
 
 			default:
@@ -163,10 +167,15 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			await base.OnRun (ctx, cancellationToken);
 
+			if (Parameters.ExpectServerException)
+				ctx.AssertFail ("expecting server exception");
+			if (Parameters.ExpectClientException)
+				ctx.AssertFail ("expecting client exception");
+
 			if (!IsManualServer) {
 				ctx.Expect (Server.SslStream.IsAuthenticated, "server is authenticated");
 
-				if (Server.Parameters.RequireCertificate) {
+				if (Server.Parameters.RequireClientCertificate) {
 					ctx.LogDebug (1, "Client certificate required: {0} {1}", Server.SslStream.IsMutuallyAuthenticated, Server.SslStream.HasRemoteCertificate);
 					ctx.Expect (Server.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
 					ctx.Expect (Server.SslStream.HasRemoteCertificate, "server has client certificate");
@@ -179,9 +188,36 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Expect (Client.SslStream.HasRemoteCertificate, "client has server certificate");
 			}
 
-			if (!IsManualConnection && Server.Parameters.AskForCertificate && Client.Parameters.ClientCertificate != null)
+			if (!IsManualConnection && Server.Parameters.AskForClientCertificate && Client.Parameters.ClientCertificate != null)
 				ctx.Expect (Client.SslStream.HasLocalCertificate, "client has local certificate");
 
+		}
+
+		protected override void OnWaitForServerConnectionCompleted (TestContext ctx, Task task)
+		{
+			if (Parameters.ExpectServerException) {
+				ctx.Assert (task.IsFaulted, "expecting exception");
+				throw new ConnectionFinishedException ();
+			}
+
+			if (task.IsFaulted) {
+				if (Parameters.ExpectClientException)
+					throw new ConnectionFinishedException ();
+				throw task.Exception;
+			}
+
+			base.OnWaitForServerConnectionCompleted (ctx, task);
+		}
+
+		protected override void OnWaitForClientConnectionCompleted (TestContext ctx, Task task)
+		{
+			if (task.IsFaulted) {
+				if (Parameters.ExpectClientException)
+					throw new ConnectionFinishedException ();
+				throw task.Exception;
+			}
+
+			base.OnWaitForClientConnectionCompleted (ctx, task);
 		}
 
 		protected override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)

@@ -24,12 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Providers
 {
 	using ConnectionFramework;
 
-	public abstract class ConnectionProvider
+	public abstract class ConnectionProvider : ITestParameter
 	{
 		readonly ConnectionProviderFactory factory;
 		readonly ConnectionProviderType type;
@@ -42,8 +43,16 @@ namespace Xamarin.WebTests.Providers
 			this.flags = flags;
 		}
 
+		string ITestParameter.Value {
+			get { return Type.ToString (); }
+		}
+
 		public ConnectionProviderFactory Factory {
 			get { return factory; }
+		}
+
+		public virtual string Name {
+			get { return Type.ToString (); }
 		}
 
 		public ConnectionProviderType Type {
@@ -56,9 +65,9 @@ namespace Xamarin.WebTests.Providers
 
 		public abstract bool IsCompatibleWith (ConnectionProviderType type);
 
-		public abstract IClient CreateClient (ClientParameters parameters);
+		public abstract IClient CreateClient (ConnectionParameters parameters);
 
-		public abstract IServer CreateServer (ServerParameters parameters);
+		public abstract IServer CreateServer (ConnectionParameters parameters);
 
 		public bool SupportsSslStreams {
 			get { return (Flags & ConnectionProviderFlags.SupportsSslStream) != 0; }

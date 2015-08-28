@@ -40,13 +40,13 @@ namespace Xamarin.WebTests.Providers
 			get;
 		}
 
-		ISslStream CreateServerStream (Stream stream, ServerParameters parameters);
+		ISslStream CreateServerStream (Stream stream, ConnectionParameters parameters);
 
 		Task<ISslStream> CreateServerStreamAsync (
-			Stream stream, ServerParameters parameters, CancellationToken cancellationToken);
+			Stream stream, ConnectionParameters parameters, CancellationToken cancellationToken);
 
 		Task<ISslStream> CreateClientStreamAsync (
-			Stream stream, string targetHost, ClientParameters parameters, CancellationToken cancellationToken);
+			Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken);
 	}
 }
 

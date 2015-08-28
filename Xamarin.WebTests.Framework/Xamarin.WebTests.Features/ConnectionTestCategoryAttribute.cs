@@ -54,7 +54,9 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.Features
 {
 	using ConnectionFramework;
+	using TestFramework;
 
+	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
 	public class ConnectionTestCategoryAttribute : FixedTestParameterAttribute
 	{
 		public override Type Type {

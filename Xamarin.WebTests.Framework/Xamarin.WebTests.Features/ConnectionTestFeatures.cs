@@ -34,9 +34,10 @@ namespace Xamarin.WebTests.Features
 	using Portable;
 	using Providers;
 	using TestRunners;
+	using TestFramework;
 	using ConnectionFramework;
 
-	static class ConnectionTestFeatures
+	public static class ConnectionTestFeatures
 	{
 		static readonly ConnectionProviderFactory Factory;
 		static readonly Constraint isProviderSupported;
@@ -56,180 +57,72 @@ namespace Xamarin.WebTests.Features
 			get { return isProviderSupported; }
 		}
 
-		public static ClientParameters GetClientParameters (TestContext ctx)
-		{
-			ClientAndServerParameters clientAndServerParameters = null;
-			return GetClientParameters (ctx, ref clientAndServerParameters);
-		}
-
-		public static ClientParameters GetClientParameters (TestContext ctx, ref ClientAndServerParameters clientAndServerParameters)
-		{
-			ClientParameters clientParameters;
-
-			if (clientAndServerParameters != null) {
-				clientParameters = clientAndServerParameters.ClientParameters;
-			} else if (ctx.TryGetParameter<ClientParameters> (out clientParameters)) {
-				clientAndServerParameters = null;
-			} else if (ctx.TryGetParameter<ClientAndServerParameters> (out clientAndServerParameters)) {
-				clientParameters = clientAndServerParameters.ClientParameters;
-			} else {
-				ctx.AssertFail ("Missing '{0}' property.", "ClientParameters");
-				clientAndServerParameters = null;
-				return null;
-			}
-
-			return clientParameters;
-		}
-
-		public static ServerParameters GetServerParameters (TestContext ctx)
-		{
-			ClientAndServerParameters clientAndServerParameters = null;
-			return GetServerParameters (ctx, ref clientAndServerParameters);
-		}
-
-		public static ServerParameters GetServerParameters (TestContext ctx, ref ClientAndServerParameters clientAndServerParameters)
-		{
-			ServerParameters serverParameters;
-
-			if (clientAndServerParameters != null) {
-				serverParameters = clientAndServerParameters.ServerParameters;
-			} else if (ctx.TryGetParameter<ServerParameters> (out serverParameters)) {
-				clientAndServerParameters = null;
-			} else if (ctx.TryGetParameter<ClientAndServerParameters> (out clientAndServerParameters)) {
-				serverParameters = clientAndServerParameters.ServerParameters;
-			} else {
-				ctx.AssertFail ("Missing '{0}' property.", "ServerParameters");
-				clientAndServerParameters = null;
-				return null;
-			}
-
-			return serverParameters;
-		}
-
-		public static ConnectionProviderType GetClientType (TestContext ctx)
-		{
-			ConnectionProviderType type;
-			if (ctx.TryGetParameter<ConnectionProviderType> (out type, "ClientType"))
-				return type;
-			ClientAndServerConnectionType clientAndServerType;
-			if (ctx.TryGetParameter<ClientAndServerConnectionType> (out clientAndServerType))
-				return clientAndServerType.ClientType;
-			throw new InvalidOperationException ();
-		}
-
-		public static ConnectionProviderType GetServerType (TestContext ctx)
-		{
-			ConnectionProviderType type;
-			if (ctx.TryGetParameter<ConnectionProviderType> (out type, "ServerType"))
-				return type;
-			ClientAndServerConnectionType clientAndServerType;
-			if (ctx.TryGetParameter<ClientAndServerConnectionType> (out clientAndServerType))
-				return clientAndServerType.ServerType;
-			throw new InvalidOperationException ();
-		}
-
 		public static IHttpProvider GetHttpProvider (TestContext ctx)
 		{
-			var type = GetClientType (ctx);
-			var provider = Factory.GetProvider (type);
+			var providerType = ctx.GetParameter<ConnectionTestProvider> ();
+			var provider = providerType.Client;
 			return provider.HttpProvider;
 		}
 
-		public static IClient CreateClient (TestContext ctx)
+		public static R CreateTestRunner<P,A,R> (TestContext ctx, Func<IServer,IClient,P,A,R> constructor)
+			where P : ClientAndServerProvider
+			where A : ConnectionParameters
+			where R : ClientAndServer
 		{
-			var providerType = GetClientType (ctx);
-			ctx.Assert (providerType, IsProviderSupported);
-			var provider = Factory.GetProvider (providerType);
-
-			var parameters = GetClientParameters (ctx);
-			return provider.CreateClient (parameters);
+			var parameters = ctx.GetParameter<A> ();
+			var provider = ctx.GetParameter<P> ();
+			return CreateTestRunner (ctx, provider, parameters, constructor);
 		}
 
-		public static IServer CreateServer (TestContext ctx)
+		public static R CreateTestRunner<P,A,R> (TestContext ctx, P provider, A parameters, Func<IServer,IClient,P,A,R> constructor)
+			where P : ClientAndServerProvider
+			where A : ConnectionParameters
+			where R : ClientAndServer
 		{
-			var providerType = GetServerType (ctx);
-			ctx.Assert (providerType, IsProviderSupported);
-			var provider = Factory.GetProvider (providerType);
-
-			var parameters = GetServerParameters (ctx);
-			return provider.CreateServer (parameters);
-		}
-
-		public static R CreateTestRunner<P,R> (TestContext ctx, ConnectionFlags flags, Func<IServer,IClient,P,ConnectionFlags,R> constructor)
-			where P : ClientAndServerParameters
-			where R : ClientAndServerTestRunner
-		{
-			var parameters = ctx.GetParameter<P> ();
-			return CreateTestRunner (ctx, parameters, flags, constructor);
-		}
-
-		public static R CreateTestRunner<P,R> (TestContext ctx, P parameters, ConnectionFlags flags, Func<IServer,IClient,P,ConnectionFlags,R> constructor)
-			where P : ClientAndServerParameters
-			where R : ClientAndServerTestRunner
-		{
-			var clientProviderType = GetClientType (ctx);
-			var serverProviderType = GetServerType (ctx);
-
-			var clientProvider = Factory.GetProvider (clientProviderType);
-			var serverProvider = Factory.GetProvider (serverProviderType);
+			var clientProvider = provider.Client;
+			var serverProvider = provider.Server;
 
 			ProtocolVersions protocolVersion;
 			if (ctx.TryGetParameter<ProtocolVersions> (out protocolVersion))
 				parameters.ProtocolVersion = protocolVersion;
 
-			if (serverProviderType == ConnectionProviderType.Manual || clientProviderType == ConnectionProviderType.Manual) {
+			var isManualConnection = serverProvider.Type == ConnectionProviderType.Manual || clientProvider.Type == ConnectionProviderType.Manual;
+			if (isManualConnection) {
 				string serverAddress;
 				if (ctx.Settings.TryGetValue ("ServerAddress", out serverAddress)) {
 					var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-					parameters.EndPoint = support.ParseEndpoint (serverAddress, 443, true);
+					parameters.ListenAddress = support.ParseEndpoint (serverAddress, 443, true);
 
 					string serverHost;
 					if (ctx.Settings.TryGetValue ("ServerHost", out serverHost))
-						parameters.ClientParameters.TargetHost = serverHost;
+						parameters.TargetHost = serverHost;
 				}
 			}
 
-			if (serverProviderType == ConnectionProviderType.Manual)
-				flags |= ConnectionFlags.ManualServer;
-			if (clientProviderType == ConnectionProviderType.Manual)
-				flags |= ConnectionFlags.ManualClient;
-
 			if (parameters.EndPoint != null) {
-				if (parameters.ClientParameters.EndPoint == null)
-					parameters.ClientParameters.EndPoint = parameters.EndPoint;
-				if (parameters.ServerParameters.EndPoint == null)
-					parameters.ServerParameters.EndPoint = parameters.EndPoint;
-
-				if (parameters.ClientParameters.TargetHost == null)
-					parameters.ClientParameters.TargetHost = parameters.EndPoint.HostName;
-			} else if ((flags & (ConnectionFlags.ManualClient | ConnectionFlags.ManualServer)) != 0) {
+				if (parameters.TargetHost == null)
+					parameters.TargetHost = parameters.EndPoint.HostName;
+			} else if (isManualConnection) {
 				var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-				parameters.EndPoint = support.GetEndpoint ("0.0.0.0", 4433);
-			} else {
-				CommonHttpFeatures.GetUniqueEndPoint (ctx, parameters);
-			}
+				parameters.ListenAddress = support.GetEndpoint ("0.0.0.0", 4433);
+			} else if (parameters.ListenAddress != null)
+				parameters.EndPoint = parameters.ListenAddress;
+			else
+				parameters.EndPoint = CommonHttpFeatures.GetEndPoint (ctx);
 
-			var server = serverProvider.CreateServer (parameters.ServerParameters);
+			var server = serverProvider.CreateServer (parameters);
 
-			var client = clientProvider.CreateClient (parameters.ClientParameters);
+			var client = clientProvider.CreateClient (parameters);
 
-			return constructor (server, client, parameters, flags);
+			return constructor (server, client, provider, parameters);
 		}
 
-		public static R CreateTestRunner<P,R> (TestContext ctx, Func<IServer,IClient,P,ConnectionFlags,R> constructor, ConnectionFlags? flags = null)
-			where P : ConnectionTestParameters
-			where R : ConnectionTestRunner
-		{
-			var parameters = ctx.GetParameter<P> ();
-			if (flags == null)
-				flags = ConnectionTestRunner.GetConnectionFlags (ctx, parameters.Category);
-			return CreateTestRunner (ctx, parameters, flags.Value, constructor);
-		}
-
-		public static IEnumerable<R> Join<T,U,R> (IEnumerable<T> first, IEnumerable<U> second, Func<T, U, R> resultSelector) {
+		public static IEnumerable<R> Join<T,U,R> (IEnumerable<T> first, IEnumerable<U> second, Func<T, U, R> resultSelector, bool filterOutNull = true) {
 			foreach (var e1 in first) {
 				foreach (var e2 in second) {
-					yield return resultSelector (e1, e2);
+					var result = resultSelector (e1, e2);
+					if (!filterOutNull || result != null)
+						yield return result;
 				}
 			}
 		}

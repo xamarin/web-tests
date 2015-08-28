@@ -1,5 +1,5 @@
 ﻿//
-// ConnectionTestCategory.cs
+// ConnectionTestParameters.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,24 +25,29 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	public enum ConnectionTestCategory
-	{
-		// Run all
-		Https,
-		// Only run tests which are working with the existing Mono.
-		HttpsWithMono,
-		// These tests don't work with Mono yet.
-		HttpsWithDotNet,
-		// TLS 1.2 tests; we can only run these with SslStream because the
-		// HTTP framework doesn't let us specify the protocol version.
-		SslStreamWithTls12,
-		InvalidCertificatesInTls12,
+	using ConnectionFramework;
+	using Portable;
 
-		MartinTest,
-		ManualClient,
-		ManualServer
+	public abstract class ConnectionTestParameters : ConnectionParameters
+	{
+		public ConnectionTestCategory Category {
+			get;
+			private set;
+		}
+
+		public ConnectionTestParameters (ConnectionTestCategory category, string identifier, IServerCertificate certificate)
+			: base (identifier, certificate)
+		{
+			Category = category;
+		}
+
+		protected ConnectionTestParameters (ConnectionTestParameters other)
+			: base (other)
+		{
+			Category = other.Category;
+		}
 	}
 }
 

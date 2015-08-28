@@ -30,7 +30,7 @@ namespace Xamarin.AsyncTests
 	[AttributeUsage (AttributeTargets.Method, AllowMultiple = true)]
 	public abstract class FixedTestParameterAttribute : Attribute
 	{
-		public virtual TestFlags Flags {
+		public virtual TestFlags TestFlags {
 			get { return TestFlags.Browsable; }
 		}
 

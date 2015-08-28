@@ -74,18 +74,6 @@ namespace Xamarin.WebTests.Features
 				return false;
 			}
 		}
-
-		internal static void GetUniqueEndPoint (TestContext ctx, ClientAndServerParameters parameters)
-		{
-			if (parameters.EndPoint == null)
-				parameters.EndPoint = GetEndPoint (ctx);
-
-			if (parameters.ServerParameters.EndPoint == null)
-				parameters.ServerParameters.EndPoint = parameters.EndPoint;
-			if (parameters.ClientParameters.EndPoint == null)
-				parameters.ClientParameters.EndPoint = parameters.EndPoint ?? parameters.ServerParameters.EndPoint;
-
-		}
 	}
 }
 

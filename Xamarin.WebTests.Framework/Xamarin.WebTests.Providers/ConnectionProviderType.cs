@@ -32,9 +32,6 @@ namespace Xamarin.WebTests.Providers
 		// Directly use SslStream
 		DotNet,
 
-		// Platform-specific default
-		PlatformDefault,
-
 		// Use Mono.Security.Interface.MonoTlsProviderFactory to select the old or new TLS implementation.
 		NewTLS,
 		OldTLS,

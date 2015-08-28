@@ -333,7 +333,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var hostType = typeof(FixedParameterHost<>).MakeGenericType (attr.Type);
 			return (TestHost)Activator.CreateInstance (
-				hostType, attr.Identifier, typeInfo, serializer, attr, attr.Flags);
+				hostType, attr.Identifier, typeInfo, serializer, attr, attr.TestFlags);
 		}
 
 		static TestHost CreateEnum (IMemberInfo member)

@@ -25,10 +25,13 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.TestFramework
 {
+	using ConnectionFramework;
 	using Portable;
+	using Features;
 
+	[SslStreamTestParameters]
 	public class SslStreamTestParameters : ConnectionTestParameters
 	{
 		public ConnectionTestType Type {
@@ -46,11 +49,21 @@ namespace Xamarin.WebTests.ConnectionFramework
 			: base (other)
 		{
 			Type = other.Type;
+			ExpectClientException = other.ExpectClientException;
+			ExpectServerException = other.ExpectServerException;
 		}
 
 		public override ConnectionParameters DeepClone ()
 		{
 			return new SslStreamTestParameters (this);
+		}
+
+		public bool ExpectClientException {
+			get; set;
+		}
+
+		public bool ExpectServerException {
+			get; set;
 		}
 	}
 }

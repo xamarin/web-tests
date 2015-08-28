@@ -31,8 +31,10 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.Features
 {
 	using ConnectionFramework;
+	using TestFramework;
 	using TestRunners;
 
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
 	public class HttpsTestParametersAttribute : TestParameterAttribute, ITestParameterSource<HttpsTestParameters>
 	{
 		public ConnectionTestType? Type {

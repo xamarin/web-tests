@@ -33,11 +33,13 @@ namespace Xamarin.WebTests.Features
 {
 	using TestRunners;
 	using ConnectionFramework;
+	using TestFramework;
 	using HttpFramework;
 	using Portable;
 	using Providers;
 	using Resources;
 
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
 	public class HttpsTestRunnerAttribute : TestHostAttribute, ITestHost<HttpsTestRunner>
 	{
 		public HttpsTestRunnerAttribute ()
@@ -61,16 +63,12 @@ namespace Xamarin.WebTests.Features
 				parameters.ProtocolVersion = protocolVersion;
 
 			if (parameters.EndPoint != null) {
-				if (parameters.ClientParameters.EndPoint == null)
-					parameters.ClientParameters.EndPoint = parameters.EndPoint;
-				if (parameters.ServerParameters.EndPoint == null)
-					parameters.ServerParameters.EndPoint = parameters.EndPoint;
-
-				if (parameters.ClientParameters.TargetHost == null)
-					parameters.ClientParameters.TargetHost = parameters.EndPoint.HostName;
-			} else {
-				CommonHttpFeatures.GetUniqueEndPoint (ctx, parameters);
-			}
+				if (parameters.TargetHost == null)
+					parameters.TargetHost = parameters.EndPoint.HostName;
+			} else if (parameters.ListenAddress != null)
+				parameters.EndPoint = parameters.ListenAddress;
+			else
+				parameters.EndPoint = CommonHttpFeatures.GetEndPoint (ctx);
 
 			var listenerFlags = ListenerFlags.SSL;
 

@@ -33,10 +33,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		IServerCertificate Certificate {
 			get;
 		}
-
-		new ServerParameters Parameters {
-			get;
-		}
 	}
 }
 

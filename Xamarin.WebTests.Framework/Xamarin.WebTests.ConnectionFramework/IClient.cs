@@ -27,9 +27,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public interface IClient : ICommonConnection
 	{
-		new ClientParameters Parameters {
-			get;
-		}
 	}
 }
 

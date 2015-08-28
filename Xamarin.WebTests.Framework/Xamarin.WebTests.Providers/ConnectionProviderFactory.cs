@@ -26,9 +26,12 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Providers
 {
+	using ConnectionFramework;
+
 	public abstract class ConnectionProviderFactory
 	{
 		readonly Dictionary<ConnectionProviderType,ConnectionProvider> providers;
@@ -60,6 +63,11 @@ namespace Xamarin.WebTests.Providers
 		public IEnumerable<ConnectionProviderType> GetProviders ()
 		{
 			return providers.Keys;
+		}
+
+		public IEnumerable<ConnectionProvider> GetProviders (Func<ConnectionProvider,bool> filter = null)
+		{
+			return providers.Values.Where (p => filter != null ? filter (p) : !IsExplicit (p.Type));
 		}
 
 		public ConnectionProvider GetProvider (ConnectionProviderType type)

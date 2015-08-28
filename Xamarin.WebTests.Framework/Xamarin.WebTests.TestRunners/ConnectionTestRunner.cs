@@ -30,18 +30,14 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.TestRunners
 {
 	using ConnectionFramework;
+	using TestFramework;
 	using Features;
 	using Providers;
 	using Resources;
 	using Portable;
 
-	public abstract class ConnectionTestRunner : ClientAndServerTestRunner
+	public abstract class ConnectionTestRunner : ClientAndServer
 	{
-		public ConnectionFlags ConnectionFlags {
-			get;
-			private set;
-		}
-
 		new public ConnectionTestParameters Parameters {
 			get { return (ConnectionTestParameters)base.Parameters; }
 		}
@@ -50,10 +46,15 @@ namespace Xamarin.WebTests.TestRunners
 			get { return Parameters.Category; }
 		}
 
-		public ConnectionTestRunner (IServer server, IClient client, ConnectionTestParameters parameters, ConnectionFlags flags)
+		public ConnectionTestProvider Provider {
+			get;
+			private set;
+		}
+
+		public ConnectionTestRunner (IServer server, IClient client, ConnectionTestProvider provider, ConnectionTestParameters parameters)
 			: base (server, client, parameters)
 		{
-			ConnectionFlags = flags;
+			Provider = provider;
 		}
 
 		public static IEnumerable<ConnectionTestType> GetConnectionTestTypes (TestContext ctx, ConnectionTestCategory category)
@@ -104,8 +105,6 @@ namespace Xamarin.WebTests.TestRunners
 				yield break;
 
 			case ConnectionTestCategory.MartinTest:
-			case ConnectionTestCategory.ManualClient:
-			case ConnectionTestCategory.ManualServer:
 				yield return ConnectionTestType.MartinTest;
 				yield break;
 
@@ -115,46 +114,17 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		public static ConnectionFlags GetConnectionFlags (TestContext ctx, ConnectionTestCategory category)
-		{
-			if (category == ConnectionTestCategory.ManualClient)
-				return ConnectionFlags.ManualClient;
-			else if (category == ConnectionTestCategory.ManualServer)
-				return ConnectionFlags.ManualServer;
-			else
-				return ConnectionFlags.None;
-		}
-
-		public bool IsManualClient {
-			get {
-				if (Category == ConnectionTestCategory.ManualClient)
-					return true;
-				return (ConnectionFlags & ConnectionFlags.ManualClient) != 0;
-			}
-		}
-
-		public bool IsManualServer {
-			get {
-				if (Category == ConnectionTestCategory.ManualServer)
-					return true;
-				return (ConnectionFlags & ConnectionFlags.ManualServer) != 0;
-			}
-		}
-
-		public bool IsManualConnection {
-			get { return IsManualClient || IsManualServer; }
-		}
-
-		public static bool IsClientSupported (TestContext ctx, ConnectionTestCategory category, ConnectionProviderType type)
+		public static bool IsSupported (TestContext ctx, ConnectionTestCategory category, ConnectionProvider provider)
 		{
 			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
-			var isNewTls = CommonHttpFeatures.IsNewTls (type);
+			var isNewTls = CommonHttpFeatures.IsNewTls (provider.Type);
 
-			var flags = ConnectionTestFeatures.GetProviderFlags (type);
+			var flags = provider.Flags;
 			var supportsSslStream = ((flags & ConnectionProviderFlags.SupportsSslStream) != 0);
 
 			switch (category) {
 			case ConnectionTestCategory.Https:
+				return supportsSslStream;
 			case ConnectionTestCategory.HttpsWithMono:
 				return supportsSslStream;
 			case ConnectionTestCategory.HttpsWithDotNet:
@@ -163,34 +133,6 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.InvalidCertificatesInTls12:
 				return supportsSslStream && isNewTls;
 			case ConnectionTestCategory.MartinTest:
-			case ConnectionTestCategory.ManualClient:
-			case ConnectionTestCategory.ManualServer:
-				return true;
-			default:
-				throw new InvalidOperationException ();
-			}
-		}
-
-		public static bool IsServerSupported (TestContext ctx, ConnectionTestCategory category, ConnectionProviderType type)
-		{
-			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
-			var isNewTls = CommonHttpFeatures.IsNewTls (type);
-
-			var flags = ConnectionTestFeatures.GetProviderFlags (type);
-			var supportsSslStream = ((flags & ConnectionProviderFlags.SupportsSslStream) != 0);
-
-			switch (category) {
-			case ConnectionTestCategory.Https:
-			case ConnectionTestCategory.HttpsWithMono:
-				return true;
-			case ConnectionTestCategory.HttpsWithDotNet:
-				return isNewTls || includeNotWorking;
-			case ConnectionTestCategory.SslStreamWithTls12:
-			case ConnectionTestCategory.InvalidCertificatesInTls12:
-				return supportsSslStream && isNewTls;
-			case ConnectionTestCategory.MartinTest:
-			case ConnectionTestCategory.ManualClient:
-			case ConnectionTestCategory.ManualServer:
 				return true;
 			default:
 				throw new InvalidOperationException ();

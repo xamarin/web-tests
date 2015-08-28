@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.Server
 		readonly HttpServer server;
 
 		public HttpListener (HttpServer server)
-			: base (server.HttpProvider, server.EndPoint, server.Flags)
+			: base (server.HttpProvider, server.ListenAddress, server.Flags)
 		{
 			this.server = server;
 		}

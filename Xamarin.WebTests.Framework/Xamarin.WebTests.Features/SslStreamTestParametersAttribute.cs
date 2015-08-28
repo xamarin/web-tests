@@ -31,8 +31,10 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.Features
 {
 	using ConnectionFramework;
+	using TestFramework;
 	using TestRunners;
 
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
 	public class SslStreamTestParametersAttribute : TestParameterAttribute, ITestParameterSource<SslStreamTestParameters>
 	{
 		public ConnectionTestType? Type {

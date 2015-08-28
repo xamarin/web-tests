@@ -78,9 +78,9 @@ namespace Xamarin.WebTests.Server
 			get { return provider; }
 		}
 
-		public HttpServer CreateServer (IPortableEndPoint endpoint, ListenerFlags flags, ServerParameters parameters)
+		public HttpServer CreateServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, ListenerFlags flags, ConnectionParameters parameters)
 		{
-			return new HttpServer (this, endpoint, flags, parameters);
+			return new HttpServer (this, clientEndPoint, listenAddress, flags, parameters);
 		}
 	}
 }

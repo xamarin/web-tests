@@ -1,13 +1,41 @@
-﻿using System;
+﻿//
+// ClientAndServer.cs
+//
+// Author:
+//       Martin Baulig <martin.baulig@xamarin.com>
+//
+// Copyright (c) 2015 Xamarin, Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class ClientAndServer : Connection
+	using Providers;
+
+	public abstract class ClientAndServer : Connection
 	{
 		IServer server;
 		IClient client;
@@ -24,10 +52,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return server.SupportsCleanShutdown && client.SupportsCleanShutdown; }
 		}
 
-		new public ClientAndServerParameters Parameters {
-			get { return (ClientAndServerParameters)base.Parameters; }
-		}
-
 		public override ProtocolVersions SupportedProtocols {
 			get { return server.SupportedProtocols & client.SupportedProtocols; }
 		}
@@ -35,33 +59,17 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public ProtocolVersions? GetRequestedProtocol ()
 		{
 			var supported = SupportedProtocols;
-			var bothVersion = Parameters.ProtocolVersion;
-			var serverVersion = Parameters.ServerParameters.ProtocolVersion;
-			var clientVersion = Parameters.ServerParameters.ProtocolVersion;
+			var requested = Parameters.ProtocolVersion;
 
-			if (bothVersion != null) {
-				bothVersion &= supported;
-				return bothVersion;
-			}
-
-			if (serverVersion != null) {
-				serverVersion &= supported;
-				if (clientVersion != null)
-					serverVersion &= clientVersion;
-				return serverVersion;
-			}
-
-			if (clientVersion != null) {
-					clientVersion &= supported;
-				if (serverVersion != null)
-					clientVersion &= serverVersion;
-				return clientVersion;
+			if (requested != null) {
+				requested &= supported;
+				return requested;
 			}
 
 			return null;
 		}
 
-		public ClientAndServer (IServer server, IClient client, ClientAndServerParameters parameters)
+		public ClientAndServer (IServer server, IClient client, ConnectionParameters parameters)
 			: base (server.EndPoint, parameters)
 		{
 			this.server = server;
@@ -72,18 +80,65 @@ namespace Xamarin.WebTests.ConnectionFramework
 				if (requested == ProtocolVersions.Unspecified)
 					throw new NotSupportedException ("Incompatible protocol versions between client and server.");
 				Parameters.ProtocolVersion = requested.Value;
-				Parameters.ServerParameters.ProtocolVersion = requested.Value;
-				Parameters.ClientParameters.ProtocolVersion = requested.Value;
 			}
 		}
 
-		public ClientAndServer (IServer server, IClient client)
-			: this (server, client, new ClientAndServerParameters (client.Parameters, server.Parameters))
+		public bool IsManualClient {
+			get { return Client.Provider.Type == ConnectionProviderType.Manual; }
+		}
+
+		public bool IsManualServer {
+			get { return Server.Provider.Type == ConnectionProviderType.Manual; }
+		}
+
+		public bool IsManualConnection {
+			get { return IsManualClient || IsManualServer; }
+		}
+
+		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
+			try {
+				await WaitForConnection (ctx, cancellationToken);
+			} catch (ConnectionFinishedException) {
+				return;
+			}
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			await OnRun (ctx, cancellationToken);
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			await MainLoop (ctx, cancellationToken);
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			if (SupportsCleanShutdown)
+				await Shutdown (ctx, cancellationToken);
 		}
 
 		protected virtual void InitializeConnection (TestContext ctx)
 		{
+		}
+
+		protected virtual Task OnRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return FinishedTask;
+		}
+
+		protected abstract Task MainLoop (TestContext ctx, CancellationToken cancellationToken);
+
+		protected virtual void OnWaitForServerConnectionCompleted (TestContext ctx, Task task)
+		{
+			if (task.IsFaulted)
+				throw task.Exception;
+
+			ctx.Assert (task.Status, Is.EqualTo (TaskStatus.RanToCompletion), "expecting success");
+		}
+
+		protected virtual void OnWaitForClientConnectionCompleted (TestContext ctx, Task task)
+		{
+			if (task.IsFaulted)
+				throw task.Exception;
+
+			ctx.Assert (task.Status, Is.EqualTo (TaskStatus.RanToCompletion), "expecting success");
 		}
 
 		public override async Task Start (TestContext ctx, CancellationToken cancellationToken)
@@ -96,12 +151,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		protected virtual Task WaitForServerConnection (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return server.WaitForConnection (ctx, cancellationToken);
+			var task = server.WaitForConnection (ctx, cancellationToken);
+			return task.ContinueWith (t => OnWaitForServerConnectionCompleted (ctx, t));
 		}
 
 		protected virtual Task WaitForClientConnection (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return client.WaitForConnection (ctx, cancellationToken);
+			var task = client.WaitForConnection (ctx, cancellationToken);
+			return task.ContinueWith (t => OnWaitForClientConnectionCompleted (ctx, t));
 		}
 
 		public override async Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken)
@@ -133,6 +190,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var serverShutdown = server.Shutdown (ctx, cancellationToken);
 			await Task.WhenAll (clientShutdown, serverShutdown);
 			return clientShutdown.Result && serverShutdown.Result;
+		}
+
+		protected class ConnectionFinishedException : Exception
+		{
 		}
 	}
 }

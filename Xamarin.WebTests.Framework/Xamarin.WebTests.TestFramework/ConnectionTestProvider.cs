@@ -1,5 +1,5 @@
 ﻿//
-// ClientAndServerType.cs
+// ConnectionTestProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,28 +24,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
+using System.Text;
 
-namespace Xamarin.WebTests.Providers
+namespace Xamarin.WebTests.TestFramework
 {
-	public struct ClientAndServerType : ITestParameter
+	using ConnectionFramework;
+	using Features;
+	using Providers;
+
+	[ConnectionTestProvider (Identifier = "ClientAndServerProvider")]
+	public class ConnectionTestProvider : ClientAndServerProvider
 	{
-		public readonly ConnectionProviderType Client;
-		public readonly ConnectionProviderType Server;
-
-		public ClientAndServerType (ConnectionProviderType client, ConnectionProviderType server)
-		{
-			Client = client;
-			Server = server;
+		public ConnectionTestCategory Category {
+			get;
+			private set;
 		}
 
-		public string Value {
-			get { return string.Format ("{0}:{1}", Client, Server); }
+		public ConnectionTestFlags Flags {
+			get;
+			private set;
 		}
 
-		public override string ToString ()
+		static string GetFlagsName (ConnectionTestFlags flags)
 		{
-			return string.Format ("[ClientAndServerType: Client={0}, Server={1}]", Client, Server);
+			if ((flags & ConnectionTestFlags.ManualClient) != 0)
+				return ":ManualClient";
+			else if ((flags & ConnectionTestFlags.ManualServer) != 0)
+				return ":ManuelServer";
+			else
+				return string.Empty;
+		}
+
+		public ConnectionTestProvider (ConnectionProvider client, ConnectionProvider server, ConnectionTestCategory category, ConnectionTestFlags flags)
+			: base (client, server, string.Format ("{0}:{1}:{2}{3}", client.Name, server.Name, category, GetFlagsName (flags)))
+		{
+			Category = category;
+			Flags = flags;
 		}
 	}
 }

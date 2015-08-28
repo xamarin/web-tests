@@ -1,5 +1,5 @@
 ﻿//
-// ClientFlags.cs
+// ConnectionTestFlagsAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,16 +24,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.Features
 {
-	[Flags]
-	public enum ClientFlags
-	{
-		None			= 0,
+	using ConnectionFramework;
+	using TestFramework;
 
-		ExpectWebException	= 1,
-		ExpectTrustFailure	= 2
+	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
+	public class ConnectionTestFlagsAttribute : FixedTestParameterAttribute
+	{
+		public override Type Type {
+			get { return typeof(ConnectionTestFlags); }
+		}
+
+		public override object Value {
+			get { return flags; }
+		}
+
+		public override string Identifier {
+			get { return identifier; }
+		}
+
+		public ConnectionTestFlags Flags {
+			get { return flags; }
+		}
+
+		readonly string identifier;
+		readonly ConnectionTestFlags flags;
+
+		public ConnectionTestFlagsAttribute (ConnectionTestFlags flags)
+		{
+			this.flags = flags;
+			this.identifier = Type.Name;
+		}
 	}
 }
 

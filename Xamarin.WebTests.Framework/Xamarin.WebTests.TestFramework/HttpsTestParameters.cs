@@ -1,5 +1,5 @@
 ﻿//
-// HttpsTestType.cs
+// HttpsTestParameters.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,23 +25,51 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	public enum ConnectionTestType
-	{
-		Default,
-		AcceptFromLocalCA,
-		NoValidator,
-		RejectAll,
-		UnrequestedClientCertificate,
-		RequestClientCertificate,
-		RequireClientCertificate,
-		OptionalClientCertificate,
-		RejectClientCertificate,
-		MissingClientCertificate,
+	using ConnectionFramework;
+	using Features;
+	using Portable;
 
-		InvalidServerCertificate,
-		MartinTest
+	[HttpsTestParameters]
+	public class HttpsTestParameters : ConnectionTestParameters
+	{
+		public ConnectionTestType Type {
+			get;
+			private set;
+		}
+
+		public HttpsTestParameters (ConnectionTestCategory category, ConnectionTestType type, string identifier, IServerCertificate certificate)
+			: base (category, identifier, certificate)
+		{
+			Type = type;
+		}
+
+		protected HttpsTestParameters (HttpsTestParameters other)
+			: base (other)
+		{
+			Type = other.Type;
+			ExpectWebException = other.ExpectWebException;
+			ExpectTrustFailure = other.ExpectTrustFailure;
+			ClientAbortsHandshake = other.ClientAbortsHandshake;
+		}
+
+		public override ConnectionParameters DeepClone ()
+		{
+			return new HttpsTestParameters (this);
+		}
+
+		public bool ExpectWebException {
+			get; set;
+		}
+
+		public bool ExpectTrustFailure {
+			get; set;
+		}
+
+		public bool ClientAbortsHandshake {
+			get; set;
+		}
 	}
 }
 

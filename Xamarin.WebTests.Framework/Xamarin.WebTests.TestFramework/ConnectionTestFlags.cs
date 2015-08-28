@@ -1,5 +1,5 @@
 ﻿//
-// HttpsTestParameters.cs
+// ConnectionTestFlags.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,33 +25,16 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	using Portable;
-
-	public class HttpsTestParameters : ConnectionTestParameters
+	[Flags]
+	public enum ConnectionTestFlags
 	{
-		public ConnectionTestType Type {
-			get;
-			private set;
-		}
-
-		public HttpsTestParameters (ConnectionTestCategory category, ConnectionTestType type, string identifier, IServerCertificate certificate)
-			: base (category, identifier, certificate)
-		{
-			Type = type;
-		}
-
-		protected HttpsTestParameters (HttpsTestParameters other)
-			: base (other)
-		{
-			Type = other.Type;
-		}
-
-		public override ConnectionParameters DeepClone ()
-		{
-			return new HttpsTestParameters (this);
-		}
+		None = 0,
+		ManualClient = 1,
+		ManualServer = 2,
+		RequireSslStream = 4,
+		RequireHttp = 8
 	}
 }
 

@@ -41,6 +41,7 @@ using Xamarin.AsyncTests.Framework;
 namespace Xamarin.WebTests.TestRunners
 {
 	using ConnectionFramework;
+	using TestFramework;
 	using HttpFramework;
 	using HttpHandlers;
 	using Features;
@@ -48,22 +49,17 @@ namespace Xamarin.WebTests.TestRunners
 	using Portable;
 	using Resources;
 
+	[HttpsTestRunner]
 	[FriendlyName ("[HttpsTestRunner]")]
 	public class HttpsTestRunner : HttpServer
 	{
-		public ClientAndServerParameters Parameters {
-			get;
-			private set;
+		new public HttpsTestParameters Parameters {
+			get { return (HttpsTestParameters)base.Parameters; }
 		}
 
-		public ClientParameters ClientParameters {
-			get { return Parameters.ClientParameters; }
-		}
-
-		public HttpsTestRunner (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, ClientAndServerParameters parameters)
-			: base (provider, endpoint, flags, parameters.ServerParameters)
+		public HttpsTestRunner (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, HttpsTestParameters parameters)
+			: base (provider, endpoint, endpoint, flags, parameters)
 		{
-			Parameters = parameters;
 		}
 
 		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object[] args)
@@ -101,14 +97,14 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestType.NoValidator:
 				// The default validator only allows ResourceManager.SelfSignedServerCertificate.
 				return new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
-					ClientFlags = ClientFlags.ExpectTrustFailure, ServerFlags = ServerFlags.ClientAbortsHandshake
+					ExpectTrustFailure = true, ClientAbortsHandshake = true
 				};
 
 			case ConnectionTestType.RejectAll:
 				// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientFlags = ClientFlags.ExpectTrustFailure, ClientCertificateValidator = rejectAll,
-					ServerFlags = ServerFlags.ClientAbortsHandshake
+					ExpectTrustFailure = true, ClientCertificateValidator = rejectAll,
+					ClientAbortsHandshake = true
 				};
 
 			case ConnectionTestType.UnrequestedClientCertificate:
@@ -127,14 +123,14 @@ namespace Xamarin.WebTests.TestRunners
 				 */
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
-					ServerFlags = ServerFlags.AskForClientCertificate, ServerCertificateValidator = acceptFromLocalCA
+					AskForClientCertificate = true, ServerCertificateValidator = acceptFromLocalCA
 				};
 
 			case ConnectionTestType.RequireClientCertificate:
 				// Require client certificate.
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
-					ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.RequireClientCertificate,
+					AskForClientCertificate = true, RequireClientCertificate = true,
 					ServerCertificateValidator = acceptFromLocalCA
 				};
 
@@ -149,7 +145,7 @@ namespace Xamarin.WebTests.TestRunners
 				 * Mono with the old TLS implementation throws SecureChannelFailure.
 				 */
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptSelfSigned, ServerFlags = ServerFlags.AskForClientCertificate,
+					ClientCertificateValidator = acceptSelfSigned, AskForClientCertificate = true,
 					ServerCertificateValidator = acceptNull
 				};
 
@@ -157,16 +153,16 @@ namespace Xamarin.WebTests.TestRunners
 				// Reject client certificate.
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
-					ClientFlags = ClientFlags.ExpectWebException, ServerCertificateValidator = rejectAll,
-					ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException
+					ExpectWebException = true, ServerCertificateValidator = rejectAll,
+					AskForClientCertificate = true, ClientAbortsHandshake = true
 				};
 
 			case ConnectionTestType.MissingClientCertificate:
 				// Missing client certificate.
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptSelfSigned, ClientFlags = ClientFlags.ExpectWebException,
-					ServerFlags = ServerFlags.AskForClientCertificate | ServerFlags.RequireClientCertificate |
-						ServerFlags.ClientAbortsHandshake | ServerFlags.ExpectServerException
+					ClientCertificateValidator = acceptSelfSigned, ExpectWebException = true,
+					AskForClientCertificate = true, RequireClientCertificate = true,
+					ClientAbortsHandshake = true
 				};
 
 			default:
@@ -183,9 +179,9 @@ namespace Xamarin.WebTests.TestRunners
 		public Task Run (TestContext ctx, Handler handler, CancellationToken cancellationToken)
 		{
 			var impl = new TestRunnerImpl (this, handler);
-			if ((ClientParameters.Flags & ClientFlags.ExpectTrustFailure) != 0)
+			if (Parameters.ExpectTrustFailure)
 				return impl.Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
-			else if ((ClientParameters.Flags & ClientFlags.ExpectWebException) != 0)
+			else if (Parameters.ExpectWebException)
 				return impl.Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.AnyErrorStatus);
 			else
 				return impl.Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);
@@ -205,7 +201,7 @@ namespace Xamarin.WebTests.TestRunners
 				 *
 				 */
 				var haveReq = connection.HasRequest();
-				if ((ServerParameters.Flags & ServerFlags.ClientAbortsHandshake) != 0) {
+				if (Parameters.ClientAbortsHandshake) {
 					ctx.Assert (haveReq, Is.False, "expected client to abort handshake");
 					return null;
 				} else {
@@ -213,7 +209,7 @@ namespace Xamarin.WebTests.TestRunners
 				}
 				return connection;
 			} catch {
-				if ((ServerParameters.Flags & ServerFlags.ClientAbortsHandshake) != 0)
+				if (Parameters.ClientAbortsHandshake)
 					return null;
 				throw;
 			}
@@ -222,7 +218,7 @@ namespace Xamarin.WebTests.TestRunners
 		protected override bool HandleConnection (TestContext ctx, HttpConnection connection)
 		{
 			ctx.Expect (connection.SslStream.IsAuthenticated, "server is authenticated");
-			if ((ServerParameters.Flags & ServerFlags.RequireClientCertificate) != 0)
+			if (Parameters.RequireClientCertificate)
 				ctx.Expect (connection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
 
 			return base.HandleConnection (ctx, connection);
@@ -235,11 +231,11 @@ namespace Xamarin.WebTests.TestRunners
 
 			var request = new TraditionalRequest (webRequest);
 
-			if (ClientParameters.ClientCertificateValidator != null)
-				request.Request.InstallCertificateValidator (ClientParameters.ClientCertificateValidator);
+			if (Parameters.ClientCertificateValidator != null)
+				request.Request.InstallCertificateValidator (Parameters.ClientCertificateValidator);
 
-			if (ClientParameters.ClientCertificate != null)
-				request.Request.SetClientCertificates (new IClientCertificate[] { ClientParameters.ClientCertificate });
+			if (Parameters.ClientCertificate != null)
+				request.Request.SetClientCertificates (new IClientCertificate[] { Parameters.ClientCertificate });
 
 			return request;
 		}
@@ -253,12 +249,12 @@ namespace Xamarin.WebTests.TestRunners
 
 			var certificate = traditionalRequest.Request.GetCertificate ();
 			ctx.Assert (certificate, Is.Not.Null, "certificate");
-			ctx.Assert (provider.AreEqual (certificate, ServerParameters.ServerCertificate), "correct certificate");
+			ctx.Assert (provider.AreEqual (certificate, Parameters.ServerCertificate), "correct certificate");
 
 			var clientCertificate = traditionalRequest.Request.GetClientCertificate ();
-			if (((ServerParameters.Flags & (ServerFlags.AskForClientCertificate|ServerFlags.RequireClientCertificate)) != 0) && ClientParameters.ClientCertificate != null) {
+			if ((Parameters.AskForClientCertificate || Parameters.RequireClientCertificate) && Parameters.ClientCertificate != null) {
 				ctx.Assert (clientCertificate, Is.Not.Null, "client certificate");
-				ctx.Assert (provider.AreEqual (clientCertificate, ClientParameters.ClientCertificate), "correct client certificate");
+				ctx.Assert (provider.AreEqual (clientCertificate, Parameters.ClientCertificate), "correct client certificate");
 			}
 
 			return response;

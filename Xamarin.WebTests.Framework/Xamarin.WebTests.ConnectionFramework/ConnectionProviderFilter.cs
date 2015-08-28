@@ -1,5 +1,5 @@
 ﻿//
-// ClientAndServerConnectionTypeAttribute.cs
+// ConnectionProviderFilter.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,41 +27,36 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	using ConnectionFramework;
-	using TestRunners;
+	using Features;
 	using Providers;
 
-	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class ClientAndServerConnectionTypeAttribute : TestParameterAttribute, ITestParameterSource<ClientAndServerConnectionType>
+	public abstract class ConnectionProviderFilter
 	{
-		public ClientAndServerConnectionTypeAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (filter, flags)
-		{
-		}
+		public abstract bool IsClientSupported (TestContext ctx, ConnectionProvider provider, string filter = null);
 
-		bool MatchesFilter (ConnectionProviderType type, string filter)
+		public abstract bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter = null);
+
+		protected static bool? MatchesFilter (ConnectionProvider provider, string filter)
 		{
 			if (filter == null)
-				return true;
+				return null;
 
 			var parts = filter.Split (',');
 			foreach (var part in parts) {
-				if (type.ToString ().Equals (part))
+				if (string.Equals (provider.Name, part, StringComparison.OrdinalIgnoreCase))
 					return true;
 			}
 
 			return false;
 		}
 
-		public IEnumerable<ClientAndServerConnectionType> GetParameters (TestContext ctx, string filter)
-		{
-			var category = ctx.GetParameter<ConnectionTestCategory> ();
+		protected abstract ClientAndServerProvider Create (ConnectionProvider client, ConnectionProvider server);
 
+		public IEnumerable<ClientAndServerProvider> GetSupportedProviders (TestContext ctx, string filter)
+		{
 			string clientFilter, serverFilter;
 			if (filter == null)
 				clientFilter = serverFilter = null;
@@ -76,25 +71,18 @@ namespace Xamarin.WebTests.Features
 			}
 
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-			var providers = factory.GetProviders ();
 
-			var supportedClientProviders = providers.Where (p => {
-				if (!string.IsNullOrEmpty (clientFilter))
-					return MatchesFilter (p, clientFilter);
-				else if (factory.IsExplicit (p))
-					return false;
-				return ConnectionTestRunner.IsClientSupported (ctx, category, p);
+			var clientProviders = factory.GetProviders (p => IsClientSupported (ctx, p, clientFilter));
+			var serverProviders = factory.GetProviders (p => IsServerSupported (ctx, p, serverFilter));
+
+			return ConnectionTestFeatures.Join (clientProviders, serverProviders, (c, s) => {
+				if (!c.IsCompatibleWith (s.Type))
+					return null;
+				if (!s.IsCompatibleWith (c.Type))
+					return null;
+				return Create (c, s);
 			});
-
-			var supportedServerProviders = providers.Where (p => {
-				if (!string.IsNullOrEmpty (serverFilter))
-					return MatchesFilter (p, serverFilter);
-				else if (factory.IsExplicit (p))
-					return false;
-				return ConnectionTestRunner.IsServerSupported (ctx, category, p);
-			});
-
-			return ConnectionTestFeatures.Join (supportedClientProviders, supportedServerProviders, (c, s) => new ClientAndServerConnectionType (category, c, s));
 		}
 	}
 }
+

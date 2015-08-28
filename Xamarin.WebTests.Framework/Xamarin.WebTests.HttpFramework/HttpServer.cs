@@ -49,12 +49,12 @@ namespace Xamarin.WebTests.HttpFramework
 	{
 		readonly Uri uri;
 		readonly ListenerFlags flags;
-		readonly ServerParameters parameters;
+		readonly ConnectionParameters parameters;
 		readonly IHttpProvider provider;
 		readonly ISslStreamProvider sslStreamProvider;
 		readonly IPortableWebSupport WebSupport;
 
-		IPortableEndPoint endpoint;
+		IPortableEndPoint listenAddress;
 		IListener listener;
 
 		TestContext currentCtx;
@@ -62,10 +62,10 @@ namespace Xamarin.WebTests.HttpFramework
 		static long nextId;
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
 
-		public HttpServer (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, ServerParameters parameters = null)
+		public HttpServer (IHttpProvider provider, IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, ListenerFlags flags, ConnectionParameters parameters = null)
 		{
 			this.provider = provider;
-			this.endpoint = endpoint;
+			this.listenAddress = listenAddress;
 			this.flags = flags;
 			this.parameters = parameters;
 
@@ -82,7 +82,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
 
-			uri = new Uri (string.Format ("http{0}://{1}:{2}/", sslStreamProvider != null ? "s" : "", endpoint.Address, endpoint.Port));
+			uri = new Uri (string.Format ("http{0}://{1}:{2}/", sslStreamProvider != null ? "s" : "", clientEndPoint.Address, clientEndPoint.Port));
 		}
 
 		protected IListener Listener {
@@ -93,8 +93,8 @@ namespace Xamarin.WebTests.HttpFramework
 			get { return provider; }
 		}
 
-		public IPortableEndPoint EndPoint {
-			get { return endpoint; }
+		public IPortableEndPoint ListenAddress {
+			get { return listenAddress; }
 		}
 
 		public bool UseSSL {
@@ -109,7 +109,7 @@ namespace Xamarin.WebTests.HttpFramework
 			get { return flags; }
 		}
 
-		public ServerParameters ServerParameters {
+		public ConnectionParameters Parameters {
 			get { return parameters; }
 		}
 
@@ -204,7 +204,7 @@ namespace Xamarin.WebTests.HttpFramework
 			if (sslStreamProvider == null)
 				return new HttpConnection (this, stream);
 
-			var sslStream = sslStreamProvider.CreateServerStream (stream, ServerParameters);
+			var sslStream = sslStreamProvider.CreateServerStream (stream, parameters);
 			return new HttpConnection (this, sslStream.AuthenticatedStream, sslStream);
 		}
 

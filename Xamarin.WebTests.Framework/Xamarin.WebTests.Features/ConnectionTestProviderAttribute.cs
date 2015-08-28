@@ -1,5 +1,5 @@
 ﻿//
-// ServerFlags.cs
+// ConnectionTestProviderAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,19 +24,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Collections.Generic;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
+using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.Features
 {
-	[Flags]
-	public enum ServerFlags
+	using ConnectionFramework;
+	using TestFramework;
+	using TestRunners;
+	using Providers;
+
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
+	public class ConnectionTestProviderAttribute : TestParameterAttribute, ITestParameterSource<ConnectionTestProvider>
 	{
-		None				= 0,
+		public ConnectionTestProviderAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (filter, flags)
+		{
+		}
 
-		ExpectServerException		= 1,
-		ClientAbortsHandshake		= 2,
+		public IEnumerable<ConnectionTestProvider> GetParameters (TestContext ctx, string argument)
+		{
+			var category = ctx.GetParameter<ConnectionTestCategory> ();
+			ConnectionTestFlags flags;
+			if (!ctx.TryGetParameter<ConnectionTestFlags> (out flags))
+				flags = ConnectionTestFlags.None;
 
-		AskForClientCertificate		= 4,
-		RequireClientCertificate	= 8
+			ConnectionProviderFilter filter;
+			if (!ctx.TryGetParameter<ConnectionProviderFilter> (out filter))
+				filter = new ConnectionTestProviderFilter (category, flags);
+
+			return filter.GetSupportedProviders (ctx, argument).Cast<ConnectionTestProvider> ();
+		}
 	}
 }
-

@@ -21,13 +21,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	public class DotNetClient : DotNetConnection, IClient
 	{
-		new public ClientParameters Parameters {
-			get { return (ClientParameters)base.Parameters; }
-		}
-
 		readonly ISslStreamProvider sslStreamProvider;
 
-		public DotNetClient (ConnectionProvider provider, ClientParameters parameters, ISslStreamProvider sslStreamProvider)
+		public DotNetClient (ConnectionProvider provider, ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
 			: base (provider, parameters)
 		{
 			this.sslStreamProvider = sslStreamProvider;

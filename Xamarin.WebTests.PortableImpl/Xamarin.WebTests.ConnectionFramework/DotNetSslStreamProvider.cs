@@ -46,7 +46,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return (SslProtocols)ServicePointManager.SecurityProtocol;
 		}
 
-		static RemoteCertificateValidationCallback GetValidationCallback (ServerParameters parameters)
+		static RemoteCertificateValidationCallback GetServerValidationCallback (ConnectionParameters parameters)
 		{
 			var validator = parameters.ServerCertificateValidator;
 			if (validator == null)
@@ -55,7 +55,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return ((CertificateValidator)validator).ValidationCallback;
 		}
 
-		static RemoteCertificateValidationCallback GetValidationCallback (ClientParameters parameters)
+		static RemoteCertificateValidationCallback GetClientValidationCallback (ConnectionParameters parameters)
 		{
 			var validator = parameters.ClientCertificateValidator;
 			if (validator == null)
@@ -64,7 +64,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return ((CertificateValidator)validator).ValidationCallback;
 		}
 
-		static LocalCertificateSelectionCallback GetSelectionCallback (ClientParameters parameters)
+		static LocalCertificateSelectionCallback GetSelectionCallback (ConnectionParameters parameters)
 		{
 			var selector = parameters.ClientCertificateSelector;
 			if (selector == null)
@@ -73,7 +73,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return ((CertificateSelector)selector).SelectionCallback;
 		}
 
-		static X509Certificate2Collection GetClientCertificates (ClientParameters parameters)
+		static X509Certificate2Collection GetClientCertificates (ConnectionParameters parameters)
 		{
 			if (parameters.ClientCertificate == null)
 				return null;
@@ -103,14 +103,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return (SslProtocols)protocol;
 		}
 
-		public ISslStream CreateServerStream (Stream stream, ServerParameters parameters)
+		public ISslStream CreateServerStream (Stream stream, ConnectionParameters parameters)
 		{
 			var certificate = CertificateProvider.GetCertificate (parameters.ServerCertificate);
 
 			var protocol = GetProtocol (parameters);
-			var validator = GetValidationCallback (parameters);
+			var validator = GetServerValidationCallback (parameters);
 
-			var askForCert = (parameters.Flags & (ServerFlags.AskForClientCertificate|ServerFlags.RequireClientCertificate)) != 0;
+			var askForCert = parameters.AskForClientCertificate || parameters.RequireClientCertificate;
 
 			var sslStream = new SslStream (stream, false, validator);
 			sslStream.AuthenticateAsServer (certificate, askForCert, protocol, false);
@@ -119,14 +119,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public async Task<ISslStream> CreateServerStreamAsync (
-			Stream stream, ServerParameters parameters, CancellationToken cancellationToken)
+			Stream stream, ConnectionParameters parameters, CancellationToken cancellationToken)
 		{
 			var certificate = CertificateProvider.GetCertificate (parameters.ServerCertificate);
 
 			var protocol = GetProtocol (parameters);
-			var validator = GetValidationCallback (parameters);
+			var validator = GetServerValidationCallback (parameters);
 
-			var askForCert = (parameters.Flags & (ServerFlags.AskForClientCertificate|ServerFlags.RequireClientCertificate)) != 0;
+			var askForCert = parameters.AskForClientCertificate || parameters.RequireClientCertificate;
 
 			var sslStream = new SslStream (stream, false, validator);
 			await sslStream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false);
@@ -135,11 +135,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public async Task<ISslStream> CreateClientStreamAsync (
-			Stream stream, string targetHost, ClientParameters parameters, CancellationToken cancellationToken)
+			Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken)
 		{
 			var protocol = GetProtocol (parameters);
 			var clientCertificates = GetClientCertificates (parameters);
-			var validator = GetValidationCallback (parameters);
+			var validator = GetClientValidationCallback (parameters);
 			var selector = GetSelectionCallback (parameters);
 
 			var sslStream = new SslStream (stream, false, validator, selector);

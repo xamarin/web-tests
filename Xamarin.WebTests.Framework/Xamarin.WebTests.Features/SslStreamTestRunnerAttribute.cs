@@ -33,11 +33,13 @@ namespace Xamarin.WebTests.Features
 {
 	using TestRunners;
 	using ConnectionFramework;
+	using TestFramework;
 	using HttpFramework;
 	using Portable;
 	using Providers;
 	using Resources;
 
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
 	public class SslStreamTestRunnerAttribute : TestHostAttribute, ITestHost<SslStreamTestRunner>
 	{
 		public SslStreamTestRunnerAttribute ()
@@ -45,21 +47,10 @@ namespace Xamarin.WebTests.Features
 		{
 		}
 
-		public SslStreamTestRunnerAttribute (ConnectionFlags flags)
-			: base (typeof (SslStreamTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
-		{
-			ConnectionFlags = flags;
-		}
-
-		public ConnectionFlags? ConnectionFlags {
-			get;
-			private set;
-		}
-
 		public SslStreamTestRunner CreateInstance (TestContext ctx)
 		{
-			return ConnectionTestFeatures.CreateTestRunner<SslStreamTestParameters,SslStreamTestRunner> (
-				ctx, (s, c, p, f) => new SslStreamTestRunner (s, c, p, f), ConnectionFlags);
+			return ConnectionTestFeatures.CreateTestRunner<ConnectionTestProvider,SslStreamTestParameters,SslStreamTestRunner> (
+				ctx, (s, c, t, p) => new SslStreamTestRunner (s, c, t, p));
 		}
 	}
 }

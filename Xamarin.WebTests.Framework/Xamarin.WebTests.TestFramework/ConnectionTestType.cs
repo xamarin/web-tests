@@ -1,5 +1,5 @@
 ﻿//
-// ClientParameters.cs
+// HttpsTestType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,54 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
-using System.Collections.Generic;
-using Xamarin.AsyncTests;
-using Xamarin.WebTests.Portable;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	public class ClientParameters : ConnectionParameters
+	public enum ConnectionTestType
 	{
-		public ClientParameters (string identifier)
-			: base (identifier)
-		{
-		}
+		Default,
+		AcceptFromLocalCA,
+		NoValidator,
+		RejectAll,
+		UnrequestedClientCertificate,
+		RequestClientCertificate,
+		RequireClientCertificate,
+		OptionalClientCertificate,
+		RejectClientCertificate,
+		MissingClientCertificate,
 
-		protected ClientParameters (ClientParameters other)
-			: base (other)
-		{
-			TargetHost = other.TargetHost;
-			ClientCertificate = other.ClientCertificate;
-			ClientCertificateValidator = other.ClientCertificateValidator;
-			ClientCertificateSelector = other.ClientCertificateSelector;
-			Flags = other.Flags;
-		}
-
-		public override ConnectionParameters DeepClone ()
-		{
-			return new ClientParameters (this);
-		}
-
-		public string TargetHost {
-			get; set;
-		}
-
-		public IClientCertificate ClientCertificate {
-			get; set;
-		}
-
-		public ICertificateValidator ClientCertificateValidator {
-			get; set;
-		}
-
-		public ICertificateSelector ClientCertificateSelector {
-			get; set;
-		}
-
-		public ClientFlags Flags {
-			get; set;
-		}
+		InvalidServerCertificate,
+		MartinTest
 	}
 }
 

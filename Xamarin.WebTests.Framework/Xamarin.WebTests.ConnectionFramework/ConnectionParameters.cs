@@ -5,7 +5,7 @@ using Xamarin.WebTests.Providers;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public abstract class ConnectionParameters : ITestParameter, ICloneable
+	public class ConnectionParameters : ITestParameter, ICloneable
 	{
 		public string Identifier {
 			get;
@@ -16,17 +16,27 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return Identifier; }
 		}
 
-		public ConnectionParameters (string identifier)
+		public ConnectionParameters (string identifier, IServerCertificate serverCertificate)
 		{
 			Identifier = identifier;
+			ServerCertificate = serverCertificate;
 		}
 
 		protected ConnectionParameters (ConnectionParameters other)
 		{
 			Identifier = other.Identifier;
 			EndPoint = other.EndPoint;
+			ListenAddress = other.ListenAddress;
 			ProtocolVersion = other.ProtocolVersion;
 			UseStreamInstrumentation = other.UseStreamInstrumentation;
+			TargetHost = other.TargetHost;
+			ClientCertificate = other.ClientCertificate;
+			ClientCertificateValidator = other.ClientCertificateValidator;
+			ClientCertificateSelector = other.ClientCertificateSelector;
+			ServerCertificate = other.ServerCertificate;
+			ServerCertificateValidator = other.ServerCertificateValidator;
+			AskForClientCertificate = other.AskForClientCertificate;
+			RequireClientCertificate = other.RequireClientCertificate;
 		}
 
 		object ICloneable.Clone ()
@@ -34,9 +44,16 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return DeepClone ();
 		}
 
-		public abstract ConnectionParameters DeepClone ();
+		public virtual ConnectionParameters DeepClone ()
+		{
+			return new ConnectionParameters (this);
+		}
 
 		public IPortableEndPoint EndPoint {
+			get; set;
+		}
+
+		public IPortableEndPoint ListenAddress {
 			get; set;
 		}
 
@@ -45,6 +62,38 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public bool UseStreamInstrumentation {
+			get; set;
+		}
+
+		public string TargetHost {
+			get; set;
+		}
+
+		public IClientCertificate ClientCertificate {
+			get; set;
+		}
+
+		public ICertificateValidator ClientCertificateValidator {
+			get; set;
+		}
+
+		public ICertificateSelector ClientCertificateSelector {
+			get; set;
+		}
+
+		public IServerCertificate ServerCertificate {
+			get; set;
+		}
+
+		public ICertificateValidator ServerCertificateValidator {
+			get; set;
+		}
+
+		public bool AskForClientCertificate {
+			get; set;
+		}
+
+		public bool RequireClientCertificate {
 			get; set;
 		}
 	}

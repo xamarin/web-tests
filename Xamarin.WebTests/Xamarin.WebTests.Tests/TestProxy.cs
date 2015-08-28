@@ -69,7 +69,7 @@ namespace Xamarin.WebTests.Tests
 
 		readonly static IPortableEndPoint address;
 		readonly static IServerCertificate serverCertificate;
-		readonly static ServerParameters serverParameters;
+		readonly static ConnectionParameters serverParameters;
 		readonly static bool hasNetwork;
 
 		static TestProxy ()
@@ -80,7 +80,7 @@ namespace Xamarin.WebTests.Tests
 
 			var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
 			serverCertificate = webSupport.GetDefaultServerCertificate ();
-			serverParameters = new ServerParameters ("proxy", serverCertificate);
+			serverParameters = new ConnectionParameters ("proxy", serverCertificate);
 		}
 
 		public ProxyServer CreateInstance (TestContext ctx)
