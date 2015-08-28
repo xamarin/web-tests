@@ -106,7 +106,7 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			if (error != null)
 				return error;
-			if (Result == null)
+			if (Result == null || Session == null)
 				return null;
 
 			var sb = new StringBuilder ();
