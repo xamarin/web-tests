@@ -112,8 +112,8 @@ namespace Xamarin.AsyncTests.Console
 
 		public static void Run (Assembly assembly, string[] args)
 		{
-			SD.Debug.AutoFlush = true;
 			#if !MOBILE
+			SD.Debug.AutoFlush = true;
 			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
 			#endif
 
