@@ -1,5 +1,5 @@
 ﻿//
-// ManualClientAttribute.cs
+// IsSupportedConstraint.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,17 +25,38 @@
 // THE SOFTWARE.
 using System;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class ManualClientAttribute : TestCategoryAttribute
+	public class IsSupportedConstraint<T> : Constraint
 	{
-		public static readonly TestCategory Instance = new TestCategory ("ManualClient") { IsExplicit = true };
+		Func<T,bool> func;
 
-		public override TestCategory Category {
-			get { return Instance; }
+		public IsSupportedConstraint (Func<T,bool> func)
+		{
+			this.func = func;
 		}
+
+		#region implemented abstract members of Constraint
+
+		public override bool Evaluate (object actual, out string message)
+		{
+			if (func ((T)actual)) {
+				message = null;
+				return true;
+			}
+
+			message = string.Format ("Unsupported: '{0}'.", actual);
+			return false;
+		}
+
+		public override string Print ()
+		{
+			return string.Format ("IsSupported({0})", typeof(T).Name);
+		}
+
+		#endregion
 	}
 }
 

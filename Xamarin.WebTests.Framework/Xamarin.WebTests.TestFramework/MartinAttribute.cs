@@ -1,5 +1,5 @@
 ﻿//
-// ExperimentalAttribute.cs
+// MartinAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -26,13 +26,14 @@
 using System;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
-	public class ExperimentalAttribute : TestFeatureAttribute
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class MartinAttribute : TestCategoryAttribute
 	{
-		public static readonly TestFeature Instance = new TestFeature ("Experimental", "Experimental Tests", false);
+		public static readonly TestCategory Instance = new TestCategory ("Martin") { IsExplicit = true };
 
-		public override TestFeature Feature {
+		public override TestCategory Category {
 			get { return Instance; }
 		}
 	}

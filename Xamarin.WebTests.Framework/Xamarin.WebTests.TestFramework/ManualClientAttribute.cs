@@ -1,5 +1,5 @@
 ﻿//
-// IncludeNotWorkingAttribute.cs
+// ManualClientAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -26,14 +26,14 @@
 using System;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class IncludeNotWorkingAttribute : TestFeatureAttribute
+	public class ManualClientAttribute : TestCategoryAttribute
 	{
-		public static readonly TestFeature Instance = new TestFeature ("NotWorking", "Include not working tests");
+		public static readonly TestCategory Instance = new TestCategory ("ManualClient") { IsExplicit = true };
 
-		public override TestFeature Feature {
+		public override TestCategory Category {
 			get { return Instance; }
 		}
 	}

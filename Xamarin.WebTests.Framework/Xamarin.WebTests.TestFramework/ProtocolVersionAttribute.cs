@@ -1,5 +1,5 @@
 ﻿//
-// CommonHttpFeatures.cs
+// ProtocolVersionAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,54 +25,36 @@
 // THE SOFTWARE.
 using System;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
-	using HttpFramework;
-	using Portable;
-	using Providers;
 
-	static class CommonHttpFeatures
+	public class ProtocolVersionAttribute : FixedTestParameterAttribute
 	{
-		internal static IHttpProvider GetHttpProvider (TestContext ctx)
-		{
-			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-			IHttpProvider provider;
-			ConnectionProviderType providerType;
-			if (ctx.TryGetParameter (out providerType))
-				provider = factory.GetProvider (providerType).HttpProvider;
-			else
-				provider = factory.DefaultHttpProvider;
-
-			return provider;
+		public override Type Type {
+			get { return typeof(ProtocolVersions); }
 		}
 
-		internal static IPortableEndPoint GetEndPoint (TestContext ctx)
-		{
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			var port = ctx.GetUniquePort ();
-			return support.GetLoopbackEndpoint (port);
+		public override object Value {
+			get { return Protocol; }
 		}
 
-		internal static bool IsMicrosoftRuntime {
-			get { return DependencyInjector.Get<IPortableSupport> ().IsMicrosoftRuntime; }
+		public override string Identifier {
+			get { return identifier; }
 		}
 
-		internal static bool IsNewTls (ConnectionProviderType type)
+		public ProtocolVersions Protocol {
+			get { return protocol; }
+		}
+
+		readonly string identifier;
+		readonly ProtocolVersions protocol;
+
+		public ProtocolVersionAttribute (ProtocolVersions protocol)
 		{
-			switch (type) {
-			case ConnectionProviderType.DotNet:
-				return IsMicrosoftRuntime;
-			case ConnectionProviderType.NewTLS:
-			case ConnectionProviderType.MonoWithNewTLS:
-			case ConnectionProviderType.OpenSsl:
-				return true;
-			default:
-				return false;
-			}
+			this.protocol = protocol;
+			this.identifier = Type.Name;
 		}
 	}
 }

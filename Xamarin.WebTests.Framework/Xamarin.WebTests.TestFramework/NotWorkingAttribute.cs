@@ -1,5 +1,5 @@
 ﻿//
-// WorkAttribute.cs
+// NotWorkingAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -26,12 +26,12 @@
 using System;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class WorkAttribute : TestCategoryAttribute
+	public class NotWorkingAttribute : TestCategoryAttribute
 	{
-		public static readonly TestCategory Instance = new TestCategory ("Work");
+		public static readonly TestCategory Instance = new TestCategory ("NotWorking") { IsExplicit = true };
 
 		public override TestCategory Category {
 			get { return Instance; }

@@ -29,7 +29,6 @@ namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
 	using Portable;
-	using Features;
 
 	[SslStreamTestParameters]
 	public class SslStreamTestParameters : ConnectionTestParameters

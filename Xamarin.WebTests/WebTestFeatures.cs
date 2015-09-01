@@ -43,6 +43,7 @@ using Xamarin.WebTests.Providers;
 namespace Xamarin.WebTests
 {
 	using HttpFramework;
+	using TestFramework;
 	using Portable;
 	using Resources;
 	using Internal;
@@ -88,6 +89,7 @@ namespace Xamarin.WebTests
 					yield return features;
 
 				yield return SSL;
+				yield return MonoWithNewTlsAttribute.Instance;
 
 				yield return NTLM;
 				yield return Redirect;

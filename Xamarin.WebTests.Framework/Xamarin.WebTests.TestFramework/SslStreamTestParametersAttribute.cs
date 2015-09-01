@@ -28,10 +28,9 @@ using System.Linq;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
-	using TestFramework;
 	using TestRunners;
 
 	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]

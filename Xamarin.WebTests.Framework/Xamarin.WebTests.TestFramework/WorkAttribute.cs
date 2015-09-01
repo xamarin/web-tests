@@ -1,5 +1,5 @@
 ﻿//
-// HttpsTestParametersAttribute.cs
+// WorkAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,46 +24,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
-using System.Collections.Generic;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
-	using ConnectionFramework;
-	using TestFramework;
-	using TestRunners;
-
-	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
-	public class HttpsTestParametersAttribute : TestParameterAttribute, ITestParameterSource<HttpsTestParameters>
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class WorkAttribute : TestCategoryAttribute
 	{
-		public ConnectionTestType? Type {
-			get; set;
-		}
+		public static readonly TestCategory Instance = new TestCategory ("Work");
 
-		public HttpsTestParametersAttribute (string filter = null)
-			: base (filter, TestFlags.Browsable | TestFlags.ContinueOnError)
-		{
-		}
-
-		public HttpsTestParametersAttribute (ConnectionTestType type)
-			: base (null, TestFlags.Browsable | TestFlags.ContinueOnError)
-		{
-			Type = type;
-		}
-
-		public IEnumerable<HttpsTestParameters> GetParameters (TestContext ctx, string filter)
-		{
-			if (filter != null)
-				throw new NotImplementedException ();
-
-			var category = ctx.GetParameter<ConnectionTestCategory> ();
-
-			if (Type != null)
-				yield return HttpsTestRunner.GetParameters (ctx, category, Type.Value);
-
-			foreach (var type in ConnectionTestRunner.GetConnectionTestTypes (ctx, category))
-				yield return HttpsTestRunner.GetParameters (ctx, category, type);
+		public override TestCategory Category {
+			get { return Instance; }
 		}
 	}
 }
+

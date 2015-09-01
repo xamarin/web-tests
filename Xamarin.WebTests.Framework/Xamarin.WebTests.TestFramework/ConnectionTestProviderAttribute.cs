@@ -1,5 +1,5 @@
 ﻿//
-// NotWorkingAttribute.cs
+// ConnectionTestProviderAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,18 +24,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
+using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class NotWorkingAttribute : TestCategoryAttribute
-	{
-		public static readonly TestCategory Instance = new TestCategory ("NotWorking") { IsExplicit = true };
+	using ConnectionFramework;
+	using TestRunners;
+	using Providers;
 
-		public override TestCategory Category {
-			get { return Instance; }
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
+	public class ConnectionTestProviderAttribute : TestParameterAttribute, ITestParameterSource<ConnectionTestProvider>
+	{
+		public ConnectionTestProviderAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
+			: base (filter, flags)
+		{
+		}
+
+		public IEnumerable<ConnectionTestProvider> GetParameters (TestContext ctx, string argument)
+		{
+			var category = ctx.GetParameter<ConnectionTestCategory> ();
+			ConnectionTestFlags flags;
+			if (!ctx.TryGetParameter<ConnectionTestFlags> (out flags))
+				flags = ConnectionTestFlags.None;
+
+			ConnectionProviderFilter filter;
+			if (!ctx.TryGetParameter<ConnectionProviderFilter> (out filter))
+				filter = new ConnectionTestProviderFilter (category, flags);
+
+			return filter.GetSupportedProviders (ctx, argument).Cast<ConnectionTestProvider> ();
 		}
 	}
 }
-

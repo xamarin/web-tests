@@ -31,7 +31,6 @@ namespace Xamarin.WebTests.TestRunners
 {
 	using ConnectionFramework;
 	using TestFramework;
-	using Features;
 	using Providers;
 	using Resources;
 	using Portable;
@@ -116,8 +115,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		public static bool IsSupported (TestContext ctx, ConnectionTestCategory category, ConnectionProvider provider)
 		{
-			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
-			var isNewTls = CommonHttpFeatures.IsNewTls (provider.Type);
+			var isNewTls = ConnectionTestHelper.IsNewTls (provider.Type);
 
 			var flags = provider.Flags;
 			var supportsSslStream = ((flags & ConnectionProviderFlags.SupportsSslStream) != 0);
@@ -128,7 +126,7 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.HttpsWithMono:
 				return supportsSslStream;
 			case ConnectionTestCategory.HttpsWithDotNet:
-				return supportsSslStream && (isNewTls || includeNotWorking);
+				return supportsSslStream && isNewTls;
 			case ConnectionTestCategory.SslStreamWithTls12:
 			case ConnectionTestCategory.InvalidCertificatesInTls12:
 				return supportsSslStream && isNewTls;

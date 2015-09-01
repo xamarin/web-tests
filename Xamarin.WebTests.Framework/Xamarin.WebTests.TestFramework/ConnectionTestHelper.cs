@@ -29,32 +29,25 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
 	using Portable;
 	using Providers;
 	using TestRunners;
-	using TestFramework;
 	using ConnectionFramework;
 
-	public static class ConnectionTestFeatures
+	public static class ConnectionTestHelper
 	{
 		static readonly ConnectionProviderFactory Factory;
-		static readonly Constraint isProviderSupported;
 
-		static ConnectionTestFeatures ()
+		static ConnectionTestHelper ()
 		{
 			Factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-			isProviderSupported = new IsSupportedConstraint<ConnectionProviderType> (f => Factory.IsSupported (f));
 		}
 
 		public static ConnectionProviderFlags GetProviderFlags (ConnectionProviderType type)
 		{
 			return Factory.GetProviderFlags (type);
-		}
-
-		public static Constraint IsProviderSupported {
-			get { return isProviderSupported; }
 		}
 
 		public static IHttpProvider GetHttpProvider (TestContext ctx)
@@ -108,7 +101,7 @@ namespace Xamarin.WebTests.Features
 			} else if (parameters.ListenAddress != null)
 				parameters.EndPoint = parameters.ListenAddress;
 			else
-				parameters.EndPoint = CommonHttpFeatures.GetEndPoint (ctx);
+				parameters.EndPoint = GetEndPoint (ctx);
 
 			var server = serverProvider.CreateServer (parameters);
 
@@ -117,6 +110,30 @@ namespace Xamarin.WebTests.Features
 			return constructor (server, client, provider, parameters);
 		}
 
+		public static IPortableEndPoint GetEndPoint (TestContext ctx)
+		{
+			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+			var port = ctx.GetUniquePort ();
+			return support.GetLoopbackEndpoint (port);
+		}
+
+		public static bool IsMicrosoftRuntime {
+			get { return DependencyInjector.Get<IPortableSupport> ().IsMicrosoftRuntime; }
+		}
+
+		public static bool IsNewTls (ConnectionProviderType type)
+		{
+			switch (type) {
+			case ConnectionProviderType.DotNet:
+				return IsMicrosoftRuntime;
+			case ConnectionProviderType.NewTLS:
+			case ConnectionProviderType.MonoWithNewTLS:
+			case ConnectionProviderType.OpenSsl:
+				return true;
+			default:
+				return false;
+			}
+		}
 		public static IEnumerable<R> Join<T,U,R> (IEnumerable<T> first, IEnumerable<U> second, Func<T, U, R> resultSelector, bool filterOutNull = true) {
 			foreach (var e1 in first) {
 				foreach (var e2 in second) {

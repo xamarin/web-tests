@@ -30,7 +30,6 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Providers;
-	using Features;
 
 	public abstract class ClientAndServerProvider : ITestParameter
 	{

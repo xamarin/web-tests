@@ -29,6 +29,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Features
 {
+	using TestFramework;
 	using TestRunners;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]

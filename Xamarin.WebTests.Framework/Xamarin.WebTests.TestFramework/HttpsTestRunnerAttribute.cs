@@ -1,5 +1,5 @@
 ﻿//
-// ConnectionTestProviderAttribute.cs
+// HttpsServerAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,39 +24,55 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
-using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
-	using ConnectionFramework;
-	using TestFramework;
 	using TestRunners;
+	using ConnectionFramework;
+	using HttpFramework;
+	using Portable;
 	using Providers;
+	using Resources;
 
 	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
-	public class ConnectionTestProviderAttribute : TestParameterAttribute, ITestParameterSource<ConnectionTestProvider>
+	public class HttpsTestRunnerAttribute : TestHostAttribute, ITestHost<HttpsTestRunner>
 	{
-		public ConnectionTestProviderAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (filter, flags)
+		public HttpsTestRunnerAttribute ()
+			: base (typeof (HttpsTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
 		{
 		}
 
-		public IEnumerable<ConnectionTestProvider> GetParameters (TestContext ctx, string argument)
+		protected HttpsTestRunnerAttribute (Type type, TestFlags flags = TestFlags.Hidden | TestFlags.PathHidden)
+			: base (type, flags)
 		{
-			var category = ctx.GetParameter<ConnectionTestCategory> ();
-			ConnectionTestFlags flags;
-			if (!ctx.TryGetParameter<ConnectionTestFlags> (out flags))
-				flags = ConnectionTestFlags.None;
+		}
 
-			ConnectionProviderFilter filter;
-			if (!ctx.TryGetParameter<ConnectionProviderFilter> (out filter))
-				filter = new ConnectionTestProviderFilter (category, flags);
+		public HttpsTestRunner CreateInstance (TestContext ctx)
+		{
+			var httpProvider = ConnectionTestHelper.GetHttpProvider (ctx);
 
-			return filter.GetSupportedProviders (ctx, argument).Cast<ConnectionTestProvider> ();
+			var parameters = ctx.GetParameter<HttpsTestParameters> ();
+
+			ProtocolVersions protocolVersion;
+			if (ctx.TryGetParameter<ProtocolVersions> (out protocolVersion))
+				parameters.ProtocolVersion = protocolVersion;
+
+			if (parameters.EndPoint != null) {
+				if (parameters.TargetHost == null)
+					parameters.TargetHost = parameters.EndPoint.HostName;
+			} else if (parameters.ListenAddress != null)
+				parameters.EndPoint = parameters.ListenAddress;
+			else
+				parameters.EndPoint = ConnectionTestHelper.GetEndPoint (ctx);
+
+			var listenerFlags = ListenerFlags.SSL;
+
+			return new HttpsTestRunner (httpProvider, parameters.EndPoint, listenerFlags, parameters);
 		}
 	}
 }
+

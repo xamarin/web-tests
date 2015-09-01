@@ -31,6 +31,7 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.Features
 {
 	using ConnectionFramework;
+	using TestFramework;
 	using HttpFramework;
 	using Portable;
 	using Providers;
@@ -72,10 +73,23 @@ namespace Xamarin.WebTests.Features
 			return new ConnectionParameters ("http", certificate);
 		}
 
+		static IHttpProvider GetHttpProvider (TestContext ctx)
+		{
+			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
+			IHttpProvider provider;
+			ConnectionProviderType providerType;
+			if (ctx.TryGetParameter (out providerType))
+				provider = factory.GetProvider (providerType).HttpProvider;
+			else
+				provider = factory.DefaultHttpProvider;
+
+			return provider;
+		}
+
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			var endpoint = CommonHttpFeatures.GetEndPoint (ctx);
-			var httpProvider = CommonHttpFeatures.GetHttpProvider (ctx);
+			var endpoint = ConnectionTestHelper.GetEndPoint (ctx);
+			var httpProvider = GetHttpProvider (ctx);
 
 			var listenerFlags = GetListenerFlags (ctx);
 			var parameters = GetParameters (ctx);

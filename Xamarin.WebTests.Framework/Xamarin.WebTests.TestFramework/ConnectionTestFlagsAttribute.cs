@@ -1,5 +1,5 @@
 ﻿//
-// SslStreamTestRunnerAttribute.cs
+// ConnectionTestFlagsAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,32 +25,37 @@
 // THE SOFTWARE.
 using System;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
-	using TestRunners;
 	using ConnectionFramework;
-	using TestFramework;
-	using HttpFramework;
-	using Portable;
-	using Providers;
-	using Resources;
 
-	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
-	public class SslStreamTestRunnerAttribute : TestHostAttribute, ITestHost<SslStreamTestRunner>
+	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
+	public class ConnectionTestFlagsAttribute : FixedTestParameterAttribute
 	{
-		public SslStreamTestRunnerAttribute ()
-			: base (typeof (SslStreamTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
-		{
+		public override Type Type {
+			get { return typeof(ConnectionTestFlags); }
 		}
 
-		public SslStreamTestRunner CreateInstance (TestContext ctx)
+		public override object Value {
+			get { return flags; }
+		}
+
+		public override string Identifier {
+			get { return identifier; }
+		}
+
+		public ConnectionTestFlags Flags {
+			get { return flags; }
+		}
+
+		readonly string identifier;
+		readonly ConnectionTestFlags flags;
+
+		public ConnectionTestFlagsAttribute (ConnectionTestFlags flags)
 		{
-			return ConnectionTestFeatures.CreateTestRunner<ConnectionTestProvider,SslStreamTestParameters,SslStreamTestRunner> (
-				ctx, (s, c, t, p) => new SslStreamTestRunner (s, c, t, p));
+			this.flags = flags;
+			this.identifier = Type.Name;
 		}
 	}
 }

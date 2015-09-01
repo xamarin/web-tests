@@ -1,5 +1,5 @@
 ﻿//
-// HttpsServerAttribute.cs
+// SslStreamTestRunnerAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -29,50 +29,27 @@ using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
 	using TestRunners;
 	using ConnectionFramework;
-	using TestFramework;
 	using HttpFramework;
 	using Portable;
 	using Providers;
 	using Resources;
 
 	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
-	public class HttpsTestRunnerAttribute : TestHostAttribute, ITestHost<HttpsTestRunner>
+	public class SslStreamTestRunnerAttribute : TestHostAttribute, ITestHost<SslStreamTestRunner>
 	{
-		public HttpsTestRunnerAttribute ()
-			: base (typeof (HttpsTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
+		public SslStreamTestRunnerAttribute ()
+			: base (typeof (SslStreamTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
 		{
 		}
 
-		protected HttpsTestRunnerAttribute (Type type, TestFlags flags = TestFlags.Hidden | TestFlags.PathHidden)
-			: base (type, flags)
+		public SslStreamTestRunner CreateInstance (TestContext ctx)
 		{
-		}
-
-		public HttpsTestRunner CreateInstance (TestContext ctx)
-		{
-			var httpProvider = ConnectionTestFeatures.GetHttpProvider (ctx);
-
-			var parameters = ctx.GetParameter<HttpsTestParameters> ();
-
-			ProtocolVersions protocolVersion;
-			if (ctx.TryGetParameter<ProtocolVersions> (out protocolVersion))
-				parameters.ProtocolVersion = protocolVersion;
-
-			if (parameters.EndPoint != null) {
-				if (parameters.TargetHost == null)
-					parameters.TargetHost = parameters.EndPoint.HostName;
-			} else if (parameters.ListenAddress != null)
-				parameters.EndPoint = parameters.ListenAddress;
-			else
-				parameters.EndPoint = CommonHttpFeatures.GetEndPoint (ctx);
-
-			var listenerFlags = ListenerFlags.SSL;
-
-			return new HttpsTestRunner (httpProvider, parameters.EndPoint, listenerFlags, parameters);
+			return ConnectionTestHelper.CreateTestRunner<ConnectionTestProvider,SslStreamTestParameters,SslStreamTestRunner> (
+				ctx, (s, c, t, p) => new SslStreamTestRunner (s, c, t, p));
 		}
 	}
 }

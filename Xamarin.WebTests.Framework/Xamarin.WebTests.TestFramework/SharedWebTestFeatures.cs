@@ -29,7 +29,7 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
 	using Portable;
 
@@ -54,7 +54,6 @@ namespace Xamarin.WebTests.Features
 
 				yield return ExperimentalAttribute.Instance;
 				yield return IncludeNotWorkingAttribute.Instance;
-				yield return MonoWithNewTlsAttribute.Instance;
 
 				yield return ManualSslStreamAttribute.Instance;
 			}

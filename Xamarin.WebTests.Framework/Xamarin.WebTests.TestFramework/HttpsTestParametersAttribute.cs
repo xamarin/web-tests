@@ -1,5 +1,5 @@
 ﻿//
-// ConnectionTestFlagsAttribute.cs
+// HttpsTestParametersAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,40 +24,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
-	using TestFramework;
+	using TestRunners;
 
-	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
-	public class ConnectionTestFlagsAttribute : FixedTestParameterAttribute
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
+	public class HttpsTestParametersAttribute : TestParameterAttribute, ITestParameterSource<HttpsTestParameters>
 	{
-		public override Type Type {
-			get { return typeof(ConnectionTestFlags); }
+		public ConnectionTestType? Type {
+			get; set;
 		}
 
-		public override object Value {
-			get { return flags; }
-		}
-
-		public override string Identifier {
-			get { return identifier; }
-		}
-
-		public ConnectionTestFlags Flags {
-			get { return flags; }
-		}
-
-		readonly string identifier;
-		readonly ConnectionTestFlags flags;
-
-		public ConnectionTestFlagsAttribute (ConnectionTestFlags flags)
+		public HttpsTestParametersAttribute (string filter = null)
+			: base (filter, TestFlags.Browsable | TestFlags.ContinueOnError)
 		{
-			this.flags = flags;
-			this.identifier = Type.Name;
+		}
+
+		public HttpsTestParametersAttribute (ConnectionTestType type)
+			: base (null, TestFlags.Browsable | TestFlags.ContinueOnError)
+		{
+			Type = type;
+		}
+
+		public IEnumerable<HttpsTestParameters> GetParameters (TestContext ctx, string filter)
+		{
+			if (filter != null)
+				throw new NotImplementedException ();
+
+			var category = ctx.GetParameter<ConnectionTestCategory> ();
+
+			if (Type != null)
+				yield return HttpsTestRunner.GetParameters (ctx, category, Type.Value);
+
+			foreach (var type in ConnectionTestRunner.GetConnectionTestTypes (ctx, category))
+				yield return HttpsTestRunner.GetParameters (ctx, category, type);
 		}
 	}
 }
-
