@@ -57,6 +57,8 @@
     <Compile Include="Xamarin.WebTests.Tests\TestHttps.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestSslStream.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestChunked.cs" />
+    <Compile Include="Xamarin.WebTests.Features\SSLAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.Features\CertificateTestsAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
@@ -77,5 +79,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Xamarin.WebTests.Internal\" />
+    <Folder Include="Xamarin.WebTests.Features\" />
   </ItemGroup>
 </Project>

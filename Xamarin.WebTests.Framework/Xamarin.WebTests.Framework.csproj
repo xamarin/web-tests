@@ -145,9 +145,6 @@
     <Compile Include="Xamarin.WebTests.Features\MartinAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\SharedWebTestFeatures.cs" />
     <Compile Include="Xamarin.WebTests.Features\ExperimentalAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.Features\IWebTestFeatures.cs" />
-    <Compile Include="Xamarin.WebTests.Features\SSLAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.Features\CertificateTestsAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\ManualSslStreamAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServer.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderFilter.cs" />

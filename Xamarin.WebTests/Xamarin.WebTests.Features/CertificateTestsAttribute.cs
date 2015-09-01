@@ -1,5 +1,5 @@
 ﻿//
-// IWebTestFeatures.cs
+// CertificateTestsAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -28,14 +28,11 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Features
 {
-	public interface IWebTestFeatures
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class CertificateTestsAttribute : TestFeatureAttribute
 	{
-		TestFeature SSL {
-			get;
-		}
-
-		TestFeature CertificateTests {
-			get;
+		public override TestFeature Feature {
+			get { return WebTestFeatures.Instance.CertificateTests; }
 		}
 	}
 }

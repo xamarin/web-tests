@@ -33,7 +33,7 @@ namespace Xamarin.WebTests.Features
 {
 	using Portable;
 
-	public abstract class SharedWebTestFeatures : ITestConfigurationProvider, IWebTestFeatures
+	public abstract class SharedWebTestFeatures : ITestConfigurationProvider
 	{
 		public readonly TestFeature HasNetwork;
 
@@ -45,19 +45,8 @@ namespace Xamarin.WebTests.Features
 			get;
 		}
 
-		public abstract TestFeature SSL {
-			get;
-		}
-
-		public TestFeature CertificateTests {
-			get;
-			private set;
-		}
-
 		public virtual IEnumerable<TestFeature> Features {
 			get {
-				yield return SSL;
-
 				yield return HasNetwork;
 				yield return Mono38;
 				yield return Mono381;
@@ -68,8 +57,6 @@ namespace Xamarin.WebTests.Features
 				yield return MonoWithNewTlsAttribute.Instance;
 
 				yield return ManualSslStreamAttribute.Instance;
-
-				yield return CertificateTests;
 			}
 		}
 
@@ -86,16 +73,12 @@ namespace Xamarin.WebTests.Features
 
 		public SharedWebTestFeatures ()
 		{
-			DependencyInjector.RegisterDependency<IWebTestFeatures> (() => this);
-
 			Mono38 = new TestFeature (
 				"Mono38", "Mono 3.8.0", () => HasMonoVersion (new Version (3, 8, 0)));
 			Mono381 = new TestFeature (
 				"Mono381", "Mono 3.8.1", () => HasMonoVersion (new Version (3, 8, 1)));
 			Mono361 = new TestFeature (
 				"Mono361", "Mono 3.6.1", () => HasMonoVersion (new Version (3, 6, 1)));
-			CertificateTests = new TestFeature (
-				"CertificateTests", "Whether the SSL Certificate tests are supported", () => SupportsCertificateTests ());
 			HasNetwork = new TestFeature ("Network", "HasNetwork", () => IsNetworkAvailable ());
 		}
 
@@ -103,12 +86,6 @@ namespace Xamarin.WebTests.Features
 		{
 			var support = DependencyInjector.Get<IPortableWebSupport> ();
 			return support.HasNetwork;
-		}
-
-		protected virtual bool SupportsCertificateTests ()
-		{
-			var support = DependencyInjector.Get<IPortableWebSupport> ();
-			return support.SupportsPerRequestCertificateValidator;
 		}
 
 		protected virtual bool HasMonoVersion (Version version)

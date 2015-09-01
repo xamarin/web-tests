@@ -68,8 +68,13 @@ namespace Xamarin.WebTests
 
 		readonly TestFeature sslFeature = new TestFeature ("SSL", "Use SSL", true);
 
-		public override TestFeature SSL {
+		public TestFeature SSL {
 			get { return sslFeature; }
+		}
+
+		public TestFeature CertificateTests {
+			get;
+			private set;
 		}
 
 		#region ITestConfigurationProvider implementation
@@ -82,11 +87,15 @@ namespace Xamarin.WebTests
 				foreach (var features in base.Features)
 					yield return features;
 
+				yield return SSL;
+
 				yield return NTLM;
 				yield return Redirect;
 				yield return Proxy;
 				yield return ProxyAuth;
 				yield return ReuseConnection;
+
+				yield return CertificateTests;
 			}
 		}
 
@@ -244,9 +253,18 @@ namespace Xamarin.WebTests
 			}
 		}
 
+		bool SupportsCertificateTests ()
+		{
+			var support = DependencyInjector.Get<IPortableWebSupport> ();
+			return support.SupportsPerRequestCertificateValidator;
+		}
+
 		public WebTestFeatures ()
 		{
 			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandlerImpl ());
+
+			CertificateTests = new TestFeature (
+				"CertificateTests", "Whether the SSL Certificate tests are supported", () => SupportsCertificateTests ());
 		}
 	}
 }
