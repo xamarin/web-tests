@@ -30,7 +30,9 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Collections.Generic;
 using System.Reflection;
+#if !MOBILE
 using SD = System.Diagnostics;
+#endif
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -209,7 +211,11 @@ namespace Xamarin.AsyncTests.Console
 
 		static void Debug (string message, params object[] args)
 		{
+			#if !MOBILE
 			SD.Debug.WriteLine (message, args);
+			#else
+			global::System.Console.WriteLine (message, args);
+			#endif
 		}
 
 		static IPEndPoint GetEndPoint (string text)
