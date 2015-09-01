@@ -70,7 +70,6 @@ namespace Xamarin.WebTests.Features
 				yield return ManualSslStreamAttribute.Instance;
 
 				yield return CertificateTests;
-				yield return PuppyAttribute.Instance;
 			}
 		}
 

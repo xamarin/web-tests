@@ -56,7 +56,6 @@
     <Compile Include="Xamarin.WebTests.Internal\NTLMHandlerImpl.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttps.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestSslStream.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestPuppy.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestChunked.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

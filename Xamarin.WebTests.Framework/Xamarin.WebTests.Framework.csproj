@@ -122,8 +122,6 @@
     <Compile Include="Xamarin.WebTests.Providers\ConnectionProvider.cs" />
     <Compile Include="Xamarin.WebTests.Providers\ConnectionProviderFlags.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ProtocolVersions.cs" />
-    <Compile Include="Xamarin.WebTests.Features\PuppyAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestRunners\PuppyTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\ChunkedTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\ChunkContentType.cs" />
     <Compile Include="Xamarin.WebTests.Providers\IStreamProvider.cs" />
