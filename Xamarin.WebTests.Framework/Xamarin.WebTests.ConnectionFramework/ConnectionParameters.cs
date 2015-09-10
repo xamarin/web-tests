@@ -37,6 +37,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			ServerCertificateValidator = other.ServerCertificateValidator;
 			AskForClientCertificate = other.AskForClientCertificate;
 			RequireClientCertificate = other.RequireClientCertificate;
+			EnableDebugging = other.EnableDebugging;
 		}
 
 		object ICloneable.Clone ()
@@ -95,6 +96,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public bool RequireClientCertificate {
 			get; set;
+		}
+
+		public bool EnableDebugging {
+			get;
+			set;
 		}
 	}
 }
