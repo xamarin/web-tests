@@ -45,7 +45,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal static void Debug (string message, params object[] args)
 		{
-			// System.Diagnostics.Debug.WriteLine (string.Format (message, args));
+			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
 		}
 
 		internal static XElement SerializePath (TestPath path)
