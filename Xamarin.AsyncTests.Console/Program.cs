@@ -263,7 +263,7 @@ namespace Xamarin.AsyncTests.Console
 
 		void CheckSettingsFile ()
 		{
-			if (SettingsFile != null)
+			if (SettingsFile != null || Assembly == null)
 				return;
 
 			var name = Assembly.GetName ().Name;
