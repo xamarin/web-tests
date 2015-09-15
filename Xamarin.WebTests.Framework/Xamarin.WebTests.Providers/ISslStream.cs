@@ -29,6 +29,7 @@ using System.IO;
 namespace Xamarin.WebTests.Providers
 {
 	using ConnectionFramework;
+	using Portable;
 
 	public interface ISslStream
 	{
@@ -45,6 +46,10 @@ namespace Xamarin.WebTests.Providers
 		}
 
 		bool HasRemoteCertificate {
+			get;
+		}
+
+		ICertificate RemoteCertificate {
 			get;
 		}
 

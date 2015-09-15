@@ -26,10 +26,12 @@
 using System;
 using System.IO;
 using System.Net.Security;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Providers;
+	using Portable;
 
 	class DotNetSslStream : ISslStream
 	{
@@ -54,6 +56,17 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public bool HasRemoteCertificate {
 			get { return stream.RemoteCertificate != null; }
+		}
+
+		public ICertificate RemoteCertificate {
+			get {
+				var certificate = stream.RemoteCertificate;
+				if (certificate == null)
+					throw new InvalidOperationException ();
+
+				var provider = DependencyInjector.Get<ICertificateProvider> ();
+				return provider.GetCertificateFromData (certificate.GetRawCertData ());
+			}
 		}
 
 		public Stream AuthenticatedStream {
