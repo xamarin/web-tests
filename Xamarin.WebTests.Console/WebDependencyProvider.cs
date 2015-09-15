@@ -33,6 +33,7 @@ using Xamarin.WebTests.MacUI;
 #elif !__MOBILE__
 using Xamarin.AsyncTests.Console;
 #endif
+using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests.Portable;
 
 [assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
@@ -51,6 +52,7 @@ namespace Xamarin.WebTests.TestProvider
 	{
 		public void Initialize ()
 		{
+			DependencyInjector.RegisterDependency<IPortableSupport> (() => new PortableSupportImpl ());
 			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
 			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());
 			DependencyInjector.RegisterDependency<ICertificateProvider> (() => new CertificateProvider ());
