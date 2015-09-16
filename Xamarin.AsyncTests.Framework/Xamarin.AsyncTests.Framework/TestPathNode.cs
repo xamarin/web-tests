@@ -118,7 +118,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (parameters == null || parameters.Count == 0)
 				return this;
 
-			foreach (var parameter in parameters) {
+			foreach (var parameter in parameters.ToArray ()) {
 				if (parameter.Path.Parameter.Value == value)
 					return parameter;
 			}
@@ -130,10 +130,10 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			Resolve (ctx);
 
-			if (parameterized)
+			if (parameterized || parameters == null || parameters.Count == 0)
 				yield break;
 
-			foreach (var parameter in parameters) {
+			foreach (var parameter in parameters.ToArray ()) {
 				yield return parameter;
 			}
 		}
