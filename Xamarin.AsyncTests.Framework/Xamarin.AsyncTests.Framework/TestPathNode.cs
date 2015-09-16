@@ -115,6 +115,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		TestPathNode Parameterize (string value)
 		{
+			if (parameters == null || parameters.Count == 0)
+				return this;
+
 			foreach (var parameter in parameters) {
 				if (parameter.Path.Parameter.Value == value)
 					return parameter;
