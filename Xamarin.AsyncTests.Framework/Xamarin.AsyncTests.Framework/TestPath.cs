@@ -163,6 +163,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		public T GetParameter<T> ()
 		{
+			if (Parameter == null)
+				return default (T);
+
 			var typeInfo = typeof(T).GetTypeInfo ();
 			if (typeInfo.IsEnum)
 				return (T)Enum.Parse (typeof (T), Parameter.Value);
