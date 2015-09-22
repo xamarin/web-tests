@@ -31,13 +31,15 @@ namespace Xamarin.AsyncTests
 {
 	public class TestNameBuilder
 	{
+		string localName;
 		Stack<string> parts = new Stack<string> ();
 		Stack<TestName.Parameter> parameters = new Stack<TestName.Parameter> ();
 
 		public TestName GetName ()
 		{
 			var name = string.Join (".", parts.Reverse ());
-			return new TestName (name, parameters.Reverse ().ToArray ());
+			var newLocalName = string.IsNullOrEmpty (localName) || parts.Count > 1 ? parts.First () : localName;
+			return new TestName (newLocalName, name, parameters.Reverse ().ToArray ());
 		}
 
 		public static TestNameBuilder CreateFromName (TestName name)
@@ -56,6 +58,7 @@ namespace Xamarin.AsyncTests
 
 		public void Merge (TestName name)
 		{
+			localName = name.InternalLocalName;
 			if (!string.IsNullOrEmpty (name.Name))
 				PushName (name.Name);
 			if (name.HasParameters) {

@@ -54,11 +54,15 @@ namespace Xamarin.AsyncTests.MacUI
 			private set;
 		}
 
-		public TestResultModel (TestSession session, TestResult result, TestName name = null)
+		readonly string name;
+
+		public TestResultModel (TestSession session, TestResult result, TestName testName = null)
 		{
 			Session = session;
 			Result = result;
-			TestName = name ?? result.Name;
+			TestName = testName ?? result.Name;
+
+			name = TestName.IsNullOrEmpty (TestName) ? string.Empty : TestName.LocalName;
 		}
 
 		protected override IEnumerable<TestListNode> ResolveChildren ()
@@ -67,7 +71,7 @@ namespace Xamarin.AsyncTests.MacUI
 		}
 
 		public override string Name {
-			get { return TestName.IsNullOrEmpty (TestName) ? "ROOT" : TestName.FullName; }
+			get { return name; }
 		}
 
 		public override TestStatus TestStatus {

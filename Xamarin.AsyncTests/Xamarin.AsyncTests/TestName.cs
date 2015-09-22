@@ -50,6 +50,9 @@ namespace Xamarin.AsyncTests
 			get { return Parameters.Where (p => !p.IsHidden); }
 		}
 
+		static int nextId;
+		public readonly int ID = ++nextId;
+
 		public static TestName Empty = new TestName (string.Empty);
 
 		public static bool IsNullOrEmpty (TestName name)
@@ -69,7 +72,20 @@ namespace Xamarin.AsyncTests
 			IsEmpty = string.IsNullOrEmpty (name) && parameters.Length == 0;
 		}
 
+		internal TestName (string localName, string fullName, params Parameter[] parameters)
+			: this (fullName, parameters)
+		{
+			this.localName = localName;
+		}
+
 		string fullName;
+		string fullLocalName;
+		string localName;
+
+		internal string InternalLocalName {
+			get { return localName; }
+		}
+
 		public string FullName {
 			get {
 				if (fullName == null)
@@ -78,11 +94,34 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public string LocalName {
+			get {
+				if (fullLocalName == null)
+					fullLocalName = GetLocalName ();
+				return fullLocalName;
+			}
+		}
+
 		string GetFullName ()
 		{
 			if (Parameters == null || Parameters.Length == 0)
 				return Name;
 			var sb = new StringBuilder (Name);
+			AppendParameters (sb);
+			return sb.ToString ();
+		}
+
+		string GetLocalName ()
+		{
+			if (Parameters == null || Parameters.Length == 0)
+				return localName;
+			var sb = new StringBuilder (localName);
+			AppendParameters (sb);
+			return sb.ToString ();
+		}
+
+		void AppendParameters (StringBuilder sb)
+		{
 			sb.Append ("(");
 			bool first = true;
 			for (int i = 0; i < Parameters.Length; i++) {
@@ -95,7 +134,6 @@ namespace Xamarin.AsyncTests
 				sb.Append (Parameters [i].Value);
 			}
 			sb.Append (")");
-			return sb.ToString ();
 		}
 
 		public class Parameter
