@@ -417,7 +417,7 @@ namespace Xamarin.AsyncTests.Console
 			session = TestSession.CreateLocal (this, framework);
 			OnSessionCreated (session);
 
-			var test = await session.GetRootTestCase (cancellationToken);
+			var test = session.RootTestCase;
 
 			Debug ("Got test: {0}", test);
 			var start = DateTime.Now;
@@ -448,7 +448,7 @@ namespace Xamarin.AsyncTests.Console
 			if (OnSessionCreated (session))
 				await session.UpdateSettings (cancellationToken);
 
-			var test = await session.GetRootTestCase (cancellationToken);
+			var test = session.RootTestCase;
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			Debug ("Got test: {0}", test);
