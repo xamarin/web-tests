@@ -34,7 +34,9 @@ namespace Xamarin.WebTests.Providers
 		SupportsSslStream	= 1,
 		SupportsHttp		= 2,
 		SupportsTls12		= 4,
-		IsExplicit		= 8
+		SupportsAeadCiphers	= 8,
+		SupportsEcDheCiphers	= 16,
+		IsExplicit		= 32
 	}
 }
 

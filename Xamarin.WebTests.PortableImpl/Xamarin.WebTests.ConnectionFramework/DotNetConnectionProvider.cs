@@ -50,26 +50,27 @@ namespace Xamarin.WebTests.ConnectionFramework
 				protocols |= ProtocolVersions.Tls11 | ProtocolVersions.Tls12;
 		}
 
+		static bool IsMicrosoftRuntime {
+			get { return DependencyInjector.Get<IPortableSupport> ().IsMicrosoftRuntime; }
+		}
+
 		static ConnectionProviderFlags GetFlags ()
 		{
 			var flags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp;
-			var support = DependencyInjector.Get<IPortableSupport> ();
-			if (support.IsMicrosoftRuntime)
-				flags |= ConnectionProviderFlags.SupportsTls12;
+			if (IsMicrosoftRuntime)
+				flags |= ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers | ConnectionProviderFlags.SupportsEcDheCiphers;
 			return flags;
 		}
 
 		public override bool IsCompatibleWith (ConnectionProviderType type)
 		{
-			var support = DependencyInjector.Get<IPortableSupport> ();
-
 			switch (type) {
 			case ConnectionProviderType.DotNet:
 				return true;
 			case ConnectionProviderType.NewTLS:
-				return support.IsMicrosoftRuntime;
+				return IsMicrosoftRuntime;
 			case ConnectionProviderType.OpenSsl:
-				return !support.IsMicrosoftRuntime;
+				return !IsMicrosoftRuntime;
 			case ConnectionProviderType.Manual:
 				return true;
 			default:
