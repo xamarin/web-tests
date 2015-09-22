@@ -35,6 +35,8 @@ namespace Xamarin.AsyncTests.MacUI
 			base.AwakeFromNib ();
 
 			Initialize ();
+
+			ReloadSession ();
 		}
 
 		void Initialize ()
@@ -50,24 +52,25 @@ namespace Xamarin.AsyncTests.MacUI
 			SplitView.AddSubview (TestResultList);
 			SplitView.AddSubview (TestResultDetails);
 
-			app.Delegate.AddObserver (this, (NSString)app.CurrentSessionKey, NSKeyValueObservingOptions.New, IntPtr.Zero);
+			app.SessionChangedEvent += (sender, e) => OnSessionChanged (e);
+
+			app.Settings.SessionChangedEvent += (sender, e) => ReloadSession ();
 		}
 
-		public override void ObserveValue (NSString keyPath, NSObject ofObject, NSDictionary change, IntPtr context)
+		void ReloadSession ()
 		{
-			var app = MacUI.AppDelegate;
-			if (string.Equals (keyPath, app.CurrentSessionKey)) {
-				OnTestSuiteLoaded (app.CurrentSession);
-			} else {
-				// would otherwise crash in native code.
-				throw new InvalidOperationException ();
-			}
+			WillChangeValue (SettingsDialogController.CurrentCategoryKey);
+			WillChangeValue (SettingsDialogController.TestCategoriesArrayKey);
+			DidChangeValue (SettingsDialogController.TestCategoriesArrayKey);
+			DidChangeValue (SettingsDialogController.CurrentCategoryKey);
 		}
 
-		void OnTestSuiteLoaded (TestSessionModel session)
+		void OnSessionChanged (TestSession session)
 		{
 			if (session != null) {
-				TestResultController.AddObject (session);
+				var test = session.RootTestCase;
+				if (test != null)
+					TestResultController.AddObject (new TestCaseModel (session, test));
 			} else {
 				var array = (NSArray)TestResultController.Content;
 				var length = (int)array.Count;
@@ -104,8 +107,7 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			var doc = XDocument.Load (filename);
 			var result = TestSerializer.ReadTestResult (doc.Root);
-			var currentSession = MacUI.AppDelegate.CurrentSession;
-			var session = currentSession != null ? currentSession.Session : null;
+			var session = MacUI.AppDelegate.CurrentSession;
 			var model = new TestResultModel (session, result);
 			TestResultController.AddObject (model);
 		}
@@ -163,6 +165,17 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			var ui = MacUI.Instance;
 			await ui.TestRunner.Stop.Execute ();
+		}
+
+		[Export (SettingsDialogController.TestCategoriesArrayKey)]
+		public NSMutableArray TestCategoriesArray {
+			get { return MacUI.AppDelegate.Settings.TestCategoriesArray; }
+		}
+
+		[Export (SettingsDialogController.CurrentCategoryKey)]
+		public TestCategoryModel CurrentCategory {
+			get { return MacUI.AppDelegate.Settings.CurrentCategory; }
+			set { MacUI.AppDelegate.Settings.CurrentCategory = value; }
 		}
 	}
 }

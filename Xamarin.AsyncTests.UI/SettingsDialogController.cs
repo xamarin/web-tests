@@ -17,6 +17,10 @@ namespace Xamarin.AsyncTests.MacUI
 		NSMutableArray testCategoriesArray;
 		NSMutableArray testFeaturesArray;
 		TestCategoryModel currentCategory;
+		TestCategoryModel allCategory;
+		bool fullyLoaded;
+
+		public event EventHandler<TestSession> SessionChangedEvent;
 
 		public static MacUI MacUI {
 			get { return MacUI.Instance; }
@@ -77,52 +81,75 @@ namespace Xamarin.AsyncTests.MacUI
 			testFeaturesArray = new NSMutableArray ();
 		}
 
-		TestCategoryModel allCategory;
-
-		public override void AwakeFromNib ()
+		public void DidFinishLaunching ()
 		{
-			base.AwakeFromNib ();
-
 			var ui = MacUI.Instance;
 			ui.ServerManager.TestSession.PropertyChanged += (sender, e) => OnTestSessionChanged (e);
 			OnTestSessionChanged (ui.ServerManager.TestSession.Value);
 		}
 
+		public override void AwakeFromNib ()
+		{
+			base.AwakeFromNib ();
+			fullyLoaded = true;
+			DidFinishLaunching ();
+		}
+
 		void OnTestSessionChanged (TestSession session)
 		{
+			var newCategoriesArray = new NSMutableArray ();
+			newCategoriesArray.Add (allCategory);
+			var newCurrentCategory = allCategory;
+
 			if (session != null) {
 				Configuration = session.Configuration;
 				foreach (var category in Configuration.Categories) {
 					var model = new TestCategoryModel (category);
-					CategoriesController.AddObject (model);
+					newCategoriesArray.Add (model);
 					if (category == Configuration.CurrentCategory)
-						CurrentCategory = model;
+						newCurrentCategory = model;
 				}
 
-				foreach (var feature in Configuration.Features) {
-					var model = new TestFeatureModel (feature);
-					FeaturesController.AddObject (model);
+				if (fullyLoaded) {
+					foreach (var feature in Configuration.Features) {
+						var model = new TestFeatureModel (feature);
+						FeaturesController.AddObject (model);
+					}
 				}
 			} else {
 				Configuration = null;
-				var categoryRange = new NSRange (1, CategoriesController.ArrangedObjects ().Length - 1);
-				CategoriesController.Remove (NSIndexSet.FromNSRange (categoryRange));
 
-				var featureRange = new NSRange (0, FeaturesController.ArrangedObjects ().Length);
-				FeaturesController.Remove (NSIndexSet.FromNSRange (featureRange));
-
-				CurrentCategory = allCategory;
+				if (fullyLoaded) {
+					var featureRange = new NSRange (0, FeaturesController.ArrangedObjects ().Length);
+					FeaturesController.Remove (NSIndexSet.FromNSRange (featureRange));
+				}
 			}
+
+			WillChangeValue (CurrentCategoryKey);
+			WillChangeValue (TestCategoriesArrayKey);
+			currentCategory = newCurrentCategory;
+			testCategoriesArray = newCategoriesArray;
+			DidChangeValue (TestCategoriesArrayKey);
+			DidChangeValue (CurrentCategoryKey);
+
+			if (SessionChangedEvent != null)
+				SessionChangedEvent (this, session);
 		}
 
 		public new SettingsDialog Window {
 			get { return (SettingsDialog)base.Window; }
 		}
 
-		[Export ("TestCategoriesArray")]
+		internal const string TestCategoriesArrayKey = "TestCategoriesArray";
+
+		[Export (TestCategoriesArrayKey)]
 		public NSMutableArray TestCategoriesArray {
 			get { return testCategoriesArray; }
-			set { testCategoriesArray = value; }
+			set {
+				WillChangeValue (TestCategoriesArrayKey);
+				testCategoriesArray = value;
+				DidChangeValue (TestCategoriesArrayKey);
+			}
 		}
 
 		[Export ("ServerModeArray")]
@@ -142,15 +169,17 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
-		[Export ("CurrentCategory")]
+		internal const string CurrentCategoryKey = "CurrentCategory";
+
+		[Export (CurrentCategoryKey)]
 		public TestCategoryModel CurrentCategory {
 			get { return currentCategory; }
 			set {
-				WillChangeValue ("CurrentCategory");
+				WillChangeValue (CurrentCategoryKey);
 				currentCategory = value;
 				if (Configuration != null)
 					Configuration.CurrentCategory = value.Category;
-				DidChangeValue ("CurrentCategory");
+				DidChangeValue (CurrentCategoryKey);
 			}
 		}
 
@@ -330,7 +359,7 @@ namespace Xamarin.AsyncTests.MacUI
 			var session = MacUI.AppDelegate.CurrentSession;
 			if (session == null)
 				return;
-			session.Session.UpdateSettings (CancellationToken.None);
+			session.UpdateSettings (CancellationToken.None);
 		}
 	}
 }

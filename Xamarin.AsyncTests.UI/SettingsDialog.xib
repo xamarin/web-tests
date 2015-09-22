@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14C109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
+        <deployment identifier="macosx"/>
         <development version="5000" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="SettingsDialogController">
             <connections>
-                <outlet property="CategoriesController" destination="fK4-jb-ZhC" id="3iT-Kg-kFG"/>
                 <outlet property="FeaturesController" destination="Vqq-7d-jab" id="meq-fU-jCz"/>
                 <outlet property="window" destination="2" id="6"/>
             </connections>
@@ -96,8 +96,8 @@
                             </menu>
                         </popUpButtonCell>
                         <connections>
-                            <binding destination="-2" name="selectedObject" keyPath="CurrentCategory" previousBinding="eKm-Pc-B3k" id="7xd-Me-Fv8"/>
-                            <binding destination="fK4-jb-ZhC" name="content" keyPath="arrangedObjects" id="eKm-Pc-B3k"/>
+                            <binding destination="-2" name="selectedObject" keyPath="CurrentCategory" previousBinding="mk7-KT-ii6" id="W1q-TT-Dlp"/>
+                            <binding destination="-2" name="content" keyPath="TestCategoriesArray" id="mk7-KT-ii6"/>
                         </connections>
                     </popUpButton>
                     <scrollView borderType="none" autohidesScrollers="YES" horizontalLineScroll="20" horizontalPageScroll="10" verticalLineScroll="20" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ilG-dS-Rhu">
@@ -107,10 +107,10 @@
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="sequential" columnReordering="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="18" id="dSI-K6-eJI">
-                                    <rect key="frame" x="0.0" y="0.0" width="229" height="20"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="534" height="20"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
-                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                     <tableColumns>
                                         <tableColumn editable="NO" width="20" minWidth="20" maxWidth="20" id="VCd-4G-FBE">
@@ -194,12 +194,12 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                         <connections>
-                            <binding destination="-2" name="value" keyPath="TestSuite" id="b7j-Hp-X18"/>
                             <binding destination="-2" name="enabled" keyPath="CurrentServerMode" id="V1e-V3-KB5">
                                 <dictionary key="options">
                                     <string key="NSValueTransformerName">ServerModeIsLocalValueTransformer</string>
                                 </dictionary>
                             </binding>
+                            <binding destination="-2" name="value" keyPath="TestSuite" id="b7j-Hp-X18"/>
                         </connections>
                     </textField>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="29U-RY-Oaj">
@@ -270,12 +270,12 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                         <connections>
-                            <binding destination="-2" name="value" keyPath="LauncherPath" id="gRY-Ju-k0b"/>
                             <binding destination="-2" name="enabled" keyPath="CurrentServerMode" id="nge-w7-frP">
                                 <dictionary key="options">
                                     <string key="NSValueTransformerName">ServerModeIsLocalValueTransformer</string>
                                 </dictionary>
                             </binding>
+                            <binding destination="-2" name="value" keyPath="LauncherPath" id="gRY-Ju-k0b"/>
                         </connections>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="apd-Y7-ARb">
@@ -294,12 +294,12 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                         <connections>
-                            <binding destination="-2" name="value" keyPath="MonoRuntime" id="V5y-Bh-yI0"/>
                             <binding destination="-2" name="enabled" keyPath="CurrentServerMode" id="IJA-py-zaA">
                                 <dictionary key="options">
                                     <string key="NSValueTransformerName">ServerModeIsLocalValueTransformer</string>
                                 </dictionary>
                             </binding>
+                            <binding destination="-2" name="value" keyPath="MonoRuntime" id="V5y-Bh-yI0"/>
                         </connections>
                     </textField>
                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fU3-7b-Rq2">
@@ -366,12 +366,12 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                         <connections>
+                            <binding destination="-2" name="value" keyPath="AndroidEndpoint" id="D3O-r2-bIt"/>
                             <binding destination="-2" name="enabled" keyPath="CurrentServerMode" id="qMO-Ic-b5J">
                                 <dictionary key="options">
                                     <string key="NSValueTransformerName">ServerModeIsAndroidValueTransformer</string>
                                 </dictionary>
                             </binding>
-                            <binding destination="-2" name="value" keyPath="AndroidEndpoint" id="D3O-r2-bIt"/>
                         </connections>
                     </textField>
                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="MhS-sd-x1y">
@@ -412,8 +412,8 @@
                             </menu>
                         </popUpButtonCell>
                         <connections>
-                            <binding destination="nFE-QX-5Yd" name="content" keyPath="arrangedObjects" id="fxD-zm-isy"/>
-                            <binding destination="-2" name="selectedObject" keyPath="CurrentServerMode" previousBinding="fxD-zm-isy" id="fRH-ac-enW"/>
+                            <binding destination="-2" name="selectedObject" keyPath="CurrentServerMode" previousBinding="GZr-96-hW8" id="Vq4-3h-UNP"/>
+                            <binding destination="-2" name="content" keyPath="ServerModeArray" id="GZr-96-hW8"/>
                         </connections>
                     </popUpButton>
                 </subviews>
@@ -510,16 +510,6 @@
             </view>
             <point key="canvasLocation" x="621" y="1187"/>
         </window>
-        <arrayController id="nFE-QX-5Yd" userLabel="ServerModeController">
-            <connections>
-                <binding destination="-2" name="contentArray" keyPath="ServerModeArray" id="hfa-Ts-Nry"/>
-            </connections>
-        </arrayController>
-        <arrayController objectClassName="TestCategoryNode" editable="NO" id="fK4-jb-ZhC" userLabel="CategoriesController">
-            <connections>
-                <binding destination="-2" name="contentArray" keyPath="TestCategoriesArray" id="mag-eK-PDX"/>
-            </connections>
-        </arrayController>
         <arrayController objectClassName="TestFeatureModel" editable="NO" id="Vqq-7d-jab" userLabel="FeaturesController">
             <connections>
                 <binding destination="-2" name="contentArray" keyPath="TestFeaturesArray" id="Vdg-qB-xeY"/>

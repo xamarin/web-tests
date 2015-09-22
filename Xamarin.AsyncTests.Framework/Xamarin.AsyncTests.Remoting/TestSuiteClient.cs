@@ -58,6 +58,10 @@ namespace Xamarin.AsyncTests.Remoting
 			private set;
 		}
 
+		public TestCase RootTestCase {
+			get { return Session.RootTestCase; }
+		}
+
 		public TestSuiteClient (TestSessionClient session, long objectID)
 		{
 			Session = session;
@@ -76,11 +80,6 @@ namespace Xamarin.AsyncTests.Remoting
 		internal static Task<TestSuiteClient> FromProxy (ObjectProxy proxy, CancellationToken cancellationToken)
 		{
 			return Task.FromResult ((TestSuiteClient)proxy);
-		}
-
-		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
-		{
-			return RemoteObjectManager.GetRootTestCase (Session, cancellationToken);
 		}
 	}
 }

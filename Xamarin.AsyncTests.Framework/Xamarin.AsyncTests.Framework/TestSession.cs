@@ -56,6 +56,10 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		public abstract TestCase RootTestCase {
+			get;
+		}
+
 		public TestSession (TestApp app)
 		{
 			App = app;
@@ -74,8 +78,6 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			return new ReflectionTestSession (app, (ReflectionTestFramework)framework, rootCtx);
 		}
-
-		public abstract Task<TestCase> GetRootTestCase (CancellationToken cancellationToken);
 
 		public abstract Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken);
 

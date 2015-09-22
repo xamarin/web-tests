@@ -49,6 +49,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return suite; }
 		}
 
+		public override TestCase RootTestCase {
+			get { return suite.RootTestCase; }
+		}
+
 		internal TestContext RootContext {
 			get;
 			private set;
@@ -67,11 +71,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			configuration = new TestConfiguration (provider, app.Settings);
 			name = framework.Assembly.GetName ().Name;
 			suite = new ReflectionTestSuite (framework);
-		}
-
-		public override Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
-		{
-			return Task.FromResult<TestCase> (suite.RootTestCase);
 		}
 
 		public override Task<TestCase> ResolveFromPath (XElement node, CancellationToken cancellationToken)

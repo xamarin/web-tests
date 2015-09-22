@@ -41,10 +41,16 @@ namespace Xamarin.AsyncTests.MacUI
 	{
 		MainWindowController mainWindowController;
 		SettingsDialogController settingsDialogController;
-		TestSessionModel currentSession;
+		TestSession currentSession;
 		bool isStopped;
 		bool hasServer;
 		MacUI ui;
+
+		public event EventHandler<TestSession> SessionChangedEvent;
+
+		public TestSession CurrentSession {
+			get { return currentSession; }
+		}
 
 		public MacUI MacUI {
 			get { return ui; }
@@ -76,19 +82,20 @@ namespace Xamarin.AsyncTests.MacUI
 			ui.ServerManager.Start.NotifyStateChanged.StateChanged += (sender, e) => HasServer = !e;
 			IsStopped = true;
 
+			settingsDialogController = new SettingsDialogController ();
+
 			mainWindowController = new MainWindowController ();
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
 
-			settingsDialogController = new SettingsDialogController ();
-
 			ui.ServerManager.TestSession.PropertyChanged += (sender, e) => {
-				if (e == null)
-					CurrentSession = null;
-				else
-					CurrentSession = new TestSessionModel (e);
+				currentSession = e;
+				if (SessionChangedEvent != null)
+					SessionChangedEvent (this, e);
 			};
 
 			StartServer ();
+
+			settingsDialogController.DidFinishLaunching ();
 		}
 
 		ServerParameters GetParameters ()
@@ -250,8 +257,10 @@ namespace Xamarin.AsyncTests.MacUI
 		[Export ("ClearSession")]
 		public void ClearSession ()
 		{
-			if (CurrentSession != null)
-				CurrentSession.RemoveAllChildren ();
+			#if FIXME
+			if (CurrentSessionModel != null)
+				CurrentSessionModel.RemoveAllChildren ();
+			#endif
 		}
 
 		[Export ("LoadSession")]
@@ -297,18 +306,6 @@ namespace Xamarin.AsyncTests.MacUI
 			return string.Format ("[AppDelegate: {0:x}]", Handle.ToInt64 ());
 		}
 
-		public const string CurrentSessionKey = "CurrentSession";
-
-		[Export (CurrentSessionKey)]
-		public TestSessionModel CurrentSession {
-			get { return currentSession; }
-			set {
-				WillChangeValue (CurrentSessionKey);
-				currentSession = value;
-				DidChangeValue (CurrentSessionKey);
-			}
-		}
-
 		public const string IsStoppedKey = "IsStopped";
 
 		[Export (IsStoppedKey)]
@@ -335,10 +332,6 @@ namespace Xamarin.AsyncTests.MacUI
 
 		NSApplicationDelegate IAppDelegate.Delegate {
 			get { return this; }
-		}
-
-		string IAppDelegate.CurrentSessionKey {
-			get { return CurrentSessionKey; }
 		}
 
 		SettingsDialogController IAppDelegate.Settings {

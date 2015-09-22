@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14C109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
+        <deployment identifier="macosx"/>
         <development version="5000" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="MainWindowController">
@@ -75,9 +76,9 @@
                     <toolbarItem implicitItemIdentifier="F20ABB14-5786-46FF-9C38-0051880767D6" label="" paletteLabel="Custom View" id="KT3-JJ-IYE">
                         <nil key="toolTip"/>
                         <size key="minSize" width="51" height="32"/>
-                        <size key="maxSize" width="110" height="50"/>
+                        <size key="maxSize" width="112" height="50"/>
                         <button key="view" verticalHuggingPriority="750" id="10">
-                            <rect key="frame" x="19" y="14" width="51" height="43"/>
+                            <rect key="frame" x="0.0" y="14" width="112" height="43"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="push" title="Run" bezelStyle="rounded" alignment="center" scrollable="YES" lineBreakMode="clipping" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="11">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -113,9 +114,9 @@
                     <toolbarItem implicitItemIdentifier="CF3EC7AD-8973-47FF-BDBA-41166C8E1EDB" label="" paletteLabel="Custom View" id="Gke-6i-tGI">
                         <nil key="toolTip"/>
                         <size key="minSize" width="110" height="32"/>
-                        <size key="maxSize" width="110" height="32"/>
+                        <size key="maxSize" width="112" height="32"/>
                         <button key="view" verticalHuggingPriority="750" id="12">
-                            <rect key="frame" x="248" y="306" width="110" height="32"/>
+                            <rect key="frame" x="0.0" y="14" width="112" height="32"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="push" title="Repeat" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="13">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -126,9 +127,9 @@
                     <toolbarItem implicitItemIdentifier="8967E379-3BC1-4458-BB47-E1E216919787" label="" paletteLabel="Custom View" id="05L-zX-aRg">
                         <nil key="toolTip"/>
                         <size key="minSize" width="109" height="32"/>
-                        <size key="maxSize" width="110" height="32"/>
+                        <size key="maxSize" width="112" height="32"/>
                         <button key="view" verticalHuggingPriority="750" id="14">
-                            <rect key="frame" x="366" y="306" width="109" height="32"/>
+                            <rect key="frame" x="0.0" y="14" width="112" height="32"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="push" title="Stop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="15">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -147,9 +148,9 @@
                     <toolbarItem implicitItemIdentifier="63F40D71-744E-45A7-885D-AF7E4B1F9C69" label="" paletteLabel="Custom View" id="lCO-Sg-1yt">
                         <nil key="toolTip"/>
                         <size key="minSize" width="109" height="32"/>
-                        <size key="maxSize" width="110" height="32"/>
+                        <size key="maxSize" width="112" height="32"/>
                         <button key="view" verticalHuggingPriority="750" id="16">
-                            <rect key="frame" x="483" y="306" width="109" height="32"/>
+                            <rect key="frame" x="0.0" y="14" width="112" height="32"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="push" title="Clear" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="17">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -170,12 +171,37 @@
                             </connections>
                         </button>
                     </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="96B65C59-F134-4F21-B023-6511AF8E92FD" label="" paletteLabel="Custom View" id="EUd-EA-q7K">
+                        <nil key="toolTip"/>
+                        <size key="minSize" width="105" height="26"/>
+                        <size key="maxSize" width="173" height="26"/>
+                        <popUpButton key="view" verticalHuggingPriority="750" id="ZFH-Oa-0Vv">
+                            <rect key="frame" x="0.0" y="14" width="105" height="26"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="10n-lA-OLX" id="DxS-LV-TwY">
+                                <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="menu"/>
+                                <menu key="menu" id="YAl-DW-bcv">
+                                    <items>
+                                        <menuItem state="on" id="10n-lA-OLX"/>
+                                        <menuItem title="Item 2" id="pYW-0u-j5R"/>
+                                        <menuItem title="Item 3" id="s3E-7O-NMG"/>
+                                    </items>
+                                </menu>
+                            </popUpButtonCell>
+                            <connections>
+                                <binding destination="-2" name="content" keyPath="TestCategoriesArray" id="7HR-cd-8PH"/>
+                                <binding destination="-2" name="selectedObject" keyPath="CurrentCategory" previousBinding="7HR-cd-8PH" id="wsL-Jf-jJz"/>
+                            </connections>
+                        </popUpButton>
+                    </toolbarItem>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
                     <toolbarItem reference="KT3-JJ-IYE"/>
                     <toolbarItem reference="Gke-6i-tGI"/>
                     <toolbarItem reference="05L-zX-aRg"/>
                     <toolbarItem reference="lCO-Sg-1yt"/>
+                    <toolbarItem reference="EUd-EA-q7K"/>
                 </defaultToolbarItems>
             </toolbar>
             <point key="canvasLocation" x="1556.5" y="486"/>
@@ -192,6 +218,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <outlineView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" indentationPerLevel="16" outlineTableColumn="mbK-fz-jy4" id="bUS-9S-Wfs">
+                                <rect key="frame" x="0.0" y="0.0" width="498" height="0.0"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <size key="intercellSpacing" width="3" height="2"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="calibratedRGB"/>

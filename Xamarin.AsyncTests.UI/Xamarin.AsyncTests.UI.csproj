@@ -81,7 +81,6 @@
     <Compile Include="Binding\TestFeatureModel.cs" />
     <Compile Include="Binding\TestListNode.cs" />
     <Compile Include="Binding\TestResultModel.cs" />
-    <Compile Include="Binding\TestSessionModel.cs" />
     <Compile Include="Binding\UIBinding.cs" />
     <Compile Include="Binding\ValueTransformers.cs" />
     <Compile Include="Commands\Command.cs" />

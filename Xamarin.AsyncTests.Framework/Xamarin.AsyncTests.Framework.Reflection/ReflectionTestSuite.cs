@@ -71,9 +71,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			RootTestCase = new ReflectionTestCase (RootPath);
 		}
 
-		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
-		{
-			return Task.FromResult<TestCase> (RootTestCase);
+		TestCase TestSuite.RootTestCase {
+			get { return RootTestCase; }
 		}
 
 		TestPathNode IPathResolver.Node {

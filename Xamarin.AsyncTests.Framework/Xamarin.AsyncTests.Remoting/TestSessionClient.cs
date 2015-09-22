@@ -57,6 +57,10 @@ namespace Xamarin.AsyncTests.Remoting
 			get { return suite; }
 		}
 
+		public override TestCase RootTestCase {
+			get { return root; }
+		}
+
 		public override string Name {
 			get { return name; }
 		}
@@ -73,6 +77,7 @@ namespace Xamarin.AsyncTests.Remoting
 		ITestConfigurationProvider provider;
 		TestConfiguration configuration;
 		TestSuiteClient suite;
+		TestCaseClient root;
 
 		public TestSessionClient (ClientConnection connection, long objectID)
 			: base (connection.App)
@@ -100,12 +105,8 @@ namespace Xamarin.AsyncTests.Remoting
 			session.name = session.provider.Name;
 
 			session.suite = await RemoteObjectManager.GetRemoteTestSuite (session, cancellationToken).ConfigureAwait (false);
+			session.root = await RemoteObjectManager.GetRootTestCase (session, cancellationToken);
 			return session;
-		}
-
-		public override Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
-		{
-			return RemoteObjectManager.GetRootTestCase (this, cancellationToken);
 		}
 
 		public override Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken)

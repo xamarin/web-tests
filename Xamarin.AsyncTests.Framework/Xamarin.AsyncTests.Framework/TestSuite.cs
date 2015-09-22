@@ -40,6 +40,8 @@ namespace Xamarin.AsyncTests.Framework
 {
 	public interface TestSuite
 	{
-		Task<TestCase> GetRootTestCase (CancellationToken cancellationToken);
+		TestCase RootTestCase {
+			get;
+		}
 	}
 }

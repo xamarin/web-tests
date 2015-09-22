@@ -29,6 +29,8 @@ using Foundation;
 
 namespace Xamarin.AsyncTests.MacUI
 {
+	using Framework;
+
 	public interface IAppDelegate
 	{
 		NSApplicationDelegate Delegate {
@@ -47,13 +49,11 @@ namespace Xamarin.AsyncTests.MacUI
 			get;
 		}
 
-		string CurrentSessionKey {
+		TestSession CurrentSession {
 			get;
 		}
 
-		TestSessionModel CurrentSession {
-			get;
-		}
+		event EventHandler<TestSession> SessionChangedEvent;
 	}
 }
 

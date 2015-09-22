@@ -206,15 +206,15 @@ namespace Xamarin.AsyncTests.Remoting
 				return ReadTestCase (Proxy.Client, node);
 			}
 
-			protected override async Task<ObjectProxy> Run (
+			protected override Task<ObjectProxy> Run (
 				Connection connection, RemoteTestSession proxy, object argument, CancellationToken cancellationToken)
 			{
-				var test = await proxy.Servant.GetRootTestCase (cancellationToken);
-				return new TestCaseServant ((ServerConnection)connection, proxy.Servant, test);
+				var servant = new TestCaseServant ((ServerConnection)connection, proxy.Servant, proxy.Servant.RootTestCase);
+				return Task.FromResult<ObjectProxy> (servant);
 			}
 		}
 
-		public static async Task<TestCase> GetRootTestCase (TestSessionClient session, CancellationToken cancellationToken)
+		public static async Task<TestCaseClient> GetRootTestCase (TestSessionClient session, CancellationToken cancellationToken)
 		{
 			var command = new GetRootTestCaseCommand ();
 			var proxy = await command.Send (session, null, cancellationToken);

@@ -54,6 +54,10 @@ namespace Xamarin.AsyncTests.Remoting
 			private set;
 		}
 
+		public TestCase RootTestCase {
+			get { return LocalSession.RootTestCase; }
+		}
+
 		public TestSessionServant (ServerConnection connection)
 			: base (connection)
 		{
@@ -72,11 +76,6 @@ namespace Xamarin.AsyncTests.Remoting
 
 		TestSessionServant RemoteObject<TestSessionClient, TestSessionServant>.Servant {
 			get { return this; }
-		}
-
-		public Task<TestCase> GetRootTestCase (CancellationToken cancellationToken)
-		{
-			return LocalSession.GetRootTestCase (cancellationToken);
 		}
 
 		public Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken)
