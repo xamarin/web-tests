@@ -65,12 +65,15 @@ namespace Xamarin.AsyncTests.MacUI
 			DidChangeValue (SettingsDialogController.CurrentCategoryKey);
 		}
 
-		void OnSessionChanged (TestSession session)
+		async void OnSessionChanged (TestSession session)
 		{
 			if (session != null) {
 				var test = session.RootTestCase;
-				if (test != null)
-					TestResultController.AddObject (new TestCaseModel (session, test));
+				if (test != null) {
+					var model = new TestCaseModel (session, test);
+					await model.Initialize ();
+					TestResultController.AddObject (model);
+				}
 			} else {
 				var array = (NSArray)TestResultController.Content;
 				var length = (int)array.Count;

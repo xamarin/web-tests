@@ -49,6 +49,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 		string fullName;
 		string serialized;
+		TaskCompletionSource<bool> initTcs;
 
 		IReadOnlyCollection<TestCase> children;
 
@@ -59,11 +60,31 @@ namespace Xamarin.AsyncTests.MacUI
 			fullName = test.Name.FullName;
 			serialized = Test.Path.SerializePath ().ToString ();
 
-			if (Test.HasChildren || Test.HasParameters)
-				Initialize ();
+			RunInitialize ();
 		}
 
-		async void Initialize ()
+		public Task<bool> Initialize ()
+		{
+			return initTcs.Task;
+		}
+
+		async void RunInitialize ()
+		{
+			initTcs = new TaskCompletionSource<bool> ();
+			if (!Test.HasChildren && !Test.HasParameters) {
+				initTcs.SetResult (false);
+				return;
+			}
+
+			try {
+				await DoInitialize ();
+				initTcs.SetResult (children.Count > 0);
+			} catch (Exception ex) {
+				initTcs.SetException (ex);
+			}
+		}
+
+		async Task DoInitialize ()
 		{
 			WillChangeValue ("isLeaf");
 			WillChangeValue ("childNodes");
