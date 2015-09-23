@@ -213,6 +213,24 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return ResolveParameter (builder, new _PropertyInfo (member));
 		}
 
+		static T GetCustomAttributeForType<T> (TypeInfo type)
+			where T : Attribute
+		{
+			var attrs = type.GetCustomAttributes<T> (false).ToArray ();
+			if (attrs.Length == 1)
+				return attrs [0];
+			else if (attrs.Length > 1)
+				throw new InvalidOperationException ();
+
+			attrs = type.GetCustomAttributes<T> (true).ToArray ();
+			if (attrs.Length == 1)
+				return attrs [0];
+			else if (attrs.Length > 1)
+				throw new InvalidOperationException ();
+
+			return null;
+		}
+
 		static TestHost ResolveParameter (
 			ReflectionTestFixtureBuilder fixture, IMemberInfo member)
 		{
@@ -232,11 +250,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			else if (paramAttrs.Length > 1)
 				throw new InternalErrorException ();
 
-			paramAttrs = member.Type.GetCustomAttributes<TestParameterAttribute> ().ToArray ();
-			if (paramAttrs.Length == 1)
-				return CreateParameterAttributeHost (fixture.Type, member, paramAttrs [0]);
-			else if (paramAttrs.Length > 1)
-				throw new InternalErrorException ();
+			var typeAttr = GetCustomAttributeForType<TestParameterAttribute> (member.Type);
+			if (typeAttr != null)
+				return CreateParameterAttributeHost (fixture.Type, member, typeAttr);
 
 			if (member.Type.AsType ().Equals (typeof(bool)))
 				return CreateBoolean (member);
