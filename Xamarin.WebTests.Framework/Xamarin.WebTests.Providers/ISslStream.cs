@@ -60,6 +60,8 @@ namespace Xamarin.WebTests.Providers
 		ProtocolVersions ProtocolVersion {
 			get;
 		}
+
+		void Close ();
 	}
 }
 

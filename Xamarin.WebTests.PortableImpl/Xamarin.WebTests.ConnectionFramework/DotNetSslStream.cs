@@ -76,6 +76,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public ProtocolVersions ProtocolVersion {
 			get { return (ProtocolVersions)stream.SslProtocol; }
 		}
+
+		public void Close ()
+		{
+			stream.Dispose ();
+		}
 	}
 }
 

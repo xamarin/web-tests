@@ -222,7 +222,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 			try {
 				if (sslStream != null) {
-					sslStream.AuthenticatedStream.Dispose ();
+					sslStream.Close ();
 					sslStream = null;
 				}
 			} catch {
