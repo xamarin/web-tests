@@ -84,7 +84,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			var protocol = (ProtocolVersions)GetSslProtocol ();
 			if (parameters.ProtocolVersion != null) {
-				protocol &= parameters.ProtocolVersion;
+				protocol &= parameters.ProtocolVersion.Value;
 				if (protocol == ProtocolVersions.Unspecified)
 					throw new NotSupportedException ();
 			}
