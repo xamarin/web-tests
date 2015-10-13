@@ -29,6 +29,11 @@ namespace Xamarin.AsyncTests.Portable
 {
 	public interface IPipeConnection : IServerConnection
 	{
+		event EventHandler ExitedEvent;
+
+		bool HasExited {
+			get;
+		}
 	}
 }
 

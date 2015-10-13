@@ -117,13 +117,29 @@ namespace Xamarin.AsyncTests.Remoting
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			var stream = await connection.Open (cancellationToken);
-			cancellationToken.ThrowIfCancellationRequested ();
+			using (var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken)) {
+				EventHandler cancelFunc = delegate {
+					try {
+						cts.Cancel ();
+					} catch {
+						;
+					}
+				};
+				connection.ExitedEvent += cancelFunc;
+				if (connection.HasExited)
+					cancelFunc (null, EventArgs.Empty);
 
-			var clientConnection = new ClientConnection (app, stream, connection);
-			var client = new Client (app, clientConnection);
-			await client.Initialize (cancellationToken);
-			return client;
+				var stream = await connection.Open (cts.Token);
+				cts.Token.ThrowIfCancellationRequested ();
+
+				var clientConnection = new ClientConnection (app, stream, connection);
+				var client = new Client (app, clientConnection);
+				await client.Initialize (cts.Token);
+
+				connection.ExitedEvent -= cancelFunc;
+
+				return client;
+			}
 		}
 
 		static async Task<ServerConnection> StartServer (TestApp app, TestFramework framework, IServerConnection connection, CancellationToken cancellationToken)

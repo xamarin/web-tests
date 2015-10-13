@@ -61,9 +61,9 @@ namespace Xamarin.AsyncTests.Portable
 			return new ClientConnection (client);
 		}
 
-		public Task<IServerConnection> CreatePipe (IPortableEndPoint endpoint, PipeArguments arguments, CancellationToken cancellationToken)
+		public Task<IPipeConnection> CreatePipe (IPortableEndPoint endpoint, PipeArguments arguments, CancellationToken cancellationToken)
 		{
-			return Task.Run<IServerConnection> (() => {
+			return Task.Run<IPipeConnection> (() => {
 				var networkEndpoint = PortableEndPointSupportImpl.GetEndpoint (endpoint);
 				var listener = new TcpListener (networkEndpoint);
 				listener.Start ();
@@ -83,8 +83,10 @@ namespace Xamarin.AsyncTests.Portable
 				cmd.AppendFormat (" --gui={0}:{1}", networkEndpoint.Address, networkEndpoint.Port);
 				if (arguments.ExtraArguments != null)
 					cmd.AppendFormat (" {0}", arguments.ExtraArguments);
-				if (arguments.ConsolePath != null)
+				if (arguments.ConsolePath != null) {
+					cmd.Append (" ");
 					cmd.Append (arguments.Assembly);
+				}
 
 				var psi = new ProcessStartInfo (monoPath, cmd.ToString ());
 				psi.UseShellExecute = false;
@@ -112,6 +114,16 @@ namespace Xamarin.AsyncTests.Portable
 				: base (listener)
 			{
 				Process = process;
+				process.Exited += (sender, e) => {;
+					if (ExitedEvent != null)
+						ExitedEvent (sender, e);
+				};
+			}
+
+			public event EventHandler ExitedEvent;
+
+			public bool HasExited {
+				get { return Process.HasExited; }
 			}
 
 			public override void Close ()

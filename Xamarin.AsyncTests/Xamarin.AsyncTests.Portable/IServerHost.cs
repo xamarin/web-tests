@@ -36,7 +36,7 @@ namespace Xamarin.AsyncTests.Portable
 
 		Task<IServerConnection> Connect (IPortableEndPoint address, CancellationToken cancellationToken);
 
-		Task<IServerConnection> CreatePipe (IPortableEndPoint endpoint, PipeArguments arguments, CancellationToken cancellationToken);
+		Task<IPipeConnection> CreatePipe (IPortableEndPoint endpoint, PipeArguments arguments, CancellationToken cancellationToken);
 	}
 }
 
