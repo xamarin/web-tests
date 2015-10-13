@@ -165,13 +165,15 @@ namespace Xamarin.AsyncTests.Console
 			}
 
 			if (assembly != null) {
-				if (remaining.Count != 0)
-					throw new InvalidOperationException ();
+				if (remaining.Count != 0) {
+					remaining.ForEach (a => Debug ("Unexpected remaining argument: {0}", a));
+					throw new InvalidOperationException ("Unexpected extra argument.");
+				}
 				Assembly = assembly;
 			} else if (remaining.Count == 1) {
 				Assembly = Assembly.LoadFile (remaining [0]);
 			} else if (EndPoint == null) {
-				throw new InvalidOperationException ();
+				throw new InvalidOperationException ("Missing endpoint");
 			}
 
 			CheckSettingsFile ();

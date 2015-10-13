@@ -71,6 +71,7 @@ namespace Xamarin.AsyncTests.Portable
 				var monoPath = Path.Combine (arguments.MonoPrefix, "bin", "mono");
 
 				var cmd = new StringBuilder ();
+				cmd.Append ("--debug ");
 				if (arguments.ConsolePath != null)
 					cmd.Append (arguments.ConsolePath);
 				else
