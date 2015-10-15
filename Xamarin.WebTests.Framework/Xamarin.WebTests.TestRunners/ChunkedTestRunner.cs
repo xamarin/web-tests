@@ -53,6 +53,7 @@ namespace Xamarin.WebTests.TestRunners
 				case ChunkContentType.SyncRead:
 				case ChunkContentType.BeginEndAsyncRead:
 				case ChunkContentType.BeginEndAsyncReadNoWait:
+				case ChunkContentType.ServerAbort:
 					return false;
 				default:
 					return true;
@@ -89,6 +90,7 @@ namespace Xamarin.WebTests.TestRunners
 			case ChunkContentType.NormalChunk:
 			case ChunkContentType.BeginEndAsyncRead:
 			case ChunkContentType.BeginEndAsyncReadNoWait:
+			case ChunkContentType.ServerAbort:
 				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);
 			case ChunkContentType.SyncReadTimeout:
 				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Timeout);
@@ -157,6 +159,10 @@ namespace Xamarin.WebTests.TestRunners
 					content += await reader.ReadToEndAsync ();
 				}
 
+				if (Type == ChunkContentType.ServerAbort) {
+					ctx.Assert (content.Length, Is.EqualTo (1), "read one byte");
+				}
+
 				if (ExpectException)
 					ctx.AssertFail ("expected exception");
 			} catch (IOException ex) {
@@ -186,9 +192,36 @@ namespace Xamarin.WebTests.TestRunners
 			return type.ToString ();
 		}
 
+		static HttpContent ChunkContent (ChunkContentType type)
+		{
+			if (type == ChunkContentType.ServerAbort)
+				return new ServerAbortContent ();
+			else
+				return new TestChunkedContent (type);
+		}
+
 		public static Handler CreateHandler (ChunkContentType type)
 		{
-			return new GetHandler (ChunkTypeName (type), new TestChunkedContent (type));
+			return new GetHandler (ChunkTypeName (type), ChunkContent (type));
+		}
+
+		class ServerAbortContent : HttpContent
+		{
+			#region implemented abstract members of HttpContent
+			public override string AsString ()
+			{
+				return GetType ().Name;
+			}
+			public override void AddHeadersTo (HttpMessage message)
+			{
+				message.SetHeader ("Content-Length", 65536);
+			}
+			public override async Task WriteToAsync (StreamWriter writer)
+			{
+				await writer.WriteAsync ("A");
+				await writer.FlushAsync ();
+			}
+			#endregion
 		}
 
 		class TestChunkedContent : HttpContent

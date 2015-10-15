@@ -40,12 +40,28 @@ namespace Xamarin.WebTests.Features
 		{
 		}
 
+		public ChunkContentTypeAttribute (ChunkContentType type, TestFlags flags = TestFlags.Browsable | TestFlags.ContinueOnError)
+			: base (null, flags)
+		{
+			Type = type;
+		}
+
+		public ChunkContentType? Type {
+			get;
+			private set;
+		}
+
 		public bool ServerError {
 			get; set;
 		}
 
 		public IEnumerable<ChunkContentType> GetParameters (TestContext ctx, string filter)
 		{
+			if (Type != null) {
+				yield return Type.Value;
+				yield break;
+			}
+
 			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
 			var hasNewTls = ctx.IsEnabled (MonoWithNewTlsAttribute.Instance);
 

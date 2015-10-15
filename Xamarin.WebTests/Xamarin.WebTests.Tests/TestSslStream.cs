@@ -75,7 +75,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		[Martin]
+		// [Martin]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireSslStream)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task TestMartin (TestContext ctx, CancellationToken cancellationToken,

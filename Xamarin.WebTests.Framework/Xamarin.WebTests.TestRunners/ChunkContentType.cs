@@ -35,7 +35,8 @@ namespace Xamarin.WebTests.TestRunners
 		BeginEndAsyncRead,
 		BeginEndAsyncReadNoWait,
 		SyncRead,
-		SyncReadTimeout
+		SyncReadTimeout,
+		ServerAbort
 	}
 }
 

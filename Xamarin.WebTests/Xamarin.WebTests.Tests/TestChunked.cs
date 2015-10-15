@@ -39,6 +39,7 @@ namespace Xamarin.WebTests.Tests
 {
 	using HttpHandlers;
 	using HttpFramework;
+	using TestFramework;
 	using TestRunners;
 	using Portable;
 	using Providers;
@@ -61,6 +62,15 @@ namespace Xamarin.WebTests.Tests
 			[ChunkContentType (ServerError = true)] ChunkContentType type, bool sendAsync)
 		{
 			var runner = new ChunkedTestRunner (server, type, sendAsync);
+			return runner.Run (ctx, cancellationToken);
+		}
+
+		[Martin]
+		[AsyncTest]
+		public Task MartinTest (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server,
+			[ChunkContentType (ChunkContentType.ServerAbort)] ChunkContentType type)
+		{
+			var runner = new ChunkedTestRunner (server, type, false);
 			return runner.Run (ctx, cancellationToken);
 		}
 	}
