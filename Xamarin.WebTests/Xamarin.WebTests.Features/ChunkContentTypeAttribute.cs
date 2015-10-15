@@ -63,10 +63,9 @@ namespace Xamarin.WebTests.Features
 			}
 
 			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
-			var hasNewTls = ctx.IsEnabled (MonoWithNewTlsAttribute.Instance);
 
 			if (ServerError) {
-				if (hasNewTls || includeNotWorking)
+				if (includeNotWorking)
 					yield return ChunkContentType.SyncReadTimeout;
 				yield break;
 			}
@@ -75,7 +74,7 @@ namespace Xamarin.WebTests.Features
 			yield return ChunkContentType.NormalChunk;
 			yield return ChunkContentType.ServerAbort;
 
-			if (hasNewTls || includeNotWorking) {
+			if (includeNotWorking) {
 				yield return ChunkContentType.TruncatedChunk;
 				yield return ChunkContentType.MissingTrailer;
 				yield return ChunkContentType.BeginEndAsyncRead;
