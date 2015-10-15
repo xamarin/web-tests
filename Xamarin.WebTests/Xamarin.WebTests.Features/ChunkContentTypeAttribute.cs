@@ -73,6 +73,7 @@ namespace Xamarin.WebTests.Features
 
 			yield return ChunkContentType.SyncRead;
 			yield return ChunkContentType.NormalChunk;
+			yield return ChunkContentType.ServerAbort;
 
 			if (hasNewTls || includeNotWorking) {
 				yield return ChunkContentType.TruncatedChunk;

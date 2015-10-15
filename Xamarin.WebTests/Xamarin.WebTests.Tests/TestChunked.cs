@@ -45,6 +45,7 @@ namespace Xamarin.WebTests.Tests
 	using Providers;
 	using Features;
 
+	[Work]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestChunked
 	{
@@ -62,15 +63,6 @@ namespace Xamarin.WebTests.Tests
 			[ChunkContentType (ServerError = true)] ChunkContentType type, bool sendAsync)
 		{
 			var runner = new ChunkedTestRunner (server, type, sendAsync);
-			return runner.Run (ctx, cancellationToken);
-		}
-
-		[Martin]
-		[AsyncTest]
-		public Task MartinTest (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server,
-			[ChunkContentType (ChunkContentType.ServerAbort)] ChunkContentType type)
-		{
-			var runner = new ChunkedTestRunner (server, type, false);
 			return runner.Run (ctx, cancellationToken);
 		}
 	}
