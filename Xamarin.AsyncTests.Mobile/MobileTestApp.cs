@@ -122,12 +122,18 @@ namespace Xamarin.AsyncTests.Mobile
 
 			RunButton.Clicked += (s, e) => OnRun ();
 			StopButton.Clicked += (sender, e) => OnStop ();
+
+#if WRENCH
+			OnRun ();
+#endif
 		}
 
 		CancellationTokenSource cts;
 
 		async void OnRun ()
 		{
+			await Task.Yield ();
+
 			if (Interlocked.CompareExchange (ref cts, new CancellationTokenSource (), null) != null)
 				return;
 
