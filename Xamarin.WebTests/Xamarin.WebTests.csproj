@@ -20,18 +20,21 @@
     <DebugSymbols>true</DebugSymbols>
     <DefineConstants>DEBUG;XAMARIN_WEBTESTS</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release</OutputPath>
-    <WarningLevel>4</WarningLevel>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Wrench|iPhoneSimulator' ">
     <Optimize>false</Optimize>
-    <DefineConstants>XAMARIN_WEBTESTS</DefineConstants>
+    <OutputPath>bin\iPhoneSimulator\Wrench</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile></AssemblyOriginatorKeyFile>
+    <NoStdLib>false</NoStdLib>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugFull|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Wrench|iPhone' ">
     <Optimize>false</Optimize>
-    <OutputPath>..\out</OutputPath>
-    <DefineConstants>DEBUG;XAMARIN_WEBTESTS</DefineConstants>
+    <OutputPath>bin\iPhone\Wrench</OutputPath>
     <WarningLevel>4</WarningLevel>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile></AssemblyOriginatorKeyFile>
+    <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
