@@ -35,10 +35,6 @@ namespace Xamarin.AsyncTests.Remoting
 
 	class TestCaseClient : TestCase, ObjectClient<TestCaseClient>, RemoteTestCase
 	{
-		TestSuite TestCase.Suite {
-			get { return Session.Suite; }
-		}
-
 		public TestSessionClient Session {
 			get;
 			private set;

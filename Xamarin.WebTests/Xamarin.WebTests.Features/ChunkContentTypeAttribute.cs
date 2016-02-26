@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Features
 {
@@ -72,7 +73,12 @@ namespace Xamarin.WebTests.Features
 
 			yield return ChunkContentType.SyncRead;
 			yield return ChunkContentType.NormalChunk;
-			yield return ChunkContentType.ServerAbort;
+
+			var support = DependencyInjector.Get<IPortableSupport> ();
+			if (!support.IsMicrosoftRuntime) {
+				// Doesn't work on .NET.
+				yield return ChunkContentType.ServerAbort;
+			}
 
 			if (includeNotWorking) {
 				yield return ChunkContentType.TruncatedChunk;

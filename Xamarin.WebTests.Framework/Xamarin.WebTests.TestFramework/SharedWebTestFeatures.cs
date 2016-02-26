@@ -28,30 +28,34 @@ using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.WebTests.TestFramework;
+
+[assembly: DependencyProvider (typeof (SharedWebTestFeatures.Provider))]
 
 namespace Xamarin.WebTests.TestFramework
 {
-	using Portable;
+	using ConnectionFramework;
 
-	public abstract class SharedWebTestFeatures : ITestConfigurationProvider
+	public sealed class SharedWebTestFeatures : ITestConfigurationProvider, ISingletonInstance
 	{
-		public readonly TestFeature HasNetwork;
-
-		public readonly TestFeature Mono38;
-		public readonly TestFeature Mono381;
-		public readonly TestFeature Mono361;
-
-		public abstract string Name {
-			get;
+		public static SharedWebTestFeatures Instance {
+			get { return DependencyInjector.Get<SharedWebTestFeatures> (); }
 		}
 
-		public virtual IEnumerable<TestFeature> Features {
-			get {
-				yield return HasNetwork;
-				yield return Mono38;
-				yield return Mono381;
-				yield return Mono361;
+		internal class Provider : IDependencyProvider
+		{
+			public void Initialize ()
+			{
+				DependencyInjector.RegisterDependency<SharedWebTestFeatures> (() => new SharedWebTestFeatures ());
+			}
+		}
 
+		public string Name {
+			get { return "SharedWebTestFeatures"; }
+		}
+
+		public IEnumerable<TestFeature> Features {
+			get {
 				yield return ExperimentalAttribute.Instance;
 				yield return IncludeNotWorkingAttribute.Instance;
 
@@ -59,7 +63,7 @@ namespace Xamarin.WebTests.TestFramework
 			}
 		}
 
-		public virtual IEnumerable<TestCategory> Categories {
+		public IEnumerable<TestCategory> Categories {
 			get {
 				yield return WorkAttribute.Instance;
 				yield return MartinAttribute.Instance;
@@ -70,24 +74,11 @@ namespace Xamarin.WebTests.TestFramework
 			}
 		}
 
-		public SharedWebTestFeatures ()
+		SharedWebTestFeatures ()
 		{
-			Mono38 = new TestFeature (
-				"Mono38", "Mono 3.8.0", () => HasMonoVersion (new Version (3, 8, 0)));
-			Mono381 = new TestFeature (
-				"Mono381", "Mono 3.8.1", () => HasMonoVersion (new Version (3, 8, 1)));
-			Mono361 = new TestFeature (
-				"Mono361", "Mono 3.6.1", () => HasMonoVersion (new Version (3, 6, 1)));
-			HasNetwork = new TestFeature ("Network", "HasNetwork", () => IsNetworkAvailable ());
 		}
 
-		protected virtual bool IsNetworkAvailable ()
-		{
-			var support = DependencyInjector.Get<IPortableWebSupport> ();
-			return support.HasNetwork;
-		}
-
-		protected virtual bool HasMonoVersion (Version version)
+		public static bool HasMonoVersion (Version version)
 		{
 			var support = DependencyInjector.Get<IPortableSupport> ();
 			if (support.IsMicrosoftRuntime)

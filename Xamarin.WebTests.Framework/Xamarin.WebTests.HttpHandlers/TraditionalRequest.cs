@@ -33,73 +33,66 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
+	using ConnectionFramework;
 	using HttpFramework;
-	using Portable;
-	using Providers;
 
 	public class TraditionalRequest : Request
 	{
-		public readonly IHttpWebRequest Request;
+		public readonly HttpWebRequest Request;
+		public readonly IHttpWebRequestExtension RequestExt;
 
 		public TraditionalRequest (Uri uri)
 		{
-			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-			var provider = factory.DefaultHttpProvider;
+			Request = (HttpWebRequest)HttpWebRequest.Create (uri);
+			RequestExt = DependencyInjector.GetExtension<HttpWebRequest,IHttpWebRequestExtension> (Request);
 
-			Request = provider.CreateWebRequest (uri);
-			Request.SetKeepAlive (true);
+			RequestExt.SetKeepAlive (true);
 		}
 
 		public TraditionalRequest (HttpWebRequest request)
 		{
-			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-			var provider = factory.DefaultHttpProvider;
-
-			Request = provider.CreateWebRequest (request);
-			Request.SetKeepAlive (true);
-		}
-
-		public TraditionalRequest (IHttpWebRequest request)
-		{
 			Request = request;
+			RequestExt = DependencyInjector.GetExtension<HttpWebRequest,IHttpWebRequestExtension> (Request);
+
+			RequestExt.SetKeepAlive (true);
 		}
 
 		#region implemented abstract members of Request
 
 		public override void SetCredentials (ICredentials credentials)
 		{
-			Request.Request.Credentials = credentials;
+			Request.Credentials = credentials;
 		}
 
-		public override void SetProxy (IPortableProxy proxy)
+		public override void SetProxy (IWebProxy proxy)
 		{
-			Request.SetProxy (proxy);
+			RequestExt.SetProxy (proxy);
 		}
 
 		public override string Method {
-			get { return Request.Request.Method; }
-			set { Request.Request.Method = value; }
+			get { return Request.Method; }
+			set { Request.Method = value; }
 		}
 
 		public override void SetContentLength (long contentLength)
 		{
-			Request.SetContentLength (contentLength);
+			RequestExt.SetContentLength (contentLength);
 		}
 
 		public override void SetContentType (string contentType)
 		{
-			Request.Request.ContentType = contentType;
+			Request.ContentType = contentType;
 		}
 
 		public override void SendChunked ()
 		{
-			Request.SetSendChunked (true);
+			RequestExt.SetSendChunked (true);
 		}
 
 		public async Task<Response> Send (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-			cts.Token.Register (() => Request.Request.Abort ());
+			cts.Token.Register (() => Request.Abort ());
 
 			var task = Task.Factory.StartNew (() => {
 				return Send (ctx);
@@ -115,11 +108,11 @@ namespace Xamarin.WebTests.HttpHandlers
 		public override async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-			cts.Token.Register (() => Request.Request.Abort ());
+			cts.Token.Register (() => Request.Abort ());
 
 			try {
 				if (Content != null) {
-					using (var stream = await Request.GetRequestStreamAsync ()) {
+					using (var stream = await RequestExt.GetRequestStreamAsync ()) {
 						using (var writer = new StreamWriter (stream)) {
 							await Content.WriteToAsync (writer);
 							await writer.FlushAsync ();
@@ -127,7 +120,7 @@ namespace Xamarin.WebTests.HttpHandlers
 					}
 				}
 
-				var response = await Request.GetResponseAsync ();
+				var response = await RequestExt.GetResponseAsync ();
 				return await GetResponseFromHttp (ctx, response, null, cancellationToken);
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
@@ -164,12 +157,12 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			try {
 				if (Content != null) {
-					using (var writer = new StreamWriter (Request.GetRequestStream ())) {
+					using (var writer = new StreamWriter (RequestExt.GetRequestStream ())) {
 						Content.WriteToAsync (writer).Wait ();
 					}
 				}
 
-				var response = Request.GetResponse ();
+				var response = RequestExt.GetResponse ();
 				return GetResponseFromHttpSync (ctx, response, null);
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;

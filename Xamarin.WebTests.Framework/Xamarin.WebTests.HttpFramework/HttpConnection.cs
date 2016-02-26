@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.HttpFramework
 {
-	using Providers;
+	using ConnectionFramework;
 
 	public class HttpConnection : Connection
 	{

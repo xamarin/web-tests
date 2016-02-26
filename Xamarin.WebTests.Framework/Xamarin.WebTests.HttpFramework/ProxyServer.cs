@@ -35,8 +35,7 @@ namespace Xamarin.WebTests.HttpFramework
 {
 	using ConnectionFramework;
 	using HttpHandlers;
-	using Portable;
-	using Providers;
+	using Server;
 
 	[FriendlyName ("[ProxyServer]")]
 	public class ProxyServer : HttpServer
@@ -44,15 +43,13 @@ namespace Xamarin.WebTests.HttpFramework
 		Uri proxyUri;
 		IPortableEndPoint proxyEndpoint;
 		AuthenticationType authType = AuthenticationType.None;
-		IListener proxyListener;
-		readonly IPortableWebSupport WebSupport;
+		Listener proxyListener;
 
-		public ProxyServer (IHttpProvider provider, IPortableEndPoint endpoint, IPortableEndPoint proxyEndpoint, ConnectionParameters parameters = null)
-			: base (provider, endpoint, endpoint, ListenerFlags.Proxy, parameters)
+		public ProxyServer (IPortableEndPoint endpoint, IPortableEndPoint proxyEndpoint, ISslStreamProvider sslStreamProvider = null, ConnectionParameters parameters = null)
+			: base (endpoint, endpoint, ListenerFlags.Proxy, sslStreamProvider, parameters)
 		{
 			this.proxyEndpoint = proxyEndpoint;
 
-			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
 			proxyUri = new Uri (string.Format ("http://{0}:{1}/", proxyEndpoint.Address, proxyEndpoint.Port));
 		}
 
@@ -69,7 +66,7 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			await base.Start (ctx, cancellationToken);
 
-			proxyListener = WebSupport.CreateProxyListener (Listener, proxyEndpoint, authType);
+			proxyListener = new ProxyListener ((HttpListener)Listener, proxyEndpoint, authType);
 			await proxyListener.Start ();
 		}
 
@@ -81,12 +78,45 @@ namespace Xamarin.WebTests.HttpFramework
 			await base.Stop (ctx, cancellationToken);
 		}
 
-		public override IPortableProxy GetProxy ()
+		public override IWebProxy GetProxy ()
 		{
-			var proxy = WebSupport.CreateProxy (proxyUri);
+			var proxy = new SimpleProxy (proxyUri);
 			if (Credentials != null)
 				proxy.Credentials = Credentials;
 			return proxy;
+		}
+
+		public static IWebProxy CreateSimpleProxy (Uri uri)
+		{
+			return new SimpleProxy (uri);
+		}
+
+		class SimpleProxy : IWebProxy
+		{
+			readonly Uri uri;
+
+			public SimpleProxy (Uri uri)
+			{
+				this.uri = uri;
+			}
+
+			public Uri Uri {
+				get { return uri; }
+			}
+
+			public ICredentials Credentials {
+				get; set;
+			}
+
+			public Uri GetProxy (Uri destination)
+			{
+				return uri;
+			}
+
+			public bool IsBypassed (Uri host)
+			{
+				return false;
+			}
 		}
 
 		protected override string MyToString ()

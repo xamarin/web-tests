@@ -31,7 +31,6 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	using TestFramework;
-	using Providers;
 
 	public abstract class ConnectionProviderFilter
 	{
@@ -55,15 +54,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		protected abstract ClientAndServerProvider Create (ConnectionProvider client, ConnectionProvider server);
 
-		protected virtual bool IsCompatible (ConnectionProvider client, ConnectionProvider server)
-		{
-			if (!client.IsCompatibleWith (server.Type))
-				return false;
-			if (!server.IsCompatibleWith (client.Type))
-				return false;
-			return true;
-		}
-
 		public IEnumerable<ClientAndServerProvider> GetSupportedProviders (TestContext ctx, string filter)
 		{
 			string clientFilter, serverFilter;
@@ -85,8 +75,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var serverProviders = factory.GetProviders (p => IsServerSupported (ctx, p, serverFilter));
 
 			return ConnectionTestHelper.Join (clientProviders, serverProviders, (c, s) => {
-				if (!IsCompatible (c, s))
-					return null;
 				return Create (c, s);
 			});
 		}

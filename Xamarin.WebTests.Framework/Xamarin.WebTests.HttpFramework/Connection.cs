@@ -33,7 +33,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.HttpFramework
 {
-	using Portable;
+	using ConnectionFramework;
 
 	public class Connection
 	{

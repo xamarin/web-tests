@@ -32,11 +32,6 @@ namespace Xamarin.AsyncTests.Framework
 {
 	abstract class TestBuilder : IPathNode
 	{
-		public TestSuite Suite {
-			get;
-			private set;
-		}
-
 		public string Name {
 			get;
 			private set;
@@ -73,9 +68,8 @@ namespace Xamarin.AsyncTests.Framework
 			get { return GetType ().FullName; }
 		}
 
-		protected TestBuilder (TestSuite suite, string identifier, string name, ITestParameter parameter)
+		protected TestBuilder (string identifier, string name, ITestParameter parameter)
 		{
-			Suite = suite;
 			Identifier = identifier;
 			Name = name;
 			TestName = name != null ? new TestName (name) : TestName.Empty;

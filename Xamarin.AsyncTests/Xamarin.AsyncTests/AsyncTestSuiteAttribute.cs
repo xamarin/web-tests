@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	[AttributeUsage (AttributeTargets.Assembly, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Assembly, AllowMultiple = true)]
 	public class AsyncTestSuiteAttribute : Attribute
 	{
 		public Type Type {
@@ -40,11 +40,29 @@ namespace Xamarin.AsyncTests
 			private set;
 		}
 
+		public Type[] Dependencies {
+			get;
+			private set;
+		}
+
+		public string Name {
+			get;
+			private set;
+		}
+
 		public AsyncTestSuiteAttribute (Type type, bool isReference = false)
 		{
 			Type = type;
 			IsReference = isReference;
 		}
+
+		public AsyncTestSuiteAttribute (Type type, string name, params Type[] dependencies)
+		{
+			Type = type;
+			Name = name;
+			Dependencies = dependencies;
+		}
+
 	}
 }
 

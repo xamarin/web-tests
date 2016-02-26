@@ -28,8 +28,6 @@ using System.Net;
 
 namespace Xamarin.WebTests.HttpClient
 {
-	using Portable;
-
 	public interface IHttpClientHandler
 	{
 		IHttpClient CreateHttpClient ();
@@ -38,7 +36,7 @@ namespace Xamarin.WebTests.HttpClient
 			get; set;
 		}
 
-		IPortableProxy Proxy {
+		IWebProxy Proxy {
 			get; set;
 		}
 

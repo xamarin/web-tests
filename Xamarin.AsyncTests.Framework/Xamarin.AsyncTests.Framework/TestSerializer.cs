@@ -42,6 +42,7 @@ namespace Xamarin.AsyncTests.Framework
 		internal const string FixtureInstanceIdentifier = "instance";
 		internal const string TestFixtureIdentifier = "fixture";
 		internal const string TestSuiteIdentifier = "suite";
+		internal const string TestAssemblyIdentifier = "assembly";
 
 		internal static void Debug (string message, params object[] args)
 		{

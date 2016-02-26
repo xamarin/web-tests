@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.Portable;
+using Xamarin.WebTests.ConnectionFramework;
 
 namespace Xamarin.WebTests.Features
 {
@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.Features
 
 		static bool IsMonoWithNewTls ()
 		{
-			var support = DependencyInjector.Get<IPortableWebSupport> ();
+			var support = DependencyInjector.Get<IHttpProvider> ();
 			return support.SupportsPerRequestCertificateValidator;
 		}
 	}

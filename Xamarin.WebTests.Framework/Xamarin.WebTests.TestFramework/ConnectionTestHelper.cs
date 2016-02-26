@@ -31,8 +31,6 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.TestFramework
 {
-	using Portable;
-	using Providers;
 	using TestRunners;
 	using ConnectionFramework;
 
@@ -50,13 +48,6 @@ namespace Xamarin.WebTests.TestFramework
 			return Factory.GetProviderFlags (type);
 		}
 
-		public static IHttpProvider GetHttpProvider (TestContext ctx)
-		{
-			var providerType = ctx.GetParameter<ConnectionTestProvider> ();
-			var provider = providerType.Client;
-			return provider.HttpProvider;
-		}
-
 		public static R CreateTestRunner<P,A,R> (TestContext ctx, Func<IServer,IClient,P,A,R> constructor)
 			where P : ClientAndServerProvider
 			where A : ConnectionParameters
@@ -72,15 +63,11 @@ namespace Xamarin.WebTests.TestFramework
 			where A : ConnectionParameters
 			where R : ClientAndServer
 		{
-			var clientProvider = provider.Client;
-			var serverProvider = provider.Server;
-
 			ProtocolVersions protocolVersion;
 			if (ctx.TryGetParameter<ProtocolVersions> (out protocolVersion))
 				parameters.ProtocolVersion = protocolVersion;
 
-			var isManualConnection = serverProvider.Type == ConnectionProviderType.Manual || clientProvider.Type == ConnectionProviderType.Manual;
-			if (isManualConnection) {
+			if (provider.IsManual) {
 				string serverAddress;
 				if (ctx.Settings.TryGetValue ("ServerAddress", out serverAddress)) {
 					var support = DependencyInjector.Get<IPortableEndPointSupport> ();
@@ -95,7 +82,7 @@ namespace Xamarin.WebTests.TestFramework
 			if (parameters.EndPoint != null) {
 				if (parameters.TargetHost == null)
 					parameters.TargetHost = parameters.EndPoint.HostName;
-			} else if (isManualConnection) {
+			} else if (provider.IsManual) {
 				var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 				parameters.ListenAddress = support.GetEndpoint ("0.0.0.0", 4433);
 			} else if (parameters.ListenAddress != null)
@@ -103,9 +90,9 @@ namespace Xamarin.WebTests.TestFramework
 			else
 				parameters.EndPoint = GetEndPoint (ctx);
 
-			var server = serverProvider.CreateServer (parameters);
+			var server = provider.CreateServer (parameters);
 
-			var client = clientProvider.CreateClient (parameters);
+			var client = provider.CreateClient (parameters);
 
 			return constructor (server, client, provider, parameters);
 		}
@@ -127,7 +114,6 @@ namespace Xamarin.WebTests.TestFramework
 			case ConnectionProviderType.DotNet:
 				return IsMicrosoftRuntime;
 			case ConnectionProviderType.NewTLS:
-			case ConnectionProviderType.MonoWithNewTLS:
 			case ConnectionProviderType.OpenSsl:
 				return true;
 			default:

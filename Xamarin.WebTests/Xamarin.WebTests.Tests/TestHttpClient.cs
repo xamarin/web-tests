@@ -39,9 +39,8 @@ namespace Xamarin.WebTests
 {
 	using HttpHandlers;
 	using HttpFramework;
+	using TestFramework;
 	using TestRunners;
-	using Portable;
-	using Providers;
 	using Features;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
@@ -77,26 +76,15 @@ namespace Xamarin.WebTests
 				HttpContent.HelloWorld, new StringContent ("Returned body"));
 			yield return new HttpClientHandler (
 				"Put", HttpClientOperation.Put, HttpContent.HelloWorld);
-		}
-
-		static IEnumerable<HttpClientHandler> GetMono38Tests ()
-		{
 			yield return new HttpClientHandler (
 				"Bug #20583", HttpClientOperation.PostString,
-				HttpContent.HelloWorld, new Bug20583Content ()) {
-				Filter = (ctx) => ctx.IsEnabled (WebTestFeatures.Instance.Mono38)
-			};
+				HttpContent.HelloWorld, new Bug20583Content ());
 		}
 
 		public static IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)
 		{
 			if (filter == null || filter.Equals ("stable")) {
 				foreach (var test in GetStableTests ())
-					yield return test;
-			}
-
-			if (filter == null || filter.Equals ("mono38")) {
-				foreach (var test in GetMono38Tests ())
 					yield return test;
 			}
 		}

@@ -69,7 +69,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			RootContext = rootCtx;
 			provider = framework.ConfigurationProvider;
 			configuration = new TestConfiguration (provider, app.Settings);
-			name = framework.Assembly.GetName ().Name;
+			name = framework.Name;
 			suite = new ReflectionTestSuite (framework);
 		}
 

@@ -34,11 +34,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	class ReflectionTestCase : TestCase
 	{
-		public TestSuite Suite {
-			get;
-			private set;
-		}
-
 		public TestName Name {
 			get;
 			private set;
@@ -56,7 +51,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		public ReflectionTestCase (TestPathNode node)
 		{
 			Node = node;
-			Suite = node.Tree.Builder.Suite;
 			Name = node.Path.Name;
 		}
 

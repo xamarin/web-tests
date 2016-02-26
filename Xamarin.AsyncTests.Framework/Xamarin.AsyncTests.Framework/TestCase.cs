@@ -38,10 +38,6 @@ namespace Xamarin.AsyncTests.Framework
 {
 	public interface TestCase
 	{
-		TestSuite Suite {
-			get;
-		}
-
 		TestName Name {
 			get;
 		}

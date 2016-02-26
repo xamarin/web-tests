@@ -9,8 +9,6 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Portable;
-
 	public abstract class Connection : IConnection, IDisposable
 	{
 		public abstract bool SupportsCleanShutdown {
@@ -56,12 +54,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			await Start (ctx, cancellationToken);
 		}
 
-		public Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		public virtual Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return FinishedTask;
 		}
 
-		public Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		public virtual Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return FinishedTask;
 		}

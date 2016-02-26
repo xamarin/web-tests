@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using System.Net.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,8 +37,6 @@ namespace Xamarin.WebTests.TestRunners
 	using ConnectionFramework;
 	using TestFramework;
 	using Resources;
-	using Providers;
-	using Portable;
 
 	[SslStreamTestRunner]
 	public class SslStreamTestRunner : ConnectionTestRunner
@@ -153,8 +153,9 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case ConnectionTestType.MartinTest:
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptSelfSigned
+				return new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
+					GlobalValidationParameters = new CertificateValidationParameters (),
+					ExpectClientException = true
 				};
 
 			default:
@@ -235,6 +236,25 @@ namespace Xamarin.WebTests.TestRunners
 			line = await serverStream.ReadLineAsync ();
 			if (!line.Equals ("CLIENT OK"))
 				throw new ConnectionException ("Got unexpected output from client: '{0}'", line);
+		}
+
+		RemoteCertificateValidationCallback savedGlobalCallback;
+
+		public override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (Parameters.GlobalValidationParameters != null) {
+				savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
+				var validator = Parameters.GlobalValidationParameters.Validator;
+				ServicePointManager.ServerCertificateValidationCallback = validator != null ? validator.ValidationCallback : null;
+			}
+			return base.PreRun (ctx, cancellationToken);
+		}
+
+		public override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (Parameters.GlobalValidationParameters != null)
+				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
+			return base.PostRun (ctx, cancellationToken);
 		}
 	}
 }

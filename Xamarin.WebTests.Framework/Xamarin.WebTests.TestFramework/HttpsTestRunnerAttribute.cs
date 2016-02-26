@@ -34,8 +34,7 @@ namespace Xamarin.WebTests.TestFramework
 	using TestRunners;
 	using ConnectionFramework;
 	using HttpFramework;
-	using Portable;
-	using Providers;
+	using Server;
 	using Resources;
 
 	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
@@ -53,7 +52,7 @@ namespace Xamarin.WebTests.TestFramework
 
 		public HttpsTestRunner CreateInstance (TestContext ctx)
 		{
-			var httpProvider = ConnectionTestHelper.GetHttpProvider (ctx);
+			var provider = ctx.GetParameter<ConnectionTestProvider> ();
 
 			var parameters = ctx.GetParameter<HttpsTestParameters> ();
 
@@ -71,7 +70,7 @@ namespace Xamarin.WebTests.TestFramework
 
 			var listenerFlags = ListenerFlags.SSL;
 
-			return new HttpsTestRunner (httpProvider, parameters.EndPoint, listenerFlags, parameters);
+			return new HttpsTestRunner (parameters.EndPoint, listenerFlags, provider, parameters);
 		}
 	}
 }

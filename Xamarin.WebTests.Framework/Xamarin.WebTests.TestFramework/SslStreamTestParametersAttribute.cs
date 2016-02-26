@@ -33,7 +33,7 @@ namespace Xamarin.WebTests.TestFramework
 	using ConnectionFramework;
 	using TestRunners;
 
-	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
 	public class SslStreamTestParametersAttribute : TestParameterAttribute, ITestParameterSource<SslStreamTestParameters>
 	{
 		public ConnectionTestType? Type {

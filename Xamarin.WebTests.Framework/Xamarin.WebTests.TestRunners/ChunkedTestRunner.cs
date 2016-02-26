@@ -35,9 +35,9 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.TestRunners
 {
+	using ConnectionFramework;
 	using HttpFramework;
 	using HttpHandlers;
-	using Providers;
 
 	public class ChunkedTestRunner : TraditionalTestRunner
 	{
@@ -72,9 +72,9 @@ namespace Xamarin.WebTests.TestRunners
 			var request = new ChunkedRequest (this, uri);
 			// May need to adjust these values a bit.
 			if (Type == ChunkContentType.SyncReadTimeout)
-				request.Request.ReadWriteTimeout = 500;
+				request.RequestExt.ReadWriteTimeout = 500;
 			else
-				request.Request.ReadWriteTimeout = 1500;
+				request.RequestExt.ReadWriteTimeout = 1500;
 			return request;
 		}
 

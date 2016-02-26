@@ -31,6 +31,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
@@ -40,9 +41,9 @@ namespace Xamarin.WebTests.Tests
 {
 	using HttpHandlers;
 	using HttpFramework;
+	using TestFramework;
 	using TestRunners;
-	using Portable;
-	using Providers;
+	using Server;
 	using Features;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
@@ -186,8 +187,7 @@ namespace Xamarin.WebTests.Tests
 			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
 
 			await redirect.RunWithContext (ctx, server, async (uri) => {
-				var support = DependencyInjector.Get<IPortableWebSupport> ();
-				using (var wc = support.CreateWebClient ()) {
+				using (var wc = new WebClient ()) {
 					var res = await wc.UploadStringTaskAsync (uri, post.Content.AsString ());
 					ctx.LogDebug (2, "Test18750: {0}", res);
 					return res;
@@ -215,16 +215,15 @@ namespace Xamarin.WebTests.Tests
 			return auth;
 		}
 
-		void ConfigureWebClient (IWebClient client, Handler handler, CancellationToken cancellationToken)
+		void ConfigureWebClient (WebClient client, Handler handler, CancellationToken cancellationToken)
 		{
-			cancellationToken.Register (() => client.Cancel ());
+			cancellationToken.Register (() => client.CancelAsync ());
 			var authHandler = handler as AuthenticationHandler;
 			if (authHandler != null)
-				client.SetCredentials (authHandler.GetCredentials ());
+				client.Credentials = authHandler.GetCredentials ();
 		}
 
 		[AsyncTest]
-		[WebTestFeatures.Mono381]
 		public async Task Test10163 (
 			TestContext ctx, [HttpServer] HttpServer server,
 			[AuthenticationType] AuthenticationType authType,
@@ -235,11 +234,10 @@ namespace Xamarin.WebTests.Tests
 			var handler = CreateAuthMaybeNone (post, authType);
 
 			await handler.RunWithContext (ctx, server, async (uri) => {
-				var support = DependencyInjector.Get<IPortableWebSupport> ();
-				using (var client = support.CreateWebClient ()) {
+				using (var client = new WebClient ()) {
 					ConfigureWebClient (client, handler, cancellationToken);
 
-					var stream = await client.OpenWriteAsync (uri, "PUT");
+					var stream = await client.OpenWriteTaskAsync (uri, "PUT");
 
 					using (var writer = new StreamWriter (stream)) {
 						await post.Content.WriteToAsync (writer);
@@ -249,7 +247,6 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		[WebTestFeatures.Mono381]
 		public async Task Test20359 (
 			TestContext ctx, [HttpServer] HttpServer server,
 			[AuthenticationType] AuthenticationType authType,
@@ -268,13 +265,12 @@ namespace Xamarin.WebTests.Tests
 			var handler = CreateAuthMaybeNone (post, authType);
 
 			await handler.RunWithContext (ctx, server, async (uri) => {
-				var support = DependencyInjector.Get<IPortableWebSupport> ();
-				using (var client = support.CreateWebClient ()) {
+				using (var client = new WebClient ()) {
 					ConfigureWebClient (client, handler, cancellationToken);
 
-					var collection = new List<KeyValuePair<string, string>> ();
-					collection.Add (new KeyValuePair<string, string> ("var1", "value"));
-					collection.Add (new KeyValuePair<string, string> ("var2", "value2"));
+					var collection = new NameValueCollection ();
+					collection.Add ("var1", "value");
+					collection.Add ("var2", "value2");
 
 					byte[] data;
 					try {

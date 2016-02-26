@@ -41,8 +41,7 @@ namespace Xamarin.WebTests.HttpFramework
 {
 	using ConnectionFramework;
 	using HttpHandlers;
-	using Providers;
-	using Portable;
+	using Server;
 
 	[FriendlyName ("[HttpServer]")]
 	public class HttpServer : ITestInstance
@@ -50,47 +49,39 @@ namespace Xamarin.WebTests.HttpFramework
 		readonly Uri uri;
 		readonly ListenerFlags flags;
 		readonly ConnectionParameters parameters;
-		readonly IHttpProvider provider;
 		readonly ISslStreamProvider sslStreamProvider;
-		readonly IPortableWebSupport WebSupport;
 
 		IPortableEndPoint listenAddress;
-		IListener listener;
+		Listener listener;
 
 		TestContext currentCtx;
+		int countRequests;
 
 		static long nextId;
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
 
-		public HttpServer (IHttpProvider provider, IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, ListenerFlags flags, ConnectionParameters parameters = null)
+		public HttpServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, ListenerFlags flags, ISslStreamProvider sslStreamProvider = null, ConnectionParameters parameters = null)
 		{
-			this.provider = provider;
 			this.listenAddress = listenAddress;
 			this.flags = flags;
+			this.sslStreamProvider = sslStreamProvider;
 			this.parameters = parameters;
 
 			if (parameters != null)
 				flags |= ListenerFlags.SSL;
 
 			if ((flags & ListenerFlags.SSL) != 0) {
-				sslStreamProvider = provider.SslStreamProvider;
-				if (sslStreamProvider == null) {
+				if (this.sslStreamProvider == null) {
 					var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-					sslStreamProvider = factory.DefaultSslStreamProvider;
+					this.sslStreamProvider = factory.DefaultSslStreamProvider;
 				}
 			}
 
-			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
-
-			uri = new Uri (string.Format ("http{0}://{1}:{2}/", sslStreamProvider != null ? "s" : "", clientEndPoint.Address, clientEndPoint.Port));
+			uri = new Uri (string.Format ("http{0}://{1}:{2}/", UseSSL ? "s" : "", clientEndPoint.Address, clientEndPoint.Port));
 		}
 
-		protected IListener Listener {
+		protected Listener Listener {
 			get { return listener; }
-		}
-
-		public IHttpProvider HttpProvider {
-			get { return provider; }
 		}
 
 		public IPortableEndPoint ListenAddress {
@@ -113,7 +104,7 @@ namespace Xamarin.WebTests.HttpFramework
 			get { return parameters; }
 		}
 
-		public virtual IPortableProxy GetProxy ()
+		public virtual IWebProxy GetProxy ()
 		{
 			return null;
 		}
@@ -159,7 +150,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public virtual Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			listener = WebSupport.CreateHttpListener (this);
+			listener = new HttpListener (this);
 			if (Interlocked.CompareExchange<TestContext> (ref currentCtx, ctx, null) != null)
 				throw new InternalErrorException ();
 			return listener.Start ();
@@ -175,6 +166,10 @@ namespace Xamarin.WebTests.HttpFramework
 				if ((Flags & ListenerFlags.ExpectException) == 0)
 					throw;
 			}
+		}
+
+		public int CountRequests {
+			get { return countRequests; }
 		}
 
 		public Uri RegisterHandler (Handler handler)
@@ -210,6 +205,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		protected virtual bool HandleConnection (TestContext ctx, HttpConnection connection)
 		{
+			++countRequests;
 			var request = connection.ReadRequest ();
 			return HandleConnection (ctx, connection, request);
 		}

@@ -28,7 +28,6 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.TestFramework
 {
-	using Providers;
 	using ConnectionFramework;
 	using TestRunners;
 
@@ -84,6 +83,9 @@ namespace Xamarin.WebTests.TestFramework
 				return match.Value;
 			if ((provider.Flags & ConnectionProviderFlags.IsExplicit) != 0)
 				return false;
+
+			if ((Flags & ConnectionTestFlags.AssumeSupportedByTest) != 0)
+				return true;
 
 			return ConnectionTestRunner.IsSupported (ctx, Category, provider);
 		}

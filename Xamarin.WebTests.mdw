@@ -1,0 +1,8 @@
+<WorkspaceItem ctype="Workspace">
+  <Items>
+    <Item>Xamarin.WebTests.Console.sln</Item>
+    <Item>Xamarin.WebTests.Mac.sln</Item>
+    <Item>Xamarin.WebTests.iOS.sln</Item>
+    <Item>Xamarin.WebTests.Android.sln</Item>
+  </Items>
+</WorkspaceItem>

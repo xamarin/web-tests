@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Portable
 {
-	public interface IServerHost
+	public interface IServerHost : ISingletonInstance
 	{
 		Task<IServerConnection> Listen (IPortableEndPoint address, CancellationToken cancellationToken);
 

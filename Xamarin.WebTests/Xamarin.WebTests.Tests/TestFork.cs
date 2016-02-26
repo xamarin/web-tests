@@ -41,8 +41,7 @@ namespace Xamarin.WebTests.Tests
 	using HttpFramework;
 	using TestFramework;
 	using TestRunners;
-	using Portable;
-	using Providers;
+	using Server;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class ForkHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
@@ -64,10 +63,9 @@ namespace Xamarin.WebTests.Tests
 	{
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			var provider = DependencyInjector.Get<ConnectionProviderFactory> ().DefaultHttpProvider;
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			var endpoint = support.GetLoopbackEndpoint (9999);
-			return new HttpServer (provider, endpoint, endpoint, ListenerFlags.ReuseConnection);
+			return new HttpServer (endpoint, endpoint, ListenerFlags.ReuseConnection);
 		}
 
 		static HttpContent CreateRandomContent (TestContext ctx)
@@ -110,7 +108,7 @@ namespace Xamarin.WebTests.Tests
 			var uri = new Uri (PostPuppy);
 
 			var request = new TraditionalRequest (uri);
-			handler.ConfigureRequest (request, request.Request.Request.RequestUri);
+			handler.ConfigureRequest (request, request.Request.RequestUri);
 
 			var response = await request.Send (ctx, cancellationToken);
 

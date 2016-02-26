@@ -38,7 +38,6 @@ namespace Xamarin.WebTests.TestRunners
 {
 	using HttpFramework;
 	using HttpHandlers;
-	using Portable;
 
 	public abstract class TestRunner
 	{

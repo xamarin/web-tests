@@ -77,6 +77,16 @@ namespace Xamarin.AsyncTests.Mobile
 			private set;
 		}
 
+		public Button RunButton {
+			get;
+			private set;
+		}
+
+		public Button StopButton {
+			get;
+			private set;
+		}
+
 		public MobileTestApp (TestFramework framework)
 		{
 			Framework = framework;
@@ -88,18 +98,78 @@ namespace Xamarin.AsyncTests.Mobile
 
 			EndPoint = GetEndPoint ();
 
-			MainLabel = new Label { XAlign = TextAlignment.Start, Text = "Welcome to Xamarin AsyncTests!" };
+			MainLabel = new Label { HorizontalTextAlignment = TextAlignment.Start, Text = "Welcome to Xamarin AsyncTests!" };
 
-			StatusLabel = new Label { XAlign = TextAlignment.Start };
+			StatusLabel = new Label { HorizontalTextAlignment = TextAlignment.Start };
 
-			StatisticsLabel = new Label { XAlign = TextAlignment.Start };
+			StatisticsLabel = new Label { HorizontalTextAlignment = TextAlignment.Start };
+
+			RunButton = new Button { Text = "Run" };
+
+			StopButton = new Button { Text = "Stop", IsEnabled = false };
+
+			var buttonLayout = new StackLayout {
+				HorizontalOptions = LayoutOptions.Center,
+				Children = { RunButton, StopButton }
+			};
 
 			Content = new StackLayout {
 				VerticalOptions = LayoutOptions.Center,
-				Children = { MainLabel, StatusLabel, StatisticsLabel }
+				Children = { MainLabel, StatusLabel, buttonLayout, StatisticsLabel }
 			};
 
 			MainPage = new ContentPage { Content = Content };
+
+			RunButton.Clicked += (s, e) => OnRun ();
+			StopButton.Clicked += (sender, e) => OnStop ();
+		}
+
+		CancellationTokenSource cts;
+
+		async void OnRun ()
+		{
+			if (Interlocked.CompareExchange (ref cts, new CancellationTokenSource (), null) != null)
+				return;
+
+			try {
+				StopButton.IsEnabled = true;
+				RunButton.IsEnabled = false;
+	
+				var cancellationToken = cts.Token;
+				var local = await TestServer.StartLocal (this, Framework, cancellationToken);
+				MainLabel.Text = "started local server.";
+
+				cancellationToken.ThrowIfCancellationRequested ();
+				var session = await local.GetTestSession (cancellationToken);
+				MainLabel.Text = string.Format ("Got test session {0}.", session);
+				Debug ("GOT SESSION: {0}", session);
+
+				OnResetStatistics ();
+
+				cancellationToken.ThrowIfCancellationRequested ();
+				await session.Run (session.RootTestCase, cancellationToken);
+
+				cancellationToken.ThrowIfCancellationRequested ();
+				var running = await local.WaitForExit (cancellationToken);
+				Debug ("WAIT FOR EXIT: {0}", running);
+
+				await local.Stop (cancellationToken);
+			} finally {
+				cts.Dispose ();
+				cts = null;
+				MainLabel.Text = string.Format ("Done running.");
+				StopButton.IsEnabled = false;
+				RunButton.IsEnabled = true;
+			}
+		}
+
+		void OnStop ()
+		{
+			var oldCts = Interlocked.Exchange (ref cts, null);
+			if (oldCts == null)
+				return;
+
+			oldCts.Cancel ();
 		}
 
 		static IPortableEndPoint GetEndPoint ()
@@ -108,12 +178,14 @@ namespace Xamarin.AsyncTests.Mobile
 			return support.GetEndpoint (8888);
 		}
 
+		TestServer server;
+
 		protected override async void OnStart ()
 		{
 			MainLabel.Text = string.Format ("Server address is {0}:{1}.", EndPoint.Address, EndPoint.Port);
 
 			while (true) {
-				var server = await TestServer.StartServer (this, EndPoint, Framework, CancellationToken.None);
+				server = await TestServer.StartServer (this, EndPoint, Framework, CancellationToken.None);
 
 				var session = await server.GetTestSession (CancellationToken.None);
 				MainLabel.Text = string.Format ("Got test session {0}.", session);

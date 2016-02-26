@@ -32,6 +32,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
@@ -44,21 +45,26 @@ namespace Xamarin.WebTests.TestRunners
 	using TestFramework;
 	using HttpFramework;
 	using HttpHandlers;
-	using Providers;
-	using Portable;
+	using Server;
 	using Resources;
 
 	[HttpsTestRunner]
 	[FriendlyName ("[HttpsTestRunner]")]
 	public class HttpsTestRunner : HttpServer
 	{
+		public ConnectionTestProvider Provider {
+			get;
+			private set;
+		}
+
 		new public HttpsTestParameters Parameters {
 			get { return (HttpsTestParameters)base.Parameters; }
 		}
 
-		public HttpsTestRunner (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, HttpsTestParameters parameters)
-			: base (provider, endpoint, endpoint, flags, parameters)
+		public HttpsTestRunner (IPortableEndPoint endpoint, ListenerFlags flags, ConnectionTestProvider provider, HttpsTestParameters parameters)
+			: base (endpoint, endpoint, flags, provider.Server.SslStreamProvider, parameters)
 		{
+			Provider = provider;
 		}
 
 		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object[] args)
@@ -164,6 +170,13 @@ namespace Xamarin.WebTests.TestRunners
 					ClientAbortsHandshake = true
 				};
 
+			case ConnectionTestType.MartinTest:
+				return new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
+					// ClientCertificateValidator = acceptAll,
+					GlobalValidationParameters = new CertificateValidationParameters { Validator = acceptAll },
+					// ExpectTrustFailure = true, ClientAbortsHandshake = true
+				};
+
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -189,6 +202,7 @@ namespace Xamarin.WebTests.TestRunners
 		protected override HttpConnection CreateConnection (TestContext ctx, Stream stream)
 		{
 			try {
+				ctx.LogDebug (5, "HttpTestRunner - CreateConnection");
 				var connection = base.CreateConnection (ctx, stream);
 
 				/*
@@ -200,6 +214,7 @@ namespace Xamarin.WebTests.TestRunners
 				 *
 				 */
 				var haveReq = connection.HasRequest();
+				ctx.LogDebug (5, "HttpTestRunner - CreateConnection #1: {0}", haveReq);
 				if (Parameters.ClientAbortsHandshake) {
 					ctx.Assert (haveReq, Is.False, "expected client to abort handshake");
 					return null;
@@ -207,7 +222,8 @@ namespace Xamarin.WebTests.TestRunners
 					ctx.Assert (haveReq, Is.True, "expected non-empty request");
 				}
 				return connection;
-			} catch {
+			} catch (Exception ex) {
+				ctx.LogDebug (5, "HttpTestRunner - CreateConnection ex: {0}", ex);
 				if (Parameters.ClientAbortsHandshake)
 					return null;
 				throw;
@@ -225,16 +241,20 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected Request CreateRequest (TestContext ctx, Uri uri)
 		{
-			var webRequest = HttpProvider.CreateWebRequest (uri);
-			webRequest.SetKeepAlive (true);
+			var webRequest = Provider.Client.SslStreamProvider.CreateWebRequest (uri);
 
 			var request = new TraditionalRequest (webRequest);
 
-			if (Parameters.ClientCertificateValidator != null)
-				request.Request.InstallCertificateValidator (Parameters.ClientCertificateValidator);
+			request.RequestExt.SetKeepAlive (true);
 
-			if (Parameters.ClientCertificate != null)
-				request.Request.SetClientCertificates (new IClientCertificate[] { Parameters.ClientCertificate });
+			if (Parameters.ClientCertificateValidator != null)
+				request.RequestExt.InstallCertificateValidator (Parameters.ClientCertificateValidator.ValidationCallback);
+
+			if (Parameters.ClientCertificate != null) {
+				var certificates = new X509CertificateCollection ();
+				certificates.Add (Parameters.ClientCertificate);
+				request.RequestExt.SetClientCertificates (certificates);
+			}
 
 			return request;
 		}
@@ -246,11 +266,11 @@ namespace Xamarin.WebTests.TestRunners
 
 			var provider = DependencyInjector.Get<ICertificateProvider> ();
 
-			var certificate = traditionalRequest.Request.GetCertificate ();
+			var certificate = traditionalRequest.RequestExt.GetCertificate ();
 			ctx.Assert (certificate, Is.Not.Null, "certificate");
 			ctx.Assert (provider.AreEqual (certificate, Parameters.ServerCertificate), "correct certificate");
 
-			var clientCertificate = traditionalRequest.Request.GetClientCertificate ();
+			var clientCertificate = traditionalRequest.RequestExt.GetClientCertificate ();
 			if ((Parameters.AskForClientCertificate || Parameters.RequireClientCertificate) && Parameters.ClientCertificate != null) {
 				ctx.Assert (clientCertificate, Is.Not.Null, "client certificate");
 				ctx.Assert (provider.AreEqual (clientCertificate, Parameters.ClientCertificate), "correct client certificate");

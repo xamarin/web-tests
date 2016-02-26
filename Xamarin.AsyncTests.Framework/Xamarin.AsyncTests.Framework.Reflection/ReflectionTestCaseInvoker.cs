@@ -66,7 +66,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return 30000;
 		}
 
-		object InvokeInner (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
+		object InvokeInner (TestContext ctx, TestInstance instance, bool expectException, CancellationToken cancellationToken)
 		{
 			var args = new LinkedList<object> ();
 
@@ -154,7 +154,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				throw new InternalErrorException ();
 
 			try {
-				return DoInvokeInner (ctx, thisInstance, args.ToArray ());
+				return DoInvokeInner (ctx, thisInstance, args.ToArray (), expectException);
 			} finally {
 				if (timeoutCts != null)
 					timeoutCts.Dispose ();
@@ -162,11 +162,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		[StackTraceEntryPoint]
-		object DoInvokeInner (TestContext ctx, object instance, object[] args)
+		object DoInvokeInner (TestContext ctx, object instance, object[] args, bool expectException)
 		{
 			try {
 				return Builder.Method.Invoke (instance, args);
 			} catch (TargetInvocationException ex) {
+				if (expectException)
+					throw;
 				ctx.OnError (ex.InnerException);
 				return null;
 			}
@@ -189,7 +191,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			object retval;
 			try {
-				retval = InvokeInner (ctx, instance, cancellationToken);
+				retval = InvokeInner (ctx, instance, false, cancellationToken);
 			} catch (Exception ex) {
 				ctx.OnError (ex);
 				return false;
@@ -217,7 +219,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			TypeInfo expectedException, CancellationToken cancellationToken)
 		{
 			try {
-				var retval = InvokeInner (ctx, instance, cancellationToken);
+				var retval = InvokeInner (ctx, instance, true, cancellationToken);
 				var task = retval as Task;
 				if (task != null)
 					await task;

@@ -30,7 +30,7 @@ using Xamarin.AsyncTests.Remoting;
 
 namespace Xamarin.AsyncTests.MacUI
 {
-	public interface IBuiltinTestServer
+	public interface IBuiltinTestServer : ISingletonInstance
 	{
 		Task<TestServer> Start (CancellationToken cancellationToken);
 	}

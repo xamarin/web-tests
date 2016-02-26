@@ -28,7 +28,7 @@ using System.Text;
 
 namespace Xamarin.AsyncTests.Portable
 {
-	public interface IPortableSupport
+	public interface IPortableSupport : ISingletonInstance
 	{
 		string GetStackTrace (bool full);
 

@@ -29,7 +29,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
-	using Portable;
+	using Server;
 
 	public enum AuthenticationState {
 		Authenticated,

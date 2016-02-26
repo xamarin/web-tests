@@ -33,7 +33,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	class ReflectionTestFixtureBuilder : TestBuilder
 	{
-		new public ReflectionTestSuiteBuilder Suite {
+		public ReflectionTestAssemblyBuilder AssemblyBuilder {
 			get;
 			private set;
 		}
@@ -54,16 +54,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		public override TestBuilder Parent {
-			get { return Suite; }
+			get { return AssemblyBuilder; }
 		}
 
 		TestFilter filter;
 
-		public ReflectionTestFixtureBuilder (ReflectionTestSuiteBuilder suite, AsyncTestAttribute attr, TypeInfo type)
-			: base (suite.Suite, TestSerializer.TestFixtureIdentifier, type.Name,
+		public ReflectionTestFixtureBuilder (ReflectionTestAssemblyBuilder assembly, AsyncTestAttribute attr, TypeInfo type)
+			: base (TestSerializer.TestFixtureIdentifier, type.Name,
 				TestSerializer.GetStringParameter (type.FullName))
 		{
-			Suite = suite;
+			AssemblyBuilder = assembly;
 			Type = type;
 			Attribute = attr;
 

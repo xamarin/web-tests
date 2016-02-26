@@ -52,7 +52,6 @@
     <Compile Include="Xamarin.WebTests.HttpClient\IHttpRequestMessage.cs" />
     <Compile Include="Xamarin.WebTests.HttpClient\IHttpResponseMessage.cs" />
     <Compile Include="Xamarin.WebTests.Resources\ResourceManager.cs" />
-    <Compile Include="Xamarin.WebTests.Resources\ServerCertificateType.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\AbstractRedirectHandler.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\AuthenticationHandler.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\DeleteHandler.cs" />
@@ -84,21 +83,6 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\StringContent.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\TransferMode.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\WebExceptionStatus.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\AuthenticationType.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\ICertificate.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\ICertificateValidator.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IClientCertificate.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IHttpWebRequest.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IListener.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IPortableProxy.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IPortableWebSupport.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IServerCertificate.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IWebClient.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\NTLMHandler.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\ListenerFlags.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\IHttpProvider.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\ISslStreamProvider.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\ICertificateProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionParameters.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionException.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnection.cs" />
@@ -107,23 +91,16 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IServer.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ILineBasedStream.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\StreamWrapper.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\ISslStream.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\Connection.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\HttpsTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\SslStreamTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\TestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\HttpClientTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\TraditionalTestRunner.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\ConnectionProviderType.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\ConnectionProviderFactory.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\ConnectionProvider.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\ConnectionProviderFlags.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ProtocolVersions.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\ChunkedTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\ChunkContentType.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\IStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IStreamInstrumentation.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\ICertificateSelector.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\ConnectionTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServer.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderFilter.cs" />
@@ -155,6 +132,42 @@
     <Compile Include="Xamarin.WebTests.TestFramework\ManualSslStreamAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\IsSupportedConstraint.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ProtocolVersionAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetSslStream.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetSslStreamProvider.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DummyClient.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DummyConnection.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DummyServer.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetClient.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetConnection.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetConnectionProvider.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetServer.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ManualConnectionProvider.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\StreamInstrumentation.cs" />
+    <Compile Include="ReferenceSource\SimpleAsyncResult.cs" />
+    <Compile Include="Xamarin.WebTests.Server\Listener.cs" />
+    <Compile Include="Xamarin.WebTests.Server\HttpListener.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ProxyListener.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateSelector.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateValidator.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ListenerFlags.cs" />
+    <Compile Include="Xamarin.WebTests.Server\NTLMHandler.cs" />
+    <Compile Include="Xamarin.WebTests.Server\AuthenticationType.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DefaultConnectionSettings.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IHttpWebRequestExtension.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProvider.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderFactory.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderFlags.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderType.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ICertificateProvider.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionProviderExtension.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IDefaultConnectionSettings.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IHttpProvider.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ISslStream.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ISslStreamProvider.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IStreamProvider.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\CertificateResourceType.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpServerAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateValidationParameters.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
@@ -199,15 +212,21 @@
     <EmbeddedResource Include="..\CA\client-cert-dheonly.pfx">
       <Link>CA\client-cert-dheonly.pfx</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert.pem">
+      <Link>CA\server-cert.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-self.pem">
+      <Link>CA\server-self.pem</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
   <ItemGroup>
-    <Folder Include="Xamarin.WebTests.Portable\" />
     <Folder Include="Xamarin.WebTests.HttpClient\" />
-    <Folder Include="Xamarin.WebTests.Providers\" />
     <Folder Include="Xamarin.WebTests.ConnectionFramework\" />
     <Folder Include="Xamarin.WebTests.TestFramework\" />
+    <Folder Include="ReferenceSource\" />
+    <Folder Include="Xamarin.WebTests.Server\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
@@ -218,5 +237,10 @@
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>Xamarin.AsyncTests.Framework</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Xamarin.WebTests.PortableSecurity">
+      <HintPath>..\PCL\Xamarin.WebTests.PortableSecurity.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

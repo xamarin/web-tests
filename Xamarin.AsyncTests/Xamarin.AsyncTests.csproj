@@ -120,6 +120,13 @@
     <Compile Include="Xamarin.AsyncTests.Portable\PipeArguments.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestParameterWrapper.cs" />
     <Compile Include="Xamarin.AsyncTests\FixedTestParameterAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests\IExtensionProvider.cs" />
+    <Compile Include="Xamarin.AsyncTests\IExtensionObject.cs" />
+    <Compile Include="Xamarin.AsyncTests\ITestDefaults.cs" />
+    <Compile Include="Xamarin.AsyncTests\IExtensionCollection.cs" />
+    <Compile Include="Xamarin.AsyncTests\ISingletonInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests.Constraints\IsEqualBlob.cs" />
+    <Compile Include="Xamarin.AsyncTests\VersionInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

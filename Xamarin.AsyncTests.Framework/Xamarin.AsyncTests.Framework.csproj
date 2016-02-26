@@ -115,6 +115,10 @@
     <Compile Include="Xamarin.AsyncTests.Remoting\TestSuiteServant.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\FixedParameterHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\FixedParameterInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionConfigurationProvider.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionConfigurationProviderCollection.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestAssemblyBuilder.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestAssembly.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

@@ -31,18 +31,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Tests
 {
 	using ConnectionFramework;
 	using HttpHandlers;
 	using HttpFramework;
+	using TestFramework;
 	using TestRunners;
-	using Portable;
-	using Providers;
+	using Resources;
+	using Server;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class ProxyHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
@@ -62,13 +65,8 @@ namespace Xamarin.WebTests.Tests
 	[AsyncTestFixture (Timeout = 30000)]
 	public class TestProxy : ITestHost<ProxyServer>
 	{
-		[WebTestFeatures.SelectProxyKind]
-		public ProxyKind Kind {
-			get; set;
-		}
-
 		readonly static IPortableEndPoint address;
-		readonly static IServerCertificate serverCertificate;
+		readonly static X509Certificate serverCertificate;
 		readonly static ConnectionParameters serverParameters;
 		readonly static bool hasNetwork;
 
@@ -78,8 +76,7 @@ namespace Xamarin.WebTests.Tests
 			address = support.GetEndpoint (0);
 			hasNetwork = !address.IsLoopback;
 
-			var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
-			serverCertificate = webSupport.GetDefaultServerCertificate ();
+			serverCertificate = ResourceManager.SelfSignedServerCertificate;
 			serverParameters = new ConnectionParameters ("proxy", serverCertificate);
 		}
 
@@ -88,31 +85,31 @@ namespace Xamarin.WebTests.Tests
 			if (!hasNetwork)
 				throw new InvalidOperationException ();
 
-			var provider = DependencyInjector.Get<ConnectionProviderFactory> ().DefaultHttpProvider;
+			var kind = ctx.GetParameter<ProxyKind> ();
 
-			switch (Kind) {
+			switch (kind) {
 			case ProxyKind.Simple:
-				return new ProxyServer (provider, address.CopyWithPort (9999), address.CopyWithPort (9998));
+				return new ProxyServer (address.CopyWithPort (9999), address.CopyWithPort (9998));
 
 			case ProxyKind.BasicAuth:
-				return new ProxyServer (provider, address.CopyWithPort (9997), address.CopyWithPort (9996)) {
+				return new ProxyServer (address.CopyWithPort (9997), address.CopyWithPort (9996)) {
 					AuthenticationType = AuthenticationType.Basic,
 					Credentials = new NetworkCredential ("xamarin", "monkey")
 				};
 
 			case ProxyKind.NtlmAuth:
-				return new ProxyServer (provider, address.CopyWithPort (9995), address.CopyWithPort (9994)) {
+				return new ProxyServer (address.CopyWithPort (9995), address.CopyWithPort (9994)) {
 					AuthenticationType = AuthenticationType.NTLM,
 					Credentials = new NetworkCredential ("xamarin", "monkey")
 				};
 
 			case ProxyKind.Unauthenticated:
-				return new ProxyServer (provider, address.CopyWithPort (9993), address.CopyWithPort (9992)) {
+				return new ProxyServer (address.CopyWithPort (9993), address.CopyWithPort (9992)) {
 					AuthenticationType = AuthenticationType.Basic
 				};
 
 			case ProxyKind.SSL:
-				return new ProxyServer (provider, address.CopyWithPort (9991), address.CopyWithPort (9990), serverParameters);
+				return new ProxyServer (address.CopyWithPort (9991), address.CopyWithPort (9990), null, serverParameters);
 
 			default:
 				throw new InvalidOperationException ();
@@ -131,33 +128,67 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task Run (
-			TestContext ctx, [TestHost] ProxyServer server,
-			[ProxyHandler] Handler handler, CancellationToken cancellationToken)
+		public async Task Run (
+			TestContext ctx,
+			[WebTestFeatures.SelectProxyKind (IncludeSSL = true)] ProxyKind kind,
+			[TestHost] ProxyServer server,
+			[ProxyHandler] Handler handler,
+			CancellationToken cancellationToken)
 		{
-			if (Kind == ProxyKind.Unauthenticated)
-				return TestRunner.RunTraditional (
+			var oldCount = server.CountRequests;
+			if (kind == ProxyKind.Unauthenticated) {
+				await TestRunner.RunTraditional (
 					ctx, server, handler, cancellationToken, false,
 					HttpStatusCode.ProxyAuthenticationRequired, WebExceptionStatus.ProtocolError);
-			else
-				return TestRunner.RunTraditional (
-					ctx, server, handler, cancellationToken, false);
+			} else {
+				await TestRunner.RunTraditional (
+					ctx, server, handler, cancellationToken, false).ConfigureAwait (false);
+				var newCount = server.CountRequests;
+				ctx.Assert (newCount, Is.GreaterThan (oldCount), "used proxy");
+			}
 		}
 
 		[AsyncTest]
 		public Task RunAuthentication (
-			TestContext ctx, [TestHost] ProxyServer server,
-			[AuthenticationType] AuthenticationType authType,  [ProxyHandler] Handler handler,
+			TestContext ctx,
+			[WebTestFeatures.SelectProxyKind (IncludeSSL = true)] ProxyKind kind,
+			[TestHost] ProxyServer server,
+			[AuthenticationType] AuthenticationType authType,
+			[ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
 			var authHandler = new AuthenticationHandler (authType, handler);
-			if (Kind == ProxyKind.Unauthenticated)
+			if (kind == ProxyKind.Unauthenticated)
 				return TestRunner.RunTraditional (
 					ctx, server, authHandler, cancellationToken, false,
 					HttpStatusCode.ProxyAuthenticationRequired, WebExceptionStatus.ProtocolError);
 			else
 				return TestRunner.RunTraditional (
 					ctx, server, authHandler, cancellationToken, false);
+		}
+
+		[AsyncTest]
+		[WebTestFeatures.UseProxyKindAttribute (ProxyKind.SSL)]
+		public async Task RunSsl (
+			TestContext ctx,
+			[TestHost] ProxyServer server,
+			[ProxyHandler] Handler handler,
+			CancellationToken cancellationToken)
+		{
+			var oldCount = server.CountRequests;
+			await TestRunner.RunTraditional (ctx, server, handler, cancellationToken, false);
+			var newCount = server.CountRequests;
+			ctx.Assert (newCount, Is.GreaterThan (oldCount), "used proxy");
+		}
+
+		[AsyncTest]
+		[ExpectedException (typeof (NotSupportedException))]
+		public void InvalidProxyScheme (TestContext ctx)
+		{
+			var url = string.Format ("https://{0}:8888/", address.Address);
+			var request = (HttpWebRequest)WebRequest.Create (url);
+			var requestExt = DependencyInjector.GetExtension<HttpWebRequest,IHttpWebRequestExtension> (request);
+			requestExt.SetProxy (ProxyServer.CreateSimpleProxy (new Uri (url)));
 		}
 	}
 }

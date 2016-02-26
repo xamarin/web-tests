@@ -34,7 +34,8 @@ namespace Xamarin.WebTests.TestFramework
 		ManualClient = 1,
 		ManualServer = 2,
 		RequireSslStream = 4,
-		RequireHttp = 8
+		RequireHttp = 8,
+		AssumeSupportedByTest = 16
 	}
 }
 

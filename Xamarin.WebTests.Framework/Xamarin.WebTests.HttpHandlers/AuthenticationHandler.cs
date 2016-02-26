@@ -31,7 +31,7 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.HttpHandlers
 {
 	using HttpFramework;
-	using Portable;
+	using Server;
 
 	public class AuthenticationHandler : AbstractRedirectHandler
 	{

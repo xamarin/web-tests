@@ -26,32 +26,32 @@
 using System;
 using System.Net;
 using System.Reflection;
+using System.Threading;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests;
-using Xamarin.WebTests.Portable;
 using Xamarin.WebTests.HttpClient;
-using Xamarin.WebTests.Providers;
+using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.TestFramework;
 
-[assembly: AsyncTestSuite (typeof (WebTestFeatures))]
-[assembly: RequireDependency (typeof (IPortableWebSupport))]
+[assembly: AsyncTestSuite (typeof (WebTestFeatures), "WebTests", typeof (SharedWebTestFeatures))]
 [assembly: RequireDependency (typeof (IHttpClientProvider))]
 [assembly: RequireDependency (typeof (ConnectionProviderFactory))]
+[assembly: DependencyProvider (typeof (WebTestFeatures.Provider))]
 
 namespace Xamarin.WebTests
 {
 	using HttpFramework;
 	using TestFramework;
-	using Portable;
 	using Resources;
 	using Internal;
 	using Features;
-	using Providers;
+	using Server;
 	using Tests;
 
-	public class WebTestFeatures : SharedWebTestFeatures
+	public class WebTestFeatures : ITestConfigurationProvider, ISingletonInstance
 	{
 		public static WebTestFeatures Instance {
 			get { return DependencyInjector.Get<WebTestFeatures> (); }
@@ -79,15 +79,12 @@ namespace Xamarin.WebTests
 		}
 
 		#region ITestConfigurationProvider implementation
-		public override string Name {
+		public string Name {
 			get { return "Xamarin.WebTests"; }
 		}
 
-		public override IEnumerable<TestFeature> Features {
+		public IEnumerable<TestFeature> Features {
 			get {
-				foreach (var features in base.Features)
-					yield return features;
-
 				yield return SSL;
 				yield return MonoWithNewTlsAttribute.Instance;
 
@@ -101,11 +98,8 @@ namespace Xamarin.WebTests
 			}
 		}
 
-		public override IEnumerable<TestCategory> Categories {
+		public IEnumerable<TestCategory> Categories {
 			get {
-				foreach (var category in base.Categories)
-					yield return category;
-
 				yield return HeavyCategory;
 				yield return RecentlyFixedCategory;
 			}
@@ -148,6 +142,35 @@ namespace Xamarin.WebTests
 			#endregion
 		}
 
+		[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
+		public class UseProxyKindAttribute : FixedTestParameterAttribute
+		{
+			public override Type Type {
+				get { return typeof(ProxyKind); }
+			}
+
+			public override object Value {
+				get { return kind; }
+			}
+
+			public override string Identifier {
+				get { return identifier; }
+			}
+
+			public ProxyKind Kind {
+				get { return kind; }
+			}
+
+			readonly string identifier;
+			readonly ProxyKind kind;
+
+			public UseProxyKindAttribute (ProxyKind kind)
+			{
+				this.kind = kind;
+				this.identifier = Type.Name;
+			}
+		}
+
 		[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 		public class SelectProxyKindAttribute : TestParameterAttribute, ITestParameterSource<ProxyKind>
 		{
@@ -156,11 +179,12 @@ namespace Xamarin.WebTests
 			{
 			}
 
+			public bool IncludeSSL {
+				get; set;
+			}
+
 			public IEnumerable<ProxyKind> GetParameters (TestContext ctx, string filter)
 			{
-				if (!ctx.IsEnabled (Instance.HasNetwork))
-					yield break;
-
 				if (!ctx.IsEnabled (Instance.Proxy))
 					yield break;
 
@@ -177,33 +201,31 @@ namespace Xamarin.WebTests
 						yield return ProxyKind.NtlmAuth;
 				}
 
-				if (ctx.IsEnabled (Instance.Mono361)) {
-					yield return ProxyKind.Unauthenticated;
+				yield return ProxyKind.Unauthenticated;
 
-					if (ctx.IsEnabled (Instance.SSL))
-						yield return ProxyKind.SSL;
-				}
+				if (IncludeSSL && ctx.IsEnabled (Instance.SSL))
+					yield return ProxyKind.SSL;
 			}
 		}
 
 		[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-		public class SelectServerCertificateAttribute : TestParameterAttribute, ITestParameterSource<ServerCertificateType>
+		public class SelectServerCertificateAttribute : TestParameterAttribute, ITestParameterSource<CertificateResourceType>
 		{
 			public SelectServerCertificateAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
 				: base (filter, flags)
 			{
 			}
 
-			public IEnumerable<ServerCertificateType> GetParameters (TestContext ctx, string filter)
+			public IEnumerable<CertificateResourceType> GetParameters (TestContext ctx, string filter)
 			{
 				if (!ctx.IsEnabled (Instance.SSL))
 					yield break;
 
-				yield return ServerCertificateType.SelfSigned;
+				yield return CertificateResourceType.SelfSignedServerCertificate;
 				if (!ctx.IsEnabled (Instance.CertificateTests))
 					yield break;
 
-				yield return ServerCertificateType.LocalCA;
+				yield return CertificateResourceType.ServerCertificateFromLocalCA;
 			}
 		}
 
@@ -231,39 +253,32 @@ namespace Xamarin.WebTests
 			}
 		}
 
-		[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-		public class Mono38Attribute : TestFeatureAttribute
-		{
-			public override TestFeature Feature {
-				get { return WebTestFeatures.Instance.Mono38; }
-			}
-		}
-
-		[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-		public class Mono381Attribute : TestFeatureAttribute
-		{
-			public override TestFeature Feature {
-				get { return WebTestFeatures.Instance.Mono381; }
-			}
-		}
-
-		[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-		public class Mono61Attribute : TestFeatureAttribute
-		{
-			public override TestFeature Feature {
-				get { return WebTestFeatures.Instance.Mono361; }
-			}
-		}
-
 		bool SupportsCertificateTests ()
 		{
-			var support = DependencyInjector.Get<IPortableWebSupport> ();
+			var support = DependencyInjector.Get<IHttpProvider> ();
 			return support.SupportsPerRequestCertificateValidator;
 		}
 
-		public WebTestFeatures ()
+		internal class Provider : IDependencyProvider
+		{
+			public void Initialize ()
+			{
+				DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
+			}
+		}
+
+		WebTestFeatures ()
 		{
 			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandlerImpl ());
+
+			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
+			var settings = factory.DefaultSettings;
+
+			if (settings == null || settings.InstallDefaultCertificateValidator) {
+				var provider = DependencyInjector.Get<ICertificateProvider> ();
+				var defaultValidator = provider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
+				provider.InstallDefaultValidator (defaultValidator);
+			}
 
 			CertificateTests = new TestFeature (
 				"CertificateTests", "Whether the SSL Certificate tests are supported", () => SupportsCertificateTests ());

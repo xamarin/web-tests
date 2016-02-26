@@ -34,16 +34,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	class ReflectionTestSuiteBuilder : TestBuilder
 	{
-		public Assembly Assembly {
+		public List<ReflectionTestAssembly> Assemblies {
 			get;
 			private set;
 		}
 
 		public ReflectionTestSuiteBuilder (ReflectionTestSuite suite)
-			: base (suite, TestSerializer.TestSuiteIdentifier, suite.Assembly.GetName ().Name,
-				TestSerializer.GetStringParameter (suite.Assembly.FullName))
+			: base (TestSerializer.TestSuiteIdentifier, suite.Framework.Name,
+				TestSerializer.GetStringParameter (suite.Framework.Name))
 		{
-			Assembly = suite.Assembly;
+			Assemblies = suite.Assemblies;
 
 			Resolve ();
 		}
@@ -54,13 +54,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		protected override IEnumerable<TestBuilder> CreateChildren ()
 		{
-			foreach (var type in Assembly.ExportedTypes) {
-				var tinfo = type.GetTypeInfo ();
-				var attr = tinfo.GetCustomAttribute<AsyncTestFixtureAttribute> (true);
-				if (attr == null)
-					continue;
-
-				yield return new ReflectionTestFixtureBuilder (this, attr, tinfo);
+			foreach (var assembly in Assemblies) {
+				yield return new ReflectionTestAssemblyBuilder (this, assembly);
 			}
 		}
 

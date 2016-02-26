@@ -1,7 +1,7 @@
-﻿using Xamarin.AsyncTests;
+﻿using System;
+using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
-using Xamarin.WebTests.Portable;
-using Xamarin.WebTests.Providers;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -16,7 +16,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return Identifier; }
 		}
 
-		public ConnectionParameters (string identifier, IServerCertificate serverCertificate)
+		public ConnectionParameters (string identifier, X509Certificate serverCertificate)
 		{
 			Identifier = identifier;
 			ServerCertificate = serverCertificate;
@@ -38,6 +38,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 			AskForClientCertificate = other.AskForClientCertificate;
 			RequireClientCertificate = other.RequireClientCertificate;
 			EnableDebugging = other.EnableDebugging;
+
+			if (other.GlobalValidationParameters != null)
+				GlobalValidationParameters = (CertificateValidationParameters)other.GlobalValidationParameters.Clone ();
 		}
 
 		object ICloneable.Clone ()
@@ -70,23 +73,23 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		public IClientCertificate ClientCertificate {
+		public X509Certificate ClientCertificate {
 			get; set;
 		}
 
-		public ICertificateValidator ClientCertificateValidator {
+		public CertificateValidator ClientCertificateValidator {
 			get; set;
 		}
 
-		public ICertificateSelector ClientCertificateSelector {
+		public CertificateSelector ClientCertificateSelector {
 			get; set;
 		}
 
-		public IServerCertificate ServerCertificate {
+		public X509Certificate ServerCertificate {
 			get; set;
 		}
 
-		public ICertificateValidator ServerCertificateValidator {
+		public CertificateValidator ServerCertificateValidator {
 			get; set;
 		}
 
@@ -101,6 +104,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public bool EnableDebugging {
 			get;
 			set;
+		}
+
+		public CertificateValidationParameters GlobalValidationParameters {
+			get; set;
 		}
 	}
 }

@@ -24,11 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
-	using Portable;
 
 	[SslStreamTestParameters]
 	public class SslStreamTestParameters : ConnectionTestParameters
@@ -38,7 +38,7 @@ namespace Xamarin.WebTests.TestFramework
 			private set;
 		}
 
-		public SslStreamTestParameters (ConnectionTestCategory category, ConnectionTestType type, string identifier, IServerCertificate certificate)
+		public SslStreamTestParameters (ConnectionTestCategory category, ConnectionTestType type, string identifier, X509Certificate certificate)
 			: base (category, identifier, certificate)
 		{
 			Type = type;

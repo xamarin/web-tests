@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.AsyncTests.Portable
 {
-	public interface IPortableEndPointSupport
+	public interface IPortableEndPointSupport : ISingletonInstance
 	{
 		IPortableEndPoint ParseEndpoint (string address, int defaultPort = 8888, bool dnsLookup = false);
 

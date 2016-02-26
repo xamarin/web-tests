@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public Assembly Assembly {
+		public List<ReflectionTestAssembly> Assemblies {
 			get;
 			private set;
 		}
@@ -63,7 +63,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		internal ReflectionTestSuite (ReflectionTestFramework framework)
 		{
 			Framework = framework;
-			Assembly = framework.Assembly;
+			Assemblies = framework.Assemblies;
 			Builder = new ReflectionTestSuiteBuilder (this);
 
 			var rootPath = new TestPath (Builder.Host, null, Builder.Parameter);

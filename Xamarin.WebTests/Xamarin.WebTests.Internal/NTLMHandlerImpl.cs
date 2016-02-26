@@ -29,7 +29,7 @@ using Mono.Security.Protocol.Ntlm;
 
 namespace Xamarin.WebTests.Internal
 {
-	using Portable;
+	using Server;
 
 	class NTLMHandlerImpl : NTLMHandler
 	{
