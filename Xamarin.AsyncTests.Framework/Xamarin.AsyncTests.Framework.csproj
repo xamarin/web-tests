@@ -24,16 +24,12 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\iPhoneSimulator\Wrench</OutputPath>
     <WarningLevel>4</WarningLevel>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile></AssemblyOriginatorKeyFile>
     <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Wrench|iPhone' ">
     <Optimize>false</Optimize>
     <OutputPath>bin\iPhone\Wrench</OutputPath>
     <WarningLevel>4</WarningLevel>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile></AssemblyOriginatorKeyFile>
     <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <ItemGroup>

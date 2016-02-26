@@ -23,17 +23,15 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Wrench|iPhoneSimulator' ">
     <Optimize>false</Optimize>
     <OutputPath>bin\iPhoneSimulator\Wrench</OutputPath>
+    <DefineConstants>DEBUG;WRENCH;XAMARIN_WEBTESTS</DefineConstants>
     <WarningLevel>4</WarningLevel>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile></AssemblyOriginatorKeyFile>
     <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Wrench|iPhone' ">
     <Optimize>false</Optimize>
     <OutputPath>bin\iPhone\Wrench</OutputPath>
+    <DefineConstants>DEBUG;WRENCH;XAMARIN_WEBTESTS</DefineConstants>
     <WarningLevel>4</WarningLevel>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile></AssemblyOriginatorKeyFile>
     <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <ItemGroup>
