@@ -57,7 +57,6 @@ namespace Xamarin.WebTests.iOS
 
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(AppDelegate).Assembly);
-			DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
 
 			Framework = TestFramework.GetLocalFramework (typeof(AppDelegate).Assembly);
 
