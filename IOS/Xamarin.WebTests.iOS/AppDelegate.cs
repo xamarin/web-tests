@@ -60,7 +60,15 @@ namespace Xamarin.WebTests.iOS
 
 			Framework = TestFramework.GetLocalFramework (typeof(AppDelegate).Assembly);
 
-			LoadApplication (new MobileTestApp (Framework));
+			var mobileTestApp = new MobileTestApp (Framework);
+			LoadApplication (mobileTestApp);
+
+#if WRENCH
+			Device.BeginInvokeOnMainThread (async () => {
+				await mobileTestApp.Run ();
+				Environment.Exit (0);
+			});
+#endif
 
 			return base.FinishedLaunching (app, options);
 		}

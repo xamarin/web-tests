@@ -122,15 +122,16 @@ namespace Xamarin.AsyncTests.Mobile
 
 			RunButton.Clicked += (s, e) => OnRun ();
 			StopButton.Clicked += (sender, e) => OnStop ();
+		}
 
-#if WRENCH
-			OnRun ();
-#endif
+		public Task Run ()
+		{
+			return OnRun ();
 		}
 
 		CancellationTokenSource cts;
 
-		async void OnRun ()
+		async Task OnRun ()
 		{
 			await Task.Yield ();
 
@@ -159,6 +160,9 @@ namespace Xamarin.AsyncTests.Mobile
 				var running = await local.WaitForExit (cancellationToken);
 				Debug ("WAIT FOR EXIT: {0}", running);
 
+				Debug ("{0} test run, {1} ignored, {2} passed, {3} errors.",
+				       countTests, countIgnored, countSuccess, countErrors);
+				
 				await local.Stop (cancellationToken);
 			} finally {
 				cts.Dispose ();
@@ -201,6 +205,9 @@ namespace Xamarin.AsyncTests.Mobile
 
 				var running = await server.WaitForExit (CancellationToken.None);
 				Debug ("WAIT FOR EXIT: {0}", running);
+
+				Debug ("{0} test run, {1} ignored, {2} passed, {3} errors.",
+				       countTests, countIgnored, countSuccess, countErrors);
 
 				await server.Stop (CancellationToken.None);
 
@@ -275,6 +282,7 @@ namespace Xamarin.AsyncTests.Mobile
 				}
 
 				Debug ("Finished {0}: {1}", args.Name, args.Status);
+
 				Device.BeginInvokeOnMainThread (() => {
 					StatusLabel.Text = string.Format ("Finished {0}: {1}", args.Name, args.Status);
 					StatisticsLabel.Text = string.Format ("{0} test run, {1} ignored, {2} passed, {3} errors.",
