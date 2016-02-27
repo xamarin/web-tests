@@ -20,18 +20,6 @@
     <DebugSymbols>true</DebugSymbols>
     <DefineConstants>DEBUG</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Wrench|iPhoneSimulator' ">
-    <Optimize>false</Optimize>
-    <OutputPath>bin\iPhoneSimulator\Wrench</OutputPath>
-    <WarningLevel>4</WarningLevel>
-    <NoStdLib>false</NoStdLib>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Wrench|iPhone' ">
-    <Optimize>false</Optimize>
-    <OutputPath>bin\iPhone\Wrench</OutputPath>
-    <WarningLevel>4</WarningLevel>
-    <NoStdLib>false</NoStdLib>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
