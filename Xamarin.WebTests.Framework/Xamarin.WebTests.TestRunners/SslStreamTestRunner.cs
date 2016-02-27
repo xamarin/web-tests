@@ -31,6 +31,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
+using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.WebTests.TestRunners
 {
@@ -158,8 +159,20 @@ namespace Xamarin.WebTests.TestRunners
 					ExpectClientException = true
 				};
 
+			case ConnectionTestType.GlobalValidatorIsNull:
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					GlobalValidationParameters = new CertificateValidationParameters (),
+					ExpectClientException = true
+				};
+
+			case ConnectionTestType.MustNotInvokeGlobalValidator:
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					GlobalValidationParameters = new CertificateValidationParameters (),
+					ExpectClientException = true
+				};
+
 			default:
-				throw new InvalidOperationException ();
+				throw new InternalErrorException ();
 			}
 		}
 

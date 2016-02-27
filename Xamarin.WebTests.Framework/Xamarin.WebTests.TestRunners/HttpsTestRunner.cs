@@ -28,6 +28,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
@@ -85,6 +86,7 @@ namespace Xamarin.WebTests.TestRunners
 			var acceptNull = certificateProvider.AcceptNull ();
 			var acceptSelfSigned = certificateProvider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
 			var acceptFromLocalCA = certificateProvider.AcceptFromCA (ResourceManager.LocalCACertificate);
+			var mustNotInvoke = certificateProvider.MustNotInvoke ();
 
 			var name = GetTestName (category, type);
 
@@ -173,12 +175,24 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestType.MartinTest:
 				return new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
 					// ClientCertificateValidator = acceptAll,
-					GlobalValidationParameters = new CertificateValidationParameters { Validator = acceptAll },
+					// GlobalValidationParameters = new CertificateValidationParameters { Validator = acceptAll },
 					// ExpectTrustFailure = true, ClientAbortsHandshake = true
 				};
 
+			case ConnectionTestType.GlobalValidatorIsNull:
+				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					GlobalValidationParameters = new CertificateValidationParameters { },
+					ExpectTrustFailure = true, ClientAbortsHandshake = true
+				};
+
+			case ConnectionTestType.MustNotInvokeGlobalValidator:
+				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					GlobalValidationParameters = new CertificateValidationParameters { Validator = mustNotInvoke },
+					ExpectTrustFailure = true, ClientAbortsHandshake = true
+				};
+
 			default:
-				throw new InvalidOperationException ();
+				throw new InternalErrorException ();
 			}
 		}
 
@@ -257,6 +271,25 @@ namespace Xamarin.WebTests.TestRunners
 			}
 
 			return request;
+		}
+
+		RemoteCertificateValidationCallback savedGlobalCallback;
+
+		public override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (Parameters.GlobalValidationParameters != null) {
+				savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
+				var validator = Parameters.GlobalValidationParameters.Validator;
+				ServicePointManager.ServerCertificateValidationCallback = validator != null ? validator.ValidationCallback : null;
+			}
+			return base.PreRun (ctx, cancellationToken);
+		}
+
+		public override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (Parameters.GlobalValidationParameters != null)
+				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
+			return base.PostRun (ctx, cancellationToken);
 		}
 
 		protected async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Request request)

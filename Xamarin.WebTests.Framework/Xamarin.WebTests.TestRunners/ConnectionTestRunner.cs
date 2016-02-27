@@ -100,6 +100,8 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestCategory.MartinTest:
 				yield return ConnectionTestType.MartinTest;
+				yield return ConnectionTestType.GlobalValidatorIsNull;
+				yield return ConnectionTestType.MustNotInvokeGlobalValidator;
 				yield break;
 
 			default:

@@ -44,6 +44,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		CertificateValidator AcceptAll ();
 
+		CertificateValidator MustNotInvoke ();
+
 		void InstallDefaultValidator (CertificateValidator validator);
 
 		X509Certificate GetCertificateFromData (byte[] data);

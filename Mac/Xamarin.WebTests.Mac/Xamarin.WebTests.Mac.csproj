@@ -51,7 +51,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\DebugAppleTls</OutputPath>
-    <DefineConstants>__UNIFIED__;DEBUG;MACUI</DefineConstants>
+    <DefineConstants>__UNIFIED__;DEBUG;MACUI;SECURITY_DEP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>

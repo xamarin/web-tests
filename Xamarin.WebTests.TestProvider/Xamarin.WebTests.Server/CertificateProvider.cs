@@ -40,6 +40,9 @@ namespace Xamarin.WebTests.Server
 		static readonly CertificateValidator acceptNull = new CertificateValidator ((s, c, ch, e) => {
 			return c == null && e == SslPolicyErrors.RemoteCertificateNotAvailable;
 		});
+		static readonly CertificateValidator mustNotInvoke = new CertificateValidator ((s, c, ch, e) => {
+			throw new NotSupportedException ("Must not invoke this");
+		});
 
 		public static CertificateValidator AcceptAll {
 			get { return acceptAll; }
@@ -51,6 +54,10 @@ namespace Xamarin.WebTests.Server
 
 		public static CertificateValidator AcceptNull {
 			get { return acceptNull; }
+		}
+
+		public static CertificateValidator MustNotInvoke {
+			get { return mustNotInvoke; }
 		}
 
 		public CertificateValidator GetDefault ()
@@ -119,6 +126,11 @@ namespace Xamarin.WebTests.Server
 		CertificateValidator ICertificateProvider.AcceptAll ()
 		{
 			return AcceptAll;
+		}
+
+		CertificateValidator ICertificateProvider.MustNotInvoke ()
+		{
+			return MustNotInvoke;
 		}
 
 		public X509Certificate GetCertificateWithKey (byte[] data, string password)

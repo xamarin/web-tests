@@ -123,13 +123,13 @@ namespace Xamarin.WebTests.HttpFramework
 				await Start (ctx, cancellationToken);
 		}
 
-		public async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		public virtual async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (!ReuseConnection)
 				await Start (ctx, cancellationToken);
 		}
 
-		public async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		public virtual async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (!ReuseConnection)
 				await Stop (ctx, cancellationToken);
