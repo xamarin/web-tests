@@ -6,9 +6,9 @@
     <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{74AEDF68-9C00-40A1-BA2A-6E8CBB1E69A0}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Xamarin.WebTests.MacUI</RootNamespace>
+    <RootNamespace>Xamarin.WebTests.Mac</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
-    <AssemblyName>Xamarin.WebTests.MacUI</AssemblyName>
+    <AssemblyName>Xamarin.WebTests.Mac</AssemblyName>
     <TargetFrameworkIdentifier>Xamarin.Mac</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
@@ -44,22 +44,23 @@
     <DefineConstants>MACUI</DefineConstants>
     <Profiling>false</Profiling>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugFull|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugAppleTls|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\DebugFull</OutputPath>
-    <DefineConstants>DEBUG;MACUI</DefineConstants>
+    <OutputPath>bin\DebugAppleTls</OutputPath>
+    <DefineConstants>__UNIFIED__;DEBUG;MACUI</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <UseRefCounting>false</UseRefCounting>
     <UseSGen>false</UseSGen>
     <IncludeMonoRuntime>false</IncludeMonoRuntime>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <EnableCodeSigning>false</EnableCodeSigning>
     <CreatePackage>false</CreatePackage>
+    <EnableCodeSigning>false</EnableCodeSigning>
+    <EnablePackageSigning>false</EnablePackageSigning>
     <Profiling>false</Profiling>
+    <TlsProvider>AppleTLS</TlsProvider>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
