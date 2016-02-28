@@ -99,11 +99,16 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.InvalidServerCertificate;
 				yield break;
 
-			case ConnectionTestCategory.CertificateValidators:
+			case ConnectionTestCategory.HttpsCertificateValidators:
 				yield return ConnectionTestType.DontInvokeGlobalValidator;
 				yield return ConnectionTestType.DontInvokeGlobalValidator2;
 				yield return ConnectionTestType.GlobalValidatorIsNull;
 				yield return ConnectionTestType.MustInvokeGlobalValidator;
+				yield break;
+
+			case ConnectionTestCategory.SslStreamCertificateValidators:
+				yield return ConnectionTestType.MustNotInvokeGlobalValidator;
+				yield return ConnectionTestType.MustNotInvokeGlobalValidator2;
 				yield break;
 
 			case ConnectionTestCategory.MartinTest:

@@ -46,7 +46,10 @@ namespace Xamarin.WebTests.TestFramework
 		DontInvokeGlobalValidator,
 		DontInvokeGlobalValidator2,
 		GlobalValidatorIsNull,
-		MustInvokeGlobalValidator
+		MustInvokeGlobalValidator,
+
+		MustNotInvokeGlobalValidator,
+		MustNotInvokeGlobalValidator2,
 	}
 }
 

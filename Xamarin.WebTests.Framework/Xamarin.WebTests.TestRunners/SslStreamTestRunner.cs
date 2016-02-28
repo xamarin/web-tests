@@ -29,6 +29,7 @@ using System.Net.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Framework;
@@ -155,19 +156,18 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestType.MartinTest:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
-					GlobalValidationParameters = new CertificateValidationParameters (),
 					ExpectClientException = true
 				};
 
-			case ConnectionTestType.GlobalValidatorIsNull:
+			case ConnectionTestType.MustNotInvokeGlobalValidator:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					GlobalValidationParameters = new CertificateValidationParameters (),
-					ExpectClientException = true
+					ClientCertificateValidator = acceptAll,
+					GlobalValidationFlags = GlobalValidationFlags.MustNotInvoke
 				};
 
-			case ConnectionTestType.MustInvokeGlobalValidator:
+			case ConnectionTestType.MustNotInvokeGlobalValidator2:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					GlobalValidationParameters = new CertificateValidationParameters (),
+					GlobalValidationFlags = GlobalValidationFlags.MustNotInvoke,
 					ExpectClientException = true
 				};
 
@@ -252,21 +252,40 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		RemoteCertificateValidationCallback savedGlobalCallback;
+		TestContext savedContext;
+		bool restoreGlobalCallback;
+
+		void SetGlobalValidationCallback (TestContext ctx, RemoteCertificateValidationCallback callback)
+		{
+			savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
+			ServicePointManager.ServerCertificateValidationCallback = callback;
+			savedContext = ctx;
+			restoreGlobalCallback = true;
+		}
+
+		bool GlobalValidator (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+		{
+			savedContext.AssertFail ("Global validator has been invoked!");
+			return false;
+		}
 
 		public override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (Parameters.GlobalValidationParameters != null) {
-				savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
-				var validator = Parameters.GlobalValidationParameters.Validator;
-				ServicePointManager.ServerCertificateValidationCallback = validator != null ? validator.ValidationCallback : null;
-			}
+			savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
+
+			if (Parameters.GlobalValidationFlags == GlobalValidationFlags.MustNotInvoke)
+				SetGlobalValidationCallback (ctx, GlobalValidator);
+			else if (Parameters.GlobalValidationFlags != 0)
+				ctx.AssertFail ("Invalid GlobalValidationFlags");
+
 			return base.PreRun (ctx, cancellationToken);
 		}
 
 		public override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (Parameters.GlobalValidationParameters != null)
+			if (restoreGlobalCallback)
 				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
+
 			return base.PostRun (ctx, cancellationToken);
 		}
 	}

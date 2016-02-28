@@ -319,8 +319,6 @@ namespace Xamarin.WebTests.TestRunners
 
 		public override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
-			
 			if (HasFlag (GlobalValidationFlags.SetToNull))
 				SetGlobalValidationCallback (ctx, null);
 			else if (HasFlag (GlobalValidationFlags.SetToTestRunner))

@@ -40,7 +40,8 @@ namespace Xamarin.WebTests.TestFramework
 		SslStreamWithTls12,
 		InvalidCertificatesInTls12,
 
-		CertificateValidators,
+		HttpsCertificateValidators,
+		SslStreamCertificateValidators,
 
 		MartinTest,
 	}
