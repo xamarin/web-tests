@@ -52,6 +52,11 @@ namespace Xamarin.WebTests.TestRunners
 		{
 		}
 
+		protected override ConnectionHandler CreateConnectionHandler ()
+		{
+			return new DefaultConnectionHandler (this);
+		}
+
 		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object[] args)
 		{
 			var sb = new StringBuilder ();
@@ -231,24 +236,6 @@ namespace Xamarin.WebTests.TestRunners
 			}
 
 			base.OnWaitForClientConnectionCompleted (ctx, task);
-		}
-
-		protected override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
-		{
-			if (IsManualConnection)
-				return;
-
-			var serverStream = new StreamWrapper (Server.Stream);
-			var clientStream = new StreamWrapper (Client.Stream);
-
-			await serverStream.WriteLineAsync ("SERVER OK");
-			var line = await clientStream.ReadLineAsync ();
-			if (!line.Equals ("SERVER OK"))
-				throw new ConnectionException ("Got unexpected output from server: '{0}'", line);
-			await clientStream.WriteLineAsync ("CLIENT OK");
-			line = await serverStream.ReadLineAsync ();
-			if (!line.Equals ("CLIENT OK"))
-				throw new ConnectionException ("Got unexpected output from client: '{0}'", line);
 		}
 
 		RemoteCertificateValidationCallback savedGlobalCallback;

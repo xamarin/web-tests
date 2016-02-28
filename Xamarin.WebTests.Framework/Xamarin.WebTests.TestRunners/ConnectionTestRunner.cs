@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
@@ -49,10 +51,17 @@ namespace Xamarin.WebTests.TestRunners
 			private set;
 		}
 
+		public ConnectionHandler ConnectionHandler {
+			get;
+			private set;
+		}
+
 		public ConnectionTestRunner (IServer server, IClient client, ConnectionTestProvider provider, ConnectionTestParameters parameters)
 			: base (server, client, parameters)
 		{
 			Provider = provider;
+
+			ConnectionHandler = CreateConnectionHandler ();
 		}
 
 		public static IEnumerable<ConnectionTestType> GetConnectionTestTypes (TestContext ctx, ConnectionTestCategory category)
@@ -148,6 +157,25 @@ namespace Xamarin.WebTests.TestRunners
 			default:
 				throw new InvalidOperationException ();
 			}
+		}
+
+		protected override void InitializeConnection (TestContext ctx)
+		{
+			ConnectionHandler.InitializeConnection (ctx);
+			base.InitializeConnection (ctx);
+		}
+
+		protected abstract ConnectionHandler CreateConnectionHandler ();
+
+		protected sealed override Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return ConnectionHandler.MainLoop (ctx, cancellationToken);
+		}
+
+		public override Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken)
+		{
+			ConnectionHandler.Shutdown (ctx);
+			return base.Shutdown (ctx, cancellationToken);
 		}
 	}
 }

@@ -229,27 +229,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 			ctx.LogDebug (level, formatted);
 		}
 
-		async Task HandleConnection (TestContext ctx, ICommonConnection connection, Task readTask, Task writeTask, CancellationToken cancellationToken)
-		{
-			var t1 = readTask.ContinueWith (t => {
-				LogDebug (ctx, 1, "HandleConnection - read done", connection, t.Status, t.IsFaulted, t.IsCanceled);
-				if (t.IsFaulted || t.IsCanceled)
-					Dispose ();
-			});
-			var t2 = writeTask.ContinueWith (t => {
-				LogDebug (ctx, 1, "HandleConnection - write done", connection, t.Status, t.IsFaulted, t.IsCanceled);
-				if (t.IsFaulted || t.IsCanceled)
-					Dispose ();
-			});
-
-			LogDebug (ctx, 1, "HandleConnection", connection);
-
-			await Task.WhenAll (readTask, writeTask, t1, t2);
-			cancellationToken.ThrowIfCancellationRequested ();
-
-			LogDebug (ctx, 1, "HandleConnection done", connection);
-		}
-
 		protected sealed override Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return ConnectionHandler.MainLoop (ctx, cancellationToken);
@@ -259,17 +238,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 		{
 			ConnectionHandler.Shutdown (ctx);
 			return base.Shutdown (ctx, cancellationToken);
-		}
-
-		public async Task ExpectAlert (TestContext ctx, AlertDescription alert, CancellationToken cancellationToken)
-		{
-			var serverTask = Server.WaitForConnection (ctx, cancellationToken);
-			var clientTask = Client.WaitForConnection (ctx, cancellationToken);
-
-			var t1 = clientTask.ContinueWith (t => MonoConnectionHelper.ExpectAlert (ctx, t, alert, "client"));
-			var t2 = serverTask.ContinueWith (t => MonoConnectionHelper.ExpectAlert (ctx, t, alert, "server"));
-
-			await Task.WhenAll (t1, t2);
 		}
 	}
 }
