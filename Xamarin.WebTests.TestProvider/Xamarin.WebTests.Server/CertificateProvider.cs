@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.Server
 			return c == null && e == SslPolicyErrors.RemoteCertificateNotAvailable;
 		});
 		static readonly CertificateValidator mustNotInvoke = new CertificateValidator ((s, c, ch, e) => {
+			Console.Error.WriteLine ("MUST NOT INVOKE THIS VALIDATOR!");
 			throw new NotSupportedException ("Must not invoke this");
 		});
 

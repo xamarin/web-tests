@@ -172,24 +172,33 @@ namespace Xamarin.WebTests.TestRunners
 					ClientAbortsHandshake = true
 				};
 
-			case ConnectionTestType.MartinTest:
+			case ConnectionTestType.DontInvokeGlobalValidator:
 				return new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
-					// ClientCertificateValidator = acceptAll,
-					// GlobalValidationParameters = new CertificateValidationParameters { Validator = acceptAll },
-					// ExpectTrustFailure = true, ClientAbortsHandshake = true
+					ClientCertificateValidator = acceptAll,
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner | GlobalValidationFlags.MustNotInvoke
+				};
+
+			case ConnectionTestType.DontInvokeGlobalValidator2:
+				return new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
+					ClientCertificateValidator = rejectAll,
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner | GlobalValidationFlags.MustNotInvoke,
+					ExpectTrustFailure = true, ClientAbortsHandshake = true
 				};
 
 			case ConnectionTestType.GlobalValidatorIsNull:
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					GlobalValidationParameters = new CertificateValidationParameters { },
+					GlobalValidationFlags = GlobalValidationFlags.SetToNull,
 					ExpectTrustFailure = true, ClientAbortsHandshake = true
 				};
 
-			case ConnectionTestType.MustNotInvokeGlobalValidator:
+			case ConnectionTestType.MustInvokeGlobalValidator:
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					GlobalValidationParameters = new CertificateValidationParameters { Validator = mustNotInvoke },
-					ExpectTrustFailure = true, ClientAbortsHandshake = true
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner |
+						GlobalValidationFlags.MustInvoke | GlobalValidationFlags.AlwaysSucceed
 				};
+
+			case ConnectionTestType.MartinTest:
+				goto case ConnectionTestType.MustInvokeGlobalValidator;
 
 			default:
 				throw new InternalErrorException ();
@@ -273,22 +282,61 @@ namespace Xamarin.WebTests.TestRunners
 			return request;
 		}
 
+		bool HasFlag (GlobalValidationFlags flag)
+		{
+			return (Parameters.GlobalValidationFlags & flag) == flag;
+		}
+
 		RemoteCertificateValidationCallback savedGlobalCallback;
+		TestContext savedContext;
+		bool restoreGlobalCallback;
+		int globalValidatorInvoked;
+
+		void SetGlobalValidationCallback (TestContext ctx, RemoteCertificateValidationCallback callback)
+		{
+			savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
+			ServicePointManager.ServerCertificateValidationCallback = callback;
+			savedContext = ctx;
+			restoreGlobalCallback = true;
+		}
+
+		bool GlobalValidator (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+		{
+			if (HasFlag (GlobalValidationFlags.MustNotInvoke)) {
+				savedContext.AssertFail ("Global validator has been invoked!");
+				return false;
+			}
+
+			++globalValidatorInvoked;
+
+			if (HasFlag (GlobalValidationFlags.AlwaysFail))
+				return false;
+			else if (HasFlag (GlobalValidationFlags.AlwaysSucceed))
+				return true;
+
+			return errors == SslPolicyErrors.None;
+		}
 
 		public override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (Parameters.GlobalValidationParameters != null) {
-				savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
-				var validator = Parameters.GlobalValidationParameters.Validator;
-				ServicePointManager.ServerCertificateValidationCallback = validator != null ? validator.ValidationCallback : null;
-			}
+			savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
+			
+			if (HasFlag (GlobalValidationFlags.SetToNull))
+				SetGlobalValidationCallback (ctx, null);
+			else if (HasFlag (GlobalValidationFlags.SetToTestRunner))
+				SetGlobalValidationCallback (ctx, GlobalValidator);
+			
 			return base.PreRun (ctx, cancellationToken);
 		}
 
 		public override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (Parameters.GlobalValidationParameters != null)
+			if (restoreGlobalCallback)
 				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
+
+			if (HasFlag (GlobalValidationFlags.MustInvoke))
+				ctx.Assert (globalValidatorInvoked, Is.EqualTo (1), "global validator has been invoked");
+
 			return base.PostRun (ctx, cancellationToken);
 		}
 

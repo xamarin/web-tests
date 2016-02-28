@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.WebTests.TestRunners
 {
@@ -98,15 +99,20 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.InvalidServerCertificate;
 				yield break;
 
+			case ConnectionTestCategory.CertificateValidators:
+				yield return ConnectionTestType.DontInvokeGlobalValidator;
+				yield return ConnectionTestType.DontInvokeGlobalValidator2;
+				yield return ConnectionTestType.GlobalValidatorIsNull;
+				yield return ConnectionTestType.MustInvokeGlobalValidator;
+				yield break;
+
 			case ConnectionTestCategory.MartinTest:
 				yield return ConnectionTestType.MartinTest;
-				yield return ConnectionTestType.GlobalValidatorIsNull;
-				yield return ConnectionTestType.MustNotInvokeGlobalValidator;
 				yield break;
 
 			default:
 				ctx.AssertFail ("Unsupported test category: '{0}'.", category);
-				throw new NotImplementedException ();
+				throw new InternalErrorException ();
 			}
 		}
 

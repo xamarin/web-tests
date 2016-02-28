@@ -43,8 +43,10 @@ namespace Xamarin.WebTests.TestFramework
 		InvalidServerCertificate,
 		MartinTest,
 
+		DontInvokeGlobalValidator,
+		DontInvokeGlobalValidator2,
 		GlobalValidatorIsNull,
-		MustNotInvokeGlobalValidator
+		MustInvokeGlobalValidator
 	}
 }
 

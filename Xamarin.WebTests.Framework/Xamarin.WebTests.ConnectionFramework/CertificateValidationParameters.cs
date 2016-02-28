@@ -5,6 +5,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	using ConnectionFramework;
 
+	[Obsolete ("KILL")]
 	public class CertificateValidationParameters : ICloneable
 	{
 		public CertificateValidator Validator {

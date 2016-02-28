@@ -165,7 +165,7 @@ namespace Xamarin.WebTests.TestRunners
 					ExpectClientException = true
 				};
 
-			case ConnectionTestType.MustNotInvokeGlobalValidator:
+			case ConnectionTestType.MustInvokeGlobalValidator:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					GlobalValidationParameters = new CertificateValidationParameters (),
 					ExpectClientException = true

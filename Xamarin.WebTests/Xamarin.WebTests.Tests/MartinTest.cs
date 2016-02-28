@@ -58,8 +58,8 @@ namespace Xamarin.WebTests
 				client.Credentials = authHandler.GetCredentials ();
 		}
 
-		[Work]
-		[AsyncTest]
+		// [Work]
+		// [AsyncTest]
 		public async Task TestMartinFixed (
 			TestContext ctx, [HttpServer (ListenerFlags.SSL)] HttpServer server,
 			CancellationToken cancellationToken)
@@ -81,7 +81,7 @@ namespace Xamarin.WebTests
 			});
 		}
 
-		[Martin]
+		// [Martin]
 		[AsyncTest]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireSslStream)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
@@ -92,11 +92,21 @@ namespace Xamarin.WebTests
 			await runner.Run (ctx, cancellationToken);
 		}
 
+		[Work]
+		[AsyncTest]
+		[ConnectionTestCategory (ConnectionTestCategory.CertificateValidators)]
+		public async Task TestMartinHttpWorking (TestContext ctx, CancellationToken cancellationToken,
+			[ConnectionTestProvider ("DotNet:DotNet")] ConnectionTestProvider provider,
+			HttpsTestParameters parameters, HttpsTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
 		[Martin]
 		[AsyncTest]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task TestMartinHttp (TestContext ctx, CancellationToken cancellationToken,
-			[ConnectionTestProvider ("AppleTls:AppleTls")] ConnectionTestProvider provider,
+			[ConnectionTestProvider ("DotNet:DotNet")] ConnectionTestProvider provider,
 			HttpsTestParameters parameters, HttpsTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
