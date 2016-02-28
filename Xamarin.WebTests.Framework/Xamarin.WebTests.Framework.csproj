@@ -158,6 +158,8 @@
     <Compile Include="Xamarin.WebTests.Resources\CertificateResourceType.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\HttpServerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\GlobalValidationFlags.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\ConnectionHandler.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\DefaultConnectionHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

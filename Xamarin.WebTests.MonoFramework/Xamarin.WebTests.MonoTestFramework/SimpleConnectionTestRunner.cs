@@ -58,9 +58,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 		{
 		}
 
-		protected override MonoConnectionHandler CreateConnectionHandler ()
+		protected override ConnectionHandler CreateConnectionHandler ()
 		{
-			return new DefaultMonoConnectionHandler (this);
+			return new DefaultConnectionHandler (this);
 		}
 
 		public static IEnumerable<SimpleConnectionType> GetTestTypes (TestContext ctx, MonoConnectionTestCategory category)

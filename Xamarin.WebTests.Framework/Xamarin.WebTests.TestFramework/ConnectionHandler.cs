@@ -1,5 +1,5 @@
 ﻿//
-// InstrumentationConnectionHandler.cs
+// ConnectionHandler.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -33,12 +33,11 @@ using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.MonoConnectionFramework;
 using Xamarin.WebTests.HttpFramework;
 
-namespace Xamarin.WebTests.MonoTestFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	public abstract class MonoConnectionHandler : IDisposable
+	public abstract class ConnectionHandler : IDisposable
 	{
 		public ClientAndServer Runner {
 			get;
@@ -57,7 +56,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get { return Runner.Parameters; }
 		}
 
-		public MonoConnectionHandler (ClientAndServer runner)
+		public ConnectionHandler (ClientAndServer runner)
 		{
 			Runner = runner;
 

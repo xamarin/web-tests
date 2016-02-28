@@ -39,6 +39,7 @@ using Xamarin.WebTests.MonoTestFramework;
 using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.Resources;
 using Xamarin.WebTests.TestRunners;
+using Xamarin.WebTests.TestFramework;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
@@ -61,7 +62,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			private set;
 		}
 
-		public MonoConnectionHandler ConnectionHandler {
+		public ConnectionHandler ConnectionHandler {
 			get;
 			private set;
 		}
@@ -136,7 +137,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			base.InitializeConnection (ctx);
 		}
 
-		protected abstract MonoConnectionHandler CreateConnectionHandler ();
+		protected abstract ConnectionHandler CreateConnectionHandler ();
 
 		public static IEnumerable<R> Join<T,U,R> (IEnumerable<T> first, IEnumerable<U> second, Func<T, U, R> resultSelector) {
 			foreach (var e1 in first) {

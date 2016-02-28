@@ -1,5 +1,5 @@
 ﻿//
-// DefaultMonoConnectionHandler.cs
+// DefaultConnectionHandler.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -28,13 +28,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.TestFramework;
 
-namespace Xamarin.WebTests.MonoTestFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	public class DefaultMonoConnectionHandler : MonoConnectionHandler
+	public class DefaultConnectionHandler : ConnectionHandler
 	{
-		public DefaultMonoConnectionHandler (ClientAndServer runner)
+		public DefaultConnectionHandler (ClientAndServer runner)
 			: base (runner)
 		{
 		}
