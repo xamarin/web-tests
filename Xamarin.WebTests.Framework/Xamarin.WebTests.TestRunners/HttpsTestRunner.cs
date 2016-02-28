@@ -197,7 +197,7 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case ConnectionTestType.MartinTest:
-				goto case ConnectionTestType.MustInvokeGlobalValidator;
+				goto case ConnectionTestType.RejectClientCertificate;
 
 			default:
 				throw new InternalErrorException ();
@@ -347,6 +347,9 @@ namespace Xamarin.WebTests.TestRunners
 			var certificate = traditionalRequest.RequestExt.GetCertificate ();
 			ctx.Assert (certificate, Is.Not.Null, "certificate");
 			ctx.Assert (provider.AreEqual (certificate, Parameters.ServerCertificate), "correct certificate");
+
+			if (!response.IsSuccess)
+				return response;
 
 			var clientCertificate = traditionalRequest.RequestExt.GetClientCertificate ();
 			if ((Parameters.AskForClientCertificate || Parameters.RequireClientCertificate) && Parameters.ClientCertificate != null) {
