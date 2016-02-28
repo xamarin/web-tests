@@ -39,9 +39,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			RequireClientCertificate = other.RequireClientCertificate;
 			EnableDebugging = other.EnableDebugging;
 			GlobalValidationFlags = other.GlobalValidationFlags;
-
-			if (other.GlobalValidationParameters != null)
-				GlobalValidationParameters = (CertificateValidationParameters)other.GlobalValidationParameters.Clone ();
 		}
 
 		object ICloneable.Clone ()
@@ -108,11 +105,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public GlobalValidationFlags GlobalValidationFlags {
-			get; set;
-		}
-
-		[Obsolete ("KILL")]
-		public CertificateValidationParameters GlobalValidationParameters {
 			get; set;
 		}
 	}

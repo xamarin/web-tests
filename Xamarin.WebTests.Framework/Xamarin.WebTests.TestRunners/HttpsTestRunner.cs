@@ -86,7 +86,6 @@ namespace Xamarin.WebTests.TestRunners
 			var acceptNull = certificateProvider.AcceptNull ();
 			var acceptSelfSigned = certificateProvider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
 			var acceptFromLocalCA = certificateProvider.AcceptFromCA (ResourceManager.LocalCACertificate);
-			var mustNotInvoke = certificateProvider.MustNotInvoke ();
 
 			var name = GetTestName (category, type);
 

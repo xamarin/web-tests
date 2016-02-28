@@ -157,7 +157,6 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.Resources\CertificateResourceType.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\HttpServerAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateValidationParameters.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\GlobalValidationFlags.cs" />
   </ItemGroup>
   <ItemGroup>
