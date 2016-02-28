@@ -65,6 +65,15 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
+		[ConnectionTestCategory (ConnectionTestCategory.SslStreamCertificateValidators)]
+		public async Task TestCertificateValidators (TestContext ctx, CancellationToken cancellationToken,
+			ConnectionTestProvider provider, SslStreamTestParameters parameters,
+			SslStreamTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
+		[AsyncTest]
 		[ProtocolVersion (ProtocolVersions.Tls12)]
 		[ConnectionTestCategory (ConnectionTestCategory.SslStreamWithTls12)]
 		public async Task TestDotNetConnectionTls12 (TestContext ctx, CancellationToken cancellationToken,

@@ -65,6 +65,16 @@ namespace Xamarin.WebTests.Tests
 		{
 			await runner.Run (ctx, cancellationToken);
 		}
+
+		[AsyncTest]
+		[CertificateTests]
+		[ConnectionTestCategory (ConnectionTestCategory.HttpsCertificateValidators)]
+		public async Task TestCertificateValidators (TestContext ctx, CancellationToken cancellationToken,
+			ConnectionTestProvider provider, HttpsTestParameters parameters,
+			HttpsTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
 	}
 }
 

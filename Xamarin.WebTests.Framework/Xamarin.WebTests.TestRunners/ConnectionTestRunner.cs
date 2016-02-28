@@ -139,6 +139,10 @@ namespace Xamarin.WebTests.TestRunners
 				return supportsSslStream && supportsTls12;
 			case ConnectionTestCategory.InvalidCertificatesInTls12:
 				return supportsSslStream && supportsTls12 && supportsClientCertificates;
+			case ConnectionTestCategory.HttpsCertificateValidators:
+				return true;
+			case ConnectionTestCategory.SslStreamCertificateValidators:
+				return supportsSslStream;
 			case ConnectionTestCategory.MartinTest:
 				return true;
 			default:
