@@ -29,6 +29,7 @@ using System.Collections.Generic;
 
 using Foundation;
 using UIKit;
+using ObjCRuntime;
 using Xamarin.WebTests.TestProvider;
 
 namespace Xamarin.WebTests.iOS
@@ -51,7 +52,13 @@ namespace Xamarin.WebTests.iOS
 			private set;
 		}
 
-		public override bool FinishedLaunching(UIApplication app, NSDictionary options)
+		public void TerminateWithSuccess ()
+		{
+			Selector selector = new Selector ("terminateWithSuccess");
+			UIApplication.SharedApplication.PerformSelector (selector, UIApplication.SharedApplication, 0);
+		}
+
+		public override bool FinishedLaunching (UIApplication app, NSDictionary options)
 		{
 			Forms.Init ();
 
@@ -66,7 +73,7 @@ namespace Xamarin.WebTests.iOS
 #if WRENCH
 			Device.BeginInvokeOnMainThread (async () => {
 				await mobileTestApp.Run ();
-				Environment.Exit (0);
+				TerminateWithSuccess ();
 			});
 #endif
 
