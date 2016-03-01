@@ -113,6 +113,7 @@ namespace Xamarin.AsyncTests.Console
 		bool showCategories;
 		bool showFeatures;
 		bool saveOptions;
+		string extraLauncherArgs;
 		string customSettings;
 		string category;
 		string features;
@@ -152,6 +153,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("settings=", v => SettingsFile = v);
 			p.Add ("connect=", v => EndPoint = GetEndPoint (v));
 			p.Add ("endpoint=", v => EndPoint = GetEndPoint (v));
+			p.Add ("extra-launcher-args=", v => extraLauncherArgs = v);
 			p.Add ("gui=", v => GuiEndPoint = GetEndPoint (v));
 			p.Add ("wait", v => Wait = true);
 			p.Add ("no-result", v => ResultOutput = null);
@@ -202,7 +204,7 @@ namespace Xamarin.AsyncTests.Console
 			} else if (command == Command.Simulator) {
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected .app argument");
-				Launcher = new TouchLauncher (arguments [0]);
+				Launcher = new TouchLauncher (arguments [0], extraLauncherArgs);
 				arguments.RemoveAt (0);
 
 				if (EndPoint == null)

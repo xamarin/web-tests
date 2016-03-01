@@ -59,11 +59,17 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public string ExtraMTouchArguments {
+			get;
+			private set;
+		}
+
 		Process process;
 
-		public TouchLauncher (string app)
+		public TouchLauncher (string app, string extraArgs)
 		{
 			Application = app;
+			ExtraMTouchArguments = extraArgs;
 
 			MonoTouchRoot = Environment.GetEnvironmentVariable ("MONOTOUCH_ROOT");
 			if (String.IsNullOrEmpty (MonoTouchRoot))
@@ -78,8 +84,13 @@ namespace Xamarin.AsyncTests.Console
 			var args = new StringBuilder ();
 			args.AppendFormat (" --launchsim={0}", Application);
 			args.AppendFormat (" --setenv=\"XAMARIN_ASYNCTESTS_OPTIONS=connect {0}:{1}\"", address.Address, address.Port);
-			args.AppendFormat (" --stderr=stderr");
-			args.AppendFormat (" --stdout=logfile");
+			args.AppendFormat (" --stderr=simulator-stderr.txt");
+			args.AppendFormat (" --stdout=simulator-stdout.txt");
+
+			if (ExtraMTouchArguments != null) {
+				args.Append (" ");
+				args.Append (ExtraMTouchArguments);
+			}
 
 			Program.Debug ("Launching mtouch: {0} {1}", MTouch, args);
 
