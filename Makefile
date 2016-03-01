@@ -14,3 +14,7 @@ clean::
 	
 run::
 	$(MONO) $(OUTPUT) $(RUN_ARGS)
+
+Hello::
+	echo "Hello World!"
+
