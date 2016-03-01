@@ -24,12 +24,14 @@ TEST_RESULT = TestResult.xml
 
 .IOS-Build-Sim:
 	$(MONO) $(NUGET_EXE) restore Xamarin.WebTests.iOS.sln
-	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'WrenchAppleTls|iPhoneSimulator'
+	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'DebugAppleTls|iPhoneSimulator'
+	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'Debug|iPhoneSimulator'
 	touch $@
 
 .IOS-Build-Dev:
 	$(MONO) $(NUGET_EXE) restore Xamarin.WebTests.iOS.sln
-	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'WrenchAppleTls|iPhone'
+	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'DebugAppleTls|iPhone'
+	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'Debug|iPhone'
 	touch $@
 
 .IOS-Simulator:: .IOS-Build-Sim
