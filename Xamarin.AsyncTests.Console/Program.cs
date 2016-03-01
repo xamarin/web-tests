@@ -269,7 +269,7 @@ namespace Xamarin.AsyncTests.Console
 		{
 			Debug (message);
 			if (Wrench)
-				global::System.Console.WriteLine ("@MonkeyWrench: AddSummary: {0}", message);
+				global::System.Console.WriteLine ("@MonkeyWrench: AddSummary: <p>{0}</p>", message);
 		}
 
 		internal void AddFile (string filename)
