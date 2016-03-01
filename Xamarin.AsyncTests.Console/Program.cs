@@ -212,7 +212,15 @@ namespace Xamarin.AsyncTests.Console
 			} else if (command == Command.Simulator) {
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected .app argument");
-				Launcher = new TouchLauncher (arguments [0], extraLauncherArgs);
+				Launcher = new TouchLauncher (arguments [0], false, extraLauncherArgs);
+				arguments.RemoveAt (0);
+
+				if (EndPoint == null)
+					EndPoint = GetLocalEndPoint ();
+			} else if (command == Command.Device) {
+				if (arguments.Count < 1)
+					throw new InvalidOperationException ("Expected .app argument");
+				Launcher = new TouchLauncher (arguments [0], true, extraLauncherArgs);
 				arguments.RemoveAt (0);
 
 				if (EndPoint == null)
@@ -392,7 +400,8 @@ namespace Xamarin.AsyncTests.Console
 			case Command.Listen:
 				return WaitForConnection (cancellationToken);
 			case Command.Simulator:
-				return LaunchSimulator (cancellationToken);
+			case Command.Device:
+				return LaunchApplication (cancellationToken);
 			default:
 				throw new NotImplementedException ();
 			}
@@ -546,7 +555,7 @@ namespace Xamarin.AsyncTests.Console
 			await server.Stop (cancellationToken);
 		}
 
-		async Task LaunchSimulator (CancellationToken cancellationToken)
+		async Task LaunchApplication (CancellationToken cancellationToken)
 		{
 			var endpoint = GetPortableEndPoint (EndPoint);
 			var server = await TestServer.LaunchApplication (this, endpoint, Launcher, cancellationToken);
@@ -555,7 +564,7 @@ namespace Xamarin.AsyncTests.Console
 			Debug ("Test app launched.");
 			await RunRemoteSession (server, cancellationToken);
 
-			Debug ("Simulator finished.");
+			Debug ("Application finished.");
 		}
 
 		async Task WaitForConnection (CancellationToken cancellationToken)

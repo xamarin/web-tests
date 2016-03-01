@@ -6,29 +6,35 @@ IOS_CONFIGURATION = Debug
 CONSOLE_OUTPUT_DIR = Debug
 IOS_OUTPUT_DIR = $(IOS_TARGET)/$(IOS_CONFIGURATION)
 
-XAMARIN_ASYNCTESTS_CONSOLE_DIR = $(TOP)/Xamarin.AsyncTests.Console/bin/$(CONSOLE_OUTPUT_DIR)
-XAMARIN_ASYNCTESTS_CONSOLE_EXE = $(XAMARIN_ASYNCTESTS_CONSOLE_DIR)/Xamarin.AsyncTests.Console.exe
-XAMARIN_WEBTESTS_IOS_APP = $(TOP)/IOS/Xamarin.WebTests.iOS/bin/$(IOS_OUTPUT_DIR)/XamarinWebTestsIOS.app
+ASYNCTESTS_CONSOLE_DIR = $(TOP)/Xamarin.AsyncTests.Console/bin/$(CONSOLE_OUTPUT_DIR)
+ASYNCTESTS_CONSOLE_EXE = $(ASYNCTESTS_CONSOLE_DIR)/Xamarin.AsyncTests.Console.exe
+WEBTESTS_IOS_APP = $(TOP)/IOS/Xamarin.WebTests.iOS/bin/$(IOS_OUTPUT_DIR)/XamarinWebTestsIOS.app
 
-XAMARIN_ASYNCTESTS_ARGS =
+ASYNCTESTS_ARGS =
+EXTRA_ASYNCTESTS_ARGS =
 
 TEST_CATEGORY = All
 TEST_RESULT = TestResult.xml
 
-WORK_DEBUG_ARGS = --debug --log-level=5
-
 .IOS-Clean::
-	-rm .IOS-Build
-	-rm -rf $(XAMARIN_ASYNCTESTS_CONSOLE_DIR)
-	-rm -rf $(XAMARIN_WEBTESTS_IOS_APP)
-	
-$(XAMARIN_ASYNCTESTS_CONSOLE_EXE) $(XAMARIN_WEBTESTS_IOS_APP): .IOS-Build
+	-rm .IOS-Build-Sim
+	-rm .IOS-Build-Dev
+	-rm -rf $(ASYNCTESTS_CONSOLE_DIR)
+	-rm -rf $(WEBTESTS_IOS_APP)
 
-.IOS-Build:
+.IOS-Build-Sim:
 	$(MONO) $(NUGET_EXE) restore Xamarin.WebTests.iOS.sln
 	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'WrenchAppleTls|iPhoneSimulator'
 	touch $@
 
-.IOS-Simulator:: .IOS-Build
-	$(MONO) $(XAMARIN_ASYNCTESTS_CONSOLE_EXE) $(XAMARIN_ASYNCTESTS_ARGS) --category=$(TEST_CATEGORY) --result=$(TEST_RESULT) simulator $(XAMARIN_WEBTESTS_IOS_APP)
+.IOS-Build-Dev:
+	$(MONO) $(NUGET_EXE) restore Xamarin.WebTests.iOS.sln
+	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'WrenchAppleTls|iPhone'
+	touch $@
+
+.IOS-Simulator:: .IOS-Build-Sim
+	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) --category=$(TEST_CATEGORY) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) simulator $(WEBTESTS_IOS_APP)
+
+.IOS-Device:: .IOS-Build-Dev
+	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) --category=$(TEST_CATEGORY) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) device $(WEBTESTS_IOS_APP)
 

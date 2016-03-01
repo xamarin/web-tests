@@ -21,46 +21,97 @@ run::
 
 Hello::
 	echo "Hello World!"
-	
+
+#
+# Build
+#
+
 CleanAll::
 	git clean -xffd
 
-IOS-Build::
-	$(MAKE) -f $(TOP)/ios.make .IOS-Build
+IOS-Build-Sim::
+	$(MAKE) -f $(TOP)/ios.make .IOS-Build-Sim
+
+IOS-Build-Dev::
+	$(MAKE) -f $(TOP)/ios.make .IOS-Build-Dev
+
+#
+# Simulator
+#
 	
 IOS-Sim-Work::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Simulator \
-		XAMARIN_ASYNCTESTS_ARGS="--wrench --features=+Experimental --debug --log-level=5" \
-		TEST_CATEGORY=Work TEST_OUTPUT=TestResult-Work.xml \
+		ASYNCTESTS_ARGS="--wrench --features=+Experimental --debug --log-level=5" \
+		TEST_CATEGORY=Work TEST_OUTPUT=TestResult-$@.xml \
 		IOS_CONFIGURATION=Wrench
 		
 IOS-Sim-All::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Simulator \
-		XAMARIN_ASYNCTESTS_ARGS="--wrench" \
-		TEST_CATEGORY=All TEST_OUTPUT=TestResult-All.xml \
+		ASYNCTESTS_ARGS="--wrench" \
+		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
 		IOS_CONFIGURATION=Wrench
 
 IOS-Sim-Experimental::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Simulator \
-		XAMARIN_ASYNCTESTS_ARGS="--wrench --features=+Experimental --debug --log-level=5" \
-		TEST_CATEGORY=All TEST_OUTPUT=TestResult-Experimental.xml \
+		ASYNCTESTS_ARGS="--wrench --features=+Experimental --debug --log-level=5" \
+		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
 		IOS_CONFIGURATION=Wrench
 
 IOS-Sim-Work-AppleTls::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Simulator \
-		XAMARIN_ASYNCTESTS_ARGS="--wrench --features=+Experimental --debug --log-level=5" \
-		TEST_CATEGORY=Work TEST_OUTPUT=TestResult-Work-AppleTls.xml \
+		ASYNCTESTS_ARGS="--wrench --features=+Experimental --debug --log-level=5" \
+		TEST_CATEGORY=Work TEST_OUTPUT=TestResult-$@.xml \
 		IOS_CONFIGURATION=WrenchAppleTls
 		
 IOS-Sim-All-AppleTls::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Simulator \
-		XAMARIN_ASYNCTESTS_ARGS="--wrench" \
-		TEST_CATEGORY=All TEST_OUTPUT=TestResult-All-AppleTls.xml \
+		ASYNCTESTS_ARGS="--wrench" \
+		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
 		IOS_CONFIGURATION=WrenchAppleTls
 
 IOS-Sim-Experimental-AppleTls::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Simulator \
-		XAMARIN_ASYNCTESTS_ARGS="--wrench --features=+Experimental --debug --log-level=5" \
-		TEST_CATEGORY=All TEST_OUTPUT=TestResult-Experimental-AppleTls.xml \
+		ASYNCTESTS_ARGS="--wrench --features=+Experimental --debug --log-level=5" \
+		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
+		IOS_CONFIGURATION=WrenchAppleTls
+		
+#
+# Device
+#
+
+IOS-Dev-Work::
+	$(MAKE) -f $(TOP)/ios.make .IOS-Device \
+		ASYNCTESTS_ARGS="--wrench --features=+Experimental --debug --log-level=5" \
+		TEST_CATEGORY=Work TEST_OUTPUT=TestResult-$@.xml \
+		IOS_CONFIGURATION=Wrench
+		
+IOS-Dev-All::
+	$(MAKE) -f $(TOP)/ios.make .IOS-Device \
+		ASYNCTESTS_ARGS="--wrench" \
+		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
+		IOS_CONFIGURATION=Wrench
+
+IOS-Dev-Experimental::
+	$(MAKE) -f $(TOP)/ios.make .IOS-Device \
+		ASYNCTESTS_ARGS="--wrench --features=+Experimental --debug --log-level=5" \
+		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
+		IOS_CONFIGURATION=Wrench
+
+IOS-Dev-Work-AppleTls::
+	$(MAKE) -f $(TOP)/ios.make .IOS-Device \
+		ASYNCTESTS_ARGS="--wrench --features=+Experimental --debug --log-level=5" \
+		TEST_CATEGORY=Work TEST_OUTPUT=TestResult-$@.xml \
+		IOS_CONFIGURATION=WrenchAppleTls
+		
+IOS-Dev-All-AppleTls::
+	$(MAKE) -f $(TOP)/ios.make .IOS-Device \
+		ASYNCTESTS_ARGS="--wrench" \
+		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
+		IOS_CONFIGURATION=WrenchAppleTls
+
+IOS-Dev-Experimental-AppleTls::
+	$(MAKE) -f $(TOP)/ios.make .IOS-Device \
+		ASYNCTESTS_ARGS="--wrench --features=+Experimental --debug --log-level=5" \
+		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
 		IOS_CONFIGURATION=WrenchAppleTls
 

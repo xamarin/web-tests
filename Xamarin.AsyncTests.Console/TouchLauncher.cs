@@ -59,6 +59,11 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public bool LaunchOnDevice {
+			get;
+			private set;
+		}
+
 		public string ExtraMTouchArguments {
 			get;
 			private set;
@@ -66,9 +71,10 @@ namespace Xamarin.AsyncTests.Console
 
 		Process process;
 
-		public TouchLauncher (string app, string extraArgs)
+		public TouchLauncher (string app, bool device, string extraArgs)
 		{
 			Application = app;
+			LaunchOnDevice = device;
 			ExtraMTouchArguments = extraArgs;
 
 			MonoTouchRoot = Environment.GetEnvironmentVariable ("MONOTOUCH_ROOT");
@@ -79,13 +85,21 @@ namespace Xamarin.AsyncTests.Console
 			MTouch = Path.Combine (MonoTouchRoot, "bin", "mtouch");
 		}
 
-		Process LaunchSimulator (IPortableEndPoint address)
+		Process Launch (IPortableEndPoint address)
 		{
 			var args = new StringBuilder ();
-			args.AppendFormat (" --launchsim={0}", Application);
+			if (LaunchOnDevice)
+				args.AppendFormat (" --launchdev={0}", Application);
+			else
+				args.AppendFormat (" --launchsim={0}", Application);
 			args.AppendFormat (" --setenv=\"XAMARIN_ASYNCTESTS_OPTIONS=connect {0}:{1}\"", address.Address, address.Port);
-			args.AppendFormat (" --stderr=simulator-stderr.txt");
-			args.AppendFormat (" --stdout=simulator-stdout.txt");
+			if (LaunchOnDevice) {
+				args.AppendFormat (" --stderr=simulator-stderr.txt");
+				args.AppendFormat (" --stdout=simulator-stdout.txt");
+			} else {
+				args.AppendFormat (" --stderr=device-stderr.txt");
+				args.AppendFormat (" --stdout=device-stdout.txt");
+			}
 
 			if (ExtraMTouchArguments != null) {
 				args.Append (" ");
@@ -106,7 +120,7 @@ namespace Xamarin.AsyncTests.Console
 
 		public override void LaunchApplication (IPortableEndPoint address)
 		{
-			process = LaunchSimulator (address);
+			process = Launch (address);
 		}
 
 		public override void StopApplication ()
