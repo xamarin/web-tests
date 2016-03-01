@@ -98,6 +98,11 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public bool Wrench {
+			get;
+			private set;
+		}
+
 		public ApplicationLauncher Launcher {
 			get;
 			private set;
@@ -106,6 +111,8 @@ namespace Xamarin.AsyncTests.Console
 		TestSession session;
 		SettingsBag settings;
 		TestLogger logger;
+		TestResult result;
+		DateTime startTime, endTime;
 		Command command;
 		Assembly[] dependencyAssemblies;
 		List<string> arguments;
@@ -170,6 +177,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("show-categories", v => showCategories = true);
 			p.Add ("show-features", v => showFeatures = true);
 			p.Add ("show-config", v => showCategories = showFeatures = true);
+			p.Add ("wrench", v => Wrench = true);
 			var remaining = p.Parse (args);
 
 			if (remaining.Count < 1)
@@ -250,6 +258,25 @@ namespace Xamarin.AsyncTests.Console
 		internal static void Debug (string message, params object[] args)
 		{
 			SD.Debug.WriteLine (message, args);
+		}
+
+		internal void WriteSummary (string format, params object[] args)
+		{
+			WriteSummary (string.Format (format, args));
+		}
+
+		internal void WriteSummary (string message)
+		{
+			Debug (message);
+			if (Wrench)
+				global::System.Console.WriteLine ("@MonkeyWrench: AddSummary: {0}", message);
+		}
+
+		internal void AddFile (string filename)
+		{
+			filename = Path.GetFullPath (filename);
+			if (Wrench)
+				global::System.Console.WriteLine ("@MonkeyWrench: AddFile: {0}", filename);
 		}
 
 		static IPEndPoint GetEndPoint (string text)
@@ -478,22 +505,12 @@ namespace Xamarin.AsyncTests.Console
 			var test = session.RootTestCase;
 
 			Debug ("Got test: {0}", test);
-			var start = DateTime.Now;
-			var result = await session.Run (test, cancellationToken);
-			var end = DateTime.Now;
+			startTime = DateTime.Now;
+			result = await session.Run (test, cancellationToken);
+			endTime = DateTime.Now;
 			Debug ("Got result: {0}", result);
 
-			Debug ("{0} tests, {1} passed, {2} errors, {3} ignored.", countTests, countSuccess, countErrors, countIgnored);
-			Debug ("Total time: {0}.", end - start);
-
-			if (ResultOutput != null) {
-				var serialized = TestSerializer.WriteTestResult (result);
-				var settings = new XmlWriterSettings ();
-				settings.Indent = true;
-				using (var writer = XmlTextWriter.Create (ResultOutput, settings))
-					serialized.WriteTo (writer);
-				Debug ("Result writting to {0}.", ResultOutput);
-			}
+			SaveResult ();
 		}
 
 		async Task ConnectToServer (CancellationToken cancellationToken)
@@ -510,20 +527,13 @@ namespace Xamarin.AsyncTests.Console
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			Debug ("Got test: {0}", test);
-			var result = await session.Run (test, cancellationToken);
+			startTime = DateTime.Now;
+			result = await session.Run (test, cancellationToken);
+			endTime = DateTime.Now;
 			cancellationToken.ThrowIfCancellationRequested ();
 			Debug ("Got result: {0}", result);
 
-			Debug ("{0} tests, {1} passed, {2} errors, {3} ignored.", countTests, countSuccess, countErrors, countIgnored);
-
-			if (ResultOutput != null) {
-				var serialized = TestSerializer.WriteTestResult (result);
-				var settings = new XmlWriterSettings ();
-				settings.Indent = true;
-				using (var writer = XmlTextWriter.Create (ResultOutput, settings))
-					serialized.WriteTo (writer);
-				Debug ("Result writting to {0}.", ResultOutput);
-			}
+			SaveResult ();
 
 			await server.Stop (cancellationToken);
 		}
@@ -560,11 +570,22 @@ namespace Xamarin.AsyncTests.Console
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			Debug ("Got test: {0}", test);
-			var result = await session.Run (test, cancellationToken);
+			startTime = DateTime.Now;
+			result = await session.Run (test, cancellationToken);
+			endTime = DateTime.Now;
 			cancellationToken.ThrowIfCancellationRequested ();
 			Debug ("Got result: {0}", result);
 
-			Debug ("{0} tests, {1} passed, {2} errors, {3} ignored.", countTests, countSuccess, countErrors, countIgnored);
+			SaveResult ();
+
+			await server.Stop (cancellationToken);
+
+		}
+
+		void SaveResult ()
+		{
+			WriteSummary ("{0} tests, {1} passed, {2} errors, {3} ignored.", countTests, countSuccess, countErrors, countIgnored);
+			WriteSummary ("Total time: {0}.", endTime - startTime);
 
 			if (ResultOutput != null) {
 				var serialized = TestSerializer.WriteTestResult (result);
@@ -573,10 +594,8 @@ namespace Xamarin.AsyncTests.Console
 				using (var writer = XmlTextWriter.Create (ResultOutput, settings))
 					serialized.WriteTo (writer);
 				Debug ("Result writting to {0}.", ResultOutput);
+				AddFile (ResultOutput);
 			}
-
-			await server.Stop (cancellationToken);
-
 		}
 
 		void OnLogMessage (string message)
