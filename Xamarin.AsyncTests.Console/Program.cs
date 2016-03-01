@@ -424,6 +424,14 @@ namespace Xamarin.AsyncTests.Console
 		{
 			var config = session.Configuration;
 
+			if (Wrench) {
+				WriteSummary ("Test category: {0}", config.CurrentCategory.Name);
+				var features = session.ConfigurationProvider.Features.Where (f => f.CanModify && config.IsEnabled (f));
+				var featureSummary = string.Join (",", features.Select (f => f.Name));
+				if (!string.IsNullOrWhiteSpace (featureSummary))
+					WriteSummary ("Test features: {0}", featureSummary);
+			}
+
 			bool done = false;
 			if (showCategories) {
 				WriteLine ("Test Categories:");
