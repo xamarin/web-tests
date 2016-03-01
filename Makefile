@@ -1,3 +1,7 @@
+MDTOOL = "/Applications/Xamarin Studio.app/Contents/MacOS/mdtool"
+MONO_FRAMEWORK = /Library/Frameworks/Mono.framework/Versions/Current
+NUGET_EXE = $(MONO_FRAMEWORK)/lib/mono/nuget/NuGet.exe
+
 XBUILD_OPTIONS = /p:Configuration=Console
 SOLUTION = Xamarin.WebTests.sln
 MONO = mono
@@ -17,4 +21,11 @@ run::
 
 Hello::
 	echo "Hello World!"
+	
+CleanAll::
+	git clean -xffd
+
+IOS-Build::
+	$(MONO) $(NUGET_EXE) restore Xamarin.WebTests.iOS.sln
+	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'WrenchAppleTls|iPhoneSimulator'
 
