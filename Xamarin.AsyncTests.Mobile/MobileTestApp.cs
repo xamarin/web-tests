@@ -42,6 +42,11 @@ namespace Xamarin.AsyncTests.Mobile
 			private set;
 		}
 
+		public MobileSessionMode SessionMode {
+			get;
+			private set;
+		}
+
 		public IPortableEndPoint EndPoint {
 			get;
 			private set;
@@ -87,6 +92,16 @@ namespace Xamarin.AsyncTests.Mobile
 			private set;
 		}
 
+		public bool AutoRun {
+			get; set;
+		}
+
+		public bool AutoExit {
+			get; set;
+		}
+
+		public event EventHandler FinishedEvent;
+
 		public MobileTestApp (TestFramework framework)
 		{
 			Framework = framework;
@@ -94,9 +109,9 @@ namespace Xamarin.AsyncTests.Mobile
 			Settings = SettingsBag.CreateDefault ();
 			Settings.LocalLogLevel = -1;
 
-			Logger = new TestLogger (new MobileLogger (this));
+			ParseSessionMode ();
 
-			EndPoint = GetEndPoint ();
+			Logger = new TestLogger (new MobileLogger (this));
 
 			MainLabel = new Label { HorizontalTextAlignment = TextAlignment.Start, Text = "Welcome to Xamarin AsyncTests!" };
 
@@ -104,7 +119,7 @@ namespace Xamarin.AsyncTests.Mobile
 
 			StatisticsLabel = new Label { HorizontalTextAlignment = TextAlignment.Start };
 
-			RunButton = new Button { Text = "Run" };
+			RunButton = new Button { Text = "Run", IsEnabled = false };
 
 			StopButton = new Button { Text = "Stop", IsEnabled = false };
 
@@ -122,6 +137,42 @@ namespace Xamarin.AsyncTests.Mobile
 
 			RunButton.Clicked += (s, e) => OnRun ();
 			StopButton.Clicked += (sender, e) => OnStop ();
+		}
+
+		void ParseSessionMode ()
+		{
+			var options = DependencyInjector.Get<IPortableSupport> ().GetEnvironmentVariable ("XAMARIN_ASYNCTESTS_OPTIONS");
+			if (string.IsNullOrEmpty (options)) {
+				SessionMode = MobileSessionMode.Local;
+				return;
+			}
+
+			var args = options.Split (' ');
+			if (args.Length == 0) {
+				SessionMode = MobileSessionMode.Local;
+				return;
+			}
+
+			if (args [0] == "server")
+				SessionMode = MobileSessionMode.Server;
+			else if (args [0] == "connect") {
+				SessionMode = MobileSessionMode.Connect;
+				AutoRun = true;
+			} else if (args [0] == "local") {
+				SessionMode = MobileSessionMode.Local;
+				if (args.Length != 1)
+					throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
+				return;
+			} else
+				throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
+
+			if (args.Length == 2) {
+				EndPoint = DependencyInjector.Get<IPortableEndPointSupport> ().ParseEndpoint (args [1]);
+			} else if (args.Length == 1) {
+				EndPoint = GetEndPoint ();
+			} else {
+				throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
+			}
 		}
 
 		public Task Run ()
@@ -143,13 +194,36 @@ namespace Xamarin.AsyncTests.Mobile
 				RunButton.IsEnabled = false;
 	
 				var cancellationToken = cts.Token;
-				var local = await TestServer.StartLocal (this, Framework, cancellationToken);
-				MainLabel.Text = "started local server.";
+
+				OnResetStatistics ();
 
 				cancellationToken.ThrowIfCancellationRequested ();
-				var session = await local.GetTestSession (cancellationToken);
-				MainLabel.Text = string.Format ("Got test session {0}.", session);
-				Debug ("GOT SESSION: {0}", session);
+				await session.Run (session.RootTestCase, cancellationToken);
+
+				Debug ("{0} test run, {1} ignored, {2} passed, {3} errors.",
+				       countTests, countIgnored, countSuccess, countErrors);
+			} finally {
+				var oldCts = Interlocked.Exchange (ref cts, null);
+				if (oldCts != null)
+					oldCts.Dispose ();
+				MainLabel.Text = string.Format ("Done running.");
+				StopButton.IsEnabled = false;
+				RunButton.IsEnabled = true;
+			}
+		}
+
+		async Task OnConnect ()
+		{
+			await Task.Yield ();
+
+			if (Interlocked.CompareExchange (ref cts, new CancellationTokenSource (), null) != null)
+				return;
+
+			try {
+				StopButton.IsEnabled = true;
+				RunButton.IsEnabled = false;
+
+				var cancellationToken = cts.Token;
 
 				OnResetStatistics ();
 
@@ -157,19 +231,21 @@ namespace Xamarin.AsyncTests.Mobile
 				await session.Run (session.RootTestCase, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();
-				var running = await local.WaitForExit (cancellationToken);
+				var running = await server.WaitForExit (cancellationToken);
 				Debug ("WAIT FOR EXIT: {0}", running);
 
 				Debug ("{0} test run, {1} ignored, {2} passed, {3} errors.",
-				       countTests, countIgnored, countSuccess, countErrors);
-				
-				await local.Stop (cancellationToken);
+					countTests, countIgnored, countSuccess, countErrors);
+
+				await server.Stop (cancellationToken);
 			} finally {
-				cts.Dispose ();
-				cts = null;
+				var oldCts = Interlocked.Exchange (ref cts, null);
+				if (oldCts != null)
+					oldCts.Dispose ();
 				MainLabel.Text = string.Format ("Done running.");
 				StopButton.IsEnabled = false;
-				RunButton.IsEnabled = true;
+				if (!AutoExit)
+					RunButton.IsEnabled = true;
 			}
 		}
 
@@ -180,6 +256,7 @@ namespace Xamarin.AsyncTests.Mobile
 				return;
 
 			oldCts.Cancel ();
+			oldCts.Dispose ();
 		}
 
 		static IPortableEndPoint GetEndPoint ()
@@ -189,30 +266,72 @@ namespace Xamarin.AsyncTests.Mobile
 		}
 
 		TestServer server;
+		TestSession session;
 
 		protected override async void OnStart ()
 		{
-			MainLabel.Text = string.Format ("Server address is {0}:{1}.", EndPoint.Address, EndPoint.Port);
+			bool finished;
+			do {
+				finished = await StartServer (CancellationToken.None);
+			} while (finished && !AutoExit);
 
-			while (true) {
-				server = await TestServer.StartServer (this, EndPoint, Framework, CancellationToken.None);
+			if (FinishedEvent != null)
+				FinishedEvent (this, EventArgs.Empty);
+		}
 
-				var session = await server.GetTestSession (CancellationToken.None);
-				MainLabel.Text = string.Format ("Got test session {0}.", session);
-				Debug ("GOT SESSION: {0}", session);
+		async Task<bool> StartServer (CancellationToken cancellationToken)
+		{
+			switch (SessionMode) {
+			case MobileSessionMode.Local:
+				server = await TestServer.StartLocal (this, Framework, cancellationToken);
+				MainLabel.Text = "started local server.";
+				break;
 
-				OnResetStatistics ();
+			case MobileSessionMode.Server:
+				MainLabel.Text = string.Format ("Listening at is {0}:{1}.", EndPoint.Address, EndPoint.Port);
+				server = await TestServer.StartServer (this, EndPoint, Framework, cancellationToken);
+				break;
 
-				var running = await server.WaitForExit (CancellationToken.None);
-				Debug ("WAIT FOR EXIT: {0}", running);
+			case MobileSessionMode.Connect:
+				MainLabel.Text = string.Format ("Connecting to {0}:{1}.", EndPoint.Address, EndPoint.Port);
+				server = await TestServer.ConnectToRemote (this, EndPoint, Framework, cancellationToken);
+				break;
 
-				Debug ("{0} test run, {1} ignored, {2} passed, {3} errors.",
-				       countTests, countIgnored, countSuccess, countErrors);
-
-				await server.Stop (CancellationToken.None);
-
-				MainLabel.Text = string.Format ("Done running.");
+			default:
+				throw new NotImplementedException ();
 			}
+
+			Debug ("Got server: {0}", server);
+
+			session = await server.GetTestSession (CancellationToken.None);
+			MainLabel.Text = string.Format ("Got test session {0} from {1}.", session.Name, server.App);
+
+			Debug ("Got test session: {0}", session);
+
+			OnResetStatistics ();
+
+			if (SessionMode == MobileSessionMode.Local)
+				return false;
+
+			var running = await server.WaitForExit (CancellationToken.None);
+			Debug ("Wait for exit: {0} {1}", running, AutoExit);
+
+			if (running && !AutoExit) {
+				RunButton.IsEnabled = true;
+				return false;
+			}
+
+			Debug ("{0} test run, {1} ignored, {2} passed, {3} errors.",
+				countTests, countIgnored, countSuccess, countErrors);
+
+			try {
+				await server.Stop (CancellationToken.None);
+			} catch (Exception ex) {
+				Debug ("Failed to stop server: {0}", ex.Message);
+			}
+
+			MainLabel.Text = string.Format ("Done running.");
+			return true;
 		}
 
 		protected override void OnSleep ()

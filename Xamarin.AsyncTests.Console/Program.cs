@@ -98,10 +98,17 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public ApplicationLauncher Launcher {
+			get;
+			private set;
+		}
+
 		TestSession session;
 		SettingsBag settings;
 		TestLogger logger;
+		Command command;
 		Assembly[] dependencyAssemblies;
+		List<string> arguments;
 		bool optionalGui;
 		bool showCategories;
 		bool showFeatures;
@@ -117,9 +124,12 @@ namespace Xamarin.AsyncTests.Console
 
 			DependencyInjector.RegisterAssembly (typeof(PortableSupportImpl).Assembly);
 
-			var program = new Program (assembly, args);
+			var program = new Program ();
 
 			try {
+				program.ParseArguments (assembly, args);
+				program.Initialize ();
+
 				var task = program.Run (CancellationToken.None);
 				task.Wait ();
 			} catch (Exception ex) {
@@ -132,7 +142,7 @@ namespace Xamarin.AsyncTests.Console
 			Run (null, args);
 		}
 
-		Program (Assembly assembly, string[] args)
+		void ParseArguments (Assembly assembly, string[] args)
 		{
 			var dependencies = new List<string> ();
 
@@ -141,6 +151,7 @@ namespace Xamarin.AsyncTests.Console
 			var p = new OptionSet ();
 			p.Add ("settings=", v => SettingsFile = v);
 			p.Add ("connect=", v => EndPoint = GetEndPoint (v));
+			p.Add ("endpoint=", v => EndPoint = GetEndPoint (v));
 			p.Add ("gui=", v => GuiEndPoint = GetEndPoint (v));
 			p.Add ("wait", v => Wait = true);
 			p.Add ("no-result", v => ResultOutput = null);
@@ -159,23 +170,50 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("show-config", v => showCategories = showFeatures = true);
 			var remaining = p.Parse (args);
 
+			if (remaining.Count < 1)
+				throw new InvalidOperationException ("Missing argument.");
+
+			if (!Enum.TryParse<Command> (remaining [0], true, out command))
+				throw new InvalidOperationException ("Unknown command.");
+			remaining.RemoveAt (0);
+
+			arguments = remaining;
+
 			dependencyAssemblies = new Assembly [dependencies.Count];
 			for (int i = 0; i < dependencyAssemblies.Length; i++) {
 				dependencyAssemblies [i] = Assembly.LoadFile (dependencies [i]);
 			}
 
-			if (assembly != null) {
-				if (remaining.Count != 0) {
-					remaining.ForEach (a => Debug ("Unexpected remaining argument: {0}", a));
-					throw new InvalidOperationException ("Unexpected extra argument.");
+			if (command == Command.Listen) {
+				if (EndPoint == null)
+					EndPoint = GetLocalEndPoint ();
+			} else if (command == Command.Local || command == Command.Connect || command == Command.Listen) {
+				if (assembly != null) {
+					if (arguments.Count != 0) {
+						arguments.ForEach (a => Debug ("Unexpected remaining argument: {0}", a));
+						throw new InvalidOperationException ("Unexpected extra argument.");
+					}
+					Assembly = assembly;
+				} else if (arguments.Count == 1) {
+					Assembly = Assembly.LoadFile (arguments [0]);
+				} else if (EndPoint == null) {
+					throw new InvalidOperationException ("Missing endpoint");
 				}
-				Assembly = assembly;
-			} else if (remaining.Count == 1) {
-				Assembly = Assembly.LoadFile (remaining [0]);
-			} else if (EndPoint == null) {
-				throw new InvalidOperationException ("Missing endpoint");
-			}
+			} else if (command == Command.Simulator) {
+				if (arguments.Count < 1)
+					throw new InvalidOperationException ("Expected .app argument");
+				Launcher = new TouchLauncher (arguments [0]);
+				arguments.RemoveAt (0);
 
+				if (EndPoint == null)
+					EndPoint = GetLocalEndPoint ();
+			} else {
+				throw new NotImplementedException ();
+			}
+		}
+
+		void Initialize ()
+		{
 			CheckSettingsFile ();
 
 			settings = LoadSettings (SettingsFile);
@@ -207,7 +245,7 @@ namespace Xamarin.AsyncTests.Console
 			global::System.Console.WriteLine (message, args);
 		}
 
-		static void Debug (string message, params object[] args)
+		internal static void Debug (string message, params object[] args)
 		{
 			SD.Debug.WriteLine (message, args);
 		}
@@ -227,6 +265,11 @@ namespace Xamarin.AsyncTests.Console
 
 			var address = IPAddress.Parse (host);
 			return new IPEndPoint (address, port);
+		}
+
+		static IPEndPoint GetLocalEndPoint ()
+		{
+			return new IPEndPoint (PortableSupportImpl.LocalAddress, 11111);
 		}
 
 		void ParseSettings (string arg)
@@ -310,12 +353,20 @@ namespace Xamarin.AsyncTests.Console
 
 		Task Run (CancellationToken cancellationToken)
 		{
-			if (GuiEndPoint != null)
-				return ConnectToGui (cancellationToken);
-			else if (EndPoint != null)
-				return ConnectToServer (cancellationToken);
-			else
+			switch (command) {
+			case Command.Local:
 				return RunLocal (cancellationToken);
+			case Command.Connect:
+				return ConnectToServer (cancellationToken);
+			case Command.Gui:
+				return ConnectToGui (cancellationToken);
+			case Command.Listen:
+				return WaitForConnection (cancellationToken);
+			case Command.Simulator:
+				return LaunchSimulator (cancellationToken);
+			default:
+				throw new NotImplementedException ();
+			}
 		}
 
 		async Task ConnectToGui (CancellationToken cancellationToken)
@@ -473,6 +524,57 @@ namespace Xamarin.AsyncTests.Console
 			}
 
 			await server.Stop (cancellationToken);
+		}
+
+		async Task LaunchSimulator (CancellationToken cancellationToken)
+		{
+			var endpoint = GetPortableEndPoint (EndPoint);
+			var server = await TestServer.LaunchApplication (this, endpoint, Launcher, cancellationToken);
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			Debug ("Test app launched.");
+			await RunRemoteSession (server, cancellationToken);
+
+			Debug ("Simulator finished.");
+		}
+
+		async Task WaitForConnection (CancellationToken cancellationToken)
+		{
+			var endpoint = GetPortableEndPoint (EndPoint);
+			var server = await TestServer.WaitForConnection (this, endpoint, cancellationToken);
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			Debug ("Got server connection.");
+			await RunRemoteSession (server, cancellationToken);
+		}
+
+		async Task RunRemoteSession (TestServer server, CancellationToken cancellationToken)
+		{
+			session = server.Session;
+			if (OnSessionCreated (session))
+				await session.UpdateSettings (cancellationToken);
+
+			var test = session.RootTestCase;
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			Debug ("Got test: {0}", test);
+			var result = await session.Run (test, cancellationToken);
+			cancellationToken.ThrowIfCancellationRequested ();
+			Debug ("Got result: {0}", result);
+
+			Debug ("{0} tests, {1} passed, {2} errors, {3} ignored.", countTests, countSuccess, countErrors, countIgnored);
+
+			if (ResultOutput != null) {
+				var serialized = TestSerializer.WriteTestResult (result);
+				var settings = new XmlWriterSettings ();
+				settings.Indent = true;
+				using (var writer = XmlTextWriter.Create (ResultOutput, settings))
+					serialized.WriteTo (writer);
+				Debug ("Result writting to {0}.", ResultOutput);
+			}
+
+			await server.Stop (cancellationToken);
+
 		}
 
 		void OnLogMessage (string message)

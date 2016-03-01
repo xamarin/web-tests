@@ -59,6 +59,11 @@ namespace Xamarin.AsyncTests.Portable
 			get { return runtimeVersion; }
 		}
 
+		public string GetEnvironmentVariable (string name)
+		{
+			return Environment.GetEnvironmentVariable (name);
+		}
+
 		static PortableSupportImpl ()
 		{
 			try {

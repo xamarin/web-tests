@@ -1,10 +1,10 @@
 ﻿//
-// IPortableSupport.cs
+// LauncherConnection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2014-2016 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,30 +24,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Text;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using System.ComponentModel;
 
-namespace Xamarin.AsyncTests.Portable
+namespace Xamarin.AsyncTests.Remoting
 {
-	public interface IPortableSupport : ISingletonInstance
+	using Portable;
+	using Framework;
+
+	public class LauncherConnection : ClientConnection
 	{
-		string GetStackTrace (bool full);
+		ApplicationLauncher launcher;
 
-		string GetEnvironmentVariable (string name);
-
-		string CurrentThreadId {
-			get;
+		public LauncherConnection (TestApp app, Stream stream, IServerConnection connection, ApplicationLauncher launcher)
+			: base (app, stream, connection)
+		{
+			this.launcher = launcher;
 		}
 
-		bool IsMicrosoftRuntime {
-			get;
-		}
-
-		Version MonoRuntimeVersion {
-			get;
-		}
-
-		Encoding ASCIIEncoding {
-			get;
+		protected internal override void OnShutdown ()
+		{
+			base.OnShutdown ();
+			launcher.StopApplication ();
 		}
 	}
 }

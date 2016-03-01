@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -75,6 +76,34 @@ namespace Xamarin.AsyncTests.Remoting
 			var client = new Client (app, clientConnection);
 			await client.Initialize (cancellationToken);
 			return client;
+		}
+
+		public static async Task<TestServer> LaunchApplication (TestApp app, IPortableEndPoint address, ApplicationLauncher launcher, CancellationToken cancellationToken)
+		{
+			var support = DependencyInjector.Get<IServerHost> ();
+			var connection = await support.Listen (address, cancellationToken);
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			launcher.LaunchApplication (address);
+
+			var stream = await connection.Open (cancellationToken);
+
+			var launcherConnection = new LauncherConnection (app, stream, connection, launcher);
+			var client = new Client (app, launcherConnection);
+			await client.Initialize (cancellationToken);
+			return client;
+		}
+
+		public static async Task<TestServer> ConnectToRemote (TestApp app, IPortableEndPoint address, TestFramework framework, CancellationToken cancellationToken)
+		{
+			var support = DependencyInjector.Get<IServerHost> ();
+			var connection = await support.Connect (address, cancellationToken);
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			var serverConnection = await StartServer (app, framework, connection, cancellationToken);
+			var server = new Server (app, framework, serverConnection);
+			await server.Initialize (cancellationToken);
+			return server;
 		}
 
 		public static async Task<TestServer> ConnectToGui (TestApp app, IPortableEndPoint address, TestFramework framework, CancellationToken cancellationToken)
@@ -299,6 +328,14 @@ namespace Xamarin.AsyncTests.Remoting
 			public override Task<TestSession> GetTestSession (CancellationToken cancellationToken)
 			{
 				return RemoteObjectManager.GetRemoteTestSession (client, cancellationToken);
+			}
+		}
+
+		class Launcher : Client
+		{
+			public Launcher (TestApp app, LauncherConnection connection)
+				: base (app, connection)
+			{
 			}
 		}
 	}

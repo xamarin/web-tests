@@ -72,6 +72,11 @@
     <MtouchProfiling>true</MtouchProfiling>
     <AssemblyName>XamarinWebTestsIOS</AssemblyName>
     <MtouchTlsProvider>AppleTLS</MtouchTlsProvider>
+    <EnvironmentVariables>
+      <EnvironmentVariables>
+        <Variable name="XAMARIN_ASYNCTESTS_OPTIONS" value="connect 10.1.24.130:11111" />
+      </EnvironmentVariables>
+    </EnvironmentVariables>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>full</DebugType>

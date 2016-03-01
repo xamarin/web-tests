@@ -1,10 +1,10 @@
 ﻿//
-// IPortableSupport.cs
+// ApplicationLauncher.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,31 +24,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Portable
+namespace Xamarin.AsyncTests.Remoting
 {
-	public interface IPortableSupport : ISingletonInstance
+	using Portable;
+
+	public abstract class ApplicationLauncher
 	{
-		string GetStackTrace (bool full);
+		public abstract void LaunchApplication (IPortableEndPoint address);
 
-		string GetEnvironmentVariable (string name);
-
-		string CurrentThreadId {
-			get;
-		}
-
-		bool IsMicrosoftRuntime {
-			get;
-		}
-
-		Version MonoRuntimeVersion {
-			get;
-		}
-
-		Encoding ASCIIEncoding {
-			get;
-		}
+		public abstract void StopApplication ();
 	}
 }
 

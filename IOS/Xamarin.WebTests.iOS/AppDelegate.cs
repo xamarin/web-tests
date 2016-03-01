@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
+using System.Threading;
 using System.Collections.Generic;
 
 using Foundation;
@@ -54,8 +55,17 @@ namespace Xamarin.WebTests.iOS
 
 		public void TerminateWithSuccess ()
 		{
-			Selector selector = new Selector ("terminateWithSuccess");
-			UIApplication.SharedApplication.PerformSelector (selector, UIApplication.SharedApplication, 0);
+			Console.Error.WriteLine ("TERMINATE WITH SUCCESS!");
+			Device.BeginInvokeOnMainThread (() => {
+				Selector selector = new Selector ("terminateWithSuccess");
+				UIApplication.SharedApplication.PerformSelector (selector, UIApplication.SharedApplication, 0);
+			});
+
+			ThreadPool.QueueUserWorkItem (_ => {
+				// make sure it really goes away!
+				Thread.Sleep (2500);
+				Environment.Exit (0);
+			});
 		}
 
 		public override bool FinishedLaunching (UIApplication app, NSDictionary options)
@@ -68,14 +78,15 @@ namespace Xamarin.WebTests.iOS
 			Framework = TestFramework.GetLocalFramework (typeof(AppDelegate).Assembly);
 
 			var mobileTestApp = new MobileTestApp (Framework);
-			LoadApplication (mobileTestApp);
-
 #if WRENCH
-			Device.BeginInvokeOnMainThread (async () => {
-				await mobileTestApp.Run ();
-				TerminateWithSuccess ();
-			});
+			mobileTestApp.AutoRun = true;
+			mobileTestApp.AutoExit = true;
+			Console.Error.WriteLine ("WRENCH HERE!");
+
+			mobileTestApp.FinishedEvent += (sender, e) => TerminateWithSuccess ();
 #endif
+
+			LoadApplication (mobileTestApp);
 
 			return base.FinishedLaunching (app, options);
 		}
