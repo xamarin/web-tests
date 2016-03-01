@@ -92,14 +92,6 @@ namespace Xamarin.AsyncTests.Mobile
 			private set;
 		}
 
-		public bool AutoRun {
-			get; set;
-		}
-
-		public bool AutoExit {
-			get; set;
-		}
-
 		public event EventHandler FinishedEvent;
 
 		public MobileTestApp (TestFramework framework)
@@ -157,7 +149,6 @@ namespace Xamarin.AsyncTests.Mobile
 				SessionMode = MobileSessionMode.Server;
 			else if (args [0] == "connect") {
 				SessionMode = MobileSessionMode.Connect;
-				AutoRun = true;
 			} else if (args [0] == "local") {
 				SessionMode = MobileSessionMode.Local;
 				if (args.Length != 1)
@@ -244,7 +235,7 @@ namespace Xamarin.AsyncTests.Mobile
 					oldCts.Dispose ();
 				MainLabel.Text = string.Format ("Done running.");
 				StopButton.IsEnabled = false;
-				if (!AutoExit)
+				if (SessionMode != MobileSessionMode.Connect)
 					RunButton.IsEnabled = true;
 			}
 		}
@@ -273,7 +264,7 @@ namespace Xamarin.AsyncTests.Mobile
 			bool finished;
 			do {
 				finished = await StartServer (CancellationToken.None);
-			} while (finished && !AutoExit);
+			} while (finished && SessionMode != MobileSessionMode.Connect);
 
 			if (FinishedEvent != null)
 				FinishedEvent (this, EventArgs.Empty);
@@ -314,9 +305,9 @@ namespace Xamarin.AsyncTests.Mobile
 				return false;
 
 			var running = await server.WaitForExit (CancellationToken.None);
-			Debug ("Wait for exit: {0} {1}", running, AutoExit);
+			Debug ("Wait for exit: {0}", running);
 
-			if (running && !AutoExit) {
+			if (running && SessionMode != MobileSessionMode.Connect) {
 				RunButton.IsEnabled = true;
 				return false;
 			}

@@ -78,13 +78,7 @@ namespace Xamarin.WebTests.iOS
 			Framework = TestFramework.GetLocalFramework (typeof(AppDelegate).Assembly);
 
 			var mobileTestApp = new MobileTestApp (Framework);
-#if WRENCH
-			mobileTestApp.AutoRun = true;
-			mobileTestApp.AutoExit = true;
-			Console.Error.WriteLine ("WRENCH HERE!");
-
 			mobileTestApp.FinishedEvent += (sender, e) => TerminateWithSuccess ();
-#endif
 
 			LoadApplication (mobileTestApp);
 

@@ -33,7 +33,8 @@ namespace Xamarin.AsyncTests.Console
 		Connect,
 		Listen,
 		Gui,
-		Simulator
+		Simulator,
+		Device
 	}
 }
 
