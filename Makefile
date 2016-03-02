@@ -21,10 +21,10 @@ Console-%::
 #
 
 .IOS-Debug-%::
-	$(MAKE) IOS_CONFIGURATION=Debug .IOS-Internal-Run-$*
+	$(MAKE) IOS_CONFIGURATION=Debug .IOS-Run-$*
 
 .IOS-DebugAppleTls-%::
-	$(MAKE) IOS_CONFIGURATION=DebugAppleTls .IOS-Internal-Run-$*
+	$(MAKE) IOS_CONFIGURATION=DebugAppleTls .IOS-Run-$*
 
 .IOS-Build-Debug::
 	$(MAKE) IOS_CONFIGURATION=Debug .IOS-Internal-Build
@@ -56,11 +56,14 @@ Console-%::
 .Console-Build-Debug::
 	$(MAKE) CONSOLE_CONFIGURATION=Debug .Console-Internal-Build
 
-.IOS-Run-Experimental::
-	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All .IOS-Internal-Run
+.Console-Debug-%::
+	$(MAKE) CONSOLE_CONFIGURATION=Debug .Console-Run-$*
+
+.Console-Run-Experimental::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All .Console-Internal-Run
 
 .Console-Run-All::
-	$(MAKE) TEST_CATEGORY=All .Console-Run
+	$(MAKE) TEST_CATEGORY=All .Console-Internal-Run
 
 .Console-Run-Work::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Work .Console-Internal-Run
