@@ -13,30 +13,23 @@ WEBTESTS_IOS_APP = $(TOP)/IOS/Xamarin.WebTests.iOS/bin/$(IOS_OUTPUT_DIR)/Xamarin
 ASYNCTESTS_ARGS =
 EXTRA_ASYNCTESTS_ARGS =
 
+ifeq (1,$(WRENCH))
+WRENCH_ARGS = --wrench
+else
+WRENCH_ARGS =
+endif
+
 TEST_CATEGORY = All
-TEST_RESULT = TestResult.xml
+TEST_RESULT = TestResult-$(TARGET_NAME).xml
+STDOUT = stdout-$(TARGET_NAME).txt
+STDERR = stderr-$(TARGET_NAME).txt
 
-.IOS-Clean::
-	-rm .IOS-Build-Sim
-	-rm .IOS-Build-Dev
-	-rm -rf $(ASYNCTESTS_CONSOLE_DIR)
-	-rm -rf $(WEBTESTS_IOS_APP)
-
-.IOS-Build-Sim:
+Build::
 	$(MONO) $(NUGET_EXE) restore Xamarin.WebTests.iOS.sln
-	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'DebugAppleTls|iPhoneSimulator'
-	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'Debug|iPhoneSimulator'
-	touch $@
+	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'$(IOS_CONFIGURATION)|$(IOS_TARGET)'
 
-.IOS-Build-Dev:
-	$(MONO) $(NUGET_EXE) restore Xamarin.WebTests.iOS.sln
-	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'DebugAppleTls|iPhone'
-	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'Debug|iPhone'
-	touch $@
-
-.IOS-Simulator:: .IOS-Build-Sim
-	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) --category=$(TEST_CATEGORY) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) simulator $(WEBTESTS_IOS_APP)
-
-.IOS-Device:: .IOS-Build-Dev
-	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) --category=$(TEST_CATEGORY) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) device $(WEBTESTS_IOS_APP)
+Run::
+	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) \
+		$(ASYNCTESTS_COMMAND) $(WEBTESTS_IOS_APP)
 

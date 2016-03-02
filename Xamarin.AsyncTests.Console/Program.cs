@@ -124,6 +124,8 @@ namespace Xamarin.AsyncTests.Console
 		string customSettings;
 		string category;
 		string features;
+		string redirectStdout;
+		string redirectStderr;
 
 		public static int Run (Assembly assembly, string[] args)
 		{
@@ -179,6 +181,8 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("show-categories", v => showCategories = true);
 			p.Add ("show-features", v => showFeatures = true);
 			p.Add ("show-config", v => showCategories = showFeatures = true);
+			p.Add ("stdout=", v => redirectStdout = v);
+			p.Add ("stderr=", v => redirectStderr = v);
 			p.Add ("wrench", v => Wrench = true);
 			var remaining = p.Parse (args);
 
