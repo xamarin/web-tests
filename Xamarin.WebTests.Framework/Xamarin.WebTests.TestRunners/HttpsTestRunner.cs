@@ -245,9 +245,11 @@ namespace Xamarin.WebTests.TestRunners
 				}
 				return connection;
 			} catch (Exception ex) {
-				ctx.LogDebug (5, "HttpTestRunner - CreateConnection ex: {0}", ex);
-				if (Parameters.ClientAbortsHandshake)
+				if (Parameters.ClientAbortsHandshake) {
+					ctx.LogDebug (5, "HttpTestRunner - CreateConnection got expected exception");
 					return null;
+				}
+				ctx.LogDebug (5, "HttpTestRunner - CreateConnection ex: {0}", ex);
 				throw;
 			}
 		}
