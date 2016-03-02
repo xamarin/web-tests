@@ -264,10 +264,12 @@ namespace Xamarin.AsyncTests.Mobile
 			bool finished;
 			do {
 				finished = await StartServer (CancellationToken.None);
-			} while (finished && SessionMode != MobileSessionMode.Connect);
-
-			if (FinishedEvent != null)
-				FinishedEvent (this, EventArgs.Empty);
+				if (SessionMode == MobileSessionMode.Connect) {
+					if (FinishedEvent != null)
+						FinishedEvent (this, EventArgs.Empty);
+					return;
+				}
+			} while (finished);
 		}
 
 		async Task<bool> StartServer (CancellationToken cancellationToken)
@@ -301,8 +303,10 @@ namespace Xamarin.AsyncTests.Mobile
 
 			OnResetStatistics ();
 
-			if (SessionMode == MobileSessionMode.Local)
+			if (SessionMode == MobileSessionMode.Local) {
+				RunButton.IsEnabled = true;
 				return false;
+			}
 
 			var running = await server.WaitForExit (CancellationToken.None);
 			Debug ("Wait for exit: {0}", running);
