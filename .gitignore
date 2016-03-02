@@ -14,5 +14,5 @@ TestResults
 result.xml
 .DS_Store
 
-TestResult.xml
-.IOS-Build
+TestResult*.xml
+.IOS-*

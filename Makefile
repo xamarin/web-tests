@@ -43,37 +43,37 @@ IOS-Sim-Work::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Simulator \
 		ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" \
 		TEST_CATEGORY=Work TEST_OUTPUT=TestResult-$@.xml \
-		IOS_CONFIGURATION=Debug
+		IOS_CONFIGURATION=Debug IOS_TARGET=iPhoneSimulator
 		
 IOS-Sim-All::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Simulator \
 		ASYNCTESTS_ARGS="--wrench" \
 		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
-		IOS_CONFIGURATION=Debug
+		IOS_CONFIGURATION=Debug IOS_TARGET=iPhoneSimulator
 
 IOS-Sim-Experimental::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Simulator \
 		ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" \
 		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
-		IOS_CONFIGURATION=Debug
+		IOS_CONFIGURATION=Debug IOS_TARGET=iPhoneSimulator
 
 IOS-Sim-Work-AppleTls::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Simulator \
 		ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" \
 		TEST_CATEGORY=Work TEST_OUTPUT=TestResult-$@.xml \
-		IOS_CONFIGURATION=DebugAppleTls
+		IOS_CONFIGURATION=DebugAppleTls IOS_TARGET=iPhoneSimulator
 		
 IOS-Sim-All-AppleTls::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Simulator \
 		ASYNCTESTS_ARGS="--wrench" \
 		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
-		IOS_CONFIGURATION=DebugAppleTls
+		IOS_CONFIGURATION=DebugAppleTls IOS_TARGET=iPhoneSimulator
 
 IOS-Sim-Experimental-AppleTls::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Simulator \
 		ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" \
 		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
-		IOS_CONFIGURATION=DebugAppleTls
+		IOS_CONFIGURATION=DebugAppleTls IOS_TARGET=iPhoneSimulator
 		
 #
 # Device
@@ -83,35 +83,35 @@ IOS-Dev-Work::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Device \
 		ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" \
 		TEST_CATEGORY=Work TEST_OUTPUT=TestResult-$@.xml \
-		IOS_CONFIGURATION=Debug
+		IOS_CONFIGURATION=Debug IOS_TARGET=iPhone
 		
 IOS-Dev-All::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Device \
 		ASYNCTESTS_ARGS="--wrench" \
 		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
-		IOS_CONFIGURATION=Debug
+		IOS_CONFIGURATION=Debug IOS_TARGET=iPhone
 
 IOS-Dev-Experimental::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Device \
 		ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" \
 		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
-		IOS_CONFIGURATION=Debug
+		IOS_CONFIGURATION=Debug IOS_TARGET=iPhone
 
 IOS-Dev-Work-AppleTls::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Device \
 		ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" \
 		TEST_CATEGORY=Work TEST_OUTPUT=TestResult-$@.xml \
-		IOS_CONFIGURATION=DebugAppleTls
+		IOS_CONFIGURATION=DebugAppleTls IOS_TARGET=iPhone
 		
 IOS-Dev-All-AppleTls::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Device \
 		ASYNCTESTS_ARGS="--wrench" \
 		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
-		IOS_CONFIGURATION=DebugAppleTls
+		IOS_CONFIGURATION=DebugAppleTls IOS_TARGET=iPhone
 
 IOS-Dev-Experimental-AppleTls::
 	$(MAKE) -f $(TOP)/ios.make .IOS-Device \
 		ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" \
 		TEST_CATEGORY=All TEST_OUTPUT=TestResult-$@.xml \
-		IOS_CONFIGURATION=DebugAppleTls
+		IOS_CONFIGURATION=DebugAppleTls IOS_TARGET=iPhone
 
