@@ -70,6 +70,7 @@ namespace Xamarin.AsyncTests.Console
 		}
 
 		Process process;
+		TaskCompletionSource<bool> tcs;
 
 		public TouchLauncher (string app, bool device, string extraArgs)
 		{
@@ -121,6 +122,24 @@ namespace Xamarin.AsyncTests.Console
 		public override void LaunchApplication (IPortableEndPoint address)
 		{
 			process = Launch (address);
+		}
+
+		public override Task<bool> WaitForExit ()
+		{
+			var oldTcs = Interlocked.CompareExchange (ref tcs, new TaskCompletionSource<bool> (), null);
+			if (oldTcs != null)
+				return oldTcs.Task;
+
+			ThreadPool.QueueUserWorkItem (_ => {
+				try {
+					process.WaitForExit ();
+					tcs.TrySetResult (process.ExitCode == 0);
+				} catch (Exception ex) {
+					tcs.TrySetException (ex);
+				}
+			});
+
+			return tcs.Task;
 		}
 
 		public override void StopApplication ()

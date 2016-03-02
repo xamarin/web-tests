@@ -20,7 +20,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <Commandlineparameters>simulator /Workspace/web-tests/IOS/Xamarin.WebTests.iOS/bin/Debug/XamarinWebTestsIOS.app
+    <Commandlineparameters>simulator /Workspace/web-tests/IOS/Xamarin.WebTests.iOS/bin/Debug/XamarinWebXTestsIOS.app
 </Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">

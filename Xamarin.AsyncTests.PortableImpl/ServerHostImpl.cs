@@ -215,8 +215,8 @@ namespace Xamarin.AsyncTests.Portable
 					socket = await listener.AcceptSocketAsync ();
 					cts.Token.ThrowIfCancellationRequested ();
 				} catch (Exception ex) {
-					cts.Token.ThrowIfCancellationRequested ();
-					Debug.WriteLine ("Failed to start server: {0}", ex);
+					if (!cancellationToken.IsCancellationRequested)
+						Debug.WriteLine ("Failed to start server: {0}", ex);
 					throw;
 				}
 

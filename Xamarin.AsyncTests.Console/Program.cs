@@ -125,7 +125,7 @@ namespace Xamarin.AsyncTests.Console
 		string category;
 		string features;
 
-		public static void Run (Assembly assembly, string[] args)
+		public static int Run (Assembly assembly, string[] args)
 		{
 			SD.Debug.AutoFlush = true;
 			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
@@ -140,8 +140,10 @@ namespace Xamarin.AsyncTests.Console
 
 				var task = program.Run (CancellationToken.None);
 				task.Wait ();
+				return 0;
 			} catch (Exception ex) {
 				Debug ("ERROR: {0}", ex);
+				return -1;
 			}
 		}
 
@@ -278,6 +280,13 @@ namespace Xamarin.AsyncTests.Console
 			Debug (message);
 			if (Wrench)
 				global::System.Console.WriteLine ("@MonkeyWrench: AddSummary: <p>{0}</p>", message);
+		}
+
+		internal void WriteErrorSummary (string message)
+		{
+			Debug ("ERROR: {0}", message);
+			if (Wrench)
+				global::System.Console.WriteLine ("@MonkeyWrench: AddSummary: <p><b>ERROR: {0}</b></p>", message);
 		}
 
 		internal void AddFile (string filename)
@@ -558,7 +567,16 @@ namespace Xamarin.AsyncTests.Console
 		async Task LaunchApplication (CancellationToken cancellationToken)
 		{
 			var endpoint = GetPortableEndPoint (EndPoint);
-			var server = await TestServer.LaunchApplication (this, endpoint, Launcher, cancellationToken);
+
+			TestServer server;
+			try {
+				server = await TestServer.LaunchApplication (this, endpoint, Launcher, cancellationToken);
+			} catch (LauncherErrorException ex) {
+				WriteErrorSummary (ex.Message);
+				Environment.Exit (255);
+				throw;
+			}
+
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			Debug ("Test app launched.");

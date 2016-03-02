@@ -1,10 +1,10 @@
 ﻿//
-// ApplicationLauncher.cs
+// LauncherErrorException.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,20 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Remoting
 {
-	using Portable;
-
-	public abstract class ApplicationLauncher
+	public class LauncherErrorException : Exception
 	{
-		public abstract void LaunchApplication (IPortableEndPoint address);
+		public LauncherErrorException ()
+		{
+		}
 
-		public abstract Task<bool> WaitForExit ();
+		public LauncherErrorException (string message)
+			: base (message)
+		{
+		}
 
-		public abstract void StopApplication ();
+		public LauncherErrorException (string format, params object[] args)
+			: base (string.Format (format, args))
+		{
+		}
 	}
 }
 

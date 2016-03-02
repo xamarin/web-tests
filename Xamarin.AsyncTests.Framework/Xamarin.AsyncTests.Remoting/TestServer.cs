@@ -86,11 +86,32 @@ namespace Xamarin.AsyncTests.Remoting
 
 			launcher.LaunchApplication (address);
 
-			var stream = await connection.Open (cancellationToken);
+			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
+
+			bool launcherError = false;
+			var launcherTask = launcher.WaitForExit ().ContinueWith (t => {
+				if (t.IsFaulted || t.IsCanceled || !t.Result) {
+					launcherError = true;
+					cts.Cancel ();
+				}
+			});
+
+			Stream stream;
+
+			try {
+				stream = await connection.Open (cts.Token);
+				cts.Token.ThrowIfCancellationRequested ();
+			} catch {
+				if (launcherError || launcherTask.IsCanceled || cts.IsCancellationRequested)
+					throw new LauncherErrorException ("Launcher exited abnormally before establishing connection.");
+				throw;
+			}
 
 			var launcherConnection = new LauncherConnection (app, stream, connection, launcher);
 			var client = new Client (app, launcherConnection);
-			await client.Initialize (cancellationToken);
+			await client.Initialize (cts.Token);
+			cts.Token.ThrowIfCancellationRequested ();
+
 			return client;
 		}
 
