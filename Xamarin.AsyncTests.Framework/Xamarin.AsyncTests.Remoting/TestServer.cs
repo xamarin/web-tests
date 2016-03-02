@@ -110,7 +110,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 			var launcherConnection = new LauncherConnection (app, stream, connection, launcher);
 			var client = new Client (app, launcherConnection);
-			await client.Initialize (cts.Token);
+			await client.Initialize (cancellationToken);
 			cts.Token.ThrowIfCancellationRequested ();
 
 			return client;
