@@ -438,46 +438,8 @@ namespace Xamarin.AsyncTests.Console
 			await server.WaitForExit (cancellationToken);
 		}
 
-		bool OnSessionCreated (TestSession session)
+		bool ModifyConfiguration (TestConfiguration config)
 		{
-			var config = session.Configuration;
-
-			if (Wrench) {
-				WriteSummary ("Test category: {0}", config.CurrentCategory.Name);
-				var features = session.ConfigurationProvider.Features.Where (f => f.CanModify && config.IsEnabled (f));
-				var featureSummary = string.Join (",", features.Select (f => f.Name));
-				if (!string.IsNullOrWhiteSpace (featureSummary))
-					WriteSummary ("Test features: {0}", featureSummary);
-			}
-
-			bool done = false;
-			if (showCategories) {
-				WriteLine ("Test Categories:");
-				foreach (var category in session.ConfigurationProvider.Categories) {
-					var builtinText = category.IsBuiltin ? " (builtin)" : string.Empty;
-					var explicitText = category.IsExplicit ? " (explicit)" : string.Empty;
-					var currentText = config.CurrentCategory != null && config.CurrentCategory.Name.Equals (category.Name) ? " (current)" : string.Empty;
-					WriteLine ("  {0}{1}{2}{3}", category.Name, builtinText, explicitText, currentText);
-				}
-				WriteLine ();
-				done = true;
-			}
-
-			if (showFeatures) {
-				WriteLine ("Test Features:");
-				foreach (var feature in session.ConfigurationProvider.Features) {
-					var constText = feature.Constant != null ? string.Format (" (const = {0})", feature.Constant.Value ? "enabled" : "disabled") : string.Empty;
-					var defaultText = feature.DefaultValue != null ? string.Format (" (default = {0})", feature.DefaultValue.Value ? "enabled" : "disabled") : string.Empty;
-					var currentText = feature.CanModify ? string.Format (" ({0})", config.IsEnabled (feature) ? "enabled" : "disabled") : string.Empty;
-					WriteLine ("  {0,-30} {1}{2}{3}{4}", feature.Name, feature.Description, constText, defaultText, currentText);
-				}
-				WriteLine ();
-				done = true;
-			}
-
-			if (done)
-				Environment.Exit (0);
-
 			bool modified = false;
 
 			if (category != null) {
@@ -513,6 +475,51 @@ namespace Xamarin.AsyncTests.Console
 					}
 				}
 			}
+
+			return modified;
+		}
+
+		bool OnSessionCreated (TestSession session)
+		{
+			var config = session.Configuration;
+
+			var modified = ModifyConfiguration (config);
+
+			if (Wrench) {
+				WriteSummary ("Test category: {0}", config.CurrentCategory.Name);
+				var enabledFeatures = session.ConfigurationProvider.Features.Where (f => f.CanModify && config.IsEnabled (f));
+				var featureSummary = string.Join (",", enabledFeatures.Select (f => f.Name));
+				if (!string.IsNullOrWhiteSpace (featureSummary))
+					WriteSummary ("Test features: {0}", featureSummary);
+			}
+
+			bool done = false;
+			if (showCategories) {
+				WriteLine ("Test Categories:");
+				foreach (var category in session.ConfigurationProvider.Categories) {
+					var builtinText = category.IsBuiltin ? " (builtin)" : string.Empty;
+					var explicitText = category.IsExplicit ? " (explicit)" : string.Empty;
+					var currentText = config.CurrentCategory != null && config.CurrentCategory.Name.Equals (category.Name) ? " (current)" : string.Empty;
+					WriteLine ("  {0}{1}{2}{3}", category.Name, builtinText, explicitText, currentText);
+				}
+				WriteLine ();
+				done = true;
+			}
+
+			if (showFeatures) {
+				WriteLine ("Test Features:");
+				foreach (var feature in session.ConfigurationProvider.Features) {
+					var constText = feature.Constant != null ? string.Format (" (const = {0})", feature.Constant.Value ? "enabled" : "disabled") : string.Empty;
+					var defaultText = feature.DefaultValue != null ? string.Format (" (default = {0})", feature.DefaultValue.Value ? "enabled" : "disabled") : string.Empty;
+					var currentText = feature.CanModify ? string.Format (" ({0})", config.IsEnabled (feature) ? "enabled" : "disabled") : string.Empty;
+					WriteLine ("  {0,-30} {1}{2}{3}{4}", feature.Name, feature.Description, constText, defaultText, currentText);
+				}
+				WriteLine ();
+				done = true;
+			}
+
+			if (done)
+				Environment.Exit (0);
 
 			if (modified && saveOptions)
 				SaveSettings ();
