@@ -95,11 +95,11 @@ namespace Xamarin.AsyncTests.Console
 				args.AppendFormat (" --launchsim={0}", Application);
 			args.AppendFormat (" --setenv=\"XAMARIN_ASYNCTESTS_OPTIONS=connect {0}:{1}\"", address.Address, address.Port);
 			if (LaunchOnDevice) {
-				args.AppendFormat (" --stderr=simulator-stderr.txt");
-				args.AppendFormat (" --stdout=simulator-stdout.txt");
-			} else {
 				args.AppendFormat (" --stderr=device-stderr.txt");
 				args.AppendFormat (" --stdout=device-stdout.txt");
+			} else {
+				args.AppendFormat (" --stderr=simulator-stderr.txt");
+				args.AppendFormat (" --stdout=simulator-stdout.txt");
 			}
 
 			if (ExtraMTouchArguments != null) {
