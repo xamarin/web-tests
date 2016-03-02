@@ -32,6 +32,7 @@ using Foundation;
 using UIKit;
 using ObjCRuntime;
 using Xamarin.WebTests.TestProvider;
+using Xamarin.WebTests.MonoTestFramework;
 
 namespace Xamarin.WebTests.iOS
 {
@@ -73,6 +74,7 @@ namespace Xamarin.WebTests.iOS
 			Forms.Init ();
 
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
+			DependencyInjector.RegisterAssembly (typeof(MonoTestFrameworkDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(AppDelegate).Assembly);
 
 			Framework = TestFramework.GetLocalFramework (typeof(AppDelegate).Assembly);

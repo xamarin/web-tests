@@ -34,6 +34,7 @@ using Foundation;
 using UIKit;
 
 [assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
+[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.MonoTests.MonoWebTestFeatures), true)]
 
 namespace Xamarin.WebTests.iOS
 {
