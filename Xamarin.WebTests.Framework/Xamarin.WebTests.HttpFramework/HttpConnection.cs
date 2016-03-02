@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public void CheckEncryption (TestContext ctx)
 		{
-			if ((Server.Flags & ListenerFlags.SSL) == 0)
+			if ((Server.Flags & (ListenerFlags.SSL | ListenerFlags.ForceTls12)) == 0)
 				return;
 
 			ctx.Assert (SslStream, Is.Not.Null, "Needs SslStream");

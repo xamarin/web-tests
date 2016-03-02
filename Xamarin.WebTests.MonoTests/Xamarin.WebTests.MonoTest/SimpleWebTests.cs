@@ -58,7 +58,6 @@ namespace Xamarin.WebTests.MonoTests
 		}
 	}
 
-	[Work]
 	[AsyncTestFixture]
 	public class SimpleWebTests
 	{
@@ -70,6 +69,15 @@ namespace Xamarin.WebTests.MonoTests
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
 			[HttpServer (ListenerFlags.SSL)] HttpServer server,
+			[SimpleWebHandler] Handler handler)
+		{
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+		}
+
+		[AsyncTest]
+		[NotWorking] // IMPORTANT FIXME: Remove the category flag when we ship!
+		public Task ForceTls12 (TestContext ctx, CancellationToken cancellationToken,
+			[HttpServer (ListenerFlags.SSL | ListenerFlags.ForceTls12)] HttpServer server,
 			[SimpleWebHandler] Handler handler)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
