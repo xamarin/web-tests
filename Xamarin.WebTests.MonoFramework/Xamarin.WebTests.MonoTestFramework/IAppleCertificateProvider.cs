@@ -1,10 +1,10 @@
 ﻿//
-// IPortableSupport.cs
+// IAppleCertificateProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,43 +24,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Text;
+using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests;
+using Xamarin.WebTests.ConnectionFramework;
 
-namespace Xamarin.AsyncTests.Portable
+namespace Xamarin.WebTests.MonoTestFramework
 {
-	public interface IPortableSupport : ISingletonInstance
+	public interface IAppleCertificateProvider : ISingletonInstance
 	{
-		string GetStackTrace (bool full);
+		void InstallIntoKeyChain (X509Certificate certificate);
 
-		string GetEnvironmentVariable (string name);
+		void RemoveFromKeyChain (X509Certificate certificate);
 
-		string CurrentThreadId {
-			get;
-		}
+		X509Certificate GetAppleCertificate (X509Certificate certificate);
 
-		bool IsMicrosoftRuntime {
-			get;
-		}
-
-		bool IsAndroid {
-			get;
-		}
-
-		bool IsIOS {
-			get;
-		}
-
-		bool IsMobile {
-			get;
-		}
-
-		Version MonoRuntimeVersion {
-			get;
-		}
-
-		Encoding ASCIIEncoding {
-			get;
-		}
+		bool IsInKeyChain (X509Certificate certificate);
 	}
 }
 

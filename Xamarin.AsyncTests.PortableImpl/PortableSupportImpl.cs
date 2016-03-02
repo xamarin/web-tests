@@ -55,6 +55,36 @@ namespace Xamarin.AsyncTests.Portable
 			get { return isMsRuntime; }
 		}
 
+		public bool IsAndroid {
+			get {
+				#if __ANDROID__
+				return true;
+				#else
+				return false;
+				#endif
+			}
+		}
+
+		public bool IsMobile {
+			get {
+				#if __MOBILE__
+				return true;
+				#else
+				return false;
+				#endif
+			}
+		}
+
+		public bool IsIOS {
+			get {
+				#if __IOS__
+				return true;
+				#else
+				return false;
+				#endif
+			}
+		}
+
 		public Version MonoRuntimeVersion {
 			get { return runtimeVersion; }
 		}

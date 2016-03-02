@@ -34,6 +34,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 		Connection,
 
 		CertificateChecks,
+		SecurityFramework,
 
 		SimpleMonoClient,
 		SimpleMonoServer,

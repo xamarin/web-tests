@@ -97,6 +97,10 @@ namespace Xamarin.WebTests.MonoTestFramework
 				yield return SimpleConnectionType.RequireClientCertificateDHE;
 				yield break;
 
+			case MonoConnectionTestCategory.SecurityFramework:
+				yield return SimpleConnectionType.Simple;
+				yield break;
+
 			case MonoConnectionTestCategory.MartinTest:
 				yield return SimpleConnectionType.MartinTest;
 				yield break;

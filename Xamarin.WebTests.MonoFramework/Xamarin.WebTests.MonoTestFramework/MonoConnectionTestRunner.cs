@@ -96,6 +96,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				return MonoConnectionTestFlags.RequireMonoServer;
 			case MonoConnectionTestCategory.Connection:
 			case MonoConnectionTestCategory.CertificateChecks:
+			case MonoConnectionTestCategory.SecurityFramework:
 				return MonoConnectionTestFlags.RequireMono;
 			case MonoConnectionTestCategory.MartinTest:
 				return MonoConnectionTestFlags.RequireMono | MonoConnectionTestFlags.RequireTls12;

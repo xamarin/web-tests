@@ -61,3 +61,6 @@ IOS-Dev-%::
 .IOS-Run-Work::
 	$(MAKE) -f $(TOP)/ios.make ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Work Run
 
+.IOS-Run-Martin::
+	$(MAKE) -f $(TOP)/ios.make ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin Run
+

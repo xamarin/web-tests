@@ -1,10 +1,10 @@
 ﻿//
-// IPortableSupport.cs
+// AppleCertificateProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,42 +24,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Text;
+using Xamarin.AsyncTests;
+using Xamarin.WebTests.TestProvider.Mobile;
+using Xamarin.WebTests.MonoTestFramework;
 
-namespace Xamarin.AsyncTests.Portable
+[assembly: DependencyProvider (typeof (MacDependencyProvider))]
+
+namespace Xamarin.WebTests.TestProvider.Mobile
 {
-	public interface IPortableSupport : ISingletonInstance
+	public class MacDependencyProvider : IDependencyProvider
 	{
-		string GetStackTrace (bool full);
-
-		string GetEnvironmentVariable (string name);
-
-		string CurrentThreadId {
-			get;
-		}
-
-		bool IsMicrosoftRuntime {
-			get;
-		}
-
-		bool IsAndroid {
-			get;
-		}
-
-		bool IsIOS {
-			get;
-		}
-
-		bool IsMobile {
-			get;
-		}
-
-		Version MonoRuntimeVersion {
-			get;
-		}
-
-		Encoding ASCIIEncoding {
-			get;
+		public void Initialize ()
+		{
+#if APPLETLS
+			DependencyInjector.RegisterDependency<IAppleCertificateProvider> (() => new AppleCertificateProvider ());
+#endif
 		}
 	}
 }

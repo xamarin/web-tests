@@ -66,6 +66,12 @@
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\SimpleConnectionTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\CipherSuiteAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\ProtocolVersionsAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFramework\IAppleCertificateProvider.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFeatures\MobileAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFeatures\SecurityFrameworkAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFramework\AppleCertificateHost.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFeatures\AppleCertificateHostAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFeatures\IOSAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

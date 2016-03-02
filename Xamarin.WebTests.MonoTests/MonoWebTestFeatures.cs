@@ -30,6 +30,7 @@ using Xamarin.WebTests;
 using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.MonoTests;
 using Xamarin.WebTests.MonoConnectionFramework;
+using Xamarin.WebTests.MonoTestFeatures;
 
 [assembly: AsyncTestSuite (typeof (MonoWebTestFeatures), "MonoWebTests", typeof (SharedWebTestFeatures))]
 [assembly: DependencyProvider (typeof (MonoWebTestFeatures.Provider))]
@@ -56,7 +57,11 @@ namespace Xamarin.WebTests.MonoTests
 		}
 
 		public IEnumerable<TestFeature> Features {
-			get { return new TestFeature [0]; }
+			get {
+				yield return MobileAttribute.Instance;
+				yield return IOSAttribute.Instance;
+				yield return SecurityFrameworkAttribute.Instance;
+			}
 		}
 
 		public IEnumerable<TestCategory> Categories {

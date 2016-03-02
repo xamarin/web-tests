@@ -30,6 +30,16 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugAppleTls|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\DebugAppleTls</OutputPath>
+    <DefineConstants>DEBUG;APPLETLS;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
@@ -42,6 +52,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\Mac\Xamarin.WebTests.TestProvider.Mac\AppleCertificateProvider.cs">
+      <Link>AppleCertificateProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Mac\Xamarin.WebTests.TestProvider.Mac\MacDependencyProvider.cs">
+      <Link>MacDependencyProvider.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="..\..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
   <Import Project="..\..\Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems')" />
@@ -62,6 +78,10 @@
     <ProjectReference Include="..\Xamarin.WebTests.PortableSecurity.iOS\Xamarin.WebTests.PortableSecurity.iOS.csproj">
       <Project>{D2ADF33E-0152-4AFB-BF71-588BCCB5DEE7}</Project>
       <Name>Xamarin.WebTests.PortableSecurity.iOS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
+      <Project>{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}</Project>
+      <Name>Xamarin.WebTests.MonoFramework</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

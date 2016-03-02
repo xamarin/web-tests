@@ -1,10 +1,10 @@
 ﻿//
-// IPortableSupport.cs
+// AppleCertificateHost.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,42 +24,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests;
+using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.MonoTestFramework;
+using Xamarin.WebTests.Resources;
 
-namespace Xamarin.AsyncTests.Portable
+namespace Xamarin.WebTests.MonoTestFeatures
 {
-	public interface IPortableSupport : ISingletonInstance
+	public class AppleCertificateHostAttribute : TestHostAttribute, ITestHost<AppleCertificateHost>
 	{
-		string GetStackTrace (bool full);
-
-		string GetEnvironmentVariable (string name);
-
-		string CurrentThreadId {
-			get;
+		public AppleCertificateHostAttribute ()
+			: base (typeof (AppleCertificateHostAttribute))
+		{
+			Identifier = "AppleCertificateHost";
 		}
 
-		bool IsMicrosoftRuntime {
-			get;
+		public AppleCertificateHostAttribute (CertificateResourceType type)
+			: base (typeof (AppleCertificateHostAttribute))
+		{
+			Identifier = "AppleCertificateHost";
+			Type = type;
 		}
 
-		bool IsAndroid {
+		public CertificateResourceType? Type {
 			get;
+			private set;
 		}
 
-		bool IsIOS {
-			get;
-		}
-
-		bool IsMobile {
-			get;
-		}
-
-		Version MonoRuntimeVersion {
-			get;
-		}
-
-		Encoding ASCIIEncoding {
-			get;
+		public AppleCertificateHost CreateInstance (TestContext context)
+		{
+			if (Type != null)
+				return new AppleCertificateHost (Type.Value);
+			else
+				return new AppleCertificateHost (ResourceManager.SelfSignedServerCertificate);
 		}
 	}
 }

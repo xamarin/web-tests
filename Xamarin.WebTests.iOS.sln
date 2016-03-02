@@ -48,10 +48,10 @@ Global
 		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Debug|iPhone.Build.0 = Debug|Any CPU
 		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
 		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.DebugAppleTls|iPhone.ActiveCfg = Debug|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.DebugAppleTls|iPhone.Build.0 = Debug|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.DebugAppleTls|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.DebugAppleTls|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.DebugAppleTls|iPhone.ActiveCfg = DebugAppleTls|Any CPU
+		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.DebugAppleTls|iPhone.Build.0 = DebugAppleTls|Any CPU
+		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.DebugAppleTls|iPhoneSimulator.ActiveCfg = DebugAppleTls|Any CPU
+		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.DebugAppleTls|iPhoneSimulator.Build.0 = DebugAppleTls|Any CPU
 		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.DebugFull|Any CPU.ActiveCfg = Debug|Any CPU
 		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.DebugFull|Any CPU.Build.0 = Debug|Any CPU
 		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Release|Any CPU.ActiveCfg = Release|Any CPU

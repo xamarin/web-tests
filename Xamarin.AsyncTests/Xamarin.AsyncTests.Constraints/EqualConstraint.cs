@@ -49,13 +49,14 @@ namespace Xamarin.AsyncTests.Constraints
 					return false;
 				}
 				var actualString = actual as string;
-				if (actualString == null) {
-					message = string.Format (
-						"Expected string, but got instance of Type `{0}'.", actual.GetType ());
-					return false;
-				}
+				if (actualString != null)
+					return CompareString ((string)Expected, actualString, out message);
+				if (actual is Guid)
+					return CompareGuid (Expected, (Guid)actual, out message);
 
-				return CompareString ((string)Expected, actualString, out message);
+				message = string.Format (
+					"Expected string, but got instance of Type `{0}'.", actual.GetType ());
+				return false;
 			}
 
 			if (Expected is IList) {
@@ -107,6 +108,16 @@ namespace Xamarin.AsyncTests.Constraints
 
 			message = string.Format ("Expected '{0}', got '{1}'.", Expected, actual);
 			return false;
+		}
+
+		bool CompareGuid (object expected, Guid actual, out string message)
+		{
+			var expectedString = expected as string;
+			if (expectedString != null)
+				return CompareString (expectedString, actual.ToString (), out message);
+
+			var expectedGuid = (Guid)expected;
+			return CompareString (expectedGuid.ToString (), actual.ToString (), out message);
 		}
 
 		bool CompareString (string expected, string actual, out string message)
