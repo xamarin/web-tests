@@ -57,12 +57,12 @@ namespace Xamarin.WebTests
 			get { return DependencyInjector.Get<WebTestFeatures> (); }
 		}
 
-		public readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
+		public readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication", true);
 		public readonly TestFeature Redirect = new TestFeature ("Redirect", "Redirect Tests", true);
 		public readonly TestFeature Proxy = new TestFeature ("Proxy", "Proxy Tests", true);
 		public readonly TestFeature ProxyAuth = new TestFeature ("ProxyAuth", "Proxy Authentication", true);
 
-		public readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", false);
+		public readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", true);
 
 		public readonly TestCategory HeavyCategory = new TestCategory ("Heavy") { IsExplicit = true };
 		public readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
