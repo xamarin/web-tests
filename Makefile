@@ -1,33 +1,6 @@
 TOP = .
 include $(TOP)/Make.config
 
-export TOP
-export WRENCH
-export IOS_TARGET
-
-XBUILD_OPTIONS = /p:Configuration=Console
-SOLUTION = Xamarin.WebTests.sln
-OUTPUT = ./Xamarin.WebTests.Console/bin/Debug/Xamarin.WebTests.Console.exe
-RUN_ARGS =
-
-all::	build run
-
-build::
-	xbuild $(XBUILD_OPTIONS) $(SOLUTION)
-
-clean::
-	xbuild $(XBUILD_OPTIONS) /t:Clean $(SOLUTION)
-	
-run::
-	$(MONO) $(OUTPUT) $(RUN_ARGS)
-
-Hello::
-	echo "Hello World!"
-
-#
-# Build
-#
-
 CleanAll::
 	git clean -xffd
 
@@ -47,20 +20,29 @@ IOS-Dev-%::
 	$(MAKE) IOS_CONFIGURATION=DebugAppleTls .IOS-Run-$*
 
 .IOS-Build-Debug::
-	$(MAKE) -f $(TOP)/ios.make Build IOS_CONFIGURATION=Debug
+	$(MAKE) IOS_CONFIGURATION=Debug .IOS-Build
 
 .IOS-Build-DebugAppleTls::
-	$(MAKE) -f $(TOP)/ios.make Build IOS_CONFIGURATION=DebugAppleTls
+	$(MAKE) IOS_CONFIGURATION=DebugAppleTls .IOS-Build
 
 .IOS-Run-Experimental::
-	$(MAKE) -f $(TOP)/ios.make ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All Run
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All .IOS-Run
 
 .IOS-Run-All::
-	$(MAKE) -f $(TOP)/ios.make TEST_CATEGORY=All Run
+	$(MAKE) TEST_CATEGORY=All .IOS-Run
 
 .IOS-Run-Work::
-	$(MAKE) -f $(TOP)/ios.make ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Work Run
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Work .IOS-Run
 
 .IOS-Run-Martin::
-	$(MAKE) -f $(TOP)/ios.make ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin Run
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .IOS-Run
+
+.IOS-Build::
+	$(MONO) $(NUGET_EXE) restore Xamarin.WebTests.iOS.sln
+	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'$(IOS_CONFIGURATION)|$(IOS_TARGET)'
+
+.IOS-Run::
+	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) \
+		$(ASYNCTESTS_COMMAND) $(WEBTESTS_IOS_APP)
 
