@@ -64,6 +64,21 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public string RedirectStdout {
+			get;
+			private set;
+		}
+
+		public string RedirectStderr {
+			get;
+			private set;
+		}
+
+		public string DeviceName {
+			get;
+			private set;
+		}
+
 		public string ExtraMTouchArguments {
 			get;
 			private set;
@@ -72,10 +87,13 @@ namespace Xamarin.AsyncTests.Console
 		Process process;
 		TaskCompletionSource<bool> tcs;
 
-		public TouchLauncher (string app, bool device, string extraArgs)
+		public TouchLauncher (string app, bool device, string stdout, string stderr, string devname, string extraArgs)
 		{
 			Application = app;
 			LaunchOnDevice = device;
+			RedirectStdout = stdout;
+			RedirectStderr = stderr;
+			DeviceName = devname;
 			ExtraMTouchArguments = extraArgs;
 
 			MonoTouchRoot = Environment.GetEnvironmentVariable ("MONOTOUCH_ROOT");
@@ -94,13 +112,12 @@ namespace Xamarin.AsyncTests.Console
 			else
 				args.AppendFormat (" --launchsim={0}", Application);
 			args.AppendFormat (" --setenv=\"XAMARIN_ASYNCTESTS_OPTIONS=connect {0}:{1}\"", address.Address, address.Port);
-			if (LaunchOnDevice) {
-				args.AppendFormat (" --stderr=device-stderr.txt");
-				args.AppendFormat (" --stdout=device-stdout.txt");
-			} else {
-				args.AppendFormat (" --stderr=simulator-stderr.txt");
-				args.AppendFormat (" --stdout=simulator-stdout.txt");
-			}
+			if (!string.IsNullOrWhiteSpace (RedirectStdout))
+				args.AppendFormat (" --stdout={0}", RedirectStdout);
+			if (!string.IsNullOrWhiteSpace (RedirectStderr))
+				args.AppendFormat (" --stderr={0}", RedirectStderr);
+			if (!string.IsNullOrWhiteSpace (DeviceName))
+				args.AppendFormat (" --devname={0}", DeviceName);
 
 			if (ExtraMTouchArguments != null) {
 				args.Append (" ");
