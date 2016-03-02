@@ -497,6 +497,10 @@ namespace Xamarin.AsyncTests.Console
 				var featureSummary = string.Join (",", enabledFeatures.Select (f => f.Name));
 				if (!string.IsNullOrWhiteSpace (featureSummary))
 					WriteSummary ("Test features: {0}", featureSummary);
+				var constantFeatures = session.ConfigurationProvider.Features.Where (f => f.Constant ?? false);
+				var constantSummary = string.Join (",", constantFeatures.Select (f => f.Name));
+				if (!string.IsNullOrWhiteSpace (constantSummary))
+					WriteSummary ("Constant test features: {0}", constantSummary);
 			}
 
 			bool done = false;

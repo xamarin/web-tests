@@ -86,7 +86,6 @@ namespace Xamarin.WebTests
 		public IEnumerable<TestFeature> Features {
 			get {
 				yield return SSL;
-				yield return MonoWithNewTlsAttribute.Instance;
 
 				yield return NTLM;
 				yield return Redirect;
