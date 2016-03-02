@@ -46,8 +46,11 @@ IOS-Dev-%::
 .IOS-DebugAppleTls-%::
 	$(MAKE) IOS_CONFIGURATION=DebugAppleTls .IOS-Run-$*
 
-.IOS-Build::
-	$(MAKE) -f $(TOP)/ios.make Build
+.IOS-Build-Debug::
+	$(MAKE) -f $(TOP)/ios.make Build IOS_CONFIGURATION=Debug
+
+.IOS-Build-DebugAppleTls::
+	$(MAKE) -f $(TOP)/ios.make Build IOS_CONFIGURATION=DebugAppleTls
 
 .IOS-Run-Experimental::
 	$(MAKE) -f $(TOP)/ios.make ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All Run
