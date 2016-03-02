@@ -34,7 +34,8 @@ namespace Xamarin.WebTests.Server
 		Proxy				= 1,
 		ReuseConnection			= 2,
 		SSL				= 4,
-		ExpectException			= 8
+		ExpectException			= 8,
+		ForceTls12			= 16
 	}
 }
 

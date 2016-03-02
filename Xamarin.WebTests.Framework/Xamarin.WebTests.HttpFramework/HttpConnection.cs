@@ -29,10 +29,14 @@ using System.Net;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.HttpFramework
 {
 	using ConnectionFramework;
+	using Server;
 
 	public class HttpConnection : Connection
 	{
@@ -49,6 +53,19 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			Server = server;
 			SslStream = sslStream;
+		}
+
+		public void CheckEncryption (TestContext ctx)
+		{
+			if ((Server.Flags & ListenerFlags.SSL) == 0)
+				return;
+
+			ctx.Assert (SslStream, Is.Not.Null, "Needs SslStream");
+			ctx.Assert (SslStream.IsAuthenticated, "Must be authenticated");
+
+			var support = DependencyInjector.Get<IPortableSupport> ();
+			if (((Server.Flags & ListenerFlags.ForceTls12) != 0) || support.HasAppleTls)
+				ctx.Assert (SslStream.ProtocolVersion, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
 		}
 	}
 }

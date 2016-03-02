@@ -146,6 +146,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			try {
 				Debug (ctx, 1, "HANDLE REQUEST");
 				DumpHeaders (ctx, request);
+				connection.CheckEncryption (ctx);
 				var response = HandleRequest (ctx, connection, request, Flags);
 				if (response == null)
 					response = HttpResponse.CreateSuccess ();
