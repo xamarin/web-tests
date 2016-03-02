@@ -87,6 +87,7 @@ namespace Xamarin.AsyncTests.Remoting
 			launcher.LaunchApplication (address);
 
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
+			cts.CancelAfter (90000);
 
 			bool launcherError = false;
 			var launcherTask = launcher.WaitForExit ().ContinueWith (t => {
