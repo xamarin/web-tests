@@ -16,8 +16,11 @@ IOS-Dev-%::
 Console-%::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ .Console-$*
 
+Mac-%::
+	$(MAKE) ASYNCTESTS_COMMAND=mac TARGET_NAME=$@ .Mac-$*
+
 #
-# Internal make targets below
+# Internal IOS make targets
 #
 
 .IOS-Debug-%::
@@ -53,6 +56,10 @@ Console-%::
 		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) \
 		$(ASYNCTESTS_COMMAND) $(WEBTESTS_IOS_APP)
 
+#
+# Internal Console make targets
+#
+
 .Console-Build-Debug::
 	$(MAKE) CONSOLE_CONFIGURATION=Debug .Console-Internal-Build
 
@@ -77,4 +84,41 @@ Console-%::
 .Console-Internal-Run::
 	$(MONO) $(WEBTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
 		--result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND)
+
+#
+# Internal Mac make targets
+#
+
+.Mac-Build-Debug::
+	$(MAKE) MAC_CONFIGURATION=Debug .Mac-Internal-Build
+
+.Mac-Build-DebugAppleTls::
+	$(MAKE) MAC_CONFIGURATION=DebugAppleTls .Mac-Internal-Build
+
+.Mac-Debug-%::
+	$(MAKE) MAC_CONFIGURATION=Debug .Mac-Run-$*
+
+.Mac-DebugAppleTls-%::
+	$(MAKE) MAC_CONFIGURATION=DebugAppleTls .Mac-Run-$*
+
+.Mac-Run-Experimental::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All .Mac-Internal-Run
+
+.Mac-Run-All::
+	$(MAKE) TEST_CATEGORY=All .Mac-Internal-Run
+
+.Mac-Run-Work::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Work .Mac-Internal-Run
+
+.Mac-Run-Martin::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .Mac-Internal-Run
+
+.Mac-Internal-Build::
+	$(MONO) $(NUGET_EXE) restore Xamarin.WebTests.Mac.sln
+	$(MDTOOL) build Xamarin.WebTests.Mac.sln -c:'$(MAC_CONFIGURATION)'
+
+.Mac-Internal-Run::
+	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) \
+		$(ASYNCTESTS_COMMAND) $(WEBTESTS_MAC_APP_BIN)
 

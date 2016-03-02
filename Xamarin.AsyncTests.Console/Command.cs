@@ -34,7 +34,8 @@ namespace Xamarin.AsyncTests.Console
 		Listen,
 		Gui,
 		Simulator,
-		Device
+		Device,
+		Mac
 	}
 }
 

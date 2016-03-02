@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Foundation;
@@ -34,6 +35,7 @@ using AppKit;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.AsyncTests.Framework;
+using Xamarin.AsyncTests.Remoting;
 
 namespace Xamarin.AsyncTests.MacUI
 {
@@ -93,7 +95,11 @@ namespace Xamarin.AsyncTests.MacUI
 					SessionChangedEvent (this, e);
 			};
 
-			StartServer ();
+			var options = Environment.GetEnvironmentVariable ("XAMARIN_ASYNCTESTS_OPTIONS");
+			if (options != null)
+				StartWithOptions (options);
+			else
+				StartServer ();
 
 			settingsDialogController.DidFinishLaunching ();
 		}
@@ -336,6 +342,37 @@ namespace Xamarin.AsyncTests.MacUI
 
 		SettingsDialogController IAppDelegate.Settings {
 			get { return Settings; }
+		}
+
+		async void StartWithOptions (string options)
+		{
+			await Task.Yield ();
+
+			var args = options.Split (' ');
+			if (args.Length < 2 || args [0] != "connect")
+				throw new NotImplementedException ();
+
+			var framework = TestFramework.GetLocalFramework (typeof(AppDelegate).Assembly);
+
+			var endpoint = DependencyInjector.Get<IPortableEndPointSupport> ().ParseEndpoint (args [1]);
+			Console.WriteLine ("Connecting to {0}:{1}.", endpoint.Address, endpoint.Port);
+
+			var server = await TestServer.ConnectToRemote (ui, endpoint, framework, CancellationToken.None);
+			var session = await server.GetTestSession (CancellationToken.None);
+
+			Console.WriteLine ("Got test session {0} from {1}.", session.Name, server.App);
+
+			var running = await server.WaitForExit (CancellationToken.None);
+			Console.WriteLine ("Wait for exit: {0}", running);
+
+			try {
+				await server.Stop (CancellationToken.None);
+			} catch (Exception ex) {
+				Console.WriteLine ("Failed to stop server: {0}", ex.Message);
+			}
+
+			Console.WriteLine ("Done running.");
+			Environment.Exit (0);
 		}
 	}
 }

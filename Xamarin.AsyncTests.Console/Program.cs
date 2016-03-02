@@ -233,6 +233,14 @@ namespace Xamarin.AsyncTests.Console
 
 				if (EndPoint == null)
 					EndPoint = GetLocalEndPoint ();
+			} else if (command == Command.Mac) {
+				if (arguments.Count < 1)
+					throw new InvalidOperationException ("Expected .app argument");
+				Launcher = new MacLauncher (arguments [0], stdout, stderr);
+				arguments.RemoveAt (0);
+
+				if (EndPoint == null)
+					EndPoint = GetLocalEndPoint ();
 			} else {
 				throw new NotImplementedException ();
 			}
@@ -416,6 +424,7 @@ namespace Xamarin.AsyncTests.Console
 				return WaitForConnection (cancellationToken);
 			case Command.Simulator:
 			case Command.Device:
+			case Command.Mac:
 				return LaunchApplication (cancellationToken);
 			default:
 				throw new NotImplementedException ();
