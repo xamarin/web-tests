@@ -74,5 +74,9 @@
       <Project>{435F3228-ECA3-44C3-BE2D-5BBA02741833}</Project>
       <Name>Xamarin.WebTests.PortableSecurity.Android</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
+      <Project>{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}</Project>
+      <Name>Xamarin.WebTests.MonoFramework</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

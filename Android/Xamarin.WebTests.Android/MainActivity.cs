@@ -4,6 +4,7 @@ using Android.App;
 using Android.OS;
 using Xamarin.AsyncTests;
 using Xamarin.WebTests.TestProvider;
+using Xamarin.WebTests.MonoTestFramework;
 
 [assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
 
@@ -30,13 +31,16 @@ namespace Xamarin.WebTests.Android
 
 			Forms.Init (this, bundle);
 
-			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
-			DependencyInjector.RegisterAssembly (typeof(MainActivity).Assembly);
-			DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
+			DependencyInjector.RegisterAssembly (typeof (WebDependencyProvider).Assembly);
+			DependencyInjector.RegisterAssembly (typeof (MonoTestFrameworkDependencyProvider).Assembly);
+			DependencyInjector.RegisterAssembly (typeof (MainActivity).Assembly);
 
-			Framework = TestFramework.GetLocalFramework (typeof(MainActivity).Assembly);
+			Framework = TestFramework.GetLocalFramework (typeof (MainActivity).Assembly);
 
-			LoadApplication (new MobileTestApp (Framework));
+			var mobileTestApp = new MobileTestApp (Framework);
+			// mobileTestApp.FinishedEvent += (sender, e) => TerminateWithSuccess ();
+
+			LoadApplication (mobileTestApp);
 		}
 	}
 }
