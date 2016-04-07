@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
@@ -38,6 +39,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			AskForClientCertificate = other.AskForClientCertificate;
 			RequireClientCertificate = other.RequireClientCertificate;
 			EnableDebugging = other.EnableDebugging;
+			ExpectPolicyErrors = other.ExpectPolicyErrors;
+			ExpectChainStatus = other.ExpectChainStatus;
 			GlobalValidationFlags = other.GlobalValidationFlags;
 		}
 
@@ -105,6 +108,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public GlobalValidationFlags GlobalValidationFlags {
+			get; set;
+		}
+
+		public SslPolicyErrors? ExpectPolicyErrors {
+			get; set;
+		}
+
+		public X509ChainStatusFlags? ExpectChainStatus {
 			get; set;
 		}
 	}

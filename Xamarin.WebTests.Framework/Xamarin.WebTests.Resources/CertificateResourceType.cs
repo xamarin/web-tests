@@ -32,7 +32,12 @@ namespace Xamarin.WebTests.Resources
 		Invalid,
 		HamillerTubeCA,
 		ServerCertificateFromLocalCA,
-		SelfSignedServerCertificate
+		SelfSignedServerCertificate,
+		TlsTestXamDevNew,
+		TlsTestXamDevExpired,
+		TlsTestXamDevCA,
+		IntermediateCA,
+		IntermediateServer
 	}
 }
 

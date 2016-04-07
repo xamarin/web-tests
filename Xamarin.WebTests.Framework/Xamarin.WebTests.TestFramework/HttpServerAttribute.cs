@@ -45,7 +45,8 @@ namespace Xamarin.WebTests.TestFramework
 			this.listenerFlags = listenerFlags;
 		}
 
-		protected HttpServerAttribute (Type type, TestFlags flags = TestFlags.None)
+		protected HttpServerAttribute (Type type, TestFlags flags = TestFlags.None,
+		                               ListenerFlags listenerFlags = ListenerFlags.None)
 			: base (type, flags)
 		{
 		}
@@ -74,7 +75,7 @@ namespace Xamarin.WebTests.TestFramework
 			return true;
 		}
 
-		static ISslStreamProvider GetSslStreamProvider (TestContext ctx)
+		protected static ISslStreamProvider GetSslStreamProvider (TestContext ctx)
 		{
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 			ConnectionProviderType providerType;
@@ -85,18 +86,18 @@ namespace Xamarin.WebTests.TestFramework
 			return provider.SupportsSslStreams ? provider.SslStreamProvider : null;
 		}
 
-		public HttpServer CreateInstance (TestContext ctx)
+		public virtual HttpServer CreateInstance (TestContext ctx)
 		{
 			var endpoint = ConnectionTestHelper.GetEndPoint (ctx);
 
 			ConnectionParameters parameters;
 			ISslStreamProvider sslStreamProvider = null;
 
-			var listenerFlags = GetListenerFlags (ctx);
+			var flags = GetListenerFlags (ctx);
 			if (GetParameters (ctx, out parameters))
 				sslStreamProvider = GetSslStreamProvider (ctx);
 
-			return new HttpServer (endpoint, endpoint, listenerFlags, sslStreamProvider, parameters);
+			return new HttpServer (endpoint, endpoint, flags, parameters, sslStreamProvider);
 		}
 	}
 }

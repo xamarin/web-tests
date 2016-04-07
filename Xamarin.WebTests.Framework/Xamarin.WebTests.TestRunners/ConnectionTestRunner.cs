@@ -113,6 +113,11 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.DontInvokeGlobalValidator2;
 				yield return ConnectionTestType.GlobalValidatorIsNull;
 				yield return ConnectionTestType.MustInvokeGlobalValidator;
+				yield return ConnectionTestType.ExternalServer;
+				yield break;
+
+			case ConnectionTestCategory.NotYetWorking:
+				yield return ConnectionTestType.CheckChain;
 				yield break;
 
 			case ConnectionTestCategory.SslStreamCertificateValidators:

@@ -29,6 +29,7 @@ using System.Security.Cryptography.X509Certificates;
 namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
+	using Resources;
 
 	[HttpsTestParameters]
 	public class HttpsTestParameters : ConnectionTestParameters
@@ -44,18 +45,31 @@ namespace Xamarin.WebTests.TestFramework
 			Type = type;
 		}
 
+		public HttpsTestParameters (ConnectionTestCategory category, ConnectionTestType type, string identifier, CertificateResourceType certificate)
+			: base (category, identifier, null)
+		{
+			Type = type;
+			CertificateType = certificate;
+		}
+
 		protected HttpsTestParameters (HttpsTestParameters other)
 			: base (other)
 		{
 			Type = other.Type;
+			CertificateType = other.CertificateType;
 			ExpectWebException = other.ExpectWebException;
 			ExpectTrustFailure = other.ExpectTrustFailure;
 			ClientAbortsHandshake = other.ClientAbortsHandshake;
+			ExternalServer = other.ExternalServer;
 		}
 
 		public override ConnectionParameters DeepClone ()
 		{
 			return new HttpsTestParameters (this);
+		}
+
+		public CertificateResourceType? CertificateType {
+			get; set;
 		}
 
 		public bool ExpectWebException {
@@ -67,6 +81,10 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		public bool ClientAbortsHandshake {
+			get; set;
+		}
+
+		public Uri ExternalServer {
 			get; set;
 		}
 	}

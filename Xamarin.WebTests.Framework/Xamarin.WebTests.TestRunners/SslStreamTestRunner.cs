@@ -256,7 +256,7 @@ namespace Xamarin.WebTests.TestRunners
 			return false;
 		}
 
-		public override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		protected override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
 
@@ -265,10 +265,13 @@ namespace Xamarin.WebTests.TestRunners
 			else if (Parameters.GlobalValidationFlags != 0)
 				ctx.AssertFail ("Invalid GlobalValidationFlags");
 
+			ctx.Assert (Parameters.ExpectChainStatus, Is.Null, "Parameters.ExpectChainStatus");
+			ctx.Assert (Parameters.ExpectPolicyErrors, Is.Null, "Parameters.ExpectPolicyErrors");
+
 			return base.PreRun (ctx, cancellationToken);
 		}
 
-		public override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		protected override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (restoreGlobalCallback)
 				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;

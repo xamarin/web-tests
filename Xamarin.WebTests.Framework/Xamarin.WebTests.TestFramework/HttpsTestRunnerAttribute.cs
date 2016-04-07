@@ -1,5 +1,5 @@
 ﻿//
-// HttpsServerAttribute.cs
+// HttpsTestRunnerAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -38,16 +38,25 @@ namespace Xamarin.WebTests.TestFramework
 	using Resources;
 
 	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
-	public class HttpsTestRunnerAttribute : TestHostAttribute, ITestHost<HttpsTestRunner>
+	public sealed class HttpsTestRunnerAttribute : TestHostAttribute, ITestHost<HttpsTestRunner>
 	{
-		public HttpsTestRunnerAttribute ()
-			: base (typeof (HttpsTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
+		ListenerFlags listenerFlags;
+
+		public HttpsTestRunnerAttribute (ListenerFlags listenerFlags = ListenerFlags.None)
+			: base (typeof (HttpsTestRunnerAttribute))
 		{
+			this.listenerFlags = listenerFlags;
 		}
 
-		protected HttpsTestRunnerAttribute (Type type, TestFlags flags = TestFlags.Hidden | TestFlags.PathHidden)
-			: base (type, flags)
+		ListenerFlags GetListenerFlags (TestContext ctx)
 		{
+			ListenerFlags flags = listenerFlags | ListenerFlags.SSL;
+
+			bool reuseConnection;
+			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)
+				flags |= ListenerFlags.ReuseConnection;
+
+			return flags;
 		}
 
 		public HttpsTestRunner CreateInstance (TestContext ctx)
@@ -60,17 +69,38 @@ namespace Xamarin.WebTests.TestFramework
 			if (ctx.TryGetParameter<ProtocolVersions> (out protocolVersion))
 				parameters.ProtocolVersion = protocolVersion;
 
-			if (parameters.EndPoint != null) {
-				if (parameters.TargetHost == null)
-					parameters.TargetHost = parameters.EndPoint.HostName;
-			} else if (parameters.ListenAddress != null)
-				parameters.EndPoint = parameters.ListenAddress;
+			IPortableEndPoint serverEndPoint;
+
+			if (parameters.ListenAddress != null)
+				serverEndPoint = parameters.ListenAddress;
+			else if (parameters.EndPoint != null)
+				serverEndPoint = parameters.EndPoint;
 			else
-				parameters.EndPoint = ConnectionTestHelper.GetEndPoint (ctx);
+				serverEndPoint = ConnectionTestHelper.GetEndPoint (ctx);
 
-			var listenerFlags = ListenerFlags.SSL;
+			if (parameters.EndPoint == null)
+				parameters.EndPoint = serverEndPoint;
+			if (parameters.ListenAddress == null)
+				parameters.ListenAddress = serverEndPoint;
 
-			return new HttpsTestRunner (parameters.EndPoint, listenerFlags, provider, parameters);
+			var flags = listenerFlags | ListenerFlags.SSL;
+
+			bool reuseConnection;
+			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)
+				flags |= ListenerFlags.ReuseConnection;
+
+			Uri uri;
+			if (parameters.ExternalServer != null) {
+				uri = parameters.ExternalServer;
+				flags |= ListenerFlags.ExternalServer;
+			} else if (parameters.TargetHost == null) {
+				parameters.TargetHost = parameters.EndPoint.HostName;
+				uri = new Uri (string.Format ("https://{0}:{1}/", parameters.EndPoint.Address, parameters.EndPoint.Port));
+			} else {
+				uri = new Uri (string.Format ("https://{0}/", parameters.TargetHost));
+			}
+
+			return new HttpsTestRunner (parameters.EndPoint, parameters, provider, uri, flags);
 		}
 	}
 }

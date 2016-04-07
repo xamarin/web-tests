@@ -188,12 +188,16 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("wrench", v => Wrench = true);
 			var remaining = p.Parse (args);
 
-			if (remaining.Count < 1)
-				throw new InvalidOperationException ("Missing argument.");
+			if (assembly != null) {
+				command = Command.Local;
+			} else {
+				if (remaining.Count < 1)
+					throw new InvalidOperationException ("Missing argument.");
 
-			if (!Enum.TryParse<Command> (remaining [0], true, out command))
-				throw new InvalidOperationException ("Unknown command.");
-			remaining.RemoveAt (0);
+				if (!Enum.TryParse<Command> (remaining[0], true, out command))
+					throw new InvalidOperationException ("Unknown command.");
+				remaining.RemoveAt (0);
+			}
 
 			arguments = remaining;
 
@@ -277,6 +281,11 @@ namespace Xamarin.AsyncTests.Console
 		static void WriteLine (string message, params object[] args)
 		{
 			global::System.Console.WriteLine (message, args);
+		}
+
+		internal static void Debug (string message)
+		{
+			SD.Debug.WriteLine (message);
 		}
 
 		internal static void Debug (string message, params object[] args)

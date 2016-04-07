@@ -61,6 +61,7 @@ namespace Xamarin.WebTests.MonoTests
 				yield return MobileAttribute.Instance;
 				yield return IOSAttribute.Instance;
 				yield return SecurityFrameworkAttribute.Instance;
+				yield return NetworkAttribute.Instance;
 			}
 		}
 

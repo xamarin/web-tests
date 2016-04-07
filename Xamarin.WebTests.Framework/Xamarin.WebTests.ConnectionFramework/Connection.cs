@@ -9,20 +9,10 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public abstract class Connection : IConnection, IDisposable
+	public abstract class Connection : AbstractConnection, IConnection
 	{
 		public abstract bool SupportsCleanShutdown {
 			get;
-		}
-
-		public IPortableEndPoint EndPoint {
-			get;
-			private set;
-		}
-
-		public ConnectionParameters Parameters {
-			get;
-			private set;
 		}
 
 		public abstract ProtocolVersions SupportedProtocols {
@@ -30,71 +20,37 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		protected Connection (IPortableEndPoint endpoint, ConnectionParameters parameters)
+			: base (endpoint, parameters)
 		{
-			EndPoint = endpoint;
-			Parameters = parameters;
+		}
+
+		protected override Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Start (ctx, cancellationToken);
+		}
+
+		protected override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return FinishedTask;
+		}
+
+		protected override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return FinishedTask;
+		}
+
+		protected override Task Destroy (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => Stop ());
 		}
 
 		public abstract Task Start (TestContext ctx, CancellationToken cancellationToken);
 
 		public abstract Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken);
 
-		public abstract Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken);
-
 		protected abstract void Stop ();
 
-		protected internal static Task FinishedTask {
-			get { return Task.FromResult<object> (null); }
-		}
-
-		#region ITestInstance implementation
-
-		public async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
-		{
-			await Start (ctx, cancellationToken);
-		}
-
-		public virtual Task PreRun (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return FinishedTask;
-		}
-
-		public virtual Task PostRun (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return FinishedTask;
-		}
-
-		public Task Destroy (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Task.Run (() => {
-				Dispose ();
-			});
-		}
-
-		#endregion
-
-		public void Dispose ()
-		{
-			Dispose (true);
-			GC.SuppressFinalize (this);
-		}
-
-		bool disposed;
-
-		protected virtual void Dispose (bool disposing)
-		{
-			lock (this) {
-				if (disposed)
-					return;
-				disposed = true;
-			}
-			Stop ();
-		}
-
-		~Connection ()
-		{
-			Dispose (false);
-		}
+		public abstract Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken);
 	}
 }
 

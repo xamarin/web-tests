@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
@@ -87,6 +88,16 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public bool SupportsHttp {
 			get { return (Flags & ConnectionProviderFlags.SupportsHttp) != 0; }
+		}
+
+		public virtual X509Certificate GetCertificateFromData (byte[] data)
+		{
+			return new X509Certificate (data);
+		}
+
+		public virtual X509Certificate2 GetCertificate2FromData (byte[] data)
+		{
+			return new X509Certificate2 (data);
 		}
 	}
 }

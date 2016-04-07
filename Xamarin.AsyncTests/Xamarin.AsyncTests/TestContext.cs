@@ -159,6 +159,58 @@ namespace Xamarin.AsyncTests
 			logger.LogError (error);
 		}
 
+		public void LogBuffer (string message, byte[] buffer)
+		{
+			LogBuffer (message, buffer, 0, buffer.Length);
+		}
+
+		public void LogBuffer (string message, byte[] buffer, int index, int length)
+		{
+			LogMessage ("{0} (0x{1:x4} bytes)", message, length);
+
+			for (int i = index; i < index + length; i += 16) {
+				int count = (index + length - i) >= 16 ? 16 : (index + length - i);
+				string buf = string.Empty;
+				string text = string.Empty;
+				for (int j = 0; j < count; j++) {
+					if (j == 8)
+						buf += " - ";
+					else if (j > 0)
+						buf += " ";
+					byte ch = buffer[i + j];
+					buf += ch.ToString ("x2");
+					text += ch >= 32 && ch < 127 ? (char)ch : '.';
+				}
+				LogMessage ("    {0:x4}  {1}  {2}", i, buf, text);
+			}
+		}
+
+		public void LogBufferAsCSharp (string name, string indent, byte[] buffer)
+		{
+			LogBufferAsCSharp (name, indent, buffer, 0, buffer.Length);
+		}
+
+		public void LogBufferAsCSharp (string name, string indent, byte[] buffer, int offset, int size)
+		{
+			var sb = new StringBuilder ();
+			sb.AppendFormat ("{0}internal static readonly byte[] {1} = new byte[] {{\n", indent, name);
+			for (int i = 0; i < size; i++) {
+				if ((i % 16) == 0)
+					sb.Append (indent + "\t");
+				sb.AppendFormat ("0x{0:x2}", buffer[offset + i]);
+				if (i + 1 >= size)
+					break;
+				sb.Append (",");
+				if (((i + 1) % 16) == 0)
+					sb.AppendLine ();
+				else
+					sb.Append (" ");
+			}
+			sb.AppendLine ();
+			sb.AppendFormat (indent + "}};\n");
+			LogMessage (sb.ToString ());
+		}
+
 		#endregion
 
 		#region Assertions

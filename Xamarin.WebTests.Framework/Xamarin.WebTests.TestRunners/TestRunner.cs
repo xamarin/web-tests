@@ -56,6 +56,10 @@ namespace Xamarin.WebTests.TestRunners
 			private set;
 		}
 
+		protected virtual string Name {
+			get { return string.Format ("{0}:{1}", Server, Handler); }
+		}
+
 		protected TestRunner (HttpServer server, Handler handler, RedirectHandler redirect = null)
 		{
 			Server = server;
@@ -66,7 +70,7 @@ namespace Xamarin.WebTests.TestRunners
 		protected void Debug (TestContext ctx, int level, string message, params object[] args)
 		{
 			var sb = new StringBuilder ();
-			sb.AppendFormat ("{0}:{1}: {2}", Server, Handler, message);
+			sb.AppendFormat ("{0}: {1}", Name, message);
 			for (int i = 0; i < args.Length; i++) {
 				sb.Append (" ");
 				sb.Append (args [i] != null ? args [i].ToString () : "<null>");
@@ -105,6 +109,19 @@ namespace Xamarin.WebTests.TestRunners
 			});
 		}
 
+		public async Task RunExternal (
+			TestContext ctx, CancellationToken cancellationToken, Uri uri,
+			HttpStatusCode expectedStatus = HttpStatusCode.OK,
+			WebExceptionStatus expectedError = WebExceptionStatus.Success)
+		{
+			Debug (ctx, 1, "RUN");
+
+			var request = CreateRequest (ctx, uri);
+
+			var response = await RunInner (ctx, cancellationToken, request);
+
+			CheckResponse (ctx, response, cancellationToken, expectedStatus, expectedError);
+		}
 
 		public static Task RunTraditional (
 			TestContext ctx, HttpServer server, Handler handler,

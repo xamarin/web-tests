@@ -43,6 +43,8 @@ namespace Xamarin.WebTests.TestFramework
 		HttpsCertificateValidators,
 		SslStreamCertificateValidators,
 
+		NotYetWorking,
+
 		MartinTest,
 	}
 }

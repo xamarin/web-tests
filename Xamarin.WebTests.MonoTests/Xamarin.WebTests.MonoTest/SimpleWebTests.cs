@@ -41,6 +41,7 @@ using Xamarin.WebTests.Server;
 namespace Xamarin.WebTests.MonoTests
 {
 	using MonoConnectionFramework;
+	using ConnectionFramework;
 	using MonoTestFramework;
 	using MonoTestFeatures;
 

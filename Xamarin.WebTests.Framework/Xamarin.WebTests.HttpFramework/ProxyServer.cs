@@ -46,7 +46,7 @@ namespace Xamarin.WebTests.HttpFramework
 		Listener proxyListener;
 
 		public ProxyServer (IPortableEndPoint endpoint, IPortableEndPoint proxyEndpoint, ISslStreamProvider sslStreamProvider = null, ConnectionParameters parameters = null)
-			: base (endpoint, endpoint, ListenerFlags.Proxy, sslStreamProvider, parameters)
+			: base (endpoint, endpoint, ListenerFlags.Proxy, parameters, sslStreamProvider)
 		{
 			this.proxyEndpoint = proxyEndpoint;
 

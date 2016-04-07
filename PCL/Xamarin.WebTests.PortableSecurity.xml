@@ -76,5 +76,21 @@ d0e61bdd
 		<Type>System.Net.Sockets.SocketError</Type>
 		<Type>System.Net.Sockets.SocketFlags</Type>
 		<Type>System.Net.Sockets.SocketShutdown</Type>
+		<!-- Misc Certificate APIs -->
+		<Type>System.Security.Cryptography.AsnEncodedData</Type>
+		<Type>System.Security.Cryptography.Oid</Type>
+		<Type>System.Security.Cryptography.X509Certificates.PublicKey</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X500DistinguishedName</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X500DistinguishedNameFlags</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X509Certificate2</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X509Certificate2Collection</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X509ChainElement</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X509ChainElementCollection</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X509ChainElementEnumerator</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X509ChainPolicy</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X509ChainStatus</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X509ChainStatusFlags</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X509RevocationFlag</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X509RevocationMode</Type>
     </IncludeTypes>
 </CustomAssemblyDefinition>

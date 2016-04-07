@@ -51,9 +51,28 @@ namespace Xamarin.WebTests.TestRunners
 
 	[HttpsTestRunner]
 	[FriendlyName ("[HttpsTestRunner]")]
-	public class HttpsTestRunner : HttpServer
+	public class HttpsTestRunner : AbstractConnection
 	{
 		public ConnectionTestProvider Provider {
+			get;
+			private set;
+		}
+
+		protected Uri Uri {
+			get;
+			private set;
+		}
+
+		protected ListenerFlags ListenerFlags {
+			get;
+			private set;
+		}
+
+		protected bool ExternalServer {
+			get { return (ListenerFlags & ListenerFlags.ExternalServer) != 0; }
+		}
+
+		public ISslStreamProvider SslStreamProvider {
 			get;
 			private set;
 		}
@@ -62,10 +81,15 @@ namespace Xamarin.WebTests.TestRunners
 			get { return (HttpsTestParameters)base.Parameters; }
 		}
 
-		public HttpsTestRunner (IPortableEndPoint endpoint, ListenerFlags flags, ConnectionTestProvider provider, HttpsTestParameters parameters)
-			: base (endpoint, endpoint, flags, provider.Server.SslStreamProvider, parameters)
+		MyServer server;
+
+		public HttpsTestRunner (IPortableEndPoint endpoint, HttpsTestParameters parameters,
+		                         ConnectionTestProvider provider, Uri uri, ListenerFlags flags)
+			: base (endpoint, parameters)
 		{
 			Provider = provider;
+			ListenerFlags = flags;
+			Uri = uri;
 		}
 
 		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object[] args)
@@ -196,71 +220,63 @@ namespace Xamarin.WebTests.TestRunners
 						GlobalValidationFlags.MustInvoke | GlobalValidationFlags.AlwaysSucceed
 				};
 
+			case ConnectionTestType.CheckChain:
+				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
+					ExpectPolicyErrors = SslPolicyErrors.RemoteCertificateChainErrors | SslPolicyErrors.RemoteCertificateNameMismatch,
+					ExpectChainStatus = X509ChainStatusFlags.UntrustedRoot
+				};
+
+			case ConnectionTestType.ExternalServer:
+				return new HttpsTestParameters (category, type, name, CertificateResourceType.TlsTestXamDevNew) {
+					ExternalServer = new Uri ("https://tlstest-1.xamdev.com/"),
+					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
+					ExpectPolicyErrors = SslPolicyErrors.None
+				};
+
 			case ConnectionTestType.MartinTest:
-				goto case ConnectionTestType.RejectClientCertificate;
+				return new HttpsTestParameters (category, type, name, CertificateResourceType.TlsTestXamDevNew) {
+					ExternalServer = new Uri ("https://tlstest.xamdev.com/"),
+					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
+					ExpectPolicyErrors = SslPolicyErrors.None
+				};
 
 			default:
 				throw new InternalErrorException ();
 			}
 		}
 
+		Handler CreateHandler (TestContext ctx)
+		{
+			if (ExternalServer)
+				return null;
+			else
+				return new HelloWorldHandler ("hello");
+		}
+
 		public Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var handler = new HelloWorldHandler ("hello");
-			return Run (ctx, handler, cancellationToken);
-		}
+			var handler = CreateHandler (ctx);
+			var impl = new MyRunner (this, server, handler);
 
-		public Task Run (TestContext ctx, Handler handler, CancellationToken cancellationToken)
-		{
-			var impl = new TestRunnerImpl (this, handler);
-			if (Parameters.ExpectTrustFailure)
-				return impl.Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
-			else if (Parameters.ExpectWebException)
-				return impl.Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.AnyErrorStatus);
-			else
-				return impl.Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);
-		}
+			HttpStatusCode expectedStatus;
+			WebExceptionStatus expectedException;
 
-		protected override HttpConnection CreateConnection (TestContext ctx, Stream stream)
-		{
-			try {
-				ctx.LogDebug (5, "HttpTestRunner - CreateConnection");
-				var connection = base.CreateConnection (ctx, stream);
-
-				/*
-				 * There seems to be some kind of a race condition here.
-				 *
-				 * When the client aborts the handshake due the a certificate validation failure,
-				 * then we either receive an exception during the TLS handshake or the connection
-				 * will be closed when the handshake is completed.
-				 *
-				 */
-				var haveReq = connection.HasRequest();
-				ctx.LogDebug (5, "HttpTestRunner - CreateConnection #1: {0}", haveReq);
-				if (Parameters.ClientAbortsHandshake) {
-					ctx.Assert (haveReq, Is.False, "expected client to abort handshake");
-					return null;
-				} else {
-					ctx.Assert (haveReq, Is.True, "expected non-empty request");
-				}
-				return connection;
-			} catch (Exception ex) {
-				if (Parameters.ClientAbortsHandshake) {
-					ctx.LogDebug (5, "HttpTestRunner - CreateConnection got expected exception");
-					return null;
-				}
-				ctx.LogDebug (5, "HttpTestRunner - CreateConnection ex: {0}", ex);
-				throw;
+			if (Parameters.ExpectTrustFailure) {
+				expectedStatus = HttpStatusCode.InternalServerError;
+				expectedException = WebExceptionStatus.TrustFailure;
+			} else if (Parameters.ExpectWebException) {
+				expectedStatus = HttpStatusCode.InternalServerError;
+				expectedException = WebExceptionStatus.AnyErrorStatus;
+			} else {
+				expectedStatus = HttpStatusCode.OK;
+				expectedException = WebExceptionStatus.Success;
 			}
-		}
 
-		protected override bool HandleConnection (TestContext ctx, HttpConnection connection)
-		{
-			ctx.Expect (connection.SslStream.IsAuthenticated, "server is authenticated");
-			if (Parameters.RequireClientCertificate)
-				ctx.Expect (connection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
-
-			return base.HandleConnection (ctx, connection);
+			if (ExternalServer)
+				return impl.RunExternal (ctx, cancellationToken, Uri, expectedStatus, expectedException);
+			else
+				return impl.Run (ctx, cancellationToken, expectedStatus, expectedException);
 		}
 
 		protected Request CreateRequest (TestContext ctx, Uri uri)
@@ -303,12 +319,22 @@ namespace Xamarin.WebTests.TestRunners
 
 		bool GlobalValidator (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
 		{
+			return GlobalValidator (savedContext, certificate, chain, errors);
+		}
+
+		bool GlobalValidator (TestContext ctx, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+		{
 			if (HasFlag (GlobalValidationFlags.MustNotInvoke)) {
-				savedContext.AssertFail ("Global validator has been invoked!");
+				ctx.AssertFail ("Global validator has been invoked!");
 				return false;
 			}
 
 			++globalValidatorInvoked;
+
+			if (HasFlag (GlobalValidationFlags.CheckChain)) {
+				CertificateInfoTestRunner.CheckCallbackChain (ctx, Parameters, certificate, chain, errors);
+				return true;
+			}
 
 			if (HasFlag (GlobalValidationFlags.AlwaysFail))
 				return false;
@@ -318,40 +344,77 @@ namespace Xamarin.WebTests.TestRunners
 			return errors == SslPolicyErrors.None;
 		}
 
-		public override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
+			if (!ExternalServer) {
+				server = new MyServer (this);
+				await server.Initialize (ctx, cancellationToken);
+			}
+		}
+
+		protected override async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (HasFlag (GlobalValidationFlags.CheckChain)) {
+				Parameters.GlobalValidationFlags |= GlobalValidationFlags.SetToTestRunner;
+			} else {
+				ctx.Assert (Parameters.ExpectChainStatus, Is.Null, "Parameters.ExpectChainStatus");
+				ctx.Assert (Parameters.ExpectPolicyErrors, Is.Null, "Parameters.ExpectPolicyErrors");
+			}
+
 			if (HasFlag (GlobalValidationFlags.SetToNull))
 				SetGlobalValidationCallback (ctx, null);
 			else if (HasFlag (GlobalValidationFlags.SetToTestRunner))
 				SetGlobalValidationCallback (ctx, GlobalValidator);
-			
-			return base.PreRun (ctx, cancellationToken);
+
+			if (!ExternalServer)
+				await server.PreRun (ctx, cancellationToken);
 		}
 
-		public override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		protected override async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
+			if (!ExternalServer)
+				await server.PostRun (ctx, cancellationToken).ConfigureAwait (false);
+
 			if (restoreGlobalCallback)
 				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
 
-			if (HasFlag (GlobalValidationFlags.MustInvoke))
+			if (HasFlag (GlobalValidationFlags.MustInvoke) || HasFlag (GlobalValidationFlags.CheckChain))
 				ctx.Assert (globalValidatorInvoked, Is.EqualTo (1), "global validator has been invoked");
+		}
 
-			return base.PostRun (ctx, cancellationToken);
+		protected override async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (!ExternalServer) {
+				try {
+					await server.Destroy (ctx, cancellationToken);
+				} finally {
+					server = null;
+				}
+			}
 		}
 
 		protected async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Request request)
 		{
 			var traditionalRequest = (TraditionalRequest)request;
 			var response = await traditionalRequest.SendAsync (ctx, cancellationToken);
+			if (!response.IsSuccess)
+				return response;
 
 			var provider = DependencyInjector.Get<ICertificateProvider> ();
 
 			var certificate = traditionalRequest.RequestExt.GetCertificate ();
 			ctx.Assert (certificate, Is.Not.Null, "certificate");
-			ctx.Assert (provider.AreEqual (certificate, Parameters.ServerCertificate), "correct certificate");
 
-			if (!response.IsSuccess)
-				return response;
+			var expectedCert = Parameters.ServerCertificate;
+			if (ExternalServer) {
+				if (expectedCert == null && Parameters.CertificateType != null)
+					expectedCert = ResourceManager.GetCertificate (Parameters.CertificateType.Value);
+			} else {
+				ctx.Assert (expectedCert, Is.Not.Null, "must set Parameters.ServerCertificate");
+			}
+
+			if (expectedCert != null)
+				ctx.Assert (provider.AreEqual (certificate, expectedCert), "correct certificate");
 
 			var clientCertificate = traditionalRequest.RequestExt.GetClientCertificate ();
 			if ((Parameters.AskForClientCertificate || Parameters.RequireClientCertificate) && Parameters.ClientCertificate != null) {
@@ -362,23 +425,87 @@ namespace Xamarin.WebTests.TestRunners
 			return response;
 		}
 
-		class TestRunnerImpl : TestRunner
+		class MyServer : HttpServer
 		{
-			readonly HttpsTestRunner runner;
+			public HttpsTestRunner Parent {
+				get;
+				private set;
+			}
 
-			public TestRunnerImpl (HttpsTestRunner runner, Handler handler)
-				: base (runner, handler)
+			new public HttpsTestParameters Parameters {
+				get { return (HttpsTestParameters)base.Parameters; }
+			}
+
+			public MyServer (HttpsTestRunner parent)
+				: base (parent.Uri, parent.Parameters.ListenAddress, parent.ListenerFlags, parent.Parameters, parent.SslStreamProvider)
 			{
-				this.runner = runner;
+				Parent = parent;
+			}
+
+			protected override HttpConnection CreateConnection (TestContext ctx, Stream stream)
+			{
+				try {
+					ctx.LogDebug (5, "HttpTestRunner - CreateConnection");
+					var connection = base.CreateConnection (ctx, stream);
+
+					/*
+					 * There seems to be some kind of a race condition here.
+					 *
+					 * When the client aborts the handshake due the a certificate validation failure,
+					 * then we either receive an exception during the TLS handshake or the connection
+					 * will be closed when the handshake is completed.
+					 *
+					 */
+					var haveReq = connection.HasRequest ();
+					ctx.LogDebug (5, "HttpTestRunner - CreateConnection #1: {0}", haveReq);
+					if (Parameters.ClientAbortsHandshake) {
+						ctx.Assert (haveReq, Is.False, "expected client to abort handshake");
+						return null;
+					} else {
+						ctx.Assert (haveReq, Is.True, "expected non-empty request");
+					}
+					return connection;
+				} catch (Exception ex) {
+					if (Parameters.ClientAbortsHandshake) {
+						ctx.LogDebug (5, "HttpTestRunner - CreateConnection got expected exception");
+						return null;
+					}
+					ctx.LogDebug (5, "HttpTestRunner - CreateConnection ex: {0}", ex);
+					throw;
+				}
+			}
+
+			protected override bool HandleConnection (TestContext ctx, HttpConnection connection)
+			{
+				ctx.Expect (connection.SslStream.IsAuthenticated, "server is authenticated");
+				if (Parameters.RequireClientCertificate)
+					ctx.Expect (connection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
+
+				return base.HandleConnection (ctx, connection);
+			}
+		}
+
+		class MyRunner : TestRunner
+		{
+			readonly HttpsTestRunner parent;
+
+			public MyRunner (HttpsTestRunner runner, HttpServer server, Handler handler)
+				: base (server, handler)
+			{
+				this.parent = runner;
+			}
+
+			protected override string Name {
+				get { return string.Format ("[{0}:{1}]", parent.GetType ().Name, parent.Parameters.Identifier); }
 			}
 
 			protected override Request CreateRequest (TestContext ctx, Uri uri)
 			{
-				return runner.CreateRequest (ctx, uri);
+				return parent.CreateRequest (ctx, uri);
 			}
 			protected override Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Request request)
 			{
-				return runner.RunInner (ctx, cancellationToken, request);
+				return parent.RunInner (ctx, cancellationToken, request);
 			}
 		}
 	}

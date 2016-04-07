@@ -2,6 +2,7 @@
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	[Flags]
 	public enum GlobalValidationFlags
 	{
 		None = 0,
@@ -13,6 +14,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		AlwaysFail = 64,
 		AlwaysSucceed = 128,
+
+		CheckChain = 256,
+		ExpectError = 512
 	}
 }
 
