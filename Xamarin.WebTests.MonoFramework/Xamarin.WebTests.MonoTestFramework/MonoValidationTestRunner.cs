@@ -176,7 +176,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 					providerType = ConnectionProviderType.DotNet;
 
 				var provider = (MonoConnectionProvider)factory.GetProvider (providerType);
-				return CertificateValidationHelper.GetValidator (provider.MonoTlsProvider, null);
+				return CertificateValidationHelper.GetValidator (null, provider.MonoTlsProvider);
 			} else {
 				return CertificateValidationHelper.GetValidator (null);
 			}
