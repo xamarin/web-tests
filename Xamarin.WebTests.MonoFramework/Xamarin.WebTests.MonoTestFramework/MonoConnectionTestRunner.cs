@@ -67,12 +67,10 @@ namespace Xamarin.WebTests.MonoTestFramework
 			private set;
 		}
 
-		public MonoConnectionTestRunner (IServer server, IClient client, MonoConnectionTestProvider provider, MonoConnectionTestParameters parameters)
+		protected MonoConnectionTestRunner (IServer server, IClient client, MonoConnectionTestProvider provider, MonoConnectionTestParameters parameters)
 			: base (server, client, parameters)
 		{
 			Provider = provider;
-
-			ConnectionHandler = CreateConnectionHandler ();
 		}
 
 		public static MonoConnectionTestFlags GetConnectionFlags (TestContext ctx, MonoConnectionTestCategory category)
@@ -134,6 +132,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 					ctx.IgnoreThisTest ();
 			}
 
+			ConnectionHandler = CreateConnectionHandler ();
 			ConnectionHandler.InitializeConnection (ctx);
 			base.InitializeConnection (ctx);
 		}
@@ -177,13 +176,14 @@ namespace Xamarin.WebTests.MonoTestFramework
 			base.OnWaitForServerConnectionCompleted (ctx, task);
 		}
 
-		protected void CheckCipher (TestContext ctx, IMonoCommonConnection connection, CipherSuiteCode cipher)
+		protected bool CheckCipher (TestContext ctx, IMonoCommonConnection connection, CipherSuiteCode cipher)
 		{
 			ctx.Assert (connection.SupportsConnectionInfo, "supports connection info");
 			var connectionInfo = connection.GetConnectionInfo ();
 
-			if (ctx.Expect (connectionInfo, Is.Not.Null, "connection info"))
-				ctx.Expect (connectionInfo.CipherSuiteCode, Is.EqualTo (cipher), "expected cipher");
+			if (!ctx.Expect (connectionInfo, Is.Not.Null, "connection info"))
+				return false;
+			return ctx.Expect (connectionInfo.CipherSuiteCode, Is.EqualTo (cipher), "expected cipher");
 		}
 
 		protected override Task OnRun (TestContext ctx, CancellationToken cancellationToken)
@@ -191,21 +191,22 @@ namespace Xamarin.WebTests.MonoTestFramework
 			var monoClient = Client as IMonoClient;
 			var monoServer = Server as IMonoServer;
 
+			bool ok = true;
 			if (monoClient != null) {
 				var expectedCipher = Parameters.ExpectedClientCipher ?? Parameters.ExpectedCipher;
 				if (expectedCipher != null)
-					CheckCipher (ctx, monoClient, expectedCipher.Value);
+					ok &= CheckCipher (ctx, monoClient, expectedCipher.Value);
 			}
 
-			if (monoServer != null) {
+			if (ok && monoServer != null) {
 				var expectedCipher = Parameters.ExpectedServerCipher ?? Parameters.ExpectedCipher;
 				if (expectedCipher != null)
-					CheckCipher (ctx, monoServer, expectedCipher.Value);
+					ok &= CheckCipher (ctx, monoServer, expectedCipher.Value);
 			}
 
 			if (!IsManualConnection && Parameters.ProtocolVersion != null) {
-				ctx.Expect (Client.ProtocolVersion, Is.EqualTo (Parameters.ProtocolVersion), "client protocol version");
-				ctx.Expect (Server.ProtocolVersion, Is.EqualTo (Parameters.ProtocolVersion), "server protocol version");
+				if (ctx.Expect (Client.ProtocolVersion, Is.EqualTo (Parameters.ProtocolVersion), "client protocol version"))
+					ctx.Expect (Server.ProtocolVersion, Is.EqualTo (Parameters.ProtocolVersion), "server protocol version");
 			}
 
 			if (Server.Provider.SupportsSslStreams && Parameters.RequireClientCertificate) {

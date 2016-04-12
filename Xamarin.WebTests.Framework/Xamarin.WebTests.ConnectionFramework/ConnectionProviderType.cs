@@ -43,6 +43,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		Manual,
 
 		AppleTLS,
+		BoringTLS,
 
 		MartinTest,
 	}

@@ -78,5 +78,9 @@
       <Project>{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}</Project>
       <Name>Xamarin.WebTests.MonoFramework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Mono.Security.Interface\Mono.Security.Interface.csproj">
+      <Project>{AA73A784-E623-4B67-86D7-5642449535F2}</Project>
+      <Name>Mono.Security.Interface</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

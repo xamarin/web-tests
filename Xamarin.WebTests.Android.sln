@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.TestProvid
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.MonoFramework", "Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj", "{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Security.Interface", "Android\Mono.Security.Interface\Mono.Security.Interface.csproj", "{AA73A784-E623-4B67-86D7-5642449535F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -176,5 +178,21 @@ Global
 		{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}.Debug|iPhone.Build.0 = Debug|Any CPU
 		{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}.Release|iPhone.ActiveCfg = Release|Any CPU
 		{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}.Release|iPhone.Build.0 = Release|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Console|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Console|Any CPU.Build.0 = Debug|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.DebugFull|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.DebugFull|Any CPU.Build.0 = Debug|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{AA73A784-E623-4B67-86D7-5642449535F2}.Release|iPhone.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

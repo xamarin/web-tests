@@ -99,25 +99,29 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		#endregion
 
+		public void Close ()
+		{
+			if (Interlocked.CompareExchange (ref stopped, 1, 0) != 0)
+				return;
+			Stop ();
+		}
+
+		protected abstract void Stop ();
+
 		public void Dispose ()
 		{
 			Dispose (true);
 			GC.SuppressFinalize (this);
 		}
 
-		bool disposed;
-		bool stopped;
+		int disposed;
+		int stopped;
 
 		protected virtual void Dispose (bool disposing)
 		{
-			lock (this) {
-				if (disposed)
-					return;
-				disposed = true;
-				if (stopped)
-					return;
-				stopped = true;
-			}
+			if (Interlocked.CompareExchange (ref disposed, 1, 0) != 0)
+				return;
+			Close ();
 		}
 
 		~AbstractConnection ()

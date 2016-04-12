@@ -57,8 +57,9 @@ namespace Xamarin.WebTests.MonoTestFeatures
 				throw new NotImplementedException ();
 
 			var category = ctx.GetParameter<MonoConnectionTestCategory> ();
+			var provider = ctx.GetParameter<MonoConnectionTestProvider> ();
 
-			var parameters = SimpleConnectionTestRunner.GetParameters (ctx, category);
+			var parameters = SimpleConnectionTestRunner.GetParameters (ctx, provider, category);
 			if (Type != null)
 				return parameters.Where (p => p.Type == Type);
 

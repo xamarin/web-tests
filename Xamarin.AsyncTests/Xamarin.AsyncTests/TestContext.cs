@@ -123,7 +123,6 @@ namespace Xamarin.AsyncTests
 				return;
 
 			logger.OnException (Name, error);
-			logger.LogError (error);
 		}
 
 		public void LogDebug (int level, string message)

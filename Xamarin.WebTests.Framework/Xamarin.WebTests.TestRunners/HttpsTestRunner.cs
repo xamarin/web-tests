@@ -393,6 +393,10 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
+		protected override void Stop ()
+		{
+		}
+
 		protected async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Request request)
 		{
 			var traditionalRequest = (TraditionalRequest)request;

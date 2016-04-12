@@ -103,6 +103,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 			case MonoConnectionTestCategory.MartinTest:
 				yield return SimpleConnectionType.MartinTest;
+				goto case MonoConnectionTestCategory.SimpleMonoConnection;
 				yield break;
 
 			default:
@@ -111,9 +112,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 			}
 		}
 
-		public static IEnumerable<SimpleConnectionParameters> GetParameters (TestContext ctx, MonoConnectionTestCategory category)
+		public static IEnumerable<SimpleConnectionParameters> GetParameters (TestContext ctx, ClientAndServerProvider provider, MonoConnectionTestCategory category)
 		{
-			return GetTestTypes (ctx, category).Select (t => Create (ctx, category, t));
+			return GetTestTypes (ctx, category).Select (t => Create (ctx, provider, category, t));
 		}
 
 		static SimpleConnectionParameters CreateParameters (MonoConnectionTestCategory category, SimpleConnectionType type, params object[] args)
@@ -130,13 +131,36 @@ namespace Xamarin.WebTests.MonoTestFramework
 			};
 		}
 
-		static SimpleConnectionParameters Create (TestContext ctx, MonoConnectionTestCategory category, SimpleConnectionType type)
+		static SimpleConnectionParameters Create (TestContext ctx, ClientAndServerProvider provider, MonoConnectionTestCategory category, SimpleConnectionType type)
 		{
 			var parameters = CreateParameters (category, type);
 
-			var provider = DependencyInjector.Get<ICertificateProvider> ();
-			var acceptSelfSigned = provider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
-			var acceptFromCA = provider.AcceptFromCA (ResourceManager.LocalCACertificate);
+			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
+			var acceptSelfSigned = certificateProvider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
+			var acceptFromCA = certificateProvider.AcceptFromCA (ResourceManager.LocalCACertificate);
+
+			bool clientSupportsEcDhe;
+			bool serverSupportsEcDhe;
+			CipherSuiteCode defaultCipher;
+			CipherSuiteCode defaultCipher12;
+			CipherSuiteCode alternateCipher12;
+
+			if (provider != null) {
+				clientSupportsEcDhe = (provider.Client.Flags & ConnectionProviderFlags.SupportsEcDheCiphers) != 0;
+				serverSupportsEcDhe = (provider.Server.Flags & ConnectionProviderFlags.SupportsEcDheCiphers) != 0;
+			} else {
+				clientSupportsEcDhe = serverSupportsEcDhe = false;
+			}
+
+			if (clientSupportsEcDhe && serverSupportsEcDhe) {
+				defaultCipher = CipherSuiteCode.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA;
+				defaultCipher12 = CipherSuiteCode.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384;
+				alternateCipher12 = CipherSuiteCode.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA;
+			} else {
+				defaultCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA;
+				defaultCipher12 = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384;
+				alternateCipher12 = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_128_CBC_SHA;
+			}
 
 			switch (type) {
 			case SimpleConnectionType.Simple:
@@ -161,17 +185,17 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 			case SimpleConnectionType.DefaultCipherTls10:
 				parameters.ProtocolVersion = ProtocolVersions.Tls10;
-				parameters.ExpectedCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA;
+				parameters.ExpectedCipher = defaultCipher;
 				break;
 
 			case SimpleConnectionType.DefaultCipherTls11:
 				parameters.ProtocolVersion = ProtocolVersions.Tls11;
-				parameters.ExpectedCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA;
+				parameters.ExpectedCipher = defaultCipher;
 				break;
 
 			case SimpleConnectionType.DefaultCipherTls12:
 				parameters.ProtocolVersion = ProtocolVersions.Tls12;
-				parameters.ExpectedCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384;
+				parameters.ExpectedCipher = defaultCipher12;
 				break;
 
 			case SimpleConnectionType.SelectCiphersTls10:
@@ -208,7 +232,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 				parameters.ClientCertificateValidator = acceptSelfSigned;
 				parameters.RequireClientCertificate = true;
 				parameters.ServerCertificateValidator = acceptFromCA;
-				parameters.ServerCiphers = new CipherSuiteCode[] { CipherSuiteCode.TLS_RSA_WITH_AES_128_CBC_SHA };
+				parameters.ServerCiphers = new CipherSuiteCode[] {
+					CipherSuiteCode.TLS_RSA_WITH_AES_128_CBC_SHA
+				};
 				break;
 
 			case SimpleConnectionType.RequireClientCertificateDHE:
@@ -220,13 +246,16 @@ namespace Xamarin.WebTests.MonoTestFramework
 				parameters.ClientCertificateValidator = acceptSelfSigned;
 				parameters.RequireClientCertificate = true;
 				parameters.ServerCertificateValidator = acceptFromCA;
-				parameters.ServerCiphers = new CipherSuiteCode[] { CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA };
+				parameters.ServerCiphers = new CipherSuiteCode[] {
+					CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+				};
 				break;
 
 			case SimpleConnectionType.CipherSelectionOrder:
 				parameters.ProtocolVersion = ProtocolVersions.Tls12;
 				parameters.ClientCiphers = new CipherSuiteCode[] {
-					CipherSuiteCode.TLS_RSA_WITH_AES_128_CBC_SHA, CipherSuiteCode.TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+					CipherSuiteCode.TLS_RSA_WITH_AES_128_CBC_SHA,
+					alternateCipher12
 				};
 				parameters.ExpectedServerCipher = CipherSuiteCode.TLS_RSA_WITH_AES_128_CBC_SHA;
 				break;
@@ -234,20 +263,14 @@ namespace Xamarin.WebTests.MonoTestFramework
 			case SimpleConnectionType.CipherSelectionOrder2:
 				parameters.ProtocolVersion = ProtocolVersions.Tls12;
 				parameters.ClientCiphers = new CipherSuiteCode[] {
-					CipherSuiteCode.TLS_DHE_RSA_WITH_AES_128_CBC_SHA, CipherSuiteCode.TLS_RSA_WITH_AES_128_CBC_SHA
+					alternateCipher12,
+					CipherSuiteCode.TLS_RSA_WITH_AES_128_CBC_SHA
 				};
-				parameters.ExpectedServerCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_128_CBC_SHA;
+				parameters.ExpectedServerCipher = alternateCipher12;
 				break;
 
 			case SimpleConnectionType.MartinTest:
-				parameters.ProtocolVersion = ProtocolVersions.Tls12;
-				parameters.ClientCiphers = new CipherSuiteCode[] {
-					// CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
-					CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
-					CipherSuiteCode.TLS_RSA_WITH_AES_256_CBC_SHA
-				};
-				parameters.ExpectedCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA;
-				break;
+				goto case SimpleConnectionType.DefaultCipherTls12;
 
 			default:
 				ctx.AssertFail ("Unsupported connection type: '{0}'.", type);
