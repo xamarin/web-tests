@@ -190,6 +190,9 @@ namespace Xamarin.AsyncTests.Console
 
 			if (assembly != null) {
 				command = Command.Local;
+
+				if (remaining.Count > 0 && remaining[0].Equals ("local"))
+					remaining.RemoveAt (0);
 			} else {
 				if (remaining.Count < 1)
 					throw new InvalidOperationException ("Missing argument.");
