@@ -7,6 +7,14 @@ CleanAll::
 Wrench-%::
 	$(MAKE) WRENCH=1 $*
 
+ALL_WRENCH_BUILD_TARGETS = \
+	Wrench-IOS-Sim-Build-Debug Wrench-IOS-Sim-Build-DebugAppleTls \
+	Wrench-Console-Build-Debug \
+	Wrench-Mac-Build-Debug Wrench-Mac-Build-DebugAppleTls
+
+Wrench-Build-All:: $(ALL_WRENCH_BUILD_TARGETS)
+	@echo "Build done."
+
 IOS-Sim-%::
 	$(MAKE) IOS_TARGET=iPhoneSimulator ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ .IOS-$*
 
@@ -49,7 +57,7 @@ Mac-%::
 
 .IOS-Internal-Build::
 	$(MONO) $(NUGET_EXE) restore Xamarin.WebTests.iOS.sln
-	$(MDTOOL) build Xamarin.WebTests.iOS.sln -c:'$(IOS_CONFIGURATION)|$(IOS_TARGET)'
+	$(XBUILD) /p:Configuration='$(IOS_CONFIGURATION)' /p:Platform='$(IOS_TARGET)' Xamarin.WebTests.iOS.sln
 
 .IOS-Internal-Run::
 	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
@@ -79,7 +87,7 @@ Mac-%::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .Console-Internal-Run
 
 .Console-Internal-Build::
-	$(MDTOOL) build Xamarin.WebTests.Console.sln -c:'$(CONSOLE_CONFIGURATION)'
+	$(XBUILD) /p:Configuration='$(CONSOLE_CONFIGURATION)' Xamarin.WebTests.Console.sln
 
 .Console-Internal-Run::
 	$(MONO) $(WEBTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
@@ -115,7 +123,7 @@ Mac-%::
 
 .Mac-Internal-Build::
 	$(MONO) $(NUGET_EXE) restore Xamarin.WebTests.Mac.sln
-	$(MDTOOL) build Xamarin.WebTests.Mac.sln -c:'$(MAC_CONFIGURATION)'
+	$(XBUILD) /p:Configuration='$(MAC_CONFIGURATION)' Xamarin.WebTests.Mac.sln
 
 .Mac-Internal-Run::
 	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
