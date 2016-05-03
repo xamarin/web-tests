@@ -263,10 +263,7 @@ namespace Xamarin.AsyncTests.MacUI
 		[Export ("ClearSession")]
 		public void ClearSession ()
 		{
-			#if FIXME
-			if (CurrentSessionModel != null)
-				CurrentSessionModel.RemoveAllChildren ();
-			#endif
+			MainController.Clear ();
 		}
 
 		[Export ("LoadSession")]

@@ -106,6 +106,16 @@ namespace Xamarin.AsyncTests.MacUI
 			node.RemoveAllChildren ();
 		}
 
+		public void Clear ()
+		{
+			var array = (NSArray)TestResultController.Content;
+			var length = (int)array.Count;
+			for (int i = 0; i < length; i++) {
+				var index = NSIndexPath.FromIndex (0);
+				TestResultController.RemoveObjectAtArrangedObjectIndexPath (index);
+			}
+		}
+
 		public void LoadSession (string filename)
 		{
 			var doc = XDocument.Load (filename);
