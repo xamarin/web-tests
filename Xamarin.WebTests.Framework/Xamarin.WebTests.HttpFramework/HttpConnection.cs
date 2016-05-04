@@ -40,6 +40,10 @@ namespace Xamarin.WebTests.HttpFramework
 
 	public class HttpConnection : Connection
 	{
+		public TestContext Context {
+			get; private set;
+		}
+
 		public HttpServer Server {
 			get; private set;
 		}
@@ -48,9 +52,10 @@ namespace Xamarin.WebTests.HttpFramework
 			get; private set;
 		}
 
-		public HttpConnection (HttpServer server, Stream stream, ISslStream sslStream = null)
+		public HttpConnection (TestContext ctx, HttpServer server, Stream stream, ISslStream sslStream = null)
 			: base (stream)
 		{
+			Context = ctx;
 			Server = server;
 			SslStream = sslStream;
 		}

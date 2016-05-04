@@ -82,7 +82,6 @@ namespace Xamarin.WebTests.HttpHandlers
 		TaskCompletionSource<bool> tcs;
 
 		Handler parent;
-		TestContext context;
 
 		protected void WantToModify ()
 		{
@@ -107,15 +106,6 @@ namespace Xamarin.WebTests.HttpHandlers
 			get { return parent; }
 		}
 
-		TestContext GetContext ()
-		{
-			if (parent != null)
-				return parent.GetContext ();
-			else if (context == null)
-				throw new InvalidOperationException ();
-			return context;
-		}
-			
 		protected void Debug (TestContext ctx, int level, string message, params object[] args)
 		{
 			var sb = new StringBuilder ();
@@ -139,7 +129,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public bool HandleRequest (HttpConnection connection, HttpRequest request)
 		{
-			var ctx = GetContext ();
+			var ctx = connection.Context;
 			if (ctx == null)
 				throw new InvalidOperationException ();
 
@@ -181,35 +171,21 @@ namespace Xamarin.WebTests.HttpHandlers
 		[StackTraceEntryPoint]
 		protected internal abstract HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags);
 
+		[Obsolete]
 		public Task<T> RunWithContext<T> (TestContext ctx, HttpServer server, Func<Uri, Task<T>> func)
 		{
 			var uri = RegisterRequest (server);
-			return RunWithContext (ctx, uri, func);
+			return func (uri);
 		}
 
+		[Obsolete]
 		public Task RunWithContext (TestContext ctx, HttpServer server, Func<Uri, Task> func)
 		{
 			var uri = RegisterRequest (server);
-			return RunWithContext<object> (ctx, uri, async (arg) => {
-				await func (arg);
-				return null;
-			});
+			return func (uri);
 		}
 
-		async Task<T> RunWithContext<T> (TestContext ctx, Uri uri, Func<Uri, Task<T>> func)
-		{
-			if (parent != null)
-				return await parent.RunWithContext (ctx, uri, func);
-
-			try {
-				this.context = ctx;
-				return await func (uri);
-			} finally {
-				this.context = null;
-			}
-		}
-
-		internal Uri RegisterRequest (HttpServer server)
+		public Uri RegisterRequest (HttpServer server)
 		{
 			lock (this) {
 				if (hasRequest)

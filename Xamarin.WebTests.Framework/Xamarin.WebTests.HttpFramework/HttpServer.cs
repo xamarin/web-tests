@@ -211,10 +211,10 @@ namespace Xamarin.WebTests.HttpFramework
 		protected virtual HttpConnection CreateConnection (TestContext ctx, Stream stream)
 		{
 			if (sslStreamProvider == null)
-				return new HttpConnection (this, stream);
+				return new HttpConnection (ctx, this, stream);
 
 			var sslStream = sslStreamProvider.CreateServerStream (stream, parameters);
-			return new HttpConnection (this, sslStream.AuthenticatedStream, sslStream);
+			return new HttpConnection (ctx, this, sslStream.AuthenticatedStream, sslStream);
 		}
 
 		protected virtual bool HandleConnection (TestContext ctx, HttpConnection connection)
