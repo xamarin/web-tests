@@ -68,17 +68,17 @@ namespace Xamarin.WebTests
 
 			var handler = CreateAuthMaybeNone (post, AuthenticationType.NTLM);
 
-			await handler.RunWithContext (ctx, server, async (uri) => {
-				using (var client = new WebClient ()) {
-					ConfigureWebClient (client, handler, cancellationToken);
+			var uri = handler.RegisterRequest (server);
 
-					var stream = await client.OpenWriteTaskAsync (uri, "PUT");
+			using (var client = new WebClient ()) {
+				ConfigureWebClient (client, handler, cancellationToken);
 
-					using (var writer = new StreamWriter (stream)) {
-						await post.Content.WriteToAsync (writer);
-					}
+				var stream = await client.OpenWriteTaskAsync (uri, "PUT");
+
+				using (var writer = new StreamWriter (stream)) {
+					await post.Content.WriteToAsync (writer);
 				}
-			});
+			}
 		}
 
 		[Work]

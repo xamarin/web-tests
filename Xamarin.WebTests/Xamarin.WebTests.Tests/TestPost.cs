@@ -186,13 +186,11 @@ namespace Xamarin.WebTests.Tests
 			};
 			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
 
-			await redirect.RunWithContext (ctx, server, async (uri) => {
-				using (var wc = new WebClient ()) {
-					var res = await wc.UploadStringTaskAsync (uri, post.Content.AsString ());
-					ctx.LogDebug (2, "Test18750: {0}", res);
-					return res;
-				}
-			});
+			var uri = redirect.RegisterRequest (server);
+			using (var wc = new WebClient ()) {
+				var res = await wc.UploadStringTaskAsync (uri, post.Content.AsString ());
+				ctx.LogDebug (2, "Test18750: {0}", res);
+			}
 
 			var secondPost = new PostHandler ("Second post", new StringContent ("Should send this"));
 
@@ -233,17 +231,16 @@ namespace Xamarin.WebTests.Tests
 
 			var handler = CreateAuthMaybeNone (post, authType);
 
-			await handler.RunWithContext (ctx, server, async (uri) => {
-				using (var client = new WebClient ()) {
-					ConfigureWebClient (client, handler, cancellationToken);
+			var uri = handler.RegisterRequest (server);
+			using (var client = new WebClient ()) {
+				ConfigureWebClient (client, handler, cancellationToken);
 
-					var stream = await client.OpenWriteTaskAsync (uri, "PUT");
+				var stream = await client.OpenWriteTaskAsync (uri, "PUT");
 
-					using (var writer = new StreamWriter (stream)) {
-						await post.Content.WriteToAsync (writer);
-					}
+				using (var writer = new StreamWriter (stream)) {
+					await post.Content.WriteToAsync (writer);
 				}
-			});
+			}
 		}
 
 		[AsyncTest]
@@ -264,28 +261,27 @@ namespace Xamarin.WebTests.Tests
 
 			var handler = CreateAuthMaybeNone (post, authType);
 
-			await handler.RunWithContext (ctx, server, async (uri) => {
-				using (var client = new WebClient ()) {
-					ConfigureWebClient (client, handler, cancellationToken);
+			var uri = handler.RegisterRequest (server);
 
-					var collection = new NameValueCollection ();
-					collection.Add ("var1", "value");
-					collection.Add ("var2", "value2");
+			using (var client = new WebClient ()) {
+				ConfigureWebClient (client, handler, cancellationToken);
 
-					byte[] data;
-					try {
-						data = await client.UploadValuesTaskAsync (uri, "POST", collection);
-					} catch {
-						if (ctx.HasPendingException)
-							return false;
-						throw;
-					}
+				var collection = new NameValueCollection ();
+				collection.Add ("var1", "value");
+				collection.Add ("var2", "value2");
 
-					var ok = ctx.Expect (data, Is.Not.Null, "Returned array");
-					ok &= ctx.Expect (data.Length, Is.EqualTo (0), "Returned array");
-					return ok;
+				byte[] data;
+				try {
+					data = await client.UploadValuesTaskAsync (uri, "POST", collection);
+				} catch {
+					if (ctx.HasPendingException)
+						return;
+					throw;
 				}
-			});
+
+				var ok = ctx.Expect (data, Is.Not.Null, "Returned array");
+				ok &= ctx.Expect (data.Length, Is.EqualTo (0), "Returned array");
+			}
 		}
 
 		[AsyncTest]

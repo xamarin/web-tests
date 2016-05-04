@@ -90,7 +90,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected abstract Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Request request);
 
-		public Task Run (
+		public async Task Run (
 			TestContext ctx, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
@@ -99,14 +99,13 @@ namespace Xamarin.WebTests.TestRunners
 
 			Handler target = (Handler)Redirect ?? Handler;
 
-			return target.RunWithContext (ctx, Server, async (uri) => {
-				var request = CreateRequest (ctx, uri);
-				ConfigureRequest (ctx, uri, request);
+			var uri = target.RegisterRequest (Server);
+			var request = CreateRequest (ctx, uri);
+			ConfigureRequest (ctx, uri, request);
 
-				var response = await RunInner (ctx, cancellationToken, request);
+			var response = await RunInner (ctx, cancellationToken, request);
 
-				CheckResponse (ctx, response, cancellationToken, expectedStatus, expectedError);
-			});
+			CheckResponse (ctx, response, cancellationToken, expectedStatus, expectedError);
 		}
 
 		public async Task RunExternal (

@@ -171,20 +171,6 @@ namespace Xamarin.WebTests.HttpHandlers
 		[StackTraceEntryPoint]
 		protected internal abstract HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags);
 
-		[Obsolete]
-		public Task<T> RunWithContext<T> (TestContext ctx, HttpServer server, Func<Uri, Task<T>> func)
-		{
-			var uri = RegisterRequest (server);
-			return func (uri);
-		}
-
-		[Obsolete]
-		public Task RunWithContext (TestContext ctx, HttpServer server, Func<Uri, Task> func)
-		{
-			var uri = RegisterRequest (server);
-			return func (uri);
-		}
-
 		public Uri RegisterRequest (HttpServer server)
 		{
 			lock (this) {
