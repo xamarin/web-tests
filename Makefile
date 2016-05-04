@@ -9,7 +9,7 @@ Wrench-%::
 
 ALL_WRENCH_BUILD_TARGETS = \
 	Wrench-IOS-Sim-Build-Debug Wrench-IOS-Sim-Build-DebugAppleTls \
-	Wrench-Console-Build-Debug \
+	Wrench-Console-Build-Debug Wrench-DotNet-Build-Debug \
 	Wrench-Mac-Build-Debug Wrench-Mac-Build-DebugAppleTls
 
 Wrench-Build-All:: $(ALL_WRENCH_BUILD_TARGETS)
