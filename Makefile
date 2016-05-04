@@ -24,6 +24,9 @@ IOS-Dev-%::
 Console-%::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ .Console-$*
 
+DotNet-%::
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$* .DotNet-$*
+
 Mac-%::
 	$(MAKE) ASYNCTESTS_COMMAND=mac TARGET_NAME=$@ .Mac-$*
 
@@ -91,6 +94,35 @@ Mac-%::
 
 .Console-Internal-Run::
 	$(MONO) $(WEBTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+		--result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND)
+
+#
+# Internal .NET make targets
+#
+
+.DotNet-Build-Debug::
+	$(MAKE) DOTNET_CONFIGURATION=Debug .DotNet-Internal-Build
+
+.DotNet-Debug-%::
+	$(MAKE) DOTNET_CONFIGURATION=Debug .DotNet-Run-$*
+
+.DotNet-Run-Experimental::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All .DotNet-Internal-Run
+
+.DotNet-Run-All::
+	$(MAKE) TEST_CATEGORY=All .DotNet-Internal-Run
+
+.DotNet-Run-Work::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Work .DotNet-Internal-Run
+
+.DotNet-Run-Martin::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .DotNet-Internal-Run
+
+.DotNet-Internal-Build::
+	$(XBUILD) /p:Configuration='$(DOTNET_CONFIGURATION)' Xamarin.WebTests.DotNet.sln
+
+.DotNet-Internal-Run::
+	$(MONO) $(WEBTESTS_DOTNET_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
 		--result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND)
 
 #
