@@ -35,7 +35,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 		MartinTest,
 		Success,
 		RejectSelfSigned,
-		RejectHamillerTube
+		RejectHamillerTube,
+
+		TestRunnerCallback
 	}
 }
 

@@ -48,6 +48,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 		{
 			Type = other.Type;
 			UseProvider = other.UseProvider;
+			UseTestRunnerCallback = other.UseTestRunnerCallback;
 			expectSuccess = other.expectSuccess;
 			expectError = other.expectError;
 		}
@@ -56,6 +57,10 @@ namespace Xamarin.WebTests.MonoTestFramework
 		int? expectError;
 
 		public bool UseProvider {
+			get; set;
+		}
+
+		public bool UseTestRunnerCallback {
 			get; set;
 		}
 

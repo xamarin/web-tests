@@ -70,6 +70,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				yield return MonoValidationTestType.Success;
 				yield return MonoValidationTestType.RejectSelfSigned;
 				yield return MonoValidationTestType.RejectHamillerTube;
+				yield return MonoValidationTestType.TestRunnerCallback;
 				yield break;
 
 			case ValidationTestCategory.MartinTest:
@@ -108,8 +109,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 				parameters.Host = "tlstest-1.xamdev.com";
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
 				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.UseTestRunnerCallback = true;
 				parameters.ExpectSuccess = true;
-				parameters.UseProvider = true;
 				break;
 
 			case MonoValidationTestType.EmptyHost:
@@ -144,7 +145,15 @@ namespace Xamarin.WebTests.MonoTestFramework
 				parameters.Add (CertificateResourceType.ServerCertificateFromLocalCA);
 				parameters.Add (CertificateResourceType.HamillerTubeCA);
 				parameters.ExpectSuccess = false;
-				break; ;
+				break;
+
+			case MonoValidationTestType.TestRunnerCallback:
+				parameters.Host = "tlstest-1.xamdev.com";
+				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
+				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.UseTestRunnerCallback = true;
+				parameters.ExpectSuccess = true;
+				break;
 
 			default:
 				ctx.AssertFail ("Unsupported validation type: '{0}'.", type);
@@ -163,12 +172,38 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 			var certificates = GetCertificates ();
 
+			validatorInvoked = 0;
+
 			var result = validator.ValidateCertificate (Parameters.Host, false, certificates);
 			AssertResult (ctx, result);
 		}
 
+		int validatorInvoked;
+
+		bool ValidationCallback (TestContext ctx, string targetHost, X509Certificate certificate, X509Chain chain, MonoSslPolicyErrors sslPolicyErrors)
+		{
+			// `targetHost` is only non-null if we're called from `HttpWebRequest`.
+			ctx.Assert (targetHost, Is.Null, "target host");
+			ctx.Assert (certificate, Is.Not.Null, "certificate");
+			if (Parameters.ExpectSuccess)
+				ctx.Assert (sslPolicyErrors, Is.EqualTo (MonoSslPolicyErrors.None), "errors");
+			else
+				ctx.Assert (sslPolicyErrors, Is.Not.EqualTo (MonoSslPolicyErrors.None), "expect error");
+			ctx.Assert (chain, Is.Not.Null, "chain");
+			++validatorInvoked;
+			return true;
+		}
+
 		ICertificateValidator GetValidator (TestContext ctx)
 		{
+			MonoTlsSettings settings = null;
+			if (Parameters.UseTestRunnerCallback) {
+				settings = MonoTlsSettings.CopyDefaultSettings ();
+				settings.CallbackNeedsCertificateChain = true;
+				settings.UseServicePointManagerCallback = false;
+				settings.RemoteCertificateValidationCallback = (t, c, ch, e) => ValidationCallback (ctx, t, c, ch, e);
+			}
+
 			if (Parameters.UseProvider || Parameters.Category == ValidationTestCategory.UseProvider) {
 				var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 				ConnectionProviderType providerType;
@@ -176,9 +211,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 					providerType = ConnectionProviderType.DotNet;
 
 				var provider = (MonoConnectionProvider)factory.GetProvider (providerType);
-				return CertificateValidationHelper.GetValidator (null, provider.MonoTlsProvider);
+				return CertificateValidationHelper.GetValidator (settings, provider.MonoTlsProvider);
 			} else {
-				return CertificateValidationHelper.GetValidator (null);
+				return CertificateValidationHelper.GetValidator (settings);
 			}
 		}
 
@@ -198,6 +233,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 				else
 					ctx.Assert (result.ErrorCode, Is.Not.EqualTo (0), "error code");
 			}
+
+			if (Parameters.UseTestRunnerCallback)
+				ctx.Assert (validatorInvoked, Is.EqualTo (1), "validator invoked");
 		}
 	}
 }
