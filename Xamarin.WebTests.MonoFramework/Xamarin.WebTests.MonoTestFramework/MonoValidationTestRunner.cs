@@ -71,6 +71,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				yield return MonoValidationTestType.RejectSelfSigned;
 				yield return MonoValidationTestType.RejectHamillerTube;
 				yield return MonoValidationTestType.TestRunnerCallback;
+				yield return MonoValidationTestType.TestRunnerCallbackChain;
 				yield break;
 
 			case ValidationTestCategory.MartinTest:
@@ -155,6 +156,16 @@ namespace Xamarin.WebTests.MonoTestFramework
 				parameters.ExpectSuccess = true;
 				break;
 
+			case MonoValidationTestType.TestRunnerCallbackChain:
+				parameters.Host = "tlstest-1.xamdev.com";
+				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
+				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.AddExpectedChainEntry (CertificateResourceType.TlsTestXamDevNew);
+				parameters.AddExpectedChainEntry (CertificateResourceType.TlsTestXamDevCA);
+				parameters.UseTestRunnerCallback = true;
+				parameters.ExpectSuccess = true;
+				break;
+
 			default:
 				ctx.AssertFail ("Unsupported validation type: '{0}'.", type);
 				break;
@@ -191,6 +202,16 @@ namespace Xamarin.WebTests.MonoTestFramework
 				ctx.Assert (sslPolicyErrors, Is.Not.EqualTo (MonoSslPolicyErrors.None), "expect error");
 			ctx.Assert (chain, Is.Not.Null, "chain");
 			++validatorInvoked;
+
+			if (Parameters.ExpectedChain != null) {
+				var extraStore = chain.ChainPolicy.ExtraStore;
+				ctx.Assert (extraStore, Is.Not.Null, "ChainPolicy.ExtraStore");
+				ctx.Assert (extraStore.Count, Is.EqualTo (Parameters.ExpectedChain.Count), "ChainPolicy.ExtraStore.Count");
+				var extraStoreCert = extraStore[0];
+				ctx.Assert (extraStoreCert, Is.Not.Null, "ChainPolicy.ExtraStore[0]");
+				ctx.Assert (extraStoreCert, Is.InstanceOfType (typeof (X509Certificate2)), "ChainPolicy.ExtraStore[0].GetType()");
+			}
+
 			return true;
 		}
 
