@@ -54,6 +54,7 @@
     <Compile Include="TouchLauncher.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="MacLauncher.cs" />
+    <Compile Include="ResultPrinter.cs" />
   </ItemGroup>
   <Import Project="..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

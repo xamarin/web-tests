@@ -248,6 +248,10 @@ namespace Xamarin.AsyncTests.Console
 
 				if (EndPoint == null)
 					EndPoint = GetLocalEndPoint ();
+			} else if (command == Command.Result) {
+				if (arguments.Count != 1)
+					throw new InvalidOperationException ("Expected TestResult.xml argument");
+				ResultOutput = arguments[0];
 			} else {
 				throw new NotImplementedException ();
 			}
@@ -438,6 +442,8 @@ namespace Xamarin.AsyncTests.Console
 			case Command.Device:
 			case Command.Mac:
 				return LaunchApplication (cancellationToken);
+			case Command.Result:
+				return ShowResult (cancellationToken);
 			default:
 				throw new NotImplementedException ();
 			}
@@ -674,6 +680,17 @@ namespace Xamarin.AsyncTests.Console
 				AddFile (stdout);
 			if (!string.IsNullOrWhiteSpace (stderr) && File.Exists (stderr))
 				AddFile (stderr);
+
+			var printer = new ResultPrinter (global::System.Console.Out, result);
+			printer.Print ();
+		}
+
+		async Task ShowResult (CancellationToken cancellationToken)
+		{
+			await Task.Yield ();
+
+			var printer = ResultPrinter.Load (global::System.Console.Out, ResultOutput);
+			printer.Print ();
 		}
 
 		void OnLogMessage (string message)
