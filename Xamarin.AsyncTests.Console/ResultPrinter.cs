@@ -64,14 +64,17 @@ namespace Xamarin.AsyncTests.Console
 			return new ResultPrinter (writer, result);
 		}
 
-		public void Print ()
+		public bool Print ()
 		{
+			Writer.WriteLine ();
 			Writer.WriteLine ("Test result: {0} - {1}", Result.Name.FullName, Result.Status);
+			Writer.WriteLine ();
 
 			if (Result.Status == TestStatus.Success)
-				return;
+				return true;
 
 			Visit (Result);
+			return false;
 		}
 
 		string FormatName (TestName name)
@@ -92,18 +95,16 @@ namespace Xamarin.AsyncTests.Console
 			else if (node.Status == TestStatus.Ignored && !ShowIgnored)
 				return;
 
-			Writer.WriteLine ();
 			Writer.WriteLine ("{0}) {1}: {2}", ++current, FormatName (node.Name), node.Status);
 
-			if (node.Status != TestStatus.Error)
-				return;
-
-			if (node.HasErrors) {
+			if (node.Status == TestStatus.Error && node.HasErrors) {
 				foreach (var error in node.Errors) {
 					Writer.WriteLine ();
 					Writer.WriteLine (error);
 				}
 			}
+
+			Writer.WriteLine ();
 		}
 	}
 }

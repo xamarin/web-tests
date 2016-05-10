@@ -128,7 +128,7 @@ namespace Xamarin.AsyncTests.Console
 		string stderr;
 		string device;
 
-		public static int Run (Assembly assembly, string[] args)
+		public static void Run (Assembly assembly, string[] args)
 		{
 			SD.Debug.AutoFlush = true;
 			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
@@ -143,10 +143,10 @@ namespace Xamarin.AsyncTests.Console
 
 				var task = program.Run (CancellationToken.None);
 				task.Wait ();
-				return 0;
+				Environment.Exit (task.Result ? 0 : 1);
 			} catch (Exception ex) {
 				Debug ("ERROR: {0}", ex);
-				return -1;
+				Environment.Exit (-1);
 			}
 		}
 
@@ -427,7 +427,7 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		Task Run (CancellationToken cancellationToken)
+		Task<bool> Run (CancellationToken cancellationToken)
 		{
 			switch (command) {
 			case Command.Local:
@@ -449,7 +449,7 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		async Task ConnectToGui (CancellationToken cancellationToken)
+		async Task<bool> ConnectToGui (CancellationToken cancellationToken)
 		{
 			var framework = TestFramework.GetLocalFramework (Assembly, dependencyAssemblies);
 
@@ -459,8 +459,7 @@ namespace Xamarin.AsyncTests.Console
 				server = await TestServer.ConnectToGui (this, endpoint, framework, cancellationToken);
 			} catch (SocketException ex) {
 				if (ex.SocketErrorCode == SocketError.ConnectionRefused && optionalGui) {
-					await RunLocal (cancellationToken);
-					return;
+					return await RunLocal (cancellationToken);
 				}
 				throw;
 			}
@@ -469,6 +468,7 @@ namespace Xamarin.AsyncTests.Console
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			await server.WaitForExit (cancellationToken);
+			return true;
 		}
 
 		bool ModifyConfiguration (TestConfiguration config)
@@ -564,7 +564,7 @@ namespace Xamarin.AsyncTests.Console
 			return modified;
 		}
 
-		async Task RunLocal (CancellationToken cancellationToken)
+		async Task<bool> RunLocal (CancellationToken cancellationToken)
 		{
 			var framework = TestFramework.GetLocalFramework (Assembly, dependencyAssemblies);
 
@@ -581,9 +581,11 @@ namespace Xamarin.AsyncTests.Console
 			Debug ("Got result: {0}", result);
 
 			SaveResult ();
+
+			return result.Status == TestStatus.Success;
 		}
 
-		async Task ConnectToServer (CancellationToken cancellationToken)
+		async Task<bool> ConnectToServer (CancellationToken cancellationToken)
 		{
 			var endpoint = GetPortableEndPoint (EndPoint);
 			var server = await TestServer.ConnectToServer (this, endpoint, cancellationToken);
@@ -606,9 +608,11 @@ namespace Xamarin.AsyncTests.Console
 			SaveResult ();
 
 			await server.Stop (cancellationToken);
+
+			return result.Status == TestStatus.Success;
 		}
 
-		async Task LaunchApplication (CancellationToken cancellationToken)
+		async Task<bool> LaunchApplication (CancellationToken cancellationToken)
 		{
 			var endpoint = GetPortableEndPoint (EndPoint);
 
@@ -624,22 +628,24 @@ namespace Xamarin.AsyncTests.Console
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			Debug ("Test app launched.");
-			await RunRemoteSession (server, cancellationToken);
+			var ok = await RunRemoteSession (server, cancellationToken);
 
 			Debug ("Application finished.");
+
+			return ok;
 		}
 
-		async Task WaitForConnection (CancellationToken cancellationToken)
+		async Task<bool> WaitForConnection (CancellationToken cancellationToken)
 		{
 			var endpoint = GetPortableEndPoint (EndPoint);
 			var server = await TestServer.WaitForConnection (this, endpoint, cancellationToken);
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			Debug ("Got server connection.");
-			await RunRemoteSession (server, cancellationToken);
+			return await RunRemoteSession (server, cancellationToken);
 		}
 
-		async Task RunRemoteSession (TestServer server, CancellationToken cancellationToken)
+		async Task<bool> RunRemoteSession (TestServer server, CancellationToken cancellationToken)
 		{
 			session = server.Session;
 			if (OnSessionCreated (session))
@@ -659,6 +665,7 @@ namespace Xamarin.AsyncTests.Console
 
 			await server.Stop (cancellationToken);
 
+			return result.Status == TestStatus.Success;
 		}
 
 		void SaveResult ()
@@ -685,12 +692,12 @@ namespace Xamarin.AsyncTests.Console
 			printer.Print ();
 		}
 
-		async Task ShowResult (CancellationToken cancellationToken)
+		async Task<bool> ShowResult (CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 
 			var printer = ResultPrinter.Load (global::System.Console.Out, ResultOutput);
-			printer.Print ();
+			return printer.Print ();
 		}
 
 		void OnLogMessage (string message)
