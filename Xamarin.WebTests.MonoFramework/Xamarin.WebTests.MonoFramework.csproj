@@ -82,6 +82,7 @@
     <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoValidationTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\MonoValidationTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoValidationTestParameters.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFeatures\AppleTlsAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

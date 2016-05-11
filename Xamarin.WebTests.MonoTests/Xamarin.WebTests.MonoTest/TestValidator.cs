@@ -51,6 +51,16 @@ namespace Xamarin.WebTests.MonoTests
 		{
 			runner.Run (ctx);
 		}
+
+		[AppleTls]
+		[AsyncTest]
+		[ValidationTestCategory (ValidationTestCategory.AppleTls)]
+		public void RunAppleTls (TestContext ctx,
+		                         MonoValidationTestParameters parameters,
+		                         MonoValidationTestRunner runner)
+		{
+			runner.Run (ctx);
+		}
 	}
 }
 

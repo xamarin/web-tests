@@ -1,5 +1,5 @@
 ﻿//
-// ValidationTestCategory.cs
+// AppleTlsAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,14 +25,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-namespace Xamarin.WebTests.MonoTestFramework
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
+using Xamarin.WebTests.MonoTestFramework;
+
+namespace Xamarin.WebTests.MonoTestFeatures
 {
-	public enum ValidationTestCategory
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class AppleTlsAttribute : TestFeatureAttribute
 	{
-		Default,
-		UseProvider,
-		AppleTls,
-		MartinTest
+		public override TestFeature Feature {
+			get { return Instance; }
+		}
+
+		public static readonly TestFeature Instance = new TestFeature (
+			"AppleTls", "Using AppleTls", () => HasAppleTls ());
+
+		static bool HasAppleTls ()
+		{
+			return DependencyInjector.IsAvailable<IAppleCertificateProvider> ();
+		}
 	}
 }
-

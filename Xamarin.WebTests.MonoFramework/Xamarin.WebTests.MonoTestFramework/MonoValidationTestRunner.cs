@@ -71,6 +71,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 				yield return MonoValidationTestType.RejectSelfSigned;
 				yield return MonoValidationTestType.RejectHamillerTube;
 				yield return MonoValidationTestType.TestRunnerCallback;
+				yield break;
+
+			case ValidationTestCategory.AppleTls:
 				yield return MonoValidationTestType.TestRunnerCallbackChain;
 				yield break;
 

@@ -120,6 +120,11 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public static bool IsAvailable<T> ()
+		{
+			return IsAvailable (typeof (T));
+		}
+
 		public static void RegisterCollection<T> (T item)
 		{
 			lock (syncRoot) {
