@@ -28,8 +28,9 @@
     <EnableCodeSigning>false</EnableCodeSigning>
     <EnablePackageSigning>false</EnablePackageSigning>
     <Profiling>false</Profiling>
-    <MonoBundlingExtraArgs>--tls-provider=default</MonoBundlingExtraArgs>
+    <MonoBundlingExtraArgs></MonoBundlingExtraArgs>
     <XamMacArch>x86_64</XamMacArch>
+    <TlsProvider>Legacy</TlsProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -62,8 +63,8 @@
     <EnableCodeSigning>false</EnableCodeSigning>
     <EnablePackageSigning>false</EnablePackageSigning>
     <Profiling>false</Profiling>
-    <TlsProvider>AppleTLS</TlsProvider>
-    <MonoBundlingExtraArgs>--tls-provider=appletls</MonoBundlingExtraArgs>
+    <TlsProvider>Default</TlsProvider>
+    <MonoBundlingExtraArgs></MonoBundlingExtraArgs>
     <XamMacArch>x86_64</XamMacArch>
   </PropertyGroup>
   <ItemGroup>
