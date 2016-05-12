@@ -46,6 +46,9 @@ namespace Xamarin.WebTests.TestProvider.Mac
 		[DllImport ("/System/Library/Frameworks/Security.framework/Security")]
 		extern static int SecKeychainSetDefault (IntPtr keychain);
 
+		[DllImport ("/System/Library/Frameworks/Security.framework/Security")]
+		extern static int SecKeychainGetUserInteractionAllowed ([MarshalAs (UnmanagedType.I1)] out bool state);
+
 		internal static IntPtr CreateKeyChain (string path, string password)
 		{
 			IntPtr keychain;
@@ -108,6 +111,9 @@ namespace Xamarin.WebTests.TestProvider.Mac
 
 		public static void Test ()
 		{
+			bool status;
+			int ret = SecKeychainGetUserInteractionAllowed (out status);
+			Console.Error.WriteLine ("USER INTERACTION ALLOWED: {0} {1}", ret, status);
 			var path = Path.Combine (NSBundle.MainBundle.ResourcePath, "test.keychain");
 			IntPtr keychain;
 			if (!File.Exists (path))
