@@ -54,6 +54,11 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public string MLaunch {
+			get;
+			private set;
+		}
+
 		public string Application {
 			get;
 			private set;
@@ -102,6 +107,10 @@ namespace Xamarin.AsyncTests.Console
 
 			
 			MTouch = Path.Combine (MonoTouchRoot, "bin", "mtouch");
+
+			var mlaunchPath = "/Applications/Xamarin Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.IPhone/mlaunch.app/Contents/MacOS/mlaunch";
+			if (File.Exists (mlaunchPath))
+				MLaunch = mlaunchPath;
 		}
 
 		Process Launch (IPortableEndPoint address)
@@ -118,17 +127,24 @@ namespace Xamarin.AsyncTests.Console
 				args.AppendFormat (" --stderr={0}", RedirectStderr);
 			if (!string.IsNullOrWhiteSpace (DeviceName))
 				args.AppendFormat (" --devname={0}", DeviceName);
+			args.AppendFormat (" --sdkroot=/Applications/Xcode.app/Contents/Developer");
+
+			if (MLaunch != null)
+				args.Append (" --device=iPhone");
 
 			if (ExtraMTouchArguments != null) {
 				args.Append (" ");
 				args.Append (ExtraMTouchArguments);
 			}
 
-			Program.Debug ("Launching mtouch: {0} {1}", MTouch, args);
+			var tool = (MLaunch != null) ? MLaunch : MTouch;
+
+			Program.Debug ("Launching mtouch: {0} {1}", tool, args);
 
 			var psi = new ProcessStartInfo (MTouch, args.ToString ());
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
+
 			var process = Process.Start (psi);
 
 			Program.Debug ("Started: {0}", process);
