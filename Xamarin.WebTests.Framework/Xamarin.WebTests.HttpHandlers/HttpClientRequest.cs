@@ -160,7 +160,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new SimpleResponse (this, response.StatusCode, returnContent);
 		}
 
-		public async Task<Response> Put (TestContext ctx, CancellationToken cancellationToken)
+		public async Task<Response> PutString (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var content = Handler.CreateStringContent (Content != null ? Content.AsString () : string.Empty);
 
@@ -212,6 +212,32 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			return new SimpleResponse (this, response.StatusCode, null);
 		}
+
+		public async Task<Response> PutDataAsync (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var content = Handler.CreateBinaryContent (Content != null ? Content.AsByteArray () : null);
+
+			var response = await Client.PutAsync (RequestUri, content, cancellationToken);
+
+			ctx.Assert (response, Is.Not.Null, "response");
+
+			ctx.LogDebug (3, "GOT RESPONSE: {0}", response.StatusCode);
+
+			if (!response.IsSuccessStatusCode)
+				return new SimpleResponse (this, response.StatusCode, null);
+
+			string body = null;
+			if (response.Content != null) {
+				body = await response.Content.ReadAsStringAsync ();
+				ctx.LogDebug (5, "GOT BODY: {0}", body);
+			}
+
+			ctx.Assert (body, Is.Empty, "returned body");
+
+			return new SimpleResponse (this, response.StatusCode, null);
+		}
+
+
 	}
 }
 

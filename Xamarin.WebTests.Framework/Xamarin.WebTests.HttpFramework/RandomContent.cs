@@ -55,9 +55,16 @@ namespace Xamarin.WebTests.HttpFramework
 			private set;
 		}
 
+		public RandomContent (int size)
+		{
+			MinChunkSize = MaxChunkSize = size;
+
+			Initialize ();
+		}
+
 		public RandomContent (int minChunkSize, int maxChunkSize)
 		{
-			MinChunkSize = MinChunkSize;
+			MinChunkSize = minChunkSize;
 			MaxChunkSize = maxChunkSize;
 
 			Initialize ();
@@ -75,6 +82,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		Random random;
 		int[] chunkSizes;
+		byte[][] chunks;
 		int totalSize;
 
 		void Initialize ()
@@ -86,10 +94,15 @@ namespace Xamarin.WebTests.HttpFramework
 				countChunks += random.Next (MaxChunks);
 
 			chunkSizes = new int [countChunks];
+			chunks = new byte [countChunks][];
 			for (int i = 0; i < countChunks; i++) {
-				chunkSizes [i] = MinChunkSize + random.Next (MaxChunkSize - MinChunkSize);
+				var size = MinChunkSize + random.Next (MaxChunkSize - MinChunkSize);
+				chunkSizes [i] = size;
+
+				chunks [i] = new byte[size];
+				random.NextBytes (chunks [i]);
 				
-				totalSize += chunkSizes [i] * 2;
+				totalSize += size * 2;
 			}
 		}
 
@@ -99,24 +112,33 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public override string AsString ()
 		{
-			throw new NotImplementedException ();
+			if (SendChunked)
+				throw new NotSupportedException ();
+			return ConvertToString (chunks [0]);
+		}
+
+		public override byte[] AsByteArray ()
+		{
+			if (SendChunked)
+				throw new NotSupportedException ();
+			return chunks [0];
 		}
 
 		public override void AddHeadersTo (HttpMessage message)
 		{
 			if (SendChunked)
 				message.SetHeader ("Transfer-Encoding", "chunked");
+			else
+				message.SetHeader ("Content-Length", Length);
 		}
 
 		static readonly char[] hexchars = new char[] {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 		};
 
-		string GetChunk (int size)
+		string ConvertToString (byte[] bytes)
 		{
-			var bytes = new byte [size];
-			random.NextBytes (bytes);
-
+			var size = bytes.Length;
 			var chars = new char [size * 2];
 			for (int i = 0; i < size; i++) {
 				int hi = bytes [i] >> 8;
@@ -138,12 +160,14 @@ namespace Xamarin.WebTests.HttpFramework
 		public override async Task WriteToAsync (StreamWriter writer)
 		{
 			if (!SendChunked) {
-				await writer.WriteAsync (GetChunk (chunkSizes [0]));
+				var chunk = ConvertToString (chunks [0]);
+				await writer.WriteAsync (chunk);
+				await writer.FlushAsync ();
 				return;
 			}
 
-			for (int i = 0; i < chunkSizes.Length; i++) {
-				var chunk = GetChunk (chunkSizes [i]);
+			for (int i = 0; i < chunks.Length; i++) {
+				var chunk = ConvertToString (chunks [i]);
 				await writer.WriteAsync (string.Format ("{0:x}\r\n{1}\r\n", chunk.Length, chunk));
 			}
 			await writer.WriteAsync ("0\r\n\r\n\r\n");

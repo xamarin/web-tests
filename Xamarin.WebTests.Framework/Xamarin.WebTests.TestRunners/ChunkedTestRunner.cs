@@ -212,6 +212,10 @@ namespace Xamarin.WebTests.TestRunners
 			{
 				return GetType ().Name;
 			}
+			public override byte[] AsByteArray ()
+			{
+				throw new NotSupportedException ();
+			}
 			public override void AddHeadersTo (HttpMessage message)
 			{
 				message.SetHeader ("Content-Length", 65536);
@@ -240,6 +244,10 @@ namespace Xamarin.WebTests.TestRunners
 			public override string AsString ()
 			{
 				return Type.ToString ();
+			}
+			public override byte[] AsByteArray ()
+			{
+				throw new NotSupportedException ();
 			}
 			public override void AddHeadersTo (HttpMessage message)
 			{

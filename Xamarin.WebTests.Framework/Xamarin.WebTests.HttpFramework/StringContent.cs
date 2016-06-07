@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -51,7 +52,7 @@ namespace Xamarin.WebTests.HttpFramework
 			var buffer = new char [length];
 			int offset = 0;
 			while (offset < length) {
-				var len = Math.Min (4096, length - offset);
+				var len = Math.Min (16384, length - offset);
 				var ret = await reader.ReadAsync (buffer, offset, len);
 				if (ret <= 0)
 					throw new InvalidOperationException ();
@@ -65,6 +66,11 @@ namespace Xamarin.WebTests.HttpFramework
 		public override string AsString ()
 		{
 			return content;
+		}
+
+		public override byte[] AsByteArray ()
+		{
+			throw new NotSupportedException ();
 		}
 
 		public override void AddHeadersTo (HttpMessage message)

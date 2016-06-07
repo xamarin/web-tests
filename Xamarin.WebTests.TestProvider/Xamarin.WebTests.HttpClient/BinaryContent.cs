@@ -1,10 +1,11 @@
 ﻿//
-// StreamContent.cs
+// BinaryContent.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
+
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,12 +28,11 @@ namespace Xamarin.WebTests.HttpClient
 {
 	using Http = System.Net.Http;
 
-	class StreamContent : HttpContent
+	class BinaryContent : HttpContent
 	{
-		public StreamContent (Http.StreamContent content)
+		public BinaryContent (Http.ByteArrayContent content)
 			: base (content)
 		{
 		}
 	}
 }
-

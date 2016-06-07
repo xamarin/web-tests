@@ -43,6 +43,8 @@ namespace Xamarin.WebTests.HttpClient
 		IHttpRequestMessage CreateRequestMessage ();
 
 		IHttpContent CreateStringContent (string content);
+
+		IHttpContent CreateBinaryContent (byte[] content);
 	}
 }
 

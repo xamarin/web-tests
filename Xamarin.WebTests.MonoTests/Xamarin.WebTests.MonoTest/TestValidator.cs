@@ -39,7 +39,6 @@ using Xamarin.WebTests.ConnectionFramework;
 
 namespace Xamarin.WebTests.MonoTests
 {
-	[Work]
 	[AsyncTestFixture]
 	public class TestValidator
 	{

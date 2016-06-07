@@ -65,11 +65,14 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpClientOperation.PostString:
 				response = await httpClientRequest.PostString (ctx, httpClientHandler.ReturnContent, cancellationToken);
 				break;
-			case HttpClientOperation.Put:
-				response = await httpClientRequest.Put (ctx, cancellationToken);
+			case HttpClientOperation.PutString:
+				response = await httpClientRequest.PutString (ctx, cancellationToken);
 				break;
 			case HttpClientOperation.SendAsync:
 				response = await httpClientRequest.SendAsync (ctx, cancellationToken);
+				break;
+			case HttpClientOperation.PutDataAsync:
+				response = await httpClientRequest.PutDataAsync (ctx, cancellationToken);
 				break;
 			default:
 				throw new InvalidOperationException ();

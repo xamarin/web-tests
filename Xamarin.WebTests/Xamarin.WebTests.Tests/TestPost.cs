@@ -101,6 +101,14 @@ namespace Xamarin.WebTests.Tests
 			yield return new PostHandler ("Big Chunked", content, TransferMode.Chunked);
 		}
 
+		static IEnumerable<PostHandler> GetRecentlyFixed ()
+		{
+			yield return new PostHandler (
+				"Bug #41206", new RandomContent (102400));
+			yield return new PostHandler (
+				"Bug #41206 odd size", new RandomContent (102431));
+		}
+
 		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
 			if (filter == null) {
@@ -108,6 +116,7 @@ namespace Xamarin.WebTests.Tests
 				list.Add (new HelloWorldHandler ("hello world"));
 				list.AddRange (GetPostTests ());
 				list.AddRange (GetDeleteTests ());
+				list.AddRange (GetRecentlyFixed ());
 				return list;
 			} else if (filter.Equals ("post"))
 				return GetPostTests ();
@@ -115,6 +124,8 @@ namespace Xamarin.WebTests.Tests
 				return GetDeleteTests ();
 			else if (filter.Equals ("chunked"))
 				return GetChunkedTests ();
+			else if (filter.Equals ("recently-fixed"))
+				return GetRecentlyFixed ();
 			else
 				throw new InvalidOperationException ();
 		}
@@ -292,6 +303,15 @@ namespace Xamarin.WebTests.Tests
 			handler.AllowWriteStreamBuffering = writeStreamBuffering;
 			handler.Flags |= RequestFlags.NoContentLength;
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+		}
+
+		[AsyncTest]
+		[WebTestFeatures.RecentlyFixed]
+		public Task TestRecentlyFixed (
+			TestContext ctx, [HttpServer] HttpServer server, bool sendAsync,
+			[PostHandler ("recently-fixed")] Handler handler, CancellationToken cancellationToken)
+		{
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}
 	}
 }

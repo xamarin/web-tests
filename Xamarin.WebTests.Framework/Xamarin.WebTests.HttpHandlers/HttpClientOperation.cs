@@ -31,8 +31,9 @@ namespace Xamarin.WebTests
 	{
 		GetString,
 		PostString,
-		Put,
-		SendAsync
+		PutString,
+		SendAsync,
+		PutDataAsync
 	}
 }
 

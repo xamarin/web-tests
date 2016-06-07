@@ -81,6 +81,11 @@ namespace Xamarin.WebTests.HttpFramework
 			return string.Join (string.Empty, chunks);
 		}
 
+		public override byte[] AsByteArray ()
+		{
+			throw new NotSupportedException ();
+		}
+
 		public override void AddHeadersTo (HttpMessage message)
 		{
 			message.SetHeader ("Transfer-Encoding", "chunked");

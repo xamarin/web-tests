@@ -60,6 +60,13 @@ namespace Xamarin.WebTests.HttpClient
 			return new StringContent (new Http.StringContent (content));
 		}
 
+		public IHttpContent CreateBinaryContent (byte[] content)
+		{
+			var binary = new BinaryContent (new Http.ByteArrayContent (content));
+			binary.ContentType = "application/octet-stream";
+			return binary;
+		}
+
 		public ICredentials Credentials {
 			get { return handler.Credentials; }
 			set { handler.Credentials = value; }

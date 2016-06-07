@@ -39,6 +39,7 @@ namespace Xamarin.WebTests
 	using TestRunners;
 	using Server;
 
+	[Martin]
 	[AsyncTestFixture]
 	public class MartinTest
 	{
@@ -81,7 +82,6 @@ namespace Xamarin.WebTests
 			}
 		}
 
-		[Work]
 		[AsyncTest]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireSslStream)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
@@ -92,7 +92,6 @@ namespace Xamarin.WebTests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-		[Work]
 		[AsyncTest]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireSslStream)]
 		[ConnectionTestCategory (ConnectionTestCategory.SslStreamCertificateValidators)]

@@ -23,17 +23,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Http = System.Net.Http;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.HttpClient;
-
 namespace Xamarin.WebTests.HttpClient
 {
-	public class StringContent : HttpContent
+	using Http = System.Net.Http;
+
+	class StringContent : HttpContent
 	{
 		public StringContent (Http.StringContent content)
 			: base (content)

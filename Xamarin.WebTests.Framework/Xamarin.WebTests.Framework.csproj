@@ -173,6 +173,7 @@
     <Compile Include="Xamarin.WebTests.TestRunners\HttpsTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\AbstractConnection.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\HttpsTestRunnerAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\BinaryContent.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

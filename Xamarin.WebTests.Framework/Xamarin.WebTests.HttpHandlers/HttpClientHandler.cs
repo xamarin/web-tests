@@ -83,11 +83,14 @@ namespace Xamarin.WebTests.HttpHandlers
 			case HttpClientOperation.PostString:
 				return HandlePostString (ctx, connection, request, effectiveFlags);
 
-			case HttpClientOperation.Put:
-				return HandlePut (ctx, connection, request, effectiveFlags);
+			case HttpClientOperation.PutString:
+				return HandlePutString (ctx, connection, request, effectiveFlags);
 
 			case HttpClientOperation.SendAsync:
 				return HandleSendAsync (ctx, connection, request, effectiveFlags);
+
+			case HttpClientOperation.PutDataAsync:
+				return HandlePutDataAsync (ctx, connection, request, effectiveFlags);
 
 			default:
 				throw new InvalidOperationException ();
@@ -110,7 +113,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 		}
 
-		HttpResponse HandlePut (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		HttpResponse HandlePutString (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("PUT"), "method");
 
@@ -150,6 +153,22 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 		}
 
+		HttpResponse HandlePutDataAsync (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		{
+			ctx.Assert (request.Method, Is.EqualTo ("PUT"), "method");
+
+			var body = request.ReadBody ();
+
+			Debug (ctx, 5, "BODY", body);
+			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
+				ctx.Assert (body, Is.Not.Null, "body");
+				return HttpResponse.CreateSuccess ();
+			}
+
+			HttpContent.Compare (ctx, body, Content, false);
+			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
+		}
+
 		public override void ConfigureRequest (Request request, Uri uri)
 		{
 			base.ConfigureRequest (request, uri);
@@ -165,12 +184,16 @@ namespace Xamarin.WebTests.HttpHandlers
 					throw new InvalidOperationException ();
 				request.Content = Content;
 				break;
-			case HttpClientOperation.Put:
+			case HttpClientOperation.PutString:
 				request.Method = "PUT";
 				request.Content = Content;
 				break;
 			case HttpClientOperation.SendAsync:
 				request.Method = "POST";
+				request.Content = Content;
+				break;
+			case HttpClientOperation.PutDataAsync:
+				request.Method = "PUT";
 				request.Content = Content;
 				break;
 			default:

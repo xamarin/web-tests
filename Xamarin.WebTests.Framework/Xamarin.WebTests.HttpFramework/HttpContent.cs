@@ -44,6 +44,8 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public abstract string AsString ();
 
+		public abstract byte[] AsByteArray ();
+
 		public virtual HttpContent RemoveTransferEncoding ()
 		{
 			return new StringContent (AsString ());

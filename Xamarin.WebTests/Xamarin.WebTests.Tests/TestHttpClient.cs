@@ -75,18 +75,38 @@ namespace Xamarin.WebTests
 				"Post string with result", HttpClientOperation.PostString,
 				HttpContent.HelloWorld, new StringContent ("Returned body"));
 			yield return new HttpClientHandler (
-				"Put", HttpClientOperation.Put, HttpContent.HelloWorld);
+				"Put", HttpClientOperation.PutString, HttpContent.HelloWorld);
 			yield return new HttpClientHandler (
 				"Bug #20583", HttpClientOperation.PostString,
 				HttpContent.HelloWorld, new Bug20583Content ());
 		}
 
+		static IEnumerable<HttpClientHandler> GetRecentlyFixed ()
+		{
+			yield return new HttpClientHandler (
+				"Bug #41206", HttpClientOperation.PutDataAsync,
+				BinaryContent.CreateRandom (102400));
+			yield return new HttpClientHandler (
+				"Bug #41206 odd size", HttpClientOperation.PutDataAsync,
+				BinaryContent.CreateRandom (102431));
+		}
+
 		public static IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)
 		{
-			if (filter == null || filter.Equals ("stable")) {
-				foreach (var test in GetStableTests ())
-					yield return test;
+			var list = new List<HttpClientHandler> ();
+			switch (filter) {
+			case null:
+			case "stable":
+				list.AddRange (GetStableTests ());
+				list.AddRange (GetRecentlyFixed ());
+				break;
+			case "recently-fixed":
+				list.AddRange (GetRecentlyFixed ());
+				break;
+			default:
+				throw new InvalidOperationException ();
 			}
+			return list;
 		}
 
 		[AsyncTest]
@@ -97,8 +117,9 @@ namespace Xamarin.WebTests
 		}
 
 		[AsyncTest]
-		public Task RunMono38 (TestContext ctx, CancellationToken cancellationToken,
-			[HttpServer] HttpServer server, [HttpClientHandler ("mono38")] HttpClientHandler handler)
+		[WebTestFeatures.RecentlyFixed]
+		public Task RunRecentlyFixed (TestContext ctx, CancellationToken cancellationToken,
+			[HttpServer] HttpServer server, [HttpClientHandler ("recently-fixed")] HttpClientHandler handler)
 		{
 			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
 		}
@@ -106,7 +127,7 @@ namespace Xamarin.WebTests
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server)
 		{
-			var handler = new HttpClientHandler ("PutRedirectEmptyBody", HttpClientOperation.Put);
+			var handler = new HttpClientHandler ("PutRedirectEmptyBody", HttpClientOperation.PutString);
 			var redirect = new RedirectHandler (handler, HttpStatusCode.TemporaryRedirect);
 			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler, redirect);
 		}
@@ -132,6 +153,10 @@ namespace Xamarin.WebTests
 			public override string AsString ()
 			{
 				return "AAAA";
+			}
+			public override byte[] AsByteArray ()
+			{
+				throw new NotSupportedException ();
 			}
 			public override void AddHeadersTo (HttpMessage message)
 			{

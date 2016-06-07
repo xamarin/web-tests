@@ -144,14 +144,35 @@ namespace Xamarin.WebTests.HttpFramework
 				return;
 			hasBody = true;
 
+			string contentType = null;
+			string transferEncoding = null;
+			int? contentLength = null;
+
 			string value;
+			if (Headers.TryGetValue ("Content-Type", out value))
+				contentType = value;
+			if (Headers.TryGetValue ("Transfer-Encoding", out value))
+				transferEncoding = value;
 			if (Headers.TryGetValue ("Content-Length", out value))
-				body = await StringContent.Read (reader, int.Parse (value));
-			else if (Headers.TryGetValue ("Transfer-Encoding", out value)) {
-				if (!value.Equals ("chunked"))
+				contentLength = int.Parse (value);
+
+			if (contentType != null && contentType.Equals ("application/octet-stream")) {
+				body = await BinaryContent.Read (reader, contentLength.Value);
+			} else if (contentLength != null) {
+				body = await StringContent.Read (reader, contentLength.Value);
+			} else if (transferEncoding != null) {
+				if (!transferEncoding.Equals ("chunked"))
 					throw new InvalidOperationException ();
 				body = await ChunkedContent.Read (reader);
 			}
+		}
+
+		int GetContentLength ()
+		{
+			string value;
+			if (!Headers.TryGetValue ("Content-Length", out value))
+				throw new InvalidOperationException ();
+			return int.Parse (value);
 		}
 	}
 }
