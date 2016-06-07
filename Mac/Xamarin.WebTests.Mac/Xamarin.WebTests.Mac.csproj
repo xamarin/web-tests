@@ -30,7 +30,7 @@
     <Profiling>false</Profiling>
     <MonoBundlingExtraArgs></MonoBundlingExtraArgs>
     <XamMacArch>x86_64</XamMacArch>
-    <TlsProvider>Default</TlsProvider>
+    <TlsProvider>Legacy</TlsProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
