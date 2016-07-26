@@ -103,7 +103,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 			case MonoConnectionTestCategory.MartinTest:
 				yield return SimpleConnectionType.MartinTest;
-				goto case MonoConnectionTestCategory.SimpleMonoConnection;
+				// goto case MonoConnectionTestCategory.SimpleMonoConnection;
 				yield break;
 
 			default:
@@ -270,7 +270,14 @@ namespace Xamarin.WebTests.MonoTestFramework
 				break;
 
 			case SimpleConnectionType.MartinTest:
-				goto case SimpleConnectionType.DefaultCipherTls12;
+				parameters.ClientCertificate = ResourceManager.MonkeyCertificate;
+				parameters.ClientCertificateValidator = acceptSelfSigned;
+				parameters.RequireClientCertificate = true;
+				parameters.ServerCertificateValidator = acceptFromCA;
+				parameters.ClientCertificateIssuers = new string[] {
+					ResourceManager.LocalCACertificate.Subject
+				};
+				break;
 
 			default:
 				ctx.AssertFail ("Unsupported connection type: '{0}'.", type);

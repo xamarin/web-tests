@@ -7,6 +7,7 @@ using Xamarin.WebTests.TestProvider;
 using Xamarin.WebTests.MonoTestFramework;
 
 [assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
+[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.MonoTests.MonoWebTestFeatures), true)]
 
 namespace Xamarin.WebTests.Android
 {

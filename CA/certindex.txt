@@ -2,3 +2,5 @@ V	250807080912Z		100001	unknown	/C=US/ST=Massachusetts/O=Xamarin/OU=Engineering/
 V	250807080949Z		100002	unknown	/C=US/ST=Massachusetts/O=Xamarin/OU=Engineering/CN=Martins Monkey
 V	260322223628Z		100003	unknown	/C=US/ST=Massachusetts/O=Xamarin/OU=Engineering/CN=Intermediate Test CA
 V	260322223707Z		100004	unknown	/C=US/ST=Massachusetts/O=Xamarin/OU=Engineering/CN=intermediate-server.local
+V	260618033430Z		100005	unknown	/C=US/ST=Massachusetts/O=Xamarin/OU=Engineering/CN=Hamiller Tube Intermediate CA
+V	260618034024Z		100006	unknown	/C=US/ST=Massachusetts/O=Xamarin/OU=Server Certificate using Intermediate CA/CN=Hamiller-Tube.local

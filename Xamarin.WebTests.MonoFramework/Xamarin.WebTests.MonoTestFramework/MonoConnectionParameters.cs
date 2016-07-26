@@ -53,6 +53,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 			ExpectedServerCipher = other.ExpectedServerCipher;
 			ExpectServerAlert = other.ExpectServerAlert;
 			ExpectedCipher = other.ExpectedCipher;
+
+			ClientCertificateIssuers = other.ClientCertificateIssuers;
 		}
 
 		public IList<CipherSuiteCode> ClientCiphers {
@@ -80,6 +82,10 @@ namespace Xamarin.WebTests.MonoTestFramework
 		}
 
 		public CipherSuiteCode? ExpectedCipher {
+			get; set;
+		}
+
+		public string[] ClientCertificateIssuers {
 			get; set;
 		}
 	}

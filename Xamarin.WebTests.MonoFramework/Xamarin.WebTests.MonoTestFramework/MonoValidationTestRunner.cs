@@ -115,6 +115,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
 				parameters.UseTestRunnerCallback = true;
 				parameters.ExpectSuccess = true;
+				parameters.UseProvider = true;
 				break;
 
 			case MonoValidationTestType.EmptyHost:

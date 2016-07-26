@@ -24,8 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using SD = System.Diagnostics;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
@@ -92,6 +94,11 @@ namespace Xamarin.AsyncTests.Mobile
 			private set;
 		}
 
+		public Picker CategoryPicker {
+			get;
+			private set;
+		}
+
 		public event EventHandler FinishedEvent;
 
 		public MobileTestApp (TestFramework framework)
@@ -116,20 +123,33 @@ namespace Xamarin.AsyncTests.Mobile
 			StopButton = new Button { Text = "Stop", IsEnabled = false };
 
 			var buttonLayout = new StackLayout {
-				HorizontalOptions = LayoutOptions.Center,
+				HorizontalOptions = LayoutOptions.Center, Orientation = StackOrientation.Horizontal,
 				Children = { RunButton, StopButton }
 			};
 
+			CategoryPicker = new Picker {
+				HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.Center,
+			};
+			CategoryPicker.SelectedIndexChanged += (sender, e) => OnCategoryChanged ();;
+
 			Content = new StackLayout {
-				VerticalOptions = LayoutOptions.Center,
-				Children = { MainLabel, StatusLabel, buttonLayout, StatisticsLabel }
+				VerticalOptions = LayoutOptions.Center, Orientation = StackOrientation.Vertical,
+				Children = { MainLabel, StatusLabel, StatisticsLabel, buttonLayout, CategoryPicker }
 			};
 
 			MainPage = new ContentPage { Content = Content };
 
 			RunButton.Clicked += (s, e) => OnRun ();
 			StopButton.Clicked += (sender, e) => OnStop ();
+
+			OnSessionChanged ();
 		}
+
+		int? logLevel;
+		bool debugMode;
+		string category;
+		string features;
+		string customSettings;
 
 		void ParseSessionMode ()
 		{
@@ -139,8 +159,30 @@ namespace Xamarin.AsyncTests.Mobile
 				return;
 			}
 
-			var args = options.Split (' ');
-			if (args.Length == 0) {
+			var p = new NDesk.Options.OptionSet ();
+			p.Add ("debug", v => debugMode = true);
+			p.Add ("log-level=", v => logLevel = int.Parse (v));
+			p.Add ("category=", v => category = v);
+			p.Add ("features=", v => features = v);
+			p.Add ("set=", v => customSettings = v);
+
+			var args = p.Parse (options.Split (' '));
+
+			Debug ("ARGS #1: {0} - {1}:{2} - |{3}|{4}|", args.Count, debugMode, logLevel, category ?? "<null>", features ?? "<null>");
+
+			if (debugMode) {
+				Settings.LogLevel = -1;
+				Settings.LocalLogLevel = -1;
+				Settings.DisableTimeouts = true;
+			}
+
+			if (logLevel != null)
+				Settings.LogLevel = logLevel.Value;
+
+			if (customSettings != null)
+				ParseSettings (customSettings);
+
+			if (args.Count == 0) {
 				SessionMode = MobileSessionMode.Local;
 				return;
 			}
@@ -151,19 +193,81 @@ namespace Xamarin.AsyncTests.Mobile
 				SessionMode = MobileSessionMode.Connect;
 			} else if (args [0] == "local") {
 				SessionMode = MobileSessionMode.Local;
-				if (args.Length != 1)
+				if (args.Count != 1)
 					throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
 				return;
 			} else
 				throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
 
-			if (args.Length == 2) {
+			if (args.Count == 2) {
 				EndPoint = DependencyInjector.Get<IPortableEndPointSupport> ().ParseEndpoint (args [1]);
-			} else if (args.Length == 1) {
+			} else if (args.Count == 1) {
 				EndPoint = GetEndPoint ();
 			} else {
 				throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
 			}
+		}
+
+		void ParseSettings (string arg)
+		{
+			var parts = arg.Split (',');
+			foreach (var part in parts) {
+				var pos = part.IndexOf ('=');
+				if (pos > 0) {
+					var key = part.Substring (0, pos);
+					var value = part.Substring (pos + 1);
+					Debug ("SET: |{0}|{1}|", key, value);
+					if (key[0] == '-')
+						throw new InvalidOperationException ();
+					Settings.SetValue (key, value);
+				} else if (part[0] == '-') {
+					var key = part.Substring (1);
+					Settings.RemoveValue (key);
+				} else {
+					throw new InvalidOperationException ();
+				}
+			}
+		}
+
+		bool ModifyConfiguration (TestConfiguration config)
+		{
+			bool modified = false;
+
+			if (category != null) {
+				if (string.Equals (category, "all", StringComparison.OrdinalIgnoreCase))
+					config.CurrentCategory = TestCategory.All;
+				else
+					config.CurrentCategory = config.Categories.First (c => c.Name.Equals (category));
+				modified = true;
+			}
+
+			if (features != null) {
+				modified = true;
+				var parts = features.Split (',');
+				foreach (var part in parts) {
+					var name = part;
+					bool enable = true;
+					if (part[0] == '-') {
+						name = part.Substring (1);
+						enable = false;
+					} else if (part[0] == '+') {
+						name = part.Substring (1);
+						enable = true;
+					}
+
+					if (name.Equals ("all")) {
+						foreach (var feature in config.Features) {
+							if (feature.CanModify)
+								config.SetIsEnabled (feature, enable);
+						}
+					} else {
+						var feature = config.Features.First (f => f.Name.Equals (name));
+						config.SetIsEnabled (feature, enable);
+					}
+				}
+			}
+
+			return modified;
 		}
 
 		public Task Run ()
@@ -181,6 +285,7 @@ namespace Xamarin.AsyncTests.Mobile
 				return;
 
 			try {
+				MainLabel.Text = string.Format ("Running.");
 				StopButton.IsEnabled = true;
 				RunButton.IsEnabled = false;
 	
@@ -233,7 +338,6 @@ namespace Xamarin.AsyncTests.Mobile
 				var oldCts = Interlocked.Exchange (ref cts, null);
 				if (oldCts != null)
 					oldCts.Dispose ();
-				MainLabel.Text = string.Format ("Done running.");
 				StopButton.IsEnabled = false;
 				if (SessionMode != MobileSessionMode.Connect)
 					RunButton.IsEnabled = true;
@@ -297,6 +401,7 @@ namespace Xamarin.AsyncTests.Mobile
 			Debug ("Got server: {0}", server);
 
 			session = await server.GetTestSession (CancellationToken.None);
+			OnSessionChanged ();
 			MainLabel.Text = string.Format ("Got test session {0} from {1}.", session.Name, server.App);
 
 			Debug ("Got test session: {0}", session);
@@ -359,6 +464,47 @@ namespace Xamarin.AsyncTests.Mobile
 			if (Settings.LocalLogLevel >= 0 && level > Settings.LocalLogLevel)
 				return;
 			Debug (message);
+		}
+
+		bool suppressCategoryChange;
+
+		void OnSessionChanged ()
+		{
+			try {
+				suppressCategoryChange = true;
+
+				CategoryPicker.Items.Clear ();
+				CategoryPicker.Items.Add ("All");
+				CategoryPicker.SelectedIndex = 0;
+
+				if (session == null)
+					return;
+
+				ModifyConfiguration (session.Configuration);
+
+				foreach (var category in session.Configuration.Categories) {
+					CategoryPicker.Items.Add (category.Name);
+					if (category == session.Configuration.CurrentCategory)
+						CategoryPicker.SelectedIndex = CategoryPicker.Items.Count;
+				}
+			} finally {
+				suppressCategoryChange = false;
+			}
+		}
+
+		void OnCategoryChanged ()
+		{
+			if (suppressCategoryChange || session == null)
+				return;
+
+			if (CategoryPicker.SelectedIndex == 0) {
+				session.Configuration.CurrentCategory = TestCategory.All;
+				return;
+			}
+
+			var selected = CategoryPicker.Items[CategoryPicker.SelectedIndex];
+			var category = session.Configuration.Categories.First (c => c.Name.Equals (selected));
+			session.Configuration.CurrentCategory = category;
 		}
 
 		void OnResetStatistics ()

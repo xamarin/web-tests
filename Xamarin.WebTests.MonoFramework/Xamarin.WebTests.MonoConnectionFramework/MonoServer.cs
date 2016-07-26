@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Reflection;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.Security;
@@ -37,6 +38,13 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get { return true; }
 		}
 
+		void SetClientIssuers (MSI.MonoTlsSettings settings, string[] issuers)
+		{
+			var type = typeof (MSI.MonoTlsSettings).GetTypeInfo ();
+			var prop = type.GetDeclaredProperty ("ClientCertificateIssuers");
+			prop.SetValue (settings, issuers);
+		}
+
 		protected override void GetSettings (TestContext ctx, MSI.MonoTlsSettings settings)
 		{
 			#if FIXME
@@ -48,6 +56,9 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 			if (MonoParameters != null && MonoParameters.ServerCiphers != null)
 				settings.EnabledCiphers = MonoParameters.ServerCiphers.ToArray ();
+
+			if (MonoParameters != null && MonoParameters.ClientCertificateIssuers != null)
+				SetClientIssuers (settings, MonoParameters.ClientCertificateIssuers);
 
 			if (MonoParameters != null) {
 				#if FIXME

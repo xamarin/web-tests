@@ -122,16 +122,13 @@
 //      p.Parse (new string[]{"-a+"});  // sets v != null
 //      p.Parse (new string[]{"-a-"});  // sets v == null
 //
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
-using System.Security.Permissions;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -203,9 +200,7 @@ namespace NDesk.Options {
 				throw new ArgumentOutOfRangeException ("index");
 			if (c.Option.OptionValueType == OptionValueType.Required &&
 					index >= values.Count)
-				throw new OptionException (string.Format (
-							c.OptionSet.MessageLocalizer ("Missing required value for option '{0}'."), c.OptionName), 
-						c.OptionName);
+				throw new OptionException (string.Format ("Missing required value for option '{0}'.", c.OptionName), c.OptionName);
 		}
 
 		public string this [int index] {
@@ -339,6 +334,7 @@ namespace NDesk.Options {
 			return (string[]) separators.Clone ();
 		}
 
+#if !PCL
 		protected static T Parse<T> (string value, OptionContext c)
 		{
 			TypeConverter conv = TypeDescriptor.GetConverter (typeof (T));
@@ -349,13 +345,12 @@ namespace NDesk.Options {
 			}
 			catch (Exception e) {
 				throw new OptionException (
-						string.Format (
-							c.OptionSet.MessageLocalizer ("Could not convert string `{0}' to type {1} for option `{2}'."),
-							value, typeof (T).Name, c.OptionName),
+						string.Format ("Could not convert string `{0}' to type {1} for option `{2}'.", value, typeof (T).Name, c.OptionName),
 						c.OptionName, e);
 			}
 			return t;
 		}
+#endif
 
 		internal string[] Names           {get {return names;}}
 		internal string[] ValueSeparators {get {return separators;}}
@@ -451,7 +446,6 @@ namespace NDesk.Options {
 		}
 	}
 
-	[Serializable]
 	public class OptionException : Exception {
 		private string option;
 
@@ -471,21 +465,8 @@ namespace NDesk.Options {
 			this.option = optionName;
 		}
 
-		protected OptionException (SerializationInfo info, StreamingContext context)
-			: base (info, context)
-		{
-			this.option = info.GetString ("OptionName");
-		}
-
 		public string OptionName {
 			get {return this.option;}
-		}
-
-		[SecurityPermission (SecurityAction.LinkDemand, SerializationFormatter = true)]
-		public override void GetObjectData (SerializationInfo info, StreamingContext context)
-		{
-			base.GetObjectData (info, context);
-			info.AddValue ("OptionName", option);
 		}
 	}
 
@@ -494,19 +475,7 @@ namespace NDesk.Options {
 	public class OptionSet : KeyedCollection<string, Option>
 	{
 		public OptionSet ()
-			: this (delegate (string f) {return f;})
 		{
-		}
-
-		public OptionSet (Converter<string, string> localizer)
-		{
-			this.localizer = localizer;
-		}
-
-		Converter<string, string> localizer;
-
-		public Converter<string, string> MessageLocalizer {
-			get {return localizer;}
 		}
 
 		protected override string GetKeyForItem (Option item)
@@ -628,6 +597,7 @@ namespace NDesk.Options {
 			return this;
 		}
 
+#if !PCL
 		sealed class ActionOption<T> : Option {
 			Action<T> action;
 
@@ -683,6 +653,7 @@ namespace NDesk.Options {
 		{
 			return Add (new ActionOption<TKey, TValue> (prototype, description, action));
 		}
+#endif
 
 		protected virtual OptionContext CreateOptionContext ()
 		{
@@ -828,9 +799,9 @@ namespace NDesk.Options {
 					c.Option.OptionValueType == OptionValueType.Optional)
 				c.Option.Invoke (c);
 			else if (c.OptionValues.Count > c.Option.MaxValueCount) {
-				throw new OptionException (localizer (string.Format (
+				throw new OptionException (string.Format (
 								"Error: Found {0} option values when expecting {1}.", 
-								c.OptionValues.Count, c.Option.MaxValueCount)),
+								c.OptionValues.Count, c.Option.MaxValueCount),
 						c.OptionName);
 			}
 		}
@@ -863,8 +834,7 @@ namespace NDesk.Options {
 				if (!Contains (rn)) {
 					if (i == 0)
 						return false;
-					throw new OptionException (string.Format (localizer (
-									"Cannot bundle unregistered option '{0}'."), opt), opt);
+					throw new OptionException (string.Format ("Cannot bundle unregistered option '{0}'.", opt), opt);
 				}
 				p = this [rn];
 				switch (p.OptionValueType) {
@@ -910,7 +880,7 @@ namespace NDesk.Options {
 					o.Write (new string (' ', OptionWidth));
 				}
 
-				List<string> lines = GetLines (localizer (GetDescription (p.Description)));
+				List<string> lines = GetLines (GetDescription (p.Description));
 				o.WriteLine (lines [0]);
 				string prefix = new string (' ', OptionWidth+2);
 				for (int i = 1; i < lines.Count; ++i) {
@@ -947,17 +917,17 @@ namespace NDesk.Options {
 			if (p.OptionValueType == OptionValueType.Optional ||
 					p.OptionValueType == OptionValueType.Required) {
 				if (p.OptionValueType == OptionValueType.Optional) {
-					Write (o, ref written, localizer ("["));
+					Write (o, ref written, "[");
 				}
-				Write (o, ref written, localizer ("=" + GetArgumentName (0, p.MaxValueCount, p.Description)));
+				Write (o, ref written, "=" + GetArgumentName (0, p.MaxValueCount, p.Description));
 				string sep = p.ValueSeparators != null && p.ValueSeparators.Length > 0 
 					? p.ValueSeparators [0]
 					: " ";
 				for (int c = 1; c < p.MaxValueCount; ++c) {
-					Write (o, ref written, localizer (sep + GetArgumentName (c, p.MaxValueCount, p.Description)));
+					Write (o, ref written, sep + GetArgumentName (c, p.MaxValueCount, p.Description));
 				}
 				if (p.OptionValueType == OptionValueType.Optional) {
-					Write (o, ref written, localizer ("]"));
+					Write (o, ref written, "]");
 				}
 			}
 			return true;

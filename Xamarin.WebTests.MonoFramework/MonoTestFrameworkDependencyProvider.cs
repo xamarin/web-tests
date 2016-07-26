@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 		}
 
 		public Guid? InstallTlsProvider {
-			get { return MonoConnectionProviderFactory.NewTlsGuid; }
+			get { return null; }
 		}
 	}
 }

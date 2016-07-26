@@ -270,15 +270,6 @@ namespace Xamarin.WebTests
 		{
 			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandlerImpl ());
 
-			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-			var settings = factory.DefaultSettings;
-
-			if (settings == null || settings.InstallDefaultCertificateValidator) {
-				var provider = DependencyInjector.Get<ICertificateProvider> ();
-				var defaultValidator = provider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
-				provider.InstallDefaultValidator (defaultValidator);
-			}
-
 			CertificateTests = new TestFeature (
 				"CertificateTests", "Whether the SSL Certificate tests are supported", () => SupportsCertificateTests ());
 		}

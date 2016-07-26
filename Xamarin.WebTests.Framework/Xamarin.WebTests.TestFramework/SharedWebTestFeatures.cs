@@ -35,6 +35,7 @@ using Xamarin.WebTests.TestFramework;
 namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
+	using Xamarin.WebTests.Resources;
 
 	public sealed class SharedWebTestFeatures : ITestConfigurationProvider, ISingletonInstance
 	{
@@ -76,6 +77,14 @@ namespace Xamarin.WebTests.TestFramework
 
 		SharedWebTestFeatures ()
 		{
+			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
+			var settings = factory.DefaultSettings;
+
+			if (settings == null || settings.InstallDefaultCertificateValidator) {
+				var provider = DependencyInjector.Get<ICertificateProvider> ();
+				var defaultValidator = provider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
+				provider.InstallDefaultValidator (defaultValidator);
+			}
 		}
 
 		public static bool HasMonoVersion (Version version)

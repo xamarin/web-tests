@@ -235,11 +235,7 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case ConnectionTestType.MartinTest:
-				return new HttpsTestParameters (category, type, name, CertificateResourceType.TlsTestXamDevNew) {
-					ExternalServer = new Uri ("https://tlstest.xamdev.com/"),
-					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
-					ExpectPolicyErrors = SslPolicyErrors.None
-				};
+				goto case ConnectionTestType.OptionalClientCertificate;
 
 			default:
 				throw new InternalErrorException ();
@@ -281,6 +277,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected Request CreateRequest (TestContext ctx, Uri uri)
 		{
+			ctx.LogMessage ("Create request: {0}", uri);
 			var webRequest = Provider.Client.SslStreamProvider.CreateWebRequest (uri);
 
 			var request = new TraditionalRequest (webRequest);
@@ -294,6 +291,12 @@ namespace Xamarin.WebTests.TestRunners
 				var certificates = new X509CertificateCollection ();
 				certificates.Add (Parameters.ClientCertificate);
 				request.RequestExt.SetClientCertificates (certificates);
+			}
+
+			if (ExternalServer) {
+				var servicePoint = ServicePointManager.FindServicePoint (Parameters.ExternalServer);
+				if (servicePoint != null)
+					servicePoint.CloseConnectionGroup (null);
 			}
 
 			return request;
@@ -311,6 +314,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		void SetGlobalValidationCallback (TestContext ctx, RemoteCertificateValidationCallback callback)
 		{
+			ctx.LogMessage ("Set validator: {0}", callback != null);
 			savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
 			ServicePointManager.ServerCertificateValidationCallback = callback;
 			savedContext = ctx;
@@ -324,6 +328,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		bool GlobalValidator (TestContext ctx, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
 		{
+			ctx.LogMessage ("Global validator: {0}", globalValidatorInvoked);
 			if (HasFlag (GlobalValidationFlags.MustNotInvoke)) {
 				ctx.AssertFail ("Global validator has been invoked!");
 				return false;

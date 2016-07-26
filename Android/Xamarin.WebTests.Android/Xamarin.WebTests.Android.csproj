@@ -129,5 +129,9 @@
       <Project>{AA73A784-E623-4B67-86D7-5642449535F2}</Project>
       <Name>Mono.Security.Interface</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Xamarin.WebTests.MonoTests\Xamarin.WebTests.MonoTests.csproj">
+      <Project>{68C3567C-A1C1-4A0A-94E9-60BA4BD5CC39}</Project>
+      <Name>Xamarin.WebTests.MonoTests</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
