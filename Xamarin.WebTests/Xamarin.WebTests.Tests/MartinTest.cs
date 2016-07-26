@@ -39,6 +39,7 @@ namespace Xamarin.WebTests
 	using TestRunners;
 	using Server;
 
+	[Martin]
 	[AsyncTestFixture]
 	public class MartinTest
 	{
