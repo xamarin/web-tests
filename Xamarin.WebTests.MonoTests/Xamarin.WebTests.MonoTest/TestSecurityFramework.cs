@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.MonoTests
 	using MonoTestFeatures;
 
 	[Mobile]
+	[NotWorking]
 	[AsyncTestFixture]
 	public class TestSecurityFramework
 	{
