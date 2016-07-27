@@ -64,8 +64,9 @@
     <EnablePackageSigning>false</EnablePackageSigning>
     <Profiling>false</Profiling>
     <TlsProvider>Default</TlsProvider>
-    <MonoBundlingExtraArgs></MonoBundlingExtraArgs>
+    <MonoBundlingExtraArgs>--xml=web-tests-linker.xml</MonoBundlingExtraArgs>
     <XamMacArch>x86_64</XamMacArch>
+    <LinkMode>SdkOnly</LinkMode>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -91,6 +92,7 @@
     <None Include="..\..\Xamarin.AsyncTests.MacUI\Info.plist">
       <Link>Info.plist</Link>
     </None>
+    <None Include="web-tests-linker.xml" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="..\..\Xamarin.AsyncTests.MacUI\MainMenu.xib">

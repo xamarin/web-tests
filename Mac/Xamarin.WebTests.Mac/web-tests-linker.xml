@@ -1,0 +1,9 @@
+<linker>
+	<assembly fullname="System">
+		<type fullname="System.Net.HttpWebRequest">
+			<property name="ServerCertificateValidationCallback" />
+			<method name="get_ServerCertificateValidationCallback" />
+			<method name="set_ServerCertificateValidationCallback" />
+		</type>
+	</assembly>
+</linker>
