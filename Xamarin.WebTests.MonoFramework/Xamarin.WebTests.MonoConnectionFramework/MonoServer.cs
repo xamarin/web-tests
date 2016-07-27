@@ -42,6 +42,8 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		{
 			var type = typeof (MSI.MonoTlsSettings).GetTypeInfo ();
 			var prop = type.GetDeclaredProperty ("ClientCertificateIssuers");
+			if (prop == null)
+				throw new NotSupportedException ("MonoTlsSettings.ClientCertificateIssuers is not available!");
 			prop.SetValue (settings, issuers);
 		}
 

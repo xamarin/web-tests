@@ -5,5 +5,10 @@
 			<method name="get_ServerCertificateValidationCallback" />
 			<method name="set_ServerCertificateValidationCallback" />
 		</type>
+		<type fullname="Mono.Security.Interface.MonoTlsSettings">
+			<property name="ClientCertificateIssuers" />
+			<method name="get_ClientCertificateIssuers" />
+			<method name="set_ClientCertificateIssuers" />
+		</type>
 	</assembly>
 </linker>
