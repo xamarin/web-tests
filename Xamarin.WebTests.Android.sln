@@ -198,5 +198,7 @@ Global
 		{AA73A784-E623-4B67-86D7-5642449535F2}.Debug|iPhone.Build.0 = Debug|Any CPU
 		{AA73A784-E623-4B67-86D7-5642449535F2}.Release|iPhone.ActiveCfg = Release|Any CPU
 		{AA73A784-E623-4B67-86D7-5642449535F2}.Release|iPhone.Build.0 = Release|Any CPU
+		{68C3567C-A1C1-4A0A-94E9-60BA4BD5CC39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68C3567C-A1C1-4A0A-94E9-60BA4BD5CC39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal
