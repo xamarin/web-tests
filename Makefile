@@ -55,6 +55,9 @@ Mac-%::
 .IOS-Run-Work::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Work .IOS-Internal-Run
 
+.IOS-Run-New::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=New .IOS-Internal-Run
+
 .IOS-Run-Martin::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .IOS-Internal-Run
 
@@ -86,6 +89,9 @@ Mac-%::
 .Console-Run-Work::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Work .Console-Internal-Run
 
+.Console-Run-New::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=New .Console-Internal-Run
+
 .Console-Run-Martin::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .Console-Internal-Run
 
@@ -114,6 +120,9 @@ Mac-%::
 
 .DotNet-Run-Work::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Work .DotNet-Internal-Run
+
+.DotNet-Run-New::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=New .DotNet-Internal-Run
 
 .DotNet-Run-Martin::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .DotNet-Internal-Run
@@ -149,6 +158,9 @@ Mac-%::
 
 .Mac-Run-Work::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Work .Mac-Internal-Run
+
+.Mac-Run-New::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=New .Mac-Internal-Run
 
 .Mac-Run-Martin::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .Mac-Internal-Run

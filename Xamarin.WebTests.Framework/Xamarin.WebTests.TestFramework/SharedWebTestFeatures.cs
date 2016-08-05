@@ -68,6 +68,7 @@ namespace Xamarin.WebTests.TestFramework
 			get {
 				yield return WorkAttribute.Instance;
 				yield return MartinAttribute.Instance;
+				yield return NewAttribute.Instance;
 
 				yield return NotWorkingAttribute.Instance;
 				yield return ManualClientAttribute.Instance;
