@@ -564,6 +564,17 @@ namespace Xamarin.AsyncTests.Console
 			return modified;
 		}
 
+		bool IsSuccessResult {
+			get {
+				if (result.Status == TestStatus.Success)
+					return true;
+				else if (Wrench && result.Status == TestStatus.Ignored)
+					return true;
+				else
+					return false;
+			}
+		}
+
 		async Task<bool> RunLocal (CancellationToken cancellationToken)
 		{
 			var framework = TestFramework.GetLocalFramework (Assembly, dependencyAssemblies);
@@ -582,7 +593,7 @@ namespace Xamarin.AsyncTests.Console
 
 			SaveResult ();
 
-			return result.Status == TestStatus.Success;
+			return IsSuccessResult;
 		}
 
 		async Task<bool> ConnectToServer (CancellationToken cancellationToken)
@@ -609,7 +620,7 @@ namespace Xamarin.AsyncTests.Console
 
 			await server.Stop (cancellationToken);
 
-			return result.Status == TestStatus.Success;
+			return IsSuccessResult;
 		}
 
 		async Task<bool> LaunchApplication (CancellationToken cancellationToken)
@@ -665,7 +676,7 @@ namespace Xamarin.AsyncTests.Console
 
 			await server.Stop (cancellationToken);
 
-			return result.Status == TestStatus.Success;
+			return IsSuccessResult;
 		}
 
 		void SaveResult ()
