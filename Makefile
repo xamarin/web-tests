@@ -62,7 +62,7 @@ Mac-%::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .IOS-Internal-Run
 
 .IOS-Internal-Build::
-	$(MONO) $(NUGET_EXE) restore Xamarin.WebTests.iOS.sln
+	$(MONO) $(NUGET_EXE) restore $(EXTRA_NUGET_RESTORE_ARGS) Xamarin.WebTests.iOS.sln
 	$(XBUILD) /p:Configuration='$(IOS_CONFIGURATION)' /p:Platform='$(IOS_TARGET)' Xamarin.WebTests.iOS.sln
 
 .IOS-Internal-Run::
@@ -166,7 +166,7 @@ Mac-%::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .Mac-Internal-Run
 
 .Mac-Internal-Build::
-	$(MONO) $(NUGET_EXE) restore Xamarin.WebTests.Mac.sln
+	$(MONO) $(NUGET_EXE) restore $(EXTRA_NUGET_RESTORE_ARGS) Xamarin.WebTests.Mac.sln
 	$(XBUILD) /p:Configuration='$(MAC_CONFIGURATION)' Xamarin.WebTests.Mac.sln
 
 .Mac-Internal-Run::
