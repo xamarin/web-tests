@@ -1,4 +1,5 @@
 ﻿using System;
+using SD = System.Diagnostics;
 
 using Android.App;
 using Android.OS;
@@ -18,7 +19,7 @@ namespace Xamarin.WebTests.Android
 	using AsyncTests.Portable;
 	using AsyncTests.Mobile;
 
-	[Activity (Label = "Xamarin.WebTests.Android", MainLauncher = true)]
+	[Activity (Label = "Xamarin.WebTests.Android", Name = "com.xamarin.webtests.android.MainActivity", MainLauncher = true)]
 	public class MainActivity : FormsApplicationActivity
 	{
 		public TestFramework Framework {
@@ -30,6 +31,8 @@ namespace Xamarin.WebTests.Android
 		{
 			base.OnCreate (bundle);
 
+			var options = Intent.GetStringExtra ("XAMARIN_ASYNCTESTS_OPTIONS");
+
 			Forms.Init (this, bundle);
 
 			DependencyInjector.RegisterAssembly (typeof (WebDependencyProvider).Assembly);
@@ -38,7 +41,7 @@ namespace Xamarin.WebTests.Android
 
 			Framework = TestFramework.GetLocalFramework (typeof (MainActivity).Assembly);
 
-			var mobileTestApp = new MobileTestApp (Framework);
+			var mobileTestApp = new MobileTestApp (Framework, options);
 			// mobileTestApp.FinishedEvent += (sender, e) => TerminateWithSuccess ();
 
 			LoadApplication (mobileTestApp);

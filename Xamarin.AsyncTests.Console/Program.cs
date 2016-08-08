@@ -248,6 +248,15 @@ namespace Xamarin.AsyncTests.Console
 
 				if (EndPoint == null)
 					EndPoint = GetLocalEndPoint ();
+			} else if (command == Command.Android) {
+				if (arguments.Count < 1)
+					throw new InvalidOperationException ("Expected activity argument");
+
+				Launcher = new DroidLauncher (arguments [0], stdout, stderr);
+				arguments.RemoveAt (0);
+
+				if (EndPoint == null)
+					EndPoint = GetLocalEndPoint ();
 			} else if (command == Command.Result) {
 				if (arguments.Count != 1)
 					throw new InvalidOperationException ("Expected TestResult.xml argument");
@@ -441,6 +450,7 @@ namespace Xamarin.AsyncTests.Console
 			case Command.Simulator:
 			case Command.Device:
 			case Command.Mac:
+			case Command.Android:
 				return LaunchApplication (cancellationToken);
 			case Command.Result:
 				return ShowResult (cancellationToken);

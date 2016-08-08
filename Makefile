@@ -30,6 +30,9 @@ DotNet-%::
 Mac-%::
 	$(MAKE) ASYNCTESTS_COMMAND=mac TARGET_NAME=$@ .Mac-$*
 
+Android-%::
+	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ .Android-$*
+
 #
 # Internal IOS make targets
 #
@@ -174,3 +177,30 @@ Mac-%::
 		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) \
 		$(ASYNCTESTS_COMMAND) $(WEBTESTS_MAC_APP_BIN)
 
+#
+# Internal Android make targets
+#
+
+.Android-Build-Debug::
+	$(MAKE) ANDROID_CONFIGURATION=Debug .Android-Internal-Build
+
+.Android-Install-Debug::
+	$(MAKE) ANDROID_CONFIGURATION=Debug .Android-Internal-Install
+
+.Android-Debug-%::
+	$(MAKE) ANDROID_CONFIGURATION=Debug .Android-Run-$*
+
+.Android-Run-All::
+	$(MAKE) TEST_CATEGORY=All .Android-Internal-Run
+
+.Android-Internal-Build::
+	$(MONO) $(NUGET_EXE) restore $(EXTRA_NUGET_RESTORE_ARGS) Xamarin.WebTests.Android.sln
+	$(XBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' Xamarin.WebTests.Android.sln
+
+.Android-Internal-Install::
+	$(XBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' /t:Install $(WEBTESTS_ANDROID_PROJECT)
+
+.Android-Internal-Run::
+	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) \
+		$(ASYNCTESTS_COMMAND) $(WEBTESTS_ANDROID_MAIN_ACTIVITY)

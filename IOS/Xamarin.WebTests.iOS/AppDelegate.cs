@@ -69,7 +69,7 @@ namespace Xamarin.WebTests.iOS
 			});
 		}
 
-		public override bool FinishedLaunching (UIApplication app, NSDictionary options)
+		public override bool FinishedLaunching (UIApplication app, NSDictionary dict)
 		{
 			Forms.Init ();
 
@@ -79,12 +79,14 @@ namespace Xamarin.WebTests.iOS
 
 			Framework = TestFramework.GetLocalFramework (typeof(AppDelegate).Assembly);
 
-			var mobileTestApp = new MobileTestApp (Framework);
+			var options = Environment.GetEnvironmentVariable ("XAMARIN_ASYNCTESTS_OPTIONS");
+
+			var mobileTestApp = new MobileTestApp (Framework, options);
 			mobileTestApp.FinishedEvent += (sender, e) => TerminateWithSuccess ();
 
 			LoadApplication (mobileTestApp);
 
-			return base.FinishedLaunching (app, options);
+			return base.FinishedLaunching (app, dict);
 		}
 		
 	}

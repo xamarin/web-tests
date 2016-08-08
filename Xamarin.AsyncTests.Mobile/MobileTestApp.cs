@@ -101,14 +101,14 @@ namespace Xamarin.AsyncTests.Mobile
 
 		public event EventHandler FinishedEvent;
 
-		public MobileTestApp (TestFramework framework)
+		public MobileTestApp (TestFramework framework, string options)
 		{
 			Framework = framework;
 
 			Settings = SettingsBag.CreateDefault ();
 			Settings.LocalLogLevel = -1;
 
-			ParseSessionMode ();
+			ParseSessionMode (options);
 
 			Logger = new TestLogger (new MobileLogger (this));
 
@@ -151,9 +151,8 @@ namespace Xamarin.AsyncTests.Mobile
 		string features;
 		string customSettings;
 
-		void ParseSessionMode ()
+		void ParseSessionMode (string options)
 		{
-			var options = DependencyInjector.Get<IPortableSupport> ().GetEnvironmentVariable ("XAMARIN_ASYNCTESTS_OPTIONS");
 			if (string.IsNullOrEmpty (options)) {
 				SessionMode = MobileSessionMode.Local;
 				return;

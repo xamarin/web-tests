@@ -32,8 +32,6 @@ namespace Xamarin.AsyncTests.Portable
 	{
 		string GetStackTrace (bool full);
 
-		string GetEnvironmentVariable (string name);
-
 		string CurrentThreadId {
 			get;
 		}
