@@ -32,6 +32,9 @@ Mac-%::
 
 Android-%::
 	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ .Android-$*
+	
+Check-System::
+	@./system-dependencies.sh
 
 #
 # Internal IOS make targets
