@@ -232,15 +232,15 @@ function check_specific_xcode () {
 		return
 	fi
 
-	local XCODE_SELECT=$(xcode-select -p)
-	if [[ "x$XCODE_SELECT" != "x$XCODE_DEVELOPER_ROOT" ]]; then
-		if ! test -z $PROVISION_XCODE; then
-			log "Executing 'sudo xcode-select -s $XCODE_DEVELOPER_ROOT'"
-			sudo xcode-select -s $XCODE_DEVELOPER_ROOT
-		else
-			fail "'xcode-select -p' does not point to $XCODE_DEVELOPER_ROOT, it points to $XCODE_SELECT. Execute 'sudo xcode-select -s $XCODE_DEVELOPER_ROOT' to fix."
-		fi
-	fi
+#	local XCODE_SELECT=$(xcode-select -p)
+#	if [[ "x$XCODE_SELECT" != "x$XCODE_DEVELOPER_ROOT" ]]; then
+#		if ! test -z $PROVISION_XCODE; then
+#			log "Executing 'sudo xcode-select -s $XCODE_DEVELOPER_ROOT'"
+#			sudo xcode-select -s $XCODE_DEVELOPER_ROOT
+#		else
+#			fail "'xcode-select -p' does not point to $XCODE_DEVELOPER_ROOT, it points to $XCODE_SELECT. Execute 'sudo xcode-select -s $XCODE_DEVELOPER_ROOT' to fix."
+#		fi
+#	fi
 
 	ok "Found Xcode $XCODE_ACTUAL_VERSION in $XCODE_ROOT"
 }
@@ -407,10 +407,10 @@ function check_osx_version () {
 }
 
 function check_mlaunch () {
-	XS="/Applications/Xamarin Studio.app"
-	MD_IPHONE="$XS/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.IPhone"
-	MLAUNCH_APP="$MD_IPHONE/mlaunch.app"
-	MLAUNCH="$MLAUNCH_APP/Contents/MacOS/mlaunch"
+	local XS="/Applications/Xamarin Studio.app"
+	local MD_IPHONE="$XS/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.IPhone"
+	local MLAUNCH_APP="$MD_IPHONE/mlaunch.app"
+	local MLAUNCH="$MLAUNCH_APP/Contents/MacOS/mlaunch"
 	
 	if test -d $MD_IPHONE; then
 		if test -d $MLAUNCH_APP; then
