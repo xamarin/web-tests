@@ -120,7 +120,7 @@ namespace Xamarin.AsyncTests.Console
 			MTouch = Path.Combine (MonoTouchRoot, "bin", "mtouch");
 
 			var mlaunchPath = "/Applications/Xamarin Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.IPhone/mlaunch.app/Contents/MacOS/mlaunch";
-			if (false && File.Exists (mlaunchPath))
+			if (File.Exists (mlaunchPath))
 				MLaunch = mlaunchPath;
 		}
 
@@ -152,7 +152,7 @@ namespace Xamarin.AsyncTests.Console
 
 			Program.Debug ("Launching mtouch: {0} {1}", tool, args);
 
-			var psi = new ProcessStartInfo (MTouch, args.ToString ());
+			var psi = new ProcessStartInfo (tool, args.ToString ());
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
 
