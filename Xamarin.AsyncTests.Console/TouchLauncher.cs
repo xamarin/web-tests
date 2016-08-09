@@ -44,6 +44,11 @@ namespace Xamarin.AsyncTests.Console
 
 	class TouchLauncher : ApplicationLauncher
 	{
+		public string SdkRoot {
+			get;
+			private set;
+		}
+
 		public string MonoTouchRoot {
 			get;
 			private set;
@@ -92,7 +97,7 @@ namespace Xamarin.AsyncTests.Console
 		Process process;
 		TaskCompletionSource<bool> tcs;
 
-		public TouchLauncher (string app, bool device, string stdout, string stderr, string devname, string extraArgs)
+		public TouchLauncher (string app, bool device, string sdkroot, string stdout, string stderr, string devname, string extraArgs)
 		{
 			Application = app;
 			LaunchOnDevice = device;
@@ -100,16 +105,22 @@ namespace Xamarin.AsyncTests.Console
 			RedirectStderr = stderr;
 			DeviceName = devname;
 			ExtraMTouchArguments = extraArgs;
+			SdkRoot = sdkroot;
 
 			MonoTouchRoot = Environment.GetEnvironmentVariable ("MONOTOUCH_ROOT");
 			if (String.IsNullOrEmpty (MonoTouchRoot))
 				MonoTouchRoot = "/Library/Frameworks/Xamarin.iOS.framework/Versions/Current";
 
-			
+			if (String.IsNullOrEmpty (SdkRoot)) {
+				SdkRoot = Environment.GetEnvironmentVariable ("XCODE_DEVELOPER_ROOT");
+				if (String.IsNullOrEmpty (SdkRoot))
+					SdkRoot = "/Applications/Xcode.app/Contents/Developer";
+			}
+
 			MTouch = Path.Combine (MonoTouchRoot, "bin", "mtouch");
 
 			var mlaunchPath = "/Applications/Xamarin Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.IPhone/mlaunch.app/Contents/MacOS/mlaunch";
-			if (File.Exists (mlaunchPath))
+			if (false && File.Exists (mlaunchPath))
 				MLaunch = mlaunchPath;
 		}
 
@@ -127,7 +138,7 @@ namespace Xamarin.AsyncTests.Console
 				args.AppendFormat (" --stderr={0}", RedirectStderr);
 			if (!string.IsNullOrWhiteSpace (DeviceName))
 				args.AppendFormat (" --devname={0}", DeviceName);
-			args.AppendFormat (" --sdkroot=/Applications/Xcode.app/Contents/Developer");
+			args.AppendFormat (" --sdkroot={0}", SdkRoot);
 
 			if (MLaunch != null)
 				args.Append (" --device=iPhone");
