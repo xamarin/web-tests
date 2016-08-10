@@ -42,6 +42,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			ExpectPolicyErrors = other.ExpectPolicyErrors;
 			ExpectChainStatus = other.ExpectChainStatus;
 			GlobalValidationFlags = other.GlobalValidationFlags;
+			if (other.ValidationParameters != null)
+				ValidationParameters = other.ValidationParameters.DeepClone ();
 		}
 
 		object ICloneable.Clone ()
@@ -116,6 +118,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public X509ChainStatusFlags? ExpectChainStatus {
+			get; set;
+		}
+
+		public ValidationParameters ValidationParameters {
 			get; set;
 		}
 	}

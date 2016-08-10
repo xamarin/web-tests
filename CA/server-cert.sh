@@ -8,3 +8,6 @@ openssl pkcs12 -export -passout pass:monkey -out server-cert.pfx -inkey server-c
 
 openssl x509 -in server-cert.pem -text > server-cert.cert
 openssl rsa -in server-cert.key -text >> server-cert.cert 
+
+openssl pkcs12 -export -passout pass:monkey -out server-cert-with-ca.pfx -inkey server-cert.key -in server-cert.pem -certfile Hamiller-Tube-CA.pem
+

@@ -270,13 +270,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				break;
 
 			case SimpleConnectionType.MartinTest:
-				parameters.ClientCertificate = ResourceManager.MonkeyCertificate;
-				parameters.ClientCertificateValidator = acceptSelfSigned;
-				parameters.RequireClientCertificate = true;
-				parameters.ServerCertificateValidator = acceptFromCA;
-				parameters.ClientCertificateIssuers = new string[] {
-					ResourceManager.LocalCACertificate.Subject
-				};
+				parameters.ServerCertificate = ResourceManager.GetCertificate (CertificateResourceType.ServerCertificateWithCA);
 				break;
 
 			default:

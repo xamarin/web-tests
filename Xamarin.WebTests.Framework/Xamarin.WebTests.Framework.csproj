@@ -153,6 +153,7 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ISslStream.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ISslStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IStreamProvider.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ValidationParameters.cs" />
     <Compile Include="Xamarin.WebTests.Resources\CertificateResourceType.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\HttpServerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\GlobalValidationFlags.cs" />
@@ -242,6 +243,24 @@
     </EmbeddedResource>
     <EmbeddedResource Include="..\CA\intermediate-server.pfx">
       <Link>CA\intermediate-server.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert-with-ca.pfx">
+      <Link>CA\server-cert-with-ca.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert-im.pfx">
+      <Link>CA\server-cert-im.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\Hamiller-Tube-IM.pem">
+      <Link>CA\Hamiller-Tube-IM.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert-im.pem">
+      <Link>CA\server-cert-im.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert-im-bare.pfx">
+      <Link>CA\server-cert-im-bare.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert-im-full.pfx">
+      <Link>CA\server-cert-im-full.pfx</Link>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

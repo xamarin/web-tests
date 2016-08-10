@@ -43,6 +43,9 @@ namespace Xamarin.WebTests.Resources
 		static readonly byte[] intermediateServerData;
 		static readonly X509Certificate intermediateServer;
 
+		static readonly byte[] hamillerTubeIMData;
+		static readonly X509Certificate hamillerTubeIM;
+
 		static readonly HamillerTubeCAData hamillerTubeCAInfo;
 		static readonly TlsTestXamDevNewData tlsTestXamDevNewInfo;
 		static readonly TlsTestXamDevExpiredData tlsTestXamDevExpiredInfo;
@@ -50,6 +53,18 @@ namespace Xamarin.WebTests.Resources
 		static readonly SelfSignedServerData selfSignedServerInfo;
 		static readonly IntermediateCAData intermediateCAInfo;
 		static readonly IntermediateServerData intermediateServerInfo;
+
+		static readonly byte[] serverCertWithCAData;
+		static readonly X509Certificate serverCertWithCA;
+
+		static readonly byte[] intermediateServerCertData;
+		static readonly X509Certificate intermediateServerCert;
+		static readonly byte[] intermediateServerCertNoKeyData;
+		static readonly X509Certificate intermediateServerCertNoKey;
+		static readonly byte[] intermediateServerCertBareData;
+		static readonly X509Certificate intermediateServerCertBare;
+		static readonly byte[] intermediateServerCertFullData;
+		static readonly X509Certificate intermediateServerCertFull;
 
 		const string caCertHash = "AAAB625A1F5EA1DBDBB658FB360613BE49E67AEC";
 		const string serverCertHash = "68295BFCB5B109738399DFFF86A5BEDE0694F334";
@@ -60,6 +75,8 @@ namespace Xamarin.WebTests.Resources
 			provider = DependencyInjector.Get<ICertificateProvider> ();
 			cacertData = ResourceManager.ReadResource ("CA.Hamiller-Tube-CA.pem");
 			cacert = provider.GetCertificateFromData (cacertData);
+			hamillerTubeIMData = ResourceManager.ReadResource ("CA.Hamiller-Tube-IM.pem");
+			hamillerTubeIM = provider.GetCertificateFromData (hamillerTubeIMData);
 			serverCertNoKeyData = ResourceManager.ReadResource ("CA.server-cert.pem");
 			serverCertNoKey = provider.GetCertificateFromData (serverCertNoKeyData);
 			selfServerCertNoKeyData = ResourceManager.ReadResource ("CA.server-self.pem");
@@ -99,6 +116,18 @@ namespace Xamarin.WebTests.Resources
 			tlsTestXamDevCAInfo = new TlsTestXamDevCAData (tlsTestXamDevCAData);
 			intermediateCAInfo = new IntermediateCAData (intermediateCAData);
 			intermediateServerInfo = new IntermediateServerData (intermediateServerData);
+
+			serverCertWithCAData = ResourceManager.ReadResource ("CA.server-cert-with-ca.pfx");
+			serverCertWithCA = provider.GetCertificateWithKey (serverCertWithCAData, "monkey");
+
+			intermediateServerCertData = ResourceManager.ReadResource ("CA.server-cert-im.pfx");
+			intermediateServerCert = provider.GetCertificateWithKey (intermediateServerCertData, "monkey");
+			intermediateServerCertNoKeyData = ResourceManager.ReadResource ("CA.server-cert-im.pem");
+			intermediateServerCertNoKey = provider.GetCertificateFromData (intermediateServerCertNoKeyData);
+			intermediateServerCertBareData = ResourceManager.ReadResource ("CA.server-cert-im-bare.pfx");
+			intermediateServerCertBare = provider.GetCertificateWithKey (intermediateServerCertBareData, "monkey");
+			intermediateServerCertFullData = ResourceManager.ReadResource ("CA.server-cert-im-full.pfx");
+			intermediateServerCertFull = provider.GetCertificateWithKey (intermediateServerCertFullData, "monkey");
 		}
 
 		public static X509Certificate LocalCACertificate {
@@ -157,6 +186,10 @@ namespace Xamarin.WebTests.Resources
 			get { return clientCertDheOnly; }
 		}
 
+		public static X509Certificate ServerCertificateWithCA {
+			get { return serverCertWithCA; }
+		}
+
 		public static X509Certificate GetCertificateWithKey (CertificateResourceType type)
 		{
 			switch (type) {
@@ -174,6 +207,8 @@ namespace Xamarin.WebTests.Resources
 			switch (type) {
 			case CertificateResourceType.HamillerTubeCA:
 				return cacert;
+			case CertificateResourceType.HamillerTubeIM:
+				return hamillerTubeIM;
 			case CertificateResourceType.ServerCertificateFromLocalCA:
 				return serverCertNoKey;
 			case CertificateResourceType.SelfSignedServerCertificate:
@@ -188,6 +223,16 @@ namespace Xamarin.WebTests.Resources
 				return intermediateCA;
 			case CertificateResourceType.IntermediateServer:
 				return intermediateServer;
+			case CertificateResourceType.ServerCertificateWithCA:
+				return serverCertWithCA;
+			case CertificateResourceType.IntermediateServerCertificate:
+				return intermediateServerCert;
+			case CertificateResourceType.IntermediateServerCertificateBare:
+				return intermediateServerCertBare;
+			case CertificateResourceType.IntermediateServerCertificateFull:
+				return intermediateServerCertFull;
+			case CertificateResourceType.IntermediateServerCertificateNoKey:
+				return intermediateServerCertNoKey;
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -198,6 +243,8 @@ namespace Xamarin.WebTests.Resources
 			switch (type) {
 			case CertificateResourceType.HamillerTubeCA:
 				return cacertData;
+			case CertificateResourceType.HamillerTubeIM:
+				return hamillerTubeIMData;
 			case CertificateResourceType.ServerCertificateFromLocalCA:
 				return serverCertNoKeyData;
 			case CertificateResourceType.SelfSignedServerCertificate:
@@ -212,6 +259,16 @@ namespace Xamarin.WebTests.Resources
 				return intermediateCAData;
 			case CertificateResourceType.IntermediateServer:
 				return intermediateServerData;
+			case CertificateResourceType.ServerCertificateWithCA:
+				return serverCertWithCAData;
+			case CertificateResourceType.IntermediateServerCertificate:
+				return intermediateServerCertData;
+			case CertificateResourceType.IntermediateServerCertificateBare:
+				return intermediateServerCertBareData;
+			case CertificateResourceType.IntermediateServerCertificateFull:
+				return intermediateServerCertFullData;
+			case CertificateResourceType.IntermediateServerCertificateNoKey:
+				return intermediateServerCertNoKeyData;
 			default:
 				throw new InvalidOperationException ();
 			}

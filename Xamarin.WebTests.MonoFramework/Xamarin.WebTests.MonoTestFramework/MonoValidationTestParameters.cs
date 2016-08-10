@@ -25,6 +25,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Xamarin.WebTests.ConnectionFramework;
+
 namespace Xamarin.WebTests.MonoTestFramework
 {
 	using MonoTestFeatures;
@@ -49,12 +51,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			Type = other.Type;
 			UseProvider = other.UseProvider;
 			UseTestRunnerCallback = other.UseTestRunnerCallback;
-			expectSuccess = other.expectSuccess;
-			expectError = other.expectError;
 		}
-
-		bool? expectSuccess;
-		int? expectError;
 
 		public bool UseProvider {
 			get; set;
@@ -64,29 +61,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get; set;
 		}
 
-		public bool ExpectSuccess {
-			get {
-				if (expectSuccess == null)
-					throw new InvalidOperationException ();
-				return expectSuccess.Value;
-			}
-			set {
-				expectSuccess = value;
-			}
-		}
-
-		public int? ExpectError {
-			get {
-				return expectError;
-			}
-			set {
-				if (expectSuccess != null && expectSuccess.Value)
-					throw new InvalidOperationException ();
-				expectError = value;
-			}
-		}
-
-		public override ValidationTestParameters DeepClone ()
+		public override ValidationParameters DeepClone ()
 		{
 			return new MonoValidationTestParameters (this);
 		}

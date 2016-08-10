@@ -26,11 +26,14 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.Resources;
 
 using MSI = Mono.Security.Interface;
 
@@ -116,9 +119,19 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get { return true; }
 		}
 
-		public HttpWebRequest CreateWebRequest (Uri uri)
+		public HttpWebRequest CreateWebRequest (Uri uri, ConnectionParameters parameters)
 		{
-			return MSI.MonoTlsProviderFactory.CreateHttpsRequest (uri, tlsProvider);
+			MSI.MonoTlsSettings settings = null;
+			if (parameters.ValidationParameters != null && parameters.ValidationParameters.TrustedRoots != null) {
+				settings = MSI.MonoTlsSettings.CopyDefaultSettings ();
+				settings.TrustAnchors = new X509CertificateCollection ();
+				foreach (var trustedRoot in parameters.ValidationParameters.TrustedRoots) {
+					var trustedRootCert = ResourceManager.GetCertificate (trustedRoot);
+					settings.TrustAnchors.Add (trustedRootCert);
+				}
+			}
+
+			return MSI.MonoTlsProviderFactory.CreateHttpsRequest (uri, tlsProvider, settings);
 		}
 
 		ISslStream ISslStreamProvider.CreateServerStream (Stream stream, ConnectionParameters parameters)

@@ -38,7 +38,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		SupportsEcDheCiphers		= 16,
 		SupportsClientCertificates	= 32,
 		IsExplicit			= 64,
-		OverridesCipherSelection	= 128
+		OverridesCipherSelection	= 128,
+		SupportsTrustedRoots		= 256
 	}
 }
 

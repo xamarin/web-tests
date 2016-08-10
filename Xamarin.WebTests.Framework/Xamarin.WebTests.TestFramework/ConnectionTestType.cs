@@ -52,7 +52,15 @@ namespace Xamarin.WebTests.TestFramework
 		MustNotInvokeGlobalValidator2,
 
 		CheckChain,
-		ExternalServer
+		ExternalServer,
+
+		ServerCertificateWithCA,
+		TrustedRootCA,
+		TrustedIntermediateCA,
+		HostNameMismatch,
+		IntermediateServerCertificate,
+		IntermediateServerCertificateBare,
+		IntermediateServerCertificateFull,
 	}
 }
 

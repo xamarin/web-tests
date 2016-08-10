@@ -148,7 +148,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return true; }
 		}
 
-		public HttpWebRequest CreateWebRequest (Uri uri)
+		public HttpWebRequest CreateWebRequest (Uri uri, ConnectionParameters parameters)
 		{
 			return (HttpWebRequest)HttpWebRequest.Create (uri);
 		}

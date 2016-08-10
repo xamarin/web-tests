@@ -39,7 +39,6 @@ namespace Xamarin.WebTests
 	using TestRunners;
 	using Server;
 
-	[Martin]
 	[AsyncTestFixture]
 	public class MartinTest
 	{
@@ -111,26 +110,6 @@ namespace Xamarin.WebTests
 		public async Task TestMartinSslStream2 (TestContext ctx, CancellationToken cancellationToken,
 			[ConnectionTestProvider ("DotNet:DotNet")] ConnectionTestProvider provider,
 			SslStreamTestParameters parameters, SslStreamTestRunner runner)
-		{
-			await runner.Run (ctx, cancellationToken);
-		}
-
-		[Work]
-		[AsyncTest]
-		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
-		public async Task TestMartinHttpWorking (TestContext ctx, CancellationToken cancellationToken,
-			[ConnectionTestProvider ("DotNet:DotNet")] ConnectionTestProvider provider,
-			HttpsTestParameters parameters, HttpsTestRunner runner)
-		{
-			await runner.Run (ctx, cancellationToken);
-		}
-
-		[Work]
-		[AsyncTest]
-		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
-		public async Task TestMartinHttp (TestContext ctx, CancellationToken cancellationToken,
-			[ConnectionTestProvider ("DotNet:DotNet")] ConnectionTestProvider provider,
-			HttpsTestParameters parameters, HttpsTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
 		}

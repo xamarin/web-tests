@@ -125,6 +125,16 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.MustNotInvokeGlobalValidator2;
 				yield break;
 
+			case ConnectionTestCategory.TrustedRoots:
+				yield return ConnectionTestType.ServerCertificateWithCA;
+				yield return ConnectionTestType.TrustedRootCA;
+				yield return ConnectionTestType.TrustedIntermediateCA;
+				yield return ConnectionTestType.HostNameMismatch;
+				yield return ConnectionTestType.IntermediateServerCertificate;
+				yield return ConnectionTestType.IntermediateServerCertificateFull;
+				yield return ConnectionTestType.IntermediateServerCertificateBare;
+				yield break;
+
 			case ConnectionTestCategory.MartinTest:
 				yield return ConnectionTestType.MartinTest;
 				yield break;
@@ -138,9 +148,10 @@ namespace Xamarin.WebTests.TestRunners
 		public static bool IsSupported (TestContext ctx, ConnectionTestCategory category, ConnectionProvider provider)
 		{
 			var flags = provider.Flags;
-			var supportsSslStream = ((flags & ConnectionProviderFlags.SupportsSslStream) != 0);
-			var supportsTls12 = ((flags & ConnectionProviderFlags.SupportsTls12) != 0);
-			var supportsClientCertificates = ((flags & ConnectionProviderFlags.SupportsClientCertificates) != 0);
+			var supportsSslStream = (flags & ConnectionProviderFlags.SupportsSslStream) != 0;
+			var supportsTls12 = (flags & ConnectionProviderFlags.SupportsTls12) != 0;
+			var supportsClientCertificates = (flags & ConnectionProviderFlags.SupportsClientCertificates) != 0;
+			var supportsTrustedRoots = (flags & ConnectionProviderFlags.SupportsTrustedRoots) != 0;
 
 			switch (category) {
 			case ConnectionTestCategory.Https:
@@ -157,6 +168,8 @@ namespace Xamarin.WebTests.TestRunners
 				return true;
 			case ConnectionTestCategory.SslStreamCertificateValidators:
 				return supportsSslStream;
+			case ConnectionTestCategory.TrustedRoots:
+				return supportsTrustedRoots;
 			case ConnectionTestCategory.MartinTest:
 				return true;
 			default:

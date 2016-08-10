@@ -29,6 +29,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
+using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.Resources;
 using Xamarin.WebTests.TestFramework;
 
@@ -94,8 +95,14 @@ namespace Xamarin.WebTests.TestRunners
 		                                       X509Certificate certificate, X509Chain chain,
 		                                       SslPolicyErrors errors)
 		{
-			if (parameters.ExpectPolicyErrors != null)
-				ctx.Expect (errors, Is.EqualTo (parameters.ExpectPolicyErrors.Value));
+			if (parameters.ExpectPolicyErrors != null) {
+				// FIXME: AppleTls reports RemoteCertificateChainErrors instead of RemoteCertificateNameMismatch.
+				if (parameters.ExpectPolicyErrors.Value == SslPolicyErrors.RemoteCertificateNameMismatch) {
+					ctx.Expect (errors, Is.EqualTo (SslPolicyErrors.RemoteCertificateNameMismatch).Or.EqualTo (SslPolicyErrors.RemoteCertificateChainErrors));
+				} else {
+					ctx.Expect (errors, Is.EqualTo (parameters.ExpectPolicyErrors.Value));
+				}
+			}
 
 			if (parameters.ExpectChainStatus != null && ctx.Expect (chain, Is.Not.Null, "chain")) {
 				if (ctx.Expect (chain.ChainStatus, Is.Not.Null, "chain.ChainStatus")) {
@@ -108,6 +115,34 @@ namespace Xamarin.WebTests.TestRunners
 				}
 				ctx.LogMessage ("ELEMENTS: {0}", chain.ChainElements[0].ChainElementStatus[0].Status);
 			}
+		}
+
+		public static void CheckValidationResult (TestContext ctx, ValidationParameters parameters,
+							  X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+		{
+			var provider = DependencyInjector.Get<ICertificateProvider> ();
+			if (parameters.ExpectedExtraStore != null && ctx.Expect (chain, Is.Not.Null, "chain")) {
+				if (ctx.Expect (chain.ChainPolicy, Is.Not.Null,  "chain.ChainPolicy") &&
+				    ctx.Expect (chain.ChainPolicy.ExtraStore, Is.Not.Null, "ChainPolicy.ExtraStore") &&
+				    ctx.Expect (chain.ChainPolicy.ExtraStore.Count, Is.EqualTo (parameters.ExpectedExtraStore.Count), "ChainPolicy.ExtraStore.Count")) {
+					for (int i = 0; i < parameters.ExpectedExtraStore.Count; i++) {
+						ctx.LogMessage ("TEST!");
+						ExpectCertificate (ctx, chain.ChainPolicy.ExtraStore[i], parameters.ExpectedExtraStore[i], string.Format ("ExtraStore[{0}]", i));
+					}
+				}
+			}
+
+			if (parameters.ExpectSuccess)
+				ctx.Assert (errors, Is.EqualTo (SslPolicyErrors.None), "expecting success");
+			else
+				ctx.Assert (errors, Is.Not.EqualTo (SslPolicyErrors.None), "expecting failure");
+		}
+
+		public static bool ExpectCertificate (TestContext ctx, X509Certificate actual, CertificateResourceType expected, string message)
+		{
+			var provider = DependencyInjector.Get<ICertificateProvider> ();
+			var expectedCert = ResourceManager.GetCertificate (expected);
+			return ctx.Expect (provider.AreEqual (actual, expectedCert), message);
 		}
 	}
 }

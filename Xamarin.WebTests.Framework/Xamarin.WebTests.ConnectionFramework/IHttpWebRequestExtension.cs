@@ -69,6 +69,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		int Timeout {
 			get; set;
 		}
+
+		string Host {
+			get; set;
+		}
 	}
 }
 

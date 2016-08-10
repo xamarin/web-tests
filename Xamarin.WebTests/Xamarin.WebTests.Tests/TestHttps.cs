@@ -78,6 +78,28 @@ namespace Xamarin.WebTests.Tests
 		{
 			await runner.Run (ctx, cancellationToken);
 		}
+
+
+		[New]
+		[AsyncTest]
+		[ConnectionTestCategory (ConnectionTestCategory.TrustedRoots)]
+		public async Task TestTrustedRoots (TestContext ctx, CancellationToken cancellationToken,
+			ConnectionTestProvider provider, HttpsTestParameters parameters,
+			HttpsTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
+		[Martin]
+		[AsyncTest]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireTrustedRoots)]
+		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
+		public async Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
+			ConnectionTestProvider provider, HttpsTestParameters parameters,
+			HttpsTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
 	}
 }
 

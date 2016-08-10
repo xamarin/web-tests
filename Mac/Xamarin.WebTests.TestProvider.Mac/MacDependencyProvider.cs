@@ -39,10 +39,6 @@ namespace Xamarin.WebTests.TestProvider.Mobile
 #if APPLETLS
 			DependencyInjector.RegisterDependency<IAppleCertificateProvider> (() => new AppleCertificateProvider ());
 #endif
-
-#if __XAMMAC__
-			Mac.MacKeyChainProvider.Test ();
-#endif
 		}
 	}
 }

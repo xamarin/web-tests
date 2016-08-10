@@ -31,13 +31,24 @@ namespace Xamarin.WebTests.Resources
 	{
 		Invalid,
 		HamillerTubeCA,
+		HamillerTubeIM,
 		ServerCertificateFromLocalCA,
 		SelfSignedServerCertificate,
 		TlsTestXamDevNew,
 		TlsTestXamDevExpired,
 		TlsTestXamDevCA,
 		IntermediateCA,
-		IntermediateServer
+		IntermediateServer,
+		ServerCertificateWithCA,
+
+		// Just the certificate
+		IntermediateServerCertificateBare,
+		// Same but without the private key
+		IntermediateServerCertificateNoKey,
+		// Certificate and Intermediate CA
+		IntermediateServerCertificate,
+		// Certificate, Intermediate CA and Root CA
+		IntermediateServerCertificateFull,
 	}
 }
 

@@ -66,7 +66,7 @@
     <TlsProvider>Default</TlsProvider>
     <MonoBundlingExtraArgs>--xml=web-tests-linker.xml</MonoBundlingExtraArgs>
     <XamMacArch>x86_64</XamMacArch>
-    <LinkMode>SdkOnly</LinkMode>
+    <LinkMode>None</LinkMode>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

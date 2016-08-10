@@ -45,6 +45,8 @@ namespace Xamarin.WebTests.TestFramework
 
 		NotYetWorking,
 
+		TrustedRoots,
+
 		MartinTest,
 	}
 }

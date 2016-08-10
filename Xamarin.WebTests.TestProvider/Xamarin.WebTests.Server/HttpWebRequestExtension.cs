@@ -147,6 +147,11 @@ namespace Xamarin.WebTests.Server
 			get { return Request.Timeout; }
 			set { Request.Timeout = value; }
 		}
+
+		public string Host {
+			get { return Request.Host; }
+			set { Request.Host = value; }
+		}
 	}
 }
 

@@ -108,22 +108,6 @@ namespace Xamarin.WebTests.TestProvider.Mac
 			if (ret != 0)
 				throw new NotSupportedException ();
 		}
-
-		public static void Test ()
-		{
-			bool status;
-			int ret = SecKeychainGetUserInteractionAllowed (out status);
-			Console.Error.WriteLine ("USER INTERACTION ALLOWED: {0} {1}", ret, status);
-			var path = Path.Combine (NSBundle.MainBundle.ResourcePath, "test.keychain");
-			IntPtr keychain;
-			if (!File.Exists (path))
-				keychain = CreateKeyChain (path, "monkey");
-			else {
-				keychain = OpenKeyChain (path);
-				UnlockKeyChain (keychain, "monkey");
-			}
-			SetDefaultKeyChain (keychain);
-		}
 	}
 }
 #endif

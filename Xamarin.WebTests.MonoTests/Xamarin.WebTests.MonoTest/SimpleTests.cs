@@ -49,10 +49,10 @@ namespace Xamarin.WebTests.MonoTests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-		// [Martin]
-		// [AsyncTest]
+		[Martin]
+		[AsyncTest]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.MartinTest)]
-		public async Task TestClient2 (TestContext ctx, CancellationToken cancellationToken,
+		public async Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
 			MonoConnectionTestProvider provider,
 			SimpleConnectionParameters parameters,
 			SimpleConnectionTestRunner runner)

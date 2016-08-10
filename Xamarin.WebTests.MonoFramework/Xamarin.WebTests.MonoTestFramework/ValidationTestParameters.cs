@@ -27,13 +27,13 @@
 using System;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.Resources;
+using Xamarin.WebTests.ConnectionFramework;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
 	using MonoTestFeatures;
 
-	public abstract class ValidationTestParameters : ITestParameter, ICloneable
+	public class ValidationTestParameters : ValidationParameters, ITestParameter
 	{
 		public ValidationTestCategory Category {
 			get;
@@ -49,49 +49,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get { return Identifier; }
 		}
 
-		List<CertificateResourceType> types = new List<CertificateResourceType> ();
-		List<CertificateResourceType> trustedRoots = new List<CertificateResourceType> ();
-		List<CertificateResourceType> expectedChain;
-
-		public IReadOnlyCollection<CertificateResourceType> Types {
-			get {
-				return types;
-			}
-		}
-
-		public IReadOnlyCollection<CertificateResourceType> TrustedRoots {
-			get {
-				return trustedRoots;
-			}
-		}
-
-		public IReadOnlyList<CertificateResourceType> ExpectedChain {
-			get {
-				return expectedChain;
-			}
-		}
-
-		public string Host {
-			get; set;
-		}
-
-		public void Add (CertificateResourceType type)
-		{
-			types.Add (type);
-		}
-
-		public void AddTrustedRoot (CertificateResourceType type)
-		{
-			trustedRoots.Add (type);
-		}
-
-		public void AddExpectedChainEntry (CertificateResourceType type)
-		{
-			if (expectedChain == null)
-				expectedChain = new List<CertificateResourceType> ();
-			expectedChain.Add (type);
-		}
-
 		public ValidationTestParameters (ValidationTestCategory category, string identifier)
 		{
 			Category = category;
@@ -99,24 +56,16 @@ namespace Xamarin.WebTests.MonoTestFramework
 		}
 
 		protected ValidationTestParameters (ValidationTestParameters other)
+			: base (other)
 		{
 			Category = other.Category;
 			Identifier = other.Identifier;
-			types.AddRange (other.types);
-			trustedRoots.AddRange (other.trustedRoots);
-			if (other.expectedChain != null) {
-				expectedChain = new List<CertificateResourceType> ();
-				expectedChain.AddRange (other.expectedChain);
-			}
-			Host = other.Host;
 		}
 
-		object ICloneable.Clone ()
+		public override ValidationParameters DeepClone ()
 		{
-			return DeepClone ();
+			return new ValidationTestParameters (this);
 		}
-
-		public abstract ValidationTestParameters DeepClone ();
 	}
 }
 
