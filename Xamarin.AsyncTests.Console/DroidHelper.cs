@@ -180,10 +180,12 @@ namespace Xamarin.AsyncTests.Console
 		internal async Task<bool> WaitForEmulator (CancellationToken cancellationToken)
 		{
 			bool running;
-			var endtime = DateTime.Now + TimeSpan.FromMinutes (5);
+			var endtime = DateTime.Now + TimeSpan.FromMinutes (15);
 			do {
 				await Task.Delay (1000);
 				cancellationToken.ThrowIfCancellationRequested ();
+
+				Program.Debug ("Wait for emulator {0}", DateTime.Now);
 
 				running = await CheckEmulatorRunning (cancellationToken);
 			} while (!running && DateTime.Now < endtime);
