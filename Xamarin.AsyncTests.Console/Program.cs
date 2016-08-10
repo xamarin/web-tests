@@ -108,6 +108,7 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		DroidHelper droidHelper;
 		TestSession session;
 		SettingsBag settings;
 		TestLogger logger;
@@ -146,9 +147,29 @@ namespace Xamarin.AsyncTests.Console
 				task.Wait ();
 				Environment.Exit (task.Result ? 0 : 1);
 			} catch (Exception ex) {
-				Debug ("ERROR: {0}", ex);
+				PrintException (ex);
 				Environment.Exit (-1);
 			}
+		}
+
+		static void PrintException (Exception ex)
+		{
+			var aggregate = ex as AggregateException;
+			if (aggregate != null && aggregate.InnerExceptions.Count == 1) {
+				PrintException (aggregate.InnerException);
+				return;
+			}
+
+			var toolEx = ex as ExternalToolException;
+			if (toolEx != null) {
+				if (!string.IsNullOrEmpty (toolEx.ErrorOutput))
+					Debug ("ERROR: External tool '{0}' failed:\n{1}\n", toolEx.Tool, toolEx.ErrorOutput);
+				else
+					Debug ("ERROR: External tool '{0}' failed:\n{1}\n", toolEx.Tool, toolEx);
+				return;
+			}
+
+			Debug ("ERROR: {0}", ex);
 		}
 
 		static void Main (string[] args)
@@ -259,6 +280,11 @@ namespace Xamarin.AsyncTests.Console
 
 				if (EndPoint == null)
 					EndPoint = GetLocalEndPoint ();
+			} else if (command == Command.Avd || command == Command.Emulator) {
+				if (arguments.Count != 0)
+					throw new InvalidOperationException ("Unexpected extra arguments");
+
+				droidHelper = new DroidHelper (sdkroot);
 			} else if (command == Command.Result) {
 				if (arguments.Count != 1)
 					throw new InvalidOperationException ("Expected TestResult.xml argument");
@@ -454,6 +480,10 @@ namespace Xamarin.AsyncTests.Console
 			case Command.Mac:
 			case Command.Android:
 				return LaunchApplication (cancellationToken);
+			case Command.Avd:
+				return droidHelper.CheckAvd (cancellationToken);
+			case Command.Emulator:
+				return droidHelper.CheckEmulator (cancellationToken);
 			case Command.Result:
 				return ShowResult (cancellationToken);
 			default:

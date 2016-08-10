@@ -1,10 +1,10 @@
 ﻿//
-// Command.cs
+// ExternalToolException.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,22 +24,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-
 namespace Xamarin.AsyncTests.Console
 {
-	enum Command
+	public class ExternalToolException : Exception
 	{
-		Local,
-		Connect,
-		Listen,
-		Gui,
-		Simulator,
-		Device,
-		Mac,
-		Android,
-		Result,
-		Avd,
-		Emulator
+		public ExternalToolException (string tool, string stderr = null)
+			: base (string.Format ("Tool '{0}' failed.", tool))
+		{
+			Tool = tool;
+			ErrorOutput = stderr;
+		}
+
+		public ExternalToolException (string tool, Exception inner)
+			: base (string.Format ("Tool '{0}' failed with exception '{1}'.", tool, inner.Message), inner)
+		{
+			Tool = tool;
+		}
+
+		public string Tool {
+			get;
+			private set;
+		}
+
+		public string ErrorOutput {
+			get;
+			private set;
+		}
 	}
 }
 

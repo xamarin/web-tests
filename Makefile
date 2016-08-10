@@ -210,6 +210,8 @@ Check-System::
 	$(XBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' Xamarin.WebTests.Android.sln
 
 .Android-Internal-Install::
+	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) avd
+	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) emulator
 	$(XBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' /t:Install $(WEBTESTS_ANDROID_PROJECT)
 
 .Android-Internal-Run::

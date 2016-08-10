@@ -20,7 +20,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <Commandlineparameters>android com.xamarin.webtests.android/com.xamarin.webtests.android.MainActivity</Commandlineparameters>
+    <Commandlineparameters>avd com.xamarin.webtests.android/com.xamarin.webtests.android.MainActivity</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -55,6 +55,8 @@
     <Compile Include="MacLauncher.cs" />
     <Compile Include="ResultPrinter.cs" />
     <Compile Include="DroidLauncher.cs" />
+    <Compile Include="DroidHelper.cs" />
+    <Compile Include="ExternalToolException.cs" />
   </ItemGroup>
   <Import Project="..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

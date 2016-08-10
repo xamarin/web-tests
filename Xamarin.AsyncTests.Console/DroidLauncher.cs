@@ -54,6 +54,11 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public string AndroidTool {
+			get;
+			private set;
+		}
+
 		public string Application {
 			get;
 			private set;
@@ -85,8 +90,7 @@ namespace Xamarin.AsyncTests.Console
 			}
 
 			Adb = Path.Combine (SdkRoot, "platform-tools", "adb");
-
-
+			AndroidTool = Path.Combine (SdkRoot, "tools", "android");
 		}
 
 		Process Launch (IPortableEndPoint address)
