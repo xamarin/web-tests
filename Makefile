@@ -36,6 +36,15 @@ Android-%::
 Check-System::
 	@./system-dependencies.sh
 
+Create-Keychain::
+	-security create-keychain -p $(TEST_KEYCHAIN_PASSWORD) $(TEST_KEYCHAIN)
+	security default-keychain -s $(TEST_KEYCHAIN)
+	security unlock-keychain -p $(TEST_KEYCHAIN_PASSWORD) $(TEST_KEYCHAIN)
+
+Default-Keychain::
+	security default-keychain -s login.keychain
+	-security delete-keychain $(TEST_KEYCHAIN)
+
 #
 # Internal IOS make targets
 #
