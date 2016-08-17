@@ -154,10 +154,10 @@ Default-Keychain::
 #
 
 .Mac-Build-Debug::
-	$(MAKE) MAC_CONFIGURATION=Debug .Mac-Internal-Build
+	$(MAKE) MAC_CONFIGURATION=$(MAC_CONFIGURATION_DEBUG) .Mac-Internal-Build
 
 .Mac-Build-DebugAppleTls::
-	$(MAKE) MAC_CONFIGURATION=DebugAppleTls .Mac-Internal-Build
+	$(MAKE) MAC_CONFIGURATION=$(MAC_CONFIGURATION_DEBUGAPPLELTS) .Mac-Internal-Build
 
 .Mac-Debug-%::
 	$(MAKE) MAC_CONFIGURATION=Debug .Mac-Run-$*

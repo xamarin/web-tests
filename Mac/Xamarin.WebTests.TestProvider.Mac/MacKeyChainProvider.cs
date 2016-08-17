@@ -108,6 +108,25 @@ namespace Xamarin.WebTests.TestProvider.Mac
 			if (ret != 0)
 				throw new NotSupportedException ();
 		}
+
+#if WRENCH
+		internal static void CreateAndSelectCustomKeyChain ()
+		{
+			bool status;
+			int ret = SecKeychainGetUserInteractionAllowed (out status);
+			Console.Error.WriteLine ("USER INTERACTION ALLOWED: {0} {1}", ret, status);
+			var home = Environment.GetFolderPath (Environment.SpecialFolder.UserProfile);
+			var path = Path.Combine (home, "Library", "Keychains", "web-tests.keychain");
+			IntPtr keychain;
+			if (!File.Exists (path))
+				keychain = CreateKeyChain (path, "monkey");
+			else {
+				keychain = OpenKeyChain (path);
+				UnlockKeyChain (keychain, "monkey");
+			}
+			SetDefaultKeyChain (keychain);
+		}
+#endif
 	}
 }
 #endif
