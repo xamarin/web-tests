@@ -28,6 +28,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Server
 {
@@ -157,6 +158,11 @@ namespace Xamarin.WebTests.Server
 			var aHash = a.GetCertHashString ();
 			var bHash = b.GetCertHashString ();
 			return string.Equals (aHash, bHash);
+		}
+
+		public Constraint GetEqualConstraint (X509Certificate expected)
+		{
+			return new EqualCertificateConstraint (expected);
 		}
 	}
 }

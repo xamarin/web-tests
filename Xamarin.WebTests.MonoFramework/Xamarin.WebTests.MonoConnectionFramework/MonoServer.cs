@@ -32,35 +32,38 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		public MonoServer (MonoConnectionProvider provider, ConnectionParameters parameters, IMonoConnectionExtensions extensions)
 			: base (provider, parameters, extensions)
 		{
+			clientCertIssuersProp = typeof (MSI.MonoTlsSettings).GetTypeInfo ().GetDeclaredProperty ("ClientCertificateIssuers");
 		}
+
+		PropertyInfo clientCertIssuersProp;
 
 		protected override bool IsServer {
 			get { return true; }
 		}
 
-		void SetClientIssuers (MSI.MonoTlsSettings settings, string[] issuers)
-		{
-			var type = typeof (MSI.MonoTlsSettings).GetTypeInfo ();
-			var prop = type.GetDeclaredProperty ("ClientCertificateIssuers");
-			if (prop == null)
-				throw new NotSupportedException ("MonoTlsSettings.ClientCertificateIssuers is not available!");
-			prop.SetValue (settings, issuers);
-		}
-
 		protected override void GetSettings (TestContext ctx, MSI.MonoTlsSettings settings)
 		{
-			#if FIXME
+#if FIXME
 			if (Parameters.RequireClientCertificate)
 				settings.RequireClientCertificate = settings.AskForClientCertificate = true;
 			else if (Parameters.AskForClientCertificate)
 				settings.AskForClientCertificate = true;
-			#endif
+#endif
 
-			if (MonoParameters != null && MonoParameters.ServerCiphers != null)
+			if (MonoParameters == null) {
+				base.GetSettings (ctx, settings);
+				return;
+			}
+
+			if (MonoParameters.ServerCiphers != null)
 				settings.EnabledCiphers = MonoParameters.ServerCiphers.ToArray ();
 
-			if (MonoParameters != null && MonoParameters.ClientCertificateIssuers != null)
-				SetClientIssuers (settings, MonoParameters.ClientCertificateIssuers);
+			if (MonoParameters.ClientCertificateIssuers != null) {
+				if (clientCertIssuersProp == null)
+					ctx.AssertFail ("MonoTlsSettings.ClientCertificateIssuers is not supported!");
+				clientCertIssuersProp.SetValue (settings, MonoParameters.ClientCertificateIssuers);
+			}
+
 
 			if (MonoParameters != null) {
 				#if FIXME

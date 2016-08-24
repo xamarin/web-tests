@@ -245,20 +245,6 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ValidationParameters.ExpectSuccess = false;
 				return parameters;
 
-			case ConnectionTestType.MartinTest:
-				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.IntermediateServerCertificateBare)) {
-					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
-					ExpectChainStatus = X509ChainStatusFlags.NoError,
-					ExpectPolicyErrors = SslPolicyErrors.None, OverrideTargetHost = "Intermediate-Server.local"
-				};
-				parameters.ValidationParameters = new ValidationParameters ();
-				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeIM);
-				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.IntermediateServerCertificateNoKey);
-				// parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
-				// parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
-				parameters.ValidationParameters.ExpectSuccess = true;
-				return parameters;
-
 			case ConnectionTestType.TrustedRootCA:
 				parameters = new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
 					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
@@ -278,8 +264,17 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ValidationParameters = new ValidationParameters ();
 				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeIM);
 				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.IntermediateServerCertificateNoKey);
-				// parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
-				// parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = true;
+				return parameters;
+
+			case ConnectionTestType.TrustedSelfSigned:
+				parameters = new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.NoError,
+					ExpectPolicyErrors = SslPolicyErrors.None, OverrideTargetHost = "Hamiller-Tube.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.SelfSignedServerCertificate);
 				parameters.ValidationParameters.ExpectSuccess = true;
 				return parameters;
 
@@ -329,6 +324,21 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
 				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.IntermediateServerCertificateNoKey);
 				parameters.ValidationParameters.ExpectSuccess = false;
+				return parameters;
+
+			case ConnectionTestType.MartinTest:
+				goto case ConnectionTestType.HostNameMismatch;
+				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.IntermediateServerCertificateBare)) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.NoError,
+					ExpectPolicyErrors = SslPolicyErrors.None, OverrideTargetHost = "Intermediate-Server.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeIM);
+				// parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.IntermediateServerCertificateNoKey);
+				// parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
+				// parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = true;
 				return parameters;
 
 			default:

@@ -142,7 +142,7 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			var provider = DependencyInjector.Get<ICertificateProvider> ();
 			var expectedCert = ResourceManager.GetCertificate (expected);
-			return ctx.Expect (provider.AreEqual (actual, expectedCert), message);
+			return ctx.Expect (actual, provider.GetEqualConstraint (expectedCert), message);
 		}
 	}
 }

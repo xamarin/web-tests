@@ -1,10 +1,10 @@
-﻿//
-// HttpsTestType.cs
+//
+// btls-cert-info.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,44 +24,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Text;
+using Mono.Btls.Interface;
 
-namespace Xamarin.WebTests.TestFramework
+namespace Mono.Btls
 {
-	public enum ConnectionTestType
+	static class BtlsCertInfo	
 	{
-		Default,
-		AcceptFromLocalCA,
-		NoValidator,
-		RejectAll,
-		UnrequestedClientCertificate,
-		RequestClientCertificate,
-		RequireClientCertificate,
-		OptionalClientCertificate,
-		RejectClientCertificate,
-		MissingClientCertificate,
+		static void Main (string[] args)
+		{
+			BtlsX509 x509;
+			if (args.Length == 0) {
+				x509 = ReadFromStandardInput ();
+			} else if (args.Length == 1) {
+				x509 = ReadFromFile (args [0]);
+			} else {
+				Console.Error.WriteLine ("Certificate filename expected.");
+				Environment.Exit (255);
+				return;
+			}
 
-		InvalidServerCertificate,
-		MartinTest,
+			var subject = x509.GetSubjectName ();
+			Console.WriteLine ("Found certificate:\n  {0}\n", subject.GetString ());
+			Console.WriteLine ("Hash: {0:x8}\nOld Hash: {1:x8}\n", subject.GetHash (), subject.GetHashOld ());
+		}
 
-		DontInvokeGlobalValidator,
-		DontInvokeGlobalValidator2,
-		GlobalValidatorIsNull,
-		MustInvokeGlobalValidator,
+		static BtlsX509 ReadFromStandardInput ()
+		{
+			var text = Console.In.ReadToEnd ();
+			var data = Encoding.UTF8.GetBytes (text);
+			return BtlsProvider.CreateNative (data, BtlsX509Format.PEM);
+		}
 
-		MustNotInvokeGlobalValidator,
-		MustNotInvokeGlobalValidator2,
-
-		CheckChain,
-		ExternalServer,
-
-		ServerCertificateWithCA,
-		TrustedRootCA,
-		TrustedIntermediateCA,
-		TrustedSelfSigned,
-		HostNameMismatch,
-		IntermediateServerCertificate,
-		IntermediateServerCertificateBare,
-		IntermediateServerCertificateFull,
+		static BtlsX509 ReadFromFile (string filename)
+		{
+			var data = File.ReadAllBytes (filename);
+			return BtlsProvider.CreateNative (data, BtlsX509Format.PEM);
+		}
 	}
 }
-

@@ -129,6 +129,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.ServerCertificateWithCA;
 				yield return ConnectionTestType.TrustedRootCA;
 				yield return ConnectionTestType.TrustedIntermediateCA;
+				yield return ConnectionTestType.TrustedSelfSigned;
 				yield return ConnectionTestType.HostNameMismatch;
 				yield return ConnectionTestType.IntermediateServerCertificate;
 				yield return ConnectionTestType.IntermediateServerCertificateFull;

@@ -27,6 +27,7 @@ using System;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -57,6 +58,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		CertificateValidator GetCustomCertificateValidator (RemoteCertificateValidationCallback callback);
 
 		CertificateSelector GetCustomCertificateSelector (LocalCertificateSelectionCallback callback);
+
+		Constraint GetEqualConstraint (X509Certificate expected);
 	}
 }
 
