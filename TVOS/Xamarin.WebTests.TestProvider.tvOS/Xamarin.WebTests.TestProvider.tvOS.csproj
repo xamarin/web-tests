@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E4815E18-CC75-4B35-BA03-46D01083B32E}</ProjectGuid>
+    <ProjectTypeGuids>{06FA79CB-D6CD-4721-BB4B-1BD202089C55};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Xamarin.WebTests.TestProvider.tvOS</RootNamespace>
+    <AssemblyName>Xamarin.WebTests.TestProvider.tvOS</AssemblyName>
+    <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <MtouchUseSGen>true</MtouchUseSGen>
+    <MtouchUseRefCounting>true</MtouchUseRefCounting>
+    <MtouchLink></MtouchLink>
+    <MtouchHttpClientHandler></MtouchHttpClientHandler>
+    <MtouchTlsProvider></MtouchTlsProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <DefineConstants></DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <MtouchUseSGen>true</MtouchUseSGen>
+    <MtouchUseRefCounting>true</MtouchUseRefCounting>
+    <MtouchLink></MtouchLink>
+    <MtouchHttpClientHandler></MtouchHttpClientHandler>
+    <MtouchTlsProvider></MtouchTlsProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugAppleTls|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\DebugAppleTls</OutputPath>
+    <DefineConstants>__UNIFIED__;__MOBILE__;__TVOS__;DEBUG;APPLETLS;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <MtouchUseSGen>true</MtouchUseSGen>
+    <MtouchUseRefCounting>true</MtouchUseRefCounting>
+    <MtouchLink></MtouchLink>
+    <MtouchHttpClientHandler></MtouchHttpClientHandler>
+    <MtouchTlsProvider></MtouchTlsProvider>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="Xamarin.TVOS" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
+      <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
+      <Name>Xamarin.AsyncTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
+      <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
+      <Name>Xamarin.AsyncTests.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
+      <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>
+      <Name>Xamarin.WebTests.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xamarin.WebTests.PortableSecurity.tvOS\Xamarin.WebTests.PortableSecurity.tvOS.csproj">
+      <Project>{FEB386DE-A89E-4F37-A6FD-7EB1B0A9303F}</Project>
+      <Name>Xamarin.WebTests.PortableSecurity.tvOS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mono.Security.Interface\Mono.Security.Interface.csproj">
+      <Project>{93897065-5376-4961-A880-00311031D968}</Project>
+      <Name>Mono.Security.Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
+      <Project>{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}</Project>
+      <Name>Xamarin.WebTests.MonoFramework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="..\..\Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems')" />
+  <Import Project="..\..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\TVOS\Xamarin.TVOS.CSharp.targets" />
+</Project>

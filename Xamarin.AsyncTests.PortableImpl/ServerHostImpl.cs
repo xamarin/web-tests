@@ -63,6 +63,7 @@ namespace Xamarin.AsyncTests.Portable
 
 		public Task<IPipeConnection> CreatePipe (IPortableEndPoint endpoint, PipeArguments arguments, CancellationToken cancellationToken)
 		{
+#if !__TVOS__
 			return Task.Run<IPipeConnection> (() => {
 				var networkEndpoint = PortableEndPointSupportImpl.GetEndpoint (endpoint);
 				var listener = new TcpListener (networkEndpoint);
@@ -100,9 +101,14 @@ namespace Xamarin.AsyncTests.Portable
 
 				return new PipeConnection (listener, process);
 			});
+#else
+			throw new NotSupportedException ();
+#endif
 		}
 
+#if !__TVOS__
 		static readonly string[] ReservedNames = { "MONO_RUNTIME", "MONO_PATH", "MONO_GAC_PREFIX" };
+#endif
 
 		class PipeConnection : ServerConnection, IPipeConnection
 		{
