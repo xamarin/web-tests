@@ -32,11 +32,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MobileTestApp.cs" />
-    <Compile Include="MobileSessionMode.cs" />
     <Compile Include="..\Xamarin.AsyncTests.Console\NDeskOptions.cs">
       <Link>NDeskOptions.cs</Link>
     </Compile>
+    <Compile Include="MobileFormsTestApp.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -78,13 +79,23 @@ namespace Xamarin.AsyncTests.Remoting
 			return client;
 		}
 
-		public static async Task<TestServer> LaunchApplication (TestApp app, IPortableEndPoint address, ApplicationLauncher launcher, CancellationToken cancellationToken)
+		public static async Task<TestServer> LaunchApplication (TestApp app, IPortableEndPoint address, ApplicationLauncher launcher, LauncherOptions options, CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IServerHost> ();
 			var connection = await support.Listen (address, cancellationToken);
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			launcher.LaunchApplication (address);
+			var sb = new StringBuilder ();
+			sb.AppendFormat ("connect {0}:{1}", address.Address, address.Port);
+
+			if (options != null) {
+				if (options.Category != null)
+					sb.AppendFormat (" --category={0}", options.Category);
+				if (options.Features != null)
+					sb.AppendFormat (" --features={0}", options.Features);
+			}
+
+			launcher.LaunchApplication (sb.ToString ());
 
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.CancelAfter (90000);

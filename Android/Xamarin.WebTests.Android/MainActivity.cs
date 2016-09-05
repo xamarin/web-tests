@@ -41,8 +41,8 @@ namespace Xamarin.WebTests.Android
 
 			Framework = TestFramework.GetLocalFramework (typeof (MainActivity).Assembly);
 
-			var mobileTestApp = new MobileTestApp (Framework, options);
-			// mobileTestApp.FinishedEvent += (sender, e) => TerminateWithSuccess ();
+			var mobileTestApp = new MobileFormsTestApp (Framework, options);
+			// mobileTestApp.App.FinishedEvent += (sender, e) => TerminateWithSuccess ();
 
 			LoadApplication (mobileTestApp);
 		}

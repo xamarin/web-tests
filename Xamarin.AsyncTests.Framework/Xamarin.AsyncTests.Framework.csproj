@@ -18,7 +18,7 @@
     <OutputPath>bin\Debug</OutputPath>
     <WarningLevel>4</WarningLevel>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>DEBUG</DefineConstants>
+    <DefineConstants>DEBUG;PCL;</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -115,6 +115,13 @@
     <Compile Include="Xamarin.AsyncTests.Remoting\ApplicationLauncher.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\LauncherConnection.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\LauncherErrorException.cs" />
+    <Compile Include="Xamarin.AsyncTests.Mobile\MobileTestApp.cs" />
+    <Compile Include="Xamarin.AsyncTests.Mobile\ISimpleUIController.cs" />
+    <Compile Include="Xamarin.AsyncTests.Mobile\MobileSessionMode.cs" />
+    <Compile Include="..\Xamarin.AsyncTests.Console\NDeskOptions.cs">
+      <Link>Xamarin.AsyncTests.Mobile\NDeskOptions.cs</Link>
+    </Compile>
+    <Compile Include="Xamarin.AsyncTests.Remoting\LauncherOptions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
@@ -136,5 +143,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Xamarin.AsyncTests.Remoting\" />
+    <Folder Include="Xamarin.AsyncTests.Mobile\" />
   </ItemGroup>
 </Project>

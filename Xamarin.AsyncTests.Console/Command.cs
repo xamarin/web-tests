@@ -35,6 +35,7 @@ namespace Xamarin.AsyncTests.Console
 		Gui,
 		Simulator,
 		Device,
+		TVOS,
 		Mac,
 		Android,
 		Result,

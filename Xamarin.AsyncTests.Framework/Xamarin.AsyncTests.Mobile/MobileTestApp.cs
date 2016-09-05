@@ -1,10 +1,10 @@
 ﻿//
-// SimpleTestServer.cs
+// MobileTestApp.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2016 Xamarin, Inc.
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,22 +29,26 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using SD = System.Diagnostics;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
+using Xamarin.AsyncTests.Remoting;
+using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.tvOS
+namespace Xamarin.AsyncTests.Mobile
 {
-	using Xamarin.AsyncTests;
-	using Xamarin.AsyncTests.Framework;
-	using Xamarin.AsyncTests.Remoting;
-	using Xamarin.AsyncTests.Portable;
-
-	public class SimpleTestServer : TestApp
+	public class MobileTestApp : TestApp
 	{
+		public ISimpleUIController Controller {
+			get;
+			private set;
+		}
+
 		public TestFramework Framework {
 			get;
 			private set;
 		}
 
-		public SimpleSessionMode SessionMode {
+		public MobileSessionMode SessionMode {
 			get;
 			private set;
 		}
@@ -64,8 +68,11 @@ namespace Xamarin.WebTests.tvOS
 			private set;
 		}
 
-		public SimpleTestServer (TestFramework framework, string options)
+		public event EventHandler FinishedEvent;
+
+		public MobileTestApp (ISimpleUIController controller, TestFramework framework, string options)
 		{
+			Controller = controller;
 			Framework = framework;
 
 			Settings = SettingsBag.CreateDefault ();
@@ -73,7 +80,11 @@ namespace Xamarin.WebTests.tvOS
 
 			ParseSessionMode (options);
 
-			Logger = new TestLogger (new SimpleLogger (this));
+			Logger = new TestLogger (new MobileLogger (this));
+
+			Controller.CategoryChangedEvent += (sender, e) => OnCategoryChanged (e);
+
+			Controller.SessionChangedEvent += (sender, e) => OnSessionChanged ();
 		}
 
 		int? logLevel;
@@ -85,9 +96,11 @@ namespace Xamarin.WebTests.tvOS
 		void ParseSessionMode (string options)
 		{
 			if (string.IsNullOrEmpty (options)) {
-				SessionMode = SimpleSessionMode.Local;
+				SessionMode = MobileSessionMode.Local;
 				return;
 			}
+
+			Debug ("Got XAMARIN_ASYNCTESTS_OPTIONS argument: '{0}'.", options);
 
 			var p = new NDesk.Options.OptionSet ();
 			p.Add ("debug", v => debugMode = true);
@@ -96,9 +109,8 @@ namespace Xamarin.WebTests.tvOS
 			p.Add ("features=", v => features = v);
 			p.Add ("set=", v => customSettings = v);
 
-			var args = p.Parse (options.Split (' '));
-
-			Debug ("ARGS #1: {0} - {1}:{2} - |{3}|{4}|", args.Count, debugMode, logLevel, category ?? "<null>", features ?? "<null>");
+			var optArray = options.Split (new char [] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+			var args = p.Parse (optArray);
 
 			if (debugMode) {
 				Settings.LogLevel = -1;
@@ -113,16 +125,16 @@ namespace Xamarin.WebTests.tvOS
 				ParseSettings (customSettings);
 
 			if (args.Count == 0) {
-				SessionMode = SimpleSessionMode.Local;
+				SessionMode = MobileSessionMode.Local;
 				return;
 			}
 
 			if (args [0] == "server")
-				SessionMode = SimpleSessionMode.Server;
+				SessionMode = MobileSessionMode.Server;
 			else if (args [0] == "connect") {
-				SessionMode = SimpleSessionMode.Connect;
+				SessionMode = MobileSessionMode.Connect;
 			} else if (args [0] == "local") {
-				SessionMode = SimpleSessionMode.Local;
+				SessionMode = MobileSessionMode.Local;
 				if (args.Count != 1)
 					throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
 				return;
@@ -136,12 +148,6 @@ namespace Xamarin.WebTests.tvOS
 			} else {
 				throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
 			}
-		}
-
-		static IPortableEndPoint GetEndPoint ()
-		{
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			return support.GetEndpoint (8888);
 		}
 
 		void ParseSettings (string arg)
@@ -206,77 +212,9 @@ namespace Xamarin.WebTests.tvOS
 			return modified;
 		}
 
-		void Debug (string format, params object [] args)
+		public Task Run ()
 		{
-			Debug (string.Format (format, args));
-		}
-
-		void Debug (string message)
-		{
-			SD.Debug.WriteLine (message);
-		}
-
-		TestServer server;
-		TestSession session;
-
-		public async Task<bool> StartServer (CancellationToken cancellationToken)
-		{
-			switch (SessionMode) {
-			case SimpleSessionMode.Local:
-				server = await TestServer.StartLocal (this, Framework, cancellationToken);
-				Debug ("started local server.");
-				break;
-
-			case SimpleSessionMode.Server:
-				Debug ("Listening at is {0}:{1}.", EndPoint.Address, EndPoint.Port);
-				server = await TestServer.StartServer (this, EndPoint, Framework, cancellationToken);
-				break;
-
-			case SimpleSessionMode.Connect:
-				Debug ("Connecting to {0}:{1}.", EndPoint.Address, EndPoint.Port);
-				server = await TestServer.ConnectToRemote (this, EndPoint, Framework, cancellationToken);
-				break;
-
-			default:
-				throw new NotImplementedException ();
-			}
-
-			Debug ("Got server: {0}", server);
-
-			session = await server.GetTestSession (CancellationToken.None);
-			OnSessionChanged ();
-
-			Debug ("Got test session {0} from {1}.", session.Name, server.App);
-
-			OnResetStatistics ();
-
-			if (SessionMode == SimpleSessionMode.Local) {
-				// FIXME
-				// RunButton.IsEnabled = true;
-				await OnRun ().ConfigureAwait (false);
-				return false;
-			}
-
-			var running = await server.WaitForExit (CancellationToken.None);
-			Debug ("Wait for exit: {0}", running);
-
-			if (running && SessionMode != SimpleSessionMode.Connect) {
-				// FIXME
-				// RunButton.IsEnabled = true;
-				return false;
-			}
-
-			Debug ("{0} test run, {1} ignored, {2} passed, {3} errors.",
-				countTests, countIgnored, countSuccess, countErrors);
-
-			try {
-				await server.Stop (CancellationToken.None);
-			} catch (Exception ex) {
-				Debug ("Failed to stop server: {0}", ex.Message);
-			}
-
-			Debug ("Done running.");
-			return true;
+			return OnRun ();
 		}
 
 		CancellationTokenSource cts;
@@ -289,7 +227,8 @@ namespace Xamarin.WebTests.tvOS
 				return;
 
 			try {
-				Debug ("Running.");
+				Controller.Message ("Running.");
+				Controller.IsRunning = true;
 
 				var cancellationToken = cts.Token;
 
@@ -304,12 +243,149 @@ namespace Xamarin.WebTests.tvOS
 				var oldCts = Interlocked.Exchange (ref cts, null);
 				if (oldCts != null)
 					oldCts.Dispose ();
+				Controller.Message ("Done running.");
+				Controller.IsRunning = false;
 			}
 		}
 
-		void OnResetStatistics ()
+		async Task OnConnect ()
 		{
-			countTests = countSuccess = countErrors = countIgnored = 0;
+			await Task.Yield ();
+
+			if (Interlocked.CompareExchange (ref cts, new CancellationTokenSource (), null) != null)
+				return;
+
+			try {
+				Controller.IsRunning = true;
+
+				var cancellationToken = cts.Token;
+
+				OnResetStatistics ();
+
+				cancellationToken.ThrowIfCancellationRequested ();
+				await session.Run (session.RootTestCase, cancellationToken);
+
+				cancellationToken.ThrowIfCancellationRequested ();
+				var running = await server.WaitForExit (cancellationToken);
+				Debug ("WAIT FOR EXIT: {0}", running);
+
+				Debug ("{0} test run, {1} ignored, {2} passed, {3} errors.",
+					countTests, countIgnored, countSuccess, countErrors);
+
+				await server.Stop (cancellationToken);
+			} finally {
+				var oldCts = Interlocked.Exchange (ref cts, null);
+				if (oldCts != null)
+					oldCts.Dispose ();
+				Controller.IsRunning = false;
+				if (SessionMode != MobileSessionMode.Connect)
+					Controller.CanRun = true;
+			}
+		}
+
+		public void Stop ()
+		{
+			OnStop ();
+		}
+
+		void OnStop ()
+		{
+			var oldCts = Interlocked.Exchange (ref cts, null);
+			if (oldCts == null)
+				return;
+
+			oldCts.Cancel ();
+			oldCts.Dispose ();
+		}
+
+		static IPortableEndPoint GetEndPoint ()
+		{
+			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+			return support.GetEndpoint (8888);
+		}
+
+		TestServer server;
+		TestSession session;
+
+		public async void Start ()
+		{
+			bool finished;
+			do {
+				finished = await StartServer (CancellationToken.None);
+				if (SessionMode == MobileSessionMode.Connect) {
+					if (FinishedEvent != null)
+						FinishedEvent (this, EventArgs.Empty);
+					return;
+				}
+			} while (finished);
+		}
+
+		async Task<bool> StartServer (CancellationToken cancellationToken)
+		{
+			switch (SessionMode) {
+			case MobileSessionMode.Local:
+				server = await TestServer.StartLocal (this, Framework, cancellationToken);
+				Controller.Message ("started local server.");
+				break;
+
+			case MobileSessionMode.Server:
+				Controller.Message ("Listening at is {0}:{1}.", EndPoint.Address, EndPoint.Port);
+				server = await TestServer.StartServer (this, EndPoint, Framework, cancellationToken);
+				break;
+
+			case MobileSessionMode.Connect:
+				Controller.Message ("Connecting to {0}:{1}.", EndPoint.Address, EndPoint.Port);
+				server = await TestServer.ConnectToRemote (this, EndPoint, Framework, cancellationToken);
+				break;
+
+			default:
+				throw new NotImplementedException ();
+			}
+
+			Debug ("Got server: {0}", server);
+
+			session = await server.GetTestSession (CancellationToken.None);
+			OnSessionChanged ();
+			Controller.Message ("Got test session {0} from {1}.", session.Name, server.App);
+
+			Debug ("Got test session: {0}", session);
+
+			OnResetStatistics ();
+
+			if (SessionMode == MobileSessionMode.Local) {
+				Controller.CanRun = true;
+				return false;
+			}
+
+			var running = await server.WaitForExit (CancellationToken.None);
+			Debug ("Wait for exit: {0}", running);
+
+			if (running && SessionMode != MobileSessionMode.Connect) {
+				Controller.CanRun = true;
+				return false;
+			}
+
+			Debug ("{0} test run, {1} ignored, {2} passed, {3} errors.",
+				countTests, countIgnored, countSuccess, countErrors);
+
+			try {
+				await server.Stop (CancellationToken.None);
+			} catch (Exception ex) {
+				Debug ("Failed to stop server: {0}", ex.Message);
+			}
+
+			Controller.Message ("Done running.");
+			return true;
+		}
+
+		void Debug (string format, params object [] args)
+		{
+			Debug (string.Format (format, args));
+		}
+
+		void Debug (string message)
+		{
+			Controller.DebugMessage (message);
 		}
 
 		void OnLogMessage (string message)
@@ -324,16 +400,64 @@ namespace Xamarin.WebTests.tvOS
 			Debug (message);
 		}
 
+		bool suppressCategoryChange;
+
+		void OnSessionChanged ()
+		{
+			try {
+				suppressCategoryChange = true;
+
+				var categories = new List<string> ();
+				categories.Add ("All");
+
+				var selected = 0;
+
+				Debug ("ON SESSION CHANGED: {0}", session);
+
+				if (session == null) {
+					Controller.SetCategories (categories, 0);
+					return;
+				}
+
+				ModifyConfiguration (session.Configuration);
+
+				foreach (var item in session.Configuration.Categories) {
+					categories.Add (item.Name);
+					if (item == session.Configuration.CurrentCategory)
+						selected = categories.Count - 1;
+				}
+				Controller.SetCategories (categories, selected);
+			} finally {
+				suppressCategoryChange = false;
+			}
+		}
+
+		void OnCategoryChanged (int selectedIdx)
+		{
+			if (suppressCategoryChange || session == null)
+				return;
+
+			if (selectedIdx <= 0) {
+				session.Configuration.CurrentCategory = TestCategory.All;
+				return;
+			}
+
+			var selected = Controller.Categories [selectedIdx];
+			var lookup = session.Configuration.Categories.FirstOrDefault (c => c.Name.Equals (selected));
+			session.Configuration.CurrentCategory = lookup ?? TestCategory.All;
+		}
+
+		void OnResetStatistics ()
+		{
+			Controller.StatusMessage (string.Empty);
+			Controller.StatisticsMessage (string.Empty);
+			countTests = countSuccess = countErrors = countIgnored = 0;
+		}
+
 		int countTests;
 		int countSuccess;
 		int countErrors;
 		int countIgnored;
-
-		void OnSessionChanged ()
-		{
-			if (session != null)
-				ModifyConfiguration (session.Configuration);
-		}
 
 		void OnStatisticsEvent (TestLoggerBackend.StatisticsEventArgs args)
 		{
@@ -341,6 +465,7 @@ namespace Xamarin.WebTests.tvOS
 			case TestLoggerBackend.StatisticsEventType.Running:
 				++countTests;
 				Debug ("Running {0}", args.Name);
+				Controller.StatusMessage ("Running {0}", args.Name);
 				break;
 			case TestLoggerBackend.StatisticsEventType.Finished:
 				switch (args.Status) {
@@ -357,10 +482,10 @@ namespace Xamarin.WebTests.tvOS
 				}
 
 				Debug ("Finished {0}: {1}", args.Name, args.Status);
-				#if FIXME
-				Debug ("{0} test run, {1} ignored, {2} passed, {3} errors.",
-				       countTests, countIgnored, countSuccess, countErrors);
-				#endif
+
+				Controller.StatusMessage ("Finished {0}: {1}", args.Name, args.Status);
+				Controller.StatisticsMessage ("{0} test run, {1} ignored, {2} passed, {3} errors.",
+				                              countTests, countIgnored, countSuccess, countErrors);
 				break;
 			case TestLoggerBackend.StatisticsEventType.Reset:
 				OnResetStatistics ();
@@ -368,38 +493,38 @@ namespace Xamarin.WebTests.tvOS
 			}
 		}
 
-		class SimpleLogger : TestLoggerBackend
+		class MobileLogger : TestLoggerBackend
 		{
-			readonly SimpleTestServer SimpleServer;
+			readonly MobileTestApp MobileApp;
 
-			public SimpleLogger (SimpleTestServer server)
+			public MobileLogger (MobileTestApp app)
 			{
-				SimpleServer = server;
+				MobileApp = app;
 			}
 
-			protected override void OnLogEvent (LogEntry entry)
+			protected internal override void OnLogEvent (LogEntry entry)
 			{
 				switch (entry.Kind) {
 				case EntryKind.Debug:
-					SimpleServer.OnLogDebug (entry.LogLevel, entry.Text);
+					MobileApp.OnLogDebug (entry.LogLevel, entry.Text);
 					break;
 
 				case EntryKind.Error:
 					if (entry.Error != null)
-						SimpleServer.OnLogMessage (string.Format ("ERROR: {0}", entry.Error));
+						MobileApp.OnLogMessage (string.Format ("ERROR: {0}", entry.Error));
 					else
-						SimpleServer.OnLogMessage (entry.Text);
+						MobileApp.OnLogMessage (entry.Text);
 					break;
 
 				default:
-					SimpleServer.OnLogMessage (entry.Text);
+					MobileApp.OnLogMessage (entry.Text);
 					break;
 				}
 			}
 
-			protected override void OnStatisticsEvent (StatisticsEventArgs args)
+			protected internal override void OnStatisticsEvent (StatisticsEventArgs args)
 			{
-				SimpleServer.OnStatisticsEvent (args);
+				MobileApp.OnStatisticsEvent (args);
 			}
 		}
 	}

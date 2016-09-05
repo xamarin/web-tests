@@ -81,8 +81,8 @@ namespace Xamarin.WebTests.iOS
 
 			var options = Environment.GetEnvironmentVariable ("XAMARIN_ASYNCTESTS_OPTIONS");
 
-			var mobileTestApp = new MobileTestApp (Framework, options);
-			mobileTestApp.FinishedEvent += (sender, e) => TerminateWithSuccess ();
+			var mobileTestApp = new MobileFormsTestApp (Framework, options);
+			mobileTestApp.App.FinishedEvent += (sender, e) => TerminateWithSuccess ();
 
 			LoadApplication (mobileTestApp);
 

@@ -1,10 +1,10 @@
 ﻿//
-// ApplicationLauncher.cs
+// LauncherOptions.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,20 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Xamarin.AsyncTests.Remoting
 {
-	using Portable;
-
-	public abstract class ApplicationLauncher
+	public class LauncherOptions
 	{
-		public abstract void LaunchApplication (string args);
+		public string Category {
+			get; set;
+		}
 
-		public abstract Task<bool> WaitForExit ();
-
-		public abstract void StopApplication ();
+		public string Features {
+			get; set;
+		}
 	}
 }
 

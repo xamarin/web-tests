@@ -37,6 +37,7 @@ using Xamarin.WebTests.MonoTestFramework;
 namespace Xamarin.WebTests.tvOS
 {
 	using AsyncTests;
+	using AsyncTests.Mobile;
 	using AsyncTests.Framework;
 	using AsyncTests.Portable;
 
@@ -46,11 +47,6 @@ namespace Xamarin.WebTests.tvOS
 	public class AppDelegate : UIApplicationDelegate
 	{
 		public TestFramework Framework {
-			get;
-			private set;
-		}
-
-		public SimpleTestServer Server {
 			get;
 			private set;
 		}
@@ -73,17 +69,7 @@ namespace Xamarin.WebTests.tvOS
 
 			Framework = TestFramework.GetLocalFramework (typeof (AppDelegate).Assembly);
 
-			var options = Environment.GetEnvironmentVariable ("XAMARIN_ASYNCTESTS_OPTIONS");
-			Server = new SimpleTestServer (Framework, options);
-
-			StartServer ();
-
 			return true;
-		}
-
-		async void StartServer ()
-		{
-			await Server.StartServer (CancellationToken.None).ConfigureAwait (false);
 		}
 
 		public override void OnResignActivation (UIApplication application)

@@ -69,14 +69,14 @@ namespace Xamarin.AsyncTests.Console
 			RedirectStderr = stderr;
 		}
 
-		Process Launch (IPortableEndPoint address)
+		Process Launch (string launchArgs)
 		{
 			Program.Debug ("Launching app: {0}", Application);
 
 			var psi = new ProcessStartInfo (Application);
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
-			psi.EnvironmentVariables.Add ("XAMARIN_ASYNCTESTS_OPTIONS", string.Format ("connect {0}:{1}", address.Address, address.Port));
+			psi.EnvironmentVariables.Add ("XAMARIN_ASYNCTESTS_OPTIONS", launchArgs);
 			var process = Process.Start (psi);
 
 			Program.Debug ("Started: {0}", process);
@@ -84,9 +84,9 @@ namespace Xamarin.AsyncTests.Console
 			return process;
 		}
 
-		public override void LaunchApplication (IPortableEndPoint address)
+		public override void LaunchApplication (string args)
 		{
-			process = Launch (address);
+			process = Launch (args);
 		}
 
 		public override Task<bool> WaitForExit ()

@@ -1,5 +1,5 @@
 ﻿//
-// SimpleSessionMode.cs
+// ISimpleUIController.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,14 +24,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace Xamarin.WebTests.tvOS
+namespace Xamarin.AsyncTests.Mobile
 {
-	public enum SimpleSessionMode
+	public interface ISimpleUIController
 	{
-		Local,
-		Server,
-		Connect
+		void DebugMessage (string message);
+
+		void Message (string message);
+
+		void Message (string format, params object[] args);
+
+		void StatusMessage (string message);
+
+		void StatusMessage (string format, params object[] args);
+
+		void StatisticsMessage (string message);
+
+		void StatisticsMessage (string format, params object [] args);
+
+		bool IsRunning {
+			get; set;
+		}
+
+		bool CanRun {
+			get; set;
+		}
+
+		IList<string> Categories {
+			get;
+		}
+
+		void SetCategories (IList<string> categories, int selected);
+
+		int SelectedCategory {
+			get; set;
+		}
+
+		event EventHandler SessionChangedEvent;
+
+		event EventHandler<int> CategoryChangedEvent;
 	}
 }
 

@@ -10,7 +10,8 @@ Wrench-%::
 ALL_WRENCH_BUILD_TARGETS = \
 	Wrench-IOS-Sim-Build-Debug Wrench-IOS-Sim-Build-DebugAppleTls \
 	Wrench-Console-Build-Debug Wrench-DotNet-Build-Debug \
-	Wrench-Mac-Build-Debug Wrench-Mac-Build-DebugAppleTls
+	Wrench-Mac-Build-Debug Wrench-Mac-Build-DebugAppleTls \
+	Wrench-TVOS-Sim-Build-Debug Wrench-TVOS-Sim-Build-DebugAppleTls
 
 Wrench-Build-All:: $(ALL_WRENCH_BUILD_TARGETS)
 	@echo "Build done."
@@ -20,6 +21,12 @@ IOS-Sim-%::
 
 IOS-Dev-%::
 	$(MAKE) IOS_TARGET=iPhone ASYNCTESTS_COMMAND=device TARGET_NAME=$@ .IOS-$*
+
+TVOS-Sim-%::
+	$(MAKE) TVOS_TARGET=iPhoneSimulator ASYNCTESTS_COMMAND=tvos TARGET_NAME=$@ .TVOS-$*
+
+TVOS-Dev-%::
+	$(MAKE) TVOS_TARGET=iPhone ASYNCTESTS_COMMAND=device TARGET_NAME=$@ .TVOS-$*
 
 Console-%::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ .Console-$*
@@ -84,6 +91,46 @@ Default-Keychain::
 	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
 		--sdkroot=$(XCODE_DEVELOPER_ROOT) --stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) \
 		$(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND) $(WEBTESTS_IOS_APP)
+
+#
+# Internal TVOS make targets
+#
+
+.TVOS-Debug-%::
+	$(MAKE) TVOS_CONFIGURATION=Debug .TVOS-Run-$*
+
+.TVOS-DebugAppleTls-%::
+	$(MAKE) TVOS_CONFIGURATION=DebugAppleTls .TVOS-Run-$*
+
+.TVOS-Build-Debug::
+	$(MAKE) TVOS_CONFIGURATION=Debug .TVOS-Internal-Build
+
+.TVOS-Build-DebugAppleTls::
+	$(MAKE) TVOS_CONFIGURATION=DebugAppleTls .TVOS-Internal-Build
+
+.TVOS-Run-Experimental::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All .TVOS-Internal-Run
+
+.TVOS-Run-All::
+	$(MAKE) TEST_CATEGORY=All .TVOS-Internal-Run
+
+.TVOS-Run-Work::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Work .TVOS-Internal-Run
+
+.TVOS-Run-New::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=New .TVOS-Internal-Run
+
+.TVOS-Run-Martin::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .TVOS-Internal-Run
+
+.TVOS-Internal-Build::
+	$(MONO) $(NUGET_EXE) restore $(EXTRA_NUGET_RESTORE_ARGS) Xamarin.WebTests.iOS.sln
+	$(XBUILD) /p:Configuration='$(TVOS_CONFIGURATION)' /p:Platform='$(TVOS_TARGET)' Xamarin.WebTests.TVOS.sln
+
+.TVOS-Internal-Run::
+	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+		--sdkroot=$(XCODE_DEVELOPER_ROOT) --stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) \
+		$(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND) $(WEBTESTS_TVOS_APP)
 
 #
 # Internal Console make targets

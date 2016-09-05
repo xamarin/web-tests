@@ -69,7 +69,7 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
-		public bool LaunchOnDevice {
+		public Command Command {
 			get;
 			private set;
 		}
@@ -94,13 +94,28 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public string DeviceType {
+			get;
+			private set;
+		}
+
+		public string Runtime {
+			get;
+			private set;
+		}
+
+		public bool UseMLaunch {
+			get;
+			private set;
+		}
+
 		Process process;
 		TaskCompletionSource<bool> tcs;
 
-		public TouchLauncher (string app, bool device, string sdkroot, string stdout, string stderr, string devname, string extraArgs)
+		public TouchLauncher (string app, Command command, string sdkroot, string stdout, string stderr, string devname, string extraArgs)
 		{
 			Application = app;
-			LaunchOnDevice = device;
+			Command = command;
 			RedirectStdout = stdout;
 			RedirectStderr = stderr;
 			DeviceName = devname;
@@ -119,19 +134,98 @@ namespace Xamarin.AsyncTests.Console
 
 			MTouch = Path.Combine (MonoTouchRoot, "bin", "mtouch");
 
-			var mlaunchPath = "/Applications/Xamarin Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.IPhone/mlaunch.app/Contents/MacOS/mlaunch";
-			if (File.Exists (mlaunchPath))
-				MLaunch = mlaunchPath;
+			switch (command) {
+			case Command.Device:
+			case Command.Simulator:
+				UseMLaunch = true;
+				break;
+			case Command.TVOS:
+				DeviceType = "Apple-TV-1080p";
+				Runtime = "tvOS-9-2";
+				break;
+			default:
+				throw new NotSupportedException ();
+			}
+
+			if (UseMLaunch) {
+				var mlaunchPath = "/Applications/Xamarin Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.IPhone/mlaunch.app/Contents/MacOS/mlaunch";
+				if (File.Exists (mlaunchPath))
+					MLaunch = mlaunchPath;
+				else {
+					MLaunch = null;
+					UseMLaunch = false;
+				}
+			}
+
+			if (command == Command.TVOS && DeviceName == null)
+				DeviceName = string.Format (":v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}", DeviceType, Runtime);
 		}
 
-		Process Launch (IPortableEndPoint address)
+		void Install ()
 		{
 			var args = new StringBuilder ();
-			if (LaunchOnDevice)
+			switch (Command) {
+			case Command.Device:
+				args.AppendFormat (" --installdev={0}", Application);
+				break;
+			case Command.Simulator:
+				args.AppendFormat (" --installdev={0}", Application);
+				break;
+			case Command.TVOS:
+				args.AppendFormat (" --installsim={0}", Application);
+				args.AppendFormat (" --device=:v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}", DeviceType, Runtime);
+				break;
+			default:
+				throw new NotSupportedException ();
+			}
+
+			args.AppendFormat (" --sdkroot={0}", SdkRoot);
+
+			if (DeviceName != null)
+				args.AppendFormat ("  --device={0}", DeviceName);
+
+			if (ExtraMTouchArguments != null) {
+				args.Append (" ");
+				args.Append (ExtraMTouchArguments);
+			}
+
+			var tool = UseMLaunch ? MLaunch : MTouch;
+
+			Program.Debug ("Launching mtouch: {0} {1}", tool, args);
+
+			var psi = new ProcessStartInfo (tool, args.ToString ());
+			psi.UseShellExecute = false;
+			psi.RedirectStandardInput = true;
+
+			var process = Process.Start (psi);
+
+			Program.Debug ("Started: {0}", process);
+
+			process.WaitForExit ();
+
+			Program.Debug ("Process finished: {0}", process.ExitCode);
+			if (process.ExitCode != 0)
+				throw new NotSupportedException ();
+		}
+
+		Process Launch (string launchArgs)
+		{
+			var args = new StringBuilder ();
+			switch (Command) {
+			case Command.Device:
 				args.AppendFormat (" --launchdev={0}", Application);
-			else
+				break;
+			case Command.Simulator:
 				args.AppendFormat (" --launchsim={0}", Application);
-			args.AppendFormat (" --setenv=\"XAMARIN_ASYNCTESTS_OPTIONS=connect {0}:{1}\"", address.Address, address.Port);
+				break;
+			case Command.TVOS:
+				args.AppendFormat (" --launchsim={0}", Application);
+				break;
+			default:
+				throw new NotSupportedException ();
+			}
+
+			args.AppendFormat (" --setenv=\"XAMARIN_ASYNCTESTS_OPTIONS={0}\"", launchArgs);
 			if (!string.IsNullOrWhiteSpace (RedirectStdout))
 				args.AppendFormat (" --stdout={0}", RedirectStdout);
 			if (!string.IsNullOrWhiteSpace (RedirectStderr))
@@ -140,15 +234,15 @@ namespace Xamarin.AsyncTests.Console
 				args.AppendFormat (" --devname={0}", DeviceName);
 			args.AppendFormat (" --sdkroot={0}", SdkRoot);
 
-			if (MLaunch != null)
-				args.Append (" --device=iPhone");
+			if (DeviceName != null)
+				args.AppendFormat (" --device={0}", DeviceName);
 
 			if (ExtraMTouchArguments != null) {
 				args.Append (" ");
 				args.Append (ExtraMTouchArguments);
 			}
 
-			var tool = (MLaunch != null) ? MLaunch : MTouch;
+			var tool = UseMLaunch ? MLaunch : MTouch;
 
 			Program.Debug ("Launching mtouch: {0} {1}", tool, args);
 
@@ -163,9 +257,10 @@ namespace Xamarin.AsyncTests.Console
 			return process;
 		}
 
-		public override void LaunchApplication (IPortableEndPoint address)
+		public override void LaunchApplication (string args)
 		{
-			process = Launch (address);
+			// Install ();
+			process = Launch (args);
 		}
 
 		public override Task<bool> WaitForExit ()

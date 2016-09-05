@@ -142,7 +142,7 @@ using NDesk.Options;
 
 namespace NDesk.Options {
 
-	public class OptionValueCollection : IList, IList<string> {
+	internal class OptionValueCollection : IList, IList<string> {
 
 		List<string> values = new List<string> ();
 		OptionContext c;
@@ -230,7 +230,7 @@ namespace NDesk.Options {
 		}
 	}
 
-	public class OptionContext {
+	internal class OptionContext {
 		private Option                option;
 		private string                name;
 		private int                   index;
@@ -267,13 +267,13 @@ namespace NDesk.Options {
 		}
 	}
 
-	public enum OptionValueType {
+	internal enum OptionValueType {
 		None, 
 		Optional,
 		Required,
 	}
 
-	public abstract class Option {
+	internal abstract class Option {
 		string prototype, description;
 		string[] names;
 		OptionValueType type;
@@ -446,7 +446,7 @@ namespace NDesk.Options {
 		}
 	}
 
-	public class OptionException : Exception {
+	internal class OptionException : Exception {
 		private string option;
 
 		public OptionException ()
@@ -470,9 +470,9 @@ namespace NDesk.Options {
 		}
 	}
 
-	public delegate void OptionAction<TKey, TValue> (TKey key, TValue value);
+	internal delegate void OptionAction<TKey, TValue> (TKey key, TValue value);
 
-	public class OptionSet : KeyedCollection<string, Option>
+	internal class OptionSet : KeyedCollection<string, Option>
 	{
 		public OptionSet ()
 		{

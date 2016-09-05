@@ -108,6 +108,11 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public LauncherOptions LauncherOptions {
+			get;
+			private set;
+		}
+
 		DroidHelper droidHelper;
 		TestSession session;
 		SettingsBag settings;
@@ -185,7 +190,6 @@ namespace Xamarin.AsyncTests.Console
 
 			var p = new OptionSet ();
 			p.Add ("settings=", v => SettingsFile = v);
-			p.Add ("connect=", v => EndPoint = GetEndPoint (v));
 			p.Add ("endpoint=", v => EndPoint = GetEndPoint (v));
 			p.Add ("extra-launcher-args=", v => extraLauncherArgs = v);
 			p.Add ("gui=", v => GuiEndPoint = GetEndPoint (v));
@@ -235,7 +239,7 @@ namespace Xamarin.AsyncTests.Console
 			if (command == Command.Listen) {
 				if (EndPoint == null)
 					EndPoint = GetLocalEndPoint ();
-			} else if (command == Command.Local || command == Command.Connect || command == Command.Listen) {
+			} else if (command == Command.Local || command == Command.Listen) {
 				if (assembly != null) {
 					if (arguments.Count != 0) {
 						arguments.ForEach (a => Debug ("Unexpected remaining argument: {0}", a));
@@ -247,18 +251,22 @@ namespace Xamarin.AsyncTests.Console
 				} else if (EndPoint == null) {
 					throw new InvalidOperationException ("Missing endpoint");
 				}
-			} else if (command == Command.Simulator) {
+			} else if (command == Command.Connect) {
+				if (assembly != null)
+					throw new InvalidOperationException ();
+				if (arguments.Count == 1)
+					EndPoint = GetEndPoint (arguments [0]);
+				else if (arguments.Count == 0) {
+					if (EndPoint == null)
+						throw new InvalidOperationException ("Missing endpoint");
+				} else {
+					arguments.ForEach (a => Debug ("Unexpected remaining argument: {0}", a));
+					throw new InvalidOperationException ("Unexpected extra argument.");
+				}
+			} else if (command == Command.Simulator || command == Command.Device || command == Command.TVOS) {
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected .app argument");
-				Launcher = new TouchLauncher (arguments [0], false, sdkroot, stdout, stderr, device, extraLauncherArgs);
-				arguments.RemoveAt (0);
-
-				if (EndPoint == null)
-					EndPoint = GetLocalEndPoint ();
-			} else if (command == Command.Device) {
-				if (arguments.Count < 1)
-					throw new InvalidOperationException ("Expected .app argument");
-				Launcher = new TouchLauncher (arguments [0], true, sdkroot, stdout, stderr, device, extraLauncherArgs);
+				Launcher = new TouchLauncher (arguments [0], command, sdkroot, stdout, stderr, device, extraLauncherArgs);
 				arguments.RemoveAt (0);
 
 				if (EndPoint == null)
@@ -315,6 +323,12 @@ namespace Xamarin.AsyncTests.Console
 				settings.LocalLogLevel = LocalLogLevel.Value;
 
 			logger = new TestLogger (new ConsoleLogger (this));
+
+			if (Launcher != null) {
+				LauncherOptions = new LauncherOptions {
+					Category = category, Features = features
+				};
+			}
 		}
 
 		static void WriteLine ()
@@ -479,6 +493,7 @@ namespace Xamarin.AsyncTests.Console
 			case Command.Device:
 			case Command.Mac:
 			case Command.Android:
+			case Command.TVOS:
 				return LaunchApplication (cancellationToken);
 			case Command.Avd:
 				return droidHelper.CheckAvd (cancellationToken);
@@ -610,7 +625,7 @@ namespace Xamarin.AsyncTests.Console
 			get {
 				if (result.Status == TestStatus.Success)
 					return true;
-				else if (Wrench && result.Status == TestStatus.Ignored)
+				else if (result.Status == TestStatus.Ignored)
 					return true;
 				else
 					return false;
@@ -671,7 +686,7 @@ namespace Xamarin.AsyncTests.Console
 
 			TestServer server;
 			try {
-				server = await TestServer.LaunchApplication (this, endpoint, Launcher, cancellationToken);
+				server = await TestServer.LaunchApplication (this, endpoint, Launcher, LauncherOptions, cancellationToken);
 			} catch (LauncherErrorException ex) {
 				WriteErrorSummary (ex.Message);
 				Environment.Exit (255);
