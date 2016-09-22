@@ -128,8 +128,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var result = new TestResult (Name);
 			var childCtx = ctx.CreateChild (Name, Node.Path, result);
 
-			var invoker = Node.CreateInvoker (ctx);
-			var ok = await invoker.Invoke (childCtx, null, cancellationToken);
+			bool ok;
+			TestInvoker invoker;
+
+			try {
+				invoker = Node.CreateInvoker (ctx);
+				ok = await invoker.Invoke (childCtx, null, cancellationToken);
+			} catch (Exception ex) {
+				result.AddError (ex);
+				ok = false;
+			}
 
 			if (!ok && result.Status == TestStatus.Success)
 				result.Status = TestStatus.Error;
