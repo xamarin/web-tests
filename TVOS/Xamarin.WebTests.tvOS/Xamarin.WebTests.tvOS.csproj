@@ -119,6 +119,58 @@
     </EnvironmentVariables>
 <AssemblyName>XamarinWebTestsTVOS</AssemblyName>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugAppleTlsC9|iPhoneSimulator' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\iPhoneSimulator\DebugAppleTlsC9</OutputPath>
+    <DefineConstants>__UNIFIED__;__MOBILE__;__TVOS__;__UNIFIED__;__MOBILE__;__TVOS__;__UNIFIED__;__MOBILE__;__TVOS__;DEBUG;APPLETLS;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <CodesignKey>iPhone Developer</CodesignKey>
+    <MtouchDebug>true</MtouchDebug>
+    <MtouchFastDev>true</MtouchFastDev>
+    <MtouchUseSGen>true</MtouchUseSGen>
+    <MtouchUseRefCounting>true</MtouchUseRefCounting>
+    <MtouchLink>None</MtouchLink>
+    <MtouchArch>x86_64</MtouchArch>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchTlsProvider>Default</MtouchTlsProvider>
+    <DeviceSpecificBuild>false</DeviceSpecificBuild>
+    <EnvironmentVariables>
+      <EnvironmentVariables>
+        <Variable name="XAMARIN_ASYNCTESTS_OPTIONS" value="connect 192.168.7.127:11111  --category=Martin  --features=+Experimental" />
+      </EnvironmentVariables>
+    </EnvironmentVariables>
+    <AssemblyName>XamarinWebTestsTVOS</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugC9|iPhoneSimulator' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\iPhoneSimulator\DebugC9</OutputPath>
+    <DefineConstants>__UNIFIED__;__MOBILE__;__TVOS__;DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <CodesignKey>iPhone Developer</CodesignKey>
+    <MtouchDebug>true</MtouchDebug>
+    <MtouchFastDev>true</MtouchFastDev>
+    <MtouchUseSGen>true</MtouchUseSGen>
+    <MtouchUseRefCounting>true</MtouchUseRefCounting>
+    <MtouchLink>None</MtouchLink>
+    <MtouchArch>x86_64</MtouchArch>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchTlsProvider>Legacy</MtouchTlsProvider>
+    <DeviceSpecificBuild>false</DeviceSpecificBuild>
+    <EnvironmentVariables>
+      <EnvironmentVariables>
+        <Variable name="XAMARIN_ASYNCTESTS_OPTIONS" value="local --category=New" />
+      </EnvironmentVariables>
+    </EnvironmentVariables>
+    <AssemblyName>XamarinWebTestsTVOS</AssemblyName>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
