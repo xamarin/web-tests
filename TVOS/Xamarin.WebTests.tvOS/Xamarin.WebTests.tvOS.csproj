@@ -98,7 +98,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\iPhoneSimulator\DebugAppleTls</OutputPath>
-    <DefineConstants>__UNIFIED__;__MOBILE__;__TVOS__;DEBUG;</DefineConstants>
+    <DefineConstants>__UNIFIED__;__MOBILE__;__TVOS__;__UNIFIED__;__MOBILE__;__TVOS__;DEBUG;APPLETLS;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -160,6 +160,7 @@
     <Compile Include="ViewController.designer.cs">
       <DependentUpon>ViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="MobileFrameworkSetup.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />

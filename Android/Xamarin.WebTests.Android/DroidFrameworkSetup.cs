@@ -1,10 +1,10 @@
 ﻿//
-// HttpsTestType.cs
+// DroidFrameworkSetup.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,46 +24,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-
-namespace Xamarin.WebTests.TestFramework
+namespace Xamarin.WebTests.Android
 {
-	public enum ConnectionTestType
+	using MonoTestFramework;
+	using MonoConnectionFramework;
+
+	class DroidFrameworkSetup : IMonoFrameworkSetup
 	{
-		Default,
-		AcceptFromLocalCA,
-		NoValidator,
-		RejectAll,
-		UnrequestedClientCertificate,
-		RequestClientCertificate,
-		RequireClientCertificate,
-		OptionalClientCertificate,
-		RejectClientCertificate,
-		MissingClientCertificate,
+		public string Name {
+			get { return "Xamarin.WebTests.Android"; }
+		}
 
-		InvalidServerCertificate,
-		MartinTest,
+		public string TlsProviderName {
+			get {
+				return "legacy";
+			}
+		}
 
-		DontInvokeGlobalValidator,
-		DontInvokeGlobalValidator2,
-		GlobalValidatorIsNull,
-		MustInvokeGlobalValidator,
+		public Guid CurrentTlsProvider {
+			get {
+				return MonoConnectionProviderFactory.MobileOldTlsGuid;
+			}
+		}
 
-		MustNotInvokeGlobalValidator,
-		MustNotInvokeGlobalValidator2,
-
-		CheckChain,
-		ExternalServer,
-
-		ServerCertificateWithCA,
-		TrustedRootCA,
-		TrustedIntermediateCA,
-		TrustedSelfSigned,
-		HostNameMismatch,
-		IntermediateServerCertificate,
-		IntermediateServerCertificateBare,
-		IntermediateServerCertificateFull,
-
-		CertificateStore
+		public Guid DefaultTlsProvider {
+			get {
+				return MonoConnectionProviderFactory.MobileOldTlsGuid;
+			}
+		}
 	}
 }
 

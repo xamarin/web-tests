@@ -66,6 +66,7 @@ namespace Xamarin.WebTests.tvOS
 			DependencyInjector.RegisterAssembly (typeof (WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (MonoTestFrameworkDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (AppDelegate).Assembly);
+			DependencyInjector.RegisterDependency<IMonoFrameworkSetup> (() => new MobileFrameworkSetup ());
 
 			Framework = TestFramework.GetLocalFramework (typeof (AppDelegate).Assembly);
 

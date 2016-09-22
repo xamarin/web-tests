@@ -1,10 +1,10 @@
 ﻿//
-// HttpsTestType.cs
+// CertificateStoreAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,46 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.TestFramework
 {
-	public enum ConnectionTestType
+	public class CertificateStoreAttribute : TestFeatureAttribute
 	{
-		Default,
-		AcceptFromLocalCA,
-		NoValidator,
-		RejectAll,
-		UnrequestedClientCertificate,
-		RequestClientCertificate,
-		RequireClientCertificate,
-		OptionalClientCertificate,
-		RejectClientCertificate,
-		MissingClientCertificate,
+		public static readonly TestFeature Instance = new TestFeature ("CertificateStore", "Use local certificate store", false);
 
-		InvalidServerCertificate,
-		MartinTest,
-
-		DontInvokeGlobalValidator,
-		DontInvokeGlobalValidator2,
-		GlobalValidatorIsNull,
-		MustInvokeGlobalValidator,
-
-		MustNotInvokeGlobalValidator,
-		MustNotInvokeGlobalValidator2,
-
-		CheckChain,
-		ExternalServer,
-
-		ServerCertificateWithCA,
-		TrustedRootCA,
-		TrustedIntermediateCA,
-		TrustedSelfSigned,
-		HostNameMismatch,
-		IntermediateServerCertificate,
-		IntermediateServerCertificateBare,
-		IntermediateServerCertificateFull,
-
-		CertificateStore
+		public override TestFeature Feature {
+			get { return Instance; }
+		}
 	}
 }
 

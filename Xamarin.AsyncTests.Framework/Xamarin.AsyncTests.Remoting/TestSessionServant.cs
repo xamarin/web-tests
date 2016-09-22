@@ -94,6 +94,7 @@ namespace Xamarin.AsyncTests.Remoting
 			var remoteSettings = TestSerializer.ReadSettings (settings);
 			Connection.App.Settings.Merge (remoteSettings);
 			Configuration.Reload ();
+			LocalSession.OnConfigurationChanged ();
 		}
 	}
 }

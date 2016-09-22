@@ -355,7 +355,7 @@ namespace Xamarin.AsyncTests.MacUI
 			Console.WriteLine ("Connecting to {0}:{1}.", endpoint.Address, endpoint.Port);
 
 			var server = await TestServer.ConnectToRemote (ui, endpoint, framework, CancellationToken.None);
-			var session = await server.GetTestSession (CancellationToken.None);
+			var session = server.Session;
 
 			Console.WriteLine ("Got test session {0} from {1}.", session.Name, server.App);
 

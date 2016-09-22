@@ -241,7 +241,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public abstract Task Stop (CancellationToken cancellationToken);
 
-		public abstract Task<TestSession> GetTestSession (CancellationToken cancellationToken);
+		protected abstract Task<TestSession> GetTestSession (CancellationToken cancellationToken);
 
 		class LocalTestServer : TestServer
 		{
@@ -266,7 +266,7 @@ namespace Xamarin.AsyncTests.Remoting
 				return Task.FromResult<object> (null);
 			}
 
-			public override Task<TestSession> GetTestSession (CancellationToken cancellationToken)
+			protected override Task<TestSession> GetTestSession (CancellationToken cancellationToken)
 			{
 				return Task.FromResult (TestSession.CreateLocal (App, Framework));
 			}
@@ -313,7 +313,7 @@ namespace Xamarin.AsyncTests.Remoting
 				}
 			}
 
-			public override Task<TestSession> GetTestSession (CancellationToken cancellationToken)
+			protected override Task<TestSession> GetTestSession (CancellationToken cancellationToken)
 			{
 				return Task.FromResult (TestSession.CreateLocal (App, framework));
 			}
@@ -358,7 +358,7 @@ namespace Xamarin.AsyncTests.Remoting
 				}
 			}
 
-			public override Task<TestSession> GetTestSession (CancellationToken cancellationToken)
+			protected override Task<TestSession> GetTestSession (CancellationToken cancellationToken)
 			{
 				return RemoteObjectManager.GetRemoteTestSession (client, cancellationToken);
 			}

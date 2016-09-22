@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
@@ -47,6 +48,11 @@ namespace Xamarin.AsyncTests.Framework
 
 		public bool Filter (TestContext ctx, out bool enabled)
 		{
+			if (categories != null && categories.Contains (TestCategory.Global)) {
+				enabled = true;
+				return true;
+			}
+
 			foreach (var feature in features) {
 				if (!ctx.IsEnabled (feature)) {
 					enabled = false;

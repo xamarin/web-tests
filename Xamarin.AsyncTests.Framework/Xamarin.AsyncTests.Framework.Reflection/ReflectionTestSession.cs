@@ -100,6 +100,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			return Task.Run (() => {
 				Configuration.Reload ();
+				OnConfigurationChanged ();
 			});
 		}
 	}

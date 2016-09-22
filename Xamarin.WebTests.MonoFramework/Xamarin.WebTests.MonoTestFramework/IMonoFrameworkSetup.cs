@@ -1,10 +1,10 @@
 ﻿//
-// HttpsTestType.cs
+// IMonoFrameworkSetup.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,46 +24,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.TestFramework
+namespace Xamarin.WebTests.MonoTestFramework
 {
-	public enum ConnectionTestType
+	public interface IMonoFrameworkSetup : ISingletonInstance
 	{
-		Default,
-		AcceptFromLocalCA,
-		NoValidator,
-		RejectAll,
-		UnrequestedClientCertificate,
-		RequestClientCertificate,
-		RequireClientCertificate,
-		OptionalClientCertificate,
-		RejectClientCertificate,
-		MissingClientCertificate,
+		string Name {
+			get;
+		}
 
-		InvalidServerCertificate,
-		MartinTest,
+		string TlsProviderName {
+			get;
+		}
 
-		DontInvokeGlobalValidator,
-		DontInvokeGlobalValidator2,
-		GlobalValidatorIsNull,
-		MustInvokeGlobalValidator,
+		Guid CurrentTlsProvider {
+			get;
+		}
 
-		MustNotInvokeGlobalValidator,
-		MustNotInvokeGlobalValidator2,
-
-		CheckChain,
-		ExternalServer,
-
-		ServerCertificateWithCA,
-		TrustedRootCA,
-		TrustedIntermediateCA,
-		TrustedSelfSigned,
-		HostNameMismatch,
-		IntermediateServerCertificate,
-		IntermediateServerCertificateBare,
-		IntermediateServerCertificateFull,
-
-		CertificateStore
+		Guid DefaultTlsProvider {
+			get;
+		}
 	}
 }
 

@@ -22,6 +22,7 @@ namespace Xamarin.WebTests.MacUI
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(MonoTestFrameworkDependencyProvider).Assembly);
 			DependencyInjector.RegisterDependency<IBuiltinTestServer> (() => new BuiltinTestServer ());
+			DependencyInjector.RegisterDependency<IMonoFrameworkSetup> (() => new MacFrameworkSetup ());
 
 			NSApplication.Main (args);
 		}

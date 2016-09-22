@@ -32,12 +32,14 @@ namespace Xamarin.WebTests.Android
 			base.OnCreate (bundle);
 
 			var options = Intent.GetStringExtra ("XAMARIN_ASYNCTESTS_OPTIONS");
+			options = "--category=Global";
 
 			Forms.Init (this, bundle);
 
 			DependencyInjector.RegisterAssembly (typeof (WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (MonoTestFrameworkDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (MainActivity).Assembly);
+			DependencyInjector.RegisterDependency<IMonoFrameworkSetup> (() => new DroidFrameworkSetup ());
 
 			Framework = TestFramework.GetLocalFramework (typeof (MainActivity).Assembly);
 

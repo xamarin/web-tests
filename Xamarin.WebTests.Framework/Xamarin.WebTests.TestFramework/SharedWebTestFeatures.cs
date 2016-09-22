@@ -59,6 +59,7 @@ namespace Xamarin.WebTests.TestFramework
 			get {
 				yield return ExperimentalAttribute.Instance;
 				yield return IncludeNotWorkingAttribute.Instance;
+				yield return CertificateStoreAttribute.Instance;
 
 				yield return ManualSslStreamAttribute.Instance;
 			}

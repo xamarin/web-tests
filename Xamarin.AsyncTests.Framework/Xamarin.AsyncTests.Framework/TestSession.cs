@@ -60,6 +60,8 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		public event EventHandler ConfigurationChangedEvent;
+
 		public TestSession (TestApp app)
 		{
 			App = app;
@@ -88,6 +90,12 @@ namespace Xamarin.AsyncTests.Framework
 		public abstract Task<TestResult> Run (TestCase test, CancellationToken cancellationToken);
 
 		public abstract Task UpdateSettings (CancellationToken cancellationToken);
+
+		internal void OnConfigurationChanged ()
+		{
+			if (ConfigurationChangedEvent != null)
+				ConfigurationChangedEvent (this, EventArgs.Empty);
+		}
 	}
 }
 

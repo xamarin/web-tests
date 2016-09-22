@@ -61,6 +61,10 @@ namespace Xamarin.AsyncTests.MacUI
 
 			App.Logger.ResetStatistics ();
 
+			SetStatusMessage ("Updating settings.");
+
+			await parameters.Session.UpdateSettings (cancellationToken);
+
 			SetStatusMessage ("Running {0}.", parameters.Test.Name);
 
 			startTime = DateTime.Now;

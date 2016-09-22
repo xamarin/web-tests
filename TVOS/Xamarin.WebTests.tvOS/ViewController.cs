@@ -50,6 +50,7 @@ namespace Xamarin.WebTests.tvOS
 
 		bool isRunning;
 		bool canRun;
+		bool isRemote;
 		int selectedCategory;
 
 		public bool IsRunning {
@@ -78,6 +79,18 @@ namespace Xamarin.WebTests.tvOS
 				InvokeOnMainThread (() => {
 					canRun = value;
 					RunButton.Enabled = value && !isRunning;
+				});
+			}
+		}
+
+		public bool IsRemote {
+			get {
+				return isRemote;
+			}
+			set {
+				InvokeOnMainThread (() => {
+					isRemote = value;
+					CategoryLabel.Enabled = !value;
 				});
 			}
 		}

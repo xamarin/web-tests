@@ -18,6 +18,7 @@ namespace Xamarin.WebTests.Console
 			DependencyInjector.RegisterAssembly (typeof(ConsoleMain).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(MonoTestFrameworkDependencyProvider).Assembly);
+			DependencyInjector.RegisterDependency<IMonoFrameworkSetup> (() => new ConsoleFrameworkSetup ());
 
 			Program.Run (typeof (ConsoleMain).Assembly, args);
 		}

@@ -50,6 +50,8 @@ namespace Xamarin.AsyncTests
 
 		public static readonly TestCategory All = new TestCategory ("All") { IsBuiltin = true };
 
+		public static readonly TestCategory Global = new TestCategory ("Global") { IsBuiltin = true };
+
 		public override string ToString ()
 		{
 			return string.Format ("[TestCategory: Name={0}]", Name);

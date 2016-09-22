@@ -49,6 +49,13 @@ namespace Xamarin.WebTests.Resources
 		IntermediateServerCertificate,
 		// Certificate, Intermediate CA and Root CA
 		IntermediateServerCertificateFull,
+
+		// Install this in the local certificate trust store.
+		TrustedIntermediateCA,
+		// Server certificate from TrustedIntermediateCA
+		ServerFromTrustedIntermediataCA,
+		// Same, but without including the CA certificate in the .pfx
+		ServerFromTrustedIntermediateCABare
 	}
 }
 

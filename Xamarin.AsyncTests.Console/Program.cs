@@ -279,7 +279,7 @@ namespace Xamarin.AsyncTests.Console
 
 				if (EndPoint == null)
 					EndPoint = GetLocalEndPoint ();
-			} else if (command == Command.Android) {
+			} else if (command == Command.Android || command == Command.Avd) {
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected activity argument");
 
@@ -535,6 +535,8 @@ namespace Xamarin.AsyncTests.Console
 			if (category != null) {
 				if (string.Equals (category, "all", StringComparison.OrdinalIgnoreCase))
 					config.CurrentCategory = TestCategory.All;
+				else if (string.Equals (category, "global", StringComparison.OrdinalIgnoreCase))
+					config.CurrentCategory = TestCategory.Global;
 				else
 					config.CurrentCategory = config.Categories.First (c => c.Name.Equals (category));
 				modified = true;

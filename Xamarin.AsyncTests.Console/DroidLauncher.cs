@@ -74,6 +74,7 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		DroidHelper helper;
 		Process process;
 		TaskCompletionSource<bool> tcs;
 
@@ -112,6 +113,24 @@ namespace Xamarin.AsyncTests.Console
 			Program.Debug ("Started: {0}", process);
 
 			return process;
+		}
+
+		public Task<bool> CheckAvd (CancellationToken cancellationToken)
+		{
+			return CheckAvd ("XamarinWebTests", "android-23", "armeabi-v7a", "Galaxy Nexus", cancellationToken);
+		}
+
+		public async Task<bool> CheckAvd (string name, string target, string abi, string device, CancellationToken cancellationToken)
+		{
+			Program.Debug ("Check Avd: {0}", Adb);
+			var avds = await helper.GetAvds (cancellationToken);
+			Program.Debug ("Check Avd #1: {0}", string.Join (" ", avds));
+
+			if (avds.Contains (name))
+				return true;
+
+			await helper.CreateAvd (name, target, abi, device, true, cancellationToken);
+			return true;
 		}
 
 		public override void LaunchApplication (string args)

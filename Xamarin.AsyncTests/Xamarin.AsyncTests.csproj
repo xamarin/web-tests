@@ -109,6 +109,7 @@
     <Compile Include="Xamarin.AsyncTests\ISingletonInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\IsEqualBlob.cs" />
     <Compile Include="Xamarin.AsyncTests\VersionInfo.cs" />
+    <Compile Include="Xamarin.AsyncTests\GlobalAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

@@ -176,6 +176,7 @@
     <Compile Include="Xamarin.WebTests.TestFramework\HttpsTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\BinaryContent.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\NewAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\CertificateStoreAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
@@ -261,6 +262,21 @@
     </EmbeddedResource>
     <EmbeddedResource Include="..\CA\server-cert-im-full.pfx">
       <Link>CA\server-cert-im-full.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\trusted-im-ca.pfx">
+      <Link>CA\trusted-im-ca.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\trusted-im-ca.pem">
+      <Link>CA\trusted-im-ca.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert-trusted-im.pfx">
+      <Link>CA\server-cert-trusted-im.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert-trusted-im.pem">
+      <Link>CA\server-cert-trusted-im.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert-trusted-im-bare.pfx">
+      <Link>CA\server-cert-trusted-im-bare.pfx</Link>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

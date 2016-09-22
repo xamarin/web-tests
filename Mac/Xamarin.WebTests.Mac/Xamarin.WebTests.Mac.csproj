@@ -52,7 +52,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\DebugAppleTls</OutputPath>
-    <DefineConstants>__UNIFIED__;DEBUG;MACUI;SECURITY_DEP</DefineConstants>
+    <DefineConstants>__UNIFIED__;DEBUG;MACUI;APPLETLS;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -86,6 +86,7 @@
     </Compile>
     <Compile Include="BuiltinTestServer.cs" />
     <Compile Include="MacMain.cs" />
+    <Compile Include="MacFrameworkSetup.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
   <ItemGroup>

@@ -1,5 +1,5 @@
 ﻿//
-// ISimpleUIController.cs
+// TestProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,53 +24,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
+using Xamarin.WebTests.TestFramework;
+using Xamarin.WebTests.MonoTestFramework;
+using Xamarin.WebTests.MonoTestFeatures;
+using Mono.Security.Interface;
 
-namespace Xamarin.AsyncTests.Mobile
+namespace Xamarin.WebTests.MonoTests
 {
-	public interface ISimpleUIController
+	[Global]
+	[AsyncTestFixture]
+	public class TestProvider
 	{
-		void DebugMessage (string message);
+		[AsyncTest]
+		public void TestDefaultProvider (TestContext ctx)
+		{
+			ctx.LogMessage ("TEST DEFAULT PROVIDER!");
+			var defaultProvider = MonoTlsProviderFactory.GetDefaultProvider ();
+			ctx.LogMessage ("TEST DEFAULT PROVIDER #1: {0}", defaultProvider);
+			var currentProvider = MonoTlsProviderFactory.GetProvider ();
+			ctx.LogMessage ("TEST CURRENT PROVIDER #1: {0}", currentProvider);
 
-		void Message (string message);
+			var setup = DependencyInjector.Get<IMonoFrameworkSetup> ();
+			ctx.LogMessage ("SETUP: {0} - {1} - {2}:{3}", setup.Name, setup.TlsProviderName, setup.DefaultTlsProvider, setup.CurrentTlsProvider);
 
-		void Message (string format, params object[] args);
-
-		void StatusMessage (string message);
-
-		void StatusMessage (string format, params object[] args);
-
-		void StatisticsMessage (string message);
-
-		void StatisticsMessage (string format, params object [] args);
-
-		bool IsRunning {
-			get; set;
+			ctx.Assert (defaultProvider.ID, Is.EqualTo (setup.DefaultTlsProvider), "Default TLS Provider");
+			ctx.Assert (currentProvider.ID, Is.EqualTo (setup.CurrentTlsProvider), "Current TLS Provider");
 		}
-
-		bool CanRun {
-			get; set;
-		}
-
-		bool IsRemote {
-			get; set;
-		}
-
-		IList<string> Categories {
-			get;
-		}
-
-		void SetCategories (IList<string> categories, int selected);
-
-		int SelectedCategory {
-			get; set;
-		}
-
-		event EventHandler SessionChangedEvent;
-
-		event EventHandler<int> CategoryChangedEvent;
 	}
 }
-

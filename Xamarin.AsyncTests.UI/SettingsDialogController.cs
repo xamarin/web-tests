@@ -18,6 +18,7 @@ namespace Xamarin.AsyncTests.MacUI
 		NSMutableArray testFeaturesArray;
 		TestCategoryModel currentCategory;
 		TestCategoryModel allCategory;
+		TestCategoryModel globalCategory;
 		bool fullyLoaded;
 
 		public event EventHandler<TestSession> SessionChangedEvent;
@@ -75,8 +76,10 @@ namespace Xamarin.AsyncTests.MacUI
 
 			testCategoriesArray = new NSMutableArray ();
 			allCategory = new TestCategoryModel (TestCategory.All);
+			globalCategory = new TestCategoryModel (TestCategory.Global);
 			currentCategory = allCategory;
 			testCategoriesArray.Add (allCategory);
+			testCategoriesArray.Add (globalCategory);
 
 			testFeaturesArray = new NSMutableArray ();
 		}
@@ -99,6 +102,7 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			var newCategoriesArray = new NSMutableArray ();
 			newCategoriesArray.Add (allCategory);
+			newCategoriesArray.Add (globalCategory);
 			var newCurrentCategory = allCategory;
 
 			if (session != null) {

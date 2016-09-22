@@ -147,6 +147,7 @@ namespace Xamarin.AsyncTests.Mobile
 
 		bool isRunning;
 		bool canRun;
+		bool isRemote;
 		IList<string> categories;
 		int selectedCategory;
 
@@ -176,6 +177,18 @@ namespace Xamarin.AsyncTests.Mobile
 						RunButton.IsEnabled = CanRun;
 						StopButton.IsEnabled = false;
 					}
+				});
+			}
+		}
+
+		public bool IsRemote {
+			get {
+				return isRemote;
+			}
+			set {
+				Device.BeginInvokeOnMainThread (() => {
+					isRemote = value;
+					CategoryPicker.IsEnabled = !value;
 				});
 			}
 		}

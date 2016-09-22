@@ -136,6 +136,10 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.IntermediateServerCertificateBare;
 				yield break;
 
+			case ConnectionTestCategory.CertificateStore:
+				yield return ConnectionTestType.CertificateStore;
+				yield break;
+
 			case ConnectionTestCategory.MartinTest:
 				yield return ConnectionTestType.MartinTest;
 				yield break;
@@ -170,11 +174,12 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.SslStreamCertificateValidators:
 				return supportsSslStream;
 			case ConnectionTestCategory.TrustedRoots:
+			case ConnectionTestCategory.CertificateStore:
 				return supportsTrustedRoots;
 			case ConnectionTestCategory.MartinTest:
 				return true;
 			default:
-				throw new InvalidOperationException ();
+				throw new NotSupportedException ();
 			}
 		}
 

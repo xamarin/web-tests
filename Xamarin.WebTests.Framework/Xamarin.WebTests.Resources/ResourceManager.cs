@@ -66,6 +66,13 @@ namespace Xamarin.WebTests.Resources
 		static readonly byte[] intermediateServerCertFullData;
 		static readonly X509Certificate intermediateServerCertFull;
 
+		static readonly byte[] trustedIMCAData;
+		static readonly X509Certificate trustedIMCA;
+		static readonly byte[] serverCertTrustedIMBareData;
+		static readonly X509Certificate serverCertTrustedIMBare;
+		static readonly byte[] serverCertTrustedIMData;
+		static readonly X509Certificate serverCertTrustedIM;
+
 		const string caCertHash = "AAAB625A1F5EA1DBDBB658FB360613BE49E67AEC";
 		const string serverCertHash = "68295BFCB5B109738399DFFF86A5BEDE0694F334";
 		const string serverSelfHash = "EC732FEEE493A91635E6BDC18377EEB3C11D6E16";
@@ -128,6 +135,14 @@ namespace Xamarin.WebTests.Resources
 			intermediateServerCertBare = provider.GetCertificateWithKey (intermediateServerCertBareData, "monkey");
 			intermediateServerCertFullData = ResourceManager.ReadResource ("CA.server-cert-im-full.pfx");
 			intermediateServerCertFull = provider.GetCertificateWithKey (intermediateServerCertFullData, "monkey");
+
+			trustedIMCAData = ResourceManager.ReadResource ("CA.trusted-im-ca.pem");
+			trustedIMCA = provider.GetCertificateFromData (trustedIMCAData);
+
+			serverCertTrustedIMBareData = ResourceManager.ReadResource ("CA.server-cert-trusted-im-bare.pfx");
+			serverCertTrustedIMBare = provider.GetCertificateWithKey (serverCertTrustedIMBareData, "monkey");
+			serverCertTrustedIMData = ResourceManager.ReadResource ("CA.server-cert-trusted-im.pfx");
+			serverCertTrustedIM = provider.GetCertificateWithKey (serverCertTrustedIMData, "monkey");
 		}
 
 		public static X509Certificate LocalCACertificate {
@@ -233,6 +248,12 @@ namespace Xamarin.WebTests.Resources
 				return intermediateServerCertFull;
 			case CertificateResourceType.IntermediateServerCertificateNoKey:
 				return intermediateServerCertNoKey;
+			case CertificateResourceType.TrustedIntermediateCA:
+				return trustedIMCA;
+			case CertificateResourceType.ServerFromTrustedIntermediataCA:
+				return serverCertTrustedIM;
+			case CertificateResourceType.ServerFromTrustedIntermediateCABare:
+				return serverCertTrustedIMBare;
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -269,6 +290,12 @@ namespace Xamarin.WebTests.Resources
 				return intermediateServerCertFullData;
 			case CertificateResourceType.IntermediateServerCertificateNoKey:
 				return intermediateServerCertNoKeyData;
+			case CertificateResourceType.TrustedIntermediateCA:
+				return trustedIMCAData;
+			case CertificateResourceType.ServerFromTrustedIntermediataCA:
+				return serverCertTrustedIMData;
+			case CertificateResourceType.ServerFromTrustedIntermediateCABare:
+				return serverCertTrustedIMBareData;
 			default:
 				throw new InvalidOperationException ();
 			}

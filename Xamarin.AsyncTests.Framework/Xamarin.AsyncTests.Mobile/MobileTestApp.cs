@@ -178,6 +178,8 @@ namespace Xamarin.AsyncTests.Mobile
 			if (category != null) {
 				if (string.Equals (category, "all", StringComparison.OrdinalIgnoreCase))
 					config.CurrentCategory = TestCategory.All;
+				if (string.Equals (category, "global", StringComparison.OrdinalIgnoreCase))
+					config.CurrentCategory = TestCategory.Global;
 				else
 					config.CurrentCategory = config.Categories.First (c => c.Name.Equals (category));
 				modified = true;
@@ -344,7 +346,7 @@ namespace Xamarin.AsyncTests.Mobile
 
 			Debug ("Got server: {0}", server);
 
-			session = await server.GetTestSession (CancellationToken.None);
+			session = server.Session;
 			OnSessionChanged ();
 			Controller.Message ("Got test session {0} from {1}.", session.Name, server.App);
 
@@ -409,6 +411,7 @@ namespace Xamarin.AsyncTests.Mobile
 
 				var categories = new List<string> ();
 				categories.Add ("All");
+				categories.Add ("Global");
 
 				var selected = 0;
 
@@ -420,6 +423,9 @@ namespace Xamarin.AsyncTests.Mobile
 				}
 
 				ModifyConfiguration (session.Configuration);
+
+				if (session.Configuration.CurrentCategory == TestCategory.Global)
+					selected = 1;
 
 				foreach (var item in session.Configuration.Categories) {
 					categories.Add (item.Name);
@@ -439,6 +445,9 @@ namespace Xamarin.AsyncTests.Mobile
 
 			if (selectedIdx <= 0) {
 				session.Configuration.CurrentCategory = TestCategory.All;
+				return;
+			} else if (selectedIdx == 1) {
+				session.Configuration.CurrentCategory = TestCategory.Global;
 				return;
 			}
 
