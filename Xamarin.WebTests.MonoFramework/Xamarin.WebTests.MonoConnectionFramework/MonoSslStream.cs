@@ -72,9 +72,10 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get { return true; }
 		}
 
-		public MSI.MonoTlsConnectionInfo GetConnectionInfo ()
+		public IMonoConnectionInfo GetConnectionInfo ()
 		{
-			return stream.GetConnectionInfo ();
+			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
+			return setup.GetConnectionInfo (stream);
 		}
 
 		public void Close ()

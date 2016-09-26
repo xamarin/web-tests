@@ -19,7 +19,6 @@
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.MonoLocalCertificateSelectionCallback))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.MonoRemoteCertificateValidationCallback))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.MonoSslPolicyErrors))]
-[assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.MonoTlsConnectionInfo))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.MonoTlsProvider))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.MonoTlsSettings))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.SecretParameters))]

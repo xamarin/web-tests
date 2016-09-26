@@ -45,5 +45,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		HttpListener CreateHttpListener (X509Certificate certificate, MonoTlsProvider provider, MonoTlsSettings settings);
 
 		ICertificateValidator GetCertificateValidator (MonoTlsSettings settings);
+
+		IMonoConnectionInfo GetConnectionInfo (IMonoSslStream stream);
 	}
 }

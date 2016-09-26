@@ -1,10 +1,10 @@
 ﻿//
-// IMonoCommonConnection.cs
+// IMonoConnectionInfo.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,17 +26,12 @@
 using System;
 using Mono.Security.Interface;
 
-namespace Xamarin.WebTests.MonoTestFramework
+namespace Xamarin.WebTests.MonoConnectionFramework
 {
-	using MonoConnectionFramework;
-
-	public interface IMonoCommonConnection
+	public interface IMonoConnectionInfo
 	{
-		bool SupportsConnectionInfo {
+		CipherSuiteCode CipherSuiteCode {
 			get;
 		}
-
-		IMonoConnectionInfo GetConnectionInfo ();
 	}
 }
-

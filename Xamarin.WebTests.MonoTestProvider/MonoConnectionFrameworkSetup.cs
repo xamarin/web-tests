@@ -88,5 +88,29 @@ namespace Xamarin.WebTests.MonoTestProvider
 		{
 			return CertificateValidationHelper.GetValidator (settings);
 		}
+
+		public IMonoConnectionInfo GetConnectionInfo (IMonoSslStream stream)
+		{
+			var info = stream.GetConnectionInfo ();
+			if (info == null)
+				return null;
+			return new MonoConnectionInfo (info);
+		}
+
+		class MonoConnectionInfo : IMonoConnectionInfo
+		{
+			MonoTlsConnectionInfo info;
+
+			public MonoConnectionInfo (MonoTlsConnectionInfo info)
+			{
+				this.info = info;
+			}
+
+			public CipherSuiteCode CipherSuiteCode {
+				get {
+					return info.CipherSuiteCode;
+				}
+			}
+		}
 	}
 }
