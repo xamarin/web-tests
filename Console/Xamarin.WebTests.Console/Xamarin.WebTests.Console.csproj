@@ -49,6 +49,7 @@
     <Compile Include="ConsoleMain.cs" />
     <Compile Include="ConsoleFrameworkSetup.cs" />
   </ItemGroup>
+  <Import Project="..\..\Xamarin.WebTests.MonoTestProvider\Xamarin.WebTests.MonoTestProvider.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.WebTests.MonoTestProvider\Xamarin.WebTests.MonoTestProvider.projitems')" />
   <Import Project="..\..\Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems')" />
   <Import Project="..\..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

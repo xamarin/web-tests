@@ -30,75 +30,38 @@ using Mono.Security.Interface;
 
 namespace Xamarin.WebTests.Android
 {
+	using MonoTestProvider;
 	using ConnectionFramework;
 	using MonoConnectionFramework;
 
-	class DroidFrameworkSetup : IMonoConnectionFrameworkSetup
+	class DroidFrameworkSetup : MonoConnectionFrameworkSetup
 	{
-		public string Name {
+		public override string Name {
 			get { return "Xamarin.WebTests.Android"; }
 		}
 
-		public string TlsProviderName {
+		public override string TlsProviderName {
 			get {
 				return "legacy";
 			}
 		}
 
-		public Guid TlsProvider {
+		public override Guid TlsProvider {
 			get {
 				return ConnectionProviderFactory.MobileLegacyTlsGuid;
 			}
 		}
 
-		public bool InstallDefaultCertificateValidator {
-			get {
-				return true;
-			}
-		}
-
-		public ISslStreamProvider DefaultSslStreamProvider {
+		public override ISslStreamProvider DefaultSslStreamProvider {
 			get {
 				return null;
 			}
 		}
 
-		public SecurityProtocolType? SecurityProtocol {
-			get {
-				return null;
-			}
-		}
-
-		public bool SupportsTls12 {
+		public override bool SupportsTls12 {
 			get {
 				return false;
 			}
-		}
-
-		public void Initialize (ConnectionProviderFactory factory)
-		{
-			var provider = MonoTlsProviderFactory.GetDefaultProvider ();
-			MonoConnectionProviderFactory.RegisterProvider (factory, provider);
-		}
-
-		public MonoTlsProvider GetDefaultProvider ()
-		{
-			return MonoTlsProviderFactory.GetDefaultProvider ();
-		}
-
-		public HttpWebRequest CreateHttpsRequest (Uri requestUri, MonoTlsProvider provider, MonoTlsSettings settings)
-		{
-			return MonoTlsProviderFactory.CreateHttpsRequest (requestUri, provider, settings);
-		}
-
-		public HttpListener CreateHttpListener (X509Certificate certificate, MonoTlsProvider provider, MonoTlsSettings settings)
-		{
-			return MonoTlsProviderFactory.CreateHttpListener (certificate, provider, settings);
-		}
-
-		public ICertificateValidator GetCertificateValidator (MonoTlsSettings settings)
-		{
-			return CertificateValidationHelper.GetValidator (settings);
 		}
 	}
 }

@@ -255,5 +255,6 @@
       <Name>Xamarin.WebTests.MonoTests</Name>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="..\..\Xamarin.WebTests.MonoTestProvider\Xamarin.WebTests.MonoTestProvider.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.WebTests.MonoTestProvider\Xamarin.WebTests.MonoTestProvider.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\TVOS\Xamarin.TVOS.CSharp.targets" />
 </Project>

@@ -30,17 +30,18 @@ using Mono.Security.Interface;
 
 namespace Xamarin.WebTests.tvOS
 {
+	using MonoTestProvider;
 	using ConnectionFramework;
 	using MonoConnectionFramework;
 
-	class MobileFrameworkSetup : IMonoConnectionFrameworkSetup
+	class MobileFrameworkSetup : MonoConnectionFrameworkSetup
 	{
-		public string Name {
+		public override string Name {
 			get { return "Xamarin.WebTests.tvOS"; }
 		}
 
 
-		public string TlsProviderName {
+		public override string TlsProviderName {
 			get {
 #if APPLETLS
 				return "appletls";
@@ -50,7 +51,7 @@ namespace Xamarin.WebTests.tvOS
 			}
 		}
 
-		public Guid TlsProvider {
+		public override Guid TlsProvider {
 			get {
 #if APPLETLS
 				return ConnectionProviderFactory.AppleTlsGuid;
@@ -60,25 +61,13 @@ namespace Xamarin.WebTests.tvOS
 			}
 		}
 
-		public bool InstallDefaultCertificateValidator {
-			get {
-				return true;
-			}
-		}
-
-		public ISslStreamProvider DefaultSslStreamProvider {
+		public override ISslStreamProvider DefaultSslStreamProvider {
 			get {
 				return null;
 			}
 		}
 
-		public SecurityProtocolType? SecurityProtocol {
-			get {
-				return null;
-			}
-		}
-
-		public bool SupportsTls12 {
+		public override bool SupportsTls12 {
 			get {
 #if APPLETLS
 				return true;
@@ -86,32 +75,6 @@ namespace Xamarin.WebTests.tvOS
 				return false;
 #endif
 			}
-		}
-
-		public void Initialize (ConnectionProviderFactory factory)
-		{
-			var provider = MonoTlsProviderFactory.GetDefaultProvider ();
-			MonoConnectionProviderFactory.RegisterProvider (factory, provider);
-		}
-
-		public MonoTlsProvider GetDefaultProvider ()
-		{
-			return MonoTlsProviderFactory.GetDefaultProvider ();
-		}
-
-		public HttpWebRequest CreateHttpsRequest (Uri requestUri, MonoTlsProvider provider, MonoTlsSettings settings)
-		{
-			return MonoTlsProviderFactory.CreateHttpsRequest (requestUri, provider, settings);
-		}
-
-		public HttpListener CreateHttpListener (X509Certificate certificate, MonoTlsProvider provider, MonoTlsSettings settings)
-		{
-			return MonoTlsProviderFactory.CreateHttpListener (certificate, provider, settings);
-		}
-
-		public ICertificateValidator GetCertificateValidator (MonoTlsSettings settings)
-		{
-			return CertificateValidationHelper.GetValidator (settings);
 		}
 	}
 }

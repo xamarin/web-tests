@@ -31,10 +31,11 @@ using Mono.Security.Interface;
 namespace Xamarin.WebTests.Console
 {
 	using TestFramework;
+	using MonoTestProvider;
 	using MonoConnectionFramework;
 	using ConnectionFramework;
 
-	class ConsoleFrameworkSetup : IMonoConnectionFrameworkSetup
+	class ConsoleFrameworkSetup : MonoConnectionFrameworkSetup
 	{
 		DotNetSslStreamProvider dotNetStreamProvider;
 
@@ -43,43 +44,27 @@ namespace Xamarin.WebTests.Console
 			dotNetStreamProvider = new DotNetSslStreamProvider ();
 		}
 
-		public string Name {
+		public override string Name {
 			get { return "Xamarin.WebTests.Console"; }
 		}
 
-		public string TlsProviderName {
+		public override string TlsProviderName {
 			get {
 				return "legacy";
 			}
 		}
 
-		public Guid TlsProvider {
+		public override Guid TlsProvider {
 			get {
 				return ConnectionProviderFactory.LegacyTlsGuid;
 			}
 		}
 
-		public bool InstallDefaultCertificateValidator {
-			get { return true; }
-		}
-
-		public ISslStreamProvider DefaultSslStreamProvider {
+		public override ISslStreamProvider DefaultSslStreamProvider {
 			get { return dotNetStreamProvider; }
 		}
 
-		public SecurityProtocolType? SecurityProtocol {
-			get { return null; }
-		}
-
-		public bool AddDefaultTlsProvider {
-			get { return true; }
-		}
-
-		public Guid? InstallTlsProvider {
-			get { return null; }
-		}
-
-		public bool SupportsTls12 {
+		public override bool SupportsTls12 {
 			get {
 #if BTLS
 				return true;
@@ -87,32 +72,6 @@ namespace Xamarin.WebTests.Console
 				return false;
 #endif
 			}
-		}
-
-		public void Initialize (ConnectionProviderFactory factory)
-		{
-			var provider = MonoTlsProviderFactory.GetDefaultProvider ();
-			MonoConnectionProviderFactory.RegisterProvider (factory, provider);
-		}
-
-		public MonoTlsProvider GetDefaultProvider ()
-		{
-			return MonoTlsProviderFactory.GetDefaultProvider ();
-		}
-
-		public HttpWebRequest CreateHttpsRequest (Uri requestUri, MonoTlsProvider provider, MonoTlsSettings settings)
-		{
-			return MonoTlsProviderFactory.CreateHttpsRequest (requestUri, provider, settings);
-		}
-
-		public HttpListener CreateHttpListener (X509Certificate certificate, MonoTlsProvider provider, MonoTlsSettings settings)
-		{
-			return MonoTlsProviderFactory.CreateHttpListener (certificate, provider, settings);
-		}
-
-		public ICertificateValidator GetCertificateValidator (MonoTlsSettings settings)
-		{
-			return CertificateValidationHelper.GetValidator (settings);
 		}
 	}
 }

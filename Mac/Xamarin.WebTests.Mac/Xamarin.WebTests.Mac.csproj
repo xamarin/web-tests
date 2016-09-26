@@ -129,6 +129,7 @@
     <Compile Include="MacMain.cs" />
     <Compile Include="MacFrameworkSetup.cs" />
   </ItemGroup>
+  <Import Project="..\..\Xamarin.WebTests.MonoTestProvider\Xamarin.WebTests.MonoTestProvider.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.WebTests.MonoTestProvider\Xamarin.WebTests.MonoTestProvider.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
   <ItemGroup>
     <None Include="..\..\Xamarin.AsyncTests.MacUI\Info.plist">
