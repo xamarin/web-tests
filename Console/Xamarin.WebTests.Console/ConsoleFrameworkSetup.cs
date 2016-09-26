@@ -109,6 +109,11 @@ namespace Xamarin.WebTests.Console
 		{
 			return MonoTlsProviderFactory.CreateHttpListener (certificate, provider, settings);
 		}
+
+		public ICertificateValidator GetCertificateValidator (MonoTlsSettings settings)
+		{
+			return CertificateValidationHelper.GetValidator (settings);
+		}
 	}
 }
 

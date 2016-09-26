@@ -227,7 +227,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 				settings.RemoteCertificateValidationCallback = (t, c, ch, e) => ValidationCallback (ctx, t, c, ch, e);
 			}
 
-			return CertificateValidationHelper.GetValidator (settings);
+			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
+			return setup.GetCertificateValidator (settings);
 		}
 
 		protected void AssertResult (TestContext ctx, ValidationResult result)

@@ -7,7 +7,6 @@
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.AlertDescription))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.AlertLevel))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.BufferOffsetSize))]
-[assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.CertificateValidationHelper))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.CipherAlgorithmType))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.CipherSuiteCode))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Security.Interface.ExchangeAlgorithmType))]

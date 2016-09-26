@@ -23,5 +23,6 @@ d0e61bdd
     </IncludeTypes>
     <ExcludeTypes>
         <Type Match="full">Mono.Security.Interface.MonoTlsProviderFactory</Type>
+        <Type Match="full">Mono.Security.Interface.CertificateValidationHelper</Type>
     </ExcludeTypes>
 </CustomAssemblyDefinition>
