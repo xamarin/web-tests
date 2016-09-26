@@ -30,7 +30,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 	public enum ValidationTestCategory
 	{
 		Default,
-		UseProvider,
 		AppleTls,
 		MartinTest
 	}

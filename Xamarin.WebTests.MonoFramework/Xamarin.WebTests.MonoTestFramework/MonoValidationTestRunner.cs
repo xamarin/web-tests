@@ -64,7 +64,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 		{
 			switch (category) {
 			case ValidationTestCategory.Default:
-			case ValidationTestCategory.UseProvider:
 				yield return MonoValidationTestType.EmptyHost;
 				yield return MonoValidationTestType.WrongHost;
 				yield return MonoValidationTestType.Success;
@@ -115,7 +114,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
 				parameters.UseTestRunnerCallback = true;
 				parameters.ExpectSuccess = true;
-				parameters.UseProvider = true;
 				break;
 
 			case MonoValidationTestType.EmptyHost:
@@ -229,17 +227,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				settings.RemoteCertificateValidationCallback = (t, c, ch, e) => ValidationCallback (ctx, t, c, ch, e);
 			}
 
-			if (Parameters.UseProvider || Parameters.Category == ValidationTestCategory.UseProvider) {
-				var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-				ConnectionProviderType providerType;
-				if (!ctx.TryGetParameter<ConnectionProviderType> (out providerType))
-					providerType = ConnectionProviderType.DotNet;
-
-				var provider = (MonoConnectionProvider)factory.GetProvider (providerType);
-				return CertificateValidationHelper.GetValidator (settings, provider.MonoTlsProvider);
-			} else {
-				return CertificateValidationHelper.GetValidator (settings);
-			}
+			return CertificateValidationHelper.GetValidator (settings);
 		}
 
 		protected void AssertResult (TestContext ctx, ValidationResult result)

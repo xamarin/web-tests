@@ -49,12 +49,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			: base (other)
 		{
 			Type = other.Type;
-			UseProvider = other.UseProvider;
 			UseTestRunnerCallback = other.UseTestRunnerCallback;
-		}
-
-		public bool UseProvider {
-			get; set;
 		}
 
 		public bool UseTestRunnerCallback {
