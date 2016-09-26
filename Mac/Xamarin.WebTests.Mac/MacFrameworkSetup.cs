@@ -60,12 +60,6 @@ namespace Xamarin.WebTests.MacUI
 			}
 		}
 
-		public override ISslStreamProvider DefaultSslStreamProvider {
-			get {
-				return null;
-			}
-		}
-
 		public override bool SupportsTls12 {
 			get {
 #if APPLETLS

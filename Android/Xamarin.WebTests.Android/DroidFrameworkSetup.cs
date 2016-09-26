@@ -52,12 +52,6 @@ namespace Xamarin.WebTests.Android
 			}
 		}
 
-		public override ISslStreamProvider DefaultSslStreamProvider {
-			get {
-				return null;
-			}
-		}
-
 		public override bool SupportsTls12 {
 			get {
 				return false;

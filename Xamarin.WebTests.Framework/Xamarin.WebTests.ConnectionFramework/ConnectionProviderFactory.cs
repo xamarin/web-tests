@@ -59,7 +59,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		readonly DotNetConnectionProvider defaultConnectionProvider;
 		readonly ManualConnectionProvider manualConnectionProvider;
 		IConnectionFrameworkSetup frameworkSetup;
-		ISslStreamProvider defaultSslStreamProvider;
 		static object syncRoot = new object ();
 		bool initialized;
 
@@ -135,13 +134,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 				frameworkSetup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
 				frameworkSetup.Initialize (this);
 
-				defaultSslStreamProvider = frameworkSetup.DefaultSslStreamProvider;
-				if (defaultSslStreamProvider == null)
-					defaultSslStreamProvider = dotNetSslStreamProvider;
-
-				if (frameworkSetup.SecurityProtocol != null)
-					ServicePointManager.SecurityProtocol = frameworkSetup.SecurityProtocol.Value;
-
 				initialized = true;
 			}
 		}
@@ -158,7 +150,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public ISslStreamProvider DefaultSslStreamProvider {
 			get {
 				Initialize ();
-				return defaultSslStreamProvider;
+				return dotNetSslStreamProvider;
 			}
 		}
 

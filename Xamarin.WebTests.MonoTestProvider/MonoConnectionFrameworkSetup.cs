@@ -51,14 +51,6 @@ namespace Xamarin.WebTests.MonoTestProvider
 			get { return true; }
 		}
 
-		public abstract ISslStreamProvider DefaultSslStreamProvider {
-			get;
-		}
-
-		public SecurityProtocolType? SecurityProtocol {
-			get { return null; }
-		}
-
 		public bool AddDefaultTlsProvider {
 			get { return true; }
 		}

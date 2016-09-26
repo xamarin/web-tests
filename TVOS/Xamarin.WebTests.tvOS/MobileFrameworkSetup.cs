@@ -61,12 +61,6 @@ namespace Xamarin.WebTests.tvOS
 			}
 		}
 
-		public override ISslStreamProvider DefaultSslStreamProvider {
-			get {
-				return null;
-			}
-		}
-
 		public override bool SupportsTls12 {
 			get {
 #if APPLETLS

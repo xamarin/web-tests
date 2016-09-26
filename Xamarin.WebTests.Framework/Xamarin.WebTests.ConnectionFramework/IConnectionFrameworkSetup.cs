@@ -47,14 +47,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		ISslStreamProvider DefaultSslStreamProvider {
-			get;
-		}
-
-		SecurityProtocolType? SecurityProtocol {
-			get;
-		}
-
 		bool SupportsTls12 {
 			get;
 		}

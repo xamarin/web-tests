@@ -37,13 +37,6 @@ namespace Xamarin.WebTests.Console
 
 	class ConsoleFrameworkSetup : MonoConnectionFrameworkSetup
 	{
-		DotNetSslStreamProvider dotNetStreamProvider;
-
-		public ConsoleFrameworkSetup ()
-		{
-			dotNetStreamProvider = new DotNetSslStreamProvider ();
-		}
-
 		public override string Name {
 			get { return "Xamarin.WebTests.Console"; }
 		}
@@ -58,10 +51,6 @@ namespace Xamarin.WebTests.Console
 			get {
 				return ConnectionProviderFactory.LegacyTlsGuid;
 			}
-		}
-
-		public override ISslStreamProvider DefaultSslStreamProvider {
-			get { return dotNetStreamProvider; }
 		}
 
 		public override bool SupportsTls12 {
