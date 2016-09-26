@@ -108,18 +108,6 @@ namespace Xamarin.WebTests.TestFramework
 			get { return DependencyInjector.Get<IPortableSupport> ().IsMicrosoftRuntime; }
 		}
 
-		public static bool IsNewTls (ConnectionProviderType type)
-		{
-			switch (type) {
-			case ConnectionProviderType.DotNet:
-				return IsMicrosoftRuntime;
-			case ConnectionProviderType.NewTLS:
-			case ConnectionProviderType.OpenSsl:
-				return true;
-			default:
-				return false;
-			}
-		}
 		public static IEnumerable<R> Join<T,U,R> (IEnumerable<T> first, IEnumerable<U> second, Func<T, U, R> resultSelector, bool filterOutNull = true) {
 			foreach (var e1 in first) {
 				foreach (var e2 in second) {

@@ -65,24 +65,10 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get { return (ProtocolVersions)tlsProvider.SupportedProtocols; }
 		}
 
-		public IMonoClient CreateMonoClient (ConnectionParameters parameters, IMonoConnectionExtensions extensions)
-		{
-			if (!SupportsMonoExtensions)
-				throw new InvalidOperationException ();
-			return new MonoClient (this, parameters, extensions);
-		}
-
-		public IMonoServer CreateMonoServer (ConnectionParameters parameters, IMonoConnectionExtensions extensions)
-		{
-			if (!SupportsMonoExtensions)
-				throw new InvalidOperationException ();
-			return new MonoServer (this, parameters, extensions);
-		}
-
 		public override IClient CreateClient (ConnectionParameters parameters)
 		{
 			if (SupportsMonoExtensions)
-				return new MonoClient (this, parameters, null);
+				return new MonoClient (this, parameters);
 			else
 				return new DotNetClient (this, parameters, this);
 		}
@@ -90,7 +76,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		public override IServer CreateServer (ConnectionParameters parameters)
 		{
 			if (SupportsMonoExtensions)
-				return new MonoServer (this, parameters, null);
+				return new MonoServer (this, parameters);
 			else
 				return new DotNetServer (this, parameters, this);
 		}
@@ -131,7 +117,8 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				}
 			}
 
-			return MSI.MonoTlsProviderFactory.CreateHttpsRequest (uri, tlsProvider, settings);
+			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
+			return setup.CreateHttpsRequest (uri, tlsProvider, settings);
 		}
 
 		ISslStream ISslStreamProvider.CreateServerStream (Stream stream, ConnectionParameters parameters)

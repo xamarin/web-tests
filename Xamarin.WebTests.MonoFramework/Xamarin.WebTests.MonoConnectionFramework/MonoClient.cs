@@ -28,8 +28,8 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get { return base.Parameters as MonoConnectionParameters; }
 		}
 
-		public MonoClient (MonoConnectionProvider provider, ConnectionParameters parameters, IMonoConnectionExtensions extensions)
-			: base (provider, parameters, extensions)
+		public MonoClient (MonoConnectionProvider provider, ConnectionParameters parameters)
+			: base (provider, parameters)
 		{
 		}
 
@@ -48,8 +48,6 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				settings.NamedCurve = MonoParameters.ClientNamedCurve;
 				#endif
 			}
-
-			base.GetSettings (ctx, settings);
 		}
 
 		protected override async Task<MonoSslStream> Start (TestContext ctx, Stream stream, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)

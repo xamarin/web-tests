@@ -1,17 +1,31 @@
 TOP = .
 include $(TOP)/Make.config
 
+ALL_BUILD_TARGETS = \
+	Wrench-IOS-Sim-Build-Debug Wrench-IOS-Sim-Build-DebugAppleTls \
+	Wrench-Console-Build-Debug Wrench-DotNet-Build-Debug \
+	Wrench-Mac-Build-Debug Wrench-Mac-Build-DebugAppleTls \
+	Wrench-TVOS-Sim-Build-Debug Wrench-TVOS-Sim-Build-DebugAppleTls \
+	Wrench-Android-Build-Debug
+
+ALL_WRENCH_BUILD_TARGETS = \
+	IOS-Sim-Build-Debug IOS-Sim-Build-DebugAppleTls \
+	Console-Build-Debug DotNet-Build-Debug \
+	Mac-Build-Debug Mac-Build-DebugAppleTls \
+	TVOS-Sim-Build-Debug TVOS-Sim-Build-DebugAppleTls \
+	Android-Build-Debug
+
+All:: $(ALL_BUILD_TARGETS)
+	@echo "Build done"
+
+C9-%::
+	$(MAKE) CYCLE9=1 $*
+
 CleanAll::
 	git clean -xffd
 
 Wrench-%::
 	$(MAKE) WRENCH=1 $*
-
-ALL_WRENCH_BUILD_TARGETS = \
-	Wrench-IOS-Sim-Build-Debug Wrench-IOS-Sim-Build-DebugAppleTls \
-	Wrench-Console-Build-Debug Wrench-DotNet-Build-Debug \
-	Wrench-Mac-Build-Debug Wrench-Mac-Build-DebugAppleTls \
-	Wrench-TVOS-Sim-Build-Debug Wrench-TVOS-Sim-Build-DebugAppleTls
 
 Wrench-Build-All:: $(ALL_WRENCH_BUILD_TARGETS)
 	@echo "Build done."

@@ -5,7 +5,8 @@ using Android.App;
 using Android.OS;
 using Xamarin.AsyncTests;
 using Xamarin.WebTests.TestProvider;
-using Xamarin.WebTests.MonoTestFramework;
+using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.MonoConnectionFramework;
 
 [assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
 [assembly: AsyncTestSuite (typeof (Xamarin.WebTests.MonoTests.MonoWebTestFeatures), true)]
@@ -36,10 +37,12 @@ namespace Xamarin.WebTests.Android
 
 			Forms.Init (this, bundle);
 
+			var setup = new DroidFrameworkSetup ();
+			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
+			DependencyInjector.RegisterDependency<IMonoConnectionFrameworkSetup> (() => setup);
+
 			DependencyInjector.RegisterAssembly (typeof (WebDependencyProvider).Assembly);
-			DependencyInjector.RegisterAssembly (typeof (MonoTestFrameworkDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (MainActivity).Assembly);
-			DependencyInjector.RegisterDependency<IMonoFrameworkSetup> (() => new DroidFrameworkSetup ());
 
 			Framework = TestFramework.GetLocalFramework (typeof (MainActivity).Assembly);
 

@@ -1,10 +1,10 @@
 ﻿//
-// IMonoConnectionExtensions.cs
+// IMonoConnectionFrameworkSetup.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,14 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Mono.Security.Interface;
+using Xamarin.WebTests.MonoConnectionFramework;
+
+[assembly: RequireDependency (typeof (IMonoConnectionFrameworkSetup))]
 
 namespace Xamarin.WebTests.MonoConnectionFramework
 {
-	public interface IMonoConnectionExtensions
+	using ConnectionFramework;
+
+	public interface IMonoConnectionFrameworkSetup : IConnectionFrameworkSetup
 	{
-		void GetSettings (TestContext ctx, MonoTlsSettings settings);
+		MonoTlsProvider GetDefaultProvider ();
+
+		HttpWebRequest CreateHttpsRequest (Uri requestUri, MonoTlsProvider provider, MonoTlsSettings settings);
+
+		HttpListener CreateHttpListener (X509Certificate certificate, MonoTlsProvider provider, MonoTlsSettings settings);
 	}
 }
-

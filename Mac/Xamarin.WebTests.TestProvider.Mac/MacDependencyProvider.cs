@@ -36,7 +36,7 @@ namespace Xamarin.WebTests.TestProvider.Mobile
 	{
 		public void Initialize ()
 		{
-#if APPLETLS
+#if FIXME && APPLETLS
 			DependencyInjector.RegisterDependency<IAppleCertificateProvider> (() => new AppleCertificateProvider ());
 #endif
 

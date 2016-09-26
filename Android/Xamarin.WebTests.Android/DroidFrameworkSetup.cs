@@ -24,12 +24,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
+using Mono.Security.Interface;
+
 namespace Xamarin.WebTests.Android
 {
-	using MonoTestFramework;
+	using ConnectionFramework;
 	using MonoConnectionFramework;
 
-	class DroidFrameworkSetup : IMonoFrameworkSetup
+	class DroidFrameworkSetup : IMonoConnectionFrameworkSetup
 	{
 		public string Name {
 			get { return "Xamarin.WebTests.Android"; }
@@ -41,16 +45,55 @@ namespace Xamarin.WebTests.Android
 			}
 		}
 
-		public Guid CurrentTlsProvider {
+		public Guid TlsProvider {
 			get {
-				return MonoConnectionProviderFactory.MobileOldTlsGuid;
+				return ConnectionProviderFactory.MobileLegacyTlsGuid;
 			}
 		}
 
-		public Guid DefaultTlsProvider {
+		public bool InstallDefaultCertificateValidator {
 			get {
-				return MonoConnectionProviderFactory.MobileOldTlsGuid;
+				return true;
 			}
+		}
+
+		public ISslStreamProvider DefaultSslStreamProvider {
+			get {
+				return null;
+			}
+		}
+
+		public SecurityProtocolType? SecurityProtocol {
+			get {
+				return null;
+			}
+		}
+
+		public bool SupportsTls12 {
+			get {
+				return false;
+			}
+		}
+
+		public void Initialize (ConnectionProviderFactory factory)
+		{
+			var provider = MonoTlsProviderFactory.GetDefaultProvider ();
+			MonoConnectionProviderFactory.RegisterProvider (factory, provider);
+		}
+
+		public MonoTlsProvider GetDefaultProvider ()
+		{
+			return MonoTlsProviderFactory.GetDefaultProvider ();
+		}
+
+		public HttpWebRequest CreateHttpsRequest (Uri requestUri, MonoTlsProvider provider, MonoTlsSettings settings)
+		{
+			return MonoTlsProviderFactory.CreateHttpsRequest (requestUri, provider, settings);
+		}
+
+		public HttpListener CreateHttpListener (X509Certificate certificate, MonoTlsProvider provider, MonoTlsSettings settings)
+		{
+			return MonoTlsProviderFactory.CreateHttpListener (certificate, provider, settings);
 		}
 	}
 }

@@ -140,15 +140,12 @@
     <Compile Include="Xamarin.WebTests.Server\ListenerFlags.cs" />
     <Compile Include="Xamarin.WebTests.Server\NTLMHandler.cs" />
     <Compile Include="Xamarin.WebTests.Server\AuthenticationType.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\DefaultConnectionSettings.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IHttpWebRequestExtension.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderFactory.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderFlags.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderType.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ICertificateProvider.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionProviderExtension.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\IDefaultConnectionSettings.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IHttpProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ISslStream.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ISslStreamProvider.cs" />
@@ -177,6 +174,7 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\BinaryContent.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\NewAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\CertificateStoreAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionFrameworkSetup.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

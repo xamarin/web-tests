@@ -49,10 +49,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return DependencyInjector.Get<IPortableSupport> ().IsMicrosoftRuntime; }
 		}
 
+		static bool SupportsTls12 {
+			get { return DependencyInjector.Get<IConnectionFrameworkSetup> ().SupportsTls12; }
+		}
+
 		static ConnectionProviderFlags GetFlags ()
 		{
 			var flags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp;
-			if (IsMicrosoftRuntime)
+			if (IsMicrosoftRuntime || SupportsTls12)
 				flags |= ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers | ConnectionProviderFlags.SupportsEcDheCiphers;
 			return flags;
 		}

@@ -34,11 +34,31 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public sealed class ConnectionProviderFactory : ISingletonInstance
 	{
+		public const string BoringTlsID = "432d18c9-9348-4b90-bfbf-9f2a10e1f15b";
+		public const string LegacyTlsID = "809e77d5-56cc-4da8-b9f0-45e65ba9cceb";
+
+		// Mobile only
+		const string MobileLegacyTlsID = "97d31751-d0b3-4707-99f7-a6456b972a19";
+		const string AppleTlsID = "981af8af-a3a3-419a-9f01-a518e3a17c1c";
+
+		public static readonly Guid BoringTlsGuid = new Guid (BoringTlsID);
+		public static readonly Guid LegacyTlsGuid = new Guid (LegacyTlsID);
+		public static readonly Guid AppleTlsGuid = new Guid (AppleTlsID);
+		public static readonly Guid MobileLegacyTlsGuid = new Guid (MobileLegacyTlsID);
+
+		const ConnectionProviderFlags LegacyFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp;
+		const ConnectionProviderFlags AppleTlsFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp |
+			ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers | ConnectionProviderFlags.SupportsEcDheCiphers |
+			ConnectionProviderFlags.SupportsClientCertificates | ConnectionProviderFlags.OverridesCipherSelection | ConnectionProviderFlags.SupportsTrustedRoots;
+		const ConnectionProviderFlags BoringTlsFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp |
+			ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers | ConnectionProviderFlags.SupportsEcDheCiphers |
+			ConnectionProviderFlags.SupportsClientCertificates | ConnectionProviderFlags.OverridesCipherSelection | ConnectionProviderFlags.SupportsTrustedRoots;
+
 		readonly Dictionary<ConnectionProviderType,ConnectionProvider> providers;
 		readonly DotNetSslStreamProvider dotNetSslStreamProvider;
 		readonly DotNetConnectionProvider defaultConnectionProvider;
 		readonly ManualConnectionProvider manualConnectionProvider;
-		IDefaultConnectionSettings defaultSettings;
+		IConnectionFrameworkSetup frameworkSetup;
 		ISslStreamProvider defaultSslStreamProvider;
 		static object syncRoot = new object ();
 		bool initialized;
@@ -53,6 +73,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			manualConnectionProvider = new ManualConnectionProvider (this, ConnectionProviderFlags.IsExplicit);
 			Install (manualConnectionProvider);
+
+			Initialize ();
 		}
 
 		public bool IsSupported (ConnectionProviderType type)
@@ -80,7 +102,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return (flags & ConnectionProviderFlags.IsExplicit) != 0;
 		}
 
-		public IEnumerable<ConnectionProviderType> GetProviders ()
+		public IEnumerable<ConnectionProviderType> GetProviderTypes ()
 		{
 			lock (syncRoot) {
 				Initialize ();
@@ -110,20 +132,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 				if (initialized)
 					return;
 
-				defaultSettings = DependencyInjector.GetDefaults<IDefaultConnectionSettings> ();
-				if (defaultSettings == null)
-					defaultSettings = new DefaultConnectionSettings ();
+				frameworkSetup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+				frameworkSetup.Initialize (this);
 
-				var extensions = DependencyInjector.GetCollection<IConnectionProviderFactoryExtension> ();
-				foreach (var extension in extensions)
-					extension.Initialize (this, defaultSettings);
-
-				defaultSslStreamProvider = defaultSettings.DefaultSslStreamProvider;
+				defaultSslStreamProvider = frameworkSetup.DefaultSslStreamProvider;
 				if (defaultSslStreamProvider == null)
 					defaultSslStreamProvider = dotNetSslStreamProvider;
 
-				if (defaultSettings.SecurityProtocol != null)
-					ServicePointManager.SecurityProtocol = defaultSettings.SecurityProtocol.Value;
+				if (frameworkSetup.SecurityProtocol != null)
+					ServicePointManager.SecurityProtocol = frameworkSetup.SecurityProtocol.Value;
 
 				initialized = true;
 			}
@@ -145,10 +162,39 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
-		public IDefaultConnectionSettings DefaultSettings {
+		public IConnectionFrameworkSetup FrameworkSetup {
 			get {
 				Initialize ();
-				return defaultSettings;
+				return frameworkSetup;
+			}
+		}
+
+		public static ConnectionProviderFlags GetConnectionProviderFlags (ConnectionProviderType type)
+		{
+			switch (type) {
+			case ConnectionProviderType.Legacy:
+				return LegacyFlags;
+			case ConnectionProviderType.AppleTLS:
+				return AppleTlsFlags;
+			case ConnectionProviderType.BoringTLS:
+				return BoringTlsFlags;
+			default:
+				throw new NotSupportedException (string.Format ("Unknown TLS Provider: {0}", type));
+			}
+		}
+
+		public static ConnectionProviderType GetConnectionProviderType (Guid id)
+		{
+			switch (id.ToString ().ToLowerInvariant ()) {
+			case LegacyTlsID:
+			case MobileLegacyTlsID:
+				return ConnectionProviderType.Legacy;
+			case AppleTlsID:
+				return ConnectionProviderType.AppleTLS;
+			case BoringTlsID:
+				return ConnectionProviderType.BoringTLS;
+			default:
+				throw new NotSupportedException (string.Format ("Unknown TLS Provider: {0}", id));
 			}
 		}
 	}

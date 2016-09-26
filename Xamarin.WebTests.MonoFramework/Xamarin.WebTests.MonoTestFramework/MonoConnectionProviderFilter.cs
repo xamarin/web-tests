@@ -83,7 +83,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				return false;
 			if (HasFlag (MonoConnectionTestFlags.RequireEcDhe) && !SupportsEcDhe (provider))
 				return false;
-			if ((provider.Flags & ConnectionProviderFlags.SupportsTls12) == 0)
+			if (!SupportsTls12 (provider))
 				return false;
 
 			return true;

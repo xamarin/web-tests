@@ -4,6 +4,8 @@ using Xamarin.AsyncTests.Console;
 using Xamarin.WebTests;
 using Xamarin.WebTests.MonoTests;
 using Xamarin.WebTests.MonoTestFramework;
+using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.MonoConnectionFramework;
 using Xamarin.WebTests.TestProvider;
 
 [assembly: AsyncTestSuite (typeof (WebTestFeatures), true)]
@@ -15,10 +17,12 @@ namespace Xamarin.WebTests.Console
 	{
 		static void Main (string[] args)
 		{
+			var setup = new ConsoleFrameworkSetup ();
+			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
+			DependencyInjector.RegisterDependency<IMonoConnectionFrameworkSetup> (() => setup);
+
 			DependencyInjector.RegisterAssembly (typeof(ConsoleMain).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
-			DependencyInjector.RegisterAssembly (typeof(MonoTestFrameworkDependencyProvider).Assembly);
-			DependencyInjector.RegisterDependency<IMonoFrameworkSetup> (() => new ConsoleFrameworkSetup ());
 
 			Program.Run (typeof (ConsoleMain).Assembly, args);
 		}

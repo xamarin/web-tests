@@ -1,10 +1,10 @@
 ﻿//
-// IMonoTlsProviderFactory.cs
+// IConnectionFrameworkSetup.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,29 +24,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.ConnectionFramework;
-using Mono.Security.Interface;
 
-namespace Xamarin.WebTests.MonoConnectionFramework
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	public interface IMonoTlsProviderFactory : IExtensionCollection
+	public interface IConnectionFrameworkSetup : ISingletonInstance
 	{
 		string Name {
 			get;
 		}
 
-		MonoTlsProvider Provider {
+		string TlsProviderName {
 			get;
 		}
 
-		ConnectionProviderType ConnectionProviderType {
+		Guid TlsProvider {
 			get;
 		}
 
-		ConnectionProviderFlags ConnectionProviderFlags {
+		bool InstallDefaultCertificateValidator {
 			get;
 		}
+
+		ISslStreamProvider DefaultSslStreamProvider {
+			get;
+		}
+
+		SecurityProtocolType? SecurityProtocol {
+			get;
+		}
+
+		bool SupportsTls12 {
+			get;
+		}
+
+		void Initialize (ConnectionProviderFactory factory);
 	}
 }
 

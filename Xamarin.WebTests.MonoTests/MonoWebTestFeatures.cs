@@ -34,7 +34,6 @@ using Xamarin.WebTests.MonoTestFeatures;
 
 [assembly: AsyncTestSuite (typeof (MonoWebTestFeatures), "MonoWebTests", typeof (SharedWebTestFeatures))]
 [assembly: DependencyProvider (typeof (MonoWebTestFeatures.Provider))]
-[assembly: RequireDependency (typeof (MonoConnectionProviderFactory))]
 
 namespace Xamarin.WebTests.MonoTests
 {

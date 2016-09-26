@@ -97,7 +97,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 			case MonoConnectionTestCategory.SecurityFramework:
 				return MonoConnectionTestFlags.RequireMono;
 			case MonoConnectionTestCategory.MartinTest:
-				return MonoConnectionTestFlags.RequireMono | MonoConnectionTestFlags.RequireTls12;
+				// return MonoConnectionTestFlags.RequireMono | MonoConnectionTestFlags.RequireTls12;
+				return MonoConnectionTestFlags.None;
 			default:
 				ctx.AssertFail ("Unsupported instrumentation category: '{0}'.", category);
 				return MonoConnectionTestFlags.None;

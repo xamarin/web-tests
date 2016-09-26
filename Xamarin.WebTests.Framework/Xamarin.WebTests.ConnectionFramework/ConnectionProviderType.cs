@@ -32,16 +32,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		// Directly use SslStream
 		DotNet,
 
-		// Use Mono.Security.Interface.MonoTlsProviderFactory to select the old or new TLS implementation.
-		NewTLS,
-		OldTLS,
-
-		// Just for testing.
-		OpenSsl,
-
 		// Manually started custom client / server
 		Manual,
 
+		Legacy,
 		AppleTLS,
 		BoringTLS,
 

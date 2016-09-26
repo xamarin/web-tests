@@ -47,24 +47,18 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 	public abstract class MonoConnection : DotNetConnection
 	{
-		public MonoConnection (MonoConnectionProvider provider, ConnectionParameters parameters, IMonoConnectionExtensions extensions)
+		public MonoConnection (MonoConnectionProvider provider, ConnectionParameters parameters)
 			: base (provider, parameters)
 		{
 			this.provider = provider;
-			this.extensions = extensions;
 		}
 
 		MSI.MonoTlsSettings settings;
 		MonoConnectionProvider provider;
 		MonoSslStream monoSslStream;
-		IMonoConnectionExtensions extensions;
 
 		public MonoConnectionProvider ConnectionProvider {
 			get { return provider; }
-		}
-
-		public IMonoConnectionExtensions ConnectionExtensions {
-			get { return extensions; }
 		}
 
 		public bool SupportsConnectionInfo {
@@ -78,11 +72,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		protected abstract Task<MonoSslStream> Start (TestContext ctx, Stream stream, MSI.MonoTlsSettings settings, CancellationToken cancellationToken);
 
-		protected virtual void GetSettings (TestContext ctx, MSI.MonoTlsSettings settings)
-		{
-			if (extensions != null)
-				extensions.GetSettings (ctx, settings);
-		}
+		protected abstract void GetSettings (TestContext ctx, MSI.MonoTlsSettings settings);
 
 		protected sealed override async Task<ISslStream> Start (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{

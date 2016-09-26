@@ -33,6 +33,8 @@ using UIKit;
 using ObjCRuntime;
 using Xamarin.WebTests.TestProvider;
 using Xamarin.WebTests.MonoTestFramework;
+using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.MonoConnectionFramework;
 
 namespace Xamarin.WebTests.iOS
 {
@@ -73,10 +75,12 @@ namespace Xamarin.WebTests.iOS
 		{
 			Forms.Init ();
 
+			var setup = new MobileFrameworkSetup ();
+			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
+			DependencyInjector.RegisterDependency<IMonoConnectionFrameworkSetup> (() => setup);
+
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
-			DependencyInjector.RegisterAssembly (typeof(MonoTestFrameworkDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(AppDelegate).Assembly);
-			DependencyInjector.RegisterDependency<IMonoFrameworkSetup> (() => new MobileFrameworkSetup ());
 
 			Framework = TestFramework.GetLocalFramework (typeof(AppDelegate).Assembly);
 

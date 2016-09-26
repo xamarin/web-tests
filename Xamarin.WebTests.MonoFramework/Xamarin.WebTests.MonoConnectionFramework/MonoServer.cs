@@ -29,8 +29,8 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get { return base.Parameters as MonoConnectionParameters; }
 		}
 
-		public MonoServer (MonoConnectionProvider provider, ConnectionParameters parameters, IMonoConnectionExtensions extensions)
-			: base (provider, parameters, extensions)
+		public MonoServer (MonoConnectionProvider provider, ConnectionParameters parameters)
+			: base (provider, parameters)
 		{
 			clientCertIssuersProp = typeof (MSI.MonoTlsSettings).GetTypeInfo ().GetDeclaredProperty ("ClientCertificateIssuers");
 		}
@@ -50,10 +50,8 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				settings.AskForClientCertificate = true;
 #endif
 
-			if (MonoParameters == null) {
-				base.GetSettings (ctx, settings);
+			if (MonoParameters == null)
 				return;
-			}
 
 			if (MonoParameters.ServerCiphers != null)
 				settings.EnabledCiphers = MonoParameters.ServerCiphers.ToArray ();
@@ -71,8 +69,6 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				settings.NamedCurve = MonoParameters.ServerNamedCurve;
 				#endif
 			}
-
-			base.GetSettings (ctx, settings);
 		}
 
 		protected override async Task<MonoSslStream> Start (TestContext ctx, Stream stream, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)
