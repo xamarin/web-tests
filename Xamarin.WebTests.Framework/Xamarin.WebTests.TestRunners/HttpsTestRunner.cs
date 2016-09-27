@@ -336,15 +336,6 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestType.MartinTest:
 				goto case ConnectionTestType.ServerCertificateWithCA;
-				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.IntermediateServerCertificateBare)) {
-					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
-					ExpectChainStatus = X509ChainStatusFlags.NoError,
-					ExpectPolicyErrors = SslPolicyErrors.None, OverrideTargetHost = "Intermediate-Server.local"
-				};
-				parameters.ValidationParameters = new ValidationParameters ();
-				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeIM);
-				parameters.ValidationParameters.ExpectSuccess = true;
-				return parameters;
 
 			default:
 				throw new InternalErrorException ();

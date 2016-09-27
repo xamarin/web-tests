@@ -161,9 +161,6 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestType.MartinTest:
 				goto case ConnectionTestType.RequestClientCertificate;
-				return new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
-					ExpectClientException = true
-				};
 
 			case ConnectionTestType.MustNotInvokeGlobalValidator:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {

@@ -120,7 +120,6 @@ namespace Xamarin.WebTests.TestRunners
 		public static void CheckValidationResult (TestContext ctx, ValidationParameters parameters,
 							  X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
 		{
-			var provider = DependencyInjector.Get<ICertificateProvider> ();
 			if (parameters.ExpectedExtraStore != null && ctx.Expect (chain, Is.Not.Null, "chain")) {
 				if (ctx.Expect (chain.ChainPolicy, Is.Not.Null,  "chain.ChainPolicy") &&
 				    ctx.Expect (chain.ChainPolicy.ExtraStore, Is.Not.Null, "ChainPolicy.ExtraStore") &&

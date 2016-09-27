@@ -51,14 +51,6 @@ namespace Xamarin.WebTests.MonoTestProvider
 			get { return true; }
 		}
 
-		public bool AddDefaultTlsProvider {
-			get { return true; }
-		}
-
-		public Guid? InstallTlsProvider {
-			get { return null; }
-		}
-
 		public abstract bool SupportsTls12 {
 			get;
 		}
