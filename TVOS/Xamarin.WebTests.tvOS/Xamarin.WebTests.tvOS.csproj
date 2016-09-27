@@ -213,6 +213,9 @@
       <DependentUpon>ViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="MobileFrameworkSetup.cs" />
+    <Compile Include="..\..\Xamarin.WebTests.MonoTestProvider\MonoConnectionFrameworkSetup.cs">
+      <Link>Xamarin.WebTests.MonoTestProvider\MonoConnectionFrameworkSetup.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />
@@ -255,6 +258,5 @@
       <Name>Xamarin.WebTests.MonoTests</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="..\..\Xamarin.WebTests.MonoTestProvider\Xamarin.WebTests.MonoTestProvider.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.WebTests.MonoTestProvider\Xamarin.WebTests.MonoTestProvider.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\TVOS\Xamarin.TVOS.CSharp.targets" />
 </Project>
