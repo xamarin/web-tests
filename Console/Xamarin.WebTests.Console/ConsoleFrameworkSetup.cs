@@ -43,24 +43,39 @@ namespace Xamarin.WebTests.Console
 
 		public override string TlsProviderName {
 			get {
+#if CYCLE9
+				return "btls";
+#else
 				return "legacy";
+#endif
 			}
 		}
 
 		public override Guid TlsProvider {
 			get {
+#if CYCLE9
+				return ConnectionProviderFactory.BoringTlsGuid;
+#else
 				return ConnectionProviderFactory.LegacyTlsGuid;
+#endif
 			}
 		}
 
 		public override bool SupportsTls12 {
 			get {
-#if BTLS
+#if CYCLE9
 				return true;
 #else
 				return false;
 #endif
 			}
+		}
+
+		protected override void Initialize ()
+		{
+#if CYCLE9
+			MonoTlsProviderFactory.Initialize ("btls");
+#endif
 		}
 	}
 }
