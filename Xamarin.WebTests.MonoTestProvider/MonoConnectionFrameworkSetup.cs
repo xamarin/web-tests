@@ -57,16 +57,11 @@ namespace Xamarin.WebTests.MonoTestProvider
 
 		public void Initialize (ConnectionProviderFactory factory)
 		{
-			Initialize ();
-			var provider = MonoTlsProviderFactory.GetProvider ();
-			MonoConnectionProviderFactory.RegisterProvider (factory, provider);
-		}
-
-		protected virtual void Initialize ()
-		{
 #if CYCLE9
 			MonoTlsProviderFactory.Initialize ();
 #endif
+			var provider = MonoTlsProviderFactory.GetProvider ();
+			MonoConnectionProviderFactory.RegisterProvider (factory, provider);
 		}
 
 		public MonoTlsProvider GetDefaultProvider ()

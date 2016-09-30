@@ -70,13 +70,6 @@ namespace Xamarin.WebTests.Console
 #endif
 			}
 		}
-
-		protected override void Initialize ()
-		{
-#if CYCLE9
-			MonoTlsProviderFactory.Initialize ("btls");
-#endif
-		}
 	}
 }
 
