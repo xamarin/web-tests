@@ -58,7 +58,6 @@
     <Compile Include="SampleFeatures.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
