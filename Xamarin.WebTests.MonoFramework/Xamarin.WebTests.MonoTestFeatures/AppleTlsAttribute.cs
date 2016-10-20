@@ -27,6 +27,7 @@
 using System;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.WebTests.MonoConnectionFramework;
 using Xamarin.WebTests.MonoTestFramework;
 
 namespace Xamarin.WebTests.MonoTestFeatures
@@ -43,7 +44,8 @@ namespace Xamarin.WebTests.MonoTestFeatures
 
 		static bool HasAppleTls ()
 		{
-			return DependencyInjector.IsAvailable<IAppleCertificateProvider> ();
+			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
+			return setup.UsingAppleTls;
 		}
 	}
 }

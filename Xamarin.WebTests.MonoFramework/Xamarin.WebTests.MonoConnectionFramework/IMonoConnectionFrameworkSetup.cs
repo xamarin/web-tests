@@ -38,6 +38,14 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 	public interface IMonoConnectionFrameworkSetup : IConnectionFrameworkSetup
 	{
+		bool UsingBtls {
+			get;
+		}
+
+		bool UsingAppleTls {
+			get;
+		}
+
 		MonoTlsProvider GetDefaultProvider ();
 
 		HttpWebRequest CreateHttpsRequest (Uri requestUri, MonoTlsProvider provider, MonoTlsSettings settings);

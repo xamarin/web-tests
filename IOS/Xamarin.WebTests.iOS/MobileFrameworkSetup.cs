@@ -55,12 +55,22 @@ namespace Xamarin.WebTests.iOS
 #if APPLETLS
 				return ConnectionProviderFactory.AppleTlsGuid;
 #else
-				return ConnectionProviderFactory.MobileLegacyTlsGuid;
+				return ConnectionProviderFactory.LegacyTlsGuid;
 #endif
 			}
 		}
 
 		public override bool SupportsTls12 {
+			get {
+#if APPLETLS
+				return true;
+#else
+				return false;
+#endif
+			}
+		}
+
+		public override bool UsingAppleTls {
 			get {
 #if APPLETLS
 				return true;

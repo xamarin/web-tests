@@ -27,6 +27,9 @@ using System;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Mono.Security.Interface;
+#if !__MOBILE__
+using System.Reflection;
+#endif
 
 namespace Xamarin.WebTests.MonoTestProvider
 {
@@ -55,10 +58,37 @@ namespace Xamarin.WebTests.MonoTestProvider
 			get;
 		}
 
+		public bool UsingBtls {
+			get;
+			private set;
+		}
+
+		public abstract bool UsingAppleTls {
+			get;
+		}
+
 		public void Initialize (ConnectionProviderFactory factory)
 		{
-#if CYCLE9
-			MonoTlsProviderFactory.Initialize ();
+#if !__MOBILE__ && !__UNIFIED__
+			var type = typeof (MonoTlsProviderFactory);
+			var initialize = type.GetMethod ("Initialize", new Type [] { typeof (string) });
+#if BTLS
+			if (initialize == null)
+				throw new NotSupportedException ("Your Mono runtime is too old to support BTLS!");
+			initialize.Invoke (null, new object [] { "btls" });
+			UsingBtls = true;
+#else
+			var providerEnvVar = Environment.GetEnvironmentVariable ("MONO_TLS_PROVIDER");
+			if (string.Equals (providerEnvVar, "btls", StringComparison.OrdinalIgnoreCase)) {
+				if (initialize == null)
+					throw new NotSupportedException ("Your Mono runtime is too old to support BTLS!");
+				initialize.Invoke (null, new object [] { "btls" });
+				UsingBtls = true;
+			} else {
+				if (initialize != null)
+					initialize.Invoke (null, new object [] { "legacy" });
+			}
+#endif
 #endif
 			var provider = MonoTlsProviderFactory.GetProvider ();
 			MonoConnectionProviderFactory.RegisterProvider (factory, provider);
@@ -81,7 +111,16 @@ namespace Xamarin.WebTests.MonoTestProvider
 
 		public ICertificateValidator GetCertificateValidator (MonoTlsSettings settings)
 		{
+#if !__MOBILE__
+			var type = typeof (CertificateValidationHelper);
+			var getValidator = type.GetMethod ("GetValidator", new Type[] { typeof (MonoTlsSettings) });
+			if (getValidator != null)
+				return (ICertificateValidator)getValidator.Invoke (null, new object[] { settings });
+			getValidator = type.GetMethod ("GetValidator", new Type[] { typeof (MonoTlsSettings), typeof (MonoTlsProvider) });
+			return (ICertificateValidator) getValidator.Invoke (null, new object[] { settings, null });
+#else
 			return CertificateValidationHelper.GetValidator (settings);
+#endif
 		}
 
 		public IMonoConnectionInfo GetConnectionInfo (IMonoSslStream stream)

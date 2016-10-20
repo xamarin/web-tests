@@ -38,13 +38,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public const string LegacyTlsID = "809e77d5-56cc-4da8-b9f0-45e65ba9cceb";
 
 		// Mobile only
-		const string MobileLegacyTlsID = "97d31751-d0b3-4707-99f7-a6456b972a19";
 		const string AppleTlsID = "981af8af-a3a3-419a-9f01-a518e3a17c1c";
 
 		public static readonly Guid BoringTlsGuid = new Guid (BoringTlsID);
 		public static readonly Guid LegacyTlsGuid = new Guid (LegacyTlsID);
 		public static readonly Guid AppleTlsGuid = new Guid (AppleTlsID);
-		public static readonly Guid MobileLegacyTlsGuid = new Guid (MobileLegacyTlsID);
 
 		const ConnectionProviderFlags LegacyFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp;
 		const ConnectionProviderFlags AppleTlsFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp |
@@ -179,7 +177,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			switch (id.ToString ().ToLowerInvariant ()) {
 			case LegacyTlsID:
-			case MobileLegacyTlsID:
 				return ConnectionProviderType.Legacy;
 			case AppleTlsID:
 				return ConnectionProviderType.AppleTLS;

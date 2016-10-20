@@ -41,32 +41,44 @@ namespace Xamarin.WebTests.Console
 			get { return "Xamarin.WebTests.Console"; }
 		}
 
+		public override bool UsingAppleTls {
+			get {
+				return false;
+			}
+		}
+
 		public override string TlsProviderName {
 			get {
-#if CYCLE9
+#if BTLS
 				return "btls";
 #else
-				return "legacy";
+				if (UsingBtls)
+					return "btls";
+				else
+					return "legacy";
 #endif
 			}
 		}
 
 		public override Guid TlsProvider {
 			get {
-#if CYCLE9
+#if BTLS
 				return ConnectionProviderFactory.BoringTlsGuid;
 #else
-				return ConnectionProviderFactory.LegacyTlsGuid;
+				if (UsingBtls)
+					return ConnectionProviderFactory.BoringTlsGuid;
+				else
+					return ConnectionProviderFactory.LegacyTlsGuid;
 #endif
 			}
 		}
 
 		public override bool SupportsTls12 {
 			get {
-#if CYCLE9
+#if BTLS
 				return true;
 #else
-				return false;
+				return UsingBtls;
 #endif
 			}
 		}

@@ -40,6 +40,15 @@ namespace Xamarin.WebTests.tvOS
 			get { return "Xamarin.WebTests.tvOS"; }
 		}
 
+		public override bool UsingAppleTls {
+			get {
+#if APPLETLS
+				return true;
+#else
+				return false;
+#endif
+			}
+		}
 
 		public override string TlsProviderName {
 			get {
@@ -56,7 +65,7 @@ namespace Xamarin.WebTests.tvOS
 #if APPLETLS
 				return ConnectionProviderFactory.AppleTlsGuid;
 #else
-				return ConnectionProviderFactory.MobileLegacyTlsGuid;
+				return ConnectionProviderFactory.LegacyTlsGuid;
 #endif
 			}
 		}

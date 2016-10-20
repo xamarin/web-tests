@@ -64,6 +64,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 		{
 			switch (category) {
 			case ValidationTestCategory.Default:
+				yield return MonoValidationTestType.NoHost;
 				yield return MonoValidationTestType.EmptyHost;
 				yield return MonoValidationTestType.WrongHost;
 				yield return MonoValidationTestType.Success;
@@ -116,11 +117,22 @@ namespace Xamarin.WebTests.MonoTestFramework
 				parameters.ExpectSuccess = true;
 				break;
 
+			case MonoValidationTestType.NoHost:
+				parameters.Host = null;
+				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
+				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.ExpectSuccess = true;
+				break;
+
 			case MonoValidationTestType.EmptyHost:
 				parameters.Host = string.Empty;
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
 				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
-				parameters.ExpectSuccess = true;
+				/*
+				 * Older versions of AppleTls prior to Xamarin.iOS 10 incorrectly
+				 * returned success.
+				 */
+				parameters.ExpectSuccess = false;
 				break;
 
 			case MonoValidationTestType.WrongHost:

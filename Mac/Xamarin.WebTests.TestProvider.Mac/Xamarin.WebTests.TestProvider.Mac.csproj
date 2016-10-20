@@ -84,60 +84,6 @@
     <EnablePackageSigning>false</EnablePackageSigning>
     <HttpClientHandler>HttpClientHandler</HttpClientHandler>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugC9|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\DebugC9</OutputPath>
-    <DefineConstants>__UNIFIED__;DEBUG;CYCLE9;__MOBILE__;__XAMMAC__</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-    <Profiling>false</Profiling>
-    <UseRefCounting>false</UseRefCounting>
-    <UseSGen>false</UseSGen>
-    <IncludeMonoRuntime>false</IncludeMonoRuntime>
-    <CreatePackage>false</CreatePackage>
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <HttpClientHandler>HttpClientHandler</HttpClientHandler>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugAppleTlsC9|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>__UNIFIED__;DEBUG;APPLETLS;CYCLE9;__MOBILE__;__XAMMAC__</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-    <Profiling>false</Profiling>
-    <UseRefCounting>false</UseRefCounting>
-    <UseSGen>false</UseSGen>
-    <IncludeMonoRuntime>false</IncludeMonoRuntime>
-    <CreatePackage>false</CreatePackage>
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <HttpClientHandler>HttpClientHandler</HttpClientHandler>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugAppleTlsC9Wrench|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>__UNIFIED__;__UNIFIED__;DEBUG;APPLETLS;CYCLE9;WRENCH;__MOBILE__;__XAMMAC__</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-    <Profiling>false</Profiling>
-    <UseRefCounting>false</UseRefCounting>
-    <UseSGen>false</UseSGen>
-    <IncludeMonoRuntime>false</IncludeMonoRuntime>
-    <CreatePackage>false</CreatePackage>
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <HttpClientHandler>HttpClientHandler</HttpClientHandler>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />

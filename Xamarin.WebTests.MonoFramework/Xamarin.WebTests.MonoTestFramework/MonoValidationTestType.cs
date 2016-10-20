@@ -29,6 +29,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 {
 	public enum MonoValidationTestType
 	{
+		NoHost,
 		EmptyHost,
 		WrongHost,
 

@@ -82,7 +82,7 @@ namespace Xamarin.WebTests.MonoTests
 				ctx.Assert (has12, Is.True, "Tls12 must be enabled.");
 		}
 
-		[Work]
+		[Martin]
 		[AsyncTest]
 		[SecurityFramework]
 		[MonoConnectionTestFlags (MonoConnectionTestFlags.RequireTls12)]
@@ -98,7 +98,7 @@ namespace Xamarin.WebTests.MonoTests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-		[Work]
+		[Martin]
 		[AsyncTest]
 		[SecurityFramework]
 		[MonoConnectionTestFlags (MonoConnectionTestFlags.RequireTls12)]
@@ -115,7 +115,7 @@ namespace Xamarin.WebTests.MonoTests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-		[Work]
+		[Martin]
 		[AsyncTest]
 		[SecurityFramework] [IOS]
 		[MonoConnectionTestFlags (MonoConnectionTestFlags.RequireTls12)]
