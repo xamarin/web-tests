@@ -40,6 +40,12 @@ namespace Xamarin.WebTests.Android
 			get { return "Xamarin.WebTests.Android"; }
 		}
 
+		public override bool UsingAppleTls {
+			get {
+				return false;
+			}
+		}
+
 		public override string TlsProviderName {
 			get {
 #if CYCLE9
