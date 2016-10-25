@@ -48,7 +48,7 @@ namespace Xamarin.WebTests.Android
 
 		public override string TlsProviderName {
 			get {
-#if CYCLE9
+#if BTLS
 				return "btls";
 #else
 				return "legacy";
@@ -58,7 +58,7 @@ namespace Xamarin.WebTests.Android
 
 		public override Guid TlsProvider {
 			get {
-#if CYCLE9
+#if BTLS
 				return ConnectionProviderFactory.BoringTlsGuid;
 #else
 				return ConnectionProviderFactory.LegacyTlsGuid;
@@ -68,7 +68,7 @@ namespace Xamarin.WebTests.Android
 
 		public override bool SupportsTls12 {
 			get {
-#if CYCLE9
+#if BTLS
 				return true;
 #else
 				return false;

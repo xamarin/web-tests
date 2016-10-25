@@ -37,12 +37,12 @@
     <ConsolePause>false</ConsolePause>
     <AndroidTlsProvider>legacy</AndroidTlsProvider>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugC9|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugBtls|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\DebugC9</OutputPath>
-    <DefineConstants>DEBUG;CYCLE9;</DefineConstants>
+    <OutputPath>bin\DebugBtls</OutputPath>
+    <DefineConstants>DEBUG;BTLS;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
