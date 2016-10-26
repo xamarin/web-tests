@@ -1,0 +1,40 @@
+<CustomAssemblyDefinition>
+    <Name>Mono.Btls.PortableInterface</Name>
+    <Version>2.0.5.0</Version>
+    <PclVersion>v4.0</PclVersion>
+    <Profile>Profile24</Profile>
+    <PublicKeyToken>672c06b0b8f05406</PublicKeyToken>
+    <PublicKey>
+002400000480000094000000060200000024000052534131000400001100000099dd12eda85767
+ae6f06023ee28e711c7e5a212462095c83868c29db75eddf6d8e296e03824c14fedd5f55553fed
+0b6173be3cc985a4b7f9fb7c83ccff8ba3938563b3d1f45a81122f12a1bcb73edcaad61a8456c7
+595a6da5184b4dd9d10f011b949ef1391fccfeab1ba62aa51c267ef8bd57ef1b6ba5a4c515d0ba
+db81a78f
+    </PublicKey>
+    <InputAssembly>Mono.Btls.Interface</InputAssembly>
+    <ProfileReference>mscorlib</ProfileReference>
+    <ProfileReference>System</ProfileReference>
+    <ProfileReference>System.Net</ProfileReference>
+    <ProfileReference>Xamarin.WebTests.PortableSecurity</ProfileReference>
+    <ImportAssembly>mscorlib</ImportAssembly>
+    <ImportAssembly>System</ImportAssembly>
+    <IncludeTypes>
+		<Type>Mono.Btls.Interface.BtlsObject</Type>
+		<Type>Mono.Btls.Interface.BtlsProvider</Type>
+		<Type>Mono.Btls.Interface.BtlsX509</Type>
+		<Type>Mono.Btls.Interface.BtlsX509Chain</Type>
+		<Type>Mono.Btls.Interface.BtlsX509Error</Type>
+		<Type>Mono.Btls.Interface.BtlsX509Format</Type>
+		<Type>Mono.Btls.Interface.BtlsX509Lookup</Type>
+		<Type>Mono.Btls.Interface.BtlsX509Name</Type>
+		<Type>Mono.Btls.Interface.BtlsX509Purpose</Type>
+		<Type>Mono.Btls.Interface.BtlsX509Store</Type>
+		<Type>Mono.Btls.Interface.BtlsX509StoreCtx</Type>
+		<Type>Mono.Btls.Interface.BtlsX509StoreManager</Type>
+		<Type>Mono.Btls.Interface.BtlsX509StoreType</Type>
+		<Type>Mono.Btls.Interface.BtlsX509TrustKind</Type>
+		<Type>Mono.Btls.Interface.BtlsX509VerifyFlags</Type>
+		<Type>Mono.Btls.Interface.BtlsX509VerifyParam</Type>
+		<Type>Mono.Btls.Interface.VersionInfo</Type>
+    </IncludeTypes>
+</CustomAssemblyDefinition>
