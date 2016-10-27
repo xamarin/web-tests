@@ -1,5 +1,5 @@
 ﻿//
-// DroidFrameworkSetup.cs
+// BtlsDroidFrameworkSetup.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,18 +24,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-namespace Xamarin.WebTests.Android
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
+using Mono.Security.Interface;
+
+namespace Xamarin.WebTests.BtlsAndroid
 {
-	using MonoTestFramework;
+	using MonoTestProvider;
+	using ConnectionFramework;
 	using MonoConnectionFramework;
 
-	class DroidFrameworkSetup : IMonoFrameworkSetup
+	class BtlsDroidFrameworkSetup : MonoConnectionFrameworkSetup
 	{
-		public string Name {
-			get { return "Xamarin.WebTests.BtlsAndroid"; }
+		public override string Name {
+			get { return "Xamarin.WebTests.Android"; }
 		}
 
-		public string TlsProviderName {
+		public override bool UsingAppleTls {
+			get {
+				return false;
+			}
+		}
+
+		public override string TlsProviderName {
 			get {
 #if BTLS
 				return "btls";
@@ -45,22 +56,22 @@ namespace Xamarin.WebTests.Android
 			}
 		}
 
-		public Guid CurrentTlsProvider {
+		public override Guid TlsProvider {
 			get {
 #if BTLS
-				return MonoConnectionProviderFactory.BoringTlsGuid;
+				return ConnectionProviderFactory.BoringTlsGuid;
 #else
-				return MonoConnectionProviderFactory.MobileOldTlsGuid;
+				return ConnectionProviderFactory.LegacyTlsGuid;
 #endif
 			}
 		}
 
-		public Guid DefaultTlsProvider {
+		public override bool SupportsTls12 {
 			get {
 #if BTLS
-				return MonoConnectionProviderFactory.BoringTlsGuid;
+				return true;
 #else
-				return MonoConnectionProviderFactory.MobileOldTlsGuid;
+				return false;
 #endif
 			}
 		}

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.xamarin.webtests.android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.xamarin.webtests.btlsandroid">
 	<uses-sdk />
-	<application android:label="com.xamarin.webtests.android"></application>
+	<application android:label="com.xamarin.webtests.btlsandroid"></application>
 	<uses-permission android:name="android.permission.INTERNET" />
 </manifest>

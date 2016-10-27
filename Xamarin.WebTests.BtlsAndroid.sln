@@ -35,11 +35,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.BtlsAndroi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Btls.TestFramework", "Mono.Btls.TestFramework\Mono.Btls.TestFramework.csproj", "{5F811A0D-6424-4FFD-B636-87A7E7230729}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Mono.Btls.TestProvider", "Mono.Btls.TestProvider\Mono.Btls.TestProvider.shproj", "{FE00D468-E239-4814-B031-4E6F6FEBFEBD}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Btls.Tests", "Mono.Btls.Tests\Mono.Btls.Tests.csproj", "{09AD5105-7A0F-4C4A-BA25-7FC73A4992F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Btls.Interface", "Android\Mono.Btls.Interface\Mono.Btls.Interface.csproj", "{41525242-3E25-4CBE-8212-77A9F23BE4A3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Btls.PortableInterface.Android", "Android\Mono.Btls.PortableInterface.Android\Mono.Btls.PortableInterface.Android.csproj", "{41525242-3E25-4CBE-8212-77A9F23BE4A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

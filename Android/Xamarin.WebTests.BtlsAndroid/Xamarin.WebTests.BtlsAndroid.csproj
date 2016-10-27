@@ -95,19 +95,20 @@
     <Reference Include="Xamarin.Forms.Platform">
       <HintPath>..\..\packages\Xamarin.Forms.2.3.1.114\lib\MonoAndroid10\Xamarin.Forms.Platform.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Security.Providers.Btls" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainActivity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DroidFrameworkSetup.cs" />
+    <Compile Include="BtlsDroidFrameworkSetup.cs" />
+    <Compile Include="..\..\Xamarin.WebTests.MonoTestProvider\MonoConnectionFrameworkSetup.cs">
+      <Link>Xamarin.WebTests.MonoTestProvider\MonoConnectionFrameworkSetup.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\AboutAssets.txt" />
     <None Include="Properties\AndroidManifest.xml" />
     <None Include="packages.config" />
   </ItemGroup>
-  <Import Project="..\..\Mono.Btls.TestProvider\Mono.Btls.TestProvider.projitems" Label="Shared" Condition="Exists('..\..\Mono.Btls.TestProvider\Mono.Btls.TestProvider.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\..\packages\Xamarin.Android.Support.Vector.Drawable.23.3.0\build\Xamarin.Android.Support.Vector.Drawable.targets" Condition="Exists('..\..\packages\Xamarin.Android.Support.Vector.Drawable.23.3.0\build\Xamarin.Android.Support.Vector.Drawable.targets')" />
   <Import Project="..\..\packages\Xamarin.Forms.2.3.1.114\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets" Condition="Exists('..\..\packages\Xamarin.Forms.2.3.1.114\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" />
@@ -144,10 +145,6 @@
       <Project>{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}</Project>
       <Name>Xamarin.WebTests.MonoFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Mono.Security.Interface\Mono.Security.Interface.csproj">
-      <Project>{AA73A784-E623-4B67-86D7-5642449535F2}</Project>
-      <Name>Mono.Security.Interface</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Xamarin.WebTests.MonoTests\Xamarin.WebTests.MonoTests.csproj">
       <Project>{68C3567C-A1C1-4A0A-94E9-60BA4BD5CC39}</Project>
       <Name>Xamarin.WebTests.MonoTests</Name>
@@ -160,9 +157,9 @@
       <Project>{5F811A0D-6424-4FFD-B636-87A7E7230729}</Project>
       <Name>Mono.Btls.TestFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Mono.Btls.Interface\Mono.Btls.Interface.csproj">
-      <Project>{41525242-3E25-4CBE-8212-77A9F23BE4A3}</Project>
-      <Name>Mono.Btls.Interface</Name>
+    <ProjectReference Include="..\Mono.Security.Interface\Mono.Security.Interface.csproj">
+      <Project>{AA73A784-E623-4B67-86D7-5642449535F2}</Project>
+      <Name>Mono.Security.Interface</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>
