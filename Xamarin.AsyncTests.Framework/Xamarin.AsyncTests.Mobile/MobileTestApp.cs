@@ -178,10 +178,11 @@ namespace Xamarin.AsyncTests.Mobile
 			if (category != null) {
 				if (string.Equals (category, "all", StringComparison.OrdinalIgnoreCase))
 					config.CurrentCategory = TestCategory.All;
-				if (string.Equals (category, "global", StringComparison.OrdinalIgnoreCase))
+				else if (string.Equals (category, "global", StringComparison.OrdinalIgnoreCase))
 					config.CurrentCategory = TestCategory.Global;
 				else
-					config.CurrentCategory = config.Categories.First (c => c.Name.Equals (category));
+					config.CurrentCategory = config.Categories.FirstOrDefault (c => c.Name.Equals (category)) ?? TestCategory.All;
+
 				modified = true;
 			}
 

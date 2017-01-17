@@ -35,7 +35,9 @@ namespace Xamarin.WebTests.BtlsAndroid
 			base.OnCreate (bundle);
 
 			var options = Intent.GetStringExtra ("XAMARIN_ASYNCTESTS_OPTIONS");
-			options = "--category=Global";
+
+			if (string.IsNullOrEmpty (options))
+				options = "--category=Global";
 
 			Forms.Init (this, bundle);
 
