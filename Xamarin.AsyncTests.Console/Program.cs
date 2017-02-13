@@ -798,10 +798,8 @@ namespace Xamarin.AsyncTests.Console
 				AddFile (ResultOutput);
 			}
 
-			if (NUnitResultOutput != null) {
-				var nunitPrinter = NUnitResultPrinter.Create (result, NUnitResultOutput);
-				nunitPrinter.Print ();
-			}
+			if (NUnitResultOutput != null)
+				NUnitResultPrinter.Print (result, NUnitResultOutput);
 
 			if (!string.IsNullOrWhiteSpace (stdout) && File.Exists (stdout))
 				AddFile (stdout);

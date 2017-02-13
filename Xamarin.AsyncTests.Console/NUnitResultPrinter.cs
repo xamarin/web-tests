@@ -39,11 +39,6 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
-		public XmlWriter Writer {
-			get;
-			private set;
-		}
-
 		public bool ShowIgnored {
 			get { return showIgnored ?? true; }
 			set { showIgnored = value; }
@@ -52,26 +47,22 @@ namespace Xamarin.AsyncTests.Console
 		bool? showIgnored;
 		int current;
 
-		public NUnitResultPrinter (XmlWriter writer, TestResult result)
+		NUnitResultPrinter (TestResult result)
 		{
-			Writer = writer;
 			Result = result;
 		}
 
-		public static NUnitResultPrinter Create (TestResult result, string output)
+		public static void Print (TestResult result, string output)
 		{
 			var settings = new XmlWriterSettings {
 				Indent = true
 			};
-			using (var writer = XmlWriter.Create (output, settings))
-				return new NUnitResultPrinter (writer, result);
-		}
-
-		public void Print ()
-		{
-			var root = new XElement ("test-run");
-			Print (root);
-			root.WriteTo (Writer);
+			using (var writer = XmlWriter.Create (output, settings)) {
+				var printer = new NUnitResultPrinter (result);
+				var root = new XElement ("test-run");
+				printer.Print (root);
+				root.WriteTo (writer);
+			}
 		}
 
 		bool Print (XElement root)
