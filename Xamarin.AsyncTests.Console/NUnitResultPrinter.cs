@@ -26,6 +26,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using Xamarin.AsyncTests.Framework;
@@ -55,7 +56,7 @@ namespace Xamarin.AsyncTests.Console
 		public static void Print (TestResult result, string output)
 		{
 			var settings = new XmlWriterSettings {
-				Indent = true
+				Indent = true, OmitXmlDeclaration = true // , Encoding = Encoding.ASCII
 			};
 			using (var writer = XmlWriter.Create (output, settings)) {
 				var printer = new NUnitResultPrinter (result);
