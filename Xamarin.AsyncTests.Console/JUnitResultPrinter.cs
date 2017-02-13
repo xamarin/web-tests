@@ -146,18 +146,13 @@ namespace Xamarin.AsyncTests.Console
 			test.SetAttributeValue ("status", node.Status);
 			suite.Add (test);
 
-			var systemOut2 = new XElement ("system-out");
-			systemOut2.Add ("Another output");
-			suite.Add (systemOut2);
-			var systemOut3 = new XElement ("system-out");
-			systemOut3.Add (string.Format ("IDENTIFIER = {0}", node.Path));
-			suite.Add (systemOut3);
-
 			var systemOut = new XElement ("system-out");
 			suite.Add (systemOut);
 
 			var systemErr = new XElement ("system-err");
 			suite.Add (systemErr);
+
+			systemOut.Add (string.Format ("PATH = {0}", node.Path));
 
 			systemErr.Add (string.Format ("TEST: {0} {1}", node.HasLogEntries, node.HasMessages));
 
