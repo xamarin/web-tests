@@ -140,9 +140,11 @@ namespace Xamarin.AsyncTests.Console
 			}
 
 			var test = new XElement ("testcase");
-			test.SetAttributeValue ("classname", "X" + node.Name.Name);
+			// test.SetAttributeValue ("classname", "X" + node.Name.Name);
 			test.SetAttributeValue ("name", "Y" + node.Name.LocalName);
-			test.SetAttributeValue ("time", "0");
+			// test.SetAttributeValue ("time", "0");
+			test.SetAttributeValue ("status", node.Status);
+			test.SetAttributeValue ("log", "test-log");
 			suite.Add (test);
 
 			var systemOut = new XElement ("system-out");
