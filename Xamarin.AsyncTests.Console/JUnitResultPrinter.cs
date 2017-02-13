@@ -130,13 +130,11 @@ namespace Xamarin.AsyncTests.Console
 			var properties = new XElement ("properties");
 			suite.Add (properties);
 
-#if FIXME
-			var tcase = new XElement ("testcase");
-			tcase.SetAttributeValue ("classname", "martin.test");
-			tcase.SetAttributeValue ("name", "Test1");
-			tcase.SetAttributeValue ("time", "123.345000");
-			suite.Add (tcase);
-#endif
+			var test = new XElement ("testcase");
+			test.SetAttributeValue ("classname", node.Name.FullName);
+			test.SetAttributeValue ("name", node.Name.LocalName);
+			test.SetAttributeValue ("time", "123.345000");
+			suite.Add (test);
 
 			var systemOut = new XElement ("system-out");
 			suite.Add (systemOut);
