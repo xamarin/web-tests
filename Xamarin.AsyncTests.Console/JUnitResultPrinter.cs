@@ -130,10 +130,19 @@ namespace Xamarin.AsyncTests.Console
 			var properties = new XElement ("properties");
 			suite.Add (properties);
 
+			if (node.Name.HasParameters) {
+				foreach (var parameter in node.Name.Parameters) {
+					var propNode = new XElement ("property");
+					propNode.SetAttributeValue ("name", parameter.Name);
+					propNode.SetAttributeValue ("value", parameter.Value);
+					properties.Add (propNode);
+				}
+			}
+
 			var test = new XElement ("testcase");
 			test.SetAttributeValue ("classname", node.Name.FullName);
 			test.SetAttributeValue ("name", node.Name.LocalName);
-			test.SetAttributeValue ("time", "123.345000");
+			test.SetAttributeValue ("time", "0");
 			suite.Add (test);
 
 			var systemOut = new XElement ("system-out");
@@ -146,10 +155,7 @@ namespace Xamarin.AsyncTests.Console
 
 			if (node.HasMessages) {
 				foreach (var message in node.Messages) {
-					// var text = new XText ("Hello < & Stuff");
-					// systemOut.Add (text);
 					systemOut.Add (message + Environment.NewLine);
-					// systemOut.Add ("Hello < & Stuff");
 				}
 			}
 
