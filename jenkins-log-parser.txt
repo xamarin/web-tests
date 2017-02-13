@@ -1,0 +1,4 @@
+error /^@Jenkins-Error: /
+
+info /^@Jenkins-Info: /
+

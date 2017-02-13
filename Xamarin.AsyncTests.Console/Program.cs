@@ -103,6 +103,11 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public bool Jenkins {
+			get;
+			private set;
+		}
+
 		public ApplicationLauncher Launcher {
 			get;
 			private set;
@@ -213,6 +218,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("device=", v => device = v);
 			p.Add ("sdkroot=", v => sdkroot = v);
 			p.Add ("wrench", v => Wrench = true);
+			p.Add ("jenkins", v => Jenkins = true);
 			var remaining = p.Parse (args);
 
 			if (assembly != null) {
@@ -361,6 +367,8 @@ namespace Xamarin.AsyncTests.Console
 			Debug (message);
 			if (Wrench)
 				global::System.Console.WriteLine ("@MonkeyWrench: AddSummary: <p>{0}</p>", message);
+			if (Jenkins)
+				global::System.Console.WriteLine ("@Jenkins-Info: {0}", message);
 		}
 
 		internal void WriteErrorSummary (string message)
@@ -368,6 +376,8 @@ namespace Xamarin.AsyncTests.Console
 			Debug ("ERROR: {0}", message);
 			if (Wrench)
 				global::System.Console.WriteLine ("@MonkeyWrench: AddSummary: <p><b>ERROR: {0}</b></p>", message);
+			if (Jenkins)
+				global::System.Console.WriteLine ("@Jenkins-Error: {0}", message);
 		}
 
 		internal void AddFile (string filename)
