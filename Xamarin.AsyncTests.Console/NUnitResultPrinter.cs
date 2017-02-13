@@ -70,9 +70,15 @@ namespace Xamarin.AsyncTests.Console
 		{
 			var suite = new XElement ("testsuite");
 			suite.SetAttributeValue ("name", "Martin");
+			suite.SetAttributeValue ("errors", "0");
+			suite.SetAttributeValue ("failures", "0");
+			suite.SetAttributeValue ("tests", "1");
 			root.Add (suite);
 
 			var tcase = new XElement ("testcase");
+			tcase.SetAttributeValue ("classname", "martin.test");
+			tcase.SetAttributeValue ("name", "Test1");
+			tcase.SetAttributeValue ("time", "123.345000");
 			suite.Add (tcase);
 
 			var tout = new XElement ("system-out");
