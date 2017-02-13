@@ -112,7 +112,7 @@ namespace Xamarin.AsyncTests.Console
 			return false;
 		}
 
-		void Print (XElement root, TestResult node)
+		XElement Print (XElement root, TestResult node)
 		{
 			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 			var suite = new XElement ("testsuite");
@@ -159,6 +159,8 @@ namespace Xamarin.AsyncTests.Console
 				}
 			}
 
+			return suite;
+
 			if (false && node.HasLogEntries) {
 				foreach (var entry in node.LogEntries) {
 					switch (entry.Kind) {
@@ -194,12 +196,12 @@ namespace Xamarin.AsyncTests.Console
 				System.Console.WriteLine ("TEST: {0} - {1} {2} {3} - {4}", path.GetType ().FullName, path.Identifier, path.Name, path.ParameterType,
 				                          node.Name.HasParameters);
 
-			Print (root, node);
+			var suite = Print (root, node);
 
 			System.Console.WriteLine ("VISIT: {0} {1} - {2} {3} - {4}", node.Name.FullName, node.Status, node.HasLogEntries, node.HasMessages, node.Name.HasParameters);
 			if (node.HasChildren) {
 				foreach (var child in node.Children)
-					Visit (root, child);
+					Visit (suite, child);
 				return;
 			}
 
