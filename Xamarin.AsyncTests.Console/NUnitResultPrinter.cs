@@ -56,11 +56,11 @@ namespace Xamarin.AsyncTests.Console
 		public static void Print (TestResult result, string output)
 		{
 			var settings = new XmlWriterSettings {
-				Indent = true, OmitXmlDeclaration = true, Encoding = Encoding.ASCII
+				Indent = true
 			};
 			using (var writer = XmlWriter.Create (output, settings)) {
 				var printer = new NUnitResultPrinter (result);
-				var root = new XElement ("test-run");
+				var root = new XElement ("testsuites");
 				printer.Print (root);
 				root.WriteTo (writer);
 			}
@@ -68,15 +68,16 @@ namespace Xamarin.AsyncTests.Console
 
 		bool Print (XElement root)
 		{
-			var commandLine = new XElement ("command-line");
-			commandLine.Add (new XText ("martin-test"));
-			root.Add (commandLine);
-
-			var suite = new XElement ("test-suite");
-			suite.SetAttributeValue ("type", "TestSuite");
+			var suite = new XElement ("testsuite");
 			suite.SetAttributeValue ("name", "Martin");
-			suite.SetAttributeValue ("fullname", Result.Name.FullName);
 			root.Add (suite);
+
+			var tcase = new XElement ("testcase");
+			suite.Add (tcase);
+
+			var tout = new XElement ("system-out");
+			tout.Add (new XText ("Hello World!"));
+			tcase.Add (tout);
 
 			// Writer.WriteLine ();
 			// Writer.WriteLine ("Test result: {0} - {1}", Result.Name.FullName, Result.Status);
