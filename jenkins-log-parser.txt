@@ -1,3 +1,5 @@
+start /^\[start\] /
+
 error /^\[error\] /
 
 info /^\[info\] /

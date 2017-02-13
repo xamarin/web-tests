@@ -374,8 +374,6 @@ namespace Xamarin.AsyncTests.Console
 		internal void Debug (string message)
 		{
 			SD.Debug.WriteLine (message);
-			if (Jenkins)
-				global::System.Console.WriteLine ("[info] {0}", message);
 		}
 
 		internal void Debug (string message, params object[] args)
@@ -516,6 +514,9 @@ namespace Xamarin.AsyncTests.Console
 
 		Task<bool> Run (CancellationToken cancellationToken)
 		{
+			if (Jenkins)
+				global::System.Console.WriteLine ("[start] Running test suite.");
+
 			switch (command) {
 			case Command.Local:
 				return RunLocal (cancellationToken);
