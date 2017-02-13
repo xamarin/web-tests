@@ -55,7 +55,7 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
-		public string NUnitResultOutput {
+		public string JUnitResultOutput {
 			get;
 			private set;
 		}
@@ -211,7 +211,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("wait", v => Wait = true);
 			p.Add ("no-result", v => ResultOutput = null);
 			p.Add ("result=", v => ResultOutput = v);
-			p.Add ("nunit-result=", v => NUnitResultOutput = v);
+			p.Add ("junit-result=", v => JUnitResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
 			p.Add ("local-log-level=", v => LocalLogLevel = int.Parse (v));
 			p.Add ("dependency=", v => dependencies.Add (v));
@@ -334,8 +334,8 @@ namespace Xamarin.AsyncTests.Console
 				stderr = Path.Combine (OutputDirectory, stderr);
 			if (!string.IsNullOrEmpty (ResultOutput))
 				ResultOutput = Path.Combine (OutputDirectory, ResultOutput);
-			if (!string.IsNullOrEmpty (NUnitResultOutput))
-				NUnitResultOutput = Path.Combine (OutputDirectory, NUnitResultOutput);
+			if (!string.IsNullOrEmpty (JUnitResultOutput))
+				JUnitResultOutput = Path.Combine (OutputDirectory, JUnitResultOutput);
 		}
 
 		void Initialize ()
@@ -798,9 +798,9 @@ namespace Xamarin.AsyncTests.Console
 				AddFile (ResultOutput);
 			}
 
-			if (NUnitResultOutput != null) {
-				NUnitResultPrinter.Print (result, NUnitResultOutput);
-				Debug ("NUnit result written to {0}.", NUnitResultOutput);
+			if (JUnitResultOutput != null) {
+				JUnitResultPrinter.Print (result, JUnitResultOutput);
+				Debug ("JUnit result written to {0}.", JUnitResultOutput);
 			}
 
 			if (!string.IsNullOrWhiteSpace (stdout) && File.Exists (stdout))

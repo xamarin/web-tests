@@ -1,5 +1,5 @@
 ﻿//
-// ResultPrinter.cs
+// JUnitResultPrinter.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -33,7 +33,7 @@ using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.AsyncTests.Console
 {
-	public class NUnitResultPrinter
+	public class JUnitResultPrinter
 	{
 		public TestResult Result {
 			get;
@@ -48,7 +48,7 @@ namespace Xamarin.AsyncTests.Console
 		bool? showIgnored;
 		int current;
 
-		NUnitResultPrinter (TestResult result)
+		JUnitResultPrinter (TestResult result)
 		{
 			Result = result;
 		}
@@ -59,7 +59,7 @@ namespace Xamarin.AsyncTests.Console
 				Indent = true
 			};
 			using (var writer = XmlWriter.Create (output, settings)) {
-				var printer = new NUnitResultPrinter (result);
+				var printer = new JUnitResultPrinter (result);
 				var root = new XElement ("testsuites");
 				printer.Print (root);
 				root.WriteTo (writer);
