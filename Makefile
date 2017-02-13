@@ -18,14 +18,14 @@ ALL_WRENCH_BUILD_TARGETS = \
 All:: $(ALL_BUILD_TARGETS)
 	@echo "Build done"
 
-C9-%::
-	$(MAKE) CYCLE9=1 $*
-
 CleanAll::
 	git clean -xffd
 
 Wrench-%::
 	$(MAKE) WRENCH=1 $*
+
+Jenkins-%::
+	$(MAKE) JENKINS=1 DEBUG_CONFIGURATION=$(JENKINS_CONFIGURATION) $*
 
 Wrench-Build-All:: $(ALL_WRENCH_BUILD_TARGETS)
 	@echo "Build done."
