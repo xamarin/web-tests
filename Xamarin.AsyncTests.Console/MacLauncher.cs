@@ -44,6 +44,11 @@ namespace Xamarin.AsyncTests.Console
 
 	class MacLauncher : ApplicationLauncher
 	{
+		public Program Program {
+			get;
+			private set;
+		}
+
 		public string Application {
 			get;
 			private set;
@@ -62,8 +67,9 @@ namespace Xamarin.AsyncTests.Console
 		Process process;
 		TaskCompletionSource<bool> tcs;
 
-		public MacLauncher (string app, string stdout, string stderr)
+		public MacLauncher (Program program, string app, string stdout, string stderr)
 		{
+			Program = program;
 			Application = app;
 			RedirectStdout = stdout;
 			RedirectStderr = stderr;

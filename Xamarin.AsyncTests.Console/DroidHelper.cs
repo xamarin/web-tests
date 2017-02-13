@@ -37,6 +37,11 @@ namespace Xamarin.AsyncTests.Console
 {
 	class DroidHelper
 	{
+		public Program Program {
+			get;
+			private set;
+		}
+
 		public string SdkRoot {
 			get;
 			private set;
@@ -57,8 +62,9 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
-		public DroidHelper (string sdkRoot)
+		public DroidHelper (Program program, string sdkRoot)
 		{
+			Program = program;
 			SdkRoot = sdkRoot;
 
 			if (String.IsNullOrEmpty (SdkRoot))

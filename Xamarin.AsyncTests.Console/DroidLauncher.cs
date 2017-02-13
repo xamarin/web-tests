@@ -44,6 +44,11 @@ namespace Xamarin.AsyncTests.Console
 
 	class DroidLauncher : ApplicationLauncher
 	{
+		public Program Program {
+			get;
+			private set;
+		}
+
 		public string SdkRoot {
 			get;
 			private set;
@@ -78,8 +83,9 @@ namespace Xamarin.AsyncTests.Console
 		Process process;
 		TaskCompletionSource<bool> tcs;
 
-		public DroidLauncher (string app, string stdout, string stderr)
+		public DroidLauncher (Program program, string app, string stdout, string stderr)
 		{
+			Program = program;
 			Application = app;
 			RedirectStdout = stdout;
 			RedirectStderr = stderr;

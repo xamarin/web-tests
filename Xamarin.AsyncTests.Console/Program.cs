@@ -162,12 +162,12 @@ namespace Xamarin.AsyncTests.Console
 				task.Wait ();
 				Environment.Exit (task.Result ? 0 : 1);
 			} catch (Exception ex) {
-				PrintException (ex);
+				program.PrintException (ex);
 				Environment.Exit (-1);
 			}
 		}
 
-		static void PrintException (Exception ex)
+		void PrintException (Exception ex)
 		{
 			var aggregate = ex as AggregateException;
 			if (aggregate != null && aggregate.InnerExceptions.Count == 1) {
@@ -278,7 +278,7 @@ namespace Xamarin.AsyncTests.Console
 			} else if (command == Command.Simulator || command == Command.Device || command == Command.TVOS) {
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected .app argument");
-				Launcher = new TouchLauncher (arguments [0], command, sdkroot, stdout, stderr, device, extraLauncherArgs);
+				Launcher = new TouchLauncher (this, arguments [0], command, sdkroot, stdout, stderr, device, extraLauncherArgs);
 				arguments.RemoveAt (0);
 
 				if (EndPoint == null)
@@ -286,7 +286,7 @@ namespace Xamarin.AsyncTests.Console
 			} else if (command == Command.Mac) {
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected .app argument");
-				Launcher = new MacLauncher (arguments [0], stdout, stderr);
+				Launcher = new MacLauncher (this, arguments [0], stdout, stderr);
 				arguments.RemoveAt (0);
 
 				if (EndPoint == null)
@@ -295,7 +295,7 @@ namespace Xamarin.AsyncTests.Console
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected activity argument");
 
-				Launcher = new DroidLauncher (arguments [0], stdout, stderr);
+				Launcher = new DroidLauncher (this, arguments [0], stdout, stderr);
 				arguments.RemoveAt (0);
 
 				if (EndPoint == null)
@@ -304,7 +304,7 @@ namespace Xamarin.AsyncTests.Console
 				if (arguments.Count != 0)
 					throw new InvalidOperationException ("Unexpected extra arguments");
 
-				droidHelper = new DroidHelper (sdkroot);
+				droidHelper = new DroidHelper (this, sdkroot);
 			} else if (command == Command.Result) {
 				if (arguments.Count != 1)
 					throw new InvalidOperationException ("Expected TestResult.xml argument");
@@ -371,14 +371,16 @@ namespace Xamarin.AsyncTests.Console
 			global::System.Console.WriteLine (message, args);
 		}
 
-		internal static void Debug (string message)
+		internal void Debug (string message)
 		{
 			SD.Debug.WriteLine (message);
+			if (Jenkins)
+				global::System.Console.WriteLine ("[info] {0}", message);
 		}
 
-		internal static void Debug (string message, params object[] args)
+		internal void Debug (string message, params object[] args)
 		{
-			SD.Debug.WriteLine (message, args);
+			Debug (string.Format (message, args));
 		}
 
 		internal void WriteSummary (string format, params object[] args)
@@ -482,7 +484,7 @@ namespace Xamarin.AsyncTests.Console
 			SettingsFile = Path.Combine (path, name + ".xml");
 		}
 
-		static SettingsBag LoadSettings (string filename)
+		SettingsBag LoadSettings (string filename)
 		{
 			if (filename == null || !File.Exists (filename))
 				return SettingsBag.CreateDefault ();
