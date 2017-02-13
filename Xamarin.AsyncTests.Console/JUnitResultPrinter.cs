@@ -117,8 +117,8 @@ namespace Xamarin.AsyncTests.Console
 			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 			var suite = new XElement ("testsuite");
 			suite.SetAttributeValue ("id", node.Name.ID);
-			suite.SetAttributeValue ("package", "P" + node.Name.FullName);
-			suite.SetAttributeValue ("name", "Z" + node.Name.Name);
+			suite.SetAttributeValue ("package", "P" + node.Name.FullName + "P");
+			suite.SetAttributeValue ("name", "Z" + node.Name.Name + "Z");
 			suite.SetAttributeValue ("errors", "0");
 			suite.SetAttributeValue ("failures", "0");
 			suite.SetAttributeValue ("tests", "1");
@@ -141,7 +141,7 @@ namespace Xamarin.AsyncTests.Console
 
 			var test = new XElement ("testcase");
 			// test.SetAttributeValue ("classname", "X" + node.Name.Name);
-			test.SetAttributeValue ("name", "T" + node.Name.Name);
+			test.SetAttributeValue ("name", "T" + node.Name.Name + "T");
 			// test.SetAttributeValue ("time", "0");
 			test.SetAttributeValue ("status", node.Status);
 			suite.Add (test);
