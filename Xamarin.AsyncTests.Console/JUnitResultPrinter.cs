@@ -118,7 +118,7 @@ namespace Xamarin.AsyncTests.Console
 			var suite = new XElement ("testsuite");
 			suite.SetAttributeValue ("id", node.Name.ID);
 			suite.SetAttributeValue ("package", "P" + node.Name.FullName);
-			suite.SetAttributeValue ("name", "Q" + node.Name.LocalName);
+			suite.SetAttributeValue ("name", "Q" + node.Name.Name);
 			suite.SetAttributeValue ("errors", "0");
 			suite.SetAttributeValue ("failures", "0");
 			suite.SetAttributeValue ("tests", "1");
