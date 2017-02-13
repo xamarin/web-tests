@@ -108,6 +108,11 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public string OutputDirectory {
+			get;
+			private set;
+		}
+
 		public ApplicationLauncher Launcher {
 			get;
 			private set;
@@ -219,6 +224,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("sdkroot=", v => sdkroot = v);
 			p.Add ("wrench", v => Wrench = true);
 			p.Add ("jenkins", v => Jenkins = true);
+			p.Add ("output-dir=", v => OutputDirectory = v);
 			var remaining = p.Parse (args);
 
 			if (assembly != null) {
@@ -308,8 +314,26 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
+		void CheckOutputDirectory ()
+		{
+			if (string.IsNullOrEmpty (OutputDirectory))
+				return;
+
+			if (!Directory.Exists (OutputDirectory))
+				Directory.CreateDirectory (OutputDirectory);
+
+			if (!string.IsNullOrEmpty (stdout))
+				stdout = Path.Combine (OutputDirectory, stdout);
+			if (!string.IsNullOrEmpty (stderr))
+				stderr = Path.Combine (OutputDirectory, stderr);
+			if (!string.IsNullOrEmpty (ResultOutput))
+				ResultOutput = Path.Combine (OutputDirectory, ResultOutput);
+		}
+
 		void Initialize ()
 		{
+			CheckOutputDirectory ();
+
 			CheckSettingsFile ();
 
 			settings = LoadSettings (SettingsFile);
