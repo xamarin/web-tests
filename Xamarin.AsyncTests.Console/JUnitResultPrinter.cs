@@ -69,55 +69,16 @@ namespace Xamarin.AsyncTests.Console
 		bool Print (XElement root)
 		{
 			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
-			Visit (root, Result);
+			Visit (root, Result.Name, Result);
 			return true;
-
-			var suite = new XElement ("testsuite");
-			suite.SetAttributeValue ("id", 1);
-			suite.SetAttributeValue ("package", Result.Name.FullName);
-			suite.SetAttributeValue ("name", Result.Name.LocalName);
-			suite.SetAttributeValue ("errors", "0");
-			suite.SetAttributeValue ("failures", "0");
-			suite.SetAttributeValue ("tests", "1");
-			suite.SetAttributeValue ("timestamp", timestamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
-			suite.SetAttributeValue ("hostname", "localhost");
-			suite.SetAttributeValue ("time", "0");
-			root.Add (suite);
-
-			var properties = new XElement ("properties");
-			suite.Add (properties);
-
-			var tcase = new XElement ("testcase");
-			tcase.SetAttributeValue ("classname", "martin.test");
-			tcase.SetAttributeValue ("name", "Test1");
-			tcase.SetAttributeValue ("time", "123.345000");
-			suite.Add (tcase);
-
-			var systemOut = new XElement ("system-out");
-			systemOut.Add (new XText ("Hello World!"));
-			suite.Add (systemOut);
-
-			var systemErr = new XElement ("system-err");
-			// systemErr.Add ("Test Error");
-			suite.Add (systemErr);
-
-			// Writer.WriteLine ();
-			// Writer.WriteLine ("Test result: {0} - {1}", Result.Name.FullName, Result.Status);
-			// Writer.WriteLine ();
-
-			if (Result.Status == TestStatus.Success)
-				return true;
-
-			Visit (root, Result);
-			return false;
 		}
 
-		XElement Print (XElement root, TestResult node)
+		XElement Print (XElement root, TestName parent, TestResult node)
 		{
 			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 			var suite = new XElement ("testsuite");
 			suite.SetAttributeValue ("id", node.Name.ID);
-			suite.SetAttributeValue ("package", "P" + node.Name.FullName + "P");
+			suite.SetAttributeValue ("package", "P" + parent.FullName + "P");
 			suite.SetAttributeValue ("name", "Z" + node.Name.Name + "Z");
 			suite.SetAttributeValue ("errors", "0");
 			suite.SetAttributeValue ("failures", "0");
@@ -189,7 +150,7 @@ namespace Xamarin.AsyncTests.Console
 			return name.FullName;
 		}
 
-		void Visit (XElement root, TestResult node)
+		void Visit (XElement root, TestName parent, TestResult node)
 		{
 			if (false && node.Status == TestStatus.Ignored)
 				return;
@@ -199,12 +160,12 @@ namespace Xamarin.AsyncTests.Console
 				System.Console.WriteLine ("TEST: {0} - {1} {2} {3} - {4}", path.GetType ().FullName, path.Identifier, path.Name, path.ParameterType,
 				                          node.Name.HasParameters);
 
-			var suite = Print (root, node);
+			var suite = Print (root, parent, node);
 
 			System.Console.WriteLine ("VISIT: {0} {1} - {2} {3} - {4}", node.Name.FullName, node.Status, node.HasLogEntries, node.HasMessages, node.Name.HasParameters);
 			if (node.HasChildren) {
 				foreach (var child in node.Children)
-					Visit (suite, child);
+					Visit (suite, node.Name, child);
 				return;
 			}
 
