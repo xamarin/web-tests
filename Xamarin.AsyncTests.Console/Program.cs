@@ -368,7 +368,7 @@ namespace Xamarin.AsyncTests.Console
 			if (Wrench)
 				global::System.Console.WriteLine ("@MonkeyWrench: AddSummary: <p>{0}</p>", message);
 			if (Jenkins)
-				global::System.Console.WriteLine ("@Jenkins-Info: {0}", message);
+				global::System.Console.WriteLine ("[info] {0}", message);
 		}
 
 		internal void WriteErrorSummary (string message)
@@ -377,7 +377,7 @@ namespace Xamarin.AsyncTests.Console
 			if (Wrench)
 				global::System.Console.WriteLine ("@MonkeyWrench: AddSummary: <p><b>ERROR: {0}</b></p>", message);
 			if (Jenkins)
-				global::System.Console.WriteLine ("@Jenkins-Error: {0}", message);
+				global::System.Console.WriteLine ("[error] {0}", message);
 		}
 
 		internal void AddFile (string filename)
