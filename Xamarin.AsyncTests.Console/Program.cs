@@ -55,6 +55,11 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public string NUnitResultOutput {
+			get;
+			private set;
+		}
+
 		public IPEndPoint EndPoint {
 			get;
 			private set;
@@ -206,6 +211,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("wait", v => Wait = true);
 			p.Add ("no-result", v => ResultOutput = null);
 			p.Add ("result=", v => ResultOutput = v);
+			p.Add ("nunit-result=", v => NUnitResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
 			p.Add ("local-log-level=", v => LocalLogLevel = int.Parse (v));
 			p.Add ("dependency=", v => dependencies.Add (v));
@@ -328,6 +334,8 @@ namespace Xamarin.AsyncTests.Console
 				stderr = Path.Combine (OutputDirectory, stderr);
 			if (!string.IsNullOrEmpty (ResultOutput))
 				ResultOutput = Path.Combine (OutputDirectory, ResultOutput);
+			if (!string.IsNullOrEmpty (NUnitResultOutput))
+				NUnitResultOutput = Path.Combine (OutputDirectory, NUnitResultOutput);
 		}
 
 		void Initialize ()
@@ -788,6 +796,11 @@ namespace Xamarin.AsyncTests.Console
 					serialized.WriteTo (writer);
 				Debug ("Result writting to {0}.", ResultOutput);
 				AddFile (ResultOutput);
+			}
+
+			if (NUnitResultOutput != null) {
+				var nunitPrinter = NUnitResultPrinter.Create (result, NUnitResultOutput);
+				nunitPrinter.Print ();
 			}
 
 			if (!string.IsNullOrWhiteSpace (stdout) && File.Exists (stdout))
