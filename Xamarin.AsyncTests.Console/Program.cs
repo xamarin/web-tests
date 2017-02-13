@@ -794,12 +794,14 @@ namespace Xamarin.AsyncTests.Console
 				settings.Indent = true;
 				using (var writer = XmlTextWriter.Create (ResultOutput, settings))
 					serialized.WriteTo (writer);
-				Debug ("Result writting to {0}.", ResultOutput);
+				Debug ("Result written to {0}.", ResultOutput);
 				AddFile (ResultOutput);
 			}
 
-			if (NUnitResultOutput != null)
+			if (NUnitResultOutput != null) {
 				NUnitResultPrinter.Print (result, NUnitResultOutput);
+				Debug ("NUnit result written to {0}.", NUnitResultOutput);
+			}
 
 			if (!string.IsNullOrWhiteSpace (stdout) && File.Exists (stdout))
 				AddFile (stdout);

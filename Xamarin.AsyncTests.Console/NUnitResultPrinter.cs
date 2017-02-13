@@ -67,6 +67,16 @@ namespace Xamarin.AsyncTests.Console
 
 		bool Print (XElement root)
 		{
+			var commandLine = new XElement ("command-line");
+			commandLine.Add (new XText ("martin-test"));
+			root.Add (commandLine);
+
+			var suite = new XElement ("test-suite");
+			suite.SetAttributeValue ("type", "TestSuite");
+			suite.SetAttributeValue ("name", "Martin");
+			suite.SetAttributeValue ("fullname", Result.Name.FullName);
+			root.Add (suite);
+
 			// Writer.WriteLine ();
 			// Writer.WriteLine ("Test result: {0} - {1}", Result.Name.FullName, Result.Status);
 			// Writer.WriteLine ();
