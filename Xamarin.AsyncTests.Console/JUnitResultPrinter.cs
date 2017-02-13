@@ -149,6 +149,9 @@ namespace Xamarin.AsyncTests.Console
 			var systemOut2 = new XElement ("system-out");
 			systemOut2.Add ("Another output");
 			suite.Add (systemOut2);
+			var systemOut3 = new XElement ("system-out");
+			systemOut3.Add (string.Format ("IDENTIFIER = {0}", node.Path));
+			suite.Add (systemOut3);
 
 			var systemOut = new XElement ("system-out");
 			suite.Add (systemOut);
