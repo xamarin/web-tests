@@ -118,13 +118,13 @@ namespace Xamarin.AsyncTests.Console
 			var suite = new XElement ("testsuite");
 			suite.SetAttributeValue ("id", node.Name.ID);
 			suite.SetAttributeValue ("package", node.Name.FullName);
-			suite.SetAttributeValue ("name", node.Name.LocalName);
+			// suite.SetAttributeValue ("name", node.Name.LocalName);
 			suite.SetAttributeValue ("errors", "0");
 			suite.SetAttributeValue ("failures", "0");
 			suite.SetAttributeValue ("tests", "1");
 			suite.SetAttributeValue ("timestamp", timestamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
 			suite.SetAttributeValue ("hostname", "localhost");
-			suite.SetAttributeValue ("time", "0");
+			// suite.SetAttributeValue ("time", "0");
 			root.Add (suite);
 
 			var properties = new XElement ("properties");
