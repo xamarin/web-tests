@@ -68,12 +68,24 @@ namespace Xamarin.AsyncTests.Console
 
 		bool Print (XElement root)
 		{
+			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
+			Visit (root, Result);
+			return true;
+
 			var suite = new XElement ("testsuite");
-			suite.SetAttributeValue ("name", "Martin");
+			suite.SetAttributeValue ("id", 1);
+			suite.SetAttributeValue ("package", Result.Name.FullName);
+			suite.SetAttributeValue ("name", Result.Name.LocalName);
 			suite.SetAttributeValue ("errors", "0");
 			suite.SetAttributeValue ("failures", "0");
 			suite.SetAttributeValue ("tests", "1");
+			suite.SetAttributeValue ("timestamp", timestamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
+			suite.SetAttributeValue ("hostname", "localhost");
+			suite.SetAttributeValue ("time", "0");
 			root.Add (suite);
+
+			var properties = new XElement ("properties");
+			suite.Add (properties);
 
 			var tcase = new XElement ("testcase");
 			tcase.SetAttributeValue ("classname", "martin.test");
@@ -81,9 +93,13 @@ namespace Xamarin.AsyncTests.Console
 			tcase.SetAttributeValue ("time", "123.345000");
 			suite.Add (tcase);
 
-			var tout = new XElement ("system-out");
-			tout.Add (new XText ("Hello World!"));
-			tcase.Add (tout);
+			var systemOut = new XElement ("system-out");
+			systemOut.Add (new XText ("Hello World!"));
+			suite.Add (systemOut);
+
+			var systemErr = new XElement ("system-err");
+			// systemErr.Add ("Test Error");
+			suite.Add (systemErr);
 
 			// Writer.WriteLine ();
 			// Writer.WriteLine ("Test result: {0} - {1}", Result.Name.FullName, Result.Status);
@@ -92,8 +108,71 @@ namespace Xamarin.AsyncTests.Console
 			if (Result.Status == TestStatus.Success)
 				return true;
 
-			Visit (Result);
+			Visit (root, Result);
 			return false;
+		}
+
+		void Print (XElement root, TestResult node)
+		{
+			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
+			var suite = new XElement ("testsuite");
+			suite.SetAttributeValue ("id", node.Name.ID);
+			suite.SetAttributeValue ("package", node.Name.FullName);
+			suite.SetAttributeValue ("name", node.Name.LocalName);
+			suite.SetAttributeValue ("errors", "0");
+			suite.SetAttributeValue ("failures", "0");
+			suite.SetAttributeValue ("tests", "1");
+			suite.SetAttributeValue ("timestamp", timestamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
+			suite.SetAttributeValue ("hostname", "localhost");
+			suite.SetAttributeValue ("time", "0");
+			root.Add (suite);
+
+			var properties = new XElement ("properties");
+			suite.Add (properties);
+
+#if FIXME
+			var tcase = new XElement ("testcase");
+			tcase.SetAttributeValue ("classname", "martin.test");
+			tcase.SetAttributeValue ("name", "Test1");
+			tcase.SetAttributeValue ("time", "123.345000");
+			suite.Add (tcase);
+#endif
+
+			var systemOut = new XElement ("system-out");
+			suite.Add (systemOut);
+
+			var systemErr = new XElement ("system-err");
+			suite.Add (systemErr);
+
+			systemErr.Add (string.Format ("TEST: {0} {1}", node.HasLogEntries, node.HasMessages));
+
+			if (node.HasMessages) {
+				foreach (var message in node.Messages) {
+					// var text = new XText ("Hello < & Stuff");
+					// systemOut.Add (text);
+					systemOut.Add (message + Environment.NewLine);
+					// systemOut.Add ("Hello < & Stuff");
+				}
+			}
+
+			if (false && node.HasLogEntries) {
+				foreach (var entry in node.LogEntries) {
+					switch (entry.Kind) {
+					case TestLoggerBackend.EntryKind.Error:
+						break;
+					default:
+						break;
+					}
+					if (!string.IsNullOrEmpty (entry.Text))
+						systemOut.Add (entry.Text);
+				}
+			}
+
+			// systemOut.Add (new XText ("Hello World!"));
+
+			// Visit (root, node);
+
+			// systemErr.Add ("Test Error");
 		}
 
 		string FormatName (TestName name)
@@ -101,11 +180,22 @@ namespace Xamarin.AsyncTests.Console
 			return name.FullName;
 		}
 
-		void Visit (TestResult node)
+		void Visit (XElement root, TestResult node)
 		{
+			if (false && node.Status == TestStatus.Ignored)
+				return;
+
+			var path = (IPathNode)node.Path;
+			if (false && path != null)
+				System.Console.WriteLine ("TEST: {0} - {1} {2} {3} - {4}", path.GetType ().FullName, path.Identifier, path.Name, path.ParameterType,
+				                          node.Name.HasParameters);
+
+			Print (root, node);
+
+			System.Console.WriteLine ("VISIT: {0} {1} - {2} {3} - {4}", node.Name.FullName, node.Status, node.HasLogEntries, node.HasMessages, node.Name.HasParameters);
 			if (node.HasChildren) {
 				foreach (var child in node.Children)
-					Visit (child);
+					Visit (root, child);
 				return;
 			}
 

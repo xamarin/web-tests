@@ -30,7 +30,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	sealed class TestPath : ITestPath, ITestPathInternal
+	sealed class TestPath : ITestPath, ITestPathInternal, IPathNode
 	{
 		public TestHost Host {
 			get;
@@ -73,6 +73,18 @@ namespace Xamarin.AsyncTests.Framework
 
 		public bool IsBrowseable {
 			get { return (Flags & TestFlags.Browsable) != 0; }
+		}
+
+		string IPathNode.Identifier {
+			get { return Host.Identifier; }
+		}
+
+		string IPathNode.Name {
+			get { return Name.FullName; }
+		}
+
+		string IPathNode.ParameterType {
+			get { return Host.ParameterType; }
 		}
 
 		readonly ITestParameter parameter;
