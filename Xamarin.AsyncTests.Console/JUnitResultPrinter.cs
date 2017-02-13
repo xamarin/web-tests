@@ -118,11 +118,11 @@ namespace Xamarin.AsyncTests.Console
 			var suite = new XElement ("testsuite");
 			suite.SetAttributeValue ("id", node.Name.ID);
 			suite.SetAttributeValue ("package", "P" + node.Name.FullName);
-			suite.SetAttributeValue ("name", "Q" + node.Name.Name);
+			suite.SetAttributeValue ("name", "Z" + node.Name.Name);
 			suite.SetAttributeValue ("errors", "0");
 			suite.SetAttributeValue ("failures", "0");
 			suite.SetAttributeValue ("tests", "1");
-			suite.SetAttributeValue ("timestamp", timestamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
+			// suite.SetAttributeValue ("timestamp", timestamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
 			suite.SetAttributeValue ("hostname", "localhost");
 			// suite.SetAttributeValue ("time", "0");
 			root.Add (suite);
@@ -141,7 +141,7 @@ namespace Xamarin.AsyncTests.Console
 
 			var test = new XElement ("testcase");
 			// test.SetAttributeValue ("classname", "X" + node.Name.Name);
-			test.SetAttributeValue ("name", "Y" + node.Name.LocalName);
+			test.SetAttributeValue ("name", "T" + node.Name.Name);
 			// test.SetAttributeValue ("time", "0");
 			test.SetAttributeValue ("status", node.Status);
 			suite.Add (test);
