@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <testsuites>
   <testsuite id="180" name="Xamarin.WebTests.Console" errors="0" failures="0" tests="1" hostname="localhost">
-    <properties />
-    <testcase name="T1T" status="Success" />
-    <system-out>PATH = </system-out>
-    <system-err>TEST: False False</system-err>
     <testsuite id="11829" name="Xamarin.WebTests.Console.WebTests" errors="0" failures="0" tests="1" hostname="localhost">
       <properties />
       <testcase name="T2T" status="Ignored" />
