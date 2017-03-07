@@ -69,7 +69,7 @@ namespace Xamarin.AsyncTests.Console
 		bool Print (XElement root)
 		{
 			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
-			Visit (root, Result.Name, Result);
+			Visit (root, TestName.Empty, Result);
 			return true;
 		}
 
