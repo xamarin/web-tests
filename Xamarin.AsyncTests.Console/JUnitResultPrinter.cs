@@ -94,15 +94,6 @@ namespace Xamarin.AsyncTests.Console
 			var properties = new XElement ("properties");
 			suite.Add (properties);
 
-			if (node.Name.HasParameters) {
-				foreach (var parameter in node.Name.Parameters) {
-					var propNode = new XElement ("property");
-					propNode.SetAttributeValue ("name", parameter.Name);
-					propNode.SetAttributeValue ("value", parameter.Value);
-					properties.Add (propNode);
-				}
-			}
-
 			if (!node.HasChildren || node.Children.Count == 0) {
 				var test = new XElement ("testcase");
 				// test.SetAttributeValue ("classname", "X" + node.Name.Name);
@@ -123,6 +114,16 @@ namespace Xamarin.AsyncTests.Console
 			systemOut.Add (string.Format ("PATH = {0}", node.Path));
 
 			systemErr.Add (string.Format ("TEST: {0} {1}", node.HasLogEntries, node.HasMessages));
+
+			if (node.Name.HasParameters) {
+				foreach (var parameter in node.Name.Parameters) {
+					var propNode = new XElement ("property");
+					propNode.SetAttributeValue ("name", parameter.Name);
+					propNode.SetAttributeValue ("value", parameter.Value);
+					systemOut.Add (string.Format ("{0} = {1}{2}", parameter.Name, parameter.Value, Environment.NewLine));
+					properties.Add (propNode);
+				}
+			}
 
 			if (node.HasMessages) {
 				foreach (var message in node.Messages) {
