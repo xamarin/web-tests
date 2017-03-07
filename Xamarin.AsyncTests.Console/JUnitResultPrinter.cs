@@ -103,7 +103,7 @@ namespace Xamarin.AsyncTests.Console
 				}
 			}
 
-			if (!node.HasChildren) {
+			if (!node.HasChildren || node.Children.Count == 0) {
 				var test = new XElement ("testcase");
 				// test.SetAttributeValue ("classname", "X" + node.Name.Name);
 
