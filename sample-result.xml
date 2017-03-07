@@ -1,67 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <testsuites>
-  <testsuite id="80" name="Xamarin.WebTests.Console" errors="0" failures="0" tests="1" hostname="localhost">
+  <testsuite id="180" name="Xamarin.WebTests.Console" errors="0" failures="0" tests="1" hostname="localhost">
     <properties />
     <testcase name="T1T" status="Success" />
     <system-out>PATH = </system-out>
     <system-err>TEST: False False</system-err>
-    <testsuite id="1829" name="Xamarin.WebTests.Console.WebTests" errors="0" failures="0" tests="1" hostname="localhost">
+    <testsuite id="11829" name="Xamarin.WebTests.Console.WebTests" errors="0" failures="0" tests="1" hostname="localhost">
       <properties />
       <testcase name="T2T" status="Ignored" />
       <system-out>PATH = [TestPath: ID=1750, Identifier=assembly, Name=WebTests, Parameter=Xamarin.WebTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434, Parent=1749]</system-out>
       <system-err>TEST: False False</system-err>
-      <testsuite id="2416" name="Xamarin.WebTests.Console.WebTests.TestPost" errors="0" failures="0" tests="1" hostname="localhost">
+      <testsuite id="12416" name="Xamarin.WebTests.Console.WebTests.TestPost" errors="0" failures="0" tests="1" hostname="localhost">
         <properties />
         <testcase name="T3T" status="Ignored" />
         <system-out>PATH = [TestPath: ID=2337, Identifier=fixture, Name=TestPost, Parameter=Xamarin.WebTests.Tests.TestPost, Parent=2336]</system-out>
         <system-err>TEST: False False</system-err>
       </testsuite>
-      <testsuite id="2520" name="Xamarin.WebTests.Console.WebTests.TestProxy" errors="0" failures="0" tests="1" hostname="localhost">
+      <testsuite id="12520" name="Xamarin.WebTests.Console.WebTests.TestProxy" errors="0" failures="0" tests="1" hostname="localhost">
         <properties />
         <testcase name="T4T" status="Ignored" />
         <system-out>PATH = [TestPath: ID=2441, Identifier=fixture, Name=TestProxy, Parameter=Xamarin.WebTests.Tests.TestProxy, Parent=2440]</system-out>
-        <system-err>TEST: False False</system-err>
-      </testsuite>
-      <testsuite id="2548" name="Xamarin.WebTests.Console.WebTests.TestAuthentication" errors="0" failures="0" tests="1" hostname="localhost">
-        <properties />
-        <testcase name="T5T" status="Ignored" />
-        <system-out>PATH = [TestPath: ID=2469, Identifier=fixture, Name=TestAuthentication, Parameter=Xamarin.WebTests.Tests.TestAuthentication, Parent=2468]</system-out>
-        <system-err>TEST: False False</system-err>
-      </testsuite>
-      <testsuite id="2632" name="Xamarin.WebTests.Console.WebTests.TestGet" errors="0" failures="0" tests="1" hostname="localhost">
-        <properties />
-        <testcase name="T6T" status="Ignored" />
-        <system-out>PATH = [TestPath: ID=2553, Identifier=fixture, Name=TestGet, Parameter=Xamarin.WebTests.Tests.TestGet, Parent=2552]</system-out>
-        <system-err>TEST: False False</system-err>
-      </testsuite>
-      <testsuite id="2736" name="Xamarin.WebTests.Console.WebTests.TestHttpClient" errors="0" failures="0" tests="1" hostname="localhost">
-        <properties />
-        <testcase name="T7T" status="Ignored" />
-        <system-out>PATH = [TestPath: ID=2657, Identifier=fixture, Name=TestHttpClient, Parameter=Xamarin.WebTests.TestHttpClient, Parent=2656]</system-out>
-        <system-err>TEST: False False</system-err>
-      </testsuite>
-      <testsuite id="2790" name="Xamarin.WebTests.Console.WebTests.TestHttps" errors="0" failures="0" tests="1" hostname="localhost">
-        <properties />
-        <testcase name="T8T" status="Ignored" />
-        <system-out>PATH = [TestPath: ID=2711, Identifier=fixture, Name=TestHttps, Parameter=Xamarin.WebTests.Tests.TestHttps, Parent=2710]</system-out>
-        <system-err>TEST: False False</system-err>
-      </testsuite>
-      <testsuite id="2824" name="Xamarin.WebTests.Console.WebTests.TestSslStream" errors="0" failures="0" tests="1" hostname="localhost">
-        <properties />
-        <testcase name="T9T" status="Ignored" />
-        <system-out>PATH = [TestPath: ID=2745, Identifier=fixture, Name=TestSslStream, Parameter=Xamarin.WebTests.Tests.TestSslStream, Parent=2744]</system-out>
-        <system-err>TEST: False False</system-err>
-      </testsuite>
-      <testsuite id="2873" name="Xamarin.WebTests.Console.WebTests.TestChunked" errors="0" failures="0" tests="1" hostname="localhost">
-        <properties />
-        <testcase name="T10T" status="Ignored" />
-        <system-out>PATH = [TestPath: ID=2794, Identifier=fixture, Name=TestChunked, Parameter=Xamarin.WebTests.Tests.TestChunked, Parent=2793]</system-out>
-        <system-err>TEST: False False</system-err>
-      </testsuite>
-      <testsuite id="2893" name="Xamarin.WebTests.Console.WebTests.TestCertificates" errors="0" failures="0" tests="1" hostname="localhost">
-        <properties />
-        <testcase name="T11T" status="Ignored" />
-        <system-out>PATH = [TestPath: ID=2814, Identifier=fixture, Name=TestCertificates, Parameter=Xamarin.WebTests.Tests.TestCertificates, Parent=2813]</system-out>
         <system-err>TEST: False False</system-err>
       </testsuite>
     </testsuite>
