@@ -73,6 +73,8 @@ namespace Xamarin.AsyncTests.Console
 			return true;
 		}
 
+		static int nextId;
+
 		XElement Print (XElement root, TestName parent, TestResult node)
 		{
 			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
@@ -102,7 +104,9 @@ namespace Xamarin.AsyncTests.Console
 
 			var test = new XElement ("testcase");
 			// test.SetAttributeValue ("classname", "X" + node.Name.Name);
-			test.SetAttributeValue ("name", "T" + node.Name.Name + "T");
+
+			// test.SetAttributeValue ("name", "T" + node.Name.Name + "T");
+			test.SetAttributeValue ("name", string.Format ("T{0}T", ++nextId));
 			// test.SetAttributeValue ("time", "0");
 			test.SetAttributeValue ("status", node.Status);
 			suite.Add (test);
