@@ -78,7 +78,7 @@ namespace Xamarin.AsyncTests.Console
 			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 			var suite = new XElement ("testsuite");
 			suite.SetAttributeValue ("id", node.Name.ID);
-			suite.SetAttributeValue ("package", "P" + parent.FullName + "P");
+			// suite.SetAttributeValue ("package", "P" + parent.FullName + "P");
 			suite.SetAttributeValue ("name", "Z" + node.Name.Name + "Z");
 			suite.SetAttributeValue ("errors", "0");
 			suite.SetAttributeValue ("failures", "0");
