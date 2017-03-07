@@ -111,7 +111,7 @@ namespace Xamarin.AsyncTests.Console
 			var systemErr = new XElement ("system-err");
 			suite.Add (systemErr);
 
-			systemOut.Add (string.Format ("PATH = {0}", node.Path));
+			systemOut.Add (string.Format ("PATH = {0}{1}", node.Path, Environment.NewLine));
 
 			systemErr.Add (string.Format ("TEST: {0} {1}", node.HasLogEntries, node.HasMessages));
 
@@ -124,6 +124,8 @@ namespace Xamarin.AsyncTests.Console
 					properties.Add (propNode);
 				}
 			}
+
+			systemOut.Add (Environment.NewLine);
 
 			if (node.HasMessages) {
 				foreach (var message in node.Messages) {
