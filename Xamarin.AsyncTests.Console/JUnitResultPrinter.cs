@@ -103,14 +103,16 @@ namespace Xamarin.AsyncTests.Console
 				}
 			}
 
-			var test = new XElement ("testcase");
-			// test.SetAttributeValue ("classname", "X" + node.Name.Name);
+			if (!node.HasChildren) {
+				var test = new XElement ("testcase");
+				// test.SetAttributeValue ("classname", "X" + node.Name.Name);
 
-			// test.SetAttributeValue ("name", "T" + node.Name.Name + "T");
-			test.SetAttributeValue ("name", string.Format ("T{0}T", ++nextId));
-			// test.SetAttributeValue ("time", "0");
-			test.SetAttributeValue ("status", node.Status);
-			suite.Add (test);
+				// test.SetAttributeValue ("name", "T" + node.Name.Name + "T");
+				test.SetAttributeValue ("name", string.Format ("T{0}T", ++nextId));
+				// test.SetAttributeValue ("time", "0");
+				test.SetAttributeValue ("status", node.Status);
+				suite.Add (test);
+			}
 
 			var systemOut = new XElement ("system-out");
 			suite.Add (systemOut);
