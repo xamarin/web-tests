@@ -153,7 +153,9 @@ namespace Xamarin.AsyncTests.Console
 
 			XElement node = root;
 
-			if (result.Path.Identifier == "suite") {
+			if (result.Path == null ||
+			    result.Path.Identifier == "suite" ||
+			    result.Path.Identifier == "assembly") {
 				;
 			} else {
 				node = Print (root, parent, result);
