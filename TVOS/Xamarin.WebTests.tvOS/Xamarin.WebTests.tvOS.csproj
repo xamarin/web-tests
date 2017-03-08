@@ -177,7 +177,7 @@
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>Xamarin.AsyncTests.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Xamarin.WebTests\Xamarin.WebTests.csproj">
+    <ProjectReference Include="..\..\Xamarin.WebTests.Tests\Xamarin.WebTests.Tests.csproj">
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
       <Name>Xamarin.WebTests</Name>
     </ProjectReference>

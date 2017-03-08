@@ -6,8 +6,8 @@
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{E93E8622-665B-44D6-B36A-89C93B5B3532}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Xamarin.WebTests</RootNamespace>
-    <AssemblyName>Xamarin.WebTests</AssemblyName>
+    <RootNamespace>Xamarin.WebTests.Tests</RootNamespace>
+    <AssemblyName>Xamarin.WebTests.Tests</AssemblyName>
     <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <SignAssembly>true</SignAssembly>
