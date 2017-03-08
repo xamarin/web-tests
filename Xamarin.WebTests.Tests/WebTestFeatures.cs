@@ -36,7 +36,7 @@ using Xamarin.WebTests.HttpClient;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.TestFramework;
 
-[assembly: AsyncTestSuite (typeof (WebTestFeatures), "WebTests", typeof (SharedWebTestFeatures))]
+[assembly: AsyncTestSuite (typeof (WebTestFeatures), "Tests", typeof (SharedWebTestFeatures))]
 [assembly: RequireDependency (typeof (IHttpClientProvider))]
 [assembly: RequireDependency (typeof (ConnectionProviderFactory))]
 [assembly: DependencyProvider (typeof (WebTestFeatures.Provider))]
@@ -80,7 +80,7 @@ namespace Xamarin.WebTests
 
 		#region ITestConfigurationProvider implementation
 		public string Name {
-			get { return "Xamarin.WebTests"; }
+			get { return "Xamarin.WebTests.Tests"; }
 		}
 
 		public IEnumerable<TestFeature> Features {
