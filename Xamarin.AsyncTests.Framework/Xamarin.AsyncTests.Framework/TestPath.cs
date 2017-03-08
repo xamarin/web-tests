@@ -47,6 +47,10 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		ITestPath ITestPath.Parent {
+			get { return Parent; }
+		}
+
 		ITestPathInternal ITestPathInternal.Parent {
 			get { return Parent; }
 		}

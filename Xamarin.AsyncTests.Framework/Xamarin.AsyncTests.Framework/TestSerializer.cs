@@ -63,6 +63,19 @@ namespace Xamarin.AsyncTests.Framework
 			return node;
 		}
 
+		static XElement WriteTestPath (PathWrapper path)
+		{
+			var node = new XElement (PathName);
+
+			while (path != null) {
+				var elemement = WritePathNode (path.Node);
+				node.AddFirst (elemement);
+				path = path.Parent;
+			}
+
+			return node;
+		}
+
 		internal static TestPathNode DeserializePath (TestSuite suite, TestContext ctx, XElement root)
 		{
 			if (!root.Name.Equals (PathName))
@@ -113,7 +126,7 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		static IPathNode ReadPathNode (XElement element)
+		static PathNodeWrapper ReadPathNode (XElement element)
 		{
 			var node = new PathNodeWrapper ();
 			node.Identifier = element.Attribute ("Identifier").Value;
@@ -146,6 +159,19 @@ namespace Xamarin.AsyncTests.Framework
 			return element;
 		}
 
+		static XElement WritePathNode (PathNodeWrapper node)
+		{
+			var element = new XElement (ParameterName);
+			element.Add (new XAttribute ("Identifier", node.Identifier));
+			if (node.Name != null)
+				element.Add (new XAttribute ("Name", node.Name));
+			if (node.ParameterType != null)
+				element.Add (new XAttribute ("ParameterType", node.ParameterType));
+			if (node.ParameterValue != null)
+				element.Add (new XAttribute ("Parameter", node.ParameterValue));
+			return element;
+		}
+
 		class PathNodeWrapper : IPathNode
 		{
 			public string Identifier {
@@ -171,30 +197,40 @@ namespace Xamarin.AsyncTests.Framework
 		class PathWrapper : ITestPath
 		{
 			readonly XElement node;
-			readonly string identifier;
-			List<IPathNode> nodes;
+			public readonly PathNodeWrapper Node;
+			public readonly PathWrapper Parent;
 
-			public PathWrapper (XElement node)
+			PathWrapper (XElement node, PathNodeWrapper pathNode, PathWrapper parent)
 			{
 				this.node = node;
-				if (node == null)
-					throw new InvalidOperationException();
+				Node = pathNode;
+				Parent = parent;
 
-				nodes = new List<IPathNode> ();
+				if (node == null || pathNode == null)
+					throw new InvalidOperationException();
+			}
+
+			public static PathWrapper ReadPath (XElement node)
+			{
+				PathWrapper current = null;
 				foreach (var element in node.Elements ("TestParameter")) {
 					var pathNode = ReadPathNode (element);
-					identifier = pathNode.Identifier;
-					nodes.Add (pathNode);
+					current = new PathWrapper (element, pathNode, current);
 				}
+				return current;
+			}
+
+			ITestPath ITestPath.Parent {
+				get { return Parent; }
 			}
 
 			public string Identifier {
-				get { return identifier; }
+				get { return Node.Identifier; }
 			}
 
 			public XElement SerializePath ()
 			{
-				return node;
+				return WriteTestPath (this);
 			}
 		}
 
@@ -291,7 +327,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal static ITestPath ReadTestPath (XElement node)
 		{
-			return new PathWrapper (node);
+			return PathWrapper.ReadPath (node);
 		}
 
 		public static TestResult ReadTestResult (XElement node)
@@ -306,7 +342,7 @@ namespace Xamarin.AsyncTests.Framework
 
 			var path = node.Element ("TestPath");
 			if (path != null)
-				result.Path = new PathWrapper (path);
+				result.Path = ReadTestPath (path);
 
 			foreach (var error in node.Elements ("Error")) {
 				result.AddError (ReadError (error));
