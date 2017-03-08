@@ -115,6 +115,9 @@ namespace Xamarin.AsyncTests.Console
 
 			systemErr.Add (string.Format ("TEST: {0} {1} {2}", node.HasLogEntries, node.HasMessages, node.Name.HasParameters));
 
+			var serializedPath = node.Path.SerializePath ().ToString ();
+			systemErr.Add (serializedPath);
+
 			if (node.Name.HasParameters) {
 				foreach (var parameter in node.Name.Parameters) {
 					var propNode = new XElement ("property");
