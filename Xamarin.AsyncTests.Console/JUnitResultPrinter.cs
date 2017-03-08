@@ -46,7 +46,6 @@ namespace Xamarin.AsyncTests.Console
 		}
 
 		bool? showIgnored;
-		int current;
 
 		JUnitResultPrinter (TestResult result)
 		{
@@ -61,26 +60,15 @@ namespace Xamarin.AsyncTests.Console
 			using (var writer = XmlWriter.Create (output, settings)) {
 				var printer = new JUnitResultPrinter (result);
 				var root = new XElement ("testsuites");
-				printer.Print (root);
+				printer.Visit (root, TestName.Empty, result);
 				root.WriteTo (writer);
 			}
 		}
-
-		bool Print (XElement root)
-		{
-			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
-			Visit (root, TestName.Empty, Result);
-			return true;
-		}
-
-		static int nextId;
 
 		XElement Print (XElement root, TestName parent, TestResult node)
 		{
 			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 			var suite = new XElement ("testsuite");
-			suite.SetAttributeValue ("id", node.Name.ID);
-			// suite.SetAttributeValue ("name", "X" + parent.Name + "Y" + node.Name.Name + "Z");
 			suite.SetAttributeValue ("name", parent.Name);
 			suite.SetAttributeValue ("errors", "0");
 			suite.SetAttributeValue ("failures", "0");
@@ -113,8 +101,6 @@ namespace Xamarin.AsyncTests.Console
 				systemOut.Add (Environment.NewLine);
 			}
 
-			systemErr.Add (string.Format ("TEST: {0} {1} {2}", node.HasLogEntries, node.HasMessages, node.Name.HasParameters));
-
 			if (node.Name.HasParameters) {
 				foreach (var parameter in node.Name.Parameters) {
 					var propNode = new XElement ("property");
@@ -146,11 +132,6 @@ namespace Xamarin.AsyncTests.Console
 			if (false && result.Status == TestStatus.Ignored)
 				return;
 
-			var path = (IPathNode)result.Path;
-			if (false && path != null)
-				System.Console.WriteLine ("TEST: {0} - {1} {2} {3} - {4}", path.GetType ().FullName, path.Identifier, path.Name, path.ParameterType,
-				                          result.Name.HasParameters);
-
 			XElement node = root;
 
 			if (result.Path == null ||
@@ -161,28 +142,10 @@ namespace Xamarin.AsyncTests.Console
 				node = Print (root, parent, result);
 			}
 
-			System.Console.WriteLine ("VISIT: {0} {1} - {2} {3} - {4}", result.Name.FullName, result.Status, result.HasLogEntries, result.HasMessages, result.Name.HasParameters);
 			if (result.HasChildren) {
 				foreach (var child in result.Children)
 					Visit (node, result.Name, child);
-				return;
 			}
-
-			if (result.Status == TestStatus.Success)
-				return;
-			else if (result.Status == TestStatus.Ignored && !ShowIgnored)
-				return;
-
-			// Writer.WriteLine ("{0}) {1}: {2}", ++current, FormatName (node.Name), node.Status);
-
-			if (result.Status == TestStatus.Error && result.HasErrors) {
-				foreach (var error in result.Errors) {
-					// Writer.WriteLine ();
-					// Writer.WriteLine (error);
-				}
-			}
-
-			// Writer.WriteLine ();
 		}
 	}
 }
