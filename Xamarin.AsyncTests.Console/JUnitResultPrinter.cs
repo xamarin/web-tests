@@ -98,7 +98,7 @@ namespace Xamarin.AsyncTests.Console
 				var test = new XElement ("testcase");
 				// test.SetAttributeValue ("classname", "X" + node.Name.Name);
 
-				test.SetAttributeValue ("name", "T" + node.Name.FullName + "T");
+				test.SetAttributeValue ("name", "T" + node.Name.FullName + "T" + node.Name.LocalName + "T");
 				// test.SetAttributeValue ("name", string.Format ("T{0}T", ++nextId));
 				// test.SetAttributeValue ("time", "0");
 				test.SetAttributeValue ("status", node.Status);
@@ -139,25 +139,6 @@ namespace Xamarin.AsyncTests.Console
 			}
 
 			return suite;
-
-			if (false && node.HasLogEntries) {
-				foreach (var entry in node.LogEntries) {
-					switch (entry.Kind) {
-					case TestLoggerBackend.EntryKind.Error:
-						break;
-					default:
-						break;
-					}
-					if (!string.IsNullOrEmpty (entry.Text))
-						systemOut.Add (entry.Text);
-				}
-			}
-
-			// systemOut.Add (new XText ("Hello World!"));
-
-			// Visit (root, node);
-
-			// systemErr.Add ("Test Error");
 		}
 
 		string FormatName (TestName name)
