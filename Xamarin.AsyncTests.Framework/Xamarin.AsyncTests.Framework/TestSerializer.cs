@@ -307,6 +307,8 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			var element = new XElement ("TestResult");
 			element.SetAttributeValue ("Status", instance.Status.ToString ());
+			if (!TestName.IsNullOrEmpty (instance.Name))
+				element.SetAttributeValue ("Name", instance.Name.FullName);
 
 			element.Add (TestSerializer.WriteTestName (instance.Name));
 
