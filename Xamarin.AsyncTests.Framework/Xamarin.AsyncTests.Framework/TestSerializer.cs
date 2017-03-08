@@ -43,6 +43,7 @@ namespace Xamarin.AsyncTests.Framework
 		internal const string TestFixtureIdentifier = "fixture";
 		internal const string TestSuiteIdentifier = "suite";
 		internal const string TestAssemblyIdentifier = "assembly";
+		const string ParameterIdentifier = "parameter";
 
 		internal static void Debug (string message, params object[] args)
 		{
@@ -88,6 +89,11 @@ namespace Xamarin.AsyncTests.Framework
 			if (friendlyAttr != null)
 				return friendlyAttr.Name;
 			return type.Name;
+		}
+
+		public static string GetParameterIdentifier (string name)
+		{
+			return ParameterIdentifier + ":" + name;
 		}
 
 		public static ITestParameter GetStringParameter (string value)
