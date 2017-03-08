@@ -94,16 +94,8 @@ namespace Xamarin.AsyncTests.Console
 			var properties = new XElement ("properties");
 			suite.Add (properties);
 
-			if (!node.HasChildren || node.Children.Count == 0) {
-				var test = new XElement ("testcase");
-				// test.SetAttributeValue ("classname", "X" + node.Name.Name);
-
-				test.SetAttributeValue ("name", "T" + node.Name.FullName + "T" + node.Name.LocalName + "T");
-				// test.SetAttributeValue ("name", string.Format ("T{0}T", ++nextId));
-				// test.SetAttributeValue ("time", "0");
-				test.SetAttributeValue ("status", node.Status);
-				suite.Add (test);
-			}
+			var testNameBuilder = new StringBuilder ();
+			testNameBuilder.AppendFormat ("T{0}T", node.Name.LocalName);
 
 			var systemOut = new XElement ("system-out");
 			suite.Add (systemOut);
@@ -126,6 +118,7 @@ namespace Xamarin.AsyncTests.Console
 					propNode.SetAttributeValue ("name", parameter.Name);
 					propNode.SetAttributeValue ("value", parameter.Value);
 					systemOut.Add (string.Format ("{0} = {1}{2}", parameter.Name, parameter.Value, Environment.NewLine));
+					testNameBuilder.AppendFormat ("!{0}", parameter.Value);
 					properties.Add (propNode);
 				}
 			}
@@ -136,6 +129,17 @@ namespace Xamarin.AsyncTests.Console
 				foreach (var message in node.Messages) {
 					systemOut.Add (message + Environment.NewLine);
 				}
+			}
+
+			if (!node.HasChildren || node.Children.Count == 0) {
+				var test = new XElement ("testcase");
+				// test.SetAttributeValue ("classname", "X" + node.Name.Name);
+
+				test.SetAttributeValue ("name", testNameBuilder.ToString ());
+				// test.SetAttributeValue ("name", string.Format ("T{0}T", ++nextId));
+				// test.SetAttributeValue ("time", "0");
+				test.SetAttributeValue ("status", node.Status);
+				suite.Add (test);
 			}
 
 			return suite;
