@@ -111,16 +111,14 @@ namespace Xamarin.AsyncTests.Console
 			var systemErr = new XElement ("system-err");
 			suite.Add (systemErr);
 
-			systemOut.Add (string.Format ("PATH = {0}{1}", node.Path, Environment.NewLine));
-
-			systemErr.Add (string.Format ("TEST: {0} {1} {2}", node.HasLogEntries, node.HasMessages, node.Name.HasParameters));
-
 			if (node.Path != null) {
 				var serializedPath = node.Path.SerializePath ().ToString ();
-				systemErr.Add (serializedPath);
-			} else {
-				systemErr.Add ("NULL PATH!");
+				systemOut.Add (serializedPath);
+				systemOut.Add (Environment.NewLine);
+				systemOut.Add (Environment.NewLine);
 			}
+
+			systemErr.Add (string.Format ("TEST: {0} {1} {2}", node.HasLogEntries, node.HasMessages, node.Name.HasParameters));
 
 			if (node.Name.HasParameters) {
 				foreach (var parameter in node.Name.Parameters) {
