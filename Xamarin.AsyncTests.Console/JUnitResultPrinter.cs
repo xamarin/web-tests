@@ -80,9 +80,7 @@ namespace Xamarin.AsyncTests.Console
 			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 			var suite = new XElement ("testsuite");
 			suite.SetAttributeValue ("id", node.Name.ID);
-			// suite.SetAttributeValue ("package", "P" + parent.FullName + "P");
-			suite.SetAttributeValue ("name", node.Name.Name);
-			// suite.SetAttributeValue ("name", "Z" + node.Name.Name + "Z");
+			suite.SetAttributeValue ("name", "X" + parent.Name + "Y" + node.Name.Name + "Z");
 			suite.SetAttributeValue ("errors", "0");
 			suite.SetAttributeValue ("failures", "0");
 			suite.SetAttributeValue ("tests", "1");
@@ -94,8 +92,12 @@ namespace Xamarin.AsyncTests.Console
 			var properties = new XElement ("properties");
 			suite.Add (properties);
 
-			var testNameBuilder = new StringBuilder ();
-			testNameBuilder.AppendFormat ("T{0}T", node.Name.LocalName);
+			if (!node.HasChildren || node.Children.Count == 0) {
+				var test = new XElement ("testcase");
+				test.SetAttributeValue ("name", node.Name.LocalName);
+				test.SetAttributeValue ("status", node.Status);
+				suite.Add (test);
+			}
 
 			var systemOut = new XElement ("system-out");
 			suite.Add (systemOut);
@@ -118,7 +120,6 @@ namespace Xamarin.AsyncTests.Console
 					propNode.SetAttributeValue ("name", parameter.Name);
 					propNode.SetAttributeValue ("value", parameter.Value);
 					systemOut.Add (string.Format ("{0} = {1}{2}", parameter.Name, parameter.Value, Environment.NewLine));
-					testNameBuilder.AppendFormat ("!{0}", parameter.Value);
 					properties.Add (propNode);
 				}
 			}
@@ -129,17 +130,6 @@ namespace Xamarin.AsyncTests.Console
 				foreach (var message in node.Messages) {
 					systemOut.Add (message + Environment.NewLine);
 				}
-			}
-
-			if (!node.HasChildren || node.Children.Count == 0) {
-				var test = new XElement ("testcase");
-				// test.SetAttributeValue ("classname", "X" + node.Name.Name);
-
-				test.SetAttributeValue ("name", testNameBuilder.ToString ());
-				// test.SetAttributeValue ("name", string.Format ("T{0}T", ++nextId));
-				// test.SetAttributeValue ("time", "0");
-				test.SetAttributeValue ("status", node.Status);
-				suite.Add (test);
 			}
 
 			return suite;
