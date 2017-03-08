@@ -113,7 +113,7 @@ namespace Xamarin.AsyncTests.Console
 
 			systemOut.Add (string.Format ("PATH = {0}{1}", node.Path, Environment.NewLine));
 
-			systemErr.Add (string.Format ("TEST: {0} {1}", node.HasLogEntries, node.HasMessages));
+			systemErr.Add (string.Format ("TEST: {0} {1} {2}", node.HasLogEntries, node.HasMessages, node.Name.HasParameters));
 
 			if (node.Name.HasParameters) {
 				foreach (var parameter in node.Name.Parameters) {
