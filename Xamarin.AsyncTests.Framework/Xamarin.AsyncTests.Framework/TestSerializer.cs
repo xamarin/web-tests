@@ -56,6 +56,8 @@ namespace Xamarin.AsyncTests.Framework
 
 			while (path != null) {
 				var element = WritePathNode (path.Host, path.Parameter);
+				if (path.IsHidden)
+					element.SetAttributeValue ("IsHidden", true);
 				node.AddFirst (element);
 				path = path.Parent;
 			}
