@@ -105,7 +105,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public static TestName GetTestName (TestInstance instance)
 		{
-			return GetCurrentPath (instance).Name;
+			return GetCurrentPath (instance).TestName;
 		}
 
 		public virtual bool ParameterMatches<T> (string name)

@@ -51,15 +51,15 @@ namespace Xamarin.AsyncTests.Framework
 			get { return Parent; }
 		}
 
-		string ITestPath.Name {
-			get { return Name.FullName; }
+		public string Name {
+			get { return TestName.FullName; }
 		}
 
 		ITestPathInternal ITestPathInternal.Parent {
 			get { return Parent; }
 		}
 
-		public TestName Name {
+		public TestName TestName {
 			get { return name; }
 		}
 
@@ -83,16 +83,8 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (Flags & TestFlags.Browsable) != 0; }
 		}
 
-		string ITestPath.Identifier {
+		public string Identifier {
 			get { return Host.Identifier; }
-		}
-
-		string IPathNode.Identifier {
-			get { return Host.Identifier; }
-		}
-
-		string IPathNode.Name {
-			get { return Name.FullName; }
 		}
 
 		public string ParameterType {
@@ -203,7 +195,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public XElement SerializePath ()
 		{
-			return TestSerializer.SerializePath (this);
+			return TestSerializer.WriteTestPath (this);
 		}
 
 		public readonly int ID = ++next_id;

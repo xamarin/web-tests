@@ -50,7 +50,7 @@ namespace Xamarin.AsyncTests.Framework
 			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
 		}
 
-		internal static XElement SerializePath (TestPath path)
+		internal static XElement WriteTestPath (TestPath path)
 		{
 			var node = new XElement (PathName);
 
