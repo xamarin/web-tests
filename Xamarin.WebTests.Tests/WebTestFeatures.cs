@@ -108,7 +108,7 @@ namespace Xamarin.WebTests
 		[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 		public class SelectSSLAttribute : TestParameterAttribute, ITestParameterSource<bool>
 		{
-			public SelectSSLAttribute (string filter = null, TestFlags flags = TestFlags.Hidden)
+			public SelectSSLAttribute (string filter = null, TestFlags flags = TestFlags.None)
 				: base (filter, flags)
 			{
 			}
@@ -126,7 +126,7 @@ namespace Xamarin.WebTests
 		[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 		public class SelectReuseConnectionAttribute : TestParameterAttribute, ITestParameterSource<bool>
 		{
-			public SelectReuseConnectionAttribute (string filter = null, TestFlags flags = TestFlags.Hidden)
+			public SelectReuseConnectionAttribute (string filter = null, TestFlags flags = TestFlags.None)
 				: base (filter, flags)
 			{
 			}
