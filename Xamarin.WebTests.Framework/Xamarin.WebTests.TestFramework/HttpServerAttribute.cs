@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.TestFramework
 		ListenerFlags listenerFlags;
 
 		public HttpServerAttribute (ListenerFlags listenerFlags = ListenerFlags.None)
-			: base (typeof (HttpServerAttribute))
+			: base (typeof (HttpServerAttribute), TestFlags.Hidden)
 		{
 			this.listenerFlags = listenerFlags;
 		}
