@@ -38,6 +38,14 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
+		string Name {
+			get;
+		}
+
+		string ParameterType {
+			get;
+		}
+
 		XElement SerializePath ();
 	}
 }

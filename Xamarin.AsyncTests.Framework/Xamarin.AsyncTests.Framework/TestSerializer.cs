@@ -196,26 +196,21 @@ namespace Xamarin.AsyncTests.Framework
 
 		class PathWrapper : ITestPath
 		{
-			readonly XElement node;
 			public readonly PathNodeWrapper Node;
 			public readonly PathWrapper Parent;
 
-			PathWrapper (XElement node, PathNodeWrapper pathNode, PathWrapper parent)
+			PathWrapper (PathNodeWrapper pathNode, PathWrapper parent)
 			{
-				this.node = node;
 				Node = pathNode;
 				Parent = parent;
-
-				if (node == null || pathNode == null)
-					throw new InvalidOperationException();
 			}
 
-			public static PathWrapper ReadPath (XElement node)
+			public static PathWrapper ReadPath (XElement path)
 			{
 				PathWrapper current = null;
-				foreach (var element in node.Elements ("TestParameter")) {
-					var pathNode = ReadPathNode (element);
-					current = new PathWrapper (element, pathNode, current);
+				foreach (var element in path.Elements ("TestParameter")) {
+					var node = ReadPathNode (element);
+					current = new PathWrapper (node, current);
 				}
 				return current;
 			}
@@ -228,7 +223,15 @@ namespace Xamarin.AsyncTests.Framework
 				get { return Node.Identifier; }
 			}
 
-			public XElement SerializePath ()
+			public string Name {
+				get { return Node.Name; }
+			}
+
+			public string ParameterType {
+				get { return Node.ParameterType; }
+			}
+
+			XElement ITestPath.SerializePath ()
 			{
 				return WriteTestPath (this);
 			}

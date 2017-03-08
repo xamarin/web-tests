@@ -51,6 +51,10 @@ namespace Xamarin.AsyncTests.Framework
 			get { return Parent; }
 		}
 
+		string ITestPath.Name {
+			get { return Name.FullName; }
+		}
+
 		ITestPathInternal ITestPathInternal.Parent {
 			get { return Parent; }
 		}
@@ -91,7 +95,7 @@ namespace Xamarin.AsyncTests.Framework
 			get { return Name.FullName; }
 		}
 
-		string IPathNode.ParameterType {
+		public string ParameterType {
 			get { return Host.ParameterType; }
 		}
 
