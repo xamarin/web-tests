@@ -83,7 +83,7 @@ namespace Xamarin.AsyncTests.Console
 
 			if (!node.HasChildren || node.Children.Count == 0) {
 				var test = new XElement ("testcase");
-				test.SetAttributeValue ("name", node.Name.LocalName);
+				test.SetAttributeValue ("name", node.Name.FullName);
 				test.SetAttributeValue ("status", node.Status);
 				suite.Add (test);
 			}
