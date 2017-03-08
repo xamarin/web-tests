@@ -141,34 +141,40 @@ namespace Xamarin.AsyncTests.Console
 			return name.FullName;
 		}
 
-		void Visit (XElement root, TestName parent, TestResult node)
+		void Visit (XElement root, TestName parent, TestResult result)
 		{
-			if (false && node.Status == TestStatus.Ignored)
+			if (false && result.Status == TestStatus.Ignored)
 				return;
 
-			var path = (IPathNode)node.Path;
+			var path = (IPathNode)result.Path;
 			if (false && path != null)
 				System.Console.WriteLine ("TEST: {0} - {1} {2} {3} - {4}", path.GetType ().FullName, path.Identifier, path.Name, path.ParameterType,
-				                          node.Name.HasParameters);
+				                          result.Name.HasParameters);
 
-			var suite = Print (root, parent, node);
+			XElement node = root;
 
-			System.Console.WriteLine ("VISIT: {0} {1} - {2} {3} - {4}", node.Name.FullName, node.Status, node.HasLogEntries, node.HasMessages, node.Name.HasParameters);
-			if (node.HasChildren) {
-				foreach (var child in node.Children)
-					Visit (suite, node.Name, child);
+			if (result.Path.Identifier == "suite") {
+				;
+			} else {
+				node = Print (root, parent, result);
+			}
+
+			System.Console.WriteLine ("VISIT: {0} {1} - {2} {3} - {4}", result.Name.FullName, result.Status, result.HasLogEntries, result.HasMessages, result.Name.HasParameters);
+			if (result.HasChildren) {
+				foreach (var child in result.Children)
+					Visit (node, result.Name, child);
 				return;
 			}
 
-			if (node.Status == TestStatus.Success)
+			if (result.Status == TestStatus.Success)
 				return;
-			else if (node.Status == TestStatus.Ignored && !ShowIgnored)
+			else if (result.Status == TestStatus.Ignored && !ShowIgnored)
 				return;
 
 			// Writer.WriteLine ("{0}) {1}: {2}", ++current, FormatName (node.Name), node.Status);
 
-			if (node.Status == TestStatus.Error && node.HasErrors) {
-				foreach (var error in node.Errors) {
+			if (result.Status == TestStatus.Error && result.HasErrors) {
+				foreach (var error in result.Errors) {
 					// Writer.WriteLine ();
 					// Writer.WriteLine (error);
 				}
