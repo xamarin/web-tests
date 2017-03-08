@@ -30,6 +30,10 @@ namespace Xamarin.AsyncTests
 {
 	public interface ITestPath
 	{
+		string Identifier {
+			get;
+		}
+
 		XElement SerializePath ();
 	}
 }

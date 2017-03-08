@@ -75,6 +75,10 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (Flags & TestFlags.Browsable) != 0; }
 		}
 
+		string ITestPath.Identifier {
+			get { return Host.Identifier; }
+		}
+
 		string IPathNode.Identifier {
 			get { return Host.Identifier; }
 		}

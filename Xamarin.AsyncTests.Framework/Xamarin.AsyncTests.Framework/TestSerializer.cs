@@ -171,12 +171,25 @@ namespace Xamarin.AsyncTests.Framework
 		class PathWrapper : ITestPath
 		{
 			readonly XElement node;
+			readonly string identifier;
+			List<IPathNode> nodes;
 
 			public PathWrapper (XElement node)
 			{
 				this.node = node;
 				if (node == null)
 					throw new InvalidOperationException();
+
+				nodes = new List<IPathNode> ();
+				foreach (var element in node.Elements ("TestParameter")) {
+					var pathNode = ReadPathNode (element);
+					identifier = pathNode.Identifier;
+					nodes.Add (pathNode);
+				}
+			}
+
+			public string Identifier {
+				get { return identifier; }
 			}
 
 			public XElement SerializePath ()
@@ -274,6 +287,11 @@ namespace Xamarin.AsyncTests.Framework
 			var stackAttr = node.Attribute ("StackTrace");
 			var stackTrace = stackAttr != null ? stackAttr.Value : null;
 			return new SavedException (type, message, stackTrace);
+		}
+
+		internal static ITestPath ReadTestPath (XElement node)
+		{
+			return new PathWrapper (node);
 		}
 
 		public static TestResult ReadTestResult (XElement node)
