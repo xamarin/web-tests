@@ -61,7 +61,7 @@ namespace Xamarin.AsyncTests.Framework
 			}
 
 			public string Value {
-				get { return host.Identifier; }
+				get { return host.Name; }
 			}
 
 			object ITestParameterWrapper.Value {
