@@ -103,6 +103,8 @@ namespace Xamarin.AsyncTests.Console
 
 			if (node.Name.HasParameters) {
 				foreach (var parameter in node.Name.Parameters) {
+					if (parameter.IsHidden)
+						continue;
 					var propNode = new XElement ("property");
 					propNode.SetAttributeValue ("name", parameter.Name);
 					propNode.SetAttributeValue ("value", parameter.Value);
