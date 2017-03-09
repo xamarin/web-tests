@@ -40,6 +40,7 @@ namespace Xamarin.AsyncTests
 		TestStatus status = TestStatus.None;
 		ITestPath path;
 		TestResult parent;
+		TimeSpan elapsedTime;
 
 		public TestName Name {
 			get { return name; }
@@ -62,6 +63,17 @@ namespace Xamarin.AsyncTests
 					status = value;
 				}
 				OnPropertyChanged ("Status");
+			}
+		}
+
+		public TimeSpan ElapsedTime {
+			get { return elapsedTime; }
+			set {
+				lock (this) {
+					WantToModify ();
+					elapsedTime = value;
+				}
+				OnPropertyChanged ("ElapsedTime");
 			}
 		}
 

@@ -76,6 +76,7 @@ namespace Xamarin.AsyncTests.Console
 			suite.SetAttributeValue ("timestamp", timestamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
 			suite.SetAttributeValue ("hostname", "localhost");
 			// suite.SetAttributeValue ("time", "0");
+			suite.SetAttributeValue ("time", node.ElapsedTime.TotalSeconds);
 			root.Add (suite);
 
 			var properties = new XElement ("properties");

@@ -349,6 +349,10 @@ namespace Xamarin.AsyncTests.Framework
 			if (path != null)
 				result.Path = ReadTestPath (path);
 
+			var elapsedTime = node.Element ("ElapsedTime");
+			if (elapsedTime != null)
+				result.ElapsedTime = TimeSpan.FromMilliseconds (int.Parse (elapsedTime.Value));
+
 			foreach (var error in node.Elements ("Error")) {
 				result.AddError (ReadError (error));
 			}
@@ -379,6 +383,10 @@ namespace Xamarin.AsyncTests.Framework
 
 			if (instance.Path != null) {
 				element.Add (instance.Path.SerializePath ());
+			}
+
+			if (instance.ElapsedTime != TimeSpan.Zero) {
+				element.SetAttributeValue ("ElapsedTime", (int)instance.ElapsedTime.TotalMilliseconds);
 			}
 
 			foreach (var error in instance.Errors) {

@@ -44,8 +44,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Builder = builder;
 		}
 
+		DateTime startTime;
+
 		public override Task<bool> Invoke (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
+			startTime = DateTime.Now;
+
 			ctx.OnTestRunning ();
 
 			if (Builder.ExpectedExceptionType != null)
@@ -176,13 +180,15 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		bool CheckFinalStatus (TestContext ctx)
 		{
+			var elapsedTime = DateTime.Now - startTime;
+
 			if (ctx.HasPendingException) {
-				ctx.OnTestFinished (TestStatus.Error);
+				ctx.OnTestFinished (TestStatus.Error, elapsedTime);
 				return false;
 			} else if (ctx.IsCanceled) {
 				return false;
 			} else {
-				ctx.OnTestFinished (TestStatus.Success);
+				ctx.OnTestFinished (TestStatus.Success, elapsedTime);
 				return true;
 			}
 		}
@@ -206,7 +212,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 				return CheckFinalStatus (ctx);
 			} catch (OperationCanceledException) {
-				ctx.OnTestFinished (TestStatus.Canceled);
+				ctx.OnTestCanceled ();
 				return false;
 			} catch (Exception ex) {
 				ctx.OnError (ex);
@@ -231,7 +237,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (ex is TargetInvocationException)
 					ex = ((TargetInvocationException)ex).InnerException;
 				if (expectedException.IsAssignableFrom (ex.GetType ().GetTypeInfo ())) {
-					ctx.OnTestFinished (TestStatus.Success);
+					var elapsedTime = DateTime.Now - startTime;
+					ctx.OnTestFinished (TestStatus.Success, elapsedTime);
 					return true;
 				}
 				var message = string.Format ("Expected an exception of type {0}, but got {1}",
