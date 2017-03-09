@@ -75,7 +75,6 @@ namespace Xamarin.AsyncTests.Console
 			suite.SetAttributeValue ("tests", "1");
 			suite.SetAttributeValue ("timestamp", timestamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
 			suite.SetAttributeValue ("hostname", "localhost");
-			// suite.SetAttributeValue ("time", "0");
 			suite.SetAttributeValue ("time", node.ElapsedTime.TotalSeconds);
 			root.Add (suite);
 
@@ -86,6 +85,7 @@ namespace Xamarin.AsyncTests.Console
 				var test = new XElement ("testcase");
 				test.SetAttributeValue ("name", node.Name.LocalName);
 				test.SetAttributeValue ("status", node.Status);
+				test.SetAttributeValue ("time", node.ElapsedTime.TotalSeconds);
 				suite.Add (test);
 			}
 
