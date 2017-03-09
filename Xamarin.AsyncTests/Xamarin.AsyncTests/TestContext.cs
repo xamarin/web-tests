@@ -105,7 +105,7 @@ namespace Xamarin.AsyncTests
 		public void OnTestCanceled ()
 		{
 			isCanceled = true;
-			OnTestFinished (TestStatus.Canceled, TimeSpan.Zero);
+			OnTestFinished (TestStatus.Canceled, TimeSpan.MinValue);
 		}
 
 		public void OnTestIgnored ()

@@ -385,7 +385,7 @@ namespace Xamarin.AsyncTests.Framework
 				element.Add (instance.Path.SerializePath ());
 			}
 
-			if (instance.ElapsedTime != TimeSpan.Zero) {
+			if (instance.ElapsedTime != TimeSpan.MinValue) {
 				element.SetAttributeValue ("ElapsedTime", (int)instance.ElapsedTime.TotalMilliseconds);
 			}
 
