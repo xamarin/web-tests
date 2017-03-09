@@ -44,6 +44,11 @@ namespace Xamarin.AsyncTests.Console
 
 	class TouchLauncher : ApplicationLauncher
 	{
+		public Program Program {
+			get;
+			private set;
+		}
+
 		public string SdkRoot {
 			get;
 			private set;
@@ -112,8 +117,9 @@ namespace Xamarin.AsyncTests.Console
 		Process process;
 		TaskCompletionSource<bool> tcs;
 
-		public TouchLauncher (string app, Command command, string sdkroot, string stdout, string stderr, string devname, string extraArgs)
+		public TouchLauncher (Program program, string app, Command command, string sdkroot, string stdout, string stderr, string devname, string extraArgs)
 		{
+			Program = program;
 			Application = app;
 			Command = command;
 			RedirectStdout = stdout;

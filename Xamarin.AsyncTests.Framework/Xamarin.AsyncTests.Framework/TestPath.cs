@@ -30,7 +30,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	sealed class TestPath : ITestPath, ITestPathInternal
+	sealed class TestPath : ITestPath, ITestPathInternal, IPathNode
 	{
 		public TestHost Host {
 			get;
@@ -47,11 +47,19 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		ITestPath ITestPath.Parent {
+			get { return Parent; }
+		}
+
+		public string Name {
+			get { return TestName.FullName; }
+		}
+
 		ITestPathInternal ITestPathInternal.Parent {
 			get { return Parent; }
 		}
 
-		public TestName Name {
+		public TestName TestName {
 			get { return name; }
 		}
 
@@ -73,6 +81,14 @@ namespace Xamarin.AsyncTests.Framework
 
 		public bool IsBrowseable {
 			get { return (Flags & TestFlags.Browsable) != 0; }
+		}
+
+		public string Identifier {
+			get { return Host.Identifier; }
+		}
+
+		public string ParameterType {
+			get { return Host.ParameterType; }
 		}
 
 		readonly ITestParameter parameter;
@@ -179,7 +195,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public XElement SerializePath ()
 		{
-			return TestSerializer.SerializePath (this);
+			return TestSerializer.WriteTestPath (this);
 		}
 
 		public readonly int ID = ++next_id;

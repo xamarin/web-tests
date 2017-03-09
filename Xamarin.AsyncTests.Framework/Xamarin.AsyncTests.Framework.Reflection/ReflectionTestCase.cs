@@ -51,7 +51,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		public ReflectionTestCase (TestPathNode node)
 		{
 			Node = node;
-			Name = node.Path.Name;
+			Name = node.Path.TestName;
 		}
 
 		public bool HasChildren {
@@ -149,7 +149,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		public XElement Serialize ()
 		{
-			return TestSerializer.SerializePath (Node.Path);
+			return TestSerializer.WriteTestPath (Node.Path);
 		}
 
 		public override string ToString ()

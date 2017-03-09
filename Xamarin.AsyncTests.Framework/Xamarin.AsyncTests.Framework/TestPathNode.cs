@@ -93,7 +93,7 @@ namespace Xamarin.AsyncTests.Framework
 
 			Resolve ();
 
-			var innerCtx = ctx.CreateChild (Path.Name, Path);
+			var innerCtx = ctx.CreateChild (Path.TestName, Path);
 
 			parameters = new List<TestPathNode> ();
 			if ((Path.Flags & TestFlags.Browsable) != 0) {

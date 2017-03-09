@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite id="180" name="Xamarin.WebTests.Console" errors="0" failures="0" tests="1" hostname="localhost">
+    <testsuite id="11829" name="Xamarin.WebTests.Console.WebTests" errors="0" failures="0" tests="1" hostname="localhost">
+      <system-out>PATH = [TestPath: ID=1750, Identifier=assembly, Name=WebTests, Parameter=Xamarin.WebTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434, Parent=1749]</system-out>
+      <system-err>X1 TEST: False False</system-err>
+      <testsuite id="12416" name="Xamarin.WebTests.Console.WebTests.TestPost" errors="0" failures="0" tests="1" hostname="localhost">
+        <properties />
+        <testcase name="T3T" status="Ignored" />
+        <system-out>PATH = [TestPath: ID=2337, Identifier=fixture, Name=TestPost, Parameter=Xamarin.WebTests.Tests.TestPost, Parent=2336]</system-out>
+        <system-err>X2 TEST: False False</system-err>
+      </testsuite>
+      <testsuite id="12520" name="Xamarin.WebTests.Console.WebTests.TestProxy" errors="0" failures="0" tests="1" hostname="localhost">
+        <properties />
+        <testcase name="T4T" status="Ignored" />
+        <system-out>PATH = [TestPath: ID=2441, Identifier=fixture, Name=TestProxy, Parameter=Xamarin.WebTests.Tests.TestProxy, Parent=2440]</system-out>
+        <system-err>X3 TEST: False False</system-err>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>

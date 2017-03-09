@@ -134,7 +134,7 @@ namespace Xamarin.AsyncTests.Framework
 			}
 
 			if (success && !found)
-				ctx.OnTestFinished (TestStatus.Ignored);
+				ctx.OnTestIgnored ();
 
 			return success;
 		}

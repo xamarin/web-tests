@@ -18,14 +18,20 @@ ALL_WRENCH_BUILD_TARGETS = \
 All:: $(ALL_BUILD_TARGETS)
 	@echo "Build done"
 
-C9-%::
-	$(MAKE) CYCLE9=1 $*
-
 CleanAll::
 	git clean -xffd
 
 Wrench-%::
 	$(MAKE) WRENCH=1 $*
+
+Jenkins-%::
+	$(MAKE) JENKINS=1 DEBUG_CONFIGURATION=$(JENKINS_CONFIGURATION) $*
+	
+Jenkins-Build-Current::
+	$(MAKE) JENKINS=1 DEBUG_CONFIGURATION=$(JENKINS_CONFIGURATION) Jenkins-$(JENKINS_TARGET)-Build-$(JENKINS_CONFIGURATION)
+
+Jenkins-Run-Current::
+	$(MAKE) JENKINS=1 DEBUG_CONFIGURATION=$(JENKINS_CONFIGURATION) Jenkins-$(JENKINS_TARGET)-Run-$(JENKINS_TESTS)
 
 Wrench-Build-All:: $(ALL_WRENCH_BUILD_TARGETS)
 	@echo "Build done."
@@ -176,7 +182,8 @@ Default-Keychain::
 
 .Console-Internal-Run::
 	$(MONO) $(WEBTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
-		--result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND)
+		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) --junit-result=$(JUNIT_TEST_RESULT) \
+		$(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND)
 
 #
 # Internal .NET make targets

@@ -62,7 +62,7 @@ namespace Xamarin.AsyncTests.Framework
 				var success = await invoker.Invoke (ctx, instance, cancellationToken);
 				return success || ContinueOnError;
 			} catch (OperationCanceledException) {
-				ctx.OnTestFinished (TestStatus.Canceled);
+				ctx.OnTestCanceled ();
 				return false;
 			} catch (Exception ex) {
 				ctx.OnError (ex);

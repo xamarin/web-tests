@@ -55,6 +55,11 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public string JUnitResultOutput {
+			get;
+			private set;
+		}
+
 		public IPEndPoint EndPoint {
 			get;
 			private set;
@@ -99,6 +104,16 @@ namespace Xamarin.AsyncTests.Console
 		}
 
 		public bool Wrench {
+			get;
+			private set;
+		}
+
+		public bool Jenkins {
+			get;
+			private set;
+		}
+
+		public string OutputDirectory {
 			get;
 			private set;
 		}
@@ -152,12 +167,12 @@ namespace Xamarin.AsyncTests.Console
 				task.Wait ();
 				Environment.Exit (task.Result ? 0 : 1);
 			} catch (Exception ex) {
-				PrintException (ex);
+				program.PrintException (ex);
 				Environment.Exit (-1);
 			}
 		}
 
-		static void PrintException (Exception ex)
+		void PrintException (Exception ex)
 		{
 			var aggregate = ex as AggregateException;
 			if (aggregate != null && aggregate.InnerExceptions.Count == 1) {
@@ -196,6 +211,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("wait", v => Wait = true);
 			p.Add ("no-result", v => ResultOutput = null);
 			p.Add ("result=", v => ResultOutput = v);
+			p.Add ("junit-result=", v => JUnitResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
 			p.Add ("local-log-level=", v => LocalLogLevel = int.Parse (v));
 			p.Add ("dependency=", v => dependencies.Add (v));
@@ -213,6 +229,8 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("device=", v => device = v);
 			p.Add ("sdkroot=", v => sdkroot = v);
 			p.Add ("wrench", v => Wrench = true);
+			p.Add ("jenkins", v => Jenkins = true);
+			p.Add ("output-dir=", v => OutputDirectory = v);
 			var remaining = p.Parse (args);
 
 			if (assembly != null) {
@@ -266,7 +284,7 @@ namespace Xamarin.AsyncTests.Console
 			} else if (command == Command.Simulator || command == Command.Device || command == Command.TVOS) {
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected .app argument");
-				Launcher = new TouchLauncher (arguments [0], command, sdkroot, stdout, stderr, device, extraLauncherArgs);
+				Launcher = new TouchLauncher (this, arguments [0], command, sdkroot, stdout, stderr, device, extraLauncherArgs);
 				arguments.RemoveAt (0);
 
 				if (EndPoint == null)
@@ -274,7 +292,7 @@ namespace Xamarin.AsyncTests.Console
 			} else if (command == Command.Mac) {
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected .app argument");
-				Launcher = new MacLauncher (arguments [0], stdout, stderr);
+				Launcher = new MacLauncher (this, arguments [0], stdout, stderr);
 				arguments.RemoveAt (0);
 
 				if (EndPoint == null)
@@ -283,7 +301,7 @@ namespace Xamarin.AsyncTests.Console
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected activity argument");
 
-				Launcher = new DroidLauncher (arguments [0], stdout, stderr);
+				Launcher = new DroidLauncher (this, arguments [0], stdout, stderr);
 				arguments.RemoveAt (0);
 
 				if (EndPoint == null)
@@ -292,7 +310,7 @@ namespace Xamarin.AsyncTests.Console
 				if (arguments.Count != 0)
 					throw new InvalidOperationException ("Unexpected extra arguments");
 
-				droidHelper = new DroidHelper (sdkroot);
+				droidHelper = new DroidHelper (this, sdkroot);
 			} else if (command == Command.Result) {
 				if (arguments.Count != 1)
 					throw new InvalidOperationException ("Expected TestResult.xml argument");
@@ -302,8 +320,28 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
+		void CheckOutputDirectory ()
+		{
+			if (string.IsNullOrEmpty (OutputDirectory))
+				return;
+
+			if (!Directory.Exists (OutputDirectory))
+				Directory.CreateDirectory (OutputDirectory);
+
+			if (!string.IsNullOrEmpty (stdout))
+				stdout = Path.Combine (OutputDirectory, stdout);
+			if (!string.IsNullOrEmpty (stderr))
+				stderr = Path.Combine (OutputDirectory, stderr);
+			if (!string.IsNullOrEmpty (ResultOutput))
+				ResultOutput = Path.Combine (OutputDirectory, ResultOutput);
+			if (!string.IsNullOrEmpty (JUnitResultOutput))
+				JUnitResultOutput = Path.Combine (OutputDirectory, JUnitResultOutput);
+		}
+
 		void Initialize ()
 		{
+			CheckOutputDirectory ();
+
 			CheckSettingsFile ();
 
 			settings = LoadSettings (SettingsFile);
@@ -341,14 +379,14 @@ namespace Xamarin.AsyncTests.Console
 			global::System.Console.WriteLine (message, args);
 		}
 
-		internal static void Debug (string message)
+		internal void Debug (string message)
 		{
 			SD.Debug.WriteLine (message);
 		}
 
-		internal static void Debug (string message, params object[] args)
+		internal void Debug (string message, params object[] args)
 		{
-			SD.Debug.WriteLine (message, args);
+			Debug (string.Format (message, args));
 		}
 
 		internal void WriteSummary (string format, params object[] args)
@@ -361,6 +399,8 @@ namespace Xamarin.AsyncTests.Console
 			Debug (message);
 			if (Wrench)
 				global::System.Console.WriteLine ("@MonkeyWrench: AddSummary: <p>{0}</p>", message);
+			if (Jenkins)
+				global::System.Console.WriteLine ("[info] {0}", message);
 		}
 
 		internal void WriteErrorSummary (string message)
@@ -368,6 +408,8 @@ namespace Xamarin.AsyncTests.Console
 			Debug ("ERROR: {0}", message);
 			if (Wrench)
 				global::System.Console.WriteLine ("@MonkeyWrench: AddSummary: <p><b>ERROR: {0}</b></p>", message);
+			if (Jenkins)
+				global::System.Console.WriteLine ("[error] {0}", message);
 		}
 
 		internal void AddFile (string filename)
@@ -448,7 +490,7 @@ namespace Xamarin.AsyncTests.Console
 			SettingsFile = Path.Combine (path, name + ".xml");
 		}
 
-		static SettingsBag LoadSettings (string filename)
+		SettingsBag LoadSettings (string filename)
 		{
 			if (filename == null || !File.Exists (filename))
 				return SettingsBag.CreateDefault ();
@@ -480,6 +522,9 @@ namespace Xamarin.AsyncTests.Console
 
 		Task<bool> Run (CancellationToken cancellationToken)
 		{
+			if (Jenkins)
+				global::System.Console.WriteLine ("[start] Running test suite.");
+
 			switch (command) {
 			case Command.Local:
 				return RunLocal (cancellationToken);
@@ -749,8 +794,13 @@ namespace Xamarin.AsyncTests.Console
 				settings.Indent = true;
 				using (var writer = XmlTextWriter.Create (ResultOutput, settings))
 					serialized.WriteTo (writer);
-				Debug ("Result writting to {0}.", ResultOutput);
+				Debug ("Result written to {0}.", ResultOutput);
 				AddFile (ResultOutput);
+			}
+
+			if (JUnitResultOutput != null) {
+				JUnitResultPrinter.Print (result, JUnitResultOutput);
+				Debug ("JUnit result written to {0}.", JUnitResultOutput);
 			}
 
 			if (!string.IsNullOrWhiteSpace (stdout) && File.Exists (stdout))

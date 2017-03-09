@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.AsyncTests", "Xamar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.AsyncTests.Framework", "Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj", "{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests", "Xamarin.WebTests\Xamarin.WebTests.csproj", "{E93E8622-665B-44D6-B36A-89C93B5B3532}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Tests", "Xamarin.WebTests.Tests\Xamarin.WebTests.Tests.csproj", "{E93E8622-665B-44D6-B36A-89C93B5B3532}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.AsyncTests.Console", "Xamarin.AsyncTests.Console\Xamarin.AsyncTests.Console.csproj", "{8FA04E17-8E60-45C4-A9A7-51C5047CCABF}"
 EndProject

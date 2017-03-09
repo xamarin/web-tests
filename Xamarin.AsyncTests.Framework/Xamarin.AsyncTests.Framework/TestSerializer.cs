@@ -43,19 +43,35 @@ namespace Xamarin.AsyncTests.Framework
 		internal const string TestFixtureIdentifier = "fixture";
 		internal const string TestSuiteIdentifier = "suite";
 		internal const string TestAssemblyIdentifier = "assembly";
+		const string ParameterIdentifier = "parameter";
 
 		internal static void Debug (string message, params object[] args)
 		{
 			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
 		}
 
-		internal static XElement SerializePath (TestPath path)
+		internal static XElement WriteTestPath (TestPath path)
 		{
 			var node = new XElement (PathName);
 
 			while (path != null) {
 				var element = WritePathNode (path.Host, path.Parameter);
+				if (path.IsHidden)
+					element.SetAttributeValue ("IsHidden", true);
 				node.AddFirst (element);
+				path = path.Parent;
+			}
+
+			return node;
+		}
+
+		static XElement WriteTestPath (PathWrapper path)
+		{
+			var node = new XElement (PathName);
+
+			while (path != null) {
+				var elemement = WritePathNode (path.Node);
+				node.AddFirst (elemement);
 				path = path.Parent;
 			}
 
@@ -87,7 +103,12 @@ namespace Xamarin.AsyncTests.Framework
 			var friendlyAttr = type.GetTypeInfo ().GetCustomAttribute<FriendlyNameAttribute> ();
 			if (friendlyAttr != null)
 				return friendlyAttr.Name;
-			return type.FullName;
+			return type.Name;
+		}
+
+		public static string GetParameterIdentifier (string name)
+		{
+			return ParameterIdentifier + ":" + name;
 		}
 
 		public static ITestParameter GetStringParameter (string value)
@@ -107,7 +128,7 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		static IPathNode ReadPathNode (XElement element)
+		static PathNodeWrapper ReadPathNode (XElement element)
 		{
 			var node = new PathNodeWrapper ();
 			node.Identifier = element.Attribute ("Identifier").Value;
@@ -140,6 +161,19 @@ namespace Xamarin.AsyncTests.Framework
 			return element;
 		}
 
+		static XElement WritePathNode (PathNodeWrapper node)
+		{
+			var element = new XElement (ParameterName);
+			element.Add (new XAttribute ("Identifier", node.Identifier));
+			if (node.Name != null)
+				element.Add (new XAttribute ("Name", node.Name));
+			if (node.ParameterType != null)
+				element.Add (new XAttribute ("ParameterType", node.ParameterType));
+			if (node.ParameterValue != null)
+				element.Add (new XAttribute ("Parameter", node.ParameterValue));
+			return element;
+		}
+
 		class PathNodeWrapper : IPathNode
 		{
 			public string Identifier {
@@ -164,18 +198,44 @@ namespace Xamarin.AsyncTests.Framework
 
 		class PathWrapper : ITestPath
 		{
-			readonly XElement node;
+			public readonly PathNodeWrapper Node;
+			public readonly PathWrapper Parent;
 
-			public PathWrapper (XElement node)
+			PathWrapper (PathNodeWrapper pathNode, PathWrapper parent)
 			{
-				this.node = node;
-				if (node == null)
-					throw new InvalidOperationException();
+				Node = pathNode;
+				Parent = parent;
 			}
 
-			public XElement SerializePath ()
+			public static PathWrapper ReadPath (XElement path)
 			{
-				return node;
+				PathWrapper current = null;
+				foreach (var element in path.Elements ("TestParameter")) {
+					var node = ReadPathNode (element);
+					current = new PathWrapper (node, current);
+				}
+				return current;
+			}
+
+			ITestPath ITestPath.Parent {
+				get { return Parent; }
+			}
+
+			public string Identifier {
+				get { return Node.Identifier; }
+			}
+
+			public string Name {
+				get { return Node.Name; }
+			}
+
+			public string ParameterType {
+				get { return Node.ParameterType; }
+			}
+
+			XElement ITestPath.SerializePath ()
+			{
+				return WriteTestPath (this);
 			}
 		}
 
@@ -270,6 +330,11 @@ namespace Xamarin.AsyncTests.Framework
 			return new SavedException (type, message, stackTrace);
 		}
 
+		internal static ITestPath ReadTestPath (XElement node)
+		{
+			return PathWrapper.ReadPath (node);
+		}
+
 		public static TestResult ReadTestResult (XElement node)
 		{
 			if (!node.Name.LocalName.Equals ("TestResult"))
@@ -282,7 +347,11 @@ namespace Xamarin.AsyncTests.Framework
 
 			var path = node.Element ("TestPath");
 			if (path != null)
-				result.Path = new PathWrapper (path);
+				result.Path = ReadTestPath (path);
+
+			var elapsedTime = node.Element ("ElapsedTime");
+			if (elapsedTime != null)
+				result.ElapsedTime = TimeSpan.FromMilliseconds (int.Parse (elapsedTime.Value));
 
 			foreach (var error in node.Elements ("Error")) {
 				result.AddError (ReadError (error));
@@ -307,11 +376,17 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			var element = new XElement ("TestResult");
 			element.SetAttributeValue ("Status", instance.Status.ToString ());
+			if (!TestName.IsNullOrEmpty (instance.Name))
+				element.SetAttributeValue ("Name", instance.Name.FullName);
 
 			element.Add (TestSerializer.WriteTestName (instance.Name));
 
 			if (instance.Path != null) {
 				element.Add (instance.Path.SerializePath ());
+			}
+
+			if (instance.ElapsedTime != null) {
+				element.SetAttributeValue ("ElapsedTime", (int)instance.ElapsedTime.Value.TotalMilliseconds);
 			}
 
 			foreach (var error in instance.Errors) {
