@@ -95,7 +95,7 @@ namespace Xamarin.AsyncTests
 			logger.OnTestRunning (Name);
 		}
 
-		public void OnTestFinished (TestStatus status, TimeSpan elapsedTime)
+		public void OnTestFinished (TestStatus status, TimeSpan? elapsedTime = null)
 		{
 			Result.Status = status;
 			Result.ElapsedTime = elapsedTime;
@@ -105,7 +105,7 @@ namespace Xamarin.AsyncTests
 		public void OnTestCanceled ()
 		{
 			isCanceled = true;
-			OnTestFinished (TestStatus.Canceled, TimeSpan.MinValue);
+			OnTestFinished (TestStatus.Canceled);
 		}
 
 		public void OnTestIgnored ()
