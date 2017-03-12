@@ -15,6 +15,12 @@ ALL_WRENCH_BUILD_TARGETS = \
 	TVOS-Sim-Build-Debug TVOS-Sim-Build-DebugAppleTls \
 	Android-Build-Debug
 
+Martin-Test::
+	echo "TEST: $UPSTREAM_BUILD_URL"
+	ls -l $(UPSTREAM_BUILD_URL)
+	ls -l $(UPSTREAM_BUILD_URL)/mono/mini/mono
+	$(MAKE) MONO=$(UPSTREAM_BUILD_URL)/mono/mini/mono Jenkins-Build-Current
+
 All:: $(ALL_BUILD_TARGETS)
 	@echo "Build done"
 
