@@ -16,10 +16,10 @@ ALL_WRENCH_BUILD_TARGETS = \
 	Android-Build-Debug
 
 Martin-Test::
-	echo "TEST: $UPSTREAM_BUILD_URL"
-	ls -l $(UPSTREAM_BUILD_URL)
-	ls -l $(UPSTREAM_BUILD_URL)/mono/mini/mono
-	$(MAKE) MONO=$(UPSTREAM_BUILD_URL)/mono/mini/mono Jenkins-Build-Current
+	echo "TEST: $$UPSTREAM_BUILD_URL - $$UPSTREAM_WORKSPACE"
+	ls -l $(UPSTREAM_WORKSPACE)
+	ls -l $(UPSTREAM_WORKSPACE)/mono/mini/mono
+	$(MAKE) MONO=$(UPSTREAM_WORKSPACE)/mono/mini/mono Jenkins-Build-Current
 
 All:: $(ALL_BUILD_TARGETS)
 	@echo "Build done"
