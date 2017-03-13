@@ -17,9 +17,9 @@ ALL_WRENCH_BUILD_TARGETS = \
 
 Martin-Test::
 	echo "TEST: $$UPSTREAM_BUILD_URL - $$UPSTREAM_WORKSPACE"
-	ls -l $(UPSTREAM_WORKSPACE)
+	ls -ld $(UPSTREAM_WORKSPACE)
 	ls -l $(UPSTREAM_WORKSPACE)/mono/mini/mono
-	$(MAKE) MONO=$(UPSTREAM_WORKSPACE)/mono/mini/mono Jenkins-Build-Current
+	echo $(MAKE) MONO=$(UPSTREAM_WORKSPACE)/mono/mini/mono MONO_LIBDIR=$(UPSTREAM_WORKSPACE)/mcs/class/lib/net_4_x Jenkins-Build-Current
 
 All:: $(ALL_BUILD_TARGETS)
 	@echo "Build done"
