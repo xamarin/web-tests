@@ -16,7 +16,7 @@ ALL_WRENCH_BUILD_TARGETS = \
 	Android-Build-Debug
 
 Martin-Test::
-	echo "TEST: $$UPSTREAM_BUILD_URL - $$UPSTREAM_WORKSPACE"
+	echo "TEST: $$UPSTREAM_BUILD_URL - $$UPSTREAM_WORKSPACE - $$JENKINS_TESTS"
 	ls -ld $(UPSTREAM_WORKSPACE)
 	ls -l $(UPSTREAM_WORKSPACE)/mono/mini/mono
 	echo $(MAKE) MONO=$(UPSTREAM_WORKSPACE)/mono/mini/mono MONO_LIBDIR=$(UPSTREAM_WORKSPACE)/mcs/class/lib/net_4_x Jenkins-Build-Current
