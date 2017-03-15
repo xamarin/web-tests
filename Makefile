@@ -36,10 +36,15 @@ Jenkins-Run::
 
 Build-Console::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=Debug .Console-Internal-Build
-	@echo "DONE"
+
+Build-ConsoleBtls::
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ WEBTESTS_CONSOLE_PROJECT=Xamarin.WebTests.BtlsConsole CONSOLE_CONFIGURATION=DebugBtls .Console-Internal-Build
 
 Run-Console-%::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=Debug .Console-Run-$*
+
+Run-ConsoleBtls-%::
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ WEBTESTS_CONSOLE_PROJECT=Xamarin.WebTests.BtlsConsole CONSOLE_CONFIGURATION=DebugBtls .Console-Run-$*
 
 #
 #
@@ -185,7 +190,7 @@ Default-Keychain::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .Console-Internal-Run
 
 .Console-Internal-Build::
-	$(MSBUILD) /p:Configuration='$(CONSOLE_CONFIGURATION)' Xamarin.WebTests.Console.sln
+	$(MSBUILD) /p:Configuration='$(CONSOLE_CONFIGURATION)' $(WEBTESTS_CONSOLE_SLN)
 
 .Console-Internal-Run::
 	$(MONO) $(WEBTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
