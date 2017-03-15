@@ -130,6 +130,8 @@ namespace Xamarin.AsyncTests.Console
 				systemOut.Add (Environment.NewLine);
 			}
 
+			systemOut.Add (string.Format ("TEST: {0} {1}\n", node.HasMessages, node.HasLogEntries));
+
 			if (node.Name.HasParameters) {
 				foreach (var parameter in node.Name.Parameters) {
 					if (parameter.IsHidden)
@@ -147,6 +149,12 @@ namespace Xamarin.AsyncTests.Console
 			if (node.HasMessages) {
 				foreach (var message in node.Messages) {
 					systemOut.Add (message + Environment.NewLine);
+				}
+			}
+
+			if (node.HasLogEntries) {
+				foreach (var entry in node.LogEntries) {
+					systemOut.Add (string.Format ("LOG: {0} {1} {2}\n", entry.Kind, entry.LogLevel, entry.Text));
 				}
 			}
 
