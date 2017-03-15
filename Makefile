@@ -27,6 +27,9 @@ Wrench-%::
 Jenkins-Build::
 	$(MAKE) JENKINS=1 Build-$(JENKINS_TARGET) $*
 
+Jenkins-Install::
+	$(MAKE) JENKINS=1 Install-$(JENKINS_TARGET) $*
+
 Jenkins-Run::
 	$(MAKE) JENKINS=1 Run-$(JENKINS_TARGET)-$(JENKINS_TESTS)
 
@@ -71,6 +74,19 @@ Build-Mac::
 
 Run-Mac-%::
 	$(MAKE) ASYNCTESTS_COMMAND=mac TARGET_NAME=$@ MAC_CONFIGURATION=Debug .Mac-Run-$*
+
+#
+#
+#
+
+Build-Android::
+	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Internal-Build
+
+Install-Android::
+	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Internal-Install
+
+Run-Android-%::
+	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Run-$*
 
 #
 #
