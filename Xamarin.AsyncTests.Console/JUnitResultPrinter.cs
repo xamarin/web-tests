@@ -71,6 +71,7 @@ namespace Xamarin.AsyncTests.Console
 			var suite = new XElement ("testsuite");
 			suite.SetAttributeValue ("name", parent.FullName);
 
+#if FIXME
 			if (!node.HasChildren || node.Children.Count == 0) {
 				switch (node.Status) {
 				case TestStatus.Success:
@@ -91,6 +92,7 @@ namespace Xamarin.AsyncTests.Console
 				suite.SetAttributeValue ("tests", "1");
 #endif
 			}
+#endif
 
 			suite.SetAttributeValue ("timestamp", timestamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
 			suite.SetAttributeValue ("hostname", "localhost");
@@ -108,6 +110,11 @@ namespace Xamarin.AsyncTests.Console
 				if (node.ElapsedTime != null)
 					test.SetAttributeValue ("time", node.ElapsedTime.Value.TotalSeconds);
 				suite.Add (test);
+
+				if (node.Status == TestStatus.Error) {
+					var error = new XElement ("error");
+					test.Add (error);
+				}
 			}
 
 			var systemOut = new XElement ("system-out");
