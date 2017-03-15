@@ -104,17 +104,8 @@ namespace Xamarin.AsyncTests.Console
 			suite.Add (properties);
 
 			if (!node.HasChildren || node.Children.Count == 0) {
-				var test = new XElement ("testcase");
-				test.SetAttributeValue ("name", node.Name.LocalName);
-				test.SetAttributeValue ("status", node.Status);
-				if (node.ElapsedTime != null)
-					test.SetAttributeValue ("time", node.ElapsedTime.Value.TotalSeconds);
+				var test = CreateTestCase (node);
 				suite.Add (test);
-
-				if (node.Status == TestStatus.Error) {
-					var error = new XElement ("error");
-					test.Add (error);
-				}
 			}
 
 			var systemOut = new XElement ("system-out");
@@ -160,6 +151,40 @@ namespace Xamarin.AsyncTests.Console
 
 			return suite;
 		}
+
+		XElement CreateTestCase (TestResult result)
+		{
+			var test = new XElement ("testcase");
+			test.SetAttributeValue ("name", result.Name.LocalName);
+			test.SetAttributeValue ("status", result.Status);
+			if (result.ElapsedTime != null)
+				test.SetAttributeValue ("time", result.ElapsedTime.Value.TotalSeconds);
+
+			var hasError = false;
+
+			if (result.HasErrors) {
+				foreach (var error in result.Errors) {
+					var xerror = new XElement ("error");
+					var savedException = error as SavedException;
+					if (savedException != null) {
+						xerror.SetAttributeValue ("type", savedException.Type);
+						xerror.SetAttributeValue ("message", savedException.Message + "\n" + savedException.StackTrace);
+					} else {
+						xerror.SetAttributeValue ("type", error.GetType ().FullName);
+						xerror.SetAttributeValue ("message", error.Message + "\n" + error.StackTrace);
+					}
+					test.Add (xerror);
+					hasError = true;
+				}
+			}
+
+			if (result.Status == TestStatus.Error && !hasError) {
+				test.Add (new XElement ("error"));
+			}
+
+			return test;
+		}
+
 
 		string FormatName (TestName name)
 		{
