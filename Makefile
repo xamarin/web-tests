@@ -24,17 +24,42 @@ CleanAll::
 Wrench-%::
 	$(MAKE) WRENCH=1 $*
 
-Jenkins-%::
-	$(MAKE) JENKINS=1 DEBUG_CONFIGURATION=$(JENKINS_CONFIGURATION) $*
-	
-Jenkins-Build-Current::
-	$(MAKE) JENKINS=1 DEBUG_CONFIGURATION=$(JENKINS_CONFIGURATION) Jenkins-$(JENKINS_TARGET)-Build-$(JENKINS_CONFIGURATION)
+Jenkins-Build::
+	$(MAKE) JENKINS=1 Build-$(JENKINS_TARGET) $*
 
-Jenkins-Run-Current::
-	$(MAKE) JENKINS=1 DEBUG_CONFIGURATION=$(JENKINS_CONFIGURATION) Jenkins-$(JENKINS_TARGET)-Run-$(JENKINS_TESTS)
+Jenkins-Run::
+	$(MAKE) JENKINS=1 Run-$(JENKINS_TARGET)-$(JENKINS_TESTS)
 
-Wrench-Build-All:: $(ALL_WRENCH_BUILD_TARGETS)
-	@echo "Build done."
+#
+#
+#
+
+Build-Console::
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=Debug .Console-Internal-Build
+	@echo "DONE"
+
+Run-Console-%::
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=Debug .Console-Run-$*
+
+#
+#
+#
+
+Build-IOS-Debug::
+	$(MAKE) ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ IOS_TARGET=iPhoneSimulator IOS_CONFIGURATION=Debug .IOS-Internal-Build
+
+Build-IOS-DebugAppleTls::
+	$(MAKE) ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ IOS_TARGET=iPhoneSimulator IOS_CONFIGURATION=DebugAppleTls .IOS-Internal-Build
+
+Run-IOS-Debug-%::
+	$(MAKE) ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ IOS_TARGET=iPhoneSimulator IOS_CONFIGURATION=Debug .IOS-Run-$*
+
+Run-IOS-DebugAppleTls-%::
+	$(MAKE) ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ IOS_TARGET=iPhoneSimulator IOS_CONFIGURATION=DebugAppleTls .IOS-Run-$*
+
+#
+#
+#
 
 IOS-Sim-%::
 	$(MAKE) IOS_TARGET=iPhoneSimulator ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ .IOS-$*
@@ -75,18 +100,6 @@ Default-Keychain::
 #
 # Internal IOS make targets
 #
-
-.IOS-Debug-%::
-	$(MAKE) IOS_CONFIGURATION=Debug .IOS-Run-$*
-
-.IOS-DebugAppleTls-%::
-	$(MAKE) IOS_CONFIGURATION=DebugAppleTls .IOS-Run-$*
-
-.IOS-Build-Debug::
-	$(MAKE) IOS_CONFIGURATION=Debug .IOS-Internal-Build
-
-.IOS-Build-DebugAppleTls::
-	$(MAKE) IOS_CONFIGURATION=DebugAppleTls .IOS-Internal-Build
 
 .IOS-Run-Experimental::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All .IOS-Internal-Run
@@ -155,12 +168,6 @@ Default-Keychain::
 #
 # Internal Console make targets
 #
-
-.Console-Build-Debug::
-	$(MAKE) CONSOLE_CONFIGURATION=Debug .Console-Internal-Build
-
-.Console-Debug-%::
-	$(MAKE) CONSOLE_CONFIGURATION=Debug .Console-Run-$*
 
 .Console-Run-Experimental::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All .Console-Internal-Run
