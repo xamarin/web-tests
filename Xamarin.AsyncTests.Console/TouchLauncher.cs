@@ -143,7 +143,8 @@ namespace Xamarin.AsyncTests.Console
 			switch (command) {
 			case Command.Device:
 			case Command.Simulator:
-				UseMLaunch = true;
+				DeviceType = "iPhone-5s";
+				Runtime = "iOS-10-2";
 				break;
 			case Command.TVOS:
 				DeviceType = "Apple-TV-1080p";
@@ -161,10 +162,9 @@ namespace Xamarin.AsyncTests.Console
 					MLaunch = null;
 					UseMLaunch = false;
 				}
-			}
-
-			if (command == Command.TVOS && DeviceName == null)
+			} else if (DeviceName == null) {
 				DeviceName = string.Format (":v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}", DeviceType, Runtime);
+			}
 		}
 
 		void Install ()
@@ -175,11 +175,11 @@ namespace Xamarin.AsyncTests.Console
 				args.AppendFormat (" --installdev={0}", Application);
 				break;
 			case Command.Simulator:
-				args.AppendFormat (" --installdev={0}", Application);
+				args.AppendFormat (" --installsim={0}", Application);
 				break;
 			case Command.TVOS:
 				args.AppendFormat (" --installsim={0}", Application);
-				args.AppendFormat (" --device=:v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}", DeviceType, Runtime);
+				// args.AppendFormat (" --device=:v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}", DeviceType, Runtime);
 				break;
 			default:
 				throw new NotSupportedException ();
