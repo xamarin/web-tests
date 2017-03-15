@@ -105,7 +105,7 @@ Default-Keychain::
 
 .IOS-Internal-Build::
 	$(MONO) $(NUGET_EXE) restore $(EXTRA_NUGET_RESTORE_ARGS) Xamarin.WebTests.iOS.sln
-	$(XBUILD) /p:Configuration='$(IOS_CONFIGURATION)' /p:Platform='$(IOS_TARGET)' Xamarin.WebTests.iOS.sln
+	$(MSBUILD) /p:Configuration='$(IOS_CONFIGURATION)' /p:Platform='$(IOS_TARGET)' Xamarin.WebTests.iOS.sln
 
 .IOS-Internal-Run::
 	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
@@ -178,7 +178,7 @@ Default-Keychain::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .Console-Internal-Run
 
 .Console-Internal-Build::
-	$(XBUILD) /p:Configuration='$(CONSOLE_CONFIGURATION)' Xamarin.WebTests.Console.sln
+	$(MSBUILD) /p:Configuration='$(CONSOLE_CONFIGURATION)' Xamarin.WebTests.Console.sln
 
 .Console-Internal-Run::
 	$(MONO) $(WEBTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
@@ -211,7 +211,7 @@ Default-Keychain::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .DotNet-Internal-Run
 
 .DotNet-Internal-Build::
-	$(XBUILD) /p:Configuration='$(DOTNET_CONFIGURATION)' Xamarin.WebTests.DotNet.sln
+	$(MSBUILD) /p:Configuration='$(DOTNET_CONFIGURATION)' Xamarin.WebTests.DotNet.sln
 
 .DotNet-Internal-Run::
 	$(MONO) $(WEBTESTS_DOTNET_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
