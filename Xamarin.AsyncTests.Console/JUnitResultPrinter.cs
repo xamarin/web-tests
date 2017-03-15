@@ -70,9 +70,11 @@ namespace Xamarin.AsyncTests.Console
 			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 			var suite = new XElement ("testsuite");
 			suite.SetAttributeValue ("name", parent.FullName);
+#if FIXME
 			suite.SetAttributeValue ("errors", "0");
 			suite.SetAttributeValue ("failures", "0");
 			suite.SetAttributeValue ("tests", "1");
+#endif
 			suite.SetAttributeValue ("timestamp", timestamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
 			suite.SetAttributeValue ("hostname", "localhost");
 			if (node.ElapsedTime != null)
