@@ -144,7 +144,7 @@ namespace Xamarin.AsyncTests.Console
 			case Command.Device:
 			case Command.Simulator:
 				DeviceType = "iPhone-5s";
-				Runtime = "iOS-10-2";
+				Runtime = "iOS-10-0";
 				break;
 			case Command.TVOS:
 				DeviceType = "Apple-TV-1080p";
