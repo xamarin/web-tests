@@ -37,6 +37,16 @@ Jenkins-Run::
 #
 #
 
+Build-Fast::
+	$(MAKE) Build-Console
+
+Run-Fast-%::
+	$(MAKE) Run-Console-$*
+
+#
+#
+#
+
 Build-Console::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=Debug .Console-Internal-Build
 
