@@ -37,10 +37,10 @@ Jenkins-Run::
 #
 #
 
-Build-Fast::
+Build-FastCheck::
 	$(MAKE) Build-Console
 
-Run-Fast-%::
+Run-FastCheck-%::
 	$(MAKE) Run-Console-$*
 
 #
