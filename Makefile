@@ -66,6 +66,16 @@ Run-IOS-DebugAppleTls-%::
 #
 #
 
+Build-Mac::
+	$(MAKE) ASYNCTESTS_COMMAND=mac TARGET_NAME=$@ MAC_CONFIGURATION=Debug .Mac-Internal-Build
+
+Run-Mac-%::
+	$(MAKE) ASYNCTESTS_COMMAND=mac TARGET_NAME=$@ MAC_CONFIGURATION=Debug .Mac-Run-$*
+
+#
+#
+#
+
 IOS-Sim-%::
 	$(MAKE) IOS_TARGET=iPhoneSimulator ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ .IOS-$*
 
@@ -233,18 +243,6 @@ Default-Keychain::
 # Internal Mac make targets
 #
 
-.Mac-Build-Debug::
-	$(MAKE) MAC_CONFIGURATION=$(MAC_CONFIGURATION_DEBUG) .Mac-Internal-Build
-
-.Mac-Build-DebugAppleTls::
-	$(MAKE) MAC_CONFIGURATION=$(MAC_CONFIGURATION_DEBUGAPPLELTS) .Mac-Internal-Build
-
-.Mac-Debug-%::
-	$(MAKE) MAC_CONFIGURATION=Debug .Mac-Run-$*
-
-.Mac-DebugAppleTls-%::
-	$(MAKE) MAC_CONFIGURATION=DebugAppleTls .Mac-Run-$*
-
 .Mac-Run-Experimental::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All .Mac-Internal-Run
 
@@ -266,8 +264,8 @@ Default-Keychain::
 
 .Mac-Internal-Run::
 	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
-		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) \
-		$(ASYNCTESTS_COMMAND) $(WEBTESTS_MAC_APP_BIN)
+		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) --junit-result=$(JUNIT_TEST_RESULT) \
+		$(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND) $(WEBTESTS_MAC_APP_BIN)
 
 #
 # Internal Android make targets
