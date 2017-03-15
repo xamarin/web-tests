@@ -121,18 +121,19 @@ namespace Xamarin.AsyncTests.Console
 				systemOut.Add (Environment.NewLine);
 			}
 
-			systemOut.Add (string.Format ("TEST: {0} {1}\n", node.HasMessages, node.HasLogEntries));
-
 			if (node.Name.HasParameters) {
+				systemOut.Add ("<parameters>" + Environment.NewLine);
 				foreach (var parameter in node.Name.Parameters) {
 					if (parameter.IsHidden)
 						continue;
 					var propNode = new XElement ("property");
 					propNode.SetAttributeValue ("name", parameter.Name);
 					propNode.SetAttributeValue ("value", parameter.Value);
-					systemOut.Add (string.Format ("{0} = {1}{2}", parameter.Name, parameter.Value, Environment.NewLine));
+					systemOut.Add (string.Format ("  {0} = {1}{2}", parameter.Name, parameter.Value, Environment.NewLine));
 					properties.Add (propNode);
 				}
+				systemOut.Add ("</parameters>" + Environment.NewLine);
+				systemOut.Add (Environment.NewLine);
 			}
 
 			systemOut.Add (Environment.NewLine);
