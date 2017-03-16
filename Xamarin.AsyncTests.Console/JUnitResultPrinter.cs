@@ -60,7 +60,7 @@ namespace Xamarin.AsyncTests.Console
 			using (var writer = XmlWriter.Create (output, settings)) {
 				var printer = new JUnitResultPrinter (result);
 				var root = new XElement ("testsuites");
-				printer.Visit (root, TestName.Empty, result);
+				printer.Visit (root, TestName.Empty, result, false);
 				root.WriteTo (writer);
 			}
 		}
@@ -81,13 +81,25 @@ namespace Xamarin.AsyncTests.Console
 			return sb.ToString ();
 		}
 
-		void Visit (XElement root, TestName parent, TestResult result)
+		void Visit (XElement root, TestName parent, TestResult result, bool foundParameter)
 		{
 			if (false && result.Status == TestStatus.Ignored)
 				return;
 
 			XElement node = root;
+			if (result.Path == null)
+				return;
 
+			if (result.Path.PathType == TestPathType.Parameter)
+				foundParameter = true;
+			if (foundParameter) {
+				var suite = new TestSuite (root, parent, result);
+				suite.Write ();
+				root.Add (suite.Node);
+				node = suite.Node;
+			}
+
+#if FIXME
 			if (result.Path == null ||
 			    result.Path.Identifier == "suite" ||
 			    result.Path.Identifier == "assembly") {
@@ -98,10 +110,11 @@ namespace Xamarin.AsyncTests.Console
 				root.Add (suite.Node);
 				node = suite.Node;
 			}
+#endif
 
 			if (result.HasChildren) {
 				foreach (var child in result.Children)
-					Visit (node, result.Name, child);
+					Visit (node, result.Name, child, foundParameter);
 			}
 		}
 
