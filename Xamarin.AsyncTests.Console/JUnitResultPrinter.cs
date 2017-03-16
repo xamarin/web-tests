@@ -194,7 +194,7 @@ namespace Xamarin.AsyncTests.Console
 
 		void Visit (XElement root, TestName parent, TestResult result)
 		{
-			if (true && result.Status == TestStatus.Ignored)
+			if (false && result.Status == TestStatus.Ignored)
 				return;
 
 			XElement node = root;
