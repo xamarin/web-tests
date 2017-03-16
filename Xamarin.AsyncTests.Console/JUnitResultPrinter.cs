@@ -65,9 +65,20 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		string FormatName (TestName name)
+		static string FormatName (TestName name)
 		{
 			return name.FullName;
+		}
+
+		static string FormatName (ITestPath path)
+		{
+			var sb = new StringBuilder ();
+			if (path.Parent != null) {
+				sb.Append (FormatName (path.Parent));
+				sb.Append (":");
+			}
+			sb.AppendFormat ("{0}/{1}/{2}", path.Name, path.Identifier, path.ParameterType ?? "<null>");
+			return sb.ToString ();
 		}
 
 		void Visit (XElement root, TestName parent, TestResult result)
@@ -83,6 +94,7 @@ namespace Xamarin.AsyncTests.Console
 				;
 			} else {
 				var suite = new TestSuite (root, parent, result);
+				suite.Write ();
 				root.Add (suite.Node);
 				node = suite.Node;
 			}
@@ -145,6 +157,8 @@ namespace Xamarin.AsyncTests.Console
 				if (Result.Path != null) {
 					var serializedPath = Result.Path.SerializePath ().ToString ();
 					systemOut.Add (serializedPath);
+					systemOut.Add (Environment.NewLine);
+					systemOut.Add (FormatName (Result.Path));
 					systemOut.Add (Environment.NewLine);
 					systemOut.Add (Environment.NewLine);
 				}
