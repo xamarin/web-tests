@@ -181,6 +181,8 @@ namespace Xamarin.AsyncTests.Console
 
 			if (result.Status == TestStatus.Error && !hasError) {
 				test.Add (new XElement ("error"));
+			} else if (result.Status == TestStatus.Ignored) {
+				test.Add (new XElement ("skipped"));
 			}
 
 			return test;
