@@ -71,29 +71,6 @@ namespace Xamarin.AsyncTests.Console
 			var suite = new XElement ("testsuite");
 			suite.SetAttributeValue ("name", parent.FullName);
 
-#if FIXME
-			if (!node.HasChildren || node.Children.Count == 0) {
-				switch (node.Status) {
-				case TestStatus.Success:
-					suite.SetAttributeValue ("errors", "0");
-					suite.SetAttributeValue ("failures", "0");
-					suite.SetAttributeValue ("tests", "1");
-					break;
-				case TestStatus.Error:
-					suite.SetAttributeValue ("errors", "1");
-					suite.SetAttributeValue ("failures", "0");
-					suite.SetAttributeValue ("tests", "0");
-					break;
-				}
-			} else {
-#if FIXME
-				suite.SetAttributeValue ("errors", "0");
-				suite.SetAttributeValue ("failures", "0");
-				suite.SetAttributeValue ("tests", "1");
-#endif
-			}
-#endif
-
 			suite.SetAttributeValue ("timestamp", timestamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
 			suite.SetAttributeValue ("hostname", "localhost");
 			if (node.ElapsedTime != null)
@@ -179,10 +156,15 @@ namespace Xamarin.AsyncTests.Console
 				}
 			}
 
-			if (result.Status == TestStatus.Error && !hasError) {
+			switch (result.Status) {
+			case TestStatus.Error:
+			case TestStatus.Canceled:
+				if (!hasError)
 				test.Add (new XElement ("error"));
-			} else if (result.Status == TestStatus.Ignored) {
+				break;
+			case TestStatus.Ignored:
 				test.Add (new XElement ("skipped"));
+				break;
 			}
 
 			return test;
