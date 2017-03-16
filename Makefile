@@ -162,7 +162,7 @@ Default-Keychain::
 	$(MSBUILD) /p:Configuration='$(IOS_CONFIGURATION)' /p:Platform='$(IOS_TARGET)' Xamarin.WebTests.iOS.sln
 
 .IOS-Internal-Run::
-	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
 		--sdkroot=$(XCODE_DEVELOPER_ROOT) --stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) \
 		--junit-result=$(JUNIT_TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND) $(WEBTESTS_IOS_APP)
 
@@ -229,7 +229,7 @@ Default-Keychain::
 	$(MSBUILD) /p:Configuration='$(CONSOLE_CONFIGURATION)' $(WEBTESTS_CONSOLE_SLN)
 
 .Console-Internal-Run::
-	$(MONO) $(WEBTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(WEBTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
 		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) --junit-result=$(JUNIT_TEST_RESULT) \
 		$(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND)
 
@@ -262,7 +262,7 @@ Default-Keychain::
 	$(MSBUILD) /p:Configuration='$(DOTNET_CONFIGURATION)' Xamarin.WebTests.DotNet.sln
 
 .DotNet-Internal-Run::
-	$(MONO) $(WEBTESTS_DOTNET_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(WEBTESTS_DOTNET_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
 		--result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND)
 
 #
@@ -289,7 +289,7 @@ Default-Keychain::
 	$(XBUILD) /p:Configuration='$(MAC_CONFIGURATION)' Xamarin.WebTests.Mac.sln
 
 .Mac-Internal-Run::
-	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
 		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) --junit-result=$(JUNIT_TEST_RESULT) \
 		$(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND) $(WEBTESTS_MAC_APP_BIN)
 
@@ -328,6 +328,6 @@ Default-Keychain::
 	$(XBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' /t:Install $(WEBTESTS_ANDROID_PROJECT)
 
 .Android-Internal-Run::
-	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
 		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) \
 		$(ASYNCTESTS_COMMAND) $(WEBTESTS_ANDROID_MAIN_ACTIVITY)
