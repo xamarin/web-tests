@@ -87,16 +87,18 @@ namespace Xamarin.AsyncTests.Console
 				return;
 
 			XElement node = root;
-			if (result.Path == null)
+			if (false && result.Path == null)
 				return;
 
-			if (result.Path.PathType == TestPathType.Parameter)
-				foundParameter = true;
-			if (foundParameter) {
-				var suite = new TestSuite (root, parent, result);
-				suite.Write ();
-				root.Add (suite.Node);
-				node = suite.Node;
+			if (result.Path != null) {
+				if (result.Path.PathType == TestPathType.Parameter)
+					foundParameter = true;
+				if (foundParameter) {
+					var suite = new TestSuite (root, parent, result);
+					suite.Write ();
+					root.Add (suite.Node);
+					node = suite.Node;
+				}
 			}
 
 #if FIXME
