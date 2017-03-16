@@ -1,10 +1,10 @@
 ﻿//
-// ForkedTestHost.cs
+// TestPathType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,39 +26,17 @@
 using System;
 using System.Xml.Linq;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	class ForkedTestHost : TestHost
+	public enum TestPathType
 	{
-		public ForkAttribute Attribute {
-			get;
-			private set;
-		}
-
-		public ForkedTestHost (string name, ForkAttribute attr)
-			: base (TestPathType.Fork, name, name, null)
-		{
-			Attribute = attr;
-		}
-
-		#region implemented abstract members of TestHost
-
-		internal override ITestParameter GetParameter (TestInstance instance)
-		{
-			return null;
-		}
-
-		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
-		{
-			throw new NotImplementedException ();
-		}
-
-		internal override TestInvoker CreateInvoker (TestPath path, TestInvoker invoker)
-		{
-			return new ForkedTestInvoker (this, path, invoker);
-		}
-
-		#endregion
+		Invalid,
+		Suite,
+		Assembly,
+		Fixture,
+		Test,
+		Instance,
+		Fork,
+		Parameter
 	}
 }
-

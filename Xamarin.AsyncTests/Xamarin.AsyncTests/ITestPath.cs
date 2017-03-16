@@ -34,6 +34,10 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
+		TestPathType PathType {
+			get;
+		}
+
 		string Identifier {
 			get;
 		}

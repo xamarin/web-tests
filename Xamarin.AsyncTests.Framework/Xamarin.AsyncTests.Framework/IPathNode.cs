@@ -29,6 +29,10 @@ namespace Xamarin.AsyncTests.Framework
 {
 	public interface IPathNode
 	{
+		TestPathType PathType {
+			get;
+		}
+
 		string Identifier {
 			get;
 		}

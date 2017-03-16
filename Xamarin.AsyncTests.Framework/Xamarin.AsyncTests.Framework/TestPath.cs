@@ -83,6 +83,10 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (Flags & TestFlags.Browsable) != 0; }
 		}
 
+		public TestPathType PathType {
+			get { return Host.PathType; }
+		}
+
 		public string Identifier {
 			get { return Host.Identifier; }
 		}
@@ -140,7 +144,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		public bool Matches (IPathNode node)
 		{
-			if (!node.Identifier.Equals (Host.Identifier))
+			if (node.PathType != Host.PathType)
+				return false;
+			if (!string.Equals (node.Identifier, Host.Identifier, StringComparison.Ordinal))
 				return false;
 			if (IsParameterized != (node.ParameterType != null))
 				return false;
@@ -152,7 +158,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		public static bool Matches (IPathNode first, IPathNode second)
 		{
-			if (!first.Identifier.Equals (second.Identifier))
+			if (first.PathType != second.PathType)
+				return false;
+			if (!string.Equals (first.Identifier, second.Identifier, StringComparison.Ordinal))
 				return false;
 			if ((first.Name != null) != (second.Name != null))
 				return false;
@@ -169,9 +177,11 @@ namespace Xamarin.AsyncTests.Framework
 			if (!IsParameterized)
 				return false;
 
-			if (name != null)
+			if (name != null) {
+				if (Host.PathType != TestPathType.Parameter)
+					return false;
 				return Host.Identifier.Equals (name);
-			else {
+			} else {
 				var friendlyName = TestSerializer.GetFriendlyName (typeof(T));
 				return friendlyName.Equals (Host.ParameterType);
 			}

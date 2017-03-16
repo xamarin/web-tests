@@ -57,6 +57,7 @@ namespace Xamarin.WebTests
 		}
 	}
 
+	[Martin]
 	[AsyncTestFixture (Timeout = 10000)]
 	public class TestHttpClient
 	{

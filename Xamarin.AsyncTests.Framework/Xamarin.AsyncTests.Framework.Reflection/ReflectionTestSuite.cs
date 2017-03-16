@@ -81,7 +81,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		IPathResolver IPathResolver.Resolve (TestContext ctx, IPathNode node, string parameter)
 		{
-			if (!node.Identifier.Equals (TestSerializer.TestSuiteIdentifier))
+			if (node.PathType != TestPathType.Suite)
+				throw new InternalErrorException ();
+			if (node.Identifier != null)
+				throw new InternalErrorException ();
+			if (false && !node.Identifier.Equals (TestSerializer.TestSuiteIdentifier))
 				throw new InternalErrorException ();
 			if (!node.ParameterType.Equals (TestSerializer.TestSuiteIdentifier))
 				throw new InternalErrorException ();

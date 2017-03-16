@@ -60,8 +60,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		TestFilter filter;
 
 		public ReflectionTestFixtureBuilder (ReflectionTestAssemblyBuilder assembly, AsyncTestAttribute attr, TypeInfo type)
-			: base (TestSerializer.TestFixtureIdentifier, type.Name,
-				TestSerializer.GetStringParameter (type.FullName))
+			: base (TestPathType.Fixture, null, type.Name, TestSerializer.GetStringParameter (type.FullName))
 		{
 			AssemblyBuilder = assembly;
 			Type = type;
@@ -121,8 +120,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 
 			public FixtureInstanceTestHost (ReflectionTestFixtureBuilder builder)
-				: base (TestSerializer.FixtureInstanceIdentifier,
-				        TestSerializer.GetFriendlyName (builder.Type.AsType ()),
+				: base (TestPathType.Instance, null, TestSerializer.GetFriendlyName (builder.Type.AsType ()),
 				        builder.Type.AsType (), builder.Type.AsType (),
 					TestFlags.ContinueOnError | TestFlags.PathHidden | TestFlags.Hidden)
 			{

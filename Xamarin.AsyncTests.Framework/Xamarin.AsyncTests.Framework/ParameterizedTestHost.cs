@@ -51,7 +51,8 @@ namespace Xamarin.AsyncTests.Framework
 
 		protected ParameterizedTestHost (string name, TypeInfo type,
 			IParameterSerializer serializer, TestFlags flags = TestFlags.None)
-			: base (TestSerializer.GetParameterIdentifier (name), name, TestSerializer.GetFriendlyName (type.AsType()), flags)
+			: base (TestPathType.Parameter, name, name,
+			        TestSerializer.GetFriendlyName (type.AsType()), flags)
 		{
 			ParameterName = name;
 			ParameterTypeInfo = type;

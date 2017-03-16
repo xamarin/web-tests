@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		public ReflectionTestSuiteBuilder (ReflectionTestSuite suite)
-			: base (TestSerializer.TestSuiteIdentifier, suite.Framework.Name,
+			: base (TestPathType.Suite, null, suite.Framework.Name,
 				TestSerializer.GetStringParameter (suite.Framework.Name))
 		{
 			Assemblies = suite.Assemblies;

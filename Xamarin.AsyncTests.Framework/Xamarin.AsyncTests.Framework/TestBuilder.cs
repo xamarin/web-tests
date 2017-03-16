@@ -37,6 +37,11 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		public TestPathType PathType {
+			get;
+			private set;
+		}
+
 		public string Identifier {
 			get;
 			private set;
@@ -68,8 +73,9 @@ namespace Xamarin.AsyncTests.Framework
 			get { return GetType ().FullName; }
 		}
 
-		protected TestBuilder (string identifier, string name, ITestParameter parameter)
+		protected TestBuilder (TestPathType type, string identifier, string name, ITestParameter parameter)
 		{
+			PathType = type;
 			Identifier = identifier;
 			Name = name;
 			TestName = name != null ? new TestName (name) : TestName.Empty;

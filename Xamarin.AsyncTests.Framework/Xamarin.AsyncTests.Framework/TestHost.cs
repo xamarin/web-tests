@@ -37,6 +37,11 @@ namespace Xamarin.AsyncTests.Framework
 			get; protected set;
 		}
 
+		public TestPathType PathType {
+			get;
+			private set;
+		}
+
 		public string Identifier {
 			get;
 			private set;
@@ -52,8 +57,9 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		protected TestHost (string identifier, string name, string parameterType, TestFlags flags = TestFlags.None)
+		protected TestHost (TestPathType type, string identifier, string name, string parameterType, TestFlags flags = TestFlags.None)
 		{
+			PathType = type;
 			Identifier = identifier;
 			Name = name;
 			ParameterType = parameterType;

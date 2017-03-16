@@ -69,7 +69,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		TypeInfo expectedExceptionType;
 
 		public ReflectionTestCaseBuilder (ReflectionTestFixtureBuilder fixture, AsyncTestAttribute attr, MethodInfo method)
-			: base (TestSerializer.TestCaseIdentifier, method.Name, GetParameter (method))
+			: base (TestPathType.Test, null, method.Name, GetParameter (method))
 		{
 			Fixture = fixture;
 			Attribute = attr;

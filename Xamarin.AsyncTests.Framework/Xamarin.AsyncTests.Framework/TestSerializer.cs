@@ -106,11 +106,6 @@ namespace Xamarin.AsyncTests.Framework
 			return type.Name;
 		}
 
-		public static string GetParameterIdentifier (string name)
-		{
-			return ParameterIdentifier + ":" + name;
-		}
-
 		public static ITestParameter GetStringParameter (string value)
 		{
 			return new ParameterWrapper { Value = value };
@@ -128,10 +123,25 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
+		static TestPathType ReadPathType (string value)
+		{
+			return (TestPathType)Enum.Parse (typeof (TestPathType), value, true);
+		}
+
+		static string WritePathType (TestPathType type)
+		{
+			return Enum.GetName (typeof (TestPathType), type).ToLowerInvariant ();
+		}
+
 		static PathNodeWrapper ReadPathNode (XElement element)
 		{
 			var node = new PathNodeWrapper ();
-			node.Identifier = element.Attribute ("Identifier").Value;
+
+			node.PathType = ReadPathType (element.Attribute ("Type").Value);
+
+			var identifierAttr = element.Attribute ("Identifier");
+			if (identifierAttr != null)
+				node.Identifier = identifierAttr.Value;
 
 			var nameAttr = element.Attribute ("Name");
 			if (nameAttr != null)
@@ -151,7 +161,9 @@ namespace Xamarin.AsyncTests.Framework
 		static XElement WritePathNode (IPathNode node, ITestParameter parameter)
 		{
 			var element = new XElement (ParameterName);
-			element.Add (new XAttribute ("Identifier", node.Identifier));
+			element.Add (new XAttribute ("Type", WritePathType (node.PathType)));
+			if (node.Identifier != null)
+				element.Add (new XAttribute ("Identifier", node.Identifier));
 			if (node.Name != null)
 				element.Add (new XAttribute ("Name", node.Name));
 			if (node.ParameterType != null)
@@ -164,7 +176,9 @@ namespace Xamarin.AsyncTests.Framework
 		static XElement WritePathNode (PathNodeWrapper node)
 		{
 			var element = new XElement (ParameterName);
-			element.Add (new XAttribute ("Identifier", node.Identifier));
+			element.Add (new XAttribute ("Type", WritePathType (node.PathType)));
+			if (node.Identifier != null)
+				element.Add (new XAttribute ("Identifier", node.Identifier));
 			if (node.Name != null)
 				element.Add (new XAttribute ("Name", node.Name));
 			if (node.ParameterType != null)
@@ -176,6 +190,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		class PathNodeWrapper : IPathNode
 		{
+			public TestPathType PathType {
+				get; set;
+			}
 			public string Identifier {
 				get; set;
 			}
@@ -192,7 +209,7 @@ namespace Xamarin.AsyncTests.Framework
 			public override string ToString ()
 			{
 				string parameter = ParameterValue != null ? string.Format (", Parameter={0}", ParameterValue) : string.Empty;
-				return string.Format ("[TestPathNode: Identifier={0}, Name={1}{2}]", Identifier, Name, parameter);
+				return string.Format ("[TestPathNode: Type={0}, Identifier={1}, Name={2}{3}]", PathType, Identifier, Name, parameter);
 			}
 		}
 
@@ -219,6 +236,10 @@ namespace Xamarin.AsyncTests.Framework
 
 			ITestPath ITestPath.Parent {
 				get { return Parent; }
+			}
+
+			public TestPathType PathType {
+				get { return Node.PathType; }
 			}
 
 			public string Identifier {

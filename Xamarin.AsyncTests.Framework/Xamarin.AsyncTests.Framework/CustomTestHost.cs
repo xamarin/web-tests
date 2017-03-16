@@ -58,7 +58,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public CustomTestHost (string name, Type type, Type hostType, TestFlags flags, TestHostAttribute attr, bool useFixtureInstance)
-			: base (TestSerializer.GetParameterIdentifier (name), name, type, hostType, flags)
+			: base (TestPathType.Parameter, name, name, type, hostType, flags)
 		{
 			HostType = hostType;
 			Attribute = attr;
