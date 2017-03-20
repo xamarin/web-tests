@@ -70,15 +70,24 @@ namespace Xamarin.AsyncTests.Console
 			return name.FullName;
 		}
 
+		static void FormatName (ITestPath path, StringBuilder output)
+		{
+			var length = output.Length;
+			if (path.Parent != null) {
+				FormatName (path.Parent, output);
+			}
+			if ((path.Flags & TestFlags.PathHidden) != 0)
+				return;
+			if (output.Length > length)
+				output.AppendLine ();
+			output.AppendFormat ("{0}/{1}/{2}", path.Name, path.Identifier, path.ParameterType ?? "<null>");
+		}
+
 		static string FormatName (ITestPath path)
 		{
-			var sb = new StringBuilder ();
-			if (path.Parent != null) {
-				sb.Append (FormatName (path.Parent));
-				sb.Append (":");
-			}
-			sb.AppendFormat ("{0}/{1}/{2}", path.Name, path.Identifier, path.ParameterType ?? "<null>");
-			return sb.ToString ();
+			var output = new StringBuilder ();
+			FormatName (path, output);
+			return output.ToString ();
 		}
 
 		void Visit (XElement root, TestName parent, TestResult result, bool foundParameter)
