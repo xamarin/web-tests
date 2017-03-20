@@ -52,7 +52,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public string Name {
-			get { return TestName.FullName; }
+			get { return Host.Name; }
 		}
 
 		ITestPathInternal ITestPathInternal.Parent {
