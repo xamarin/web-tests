@@ -93,7 +93,7 @@ namespace Xamarin.AsyncTests.Console
 			var name = new StringBuilder ();
 			var output = new StringBuilder ();
 			FormatName (path, name, output);
-			return name.ToString () + " - " + output.ToString ();
+			return string.Format ("{0}\n\n{1}\n", name, output);
 		}
 
 		void Visit (XElement root, TestName parent, TestResult result, bool foundParameter)
