@@ -33,6 +33,10 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		TestFlags Flags {
+			get;
+		}
+
 		string Identifier {
 			get;
 		}

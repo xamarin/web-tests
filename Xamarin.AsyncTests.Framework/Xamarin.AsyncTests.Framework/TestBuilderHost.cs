@@ -43,7 +43,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public TestBuilderHost (TestBuilder builder, IPathNode node)
-			: base (node.PathType, node.Identifier, node.Name, node.ParameterType, TestFlags.Browsable | TestFlags.PathHidden)
+			: base (node.PathType, node.Identifier, node.Name, node.ParameterType, builder.Flags)
 		{
 			Builder = builder;
 			PathNode = node;

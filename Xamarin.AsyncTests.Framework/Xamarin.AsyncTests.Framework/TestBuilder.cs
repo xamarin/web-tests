@@ -56,6 +56,11 @@ namespace Xamarin.AsyncTests.Framework
 			get { return Identifier; }
 		}
 
+		public TestFlags Flags {
+			get;
+			private set;
+		}
+
 		public TestName TestName {
 			get;
 			private set;
@@ -73,11 +78,14 @@ namespace Xamarin.AsyncTests.Framework
 			get { return GetType ().FullName; }
 		}
 
-		protected TestBuilder (TestPathType type, string identifier, string name, ITestParameter parameter)
+		const TestFlags DefaultFlags = TestFlags.Browsable | TestFlags.PathHidden;
+
+		protected TestBuilder (TestPathType type, string identifier, string name, ITestParameter parameter, TestFlags flags = DefaultFlags)
 		{
 			PathType = type;
 			Identifier = identifier;
 			Name = name;
+			Flags = flags;
 			TestName = name != null ? new TestName (name) : TestName.Empty;
 			Parameter = parameter;
 		}

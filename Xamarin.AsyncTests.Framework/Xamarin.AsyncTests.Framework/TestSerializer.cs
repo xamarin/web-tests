@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
+using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Xml.Linq;
@@ -45,7 +46,7 @@ namespace Xamarin.AsyncTests.Framework
 		internal const string TestAssemblyIdentifier = "assembly";
 		const string ParameterIdentifier = "parameter";
 
-		internal static void Debug (string message, params object[] args)
+		internal static void Debug (string message, params object [] args)
 		{
 			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
 		}
@@ -133,11 +134,25 @@ namespace Xamarin.AsyncTests.Framework
 			return Enum.GetName (typeof (TestPathType), type).ToLowerInvariant ();
 		}
 
+		static string WriteTestFlags (TestFlags flags)
+		{
+			return Enum.Format (typeof (TestFlags), flags, "g");
+		}
+
+		static TestFlags ReadTestFlags (string value)
+		{
+			return (TestFlags)Enum.Parse (typeof (TestFlags), value);
+		}
+
 		static PathNodeWrapper ReadPathNode (XElement element)
 		{
 			var node = new PathNodeWrapper ();
 
 			node.PathType = ReadPathType (element.Attribute ("Type").Value);
+
+			var flagsAttr = element.Attribute ("Flags");
+			if (flagsAttr != null)
+				node.Flags = ReadTestFlags (flagsAttr.Value);
 
 			var identifierAttr = element.Attribute ("Identifier");
 			if (identifierAttr != null)
@@ -162,6 +177,8 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			var element = new XElement (ParameterName);
 			element.Add (new XAttribute ("Type", WritePathType (node.PathType)));
+			if (node.Flags != TestFlags.None)
+				element.Add (new XAttribute ("Flags", WriteTestFlags (node.Flags)));
 			if (node.Identifier != null)
 				element.Add (new XAttribute ("Identifier", node.Identifier));
 			if (node.Name != null)
@@ -191,6 +208,9 @@ namespace Xamarin.AsyncTests.Framework
 		class PathNodeWrapper : IPathNode
 		{
 			public TestPathType PathType {
+				get; set;
+			}
+			public TestFlags Flags {
 				get; set;
 			}
 			public string Identifier {
@@ -240,6 +260,10 @@ namespace Xamarin.AsyncTests.Framework
 
 			public TestPathType PathType {
 				get { return Node.PathType; }
+			}
+
+			public TestFlags Flags {
+				get { return Node.Flags; }
 			}
 
 			public string Identifier {
