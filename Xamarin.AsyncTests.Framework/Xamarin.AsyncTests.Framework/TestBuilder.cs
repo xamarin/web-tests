@@ -30,7 +30,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestBuilder : IPathNode
+	abstract class TestBuilder
 	{
 		public string Name {
 			get;
@@ -50,10 +50,6 @@ namespace Xamarin.AsyncTests.Framework
 		public ITestParameter Parameter {
 			get;
 			private set;
-		}
-
-		string IPathNode.ParameterType {
-			get { return Identifier; }
 		}
 
 		public TestFlags Flags {
@@ -211,7 +207,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		protected TestBuilderHost CreateHost ()
 		{
-			return new TestBuilderHost (this, this);
+			return new TestBuilderHost (this);
 		}
 	}
 }

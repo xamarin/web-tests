@@ -37,16 +37,10 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public IPathNode PathNode {
-			get;
-			private set;
-		}
-
-		public TestBuilderHost (TestBuilder builder, IPathNode node)
-			: base (node.PathType, node.Identifier, node.Name, node.ParameterType, builder.Flags)
+		public TestBuilderHost (TestBuilder builder)
+			: base (builder.PathType, builder.Identifier, builder.Name, builder.Identifier, builder.Flags)
 		{
 			Builder = builder;
-			PathNode = node;
 		}
 
 		internal override ITestParameter GetParameter (TestInstance instance)

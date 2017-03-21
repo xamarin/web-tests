@@ -171,7 +171,7 @@ namespace Xamarin.AsyncTests.Framework
 			return node;
 		}
 
-		static XElement WritePathNode (IPathNode node, ITestParameter parameter)
+		static XElement WritePathNode (TestHost node, ITestParameter parameter)
 		{
 			var element = new XElement (ParameterName);
 			element.Add (new XAttribute ("Type", WritePathType (node.PathType)));

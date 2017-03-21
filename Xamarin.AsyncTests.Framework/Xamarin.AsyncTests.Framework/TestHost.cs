@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestHost : IPathNode
+	abstract class TestHost
 	{
 		public TestFlags Flags {
 			get; protected set;

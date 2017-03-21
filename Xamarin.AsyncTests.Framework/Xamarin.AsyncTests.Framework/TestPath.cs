@@ -30,7 +30,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	sealed class TestPath : ITestPath, ITestPathInternal, IPathNode
+	sealed class TestPath : ITestPath, ITestPathInternal
 	{
 		public TestHost Host {
 			get;
@@ -156,17 +156,17 @@ namespace Xamarin.AsyncTests.Framework
 			return true;
 		}
 
-		public static bool Matches (IPathNode first, IPathNode second)
+		public static bool Matches (TestHost host, IPathNode second)
 		{
-			if (first.PathType != second.PathType)
+			if (host.PathType != second.PathType)
 				return false;
-			if (!string.Equals (first.Identifier, second.Identifier, StringComparison.Ordinal))
+			if (!string.Equals (host.Identifier, second.Identifier, StringComparison.Ordinal))
 				return false;
-			if ((first.Name != null) != (second.Name != null))
+			if ((host.Name != null) != (second.Name != null))
 				return false;
-			if ((first.ParameterType != null) != (second.ParameterType != null))
+			if ((host.ParameterType != null) != (second.ParameterType != null))
 				return false;
-			if (first.ParameterType != null && !first.ParameterType.Equals (second.ParameterType))
+			if (host.ParameterType != null && !host.ParameterType.Equals (second.ParameterType))
 				return false;
 
 			return true;
