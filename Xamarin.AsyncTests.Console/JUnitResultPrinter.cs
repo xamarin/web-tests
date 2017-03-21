@@ -86,7 +86,7 @@ namespace Xamarin.AsyncTests.Console
 				return;
 			if (output.Length > length)
 				output.AppendLine ();
-			output.AppendFormat ("{0}/{1}/{2}", path.Name, path.Identifier, path.ParameterType ?? "<null>");
+			output.AppendFormat ("{0}/{1}/{2}/{3}", path.Name, path.Identifier, path.ParameterType ?? "<null>", path.ParameterValue ?? "<null>");
 		}
 
 		static string FormatName (ITestPath path)
