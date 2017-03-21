@@ -102,32 +102,14 @@ namespace Xamarin.AsyncTests.Console
 				return;
 
 			XElement node = root;
-			if (false && result.Path == null)
-				return;
-
-			if (result.Path != null) {
-				if (result.Path.PathType == TestPathType.Parameter)
-					foundParameter = true;
-				if (foundParameter) {
-					var suite = new TestSuite (root, parent, result);
-					suite.Write ();
-					root.Add (suite.Node);
-					node = suite.Node;
-				}
-			}
-
-#if FIXME
-			if (result.Path == null ||
-			    result.Path.Identifier == "suite" ||
-			    result.Path.Identifier == "assembly") {
-				;
-			} else {
+			if (result.Path.PathType == TestPathType.Parameter)
+				foundParameter = true;
+			if (foundParameter) {
 				var suite = new TestSuite (root, parent, result);
 				suite.Write ();
 				root.Add (suite.Node);
 				node = suite.Node;
 			}
-#endif
 
 			if (result.HasChildren) {
 				foreach (var child in result.Children)
@@ -184,14 +166,12 @@ namespace Xamarin.AsyncTests.Console
 				var systemErr = new XElement ("system-err");
 				Node.Add (systemErr);
 
-				if (Result.Path != null) {
-					var serializedPath = Result.Path.SerializePath ().ToString ();
-					systemOut.Add (serializedPath);
-					systemOut.Add (Environment.NewLine);
-					systemOut.Add (FormatName (Result.Path));
-					systemOut.Add (Environment.NewLine);
-					systemOut.Add (Environment.NewLine);
-				}
+				var serializedPath = Result.Path.SerializePath ().ToString ();
+				systemOut.Add (serializedPath);
+				systemOut.Add (Environment.NewLine);
+				systemOut.Add (FormatName (Result.Path));
+				systemOut.Add (Environment.NewLine);
+				systemOut.Add (Environment.NewLine);
 
 				if (Result.Name.HasParameters) {
 					systemOut.Add ("<parameters>" + Environment.NewLine);
