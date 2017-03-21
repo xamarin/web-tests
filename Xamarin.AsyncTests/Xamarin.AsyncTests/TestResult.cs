@@ -42,6 +42,7 @@ namespace Xamarin.AsyncTests
 		TestResult parent;
 		TimeSpan? elapsedTime;
 
+		[Obsolete ("KILL")]
 		public TestName Name {
 			get { return name; }
 		}

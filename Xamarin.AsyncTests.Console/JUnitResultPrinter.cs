@@ -93,14 +93,13 @@ namespace Xamarin.AsyncTests.Console
 		{
 			if (path.Parent != null)
 				FormatName (path.Parent, parts, parameters);
-			if ((path.Flags & TestFlags.PathHidden) != 0)
-				return;
-			if ((path.Flags & TestFlags.Hidden) != 0)
-				return;
-			if (path.PathType == TestPathType.Parameter)
-				parameters.Add (path.ParameterValue);
-			else if (!string.IsNullOrEmpty (path.Name))
-				parts.Add (path.Name);
+			if (path.PathType == TestPathType.Parameter) {
+				if ((path.Flags & TestFlags.PathHidden) == 0)
+					parameters.Add (path.ParameterValue);
+			} else {
+				if (!string.IsNullOrEmpty (path.Name) && ((path.Flags & TestFlags.Hidden) == 0))
+					parts.Add (path.Name);
+			}
 		}
 
 		static string FormatName (ITestPath path)
