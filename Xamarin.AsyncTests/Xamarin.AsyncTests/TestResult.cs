@@ -36,21 +36,14 @@ namespace Xamarin.AsyncTests
 {
 	public class TestResult : INotifyPropertyChanged
 	{
-		TestName name;
+		readonly TestName name;
 		TestStatus status = TestStatus.None;
-		ITestPath path;
+		readonly ITestPath path;
 		TestResult parent;
 		TimeSpan? elapsedTime;
 
 		public TestName Name {
 			get { return name; }
-			protected set {
-				lock (this) {
-					WantToModify ();
-					name = value;
-				}
-				OnPropertyChanged ("Name");
-			}
 		}
 
 		public TestStatus Status {
@@ -79,23 +72,17 @@ namespace Xamarin.AsyncTests
 
 		public ITestPath Path {
 			get { return path; }
-			internal set {
-				lock (this) {
-					WantToModify ();
-					path = value;
-				}
-				OnPropertyChanged ("Path");
-			}
 		}
 
-		public TestResult (TestName name, Exception error)
-			: this (name, TestStatus.Error)
+		internal TestResult (ITestPath path, TestName name, Exception error)
+			: this (path, name, TestStatus.Error)
 		{
 			AddError (error);
 		}
 
-		public TestResult (TestName name, TestStatus status = TestStatus.None)
+		internal TestResult (ITestPath path, TestName name, TestStatus status = TestStatus.None)
 		{
+			this.path = path;
 			this.name = name;
 			this.status = status;
 

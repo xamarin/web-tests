@@ -109,13 +109,14 @@ namespace Xamarin.AsyncTests.Framework
 				if (!success)
 					break;
 
+				var path = TestInstance.GetCurrentPath (parameterizedInstance);
 				var name = TestInstance.GetTestName (parameterizedInstance);
 
 				bool enabled;
 
 				var filter = parameterizedInstance.Current as ITestFilter;
 				if (filter != null && filter.Filter (ctx, out enabled) && !enabled) {
-					var ignoredResult = new TestResult (name, TestStatus.Ignored);
+					var ignoredResult = new TestResult (path, name, TestStatus.Ignored);
 					ctx.Result.AddChild (ignoredResult);
 					continue;
 				}

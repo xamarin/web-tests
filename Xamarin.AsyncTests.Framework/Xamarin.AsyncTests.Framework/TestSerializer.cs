@@ -371,11 +371,9 @@ namespace Xamarin.AsyncTests.Framework
 			var name = TestSerializer.ReadTestName (node.Element ("TestName"));
 			var status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
 
-			var result = new TestResult (name, status);
+			var path = ReadTestPath (node.Element ("TestPath"));
 
-			var path = node.Element ("TestPath");
-			if (path != null)
-				result.Path = ReadTestPath (path);
+			var result = new TestResult (path, name, status);
 
 			var elapsedTime = node.Element ("ElapsedTime");
 			if (elapsedTime != null)

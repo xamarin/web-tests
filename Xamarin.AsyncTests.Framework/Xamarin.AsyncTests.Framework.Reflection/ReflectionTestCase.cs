@@ -125,7 +125,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			TestSerializer.Debug ("RUN: {0}", this);
 
-			var result = new TestResult (Name);
+			var result = new TestResult (Node.Path, Name);
 			var childCtx = ctx.CreateChild (Name, Node.Path, result);
 
 			bool ok;
