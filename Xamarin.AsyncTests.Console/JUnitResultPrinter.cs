@@ -61,7 +61,7 @@ namespace Xamarin.AsyncTests.Console
 			using (var writer = XmlWriter.Create (output, settings)) {
 				var printer = new JUnitResultPrinter (result);
 				var root = new XElement ("testsuites");
-				printer.Visit (root, TestName.Empty, result, false);
+				printer.Visit (root, result, false);
 				root.WriteTo (writer);
 			}
 		}
@@ -71,28 +71,10 @@ namespace Xamarin.AsyncTests.Console
 			return name.FullName;
 		}
 
-		static void FormatName (ITestPath path, StringBuilder name, StringBuilder output)
-		{
-			var length = output.Length;
-			if (path.Parent != null) {
-				FormatName (path.Parent, name, output);
-			}
-			if (!string.IsNullOrEmpty (path.Name) && ((path.Flags & TestFlags.Hidden) == 0) && (path.PathType != TestPathType.Parameter)) {
-				if (name.Length > 0)
-					name.Append (":");
-				name.Append (path.Name);
-			}
-			if ((path.Flags & TestFlags.PathHidden) != 0)
-				return;
-			if (output.Length > length)
-				output.AppendLine ();
-			output.AppendFormat ("{0}/{1}/{2}/{3}", path.Name, path.Identifier, path.ParameterType ?? "<null>", path.ParameterValue ?? "<null>");
-		}
-
-		static void FormatName (ITestPath path, List<string> parts, List<string> parameters)
+		static void FormatName_inner (ITestPath path, List<string> parts, List<string> parameters)
 		{
 			if (path.Parent != null)
-				FormatName (path.Parent, parts, parameters);
+				FormatName_inner (path.Parent, parts, parameters);
 			if (path.PathType == TestPathType.Parameter) {
 				if ((path.Flags & TestFlags.PathHidden) == 0)
 					parameters.Add (path.ParameterValue);
@@ -102,26 +84,27 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		static string FormatName (ITestPath path)
+		static string FormatName (ITestPath path, bool fullName, bool includeParameters)
 		{
-			var name = new StringBuilder ();
-			var output = new StringBuilder ();
-			FormatName (path, name, output);
-
 			var parts = new List<string> ();
 			var parameters = new List<string> ();
-			FormatName (path, parts, parameters);
+			FormatName_inner (path, parts, parameters);
 
-			var formatted = string.Join (".", parts);
-			if (parameters.Count > 0) {
+			string formatted;
+			if (fullName)
+				formatted = string.Join (".", parts);
+			else
+				formatted = parts [parts.Count - 1];
+
+			if (includeParameters && parameters.Count > 0) {
 				var joinedParams = string.Join (",", parameters);
 				formatted = formatted + "(" + joinedParams + ")";
 			}
 
-			return string.Format ("{0}\n\n{1}\n{2}\n", name, output, formatted);
+			return formatted;
 		}
 
-		void Visit (XElement root, TestName parent, TestResult result, bool foundParameter)
+		void Visit (XElement root, TestResult result, bool foundParameter)
 		{
 			if (false && result.Status == TestStatus.Ignored)
 				return;
@@ -130,7 +113,7 @@ namespace Xamarin.AsyncTests.Console
 			if (result.Path.PathType == TestPathType.Parameter)
 				foundParameter = true;
 			if (foundParameter) {
-				var suite = new TestSuite (root, parent, result);
+				var suite = new TestSuite (root, result);
 				suite.Write ();
 				root.Add (suite.Node);
 				node = suite.Node;
@@ -138,17 +121,13 @@ namespace Xamarin.AsyncTests.Console
 
 			if (result.HasChildren) {
 				foreach (var child in result.Children)
-					Visit (node, result.Name, child, foundParameter);
+					Visit (node, child, foundParameter);
 			}
 		}
 
 		class TestSuite
 		{
 			public XElement Root {
-				get; private set;
-			}
-
-			public TestName Parent {
 				get; private set;
 			}
 
@@ -160,16 +139,15 @@ namespace Xamarin.AsyncTests.Console
 
 			public DateTime TimeStamp { get; } = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 
-			public TestSuite (XElement root, TestName parent, TestResult result)
+			public TestSuite (XElement root, TestResult result)
 			{
 				Root = root;
-				Parent = parent;
 				Result = result;
 			}
 
 			public void Write ()
 			{
-				Node.SetAttributeValue ("name", Parent.FullName);
+				Node.SetAttributeValue ("name", FormatName (Result.Path, true, false));
 
 				Node.SetAttributeValue ("timestamp", TimeStamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
 				Node.SetAttributeValue ("hostname", "localhost");
@@ -194,7 +172,7 @@ namespace Xamarin.AsyncTests.Console
 				var serializedPath = Result.Path.SerializePath ().ToString ();
 				systemOut.Add (serializedPath);
 				systemOut.Add (Environment.NewLine);
-				systemOut.Add (FormatName (Result.Path));
+				systemOut.Add (FormatName (Result.Path, true, true));
 				systemOut.Add (Environment.NewLine);
 				systemOut.Add (Environment.NewLine);
 
@@ -274,7 +252,7 @@ namespace Xamarin.AsyncTests.Console
 
 			void CreateTestCase ()
 			{
-				Node.SetAttributeValue ("name", Result.Name.LocalName);
+				Node.SetAttributeValue ("name", FormatName (Result.Path, false, true));
 				Node.SetAttributeValue ("status", Result.Status);
 				if (Result.ElapsedTime != null)
 					Node.SetAttributeValue ("time", Result.ElapsedTime.Value.TotalSeconds);
