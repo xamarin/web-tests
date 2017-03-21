@@ -77,7 +77,7 @@ namespace Xamarin.AsyncTests.Console
 			if (path.Parent != null) {
 				FormatName (path.Parent, name, output);
 			}
-			if (!string.IsNullOrEmpty (path.Name) && ((path.Flags & TestFlags.Hidden) == 0)) {
+			if (!string.IsNullOrEmpty (path.Name) && ((path.Flags & TestFlags.Hidden) == 0) && (path.PathType != TestPathType.Parameter)) {
 				if (name.Length > 0)
 					name.Append (":");
 				name.Append (path.Name);
@@ -89,12 +89,37 @@ namespace Xamarin.AsyncTests.Console
 			output.AppendFormat ("{0}/{1}/{2}/{3}", path.Name, path.Identifier, path.ParameterType ?? "<null>", path.ParameterValue ?? "<null>");
 		}
 
+		static void FormatName (ITestPath path, List<string> parts, List<string> parameters)
+		{
+			if (path.Parent != null)
+				FormatName (path.Parent, parts, parameters);
+			if ((path.Flags & TestFlags.PathHidden) != 0)
+				return;
+			if ((path.Flags & TestFlags.Hidden) != 0)
+				return;
+			if (path.PathType == TestPathType.Parameter)
+				parameters.Add (path.ParameterValue);
+			else if (!string.IsNullOrEmpty (path.Name))
+				parts.Add (path.Name);
+		}
+
 		static string FormatName (ITestPath path)
 		{
 			var name = new StringBuilder ();
 			var output = new StringBuilder ();
 			FormatName (path, name, output);
-			return string.Format ("{0}\n\n{1}\n", name, output);
+
+			var parts = new List<string> ();
+			var parameters = new List<string> ();
+			FormatName (path, parts, parameters);
+
+			var formatted = string.Join (".", parts);
+			if (parameters.Count > 0) {
+				var joinedParams = string.Join (",", parameters);
+				formatted = formatted + "(" + joinedParams + ")";
+			}
+
+			return string.Format ("{0}\n\n{1}\n{2}\n", name, output, formatted);
 		}
 
 		void Visit (XElement root, TestName parent, TestResult result, bool foundParameter)
