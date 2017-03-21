@@ -450,9 +450,9 @@ namespace Xamarin.AsyncTests.Framework
 			instance.Status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
 			instance.IsRemote = true;
 
-			var name = node.Element ("TestName");
+			var name = node.Attribute ("Name");
 			if (name != null)
-				instance.Name = TestSerializer.ReadTestName (name);
+				instance.Name = name.Value;
 
 			return instance;
 		}
@@ -467,7 +467,7 @@ namespace Xamarin.AsyncTests.Framework
 			element.SetAttributeValue ("Status", instance.Status.ToString ());
 
 			if (instance.Name != null)
-				element.Add (TestSerializer.WriteTestName (instance.Name));
+				element.SetAttributeValue ("Name", instance.Name);
 
 			return element;
 		}

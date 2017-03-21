@@ -90,7 +90,7 @@ namespace Xamarin.AsyncTests
 				get; set;
 			}
 
-			public TestName Name {
+			public string Name {
 				get; set;
 			}
 

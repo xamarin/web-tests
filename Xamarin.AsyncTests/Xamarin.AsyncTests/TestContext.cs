@@ -92,14 +92,14 @@ namespace Xamarin.AsyncTests
 
 		public void OnTestRunning ()
 		{
-			logger.OnTestRunning (Name);
+			logger.OnTestRunning (Name.FullName);
 		}
 
 		public void OnTestFinished (TestStatus status, TimeSpan? elapsedTime = null)
 		{
 			Result.Status = status;
 			Result.ElapsedTime = elapsedTime;
-			logger.OnTestFinished (Name, status);
+			logger.OnTestFinished (Name.FullName, status);
 		}
 
 		public void OnTestCanceled ()
@@ -123,7 +123,7 @@ namespace Xamarin.AsyncTests
 			if (error is SkipRestOfThisTestException)
 				return;
 
-			logger.OnException (Name, error);
+			logger.OnException (Name.FullName, error);
 			logger.LogError (error);
 		}
 
