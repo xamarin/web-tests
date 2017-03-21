@@ -57,8 +57,6 @@ namespace Xamarin.AsyncTests.Framework
 
 			while (path != null) {
 				var element = WritePathNode (path.Host, path.Parameter);
-				if (path.IsHidden)
-					element.SetAttributeValue ("IsHidden", true);
 				node.AddFirst (element);
 				path = path.Parent;
 			}
@@ -177,8 +175,6 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			var element = new XElement (ParameterName);
 			element.Add (new XAttribute ("Type", WritePathType (node.PathType)));
-			if (node.Flags != TestFlags.None)
-				element.Add (new XAttribute ("Flags", WriteTestFlags (node.Flags)));
 			if (node.Identifier != null)
 				element.Add (new XAttribute ("Identifier", node.Identifier));
 			if (node.Name != null)
@@ -187,6 +183,8 @@ namespace Xamarin.AsyncTests.Framework
 				element.Add (new XAttribute ("ParameterType", node.ParameterType));
 			if (parameter != null)
 				element.Add (new XAttribute ("Parameter", parameter.Value));
+			if (node.Flags != TestFlags.None)
+				element.Add (new XAttribute ("Flags", WriteTestFlags (node.Flags)));
 			return element;
 		}
 
