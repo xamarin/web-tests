@@ -29,6 +29,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using System.Collections.Generic;
 using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.AsyncTests.Console
@@ -173,20 +174,7 @@ namespace Xamarin.AsyncTests.Console
 				systemOut.Add (Environment.NewLine);
 				systemOut.Add (Environment.NewLine);
 
-				if (Result.Name.HasParameters) {
-					systemOut.Add ("<parameters>" + Environment.NewLine);
-					foreach (var parameter in Result.Name.Parameters) {
-						if (parameter.IsHidden)
-							continue;
-						var propNode = new XElement ("property");
-						propNode.SetAttributeValue ("name", parameter.Name);
-						propNode.SetAttributeValue ("value", parameter.Value);
-						systemOut.Add (string.Format ("  {0} = {1}{2}", parameter.Name, parameter.Value, Environment.NewLine));
-						properties.Add (propNode);
-					}
-					systemOut.Add ("</parameters>" + Environment.NewLine);
-					systemOut.Add (Environment.NewLine);
-				}
+				WriteParameters (properties, systemOut);
 
 				systemOut.Add (Environment.NewLine);
 
@@ -201,6 +189,40 @@ namespace Xamarin.AsyncTests.Console
 						systemOut.Add (string.Format ("LOG: {0} {1} {2}\n", entry.Kind, entry.LogLevel, entry.Text));
 					}
 				}
+			}
+
+			void WriteParameters (XElement properties, XElement output)
+			{
+				var list = new List<Tuple<string,XElement>> ();
+				WriteParameters (list, Result.Path);
+				if (list.Count == 0)
+					return;
+
+				output.Add ("<parameters>" + Environment.NewLine);
+				foreach (var entry in list) {
+					output.Add (entry.Item1);
+					properties.Add (entry.Item2);
+				}
+				output.Add ("</parameters>" + Environment.NewLine);
+				output.Add (Environment.NewLine);
+			}
+
+			void WriteParameters (List<Tuple<string,XElement>> list, ITestPath path)
+			{
+				if (path.Parent != null)
+					WriteParameters (list, path.Parent);
+
+				if (path.PathType != TestPathType.Parameter)
+					return;
+				if ((path.Flags & TestFlags.Hidden) != 0)
+					return;
+
+				var output = string.Format ("  {0} = {1}{2}", path.Name, path.ParameterValue, Environment.NewLine);
+				var element = new XElement ("property");
+				element.SetAttributeValue ("name", path.Name);
+				element.SetAttributeValue ("value", path.ParameterValue);
+
+				list.Add (new Tuple<string,XElement> (output, element));
 			}
 		}
 
