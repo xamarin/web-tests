@@ -75,6 +75,12 @@ namespace Xamarin.AsyncTests.Framework
 			get { return parameter; }
 		}
 
+		string IPathNode.ParameterValue {
+			get {
+				return parameter?.Value;
+			}
+		}
+
 		public bool IsHidden {
 			get { return (Flags & TestFlags.Hidden) != 0; } 
 		}

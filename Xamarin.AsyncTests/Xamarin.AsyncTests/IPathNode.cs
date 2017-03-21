@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
 	public interface IPathNode
 	{
@@ -46,6 +46,10 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		string ParameterType {
+			get;
+		}
+
+		string ParameterValue {
 			get;
 		}
 	}

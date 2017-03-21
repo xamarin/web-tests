@@ -28,29 +28,9 @@ using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests
 {
-	public interface ITestPath
+	public interface ITestPath : IPathNode
 	{
 		ITestPath Parent {
-			get;
-		}
-
-		TestPathType PathType {
-			get;
-		}
-
-		TestFlags Flags {
-			get;
-		}
-
-		string Identifier {
-			get;
-		}
-
-		string Name {
-			get;
-		}
-
-		string ParameterType {
 			get;
 		}
 

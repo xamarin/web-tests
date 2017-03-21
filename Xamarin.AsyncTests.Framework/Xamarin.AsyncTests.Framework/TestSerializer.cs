@@ -276,6 +276,10 @@ namespace Xamarin.AsyncTests.Framework
 				get { return Node.ParameterType; }
 			}
 
+			public string ParameterValue {
+				get { return Node.ParameterValue; }
+			}
+
 			XElement ITestPath.SerializePath ()
 			{
 				return WriteTestPath (this);
