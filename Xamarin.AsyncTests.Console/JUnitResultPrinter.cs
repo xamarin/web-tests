@@ -143,6 +143,8 @@ namespace Xamarin.AsyncTests.Console
 
 			public DateTime TimeStamp { get; } = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 
+			StringBuilder output = new StringBuilder ();
+
 			public TestSuite (XElement root, TestName parent, TestResult result)
 			{
 				Root = root;
@@ -175,45 +177,46 @@ namespace Xamarin.AsyncTests.Console
 				Node.Add (systemErr);
 
 				var serializedPath = Result.Path.SerializePath ().ToString ();
-				systemOut.Add (serializedPath);
-				systemOut.Add (Environment.NewLine);
-				systemOut.Add (FormatName (Result.Path, true, true));
-				systemOut.Add (FormatName (Result.Path, false, true));
-				systemOut.Add (Result.Name.LocalName);
-				systemOut.Add (Environment.NewLine);
-				systemOut.Add (Environment.NewLine);
+				output.AppendLine (serializedPath);
+				output.AppendLine (FormatName (Result.Path, true, true));
+				output.AppendLine (FormatName (Result.Path, false, true));
+				output.AppendLine (Result.Name.LocalName);
+				output.AppendLine ();
+				output.AppendLine ();
 
-				WriteParameters (properties, systemOut);
+				WriteParameters (properties);
 
-				systemOut.Add (Environment.NewLine);
+				output.AppendLine ();
 
 				if (Result.HasMessages) {
 					foreach (var message in Result.Messages) {
-						systemOut.Add (message + Environment.NewLine);
+						output.AppendLine (message);
 					}
 				}
 
 				if (Result.HasLogEntries) {
 					foreach (var entry in Result.LogEntries) {
-						systemOut.Add (string.Format ("LOG: {0} {1} {2}\n", entry.Kind, entry.LogLevel, entry.Text));
+						output.AppendFormat (string.Format ("LOG: {0} {1} {2}\n", entry.Kind, entry.LogLevel, entry.Text));
 					}
 				}
+
+				systemOut.Add (output.ToString ());
 			}
 
-			void WriteParameters (XElement properties, XElement output)
+			void WriteParameters (XElement properties)
 			{
 				var list = new List<Tuple<string,XElement>> ();
 				WriteParameters (list, Result.Path);
 				if (list.Count == 0)
 					return;
 
-				output.Add ("<parameters>" + Environment.NewLine);
+				output.AppendLine ("<parameters>");
 				foreach (var entry in list) {
-					output.Add (entry.Item1);
+					output.AppendLine (entry.Item1);
 					properties.Add (entry.Item2);
 				}
-				output.Add ("</parameters>" + Environment.NewLine);
-				output.Add (Environment.NewLine);
+				output.AppendLine ("</parameters>");
+				output.AppendLine ();
 			}
 
 			void WriteParameters (List<Tuple<string,XElement>> list, ITestPath path)
@@ -226,12 +229,12 @@ namespace Xamarin.AsyncTests.Console
 				if ((path.Flags & TestFlags.Hidden) != 0)
 					return;
 
-				var output = string.Format ("  {0} = {1}{2}", path.Name, path.ParameterValue, Environment.NewLine);
+				var line = string.Format ("  {0} = {1}{2}", path.Name, path.ParameterValue, Environment.NewLine);
 				var element = new XElement ("property");
 				element.SetAttributeValue ("name", path.Name);
 				element.SetAttributeValue ("value", path.ParameterValue);
 
-				list.Add (new Tuple<string,XElement> (output, element));
+				list.Add (new Tuple<string,XElement> (line, element));
 			}
 		}
 
