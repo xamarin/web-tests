@@ -33,7 +33,7 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		IPathResolver Resolve (TestContext ctx, IPathNode node, string parameter);
+		IPathResolver Resolve (TestContext ctx, IPathNode node);
 	}
 }
 

@@ -159,7 +159,7 @@ namespace Xamarin.AsyncTests.Framework
 			get { return this; }
 		}
 
-		public IPathResolver Resolve (TestContext ctx, IPathNode node, string parameter)
+		public IPathResolver Resolve (TestContext ctx, IPathNode node)
 		{
 			Resolve (ctx);
 
@@ -168,19 +168,19 @@ namespace Xamarin.AsyncTests.Framework
 
 				if (!TestPath.Matches (innerNode.Tree.Host, node))
 					throw new InternalErrorException ();
-				if (parameter != null)
-					return innerNode.Parameterize (parameter);
+				if (node.ParameterValue != null)
+					return innerNode.Parameterize (node.ParameterValue);
 				return innerNode;
 			}
 
-			if (parameter == null)
+			if (node.ParameterValue == null)
 				throw new InternalErrorException ();
 
 			foreach (var child in children) {
 				if (!TestPath.Matches (child.Path.Host, node))
 					throw new InternalErrorException ();
 
-				if (!parameter.Equals (child.Path.Parameter.Value))
+				if (!node.ParameterValue.Equals (child.Path.Parameter.Value))
 					continue;
 
 				return child;
