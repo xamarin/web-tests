@@ -143,7 +143,7 @@ namespace Xamarin.AsyncTests.Console
 					if (parts.Count > 1)
 						return (0, parts.Count - 1, false);
 				else
-					return (0, 1, false);
+					return (0, 0, false);
 				default:
 					throw new InternalErrorException ();
 				}
