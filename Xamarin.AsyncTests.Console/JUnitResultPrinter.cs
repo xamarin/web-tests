@@ -97,6 +97,8 @@ namespace Xamarin.AsyncTests.Console
 				formatted = parts [parts.Count - 1];
 
 			if (includeParameters && parameters.Count > 0) {
+				// FIXME!!!
+				parameters.Reverse ();
 				var joinedParams = string.Join (",", parameters);
 				formatted = formatted + "(" + joinedParams + ")";
 			}
@@ -229,7 +231,7 @@ namespace Xamarin.AsyncTests.Console
 				if ((path.Flags & TestFlags.Hidden) != 0)
 					return;
 
-				var line = string.Format ("  {0} = {1}{2}", path.Name, path.ParameterValue, Environment.NewLine);
+				var line = string.Format ("  {0} = {1}", path.Name, path.ParameterValue);
 				var element = new XElement ("property");
 				element.SetAttributeValue ("name", path.Name);
 				element.SetAttributeValue ("value", path.ParameterValue);
@@ -262,6 +264,10 @@ namespace Xamarin.AsyncTests.Console
 
 			void CreateTestCase ()
 			{
+				var obsoleteName = Result.Name.LocalName;
+				var newName = FormatName (Result.Path, false, true);
+				if (!string.Equals (obsoleteName, newName, StringComparison.Ordinal))
+					AddError (new InternalErrorException ("INVALID NAME: |{0}| - |{1}|", obsoleteName, newName));
 				Node.SetAttributeValue ("name", Result.Name.LocalName);
 				Node.SetAttributeValue ("status", Result.Status);
 				if (Result.ElapsedTime != null)
@@ -286,6 +292,21 @@ namespace Xamarin.AsyncTests.Console
 					Node.Add (xerror);
 					hasError = true;
 				}
+			}
+
+			void AddError (Exception error)
+			{
+				var xerror = new XElement ("error");
+				var savedException = error as SavedException;
+				if (savedException != null) {
+					xerror.SetAttributeValue ("type", savedException.Type);
+					xerror.SetAttributeValue ("message", savedException.Message + "\n" + savedException.StackTrace);
+				} else {
+					xerror.SetAttributeValue ("type", error.GetType ().FullName);
+					xerror.SetAttributeValue ("message", error.Message + "\n" + error.StackTrace);
+				}
+				Node.Add (xerror);
+				hasError = true;
 			}
 
 			void Finish ()
