@@ -165,7 +165,7 @@ namespace Xamarin.AsyncTests.Console
 
 			public void Write ()
 			{
-				var newParentName = FormatName (Parent, true, true);
+				var newParentName = FormatName (Parent, true, false);
 				Node.SetAttributeValue ("name", newParentName);
 
 				Node.SetAttributeValue ("timestamp", TimeStamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
