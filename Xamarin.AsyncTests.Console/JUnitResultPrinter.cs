@@ -93,6 +93,27 @@ namespace Xamarin.AsyncTests.Console
 			LocalWithParameters
 		}
 
+		static (int,int,bool) GetFormatParameters (NameFormat format, IList<string> parts)
+		{
+			switch (format) {
+			case NameFormat.Full:
+				return (0, parts.Count, false);
+			case NameFormat.FullWithParameters:
+				return (0, parts.Count, true);
+			case NameFormat.Local:
+				return (parts.Count - 1, parts.Count, false);
+			case NameFormat.LocalWithParameters:
+				return (parts.Count - 1, parts.Count, true);
+			case NameFormat.Parent:
+				if (parts.Count > 1)
+					return (0, parts.Count - 1, false);
+				else
+					return (0, 1, false);
+			default:
+				throw new InternalErrorException ();
+			}
+		}
+
 		static string FormatName (ITestPath path, NameFormat format)
 		{
 			var parts = new List<string> ();
@@ -105,28 +126,18 @@ namespace Xamarin.AsyncTests.Console
 			var localName = parts [parts.Count - 1];
 			var argumentList = "(" + string.Join (",", parameters) + ")";
 
-			switch (format) {
-			case NameFormat.Local:
-				formatted.Append (localName);
-				break;
-			case NameFormat.Full:
-				formatted.Append (fullName);
-				break;
-			case NameFormat.FullWithParameters:
-				formatted.Append (fullName);
-				formatted.Append (argumentList);
-				break;
-			case NameFormat.LocalWithParameters:
-				formatted.Append (localName);
-				formatted.Append (argumentList);
-				break;
-			case NameFormat.Parent:
-				if (parts.Count == 1)
-					goto case NameFormat.Full;
-				formatted.Append (string.Join (".", parts, 1, parts.Count));
-				break;
-			default:
-				throw new InternalErrorException ();
+			var (start, end, includeParameters) = GetFormatParameters (format, parts);
+
+			for (int i = start; i < end; i++) {
+				if (i > start)
+					formatted.Append (".");
+				formatted.Append (parts [i]);
+			}
+
+			if (includeParameters) {
+				formatted.Append ("(");
+				formatted.Append (string.Join (",", parameters));
+				formatted.Append (")");
 			}
 
 			return formatted.ToString ();
