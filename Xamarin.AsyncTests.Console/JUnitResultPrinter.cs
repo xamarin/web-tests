@@ -175,9 +175,10 @@ namespace Xamarin.AsyncTests.Console
 				var properties = new XElement ("properties");
 				Node.Add (properties);
 
+				TestCase test = null;
+
 				if (!Result.HasChildren || Result.Children.Count == 0) {
-					var test = new TestCase (Result);
-					test.Write ();
+					test = new TestCase (Result);
 					Node.Add (test.Node);
 				}
 
@@ -207,6 +208,12 @@ namespace Xamarin.AsyncTests.Console
 				if (!string.Equals (obsoleteParentName, newParentName, StringComparison.Ordinal)) {
 					output.AppendLine ("WRONG PARENT!");
 					systemErr.Add ("WRONG PARENT!\n");
+
+					test = new TestCase (Result);
+					Node.Add (test.Node);
+
+					test.ExplicitError = new InternalErrorException (
+						"WRONG PARENT: {0} - {1}", obsoleteParentName, newParentName);
 				}
 
 				if (Result.HasMessages) {
@@ -222,6 +229,9 @@ namespace Xamarin.AsyncTests.Console
 				}
 
 				systemOut.Add (output.ToString ());
+
+				if (test != null)
+					test.Write ();
 			}
 
 			void WriteParameters (XElement properties)
@@ -272,12 +282,18 @@ namespace Xamarin.AsyncTests.Console
 				Result = result;
 			}
 
+			public Exception ExplicitError {
+				get; set;
+			}
+
 			bool hasError;
 
 			public void Write ()
 			{
 				CreateTestCase ();
 				AddErrors ();
+				if (ExplicitError != null)
+					AddError (ExplicitError);
 				Finish ();
 			}
 
@@ -286,7 +302,7 @@ namespace Xamarin.AsyncTests.Console
 				var obsoleteName = Result.Name.LocalName;
 				var newName = FormatName (Result.Path, false, true);
 				if (!string.Equals (obsoleteName, newName, StringComparison.Ordinal))
-					AddError (new InternalErrorException ("INVALID NAME: |{0}| - |{1}|", obsoleteName, newName));
+					throw AddError (new InternalErrorException ("INVALID NAME: |{0}| - |{1}|", obsoleteName, newName));
 				Node.SetAttributeValue ("name", Result.Name.LocalName);
 				Node.SetAttributeValue ("status", Result.Status);
 				if (Result.ElapsedTime != null)
@@ -313,7 +329,7 @@ namespace Xamarin.AsyncTests.Console
 				}
 			}
 
-			void AddError (Exception error)
+			Exception AddError (Exception error)
 			{
 				var xerror = new XElement ("error");
 				var savedException = error as SavedException;
@@ -326,7 +342,7 @@ namespace Xamarin.AsyncTests.Console
 				}
 				Node.Add (xerror);
 				hasError = true;
-				throw error;
+				return error;
 			}
 
 			void Finish ()
