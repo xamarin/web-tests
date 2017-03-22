@@ -99,10 +99,6 @@ namespace Xamarin.AsyncTests.Console
 
 			var formatted = new StringBuilder ();
 
-			var fullName = string.Join (".", parts);
-			var localName = parts [parts.Count - 1];
-			var argumentList = "(" + string.Join (",", parameters) + ")";
-
 			var (start, end, includeParameters) = GetFormatParameters ();
 
 			for (int i = start; i < end; i++) {
