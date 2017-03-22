@@ -205,7 +205,7 @@ namespace Xamarin.AsyncTests.Console
 
 				var obsoleteParentName = ParentName.FullName;
 
-				if (!string.Equals (obsoleteParentName, newParentName, StringComparison.Ordinal)) {
+				if (false && !string.Equals (obsoleteParentName, newParentName, StringComparison.Ordinal)) {
 					output.AppendLine ("WRONG PARENT!");
 					systemErr.Add ("WRONG PARENT!\n");
 
