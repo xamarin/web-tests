@@ -153,9 +153,6 @@ namespace Xamarin.AsyncTests.Console
 
 		void Visit (XElement root, TestSuite current, ITestPath parent, TestResult result, bool foundParameter)
 		{
-			if (false && result.Status == TestStatus.Ignored)
-				return;
-
 			XElement node = root;
 			if (result.Path.PathType == TestPathType.Parameter)
 				foundParameter = true;
@@ -172,7 +169,7 @@ namespace Xamarin.AsyncTests.Console
 				current = suite;
 			}
 
-			if (result.HasChildren && result.Children.Count > 0) {
+			if (result.HasChildren) {
 				foreach (var child in result.Children)
 					Visit (node, current, result.Path, child, foundParameter);
 			}
@@ -264,8 +261,8 @@ namespace Xamarin.AsyncTests.Console
 				Node.Add (Properties);
 
 				foreach (var test in tests)
-					Node.Add (test);
-
+					Node.Add (test.Node);
+ 
 				var systemOut = new XElement ("system-out");
 				Node.Add (systemOut);
 
