@@ -76,7 +76,7 @@ namespace Xamarin.AsyncTests.Console
 			if (path.Parent != null)
 				FormatName_inner (path.Parent, parts, parameters);
 			if (path.PathType == TestPathType.Parameter) {
-				if ((path.Flags & TestFlags.PathHidden) == 0)
+				if ((path.Flags & (TestFlags.PathHidden | TestFlags.Hidden)) == 0)
 					parameters.Add (path.ParameterValue);
 			} else {
 				if (!string.IsNullOrEmpty (path.Name) && ((path.Flags & TestFlags.Hidden) == 0))
@@ -97,7 +97,7 @@ namespace Xamarin.AsyncTests.Console
 				formatted = parts [parts.Count - 1];
 
 			if (includeParameters && parameters.Count > 0) {
-				if (true) {
+				if (false) {
 					// FIXME !!!!
 					if (!fullName)
 						parameters.Reverse ();
@@ -214,6 +214,8 @@ namespace Xamarin.AsyncTests.Console
 
 					test.ExplicitError = new InternalErrorException (
 						"WRONG PARENT: {0} - {1}", obsoleteParentName, newParentName);
+					System.Diagnostics.Debug.WriteLine (test.ExplicitError);
+					// throw test.ExplicitError;
 				}
 
 				if (Result.HasMessages) {
@@ -301,9 +303,11 @@ namespace Xamarin.AsyncTests.Console
 			{
 				var obsoleteName = Result.Name.LocalName;
 				var newName = FormatName (Result.Path, false, true);
-				if (!string.Equals (obsoleteName, newName, StringComparison.Ordinal))
-					throw AddError (new InternalErrorException ("INVALID NAME: |{0}| - |{1}|", obsoleteName, newName));
-				Node.SetAttributeValue ("name", Result.Name.LocalName);
+				if (!string.Equals (obsoleteName, newName, StringComparison.Ordinal)) {
+					var error = AddError (new InternalErrorException ("INVALID NAME: |{0}| - |{1}|", obsoleteName, newName));
+					System.Diagnostics.Debug.WriteLine (error);
+				}
+				Node.SetAttributeValue ("name", obsoleteName);
 				Node.SetAttributeValue ("status", Result.Status);
 				if (Result.ElapsedTime != null)
 					Node.SetAttributeValue ("time", Result.ElapsedTime.Value.TotalSeconds);

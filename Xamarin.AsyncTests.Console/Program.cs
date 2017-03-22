@@ -817,7 +817,14 @@ namespace Xamarin.AsyncTests.Console
 			await Task.Yield ();
 
 			var printer = ResultPrinter.Load (global::System.Console.Out, ResultOutput);
-			return printer.Print ();
+			var ret = printer.Print ();
+
+			if (JUnitResultOutput != null) {
+				JUnitResultPrinter.Print (printer.Result, JUnitResultOutput);
+				Debug ("JUnit result written to {0}.", JUnitResultOutput);
+			}
+
+			return ret;
 		}
 
 		void OnLogMessage (string message)
