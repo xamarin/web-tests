@@ -303,7 +303,7 @@ namespace Xamarin.AsyncTests.Console
 			{
 				var obsoleteName = Result.Name.LocalName;
 				var newName = FormatName (Result.Path, false, true);
-				if (!string.Equals (obsoleteName, newName, StringComparison.Ordinal)) {
+				if (false && !string.Equals (obsoleteName, newName, StringComparison.Ordinal)) {
 					var error = AddError (new InternalErrorException ("INVALID NAME: |{0}| - |{1}|", obsoleteName, newName));
 					System.Diagnostics.Debug.WriteLine (error);
 				}
