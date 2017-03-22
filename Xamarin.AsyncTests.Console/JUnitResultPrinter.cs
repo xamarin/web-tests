@@ -165,7 +165,8 @@ namespace Xamarin.AsyncTests.Console
 
 			public void Write ()
 			{
-				Node.SetAttributeValue ("name", ParentName.FullName);
+				var newParentName = FormatName (Parent, true, true);
+				Node.SetAttributeValue ("name", newParentName);
 
 				Node.SetAttributeValue ("timestamp", TimeStamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
 				Node.SetAttributeValue ("hostname", "localhost");
@@ -203,7 +204,6 @@ namespace Xamarin.AsyncTests.Console
 				output.AppendLine ();
 
 				var obsoleteParentName = ParentName.FullName;
-				var newParentName = FormatName (Parent, true, true);
 
 				if (!string.Equals (obsoleteParentName, newParentName, StringComparison.Ordinal)) {
 					output.AppendLine ("WRONG PARENT!");
@@ -307,7 +307,7 @@ namespace Xamarin.AsyncTests.Console
 					var error = AddError (new InternalErrorException ("INVALID NAME: |{0}| - |{1}|", obsoleteName, newName));
 					System.Diagnostics.Debug.WriteLine (error);
 				}
-				Node.SetAttributeValue ("name", obsoleteName);
+				Node.SetAttributeValue ("name", newName);
 				Node.SetAttributeValue ("status", Result.Status);
 				if (Result.ElapsedTime != null)
 					Node.SetAttributeValue ("time", Result.ElapsedTime.Value.TotalSeconds);
