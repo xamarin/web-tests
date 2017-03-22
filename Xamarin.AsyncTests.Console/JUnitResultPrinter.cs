@@ -71,19 +71,6 @@ namespace Xamarin.AsyncTests.Console
 			return name.FullName;
 		}
 
-		static void FormatName_inner (ITestPath path, List<string> parts, List<string> parameters)
-		{
-			if (path.Parent != null)
-				FormatName_inner (path.Parent, parts, parameters);
-			if (path.PathType == TestPathType.Parameter) {
-				if ((path.Flags & (TestFlags.PathHidden | TestFlags.Hidden)) == 0)
-					parameters.Add (path.ParameterValue);
-			} else {
-				if (!string.IsNullOrEmpty (path.Name) && ((path.Flags & TestFlags.Hidden) == 0))
-					parts.Add (path.Name);
-			}
-		}
-
 		enum NameFormat
 		{
 			Full,
@@ -93,32 +80,11 @@ namespace Xamarin.AsyncTests.Console
 			LocalWithParameters
 		}
 
-		static (int,int,bool) GetFormatParameters (NameFormat format, IList<string> parts)
-		{
-			switch (format) {
-			case NameFormat.Full:
-				return (0, parts.Count, false);
-			case NameFormat.FullWithParameters:
-				return (0, parts.Count, true);
-			case NameFormat.Local:
-				return (parts.Count - 1, parts.Count, false);
-			case NameFormat.LocalWithParameters:
-				return (parts.Count - 1, parts.Count, true);
-			case NameFormat.Parent:
-				if (parts.Count > 1)
-					return (0, parts.Count - 1, false);
-				else
-					return (0, 1, false);
-			default:
-				throw new InternalErrorException ();
-			}
-		}
-
 		static string FormatName (ITestPath path, NameFormat format)
 		{
 			var parts = new List<string> ();
 			var parameters = new List<string> ();
-			FormatName_inner (path, parts, parameters);
+			FormatName_inner (path);
 
 			var formatted = new StringBuilder ();
 
@@ -126,7 +92,7 @@ namespace Xamarin.AsyncTests.Console
 			var localName = parts [parts.Count - 1];
 			var argumentList = "(" + string.Join (",", parameters) + ")";
 
-			var (start, end, includeParameters) = GetFormatParameters (format, parts);
+			var (start, end, includeParameters) = GetFormatParameters ();
 
 			for (int i = start; i < end; i++) {
 				if (i > start)
@@ -141,6 +107,40 @@ namespace Xamarin.AsyncTests.Console
 			}
 
 			return formatted.ToString ();
+
+			void FormatName_inner (ITestPath current)
+			{
+				if (current.Parent != null)
+					FormatName_inner (current.Parent);
+				if (current.PathType == TestPathType.Parameter) {
+					if ((current.Flags & (TestFlags.PathHidden | TestFlags.Hidden)) == 0)
+						parameters.Add (current.ParameterValue);
+				} else {
+					if (!string.IsNullOrEmpty (current.Name) && ((current.Flags & TestFlags.Hidden) == 0))
+						parts.Add (current.Name);
+				}
+			}
+
+			(int, int, bool) GetFormatParameters ()
+			{
+				switch (format) {
+				case NameFormat.Full:
+					return (0, parts.Count, false);
+				case NameFormat.FullWithParameters:
+					return (0, parts.Count, true);
+				case NameFormat.Local:
+					return (parts.Count - 1, parts.Count, false);
+				case NameFormat.LocalWithParameters:
+					return (parts.Count - 1, parts.Count, true);
+				case NameFormat.Parent:
+					if (parts.Count > 1)
+						return (0, parts.Count - 1, false);
+				else
+					return (0, 1, false);
+				default:
+					throw new InternalErrorException ();
+				}
+			}
 		}
 
 		void Visit (XElement root, ITestPath parent, TestResult result, bool foundParameter)
