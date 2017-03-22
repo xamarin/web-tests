@@ -94,14 +94,14 @@ namespace Xamarin.AsyncTests.Console
 			var parameterList = "(" + string.Join (",", parameters) + ")";
 			var argumentList = "(" + string.Join (",", values) + ")";
 
-			var (start, end, includeParameters) = GetFormatParameters ();
+			var (start, end, pos, includeParameters) = GetFormatParameters ();
 
 			for (int i = start; i < end; i++) {
 				if (i > start)
 					formatted.Append (".");
-				if (i == end - 1)
-					formatted.Append (parameterList);
 				formatted.Append (parts [i]);
+				if (i == pos)
+					formatted.Append (parameterList);
 			}
 
 			if (includeParameters) {
@@ -125,22 +125,21 @@ namespace Xamarin.AsyncTests.Console
 				}
 			}
 
-			(int, int, bool) GetFormatParameters ()
+			(int, int, int, bool) GetFormatParameters ()
 			{
 				switch (format) {
 				case NameFormat.Full:
-					return (0, parts.Count, false);
+					return (0, parts.Count, parts.Count, false);
 				case NameFormat.FullWithParameters:
-					return (0, parts.Count, true);
+					return (0, parts.Count, parts.Count, true);
 				case NameFormat.Local:
-					return (parts.Count - 1, parts.Count, false);
+					return (parts.Count - 1, parts.Count, -1, false);
 				case NameFormat.LocalWithParameters:
-					return (parts.Count - 1, parts.Count, true);
+					return (parts.Count - 1, parts.Count, -1, true);
 				case NameFormat.Parent:
-					if (parts.Count > 1)
-						return (0, parts.Count - 1, false);
-				else
-					return (0, 1, false);
+					if (parts.Count == 0)
+						return (0, 1, -1, false);
+					return (0, parts.Count - 1, parts.Count - 1, false);
 				default:
 					throw new InternalErrorException ();
 				}
