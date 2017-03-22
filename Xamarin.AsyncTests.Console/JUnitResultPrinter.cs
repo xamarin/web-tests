@@ -77,7 +77,8 @@ namespace Xamarin.AsyncTests.Console
 			FullWithParameters,
 			Parent,
 			Local,
-			LocalWithParameters
+			LocalWithParameters,
+			Parameters
 		}
 
 		static bool IsHidden (ITestPath path)
@@ -107,7 +108,7 @@ namespace Xamarin.AsyncTests.Console
 				formatted.Append (parts [i]);
 			}
 
-			if (includeParameters) {
+			if (includeParameters && parameters.Count > 0) {
 				formatted.Append ("(");
 				formatted.Append (string.Join (",", parameters));
 				formatted.Append (")");
@@ -145,6 +146,8 @@ namespace Xamarin.AsyncTests.Console
 						return (0, parts.Count - 1, false);
 					else
 						return (0, 0, false);
+				case NameFormat.Parameters:
+					return (0, 0, true);
 				default:
 					throw new InternalErrorException ();
 				}
@@ -175,7 +178,7 @@ namespace Xamarin.AsyncTests.Console
 			}
 
 			if (needsTest) {
-				var test = new TestCase (result);
+				var test = new TestCase (current, result);
 				current.AddTest (test);
 			}
 
@@ -206,6 +209,11 @@ namespace Xamarin.AsyncTests.Console
 				private set;
 			}
 
+			public string LocalName {
+				get;
+				private set;
+			}
+
 			public XElement Node { get; } = new XElement ("testsuite");
 
 			public XElement Properties { get; } = new XElement ("properties");
@@ -223,24 +231,17 @@ namespace Xamarin.AsyncTests.Console
 				ParentPath = parentPath;
 				Result = result;
 
-				Name = ComputeName (parent, result.Path);
-			}
-
-			static string ComputeName (TestSuite parent, ITestPath path)
-			{
 				var formatted = new StringBuilder ();
 				if (parent != null) {
 					formatted.Append (parent.Name);
 					formatted.Append (".");
 				}
 
-				if (path.PathType == TestPathType.Parameter)
-					;
+				LocalName = result.Path.Name;
+				if (!string.IsNullOrEmpty (LocalName))
+					formatted.Append (LocalName);
 
-				if (!string.IsNullOrEmpty (path.Name))
-					formatted.Append (path.Name);
-
-				return formatted.ToString ();
+				Name = formatted.ToString ();
 			}
 
 			public void Resolve ()
@@ -348,14 +349,19 @@ namespace Xamarin.AsyncTests.Console
 
 		class TestCase
 		{
+			public TestSuite Parent {
+				get; private set;
+			}
+
 			public TestResult Result {
 				get; private set;
 			}
 
 			public XElement Node { get; } = new XElement ("testcase");
 
-			public TestCase (TestResult result)
+			public TestCase (TestSuite parent, TestResult result)
 			{
+				Parent = parent;
 				Result = result;
 			}
 
@@ -371,7 +377,10 @@ namespace Xamarin.AsyncTests.Console
 			void CreateTestCase ()
 			{
 				var newName = FormatName (Result.Path, NameFormat.LocalWithParameters);
-				Node.SetAttributeValue ("name", newName);
+				var argumentList = FormatName (Result.Path, NameFormat.Parameters);
+				var reallyNewName = Parent.LocalName + argumentList;
+
+				Node.SetAttributeValue ("name", reallyNewName);
 				Node.SetAttributeValue ("status", Result.Status);
 				if (Result.ElapsedTime != null)
 					Node.SetAttributeValue ("time", Result.ElapsedTime.Value.TotalSeconds);
