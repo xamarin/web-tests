@@ -42,6 +42,7 @@ Build-FastCheck::
 
 Run-FastCheck-%::
 	$(MAKE) Run-Console-$*
+	exit 1
 
 #
 #
