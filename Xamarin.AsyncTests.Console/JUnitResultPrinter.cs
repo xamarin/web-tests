@@ -223,12 +223,14 @@ namespace Xamarin.AsyncTests.Console
 					test.Write ();
 			}
 
+			static int nextId;
+
 			void WriteOutput (XElement element)
 			{
+				element.Add (string.Format ("OUTPUT: {0}\n", ++nextId));
 				using (var reader = new StringReader (output.ToString ())) {
 					string line;
 					while ((line = reader.ReadLine ()) != null) {
-						element.Add ("X:");
 						element.Add (line);
 						element.Add (Environment.NewLine);
 					}
