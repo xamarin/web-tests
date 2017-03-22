@@ -263,7 +263,7 @@ namespace Xamarin.AsyncTests.Console
 
 			void CreateTestCase ()
 			{
-				var newName = FormatName (Result.Path, false, true);
+				var newName = FormatName (Result.Path, true, true);
 				Node.SetAttributeValue ("name", newName);
 				Node.SetAttributeValue ("status", Result.Status);
 				if (Result.ElapsedTime != null)
