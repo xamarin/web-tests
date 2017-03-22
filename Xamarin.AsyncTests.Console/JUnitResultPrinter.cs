@@ -97,8 +97,11 @@ namespace Xamarin.AsyncTests.Console
 				formatted = parts [parts.Count - 1];
 
 			if (includeParameters && parameters.Count > 0) {
-				// FIXME!!!
-				parameters.Reverse ();
+				if (true) {
+					// FIXME !!!!
+					if (!fullName)
+						parameters.Reverse ();
+				}
 				var joinedParams = string.Join (",", parameters);
 				formatted = formatted + "(" + joinedParams + ")";
 			}
