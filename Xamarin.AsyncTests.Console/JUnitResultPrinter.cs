@@ -61,7 +61,7 @@ namespace Xamarin.AsyncTests.Console
 			using (var writer = XmlWriter.Create (output, settings)) {
 				var printer = new JUnitResultPrinter (result);
 				var root = new XElement ("testsuites");
-				printer.Visit (root, TestName.Empty, result, false);
+				printer.Visit (root, result.Path, TestName.Empty, result, false);
 				root.WriteTo (writer);
 			}
 		}
@@ -106,7 +106,7 @@ namespace Xamarin.AsyncTests.Console
 			return formatted;
 		}
 
-		void Visit (XElement root, TestName parent, TestResult result, bool foundParameter)
+		void Visit (XElement root, ITestPath parent, TestName obsoleteParent, TestResult result, bool foundParameter)
 		{
 			if (false && result.Status == TestStatus.Ignored)
 				return;
@@ -115,7 +115,7 @@ namespace Xamarin.AsyncTests.Console
 			if (result.Path.PathType == TestPathType.Parameter)
 				foundParameter = true;
 			if (foundParameter) {
-				var suite = new TestSuite (root, parent, result);
+				var suite = new TestSuite (root, parent, obsoleteParent, result);
 				suite.Write ();
 				root.Add (suite.Node);
 				node = suite.Node;
@@ -123,7 +123,7 @@ namespace Xamarin.AsyncTests.Console
 
 			if (result.HasChildren) {
 				foreach (var child in result.Children)
-					Visit (node, result.Name, child, foundParameter);
+					Visit (node, result.Path, result.Name, child, foundParameter);
 			}
 		}
 
@@ -133,7 +133,12 @@ namespace Xamarin.AsyncTests.Console
 				get; private set;
 			}
 
-			public TestName Parent {
+			public ITestPath Parent {
+				get; private set;
+			}
+
+			[Obsolete ("KILL")]
+			public TestName ParentName {
 				get; private set;
 			}
 
@@ -147,16 +152,17 @@ namespace Xamarin.AsyncTests.Console
 
 			StringBuilder output = new StringBuilder ();
 
-			public TestSuite (XElement root, TestName parent, TestResult result)
+			public TestSuite (XElement root, ITestPath parent, TestName parentName, TestResult result)
 			{
 				Root = root;
 				Parent = parent;
+				ParentName = parentName;
 				Result = result;
 			}
 
 			public void Write ()
 			{
-				Node.SetAttributeValue ("name", Parent.FullName);
+				Node.SetAttributeValue ("name", ParentName.FullName);
 
 				Node.SetAttributeValue ("timestamp", TimeStamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
 				Node.SetAttributeValue ("hostname", "localhost");
@@ -180,15 +186,25 @@ namespace Xamarin.AsyncTests.Console
 
 				var serializedPath = Result.Path.SerializePath ().ToString ();
 				output.AppendLine (serializedPath);
-				output.AppendLine (FormatName (Result.Path, true, true));
-				output.AppendLine (FormatName (Result.Path, false, true));
-				output.AppendLine (Result.Name.LocalName);
+				output.AppendLine ("FormatName (Result.Path, true, true): " + FormatName (Result.Path, true, true));
+				output.AppendLine ("FormatName (Result.Path, false, true): " + FormatName (Result.Path, false, true));
+				output.AppendLine ("Result.Name.LocalName: " + Result.Name.LocalName);
+				output.AppendLine ("Obsolete Parent Name / ParentName.FullName: " + ParentName.FullName);
+				output.AppendLine ("New Parent Name / FormatName (Parent, true, true): " + FormatName (Parent, true, true));
 				output.AppendLine ();
 				output.AppendLine ();
 
 				WriteParameters (properties);
 
 				output.AppendLine ();
+
+				var obsoleteParentName = ParentName.FullName;
+				var newParentName = FormatName (Parent, true, true);
+
+				if (!string.Equals (obsoleteParentName, newParentName, StringComparison.Ordinal)) {
+					output.AppendLine ("WRONG PARENT!");
+					systemErr.Add ("WRONG PARENT!\n");
+				}
 
 				if (Result.HasMessages) {
 					foreach (var message in Result.Messages) {
@@ -307,6 +323,7 @@ namespace Xamarin.AsyncTests.Console
 				}
 				Node.Add (xerror);
 				hasError = true;
+				throw error;
 			}
 
 			void Finish ()
