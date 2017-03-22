@@ -121,8 +121,9 @@ namespace Xamarin.AsyncTests.Console
 					FormatName_inner (current.Parent);
 				if (current.PathType == TestPathType.Parameter) {
 					if ((current.Flags & (TestFlags.PathHidden | TestFlags.Hidden)) == 0) {
-						parameters.Add (current.Identifier);
+						// parameters.Add (current.Identifier);
 						values.Add (current.ParameterValue);
+						parts.Add (current.Identifier);
 					}
 				} else {
 					if (!string.IsNullOrEmpty (current.Name) && ((current.Flags & TestFlags.Hidden) == 0))
