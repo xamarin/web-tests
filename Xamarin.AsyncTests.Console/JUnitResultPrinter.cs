@@ -84,7 +84,7 @@ namespace Xamarin.AsyncTests.Console
 		{
 			if ((path.Flags & TestFlags.Hidden) != 0)
 				return true;
-			if ((path.Flags & TestFlags.PathHidden) != 0)
+			if (false && (path.Flags & TestFlags.PathHidden) != 0)
 				return true;
 			if (path.PathType == TestPathType.Parameter && ((path.Flags & TestFlags.PathHidden) != 0))
 				return true;
@@ -162,7 +162,7 @@ namespace Xamarin.AsyncTests.Console
 			bool needsSuite = !IsHidden (result.Path) || (needsTest && current == null);
 
 			if (needsSuite) {
-				suite = new TestSuite (root, parent, result);
+				suite = new TestSuite (root, suite, parent, result);
 				suite.Resolve ();
 				root.Add (suite.Node);
 				node = suite.Node;
@@ -189,7 +189,11 @@ namespace Xamarin.AsyncTests.Console
 				get; private set;
 			}
 
-			public ITestPath Parent {
+			public TestSuite Parent {
+				get; private set;
+			}
+
+			public ITestPath ParentPath {
 				get; private set;
 			}
 
@@ -212,13 +216,31 @@ namespace Xamarin.AsyncTests.Console
 			StringBuilder errorOutput = new StringBuilder ();
 			List<TestCase> tests = new List<TestCase> ();
 
-			public TestSuite (XElement root, ITestPath parent, TestResult result)
+			public TestSuite (XElement root, TestSuite parent, ITestPath parentPath, TestResult result)
 			{
 				Root = root;
 				Parent = parent;
+				ParentPath = parentPath;
 				Result = result;
 
-				Name = FormatName (Parent, NameFormat.Parent);
+				Name = ComputeName (parent, result.Path);
+			}
+
+			static string ComputeName (TestSuite parent, ITestPath path)
+			{
+				var formatted = new StringBuilder ();
+				if (parent != null) {
+					formatted.Append (parent.Name);
+					formatted.Append (".");
+				}
+
+				if (path.PathType == TestPathType.Parameter)
+					;
+
+				if (!string.IsNullOrEmpty (path.Name))
+					formatted.Append (path.Name);
+
+				return formatted.ToString ();
 			}
 
 			public void Resolve ()
