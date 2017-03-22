@@ -123,7 +123,8 @@ namespace Xamarin.AsyncTests.Console
 					if (!IsHidden (current))
 						parameters.Add (current.ParameterValue);
 				} else {
-					if (!string.IsNullOrEmpty (current.Name) && !IsHidden (current))
+					if (!string.IsNullOrEmpty (current.Name) && ((current.Flags & TestFlags.Hidden) == 0))
+					// if (!string.IsNullOrEmpty (current.Name) && !IsHidden (current))
 						parts.Add (current.Name);
 				}
 			}
@@ -142,8 +143,8 @@ namespace Xamarin.AsyncTests.Console
 				case NameFormat.Parent:
 					if (parts.Count > 0)
 						return (0, parts.Count - 1, false);
-				else
-					return (0, 0, false);
+					else
+						return (0, 0, false);
 				default:
 					throw new InternalErrorException ();
 				}
