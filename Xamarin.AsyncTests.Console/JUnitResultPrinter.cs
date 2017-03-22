@@ -80,6 +80,15 @@ namespace Xamarin.AsyncTests.Console
 			LocalWithParameters
 		}
 
+		static bool IsHidden (ITestPath path)
+		{
+			if ((path.Flags & TestFlags.Hidden) != 0)
+				return true;
+			if (path.PathType == TestPathType.Parameter && ((path.Flags & TestFlags.PathHidden) != 0))
+				return true;
+			return false;
+		}
+
 		static string FormatName (ITestPath path, NameFormat format)
 		{
 			var parts = new List<string> ();
@@ -113,10 +122,10 @@ namespace Xamarin.AsyncTests.Console
 				if (current.Parent != null)
 					FormatName_inner (current.Parent);
 				if (current.PathType == TestPathType.Parameter) {
-					if ((current.Flags & (TestFlags.PathHidden | TestFlags.Hidden)) == 0)
+					if (!IsHidden (current))
 						parameters.Add (current.ParameterValue);
 				} else {
-					if (!string.IsNullOrEmpty (current.Name) && ((current.Flags & TestFlags.Hidden) == 0))
+					if (!string.IsNullOrEmpty (current.Name) && !IsHidden (current))
 						parts.Add (current.Name);
 				}
 			}
@@ -151,7 +160,8 @@ namespace Xamarin.AsyncTests.Console
 			XElement node = root;
 			if (result.Path.PathType == TestPathType.Parameter)
 				foundParameter = true;
-			if (foundParameter) {
+
+			if (!IsHidden (result.Path)) {
 				var suite = new TestSuite (root, parent, result);
 				suite.Write ();
 				root.Add (suite.Node);
