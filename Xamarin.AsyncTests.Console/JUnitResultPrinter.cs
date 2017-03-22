@@ -91,6 +91,7 @@ namespace Xamarin.AsyncTests.Console
 
 			var fullName = string.Join (".", parts);
 			var localName = parts [parts.Count - 1];
+			var parameterList = "(" + string.Join (",", parameters) + ")";
 			var argumentList = "(" + string.Join (",", values) + ")";
 
 			var (start, end, includeParameters) = GetFormatParameters ();
@@ -98,19 +99,13 @@ namespace Xamarin.AsyncTests.Console
 			for (int i = start; i < end; i++) {
 				if (i > start)
 					formatted.Append (".");
+				if (i == end - 1)
+					formatted.Append (parameterList);
 				formatted.Append (parts [i]);
 			}
 
-			if (parameters.Count > 0) {
-				formatted.Append ("(");
-				formatted.Append (string.Join (",", parameters));
-				formatted.Append (")");
-			}
-
 			if (includeParameters) {
-				formatted.Append ("(");
-				formatted.Append (string.Join (",", values));
-				formatted.Append (")");
+				formatted.Append (argumentList);
 			}
 
 			return formatted.ToString ();
@@ -121,9 +116,8 @@ namespace Xamarin.AsyncTests.Console
 					FormatName_inner (current.Parent);
 				if (current.PathType == TestPathType.Parameter) {
 					if ((current.Flags & (TestFlags.PathHidden | TestFlags.Hidden)) == 0) {
-						// parameters.Add (current.Identifier);
+						parameters.Add (current.Identifier);
 						values.Add (current.ParameterValue);
-						parts.Add (current.Identifier);
 					}
 				} else {
 					if (!string.IsNullOrEmpty (current.Name) && ((current.Flags & TestFlags.Hidden) == 0))
