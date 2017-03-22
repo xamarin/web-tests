@@ -61,7 +61,7 @@ namespace Xamarin.AsyncTests.Console
 			using (var writer = XmlWriter.Create (output, settings)) {
 				var printer = new JUnitResultPrinter (result);
 				var root = new XElement ("testsuites");
-				printer.Visit (root, result.Path, result, false);
+				printer.Visit (root, null, result.Path, result, false);
 				root.WriteTo (writer);
 			}
 		}
@@ -151,7 +151,7 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		void Visit (XElement root, ITestPath parent, TestResult result, bool foundParameter)
+		void Visit (XElement root, TestSuite current, ITestPath parent, TestResult result, bool foundParameter)
 		{
 			if (false && result.Status == TestStatus.Ignored)
 				return;
@@ -160,17 +160,30 @@ namespace Xamarin.AsyncTests.Console
 			if (result.Path.PathType == TestPathType.Parameter)
 				foundParameter = true;
 
-			if (!IsHidden (result.Path)) {
-				var suite = new TestSuite (root, parent, result);
-				suite.Write ();
+			TestSuite suite = current;
+			bool needsTest = !result.HasChildren || result.Children.Count == 0;
+			bool needsSuite = !IsHidden (result.Path) || (needsTest && current == null);
+
+			if (needsSuite) {
+				suite = new TestSuite (root, parent, result);
+				suite.Resolve ();
 				root.Add (suite.Node);
 				node = suite.Node;
+				current = suite;
 			}
 
-			if (result.HasChildren) {
+			if (result.HasChildren && result.Children.Count > 0) {
 				foreach (var child in result.Children)
-					Visit (node, result.Path, child, foundParameter);
+					Visit (node, current, result.Path, child, foundParameter);
 			}
+
+			if (needsTest) {
+				var test = new TestCase (result);
+				current.AddTest (test);
+			}
+
+			if (suite != null)
+				suite.Write ();
 		}
 
 		class TestSuite
@@ -187,50 +200,37 @@ namespace Xamarin.AsyncTests.Console
 				get; private set;
 			}
 
+			public string Name {
+				get;
+				private set;
+			}
+
 			public XElement Node { get; } = new XElement ("testsuite");
+
+			public XElement Properties { get; } = new XElement ("properties");
 
 			public DateTime TimeStamp { get; } = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 
 			StringBuilder output = new StringBuilder ();
+			StringBuilder errorOutput = new StringBuilder ();
+			List<TestCase> tests = new List<TestCase> ();
 
 			public TestSuite (XElement root, ITestPath parent, TestResult result)
 			{
 				Root = root;
 				Parent = parent;
 				Result = result;
+
+				Name = FormatName (Parent, NameFormat.Parent);
 			}
 
-			public void Write ()
+			public void Resolve ()
 			{
-				var newParentName = FormatName (Parent, NameFormat.Parent);
-				Node.SetAttributeValue ("name", newParentName);
-
-				Node.SetAttributeValue ("timestamp", TimeStamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
-				Node.SetAttributeValue ("hostname", "localhost");
-				if (Result.ElapsedTime != null)
-					Node.SetAttributeValue ("time", Result.ElapsedTime.Value.TotalSeconds);
-
-				var properties = new XElement ("properties");
-				Node.Add (properties);
-
-				TestCase test = null;
-
-				if (!Result.HasChildren || Result.Children.Count == 0) {
-					test = new TestCase (Result);
-					Node.Add (test.Node);
-				}
-
-				var systemOut = new XElement ("system-out");
-				Node.Add (systemOut);
-
-				var systemErr = new XElement ("system-err");
-				Node.Add (systemErr);
-
 				var serializedPath = Result.Path.SerializePath ().ToString ();
 				output.AppendLine (serializedPath);
 				output.AppendLine ();
 
-				WriteParameters (properties);
+				WriteParameters ();
 
 				output.AppendLine ();
 
@@ -245,10 +245,36 @@ namespace Xamarin.AsyncTests.Console
 						output.AppendFormat (string.Format ("LOG: {0} {1} {2}\n", entry.Kind, entry.LogLevel, entry.Text));
 					}
 				}
+			}
+
+			public void AddTest (TestCase test)
+			{
+				tests.Add (test);
+			}
+
+			public void Write ()
+			{
+				Node.SetAttributeValue ("name", Name);
+
+				Node.SetAttributeValue ("timestamp", TimeStamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
+				Node.SetAttributeValue ("hostname", "localhost");
+				if (Result.ElapsedTime != null)
+					Node.SetAttributeValue ("time", Result.ElapsedTime.Value.TotalSeconds);
+
+				Node.Add (Properties);
+
+				foreach (var test in tests)
+					Node.Add (test);
+
+				var systemOut = new XElement ("system-out");
+				Node.Add (systemOut);
+
+				var systemErr = new XElement ("system-err");
+				Node.Add (systemErr);
 
 				WriteOutput (systemOut);
 
-				if (test != null)
+				foreach (var test in tests)
 					test.Write ();
 			}
 
@@ -266,7 +292,7 @@ namespace Xamarin.AsyncTests.Console
 				}
 			}
 
-			void WriteParameters (XElement properties)
+			void WriteParameters ()
 			{
 				var list = new List<Tuple<string,XElement>> ();
 				WriteParameters (list, Result.Path);
@@ -276,7 +302,7 @@ namespace Xamarin.AsyncTests.Console
 				output.AppendLine ("<parameters>");
 				foreach (var entry in list) {
 					output.AppendLine (entry.Item1);
-					properties.Add (entry.Item2);
+					Properties.Add (entry.Item2);
 				}
 				output.AppendLine ("</parameters>");
 				output.AppendLine ();
