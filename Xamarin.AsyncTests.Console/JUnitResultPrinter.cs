@@ -88,6 +88,7 @@ namespace Xamarin.AsyncTests.Console
 		{
 			Full,
 			FullWithParameters,
+			Parent,
 			Local,
 			LocalWithParameters
 		}
@@ -110,11 +111,19 @@ namespace Xamarin.AsyncTests.Console
 				break;
 			case NameFormat.Full:
 				formatted.Append (fullName);
+				break;
+			case NameFormat.FullWithParameters:
+				formatted.Append (fullName);
 				formatted.Append (argumentList);
 				break;
 			case NameFormat.LocalWithParameters:
 				formatted.Append (localName);
 				formatted.Append (argumentList);
+				break;
+			case NameFormat.Parent:
+				if (parts.Count == 1)
+					goto case NameFormat.Full;
+				formatted.Append (string.Join (".", parts, 1, parts.Count));
 				break;
 			default:
 				throw new InternalErrorException ();
@@ -173,7 +182,7 @@ namespace Xamarin.AsyncTests.Console
 
 			public void Write ()
 			{
-				var newParentName = FormatName (Parent, NameFormat.Full);
+				var newParentName = FormatName (Parent, NameFormat.Parent);
 				Node.SetAttributeValue ("name", newParentName);
 
 				Node.SetAttributeValue ("timestamp", TimeStamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
