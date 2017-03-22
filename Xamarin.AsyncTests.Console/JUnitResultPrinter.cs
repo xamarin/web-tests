@@ -84,24 +84,43 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		static string FormatName (ITestPath path, bool fullName, bool includeParameters)
+		enum NameFormat
+		{
+			Full,
+			FullWithParameters,
+			Local,
+			LocalWithParameters
+		}
+
+		static string FormatName (ITestPath path, NameFormat format)
 		{
 			var parts = new List<string> ();
 			var parameters = new List<string> ();
 			FormatName_inner (path, parts, parameters);
 
-			string formatted;
-			if (fullName)
-				formatted = string.Join (".", parts);
-			else
-				formatted = parts [parts.Count - 1];
+			var formatted = new StringBuilder ();
 
-			if (includeParameters && parameters.Count > 0) {
-				var joinedParams = string.Join (",", parameters);
-				formatted = formatted + "(" + joinedParams + ")";
+			var fullName = string.Join (".", parts);
+			var localName = parts [parts.Count - 1];
+			var argumentList = "(" + string.Join (",", parameters) + ")";
+
+			switch (format) {
+			case NameFormat.Local:
+				formatted.Append (localName);
+				break;
+			case NameFormat.Full:
+				formatted.Append (fullName);
+				formatted.Append (argumentList);
+				break;
+			case NameFormat.LocalWithParameters:
+				formatted.Append (localName);
+				formatted.Append (argumentList);
+				break;
+			default:
+				throw new InternalErrorException ();
 			}
 
-			return formatted;
+			return formatted.ToString ();
 		}
 
 		void Visit (XElement root, ITestPath parent, TestResult result, bool foundParameter)
@@ -154,7 +173,7 @@ namespace Xamarin.AsyncTests.Console
 
 			public void Write ()
 			{
-				var newParentName = FormatName (Parent, true, false);
+				var newParentName = FormatName (Parent, NameFormat.Full);
 				Node.SetAttributeValue ("name", newParentName);
 
 				Node.SetAttributeValue ("timestamp", TimeStamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
@@ -209,7 +228,9 @@ namespace Xamarin.AsyncTests.Console
 				using (var reader = new StringReader (output.ToString ())) {
 					string line;
 					while ((line = reader.ReadLine ()) != null) {
+						element.Add ("X:");
 						element.Add (line);
+						element.Add (Environment.NewLine);
 					}
 				}
 			}
@@ -273,7 +294,7 @@ namespace Xamarin.AsyncTests.Console
 
 			void CreateTestCase ()
 			{
-				var newName = FormatName (Result.Path, true, true);
+				var newName = FormatName (Result.Path, NameFormat.LocalWithParameters);
 				Node.SetAttributeValue ("name", newName);
 				Node.SetAttributeValue ("status", Result.Status);
 				if (Result.ElapsedTime != null)
