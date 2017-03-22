@@ -198,10 +198,20 @@ namespace Xamarin.AsyncTests.Console
 					}
 				}
 
-				systemOut.Add (output.ToString ());
+				WriteOutput (systemOut);
 
 				if (test != null)
 					test.Write ();
+			}
+
+			void WriteOutput (XElement element)
+			{
+				using (var reader = new StringReader (output.ToString ())) {
+					string line;
+					while ((line = reader.ReadLine ()) != null) {
+						element.Add (line);
+					}
+				}
 			}
 
 			void WriteParameters (XElement properties)
