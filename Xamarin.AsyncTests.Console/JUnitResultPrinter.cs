@@ -140,7 +140,7 @@ namespace Xamarin.AsyncTests.Console
 				case NameFormat.LocalWithParameters:
 					return (parts.Count - 1, parts.Count, true);
 				case NameFormat.Parent:
-					if (parts.Count > 1)
+					if (parts.Count > 0)
 						return (0, parts.Count - 1, false);
 				else
 					return (0, 0, false);
