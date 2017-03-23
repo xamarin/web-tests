@@ -92,6 +92,7 @@ namespace Xamarin.AsyncTests.Console
 			return false;
 		}
 
+#if FIXME
 		static string FormatName (ITestPath path, NameFormat format)
 		{
 			var parts = new List<string> ();
@@ -125,7 +126,7 @@ namespace Xamarin.AsyncTests.Console
 						parameters.Add (current.ParameterValue);
 				} else {
 					if (!string.IsNullOrEmpty (current.Name) && ((current.Flags & TestFlags.Hidden) == 0))
-					// if (!string.IsNullOrEmpty (current.Name) && !IsHidden (current))
+						// if (!string.IsNullOrEmpty (current.Name) && !IsHidden (current))
 						parts.Add (current.Name);
 				}
 			}
@@ -153,6 +154,24 @@ namespace Xamarin.AsyncTests.Console
 				}
 			}
 		}
+#else
+		static string FormatParameters (ITestPath path)
+		{
+			var parameters = new List<string> ();
+
+			for (; path != null; path = path.Parent) {
+				if (path.PathType != TestPathType.Parameter)
+					continue;
+				if ((path.Flags & TestFlags.Hidden) != 0)
+					continue;
+				parameters.Add (path.ParameterValue);
+			}
+
+			if (parameters.Count == 0)
+				return string.Empty;
+			return "(" + string.Join (",", parameters) + ")"; 
+		}
+#endif
 
 		void Visit (XElement root, TestSuite current, ITestPath parent, TestResult result, bool foundParameter)
 		{
@@ -376,8 +395,9 @@ namespace Xamarin.AsyncTests.Console
 
 			void CreateTestCase ()
 			{
-				var newName = FormatName (Result.Path, NameFormat.LocalWithParameters);
-				var argumentList = FormatName (Result.Path, NameFormat.Parameters);
+				// var newName = FormatName (Result.Path, NameFormat.LocalWithParameters);
+				// var argumentList = FormatName (Result.Path, NameFormat.Parameters);
+				var argumentList = FormatParameters (Result.Path);
 				var reallyNewName = Parent.LocalName + argumentList;
 
 				Node.SetAttributeValue ("name", reallyNewName);
