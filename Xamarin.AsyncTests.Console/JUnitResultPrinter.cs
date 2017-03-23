@@ -85,7 +85,7 @@ namespace Xamarin.AsyncTests.Console
 		{
 			if ((path.Flags & TestFlags.Hidden) != 0)
 				return true;
-			if (true && (path.Flags & TestFlags.PathHidden) != 0)
+			if (false && (path.Flags & TestFlags.PathHidden) != 0)
 				return true;
 			if (path.PathType == TestPathType.Parameter && ((path.Flags & TestFlags.PathHidden) != 0))
 				return true;
