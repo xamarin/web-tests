@@ -85,7 +85,7 @@ namespace Xamarin.AsyncTests.Console
 		{
 			if ((path.Flags & TestFlags.Hidden) != 0)
 				return true;
-			if (false && (path.Flags & TestFlags.PathHidden) != 0)
+			if (true && (path.Flags & TestFlags.PathHidden) != 0)
 				return true;
 			if (path.PathType == TestPathType.Parameter && ((path.Flags & TestFlags.PathHidden) != 0))
 				return true;
@@ -184,6 +184,7 @@ namespace Xamarin.AsyncTests.Console
 			bool needsSuite = (parent.PathType != TestPathType.Parameter) && (!IsHidden (result.Path) || (needsTest && current == null));
 
 			if (needsSuite) {
+				Debug ("NEW SUITE: {0} - {1} - {2}", parent, result.Path, result.Path.PathType); 
 				suite = new TestSuite (root, suite, parent, result);
 				suite.Resolve ();
 				root.Add (suite.Node);
@@ -203,6 +204,11 @@ namespace Xamarin.AsyncTests.Console
 
 			if (suite != null)
 				suite.Write ();
+		}
+
+		static void Debug (string message, params object[] args)
+		{
+			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
 		}
 
 		class TestSuite
@@ -268,6 +274,8 @@ namespace Xamarin.AsyncTests.Console
 				var serializedPath = Result.Path.SerializePath ().ToString ();
 				output.AppendLine (serializedPath);
 				output.AppendLine ();
+
+				Debug ("RESOLVE SUITE: {0}\n{1}", Name, serializedPath); 
 
 				WriteParameters ();
 
@@ -399,6 +407,8 @@ namespace Xamarin.AsyncTests.Console
 				// var argumentList = FormatName (Result.Path, NameFormat.Parameters);
 				var argumentList = FormatParameters (Result.Path);
 				var reallyNewName = Parent.LocalName + argumentList;
+
+				Debug ("TEST CASE: {0} - {1} - {2} => {3}", Parent.Result.Path, Parent.LocalName, argumentList, reallyNewName); 
 
 				Node.SetAttributeValue ("name", reallyNewName);
 				Node.SetAttributeValue ("status", Result.Status);
