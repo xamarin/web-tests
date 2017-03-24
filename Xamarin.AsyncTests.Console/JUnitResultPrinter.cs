@@ -158,6 +158,23 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 #else
+		static string FormatArguments (ITestPath path)
+		{
+			var arguments = new List<string> ();
+
+			for (; path != null; path = path.Parent) {
+				if (path.PathType != TestPathType.Parameter)
+					continue;
+				if ((path.Flags & TestFlags.Hidden) != 0)
+					continue;
+				arguments.Add (path.ParameterValue);
+			}
+
+			if (arguments.Count == 0)
+				return string.Empty;
+			return "(" + string.Join (",", arguments) + ")";
+		}
+
 		static string FormatParameters (ITestPath path)
 		{
 			var parameters = new List<string> ();
@@ -167,7 +184,7 @@ namespace Xamarin.AsyncTests.Console
 					continue;
 				if ((path.Flags & TestFlags.Hidden) != 0)
 					continue;
-				parameters.Add (path.ParameterValue);
+				parameters.Add (path.Identifier);
 			}
 
 			if (parameters.Count == 0)
@@ -357,7 +374,6 @@ namespace Xamarin.AsyncTests.Console
 
 			StringBuilder output = new StringBuilder ();
 			StringBuilder errorOutput = new StringBuilder ();
-			List<CaseElement> tests = new List<CaseElement> ();
 
 			public SuiteElement (Element parent, ITestPath path, TestResult result)
 				: base (parent, new XElement ("testsuite"), result)
@@ -369,8 +385,11 @@ namespace Xamarin.AsyncTests.Console
 				}
 
 				localName = path.Name;
-				if (!string.IsNullOrEmpty (localName))
+				if (!string.IsNullOrEmpty (localName)) {
 					formatted.Append (localName);
+					var parameters = FormatParameters (path);
+					formatted.Append (parameters); 
+				}
 
 				name = formatted.ToString ();
 			}
@@ -414,19 +433,11 @@ namespace Xamarin.AsyncTests.Console
 
 				foreach (var child in result.Children) {
 					Debug ("  RESOLVE CHILD: {0} {1}\n{2}", child, child.Path, child.Path.SerializePath ());
-					if (result.Path.PathType == child.Path.PathType && result.Path.PathType != TestPathType.Parameter)
-						Debug ("  DEBUG THIS!");
-
 					if ((child.Path.PathType != TestPathType.Parameter) && !IsHidden (child.Path, false))
-							AddChild (new SuiteElement (this, child.Path, child));
-						else
-							ResolveChildren (child);
+						AddChild (new SuiteElement (this, child.Path, child));
+					else
+						ResolveChildren (child);
 				}
-			}
-
-			public void AddTest (CaseElement test)
-			{
-				tests.Add (test);
 			}
 
 			protected override void Write ()
@@ -440,9 +451,6 @@ namespace Xamarin.AsyncTests.Console
 
 				Node.Add (Properties);
 
-				foreach (var test in tests)
-					Node.Add (test.Node);
- 
 				var systemOut = new XElement ("system-out");
 				Node.Add (systemOut);
 
@@ -527,7 +535,7 @@ namespace Xamarin.AsyncTests.Console
 			{
 				Result = result;
 
-				var argumentList = FormatParameters (Result.Path);
+				var argumentList = FormatArguments (Result.Path);
 				var reallyNewName = Parent.LocalName + argumentList;
 
 				name = Parent.LocalName + argumentList;

@@ -112,9 +112,6 @@ namespace Xamarin.AsyncTests.Framework
 
 			this.parameter = host.HasFixedParameter ? host.GetFixedParameter () : parameter;
 			this.name = GetTestName (host, parent, this.parameter);
-
-			if (ID == 3434 || ID == 3438 || ID == 3439)
-				System.Diagnostics.Debug.WriteLine ("DEBUG THIS!");
 		}
 
 		internal TestPath Clone ()

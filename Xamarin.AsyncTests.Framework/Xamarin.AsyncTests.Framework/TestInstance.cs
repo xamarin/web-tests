@@ -62,9 +62,6 @@ namespace Xamarin.AsyncTests.Framework
 			Host = host;
 			Parent = parent;
 			Path = path;
-
-			if (ID == 55 || ID == 57)
-				System.Diagnostics.Debug.WriteLine ("DEBUG ME");
 		}
 
 		internal abstract ITestParameter GetCurrentParameter ();
@@ -91,12 +88,8 @@ namespace Xamarin.AsyncTests.Framework
 		{
 		}
 
-		static int nextId;
-		public readonly int ID = ++nextId;
-
 		TestPath GetCurrentPath ()
 		{
-			System.Diagnostics.Debug.WriteLine ("  GET CURRENT PATH: {0}:{1} - {2}:{3}", ID, this, Parent?.ID, Parent);
 ;			TestPath parentPath = null;
 			if (Parent != null)
 				parentPath = Parent.GetCurrentPath ();
@@ -107,16 +100,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public static TestPath GetCurrentPath (TestInstance instance)
 		{
-			System.Diagnostics.Debug.WriteLine ("TEST INSTANCE - GET CURRENT PATH: {0}:{1}", instance.ID, instance);
-			var path = instance.GetCurrentPath ();
-			System.Diagnostics.Debug.WriteLine ("TEST INSTANCE - GET CURRENT PATH DONE: {0}:{1} - {2}", instance.ID, instance, path);
-			return path;
-		}
-
-		public TestPath GetCurrentPath (TestPath parentPath)
-		{
-			var parameter = GetCurrentParameter ();
-			return new TestPath (Path.Host, parentPath, parameter);
+			return instance.GetCurrentPath ();
 		}
 
 		public static TestName GetTestName (TestInstance instance)
