@@ -60,9 +60,10 @@ namespace Xamarin.AsyncTests.Console
 			};
 			using (var writer = XmlWriter.Create (output, settings)) {
 				var printer = new JUnitResultPrinter (result);
-				var root = new XElement ("testsuites");
-				printer.Visit (root, null, result.Path, result, false);
-				root.WriteTo (writer);
+				var root = new RootElement (result);
+				root.Visit (result);
+				// printer.Visit (root, null, result.Path, result, false);
+				root.Node.WriteTo (writer);
 			}
 		}
 
@@ -169,23 +170,24 @@ namespace Xamarin.AsyncTests.Console
 
 			if (parameters.Count == 0)
 				return string.Empty;
-			return "(" + string.Join (",", parameters) + ")"; 
+			return "(" + string.Join (",", parameters) + ")";
 		}
 #endif
 
-		void Visit (XElement root, TestSuite current, ITestPath parent, TestResult result, bool foundParameter)
+#if FIXME
+		void Visit (Element element, ITestPath parent, TestResult result, bool foundParameter)
 		{
 			XElement node = root;
 			if (result.Path.PathType == TestPathType.Parameter)
 				foundParameter = true;
 
-			TestSuite suite = current;
+			SuiteElement suite = current;
 			bool needsTest = !result.HasChildren || result.Children.Count == 0;
 			bool needsSuite = (result.Path.PathType != TestPathType.Parameter) && (!IsHidden (result.Path) || (needsTest && current == null));
 
 			if (needsSuite) {
 				Debug ("NEW SUITE: {0} - {1} - {2}", parent, result.Path, result.Path.PathType); 
-				suite = new TestSuite (root, suite, parent, result);
+				suite = new SuiteElement (root, suite, parent, result);
 				suite.Resolve ();
 				root.Add (suite.Node);
 				node = suite.Node;
@@ -205,71 +207,173 @@ namespace Xamarin.AsyncTests.Console
 			if (suite != null)
 				suite.Write ();
 		}
+#endif
 
 		static void Debug (string message, params object[] args)
 		{
 			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
 		}
 
-		class TestSuite
+		abstract class Element
 		{
-			public XElement Root {
-				get; private set;
+			public Element Parent {
+				get;
+				private set;
 			}
 
-			public TestSuite Parent {
-				get; private set;
+			public XElement Node {
+				get;
+				private set;
 			}
 
-			public ITestPath ParentPath {
-				get; private set;
+			public ITestPath Path {
+				get;
+				private set;
 			}
 
+			public abstract string Name {
+				get;
+			}
+
+			public abstract string LocalName {
+				get;
+			}
+
+			List<Element> children = new List<Element> ();
+
+			public Element (Element parent, XElement node, ITestPath path)
+			{
+				Parent = parent;
+				Node = node;
+				Path = path;
+			}
+
+			public virtual void Visit (TestResult result)
+			{
+				Resolve ();
+
+				ResolveChildren (result);
+
+				WriteChildren (); 
+
+				Write (); 
+			}
+
+			void ResolveChildren (TestResult result)
+			{
+				if (!result.HasChildren)
+					return;
+
+				foreach (var child in result.Children) {
+					var element = ResolveChild (child);
+					if (element != null) {
+						children.Add (element);
+						element.Visit (child);
+					} else {
+						Visit (child); 
+					}
+				}
+			}
+
+			void WriteChildren ()
+			{
+				foreach (var child in children) {
+					Node.Add (child.Node);
+					child.Write ();
+				}
+			}
+
+			protected abstract void Resolve ();
+
+			protected abstract Element ResolveChild (TestResult childResult);
+
+			protected abstract void Write ();
+		}
+
+		class RootElement : Element
+		{
 			public TestResult Result {
-				get; private set;
-			}
-
-			public string Name {
 				get;
 				private set;
 			}
 
-			public string LocalName {
+			public override string Name {
+				get {
+					return null;
+				}
+			}
+
+			public override string LocalName {
+				get {
+					return null;
+				}
+			}
+
+			public RootElement (TestResult result)
+				: base (null, new XElement ("testsuites"), result.Path)
+			{
+				Result = result;
+			}
+
+			protected override Element ResolveChild (TestResult childResult)
+			{
+				return new SuiteElement (this, childResult.Path, childResult);
+			}
+
+			protected override void Resolve ()
+			{
+			}
+
+			protected override void Write ()
+			{
+			}
+		}
+
+		class SuiteElement : Element
+		{
+			public TestResult Result {
 				get;
 				private set;
 			}
 
-			public XElement Node { get; } = new XElement ("testsuite");
+			public override string Name {
+				get { return name; }
+			}
+
+			public override string LocalName {
+				get { return localName; }
+			}
 
 			public XElement Properties { get; } = new XElement ("properties");
 
 			public DateTime TimeStamp { get; } = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 
+			readonly string name;
+			readonly string localName;
+
 			StringBuilder output = new StringBuilder ();
 			StringBuilder errorOutput = new StringBuilder ();
-			List<TestCase> tests = new List<TestCase> ();
+			List<CaseElement> tests = new List<CaseElement> ();
 
-			public TestSuite (XElement root, TestSuite parent, ITestPath parentPath, TestResult result)
+			public SuiteElement (Element parent, ITestPath path, TestResult result)
+				: base (parent, new XElement ("testsuite"), path)
 			{
-				Root = root;
-				Parent = parent;
-				ParentPath = parentPath;
 				Result = result;
 
 				var formatted = new StringBuilder ();
-				if (parent != null) {
+				if (parent.Name != null) {
 					formatted.Append (parent.Name);
 					formatted.Append (".");
 				}
 
-				LocalName = result.Path.Name;
-				if (!string.IsNullOrEmpty (LocalName))
-					formatted.Append (LocalName);
+				localName = path.Name;
+				if (!string.IsNullOrEmpty (localName))
+					formatted.Append (localName);
 
-				Name = formatted.ToString ();
+				name = formatted.ToString ();
 			}
 
-			public void Resolve ()
+			protected override void Resolve ()
 			{
 				var serializedPath = Result.Path.SerializePath ().ToString ();
 				output.AppendLine (serializedPath);
@@ -294,12 +398,25 @@ namespace Xamarin.AsyncTests.Console
 				}
 			}
 
-			public void AddTest (TestCase test)
+			protected override Element ResolveChild (TestResult childResult)
+			{
+				bool needsTest = !childResult.HasChildren || childResult.Children.Count == 0;
+				bool needsSuite = (childResult.Path.PathType != TestPathType.Parameter) && (!IsHidden (childResult.Path) || needsTest);
+
+				if (needsSuite)
+					return new SuiteElement (this, childResult.Path, childResult);
+				if (needsTest)
+					return null;
+
+				return null;
+			}
+
+			public void AddTest (CaseElement test)
 			{
 				tests.Add (test);
 			}
 
-			public void Write ()
+			protected override void Write ()
 			{
 				Node.SetAttributeValue ("name", Name);
 
@@ -320,9 +437,6 @@ namespace Xamarin.AsyncTests.Console
 				Node.Add (systemErr);
 
 				WriteOutput (systemOut);
-
-				foreach (var test in tests)
-					test.Write ();
 			}
 
 			static int nextId;
@@ -374,27 +488,51 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		class TestCase
+		class CaseElement : Element
 		{
-			public TestSuite Parent {
-				get; private set;
+			public override string Name {
+				get {
+					return name;
+				}
+			}
+
+			public override string LocalName {
+				get {
+					return localName;
+				}
 			}
 
 			public TestResult Result {
 				get; private set;
 			}
 
-			public XElement Node { get; } = new XElement ("testcase");
+			readonly string name;
+			readonly string localName;
 
-			public TestCase (TestSuite parent, TestResult result)
+			public CaseElement (SuiteElement parent, TestResult result)
+				: base (parent, new XElement ("testcase"), result.Path)
 			{
-				Parent = parent;
 				Result = result;
+
+				var argumentList = FormatParameters (Result.Path);
+				var reallyNewName = Parent.LocalName + argumentList;
+
+				name = Parent.LocalName + argumentList;
+				localName = Parent.LocalName + argumentList;
 			}
 
 			bool hasError;
 
-			public void Write ()
+			protected override void Resolve ()
+			{
+			}
+
+			protected override Element ResolveChild (TestResult childResult)
+			{
+				return null;
+			}
+
+			protected override void Write ()
 			{
 				CreateTestCase ();
 				AddErrors ();
@@ -403,14 +541,7 @@ namespace Xamarin.AsyncTests.Console
 
 			void CreateTestCase ()
 			{
-				// var newName = FormatName (Result.Path, NameFormat.LocalWithParameters);
-				// var argumentList = FormatName (Result.Path, NameFormat.Parameters);
-				var argumentList = FormatParameters (Result.Path);
-				var reallyNewName = Parent.LocalName + argumentList;
-
-				Debug ("TEST CASE: {0} - {1} - {2} => {3}", Parent.Result.Path, Parent.LocalName, argumentList, reallyNewName); 
-
-				Node.SetAttributeValue ("name", reallyNewName);
+				Node.SetAttributeValue ("name", Name);
 				Node.SetAttributeValue ("status", Result.Status);
 				if (Result.ElapsedTime != null)
 					Node.SetAttributeValue ("time", Result.ElapsedTime.Value.TotalSeconds);
