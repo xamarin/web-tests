@@ -250,6 +250,8 @@ namespace Xamarin.AsyncTests.Console
 
 			public virtual void Visit (TestResult result)
 			{
+				Debug ("VISIT ELEMENT: {0} {1}", this, result.Path); 
+
 				Resolve ();
 
 				ResolveChildren (result);
@@ -288,6 +290,11 @@ namespace Xamarin.AsyncTests.Console
 			protected abstract Element ResolveChild (TestResult childResult);
 
 			protected abstract void Write ();
+
+			public override string ToString ()
+			{
+				return string.Format ("[{0}: Path={1}, Name={2}, LocalName={3}]", GetType ().Name, Path, Name, LocalName);
+			}
 		}
 
 		class RootElement : Element
@@ -299,20 +306,25 @@ namespace Xamarin.AsyncTests.Console
 
 			public override string Name {
 				get {
-					return null;
+					return name;
 				}
 			}
 
 			public override string LocalName {
 				get {
-					return null;
+					return localName;
 				}
 			}
+
+			readonly string name;
+			readonly string localName;
 
 			public RootElement (TestResult result)
 				: base (null, new XElement ("testsuites"), result.Path)
 			{
 				Result = result;
+
+				name = localName = Path.Name;
 			}
 
 			protected override Element ResolveChild (TestResult childResult)
@@ -406,7 +418,7 @@ namespace Xamarin.AsyncTests.Console
 				if (needsSuite)
 					return new SuiteElement (this, childResult.Path, childResult);
 				if (needsTest)
-					return null;
+					return new CaseElement (this, childResult);
 
 				return null;
 			}
