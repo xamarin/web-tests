@@ -62,102 +62,10 @@ namespace Xamarin.AsyncTests.Console
 				var printer = new JUnitResultPrinter (result);
 				var root = new RootElement (result);
 				root.Visit ();
-				// printer.Visit (root, null, result.Path, result, false);
 				root.Node.WriteTo (writer);
 			}
 		}
 
-		static string FormatName (TestName name)
-		{
-			return name.FullName;
-		}
-
-		enum NameFormat
-		{
-			Full,
-			FullWithParameters,
-			Parent,
-			Local,
-			LocalWithParameters,
-			Parameters
-		}
-
-		static bool IsHidden (ITestPath path, bool pathHidden)
-		{
-			if ((path.Flags & TestFlags.Hidden) != 0)
-				return true;
-			if ((path.Flags & TestFlags.NewPathHidden) != 0)
-				return true;
-			if (pathHidden && (path.Flags & TestFlags.PathHidden) != 0)
-				return true;
-			if (path.PathType == TestPathType.Parameter && ((path.Flags & TestFlags.PathHidden) != 0))
-				return true;
-			return false;
-		}
-
-#if FIXME
-		static string FormatName (ITestPath path, NameFormat format)
-		{
-			var parts = new List<string> ();
-			var parameters = new List<string> ();
-			FormatName_inner (path);
-
-			var formatted = new StringBuilder ();
-
-			var (start, end, includeParameters) = GetFormatParameters ();
-
-			for (int i = start; i < end; i++) {
-				if (i > start)
-					formatted.Append (".");
-				formatted.Append (parts [i]);
-			}
-
-			if (includeParameters && parameters.Count > 0) {
-				formatted.Append ("(");
-				formatted.Append (string.Join (",", parameters));
-				formatted.Append (")");
-			}
-
-			return formatted.ToString ();
-
-			void FormatName_inner (ITestPath current)
-			{
-				if (current.Parent != null)
-					FormatName_inner (current.Parent);
-				if (current.PathType == TestPathType.Parameter) {
-					if (!IsHidden (current))
-						parameters.Add (current.ParameterValue);
-				} else {
-					if (!string.IsNullOrEmpty (current.Name) && ((current.Flags & TestFlags.Hidden) == 0))
-						// if (!string.IsNullOrEmpty (current.Name) && !IsHidden (current))
-						parts.Add (current.Name);
-				}
-			}
-
-			(int, int, bool) GetFormatParameters ()
-			{
-				switch (format) {
-				case NameFormat.Full:
-					return (0, parts.Count, false);
-				case NameFormat.FullWithParameters:
-					return (0, parts.Count, true);
-				case NameFormat.Local:
-					return (parts.Count - 1, parts.Count, false);
-				case NameFormat.LocalWithParameters:
-					return (parts.Count - 1, parts.Count, true);
-				case NameFormat.Parent:
-					if (parts.Count > 0)
-						return (0, parts.Count - 1, false);
-					else
-						return (0, 0, false);
-				case NameFormat.Parameters:
-					return (0, 0, true);
-				default:
-					throw new InternalErrorException ();
-				}
-			}
-		}
-#else
 		static string FormatArguments (ITestPath path)
 		{
 			var arguments = new List<string> ();
@@ -191,42 +99,6 @@ namespace Xamarin.AsyncTests.Console
 				return string.Empty;
 			return "(" + string.Join (",", parameters) + ")";
 		}
-#endif
-
-#if FIXME
-		void Visit (Element element, ITestPath parent, TestResult result, bool foundParameter)
-		{
-			XElement node = root;
-			if (result.Path.PathType == TestPathType.Parameter)
-				foundParameter = true;
-
-			SuiteElement suite = current;
-			bool needsTest = !result.HasChildren || result.Children.Count == 0;
-			bool needsSuite = (result.Path.PathType != TestPathType.Parameter) && (!IsHidden (result.Path) || (needsTest && current == null));
-
-			if (needsSuite) {
-				Debug ("NEW SUITE: {0} - {1} - {2}", parent, result.Path, result.Path.PathType); 
-				suite = new SuiteElement (root, suite, parent, result);
-				suite.Resolve ();
-				root.Add (suite.Node);
-				node = suite.Node;
-				current = suite;
-			}
-
-			if (result.HasChildren) {
-				foreach (var child in result.Children)
-					Visit (node, current, result.Path, child, foundParameter);
-			}
-
-			if (needsTest) {
-				var test = new TestCase (current, result);
-				current.AddTest (test);
-			}
-
-			if (suite != null)
-				suite.Write ();
-		}
-#endif
 
 		static void Debug (string message, params object[] args)
 		{
@@ -433,7 +305,7 @@ namespace Xamarin.AsyncTests.Console
 
 				foreach (var child in result.Children) {
 					Debug ("  RESOLVE CHILD: {0} {1}\n{2}", child, child.Path, child.Path.SerializePath ());
-					if ((child.Path.PathType != TestPathType.Parameter) && !IsHidden (child.Path, false))
+					if ((child.Path.PathType != TestPathType.Parameter) && ((child.Path.Flags & (TestFlags.Hidden | TestFlags.PathHidden)) == 0))
 						AddChild (new SuiteElement (this, child.Path, child));
 					else
 						ResolveChildren (child);
