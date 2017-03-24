@@ -181,7 +181,7 @@ namespace Xamarin.AsyncTests.Console
 
 			TestSuite suite = current;
 			bool needsTest = !result.HasChildren || result.Children.Count == 0;
-			bool needsSuite = (parent.PathType != TestPathType.Parameter) && (!IsHidden (result.Path) || (needsTest && current == null));
+			bool needsSuite = (result.Path.PathType != TestPathType.Parameter) && (!IsHidden (result.Path) || (needsTest && current == null));
 
 			if (needsSuite) {
 				Debug ("NEW SUITE: {0} - {1} - {2}", parent, result.Path, result.Path.PathType); 
