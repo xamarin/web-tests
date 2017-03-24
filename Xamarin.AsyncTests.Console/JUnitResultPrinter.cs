@@ -408,7 +408,7 @@ namespace Xamarin.AsyncTests.Console
 				}
 
 				foreach (var child in result.Children) {
-					if ((result.Path.PathType != TestPathType.Parameter) && !IsHidden (result.Path, false))
+					if ((child.Path.PathType != TestPathType.Parameter) && !IsHidden (child.Path, false))
 						AddChild (new SuiteElement (this, child.Path, child));
 					else
 						ResolveChildren (child);
