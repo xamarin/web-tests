@@ -61,7 +61,7 @@ namespace Xamarin.AsyncTests.Console
 			using (var writer = XmlWriter.Create (output, settings)) {
 				var printer = new JUnitResultPrinter (result);
 				var root = new RootElement (result);
-				root.Visit (result);
+				root.Visit ();
 				// printer.Visit (root, null, result.Path, result, false);
 				root.Node.WriteTo (writer);
 			}
@@ -82,11 +82,11 @@ namespace Xamarin.AsyncTests.Console
 			Parameters
 		}
 
-		static bool IsHidden (ITestPath path)
+		static bool IsHidden (ITestPath path, bool pathHidden)
 		{
 			if ((path.Flags & TestFlags.Hidden) != 0)
 				return true;
-			if (false && (path.Flags & TestFlags.PathHidden) != 0)
+			if (pathHidden && (path.Flags & TestFlags.PathHidden) != 0)
 				return true;
 			if (path.PathType == TestPathType.Parameter && ((path.Flags & TestFlags.PathHidden) != 0))
 				return true;
@@ -239,8 +239,6 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
-			List<Element> children = new List<Element> ();
-
 			public Element (Element parent, XElement node, ITestPath path)
 			{
 				Parent = parent;
@@ -248,46 +246,16 @@ namespace Xamarin.AsyncTests.Console
 				Path = path;
 			}
 
-			public virtual void Visit (TestResult result)
+			public void Visit ()
 			{
-				Debug ("VISIT ELEMENT: {0} {1}", this, result.Path); 
+				Debug ("VISIT ELEMENT: {0}", this); 
 
 				Resolve ();
-
-				ResolveChildren (result);
-
-				WriteChildren (); 
 
 				Write (); 
 			}
 
-			void ResolveChildren (TestResult result)
-			{
-				if (!result.HasChildren)
-					return;
-
-				foreach (var child in result.Children) {
-					var element = ResolveChild (child);
-					if (element != null) {
-						children.Add (element);
-						element.Visit (child);
-					} else {
-						Visit (child); 
-					}
-				}
-			}
-
-			void WriteChildren ()
-			{
-				foreach (var child in children) {
-					Node.Add (child.Node);
-					child.Write ();
-				}
-			}
-
 			protected abstract void Resolve ();
-
-			protected abstract Element ResolveChild (TestResult childResult);
 
 			protected abstract void Write ();
 
@@ -297,13 +265,41 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		class RootElement : Element
+		abstract class ContainerElement : Element
 		{
 			public TestResult Result {
 				get;
 				private set;
 			}
 
+			List<Element> children = new List<Element> ();
+
+			public ContainerElement (Element parent, XElement node, TestResult result)
+				: base (parent, node, result.Path)
+			{
+				Result = result;
+			}
+
+			protected override void Resolve ()
+			{
+				ResolveChildren (Result); 
+
+				foreach (var child in children) {
+					child.Visit ();
+					Node.Add (child.Node); 
+				}
+			}
+
+			protected void AddChild (Element child)
+			{
+				children.Add (child); 
+			}
+
+			protected abstract void ResolveChildren (TestResult result);
+		}
+
+		class RootElement : ContainerElement
+		{
 			public override string Name {
 				get {
 					return name;
@@ -320,20 +316,19 @@ namespace Xamarin.AsyncTests.Console
 			readonly string localName;
 
 			public RootElement (TestResult result)
-				: base (null, new XElement ("testsuites"), result.Path)
+				: base (null, new XElement ("testsuites"), result)
 			{
-				Result = result;
-
 				name = localName = Path.Name;
 			}
 
-			protected override Element ResolveChild (TestResult childResult)
+			protected override void ResolveChildren (TestResult result)
 			{
-				return new SuiteElement (this, childResult.Path, childResult);
-			}
-
-			protected override void Resolve ()
-			{
+				if (result.HasChildren) {
+					foreach (var childResult in result.Children) {
+						var suite = new SuiteElement (this, childResult.Path, childResult);
+						AddChild (suite); 
+					}
+				}
 			}
 
 			protected override void Write ()
@@ -341,13 +336,8 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		class SuiteElement : Element
+		class SuiteElement : ContainerElement
 		{
-			public TestResult Result {
-				get;
-				private set;
-			}
-
 			public override string Name {
 				get { return name; }
 			}
@@ -368,10 +358,8 @@ namespace Xamarin.AsyncTests.Console
 			List<CaseElement> tests = new List<CaseElement> ();
 
 			public SuiteElement (Element parent, ITestPath path, TestResult result)
-				: base (parent, new XElement ("testsuite"), path)
+				: base (parent, new XElement ("testsuite"), result)
 			{
-				Result = result;
-
 				var formatted = new StringBuilder ();
 				if (parent.Name != null) {
 					formatted.Append (parent.Name);
@@ -408,19 +396,23 @@ namespace Xamarin.AsyncTests.Console
 						output.AppendFormat (string.Format ("LOG: {0} {1} {2}\n", entry.Kind, entry.LogLevel, entry.Text));
 					}
 				}
+
+				base.Resolve (); 
 			}
 
-			protected override Element ResolveChild (TestResult childResult)
+			protected override void ResolveChildren (TestResult result)
 			{
-				bool needsTest = !childResult.HasChildren || childResult.Children.Count == 0;
-				bool needsSuite = (childResult.Path.PathType != TestPathType.Parameter) && (!IsHidden (childResult.Path) || needsTest);
+				if (!result.HasChildren || result.Children.Count == 0) {
+					AddChild (new CaseElement (this, result));
+					return;
+				}
 
-				if (needsSuite)
-					return new SuiteElement (this, childResult.Path, childResult);
-				if (needsTest)
-					return new CaseElement (this, childResult);
-
-				return null;
+				foreach (var child in result.Children) {
+					if ((result.Path.PathType != TestPathType.Parameter) && !IsHidden (result.Path, false))
+						AddChild (new SuiteElement (this, child.Path, child));
+					else
+						ResolveChildren (child);
+				}
 			}
 
 			public void AddTest (CaseElement test)
@@ -537,11 +529,6 @@ namespace Xamarin.AsyncTests.Console
 
 			protected override void Resolve ()
 			{
-			}
-
-			protected override Element ResolveChild (TestResult childResult)
-			{
-				return null;
 			}
 
 			protected override void Write ()
