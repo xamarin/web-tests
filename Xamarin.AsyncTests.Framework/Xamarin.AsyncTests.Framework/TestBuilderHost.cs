@@ -60,7 +60,7 @@ namespace Xamarin.AsyncTests.Framework
 			if ((path.Flags & (TestFlags.Hidden | TestFlags.FlattenHierarchy)) != 0)
 				return invoker;
 
-			return new ResultGroupTestInvoker (path, invoker);
+			return new ResultGroupTestInvoker (path.Flags, invoker);
 		}
 
 		internal override TestInvoker CreateInvoker (TestPath path, TestInvoker invoker)

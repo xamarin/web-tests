@@ -35,7 +35,9 @@ namespace Xamarin.AsyncTests
 		Browsable = 2,
 		FlattenHierarchy = 4,
 		Hidden = 8,
-		PathHidden = 16
+		PathHidden = 16,
+		NewPathHidden = 32,
+		ResultGroup = 64
 	}
 }
 

@@ -86,6 +86,8 @@ namespace Xamarin.AsyncTests.Console
 		{
 			if ((path.Flags & TestFlags.Hidden) != 0)
 				return true;
+			if ((path.Flags & TestFlags.NewPathHidden) != 0)
+				return true;
 			if (pathHidden && (path.Flags & TestFlags.PathHidden) != 0)
 				return true;
 			if (path.PathType == TestPathType.Parameter && ((path.Flags & TestFlags.PathHidden) != 0))
@@ -402,16 +404,23 @@ namespace Xamarin.AsyncTests.Console
 
 			protected override void ResolveChildren (TestResult result)
 			{
+				Debug ("RESOLVE CHILDREN: {0} - {1} - {2}\n{3}", this, result.Path, result.HasChildren,
+				      result.Path.SerializePath ());
+
 				if (!result.HasChildren || result.Children.Count == 0) {
-					AddChild (new CaseElement (this, result));
-					return;
-				}
+						AddChild (new CaseElement (this, result));
+						return;
+					}
 
 				foreach (var child in result.Children) {
+					Debug ("  RESOLVE CHILD: {0} {1}\n{2}", child, child.Path, child.Path.SerializePath ());
+					if (result.Path.PathType == child.Path.PathType && result.Path.PathType != TestPathType.Parameter)
+						Debug ("  DEBUG THIS!");
+
 					if ((child.Path.PathType != TestPathType.Parameter) && !IsHidden (child.Path, false))
-						AddChild (new SuiteElement (this, child.Path, child));
-					else
-						ResolveChildren (child);
+							AddChild (new SuiteElement (this, child.Path, child));
+						else
+							ResolveChildren (child);
 				}
 			}
 

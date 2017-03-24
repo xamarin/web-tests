@@ -36,24 +36,26 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestPath Path {
-			get;
-			private set;
-		}
-
-		public ResultGroupTestInvoker (TestPath path, TestInvoker inner)
+		public ResultGroupTestInvoker (TestFlags flags, TestInvoker inner)
+			: base (flags)
 		{
-			Path = path;
 			Inner = inner;
 		}
 
 		public override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			if ((Path.Flags & TestFlags.FlattenHierarchy) != 0)
+			if ((Flags & TestFlags.FlattenHierarchy) != 0)
 				return await InvokeInner (ctx, instance, Inner, cancellationToken);
 
 			var currentPath = TestInstance.GetCurrentPath (instance);
+			// currentPath = instance.GetCurrentPath ((TestPath)ctx.Result.Path);
+			// var currentPath = instance.GetCurrentPath (Path);
+			// if (Hidden)
+			if ((Flags & TestFlags.NewPathHidden) != 0)
+				currentPath.Flags |= TestFlags.NewPathHidden;
+			currentPath.Flags |= TestFlags.ResultGroup;
+			// currentPath = Path;
 
 			var innerName = currentPath.TestName;
 			var innerResult = new TestResult (currentPath, innerName);

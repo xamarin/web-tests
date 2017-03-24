@@ -112,6 +112,9 @@ namespace Xamarin.AsyncTests.Framework
 
 			this.parameter = host.HasFixedParameter ? host.GetFixedParameter () : parameter;
 			this.name = GetTestName (host, parent, this.parameter);
+
+			if (ID == 3434 || ID == 3438 || ID == 3439)
+				System.Diagnostics.Debug.WriteLine ("DEBUG THIS!");
 		}
 
 		internal TestPath Clone ()
@@ -221,7 +224,7 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			string parameter = IsParameterized ? string.Format (", Parameter={0}", Parameter != null ? Parameter.Value : "<null>") : string.Empty;
 			var parent = Parent != null ? string.Format (", Parent={0}", Parent.ID) : string.Empty;
-			return string.Format ("[TestPath: ID={0}, Identifier={1}, Name={2}{3}{4}]", ID, Host.Identifier, Host.Name, parameter, parent);
+			return string.Format ("[TestPath({5}): ID={0}, Identifier={1}, Name={2}{3}{4}]", ID, Host.Identifier, Host.Name, parameter, parent, PathType);
 		}
 	}
 }

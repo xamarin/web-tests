@@ -68,7 +68,7 @@ namespace Xamarin.AsyncTests.Framework
 		internal override TestInvoker CreateInvoker (TestPath path, TestInvoker invoker)
 		{
 			if ((Flags & TestFlags.Browsable) != 0)
-				invoker = new ResultGroupTestInvoker (path, invoker);
+				invoker = new ResultGroupTestInvoker (Flags, invoker);
 			return new ParameterizedTestInvoker (this, path, invoker);
 		}
 
