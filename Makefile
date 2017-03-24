@@ -42,7 +42,7 @@ Build-FastCheck::
 
 Run-FastCheck-%::
 	# $(MAKE) Run-Console-$*
-	$(MAKE) Run-Console-Work
+	$(MAKE) Run-Console-All
 	exit 1
 
 #
