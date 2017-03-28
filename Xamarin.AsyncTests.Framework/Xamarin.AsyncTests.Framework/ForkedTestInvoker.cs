@@ -1,4 +1,4 @@
-﻿//
+//
 // ForkedTestInvoker.cs
 //
 // Author:
@@ -37,7 +37,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestPath Path {
+		public TestPathInternal Path {
 			get;
 			private set;
 		}
@@ -47,7 +47,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public ForkedTestInvoker (ForkedTestHost host, TestPath path, TestInvoker inner)
+		public ForkedTestInvoker (ForkedTestHost host, TestPathInternal path, TestInvoker inner)
 			: base (host.Flags)
 		{
 			Host = host;

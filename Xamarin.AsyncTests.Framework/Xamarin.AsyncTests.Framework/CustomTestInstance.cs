@@ -1,4 +1,4 @@
-﻿//
+//
 // CustomHostInstance.cs
 //
 // Author:
@@ -48,7 +48,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public CustomTestInstance (CustomTestHost host, TestPath path, TestInstance parent, Type hostType, bool useFixtureInstance)
+		public CustomTestInstance (CustomTestHost host, TestPathInternal path, TestInstance parent, Type hostType, bool useFixtureInstance)
 			: base (host, path, parent)
 		{
 			HostType = hostType;

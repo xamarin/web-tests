@@ -103,7 +103,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				yield return ReflectionHelper.CreateRepeatHost (Attribute.Repeat);
 		}
 
-		internal override TestInvoker CreateInnerInvoker (TestPathNode node)
+		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)
 		{
 			return new TestCollectionInvoker (this, node);
 		}
@@ -121,13 +121,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			public FixtureInstanceTestHost (ReflectionTestFixtureBuilder builder)
 				: base (TestPathType.Instance, null, TestSerializer.GetFriendlyName (builder.Type.AsType ()),
-				        builder.Type.AsType (), builder.Type.AsType (),
-					TestFlags.ContinueOnError | TestFlags.PathHidden | TestFlags.Hidden)
+					builder.Type.AsType (), builder.Type.AsType (),
+				        TestFlags.ContinueOnError | TestFlags.Hidden | TestFlags.PathHidden)
 			{
 				Builder = builder;
 			}
 
-			internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
+			internal override TestInstance CreateInstance (TestPathInternal path, TestInstance parent)
 			{
 				var instance = Activator.CreateInstance (Builder.Type.AsType ());
 				return new FixtureTestInstance (this, path, instance, parent);

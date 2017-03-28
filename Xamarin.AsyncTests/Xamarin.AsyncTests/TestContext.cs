@@ -41,6 +41,7 @@ namespace Xamarin.AsyncTests
 		readonly SettingsBag settings;
 		readonly ITestConfiguration config;
 		readonly ITestPathInternal path;
+		readonly TestPath currentPath;
 		bool isCanceled;
 
 		public TestName Name {
@@ -60,6 +61,12 @@ namespace Xamarin.AsyncTests
 			get { return path ?? parent.Path; }
 		}
 
+		internal TestPath CurrentPath {
+			get {
+				return currentPath;
+			}
+		} 
+
 		internal TestContext (SettingsBag settings, TestLogger logger, ITestConfiguration config, TestName name)
 		{
 			Name = name;
@@ -68,12 +75,14 @@ namespace Xamarin.AsyncTests
 			this.logger = logger;
 		}
 
-		TestContext (TestContext parent, TestName name, ITestPathInternal path, TestResult result)
+		TestContext (TestContext parent, ITestPathInternal path, TestResult result)
 		{
-			Name = name;
 			this.parent = parent;
 			this.path = path;
 			this.result = result;
+
+			currentPath = path.GetCurrentPath ();
+			Name = currentPath.GetName ();
 
 			if (result != null)
 				logger = new TestLogger (TestLoggerBackend.CreateForResult (result, parent.logger));
@@ -83,9 +92,9 @@ namespace Xamarin.AsyncTests
 			config = parent.config;
 		}
 
-		internal TestContext CreateChild (TestName name, ITestPathInternal path, TestResult result = null)
+		internal TestContext CreateChild (ITestPathInternal path, TestResult result = null)
 		{
-			return new TestContext (this, name, path, result);
+			return new TestContext (this, path, result);
 		}
 
 		#region Statistics

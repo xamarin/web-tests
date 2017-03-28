@@ -43,16 +43,20 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
+		TestPath ITestPathInternal.Path {
+			get { return Path; }
+		}
+
 		ITestPathInternal ITestPathInternal.Parent {
 			get { return Parent; }
 		}
 
-		public TestPath Path {
+		public TestPathInternal Path {
 			get;
 			private set;
 		}
 
-		protected TestInstance (TestHost host, TestPath path, TestInstance parent)
+		protected TestInstance (TestHost host, TestPathInternal path, TestInstance parent)
 		{
 			if (host == null)
 				throw new ArgumentNullException ("host");
@@ -64,7 +68,7 @@ namespace Xamarin.AsyncTests.Framework
 			Path = path;
 		}
 
-		internal abstract ITestParameter GetCurrentParameter ();
+		internal abstract TestParameterValue GetCurrentParameter ();
 
 		protected FixtureTestInstance GetFixtureInstance ()
 		{
@@ -88,21 +92,27 @@ namespace Xamarin.AsyncTests.Framework
 		{
 		}
 
-		TestPath GetCurrentPath ()
+		TestPath ITestPathInternal.GetCurrentPath ()
 		{
-;			TestPath parentPath = null;
-			if (Parent != null)
-				parentPath = Parent.GetCurrentPath ();
-
-			var parameter = GetCurrentParameter ();
-			return new TestPath (Path.Host, parentPath, parameter);
+			return GetCurrentPath (); 
 		}
 
-		public static TestPath GetCurrentPath (TestInstance instance)
+		public TestPathInternal GetCurrentPath ()
+		{
+			var parameter = GetCurrentParameter ();
+			if (parameter == null)
+				return Path;
+
+			return parameter.GetCurrentPath ();
+		}
+
+		[Obsolete ("KILL", true)]
+		internal static TestPathInternal GetCurrentPath (TestInstance instance)
 		{
 			return instance.GetCurrentPath ();
 		}
 
+		[Obsolete ("KILL")]
 		public static TestName GetTestName (TestInstance instance)
 		{
 			return GetCurrentPath (instance).TestName;
@@ -119,7 +129,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (parameter == null)
 				throw new InternalErrorException ();
 
-			var path = new TestPath (Parent.Host, Parent.Path, parameter);
+			var path = new TestPathInternal (Parent.Host, Parent.Path, parameter.Parameter);
 			return path.GetParameter<T> ();
 		}
 

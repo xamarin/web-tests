@@ -76,13 +76,14 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal T Deserialize (ITestParameter parameter)
 		{
+			var serialized = parameter;
 			if (Serializer != null)
-				return (T)Serializer.ParameterToObject (parameter);
+				return (T)Serializer.ParameterToObject (serialized);
 
-			return (T)parameter;
+			return (T)serialized;
 		}
 
-		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
+		internal override TestInstance CreateInstance (TestPathInternal path, TestInstance parent)
 		{
 			return new ParameterSourceInstance<T> (this, path, parent, SourceInstance, Filter);
 		}

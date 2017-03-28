@@ -41,8 +41,7 @@ Build-FastCheck::
 	$(MAKE) Build-Console
 
 Run-FastCheck-%::
-	# $(MAKE) Run-Console-$*
-	$(MAKE) Run-Console-All
+	$(MAKE) Run-Console-$*
 	exit 1
 
 #

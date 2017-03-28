@@ -50,7 +50,7 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (ForkedTestHost)base.Host; }
 		}
 
-		public ForkedTestInstance (ForkedTestHost host, TestPath path, TestInstance parent, long id, int delay, TestInvoker invoker)
+		public ForkedTestInstance (ForkedTestHost host, TestPathInternal path, TestInstance parent, long id, int delay, TestInvoker invoker)
 			: base (host, path, parent)
 		{
 			ID = id;
@@ -58,7 +58,7 @@ namespace Xamarin.AsyncTests.Framework
 			Invoker = invoker;
 		}
 
-		internal sealed override ITestParameter GetCurrentParameter ()
+		internal sealed override TestParameterValue GetCurrentParameter ()
 		{
 			return null;
 		}

@@ -36,8 +36,7 @@ namespace Xamarin.AsyncTests
 		FlattenHierarchy = 4,
 		Hidden = 8,
 		PathHidden = 16,
-		NewPathHidden = 32,
-		ResultGroup = 64
+		ResultGroup = 32
 	}
 }
 

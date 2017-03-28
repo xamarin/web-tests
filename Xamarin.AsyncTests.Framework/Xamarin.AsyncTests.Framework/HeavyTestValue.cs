@@ -1,10 +1,10 @@
 ﻿//
-// IPathNode.cs
+// HeavyTestValue.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,36 +22,33 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.using System;
 using System;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.Framework
 {
-	public interface IPathNode
+	class HeavyTestValue : TestParameterValue, ITestParameter, ITestParameterWrapper
 	{
-		TestPathType PathType {
-			get;
+		readonly object current;
+
+		public HeavyTestValue (HeavyTestInstance instance, object current)
+			: base (instance)
+		{
+			this.current = current;
 		}
 
-		TestFlags Flags {
-			get;
+		public override ITestParameter Parameter {
+			get {
+				return this;
+			}
 		}
 
-		string Identifier {
-			get;
+		object ITestParameterWrapper.Value {
+			get { return current; }
 		}
 
-		string Name {
-			get;
-		}
-
-		string ParameterType {
-			get;
-		}
-
-		string ParameterValue {
-			get;
+		string ITestParameter.Value {
+			get { return Instance.Host.Name; }
 		}
 	}
 }
-

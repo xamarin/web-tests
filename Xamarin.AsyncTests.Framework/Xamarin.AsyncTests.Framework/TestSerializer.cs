@@ -32,60 +32,21 @@ using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	using Reflection;
-
 	public static class TestSerializer
 	{
-		static readonly XName ParameterName = "TestParameter";
-		static readonly XName PathName = "TestPath";
-
-		internal const string TestCaseIdentifier = "test";
-		internal const string FixtureInstanceIdentifier = "instance";
-		internal const string TestFixtureIdentifier = "fixture";
-		internal const string TestSuiteIdentifier = "suite";
-		internal const string TestAssemblyIdentifier = "assembly";
-		const string ParameterIdentifier = "parameter";
-
 		internal static void Debug (string message, params object [] args)
 		{
 			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
 		}
 
-		internal static XElement WriteTestPath (TestPath path)
+		internal static TestPathTreeNode DeserializePath (TestSuite suite, TestContext ctx, XElement root)
 		{
-			var node = new XElement (PathName);
-
-			while (path != null) {
-				var element = WritePathNode (path);
-				node.AddFirst (element);
-				path = path.Parent;
-			}
-
-			return node;
-		}
-
-		static XElement WriteTestPath (PathWrapper path)
-		{
-			var node = new XElement (PathName);
-
-			while (path != null) {
-				var element = WritePathNode (path);
-				node.AddFirst (element);
-				path = path.Parent;
-			}
-
-			return node;
-		}
-
-		internal static TestPathNode DeserializePath (TestSuite suite, TestContext ctx, XElement root)
-		{
-			if (!root.Name.Equals (PathName))
-				throw new InternalErrorException ();
-
 			var resolver = (IPathResolver)suite;
 
-			foreach (var element in root.Elements (ParameterName)) {
-				var node = ReadPathNode (element);
+			var path = TestPath.Read (root);
+			foreach (var node in path.GetNodes ()) {
+				if (node.PathType == TestPathType.Group)
+					continue;
 				resolver = resolver.Resolve (ctx, node);
 			}
 
@@ -102,7 +63,7 @@ namespace Xamarin.AsyncTests.Framework
 			return type.Name;
 		}
 
-		public static ITestParameter GetStringParameter (string value)
+		internal static ITestParameter GetStringParameter (string value)
 		{
 			return new ParameterWrapper { Value = value };
 		}
@@ -116,154 +77,6 @@ namespace Xamarin.AsyncTests.Framework
 			public override string ToString ()
 			{
 				return string.Format ("[ParameterWrapper: {0}]", Value);
-			}
-		}
-
-		static TestPathType ReadPathType (string value)
-		{
-			return (TestPathType)Enum.Parse (typeof (TestPathType), value, true);
-		}
-
-		static string WritePathType (TestPathType type)
-		{
-			return Enum.GetName (typeof (TestPathType), type).ToLowerInvariant ();
-		}
-
-		static string WriteTestFlags (TestFlags flags)
-		{
-			return Enum.Format (typeof (TestFlags), flags, "g");
-		}
-
-		static TestFlags ReadTestFlags (string value)
-		{
-			return (TestFlags)Enum.Parse (typeof (TestFlags), value);
-		}
-
-		static PathNodeWrapper ReadPathNode (XElement element)
-		{
-			return new PathNodeWrapper (element);
-		}
-
-		static XElement WritePathNode (TestPath path)
-		{
-			var node = new PathNodeWrapper (path);
-			return WritePathNode (node);
-		}
-
-		static XElement WritePathNode (PathNodeWrapper node)
-		{
-			var element = new XElement (ParameterName);
-			node.Write (element);
-			return element;
-		}
-
-		class PathNodeWrapper : IPathNode
-		{
-			public TestPathType PathType {
-				get; private set;
-			}
-			public TestFlags Flags {
-				get; private set;
-			}
-			public string Identifier {
-				get; private set;
-			}
-			public string Name {
-				get; private set;
-			}
-			public string ParameterType {
-				get; private set;
-			}
-			public string ParameterValue {
-				get; private set;
-			}
-
-			public PathNodeWrapper (XElement element)
-			{
-				PathType = ReadPathType (element.Attribute ("Type").Value);
-
-				var flagsAttr = element.Attribute ("Flags");
-				if (flagsAttr != null)
-					Flags = ReadTestFlags (flagsAttr.Value);
-
-				var identifierAttr = element.Attribute ("Identifier");
-				if (identifierAttr != null)
-					Identifier = identifierAttr.Value;
-
-				var nameAttr = element.Attribute ("Name");
-				if (nameAttr != null)
-					Name = nameAttr.Value;
-
-				var paramTypeAttr = element.Attribute ("ParameterType");
-				if (paramTypeAttr != null)
-					ParameterType = paramTypeAttr.Value;
-
-				var paramValueAttr = element.Attribute ("Parameter");
-				if (paramValueAttr != null)
-					ParameterValue = paramValueAttr.Value;
-			}
-
-			public PathNodeWrapper (TestPath path)
-			{
-				PathType = path.PathType;
-				Flags = path.Flags;
-				Identifier = path.Identifier;
-				Name = path.Name;
-
-				if (path.IsParameterized)
-					ParameterType = path.ParameterType;
-				if (path.HasParameter)
-					ParameterValue = path.Parameter.Value;
-			}
-
-			public virtual void Write (XElement element)
-			{
-				element.Add (new XAttribute ("Type", WritePathType (PathType)));
-				if (Identifier != null)
-					element.Add (new XAttribute ("Identifier", Identifier));
-				if (Name != null)
-					element.Add (new XAttribute ("Name", Name));
-				if (ParameterType != null)
-					element.Add (new XAttribute ("ParameterType", ParameterType));
-				if (ParameterValue != null)
-					element.Add (new XAttribute ("Parameter", ParameterValue));
-				if (Flags != TestFlags.None)
-					element.Add (new XAttribute ("Flags", WriteTestFlags (Flags)));
-			}
-
-			public override string ToString ()
-			{
-				string parameter = ParameterValue != null ? string.Format (", Parameter={0}", ParameterValue) : string.Empty;
-				return string.Format ("[TestPathNode: Type={0}, Identifier={1}, Name={2}{3}]", PathType, Identifier, Name, parameter);
-			}
-		}
-
-		class PathWrapper : PathNodeWrapper, ITestPath
-		{
-			public readonly PathWrapper Parent;
-
-			PathWrapper (XElement element, PathWrapper parent)
-				: base (element)
-			{
-				Parent = parent;
-			}
-
-			public static PathWrapper ReadPath (XElement path)
-			{
-				PathWrapper current = null;
-				foreach (var element in path.Elements ("TestParameter")) {
-					current = new PathWrapper (element, current);
-				}
-				return current;
-			}
-
-			ITestPath ITestPath.Parent {
-				get { return Parent; }
-			}
-
-			XElement ITestPath.SerializePath ()
-			{
-				return WriteTestPath (this);
 			}
 		}
 
@@ -358,22 +171,16 @@ namespace Xamarin.AsyncTests.Framework
 			return new SavedException (type, message, stackTrace);
 		}
 
-		internal static ITestPath ReadTestPath (XElement node)
-		{
-			return PathWrapper.ReadPath (node);
-		}
-
 		public static TestResult ReadTestResult (XElement node)
 		{
 			if (!node.Name.LocalName.Equals ("TestResult"))
 				throw new InternalErrorException ();
 
-			var name = TestSerializer.ReadTestName (node.Element ("TestName"));
 			var status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
 
-			var path = ReadTestPath (node.Element ("TestPath"));
+			var path = TestPath.Read (node.Element ("TestPath"));
 
-			var result = new TestResult (path, name, status);
+			var result = new TestResult (path, status);
 
 			var elapsedTime = node.Element ("ElapsedTime");
 			if (elapsedTime != null)
@@ -402,10 +209,10 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			var element = new XElement ("TestResult");
 			element.SetAttributeValue ("Status", instance.Status.ToString ());
-			if (!TestName.IsNullOrEmpty (instance.Name))
-				element.SetAttributeValue ("Name", instance.Name.FullName);
 
-			element.Add (TestSerializer.WriteTestName (instance.Name));
+			var name = instance.Path.GetName ();
+			if (!TestName.IsNullOrEmpty (name))
+				element.SetAttributeValue ("Name", name.FullName);
 
 			if (instance.Path != null) {
 				element.Add (instance.Path.SerializePath ());

@@ -39,16 +39,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public TestPathNode Node {
+		public TestPathTreeNode Node {
 			get;
 			private set;
 		}
 
-		ITestPath TestCase.Path {
+		TestPath TestCase.Path {
 			get { return Node.Path; }
 		}
 
-		public ReflectionTestCase (TestPathNode node)
+		public ReflectionTestCase (TestPathTreeNode node)
 		{
 			Node = node;
 			Name = node.Path.TestName;
@@ -97,7 +97,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return children;
 		}
 
-		void AddChildren (TestPathNode node)
+		void AddChildren (TestPathTreeNode node)
 		{
 			foreach (var child in node.GetChildren ()) {
 				if (child.Path.IsHidden || !child.Path.IsBrowseable) {
@@ -108,7 +108,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 		}
 
-		void AddParameters (TestContext ctx, TestPathNode node)
+		void AddParameters (TestContext ctx, TestPathTreeNode node)
 		{
 			foreach (var child in node.GetParameters (ctx)) {
 				if (child.Path.IsHidden || !child.Path.IsBrowseable) {
@@ -125,8 +125,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			TestSerializer.Debug ("RUN: {0}", this);
 
-			var result = new TestResult (Node.Path, Name);
-			var childCtx = ctx.CreateChild (Name, Node.Path, result);
+			var result = new TestResult (Node.Path);
+			var childCtx = ctx.CreateChild (Node.Path, result);
 
 			bool ok;
 			TestInvoker invoker;
@@ -145,11 +145,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			TestSerializer.Debug ("RUN DONE: {0} {1}", ok, result);
 
 			return result;
-		}
-
-		public XElement Serialize ()
-		{
-			return TestSerializer.WriteTestPath (Node.Path);
 		}
 
 		public override string ToString ()

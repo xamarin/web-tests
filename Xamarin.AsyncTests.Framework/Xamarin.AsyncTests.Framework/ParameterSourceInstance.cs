@@ -33,9 +33,9 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class ParameterSourceInstance<T> : ParameterizedTestInstance
 	{
-		List<T> parameters;
+		List<Tuple<ITestParameter,T>> parameters;
 		bool hasNext;
-		T current;
+		ParameterizedTestValue current;
 		int index;
 
 		new public ParameterSourceHost<T> Host {
@@ -52,12 +52,12 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public override object Current {
+		public override ParameterizedTestValue Current {
 			get { return current; }
 		}
 
 		public ParameterSourceInstance (
-			ParameterSourceHost<T> host, TestPath path, TestInstance parent,
+			ParameterSourceHost<T> host, TestPathInternal path, TestInstance parent,
 			ITestParameterSource<T> sourceInstance, string filter)
 			: base (host, path, parent)
 		{
@@ -70,12 +70,18 @@ namespace Xamarin.AsyncTests.Framework
 			base.Initialize (ctx);
 
 			if (Path.Parameter != null) {
-				current = Clone (Host.Deserialize (Path.Parameter));
+				var value = Clone (Host.Deserialize (Path.Parameter));
+				current = new ParameterSourceValue (this, Path.Parameter, value);
 				hasNext = true;
 				return;
 			}
 
-			parameters = new List<T> (SourceInstance.GetParameters (ctx, Filter));
+			parameters = new List<Tuple<ITestParameter,T>> ();
+			foreach (var value in SourceInstance.GetParameters (ctx, Filter)) {
+				var parameter = Host.Serialize (value);
+				parameters.Add (new Tuple<ITestParameter,T> (parameter, value));
+			}
+
 			index = 0;
 		}
 
@@ -90,7 +96,7 @@ namespace Xamarin.AsyncTests.Framework
 		public override void Destroy (TestContext ctx)
 		{
 			parameters = null;
-			current = default(T);
+			current = null;
 			index = -1;
 			base.Destroy (ctx);
 		}
@@ -106,7 +112,8 @@ namespace Xamarin.AsyncTests.Framework
 				return false;
 
 			if (parameters != null) {
-				current = Clone (parameters [index]);
+				var value = Clone (parameters [index].Item2);
+				current = new ParameterSourceValue (this, parameters [index].Item1, value);
 				index++;
 				return true;
 			} else {
@@ -116,6 +123,24 @@ namespace Xamarin.AsyncTests.Framework
 				return true;
 			}
 		}
+
+		class ParameterSourceValue : ParameterizedTestValue
+		{
+			readonly ITestParameter parameter;
+
+			public ParameterSourceValue (ParameterizedTestInstance instance, ITestParameter parameter, object value)
+				: base (instance, value)
+			{
+				this.parameter = parameter;
+			}
+
+			public override ITestParameter Parameter {
+				get {
+					return parameter;
+				}
+			}
+		}
+
 	}
 }
 

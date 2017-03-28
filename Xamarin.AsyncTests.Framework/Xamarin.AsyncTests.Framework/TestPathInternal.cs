@@ -1,5 +1,5 @@
 ﻿//
-// TestPath.cs
+// TestPathInternal.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -30,41 +30,45 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	sealed class TestPath : ITestPath, ITestPathInternal
+	sealed class TestPathInternal : TestPath, ITestPathInternal
 	{
 		public TestHost Host {
 			get;
 			private set;
 		}
 
-		public TestFlags Flags {
+		public override TestFlags Flags {
+			get { return InternalFlags; }
+		}
+
+		public TestFlags InternalFlags {
 			get;
 			internal set;
 		}
 
-		public TestPath Parent {
+		public TestPathInternal InternalParent {
 			get;
 			private set;
 		}
 
-		ITestPath ITestPath.Parent {
-			get { return Parent; }
+		public override TestPath Parent {
+			get { return InternalParent; }
 		}
 
-		public string Name {
+		public override string Name {
 			get { return Host.Name; }
 		}
 
+		TestPath ITestPathInternal.Path {
+			get { return this; }
+		}
+
 		ITestPathInternal ITestPathInternal.Parent {
-			get { return Parent; }
+			get { return InternalParent; }
 		}
 
 		public TestName TestName {
 			get { return name; }
-		}
-
-		public bool IsParameterized {
-			get { return Host.ParameterType != null; }
 		}
 
 		public bool HasParameter {
@@ -75,7 +79,7 @@ namespace Xamarin.AsyncTests.Framework
 			get { return parameter; }
 		}
 
-		string IPathNode.ParameterValue {
+		public override string ParameterValue {
 			get {
 				return parameter?.Value;
 			}
@@ -89,55 +93,46 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (Flags & TestFlags.Browsable) != 0; }
 		}
 
-		public TestPathType PathType {
+		public override TestPathType PathType {
 			get { return Host.PathType; }
 		}
 
-		public string Identifier {
+		public override string Identifier {
 			get { return Host.Identifier; }
 		}
 
-		public string ParameterType {
+		public override string ParameterType {
 			get { return Host.ParameterType; }
 		}
 
 		readonly ITestParameter parameter;
 		readonly TestName name;
 
-		internal TestPath (TestHost host, TestPath parent, ITestParameter parameter = null)
+		internal TestPathInternal (TestHost host, TestPathInternal parent, ITestParameter parameter = null, TestFlags? flags = null)
 		{
 			Host = host;
-			Flags = host.Flags;
-			Parent = parent;
+			InternalFlags = flags ?? host.Flags;
+			InternalParent = parent;
 
 			this.parameter = host.HasFixedParameter ? host.GetFixedParameter () : parameter;
-			this.name = GetTestName (host, parent, this.parameter);
+			this.name = GetName ();
 		}
 
-		internal TestPath Clone ()
+		TestPath ITestPathInternal.GetCurrentPath ()
 		{
-			return new TestPath (Host, Parent, Parameter);
+			return Clone ();
 		}
 
-		static TestName GetTestName (TestHost host, TestPath parent, ITestParameter parameter = null)
+		internal TestPathInternal Clone ()
 		{
-			var builder = new TestNameBuilder ();
-			if (parent != null)
-				builder.Merge (parent.name);
-			if (host.Name != null) {
-				if (parameter != null && ((host.Flags & TestFlags.PathHidden) == 0))
-					builder.PushParameter (host.Name, parameter.Value, (host.Flags & TestFlags.Hidden) != 0);
-				else if ((host.Flags & TestFlags.Hidden) == 0)
-					builder.PushName (host.Name);
-			}
-			return builder.GetName ();
+			return new TestPathInternal (Host, InternalParent, Parameter);
 		}
 
-		public TestPath Parameterize (ITestParameter parameter)
+		public TestPathInternal Parameterize (ITestParameter parameter)
 		{
 			if (!IsParameterized)
 				throw new InternalErrorException ();
-			return new TestPath (Host, Parent, parameter);
+			return new TestPathInternal (Host, InternalParent, parameter);
 		}
 
 		internal TestBuilder GetTestBuilder ()
@@ -145,10 +140,10 @@ namespace Xamarin.AsyncTests.Framework
 			var builder = Host as TestBuilderHost;
 			if (builder != null)
 				return builder.Builder;
-			return Parent.GetTestBuilder ();
+			return InternalParent.GetTestBuilder ();
 		}
 
-		public bool Matches (IPathNode node)
+		public bool Matches (PathNode node)
 		{
 			if (node.PathType != Host.PathType)
 				return false;
@@ -162,7 +157,7 @@ namespace Xamarin.AsyncTests.Framework
 			return true;
 		}
 
-		public static bool Matches (TestHost host, IPathNode second)
+		public static bool Matches (TestHost host, PathNode second)
 		{
 			if (host.PathType != second.PathType)
 				return false;
@@ -209,19 +204,15 @@ namespace Xamarin.AsyncTests.Framework
 			return (T)Parameter;
 		}
 
-		public XElement SerializePath ()
+		internal static bool TestEquals (TestContext ctx, TestPath first, TestPath second)
 		{
-			return TestSerializer.WriteTestPath (this);
-		}
+			var serializedFirst = first.SerializePath ().ToString ();
+			var serializedSecond = second.SerializePath ().ToString ();
+			if (string.Equals (serializedFirst, serializedSecond))
+				return true;
 
-		public readonly int ID = ++next_id;
-		static int next_id;
-
-		public override string ToString ()
-		{
-			string parameter = IsParameterized ? string.Format (", Parameter={0}", Parameter != null ? Parameter.Value : "<null>") : string.Empty;
-			var parent = Parent != null ? string.Format (", Parent={0}", Parent.ID) : string.Empty;
-			return string.Format ("[TestPath({5}): ID={0}, Identifier={1}, Name={2}{3}{4}]", ID, Host.Identifier, Host.Name, parameter, parent, PathType);
+			ctx.LogMessage ("NOT EQUAL:\n{0}\n{1}\n\n", serializedFirst, serializedSecond);
+			return false;
 		}
 	}
 }

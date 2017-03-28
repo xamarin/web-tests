@@ -1,4 +1,4 @@
-﻿//
+//
 // ReflectionTestInstance.cs
 //
 // Author:
@@ -37,7 +37,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public FixtureTestInstance (HeavyTestHost host, TestPath path, object instance, TestInstance parent)
+		public FixtureTestInstance (HeavyTestHost host, TestPathInternal path, object instance, TestInstance parent)
 			: base (host, path, parent)
 		{
 			Instance = instance;

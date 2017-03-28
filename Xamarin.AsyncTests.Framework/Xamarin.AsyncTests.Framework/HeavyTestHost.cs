@@ -52,7 +52,7 @@ namespace Xamarin.AsyncTests.Framework
 			return Parameter;
 		}
 
-		internal sealed override TestInvoker CreateInvoker (TestPath path, TestInvoker invoker)
+		internal sealed override TestInvoker CreateInvoker (TestPathInternal path, TestInvoker invoker)
 		{
 			return new HeavyTestInvoker (this, path, invoker);
 		}

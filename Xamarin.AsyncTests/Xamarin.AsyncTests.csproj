@@ -84,7 +84,7 @@
     <Compile Include="Xamarin.AsyncTests.Portable\IServerHost.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestParameter.cs" />
     <Compile Include="Xamarin.AsyncTests\FriendlyNameAttribute.cs" />
-    <Compile Include="Xamarin.AsyncTests\ITestPath.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestPath.cs" />
     <Compile Include="Xamarin.AsyncTests.Portable\IPipeConnection.cs" />
     <Compile Include="Xamarin.AsyncTests\SavedException.cs" />
     <Compile Include="Xamarin.AsyncTests\IgnoreException.cs" />
@@ -111,7 +111,7 @@
     <Compile Include="Xamarin.AsyncTests\VersionInfo.cs" />
     <Compile Include="Xamarin.AsyncTests\GlobalAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\TestPathType.cs" />
-    <Compile Include="Xamarin.AsyncTests\IPathNode.cs" />
+    <Compile Include="Xamarin.AsyncTests\PathNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />

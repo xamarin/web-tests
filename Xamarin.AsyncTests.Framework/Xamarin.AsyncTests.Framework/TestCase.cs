@@ -42,7 +42,7 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		ITestPath Path {
+		TestPath Path {
 			get;
 		}
 

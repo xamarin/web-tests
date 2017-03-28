@@ -29,6 +29,12 @@ namespace Xamarin.AsyncTests
 {
 	internal interface ITestPathInternal
 	{
+		TestPath Path {
+			get;
+		}
+
+		TestPath GetCurrentPath ();
+
 		ITestPathInternal Parent {
 			get;
 		}

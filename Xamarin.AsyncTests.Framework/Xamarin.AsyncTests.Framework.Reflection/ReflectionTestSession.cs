@@ -75,6 +75,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		public override Task<TestCase> ResolveFromPath (XElement node, CancellationToken cancellationToken)
 		{
+			System.Diagnostics.Debug.WriteLine ("RESOLVE FROM PATH:\n{0}", node); 
 			return Task.Run<TestCase> (() => {
 				var path = TestSerializer.DeserializePath (suite, RootContext, node);
 				return new ReflectionTestCase (path);

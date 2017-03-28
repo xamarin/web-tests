@@ -132,7 +132,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (!paramType.GetTypeInfo ().IsAssignableFrom (parameterizedInstance.Host.ParameterTypeInfo))
 					throw new InternalErrorException ();
 
-				args.AddFirst (parameterizedInstance.Current);
+				var current = parameterizedInstance.Current;
+				args.AddFirst (current.Value); 
+
 				instance = instance.Parent;
 			}
 

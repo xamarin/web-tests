@@ -58,7 +58,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Host = host;
 		}
 
-		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
+		internal override TestInstance CreateInstance (TestPathInternal path, TestInstance parent)
 		{
 			var instance = (ParameterizedTestInstance)Host.CreateInstance (path, parent);
 			return new ReflectionPropertyInstance (this, instance, parent);
@@ -75,13 +75,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				private set;
 			}
 
-			public object CapturedValue {
-				get;
-				private set;
-			}
-
-			object current;
-			bool hasNext;
+			ParameterizedTestValue current;
 
 			public ReflectionPropertyInstance (ReflectionPropertyHost host, ParameterizedTestInstance instance, TestInstance parent)
 				: base (host, instance.Path, parent)
@@ -89,49 +83,27 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				Instance = instance;
 			}
 
-			#if FIXME
-			public ReflectionPropertyInstance (ReflectionPropertyHost host, object captured, TestInstance parent)
-				: base (host, parent)
-			{
-				CapturedValue = captured;
-			}
-			#endif
-
 			public override void Initialize (TestContext ctx)
 			{
-				if (Instance != null)
-					Instance.Initialize (ctx);
-				else {
-					current = CapturedValue;
-					var cloneable = current as ICloneable;
-					if (cloneable != null)
-						current = cloneable.Clone ();
-					hasNext = true;
-				}
+				Instance.Initialize (ctx);
 			}
 
 			public override bool HasNext ()
 			{
-				return Instance != null ? Instance.HasNext () : hasNext;
+				return Instance.HasNext ();
 			}
 
 			public override bool MoveNext (TestContext ctx)
 			{
-				if (Instance != null) {
-					if (!Instance.MoveNext (ctx))
-						return false;
-					current = Instance.Current;
-				} else {
-					if (!hasNext)
-						return false;
-					hasNext = false;
-				}
+				if (!Instance.MoveNext (ctx))
+					return false;
+				current = Instance.Current;
 
-				Host.Property.SetValue (GetFixtureInstance ().Instance, current);
+				Host.Property.SetValue (GetFixtureInstance ().Instance, current.Value);
 				return true;
 			}
 
-			public override object Current {
+			public override ParameterizedTestValue Current {
 				get { return current; }
 			}
 		}

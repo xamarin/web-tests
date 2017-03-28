@@ -49,20 +49,23 @@ namespace Xamarin.AsyncTests.MacUI
 			private set;
 		}
 
-		public TestName TestName {
+		public TestPath Path {
 			get;
 			private set;
 		}
 
 		readonly string name;
 
-		public TestResultModel (TestSession session, TestResult result, TestName testName = null)
+		public TestResultModel (TestSession session, TestResult result)
 		{
 			Session = session;
 			Result = result;
-			TestName = testName ?? result.Name;
+			Path = result.Path;
 
-			name = TestName.IsNullOrEmpty (TestName) ? string.Empty : TestName.LocalName;
+			if (Path.PathType == TestPathType.Parameter)
+				name = Path.ParameterValue ?? string.Empty;
+			else
+				name = Path.Name ?? string.Empty;
 		}
 
 		protected override IEnumerable<TestListNode> ResolveChildren ()
@@ -86,14 +89,16 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			if (testParameters != null)
 				return testParameters;
-			if (TestName.IsNullOrEmpty (TestName) || !TestName.HasParameters)
-				return null;
 
 			var sb = new StringBuilder ();
-			foreach (var parameter in TestName.Parameters) {
+			for (var path = Path; path != null; path = path.Parent) {
+				if (path.PathType != TestPathType.Parameter)
+					continue;
+				if ((path.Flags & TestFlags.Hidden) != 0)
+					continue;
 				if (sb.Length > 0)
 					sb.AppendLine ();
-				sb.AppendFormat ("  {0} = {1}", parameter.Name, parameter.Value);
+				sb.AppendFormat ("  {0} = {1}", path.Name, path.ParameterValue);
 			}
 
 			testParameters = sb.ToString ();

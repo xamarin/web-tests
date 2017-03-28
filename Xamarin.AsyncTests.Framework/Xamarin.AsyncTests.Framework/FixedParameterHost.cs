@@ -57,7 +57,7 @@ namespace Xamarin.AsyncTests.Framework
 				fixedParameter = (ITestParameter)Attribute.Value;
 		}
 
-		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
+		internal override TestInstance CreateInstance (TestPathInternal path, TestInstance parent)
 		{
 			return new FixedParameterInstance<T> (this, path, parent);
 		}

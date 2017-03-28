@@ -1,10 +1,10 @@
 ﻿//
-// ITestPath.cs
+// TestBuilderValue.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,17 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.Framework
 {
-	public interface ITestPath : IPathNode
+	class TestBuilderValue : TestParameterValue
 	{
-		ITestPath Parent {
-			get;
+		public TestBuilderValue (TestBuilderInstance instance)
+			: base (instance)
+		{
 		}
 
-		XElement SerializePath ();
+		public override ITestParameter Parameter {
+			get {
+				return Instance.Path.Parameter;
+			}
+		}
 	}
 }
-

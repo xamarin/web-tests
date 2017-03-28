@@ -62,10 +62,10 @@ namespace Xamarin.AsyncTests.Framework
 		internal override ITestParameter GetParameter (TestInstance instance)
 		{
 			var parameterizedInstance = (ParameterizedTestInstance)instance;
-			return parameterizedInstance.Serialize ();
+			return parameterizedInstance.Current.Parameter;
 		}
 
-		internal override TestInvoker CreateInvoker (TestPath path, TestInvoker invoker)
+		internal override TestInvoker CreateInvoker (TestPathInternal path, TestInvoker invoker)
 		{
 			if ((Flags & TestFlags.Browsable) != 0)
 				invoker = new ResultGroupTestInvoker (Flags, invoker);

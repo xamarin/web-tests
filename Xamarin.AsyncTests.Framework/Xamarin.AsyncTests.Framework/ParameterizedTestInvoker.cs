@@ -37,7 +37,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestPath Path {
+		public TestPathInternal Path {
 			get;
 			private set;
 		}
@@ -47,7 +47,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public ParameterizedTestInvoker (ParameterizedTestHost host, TestPath path, TestInvoker inner)
+		public ParameterizedTestInvoker (ParameterizedTestHost host, TestPathInternal path, TestInvoker inner)
 			: base (host.Flags)
 		{
 			Host = host;
@@ -109,28 +109,27 @@ namespace Xamarin.AsyncTests.Framework
 				if (!success)
 					break;
 
-				var path = TestInstance.GetCurrentPath (parameterizedInstance);
-				var name = TestInstance.GetTestName (parameterizedInstance);
+				var path = parameterizedInstance.GetCurrentPath ();
 
 				bool enabled;
 
 				var filter = parameterizedInstance.Current as ITestFilter;
 				if (filter != null && filter.Filter (ctx, out enabled) && !enabled) {
-					var ignoredResult = new TestResult (path, name, TestStatus.Ignored);
+					var ignoredResult = new TestResult (path, TestStatus.Ignored);
 					ctx.Result.AddChild (ignoredResult);
 					continue;
 				}
 
 				found = true;
 
-				var innerCtx = ctx.CreateChild (name, parameterizedInstance, ctx.Result);
+				var innerCtx = ctx.CreateChild (parameterizedInstance, ctx.Result);
 
-				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2} {3}", name.FullName,
+				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2} {3}", path.TestName.FullName,
 					TestLogger.Print (Host), TestLogger.Print (parameterizedInstance), Inner);
 
 				success = await InvokeInner (innerCtx, parameterizedInstance, Inner, cancellationToken);
 
-				ctx.LogDebug (10, "InnerInvoke({0}) done: {1} {2} {3}", name.FullName,
+				ctx.LogDebug (10, "InnerInvoke({0}) done: {1} {2} {3}", path.TestName.FullName,
 					TestLogger.Print (Host), TestLogger.Print (parameterizedInstance), success);
 			}
 

@@ -35,6 +35,12 @@ namespace Xamarin.AsyncTests
 		Stack<string> parts = new Stack<string> ();
 		Stack<TestName.Parameter> parameters = new Stack<TestName.Parameter> ();
 
+		internal bool IsEmpty {
+			get {
+				return parts.Count == 0;
+			}
+		}
+
 		public TestName GetName ()
 		{
 			var name = string.Join (".", parts.Reverse ());

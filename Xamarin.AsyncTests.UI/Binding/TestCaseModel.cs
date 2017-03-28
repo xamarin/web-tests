@@ -57,7 +57,7 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			Session = session;
 			Test = test;
-			fullName = test.Name.FullName;
+			fullName = TestPath.GetFullName (test.Path);
 			serialized = Test.Path.SerializePath ().ToString ();
 
 			RunInitialize ();

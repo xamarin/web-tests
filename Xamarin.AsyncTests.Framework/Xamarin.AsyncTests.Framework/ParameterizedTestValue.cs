@@ -1,5 +1,5 @@
 ﻿//
-// ParameterizedTestInstance.cs
+// ParameterizedTestValue.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,56 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class ParameterizedTestInstance : TestInstance
+	abstract class ParameterizedTestValue : TestParameterValue
 	{
-		public new ParameterizedTestHost Host {
-			get { return (ParameterizedTestHost)base.Host; }
+		new public ParameterizedTestInstance Instance {
+			get { return (ParameterizedTestInstance)base.Instance; }
 		}
 
-		public ParameterizedTestInstance (ParameterizedTestHost host, TestPathInternal path, TestInstance parent)
-			: base (host, path, parent)
-		{
-		}
-
-		public abstract ParameterizedTestValue Current {
-			[StackTraceEntryPoint]
+		public object Value {
 			get;
+			private set;
 		}
 
-		internal ITestParameter Serialize ()
+		public ParameterizedTestValue (ParameterizedTestInstance instance, object value)
+			: base (instance)
 		{
-			if (Current == null)
-				return null;
-
-			return Current.Parameter;
+			Value = value;
 		}
-
-		internal override TestParameterValue GetCurrentParameter ()
-		{
-			return Current;
-		}
-
-		public override bool ParameterMatches<T> (string name)
-		{
-			return Path.ParameterMatches<T> (name);
-		}
-
-		public override T GetParameter<T> ()
-		{
-			return (T)Current.Value;
-		}
-
-		[StackTraceEntryPoint]
-		public abstract bool HasNext ();
-
-		[StackTraceEntryPoint]
-		public abstract bool MoveNext (TestContext ctx);
 	}
 }

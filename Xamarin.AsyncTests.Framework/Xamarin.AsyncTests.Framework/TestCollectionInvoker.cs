@@ -37,12 +37,12 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestPathNode Node {
+		public TestPathTreeNode Node {
 			get;
 			private set;
 		}
 
-		public TestCollectionInvoker (TestBuilder builder, TestPathNode node, TestFlags flags = TestFlags.ContinueOnError)
+		public TestCollectionInvoker (TestBuilder builder, TestPathTreeNode node, TestFlags flags = TestFlags.ContinueOnError)
 			: base (flags)
 		{
 			Builder = builder;
@@ -59,14 +59,14 @@ namespace Xamarin.AsyncTests.Framework
 			return enabled;
 		}
 
-		LinkedList<Tuple<TestPathNode,TestInvoker>> children;
+		LinkedList<Tuple<TestPathTreeNode,TestInvoker>> children;
 
 		internal void ResolveChildren (TestContext ctx)
 		{
-			children = new LinkedList<Tuple<TestPathNode, TestInvoker>> ();
+			children = new LinkedList<Tuple<TestPathTreeNode, TestInvoker>> ();
 			foreach (var child in Node.GetChildren ()) {
 				var invoker = child.CreateChildInvoker (ctx);
-				children.AddLast (new Tuple<TestPathNode, TestInvoker> (child, invoker));
+				children.AddLast (new Tuple<TestPathTreeNode, TestInvoker> (child, invoker));
 			}
 		}
 

@@ -45,7 +45,7 @@ namespace Xamarin.AsyncTests.Remoting
 			private set;
 		}
 
-		public ITestPath Path {
+		public TestPath Path {
 			get;
 			private set;
 		}
@@ -118,7 +118,7 @@ namespace Xamarin.AsyncTests.Remoting
 			if (!node.Name.LocalName.Equals ("TestCase"))
 				throw new ServerErrorException ();
 
-			Path = TestSerializer.ReadTestPath (node.Element ("TestPath"));
+			Path = TestPath.Read (node.Element ("TestPath"));
 			Name = TestSerializer.ReadTestName (node.Element ("TestName"));
 			HasParameters = bool.Parse (node.Attribute ("HasParameters").Value);
 			HasChildren = bool.Parse (node.Attribute ("HasChildren").Value);

@@ -37,7 +37,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestPath Path {
+		public TestPathInternal Path {
 			get;
 			private set;
 		}
@@ -50,7 +50,7 @@ namespace Xamarin.AsyncTests.Framework
 		static int next_id;
 		public readonly int ID = ++next_id;
 
-		public HeavyTestInvoker (HeavyTestHost host, TestPath path, TestInvoker inner)
+		public HeavyTestInvoker (HeavyTestHost host, TestPathInternal path, TestInvoker inner)
 			: base (host.Flags)
 		{
 			Host = host;
@@ -101,8 +101,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (innerInstance == null)
 				return false;
 
-			var name = TestInstance.GetTestName (innerInstance);
-			var innerCtx = ctx.CreateChild (name, innerInstance);
+			var innerCtx = ctx.CreateChild (innerInstance);
 
 			var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
 

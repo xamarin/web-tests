@@ -66,8 +66,10 @@ namespace Xamarin.AsyncTests.Console
 
 		public bool Print ()
 		{
+			var name = Result.Path.GetName ();
+
 			Writer.WriteLine ();
-			Writer.WriteLine ("Test result: {0} - {1}", Result.Name.FullName, Result.Status);
+			Writer.WriteLine ("Test result: {0} - {1}", name.FullName, Result.Status);
 			Writer.WriteLine ();
 
 			if (Result.Status == TestStatus.Success)
@@ -77,9 +79,9 @@ namespace Xamarin.AsyncTests.Console
 			return false;
 		}
 
-		string FormatName (TestName name)
+		string FormatName (TestPath path)
 		{
-			return name.FullName;
+			return path.GetName ().FullName;
 		}
 
 		void Visit (TestResult node)
@@ -95,7 +97,7 @@ namespace Xamarin.AsyncTests.Console
 			else if (node.Status == TestStatus.Ignored && !ShowIgnored)
 				return;
 
-			Writer.WriteLine ("{0}) {1}: {2}", ++current, FormatName (node.Name), node.Status);
+			Writer.WriteLine ("{0}) {1}: {2}", ++current, FormatName (node.Path), node.Status);
 
 			if (node.Status == TestStatus.Error && node.HasErrors) {
 				foreach (var error in node.Errors) {

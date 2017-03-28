@@ -50,7 +50,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		public ReflectionTestAssemblyBuilder (ReflectionTestSuiteBuilder suite, ReflectionTestAssembly assembly)
 			: base (TestPathType.Assembly, null, assembly.Name,
-				TestSerializer.GetStringParameter (assembly.Assembly.FullName))
+			        TestSerializer.GetStringParameter (assembly.Assembly.FullName))
 		{
 			SuiteBuilder = suite;
 			Assembly = assembly;
@@ -77,7 +77,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			yield break;
 		}
 
-		internal override TestInvoker CreateInnerInvoker (TestPathNode node)
+		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)
 		{
 			return new TestCollectionInvoker (this, node);
 		}

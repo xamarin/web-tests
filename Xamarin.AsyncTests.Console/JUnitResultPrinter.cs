@@ -66,24 +66,7 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		static string FormatArguments (ITestPath path)
-		{
-			var arguments = new List<string> ();
-
-			for (; path != null; path = path.Parent) {
-				if (path.PathType != TestPathType.Parameter)
-					continue;
-				if ((path.Flags & TestFlags.Hidden) != 0)
-					continue;
-				arguments.Add (path.ParameterValue);
-			}
-
-			if (arguments.Count == 0)
-				return string.Empty;
-			return "(" + string.Join (",", arguments) + ")";
-		}
-
-		static string FormatParameters (ITestPath path)
+		static string FormatParameters (TestPath path)
 		{
 			var parameters = new List<string> ();
 
@@ -117,7 +100,7 @@ namespace Xamarin.AsyncTests.Console
 				private set;
 			}
 
-			public ITestPath Path {
+			public TestPath Path {
 				get;
 				private set;
 			}
@@ -130,7 +113,7 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
-			public Element (Element parent, XElement node, ITestPath path)
+			public Element (Element parent, XElement node, TestPath path)
 			{
 				Parent = parent;
 				Node = node;
@@ -247,7 +230,7 @@ namespace Xamarin.AsyncTests.Console
 			StringBuilder output = new StringBuilder ();
 			StringBuilder errorOutput = new StringBuilder ();
 
-			public SuiteElement (Element parent, ITestPath path, TestResult result)
+			public SuiteElement (Element parent, TestPath path, TestResult result)
 				: base (parent, new XElement ("testsuite"), result)
 			{
 				var formatted = new StringBuilder ();
@@ -305,7 +288,7 @@ namespace Xamarin.AsyncTests.Console
 
 				foreach (var child in result.Children) {
 					Debug ("  RESOLVE CHILD: {0} {1}\n{2}", child, child.Path, child.Path.SerializePath ());
-					if ((child.Path.PathType != TestPathType.Parameter) && ((child.Path.Flags & (TestFlags.Hidden | TestFlags.PathHidden)) == 0))
+					if ((child.Path.PathType != TestPathType.Parameter) && ((child.Path.Flags & TestFlags.Hidden) == 0))
 						AddChild (new SuiteElement (this, child.Path, child));
 					else
 						ResolveChildren (child);
@@ -362,7 +345,7 @@ namespace Xamarin.AsyncTests.Console
 				output.AppendLine ();
 			}
 
-			void WriteParameters (List<Tuple<string,XElement>> list, ITestPath path)
+			void WriteParameters (List<Tuple<string,XElement>> list, TestPath path)
 			{
 				if (path.Parent != null)
 					WriteParameters (list, path.Parent);
@@ -407,7 +390,7 @@ namespace Xamarin.AsyncTests.Console
 			{
 				Result = result;
 
-				var argumentList = FormatArguments (Result.Path);
+				var argumentList = TestPath.FormatArguments (Result.Path);
 				var reallyNewName = Parent.LocalName + argumentList;
 
 				name = Parent.LocalName + argumentList;

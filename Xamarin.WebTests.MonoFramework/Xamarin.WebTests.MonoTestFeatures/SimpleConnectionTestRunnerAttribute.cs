@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.MonoTestFeatures
 	public class SimpleConnectionTestRunnerAttribute : TestHostAttribute, ITestHost<SimpleConnectionTestRunner>
 	{
 		public SimpleConnectionTestRunnerAttribute ()
-			: base (typeof (SimpleConnectionTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
+			: base (typeof (SimpleConnectionTestRunnerAttribute), TestFlags.Hidden)
 		{
 		}
 

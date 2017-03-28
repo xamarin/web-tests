@@ -1,5 +1,5 @@
 ﻿//
-// ParameterizedTestInstance.cs
+// TestParameterValue.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,56 +24,59 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class ParameterizedTestInstance : TestInstance
+	abstract class TestParameterValue
 	{
-		public new ParameterizedTestHost Host {
-			get { return (ParameterizedTestHost)base.Host; }
+		public TestInstance Instance {
+			get;
+			private set;
 		}
 
-		public ParameterizedTestInstance (ParameterizedTestHost host, TestPathInternal path, TestInstance parent)
-			: base (host, path, parent)
-		{
+		public TestPathInternal Path {
+			get;
+			private set;
 		}
 
-		public abstract ParameterizedTestValue Current {
-			[StackTraceEntryPoint]
+		public abstract ITestParameter Parameter {
 			get;
 		}
 
-		internal ITestParameter Serialize ()
+		public TestParameterValue (TestInstance instance)
 		{
-			if (Current == null)
-				return null;
-
-			return Current.Parameter;
+			Instance = instance;
+			Path = instance.Path;
 		}
 
-		internal override TestParameterValue GetCurrentParameter ()
+		TestPathInternal currentPath;
+		TestPathInternal parentPath;
+
+		public TestPathInternal GetCurrentPath ()
 		{
-			return Current;
+			if (currentPath != null)
+				return currentPath;
+
+			if (Instance.Parent != null) {
+				parentPath = Instance.Parent.GetCurrentPath ();
+
+				if (false) {
+					// parentPath = (TestPathInternal)Path.Parent;
+
+					var working = parentPath.SerializePath (false).ToString ();
+					var broken = Path.Parent.SerializePath (false).ToString ();
+					if (!string.Equals (working, broken))
+						Debug ("GET CURRENT PATH: {0}\n{1}\n{2}\n\n", Instance, working, broken);
+				}
+			}
+
+			currentPath = new TestPathInternal (Instance.Host, parentPath, Parameter);
+			return currentPath;
 		}
 
-		public override bool ParameterMatches<T> (string name)
+		static void Debug (string message, params object[] args)
 		{
-			return Path.ParameterMatches<T> (name);
+			System.Diagnostics.Debug.WriteLine ("TEST PARAMETER VALUE: {0}", string.Format (message, args));
 		}
-
-		public override T GetParameter<T> ()
-		{
-			return (T)Current.Value;
-		}
-
-		[StackTraceEntryPoint]
-		public abstract bool HasNext ();
-
-		[StackTraceEntryPoint]
-		public abstract bool MoveNext (TestContext ctx);
 	}
 }

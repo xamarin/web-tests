@@ -48,19 +48,13 @@ namespace Xamarin.AsyncTests.Framework
 			if ((Flags & TestFlags.FlattenHierarchy) != 0)
 				return await InvokeInner (ctx, instance, Inner, cancellationToken);
 
-			var currentPath = TestInstance.GetCurrentPath (instance);
-			// currentPath = instance.GetCurrentPath ((TestPath)ctx.Result.Path);
-			// var currentPath = instance.GetCurrentPath (Path);
-			// if (Hidden)
-			if ((Flags & TestFlags.NewPathHidden) != 0)
-				currentPath.Flags |= TestFlags.NewPathHidden;
-			currentPath.Flags |= TestFlags.ResultGroup;
-			// currentPath = Path;
+			TestContext innerCtx;
+			TestResult innerResult;
 
-			var innerName = currentPath.TestName;
-			var innerResult = new TestResult (currentPath, innerName);
+			var currentPath = instance.GetCurrentPath ();
+			innerResult = new TestResult (currentPath);
 
-			var innerCtx = ctx.CreateChild (innerResult.Name, currentPath, innerResult);
+			innerCtx = ctx.CreateChild (instance, innerResult);
 
 			bool success;
 			try {

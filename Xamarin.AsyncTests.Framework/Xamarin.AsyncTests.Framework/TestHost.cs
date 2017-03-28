@@ -66,7 +66,7 @@ namespace Xamarin.AsyncTests.Framework
 			Flags = flags;
 		}
 
-		internal TestInstance CreateInstance (TestContext ctx, TestPath path, TestInstance parent)
+		internal TestInstance CreateInstance (TestContext ctx, TestPathInternal path, TestInstance parent)
 		{
 			if (path == null)
 				throw new ArgumentNullException ("path");
@@ -96,9 +96,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal abstract ITestParameter GetParameter (TestInstance instance);
 
-		internal abstract TestInstance CreateInstance (TestPath path, TestInstance parent);
+		internal abstract TestInstance CreateInstance (TestPathInternal path, TestInstance parent);
 
-		internal abstract TestInvoker CreateInvoker (TestPath path, TestInvoker invoker);
+		internal abstract TestInvoker CreateInvoker (TestPathInternal path, TestInvoker invoker);
 
 		public override string ToString ()
 		{

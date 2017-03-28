@@ -74,7 +74,7 @@ namespace Xamarin.AsyncTests.Framework
 			get { return GetType ().FullName; }
 		}
 
-		const TestFlags DefaultFlags = TestFlags.Browsable | TestFlags.PathHidden;
+		const TestFlags DefaultFlags = TestFlags.Browsable;
 
 		protected TestBuilder (TestPathType type, string identifier, string name, ITestParameter parameter, TestFlags flags = DefaultFlags)
 		{
@@ -199,7 +199,7 @@ namespace Xamarin.AsyncTests.Framework
 			return enabled;
 		}
 
-		internal abstract TestInvoker CreateInnerInvoker (TestPathNode node);
+		internal abstract TestInvoker CreateInnerInvoker (TestPathTreeNode node);
 
 		protected abstract IEnumerable<TestBuilder> CreateChildren ();
 
