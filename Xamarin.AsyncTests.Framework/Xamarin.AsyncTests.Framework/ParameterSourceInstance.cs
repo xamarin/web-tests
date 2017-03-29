@@ -44,12 +44,10 @@ namespace Xamarin.AsyncTests.Framework
 
 		public ITestParameterSource<T> SourceInstance {
 			get;
-			private set;
 		}
 
 		public string Filter {
 			get;
-			private set;
 		}
 
 		public override ParameterizedTestValue Current {
@@ -57,9 +55,9 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public ParameterSourceInstance (
-			ParameterSourceHost<T> host, TestPathInternal path, TestInstance parent,
+			ParameterSourceHost<T> host, TestPath path, TestNodeInternal node, TestInstance parent,
 			ITestParameterSource<T> sourceInstance, string filter)
-			: base (host, path, parent)
+			: base (host, path, node, parent)
 		{
 			SourceInstance = sourceInstance;
 			Filter = filter;
@@ -69,9 +67,9 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			base.Initialize (ctx);
 
-			if (Path.Parameter != null) {
-				var value = Clone (Host.Deserialize (Path.Parameter));
-				current = new ParameterSourceValue (this, Path.Parameter, value);
+			if (Node.Parameter != null) {
+				var value = Clone (Host.Deserialize (Node.Parameter));
+				current = new ParameterSourceValue (this, Node.Parameter, value);
 				hasNext = true;
 				return;
 			}

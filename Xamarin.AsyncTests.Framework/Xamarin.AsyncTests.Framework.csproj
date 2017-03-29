@@ -64,12 +64,10 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestFilter.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSerializer.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\IParameterSerializer.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\InternalErrorException.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestSuiteBuilder.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCollectionInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ResultGroupTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderInvoker.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestPathInternal.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\IPathResolver.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestPathTree.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestPathTreeNode.cs" />
@@ -126,6 +124,7 @@
     <Compile Include="Xamarin.AsyncTests.Framework\HeavyTestValue.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestParameterValue.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderValue.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestNodeInternal.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

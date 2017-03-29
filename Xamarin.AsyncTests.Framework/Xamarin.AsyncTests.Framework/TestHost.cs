@@ -39,22 +39,18 @@ namespace Xamarin.AsyncTests.Framework
 
 		public TestPathType PathType {
 			get;
-			private set;
 		}
 
 		public string Identifier {
 			get;
-			private set;
 		}
 
 		public string Name {
 			get;
-			private set;
 		}
 
 		public string ParameterType {
 			get;
-			private set;
 		}
 
 		protected TestHost (TestPathType type, string identifier, string name, string parameterType, TestFlags flags = TestFlags.None)
@@ -66,12 +62,12 @@ namespace Xamarin.AsyncTests.Framework
 			Flags = flags;
 		}
 
-		internal TestInstance CreateInstance (TestContext ctx, TestPathInternal path, TestInstance parent)
+		internal TestInstance CreateInstance (TestContext ctx, TestPath path, TestNodeInternal node, TestInstance parent)
 		{
 			if (path == null)
 				throw new ArgumentNullException ("path");
 
-			var instance = CreateInstance (path, parent);
+			var instance = CreateInstance (path, node, parent);
 			instance.Initialize (ctx);
 			return instance;
 		}
@@ -96,9 +92,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal abstract ITestParameter GetParameter (TestInstance instance);
 
-		internal abstract TestInstance CreateInstance (TestPathInternal path, TestInstance parent);
+		internal abstract TestInstance CreateInstance (TestPath path, TestNodeInternal node, TestInstance parent);
 
-		internal abstract TestInvoker CreateInvoker (TestPathInternal path, TestInvoker invoker, TestFlags flags);
+		internal abstract TestInvoker CreateInvoker (TestPath path, TestNodeInternal node, TestInvoker invoker, TestFlags flags);
 
 		public override string ToString ()
 		{

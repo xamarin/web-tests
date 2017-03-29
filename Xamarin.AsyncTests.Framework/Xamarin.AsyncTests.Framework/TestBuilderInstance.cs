@@ -38,16 +38,14 @@ namespace Xamarin.AsyncTests.Framework
 
 		public TestBuilder Builder {
 			get;
-			private set;
 		}
 
 		public TestParameterValue Value {
 			get;
-			private set;
 		}
 
-		public TestBuilderInstance (TestBuilderHost host, TestPathInternal path, TestInstance parent)
-			: base (host, path, parent)
+		public TestBuilderInstance (TestBuilderHost host, TestPath path, TestNodeInternal node, TestInstance parent)
+			: base (host, path, node, parent)
 		{
 			Builder = host.Builder;
 			Value = new TestBuilderValue (this);

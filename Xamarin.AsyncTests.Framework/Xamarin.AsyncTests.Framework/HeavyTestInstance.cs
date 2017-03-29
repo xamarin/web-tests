@@ -35,8 +35,8 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (HeavyTestHost)base.Host; }
 		}
 
-		public HeavyTestInstance (HeavyTestHost host, TestPathInternal path, TestInstance parent)
-			: base (host, path, parent)
+		public HeavyTestInstance (HeavyTestHost host, TestPath path, TestNodeInternal node, TestInstance parent)
+			: base (host, path, node, parent)
 		{
 		}
 

@@ -66,8 +66,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Assemblies = framework.Assemblies;
 			Builder = new ReflectionTestSuiteBuilder (this);
 
-			var rootPath = new TestPathInternal (Builder.Host, null, Builder.Parameter);
-			RootPath = new TestPathTreeNode (Builder.TreeRoot, rootPath);
+			var rootNode = new TestNodeInternal (Builder.Host, Builder.Parameter);
+			var rootPath = new TestPath (null, rootNode);
+			RootPath = new TestPathTreeNode (Builder.TreeRoot, rootPath, (TestNodeInternal)rootPath.Node);
 			RootTestCase = new ReflectionTestCase (RootPath);
 		}
 
@@ -79,7 +80,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return RootPath; }
 		}
 
-		IPathResolver IPathResolver.Resolve (TestContext ctx, PathNode node)
+		IPathResolver IPathResolver.Resolve (TestContext ctx, TestNode node)
 		{
 			if (node.PathType != TestPathType.Suite)
 				throw new InternalErrorException ();

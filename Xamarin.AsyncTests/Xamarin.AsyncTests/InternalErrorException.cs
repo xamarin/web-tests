@@ -1,10 +1,10 @@
 ﻿//
-// ITestPathInternal.cs
+// InternalErrorException.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,21 +27,16 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	internal interface ITestPathInternal
+	public class InternalErrorException : NotSupportedException
 	{
-		TestPath Path {
-			get;
+		public InternalErrorException ()
+		{
 		}
 
-		TestPath GetCurrentPath ();
-
-		ITestPathInternal Parent {
-			get;
+		public InternalErrorException (string format, params object[] args)
+			: base (string.Format (format, args))
+		{
 		}
-
-		bool ParameterMatches<T> (string name = null);
-
-		T GetParameter<T> ();
 	}
 }
 

@@ -31,12 +31,10 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public TestInstance Instance {
 			get;
-			private set;
 		}
 
-		public TestPathInternal Path {
+		public TestPath Path {
 			get;
-			private set;
 		}
 
 		public abstract ITestParameter Parameter {
@@ -49,10 +47,10 @@ namespace Xamarin.AsyncTests.Framework
 			Path = instance.Path;
 		}
 
-		TestPathInternal currentPath;
-		TestPathInternal parentPath;
+		TestPath currentPath;
+		TestPath parentPath;
 
-		public TestPathInternal GetCurrentPath ()
+		public TestPath GetCurrentPath ()
 		{
 			if (currentPath != null)
 				return currentPath;
@@ -60,7 +58,8 @@ namespace Xamarin.AsyncTests.Framework
 			if (Instance.Parent != null)
 				parentPath = Instance.Parent.GetCurrentPath ();
 
-			currentPath = new TestPathInternal (Instance.Host, parentPath, Parameter);
+			var node = new TestNodeInternal (Instance.Host, Parameter);
+			currentPath = new TestPath (parentPath, node);
 			return currentPath;
 		}
 	}

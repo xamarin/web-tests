@@ -31,10 +31,52 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests
 {
-	public abstract class TestPath : PathNode
+	public sealed class TestPath
 	{
-		public abstract TestPath Parent {
+		public TestPath Parent {
 			get;
+		}
+
+		public TestNode Node {
+			get;
+		}
+
+		public TestPath (TestPath parent, TestNode node)
+		{
+			Parent = parent;
+			Node = node;
+
+			var nodes = new List<TestNode> ();
+			var parts = new List<string> ();
+			var arguments = new List<string> ();
+			var parameters = new List<string> ();
+			var nameParameters = new List<TestName.Parameter> ();
+
+			for (var path = this; path != null; path = path.Parent) {
+				var current = path.Node;
+				nodes.Add (current);
+				if (current.PathType == TestPathType.Parameter) {
+					nameParameters.Add (new TestName.Parameter (current.Name, current.ParameterValue, current.IsHidden));
+					if (!current.IsHidden) {
+						parameters.Add (current.Identifier);
+						arguments.Add (current.ParameterValue);
+					}
+				} else if (!current.IsHidden && !string.IsNullOrEmpty (current.Name))
+					parts.Add (current.Name);
+			}
+
+			parts.Reverse ();
+			nameParameters.Reverse ();
+			nodes.Reverse ();
+
+			Nodes = nodes.ToArray ();
+
+			FullName = string.Join (".", parts);
+			ParameterList = "(" + string.Join (",", parameters) + ")";
+			ArgumentList = "(" + string.Join (",", arguments) + ")";
+
+			var localName = parts.First ();
+			TestName = new TestName (localName, FullName, nameParameters.ToArray ());
 		}
 
 		public XElement SerializePath (bool debug = true)
@@ -55,7 +97,7 @@ namespace Xamarin.AsyncTests
 			}
 
 			while (path != null) {
-				var element = PathNode.WriteNode (path);
+				var element = TestNode.WriteNode (path.Node);
 				node.AddFirst (element);
 				path = path.Parent;
 			}
@@ -69,120 +111,86 @@ namespace Xamarin.AsyncTests
 				throw new InvalidOperationException ();
 
 			TestPath current = null;
-			foreach (var node in PathNode.ReadAllNodes (root)) {
-				current = new PathWrapper (current, node);
+			foreach (var node in TestNode.ReadAllNodes (root)) {
+				current = new TestPath (current, node);
 			}
 			return current;
 		}
 
-		bool resolved;
-		IReadOnlyList<PathNode> nodes;
-		string fullName;
-		TestName testName;
-
-		void Resolve ()
+		public TestPath Parameterize (ITestParameter parameter)
 		{
-			if (resolved)
-				return;
-
-			nodes = GetNodes (this);
-			testName = GetName (this);
-			fullName = GetFullName (this);
-			resolved = true;
+			var parameterized = Node.Parameterize (parameter);
+			return new TestPath (Parent, parameterized);
 		}
 
-		public IReadOnlyList<PathNode> GetNodes ()
+		internal TestPath Clone ()
 		{
-			Resolve ();
-			return nodes;
+			var clonedNode = Node.Clone ();
+			return new TestPath (Parent, clonedNode);
+		}
+
+		public IReadOnlyList<TestNode> Nodes {
+			get;
 		}
 
 		public string FullName {
-			get {
-				Resolve ();
-				return fullName;
-			}
+			get;
 		}
 
 		public TestName TestName {
-			get {
-				Resolve ();
-				return testName;
-			}
+			get;
 		}
 
-		static IReadOnlyList<PathNode> GetNodes (TestPath path)
-		{
-			var list = new List<PathNode> ();
-			while (path != null) {
-				list.Add (path); 
-				path = path.Parent;
-			}
-			list.Reverse ();
-			return list;
+		public string ParameterList {
+			get;
 		}
 
-		static string GetFullName (TestPath path)
-		{
-			var formatted = new StringBuilder ();
-
-			GetFullName (path, formatted);
-			formatted.Append (FormatArguments (path)); 
-			return formatted.ToString ();
+		public string ArgumentList {
+			get;
 		}
 
-		static void GetFullName (TestPath path, StringBuilder formatted)
+		// FIXME: C# 7
+		static Tuple<TestName,IReadOnlyList<TestNode>,string,string,string> GetName (TestPath path)
 		{
-			if (path.Parent != null)
-				GetFullName (path.Parent, formatted);
-
-			if (path.PathType == TestPathType.Parameter)
-				return;
-			if ((path.Flags & TestFlags.Hidden) != 0)
-				return;
-			if (string.IsNullOrEmpty (path.Name))
-				return;
-
-			if (formatted.Length > 0)
-				formatted.Append (".");
-			formatted.Append (path.Name);
-		}
-
-		public static string FormatArguments (TestPath path)
-		{
+			var nodes = new List<TestNode> ();
+			var parts = new List<string> ();
 			var arguments = new List<string> ();
+			var parameters = new List<string> ();
+			var nameParameters = new List<TestName.Parameter> ();
 
 			for (; path != null; path = path.Parent) {
-				if (path.PathType != TestPathType.Parameter)
-					continue;
-				if ((path.Flags & TestFlags.Hidden) != 0)
-					continue;
-				arguments.Add (path.ParameterValue);
+				var node = path.Node;
+				nodes.Add (node); 
+				if (node.PathType == TestPathType.Parameter) {
+					nameParameters.Add (new TestName.Parameter (node.Name, node.ParameterValue, node.IsHidden));
+					if (!node.IsHidden) {
+						parameters.Add (node.Identifier);
+						arguments.Add (node.ParameterValue);
+					}
+				} else if (!node.IsHidden && !string.IsNullOrEmpty (node.Name))
+					parts.Add (node.Name);
 			}
 
-			if (arguments.Count == 0)
-				return string.Empty;
-			return "(" + string.Join (",", arguments) + ")";
+			parts.Reverse ();
+			nameParameters.Reverse ();
+
+			var fullName = string.Join (".", parts);
+			var parameterList = "(" + string.Join (",", parameters) + ")";
+			var argumentList = "(" + string.Join (",", arguments) + ")";
+			var localName = parts.First ();
+			var testName = new TestName (localName, fullName, nameParameters.ToArray ());
+			return new Tuple<TestName,IReadOnlyList<TestNode>,string,string,string> (testName, nodes, fullName, parameterList, argumentList);
 		}
 
-		static TestName GetName (TestPath path)
+		internal static bool TestEquals (TestContext ctx, TestPath first, TestPath second)
 		{
-			var parts = new Stack<string> ();
-			var parameters = new Stack<TestName.Parameter> ();
+			var serializedFirst = first.SerializePath ().ToString ();
+			var serializedSecond = second.SerializePath ().ToString ();
+			if (string.Equals (serializedFirst, serializedSecond))
+				return true;
 
-			for (; path != null; path = path.Parent) {
-				if (path.PathType == TestPathType.Parameter) {
-					parameters.Push (new TestName.Parameter (path.Name, path.ParameterValue, path.IsHidden));
-					continue;
-				}
-				if (path.IsHidden || string.IsNullOrEmpty (path.Name))
-					continue;
-				parts.Push (path.Name);
-			}
-
-			var fullName = string.Join (".", parts.Reverse ());
-			var localName = parts.First ();
-			return new TestName (localName, fullName, parameters.Reverse ().ToArray ());
+			ctx.LogMessage ("NOT EQUAL:\n{0}\n{1}\n\n", serializedFirst, serializedSecond);
+			return false;
 		}
 
 		public readonly int ID = ++next_id;
@@ -190,50 +198,9 @@ namespace Xamarin.AsyncTests
 
 		public override string ToString ()
 		{
-			string parameter = IsParameterized ? string.Format (", Parameter={0}", ParameterValue ?? "<null>") : string.Empty;
+			string parameter = Node.IsParameterized ? string.Format (", Parameter={0}", Node.ParameterValue ?? "<null>") : string.Empty;
 			var parent = Parent != null ? string.Format (", Parent={0}", Parent.ID) : string.Empty;
-			return string.Format ("[TestPath({5}): ID={0}, Identifier={1}, Name={2}{3}{4}]", ID, Identifier, Name, parameter, parent, PathType);
-		}
-
-		sealed class PathWrapper : TestPath
-		{
-			public PathNode Node {
-				get;
-			}
-
-			public PathWrapper (TestPath parent, PathNode node)
-			{
-				Parent = parent;
-				Node = node;
-			}
-
-			public override TestPath Parent {
-				get;
-			}
-
-			public override TestPathType PathType {
-				get { return Node.PathType; }
-			}
-
-			public override TestFlags Flags {
-				get { return Node.Flags; }
-			}
-
-			public override string Identifier {
-				get { return Node.Identifier; }
-			}
-
-			public override string Name {
-				get { return Node.Name; }
-			}
-
-			public override string ParameterType {
-				get { return Node.ParameterType; }
-			}
-
-			public override string ParameterValue {
-				get { return Node.ParameterValue; }
-			}
+			return string.Format ("[TestPath({5}): ID={0}, Identifier={1}, Name={2}{3}{4}]", ID, Node.Identifier, Node.Name, parameter, parent, Node.PathType);
 		}
 	}
 }

@@ -34,30 +34,32 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public ParameterizedTestHost Host {
 			get;
-			private set;
 		}
 
-		public TestPathInternal Path {
+		public TestPath Path {
 			get;
-			private set;
+		}
+
+		public TestNodeInternal Node {
+			get;
 		}
 
 		public TestInvoker Inner {
 			get;
-			private set;
 		}
 
-		public ParameterizedTestInvoker (ParameterizedTestHost host, TestPathInternal path, TestInvoker inner)
+		public ParameterizedTestInvoker (ParameterizedTestHost host, TestPath path, TestNodeInternal node, TestInvoker inner)
 			: base (host.Flags)
 		{
 			Host = host;
 			Path = path;
+			Node = node;
 			Inner = inner;
 		}
 
 		protected virtual ParameterizedTestInstance CreateInstance (TestInstance parent)
 		{
-			return (ParameterizedTestInstance)Host.CreateInstance (Path, parent);
+			return (ParameterizedTestInstance)Host.CreateInstance (Path, Node, parent);
 		}
 
 		ParameterizedTestInstance SetUp (TestContext ctx, TestInstance instance)
@@ -122,7 +124,7 @@ namespace Xamarin.AsyncTests.Framework
 
 				found = true;
 
-				var innerCtx = ctx.CreateChild (parameterizedInstance, ctx.Result);
+				var innerCtx = ctx.CreateChild (path, ctx.Result);
 
 				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2} {3}", path.FullName,
 					TestLogger.Print (Host), TestLogger.Print (parameterizedInstance), Inner);

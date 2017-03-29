@@ -34,7 +34,6 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public Type Type {
 			get;
-			private set;
 		}
 
 		public abstract ITestParameter Parameter {
@@ -52,9 +51,9 @@ namespace Xamarin.AsyncTests.Framework
 			return Parameter;
 		}
 
-		internal sealed override TestInvoker CreateInvoker (TestPathInternal path, TestInvoker invoker, TestFlags flags)
+		internal sealed override TestInvoker CreateInvoker (TestPath path, TestNodeInternal node, TestInvoker invoker, TestFlags flags)
 		{
-			return new HeavyTestInvoker (this, path, invoker, flags);
+			return new HeavyTestInvoker (this, path, node, invoker, flags);
 		}
 	}
 }

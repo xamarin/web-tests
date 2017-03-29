@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.Framework
 			var resolver = (IPathResolver)suite;
 
 			var path = TestPath.Read (root);
-			foreach (var node in path.GetNodes ()) {
+			foreach (var node in path.Nodes) {
 				if (node.PathType == TestPathType.Group)
 					continue;
 				resolver = resolver.Resolve (ctx, node);

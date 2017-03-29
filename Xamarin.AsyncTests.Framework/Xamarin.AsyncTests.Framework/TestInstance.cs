@@ -31,41 +31,37 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestInstance : ITestPathInternal
+	abstract class TestInstance
 	{
 		public TestHost Host {
 			get;
-			private set;
 		}
 
 		public TestInstance Parent {
 			get;
-			private set;
 		}
 
-		TestPath ITestPathInternal.Path {
-			get { return Path; }
-		}
-
-		ITestPathInternal ITestPathInternal.Parent {
-			get { return Parent; }
-		}
-
-		public TestPathInternal Path {
+		public TestPath Path {
 			get;
-			private set;
 		}
 
-		protected TestInstance (TestHost host, TestPathInternal path, TestInstance parent)
+		public TestNodeInternal Node {
+			get;
+		}
+
+		protected TestInstance (TestHost host, TestPath path, TestNodeInternal node, TestInstance parent)
 		{
 			if (host == null)
 				throw new ArgumentNullException ("host");
 			if (path == null)
 				throw new ArgumentNullException ("path");
+			if (node == null)
+				throw new ArgumentNullException ("node");
 
 			Host = host;
-			Parent = parent;
 			Path = path;
+			Node = node;
+			Parent = parent;
 		}
 
 		internal abstract TestParameterValue GetCurrentParameter ();
@@ -92,12 +88,7 @@ namespace Xamarin.AsyncTests.Framework
 		{
 		}
 
-		TestPath ITestPathInternal.GetCurrentPath ()
-		{
-			return GetCurrentPath (); 
-		}
-
-		public TestPathInternal GetCurrentPath ()
+		public TestPath GetCurrentPath ()
 		{
 			var parameter = GetCurrentParameter ();
 			if (parameter == null)
@@ -108,7 +99,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public virtual bool ParameterMatches<T> (string name)
 		{
-			return Path.ParameterMatches<T> (name);
+			return Node.ParameterMatches<T> (name);
 		}
 
 		public virtual T GetParameter<T> ()
@@ -117,8 +108,8 @@ namespace Xamarin.AsyncTests.Framework
 			if (parameter == null)
 				throw new InternalErrorException ();
 
-			var path = new TestPathInternal (Parent.Host, Parent.Path, parameter.Parameter);
-			return path.GetParameter<T> ();
+			var node = new TestNodeInternal (Parent.Host, parameter.Parameter);
+			return node.GetParameter<T> ();
 		}
 
 		public override string ToString ()

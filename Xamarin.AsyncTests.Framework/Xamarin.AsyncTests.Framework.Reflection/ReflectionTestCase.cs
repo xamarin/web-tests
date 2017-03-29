@@ -94,7 +94,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		void AddChildren (TestPathTreeNode node)
 		{
 			foreach (var child in node.GetChildren ()) {
-				if (child.Path.IsHidden || !child.Path.IsBrowseable) {
+				if (child.Path.Node.IsHidden || !child.Path.Node.IsBrowseable) {
 					AddChildren (child);
 				} else {
 					children.Add (new ReflectionTestCase (child));
@@ -105,7 +105,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		void AddParameters (TestContext ctx, TestPathTreeNode node)
 		{
 			foreach (var child in node.GetParameters (ctx)) {
-				if (child.Path.IsHidden || !child.Path.IsBrowseable) {
+				if (child.Path.Node.IsHidden || !child.Path.Node.IsBrowseable) {
 					AddParameters (ctx, child);
 				} else {
 					parameters.Add (new ReflectionTestCase (child));

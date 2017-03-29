@@ -36,7 +36,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override ITestParameter Parameter {
 			get {
-				return Instance.Path.Parameter;
+				return Instance.Node.Parameter;
 			}
 		}
 	}

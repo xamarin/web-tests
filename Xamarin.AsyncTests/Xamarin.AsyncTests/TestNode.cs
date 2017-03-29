@@ -1,5 +1,5 @@
 ﻿//
-// PathNode.cs
+// TestNode.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -29,7 +29,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests
 {
-	public abstract class PathNode
+	public abstract class TestNode
 	{
 		public abstract TestPathType PathType {
 			get;
@@ -67,7 +67,7 @@ namespace Xamarin.AsyncTests
 			get { return (Flags & TestFlags.Browsable) != 0; }
 		}
 
-		public bool Matches (PathNode node)
+		public bool Matches (TestNode node)
 		{
 			if (node.PathType != PathType)
 				return false;
@@ -96,6 +96,12 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public abstract T GetParameter<T> ();
+
+		public abstract TestNode Parameterize (ITestParameter parameter);
+
+		internal abstract TestNode Clone ();
+
 		public virtual void Write (XElement element)
 		{
 			element.Add (new XAttribute ("Type", WritePathType (PathType)));
@@ -113,19 +119,19 @@ namespace Xamarin.AsyncTests
 
 		static readonly XName ElementName = "TestParameter";
 
-		public static XElement WriteNode (PathNode node)
+		public static XElement WriteNode (TestNode node)
 		{
 			var element = new XElement (ElementName);
 			node.Write (element);
 			return element;
 		}
 
-		public static PathNode ReadNode (XElement element)
+		public static TestNode ReadNode (XElement element)
 		{
 			return new PathNodeWrapper (element);
 		}
 
-		internal static IEnumerable<PathNode> ReadAllNodes (XElement root)
+		internal static IEnumerable<TestNode> ReadAllNodes (XElement root)
 		{
 			foreach (var element in root.Elements (ElementName)) {
 				yield return ReadNode (element);
@@ -135,7 +141,7 @@ namespace Xamarin.AsyncTests
 		public override string ToString ()
 		{
 			string parameter = ParameterValue != null ? string.Format (", Parameter={0}", ParameterValue) : string.Empty;
-			return string.Format ("[TestPathNode: Type={0}, Identifier={1}, Name={2}{3}]", PathType, Identifier, Name, parameter);
+			return string.Format ("[TestNode: Type={0}, Identifier={1}, Name={2}{3}]", PathType, Identifier, Name, parameter);
 		}
 
 		static TestPathType ReadPathType (string value)
@@ -158,7 +164,7 @@ namespace Xamarin.AsyncTests
 			return (TestFlags)Enum.Parse (typeof (TestFlags), value);
 		}
 
-		sealed class PathNodeWrapper : PathNode
+		sealed class PathNodeWrapper : TestNode
 		{
 			public override TestPathType PathType {
 				get;
@@ -202,6 +208,31 @@ namespace Xamarin.AsyncTests
 				var paramValueAttr = element.Attribute ("Parameter");
 				if (paramValueAttr != null)
 					ParameterValue = paramValueAttr.Value;
+			}
+
+			PathNodeWrapper (TestNode other)
+			{
+				PathType = other.PathType;
+				Flags = other.Flags;
+				Identifier = other.Identifier;
+				Name = other.Name;
+				ParameterType = other.ParameterType;
+				ParameterValue = other.ParameterValue;
+			}
+
+			public override T GetParameter<T> ()
+			{
+				throw new InternalErrorException ();
+			}
+
+			public override TestNode Parameterize (ITestParameter parameter)
+			{
+				throw new InternalErrorException ();
+			}
+
+			internal override TestNode Clone ()
+			{
+				return new PathNodeWrapper (this);
 			}
 		}
 	}

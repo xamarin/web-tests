@@ -38,7 +38,6 @@ namespace Xamarin.AsyncTests.Console
 	{
 		public TestResult Result {
 			get;
-			private set;
 		}
 
 		public bool ShowIgnored {
@@ -66,23 +65,6 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		static string FormatParameters (TestPath path)
-		{
-			var parameters = new List<string> ();
-
-			for (; path != null; path = path.Parent) {
-				if (path.PathType != TestPathType.Parameter)
-					continue;
-				if ((path.Flags & TestFlags.Hidden) != 0)
-					continue;
-				parameters.Add (path.Identifier);
-			}
-
-			if (parameters.Count == 0)
-				return string.Empty;
-			return "(" + string.Join (",", parameters) + ")";
-		}
-
 		static void Debug (string message, params object[] args)
 		{
 			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
@@ -92,17 +74,14 @@ namespace Xamarin.AsyncTests.Console
 		{
 			public Element Parent {
 				get;
-				private set;
 			}
 
 			public XElement Node {
 				get;
-				private set;
 			}
 
 			public TestPath Path {
 				get;
-				private set;
 			}
 
 			public abstract string Name {
@@ -143,7 +122,6 @@ namespace Xamarin.AsyncTests.Console
 		{
 			public TestResult Result {
 				get;
-				private set;
 			}
 
 			List<Element> children = new List<Element> ();
@@ -172,27 +150,20 @@ namespace Xamarin.AsyncTests.Console
 			protected abstract void ResolveChildren (TestResult result);
 		}
 
-		class RootElement : ContainerElement
+		sealed class RootElement : ContainerElement
 		{
 			public override string Name {
-				get {
-					return name;
-				}
+				get;
 			}
 
 			public override string LocalName {
-				get {
-					return localName;
-				}
+				get;
 			}
-
-			readonly string name;
-			readonly string localName;
 
 			public RootElement (TestResult result)
 				: base (null, new XElement ("testsuites"), result)
 			{
-				name = localName = Path.Name;
+				Name = LocalName = result.Path.Node.Name;
 			}
 
 			protected override void ResolveChildren (TestResult result)
@@ -210,22 +181,19 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		class SuiteElement : ContainerElement
+		sealed class SuiteElement : ContainerElement
 		{
 			public override string Name {
-				get { return name; }
+				get;
 			}
 
 			public override string LocalName {
-				get { return localName; }
+				get;
 			}
 
 			public XElement Properties { get; } = new XElement ("properties");
 
 			public DateTime TimeStamp { get; } = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
-
-			readonly string name;
-			readonly string localName;
 
 			StringBuilder output = new StringBuilder ();
 			StringBuilder errorOutput = new StringBuilder ();
@@ -239,14 +207,14 @@ namespace Xamarin.AsyncTests.Console
 					formatted.Append (".");
 				}
 
-				localName = path.Name;
-				if (!string.IsNullOrEmpty (localName)) {
-					formatted.Append (localName);
-					var parameters = FormatParameters (path);
-					formatted.Append (parameters); 
+				LocalName = path.Node.Name;
+				if (!string.IsNullOrEmpty (LocalName)) {
+					formatted.Append (LocalName);
+					var parameters = path.ParameterList;
+					formatted.Append (path.ArgumentList); 
 				}
 
-				name = formatted.ToString ();
+				Name = formatted.ToString ();
 			}
 
 			protected override void Resolve ()
@@ -282,13 +250,14 @@ namespace Xamarin.AsyncTests.Console
 				      result.Path.SerializePath ());
 
 				if (!result.HasChildren || result.Children.Count == 0) {
-						AddChild (new CaseElement (this, result));
-						return;
-					}
+					AddChild (new CaseElement (this, result));
+					return;
+				}
 
 				foreach (var child in result.Children) {
 					Debug ("  RESOLVE CHILD: {0} {1}\n{2}", child, child.Path, child.Path.SerializePath ());
-					if ((child.Path.PathType != TestPathType.Parameter) && ((child.Path.Flags & TestFlags.Hidden) == 0))
+					var node = child.Path.Node;
+					if (!node.IsHidden && node.PathType != TestPathType.Parameter)
 						AddChild (new SuiteElement (this, child.Path, child));
 					else
 						ResolveChildren (child);
@@ -350,51 +319,43 @@ namespace Xamarin.AsyncTests.Console
 				if (path.Parent != null)
 					WriteParameters (list, path.Parent);
 
-				if (path.PathType != TestPathType.Parameter)
-					return;
-				if ((path.Flags & TestFlags.Hidden) != 0)
+				var node = path.Node;
+				if (node.IsHidden || node.PathType != TestPathType.Parameter)
 					return;
 
-				var line = string.Format ("  {0} = {1}", path.Name, path.ParameterValue);
+				var line = string.Format ("  {0} = {1}", node.Name, node.ParameterValue);
 				var element = new XElement ("property");
-				element.SetAttributeValue ("name", path.Name);
-				element.SetAttributeValue ("value", path.ParameterValue);
+				element.SetAttributeValue ("name", node.Name);
+				element.SetAttributeValue ("value", node.ParameterValue);
 
 				list.Add (new Tuple<string,XElement> (line, element));
 			}
 		}
 
-		class CaseElement : Element
+		sealed class CaseElement : Element
 		{
 			public override string Name {
-				get {
-					return name;
-				}
+				get;
 			}
 
 			public override string LocalName {
-				get {
-					return localName;
-				}
+				get;
 			}
 
 			public TestResult Result {
-				get; private set;
+				get;
 			}
-
-			readonly string name;
-			readonly string localName;
 
 			public CaseElement (SuiteElement parent, TestResult result)
 				: base (parent, new XElement ("testcase"), result.Path)
 			{
 				Result = result;
 
-				var argumentList = TestPath.FormatArguments (Result.Path);
+				var argumentList = result.Path.ArgumentList;
 				var reallyNewName = Parent.LocalName + argumentList;
 
-				name = Parent.LocalName + argumentList;
-				localName = Parent.LocalName + argumentList;
+				Name = Parent.LocalName + argumentList;
+				LocalName = Parent.LocalName + argumentList;
 			}
 
 			bool hasError;

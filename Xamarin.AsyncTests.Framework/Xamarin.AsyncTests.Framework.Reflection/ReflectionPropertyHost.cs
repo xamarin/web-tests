@@ -36,17 +36,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 	{
 		public ReflectionTestFixtureBuilder Fixture {
 			get;
-			private set;
 		}
 
 		public PropertyInfo Property {
 			get;
-			private set;
 		}
 
 		public ParameterizedTestHost Host {
 			get;
-			private set;
 		}
 
 		public ReflectionPropertyHost (ReflectionTestFixtureBuilder fixture,
@@ -58,9 +55,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Host = host;
 		}
 
-		internal override TestInstance CreateInstance (TestPathInternal path, TestInstance parent)
+		internal override TestInstance CreateInstance (TestPath path, TestNodeInternal node, TestInstance parent)
 		{
-			var instance = (ParameterizedTestInstance)Host.CreateInstance (path, parent);
+			var instance = (ParameterizedTestInstance)Host.CreateInstance (path, node, parent);
 			return new ReflectionPropertyInstance (this, instance, parent);
 		}
 
@@ -72,13 +69,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			public ParameterizedTestInstance Instance {
 				get;
-				private set;
 			}
 
 			ParameterizedTestValue current;
 
 			public ReflectionPropertyInstance (ReflectionPropertyHost host, ParameterizedTestInstance instance, TestInstance parent)
-				: base (host, instance.Path, parent)
+				: base (host, instance.Path, instance.Node, parent)
 			{
 				Instance = instance;
 			}

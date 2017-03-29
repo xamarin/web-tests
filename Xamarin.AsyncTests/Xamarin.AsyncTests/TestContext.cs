@@ -40,13 +40,10 @@ namespace Xamarin.AsyncTests
 		readonly TestLogger logger;
 		readonly SettingsBag settings;
 		readonly ITestConfiguration config;
-		readonly ITestPathInternal path;
-		readonly TestPath currentPath;
 		bool isCanceled;
 
 		public TestName Name {
 			get;
-			private set;
 		}
 
 		public TestResult Result {
@@ -57,14 +54,8 @@ namespace Xamarin.AsyncTests
 			get { return settings ?? parent.Settings; }
 		}
 
-		internal ITestPathInternal Path {
-			get { return path ?? parent.Path; }
-		}
-
 		internal TestPath CurrentPath {
-			get {
-				return currentPath;
-			}
+			get;
 		} 
 
 		internal TestContext (SettingsBag settings, TestLogger logger, ITestConfiguration config, string name)
@@ -75,14 +66,13 @@ namespace Xamarin.AsyncTests
 			this.logger = logger;
 		}
 
-		TestContext (TestContext parent, ITestPathInternal path, TestResult result)
+		TestContext (TestContext parent, TestPath path, TestResult result)
 		{
 			this.parent = parent;
-			this.path = path;
 			this.result = result;
 
-			currentPath = path.GetCurrentPath ();
-			Name = currentPath.TestName;
+			CurrentPath = path;
+			Name = CurrentPath.TestName;
 
 			if (result != null)
 				logger = new TestLogger (TestLoggerBackend.CreateForResult (result, parent.logger));
@@ -92,7 +82,7 @@ namespace Xamarin.AsyncTests
 			config = parent.config;
 		}
 
-		internal TestContext CreateChild (ITestPathInternal path, TestResult result = null)
+		internal TestContext CreateChild (TestPath path, TestResult result = null)
 		{
 			return new TestContext (this, path, result);
 		}
@@ -398,15 +388,15 @@ namespace Xamarin.AsyncTests
 
 		public bool TryGetParameter<T> (out T value, string name = null)
 		{
-			var path = Path;
+			var path = CurrentPath;
 			if (path == null) {
 				AssertFail ("Should never happen!");
 				throw new SkipRestOfThisTestException ();
 			}
 
 			while (path != null) {
-				if (path.ParameterMatches<T> (name)) {
-					value = path.GetParameter<T> ();
+				if (path.Node.ParameterMatches<T> (name)) {
+					value = path.Node.GetParameter<T> ();
 					return true;
 				}
 

@@ -37,8 +37,8 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (ParameterizedTestHost)base.Host; }
 		}
 
-		public ParameterizedTestInstance (ParameterizedTestHost host, TestPathInternal path, TestInstance parent)
-			: base (host, path, parent)
+		public ParameterizedTestInstance (ParameterizedTestHost host, TestPath path, TestNodeInternal node, TestInstance parent)
+			: base (host, path, node, parent)
 		{
 		}
 
@@ -62,7 +62,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override bool ParameterMatches<T> (string name)
 		{
-			return Path.ParameterMatches<T> (name);
+			return Node.ParameterMatches<T> (name);
 		}
 
 		public override T GetParameter<T> ()

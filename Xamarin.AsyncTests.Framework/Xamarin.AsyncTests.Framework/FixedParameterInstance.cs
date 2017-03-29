@@ -33,8 +33,8 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (FixedParameterHost<T>)base.Host; }
 		}
 
-		public FixedParameterInstance (FixedParameterHost<T> host, TestPathInternal path, TestInstance parent)
-			: base (host, path, parent)
+		public FixedParameterInstance (FixedParameterHost<T> host, TestPath path, TestNodeInternal node, TestInstance parent)
+			: base (host, path, node, parent)
 		{
 		}
 

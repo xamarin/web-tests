@@ -1,5 +1,5 @@
 ﻿//
-// TestPathInternal.cs
+// TestNodeInternal.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -30,7 +30,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	sealed class TestPathInternal : TestPath, ITestPathInternal
+	sealed class TestNodeInternal : TestNode
 	{
 		public TestHost Host {
 			get;
@@ -40,24 +40,8 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public TestPathInternal InternalParent {
-			get;
-		}
-
-		public override TestPath Parent {
-			get { return InternalParent; }
-		}
-
 		public override string Name {
 			get { return Host.Name; }
-		}
-
-		TestPath ITestPathInternal.Path {
-			get { return this; }
-		}
-
-		ITestPathInternal ITestPathInternal.Parent {
-			get { return InternalParent; }
 		}
 
 		public bool HasParameter {
@@ -84,41 +68,27 @@ namespace Xamarin.AsyncTests.Framework
 			get { return Host.ParameterType; }
 		}
 
-		internal TestPathInternal (TestHost host, TestPathInternal parent, ITestParameter parameter = null, TestFlags? flags = null)
+		internal TestNodeInternal (TestHost host, ITestParameter parameter = null, TestFlags? flags = null)
 		{
 			Host = host;
 			Flags = flags ?? host.Flags;
-			InternalParent = parent;
 
 			Parameter = host.HasFixedParameter ? host.GetFixedParameter () : parameter;
 		}
 
-		TestPath ITestPathInternal.GetCurrentPath ()
+		internal override TestNode Clone ()
 		{
-			return Clone ();
+			return new TestNodeInternal (Host, Parameter, Flags);
 		}
 
-		internal TestPathInternal Clone ()
-		{
-			return new TestPathInternal (Host, InternalParent, Parameter);
-		}
-
-		public TestPathInternal Parameterize (ITestParameter parameter)
+		public override TestNode Parameterize (ITestParameter parameter)
 		{
 			if (!IsParameterized)
 				throw new InternalErrorException ();
-			return new TestPathInternal (Host, InternalParent, parameter);
+			return new TestNodeInternal (Host, parameter, Flags);
 		}
 
-		internal TestBuilder GetTestBuilder ()
-		{
-			var builder = Host as TestBuilderHost;
-			if (builder != null)
-				return builder.Builder;
-			return InternalParent.GetTestBuilder ();
-		}
-
-		public static bool Matches (TestHost host, PathNode second)
+		public static bool Matches (TestHost host, TestNode second)
 		{
 			if (host.PathType != second.PathType)
 				return false;
@@ -134,12 +104,12 @@ namespace Xamarin.AsyncTests.Framework
 			return true;
 		}
 
-		public T GetParameter<T> ()
+		public override T GetParameter<T> ()
 		{
 			if (Parameter == null)
 				return default (T);
 
-			var typeInfo = typeof(T).GetTypeInfo ();
+			var typeInfo = typeof (T).GetTypeInfo ();
 			if (typeInfo.IsEnum)
 				return (T)Enum.Parse (typeof (T), Parameter.Value);
 
@@ -148,17 +118,6 @@ namespace Xamarin.AsyncTests.Framework
 				return (T)wrapper.Value;
 
 			return (T)Parameter;
-		}
-
-		internal static bool TestEquals (TestContext ctx, TestPath first, TestPath second)
-		{
-			var serializedFirst = first.SerializePath ().ToString ();
-			var serializedSecond = second.SerializePath ().ToString ();
-			if (string.Equals (serializedFirst, serializedSecond))
-				return true;
-
-			ctx.LogMessage ("NOT EQUAL:\n{0}\n{1}\n\n", serializedFirst, serializedSecond);
-			return false;
 		}
 	}
 }

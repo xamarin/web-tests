@@ -35,22 +35,18 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 	{
 		public ReflectionTestAssemblyBuilder AssemblyBuilder {
 			get;
-			private set;
 		}
 
 		public TypeInfo Type {
 			get;
-			private set;
 		}
 
 		public HeavyTestHost FixtureHost {
 			get;
-			private set;
 		}
 
 		public AsyncTestAttribute Attribute {
 			get;
-			private set;
 		}
 
 		public override TestBuilder Parent {
@@ -112,7 +108,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			public ReflectionTestFixtureBuilder Builder {
 				get;
-				private set;
 			}
 
 			public override ITestParameter Parameter {
@@ -127,10 +122,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				Builder = builder;
 			}
 
-			internal override TestInstance CreateInstance (TestPathInternal path, TestInstance parent)
+			internal override TestInstance CreateInstance (TestPath path, TestNodeInternal node, TestInstance parent)
 			{
 				var instance = Activator.CreateInstance (Builder.Type.AsType ());
-				return new FixtureTestInstance (this, path, instance, parent);
+				return new FixtureTestInstance (this, path, node, instance, parent);
 			}
 		}
 	}

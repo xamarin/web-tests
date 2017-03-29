@@ -37,35 +37,35 @@ using ObjCRuntime;
 
 namespace Xamarin.AsyncTests.MacUI
 {
-	public class TestResultModel : TestListNode
+	sealed class TestResultModel : TestListNode
 	{
 		public TestSession Session {
 			get;
-			private set;
 		}
 
 		public TestResult Result {
 			get;
-			private set;
 		}
 
 		public TestPath Path {
 			get;
-			private set;
 		}
 
-		readonly string name;
+		public TestNode Node {
+			get;
+		}
 
 		public TestResultModel (TestSession session, TestResult result)
 		{
 			Session = session;
 			Result = result;
 			Path = result.Path;
+			Node = Path.Node;
 
-			if (Path.PathType == TestPathType.Parameter)
-				name = Path.ParameterValue ?? string.Empty;
+			if (Node.PathType == TestPathType.Parameter)
+				Name = Node.ParameterValue ?? string.Empty;
 			else
-				name = Path.Name ?? string.Empty;
+				Name = Node.Name ?? string.Empty;
 		}
 
 		protected override IEnumerable<TestListNode> ResolveChildren ()
@@ -74,7 +74,7 @@ namespace Xamarin.AsyncTests.MacUI
 		}
 
 		public override string Name {
-			get { return name; }
+			get;
 		}
 
 		public override TestStatus TestStatus {
@@ -91,14 +91,12 @@ namespace Xamarin.AsyncTests.MacUI
 				return testParameters;
 
 			var sb = new StringBuilder ();
-			for (var path = Path; path != null; path = path.Parent) {
-				if (path.PathType != TestPathType.Parameter)
-					continue;
-				if ((path.Flags & TestFlags.Hidden) != 0)
+			foreach (var node in Path.Nodes) {
+				if (node.IsHidden || node.PathType != TestPathType.Parameter)
 					continue;
 				if (sb.Length > 0)
 					sb.AppendLine ();
-				sb.AppendFormat ("  {0} = {1}", path.Name, path.ParameterValue);
+				sb.AppendFormat ("  {0} = {1}", node.Name, node.ParameterValue);
 			}
 
 			testParameters = sb.ToString ();
