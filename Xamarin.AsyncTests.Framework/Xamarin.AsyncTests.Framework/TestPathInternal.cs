@@ -34,21 +34,14 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public TestHost Host {
 			get;
-			private set;
 		}
 
 		public override TestFlags Flags {
-			get { return InternalFlags; }
-		}
-
-		public TestFlags InternalFlags {
 			get;
-			internal set;
 		}
 
 		public TestPathInternal InternalParent {
 			get;
-			private set;
 		}
 
 		public override TestPath Parent {
@@ -67,30 +60,16 @@ namespace Xamarin.AsyncTests.Framework
 			get { return InternalParent; }
 		}
 
-		public TestName TestName {
-			get { return name; }
-		}
-
 		public bool HasParameter {
-			get { return parameter != null; }
+			get { return Parameter != null; }
 		}
 
 		public ITestParameter Parameter {
-			get { return parameter; }
+			get;
 		}
 
 		public override string ParameterValue {
-			get {
-				return parameter?.Value;
-			}
-		}
-
-		public bool IsHidden {
-			get { return (Flags & TestFlags.Hidden) != 0; } 
-		}
-
-		public bool IsBrowseable {
-			get { return (Flags & TestFlags.Browsable) != 0; }
+			get { return Parameter?.Value; }
 		}
 
 		public override TestPathType PathType {
@@ -105,17 +84,13 @@ namespace Xamarin.AsyncTests.Framework
 			get { return Host.ParameterType; }
 		}
 
-		readonly ITestParameter parameter;
-		readonly TestName name;
-
 		internal TestPathInternal (TestHost host, TestPathInternal parent, ITestParameter parameter = null, TestFlags? flags = null)
 		{
 			Host = host;
-			InternalFlags = flags ?? host.Flags;
+			Flags = flags ?? host.Flags;
 			InternalParent = parent;
 
-			this.parameter = host.HasFixedParameter ? host.GetFixedParameter () : parameter;
-			this.name = GetName ();
+			Parameter = host.HasFixedParameter ? host.GetFixedParameter () : parameter;
 		}
 
 		TestPath ITestPathInternal.GetCurrentPath ()
@@ -143,20 +118,6 @@ namespace Xamarin.AsyncTests.Framework
 			return InternalParent.GetTestBuilder ();
 		}
 
-		public bool Matches (PathNode node)
-		{
-			if (node.PathType != Host.PathType)
-				return false;
-			if (!string.Equals (node.Identifier, Host.Identifier, StringComparison.Ordinal))
-				return false;
-			if (IsParameterized != (node.ParameterType != null))
-				return false;
-			if (node.ParameterType != null && !node.ParameterType.Equals (Host.ParameterType))
-				return false;
-
-			return true;
-		}
-
 		public static bool Matches (TestHost host, PathNode second)
 		{
 			if (host.PathType != second.PathType)
@@ -171,21 +132,6 @@ namespace Xamarin.AsyncTests.Framework
 				return false;
 
 			return true;
-		}
-
-		public bool ParameterMatches<T> (string name = null)
-		{
-			if (!IsParameterized)
-				return false;
-
-			if (name != null) {
-				if (Host.PathType != TestPathType.Parameter)
-					return false;
-				return Host.Identifier.Equals (name);
-			} else {
-				var friendlyName = TestSerializer.GetFriendlyName (typeof(T));
-				return friendlyName.Equals (Host.ParameterType);
-			}
 		}
 
 		public T GetParameter<T> ()

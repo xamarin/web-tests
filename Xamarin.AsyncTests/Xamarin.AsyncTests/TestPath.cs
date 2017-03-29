@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Text;
+using System.Linq;
 using System.Xml.Linq;
 using System.Collections.Generic;
 
@@ -39,10 +40,6 @@ namespace Xamarin.AsyncTests
 		public XElement SerializePath (bool debug = true)
 		{
 			return Write (this, debug);
-		}
-
-		public bool IsParameterized {
-			get { return ParameterType != null; }
 		}
 
 		static readonly XName ElementName = "TestPath";
@@ -78,9 +75,40 @@ namespace Xamarin.AsyncTests
 			return current;
 		}
 
+		bool resolved;
+		IReadOnlyList<PathNode> nodes;
+		string fullName;
+		TestName testName;
+
+		void Resolve ()
+		{
+			if (resolved)
+				return;
+
+			nodes = GetNodes (this);
+			testName = GetName (this);
+			fullName = GetFullName (this);
+			resolved = true;
+		}
+
 		public IReadOnlyList<PathNode> GetNodes ()
 		{
-			return GetNodes (this);
+			Resolve ();
+			return nodes;
+		}
+
+		public string FullName {
+			get {
+				Resolve ();
+				return fullName;
+			}
+		}
+
+		public TestName TestName {
+			get {
+				Resolve ();
+				return testName;
+			}
 		}
 
 		static IReadOnlyList<PathNode> GetNodes (TestPath path)
@@ -94,7 +122,7 @@ namespace Xamarin.AsyncTests
 			return list;
 		}
 
-		public static string GetFullName (TestPath path)
+		static string GetFullName (TestPath path)
 		{
 			var formatted = new StringBuilder ();
 
@@ -137,28 +165,24 @@ namespace Xamarin.AsyncTests
 			return "(" + string.Join (",", arguments) + ")";
 		}
 
-		public TestName GetName ()
-		{
-			return GetName (this);
-		}
-
 		static TestName GetName (TestPath path)
 		{
-			var builder = new TestNameBuilder ();
+			var parts = new Stack<string> ();
+			var parameters = new Stack<TestName.Parameter> ();
 
 			for (; path != null; path = path.Parent) {
 				if (path.PathType == TestPathType.Parameter) {
-					builder.PushParameter (path.Name, path.ParameterValue, (path.Flags & TestFlags.Hidden) != 0);
+					parameters.Push (new TestName.Parameter (path.Name, path.ParameterValue, path.IsHidden));
 					continue;
 				}
-				if (string.IsNullOrEmpty (path.Name))
+				if (path.IsHidden || string.IsNullOrEmpty (path.Name))
 					continue;
-				if ((path.Flags & TestFlags.Hidden) != 0)
-						continue;
-				builder.PushName (path.Name); 
+				parts.Push (path.Name);
 			}
 
-			return builder.GetName ();
+			var fullName = string.Join (".", parts.Reverse ());
+			var localName = parts.First ();
+			return new TestName (localName, fullName, parameters.Reverse ().ToArray ());
 		}
 
 		public readonly int ID = ++next_id;
@@ -171,47 +195,44 @@ namespace Xamarin.AsyncTests
 			return string.Format ("[TestPath({5}): ID={0}, Identifier={1}, Name={2}{3}{4}]", ID, Identifier, Name, parameter, parent, PathType);
 		}
 
-		class PathWrapper : TestPath
+		sealed class PathWrapper : TestPath
 		{
-			readonly TestPath parent;
-			readonly PathNode node;
-
 			public PathNode Node {
-				get { return node; }
+				get;
 			}
 
 			public PathWrapper (TestPath parent, PathNode node)
 			{
-				this.parent = parent;
-				this.node = node;
+				Parent = parent;
+				Node = node;
 			}
 
 			public override TestPath Parent {
-				get { return parent; }
+				get;
 			}
 
 			public override TestPathType PathType {
-				get { return node.PathType; }
+				get { return Node.PathType; }
 			}
 
 			public override TestFlags Flags {
-				get { return node.Flags; }
+				get { return Node.Flags; }
 			}
 
 			public override string Identifier {
-				get { return node.Identifier; }
+				get { return Node.Identifier; }
 			}
 
 			public override string Name {
-				get { return node.Name; }
+				get { return Node.Name; }
 			}
 
 			public override string ParameterType {
-				get { return node.ParameterType; }
+				get { return Node.ParameterType; }
 			}
 
 			public override string ParameterValue {
-				get { return node.ParameterValue; }
+				get { return Node.ParameterValue; }
 			}
 		}
 	}

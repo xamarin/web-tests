@@ -41,21 +41,15 @@ namespace Xamarin.AsyncTests.MacUI
 			private set;
 		}
 
-		public TestName Name {
-			get;
-			private set;
-		}
-
 		public int RepeatCount {
 			get;
 			private set;
 		}
 
-		public RunParameters (TestSession session, TestCase test, TestName name = null, int repeat = 0)
+		public RunParameters (TestSession session, TestCase test, int repeat = 0)
 		{
 			Session = session;
 			Test = test;
-			Name = name ?? test.Name;
 			RepeatCount = repeat;
 		}
 	}

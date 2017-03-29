@@ -65,7 +65,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 			await parameters.Session.UpdateSettings (cancellationToken);
 
-			SetStatusMessage ("Running {0}.", parameters.Test.Name);
+			SetStatusMessage ("Running {0}.", parameters.Test.Path.FullName);
 
 			startTime = DateTime.Now;
 

@@ -124,12 +124,12 @@ namespace Xamarin.AsyncTests.Framework
 
 				var innerCtx = ctx.CreateChild (parameterizedInstance, ctx.Result);
 
-				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2} {3}", path.TestName.FullName,
+				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2} {3}", path.FullName,
 					TestLogger.Print (Host), TestLogger.Print (parameterizedInstance), Inner);
 
 				success = await InvokeInner (innerCtx, parameterizedInstance, Inner, cancellationToken);
 
-				ctx.LogDebug (10, "InnerInvoke({0}) done: {1} {2} {3}", path.TestName.FullName,
+				ctx.LogDebug (10, "InnerInvoke({0}) done: {1} {2} {3}", path.FullName,
 					TestLogger.Print (Host), TestLogger.Print (parameterizedInstance), success);
 			}
 

@@ -26,6 +26,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests
@@ -134,6 +135,16 @@ namespace Xamarin.AsyncTests
 				sb.Append (Parameters [i].Value);
 			}
 			sb.Append (")");
+		}
+
+		public static string GetFriendlyName (Type type)
+		{
+			if (type == null)
+				return null;
+			var friendlyAttr = type.GetTypeInfo ().GetCustomAttribute<FriendlyNameAttribute> ();
+			if (friendlyAttr != null)
+				return friendlyAttr.Name;
+			return type.Name;
 		}
 
 		public class Parameter

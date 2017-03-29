@@ -67,9 +67,9 @@ namespace Xamarin.AsyncTests
 			}
 		} 
 
-		internal TestContext (SettingsBag settings, TestLogger logger, ITestConfiguration config, TestName name)
+		internal TestContext (SettingsBag settings, TestLogger logger, ITestConfiguration config, string name)
 		{
-			Name = name;
+			Name = new TestName (name);
 			this.settings = settings;
 			this.config = config;
 			this.logger = logger;
@@ -82,7 +82,7 @@ namespace Xamarin.AsyncTests
 			this.result = result;
 
 			currentPath = path.GetCurrentPath ();
-			Name = currentPath.GetName ();
+			Name = currentPath.TestName;
 
 			if (result != null)
 				logger = new TestLogger (TestLoggerBackend.CreateForResult (result, parent.logger));
@@ -418,12 +418,18 @@ namespace Xamarin.AsyncTests
 		}
 
 		static int nextPort;
+		static int nextId;
 
 		public int GetUniquePort ()
 		{
 			if (parent != null)
 				return parent.GetUniquePort ();
 			return 9000 + (++nextPort);
+		}
+
+		public int GetUniqueId ()
+		{
+			return ++nextId;
 		}
 	}
 }

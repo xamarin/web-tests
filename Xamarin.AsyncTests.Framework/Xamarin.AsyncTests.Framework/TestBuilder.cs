@@ -57,17 +57,12 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		public TestName TestName {
-			get;
-			private set;
-		}
-
 		public virtual TestBuilder Parent {
 			get { return null; }
 		}
 
 		public virtual string FullName {
-			get { return TestName.FullName; }
+			get { return Name; }
 		}
 
 		public virtual string TypeKey {
@@ -82,7 +77,6 @@ namespace Xamarin.AsyncTests.Framework
 			Identifier = identifier;
 			Name = name;
 			Flags = flags;
-			TestName = name != null ? new TestName (name) : TestName.Empty;
 			Parameter = parameter;
 		}
 

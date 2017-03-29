@@ -106,18 +106,6 @@ namespace Xamarin.AsyncTests.Framework
 			return parameter.GetCurrentPath ();
 		}
 
-		[Obsolete ("KILL", true)]
-		internal static TestPathInternal GetCurrentPath (TestInstance instance)
-		{
-			return instance.GetCurrentPath ();
-		}
-
-		[Obsolete ("KILL")]
-		public static TestName GetTestName (TestInstance instance)
-		{
-			return GetCurrentPath (instance).TestName;
-		}
-
 		public virtual bool ParameterMatches<T> (string name)
 		{
 			return Path.ParameterMatches<T> (name);

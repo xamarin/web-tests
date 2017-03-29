@@ -53,16 +53,6 @@ namespace Xamarin.AsyncTests.Framework
 			return resolver.Node;
 		}
 
-		public static string GetFriendlyName (Type type)
-		{
-			if (type == null)
-				return null;
-			var friendlyAttr = type.GetTypeInfo ().GetCustomAttribute<FriendlyNameAttribute> ();
-			if (friendlyAttr != null)
-				return friendlyAttr.Name;
-			return type.Name;
-		}
-
 		internal static ITestParameter GetStringParameter (string value)
 		{
 			return new ParameterWrapper { Value = value };
@@ -107,46 +97,6 @@ namespace Xamarin.AsyncTests.Framework
 			}
 
 			return node;
-		}
-
-		public static TestName ReadTestName (XElement node)
-		{
-			if (!node.Name.LocalName.Equals ("TestName"))
-				throw new InternalErrorException ();
-
-			var builder = new TestNameBuilder ();
-			var nameAttr = node.Attribute ("Name");
-			if (nameAttr != null)
-				builder.PushName (nameAttr.Value);
-
-			foreach (var child in node.Elements ("Parameter")) {
-				var name = child.Attribute ("Name").Value;
-				var value = child.Attribute ("Value").Value;
-				var isHidden = bool.Parse (child.Attribute ("IsHidden").Value);
-				builder.PushParameter (name, value, isHidden);
-			}
-
-			return builder.GetName ();
-		}
-
-		public static XElement WriteTestName (TestName instance)
-		{
-			var element = new XElement ("TestName");
-			if (instance.Name != null)
-				element.SetAttributeValue ("Name", instance.Name);
-
-			if (instance.HasParameters) {
-				foreach (var parameter in instance.Parameters) {
-					var node = new XElement ("Parameter");
-					element.Add (node);
-
-					node.SetAttributeValue ("Name", parameter.Name);
-					node.SetAttributeValue ("Value", parameter.Value);
-					node.SetAttributeValue ("IsHidden", parameter.IsHidden.ToString ());
-				}
-			}
-
-			return element;
 		}
 
 		public static XElement WriteError (Exception error)
@@ -210,17 +160,14 @@ namespace Xamarin.AsyncTests.Framework
 			var element = new XElement ("TestResult");
 			element.SetAttributeValue ("Status", instance.Status.ToString ());
 
-			var name = instance.Path.GetName ();
-			if (!TestName.IsNullOrEmpty (name))
-				element.SetAttributeValue ("Name", name.FullName);
+			if (!string.IsNullOrEmpty (instance.Path.FullName))
+				element.SetAttributeValue ("Name", instance.Path.FullName);
 
-			if (instance.Path != null) {
+			if (instance.Path != null)
 				element.Add (instance.Path.SerializePath ());
-			}
 
-			if (instance.ElapsedTime != null) {
+			if (instance.ElapsedTime != null)
 				element.SetAttributeValue ("ElapsedTime", (int)instance.ElapsedTime.Value.TotalMilliseconds);
-			}
 
 			foreach (var error in instance.Errors) {
 				element.Add (WriteError (error));

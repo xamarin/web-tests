@@ -57,26 +57,11 @@ namespace Xamarin.AsyncTests.Framework
 			if (currentPath != null)
 				return currentPath;
 
-			if (Instance.Parent != null) {
+			if (Instance.Parent != null)
 				parentPath = Instance.Parent.GetCurrentPath ();
-
-				if (false) {
-					// parentPath = (TestPathInternal)Path.Parent;
-
-					var working = parentPath.SerializePath (false).ToString ();
-					var broken = Path.Parent.SerializePath (false).ToString ();
-					if (!string.Equals (working, broken))
-						Debug ("GET CURRENT PATH: {0}\n{1}\n{2}\n\n", Instance, working, broken);
-				}
-			}
 
 			currentPath = new TestPathInternal (Instance.Host, parentPath, Parameter);
 			return currentPath;
-		}
-
-		static void Debug (string message, params object[] args)
-		{
-			System.Diagnostics.Debug.WriteLine ("TEST PARAMETER VALUE: {0}", string.Format (message, args));
 		}
 	}
 }

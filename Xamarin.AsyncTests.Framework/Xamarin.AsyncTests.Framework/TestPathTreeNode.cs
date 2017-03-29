@@ -159,36 +159,26 @@ namespace Xamarin.AsyncTests.Framework
 			get { return this; }
 		}
 
-		static void Debug (string message, params object[] args)
-		{
-			System.Diagnostics.Debug.WriteLine ("TEST PATH TREE NODE: {0}", string.Format (message, args));
-		}
-
 		public IPathResolver Resolve (TestContext ctx, PathNode node)
 		{
 			Resolve (ctx);
-
-			Debug ("RESOLVE: {0} {1}", node, innerNode);
 
 			if (innerNode != null) {
 				innerNode.Resolve (ctx);
 
 				if (!TestPathInternal.Matches (innerNode.Tree.Host, node))
-					throw new InternalErrorException ("#1");
+					throw new InternalErrorException ();
 				if (node.ParameterValue != null)
 					return innerNode.Parameterize (node.ParameterValue);
 				return innerNode;
 			}
 
-			Debug ("RESOLVE #1: {0} {1}", node.ParameterValue, children.Count); 
-
 			if (node.ParameterValue == null)
-				throw new InternalErrorException ("#2");
+				throw new InternalErrorException ();
 
 			foreach (var child in children) {
-				Debug ("RESOLVE #2: {0} {1}", child, child.Path.Parameter); 
 				if (!TestPathInternal.Matches (child.Path.Host, node))
-					throw new InternalErrorException ("#3");
+					throw new InternalErrorException ();
 
 				if (!node.ParameterValue.Equals (child.Path.Parameter.Value))
 					continue;
@@ -217,10 +207,10 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			var node = Path.InternalParent;
 			while (node != root) {
-				var cloned = node.Clone ();
+				var flags = node.Flags;
 				if (flattenHierarchy)
-					cloned.InternalFlags |= TestFlags.FlattenHierarchy;
-				invoker = node.Host.CreateInvoker (cloned, invoker);
+					flags |= TestFlags.FlattenHierarchy;
+				invoker = node.Host.CreateInvoker (node, invoker, flags);
 				node = node.InternalParent;
 			}
 
@@ -233,14 +223,14 @@ namespace Xamarin.AsyncTests.Framework
 
 			TestInvoker invoker = null;
 			if (innerNode != null)
-				invoker = innerNode.CreateInvoker (ctx, root, flattenHierarchy);
+				invoker = innerNode.CreateInvoker (ctx, root, false);
 			else
 				invoker = CreateInnerInvoker (ctx);
 
-			var node = Path.Clone ();
+			var flags = Path.Flags;
 			if (flattenHierarchy)
-				node.InternalFlags |= TestFlags.FlattenHierarchy;
-			invoker = node.Host.CreateInvoker (node, invoker);
+				flags |= TestFlags.FlattenHierarchy;
+			invoker = Path.Host.CreateInvoker (Path, invoker, flags);
 			return invoker;
 		}
 

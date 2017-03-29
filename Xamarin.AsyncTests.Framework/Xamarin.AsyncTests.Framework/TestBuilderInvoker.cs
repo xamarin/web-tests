@@ -88,16 +88,6 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		bool UseResultGroup {
-			get {
-				if (TestName.IsNullOrEmpty (Host.Builder.TestName))
-					return false;
-				if ((Path.Flags & (TestFlags.Hidden | TestFlags.FlattenHierarchy)) != 0)
-					return false;
-				return true;
-			}
-		}
-
 		public override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
@@ -105,15 +95,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (innerInstance == null)
 				return false;
 
-			TestContext innerCtx;
-			if (false && UseResultGroup) {
-				var parameter = innerInstance.GetCurrentParameter ();
-				var currentPath = parameter.GetCurrentPath ();
-				var innerResult = new TestResult (currentPath);
-				innerCtx = ctx.CreateChild (innerInstance, innerResult);
-			} else {
-				innerCtx = ctx.CreateChild (innerInstance);
-			}
+			var innerCtx = ctx.CreateChild (innerInstance);
 
 			var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
 

@@ -55,6 +55,47 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
+		public bool IsParameterized {
+			get { return ParameterType != null; }
+		}
+
+		public bool IsHidden {
+			get { return (Flags & TestFlags.Hidden) != 0; }
+		}
+
+		public bool IsBrowseable {
+			get { return (Flags & TestFlags.Browsable) != 0; }
+		}
+
+		public bool Matches (PathNode node)
+		{
+			if (node.PathType != PathType)
+				return false;
+			if (!string.Equals (node.Identifier, Identifier, StringComparison.Ordinal))
+				return false;
+			if (IsParameterized != (node.ParameterType != null))
+				return false;
+			if (node.ParameterType != null && !node.ParameterType.Equals (ParameterType))
+				return false;
+
+			return true;
+		}
+
+		public bool ParameterMatches<T> (string name = null)
+		{
+			if (!IsParameterized)
+				return false;
+
+			if (name != null) {
+				if (PathType != TestPathType.Parameter)
+					return false;
+				return Identifier.Equals (name);
+			} else {
+				var friendlyName = TestName.GetFriendlyName (typeof (T));
+				return friendlyName.Equals (ParameterType);
+			}
+		}
+
 		public virtual void Write (XElement element)
 		{
 			element.Add (new XAttribute ("Type", WritePathType (PathType)));
@@ -117,57 +158,50 @@ namespace Xamarin.AsyncTests
 			return (TestFlags)Enum.Parse (typeof (TestFlags), value);
 		}
 
-		class PathNodeWrapper : PathNode
+		sealed class PathNodeWrapper : PathNode
 		{
-			readonly TestPathType pathType;
-			readonly TestFlags flags;
-			readonly string identifier;
-			readonly string name;
-			readonly string parameterType;
-			readonly string parameterValue;
-
 			public override TestPathType PathType {
-				get { return pathType; }
+				get;
 			}
 			public override TestFlags Flags {
-				get { return flags; }
+				get;
 			}
 			public override string Identifier {
-				get { return identifier; }
+				get;
 			}
 			public override string Name {
-				get { return name; }
+				get;
 			}
 			public override string ParameterType {
-				get { return parameterType; }
+				get;
 			}
 			public override string ParameterValue {
-				get { return parameterValue; }
+				get;
 			}
 
 			public PathNodeWrapper (XElement element)
 			{
-				pathType = ReadPathType (element.Attribute ("Type").Value);
+				PathType = ReadPathType (element.Attribute ("Type").Value);
 
 				var flagsAttr = element.Attribute ("Flags");
 				if (flagsAttr != null)
-					flags = ReadTestFlags (flagsAttr.Value);
+					Flags = ReadTestFlags (flagsAttr.Value);
 
 				var identifierAttr = element.Attribute ("Identifier");
 				if (identifierAttr != null)
-					identifier = identifierAttr.Value;
+					Identifier = identifierAttr.Value;
 
 				var nameAttr = element.Attribute ("Name");
 				if (nameAttr != null)
-					name = nameAttr.Value;
+					Name = nameAttr.Value;
 
 				var paramTypeAttr = element.Attribute ("ParameterType");
 				if (paramTypeAttr != null)
-					parameterType = paramTypeAttr.Value;
+					ParameterType = paramTypeAttr.Value;
 
 				var paramValueAttr = element.Attribute ("Parameter");
 				if (paramValueAttr != null)
-					parameterValue = paramValueAttr.Value;
+					ParameterValue = paramValueAttr.Value;
 			}
 		}
 	}

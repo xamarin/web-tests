@@ -50,8 +50,8 @@ namespace Xamarin.AsyncTests.Framework
 		static int next_id;
 		public readonly int ID = ++next_id;
 
-		public HeavyTestInvoker (HeavyTestHost host, TestPathInternal path, TestInvoker inner)
-			: base (host.Flags)
+		public HeavyTestInvoker (HeavyTestHost host, TestPathInternal path, TestInvoker inner, TestFlags? flags)
+			: base (flags ?? host.Flags)
 		{
 			Host = host;
 			Path = path;

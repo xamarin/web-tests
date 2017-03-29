@@ -49,7 +49,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public string Value {
-			get { return TestSerializer.GetFriendlyName (Type); }
+			get { return TestName.GetFriendlyName (Type); }
 		}
 
 		public TestHostAttribute Attribute {

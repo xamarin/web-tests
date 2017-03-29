@@ -248,7 +248,7 @@ namespace Xamarin.AsyncTests
 
 		public override string ToString ()
 		{
-			return string.Format ("[TestResult: Name={0}, Status={1}]", TestPath.GetFullName (Path) , Status);
+			return string.Format ("[TestResult: Name={0}, Status={1}]", path.FullName, Status);
 		}
 	}
 }

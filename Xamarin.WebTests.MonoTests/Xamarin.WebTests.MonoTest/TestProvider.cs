@@ -49,6 +49,8 @@ namespace Xamarin.WebTests.MonoTests
 
 			ctx.LogMessage ("SETUP: {0} - {1} - {2}", setup.Name, setup.TlsProviderName, setup.TlsProvider);
 
+			ctx.LogMessage ("TEST: {0}", ctx.GetUniqueId ());
+
 			ctx.Assert (provider.ID, Is.EqualTo (setup.TlsProvider), "Default TLS Provider");
 		}
 	}

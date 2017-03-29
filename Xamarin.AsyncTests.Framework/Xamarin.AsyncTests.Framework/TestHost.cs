@@ -98,7 +98,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal abstract TestInstance CreateInstance (TestPathInternal path, TestInstance parent);
 
-		internal abstract TestInvoker CreateInvoker (TestPathInternal path, TestInvoker invoker);
+		internal abstract TestInvoker CreateInvoker (TestPathInternal path, TestInvoker invoker, TestFlags flags);
 
 		public override string ToString ()
 		{
