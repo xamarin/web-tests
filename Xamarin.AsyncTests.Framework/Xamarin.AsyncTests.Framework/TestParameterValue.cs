@@ -43,18 +43,14 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		TestPath currentPath;
-		TestPath parentPath;
 
 		public TestPath GetCurrentPath ()
 		{
 			if (currentPath != null)
 				return currentPath;
 
-			if (Instance.Parent != null)
-				parentPath = Instance.Parent.GetCurrentPath ();
-
 			var node = new TestNodeInternal (Instance.Host, Parameter);
-			currentPath = new TestPath (parentPath, node);
+			currentPath = new TestPath (Instance.Path.Parent, node);
 			return currentPath;
 		}
 	}
