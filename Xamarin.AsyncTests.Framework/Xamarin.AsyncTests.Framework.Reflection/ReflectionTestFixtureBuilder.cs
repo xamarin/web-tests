@@ -122,10 +122,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				Builder = builder;
 			}
 
-			internal override TestInstance CreateInstance (TestPath path, TestNodeInternal node, TestInstance parent)
+			internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 			{
 				var instance = Activator.CreateInstance (Builder.Type.AsType ());
-				return new FixtureTestInstance (this, path, node, instance, parent);
+				return new FixtureTestInstance (this, node, instance, parent);
 			}
 		}
 	}

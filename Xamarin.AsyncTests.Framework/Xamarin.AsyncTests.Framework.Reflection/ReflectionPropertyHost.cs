@@ -55,9 +55,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Host = host;
 		}
 
-		internal override TestInstance CreateInstance (TestPath path, TestNodeInternal node, TestInstance parent)
+		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 		{
-			var instance = (ParameterizedTestInstance)Host.CreateInstance (path, node, parent);
+			var instance = (ParameterizedTestInstance)Host.CreateInstance (node, parent);
 			return new ReflectionPropertyInstance (this, instance, parent);
 		}
 
@@ -74,7 +74,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			ParameterizedTestValue current;
 
 			public ReflectionPropertyInstance (ReflectionPropertyHost host, ParameterizedTestInstance instance, TestInstance parent)
-				: base (host, instance.Path, instance.Node, parent)
+				: base (host, instance.Node, parent)
 			{
 				Instance = instance;
 			}

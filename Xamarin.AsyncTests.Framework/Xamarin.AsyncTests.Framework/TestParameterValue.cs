@@ -33,10 +33,6 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public TestPath Path {
-			get;
-		}
-
 		public abstract ITestParameter Parameter {
 			get;
 		}
@@ -44,7 +40,6 @@ namespace Xamarin.AsyncTests.Framework
 		public TestParameterValue (TestInstance instance)
 		{
 			Instance = instance;
-			Path = instance.Path;
 		}
 
 		TestPath currentPath;

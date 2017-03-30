@@ -36,11 +36,7 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public TestPath Path {
-			get;
-		}
-
-		public TestNodeInternal Node {
+		public TestNode Node {
 			get;
 		}
 
@@ -48,11 +44,10 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public ForkedTestInvoker (ForkedTestHost host, TestPath path, TestNodeInternal node, TestInvoker inner)
+		public ForkedTestInvoker (ForkedTestHost host, TestNode node, TestInvoker inner)
 			: base (host.Flags)
 		{
 			Host = host;
-			Path = path;
 			Node = node;
 			Inner = inner;
 		}
@@ -68,7 +63,7 @@ namespace Xamarin.AsyncTests.Framework
 				int delay = 0;
 				if (Host.Attribute.RandomDelay > 0)
 					delay = random.Next (Host.Attribute.RandomDelay);
-				var fork = forks [i] = new ForkedTestInstance (Host, Path, Node, instance, i, delay, Inner);
+				var fork = forks [i] = new ForkedTestInstance (Host, Node, instance, i, delay, Inner);
 
 				tasks [i] = Task.Factory.StartNew (
 					() => fork.Start (ctx, cancellationToken).Result,

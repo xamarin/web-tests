@@ -35,11 +35,7 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public TestPath Path {
-			get;
-		}
-
-		public TestNodeInternal Node {
+		public TestNode Node {
 			get;
 		}
 
@@ -47,10 +43,9 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public TestBuilderInvoker (TestBuilderHost host, TestPath path, TestNodeInternal node, TestInvoker inner)
+		public TestBuilderInvoker (TestBuilderHost host, TestNode node, TestInvoker inner)
 		{
 			Host = host;
-			Path = path;
 			Node = node;
 			Inner = inner;
 		}
@@ -64,7 +59,7 @@ namespace Xamarin.AsyncTests.Framework
 					ctx.OnTestIgnored ();
 					return null;
 				}
-				return (TestBuilderInstance)Host.CreateInstance (ctx, Path, Node, instance);
+				return (TestBuilderInstance)Host.CreateInstance (ctx, Node, instance);
 			} catch (OperationCanceledException) {
 				ctx.OnTestCanceled ();
 				return null;

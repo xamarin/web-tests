@@ -47,8 +47,8 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (ForkedTestHost)base.Host; }
 		}
 
-		public ForkedTestInstance (ForkedTestHost host, TestPath path, TestNodeInternal node, TestInstance parent, long id, int delay, TestInvoker invoker)
-			: base (host, path, node, parent)
+		public ForkedTestInstance (ForkedTestHost host, TestNode node, TestInstance parent, long id, int delay, TestInvoker invoker)
+			: base (host, node, parent)
 		{
 			ID = id;
 			Delay = delay;

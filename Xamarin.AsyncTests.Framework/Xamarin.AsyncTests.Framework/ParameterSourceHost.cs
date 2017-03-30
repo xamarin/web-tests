@@ -81,9 +81,9 @@ namespace Xamarin.AsyncTests.Framework
 			return (T)serialized;
 		}
 
-		internal override TestInstance CreateInstance (TestPath path, TestNodeInternal node, TestInstance parent)
+		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 		{
-			return new ParameterSourceInstance<T> (this, path, node, parent, SourceInstance, Filter);
+			return new ParameterSourceInstance<T> (this, node, parent, SourceInstance, Filter);
 		}
 	}
 }

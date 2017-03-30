@@ -36,11 +36,7 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public TestPath Path {
-			get;
-		}
-
-		public TestNodeInternal Node {
+		public TestNode Node {
 			get;
 		}
 
@@ -48,18 +44,17 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public ParameterizedTestInvoker (ParameterizedTestHost host, TestPath path, TestNodeInternal node, TestInvoker inner)
+		public ParameterizedTestInvoker (ParameterizedTestHost host, TestNode node, TestInvoker inner)
 			: base (host.Flags)
 		{
 			Host = host;
-			Path = path;
 			Node = node;
 			Inner = inner;
 		}
 
 		protected virtual ParameterizedTestInstance CreateInstance (TestInstance parent)
 		{
-			return (ParameterizedTestInstance)Host.CreateInstance (Path, Node, parent);
+			return (ParameterizedTestInstance)Host.CreateInstance (Node, parent);
 		}
 
 		ParameterizedTestInstance SetUp (TestContext ctx, TestInstance instance)

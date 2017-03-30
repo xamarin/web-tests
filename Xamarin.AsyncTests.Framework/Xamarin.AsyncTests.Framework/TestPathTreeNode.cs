@@ -49,6 +49,13 @@ namespace Xamarin.AsyncTests.Framework
 			Node = node;
 		}
 
+		public TestPathTreeNode (TestPathTree tree, TestPath path)
+		{
+			Tree = tree;
+			Path = path;
+			Node = (TestNodeInternal)path.Node;
+		}
+
 		bool resolved;
 		bool resolvedContext;
 		bool parameterized;
@@ -57,17 +64,11 @@ namespace Xamarin.AsyncTests.Framework
 		List<TestPathTreeNode> children;
 
 		public bool HasParameters {
-			get { return Node.Host.HasParameters; }
+			get { return Node.HasParameters; }
 		}
 
 		public bool HasChildren {
 			get { return Tree.Builder.HasChildren; }
-		}
-
-		public TestPathTreeNode Clone ()
-		{
-			var clonedPath = Path.Clone ();
-			return new TestPathTreeNode (Tree, clonedPath, (TestNodeInternal)clonedPath.Node);
 		}
 
 		public void Resolve ()
@@ -183,7 +184,7 @@ namespace Xamarin.AsyncTests.Framework
 				throw new InternalErrorException ();
 
 			foreach (var child in children) {
-				if (!TestNodeInternal.Matches (child.Node.Host, node))
+				if (!TestNodeInternal.Matches (child.Node, node))
 					throw new InternalErrorException ();
 
 				if (!node.ParameterValue.Equals (child.Node.Parameter.Value))
@@ -217,7 +218,7 @@ namespace Xamarin.AsyncTests.Framework
 				if (flattenHierarchy)
 					flags |= TestFlags.FlattenHierarchy;
 				var node = (TestNodeInternal)path.Node;
-				invoker = node.Host.CreateInvoker (path, node, invoker, flags);
+				invoker = node.CreateInvoker (invoker, flags);
 				path = path.Parent;
 			}
 
@@ -237,7 +238,7 @@ namespace Xamarin.AsyncTests.Framework
 			var flags = Node.Flags;
 			if (flattenHierarchy)
 				flags |= TestFlags.FlattenHierarchy;
-			invoker = Node.Host.CreateInvoker (Path, Node, invoker, flags);
+			invoker = Node.CreateInvoker (invoker, flags);
 			return invoker;
 		}
 
@@ -245,8 +246,7 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			Resolve (ctx);
 
-			var node = Clone ();
-			var invoker = Tree.Builder.CreateInnerInvoker (node);
+			var invoker = Tree.Builder.CreateInnerInvoker (this);
 			var collectionInvoker = invoker as TestCollectionInvoker;
 			if (collectionInvoker != null)
 				collectionInvoker.ResolveChildren (ctx);

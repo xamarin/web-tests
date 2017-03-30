@@ -66,9 +66,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Assemblies = framework.Assemblies;
 			Builder = new ReflectionTestSuiteBuilder (this);
 
-			var rootNode = new TestNodeInternal (Builder.Host, Builder.Parameter);
-			var rootPath = new TestPath (null, rootNode);
-			RootPath = new TestPathTreeNode (Builder.TreeRoot, rootPath, (TestNodeInternal)rootPath.Node);
+			RootPath = Builder.TreeRoot.GetRootNode ();
 			RootTestCase = new ReflectionTestCase (RootPath);
 		}
 

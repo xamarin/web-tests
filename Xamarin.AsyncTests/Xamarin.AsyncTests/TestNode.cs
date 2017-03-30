@@ -67,6 +67,14 @@ namespace Xamarin.AsyncTests
 			get { return (Flags & TestFlags.Browsable) != 0; }
 		}
 
+		public abstract bool HasParameter {
+			get;
+		}
+
+		public abstract ITestParameter Parameter {
+			get;
+		}
+
 		public bool Matches (TestNode node)
 		{
 			if (node.PathType != PathType)
@@ -99,6 +107,10 @@ namespace Xamarin.AsyncTests
 		public abstract T GetParameter<T> ();
 
 		public abstract TestNode Parameterize (ITestParameter parameter);
+
+		public abstract bool HasParameters {
+			get;
+		}
 
 		internal abstract TestNode Clone ();
 
@@ -220,6 +232,16 @@ namespace Xamarin.AsyncTests
 				ParameterValue = other.ParameterValue;
 			}
 
+			public override bool HasParameter {
+				get { return false; }
+			}
+
+			public override ITestParameter Parameter {
+				get {
+					throw new InternalErrorException ();
+				}
+			}
+
 			public override T GetParameter<T> ()
 			{
 				throw new InternalErrorException ();
@@ -228,6 +250,12 @@ namespace Xamarin.AsyncTests
 			public override TestNode Parameterize (ITestParameter parameter)
 			{
 				throw new InternalErrorException ();
+			}
+
+			public override bool HasParameters {
+				get {
+					throw new InternalErrorException ();
+				}
 			}
 
 			internal override TestNode Clone ()

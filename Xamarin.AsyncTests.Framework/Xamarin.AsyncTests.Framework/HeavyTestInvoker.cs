@@ -36,11 +36,7 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public TestPath Path {
-			get;
-		}
-
-		public TestNodeInternal Node {
+		public TestNode Node {
 			get;
 		}
 
@@ -51,11 +47,10 @@ namespace Xamarin.AsyncTests.Framework
 		static int next_id;
 		public readonly int ID = ++next_id;
 
-		public HeavyTestInvoker (HeavyTestHost host, TestPath path, TestNodeInternal node, TestInvoker inner, TestFlags? flags)
+		public HeavyTestInvoker (HeavyTestHost host, TestNode node, TestInvoker inner, TestFlags? flags)
 			: base (flags ?? host.Flags)
 		{
 			Host = host;
-			Path = path;
 			Node = node;
 			Inner = inner;
 		}
@@ -67,7 +62,7 @@ namespace Xamarin.AsyncTests.Framework
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				var childInstance = (HeavyTestInstance)Host.CreateInstance (ctx, Path, Node, instance);
+				var childInstance = (HeavyTestInstance)Host.CreateInstance (ctx, Node, instance);
 				await childInstance.Initialize (ctx, cancellationToken);
 				return childInstance;
 			} catch (OperationCanceledException) {

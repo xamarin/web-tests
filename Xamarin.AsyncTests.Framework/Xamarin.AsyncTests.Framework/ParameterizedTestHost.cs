@@ -62,11 +62,11 @@ namespace Xamarin.AsyncTests.Framework
 			return parameterizedInstance.Current.Parameter;
 		}
 
-		internal override TestInvoker CreateInvoker (TestPath path, TestNodeInternal node, TestInvoker invoker, TestFlags flags)
+		internal override TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags)
 		{
 			if ((flags & TestFlags.Browsable) != 0)
 				invoker = new ResultGroupTestInvoker (flags, invoker);
-			return new ParameterizedTestInvoker (this, path, node, invoker);
+			return new ParameterizedTestInvoker (this, node, invoker);
 		}
 
 		public override string ToString ()

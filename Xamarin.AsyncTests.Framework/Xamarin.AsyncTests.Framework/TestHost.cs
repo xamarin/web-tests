@@ -62,14 +62,19 @@ namespace Xamarin.AsyncTests.Framework
 			Flags = flags;
 		}
 
-		internal TestInstance CreateInstance (TestContext ctx, TestPath path, TestNodeInternal node, TestInstance parent)
+		internal TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
 		{
-			if (path == null)
-				throw new ArgumentNullException ("path");
+			if (node == null)
+				throw new ArgumentNullException ("node");
 
-			var instance = CreateInstance (path, node, parent);
+			var instance = CreateInstance (node, parent);
 			instance.Initialize (ctx);
 			return instance;
+		}
+
+		internal TestNode CreateNode (ITestParameter parameter = null, TestFlags? flags = null)
+		{
+			return new TestNodeInternal (this, parameter, flags);
 		}
 
 		internal virtual bool HasFixedParameter {
@@ -92,9 +97,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal abstract ITestParameter GetParameter (TestInstance instance);
 
-		internal abstract TestInstance CreateInstance (TestPath path, TestNodeInternal node, TestInstance parent);
+		internal abstract TestInstance CreateInstance (TestNode node, TestInstance parent);
 
-		internal abstract TestInvoker CreateInvoker (TestPath path, TestNodeInternal node, TestInvoker invoker, TestFlags flags);
+		internal abstract TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags);
 
 		public override string ToString ()
 		{

@@ -47,14 +47,14 @@ namespace Xamarin.AsyncTests.Framework
 			return null;
 		}
 
-		internal override TestInstance CreateInstance (TestPath path, TestNodeInternal node, TestInstance parent)
+		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 		{
 			throw new NotImplementedException ();
 		}
 
-		internal override TestInvoker CreateInvoker (TestPath path, TestNodeInternal node, TestInvoker invoker, TestFlags flags)
+		internal override TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags)
 		{
-			return new ForkedTestInvoker (this, path, node, invoker);
+			return new ForkedTestInvoker (this, node, invoker);
 		}
 
 		#endregion

@@ -182,14 +182,18 @@ namespace Xamarin.AsyncTests
 			return new Tuple<TestName,IReadOnlyList<TestNode>,string,string,string> (testName, nodes, fullName, parameterList, argumentList);
 		}
 
-		internal static bool TestEquals (TestContext ctx, TestPath first, TestPath second)
+		internal static bool TestEquals (TestPath first, TestPath second, TestContext ctx = null)
 		{
-			var serializedFirst = first.SerializePath ().ToString ();
-			var serializedSecond = second.SerializePath ().ToString ();
+			var serializedFirst = first.SerializePath (false).ToString ();
+			var serializedSecond = second.SerializePath (false).ToString ();
 			if (string.Equals (serializedFirst, serializedSecond))
 				return true;
 
-			ctx.LogMessage ("NOT EQUAL:\n{0}\n{1}\n\n", serializedFirst, serializedSecond);
+			var message = string.Format ("NOT EQUAL:\n{0}\n{1}\n\n", serializedFirst, serializedSecond);
+			if (ctx != null)
+				ctx.LogMessage (message);
+			else
+				System.Diagnostics.Debug.WriteLine (message); 
 			return false;
 		}
 

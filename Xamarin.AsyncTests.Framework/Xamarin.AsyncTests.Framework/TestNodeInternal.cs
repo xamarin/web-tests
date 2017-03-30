@@ -32,7 +32,7 @@ namespace Xamarin.AsyncTests.Framework
 {
 	sealed class TestNodeInternal : TestNode
 	{
-		public TestHost Host {
+		TestHost Host {
 			get;
 		}
 
@@ -44,11 +44,11 @@ namespace Xamarin.AsyncTests.Framework
 			get { return Host.Name; }
 		}
 
-		public bool HasParameter {
+		public override bool HasParameter {
 			get { return Parameter != null; }
 		}
 
-		public ITestParameter Parameter {
+		public override ITestParameter Parameter {
 			get;
 		}
 
@@ -88,20 +88,26 @@ namespace Xamarin.AsyncTests.Framework
 			return new TestNodeInternal (Host, parameter, Flags);
 		}
 
-		public static bool Matches (TestHost host, TestNode second)
+		public static bool Matches (TestNode first, TestNode second)
 		{
-			if (host.PathType != second.PathType)
+			if (first.PathType != second.PathType)
 				return false;
-			if (!string.Equals (host.Identifier, second.Identifier, StringComparison.Ordinal))
+			if (!string.Equals (first.Identifier, second.Identifier, StringComparison.Ordinal))
 				return false;
-			if ((host.Name != null) != (second.Name != null))
+			if ((first.Name != null) != (second.Name != null))
 				return false;
-			if ((host.ParameterType != null) != (second.ParameterType != null))
+			if ((first.ParameterType != null) != (second.ParameterType != null))
 				return false;
-			if (host.ParameterType != null && !host.ParameterType.Equals (second.ParameterType))
+			if (first.ParameterType != null && !first.ParameterType.Equals (second.ParameterType))
 				return false;
 
 			return true;
+		}
+
+		public static bool Matches (TestHost host, TestNode second)
+		{
+			var hostNode = new TestNodeInternal (host);
+			return Matches (hostNode, second); 
 		}
 
 		public override T GetParameter<T> ()
@@ -118,6 +124,15 @@ namespace Xamarin.AsyncTests.Framework
 				return (T)wrapper.Value;
 
 			return (T)Parameter;
+		}
+
+		public override bool HasParameters {
+			get { return Host.HasParameters; }
+		}
+
+		internal TestInvoker CreateInvoker (TestInvoker invoker, TestFlags flags)
+		{
+			return Host.CreateInvoker (this, invoker, flags);
 		}
 	}
 }

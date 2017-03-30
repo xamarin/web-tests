@@ -55,9 +55,9 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public ParameterSourceInstance (
-			ParameterSourceHost<T> host, TestPath path, TestNodeInternal node, TestInstance parent,
+			ParameterSourceHost<T> host, TestNode node, TestInstance parent,
 			ITestParameterSource<T> sourceInstance, string filter)
-			: base (host, path, node, parent)
+			: base (host, node, parent)
 		{
 			SourceInstance = sourceInstance;
 			Filter = filter;

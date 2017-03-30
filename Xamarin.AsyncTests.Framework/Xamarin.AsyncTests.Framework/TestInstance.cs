@@ -41,27 +41,26 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public TestPath Path {
+		TestPath Path {
 			get;
 		}
 
-		public TestNodeInternal Node {
+		public TestNode Node {
 			get;
 		}
 
-		protected TestInstance (TestHost host, TestPath path, TestNodeInternal node, TestInstance parent)
+		protected TestInstance (TestHost host, TestNode node, TestInstance parent)
 		{
 			if (host == null)
 				throw new ArgumentNullException ("host");
-			if (path == null)
-				throw new ArgumentNullException ("path");
 			if (node == null)
 				throw new ArgumentNullException ("node");
 
 			Host = host;
-			Path = path;
 			Node = node;
 			Parent = parent;
+
+			Path = new TestPath (Parent?.GetCurrentPath (), Node);
 		}
 
 		internal abstract TestParameterValue GetCurrentParameter ();
@@ -95,21 +94,6 @@ namespace Xamarin.AsyncTests.Framework
 				return Path;
 
 			return parameter.GetCurrentPath ();
-		}
-
-		public virtual bool ParameterMatches<T> (string name)
-		{
-			return Node.ParameterMatches<T> (name);
-		}
-
-		public virtual T GetParameter<T> ()
-		{
-			var parameter = GetCurrentParameter ();
-			if (parameter == null)
-				throw new InternalErrorException ();
-
-			var node = new TestNodeInternal (Parent.Host, parameter.Parameter);
-			return node.GetParameter<T> ();
 		}
 
 		public override string ToString ()

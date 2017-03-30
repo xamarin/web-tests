@@ -47,12 +47,12 @@ namespace Xamarin.AsyncTests.Framework
 			return Builder.Parameter;
 		}
 
-		internal override TestInstance CreateInstance (TestPath path, TestNodeInternal node, TestInstance parent)
+		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 		{
-			return new TestBuilderInstance (this, path, node, parent);
+			return new TestBuilderInstance (this, node, parent);
 		}
 
-		TestInvoker CreateResultGroup (TestPath path, TestInvoker invoker, TestFlags flags)
+		TestInvoker CreateResultGroup (TestInvoker invoker, TestFlags flags)
 		{
 			if ((flags & (TestFlags.Hidden | TestFlags.FlattenHierarchy)) != 0)
 				return invoker;
@@ -60,11 +60,11 @@ namespace Xamarin.AsyncTests.Framework
 			return new ResultGroupTestInvoker (flags, invoker);
 		}
 
-		internal override TestInvoker CreateInvoker (TestPath path, TestNodeInternal node, TestInvoker invoker, TestFlags flags)
+		internal override TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags)
 		{
-			invoker = CreateResultGroup (path, invoker, flags);
+			invoker = CreateResultGroup (invoker, flags);
 
-			invoker = new TestBuilderInvoker (this, path, node, invoker);
+			invoker = new TestBuilderInvoker (this, node, invoker);
 
 			return invoker;
 		}
