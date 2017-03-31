@@ -46,6 +46,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		public ReflectionTestCase (TestPathTreeNode node)
 		{
 			Node = node;
+
+			TestSerializer.Debug ("RTC: {0} {1} {2}", Node.Path.FullName, Node.HasChildren, Node.HasParameters); 
 		}
 
 		public bool HasChildren {

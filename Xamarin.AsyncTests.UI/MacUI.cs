@@ -111,6 +111,11 @@ namespace Xamarin.AsyncTests.MacUI
 			}
 		}
 
+		internal static void Debug (string message, params object[] args)
+		{
+			System.Diagnostics.Debug.WriteLine (message, args); 
+		}
+
 		protected internal void LogDebug (int level, string message)
 		{
 			if (Settings.LogLevel >= 0 && level > Settings.LogLevel)

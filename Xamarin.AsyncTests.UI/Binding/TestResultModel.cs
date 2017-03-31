@@ -187,7 +187,7 @@ namespace Xamarin.AsyncTests.MacUI
 			var result = await Session.ResolveFromPath (serialized, CancellationToken.None);
 
 			WillChangeValue ("TestCase");
-			testCase = new TestCaseModel (Session, result);
+			testCase = await TestCaseModel.Create (Session, result);
 			DidChangeValue ("TestCase");
 		}
 

@@ -53,7 +53,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 		IReadOnlyCollection<TestCaseModel> children;
 
-		public TestCaseModel (TestSession session, TestCase test)
+		TestCaseModel (TestSession session, TestCase test)
 		{
 			Session = session;
 			Test = test;
@@ -63,15 +63,20 @@ namespace Xamarin.AsyncTests.MacUI
 			RunInitialize ();
 		}
 
-		public Task<bool> Initialize ()
+		public static async Task<TestCaseModel> Create (TestSession session, TestCase test)
 		{
-			return initTcs.Task;
+			var model = new TestCaseModel (session, test);
+			await model.initTcs.Task.ConfigureAwait (false);
+			return model;
 		}
 
 		async void RunInitialize ()
 		{
+			MacUI.Debug ("INIT: {0} {1} {2}\n{3}", Test.Path.FullName, Test.HasChildren, Test.HasParameters, Test.Path.SerializePath ());
+
 			initTcs = new TaskCompletionSource<bool> ();
 			if (!Test.HasChildren && !Test.HasParameters) {
+				children = new TestCaseModel [0];
 				initTcs.SetResult (false);
 				return;
 			}
@@ -104,8 +109,7 @@ namespace Xamarin.AsyncTests.MacUI
 			var childModels = new List<TestCaseModel> ();
 
 			foreach (var child in list) {
-				var model = new TestCaseModel (Session, child);
-				await model.Initialize ();
+				var model = await Create (Session, child);
 				childModels.Add (model);
 			}
 
@@ -121,12 +125,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 		protected override IEnumerable<TestListNode> ResolveChildren ()
 		{
-			lock (this) {
-				if (children == null)
-					yield break;
-
-				return children;
-			}
+			return children;
 		}
 
 		public override string Name {
