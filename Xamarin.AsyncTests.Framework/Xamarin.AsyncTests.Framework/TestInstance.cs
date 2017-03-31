@@ -41,7 +41,11 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		internal TestPath Path {
+		TestPath Path {
+			get;
+		}
+
+		public TestPath ParentPath {
 			get;
 		}
 
@@ -60,7 +64,8 @@ namespace Xamarin.AsyncTests.Framework
 			Node = node;
 			Parent = parent;
 
-			Path = new TestPath (Parent?.GetCurrentPath (), Node);
+			ParentPath = Parent?.GetCurrentPath ();
+			Path = new TestPath (ParentPath, Node);
 		}
 
 		internal abstract TestParameterValue GetCurrentParameter ();

@@ -50,7 +50,7 @@ namespace Xamarin.AsyncTests.Framework
 				return currentPath;
 
 			var node = new TestNodeInternal (Instance.Host, Parameter);
-			currentPath = new TestPath (Instance.Path.Parent, node);
+			currentPath = new TestPath (Instance.ParentPath, node);
 			return currentPath;
 		}
 	}
