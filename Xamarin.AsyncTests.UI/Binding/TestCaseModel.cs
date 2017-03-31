@@ -51,7 +51,7 @@ namespace Xamarin.AsyncTests.MacUI
 		string serialized;
 		TaskCompletionSource<bool> initTcs;
 
-		IReadOnlyCollection<TestCase> children;
+		IReadOnlyCollection<TestCaseModel> children;
 
 		public TestCaseModel (TestSession session, TestCase test)
 		{
@@ -101,8 +101,16 @@ namespace Xamarin.AsyncTests.MacUI
 				list.AddRange (childrenResult);
 			}
 
+			var childModels = new List<TestCaseModel> ();
+
+			foreach (var child in list) {
+				var model = new TestCaseModel (Session, child);
+				await model.Initialize ();
+				childModels.Add (model);
+			}
+
 			lock (this) {
-				children = list;
+				children = childModels;
 			}
 
 			DidChangeValue ("isLeaf");
@@ -117,9 +125,7 @@ namespace Xamarin.AsyncTests.MacUI
 				if (children == null)
 					yield break;
 
-				foreach (var child in children) {
-					yield return new TestCaseModel (Session, child);
-				}
+				return children;
 			}
 		}
 
