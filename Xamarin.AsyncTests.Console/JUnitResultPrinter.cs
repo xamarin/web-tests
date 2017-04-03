@@ -191,12 +191,7 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
-			public XElement Properties { get; } = new XElement ("properties");
-
 			public DateTime TimeStamp { get; } = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
-
-			StringBuilder output = new StringBuilder ();
-			StringBuilder errorOutput = new StringBuilder ();
 
 			public SuiteElement (Element parent, TestPath path, TestResult result)
 				: base (parent, new XElement ("testsuite"), result)
@@ -215,33 +210,6 @@ namespace Xamarin.AsyncTests.Console
 				}
 
 				Name = formatted.ToString ();
-			}
-
-			protected override void Resolve ()
-			{
-				var serializedPath = Result.Path.SerializePath ().ToString ();
-				output.AppendLine (serializedPath);
-				output.AppendLine ();
-
-				Debug ("RESOLVE SUITE: {0}\n{1}", Name, serializedPath); 
-
-				WriteParameters ();
-
-				output.AppendLine ();
-
-				if (Result.HasMessages) {
-					foreach (var message in Result.Messages) {
-						output.AppendLine (message);
-					}
-				}
-
-				if (Result.HasLogEntries) {
-					foreach (var entry in Result.LogEntries) {
-						output.AppendFormat (string.Format ("LOG: {0} {1} {2}\n", entry.Kind, entry.LogLevel, entry.Text));
-					}
-				}
-
-				base.Resolve (); 
 			}
 
 			protected override void ResolveChildren (TestResult result)
@@ -273,63 +241,8 @@ namespace Xamarin.AsyncTests.Console
 				if (Result.ElapsedTime != null)
 					Node.SetAttributeValue ("time", Result.ElapsedTime.Value.TotalSeconds);
 
-				Node.Add (Properties);
-
-				var systemOut = new XElement ("system-out");
-				Node.Add (systemOut);
-
-				var systemErr = new XElement ("system-err");
-				Node.Add (systemErr);
-
-				WriteOutput (systemOut);
 			}
 
-			static int nextId;
-
-			void WriteOutput (XElement element)
-			{
-				element.Add (string.Format ("OUTPUT: {0}\n", ++nextId));
-				using (var reader = new StringReader (output.ToString ())) {
-					string line;
-					while ((line = reader.ReadLine ()) != null) {
-						element.Add (line);
-						element.Add (Environment.NewLine);
-					}
-				}
-			}
-
-			void WriteParameters ()
-			{
-				var list = new List<Tuple<string,XElement>> ();
-				WriteParameters (list, Result.Path);
-				if (list.Count == 0)
-					return;
-
-				output.AppendLine ("<parameters>");
-				foreach (var entry in list) {
-					output.AppendLine (entry.Item1);
-					Properties.Add (entry.Item2);
-				}
-				output.AppendLine ("</parameters>");
-				output.AppendLine ();
-			}
-
-			void WriteParameters (List<Tuple<string,XElement>> list, TestPath path)
-			{
-				if (path.Parent != null)
-					WriteParameters (list, path.Parent);
-
-				var node = path.Node;
-				if (node.IsHidden || node.PathType != TestPathType.Parameter)
-					return;
-
-				var line = string.Format ("  {0} = {1}", node.Name, node.ParameterValue);
-				var element = new XElement ("property");
-				element.SetAttributeValue ("name", node.Name);
-				element.SetAttributeValue ("value", node.ParameterValue);
-
-				list.Add (new Tuple<string,XElement> (line, element));
-			}
 		}
 
 		sealed class CaseElement : Element
@@ -345,6 +258,11 @@ namespace Xamarin.AsyncTests.Console
 			public TestResult Result {
 				get;
 			}
+
+			public XElement Properties { get; } = new XElement ("properties");
+
+			StringBuilder output = new StringBuilder ();
+			StringBuilder errorOutput = new StringBuilder ();
 
 			public CaseElement (SuiteElement parent, TestResult result)
 				: base (parent, new XElement ("testcase"), result.Path)
@@ -362,13 +280,77 @@ namespace Xamarin.AsyncTests.Console
 
 			protected override void Resolve ()
 			{
+				var serializedPath = Result.Path.SerializePath ().ToString ();
+				output.AppendLine (serializedPath);
+				output.AppendLine ();
+
+				Debug ("RESOLVE SUITE: {0}\n{1}", Name, serializedPath);
+
+				WriteParameters ();
+
+				output.AppendLine ();
+
+				if (Result.HasMessages) {
+					foreach (var message in Result.Messages) {
+						output.AppendLine (message);
+					}
+				}
+
+				if (Result.HasLogEntries) {
+					foreach (var entry in Result.LogEntries) {
+						output.AppendFormat (string.Format ("LOG: {0} {1} {2}\n", entry.Kind, entry.LogLevel, entry.Text));
+					}
+				}
+			}
+
+			void WriteParameters ()
+			{
+				var list = new List<Tuple<string, XElement>> ();
+				WriteParameters (list, Result.Path);
+				if (list.Count == 0)
+					return;
+
+				output.AppendLine ("<parameters>");
+				foreach (var entry in list) {
+					output.AppendLine (entry.Item1);
+					Properties.Add (entry.Item2);
+				}
+				output.AppendLine ("</parameters>");
+				output.AppendLine ();
+			}
+
+			void WriteParameters (List<Tuple<string, XElement>> list, TestPath path)
+			{
+				if (path.Parent != null)
+					WriteParameters (list, path.Parent);
+
+				var node = path.Node;
+				if (node.IsHidden || node.PathType != TestPathType.Parameter)
+					return;
+
+				var line = string.Format ("  {0} = {1}", node.Name, node.ParameterValue);
+				var element = new XElement ("property");
+				element.SetAttributeValue ("name", node.Name);
+				element.SetAttributeValue ("value", node.ParameterValue);
+
+				list.Add (new Tuple<string, XElement> (line, element));
 			}
 
 			protected override void Write ()
 			{
 				CreateTestCase ();
 				AddErrors ();
-				Finish ();
+				AddStatus ();
+
+				Node.Add (Properties);
+
+				var systemOut = new XElement ("system-out");
+				Node.Add (systemOut);
+
+				var systemErr = new XElement ("system-err");
+				Node.Add (systemErr);
+
+				WriteOutput (systemOut);
 			}
 
 			void CreateTestCase ()
@@ -399,7 +381,21 @@ namespace Xamarin.AsyncTests.Console
 				}
 			}
 
-			void Finish ()
+			static int nextId;
+
+			void WriteOutput (XElement element)
+			{
+				element.Add (string.Format ("OUTPUT: {0}\n", ++nextId));
+				using (var reader = new StringReader (output.ToString ())) {
+					string line;
+					while ((line = reader.ReadLine ()) != null) {
+						element.Add (line);
+						element.Add (Environment.NewLine);
+					}
+				}
+			}
+
+			void AddStatus ()
 			{
 				switch (Result.Status) {
 				case TestStatus.Error:
@@ -411,11 +407,6 @@ namespace Xamarin.AsyncTests.Console
 					Node.Add (new XElement ("skipped"));
 					break;
 				}
-
-				var systemOut = new XElement ("system-out");
-				Node.Add (systemOut);
-
-				systemOut.Add ("HELLO!\n");
 			}
 		}
 	}
