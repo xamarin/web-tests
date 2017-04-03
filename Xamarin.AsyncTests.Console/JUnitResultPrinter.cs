@@ -199,27 +199,10 @@ namespace Xamarin.AsyncTests.Console
 
 				foreach (var child in result.Children) {
 					Debug ("  RESOLVE CHILD: {0} {1}\n{2}", child, child.Path, child.Path.SerializePath ());
-					var node = child.Path.Node;
-					if (node.IsHidden) {
-						ResolveChildren (child);
-						continue;
-					}
-					switch (node.PathType) {
-					case TestPathType.Parameter:
-						ResolveChildren (child);
-						break;
-#if FIXME
-					case TestPathType.Assembly:
-					case TestPathType.Suite:
-					case TestPathType.Fixture:
-					case TestPathType.Instance:
+					if (!child.Path.Node.IsHidden && child.Path.Node.PathType != TestPathType.Parameter)
 						AddChild (new SuiteElement (this, child.Path, child));
-						break;
-#endif
-					default:
+					else
 						ResolveChildren (child);
-						break;
-					}
 				}
 			}
 
