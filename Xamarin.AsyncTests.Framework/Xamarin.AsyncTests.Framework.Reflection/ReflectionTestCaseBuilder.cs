@@ -164,9 +164,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			invoker = new PrePostRunTestInvoker (invoker);
 
-			if (false)
-				invoker = new ResultGroupTestInvoker (node.Node.Flags | TestFlags.PathHidden, invoker);
-
 			return invoker;
 		}
 	}
