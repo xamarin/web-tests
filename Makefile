@@ -53,13 +53,19 @@ Build-Console::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=Debug .Console-Internal-Build
 
 Build-ConsoleBtls::
-	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ WEBTESTS_CONSOLE_PROJECT=Xamarin.WebTests.BtlsConsole CONSOLE_CONFIGURATION=DebugBtls .Console-Internal-Build
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugBtls .Console-Internal-Build
+
+Build-ConsoleAppleTls::
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugAppleTls .Console-Internal-Build
 
 Run-Console-%::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=Debug .Console-Run-$*
 
 Run-ConsoleBtls-%::
-	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ WEBTESTS_CONSOLE_PROJECT=Xamarin.WebTests.BtlsConsole CONSOLE_CONFIGURATION=DebugBtls .Console-Run-$*
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugBtls .Console-Run-$*
+
+Run-ConsoleAppleTls-%::
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugAppleTls .Console-Run-$*
 
 #
 #
