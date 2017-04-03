@@ -71,9 +71,12 @@ namespace Xamarin.AsyncTests
 			nameParameters.Reverse ();
 			nodes.Reverse ();
 
+			parameters.Reverse ();
+			arguments.Reverse ();
+
 			Nodes = nodes.ToArray ();
 
-			FullName = string.Join (".", parts);
+			Name = string.Join (".", parts);
 			if (parameters.Count > 0) {
 				ParameterList = "(" + string.Join (",", parameters) + ")";
 				ArgumentList = "(" + string.Join (",", arguments) + ")";
@@ -81,7 +84,9 @@ namespace Xamarin.AsyncTests
 				ParameterList = ArgumentList = string.Empty;
 			}
 
-			TestName = new TestName (LocalName, FullName, nameParameters.ToArray ());
+			FullName = Name + ArgumentList;
+
+			TestName = new TestName (LocalName, Name, nameParameters.ToArray ());
 		}
 
 		public XElement SerializePath (bool debug = true)
@@ -138,6 +143,10 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
+		public string Name {
+			get;
+		}
+
 		public string FullName {
 			get;
 		}
@@ -156,39 +165,6 @@ namespace Xamarin.AsyncTests
 
 		public string ArgumentList {
 			get;
-		}
-
-		// FIXME: C# 7
-		static Tuple<TestName,IReadOnlyList<TestNode>,string,string,string> GetName (TestPath path)
-		{
-			var nodes = new List<TestNode> ();
-			var parts = new List<string> ();
-			var arguments = new List<string> ();
-			var parameters = new List<string> ();
-			var nameParameters = new List<TestName.Parameter> ();
-
-			for (; path != null; path = path.Parent) {
-				var node = path.Node;
-				nodes.Add (node); 
-				if (node.PathType == TestPathType.Parameter) {
-					nameParameters.Add (new TestName.Parameter (node.Name, node.ParameterValue, node.IsHidden));
-					if (!node.IsHidden) {
-						parameters.Add (node.Identifier);
-						arguments.Add (node.ParameterValue);
-					}
-				} else if (!node.IsHidden && !string.IsNullOrEmpty (node.Name))
-					parts.Add (node.Name);
-			}
-
-			parts.Reverse ();
-			nameParameters.Reverse ();
-
-			var fullName = string.Join (".", parts);
-			var parameterList = "(" + string.Join (",", parameters) + ")";
-			var argumentList = "(" + string.Join (",", arguments) + ")";
-			var localName = parts.First ();
-			var testName = new TestName (localName, fullName, nameParameters.ToArray ());
-			return new Tuple<TestName,IReadOnlyList<TestNode>,string,string,string> (testName, nodes, fullName, parameterList, argumentList);
 		}
 
 		internal static bool TestEquals (TestPath first, TestPath second, TestContext ctx = null)

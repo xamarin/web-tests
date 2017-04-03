@@ -184,7 +184,7 @@ namespace Xamarin.AsyncTests.Console
 			public SuiteElement (Element parent, TestPath path, TestResult result)
 				: base (parent, new XElement ("testsuite"), result)
 			{
-				Name = path.FullName;
+				Name = path.Name;
 			}
 
 			protected override void ResolveChildren (TestResult result)

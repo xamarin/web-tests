@@ -160,8 +160,7 @@ namespace Xamarin.AsyncTests.Framework
 			var element = new XElement ("TestResult");
 			element.SetAttributeValue ("Status", instance.Status.ToString ());
 
-			if (!string.IsNullOrEmpty (instance.Path.FullName))
-				element.SetAttributeValue ("Name", instance.Path.FullName);
+			element.SetAttributeValue ("Name", instance.Path.FullName);
 
 			if (instance.Path != null)
 				element.Add (instance.Path.SerializePath ());

@@ -689,11 +689,11 @@ namespace Xamarin.AsyncTests.Console
 
 			var test = session.RootTestCase;
 
-			Debug ("Got test: {0}", test);
+			Debug ("Got test: {0}", test.Path.FullName);
 			startTime = DateTime.Now;
 			result = await session.Run (test, cancellationToken);
 			endTime = DateTime.Now;
-			Debug ("Got result: {0}", result);
+			Debug ("Got result: {0} {1}", result.Status, test.Path.FullName);
 
 			SaveResult ();
 
@@ -713,12 +713,12 @@ namespace Xamarin.AsyncTests.Console
 			var test = session.RootTestCase;
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			Debug ("Got test: {0}", test);
+			Debug ("Got test: {0}", test.Path.FullName);
 			startTime = DateTime.Now;
 			result = await session.Run (test, cancellationToken);
 			endTime = DateTime.Now;
 			cancellationToken.ThrowIfCancellationRequested ();
-			Debug ("Got result: {0}", result);
+			Debug ("Got result: {0} {1}", result.Status, test.Path.FullName);
 
 			SaveResult ();
 
@@ -769,12 +769,12 @@ namespace Xamarin.AsyncTests.Console
 			var test = session.RootTestCase;
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			Debug ("Got test: {0}", test);
+			Debug ("Got test: {0}", test.Path.FullName);
 			startTime = DateTime.Now;
 			result = await session.Run (test, cancellationToken);
 			endTime = DateTime.Now;
 			cancellationToken.ThrowIfCancellationRequested ();
-			Debug ("Got result: {0}", result);
+			Debug ("Got result: {0} {1}", result.Status, result.Path.FullName);
 
 			SaveResult ();
 

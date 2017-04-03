@@ -46,8 +46,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		public ReflectionTestCase (TestPathTreeNode node)
 		{
 			Node = node;
-
-			TestSerializer.Debug ("RTC: {0} {1} {2}", Node.Path.FullName, Node.HasChildren, Node.HasParameters); 
 		}
 
 		public bool HasChildren {
@@ -119,8 +117,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			var ctx = session.RootContext;
 
-			TestSerializer.Debug ("RUN: {0}", this);
-
 			var result = new TestResult (Node.Path);
 			var childCtx = ctx.CreateChild (Node.Path, result);
 
@@ -137,8 +133,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			if (!ok && result.Status == TestStatus.Success)
 				result.Status = TestStatus.Error;
-
-			TestSerializer.Debug ("RUN DONE: {0} {1}", ok, result);
 
 			return result;
 		}
