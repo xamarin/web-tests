@@ -88,10 +88,6 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
-			public abstract string LocalName {
-				get;
-			}
-
 			public Element (Element parent, XElement node, TestPath path)
 			{
 				Parent = parent;
@@ -114,7 +110,7 @@ namespace Xamarin.AsyncTests.Console
 
 			public override string ToString ()
 			{
-				return string.Format ("[{0}: Path={1}, Name={2}, LocalName={3}]", GetType ().Name, Path, Name, LocalName);
+				return string.Format ("[{0}: Path={1}, Name={2}]", GetType ().Name, Path, Name);
 			}
 		}
 
@@ -156,14 +152,10 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
-			public override string LocalName {
-				get;
-			}
-
 			public RootElement (TestResult result)
 				: base (null, new XElement ("testsuites"), result)
 			{
-				Name = LocalName = result.Path.Node.Name;
+				Name = result.Path.Node.Name;
 			}
 
 			protected override void ResolveChildren (TestResult result)
@@ -187,29 +179,11 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
-			public override string LocalName {
-				get;
-			}
-
 			public DateTime TimeStamp { get; } = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 
 			public SuiteElement (Element parent, TestPath path, TestResult result)
 				: base (parent, new XElement ("testsuite"), result)
 			{
-				var formatted = new StringBuilder ();
-				if (parent.Name != null) {
-					formatted.Append (parent.Name);
-					formatted.Append (".");
-				}
-
-				LocalName = path.Node.Name;
-				if (!string.IsNullOrEmpty (LocalName)) {
-					formatted.Append (LocalName);
-					var parameters = path.ParameterList;
-					formatted.Append (path.ArgumentList); 
-				}
-
-				// Name = formatted.ToString ();
 				Name = path.FullName;
 			}
 
@@ -261,10 +235,6 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
-			public override string LocalName {
-				get;
-			}
-
 			public TestResult Result {
 				get;
 			}
@@ -279,9 +249,6 @@ namespace Xamarin.AsyncTests.Console
 			{
 				Result = result;
 
-				var argumentList = result.Path.ArgumentList;
-				var reallyNewName = Parent.LocalName + argumentList;
-
 				var parts = new List<string> ();
 				for (var path = Path; path != Parent.Path; path = path.Parent) {
 					var current = path.Node;
@@ -289,16 +256,7 @@ namespace Xamarin.AsyncTests.Console
 						parts.Add (current.Name);
 				}
 
-				string testName;
-				if (parts.Count > 0)
-					testName = string.Join (".", parts);
-				else {
-					testName = "XXX";
-					Debug ("EMPTY LOCALNAME: {0}", Path);
-				}
-
-				Name = testName + Path.ArgumentList;
-				LocalName = Name; // Parent.LocalName + argumentList;
+				Name = (parts.Count > 0 ? string.Join (".", parts) : Path.LocalName) + Path.ArgumentList;
 			}
 
 			bool hasError;

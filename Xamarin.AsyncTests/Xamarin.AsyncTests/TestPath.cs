@@ -65,6 +65,8 @@ namespace Xamarin.AsyncTests
 					parts.Add (current.Name);
 			}
 
+			LocalName = parts.First ();
+
 			parts.Reverse ();
 			nameParameters.Reverse ();
 			nodes.Reverse ();
@@ -79,8 +81,7 @@ namespace Xamarin.AsyncTests
 				ParameterList = ArgumentList = string.Empty;
 			}
 
-			var localName = parts.First ();
-			TestName = new TestName (localName, FullName, nameParameters.ToArray ());
+			TestName = new TestName (LocalName, FullName, nameParameters.ToArray ());
 		}
 
 		public XElement SerializePath (bool debug = true)
@@ -138,6 +139,10 @@ namespace Xamarin.AsyncTests
 		}
 
 		public string FullName {
+			get;
+		}
+
+		public string LocalName {
 			get;
 		}
 
