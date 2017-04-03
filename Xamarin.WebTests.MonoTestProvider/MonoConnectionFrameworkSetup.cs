@@ -37,9 +37,9 @@ namespace Xamarin.WebTests.MonoTestProvider
 	using MonoConnectionFramework;
 	using ConnectionFramework;
 
-	public abstract class MonoConnectionFrameworkSetup : IMonoConnectionFrameworkSetup
+	public sealed class MonoConnectionFrameworkSetup : IMonoConnectionFrameworkSetup
 	{
-		public abstract string Name {
+		public string Name {
 			get;
 		}
 
@@ -67,12 +67,14 @@ namespace Xamarin.WebTests.MonoTestProvider
 			get;
 		}
 
-		public abstract bool UsingAppleTls {
+		public bool UsingAppleTls {
 			get;
 		}
 
-		public MonoConnectionFrameworkSetup ()
+		public MonoConnectionFrameworkSetup (string name)
 		{
+			Name = name;
+
 #if !__MOBILE__ && !__UNIFIED__
 			var providerEnvVar = Environment.GetEnvironmentVariable ("MONO_TLS_PROVIDER");
 			switch (providerEnvVar) {
@@ -90,6 +92,7 @@ namespace Xamarin.WebTests.MonoTestProvider
 #endif
 			TlsProvider = MonoTlsProviderFactory.GetProvider ();
 			UsingBtls = TlsProvider.ID == ConnectionProviderFactory.BoringTlsGuid;
+			UsingAppleTls = TlsProvider.ID == ConnectionProviderFactory.AppleTlsGuid;
 			SupportsTls12 = UsingBtls;
 		}
 
@@ -98,7 +101,6 @@ namespace Xamarin.WebTests.MonoTestProvider
 			MonoConnectionProviderFactory.RegisterProvider (factory, TlsProvider);
 		}
 
-		[Obsolete ("KILL")]
 		public MonoTlsProvider GetDefaultProvider ()
 		{
 			return TlsProvider;

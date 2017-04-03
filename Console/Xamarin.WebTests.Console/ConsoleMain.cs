@@ -8,6 +8,7 @@ using Xamarin.WebTests.MonoTestFramework;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.MonoConnectionFramework;
 using Xamarin.WebTests.TestProvider;
+using Xamarin.WebTests.MonoTestProvider;
 
 [assembly: AsyncTestSuite (typeof (WebTestFeatures), true)]
 [assembly: AsyncTestSuite (typeof (MonoWebTestFeatures), true)]
@@ -19,7 +20,7 @@ namespace Xamarin.WebTests.Console
 	{
 		static void Main (string[] args)
 		{
-			var setup = new ConsoleFrameworkSetup ();
+			var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.Console");
 			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
 			DependencyInjector.RegisterDependency<IMonoConnectionFrameworkSetup> (() => setup);
 

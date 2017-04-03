@@ -87,7 +87,6 @@
     </Compile>
     <Compile Include="BuiltinTestServer.cs" />
     <Compile Include="MacMain.cs" />
-    <Compile Include="MacFrameworkSetup.cs" />
     <Compile Include="..\..\Xamarin.WebTests.MonoTestProvider\MonoConnectionFrameworkSetup.cs">
       <Link>Xamarin.WebTests.MonoTestProvider\MonoConnectionFrameworkSetup.cs</Link>
     </Compile>

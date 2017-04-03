@@ -8,6 +8,7 @@ using Xamarin.WebTests.MonoTestFramework;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.MonoConnectionFramework;
 using Xamarin.WebTests.TestProvider;
+using Xamarin.WebTests.MonoTestProvider;
 
 [assembly: AsyncTestSuite (typeof (WebTestFeatures), true)]
 [assembly: AsyncTestSuite (typeof (MonoWebTestFeatures), true)]
@@ -20,7 +21,7 @@ namespace Xamarin.WebTests.MacUI
 		{
 			NSApplication.Init ();
 
-			var setup = new MacFrameworkSetup ();
+			var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.Mac");
 			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
 			DependencyInjector.RegisterDependency<IMonoConnectionFrameworkSetup> (() => setup);
 
