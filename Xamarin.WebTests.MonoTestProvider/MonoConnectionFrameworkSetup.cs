@@ -79,9 +79,20 @@ namespace Xamarin.WebTests.MonoTestProvider
 			var providerEnvVar = Environment.GetEnvironmentVariable ("MONO_TLS_PROVIDER");
 			switch (providerEnvVar) {
 			case "btls":
+				MonoTlsProviderFactory.Initialize ("btls");
+				break;
+			case "apple":
+				MonoTlsProviderFactory.Initialize ("apple");
+				break;
 			case "default":
 			case null:
+#if APPLETLS
+				MonoTlsProviderFactory.Initialize ("apple");
+#elif BTLS
 				MonoTlsProviderFactory.Initialize ("btls");
+#else
+				MonoTlsProviderFactory.Initialize ("legacy");
+#endif
 				break;
 			case "legacy":
 				MonoTlsProviderFactory.Initialize ("legacy");
@@ -90,10 +101,11 @@ namespace Xamarin.WebTests.MonoTestProvider
 				throw new NotSupportedException (string.Format ("Unsupported TLS Provider: `{0}'", providerEnvVar));
 			}
 #endif
+
 			TlsProvider = MonoTlsProviderFactory.GetProvider ();
 			UsingBtls = TlsProvider.ID == ConnectionProviderFactory.BoringTlsGuid;
 			UsingAppleTls = TlsProvider.ID == ConnectionProviderFactory.AppleTlsGuid;
-			SupportsTls12 = UsingBtls;
+			SupportsTls12 = UsingBtls || UsingAppleTls;
 		}
 
 		public void Initialize (ConnectionProviderFactory factory)
