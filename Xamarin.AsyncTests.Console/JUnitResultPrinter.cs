@@ -261,7 +261,11 @@ namespace Xamarin.AsyncTests.Console
 						parts.Add (current.Name);
 				}
 
-				Name = (parts.Count > 0 ? string.Join (".", parts) : Path.LocalName) + Path.ArgumentList;
+				if (parts.Count == 0)
+					parts.Add (Path.LocalName);
+				parts.Reverse ();
+
+				Name = string.Join (".", parts) + Path.ArgumentList;
 			}
 
 			bool hasError;
