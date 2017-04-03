@@ -209,7 +209,8 @@ namespace Xamarin.AsyncTests.Console
 					formatted.Append (path.ArgumentList); 
 				}
 
-				Name = formatted.ToString ();
+				// Name = formatted.ToString ();
+				Name = path.FullName;
 			}
 
 			protected override void ResolveChildren (TestResult result)
@@ -281,7 +282,7 @@ namespace Xamarin.AsyncTests.Console
 				var argumentList = result.Path.ArgumentList;
 				var reallyNewName = Parent.LocalName + argumentList;
 
-				Name = Parent.LocalName + argumentList;
+				Name = Path.FullName + Path.ArgumentList;
 				LocalName = Parent.LocalName + argumentList;
 			}
 
