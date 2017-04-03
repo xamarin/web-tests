@@ -36,7 +36,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get;
 		}
 
-		IMonoConnectionInfo GetConnectionInfo ();
+		MonoTlsConnectionInfo GetConnectionInfo ();
 	}
 }
 
