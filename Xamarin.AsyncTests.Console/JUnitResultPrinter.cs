@@ -234,7 +234,7 @@ namespace Xamarin.AsyncTests.Console
 					case TestPathType.Assembly:
 					case TestPathType.Suite:
 					case TestPathType.Fixture:
-					case TestPathType.Instance:
+					// case TestPathType.Instance:
 						AddChild (new SuiteElement (this, child.Path, child));
 						break;
 					default:
@@ -282,8 +282,23 @@ namespace Xamarin.AsyncTests.Console
 				var argumentList = result.Path.ArgumentList;
 				var reallyNewName = Parent.LocalName + argumentList;
 
-				Name = Path.FullName + Path.ArgumentList;
-				LocalName = Parent.LocalName + argumentList;
+				var parts = new List<string> ();
+				for (var path = Path; path != Parent.Path; path = path.Parent) {
+					var current = path.Node;
+					if (!current.IsHidden && !string.IsNullOrEmpty (current.Name))
+						parts.Add (current.Name);
+				}
+
+				string testName;
+				if (parts.Count > 0)
+					testName = string.Join (".", parts);
+				else {
+					testName = "XXX";
+					Debug ("EMPTY LOCALNAME: {0}", Path);
+				}
+
+				Name = testName + Path.ArgumentList;
+				LocalName = Name; // Parent.LocalName + argumentList;
 			}
 
 			bool hasError;
