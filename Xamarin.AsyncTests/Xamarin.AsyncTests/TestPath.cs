@@ -59,7 +59,7 @@ namespace Xamarin.AsyncTests
 					nameParameters.Add (new TestName.Parameter (current.Name, current.ParameterValue, current.IsHidden));
 					if (!current.IsHidden) {
 						parameters.Add (current.Identifier + ":" + current.ParameterType);
-						arguments.Add (current.ParameterValue);
+						arguments.Add (current.Identifier + "=" + current.ParameterValue);
 					}
 				} else if (!current.IsHidden && !string.IsNullOrEmpty (current.Name))
 					parts.Add (current.Name);
