@@ -233,6 +233,7 @@ namespace Xamarin.AsyncTests.Console
 					case TestPathType.Assembly:
 					case TestPathType.Suite:
 					case TestPathType.Fixture:
+					case TestPathType.Instance:
 						AddChild (new SuiteElement (this, child.Path, child));
 						break;
 					default:
