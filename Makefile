@@ -41,6 +41,7 @@ Build-FastCheck::
 	$(MAKE) Build-Console
 
 Run-FastCheck-%::
+	$(MONO) --version
 	$(MAKE) Run-Console-All
 	exit 1
 

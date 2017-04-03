@@ -97,8 +97,6 @@ namespace Xamarin.AsyncTests.Console
 
 			public void Visit ()
 			{
-				Debug ("VISIT ELEMENT: {0}", this);
-
 				Resolve ();
 
 				Write ();
@@ -189,16 +187,12 @@ namespace Xamarin.AsyncTests.Console
 
 			protected override void ResolveChildren (TestResult result)
 			{
-				Debug ("RESOLVE CHILDREN: {0} - {1} - {2}\n{3}", this, result.Path, result.HasChildren,
-				      result.Path.SerializePath ());
-
 				if (!result.HasChildren || result.Children.Count == 0) {
 					AddChild (new CaseElement (this, result));
 					return;
 				}
 
 				foreach (var child in result.Children) {
-					Debug ("  RESOLVE CHILD: {0} {1}\n{2}", child, child.Path, child.Path.SerializePath ());
 					switch (child.Path.Node.PathType) {
 					case TestPathType.Assembly:
 					case TestPathType.Suite:
@@ -267,8 +261,6 @@ namespace Xamarin.AsyncTests.Console
 				var serializedPath = Result.Path.SerializePath ().ToString ();
 				output.AppendLine (serializedPath);
 				output.AppendLine ();
-
-				Debug ("RESOLVE: {0}\n{1}", Name, serializedPath);
 
 				WriteParameters ();
 
