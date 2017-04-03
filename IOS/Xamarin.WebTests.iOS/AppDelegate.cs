@@ -32,6 +32,7 @@ using Foundation;
 using UIKit;
 using ObjCRuntime;
 using Xamarin.WebTests.TestProvider;
+using Xamarin.WebTests.MonoTestProvider;
 using Xamarin.WebTests.MonoTestFramework;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.MonoConnectionFramework;
@@ -75,7 +76,7 @@ namespace Xamarin.WebTests.iOS
 		{
 			Forms.Init ();
 
-			var setup = new MobileFrameworkSetup ();
+			var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.iOS");
 			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
 			DependencyInjector.RegisterDependency<IMonoConnectionFrameworkSetup> (() => setup);
 
