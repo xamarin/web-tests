@@ -65,7 +65,7 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		static void Debug (string message, params object[] args)
+		static void Debug (string message, params object [] args)
 		{
 			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
 		}
@@ -97,11 +97,11 @@ namespace Xamarin.AsyncTests.Console
 
 			public void Visit ()
 			{
-				Debug ("VISIT ELEMENT: {0}", this); 
+				Debug ("VISIT ELEMENT: {0}", this);
 
 				Resolve ();
 
-				Write (); 
+				Write ();
 			}
 
 			protected abstract void Resolve ();
@@ -130,17 +130,17 @@ namespace Xamarin.AsyncTests.Console
 
 			protected override void Resolve ()
 			{
-				ResolveChildren (Result); 
+				ResolveChildren (Result);
 
 				foreach (var child in children) {
 					child.Visit ();
-					Node.Add (child.Node); 
+					Node.Add (child.Node);
 				}
 			}
 
 			protected void AddChild (Element child)
 			{
-				children.Add (child); 
+				children.Add (child);
 			}
 
 			protected abstract void ResolveChildren (TestResult result);
@@ -163,7 +163,7 @@ namespace Xamarin.AsyncTests.Console
 				if (result.HasChildren) {
 					foreach (var childResult in result.Children) {
 						var suite = new SuiteElement (this, childResult.Path, childResult);
-						AddChild (suite); 
+						AddChild (suite);
 					}
 				}
 			}
@@ -205,12 +205,17 @@ namespace Xamarin.AsyncTests.Console
 						continue;
 					}
 					switch (node.PathType) {
+					case TestPathType.Parameter:
+						ResolveChildren (child);
+						break;
+#if FIXME
 					case TestPathType.Assembly:
 					case TestPathType.Suite:
 					case TestPathType.Fixture:
-					// case TestPathType.Instance:
+					case TestPathType.Instance:
 						AddChild (new SuiteElement (this, child.Path, child));
 						break;
+#endif
 					default:
 						ResolveChildren (child);
 						break;
