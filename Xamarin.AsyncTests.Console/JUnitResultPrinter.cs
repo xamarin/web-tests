@@ -225,10 +225,20 @@ namespace Xamarin.AsyncTests.Console
 				foreach (var child in result.Children) {
 					Debug ("  RESOLVE CHILD: {0} {1}\n{2}", child, child.Path, child.Path.SerializePath ());
 					var node = child.Path.Node;
-					if (!node.IsHidden && node.PathType != TestPathType.Parameter)
-						AddChild (new SuiteElement (this, child.Path, child));
-					else
+					if (node.IsHidden) {
 						ResolveChildren (child);
+						continue;
+					}
+					switch (node.PathType) {
+					case TestPathType.Assembly:
+					case TestPathType.Suite:
+					case TestPathType.Fixture:
+						AddChild (new SuiteElement (this, child.Path, child));
+						break;
+					default:
+						ResolveChildren (child);
+						break;
+					}
 				}
 			}
 
@@ -240,9 +250,7 @@ namespace Xamarin.AsyncTests.Console
 				Node.SetAttributeValue ("hostname", "localhost");
 				if (Result.ElapsedTime != null)
 					Node.SetAttributeValue ("time", Result.ElapsedTime.Value.TotalSeconds);
-
 			}
-
 		}
 
 		sealed class CaseElement : Element
