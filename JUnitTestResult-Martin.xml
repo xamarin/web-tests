@@ -252,6 +252,8 @@
         <testcase name="MartinTest(parameters=MartinTest2,ValidationTestCategory=MartinTest)" status="Success" time="0.008046">
           <system-out>HELLO 2!
 </system-out>
+</system-err>ERROR OUTPUT
+</system-err>
         </testcase>
         <properties />
         <system-out>OUTPUT: 15
