@@ -411,6 +411,11 @@ namespace Xamarin.AsyncTests.Console
 					Node.Add (new XElement ("skipped"));
 					break;
 				}
+
+				var systemOut = new XElement ("system-out");
+				Node.Add (systemOut);
+
+				systemOut.Add ("HELLO!\n");
 			}
 		}
 	}

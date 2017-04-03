@@ -72,8 +72,12 @@ namespace Xamarin.AsyncTests
 			Nodes = nodes.ToArray ();
 
 			FullName = string.Join (".", parts);
-			ParameterList = "(" + string.Join (",", parameters) + ")";
-			ArgumentList = "(" + string.Join (",", arguments) + ")";
+			if (parameters.Count > 0) {
+				ParameterList = "(" + string.Join (",", parameters) + ")";
+				ArgumentList = "(" + string.Join (",", arguments) + ")";
+			} else {
+				ParameterList = ArgumentList = string.Empty;
+			}
 
 			var localName = parts.First ();
 			TestName = new TestName (localName, FullName, nameParameters.ToArray ());
