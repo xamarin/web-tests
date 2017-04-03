@@ -157,9 +157,8 @@ namespace Mono.Btls.Tests
 			[ConnectionTestProvider ("BoringTLS")] ConnectionTestProvider provider)
 		{
 			ctx.LogMessage ("TEST PROVIDER: {0}", provider);
-			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
-			var defaultProvider = setup.GetDefaultProvider ();
-			ctx.LogMessage ("DEFAULT TLS PROVIDER: {0} {1} {2}", defaultProvider, defaultProvider.Name, defaultProvider.ID);
+			var tlsProvider = MonoTlsProviderFactory.GetProvider ();
+			ctx.LogMessage ("DEFAULT TLS PROVIDER: {0} {1} {2}", tlsProvider, tlsProvider.Name, tlsProvider.ID);
 		}
 	}
 }

@@ -21,8 +21,4 @@ d0e61bdd
     <IncludeTypes>
         <Type Match="namespace">Mono.Security.Interface</Type>
     </IncludeTypes>
-    <ExcludeTypes>
-        <Type Match="full">Mono.Security.Interface.MonoTlsProviderFactory</Type>
-        <Type Match="full">Mono.Security.Interface.CertificateValidationHelper</Type>
-    </ExcludeTypes>
 </CustomAssemblyDefinition>

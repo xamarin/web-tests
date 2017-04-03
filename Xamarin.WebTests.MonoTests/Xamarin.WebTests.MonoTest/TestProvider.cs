@@ -1,4 +1,4 @@
-//
+﻿//
 // TestProvider.cs
 //
 // Author:
@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.MonoTests
 		{
 			ctx.LogMessage ("TEST DEFAULT PROVIDER!");
 			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
-			var provider = setup.GetDefaultProvider ();
+			var provider = MonoTlsProviderFactory.GetProvider ();
 			ctx.LogMessage ("TEST DEFAULT PROVIDER #1: {0}", provider);
 
 			ctx.LogMessage ("SETUP: {0} - {1} - {2}", setup.Name, setup.TlsProviderName, setup.TlsProviderId);

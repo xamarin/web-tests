@@ -117,8 +117,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				}
 			}
 
-			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
-			return setup.CreateHttpsRequest (uri, tlsProvider, settings);
+			return MSI.MonoTlsProviderFactory.CreateHttpsRequest (uri, tlsProvider, settings);
 		}
 
 		ISslStream ISslStreamProvider.CreateServerStream (Stream stream, ConnectionParameters parameters)

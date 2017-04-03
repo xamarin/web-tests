@@ -58,8 +58,7 @@ namespace Xamarin.WebTests.MonoTests
 		public void DefaultProvider (TestContext ctx)
 		{
 			var available = DependencyInjector.IsAvailable (typeof(IAppleCertificateProvider));
-			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
-			var provider = setup.GetDefaultProvider ();
+			var provider = MonoTlsProviderFactory.GetProvider ();
 			ctx.LogMessage ("Default TLS Provider: {0} {1} {2}", provider.Name, provider.ID, available);
 			if (available)
 				ctx.Assert (provider.ID, Is.EqualTo ("981af8af-a3a3-419a-9f01-a518e3a17c1c"), "apple-tls");
