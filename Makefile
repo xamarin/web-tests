@@ -41,9 +41,7 @@ Build-FastCheck::
 	$(MAKE) Build-Console
 
 Run-FastCheck-%::
-	-mkdir out
-	cp JUnitTestResult-Martin.xml out
-	# $(MAKE) Run-Console-$*
+	$(MAKE) Run-Console-$*
 	exit 1
 
 #

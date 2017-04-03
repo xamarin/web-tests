@@ -284,7 +284,7 @@ namespace Xamarin.AsyncTests.Console
 				output.AppendLine (serializedPath);
 				output.AppendLine ();
 
-				Debug ("RESOLVE SUITE: {0}\n{1}", Name, serializedPath);
+				Debug ("RESOLVE: {0}\n{1}", Name, serializedPath);
 
 				WriteParameters ();
 
