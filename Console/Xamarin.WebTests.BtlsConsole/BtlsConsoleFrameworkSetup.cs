@@ -43,42 +43,6 @@ namespace Xamarin.WebTests.BtlsConsole
 				return false;
 			}
 		}
-
-		public override string TlsProviderName {
-			get {
-#if BTLS
-				return "btls";
-#else
-				if (UsingBtls)
-					return "btls";
-				else
-					return "legacy";
-#endif
-			}
-		}
-
-		public override Guid TlsProvider {
-			get {
-#if BTLS
-				return ConnectionProviderFactory.BoringTlsGuid;
-#else
-				if (UsingBtls)
-					return ConnectionProviderFactory.BoringTlsGuid;
-				else
-					return ConnectionProviderFactory.LegacyTlsGuid;
-#endif
-			}
-		}
-
-		public override bool SupportsTls12 {
-			get {
-#if BTLS
-				return true;
-#else
-				return UsingBtls;
-#endif
-			}
-		}
 	}
 }
 

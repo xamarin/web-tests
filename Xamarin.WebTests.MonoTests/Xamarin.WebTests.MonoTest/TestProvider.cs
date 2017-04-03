@@ -1,4 +1,4 @@
-﻿//
+//
 // TestProvider.cs
 //
 // Author:
@@ -47,11 +47,11 @@ namespace Xamarin.WebTests.MonoTests
 			var provider = setup.GetDefaultProvider ();
 			ctx.LogMessage ("TEST DEFAULT PROVIDER #1: {0}", provider);
 
-			ctx.LogMessage ("SETUP: {0} - {1} - {2}", setup.Name, setup.TlsProviderName, setup.TlsProvider);
+			ctx.LogMessage ("SETUP: {0} - {1} - {2}", setup.Name, setup.TlsProviderName, setup.TlsProviderId);
 
 			ctx.LogMessage ("TEST: {0}", ctx.GetUniqueId ());
 
-			ctx.Assert (provider.ID, Is.EqualTo (setup.TlsProvider), "Default TLS Provider");
+			ctx.Assert (provider.ID, Is.EqualTo (setup.TlsProviderId), "Default TLS Provider");
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿//
+//
 // IConnectionFrameworkSetup.cs
 //
 // Author:
@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		Guid TlsProvider {
+		Guid TlsProviderId {
 			get;
 		}
 

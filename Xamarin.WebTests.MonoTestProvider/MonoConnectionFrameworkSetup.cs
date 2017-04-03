@@ -30,6 +30,7 @@ using Mono.Security.Interface;
 #if !__MOBILE__
 using System.Reflection;
 #endif
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.MonoTestProvider
 {
@@ -42,11 +43,15 @@ namespace Xamarin.WebTests.MonoTestProvider
 			get;
 		}
 
-		public abstract string TlsProviderName {
-			get;
+		public string TlsProviderName {
+			get { return TlsProvider.Name; }
 		}
 
-		public abstract Guid TlsProvider {
+		public Guid TlsProviderId {
+			get { return TlsProvider.ID; }
+		}
+
+		public MonoTlsProvider TlsProvider {
 			get;
 		}
 
@@ -54,49 +59,49 @@ namespace Xamarin.WebTests.MonoTestProvider
 			get { return true; }
 		}
 
-		public abstract bool SupportsTls12 {
+		public bool SupportsTls12 {
 			get;
 		}
 
 		public bool UsingBtls {
 			get;
-			private set;
 		}
 
 		public abstract bool UsingAppleTls {
 			get;
 		}
 
-		public void Initialize (ConnectionProviderFactory factory)
+		public MonoConnectionFrameworkSetup ()
 		{
 #if !__MOBILE__ && !__UNIFIED__
-			var type = typeof (MonoTlsProviderFactory);
-			var initialize = type.GetMethod ("Initialize", new Type [] { typeof (string) });
-#if BTLS
-			if (initialize == null)
-				throw new NotSupportedException ("Your Mono runtime is too old to support BTLS!");
-			initialize.Invoke (null, new object [] { "btls" });
-			UsingBtls = true;
-#else
 			var providerEnvVar = Environment.GetEnvironmentVariable ("MONO_TLS_PROVIDER");
-			if (string.Equals (providerEnvVar, "btls", StringComparison.OrdinalIgnoreCase)) {
-				if (initialize == null)
-					throw new NotSupportedException ("Your Mono runtime is too old to support BTLS!");
-				initialize.Invoke (null, new object [] { "btls" });
-				UsingBtls = true;
-			} else {
-				if (initialize != null)
-					initialize.Invoke (null, new object [] { "legacy" });
+			switch (providerEnvVar) {
+			case "btls":
+			case "default":
+			case null:
+				MonoTlsProviderFactory.Initialize ("btls");
+				break;
+			case "legacy":
+				MonoTlsProviderFactory.Initialize ("legacy");
+				break;
+			default:
+				throw new NotSupportedException (string.Format ("Unsupported TLS Provider: `{0}'", providerEnvVar));
 			}
 #endif
-#endif
-			var provider = MonoTlsProviderFactory.GetProvider ();
-			MonoConnectionProviderFactory.RegisterProvider (factory, provider);
+			TlsProvider = MonoTlsProviderFactory.GetProvider ();
+			UsingBtls = TlsProvider.ID == ConnectionProviderFactory.BoringTlsGuid;
+			SupportsTls12 = UsingBtls;
 		}
 
+		public void Initialize (ConnectionProviderFactory factory)
+		{
+			MonoConnectionProviderFactory.RegisterProvider (factory, TlsProvider);
+		}
+
+		[Obsolete ("KILL")]
 		public MonoTlsProvider GetDefaultProvider ()
 		{
-			return MonoTlsProviderFactory.GetProvider ();
+			return TlsProvider;
 		}
 
 		public HttpWebRequest CreateHttpsRequest (Uri requestUri, MonoTlsProvider provider, MonoTlsSettings settings)
@@ -111,16 +116,7 @@ namespace Xamarin.WebTests.MonoTestProvider
 
 		public ICertificateValidator GetCertificateValidator (MonoTlsSettings settings)
 		{
-#if !__MOBILE__
-			var type = typeof (CertificateValidationHelper);
-			var getValidator = type.GetMethod ("GetValidator", new Type[] { typeof (MonoTlsSettings) });
-			if (getValidator != null)
-				return (ICertificateValidator)getValidator.Invoke (null, new object[] { settings });
-			getValidator = type.GetMethod ("GetValidator", new Type[] { typeof (MonoTlsSettings), typeof (MonoTlsProvider) });
-			return (ICertificateValidator) getValidator.Invoke (null, new object[] { settings, null });
-#else
 			return CertificateValidationHelper.GetValidator (settings);
-#endif
 		}
 
 		public IMonoConnectionInfo GetConnectionInfo (IMonoSslStream stream)
