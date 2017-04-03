@@ -42,8 +42,6 @@ namespace Xamarin.AsyncTests.Remoting
 				return TestSerializer.WriteString ((string)instance);
 			else if (instance is XElement)
 				return TestSerializer.WriteElement ((XElement)instance);
-			else if (instance is TestName)
-				return TestSerializer.WriteTestName ((TestName)instance);
 			else if (instance is TestResult)
 				return TestSerializer.WriteTestResult ((TestResult)instance);
 			else if (instance is TestLoggerBackend.LogEntry)
@@ -62,8 +60,6 @@ namespace Xamarin.AsyncTests.Remoting
 				return (T)(object)TestSerializer.ReadString (node);
 			else if (typeof(T) == typeof(XElement))
 				return (T)(object)TestSerializer.ReadElement (node);
-			else if (typeof(T) == typeof(TestName))
-				return (T)(object)TestSerializer.ReadTestName (node);
 			else if (typeof(T) == typeof(TestResult))
 				return (T)(object)TestSerializer.ReadTestResult (node);
 			else if (typeof(T) == typeof(TestLoggerBackend.LogEntry))

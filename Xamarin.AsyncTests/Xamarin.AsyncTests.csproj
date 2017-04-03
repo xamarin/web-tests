@@ -40,7 +40,6 @@
     <Compile Include="Xamarin.AsyncTests\TestParameterAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\TestResult.cs" />
     <Compile Include="Xamarin.AsyncTests\TestStatus.cs" />
-    <Compile Include="Xamarin.AsyncTests\TestNameBuilder.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\Constraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\Is.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\EqualConstraint.cs" />
@@ -84,7 +83,7 @@
     <Compile Include="Xamarin.AsyncTests.Portable\IServerHost.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestParameter.cs" />
     <Compile Include="Xamarin.AsyncTests\FriendlyNameAttribute.cs" />
-    <Compile Include="Xamarin.AsyncTests\ITestPath.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestPath.cs" />
     <Compile Include="Xamarin.AsyncTests.Portable\IPipeConnection.cs" />
     <Compile Include="Xamarin.AsyncTests\SavedException.cs" />
     <Compile Include="Xamarin.AsyncTests\IgnoreException.cs" />
@@ -92,7 +91,6 @@
     <Compile Include="Xamarin.AsyncTests.Constraints\LessThanOrEqualConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\GreaterThanConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\LessThanConstraint.cs" />
-    <Compile Include="Xamarin.AsyncTests\ITestPathInternal.cs" />
     <Compile Include="Xamarin.AsyncTests\DependencyInjector.cs" />
     <Compile Include="Xamarin.AsyncTests.Portable\IPortableEndPoint.cs" />
     <Compile Include="Xamarin.AsyncTests.Portable\IPortableEndPointSupport.cs" />
@@ -110,6 +108,9 @@
     <Compile Include="Xamarin.AsyncTests.Constraints\IsEqualBlob.cs" />
     <Compile Include="Xamarin.AsyncTests\VersionInfo.cs" />
     <Compile Include="Xamarin.AsyncTests\GlobalAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestPathType.cs" />
+    <Compile Include="Xamarin.AsyncTests\TestNode.cs" />
+    <Compile Include="Xamarin.AsyncTests\InternalErrorException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup />

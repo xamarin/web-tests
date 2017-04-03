@@ -31,43 +31,50 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestHost : IPathNode
+	abstract class TestHost
 	{
 		public TestFlags Flags {
 			get; protected set;
 		}
 
+		public TestPathType PathType {
+			get;
+		}
+
 		public string Identifier {
 			get;
-			private set;
 		}
 
 		public string Name {
 			get;
-			private set;
 		}
 
 		public string ParameterType {
 			get;
-			private set;
 		}
 
-		protected TestHost (string identifier, string name, string parameterType, TestFlags flags = TestFlags.None)
+		protected TestHost (TestPathType type, string identifier, string name, string parameterType, TestFlags flags = TestFlags.None)
 		{
+			PathType = type;
 			Identifier = identifier;
 			Name = name;
 			ParameterType = parameterType;
 			Flags = flags;
 		}
 
-		internal TestInstance CreateInstance (TestContext ctx, TestPath path, TestInstance parent)
+		internal TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
 		{
-			if (path == null)
-				throw new ArgumentNullException ("path");
+			if (node == null)
+				throw new ArgumentNullException ("node");
 
-			var instance = CreateInstance (path, parent);
+			var instance = CreateInstance (node, parent);
 			instance.Initialize (ctx);
 			return instance;
+		}
+
+		internal TestNode CreateNode (ITestParameter parameter = null, TestFlags? flags = null)
+		{
+			return new TestNodeInternal (this, parameter, flags);
 		}
 
 		internal virtual bool HasFixedParameter {
@@ -90,9 +97,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal abstract ITestParameter GetParameter (TestInstance instance);
 
-		internal abstract TestInstance CreateInstance (TestPath path, TestInstance parent);
+		internal abstract TestInstance CreateInstance (TestNode node, TestInstance parent);
 
-		internal abstract TestInvoker CreateInvoker (TestPath path, TestInvoker invoker);
+		internal abstract TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags);
 
 		public override string ToString ()
 		{

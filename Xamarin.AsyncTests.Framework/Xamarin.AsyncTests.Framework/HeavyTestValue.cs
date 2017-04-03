@@ -1,10 +1,10 @@
 ﻿//
-// ITestPath.cs
+// HeavyTestValue.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,31 +22,33 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.using System;
 using System;
-using System.Xml.Linq;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.Framework
 {
-	public interface ITestPath
+	class HeavyTestValue : TestParameterValue, ITestParameter, ITestParameterWrapper
 	{
-		ITestPath Parent {
-			get;
+		readonly object current;
+
+		public HeavyTestValue (HeavyTestInstance instance, object current)
+			: base (instance)
+		{
+			this.current = current;
 		}
 
-		string Identifier {
-			get;
+		public override ITestParameter Parameter {
+			get {
+				return this;
+			}
 		}
 
-		string Name {
-			get;
+		object ITestParameterWrapper.Value {
+			get { return current; }
 		}
 
-		string ParameterType {
-			get;
+		string ITestParameter.Value {
+			get { return Instance.Host.Name; }
 		}
-
-		XElement SerializePath ();
 	}
 }
-

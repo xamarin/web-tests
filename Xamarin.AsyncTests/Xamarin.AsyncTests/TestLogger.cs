@@ -86,21 +86,21 @@ namespace Xamarin.AsyncTests
 				Type = TestLoggerBackend.StatisticsEventType.Reset });
 		}
 
-		public void OnTestRunning (TestName name)
+		public void OnTestRunning (string name)
 		{
 			backend.OnStatisticsEvent (new TestLoggerBackend.StatisticsEventArgs {
 				Type = TestLoggerBackend.StatisticsEventType.Running, Name = name
 			});
 		}
 
-		public void OnTestFinished (TestName name, TestStatus status)
+		public void OnTestFinished (string name, TestStatus status)
 		{
 			backend.OnStatisticsEvent (new TestLoggerBackend.StatisticsEventArgs {
 				Type = TestLoggerBackend.StatisticsEventType.Finished, Name = name, Status = status
 			});
 		}
 
-		public void OnException (TestName name, Exception ex)
+		public void OnException (string name, Exception ex)
 		{
 			OnTestFinished (name, TestStatus.Error);
 		}

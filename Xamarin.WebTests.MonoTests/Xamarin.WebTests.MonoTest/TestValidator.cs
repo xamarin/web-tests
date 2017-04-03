@@ -52,6 +52,16 @@ namespace Xamarin.WebTests.MonoTests
 			runner.Run (ctx);
 		}
 
+		[Martin]
+		[AsyncTest]
+		[ValidationTestCategory (ValidationTestCategory.MartinTest)]
+		public void MartinTest (TestContext ctx,
+		                        MonoValidationTestParameters parameters,
+		                        MonoValidationTestRunner runner)
+		{
+			runner.Run (ctx);
+		}
+
 		[AppleTls]
 		[AsyncTest]
 		[ValidationTestCategory (ValidationTestCategory.AppleTls)]

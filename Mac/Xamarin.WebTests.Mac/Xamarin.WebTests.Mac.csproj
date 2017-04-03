@@ -72,6 +72,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
+    <Reference Include="Mono.Security" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -122,7 +123,7 @@
     </ProjectReference>
     <ProjectReference Include="..\..\Xamarin.WebTests.Tests\Xamarin.WebTests.Tests.csproj">
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
-      <Name>Xamarin.WebTests</Name>
+      <Name>Xamarin.WebTests.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\Xamarin.WebTests.TestProvider.Mac\Xamarin.WebTests.TestProvider.Mac.csproj">
       <Project>{9390670C-C319-4817-95FC-7C83E9B708E3}</Project>

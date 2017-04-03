@@ -35,7 +35,7 @@ namespace Xamarin.WebTests.MonoTestFeatures
 	public class MonoValidationTestRunnerAttribute : TestHostAttribute, ITestHost<MonoValidationTestRunner>
 	{
 		public MonoValidationTestRunnerAttribute ()
-			: base (typeof (MonoValidationTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
+			: base (typeof (MonoValidationTestRunnerAttribute), TestFlags.Hidden)
 		{
 		}
 

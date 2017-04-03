@@ -40,16 +40,14 @@ namespace Xamarin.AsyncTests.Framework
 
 		public Type HostType {
 			get;
-			private set;
 		}
 
 		public bool UseFixtureInstance {
 			get;
-			private set;
 		}
 
-		public CustomTestInstance (CustomTestHost host, TestPath path, TestInstance parent, Type hostType, bool useFixtureInstance)
-			: base (host, path, parent)
+		public CustomTestInstance (CustomTestHost host, TestNode node, TestInstance parent, Type hostType, bool useFixtureInstance)
+			: base (host, node, parent)
 		{
 			HostType = hostType;
 			UseFixtureInstance = useFixtureInstance;

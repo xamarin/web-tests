@@ -1,10 +1,10 @@
 ﻿//
-// ResultGroupTestInvoker.cs
+// TestPathType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,47 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Xml.Linq;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	class ResultGroupTestInvoker : AggregatedTestInvoker
+	public enum TestPathType
 	{
-		public TestInvoker Inner {
-			get;
-			private set;
-		}
-
-		public ResultGroupTestInvoker (TestFlags flags, TestInvoker inner)
-			: base (flags)
-		{
-			Inner = inner;
-		}
-
-		public override async Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
-		{
-			if ((Flags & (TestFlags.Hidden | TestFlags.FlattenHierarchy)) != 0)
-				return await InvokeInner (ctx, instance, Inner, cancellationToken);
-
-			TestContext innerCtx;
-			TestResult innerResult;
-
-			var currentPath = instance.GetCurrentPath ();
-			innerResult = new TestResult (currentPath);
-
-			innerCtx = ctx.CreateChild (currentPath, innerResult);
-
-			bool success;
-			try {
-				success = await InvokeInner (innerCtx, instance, Inner, cancellationToken);
-			} finally {
-				ctx.Result.AddChild (innerResult);
-			}
-
-			return success;
-		}
+		Invalid,
+		Suite,
+		Assembly,
+		Fixture,
+		Test,
+		Instance,
+		Fork,
+		Parameter,
+		Group
 	}
 }
-

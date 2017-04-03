@@ -29,6 +29,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using System.Collections.Generic;
 using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.AsyncTests.Console
@@ -37,7 +38,6 @@ namespace Xamarin.AsyncTests.Console
 	{
 		public TestResult Result {
 			get;
-			private set;
 		}
 
 		public bool ShowIgnored {
@@ -59,97 +59,329 @@ namespace Xamarin.AsyncTests.Console
 			};
 			using (var writer = XmlWriter.Create (output, settings)) {
 				var printer = new JUnitResultPrinter (result);
-				var root = new XElement ("testsuites");
-				printer.Visit (root, TestName.Empty, result);
-				root.WriteTo (writer);
+				var root = new RootElement (result);
+				root.Visit ();
+				root.Node.WriteTo (writer);
 			}
 		}
 
-		XElement Print (XElement root, TestName parent, TestResult node)
+		static void Debug (string message, params object [] args)
 		{
-			var timestamp = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
-			var suite = new XElement ("testsuite");
-			suite.SetAttributeValue ("name", parent.FullName);
-			suite.SetAttributeValue ("errors", "0");
-			suite.SetAttributeValue ("failures", "0");
-			suite.SetAttributeValue ("tests", "1");
-			suite.SetAttributeValue ("timestamp", timestamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
-			suite.SetAttributeValue ("hostname", "localhost");
-			if (node.ElapsedTime != null)
-				suite.SetAttributeValue ("time", node.ElapsedTime.Value.TotalSeconds);
-			root.Add (suite);
+			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
+		}
 
-			var properties = new XElement ("properties");
-			suite.Add (properties);
-
-			if (!node.HasChildren || node.Children.Count == 0) {
-				var test = new XElement ("testcase");
-				test.SetAttributeValue ("name", node.Name.LocalName);
-				test.SetAttributeValue ("status", node.Status);
-				if (node.ElapsedTime != null)
-					test.SetAttributeValue ("time", node.ElapsedTime.Value.TotalSeconds);
-				suite.Add (test);
+		abstract class Element
+		{
+			public Element Parent {
+				get;
 			}
 
-			var systemOut = new XElement ("system-out");
-			suite.Add (systemOut);
-
-			var systemErr = new XElement ("system-err");
-			suite.Add (systemErr);
-
-			if (node.Path != null) {
-				var serializedPath = node.Path.SerializePath ().ToString ();
-				systemOut.Add (serializedPath);
-				systemOut.Add (Environment.NewLine);
-				systemOut.Add (Environment.NewLine);
+			public XElement Node {
+				get;
 			}
 
-			if (node.Name.HasParameters) {
-				foreach (var parameter in node.Name.Parameters) {
-					if (parameter.IsHidden)
-						continue;
-					var propNode = new XElement ("property");
-					propNode.SetAttributeValue ("name", parameter.Name);
-					propNode.SetAttributeValue ("value", parameter.Value);
-					systemOut.Add (string.Format ("{0} = {1}{2}", parameter.Name, parameter.Value, Environment.NewLine));
-					properties.Add (propNode);
+			public TestPath Path {
+				get;
+			}
+
+			public abstract string Name {
+				get;
+			}
+
+			public Element (Element parent, XElement node, TestPath path)
+			{
+				Parent = parent;
+				Node = node;
+				Path = path;
+			}
+
+			public void Visit ()
+			{
+				Debug ("VISIT ELEMENT: {0}", this);
+
+				Resolve ();
+
+				Write ();
+			}
+
+			protected abstract void Resolve ();
+
+			protected abstract void Write ();
+
+			public override string ToString ()
+			{
+				return string.Format ("[{0}: Path={1}, Name={2}]", GetType ().Name, Path, Name);
+			}
+		}
+
+		abstract class ContainerElement : Element
+		{
+			public TestResult Result {
+				get;
+			}
+
+			List<Element> children = new List<Element> ();
+
+			public ContainerElement (Element parent, XElement node, TestResult result)
+				: base (parent, node, result.Path)
+			{
+				Result = result;
+			}
+
+			protected override void Resolve ()
+			{
+				ResolveChildren (Result);
+
+				foreach (var child in children) {
+					child.Visit ();
+					Node.Add (child.Node);
 				}
 			}
 
-			systemOut.Add (Environment.NewLine);
+			protected void AddChild (Element child)
+			{
+				children.Add (child);
+			}
 
-			if (node.HasMessages) {
-				foreach (var message in node.Messages) {
-					systemOut.Add (message + Environment.NewLine);
+			protected abstract void ResolveChildren (TestResult result);
+		}
+
+		sealed class RootElement : ContainerElement
+		{
+			public override string Name {
+				get;
+			}
+
+			public RootElement (TestResult result)
+				: base (null, new XElement ("testsuites"), result)
+			{
+				Name = result.Path.Node.Name;
+			}
+
+			protected override void ResolveChildren (TestResult result)
+			{
+				if (result.HasChildren) {
+					foreach (var childResult in result.Children) {
+						var suite = new SuiteElement (this, childResult.Path, childResult);
+						AddChild (suite);
+					}
 				}
 			}
 
-			return suite;
+			protected override void Write ()
+			{
+			}
 		}
 
-		string FormatName (TestName name)
+		sealed class SuiteElement : ContainerElement
 		{
-			return name.FullName;
-		}
-
-		void Visit (XElement root, TestName parent, TestResult result)
-		{
-			if (true && result.Status == TestStatus.Ignored)
-				return;
-
-			XElement node = root;
-
-			if (result.Path == null ||
-			    result.Path.Identifier == "suite" ||
-			    result.Path.Identifier == "assembly") {
-				;
-			} else {
-				node = Print (root, parent, result);
+			public override string Name {
+				get;
 			}
 
-			if (result.HasChildren) {
-				foreach (var child in result.Children)
-					Visit (node, result.Name, child);
+			public DateTime TimeStamp { get; } = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
+
+			public SuiteElement (Element parent, TestPath path, TestResult result)
+				: base (parent, new XElement ("testsuite"), result)
+			{
+				Name = path.FullName;
+			}
+
+			protected override void ResolveChildren (TestResult result)
+			{
+				Debug ("RESOLVE CHILDREN: {0} - {1} - {2}\n{3}", this, result.Path, result.HasChildren,
+				      result.Path.SerializePath ());
+
+				if (!result.HasChildren || result.Children.Count == 0) {
+					AddChild (new CaseElement (this, result));
+					return;
+				}
+
+				foreach (var child in result.Children) {
+					Debug ("  RESOLVE CHILD: {0} {1}\n{2}", child, child.Path, child.Path.SerializePath ());
+					if (!child.Path.Node.IsHidden && child.Path.Node.PathType != TestPathType.Parameter)
+						AddChild (new SuiteElement (this, child.Path, child));
+					else
+						ResolveChildren (child);
+				}
+			}
+
+			protected override void Write ()
+			{
+				Node.SetAttributeValue ("name", Name);
+
+				Node.SetAttributeValue ("timestamp", TimeStamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
+				Node.SetAttributeValue ("hostname", "localhost");
+				if (Result.ElapsedTime != null)
+					Node.SetAttributeValue ("time", Result.ElapsedTime.Value.TotalSeconds);
+			}
+		}
+
+		sealed class CaseElement : Element
+		{
+			public override string Name {
+				get;
+			}
+
+			public TestResult Result {
+				get;
+			}
+
+			public XElement Properties { get; } = new XElement ("properties");
+
+			StringBuilder output = new StringBuilder ();
+			StringBuilder errorOutput = new StringBuilder ();
+
+			public CaseElement (SuiteElement parent, TestResult result)
+				: base (parent, new XElement ("testcase"), result.Path)
+			{
+				Result = result;
+
+				var parts = new List<string> ();
+				for (var path = Path; path != Parent.Path; path = path.Parent) {
+					var current = path.Node;
+					if (current.PathType != TestPathType.Parameter && !current.IsHidden && !string.IsNullOrEmpty (current.Name))
+						parts.Add (current.Name);
+				}
+
+				if (parts.Count == 0)
+					parts.Add (Path.LocalName);
+				parts.Reverse ();
+
+				Name = string.Join (".", parts) + Path.ArgumentList;
+			}
+
+			bool hasError;
+
+			protected override void Resolve ()
+			{
+				var serializedPath = Result.Path.SerializePath ().ToString ();
+				output.AppendLine (serializedPath);
+				output.AppendLine ();
+
+				Debug ("RESOLVE: {0}\n{1}", Name, serializedPath);
+
+				WriteParameters ();
+
+				output.AppendLine ();
+
+				if (Result.HasMessages) {
+					foreach (var message in Result.Messages) {
+						output.AppendLine (message);
+					}
+				}
+
+				if (Result.HasLogEntries) {
+					foreach (var entry in Result.LogEntries) {
+						output.AppendFormat (string.Format ("LOG: {0} {1} {2}\n", entry.Kind, entry.LogLevel, entry.Text));
+					}
+				}
+			}
+
+			void WriteParameters ()
+			{
+				var list = new List<Tuple<string, XElement>> ();
+				WriteParameters (list, Result.Path);
+				if (list.Count == 0)
+					return;
+
+				output.AppendLine ("<parameters>");
+				foreach (var entry in list) {
+					output.AppendLine (entry.Item1);
+					Properties.Add (entry.Item2);
+				}
+				output.AppendLine ("</parameters>");
+				output.AppendLine ();
+			}
+
+			void WriteParameters (List<Tuple<string, XElement>> list, TestPath path)
+			{
+				if (path.Parent != null)
+					WriteParameters (list, path.Parent);
+
+				var node = path.Node;
+				if (node.IsHidden || node.PathType != TestPathType.Parameter)
+					return;
+
+				var line = string.Format ("  {0} = {1}", node.Name, node.ParameterValue);
+				var element = new XElement ("property");
+				element.SetAttributeValue ("name", node.Name);
+				element.SetAttributeValue ("value", node.ParameterValue);
+
+				list.Add (new Tuple<string, XElement> (line, element));
+			}
+
+			protected override void Write ()
+			{
+				CreateTestCase ();
+				AddErrors ();
+				AddStatus ();
+
+				Node.Add (Properties);
+
+				var systemOut = new XElement ("system-out");
+				Node.Add (systemOut);
+
+				var systemErr = new XElement ("system-err");
+				Node.Add (systemErr);
+
+				WriteOutput (systemOut);
+			}
+
+			void CreateTestCase ()
+			{
+				Node.SetAttributeValue ("name", Name);
+				Node.SetAttributeValue ("status", Result.Status);
+				if (Result.ElapsedTime != null)
+					Node.SetAttributeValue ("time", Result.ElapsedTime.Value.TotalSeconds);
+			}
+
+			void AddErrors ()
+			{
+				if (!Result.HasErrors)
+					return;
+
+				foreach (var error in Result.Errors) {
+					var xerror = new XElement ("error");
+					var savedException = error as SavedException;
+					if (savedException != null) {
+						xerror.SetAttributeValue ("type", savedException.Type);
+						xerror.SetAttributeValue ("message", savedException.Message + "\n" + savedException.StackTrace);
+					} else {
+						xerror.SetAttributeValue ("type", error.GetType ().FullName);
+						xerror.SetAttributeValue ("message", error.Message + "\n" + error.StackTrace);
+					}
+					Node.Add (xerror);
+					hasError = true;
+				}
+			}
+
+			static int nextId;
+
+			void WriteOutput (XElement element)
+			{
+				element.Add (string.Format ("OUTPUT: {0}\n", ++nextId));
+				using (var reader = new StringReader (output.ToString ())) {
+					string line;
+					while ((line = reader.ReadLine ()) != null) {
+						element.Add (line);
+						element.Add (Environment.NewLine);
+					}
+				}
+			}
+
+			void AddStatus ()
+			{
+				switch (Result.Status) {
+				case TestStatus.Error:
+				case TestStatus.Canceled:
+					if (!hasError)
+						Node.Add (new XElement ("error"));
+					break;
+				case TestStatus.Ignored:
+					Node.Add (new XElement ("skipped"));
+					break;
+				}
 			}
 		}
 	}

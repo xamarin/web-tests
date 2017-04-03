@@ -32,7 +32,6 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public FixedTestParameterAttribute Attribute {
 			get;
-			private set;
 		}
 
 		internal override bool HasFixedParameter {
@@ -57,9 +56,9 @@ namespace Xamarin.AsyncTests.Framework
 				fixedParameter = (ITestParameter)Attribute.Value;
 		}
 
-		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
+		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 		{
-			return new FixedParameterInstance<T> (this, path, parent);
+			return new FixedParameterInstance<T> (this, node, parent);
 		}
 	}
 }

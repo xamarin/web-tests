@@ -36,12 +36,10 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public Type HostType {
 			get;
-			private set;
 		}
 
 		public bool UseFixtureInstance {
 			get;
-			private set;
 		}
 
 		public override ITestParameter Parameter {
@@ -49,25 +47,24 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public string Value {
-			get { return TestSerializer.GetFriendlyName (Type); }
+			get { return TestName.GetFriendlyName (Type); }
 		}
 
 		public TestHostAttribute Attribute {
 			get;
-			private set;
 		}
 
 		public CustomTestHost (string name, Type type, Type hostType, TestFlags flags, TestHostAttribute attr, bool useFixtureInstance)
-			: base (TestSerializer.GetParameterIdentifier (name), name, type, hostType, flags)
+			: base (TestPathType.Parameter, name, name, type, hostType, flags)
 		{
 			HostType = hostType;
 			Attribute = attr;
 			UseFixtureInstance = useFixtureInstance;
 		}
 
-		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
+		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 		{
-			return new CustomTestInstance (this, path, parent, HostType, UseFixtureInstance);
+			return new CustomTestInstance (this, node, parent, HostType, UseFixtureInstance);
 		}
 
 		public override string ToString ()

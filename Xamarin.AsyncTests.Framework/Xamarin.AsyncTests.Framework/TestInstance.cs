@@ -31,40 +31,44 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestInstance : ITestPathInternal
+	abstract class TestInstance
 	{
 		public TestHost Host {
 			get;
-			private set;
 		}
 
 		public TestInstance Parent {
 			get;
-			private set;
 		}
 
-		ITestPathInternal ITestPathInternal.Parent {
-			get { return Parent; }
-		}
-
-		public TestPath Path {
+		TestPath Path {
 			get;
-			private set;
 		}
 
-		protected TestInstance (TestHost host, TestPath path, TestInstance parent)
+		public TestPath ParentPath {
+			get;
+		}
+
+		public TestNode Node {
+			get;
+		}
+
+		protected TestInstance (TestHost host, TestNode node, TestInstance parent)
 		{
 			if (host == null)
 				throw new ArgumentNullException ("host");
-			if (path == null)
-				throw new ArgumentNullException ("path");
+			if (node == null)
+				throw new ArgumentNullException ("node");
 
 			Host = host;
+			Node = node;
 			Parent = parent;
-			Path = path;
+
+			ParentPath = Parent?.GetCurrentPath ();
+			Path = new TestPath (ParentPath, Node);
 		}
 
-		internal abstract ITestParameter GetCurrentParameter ();
+		internal abstract TestParameterValue GetCurrentParameter ();
 
 		protected FixtureTestInstance GetFixtureInstance ()
 		{
@@ -88,39 +92,13 @@ namespace Xamarin.AsyncTests.Framework
 		{
 		}
 
-		TestPath GetCurrentPath ()
-		{
-			TestPath parentPath = null;
-			if (Parent != null)
-				parentPath = Parent.GetCurrentPath ();
-
-			var parameter = GetCurrentParameter ();
-			return new TestPath (Path.Host, parentPath, parameter);
-		}
-
-		public static TestPath GetCurrentPath (TestInstance instance)
-		{
-			return instance.GetCurrentPath ();
-		}
-
-		public static TestName GetTestName (TestInstance instance)
-		{
-			return GetCurrentPath (instance).TestName;
-		}
-
-		public virtual bool ParameterMatches<T> (string name)
-		{
-			return Path.ParameterMatches<T> (name);
-		}
-
-		public virtual T GetParameter<T> ()
+		public TestPath GetCurrentPath ()
 		{
 			var parameter = GetCurrentParameter ();
 			if (parameter == null)
-				throw new InternalErrorException ();
+				return Path;
 
-			var path = new TestPath (Parent.Host, Parent.Path, parameter);
-			return path.GetParameter<T> ();
+			return parameter.GetCurrentPath ();
 		}
 
 		public override string ToString ()

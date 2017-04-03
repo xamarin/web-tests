@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.TestFramework
 	public class SslStreamTestRunnerAttribute : TestHostAttribute, ITestHost<SslStreamTestRunner>
 	{
 		public SslStreamTestRunnerAttribute ()
-			: base (typeof (SslStreamTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
+			: base (typeof (SslStreamTestRunnerAttribute), TestFlags.Hidden)
 		{
 		}
 

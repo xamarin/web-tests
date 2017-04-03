@@ -34,30 +34,27 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public ParameterizedTestHost Host {
 			get;
-			private set;
 		}
 
-		public TestPath Path {
+		public TestNode Node {
 			get;
-			private set;
 		}
 
 		public TestInvoker Inner {
 			get;
-			private set;
 		}
 
-		public ParameterizedTestInvoker (ParameterizedTestHost host, TestPath path, TestInvoker inner)
+		public ParameterizedTestInvoker (ParameterizedTestHost host, TestNode node, TestInvoker inner)
 			: base (host.Flags)
 		{
 			Host = host;
-			Path = path;
+			Node = node;
 			Inner = inner;
 		}
 
 		protected virtual ParameterizedTestInstance CreateInstance (TestInstance parent)
 		{
-			return (ParameterizedTestInstance)Host.CreateInstance (Path, parent);
+			return (ParameterizedTestInstance)Host.CreateInstance (Node, parent);
 		}
 
 		ParameterizedTestInstance SetUp (TestContext ctx, TestInstance instance)
@@ -109,27 +106,27 @@ namespace Xamarin.AsyncTests.Framework
 				if (!success)
 					break;
 
-				var name = TestInstance.GetTestName (parameterizedInstance);
+				var path = parameterizedInstance.GetCurrentPath ();
 
 				bool enabled;
 
 				var filter = parameterizedInstance.Current as ITestFilter;
 				if (filter != null && filter.Filter (ctx, out enabled) && !enabled) {
-					var ignoredResult = new TestResult (name, TestStatus.Ignored);
+					var ignoredResult = new TestResult (path, TestStatus.Ignored);
 					ctx.Result.AddChild (ignoredResult);
 					continue;
 				}
 
 				found = true;
 
-				var innerCtx = ctx.CreateChild (name, parameterizedInstance, ctx.Result);
+				var innerCtx = ctx.CreateChild (path, ctx.Result);
 
-				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2} {3}", name.FullName,
+				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2} {3}", path.FullName,
 					TestLogger.Print (Host), TestLogger.Print (parameterizedInstance), Inner);
 
 				success = await InvokeInner (innerCtx, parameterizedInstance, Inner, cancellationToken);
 
-				ctx.LogDebug (10, "InnerInvoke({0}) done: {1} {2} {3}", name.FullName,
+				ctx.LogDebug (10, "InnerInvoke({0}) done: {1} {2} {3}", path.FullName,
 					TestLogger.Print (Host), TestLogger.Print (parameterizedInstance), success);
 			}
 

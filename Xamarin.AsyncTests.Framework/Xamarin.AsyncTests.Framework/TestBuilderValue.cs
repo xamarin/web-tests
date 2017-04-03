@@ -1,5 +1,5 @@
 ﻿//
-// ResultGroupTestInvoker.cs
+// TestBuilderValue.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,47 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class ResultGroupTestInvoker : AggregatedTestInvoker
+	class TestBuilderValue : TestParameterValue
 	{
-		public TestInvoker Inner {
-			get;
-			private set;
+		public TestBuilderValue (TestBuilderInstance instance)
+			: base (instance)
+		{
 		}
 
-		public ResultGroupTestInvoker (TestFlags flags, TestInvoker inner)
-			: base (flags)
-		{
-			Inner = inner;
-		}
-
-		public override async Task<bool> Invoke (
-			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
-		{
-			if ((Flags & (TestFlags.Hidden | TestFlags.FlattenHierarchy)) != 0)
-				return await InvokeInner (ctx, instance, Inner, cancellationToken);
-
-			TestContext innerCtx;
-			TestResult innerResult;
-
-			var currentPath = instance.GetCurrentPath ();
-			innerResult = new TestResult (currentPath);
-
-			innerCtx = ctx.CreateChild (currentPath, innerResult);
-
-			bool success;
-			try {
-				success = await InvokeInner (innerCtx, instance, Inner, cancellationToken);
-			} finally {
-				ctx.Result.AddChild (innerResult);
+		public override ITestParameter Parameter {
+			get {
+				return Instance.Node.Parameter;
 			}
-
-			return success;
 		}
 	}
 }
-

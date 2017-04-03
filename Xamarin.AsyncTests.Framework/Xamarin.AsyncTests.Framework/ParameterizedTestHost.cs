@@ -36,22 +36,20 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public string ParameterName {
 			get;
-			private set;
 		}
 
 		public TypeInfo ParameterTypeInfo {
 			get;
-			private set;
 		}
 
 		public IParameterSerializer Serializer {
 			get;
-			private set;
 		}
 
 		protected ParameterizedTestHost (string name, TypeInfo type,
 			IParameterSerializer serializer, TestFlags flags = TestFlags.None)
-			: base (TestSerializer.GetParameterIdentifier (name), name, TestSerializer.GetFriendlyName (type.AsType()), flags)
+			: base (TestPathType.Parameter, name, name,
+			        TestName.GetFriendlyName (type.AsType()), flags)
 		{
 			ParameterName = name;
 			ParameterTypeInfo = type;
@@ -61,14 +59,14 @@ namespace Xamarin.AsyncTests.Framework
 		internal override ITestParameter GetParameter (TestInstance instance)
 		{
 			var parameterizedInstance = (ParameterizedTestInstance)instance;
-			return parameterizedInstance.Serialize ();
+			return parameterizedInstance.Current.Parameter;
 		}
 
-		internal override TestInvoker CreateInvoker (TestPath path, TestInvoker invoker)
+		internal override TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags)
 		{
-			if ((Flags & TestFlags.Browsable) != 0)
-				invoker = new ResultGroupTestInvoker (path, invoker);
-			return new ParameterizedTestInvoker (this, path, invoker);
+			if ((flags & TestFlags.Browsable) != 0)
+				invoker = new ResultGroupTestInvoker (flags, invoker);
+			return new ParameterizedTestInvoker (this, node, invoker);
 		}
 
 		public override string ToString ()

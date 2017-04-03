@@ -70,8 +70,7 @@ namespace Xamarin.AsyncTests.MacUI
 			if (session != null) {
 				var test = session.RootTestCase;
 				if (test != null) {
-					var model = new TestCaseModel (session, test);
-					await model.Initialize ();
+					var model = await TestCaseModel.Create (session, test);
 					TestResultController.AddObject (model);
 				}
 			} else {

@@ -35,22 +35,18 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 	{
 		public ReflectionTestAssemblyBuilder AssemblyBuilder {
 			get;
-			private set;
 		}
 
 		public TypeInfo Type {
 			get;
-			private set;
 		}
 
 		public HeavyTestHost FixtureHost {
 			get;
-			private set;
 		}
 
 		public AsyncTestAttribute Attribute {
 			get;
-			private set;
 		}
 
 		public override TestBuilder Parent {
@@ -60,8 +56,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		TestFilter filter;
 
 		public ReflectionTestFixtureBuilder (ReflectionTestAssemblyBuilder assembly, AsyncTestAttribute attr, TypeInfo type)
-			: base (TestSerializer.TestFixtureIdentifier, type.Name,
-				TestSerializer.GetStringParameter (type.FullName))
+			: base (TestPathType.Fixture, null, type.Name, TestSerializer.GetStringParameter (type.FullName))
 		{
 			AssemblyBuilder = assembly;
 			Type = type;
@@ -104,7 +99,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				yield return ReflectionHelper.CreateRepeatHost (Attribute.Repeat);
 		}
 
-		internal override TestInvoker CreateInnerInvoker (TestPathNode node)
+		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)
 		{
 			return new TestCollectionInvoker (this, node);
 		}
@@ -113,7 +108,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			public ReflectionTestFixtureBuilder Builder {
 				get;
-				private set;
 			}
 
 			public override ITestParameter Parameter {
@@ -121,18 +115,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 
 			public FixtureInstanceTestHost (ReflectionTestFixtureBuilder builder)
-				: base (TestSerializer.FixtureInstanceIdentifier,
-				        TestSerializer.GetFriendlyName (builder.Type.AsType ()),
-				        builder.Type.AsType (), builder.Type.AsType (),
-					TestFlags.ContinueOnError | TestFlags.PathHidden | TestFlags.Hidden)
+				: base (TestPathType.Instance, null, TestName.GetFriendlyName (builder.Type.AsType ()),
+					builder.Type.AsType (), builder.Type.AsType (),
+				        TestFlags.ContinueOnError | TestFlags.Hidden | TestFlags.PathHidden)
 			{
 				Builder = builder;
 			}
 
-			internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
+			internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 			{
 				var instance = Activator.CreateInstance (Builder.Type.AsType ());
-				return new FixtureTestInstance (this, path, instance, parent);
+				return new FixtureTestInstance (this, node, instance, parent);
 			}
 		}
 	}

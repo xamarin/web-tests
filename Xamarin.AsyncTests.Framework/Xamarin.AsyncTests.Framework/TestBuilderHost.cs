@@ -34,19 +34,12 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public TestBuilder Builder {
 			get;
-			private set;
 		}
 
-		public IPathNode PathNode {
-			get;
-			private set;
-		}
-
-		public TestBuilderHost (TestBuilder builder, IPathNode node)
-			: base (node.Identifier, node.Name, node.ParameterType, TestFlags.Browsable | TestFlags.PathHidden)
+		public TestBuilderHost (TestBuilder builder)
+			: base (builder.PathType, builder.Identifier, builder.Name, builder.Identifier, builder.Flags)
 		{
 			Builder = builder;
-			PathNode = node;
 		}
 
 		internal override ITestParameter GetParameter (TestInstance instance)
@@ -54,26 +47,24 @@ namespace Xamarin.AsyncTests.Framework
 			return Builder.Parameter;
 		}
 
-		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
+		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 		{
-			return new TestBuilderInstance (this, path, parent);
+			return new TestBuilderInstance (this, node, parent);
 		}
 
-		TestInvoker CreateResultGroup (TestPath path, TestInvoker invoker)
+		TestInvoker CreateResultGroup (TestInvoker invoker, TestFlags flags)
 		{
-			if (TestName.IsNullOrEmpty (Builder.TestName))
-				return invoker;
-			if ((path.Flags & (TestFlags.Hidden | TestFlags.FlattenHierarchy)) != 0)
+			if ((flags & (TestFlags.Hidden | TestFlags.FlattenHierarchy)) != 0)
 				return invoker;
 
-			return new ResultGroupTestInvoker (path, invoker);
+			return new ResultGroupTestInvoker (flags, invoker);
 		}
 
-		internal override TestInvoker CreateInvoker (TestPath path, TestInvoker invoker)
+		internal override TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags)
 		{
-			invoker = CreateResultGroup (path, invoker);
+			invoker = CreateResultGroup (invoker, flags);
 
-			invoker = new TestBuilderInvoker (this, path, invoker);
+			invoker = new TestBuilderInvoker (this, node, invoker);
 
 			return invoker;
 		}

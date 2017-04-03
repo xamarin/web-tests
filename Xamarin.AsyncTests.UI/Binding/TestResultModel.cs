@@ -37,32 +37,35 @@ using ObjCRuntime;
 
 namespace Xamarin.AsyncTests.MacUI
 {
-	public class TestResultModel : TestListNode
+	sealed class TestResultModel : TestListNode
 	{
 		public TestSession Session {
 			get;
-			private set;
 		}
 
 		public TestResult Result {
 			get;
-			private set;
 		}
 
-		public TestName TestName {
+		public TestPath Path {
 			get;
-			private set;
 		}
 
-		readonly string name;
+		public TestNode Node {
+			get;
+		}
 
-		public TestResultModel (TestSession session, TestResult result, TestName testName = null)
+		public TestResultModel (TestSession session, TestResult result)
 		{
 			Session = session;
 			Result = result;
-			TestName = testName ?? result.Name;
+			Path = result.Path;
+			Node = Path.Node;
 
-			name = TestName.IsNullOrEmpty (TestName) ? string.Empty : TestName.LocalName;
+			if (Node.PathType == TestPathType.Parameter)
+				Name = Node.ParameterValue ?? string.Empty;
+			else
+				Name = Node.Name ?? string.Empty;
 		}
 
 		protected override IEnumerable<TestListNode> ResolveChildren ()
@@ -71,7 +74,7 @@ namespace Xamarin.AsyncTests.MacUI
 		}
 
 		public override string Name {
-			get { return name; }
+			get;
 		}
 
 		public override TestStatus TestStatus {
@@ -86,14 +89,14 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			if (testParameters != null)
 				return testParameters;
-			if (TestName.IsNullOrEmpty (TestName) || !TestName.HasParameters)
-				return null;
 
 			var sb = new StringBuilder ();
-			foreach (var parameter in TestName.Parameters) {
+			foreach (var node in Path.Nodes) {
+				if (node.IsHidden || node.PathType != TestPathType.Parameter)
+					continue;
 				if (sb.Length > 0)
 					sb.AppendLine ();
-				sb.AppendFormat ("  {0} = {1}", parameter.Name, parameter.Value);
+				sb.AppendFormat ("  {0} = {1}", node.Name, node.ParameterValue);
 			}
 
 			testParameters = sb.ToString ();
@@ -184,7 +187,7 @@ namespace Xamarin.AsyncTests.MacUI
 			var result = await Session.ResolveFromPath (serialized, CancellationToken.None);
 
 			WillChangeValue ("TestCase");
-			testCase = new TestCaseModel (Session, result);
+			testCase = await TestCaseModel.Create (Session, result);
 			DidChangeValue ("TestCase");
 		}
 

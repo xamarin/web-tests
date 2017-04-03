@@ -1,10 +1,10 @@
 ﻿//
-// IPathNode.cs
+// TestParameterValue.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,19 +27,31 @@ using System;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	public interface IPathNode
+	abstract class TestParameterValue
 	{
-		string Identifier {
+		public TestInstance Instance {
 			get;
 		}
 
-		string Name {
+		public abstract ITestParameter Parameter {
 			get;
 		}
 
-		string ParameterType {
-			get;
+		public TestParameterValue (TestInstance instance)
+		{
+			Instance = instance;
+		}
+
+		TestPath currentPath;
+
+		public TestPath GetCurrentPath ()
+		{
+			if (currentPath != null)
+				return currentPath;
+
+			var node = new TestNodeInternal (Instance.Host, Parameter);
+			currentPath = new TestPath (Instance.ParentPath, node);
+			return currentPath;
 		}
 	}
 }
-

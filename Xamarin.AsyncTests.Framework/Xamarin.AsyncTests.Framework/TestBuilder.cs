@@ -30,9 +30,14 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestBuilder : IPathNode
+	abstract class TestBuilder
 	{
 		public string Name {
+			get;
+			private set;
+		}
+
+		public TestPathType PathType {
 			get;
 			private set;
 		}
@@ -47,11 +52,7 @@ namespace Xamarin.AsyncTests.Framework
 			private set;
 		}
 
-		string IPathNode.ParameterType {
-			get { return Identifier; }
-		}
-
-		public TestName TestName {
+		public TestFlags Flags {
 			get;
 			private set;
 		}
@@ -61,18 +62,21 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public virtual string FullName {
-			get { return TestName.FullName; }
+			get { return Name; }
 		}
 
 		public virtual string TypeKey {
 			get { return GetType ().FullName; }
 		}
 
-		protected TestBuilder (string identifier, string name, ITestParameter parameter)
+		const TestFlags DefaultFlags = TestFlags.Browsable;
+
+		protected TestBuilder (TestPathType type, string identifier, string name, ITestParameter parameter, TestFlags flags = DefaultFlags)
 		{
+			PathType = type;
 			Identifier = identifier;
 			Name = name;
-			TestName = name != null ? new TestName (name) : TestName.Empty;
+			Flags = flags;
 			Parameter = parameter;
 		}
 
@@ -189,7 +193,7 @@ namespace Xamarin.AsyncTests.Framework
 			return enabled;
 		}
 
-		internal abstract TestInvoker CreateInnerInvoker (TestPathNode node);
+		internal abstract TestInvoker CreateInnerInvoker (TestPathTreeNode node);
 
 		protected abstract IEnumerable<TestBuilder> CreateChildren ();
 
@@ -197,7 +201,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		protected TestBuilderHost CreateHost ()
 		{
-			return new TestBuilderHost (this, this);
+			return new TestBuilderHost (this);
 		}
 	}
 }

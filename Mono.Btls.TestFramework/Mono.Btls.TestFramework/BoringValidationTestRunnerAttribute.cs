@@ -33,7 +33,7 @@ namespace Mono.Btls.TestFramework
 	public class BoringValidationTestRunnerAttribute : TestHostAttribute, ITestHost<BoringValidationTestRunner>
 	{
 		public BoringValidationTestRunnerAttribute ()
-			: base (typeof (BoringValidationTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
+			: base (typeof (BoringValidationTestRunnerAttribute), TestFlags.Hidden)
 		{
 		}
 

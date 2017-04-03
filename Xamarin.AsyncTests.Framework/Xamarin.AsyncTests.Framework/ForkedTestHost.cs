@@ -32,11 +32,10 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public ForkAttribute Attribute {
 			get;
-			private set;
 		}
 
 		public ForkedTestHost (string name, ForkAttribute attr)
-			: base (name, name, null)
+			: base (TestPathType.Fork, name, name, null)
 		{
 			Attribute = attr;
 		}
@@ -48,14 +47,14 @@ namespace Xamarin.AsyncTests.Framework
 			return null;
 		}
 
-		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
+		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 		{
 			throw new NotImplementedException ();
 		}
 
-		internal override TestInvoker CreateInvoker (TestPath path, TestInvoker invoker)
+		internal override TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags)
 		{
-			return new ForkedTestInvoker (this, path, invoker);
+			return new ForkedTestInvoker (this, node, invoker);
 		}
 
 		#endregion

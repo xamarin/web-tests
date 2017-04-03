@@ -51,27 +51,32 @@ namespace Xamarin.AsyncTests.MacUI
 		string serialized;
 		TaskCompletionSource<bool> initTcs;
 
-		IReadOnlyCollection<TestCase> children;
+		IReadOnlyCollection<TestCaseModel> children;
 
-		public TestCaseModel (TestSession session, TestCase test)
+		TestCaseModel (TestSession session, TestCase test)
 		{
 			Session = session;
 			Test = test;
-			fullName = test.Name.FullName;
+			fullName = test.Path.FullName;
 			serialized = Test.Path.SerializePath ().ToString ();
 
 			RunInitialize ();
 		}
 
-		public Task<bool> Initialize ()
+		public static async Task<TestCaseModel> Create (TestSession session, TestCase test)
 		{
-			return initTcs.Task;
+			var model = new TestCaseModel (session, test);
+			await model.initTcs.Task.ConfigureAwait (false);
+			return model;
 		}
 
 		async void RunInitialize ()
 		{
+			MacUI.Debug ("INIT: {0} {1} {2}\n{3}", Test.Path.FullName, Test.HasChildren, Test.HasParameters, Test.Path.SerializePath ());
+
 			initTcs = new TaskCompletionSource<bool> ();
 			if (!Test.HasChildren && !Test.HasParameters) {
+				children = new TestCaseModel [0];
 				initTcs.SetResult (false);
 				return;
 			}
@@ -101,8 +106,15 @@ namespace Xamarin.AsyncTests.MacUI
 				list.AddRange (childrenResult);
 			}
 
+			var childModels = new List<TestCaseModel> ();
+
+			foreach (var child in list) {
+				var model = await Create (Session, child);
+				childModels.Add (model);
+			}
+
 			lock (this) {
-				children = list;
+				children = childModels;
 			}
 
 			DidChangeValue ("isLeaf");
@@ -113,14 +125,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 		protected override IEnumerable<TestListNode> ResolveChildren ()
 		{
-			lock (this) {
-				if (children == null)
-					yield break;
-
-				foreach (var child in children) {
-					yield return new TestCaseModel (Session, child);
-				}
-			}
+			return children;
 		}
 
 		public override string Name {

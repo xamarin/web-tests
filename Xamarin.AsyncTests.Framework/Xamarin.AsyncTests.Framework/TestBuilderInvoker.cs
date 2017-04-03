@@ -33,23 +33,20 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public TestBuilderHost Host {
 			get;
-			private set;
 		}
 
-		public TestPath Path {
+		public TestNode Node {
 			get;
-			private set;
 		}
 
 		public TestInvoker Inner {
 			get;
-			private set;
 		}
 
-		public TestBuilderInvoker (TestBuilderHost host, TestPath path, TestInvoker inner)
+		public TestBuilderInvoker (TestBuilderHost host, TestNode node, TestInvoker inner)
 		{
 			Host = host;
-			Path = path;
+			Node = node;
 			Inner = inner;
 		}
 
@@ -62,7 +59,7 @@ namespace Xamarin.AsyncTests.Framework
 					ctx.OnTestIgnored ();
 					return null;
 				}
-				return (TestBuilderInstance)Host.CreateInstance (ctx, Path, instance);
+				return (TestBuilderInstance)Host.CreateInstance (ctx, Node, instance);
 			} catch (OperationCanceledException) {
 				ctx.OnTestCanceled ();
 				return null;
@@ -95,7 +92,8 @@ namespace Xamarin.AsyncTests.Framework
 			if (innerInstance == null)
 				return false;
 
-			var innerCtx = ctx.CreateChild (TestInstance.GetTestName (innerInstance), innerInstance);
+			var innerPath = innerInstance.GetCurrentPath ();
+			var innerCtx = ctx.CreateChild (innerPath);
 
 			var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
 

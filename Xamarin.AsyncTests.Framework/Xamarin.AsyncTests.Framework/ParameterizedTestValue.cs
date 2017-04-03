@@ -1,5 +1,5 @@
 ﻿//
-// InternalErrorException.cs
+// ParameterizedTestValue.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,16 +27,21 @@ using System;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	public class InternalErrorException : InvalidOperationException
+	abstract class ParameterizedTestValue : TestParameterValue
 	{
-		public InternalErrorException ()
-		{
+		new public ParameterizedTestInstance Instance {
+			get { return (ParameterizedTestInstance)base.Instance; }
 		}
 
-		public InternalErrorException (string format, params object[] args)
-			: base (string.Format (format, args))
+		public object Value {
+			get;
+			private set;
+		}
+
+		public ParameterizedTestValue (ParameterizedTestInstance instance, object value)
+			: base (instance)
 		{
+			Value = value;
 		}
 	}
 }
-

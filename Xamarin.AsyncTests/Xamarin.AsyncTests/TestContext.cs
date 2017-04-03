@@ -40,12 +40,10 @@ namespace Xamarin.AsyncTests
 		readonly TestLogger logger;
 		readonly SettingsBag settings;
 		readonly ITestConfiguration config;
-		readonly ITestPathInternal path;
 		bool isCanceled;
 
 		public TestName Name {
 			get;
-			private set;
 		}
 
 		public TestResult Result {
@@ -56,24 +54,25 @@ namespace Xamarin.AsyncTests
 			get { return settings ?? parent.Settings; }
 		}
 
-		internal ITestPathInternal Path {
-			get { return path ?? parent.Path; }
-		}
+		internal TestPath CurrentPath {
+			get;
+		} 
 
-		internal TestContext (SettingsBag settings, TestLogger logger, ITestConfiguration config, TestName name)
+		internal TestContext (SettingsBag settings, TestLogger logger, ITestConfiguration config, string name)
 		{
-			Name = name;
+			Name = new TestName (name);
 			this.settings = settings;
 			this.config = config;
 			this.logger = logger;
 		}
 
-		TestContext (TestContext parent, TestName name, ITestPathInternal path, TestResult result)
+		TestContext (TestContext parent, TestPath path, TestResult result)
 		{
-			Name = name;
 			this.parent = parent;
-			this.path = path;
 			this.result = result;
+
+			CurrentPath = path;
+			Name = CurrentPath.TestName;
 
 			if (result != null)
 				logger = new TestLogger (TestLoggerBackend.CreateForResult (result, parent.logger));
@@ -83,23 +82,23 @@ namespace Xamarin.AsyncTests
 			config = parent.config;
 		}
 
-		internal TestContext CreateChild (TestName name, ITestPathInternal path, TestResult result = null)
+		internal TestContext CreateChild (TestPath path, TestResult result = null)
 		{
-			return new TestContext (this, name, path, result);
+			return new TestContext (this, path, result);
 		}
 
 		#region Statistics
 
 		public void OnTestRunning ()
 		{
-			logger.OnTestRunning (Name);
+			logger.OnTestRunning (Name.FullName);
 		}
 
 		public void OnTestFinished (TestStatus status, TimeSpan? elapsedTime = null)
 		{
 			Result.Status = status;
 			Result.ElapsedTime = elapsedTime;
-			logger.OnTestFinished (Name, status);
+			logger.OnTestFinished (Name.FullName, status);
 		}
 
 		public void OnTestCanceled ()
@@ -123,7 +122,7 @@ namespace Xamarin.AsyncTests
 			if (error is SkipRestOfThisTestException)
 				return;
 
-			logger.OnException (Name, error);
+			logger.OnException (Name.FullName, error);
 			logger.LogError (error);
 		}
 
@@ -389,15 +388,15 @@ namespace Xamarin.AsyncTests
 
 		public bool TryGetParameter<T> (out T value, string name = null)
 		{
-			var path = Path;
+			var path = CurrentPath;
 			if (path == null) {
 				AssertFail ("Should never happen!");
 				throw new SkipRestOfThisTestException ();
 			}
 
 			while (path != null) {
-				if (path.ParameterMatches<T> (name)) {
-					value = path.GetParameter<T> ();
+				if (path.Node.ParameterMatches<T> (name)) {
+					value = path.Node.GetParameter<T> ();
 					return true;
 				}
 
@@ -409,12 +408,18 @@ namespace Xamarin.AsyncTests
 		}
 
 		static int nextPort;
+		static int nextId;
 
 		public int GetUniquePort ()
 		{
 			if (parent != null)
 				return parent.GetUniquePort ();
 			return 9000 + (++nextPort);
+		}
+
+		public int GetUniqueId ()
+		{
+			return ++nextId;
 		}
 	}
 }

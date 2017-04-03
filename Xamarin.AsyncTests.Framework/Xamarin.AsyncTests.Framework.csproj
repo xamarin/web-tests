@@ -18,6 +18,7 @@
     <OutputPath>bin\Debug</OutputPath>
     <WarningLevel>4</WarningLevel>
     <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
     <DefineConstants>DEBUG;PCL;</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
@@ -63,16 +64,13 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestFilter.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSerializer.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\IParameterSerializer.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\InternalErrorException.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestSuiteBuilder.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCollectionInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ResultGroupTestInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderInvoker.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestPath.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\IPathNode.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\IPathResolver.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestPathTree.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework\TestPathNode.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestPathTreeNode.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestCase.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSuite.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSession.cs" />
@@ -122,6 +120,11 @@
       <Link>Xamarin.AsyncTests.Mobile\NDeskOptions.cs</Link>
     </Compile>
     <Compile Include="Xamarin.AsyncTests.Remoting\LauncherOptions.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\ParameterizedTestValue.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\HeavyTestValue.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestParameterValue.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderValue.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestNodeInternal.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ProjectExtensions>

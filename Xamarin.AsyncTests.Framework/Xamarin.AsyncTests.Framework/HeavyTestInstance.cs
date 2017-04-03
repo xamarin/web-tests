@@ -35,8 +35,8 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (HeavyTestHost)base.Host; }
 		}
 
-		public HeavyTestInstance (HeavyTestHost host, TestPath path, TestInstance parent)
-			: base (host, path, parent)
+		public HeavyTestInstance (HeavyTestHost host, TestNode node, TestInstance parent)
+			: base (host, node, parent)
 		{
 		}
 
@@ -44,39 +44,9 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		internal sealed override ITestParameter GetCurrentParameter ()
+		internal sealed override TestParameterValue GetCurrentParameter ()
 		{
-			return new InstanceWrapper (Host, Current);
-		}
-
-		class InstanceWrapper : ITestParameter, ITestParameterWrapper
-		{
-			readonly HeavyTestHost host;
-			readonly object value;
-
-			public InstanceWrapper (HeavyTestHost host, object value)
-			{
-				this.host = host;
-				this.value = value;
-			}
-
-			public string Value {
-				get { return host.Name; }
-			}
-
-			object ITestParameterWrapper.Value {
-				get { return value; }
-			}
-		}
-
-		public override bool ParameterMatches<T> (string name)
-		{
-			return typeof(T).Equals (Host.Type);
-		}
-
-		public override T GetParameter<T> ()
-		{
-			return (T)Current;
+			return new HeavyTestValue (this, Current);
 		}
 
 		[StackTraceEntryPoint]

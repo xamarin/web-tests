@@ -1,4 +1,4 @@
-﻿//
+//
 // IPathResolver.cs
 //
 // Author:
@@ -29,11 +29,11 @@ namespace Xamarin.AsyncTests.Framework
 {
 	interface IPathResolver
 	{
-		TestPathNode Node {
+		TestPathTreeNode Node {
 			get;
 		}
 
-		IPathResolver Resolve (TestContext ctx, IPathNode node, string parameter);
+		IPathResolver Resolve (TestContext ctx, TestNode node);
 	}
 }
 

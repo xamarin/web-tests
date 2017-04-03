@@ -34,27 +34,24 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public HeavyTestHost Host {
 			get;
-			private set;
 		}
 
-		public TestPath Path {
+		public TestNode Node {
 			get;
-			private set;
 		}
 
 		public TestInvoker Inner {
 			get;
-			private set;
 		}
 
 		static int next_id;
 		public readonly int ID = ++next_id;
 
-		public HeavyTestInvoker (HeavyTestHost host, TestPath path, TestInvoker inner)
-			: base (host.Flags)
+		public HeavyTestInvoker (HeavyTestHost host, TestNode node, TestInvoker inner, TestFlags? flags)
+			: base (flags ?? host.Flags)
 		{
 			Host = host;
-			Path = path;
+			Node = node;
 			Inner = inner;
 		}
 
@@ -65,7 +62,7 @@ namespace Xamarin.AsyncTests.Framework
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				var childInstance = (HeavyTestInstance)Host.CreateInstance (ctx, Path, instance);
+				var childInstance = (HeavyTestInstance)Host.CreateInstance (ctx, Node, instance);
 				await childInstance.Initialize (ctx, cancellationToken);
 				return childInstance;
 			} catch (OperationCanceledException) {
@@ -101,8 +98,9 @@ namespace Xamarin.AsyncTests.Framework
 			if (innerInstance == null)
 				return false;
 
-			var name = TestInstance.GetTestName (innerInstance);
-			var innerCtx = ctx.CreateChild (name, innerInstance);
+			var currentPath = innerInstance.GetCurrentPath ();
+
+			var innerCtx = ctx.CreateChild (currentPath);
 
 			var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
 

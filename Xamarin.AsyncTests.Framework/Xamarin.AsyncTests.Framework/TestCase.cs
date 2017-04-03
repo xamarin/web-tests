@@ -1,4 +1,4 @@
-//
+﻿//
 // Xamarin.AsyncTests.Framework.TestCase
 //
 // Authors:
@@ -38,11 +38,7 @@ namespace Xamarin.AsyncTests.Framework
 {
 	public interface TestCase
 	{
-		TestName Name {
-			get;
-		}
-
-		ITestPath Path {
+		TestPath Path {
 			get;
 		}
 

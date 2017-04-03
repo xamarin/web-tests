@@ -33,24 +33,27 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (FixedParameterHost<T>)base.Host; }
 		}
 
-		public FixedParameterInstance (FixedParameterHost<T> host, TestPath path, TestInstance parent)
-			: base (host, path, parent)
+		public FixedParameterInstance (FixedParameterHost<T> host, TestNode node, TestInstance parent)
+			: base (host, node, parent)
 		{
 		}
 
 		public override void Initialize (TestContext ctx)
 		{
 			hasNext = true;
+			fixedValue = new FixedValue (this, Host.GetFixedParameter (), Host.Attribute.Value);
 			base.Initialize (ctx);
 		}
 
 		public override void Destroy (TestContext ctx)
 		{
 			hasNext = false;
+			fixedValue = null;
 			base.Destroy (ctx);
 		}
 
 		bool hasNext;
+		ParameterizedTestValue fixedValue;
 
 		public override bool HasNext ()
 		{
@@ -65,8 +68,29 @@ namespace Xamarin.AsyncTests.Framework
 			return true;
 		}
 
-		public override object Current {
-			get { return Host.Attribute.Value; }
+		public override ParameterizedTestValue Current {
+			get { return fixedValue; }
+		}
+
+		class FixedValue : ParameterizedTestValue
+		{
+			new public FixedParameterInstance<T> Instance {
+				get { return (FixedParameterInstance<T>)base.Instance;  }
+			}
+
+			readonly ITestParameter parameter;
+
+			public FixedValue (FixedParameterInstance<T> instance, ITestParameter parameter, object value)
+				: base (instance, value)
+			{
+				this.parameter = parameter;
+			}
+
+			public override ITestParameter Parameter {
+				get {
+					return parameter;
+				}
+			}
 		}
 	}
 }

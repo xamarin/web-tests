@@ -36,12 +36,10 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public ITestParameterSource<T> SourceInstance {
 			get;
-			private set;
 		}
 
 		public string Filter {
 			get;
-			private set;
 		}
 
 		public ParameterSourceHost (
@@ -76,15 +74,16 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal T Deserialize (ITestParameter parameter)
 		{
+			var serialized = parameter;
 			if (Serializer != null)
-				return (T)Serializer.ParameterToObject (parameter);
+				return (T)Serializer.ParameterToObject (serialized);
 
-			return (T)parameter;
+			return (T)serialized;
 		}
 
-		internal override TestInstance CreateInstance (TestPath path, TestInstance parent)
+		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 		{
-			return new ParameterSourceInstance<T> (this, path, parent, SourceInstance, Filter);
+			return new ParameterSourceInstance<T> (this, node, parent, SourceInstance, Filter);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-//
+﻿//
 // Xamarin.AsyncTests.Framework.TestResultItem
 //
 // Authors:
@@ -36,22 +36,10 @@ namespace Xamarin.AsyncTests
 {
 	public class TestResult : INotifyPropertyChanged
 	{
-		TestName name;
 		TestStatus status = TestStatus.None;
-		ITestPath path;
+		readonly TestPath path;
 		TestResult parent;
 		TimeSpan? elapsedTime;
-
-		public TestName Name {
-			get { return name; }
-			protected set {
-				lock (this) {
-					WantToModify ();
-					name = value;
-				}
-				OnPropertyChanged ("Name");
-			}
-		}
 
 		public TestStatus Status {
 			get { return status; }
@@ -77,26 +65,19 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		public ITestPath Path {
+		public TestPath Path {
 			get { return path; }
-			internal set {
-				lock (this) {
-					WantToModify ();
-					path = value;
-				}
-				OnPropertyChanged ("Path");
-			}
 		}
 
-		public TestResult (TestName name, Exception error)
-			: this (name, TestStatus.Error)
+		internal TestResult (TestPath path, Exception error)
+			: this (path, TestStatus.Error)
 		{
 			AddError (error);
 		}
 
-		public TestResult (TestName name, TestStatus status = TestStatus.None)
+		internal TestResult (TestPath path, TestStatus status = TestStatus.None)
 		{
-			this.name = name;
+			this.path = path;
 			this.status = status;
 
 			messages = new ObservableCollection<string> ();
@@ -267,7 +248,7 @@ namespace Xamarin.AsyncTests
 
 		public override string ToString ()
 		{
-			return string.Format ("[TestResult: Name={0}, Status={1}]", Name, Status);
+			return string.Format ("[TestResult: Name={0}, Status={1}]", path.FullName, Status);
 		}
 	}
 }

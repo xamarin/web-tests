@@ -34,15 +34,14 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public Type Type {
 			get;
-			private set;
 		}
 
 		public abstract ITestParameter Parameter {
 			get;
 		}
 
-		public HeavyTestHost (string identifier, string name, Type type, Type hostType, TestFlags flags)
-			: base (identifier, name, TestSerializer.GetFriendlyName (hostType), flags)
+		public HeavyTestHost (TestPathType pathType, string identifier, string name, Type type, Type hostType, TestFlags flags)
+			: base (pathType, identifier, name, TestName.GetFriendlyName (hostType), flags)
 		{
 			Type = type;
 		}
@@ -52,9 +51,9 @@ namespace Xamarin.AsyncTests.Framework
 			return Parameter;
 		}
 
-		internal sealed override TestInvoker CreateInvoker (TestPath path, TestInvoker invoker)
+		internal sealed override TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags)
 		{
-			return new HeavyTestInvoker (this, path, invoker);
+			return new HeavyTestInvoker (this, node, invoker, flags);
 		}
 	}
 }

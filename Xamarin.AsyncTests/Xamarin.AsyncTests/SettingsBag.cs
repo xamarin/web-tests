@@ -131,7 +131,7 @@ namespace Xamarin.AsyncTests
 				string value;
 				if (TryGetValue ("Debug_DumpTestPath", out value))
 					return bool.Parse (value);
-				return false;
+				return true;
 			}
 			set {
 				SetValue ("Debug_DumpTestPath", value.ToString ());

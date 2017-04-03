@@ -69,7 +69,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		TypeInfo expectedExceptionType;
 
 		public ReflectionTestCaseBuilder (ReflectionTestFixtureBuilder fixture, AsyncTestAttribute attr, MethodInfo method)
-			: base (TestSerializer.TestCaseIdentifier, method.Name, GetParameter (method))
+			: base (TestPathType.Test, null, method.Name, GetParameter (method))
 		{
 			Fixture = fixture;
 			Attribute = attr;
@@ -158,13 +158,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				yield return ReflectionHelper.CreateRepeatHost (Attribute.Repeat);
 		}
 
-		internal override TestInvoker CreateInnerInvoker (TestPathNode node)
+		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)
 		{
 			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
 
 			invoker = new PrePostRunTestInvoker (invoker);
-
-			invoker = new ResultGroupTestInvoker (node.Path, invoker);
 
 			return invoker;
 		}

@@ -72,6 +72,13 @@ namespace Xamarin.AsyncTests.Framework
 			return next;
 		}
 
+		internal TestPathTreeNode GetRootNode ()
+		{
+			var rootNode = Host.CreateNode (Builder.Parameter);
+			var rootPath = new TestPath (null, rootNode);
+			return new TestPathTreeNode (this, rootPath);
+		}
+
 		static int next_id;
 		public readonly int ID = ++next_id;
 

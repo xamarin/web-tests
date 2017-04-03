@@ -24,17 +24,84 @@ CleanAll::
 Wrench-%::
 	$(MAKE) WRENCH=1 $*
 
-Jenkins-%::
-	$(MAKE) JENKINS=1 DEBUG_CONFIGURATION=$(JENKINS_CONFIGURATION) $*
-	
-Jenkins-Build-Current::
-	$(MAKE) JENKINS=1 DEBUG_CONFIGURATION=$(JENKINS_CONFIGURATION) Jenkins-$(JENKINS_TARGET)-Build-$(JENKINS_CONFIGURATION)
+Jenkins-Build::
+	$(MAKE) JENKINS=1 Build-$(JENKINS_TARGET) $*
 
-Jenkins-Run-Current::
-	$(MAKE) JENKINS=1 DEBUG_CONFIGURATION=$(JENKINS_CONFIGURATION) Jenkins-$(JENKINS_TARGET)-Run-$(JENKINS_TESTS)
+Jenkins-Install::
+	$(MAKE) JENKINS=1 Install-$(JENKINS_TARGET) $*
 
-Wrench-Build-All:: $(ALL_WRENCH_BUILD_TARGETS)
-	@echo "Build done."
+Jenkins-Run::
+	$(MAKE) JENKINS=1 Run-$(JENKINS_TARGET)-$(JENKINS_TESTS)
+
+#
+#
+#
+
+Build-FastCheck::
+	$(MAKE) Build-Console
+
+Run-FastCheck-%::
+	$(MAKE) Run-Console-All
+	exit 1
+
+#
+#
+#
+
+Build-Console::
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=Debug .Console-Internal-Build
+
+Build-ConsoleBtls::
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ WEBTESTS_CONSOLE_PROJECT=Xamarin.WebTests.BtlsConsole CONSOLE_CONFIGURATION=DebugBtls .Console-Internal-Build
+
+Run-Console-%::
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=Debug .Console-Run-$*
+
+Run-ConsoleBtls-%::
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ WEBTESTS_CONSOLE_PROJECT=Xamarin.WebTests.BtlsConsole CONSOLE_CONFIGURATION=DebugBtls .Console-Run-$*
+
+#
+#
+#
+
+Build-IOS-Debug::
+	$(MAKE) ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ IOS_TARGET=iPhoneSimulator IOS_CONFIGURATION=Debug .IOS-Internal-Build
+
+Build-IOS-DebugAppleTls::
+	$(MAKE) ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ IOS_TARGET=iPhoneSimulator IOS_CONFIGURATION=DebugAppleTls .IOS-Internal-Build
+
+Run-IOS-Debug-%::
+	$(MAKE) ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ IOS_TARGET=iPhoneSimulator IOS_CONFIGURATION=Debug .IOS-Run-$*
+
+Run-IOS-DebugAppleTls-%::
+	$(MAKE) ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ IOS_TARGET=iPhoneSimulator IOS_CONFIGURATION=DebugAppleTls .IOS-Run-$*
+
+#
+#
+#
+
+Build-Mac::
+	$(MAKE) ASYNCTESTS_COMMAND=mac TARGET_NAME=$@ MAC_CONFIGURATION=Debug .Mac-Internal-Build
+
+Run-Mac-%::
+	$(MAKE) ASYNCTESTS_COMMAND=mac TARGET_NAME=$@ MAC_CONFIGURATION=Debug .Mac-Run-$*
+
+#
+#
+#
+
+Build-Android::
+	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Internal-Build
+
+Install-Android::
+	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Internal-Install
+
+Run-Android-%::
+	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Run-$*
+
+#
+#
+#
 
 IOS-Sim-%::
 	$(MAKE) IOS_TARGET=iPhoneSimulator ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ .IOS-$*
@@ -76,18 +143,6 @@ Default-Keychain::
 # Internal IOS make targets
 #
 
-.IOS-Debug-%::
-	$(MAKE) IOS_CONFIGURATION=Debug .IOS-Run-$*
-
-.IOS-DebugAppleTls-%::
-	$(MAKE) IOS_CONFIGURATION=DebugAppleTls .IOS-Run-$*
-
-.IOS-Build-Debug::
-	$(MAKE) IOS_CONFIGURATION=Debug .IOS-Internal-Build
-
-.IOS-Build-DebugAppleTls::
-	$(MAKE) IOS_CONFIGURATION=DebugAppleTls .IOS-Internal-Build
-
 .IOS-Run-Experimental::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All .IOS-Internal-Run
 
@@ -105,12 +160,12 @@ Default-Keychain::
 
 .IOS-Internal-Build::
 	$(MONO) $(NUGET_EXE) restore $(EXTRA_NUGET_RESTORE_ARGS) Xamarin.WebTests.iOS.sln
-	$(XBUILD) /p:Configuration='$(IOS_CONFIGURATION)' /p:Platform='$(IOS_TARGET)' Xamarin.WebTests.iOS.sln
+	$(MSBUILD) /p:Configuration='$(IOS_CONFIGURATION)' /p:Platform='$(IOS_TARGET)' Xamarin.WebTests.iOS.sln
 
 .IOS-Internal-Run::
-	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
 		--sdkroot=$(XCODE_DEVELOPER_ROOT) --stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) \
-		$(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND) $(WEBTESTS_IOS_APP)
+		--junit-result=$(JUNIT_TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND) $(WEBTESTS_IOS_APP)
 
 #
 # Internal TVOS make targets
@@ -156,12 +211,6 @@ Default-Keychain::
 # Internal Console make targets
 #
 
-.Console-Build-Debug::
-	$(MAKE) CONSOLE_CONFIGURATION=Debug .Console-Internal-Build
-
-.Console-Debug-%::
-	$(MAKE) CONSOLE_CONFIGURATION=Debug .Console-Run-$*
-
 .Console-Run-Experimental::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All .Console-Internal-Run
 
@@ -178,10 +227,10 @@ Default-Keychain::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .Console-Internal-Run
 
 .Console-Internal-Build::
-	$(XBUILD) /p:Configuration='$(CONSOLE_CONFIGURATION)' Xamarin.WebTests.Console.sln
+	$(MSBUILD) /p:Configuration='$(CONSOLE_CONFIGURATION)' $(WEBTESTS_CONSOLE_SLN)
 
 .Console-Internal-Run::
-	$(MONO) $(WEBTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(WEBTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
 		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) --junit-result=$(JUNIT_TEST_RESULT) \
 		$(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND)
 
@@ -211,27 +260,15 @@ Default-Keychain::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .DotNet-Internal-Run
 
 .DotNet-Internal-Build::
-	$(XBUILD) /p:Configuration='$(DOTNET_CONFIGURATION)' Xamarin.WebTests.DotNet.sln
+	$(MSBUILD) /p:Configuration='$(DOTNET_CONFIGURATION)' Xamarin.WebTests.DotNet.sln
 
 .DotNet-Internal-Run::
-	$(MONO) $(WEBTESTS_DOTNET_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(WEBTESTS_DOTNET_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
 		--result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND)
 
 #
 # Internal Mac make targets
 #
-
-.Mac-Build-Debug::
-	$(MAKE) MAC_CONFIGURATION=$(MAC_CONFIGURATION_DEBUG) .Mac-Internal-Build
-
-.Mac-Build-DebugAppleTls::
-	$(MAKE) MAC_CONFIGURATION=$(MAC_CONFIGURATION_DEBUGAPPLELTS) .Mac-Internal-Build
-
-.Mac-Debug-%::
-	$(MAKE) MAC_CONFIGURATION=Debug .Mac-Run-$*
-
-.Mac-DebugAppleTls-%::
-	$(MAKE) MAC_CONFIGURATION=DebugAppleTls .Mac-Run-$*
 
 .Mac-Run-Experimental::
 	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=All .Mac-Internal-Run
@@ -250,12 +287,12 @@ Default-Keychain::
 
 .Mac-Internal-Build::
 	$(MONO) $(NUGET_EXE) restore $(EXTRA_NUGET_RESTORE_ARGS) Xamarin.WebTests.Mac.sln
-	$(XBUILD) /p:Configuration='$(MAC_CONFIGURATION)' Xamarin.WebTests.Mac.sln
+	$(MSBUILD) /p:Configuration='$(MAC_CONFIGURATION)' Xamarin.WebTests.Mac.sln
 
 .Mac-Internal-Run::
-	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
-		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) \
-		$(ASYNCTESTS_COMMAND) $(WEBTESTS_MAC_APP_BIN)
+	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) --junit-result=$(JUNIT_TEST_RESULT) \
+		$(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND) $(WEBTESTS_MAC_APP_BIN)
 
 #
 # Internal Android make targets
@@ -292,6 +329,6 @@ Default-Keychain::
 	$(XBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' /t:Install $(WEBTESTS_ANDROID_PROJECT)
 
 .Android-Internal-Run::
-	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
 		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) \
 		$(ASYNCTESTS_COMMAND) $(WEBTESTS_ANDROID_MAIN_ACTIVITY)
