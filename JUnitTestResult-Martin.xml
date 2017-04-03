@@ -1,0 +1,326 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="Xamarin.WebTests.Console.Tests" timestamp="2017-04-03T10:43:22" hostname="localhost">
+    <testsuite name="Xamarin.WebTests.Console.Tests.TestHttpClient" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testcase name="TestHttpClient" status="Ignored">
+        <skipped />
+        <system-out>HELLO!
+</system-out>
+      </testcase>
+      <properties />
+      <system-out>OUTPUT: 1
+&lt;TestPath ID="485" Parent="483"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="Tests" Parameter="Xamarin.WebTests.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="TestHttpClient" Parameter="Xamarin.WebTests.TestHttpClient" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <testsuite name="Xamarin.WebTests.Console.Tests.TestPost" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testcase name="TestPost" status="Ignored">
+        <skipped />
+        <system-out>HELLO!
+</system-out>
+      </testcase>
+      <properties />
+      <system-out>OUTPUT: 2
+&lt;TestPath ID="495" Parent="483"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="Tests" Parameter="Xamarin.WebTests.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="TestPost" Parameter="Xamarin.WebTests.Tests.TestPost" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <testsuite name="Xamarin.WebTests.Console.Tests.TestProxy" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testcase name="TestProxy" status="Ignored">
+        <skipped />
+        <system-out>HELLO!
+</system-out>
+      </testcase>
+      <properties />
+      <system-out>OUTPUT: 3
+&lt;TestPath ID="505" Parent="483"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="Tests" Parameter="Xamarin.WebTests.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="TestProxy" Parameter="Xamarin.WebTests.Tests.TestProxy" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <testsuite name="Xamarin.WebTests.Console.Tests.TestAuthentication" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testcase name="TestAuthentication" status="Ignored">
+        <skipped />
+        <system-out>HELLO!
+</system-out>
+      </testcase>
+      <properties />
+      <system-out>OUTPUT: 4
+&lt;TestPath ID="509" Parent="483"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="Tests" Parameter="Xamarin.WebTests.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="TestAuthentication" Parameter="Xamarin.WebTests.Tests.TestAuthentication" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <testsuite name="Xamarin.WebTests.Console.Tests.TestGet" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testcase name="TestGet" status="Ignored">
+        <skipped />
+        <system-out>HELLO!
+</system-out>
+      </testcase>
+      <properties />
+      <system-out>OUTPUT: 5
+&lt;TestPath ID="527" Parent="483"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="Tests" Parameter="Xamarin.WebTests.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="TestGet" Parameter="Xamarin.WebTests.Tests.TestGet" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <testsuite name="Xamarin.WebTests.Console.Tests.TestHttps" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testcase name="TestHttps" status="Ignored">
+        <skipped />
+        <system-out>HELLO!
+</system-out>
+      </testcase>
+      <properties />
+      <system-out>OUTPUT: 6
+&lt;TestPath ID="545" Parent="483"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="Tests" Parameter="Xamarin.WebTests.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="TestHttps" Parameter="Xamarin.WebTests.Tests.TestHttps" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <testsuite name="Xamarin.WebTests.Console.Tests.TestSslStream" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testcase name="TestSslStream" status="Ignored">
+        <skipped />
+        <system-out>HELLO!
+</system-out>
+      </testcase>
+      <properties />
+      <system-out>OUTPUT: 7
+&lt;TestPath ID="549" Parent="483"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="Tests" Parameter="Xamarin.WebTests.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="TestSslStream" Parameter="Xamarin.WebTests.Tests.TestSslStream" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <testsuite name="Xamarin.WebTests.Console.Tests.TestChunked" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testcase name="TestChunked" status="Ignored">
+        <skipped />
+        <system-out>HELLO!
+</system-out>
+      </testcase>
+      <properties />
+      <system-out>OUTPUT: 8
+&lt;TestPath ID="553" Parent="483"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="Tests" Parameter="Xamarin.WebTests.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="TestChunked" Parameter="Xamarin.WebTests.Tests.TestChunked" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <testsuite name="Xamarin.WebTests.Console.Tests.TestCertificates" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testcase name="TestCertificates" status="Ignored">
+        <skipped />
+        <system-out>HELLO!
+</system-out>
+      </testcase>
+      <properties />
+      <system-out>OUTPUT: 9
+&lt;TestPath ID="557" Parent="483"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="Tests" Parameter="Xamarin.WebTests.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="TestCertificates" Parameter="Xamarin.WebTests.Tests.TestCertificates" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <properties />
+    <system-out>OUTPUT: 10
+&lt;TestPath ID="483" Parent="481"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="Tests" Parameter="Xamarin.WebTests.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+    <system-err />
+  </testsuite>
+  <testsuite name="Xamarin.WebTests.Console.MonoTests" timestamp="2017-04-03T10:43:22" hostname="localhost">
+    <testsuite name="Xamarin.WebTests.Console.MonoTests.SimpleTests" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testsuite name="Xamarin.WebTests.Console.MonoTests.SimpleTests.MartinTest" timestamp="2017-04-03T10:43:22" hostname="localhost">
+        <testcase name="MartinTest(MartinTest)" status="Ignored">
+          <skipped />
+          <system-out>HELLO!
+</system-out>
+        </testcase>
+        <properties />
+        <system-out>OUTPUT: 11
+&lt;TestPath ID="568" Parent="566"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="MonoTests" Parameter="Xamarin.WebTests.MonoTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="SimpleTests" Parameter="Xamarin.WebTests.MonoTests.SimpleTests" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="instance" Name="SimpleTests" ParameterType="SimpleTests" Parameter="SimpleTests" Flags="ContinueOnError, Hidden, PathHidden" /&gt;
+  &lt;TestParameter Type="test" Name="MartinTest" Parameter="MartinTest(TestContext,CancellationToken,MonoConnectionTestProvider,SimpleConnectionParameters,SimpleConnectionTestRunner)" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+        <system-err />
+      </testsuite>
+      <properties />
+      <system-out>OUTPUT: 12
+&lt;TestPath ID="563" Parent="561"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="MonoTests" Parameter="Xamarin.WebTests.MonoTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="SimpleTests" Parameter="Xamarin.WebTests.MonoTests.SimpleTests" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <testsuite name="Xamarin.WebTests.Console.MonoTests.SimpleWebTests" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testcase name="SimpleWebTests" status="Ignored">
+        <skipped />
+        <system-out>HELLO!
+</system-out>
+      </testcase>
+      <properties />
+      <system-out>OUTPUT: 13
+&lt;TestPath ID="573" Parent="561"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="MonoTests" Parameter="Xamarin.WebTests.MonoTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="SimpleWebTests" Parameter="Xamarin.WebTests.MonoTests.SimpleWebTests" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <testsuite name="Xamarin.WebTests.Console.MonoTests.NetworkTests" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testcase name="NetworkTests" status="Ignored">
+        <skipped />
+        <system-out>HELLO!
+</system-out>
+      </testcase>
+      <properties />
+      <system-out>OUTPUT: 14
+&lt;TestPath ID="577" Parent="561"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="MonoTests" Parameter="Xamarin.WebTests.MonoTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="NetworkTests" Parameter="Xamarin.WebTests.MonoTests.NetworkTests" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <testsuite name="Xamarin.WebTests.Console.MonoTests.TestValidator" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testsuite name="Xamarin.WebTests.Console.MonoTests.TestValidator.MartinTest" timestamp="2017-04-03T10:43:22" hostname="localhost">
+        <testcase name="MartinTest(MartinTest,MartinTest)" status="Success" time="0.014660999999999999">
+          <system-out>HELLO!
+</system-out>
+        </testcase>
+        <properties />
+        <system-out>OUTPUT: 15
+&lt;TestPath ID="586" Parent="584"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="MonoTests" Parameter="Xamarin.WebTests.MonoTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="TestValidator" Parameter="Xamarin.WebTests.MonoTests.TestValidator" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="instance" Name="TestValidator" ParameterType="TestValidator" Parameter="TestValidator" Flags="ContinueOnError, Hidden, PathHidden" /&gt;
+  &lt;TestParameter Type="test" Name="MartinTest" Parameter="MartinTest(TestContext,MonoValidationTestParameters,MonoValidationTestRunner)" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+        <system-err />
+      </testsuite>
+      <properties />
+      <system-out>OUTPUT: 16
+&lt;TestPath ID="581" Parent="561"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="MonoTests" Parameter="Xamarin.WebTests.MonoTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="TestValidator" Parameter="Xamarin.WebTests.MonoTests.TestValidator" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <testsuite name="Xamarin.WebTests.Console.MonoTests.TestProvider" timestamp="2017-04-03T10:43:22" hostname="localhost">
+      <testsuite name="Xamarin.WebTests.Console.MonoTests.TestProvider.TestDefaultProvider" timestamp="2017-04-03T10:43:22" hostname="localhost" time="0.000713">
+        <testcase name="TestDefaultProvider" status="Success" time="0.000713">
+          <system-out>HELLO!
+</system-out>
+        </testcase>
+        <properties />
+        <system-out>OUTPUT: 17
+&lt;TestPath ID="599" Parent="597"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="MonoTests" Parameter="Xamarin.WebTests.MonoTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="TestProvider" Parameter="Xamarin.WebTests.MonoTests.TestProvider" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="instance" Name="TestProvider" ParameterType="TestProvider" Parameter="TestProvider" Flags="ContinueOnError, Hidden, PathHidden" /&gt;
+  &lt;TestParameter Type="test" Name="TestDefaultProvider" Parameter="TestDefaultProvider(TestContext)" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+TEST DEFAULT PROVIDER!
+TEST DEFAULT PROVIDER #1: Mono.Net.Security.LegacyTlsProvider
+SETUP: Xamarin.WebTests.Console - legacy - 809e77d5-56cc-4da8-b9f0-45e65ba9cceb
+TEST: 1
+</system-out>
+        <system-err />
+      </testsuite>
+      <properties />
+      <system-out>OUTPUT: 18
+&lt;TestPath ID="594" Parent="561"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="MonoTests" Parameter="Xamarin.WebTests.MonoTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="fixture" Name="TestProvider" Parameter="Xamarin.WebTests.MonoTests.TestProvider" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+      <system-err />
+    </testsuite>
+    <properties />
+    <system-out>OUTPUT: 19
+&lt;TestPath ID="561" Parent="481"&gt;
+  &lt;TestParameter Type="suite" Name="Xamarin.WebTests.Console" Parameter="Xamarin.WebTests.Console" Flags="Browsable" /&gt;
+  &lt;TestParameter Type="assembly" Name="MonoTests" Parameter="Xamarin.WebTests.MonoTests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3bd78831b6502434" Flags="Browsable" /&gt;
+&lt;/TestPath&gt;
+
+
+</system-out>
+    <system-err />
+  </testsuite>
+</testsuites>
