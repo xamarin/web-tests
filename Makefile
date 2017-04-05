@@ -73,14 +73,8 @@ Run-ConsoleAppleTls-%::
 Build-IOS-Debug::
 	$(MAKE) ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ IOS_TARGET=iPhoneSimulator IOS_CONFIGURATION=Debug .IOS-Internal-Build
 
-Build-IOS-DebugAppleTls::
-	$(MAKE) ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ IOS_TARGET=iPhoneSimulator IOS_CONFIGURATION=DebugAppleTls .IOS-Internal-Build
-
 Run-IOS-Debug-%::
 	$(MAKE) ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ IOS_TARGET=iPhoneSimulator IOS_CONFIGURATION=Debug .IOS-Run-$*
-
-Run-IOS-DebugAppleTls-%::
-	$(MAKE) ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ IOS_TARGET=iPhoneSimulator IOS_CONFIGURATION=DebugAppleTls .IOS-Run-$*
 
 #
 #
