@@ -241,7 +241,7 @@ namespace Xamarin.AsyncTests.Console
 				Result = result;
 
 				var parts = new List<string> ();
-				for (var path = Path; path != Parent.Path; path = path.Parent) {
+				for (var path = Path; !TestPath.Equals (path, Parent.Path); path = path.Parent) {
 					var current = path.Node;
 					if (current.PathType != TestPathType.Parameter && !current.IsHidden && !string.IsNullOrEmpty (current.Name))
 						parts.Add (current.Name);

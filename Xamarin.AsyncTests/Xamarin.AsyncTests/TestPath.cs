@@ -182,6 +182,18 @@ namespace Xamarin.AsyncTests
 			return false;
 		}
 
+		public static bool Equals (TestPath first, TestPath second)
+		{
+			while (true) {
+				if (first == null || second == null)
+					return first == null && second == null;
+				if (!first.Node.Matches (second.Node))
+					return false;
+				first = first.Parent;
+				second = second.Parent;
+			}
+		}
+
 		public readonly int ID = ++next_id;
 		static int next_id;
 
