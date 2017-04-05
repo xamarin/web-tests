@@ -35,7 +35,6 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-		DebugBtls|Any CPU = DebugBtls|Any CPU
 		DebugAppleTls|Any CPU = DebugAppleTls|Any CPU
 		DebugLegacy|Any CPU = DebugLegacy|Any CPU
 	EndGlobalSection
