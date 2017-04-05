@@ -49,10 +49,6 @@ namespace Mono.Btls.TestFramework
 			get; set;
 		}
 
-		public bool ExpectSuccess {
-			get; set;
-		}
-
 		public DateTime? CheckTime {
 			get; set;
 		}
@@ -61,8 +57,14 @@ namespace Mono.Btls.TestFramework
 			get; set;
 		}
 
+		BtlsX509Error expectedResult;
+
 		public BtlsX509Error ExpectedResult {
-			get; set;
+			get { return expectedResult; }
+			set {
+				expectedResult = value;
+				ExpectSuccess = value == BtlsX509Error.OK;
+			}
 		}
 
 		protected BoringValidationTestParameters (BoringValidationTestParameters other)
@@ -70,7 +72,6 @@ namespace Mono.Btls.TestFramework
 		{
 			Type = other.Type;
 			AddTrustedRoots = other.AddTrustedRoots;
-			ExpectSuccess = other.ExpectSuccess;
 			ExpectedResult = other.ExpectedResult;
 			CheckTime = other.CheckTime;
 			VerifyParamType = other.VerifyParamType;
