@@ -88,10 +88,10 @@ namespace Xamarin.WebTests.MonoTestProvider
 			case null:
 #if APPLETLS
 				MonoTlsProviderFactory.Initialize ("apple");
-#elif BTLS
-				MonoTlsProviderFactory.Initialize ("btls");
-#else
+#elif LEGACY
 				MonoTlsProviderFactory.Initialize ("legacy");
+#else
+				MonoTlsProviderFactory.Initialize ("btls");
 #endif
 				break;
 			case "legacy":

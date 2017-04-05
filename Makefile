@@ -51,8 +51,8 @@ Run-FastCheck-%::
 Build-Console::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=Debug .Console-Internal-Build
 
-Build-ConsoleBtls::
-	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugBtls .Console-Internal-Build
+Build-ConsoleLegacy::
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugLegacy .Console-Internal-Build
 
 Build-ConsoleAppleTls::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugAppleTls .Console-Internal-Build
@@ -60,8 +60,8 @@ Build-ConsoleAppleTls::
 Run-Console-%::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=Debug .Console-Run-$*
 
-Run-ConsoleBtls-%::
-	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugBtls .Console-Run-$*
+Run-ConsoleLegacy-%::
+	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugLegacy .Console-Run-$*
 
 Run-ConsoleAppleTls-%::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugAppleTls .Console-Run-$*
