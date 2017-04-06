@@ -79,9 +79,10 @@ namespace Xamarin.AsyncTests.Console
 		{
 			Program.Debug ("Launching app: {0}", Application);
 
-			var psi = new ProcessStartInfo (Application);
+			var psi = new ProcessStartInfo ("/usr/bin/open");
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
+			psi.Arguments = "-F -W -n " + Application;
 			psi.EnvironmentVariables.Add ("XAMARIN_ASYNCTESTS_OPTIONS", launchArgs);
 			var process = Process.Start (psi);
 
