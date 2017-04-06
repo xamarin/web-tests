@@ -40,6 +40,10 @@ Jenkins-Run::
 Build-FastCheck::
 	$(MAKE) Build-Console
 
+Run-FastCheck-Provision::
+	$(MONO) --version
+	$(MAKE) Run-Console-Martin
+
 Run-FastCheck-%::
 	$(MONO) --version
 	$(MAKE) Run-Console-$*
