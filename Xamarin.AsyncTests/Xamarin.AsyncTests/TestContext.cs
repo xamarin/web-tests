@@ -313,7 +313,7 @@ namespace Xamarin.AsyncTests
 		}
 
 		[HideStackFrame]
-		public void AssertFail (string message)
+		public Exception AssertFail (string message)
 		{
 			var exception = new AssertionException (message, GetStackTrace ());
 			OnError (exception);
@@ -321,9 +321,9 @@ namespace Xamarin.AsyncTests
 		}
 
 		[HideStackFrame]
-		public void AssertFail (string format, params object[] args)
+		public Exception AssertFail (string format, params object[] args)
 		{
-			AssertFail (string.Format (format, args));
+			return AssertFail (string.Format (format, args));
 		}
 
 		public bool HasPendingException {

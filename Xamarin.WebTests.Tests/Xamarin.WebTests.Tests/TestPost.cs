@@ -111,23 +111,25 @@ namespace Xamarin.WebTests.Tests
 
 		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
-			if (filter == null) {
+			switch (filter) {
+			case null:
 				var list = new List<Handler> ();
 				list.Add (new HelloWorldHandler ("hello world"));
 				list.AddRange (GetPostTests ());
 				list.AddRange (GetDeleteTests ());
 				list.AddRange (GetRecentlyFixed ());
 				return list;
-			} else if (filter.Equals ("post"))
+			case "post":
 				return GetPostTests ();
-			else if (filter.Equals ("delete"))
+			case "delete":
 				return GetDeleteTests ();
-			else if (filter.Equals ("chunked"))
+			case "chunked":
 				return GetChunkedTests ();
-			else if (filter.Equals ("recently-fixed"))
+			case "recently-fixed":
 				return GetRecentlyFixed ();
-			else
-				throw new InvalidOperationException ();
+			default:
+				throw ctx.AssertFail ("Invalid TestPost filter `{0}'.", filter);
+			}
 		}
 
 		[AsyncTest]
