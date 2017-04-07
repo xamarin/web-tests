@@ -125,7 +125,6 @@ namespace Xamarin.WebTests.TestRunners
 				    ctx.Expect (chain.ChainPolicy.ExtraStore, Is.Not.Null, "ChainPolicy.ExtraStore") &&
 				    ctx.Expect (chain.ChainPolicy.ExtraStore.Count, Is.EqualTo (parameters.ExpectedExtraStore.Count), "ChainPolicy.ExtraStore.Count")) {
 					for (int i = 0; i < parameters.ExpectedExtraStore.Count; i++) {
-						ctx.LogMessage ("TEST!");
 						ExpectCertificate (ctx, chain.ChainPolicy.ExtraStore[i], parameters.ExpectedExtraStore[i], string.Format ("ExtraStore[{0}]", i));
 					}
 				}
