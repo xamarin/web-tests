@@ -50,7 +50,7 @@ namespace Xamarin.WebTests.MonoTests
 		}
 
 		[Martin]
-		[AsyncTest]
+		// [AsyncTest]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.MartinTest)]
 		public async Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
 			MonoConnectionTestProvider provider,
