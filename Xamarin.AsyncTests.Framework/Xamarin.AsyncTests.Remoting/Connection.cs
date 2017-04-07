@@ -148,8 +148,10 @@ namespace Xamarin.AsyncTests.Remoting
 			try {
 				await mainTcs.Task;
 			} catch (Exception ex) {
-				if (!shutdownRequested)
-					Debug ("SERVER ERROR: {0}", ex);
+				if (!shutdownRequested) {
+					Debug ("SERVER ERROR: {0} {1}", this, ex);
+					throw;
+				}
 			}
 		}
 
