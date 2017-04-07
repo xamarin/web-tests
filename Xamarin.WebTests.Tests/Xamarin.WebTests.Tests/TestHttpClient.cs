@@ -79,16 +79,17 @@ namespace Xamarin.WebTests
 			yield return new HttpClientHandler (
 				"Bug #20583", HttpClientOperation.PostString,
 				HttpContent.HelloWorld, new Bug20583Content ());
-		}
-
-		static IEnumerable<HttpClientHandler> GetRecentlyFixed ()
-		{
 			yield return new HttpClientHandler (
 				"Bug #41206", HttpClientOperation.PutDataAsync,
 				BinaryContent.CreateRandom (102400));
 			yield return new HttpClientHandler (
 				"Bug #41206 odd size", HttpClientOperation.PutDataAsync,
 				BinaryContent.CreateRandom (102431));
+		}
+
+		static IEnumerable<HttpClientHandler> GetRecentlyFixed ()
+		{
+			yield break;
 		}
 
 		public static IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)
@@ -98,7 +99,6 @@ namespace Xamarin.WebTests
 			case null:
 			case "stable":
 				list.AddRange (GetStableTests ());
-				list.AddRange (GetRecentlyFixed ());
 				break;
 			case "recently-fixed":
 				list.AddRange (GetRecentlyFixed ());

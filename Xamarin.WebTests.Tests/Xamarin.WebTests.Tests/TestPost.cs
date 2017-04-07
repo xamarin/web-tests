@@ -77,6 +77,8 @@ namespace Xamarin.WebTests.Tests
 			yield return new PostHandler ("Chunked", HttpContent.HelloChunked, TransferMode.Chunked);
 			yield return new PostHandler ("Explicit length and empty body", StringContent.Empty, TransferMode.ContentLength);
 			yield return new PostHandler ("Explicit length and no body", null, TransferMode.ContentLength);
+			yield return new PostHandler ("Bug #41206", new RandomContent (102400));
+			yield return new PostHandler ("Bug #41206 odd size", new RandomContent (102431));
 		}
 
 		public static IEnumerable<Handler> GetDeleteTests ()
@@ -103,10 +105,7 @@ namespace Xamarin.WebTests.Tests
 
 		static IEnumerable<PostHandler> GetRecentlyFixed ()
 		{
-			yield return new PostHandler (
-				"Bug #41206", new RandomContent (102400));
-			yield return new PostHandler (
-				"Bug #41206 odd size", new RandomContent (102431));
+			yield break;
 		}
 
 		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
