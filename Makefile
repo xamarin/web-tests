@@ -25,6 +25,8 @@ Wrench-%::
 	$(MAKE) WRENCH=1 $*
 
 Jenkins-Build::
+	which mono
+	$(MONO) --version
 	$(MAKE) JENKINS=1 Build-$(JENKINS_TARGET) $*
 
 Jenkins-Install::
