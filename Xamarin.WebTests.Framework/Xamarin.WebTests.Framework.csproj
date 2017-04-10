@@ -59,7 +59,6 @@
     <Compile Include="Xamarin.WebTests.HttpHandlers\TraditionalRequest.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\AuthenticationManager.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\ChunkedContent.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\Connection.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpConnection.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpContent.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpMessage.cs" />

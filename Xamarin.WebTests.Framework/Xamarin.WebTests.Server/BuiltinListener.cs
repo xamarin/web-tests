@@ -1,4 +1,4 @@
-﻿//
+//
 // BuiltinListener.cs
 //
 // Author:
@@ -140,7 +140,7 @@ namespace Xamarin.WebTests.Server
 			}
 
 			var socket = args.AcceptSocket;
-			Connection connection;
+			HttpConnection connection;
 
 			try {
 				connection = CreateConnection (socket);
@@ -213,7 +213,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected abstract Connection CreateConnection (Socket socket);
+		protected abstract HttpConnection CreateConnection (Socket socket);
 
 		bool IsStillConnected (Socket socket)
 		{
@@ -226,7 +226,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		void HandleConnection_internal (Socket socket, Connection connection, CancellationToken cancellationToken)
+		void HandleConnection_internal (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			while (!cancellationToken.IsCancellationRequested) {
 				var wantToReuse = HandleConnection (socket, connection, cancellationToken);
@@ -239,6 +239,6 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected abstract bool HandleConnection (Socket socket, Connection connection, CancellationToken cancellationToken);
+		protected abstract bool HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken);
 	}
 }

@@ -1,4 +1,4 @@
-﻿//
+//
 // BuiltinHttpListener.cs
 //
 // Author:
@@ -64,13 +64,13 @@ namespace Xamarin.WebTests.Server
 			Server = server;
 		}
 
-		protected override Connection CreateConnection (Socket socket)
+		protected override HttpConnection CreateConnection (Socket socket)
 		{
 			var stream = new NetworkStream (socket);
 			return Server.CreateConnection (Context, stream);
 		}
 
-		protected override bool HandleConnection (Socket socket, Connection connection, CancellationToken cancellationToken)
+		protected override bool HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			var httpConnection = (HttpConnection)connection;
 			return Server.HandleConnection (Context, httpConnection);

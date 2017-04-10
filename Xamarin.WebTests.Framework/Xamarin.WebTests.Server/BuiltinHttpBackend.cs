@@ -119,7 +119,7 @@ namespace Xamarin.WebTests.Server {
 		public override HttpConnection CreateConnection (TestContext ctx, HttpServer server, Stream stream)
 		{
 			if (SslStreamProvider == null)
-				return new HttpConnection (ctx, server, stream);
+				return new HttpConnection (ctx, server, stream, null);
 
 			var sslStream = SslStreamProvider.CreateServerStream (stream, Parameters);
 			return new HttpConnection (ctx, server, sslStream.AuthenticatedStream, sslStream);

@@ -43,6 +43,8 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public static HttpRequest Read (StreamReader reader)
 		{
+			if (reader.Peek () < 0 && reader.EndOfStream)
+				return null;
 			var request = new HttpRequest (reader);
 			request.Read ();
 			return request;

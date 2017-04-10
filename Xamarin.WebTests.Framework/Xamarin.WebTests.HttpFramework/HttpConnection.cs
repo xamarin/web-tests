@@ -1,5 +1,5 @@
 ﻿//
-// HttpConnection.cs
+// Connection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -26,38 +26,82 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpFramework
 {
 	using ConnectionFramework;
 	using Server;
 
-	public class HttpConnection : Connection
+	public class HttpConnection
 	{
 		public TestContext Context {
-			get; private set;
+			get;
 		}
 
 		public HttpServer Server {
-			get; private set;
+			get;
+		}
+
+		public Stream Stream {
+			get;
 		}
 
 		public ISslStream SslStream {
-			get; private set;
+			get;
 		}
 
-		public HttpConnection (TestContext ctx, HttpServer server, Stream stream, ISslStream sslStream = null)
-			: base (stream)
+		StreamReader reader;
+		StreamWriter writer;
+
+		public HttpConnection (TestContext ctx, HttpServer server, Stream stream, ISslStream sslStream)
 		{
-			Context = ctx;
+			Context = Context;
 			Server = server;
+			Stream = stream;
 			SslStream = sslStream;
+
+			reader = new StreamReader (stream);
+			writer = new StreamWriter (stream);
+			writer.AutoFlush = true;
+		}
+
+		public bool HasRequest ()
+		{
+			return reader.Peek () >= 0 && !reader.EndOfStream;
+		}
+
+		public HttpRequest ReadRequest ()
+		{
+			if (reader.Peek () < 0 && reader.EndOfStream)
+				return null;
+			return HttpRequest.Read (reader);
+		}
+
+		protected HttpResponse ReadResponse ()
+		{
+			return HttpResponse.Read (reader);
+		}
+
+		protected void WriteRequest (HttpRequest request)
+		{
+			request.Write (writer);
+		}
+
+		public void WriteResponse (HttpResponse response)
+		{
+			response.Write (writer);
+		}
+
+		public void Close ()
+		{
+			writer.Flush ();
 		}
 
 		public void CheckEncryption (TestContext ctx)

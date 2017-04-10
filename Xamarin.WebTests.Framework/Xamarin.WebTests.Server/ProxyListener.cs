@@ -65,13 +65,13 @@ namespace Xamarin.WebTests.Server
 				authManager = new ProxyAuthManager (Server.AuthenticationType);
 		}
 
-		protected override Connection CreateConnection (Socket socket)
+		protected override HttpConnection CreateConnection (Socket socket)
 		{
 			var stream = new NetworkStream (socket);
-			return new HttpConnection (Context, Server, stream);
+			return new HttpConnection (Context, Server, stream, null);
 		}
 
-		protected override bool HandleConnection (Socket socket, Connection connection, CancellationToken cancellationToken)
+		protected override bool HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			var request = connection.ReadRequest ();
 
@@ -138,7 +138,7 @@ namespace Xamarin.WebTests.Server
 		}
 
 		void CreateTunnel (
-			Connection connection, Socket socket, Stream stream, HttpRequest request, CancellationToken cancellationToken)
+			HttpConnection connection, Socket socket, Stream stream, HttpRequest request, CancellationToken cancellationToken)
 		{
 			var targetEndpoint = GetConnectEndpoint (request);
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
