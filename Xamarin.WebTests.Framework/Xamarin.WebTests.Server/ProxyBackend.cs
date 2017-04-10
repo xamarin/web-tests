@@ -69,11 +69,8 @@ namespace Xamarin.WebTests.Server {
 			var listener = new ProxyListener (ctx, this, (ProxyServer)server);
 			if (Interlocked.CompareExchange (ref currentListener, listener, null) != null)
 				throw new InternalErrorException ();
-			ctx.LogDebug (2, "Starting {0}: {1}", this, Target);
 			await Target.Start (ctx, server, cancellationToken).ConfigureAwait (false);
-			ctx.LogDebug (2, "Starting {0}: {1} #1", this, Target);
 			await listener.Start ();
-			ctx.LogDebug (2, "Starting {0}: {1} #2", this, Target);
 		}
 
 		public override async Task Stop (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
