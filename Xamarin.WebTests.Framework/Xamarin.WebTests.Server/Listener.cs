@@ -41,11 +41,11 @@ using SD = System.Diagnostics;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.HttpFramework {
+namespace Xamarin.WebTests.Server {
 	using HttpFramework;
 	using Server;
 
-	public abstract class Listener {
+	abstract class Listener {
 		public Listener (IPortableEndPoint endpoint, ListenerFlags flags)
 		{
 			var ssl = (flags & ListenerFlags.SSL) != 0;

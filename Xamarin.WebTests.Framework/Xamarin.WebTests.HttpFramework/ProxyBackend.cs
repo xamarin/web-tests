@@ -29,10 +29,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.HttpFramework;
+using Xamarin.WebTests.Server;
 
-namespace Xamarin.WebTests.Server {
+namespace Xamarin.WebTests.HttpFramework {
 	public sealed class ProxyBackend : HttpBackend {
 		public HttpBackend Target {
 			get;

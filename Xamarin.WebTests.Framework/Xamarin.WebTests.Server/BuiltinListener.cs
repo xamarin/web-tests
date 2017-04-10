@@ -1,4 +1,4 @@
-//
+﻿//
 // BuiltinListener.cs
 //
 // Author:
@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
 
-	public abstract class BuiltinListener : Listener
+	abstract class BuiltinListener : Listener
 	{
 		Socket server;
 		int currentConnections;

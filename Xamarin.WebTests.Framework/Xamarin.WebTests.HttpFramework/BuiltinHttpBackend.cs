@@ -30,9 +30,9 @@ using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.HttpFramework;
+using Xamarin.WebTests.Server;
 
-namespace Xamarin.WebTests.Server {
+namespace Xamarin.WebTests.HttpFramework {
 	public sealed class BuiltinHttpBackend : HttpBackend {
 		public IPortableEndPoint ListenAddress {
 			get;

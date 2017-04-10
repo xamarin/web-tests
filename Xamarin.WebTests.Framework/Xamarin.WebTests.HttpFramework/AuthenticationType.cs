@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.HttpFramework
 {
 	public enum AuthenticationType
 	{
