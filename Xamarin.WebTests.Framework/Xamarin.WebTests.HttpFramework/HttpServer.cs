@@ -143,15 +143,15 @@ namespace Xamarin.WebTests.HttpFramework
 			return Backend.CreateConnection (ctx, this, stream);
 		}
 
-		public virtual bool HandleConnection (TestContext ctx, HttpConnection connection)
+		protected virtual void OnHandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request)
 		{
-			++countRequests;
-			var request = connection.ReadRequest ();
-			return HandleConnection (ctx, connection, request);
 		}
 
-		protected bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request)
+		public bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request)
 		{
+			++countRequests;
+			OnHandleConnection (ctx, connection, request);
+
 			var path = request.Path;
 			var handler = handlers [path];
 			handlers.Remove (path);

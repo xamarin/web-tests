@@ -591,13 +591,13 @@ namespace Xamarin.WebTests.TestRunners
 				}
 			}
 
-			public override bool HandleConnection (TestContext ctx, HttpConnection connection)
+			protected override void OnHandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request)
 			{
 				ctx.Expect (connection.SslStream.IsAuthenticated, "server is authenticated");
 				if (Parameters.RequireClientCertificate)
 					ctx.Expect (connection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
 
-				return base.HandleConnection (ctx, connection);
+				base.OnHandleConnection (ctx, connection, request);
 			}
 		}
 

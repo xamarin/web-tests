@@ -29,6 +29,7 @@ using System.Text;
 using System.Threading;
 using System.Globalization;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -39,6 +40,13 @@ namespace Xamarin.WebTests.HttpFramework
 		HttpRequest (StreamReader reader)
 		{
 			this.reader = reader;
+		}
+
+		public HttpRequest (HttpProtocol protocol, string method, string path, NameValueCollection headers)
+			: base (protocol, headers)
+		{
+			Method = method;
+			Path = path;
 		}
 
 		public static HttpRequest Read (StreamReader reader)

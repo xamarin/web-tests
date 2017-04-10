@@ -30,12 +30,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Globalization;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 
 namespace Xamarin.WebTests.HttpFramework
 {
 	public enum HttpProtocol {
 		Http10,
-		Http11
+		Http11,
+		Http12
 	}
 
 	public abstract class HttpMessage
@@ -78,6 +80,15 @@ namespace Xamarin.WebTests.HttpFramework
 
 		protected HttpMessage ()
 		{
+		}
+
+		protected HttpMessage (HttpProtocol protocol, NameValueCollection headerCollection)
+		{
+			Protocol = protocol;
+
+			foreach (string header in headerCollection) {
+				headers.Add (header, headerCollection [header]); 
+			}
 		}
 
 		internal static HttpProtocol ProtocolFromString (string proto)

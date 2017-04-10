@@ -72,8 +72,8 @@ namespace Xamarin.WebTests.Server
 
 		protected override bool HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
 		{
-			var httpConnection = (HttpConnection)connection;
-			return Server.HandleConnection (Context, httpConnection);
+			var request = connection.ReadRequest ();
+			return Server.HandleConnection (Context, connection, request);
 		}
 	}
 }
