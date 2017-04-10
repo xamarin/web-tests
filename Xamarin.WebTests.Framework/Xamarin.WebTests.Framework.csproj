@@ -66,7 +66,6 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpRequest.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpResponse.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpServer.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\ProxyConnection.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\ProxyServer.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\RandomContent.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\RequestFlags.cs" />

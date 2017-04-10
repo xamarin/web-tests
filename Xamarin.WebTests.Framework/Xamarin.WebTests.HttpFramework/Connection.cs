@@ -49,6 +49,13 @@ namespace Xamarin.WebTests.HttpFramework
 			writer.AutoFlush = true;
 		}
 
+		public Connection (Stream stream, StreamReader reader, StreamWriter writer)
+		{
+			this.stream = stream;
+			this.reader = reader;
+			this.writer = writer;
+		}
+
 		public Stream Stream {
 			get { return stream; }
 		}

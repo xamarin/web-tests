@@ -101,9 +101,28 @@ namespace Xamarin.WebTests.Server
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			targetSocket.Connect (Backend.Target.Uri.Host, Backend.Target.Uri.Port);
 
-			using (var targetStream = new NetworkStream (targetSocket)) {
-				var targetConnection = new ProxyConnection (connection, targetStream);
-				targetConnection.HandleRequest (request);
+			using (var targetStream = new NetworkStream (targetSocket))
+			using (var targetReader = new StreamReader (targetStream))
+			using (var targetWriter = new StreamWriter (targetStream)) {
+				targetWriter.AutoFlush = true;
+				var targetConnection = new Connection (targetStream, targetReader, targetWriter);
+
+				var task = Task.Factory.StartNew (() => {
+					var response = HttpResponse.Read (targetConnection, targetReader);
+					response.SetHeader ("Connection", "close");
+					response.SetHeader ("Proxy-Connection", "close");
+					connection.WriteResponse (response);
+				});
+
+				request.Write (targetWriter);
+
+				var body = request.ReadBody ();
+				if (body != null)
+					body.WriteToAsync (targetWriter).Wait ();
+
+				task.Wait ();
+
+				targetWriter.Flush ();
 
 				targetConnection.Close ();
 			}
