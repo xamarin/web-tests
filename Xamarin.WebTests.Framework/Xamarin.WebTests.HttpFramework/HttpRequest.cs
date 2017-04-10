@@ -36,15 +36,14 @@ namespace Xamarin.WebTests.HttpFramework
 	{
 		StreamReader reader;
 
-		HttpRequest (Connection connection, StreamReader reader)
-			: base (connection)
+		HttpRequest (StreamReader reader)
 		{
 			this.reader = reader;
 		}
 
-		public static HttpRequest Read (Connection connection, StreamReader reader)
+		public static HttpRequest Read (StreamReader reader)
 		{
-			var request = new HttpRequest (connection, reader);
+			var request = new HttpRequest (reader);
 			request.Read ();
 			return request;
 		}

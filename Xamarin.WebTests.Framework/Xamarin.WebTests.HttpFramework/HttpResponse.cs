@@ -73,16 +73,16 @@ namespace Xamarin.WebTests.HttpFramework
 			Body = content;
 		}
 
-		HttpResponse (Connection connection)
-			: base (connection)
+		HttpResponse ()
+			: base ()
 		{
 		}
 
-		internal static HttpResponse Read (Connection connection, StreamReader reader)
+		internal static HttpResponse Read (StreamReader reader)
 		{
 			try {
-				var response = new HttpResponse (connection);
-				response.Read(reader);
+				var response = new HttpResponse ();
+				response.InternalRead(reader);
 				return response;
 			} catch (Exception ex) {
 				return CreateError (ex);
@@ -118,7 +118,7 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		void Read (StreamReader reader)
+		void InternalRead (StreamReader reader)
 		{
 			var header = reader.ReadLine ();
 			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);

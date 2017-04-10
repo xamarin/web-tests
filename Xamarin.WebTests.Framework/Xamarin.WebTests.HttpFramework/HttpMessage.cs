@@ -54,10 +54,6 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		public Connection Connection {
-			get { return connection; }
-		}
-
 		public IDictionary<string,string> Headers {
 			get { return headers; }
 		}
@@ -78,16 +74,10 @@ namespace Xamarin.WebTests.HttpFramework
 		bool hasBody;
 		HttpContent body;
 
-		protected readonly Connection connection;
 		Dictionary<string,string> headers = new Dictionary<string, string> ();
 
 		protected HttpMessage ()
 		{
-		}
-
-		protected HttpMessage (Connection connection)
-		{
-			this.connection = connection;
 		}
 
 		internal static HttpProtocol ProtocolFromString (string proto)

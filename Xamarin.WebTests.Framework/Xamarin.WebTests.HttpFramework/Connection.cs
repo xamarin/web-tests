@@ -77,12 +77,12 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			if (reader.Peek () < 0 && reader.EndOfStream)
 				return null;
-			return HttpRequest.Read (this, reader);
+			return HttpRequest.Read (reader);
 		}
 
 		protected HttpResponse ReadResponse ()
 		{
-			return HttpResponse.Read (this, reader);
+			return HttpResponse.Read (reader);
 		}
 
 		protected void WriteRequest (HttpRequest request)
