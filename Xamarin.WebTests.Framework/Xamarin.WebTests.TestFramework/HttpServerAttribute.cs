@@ -97,7 +97,8 @@ namespace Xamarin.WebTests.TestFramework
 			if (GetParameters (ctx, out parameters))
 				sslStreamProvider = GetSslStreamProvider (ctx);
 
-			return new HttpServer (endpoint, endpoint, flags, parameters, sslStreamProvider);
+			var backend = new BuiltinHttpBackend (endpoint, endpoint, flags, parameters, sslStreamProvider);
+			return new HttpServer (backend);
 		}
 	}
 }

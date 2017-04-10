@@ -34,9 +34,19 @@ namespace Xamarin.WebTests.HttpFramework
 {
 	public class HttpRequest : HttpMessage
 	{
-		public HttpRequest (Connection connection, StreamReader reader)
-			: base (connection, reader)
+		StreamReader reader;
+
+		HttpRequest (Connection connection, StreamReader reader)
+			: base (connection)
 		{
+			this.reader = reader;
+		}
+
+		public static HttpRequest Read (Connection connection, StreamReader reader)
+		{
+			var request = new HttpRequest (connection, reader);
+			request.Read ();
+			return request;
 		}
 
 		public string Method {
@@ -47,7 +57,7 @@ namespace Xamarin.WebTests.HttpFramework
 			get; private set;
 		}
 
-		protected override void Read ()
+		void Read ()
 		{
 			var header = reader.ReadLine ();
 			if (header == null)
@@ -62,15 +72,21 @@ namespace Xamarin.WebTests.HttpFramework
 			if (Method.Equals ("CONNECT"))
 				Path = fields [1];
 			else
-				Path = fields [1].StartsWith ("/") ? fields [1] : new Uri (fields [1]).AbsolutePath;
+				Path = fields [1].StartsWith ("/", StringComparison.Ordinal) ? fields [1] : new Uri (fields [1]).AbsolutePath;
 
-			ReadHeaders ();
+			ReadHeaders (reader);
 		}
 
 		public void Write (StreamWriter writer)
 		{
 			writer.Write ("{0} {1} {2}\r\n", Method, Path, ProtocolToString (Protocol));
 			WriteHeaders (writer);
+		}
+
+		public override HttpContent ReadBody ()
+		{
+			DoReadBody (reader).Wait ();
+			return Body;
 		}
 
 		public override string ToString ()

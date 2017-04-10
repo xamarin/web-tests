@@ -62,14 +62,14 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public void CheckEncryption (TestContext ctx)
 		{
-			if ((Server.Flags & (ListenerFlags.SSL | ListenerFlags.ForceTls12)) == 0)
+			if ((Server.Backend.Flags & (ListenerFlags.SSL | ListenerFlags.ForceTls12)) == 0)
 				return;
 
 			ctx.Assert (SslStream, Is.Not.Null, "Needs SslStream");
 			ctx.Assert (SslStream.IsAuthenticated, "Must be authenticated");
 
 			var support = DependencyInjector.Get<IPortableSupport> ();
-			if (((Server.Flags & ListenerFlags.ForceTls12) != 0) || support.HasAppleTls)
+			if (((Server.Backend.Flags & ListenerFlags.ForceTls12) != 0) || support.HasAppleTls)
 				ctx.Assert (SslStream.ProtocolVersion, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
 		}
 	}

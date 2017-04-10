@@ -1,10 +1,10 @@
 ﻿//
-// Connection.cs
+// HttpBackend.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,73 +25,31 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Net;
-using System.Text;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
+using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.Server;
 
-namespace Xamarin.WebTests.HttpFramework
-{
-	using ConnectionFramework;
-
-	public class Connection
-	{
-		Stream stream;
-		StreamReader reader;
-		StreamWriter writer;
-
-		public Connection (Stream stream)
-		{
-			this.stream = stream;
-			reader = new StreamReader (stream);
-			writer = new StreamWriter (stream);
-			writer.AutoFlush = true;
+namespace Xamarin.WebTests.HttpFramework {
+	public abstract class HttpBackend {
+		public abstract ListenerFlags Flags {
+			get;
 		}
 
-		public Stream Stream {
-			get { return stream; }
+		public abstract bool UseSSL {
+			get;
 		}
 
-		protected StreamReader RequestReader {
-			get { return reader; }
+		public abstract Uri Uri {
+			get;
 		}
 
-		protected StreamWriter ResponseWriter {
-			get { return writer; }
-		}
+		public abstract Task Start (TestContext ctx, HttpServer server, CancellationToken cancellationToken);
 
-		public bool HasRequest ()
-		{
-			return reader.Peek () >= 0 && !reader.EndOfStream;
-		}
+		public abstract Task Stop (TestContext ctx, HttpServer server, CancellationToken cancellationToken);
 
-		public HttpRequest ReadRequest ()
-		{
-			if (reader.Peek () < 0 && reader.EndOfStream)
-				return null;
-			return HttpRequest.Read (this, reader);
-		}
-
-		protected HttpResponse ReadResponse ()
-		{
-			return HttpResponse.Read (this, reader);
-		}
-
-		protected void WriteRequest (HttpRequest request)
-		{
-			request.Write (writer);
-		}
-
-		public void WriteResponse (HttpResponse response)
-		{
-			response.Write (writer);
-		}
-
-		public void Close ()
-		{
-			writer.Flush ();
-		}
+		public abstract HttpConnection CreateConnection (TestContext ctx, HttpServer server, Stream stream);
 	}
 }
-

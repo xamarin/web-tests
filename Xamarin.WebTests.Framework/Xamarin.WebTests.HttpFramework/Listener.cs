@@ -1,5 +1,5 @@
 ﻿//
-// Connection.cs
+// Listener.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -26,72 +26,57 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Linq;
 using System.Text;
-using System.Collections.Generic;
 using System.Threading;
+using System.Reflection;
+using System.Net.Sockets;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Net.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using SD = System.Diagnostics;
 
-namespace Xamarin.WebTests.HttpFramework
-{
-	using ConnectionFramework;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
-	public class Connection
-	{
-		Stream stream;
-		StreamReader reader;
-		StreamWriter writer;
+namespace Xamarin.WebTests.HttpFramework {
+	using HttpFramework;
+	using Server;
 
-		public Connection (Stream stream)
+	public abstract class Listener {
+		public Listener (IPortableEndPoint endpoint, ListenerFlags flags)
 		{
-			this.stream = stream;
-			reader = new StreamReader (stream);
-			writer = new StreamWriter (stream);
-			writer.AutoFlush = true;
+			var ssl = (flags & ListenerFlags.SSL) != 0;
+			if (ssl & (flags & ListenerFlags.Proxy) != 0)
+				throw new InternalErrorException ();
+
+			var address = IPAddress.Parse (endpoint.Address);
+			NetworkEndPoint = new IPEndPoint (address, endpoint.Port);
+
+			Uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", endpoint.Address, endpoint.Port));
 		}
 
-		public Stream Stream {
-			get { return stream; }
+		public IPortableEndPoint EndPoint {
+			get;
 		}
 
-		protected StreamReader RequestReader {
-			get { return reader; }
+		public IPEndPoint NetworkEndPoint {
+			get;
 		}
 
-		protected StreamWriter ResponseWriter {
-			get { return writer; }
+		public Uri Uri {
+			get;
 		}
 
-		public bool HasRequest ()
+		static void Debug (string message, params object[] args)
 		{
-			return reader.Peek () >= 0 && !reader.EndOfStream;
+			SD.Debug.WriteLine (message, args);
 		}
 
-		public HttpRequest ReadRequest ()
-		{
-			if (reader.Peek () < 0 && reader.EndOfStream)
-				return null;
-			return HttpRequest.Read (this, reader);
-		}
+		public abstract Task Start ();
 
-		protected HttpResponse ReadResponse ()
-		{
-			return HttpResponse.Read (this, reader);
-		}
-
-		protected void WriteRequest (HttpRequest request)
-		{
-			request.Write (writer);
-		}
-
-		public void WriteResponse (HttpResponse response)
-		{
-			response.Write (writer);
-		}
-
-		public void Close ()
-		{
-			writer.Flush ();
-		}
+		public abstract Task Stop ();
 	}
 }
-

@@ -42,7 +42,6 @@ namespace Mono.Btls.Tests
 	[AsyncTestFixture]
 	public class TestBoringValidator
 	{
-		[Work]
 		[AsyncTest]
 		[ConnectionProviderType (ConnectionProviderType.BoringTLS)]
 		[ValidationTestCategory (ValidationTestCategory.Default)]
@@ -53,7 +52,6 @@ namespace Mono.Btls.Tests
 			runner.Run (ctx);
 		}
 
-		[Work]
 		[AsyncTest]
 		[ValidationTestCategory (ValidationTestCategory.Default)]
 		public void TestStoreRunner (TestContext ctx,
@@ -64,8 +62,8 @@ namespace Mono.Btls.Tests
 			runner.Run (ctx);
 		}
 
-		[Work]
-		[AsyncTest]
+		// [Work]
+		// [AsyncTest]
 		[ConnectionProviderType (ConnectionProviderType.BoringTLS)]
 		[ValidationTestCategory (ValidationTestCategory.MartinTest)]
 		public void MartinTest (TestContext ctx,

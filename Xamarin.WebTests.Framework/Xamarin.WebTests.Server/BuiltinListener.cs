@@ -1,5 +1,5 @@
 ﻿//
-// Listener.cs
+// BuiltinListener.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
 
-	public abstract class Listener
+	public abstract class BuiltinListener : Listener
 	{
 		Socket server;
 		int currentConnections;
@@ -53,26 +53,12 @@ namespace Xamarin.WebTests.Server
 		volatile TaskCompletionSource<bool> tcs;
 		volatile CancellationTokenSource cts;
 
-		readonly Uri uri;
-
-		public Listener (IPortableEndPoint endpoint, ListenerFlags flags)
+		public BuiltinListener (IPortableEndPoint endpoint, ListenerFlags flags)
+			: base (endpoint, flags)
 		{
-			var ssl = (flags & ListenerFlags.SSL) != 0;
-			if (ssl & (flags & ListenerFlags.Proxy) != 0)
-				throw new InvalidOperationException ();
-
-			var address = IPAddress.Parse (endpoint.Address);
-			var networkEndpoint = new IPEndPoint (address, endpoint.Port);
-
-			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", endpoint.Address, endpoint.Port));
-
 			server = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			server.Bind (networkEndpoint);
+			server.Bind (NetworkEndPoint);
 			server.Listen (1);
-		}
-
-		public Uri Uri {
-			get { return uri; }
 		}
 
 		static void Debug (string message, params object[] args)
@@ -80,7 +66,7 @@ namespace Xamarin.WebTests.Server
 			SD.Debug.WriteLine (message, args);
 		}
 
-		public Task Start ()
+		public override Task Start ()
 		{
 			lock (this) {
 				if (cts != null)
@@ -195,7 +181,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		public async Task Stop ()
+		public override async Task Stop ()
 		{
 			cts.Cancel ();
 			if (server.Connected)

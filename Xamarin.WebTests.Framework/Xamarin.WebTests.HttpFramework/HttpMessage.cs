@@ -45,7 +45,13 @@ namespace Xamarin.WebTests.HttpFramework
 		}
 
 		public HttpContent Body {
-			get; protected set;
+			get {
+				return body;
+			}
+			set {
+				body = value;
+				hasBody = true;
+			}
 		}
 
 		public Connection Connection {
@@ -72,7 +78,6 @@ namespace Xamarin.WebTests.HttpFramework
 		bool hasBody;
 		HttpContent body;
 
-		protected readonly StreamReader reader;
 		protected readonly Connection connection;
 		Dictionary<string,string> headers = new Dictionary<string, string> ();
 
@@ -80,11 +85,9 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 		}
 
-		protected HttpMessage (Connection connection, StreamReader reader)
+		protected HttpMessage (Connection connection)
 		{
 			this.connection = connection;
-			this.reader = reader;
-			Read ();
 		}
 
 		internal static HttpProtocol ProtocolFromString (string proto)
@@ -107,9 +110,7 @@ namespace Xamarin.WebTests.HttpFramework
 				throw new InvalidOperationException ();
 		}
 
-		protected abstract void Read ();
-
-		protected void ReadHeaders ()
+		protected void ReadHeaders (StreamReader reader)
 		{
 			string line;
 			while ((line = reader.ReadLine ()) != null) {
@@ -132,13 +133,9 @@ namespace Xamarin.WebTests.HttpFramework
 			writer.Write ("\r\n");
 		}
 
-		public HttpContent ReadBody ()
-		{
-			DoReadBody ().Wait ();
-			return body;
-		}
+		public abstract HttpContent ReadBody ();
 
-		async Task DoReadBody ()
+		protected async Task DoReadBody (StreamReader reader)
 		{
 			if (hasBody)
 				return;

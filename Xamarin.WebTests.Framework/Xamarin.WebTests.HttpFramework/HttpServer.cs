@@ -46,76 +46,26 @@ namespace Xamarin.WebTests.HttpFramework
 	[FriendlyName ("[HttpServer]")]
 	public class HttpServer : ITestInstance
 	{
-		readonly Uri uri;
-		readonly ListenerFlags flags;
-		readonly ConnectionParameters parameters;
-		readonly ISslStreamProvider sslStreamProvider;
+		public HttpBackend Backend {
+			get;
+		}
 
-		IPortableEndPoint listenAddress;
-		Listener listener;
-
-		TestContext currentCtx;
 		int countRequests;
 
 		static long nextId;
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
 
-		public HttpServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, ListenerFlags flags, ConnectionParameters parameters = null, ISslStreamProvider sslStreamProvider = null)
+		public HttpServer (HttpBackend backend)
 		{
-			this.listenAddress = listenAddress;
-			this.flags = flags;
-			this.sslStreamProvider = sslStreamProvider;
-			this.parameters = parameters;
-
-			if (parameters != null)
-				flags |= ListenerFlags.SSL;
-
-			if ((flags & ListenerFlags.SSL) != 0) {
-				if (this.sslStreamProvider == null) {
-					var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-					this.sslStreamProvider = factory.DefaultSslStreamProvider;
-				}
-			}
-
-			uri = new Uri (string.Format ("http{0}://{1}:{2}/", UseSSL ? "s" : "", clientEndPoint.Address, clientEndPoint.Port));
+			Backend = backend;
 		}
 
-		public HttpServer (Uri uri, IPortableEndPoint listenAddress, ListenerFlags flags, ConnectionParameters parameters, ISslStreamProvider sslStreamProvider = null)
-		{
-			this.uri = uri;
-			this.listenAddress = listenAddress;
-			this.flags = flags | ListenerFlags.SSL;
-			this.sslStreamProvider = sslStreamProvider;
-			this.parameters = parameters;
-
-			if (this.sslStreamProvider == null) {
-				var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-				this.sslStreamProvider = factory.DefaultSslStreamProvider;
-			}
-		}
-
-		protected Listener Listener {
-			get { return listener; }
-		}
-
-		public IPortableEndPoint ListenAddress {
-			get { return listenAddress; }
-		}
-
-		public bool UseSSL {
-			get { return sslStreamProvider != null; }
+		public virtual Uri Uri {
+			get { return Backend.Uri; }
 		}
 
 		public bool ReuseConnection {
-			get { return (flags & ListenerFlags.ReuseConnection) != 0; }
-		}
-
-		public ListenerFlags Flags {
-			get { return flags; }
-		}
-
-		public ConnectionParameters Parameters {
-			get { return parameters; }
+			get { return (Backend.Flags & ListenerFlags.ReuseConnection) != 0; }
 		}
 
 		public virtual IWebProxy GetProxy ()
@@ -137,13 +87,13 @@ namespace Xamarin.WebTests.HttpFramework
 				await Start (ctx, cancellationToken);
 		}
 
-		public virtual async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		public async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (!ReuseConnection)
 				await Start (ctx, cancellationToken);
 		}
 
-		public virtual async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		public async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (!ReuseConnection)
 				await Stop (ctx, cancellationToken);
@@ -162,24 +112,14 @@ namespace Xamarin.WebTests.HttpFramework
 
 		#endregion
 
-		public virtual Task Start (TestContext ctx, CancellationToken cancellationToken)
+		public Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			listener = new HttpListener (this);
-			if (Interlocked.CompareExchange<TestContext> (ref currentCtx, ctx, null) != null)
-				throw new InternalErrorException ();
-			return listener.Start ();
+			return Backend.Start (ctx, this, cancellationToken);
 		}
 
-		public virtual async Task Stop (TestContext ctx, CancellationToken cancellationToken)
+		public Task Stop (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (Interlocked.CompareExchange<TestContext> (ref currentCtx, null, ctx) != ctx)
-				throw new InternalErrorException ();
-			try {
-				await listener.Stop ().ConfigureAwait (false);
-			} catch {
-				if ((Flags & ListenerFlags.ExpectException) == 0)
-					throw;
-			}
+			return Backend.Stop (ctx, this, cancellationToken);
 		}
 
 		public int CountRequests {
@@ -190,7 +130,7 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
 			handlers.Add (path, handler);
-			return new Uri (uri, path);
+			return new Uri (Uri, path);
 		}
 
 		public void RegisterHandler (string path, Handler handler)
@@ -198,26 +138,12 @@ namespace Xamarin.WebTests.HttpFramework
 			handlers.Add (path, handler);
 		}
 
-		public HttpConnection CreateConnection (Stream stream)
+		public virtual HttpConnection CreateConnection (TestContext ctx, Stream stream)
 		{
-			return CreateConnection (currentCtx, stream);
+			return Backend.CreateConnection (ctx, this, stream);
 		}
 
-		public bool HandleConnection (HttpConnection connection)
-		{
-			return HandleConnection (currentCtx, connection);
-		}
-
-		protected virtual HttpConnection CreateConnection (TestContext ctx, Stream stream)
-		{
-			if (sslStreamProvider == null)
-				return new HttpConnection (ctx, this, stream);
-
-			var sslStream = sslStreamProvider.CreateServerStream (stream, parameters);
-			return new HttpConnection (ctx, this, sslStream.AuthenticatedStream, sslStream);
-		}
-
-		protected virtual bool HandleConnection (TestContext ctx, HttpConnection connection)
+		public virtual bool HandleConnection (TestContext ctx, HttpConnection connection)
 		{
 			++countRequests;
 			var request = connection.ReadRequest ();
@@ -250,7 +176,7 @@ namespace Xamarin.WebTests.HttpFramework
 			var sb = new StringBuilder ();
 			if (ReuseConnection)
 				sb.Append ("shared");
-			if (UseSSL) {
+			if (Backend.UseSSL) {
 				if (sb.Length > 0)
 					sb.Append (",");
 				sb.Append ("ssl");

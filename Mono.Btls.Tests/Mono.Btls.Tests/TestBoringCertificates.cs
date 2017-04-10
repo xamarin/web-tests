@@ -36,7 +36,6 @@ using Mono.Btls.Interface;
 
 namespace Mono.Btls.Tests
 {
-	[Work]
 	[AsyncTestFixture]
 	public class TestBoringCertificates
 	{

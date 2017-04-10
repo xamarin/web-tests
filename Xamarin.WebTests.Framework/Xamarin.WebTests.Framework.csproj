@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -132,8 +132,8 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ManualConnectionProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\StreamInstrumentation.cs" />
     <Compile Include="ReferenceSource\SimpleAsyncResult.cs" />
-    <Compile Include="Xamarin.WebTests.Server\Listener.cs" />
-    <Compile Include="Xamarin.WebTests.Server\HttpListener.cs" />
+    <Compile Include="Xamarin.WebTests.Server\BuiltinListener.cs" />
+    <Compile Include="Xamarin.WebTests.Server\BuiltinHttpListener.cs" />
     <Compile Include="Xamarin.WebTests.Server\ProxyListener.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateSelector.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateValidator.cs" />
@@ -175,6 +175,10 @@
     <Compile Include="Xamarin.WebTests.TestFramework\NewAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\CertificateStoreAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionFrameworkSetup.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\Listener.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\HttpBackend.cs" />
+    <Compile Include="Xamarin.WebTests.Server\BuiltinHttpBackend.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ProxyBackend.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

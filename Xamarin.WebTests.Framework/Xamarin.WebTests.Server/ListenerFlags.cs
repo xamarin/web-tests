@@ -36,7 +36,7 @@ namespace Xamarin.WebTests.Server
 		SSL				= 4,
 		ExpectException			= 8,
 		ForceTls12			= 16,
-		ExternalServer			= 32
+		ExternalServer			= 32,
+		HttpListener			= 64
 	}
 }
-

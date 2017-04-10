@@ -1,5 +1,5 @@
 ﻿//
-// Listener.cs
+// BuiltinHttpListener.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -42,26 +42,38 @@ namespace Xamarin.WebTests.Server
 	using HttpHandlers;
 	using HttpFramework;
 
-	public class HttpListener : Listener
+	class BuiltinHttpListener : BuiltinListener
 	{
-		readonly HttpServer server;
+		public BuiltinHttpBackend Backend {
+			get;
+		}
+		public HttpServer Server {
+			get;
+		}
 
-		public HttpListener (HttpServer server)
-			: base (server.ListenAddress, server.Flags)
+		internal TestContext Context {
+			get;
+		}
+
+		public BuiltinHttpListener (TestContext ctx, BuiltinHttpBackend backend, HttpServer server)
+			: base (backend.ListenAddress, backend.Flags)
 		{
-			this.server = server;
+			Context = ctx;
+
+			Backend = backend;
+			Server = server;
 		}
 
 		protected override Connection CreateConnection (Socket socket)
 		{
 			var stream = new NetworkStream (socket);
-			return server.CreateConnection (stream);
+			return Server.CreateConnection (Context, stream);
 		}
 
 		protected override bool HandleConnection (Socket socket, Connection connection, CancellationToken cancellationToken)
 		{
 			var httpConnection = (HttpConnection)connection;
-			return server.HandleConnection (httpConnection);
+			return Server.HandleConnection (Context, httpConnection);
 		}
 	}
 }

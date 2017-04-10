@@ -40,17 +40,29 @@ namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
 
-	public class ProxyListener : Listener
+	class ProxyListener : BuiltinListener
 	{
-		readonly HttpListener target;
 		ProxyAuthManager authManager;
 
-		public ProxyListener (HttpListener target, IPortableEndPoint endpoint, AuthenticationType authType)
-			: base (endpoint, ListenerFlags.Proxy)
+		public ProxyServer Server {
+			get;
+		}
+		public ProxyBackend Backend {
+			get;
+		}
+		internal TestContext Context {
+			get;
+		}
+
+		public ProxyListener (TestContext ctx, ProxyBackend backend, ProxyServer server)
+			: base (backend.ProxyEndPoint, backend.Flags)
 		{
-			this.target = target;
-			if (authType != AuthenticationType.None)
-				authManager = new ProxyAuthManager (authType);
+			Context = ctx;
+			Backend = backend;
+			Server = server;
+
+			if (Server.AuthenticationType != AuthenticationType.None)
+				authManager = new ProxyAuthManager (Server.AuthenticationType);
 		}
 
 		protected override Connection CreateConnection (Socket socket)
@@ -87,7 +99,7 @@ namespace Xamarin.WebTests.Server
 			}
 
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			targetSocket.Connect (target.Uri.Host, target.Uri.Port);
+			targetSocket.Connect (Backend.Target.Uri.Host, Backend.Target.Uri.Port);
 
 			using (var targetStream = new NetworkStream (targetSocket)) {
 				var targetConnection = new ProxyConnection (connection, targetStream);

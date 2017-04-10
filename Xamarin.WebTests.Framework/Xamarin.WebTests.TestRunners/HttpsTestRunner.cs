@@ -55,26 +55,22 @@ namespace Xamarin.WebTests.TestRunners
 	{
 		public ConnectionTestProvider Provider {
 			get;
-			private set;
 		}
 
 		protected Uri Uri {
 			get;
-			private set;
 		}
 
 		protected ListenerFlags ListenerFlags {
 			get;
-			private set;
 		}
 
 		protected bool ExternalServer {
 			get { return (ListenerFlags & ListenerFlags.ExternalServer) != 0; }
 		}
 
-		public ISslStreamProvider SslStreamProvider {
+		public HttpBackend HttpBackend {
 			get;
-			private set;
 		}
 
 		new public HttpsTestParameters Parameters {
@@ -84,12 +80,14 @@ namespace Xamarin.WebTests.TestRunners
 		MyServer server;
 
 		public HttpsTestRunner (IPortableEndPoint endpoint, HttpsTestParameters parameters,
-		                         ConnectionTestProvider provider, Uri uri, ListenerFlags flags)
+		                        ConnectionTestProvider provider, Uri uri, ListenerFlags flags)
 			: base (endpoint, parameters)
 		{
 			Provider = provider;
 			ListenerFlags = flags;
 			Uri = uri;
+
+			HttpBackend = new BuiltinHttpBackend (uri, endpoint, flags, parameters, null);
 		}
 
 		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object[] args)
@@ -548,20 +546,19 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			public HttpsTestRunner Parent {
 				get;
-				private set;
 			}
 
-			new public HttpsTestParameters Parameters {
-				get { return (HttpsTestParameters)base.Parameters; }
+			public HttpsTestParameters Parameters {
+				get { return Parent.Parameters; }
 			}
 
 			public MyServer (HttpsTestRunner parent)
-				: base (parent.Uri, parent.Parameters.ListenAddress, parent.ListenerFlags, parent.Parameters, parent.SslStreamProvider)
+				: base (parent.HttpBackend)
 			{
 				Parent = parent;
 			}
 
-			protected override HttpConnection CreateConnection (TestContext ctx, Stream stream)
+			public override HttpConnection CreateConnection (TestContext ctx, Stream stream)
 			{
 				try {
 					ctx.LogDebug (5, "HttpTestRunner - CreateConnection");
@@ -594,7 +591,7 @@ namespace Xamarin.WebTests.TestRunners
 				}
 			}
 
-			protected override bool HandleConnection (TestContext ctx, HttpConnection connection)
+			public override bool HandleConnection (TestContext ctx, HttpConnection connection)
 			{
 				ctx.Expect (connection.SslStream.IsAuthenticated, "server is authenticated");
 				if (Parameters.RequireClientCertificate)
