@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.HttpFramework
 {
 	[Flags]
 	public enum ListenerFlags
