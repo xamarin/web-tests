@@ -62,7 +62,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public HttpConnection (TestContext ctx, HttpServer server, Stream stream, ISslStream sslStream)
 		{
-			Context = Context;
+			Context = ctx;
 			Server = server;
 			Stream = stream;
 			SslStream = sslStream;
