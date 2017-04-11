@@ -54,10 +54,6 @@ namespace Xamarin.WebTests.HttpFramework
 			Target = backend.Target;
 		}
 
-		public override Uri Uri {
-			get { return Target.Uri; }
-		}
-
 		protected override string MyToString ()
 		{
 			return string.Format ("SSL={0}, AuthenticationType={1}", Target.UseSSL, Backend.AuthenticationType);

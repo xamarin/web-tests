@@ -94,6 +94,8 @@ namespace Xamarin.WebTests.HttpFramework {
 			get;
 		}
 
+		public override Uri TargetUri => Uri;
+
 		public override IWebProxy GetProxy ()
 		{
 			return null;

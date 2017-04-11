@@ -62,6 +62,8 @@ namespace Xamarin.WebTests.HttpFramework {
 			get;
 		}
 
+		public override Uri TargetUri => Target.Uri;
+
 		public ICredentials Credentials {
 			get; set;
 		}

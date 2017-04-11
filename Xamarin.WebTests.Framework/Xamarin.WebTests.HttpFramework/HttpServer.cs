@@ -60,10 +60,6 @@ namespace Xamarin.WebTests.HttpFramework
 			Backend = backend;
 		}
 
-		public virtual Uri Uri {
-			get { return Backend.Uri; }
-		}
-
 		public bool ReuseConnection {
 			get { return (Backend.Flags & ListenerFlags.ReuseConnection) != 0; }
 		}
@@ -125,7 +121,7 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
 			handlers.Add (path, handler);
-			return new Uri (Uri, path);
+			return new Uri (Backend.TargetUri, path);
 		}
 
 		public void RegisterHandler (string path, Handler handler)

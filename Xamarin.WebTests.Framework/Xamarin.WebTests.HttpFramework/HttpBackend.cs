@@ -49,6 +49,10 @@ namespace Xamarin.WebTests.HttpFramework {
 			get;
 		}
 
+		public abstract Uri TargetUri {
+			get;
+		}
+
 		public abstract IWebProxy GetProxy ();
 
 		public abstract Task Start (TestContext ctx, HttpServer server, CancellationToken cancellationToken);
