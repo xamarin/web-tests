@@ -360,6 +360,9 @@ namespace Xamarin.AsyncTests.Console
 			if (LocalLogLevel != null)
 				settings.LocalLogLevel = LocalLogLevel.Value;
 
+			if (!DebugMode)
+				settings.DisableTimeouts = settings.LogLevel > SettingsBag.DisableTimeoutsAtLogLevel;
+
 			logger = new TestLogger (new ConsoleLogger (this));
 
 			if (Launcher != null) {
