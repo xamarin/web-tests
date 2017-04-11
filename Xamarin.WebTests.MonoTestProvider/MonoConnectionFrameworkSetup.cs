@@ -117,20 +117,5 @@ namespace Xamarin.WebTests.MonoTestProvider
 		{
 			return TlsProvider;
 		}
-
-		public HttpWebRequest CreateHttpsRequest (Uri requestUri, MonoTlsProvider provider, MonoTlsSettings settings)
-		{
-			return MonoTlsProviderFactory.CreateHttpsRequest (requestUri, provider, settings);
-		}
-
-		public HttpListener CreateHttpListener (X509Certificate certificate, MonoTlsProvider provider, MonoTlsSettings settings)
-		{
-			return MonoTlsProviderFactory.CreateHttpListener (certificate, provider, settings);
-		}
-
-		public ICertificateValidator GetCertificateValidator (MonoTlsSettings settings)
-		{
-			return CertificateValidationHelper.GetValidator (settings);
-		}
 	}
 }
