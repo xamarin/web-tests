@@ -63,7 +63,7 @@ namespace Xamarin.WebTests.Tests
 
 	[WebTestFeatures.Proxy]
 	[AsyncTestFixture (Timeout = 30000)]
-	public class TestProxy : ITestHost<ProxyServer>
+	public class TestProxy : ITestHost<HttpServer>
 	{
 		readonly static IPortableEndPoint address;
 		readonly static X509Certificate serverCertificate;
@@ -120,12 +120,12 @@ namespace Xamarin.WebTests.Tests
 			}
 		}
 
-		public ProxyServer CreateInstance (TestContext ctx)
+		public HttpServer CreateInstance (TestContext ctx)
 		{
 			if (!hasNetwork)
 				throw new InvalidOperationException ();
 
-			return new ProxyServer (CreateBackend (ctx));
+			return new HttpServer (CreateBackend (ctx));
 		}
 
 		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
@@ -143,7 +143,7 @@ namespace Xamarin.WebTests.Tests
 		public async Task Run (
 			TestContext ctx,
 			[WebTestFeatures.SelectProxyKind (IncludeSSL = true)] ProxyKind kind,
-			[TestHost] ProxyServer server,
+			[TestHost] HttpServer server,
 			[ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
@@ -164,7 +164,7 @@ namespace Xamarin.WebTests.Tests
 		public Task RunAuthentication (
 			TestContext ctx,
 			[WebTestFeatures.SelectProxyKind (IncludeSSL = true)] ProxyKind kind,
-			[TestHost] ProxyServer server,
+			[TestHost] HttpServer server,
 			[AuthenticationType] AuthenticationType authType,
 			[ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
@@ -183,7 +183,7 @@ namespace Xamarin.WebTests.Tests
 		[WebTestFeatures.UseProxyKindAttribute (ProxyKind.SSL)]
 		public async Task RunSsl (
 			TestContext ctx,
-			[TestHost] ProxyServer server,
+			[TestHost] HttpServer server,
 			[ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{

@@ -79,7 +79,7 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		public override async Task Start (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
-			var listener = new ProxyListener (ctx, this, (ProxyServer)server);
+			var listener = new ProxyListener (ctx, this, server);
 			if (Interlocked.CompareExchange (ref currentListener, listener, null) != null)
 				throw new InternalErrorException ();
 			await Target.Start (ctx, server, cancellationToken).ConfigureAwait (false);

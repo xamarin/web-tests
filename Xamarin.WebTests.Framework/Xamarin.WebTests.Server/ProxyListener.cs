@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.Server
 	{
 		ProxyAuthManager authManager;
 
-		public ProxyServer Server {
+		public HttpServer Server {
 			get;
 		}
 		public ProxyBackend Backend {
@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
-		public ProxyListener (TestContext ctx, ProxyBackend backend, ProxyServer server)
+		public ProxyListener (TestContext ctx, ProxyBackend backend, HttpServer server)
 			: base (backend.ProxyEndPoint, backend.Flags)
 		{
 			Context = ctx;
