@@ -48,7 +48,7 @@ namespace Xamarin.WebTests.TestFramework
 			this.serverFlags = serverFlags;
 		}
 
-		HttpServerFlags GetListenerFlags (TestContext ctx)
+		HttpServerFlags GetServerFlags (TestContext ctx)
 		{
 			HttpServerFlags flags = serverFlags | HttpServerFlags.SSL;
 

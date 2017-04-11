@@ -35,7 +35,7 @@ namespace Xamarin.WebTests.TestFramework
 	using Resources;
 	using Server;
 
-	public class HttpServerAttribute : TestHostAttribute, ITestHost<HttpServer>
+	public sealed class HttpServerAttribute : TestHostAttribute, ITestHost<HttpServer>
 	{
 		HttpServerFlags serverFlags;
 
@@ -45,13 +45,7 @@ namespace Xamarin.WebTests.TestFramework
 			this.serverFlags = serverFlags;
 		}
 
-		protected HttpServerAttribute (Type type, TestFlags flags = TestFlags.Hidden,
-		                               HttpServerFlags serverFlags = HttpServerFlags.None)
-			: base (type, flags)
-		{
-		}
-
-		protected virtual HttpServerFlags GetListenerFlags (TestContext ctx)
+		HttpServerFlags GetServerFlags (TestContext ctx)
 		{
 			HttpServerFlags flags = serverFlags;
 
@@ -62,7 +56,7 @@ namespace Xamarin.WebTests.TestFramework
 			return flags;
 		}
 
-		protected virtual bool GetParameters (TestContext ctx, out ConnectionParameters parameters)
+		bool GetParameters (TestContext ctx, out ConnectionParameters parameters)
 		{
 			bool useSSL;
 			if (((serverFlags & HttpServerFlags.SSL) == 0) && (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL)) {
@@ -75,7 +69,7 @@ namespace Xamarin.WebTests.TestFramework
 			return true;
 		}
 
-		protected static ISslStreamProvider GetSslStreamProvider (TestContext ctx)
+		static ISslStreamProvider GetSslStreamProvider (TestContext ctx)
 		{
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 			ConnectionProviderType providerType;
@@ -86,14 +80,14 @@ namespace Xamarin.WebTests.TestFramework
 			return provider.SupportsSslStreams ? provider.SslStreamProvider : null;
 		}
 
-		public virtual HttpServer CreateInstance (TestContext ctx)
+		public HttpServer CreateInstance (TestContext ctx)
 		{
 			var endpoint = ConnectionTestHelper.GetEndPoint (ctx);
 
 			ConnectionParameters parameters;
 			ISslStreamProvider sslStreamProvider = null;
 
-			var flags = GetListenerFlags (ctx);
+			var flags = GetServerFlags (ctx);
 			if (GetParameters (ctx, out parameters))
 				sslStreamProvider = GetSslStreamProvider (ctx);
 
