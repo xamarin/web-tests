@@ -1,5 +1,5 @@
 ﻿//
-// ProxyBackend.cs
+// BuiltinProxyServer.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -34,15 +34,15 @@ using Xamarin.WebTests.Server;
 using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.HttpFramework {
-	public sealed class ProxyBackend : HttpBackend {
-		public HttpBackend Target {
+	public sealed class BuiltinProxyServer : HttpServer {
+		public HttpServer Target {
 			get;
 		}
 		public IPortableEndPoint ProxyEndPoint {
 			get;
 		}
 
-		public ProxyBackend (HttpBackend target, IPortableEndPoint proxyEndPoint, ListenerFlags flags)
+		public BuiltinProxyServer (HttpServer target, IPortableEndPoint proxyEndPoint, ListenerFlags flags)
 		{
 			Target = target;
 			ProxyEndPoint = proxyEndPoint;

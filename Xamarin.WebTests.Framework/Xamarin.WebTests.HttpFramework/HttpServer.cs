@@ -1,10 +1,10 @@
 ﻿//
-// ServerInstance.cs
+// HttpServer.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,93 +24,135 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
-
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Framework;
+using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.HttpHandlers;
+using Xamarin.WebTests.Server;
 
-namespace Xamarin.WebTests.HttpFramework
-{
-	using ConnectionFramework;
-	using HttpHandlers;
-	using Server;
-
-	[FriendlyName ("[HttpServer]")]
-	public class HttpServer : ITestInstance
-	{
-		public HttpBackend Backend {
+namespace Xamarin.WebTests.HttpFramework {
+	[FriendlyName ("HttpServer")]
+	public abstract class HttpServer : ITestInstance {
+		public abstract ListenerFlags Flags {
 			get;
 		}
 
-		public HttpServer (HttpBackend backend)
-		{
-			Backend = backend;
+		public abstract bool UseSSL {
+			get;
 		}
 
+		public abstract Uri Uri {
+			get;
+		}
+
+		public abstract Uri TargetUri {
+			get;
+		}
+
+		public IHttpServerDelegate Delegate {
+			get; set;
+		}
+
+		public abstract IWebProxy GetProxy ();
+
 		public bool ReuseConnection {
-			get { return (Backend.Flags & ListenerFlags.ReuseConnection) != 0; }
+			get { return (Flags & ListenerFlags.ReuseConnection) != 0; }
 		}
 
 		#region ITestInstance implementation
 
-		public Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		int initialized;
+
+		public async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Backend.Initialize (ctx, cancellationToken);
+			if (Interlocked.CompareExchange (ref initialized, 1, 0) != 0)
+				throw new InternalErrorException ();
+
+			if (ReuseConnection)
+				await Start (ctx, cancellationToken);
 		}
 
-		public Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		public async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Backend.PreRun (ctx, cancellationToken);
+			if (!ReuseConnection)
+				await Start (ctx, cancellationToken);
 		}
 
-		public Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		public async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Backend.PostRun (ctx, cancellationToken);
+			if (!ReuseConnection)
+				await Stop (ctx, cancellationToken);
 		}
 
-		public Task Destroy (TestContext ctx, CancellationToken cancellationToken)
+		public async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Backend.Destroy (ctx, cancellationToken);
+			if (ReuseConnection)
+				await Stop (ctx, cancellationToken);
+
+			Interlocked.Exchange (ref initialized, 0);
 		}
+
+		public abstract Task Start (TestContext ctx, CancellationToken cancellationToken);
+
+		public abstract Task Stop (TestContext ctx, CancellationToken cancellationToken);
 
 		#endregion
 
-		public Task Start (TestContext ctx, CancellationToken cancellationToken)
+		public HttpConnection CreateConnection (TestContext ctx, Stream stream)
 		{
-			return Backend.Start (ctx, cancellationToken);
-		}
-
-		public Task Stop (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Backend.Stop (ctx, cancellationToken);
-		}
-
-		protected void Debug (TestContext ctx, int level, Handler handler, string message, params object[] args)
-		{
-			var sb = new StringBuilder ();
-			sb.AppendFormat ("{0}:{1}: {2}", this, handler, message);
-			for (int i = 0; i < args.Length; i++) {
-				sb.Append (" ");
-				sb.Append (args [i] != null ? args [i].ToString () : "<null>");
+			++countRequests;
+			try {
+				var connection = DoCreateConnection (ctx, stream);
+				if (Delegate != null && !Delegate.CheckCreateConnection (ctx, connection, null))
+					return null;
+				return connection;
+			} catch (Exception error) {
+				if (Delegate == null)
+					throw;
+				Delegate.CheckCreateConnection (ctx, null, error);
+				return null;
 			}
+		}
 
-			ctx.LogDebug (level, sb.ToString ());
+		protected abstract HttpConnection DoCreateConnection (TestContext ctx, Stream stream);
+
+		public int CountRequests => countRequests;
+
+		static long nextId;
+		int countRequests;
+
+		public Uri RegisterHandler (Handler handler)
+		{
+			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
+			RegisterHandler (path, handler);
+			return new Uri (TargetUri, path);
+		}
+
+		public abstract void RegisterHandler (string path, Handler handler);
+
+		protected internal abstract Handler GetHandler (string path);
+
+		public bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request)
+		{
+			var handler = GetHandler (request.Path);
+			if (Delegate != null && !Delegate.HandleConnection (ctx, connection, request, handler))
+				return false;
+
+			return handler.HandleRequest (connection, request);
 		}
 
 		protected virtual string MyToString ()
 		{
 			var sb = new StringBuilder ();
-			if (ReuseConnection)
+			if ((Flags & ListenerFlags.ReuseConnection) != 0)
 				sb.Append ("shared");
-			if (Backend.UseSSL) {
+			if (UseSSL) {
 				if (sb.Length > 0)
 					sb.Append (",");
 				sb.Append ("ssl");
@@ -126,4 +168,3 @@ namespace Xamarin.WebTests.HttpFramework
 		}
 	}
 }
-

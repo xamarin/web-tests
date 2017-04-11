@@ -80,20 +80,20 @@ namespace Xamarin.WebTests.Tests
 			serverParameters = new ConnectionParameters ("proxy", serverCertificate);
 		}
 
-		ProxyBackend CreateBackend (int port, int proxyPort, ConnectionParameters parameters = null,
+		BuiltinProxyServer CreateBackend (int port, int proxyPort, ConnectionParameters parameters = null,
 		                            AuthenticationType authType = AuthenticationType.None,
 		                            ICredentials credentials = null)
 		{
 			var endpoint = address.CopyWithPort (port);
 			var proxyEndpoint = address.CopyWithPort (proxyPort);
-			var target = new BuiltinHttpBackend (endpoint, endpoint, ListenerFlags.None, parameters, null);
-			return new ProxyBackend (target, proxyEndpoint, ListenerFlags.Proxy) {
+			var target = new BuiltinHttpServer (endpoint, endpoint, ListenerFlags.None, parameters, null);
+			return new BuiltinProxyServer (target, proxyEndpoint, ListenerFlags.Proxy) {
 				AuthenticationType = authType,
 				Credentials = credentials
 			};
 		}
 
-		ProxyBackend CreateBackend (TestContext ctx)
+		BuiltinProxyServer CreateBackend (TestContext ctx)
 		{
 			var kind = ctx.GetParameter<ProxyKind> ();
 
@@ -125,7 +125,7 @@ namespace Xamarin.WebTests.Tests
 			if (!hasNetwork)
 				throw new InvalidOperationException ();
 
-			return new HttpServer (CreateBackend (ctx));
+			return CreateBackend (ctx);
 		}
 
 		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
@@ -147,7 +147,7 @@ namespace Xamarin.WebTests.Tests
 			[ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
-			var oldCount = server.Backend.CountRequests;
+			var oldCount = server.CountRequests;
 			if (kind == ProxyKind.Unauthenticated) {
 				await TestRunner.RunTraditional (
 					ctx, server, handler, cancellationToken, false,
@@ -155,7 +155,7 @@ namespace Xamarin.WebTests.Tests
 			} else {
 				await TestRunner.RunTraditional (
 					ctx, server, handler, cancellationToken, false).ConfigureAwait (false);
-				var newCount = server.Backend.CountRequests;
+				var newCount = server.CountRequests;
 				ctx.Assert (newCount, Is.GreaterThan (oldCount), "used proxy");
 			}
 		}
@@ -187,9 +187,9 @@ namespace Xamarin.WebTests.Tests
 			[ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
-			var oldCount = server.Backend.CountRequests;
+			var oldCount = server.CountRequests;
 			await TestRunner.RunTraditional (ctx, server, handler, cancellationToken, false);
-			var newCount = server.Backend.CountRequests;
+			var newCount = server.CountRequests;
 			ctx.Assert (newCount, Is.GreaterThan (oldCount), "used proxy");
 		}
 
@@ -200,7 +200,7 @@ namespace Xamarin.WebTests.Tests
 			var url = string.Format ("https://{0}:8888/", address.Address);
 			var request = (HttpWebRequest)WebRequest.Create (url);
 			var requestExt = DependencyInjector.GetExtension<HttpWebRequest,IHttpWebRequestExtension> (request);
-			requestExt.SetProxy (ProxyBackend.CreateSimpleProxy (new Uri (url)));
+			requestExt.SetProxy (BuiltinProxyServer.CreateSimpleProxy (new Uri (url)));
 		}
 	}
 }

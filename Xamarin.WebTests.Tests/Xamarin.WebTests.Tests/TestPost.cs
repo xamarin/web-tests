@@ -198,7 +198,7 @@ namespace Xamarin.WebTests.Tests
 			};
 			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
 
-			var uri = redirect.RegisterRequest (server.Backend);
+			var uri = redirect.RegisterRequest (server);
 			using (var wc = new WebClient ()) {
 				var res = await wc.UploadStringTaskAsync (uri, post.Content.AsString ());
 				ctx.LogDebug (2, "Test18750: {0}", res);
@@ -243,7 +243,7 @@ namespace Xamarin.WebTests.Tests
 
 			var handler = CreateAuthMaybeNone (post, authType);
 
-			var uri = handler.RegisterRequest (server.Backend);
+			var uri = handler.RegisterRequest (server);
 			using (var client = new WebClient ()) {
 				ConfigureWebClient (client, handler, cancellationToken);
 
@@ -273,7 +273,7 @@ namespace Xamarin.WebTests.Tests
 
 			var handler = CreateAuthMaybeNone (post, authType);
 
-			var uri = handler.RegisterRequest (server.Backend);
+			var uri = handler.RegisterRequest (server);
 
 			using (var client = new WebClient ()) {
 				ConfigureWebClient (client, handler, cancellationToken);

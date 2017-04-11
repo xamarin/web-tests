@@ -64,7 +64,6 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpMessage.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpRequest.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpResponse.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\HttpServer.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\RandomContent.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\RequestFlags.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\StringContent.cs" />
@@ -170,14 +169,14 @@
     <Compile Include="Xamarin.WebTests.TestFramework\NewAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\CertificateStoreAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionFrameworkSetup.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\HttpBackend.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\HttpServer.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\ListenerFlags.cs" />
     <Compile Include="Xamarin.WebTests.Server\Listener.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\BuiltinHttpBackend.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\ProxyBackend.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\BuiltinHttpServer.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\BuiltinProxyServer.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\AuthenticationType.cs" />
     <Compile Include="Xamarin.WebTests.Server\StreamConnection.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\IHttpBackendDelegate.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\IHttpServerDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

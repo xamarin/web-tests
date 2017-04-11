@@ -1,4 +1,4 @@
-﻿//
+//
 // AuthenticatedPostHandler.cs
 //
 // Author:
@@ -78,7 +78,7 @@ namespace Xamarin.WebTests.HttpHandlers
 				if (omitBody)
 					handler.Flags |= RequestFlags.NoBody;
 				handler.Flags |= RequestFlags.Redirected;
-				connection.Backend.RegisterHandler (request.Path, handler);
+				connection.Server.RegisterHandler (request.Path, handler);
 
 				var response = new HttpResponse (HttpStatusCode.Unauthorized);
 				response.AddHeader ("WWW-Authenticate", token);

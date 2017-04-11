@@ -65,8 +65,7 @@ namespace Xamarin.WebTests.Tests
 		{
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			var endpoint = support.GetLoopbackEndpoint (9999);
-			var backend = new BuiltinHttpBackend (endpoint, endpoint, ListenerFlags.ReuseConnection, null, null);
-			return new HttpServer (backend);
+			return new BuiltinHttpServer (endpoint, endpoint, ListenerFlags.ReuseConnection, null, null);
 		}
 
 		static HttpContent CreateRandomContent (TestContext ctx)

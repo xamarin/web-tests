@@ -1,5 +1,5 @@
 ﻿//
-// IHttpBackendDelegate.cs
+// IHttpServerDelegate.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -28,7 +28,7 @@ using Xamarin.AsyncTests;
 using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.HttpFramework {
-	public interface IHttpBackendDelegate {
+	public interface IHttpServerDelegate {
 		bool CheckCreateConnection (TestContext ctx, HttpConnection connection, Exception error);
 
 		bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler);

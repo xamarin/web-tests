@@ -51,7 +51,7 @@ namespace Xamarin.WebTests.TestRunners
 
 	[HttpsTestRunner]
 	[FriendlyName ("[HttpsTestRunner]")]
-	public class HttpsTestRunner : AbstractConnection, IHttpBackendDelegate
+	public class HttpsTestRunner : AbstractConnection, IHttpServerDelegate
 	{
 		public ConnectionTestProvider Provider {
 			get;
@@ -69,15 +69,13 @@ namespace Xamarin.WebTests.TestRunners
 			get { return (ListenerFlags & ListenerFlags.ExternalServer) != 0; }
 		}
 
-		public HttpBackend HttpBackend {
+		public HttpServer Server {
 			get;
 		}
 
 		new public HttpsTestParameters Parameters {
 			get { return (HttpsTestParameters)base.Parameters; }
 		}
-
-		HttpServer server;
 
 		public HttpsTestRunner (IPortableEndPoint endpoint, HttpsTestParameters parameters,
 		                        ConnectionTestProvider provider, Uri uri, ListenerFlags flags)
@@ -87,7 +85,7 @@ namespace Xamarin.WebTests.TestRunners
 			ListenerFlags = flags;
 			Uri = uri;
 
-			HttpBackend = new BuiltinHttpBackend (uri, endpoint, flags, parameters, null) {
+			Server = new BuiltinHttpServer (uri, endpoint, flags, parameters, null) {
 				Delegate = this
 			};
 		}
@@ -353,7 +351,7 @@ namespace Xamarin.WebTests.TestRunners
 		public Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var handler = CreateHandler (ctx);
-			var impl = new MyRunner (this, server, handler);
+			var impl = new MyRunner (this, Server, handler);
 
 			HttpStatusCode expectedStatus;
 			WebExceptionStatus expectedException;
@@ -461,10 +459,8 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (!ExternalServer) {
-				server = new HttpServer (HttpBackend);
-				await server.Initialize (ctx, cancellationToken);
-			}
+			if (!ExternalServer)
+				await Server.Initialize (ctx, cancellationToken);
 		}
 
 		protected override async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
@@ -482,13 +478,13 @@ namespace Xamarin.WebTests.TestRunners
 				SetGlobalValidationCallback (ctx, GlobalValidator);
 
 			if (!ExternalServer)
-				await server.PreRun (ctx, cancellationToken);
+				await Server.PreRun (ctx, cancellationToken);
 		}
 
 		protected override async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (!ExternalServer)
-				await server.PostRun (ctx, cancellationToken).ConfigureAwait (false);
+				await Server.PostRun (ctx, cancellationToken).ConfigureAwait (false);
 
 			if (restoreGlobalCallback)
 				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
@@ -499,13 +495,8 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (!ExternalServer) {
-				try {
-					await server.Destroy (ctx, cancellationToken);
-				} finally {
-					server = null;
-				}
-			}
+			if (!ExternalServer)
+				await Server.Destroy (ctx, cancellationToken);
 		}
 
 		protected override void Stop ()
@@ -544,7 +535,7 @@ namespace Xamarin.WebTests.TestRunners
 			return response;
 		}
 
-		bool IHttpBackendDelegate.CheckCreateConnection (TestContext ctx, HttpConnection connection, Exception error)
+		bool IHttpServerDelegate.CheckCreateConnection (TestContext ctx, HttpConnection connection, Exception error)
 		{
 			if (error != null) {
 				if (Parameters.ClientAbortsHandshake) {
@@ -574,7 +565,7 @@ namespace Xamarin.WebTests.TestRunners
 			return true;
 		}
 
-		bool IHttpBackendDelegate.HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler)
+		bool IHttpServerDelegate.HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler)
 		{
 			var streamConnection = (StreamConnection)connection;
 			if (!ctx.Expect (streamConnection.SslStream.IsAuthenticated, "server is authenticated"))

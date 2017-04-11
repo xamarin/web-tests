@@ -1,5 +1,5 @@
 ﻿//
-// BuiltinHttpBackend.cs
+// BuiltinHttpServer.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -36,7 +36,7 @@ using Xamarin.WebTests.Server;
 using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.HttpFramework {
-	public class BuiltinHttpBackend : HttpBackend {
+	public class BuiltinHttpServer : HttpServer {
 		public IPortableEndPoint ListenAddress {
 			get;
 		}
@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			get;
 		}
 
-		public BuiltinHttpBackend (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, ListenerFlags flags,
+		public BuiltinHttpServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, ListenerFlags flags,
 		                           ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
 		{
 			ListenAddress = listenAddress;
@@ -65,7 +65,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			Uri = new Uri (string.Format ("http{0}://{1}:{2}/", SslStreamProvider != null ? "s" : "", clientEndPoint.Address, clientEndPoint.Port));
 		}
 
-		public BuiltinHttpBackend (Uri uri, IPortableEndPoint listenAddress, ListenerFlags flags,
+		public BuiltinHttpServer (Uri uri, IPortableEndPoint listenAddress, ListenerFlags flags,
 		                           ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
 		{
 			Uri = uri;

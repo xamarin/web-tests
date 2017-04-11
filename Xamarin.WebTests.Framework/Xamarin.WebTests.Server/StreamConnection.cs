@@ -44,8 +44,8 @@ namespace Xamarin.WebTests.Server {
 		StreamReader reader;
 		StreamWriter writer;
 
-		public StreamConnection (TestContext ctx, HttpBackend backend, Stream stream, ISslStream sslStream)
-			: base (ctx, backend)
+		public StreamConnection (TestContext ctx, HttpServer server, Stream stream, ISslStream sslStream)
+			: base (ctx, server)
 		{
 			Stream = stream;
 			SslStream = sslStream;
@@ -84,14 +84,14 @@ namespace Xamarin.WebTests.Server {
 
 		public override void CheckEncryption (TestContext ctx)
 		{
-			if ((Backend.Flags & (ListenerFlags.SSL | ListenerFlags.ForceTls12)) == 0)
+			if ((Server.Flags & (ListenerFlags.SSL | ListenerFlags.ForceTls12)) == 0)
 				return;
 
 			ctx.Assert (SslStream, Is.Not.Null, "Needs SslStream");
 			ctx.Assert (SslStream.IsAuthenticated, "Must be authenticated");
 
 			var setup = DependencyInjector.Get <IConnectionFrameworkSetup> ();
-			if (((Backend.Flags & ListenerFlags.ForceTls12) != 0) || setup.SupportsTls12)
+			if (((Server.Flags & ListenerFlags.ForceTls12) != 0) || setup.SupportsTls12)
 				ctx.Assert (SslStream.ProtocolVersion, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
 		}
 	}

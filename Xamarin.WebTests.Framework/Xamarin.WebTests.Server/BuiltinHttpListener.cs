@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.Server
 
 	class BuiltinHttpListener : BuiltinListener
 	{
-		public BuiltinHttpBackend Backend {
+		public BuiltinHttpServer Server {
 			get;
 		}
 
@@ -52,24 +52,24 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
-		public BuiltinHttpListener (TestContext ctx, BuiltinHttpBackend backend)
-			: base (backend.ListenAddress, backend.Flags)
+		public BuiltinHttpListener (TestContext ctx, BuiltinHttpServer server)
+			: base (server.ListenAddress, server.Flags)
 		{
 			Context = ctx;
 
-			Backend = backend;
+			Server = server;
 		}
 
 		protected override HttpConnection CreateConnection (Socket socket)
 		{
 			var stream = new NetworkStream (socket);
-			return Backend.CreateConnection (Context, stream);
+			return Server.CreateConnection (Context, stream);
 		}
 
 		protected override bool HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			var request = connection.ReadRequest ();
-			return Backend.HandleConnection (Context, connection, request);
+			return Server.HandleConnection (Context, connection, request);
 		}
 	}
 }
