@@ -96,6 +96,9 @@ namespace Xamarin.AsyncTests.Mobile
 		void ParseSessionMode (string options)
 		{
 			if (string.IsNullOrEmpty (options)) {
+				Settings.LogLevel = 0;
+				Settings.LocalLogLevel = 0;
+				Settings.DisableTimeouts = false;
 				SessionMode = MobileSessionMode.Local;
 				return;
 			}
@@ -116,6 +119,8 @@ namespace Xamarin.AsyncTests.Mobile
 				Settings.LogLevel = -1;
 				Settings.LocalLogLevel = -1;
 				Settings.DisableTimeouts = true;
+			} else {
+				Settings.DisableTimeouts = false;
 			}
 
 			if (logLevel != null)

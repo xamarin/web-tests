@@ -68,6 +68,8 @@ namespace Xamarin.AsyncTests.MacUI
 			if (!SettingsBag.TryGetValue ("ServerMode", out currentMode))
 				currentMode = MacUI.AppDelegate.HasBuiltinFramework ? "Builtin" : "WaitForConnection";
 
+			SettingsBag.DisableTimeouts = SettingsBag.LogLevel > SettingsBag.DisableTimeoutsAtLogLevel;
+
 			for (nuint i = 0; i < serverModeArray.Count; i++) {
 				var model = serverModeArray.GetItem<ServerModeModel> (i);
 				if (currentServerMode == null || model.Mode.ToString ().Equals (currentMode))
@@ -209,6 +211,7 @@ namespace Xamarin.AsyncTests.MacUI
 			set {
 				WillChangeValue ("LogLevel");
 				SettingsBag.LogLevel = value;
+				SettingsBag.DisableTimeouts = value > SettingsBag.DisableTimeoutsAtLogLevel;
 				DidChangeValue ("LogLevel");
 			}
 		}

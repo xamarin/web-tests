@@ -35,6 +35,8 @@ namespace Xamarin.AsyncTests
 {
 	public abstract class SettingsBag : INotifyPropertyChanged
 	{
+		public const int DisableTimeoutsAtLogLevel = 5;
+
 		public bool Repeat {
 			get {
 				string value;
@@ -118,6 +120,8 @@ namespace Xamarin.AsyncTests
 				string value;
 				if (TryGetValue ("DisableTimeouts", out value))
 					return bool.Parse (value);
+				if (LogLevel > DisableTimeoutsAtLogLevel)
+					return true;
 				return Debugger.IsAttached;
 			}
 			set {
