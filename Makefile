@@ -2,27 +2,13 @@ TOP = .
 include $(TOP)/Make.config
 
 ALL_BUILD_TARGETS = \
-	Wrench-IOS-Sim-Build-Debug Wrench-IOS-Sim-Build-DebugAppleTls \
-	Wrench-Console-Build-Debug Wrench-DotNet-Build-Debug \
-	Wrench-Mac-Build-Debug Wrench-Mac-Build-DebugAppleTls \
-	Wrench-TVOS-Sim-Build-Debug Wrench-TVOS-Sim-Build-DebugAppleTls \
-	Wrench-Android-Build-Debug
-
-ALL_WRENCH_BUILD_TARGETS = \
-	IOS-Sim-Build-Debug IOS-Sim-Build-DebugAppleTls \
-	Console-Build-Debug DotNet-Build-Debug \
-	Mac-Build-Debug Mac-Build-DebugAppleTls \
-	TVOS-Sim-Build-Debug TVOS-Sim-Build-DebugAppleTls \
-	Android-Build-Debug
+	Build-FastCheck Build-Console Build-Mac Build-IOS-Debug
 
 All:: $(ALL_BUILD_TARGETS)
 	@echo "Build done"
 
 CleanAll::
 	git clean -xffd
-
-Wrench-%::
-	$(MAKE) WRENCH=1 $*
 
 Jenkins-Build::
 	$(MAKE) JENKINS=1 Build-$(JENKINS_TARGET) $*
@@ -167,7 +153,7 @@ Default-Keychain::
 	$(MSBUILD) /p:Configuration='$(IOS_CONFIGURATION)' /p:Platform='$(IOS_TARGET)' Xamarin.WebTests.iOS.sln
 
 .IOS-Internal-Run::
-	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(JENKINS_ARGS) --category=$(TEST_CATEGORY) \
 		--sdkroot=$(XCODE_DEVELOPER_ROOT) --stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) \
 		--junit-result=$(JUNIT_TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND) $(WEBTESTS_IOS_APP)
 
@@ -207,7 +193,7 @@ Default-Keychain::
 	$(XBUILD) /p:Configuration='$(TVOS_CONFIGURATION)' /p:Platform='$(TVOS_TARGET)' Xamarin.WebTests.TVOS.sln
 
 .TVOS-Internal-Run::
-	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(JENKINS_ARGS) --category=$(TEST_CATEGORY) \
 		--sdkroot=$(XCODE_DEVELOPER_ROOT) --stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) \
 		$(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND) $(WEBTESTS_TVOS_APP)
 
@@ -234,7 +220,7 @@ Default-Keychain::
 	$(MSBUILD) /p:Configuration='$(CONSOLE_CONFIGURATION)' $(WEBTESTS_CONSOLE_SLN)
 
 .Console-Internal-Run::
-	$(MONO) $(MONO_FLAGS) $(WEBTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(WEBTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(JENKINS_ARGS) --category=$(TEST_CATEGORY) \
 		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) --junit-result=$(JUNIT_TEST_RESULT) \
 		$(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND)
 
@@ -267,7 +253,7 @@ Default-Keychain::
 	$(MSBUILD) /p:Configuration='$(DOTNET_CONFIGURATION)' Xamarin.WebTests.DotNet.sln
 
 .DotNet-Internal-Run::
-	$(MONO) $(MONO_FLAGS) $(WEBTESTS_DOTNET_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(WEBTESTS_DOTNET_EXE) $(ASYNCTESTS_ARGS) $(JENKINS_ARGS) --category=$(TEST_CATEGORY) \
 		--result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND)
 
 #
@@ -297,7 +283,7 @@ Default-Keychain::
 # defaults write -app $(WEBTESTS_MAC_APP) NSQuitAlwaysKeepsWindows -bool false
 
 .Mac-Internal-Run::
-	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(JENKINS_ARGS) --category=$(TEST_CATEGORY) \
 		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) --junit-result=$(JUNIT_TEST_RESULT) \
 		$(EXTRA_ASYNCTESTS_ARGS) $(ASYNCTESTS_COMMAND) $(WEBTESTS_MAC_APP)
 
@@ -336,6 +322,6 @@ Default-Keychain::
 	$(XBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' /t:Install $(WEBTESTS_ANDROID_PROJECT)
 
 .Android-Internal-Run::
-	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(WRENCH_ARGS) --category=$(TEST_CATEGORY) \
+	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(JENKINS_ARGS) --category=$(TEST_CATEGORY) \
 		--stdout=$(STDOUT) --stderr=$(STDERR) --result=$(TEST_RESULT) $(EXTRA_ASYNCTESTS_ARGS) \
 		$(ASYNCTESTS_COMMAND) $(WEBTESTS_ANDROID_MAIN_ACTIVITY)
