@@ -1,10 +1,10 @@
 ﻿//
-// Connection.cs
+// StreamConnection.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,73 +25,74 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Net;
-using System.Text;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Constraints;
+using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.HttpFramework;
 
-namespace Xamarin.WebTests.HttpFramework
-{
-	using ConnectionFramework;
+namespace Xamarin.WebTests.Server {
+	class StreamConnection : HttpConnection {
+		public Stream Stream {
+			get;
+		}
 
-	public class Connection
-	{
-		Stream stream;
+		public ISslStream SslStream {
+			get;
+		}
+
 		StreamReader reader;
 		StreamWriter writer;
 
-		public Connection (Stream stream)
+		public StreamConnection (TestContext ctx, HttpServer server, Stream stream, ISslStream sslStream)
+			: base (ctx, server)
 		{
-			this.stream = stream;
+			Stream = stream;
+			SslStream = sslStream;
+
 			reader = new StreamReader (stream);
 			writer = new StreamWriter (stream);
 			writer.AutoFlush = true;
 		}
 
-		public Stream Stream {
-			get { return stream; }
-		}
-
-		protected StreamReader RequestReader {
-			get { return reader; }
-		}
-
-		protected StreamWriter ResponseWriter {
-			get { return writer; }
-		}
-
-		public bool HasRequest ()
+		public override bool HasRequest ()
 		{
 			return reader.Peek () >= 0 && !reader.EndOfStream;
 		}
 
-		public HttpRequest ReadRequest ()
+		public override HttpRequest ReadRequest ()
 		{
 			if (reader.Peek () < 0 && reader.EndOfStream)
 				return null;
-			return new HttpRequest (this, reader);
+			return HttpRequest.Read (reader);
 		}
 
-		protected HttpResponse ReadResponse ()
+		protected override HttpResponse ReadResponse ()
 		{
-			return new HttpResponse (this, reader);
+			return HttpResponse.Read (reader);
 		}
 
-		protected void WriteRequest (HttpRequest request)
+		protected override void WriteRequest (HttpRequest request)
 		{
 			request.Write (writer);
 		}
 
-		public void WriteResponse (HttpResponse response)
+		public override void WriteResponse (HttpResponse response)
 		{
 			response.Write (writer);
 		}
 
-		public void Close ()
+		public override void CheckEncryption (TestContext ctx)
 		{
-			writer.Flush ();
+			if ((Server.Backend.Flags & (ListenerFlags.SSL | ListenerFlags.ForceTls12)) == 0)
+				return;
+
+			ctx.Assert (SslStream, Is.Not.Null, "Needs SslStream");
+			ctx.Assert (SslStream.IsAuthenticated, "Must be authenticated");
+
+			var setup = DependencyInjector.Get <IConnectionFrameworkSetup> ();
+			if (((Server.Backend.Flags & ListenerFlags.ForceTls12) != 0) || setup.SupportsTls12)
+				ctx.Assert (SslStream.ProtocolVersion, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
 		}
 	}
 }
-

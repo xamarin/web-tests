@@ -1,5 +1,5 @@
 ﻿//
-// HttpConnection.cs
+// Connection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -26,52 +26,46 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpFramework
 {
 	using ConnectionFramework;
 	using Server;
 
-	public class HttpConnection : Connection
+	public abstract class HttpConnection
 	{
-		public TestContext Context {
-			get; private set;
+		internal TestContext TestContext {
+			get;
 		}
 
 		public HttpServer Server {
-			get; private set;
+			get;
 		}
 
-		public ISslStream SslStream {
-			get; private set;
-		}
-
-		public HttpConnection (TestContext ctx, HttpServer server, Stream stream, ISslStream sslStream = null)
-			: base (stream)
+		internal HttpConnection (TestContext ctx, HttpServer server)
 		{
-			Context = ctx;
+			TestContext = ctx;
 			Server = server;
-			SslStream = sslStream;
 		}
 
-		public void CheckEncryption (TestContext ctx)
-		{
-			if ((Server.Flags & (ListenerFlags.SSL | ListenerFlags.ForceTls12)) == 0)
-				return;
+		public abstract bool HasRequest ();
 
-			ctx.Assert (SslStream, Is.Not.Null, "Needs SslStream");
-			ctx.Assert (SslStream.IsAuthenticated, "Must be authenticated");
+		public abstract HttpRequest ReadRequest ();
 
-			var support = DependencyInjector.Get<IPortableSupport> ();
-			if (((Server.Flags & ListenerFlags.ForceTls12) != 0) || support.HasAppleTls)
-				ctx.Assert (SslStream.ProtocolVersion, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
-		}
+		protected abstract HttpResponse ReadResponse ();
+
+		protected abstract void WriteRequest (HttpRequest request);
+
+		public abstract void WriteResponse (HttpResponse response);
+
+		public abstract void CheckEncryption (TestContext ctx);
 	}
 }
 

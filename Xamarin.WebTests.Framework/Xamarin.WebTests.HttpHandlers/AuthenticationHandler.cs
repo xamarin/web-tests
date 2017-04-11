@@ -72,13 +72,13 @@ namespace Xamarin.WebTests.HttpHandlers
 				return HttpResponse.CreateError (message);
 			}
 
-			protected override HttpResponse OnUnauthenticated (HttpRequest request, string token, bool omitBody)
+			protected override HttpResponse OnUnauthenticated (HttpConnection connection, HttpRequest request, string token, bool omitBody)
 			{
 				var handler = new AuthenticationHandler (this);
 				if (omitBody)
 					handler.Flags |= RequestFlags.NoBody;
 				handler.Flags |= RequestFlags.Redirected;
-				((HttpConnection)request.Connection).Server.RegisterHandler (request.Path, handler);
+				connection.Server.RegisterHandler (request.Path, handler);
 
 				var response = new HttpResponse (HttpStatusCode.Unauthorized);
 				response.AddHeader ("WWW-Authenticate", token);
@@ -94,7 +94,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			if (!request.Headers.TryGetValue ("Authorization", out authHeader))
 				authHeader = null;
 
-			var response = manager.HandleAuthentication (request, authHeader);
+			var response = manager.HandleAuthentication (connection, request, authHeader);
 			if (response != null)
 				return response;
 

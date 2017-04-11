@@ -40,17 +40,20 @@ namespace Xamarin.WebTests.HttpFramework
 	[FriendlyName ("[ProxyServer]")]
 	public class ProxyServer : HttpServer
 	{
-		Uri proxyUri;
-		IPortableEndPoint proxyEndpoint;
 		AuthenticationType authType = AuthenticationType.None;
-		Listener proxyListener;
 
-		public ProxyServer (IPortableEndPoint endpoint, IPortableEndPoint proxyEndpoint, ISslStreamProvider sslStreamProvider = null, ConnectionParameters parameters = null)
-			: base (endpoint, endpoint, ListenerFlags.Proxy, parameters, sslStreamProvider)
+		public HttpBackend Target {
+			get;
+		}
+
+		public ProxyServer (ProxyBackend backend)
+			: base (backend)
 		{
-			this.proxyEndpoint = proxyEndpoint;
+			Target = backend.Target;
+		}
 
-			proxyUri = new Uri (string.Format ("http://{0}:{1}/", proxyEndpoint.Address, proxyEndpoint.Port));
+		public override Uri Uri {
+			get { return Target.Uri; }
 		}
 
 		public AuthenticationType AuthenticationType {
@@ -62,25 +65,9 @@ namespace Xamarin.WebTests.HttpFramework
 			get; set;
 		}
 
-		public override async Task Start (TestContext ctx, CancellationToken cancellationToken)
-		{
-			await base.Start (ctx, cancellationToken);
-
-			proxyListener = new ProxyListener ((HttpListener)Listener, proxyEndpoint, authType);
-			await proxyListener.Start ();
-		}
-
-		public override async Task Stop (TestContext ctx, CancellationToken cancellationToken)
-		{
-			await proxyListener.Stop ();
-			proxyListener = null;
-
-			await base.Stop (ctx, cancellationToken);
-		}
-
 		public override IWebProxy GetProxy ()
 		{
-			var proxy = new SimpleProxy (proxyUri);
+			var proxy = new SimpleProxy (Backend.Uri);
 			if (Credentials != null)
 				proxy.Credentials = Credentials;
 			return proxy;
@@ -121,7 +108,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		protected override string MyToString ()
 		{
-			return string.Format ("SSL={0}, AuthenticationType={1}", UseSSL, AuthenticationType);
+			return string.Format ("SSL={0}, AuthenticationType={1}", Target.UseSSL, AuthenticationType);
 		}
 	}
 }

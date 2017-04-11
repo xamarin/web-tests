@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -59,14 +59,12 @@
     <Compile Include="Xamarin.WebTests.HttpHandlers\TraditionalRequest.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\AuthenticationManager.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\ChunkedContent.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\Connection.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpConnection.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpContent.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpMessage.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpRequest.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpResponse.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpServer.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\ProxyConnection.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\ProxyServer.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\RandomContent.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\RequestFlags.cs" />
@@ -132,14 +130,12 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ManualConnectionProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\StreamInstrumentation.cs" />
     <Compile Include="ReferenceSource\SimpleAsyncResult.cs" />
-    <Compile Include="Xamarin.WebTests.Server\Listener.cs" />
-    <Compile Include="Xamarin.WebTests.Server\HttpListener.cs" />
+    <Compile Include="Xamarin.WebTests.Server\BuiltinListener.cs" />
+    <Compile Include="Xamarin.WebTests.Server\BuiltinHttpListener.cs" />
     <Compile Include="Xamarin.WebTests.Server\ProxyListener.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateSelector.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateValidator.cs" />
-    <Compile Include="Xamarin.WebTests.Server\ListenerFlags.cs" />
     <Compile Include="Xamarin.WebTests.Server\NTLMHandler.cs" />
-    <Compile Include="Xamarin.WebTests.Server\AuthenticationType.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IHttpWebRequestExtension.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderFactory.cs" />
@@ -175,6 +171,13 @@
     <Compile Include="Xamarin.WebTests.TestFramework\NewAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\CertificateStoreAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionFrameworkSetup.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\HttpBackend.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\ListenerFlags.cs" />
+    <Compile Include="Xamarin.WebTests.Server\Listener.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\BuiltinHttpBackend.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\ProxyBackend.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\AuthenticationType.cs" />
+    <Compile Include="Xamarin.WebTests.Server\StreamConnection.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

@@ -129,7 +129,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public bool HandleRequest (HttpConnection connection, HttpRequest request)
 		{
-			var ctx = connection.Context;
+			var ctx = connection.TestContext;
 			if (ctx == null)
 				throw new InvalidOperationException ();
 

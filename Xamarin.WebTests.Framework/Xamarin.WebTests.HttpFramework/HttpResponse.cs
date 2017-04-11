@@ -73,9 +73,20 @@ namespace Xamarin.WebTests.HttpFramework
 			Body = content;
 		}
 
-		public HttpResponse (Connection connection, StreamReader reader)
-			: base (connection, reader)
+		HttpResponse ()
+			: base ()
 		{
+		}
+
+		internal static HttpResponse Read (StreamReader reader)
+		{
+			try {
+				var response = new HttpResponse ();
+				response.InternalRead(reader);
+				return response;
+			} catch (Exception ex) {
+				return CreateError (ex);
+			}
 		}
 
 		void CheckHeaders ()
@@ -107,7 +118,7 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		protected override void Read ()
+		void InternalRead (StreamReader reader)
 		{
 			var header = reader.ReadLine ();
 			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
@@ -118,9 +129,14 @@ namespace Xamarin.WebTests.HttpFramework
 			StatusCode = (HttpStatusCode)int.Parse (fields [1]);
 			StatusMessage = fields.Length == 3 ? fields [2] : string.Empty;
 
-			ReadHeaders ();
+			ReadHeaders (reader);
 
-			Body = ReadBody ();
+			DoReadBody (reader).Wait ();
+		}
+
+		public override HttpContent ReadBody ()
+		{
+			return Body;
 		}
 
 		public void Write (StreamWriter writer)
@@ -154,10 +170,14 @@ namespace Xamarin.WebTests.HttpFramework
 			return new HttpResponse (HttpStatusCode.OK, body != null ? new StringContent (body) : null);
 		}
 
-		// [Obsolete]
 		public static HttpResponse CreateError (string message, params object[] args)
 		{
 			return new HttpResponse (HttpStatusCode.InternalServerError, new StringContent (string.Format (message, args)));
+		}
+
+		public static HttpResponse CreateError (Exception error)
+		{
+			return new HttpResponse (HttpStatusCode.InternalServerError, new StringContent (string.Format ("Got exception: {0}", error)));
 		}
 
 		public override string ToString ()

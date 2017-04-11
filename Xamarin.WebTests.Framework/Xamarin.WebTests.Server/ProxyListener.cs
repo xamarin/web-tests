@@ -40,26 +40,38 @@ namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
 
-	public class ProxyListener : Listener
+	class ProxyListener : BuiltinListener
 	{
-		readonly HttpListener target;
 		ProxyAuthManager authManager;
 
-		public ProxyListener (HttpListener target, IPortableEndPoint endpoint, AuthenticationType authType)
-			: base (endpoint, ListenerFlags.Proxy)
-		{
-			this.target = target;
-			if (authType != AuthenticationType.None)
-				authManager = new ProxyAuthManager (authType);
+		public ProxyServer Server {
+			get;
+		}
+		public ProxyBackend Backend {
+			get;
+		}
+		internal TestContext Context {
+			get;
 		}
 
-		protected override Connection CreateConnection (Socket socket)
+		public ProxyListener (TestContext ctx, ProxyBackend backend, ProxyServer server)
+			: base (backend.ProxyEndPoint, backend.Flags)
+		{
+			Context = ctx;
+			Backend = backend;
+			Server = server;
+
+			if (Server.AuthenticationType != AuthenticationType.None)
+				authManager = new ProxyAuthManager (Server.AuthenticationType);
+		}
+
+		protected override HttpConnection CreateConnection (Socket socket)
 		{
 			var stream = new NetworkStream (socket);
-			return new Connection (stream);
+			return new StreamConnection (Context, Server, stream, null);
 		}
 
-		protected override bool HandleConnection (Socket socket, Connection connection, CancellationToken cancellationToken)
+		protected override bool HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			var request = connection.ReadRequest ();
 
@@ -70,7 +82,7 @@ namespace Xamarin.WebTests.Server
 				string authHeader;
 				if (!request.Headers.TryGetValue ("Proxy-Authorization", out authHeader))
 					authHeader = null;
-				var response = authManager.HandleAuthentication (request, authHeader);
+				var response = authManager.HandleAuthentication ((HttpConnection)connection, request, authHeader);
 				if (response != null) {
 					request.ReadBody ();
 					connection.WriteResponse (response);
@@ -82,18 +94,32 @@ namespace Xamarin.WebTests.Server
 			}
 
 			if (request.Method.Equals ("CONNECT")) {
-				CreateTunnel (connection, socket, connection.Stream, request, cancellationToken);
+				CreateTunnel (connection, socket, ((StreamConnection)connection).Stream, request, cancellationToken);
 				return false;
 			}
 
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			targetSocket.Connect (target.Uri.Host, target.Uri.Port);
+			targetSocket.Connect (Backend.Target.Uri.Host, Backend.Target.Uri.Port);
 
-			using (var targetStream = new NetworkStream (targetSocket)) {
-				var targetConnection = new ProxyConnection (connection, targetStream);
-				targetConnection.HandleRequest (request);
+			using (var targetStream = new NetworkStream (targetSocket))
+			using (var targetReader = new StreamReader (targetStream))
+			using (var targetWriter = new StreamWriter (targetStream)) {
+				targetWriter.AutoFlush = true;
 
-				targetConnection.Close ();
+				var task = Task.Factory.StartNew (() => {
+					var response = HttpResponse.Read (targetReader);
+					response.SetHeader ("Connection", "close");
+					response.SetHeader ("Proxy-Connection", "close");
+					connection.WriteResponse (response);
+				});
+
+				request.Write (targetWriter);
+
+				var body = request.ReadBody ();
+				if (body != null)
+					body.WriteToAsync (targetWriter).Wait ();
+
+				task.Wait ();
 			}
 
 			targetSocket.Close ();
@@ -112,7 +138,7 @@ namespace Xamarin.WebTests.Server
 		}
 
 		void CreateTunnel (
-			Connection connection, Socket socket, Stream stream, HttpRequest request, CancellationToken cancellationToken)
+			HttpConnection connection, Socket socket, Stream stream, HttpRequest request, CancellationToken cancellationToken)
 		{
 			var targetEndpoint = GetConnectEndpoint (request);
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -210,7 +236,7 @@ namespace Xamarin.WebTests.Server
 				: base (type)
 			{ }
 
-			protected override HttpResponse OnUnauthenticated (HttpRequest request, string token, bool omitBody)
+			protected override HttpResponse OnUnauthenticated (HttpConnection connection, HttpRequest request, string token, bool omitBody)
 			{
 				var response = new HttpResponse (HttpStatusCode.ProxyAuthenticationRequired);
 				response.AddHeader ("Proxy-Authenticate", token);

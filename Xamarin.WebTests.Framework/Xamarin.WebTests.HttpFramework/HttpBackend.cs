@@ -1,10 +1,10 @@
 ﻿//
-// AuthenticationType.cs
+// HttpBackend.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,15 +24,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
+using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.Server;
 
-namespace Xamarin.WebTests.Server
-{
-	public enum AuthenticationType
-	{
-		None,
-		Basic,
-		NTLM,
-		ForceNone
+namespace Xamarin.WebTests.HttpFramework {
+	public abstract class HttpBackend {
+		public abstract ListenerFlags Flags {
+			get;
+		}
+
+		public abstract bool UseSSL {
+			get;
+		}
+
+		public abstract Uri Uri {
+			get;
+		}
+
+		public abstract Task Start (TestContext ctx, HttpServer server, CancellationToken cancellationToken);
+
+		public abstract Task Stop (TestContext ctx, HttpServer server, CancellationToken cancellationToken);
+
+		public abstract HttpConnection CreateConnection (TestContext ctx, HttpServer server, Stream stream);
 	}
 }
-

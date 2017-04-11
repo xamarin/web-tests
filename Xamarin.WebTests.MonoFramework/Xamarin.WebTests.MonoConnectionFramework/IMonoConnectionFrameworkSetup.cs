@@ -38,12 +38,5 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 	public interface IMonoConnectionFrameworkSetup : IConnectionFrameworkSetup
 	{
-		bool UsingBtls {
-			get;
-		}
-
-		bool UsingAppleTls {
-			get;
-		}
 	}
 }

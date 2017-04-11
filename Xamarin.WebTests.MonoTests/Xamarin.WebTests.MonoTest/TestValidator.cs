@@ -42,7 +42,6 @@ namespace Xamarin.WebTests.MonoTests
 	[AsyncTestFixture]
 	public class TestValidator
 	{
-		[Work]
 		[AsyncTest]
 		[ValidationTestCategory (ValidationTestCategory.Default)]
 		public void Run (TestContext ctx,
@@ -53,7 +52,7 @@ namespace Xamarin.WebTests.MonoTests
 		}
 
 		// [Martin]
-		[AsyncTest]
+		// [AsyncTest]
 		[ValidationTestCategory (ValidationTestCategory.MartinTest)]
 		public void MartinTest (TestContext ctx,
 		                        MonoValidationTestParameters parameters,

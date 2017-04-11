@@ -80,6 +80,14 @@ namespace Xamarin.WebTests.Tests
 			serverParameters = new ConnectionParameters ("proxy", serverCertificate);
 		}
 
+		ProxyBackend CreateBackend (int port, int proxyPort, ConnectionParameters parameters = null)
+		{
+			var endpoint = address.CopyWithPort (port);
+			var proxyEndpoint = address.CopyWithPort (proxyPort);
+			var target = new BuiltinHttpBackend (endpoint, endpoint, ListenerFlags.None, parameters, null);
+			return new ProxyBackend (target, proxyEndpoint, ListenerFlags.Proxy);
+		}
+
 		public ProxyServer CreateInstance (TestContext ctx)
 		{
 			if (!hasNetwork)
@@ -89,27 +97,27 @@ namespace Xamarin.WebTests.Tests
 
 			switch (kind) {
 			case ProxyKind.Simple:
-				return new ProxyServer (address.CopyWithPort (9999), address.CopyWithPort (9998));
+				return new ProxyServer (CreateBackend (9999, 9998));
 
 			case ProxyKind.BasicAuth:
-				return new ProxyServer (address.CopyWithPort (9997), address.CopyWithPort (9996)) {
+				return new ProxyServer (CreateBackend (9997, 9996)) {
 					AuthenticationType = AuthenticationType.Basic,
 					Credentials = new NetworkCredential ("xamarin", "monkey")
 				};
 
 			case ProxyKind.NtlmAuth:
-				return new ProxyServer (address.CopyWithPort (9995), address.CopyWithPort (9994)) {
+				return new ProxyServer (CreateBackend (9995, 9994)) {
 					AuthenticationType = AuthenticationType.NTLM,
 					Credentials = new NetworkCredential ("xamarin", "monkey")
 				};
 
 			case ProxyKind.Unauthenticated:
-				return new ProxyServer (address.CopyWithPort (9993), address.CopyWithPort (9992)) {
+				return new ProxyServer (CreateBackend (9993, 9992)) {
 					AuthenticationType = AuthenticationType.Basic
 				};
 
 			case ProxyKind.SSL:
-				return new ProxyServer (address.CopyWithPort (9991), address.CopyWithPort (9990), null, serverParameters);
+				return new ProxyServer (CreateBackend (9991, 9900, serverParameters));
 
 			default:
 				throw new InvalidOperationException ();

@@ -1,5 +1,5 @@
 ﻿//
-// Listener.cs
+// AuthenticationType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,45 +24,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Text;
-using System.Net;
-using System.Net.Sockets;
-using System.Net.Security;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Threading.Tasks;
 
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
-
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.HttpFramework
 {
-	using HttpHandlers;
-	using HttpFramework;
-
-	public class HttpListener : Listener
+	public enum AuthenticationType
 	{
-		readonly HttpServer server;
-
-		public HttpListener (HttpServer server)
-			: base (server.ListenAddress, server.Flags)
-		{
-			this.server = server;
-		}
-
-		protected override Connection CreateConnection (Socket socket)
-		{
-			var stream = new NetworkStream (socket);
-			return server.CreateConnection (stream);
-		}
-
-		protected override bool HandleConnection (Socket socket, Connection connection, CancellationToken cancellationToken)
-		{
-			var httpConnection = (HttpConnection)connection;
-			return server.HandleConnection (httpConnection);
-		}
+		None,
+		Basic,
+		NTLM,
+		ForceNone
 	}
 }
 

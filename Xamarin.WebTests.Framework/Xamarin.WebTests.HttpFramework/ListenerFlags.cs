@@ -1,10 +1,10 @@
 ﻿//
-// ProxyConnection.cs
+// ListenerFlags.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,45 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Text;
-using System.Net;
-using System.Globalization;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.HttpFramework
 {
-	public class ProxyConnection : Connection
+	[Flags]
+	public enum ListenerFlags
 	{
-		Connection proxy;
-
-		public ProxyConnection (Connection proxy, Stream stream)
-			: base (stream)
-		{
-			this.proxy = proxy;
-		}
-
-		public void HandleRequest (HttpRequest request)
-		{
-			var task = Task.Factory.StartNew (() => CopyResponse ());
-
-			WriteRequest (request);
-			var body = request.ReadBody ();
-			if (body != null)
-				body.WriteToAsync (ResponseWriter).Wait ();
-
-			task.Wait ();
-		}
-
-		void CopyResponse ()
-		{
-			var response = ReadResponse ();
-			response.SetHeader ("Connection", "close");
-			response.SetHeader ("Proxy-Connection", "close");
-			proxy.WriteResponse (response);
-		}
+		None				= 0,
+		Proxy				= 1,
+		ReuseConnection			= 2,
+		SSL				= 4,
+		ExpectException			= 8,
+		ForceTls12			= 16,
+		ExternalServer			= 32,
+		HttpListener			= 64
 	}
 }
-

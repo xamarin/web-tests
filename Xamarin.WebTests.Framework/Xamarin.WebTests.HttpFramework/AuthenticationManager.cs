@@ -62,9 +62,9 @@ namespace Xamarin.WebTests.HttpFramework
 			return HttpResponse.CreateError (message);
 		}
 
-		protected abstract HttpResponse OnUnauthenticated (HttpRequest request, string token, bool omitBody);
+		protected abstract HttpResponse OnUnauthenticated (HttpConnection connection, HttpRequest request, string token, bool omitBody);
 
-		public HttpResponse HandleAuthentication (HttpRequest request, string authHeader)
+		public HttpResponse HandleAuthentication (HttpConnection connection, HttpRequest request, string authHeader)
 		{
 			if (AuthenticationType == AuthenticationType.ForceNone) {
 				// Must not contain any auth header
@@ -75,7 +75,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 			if (authHeader == null) {
 				haveChallenge = false;
-				return OnUnauthenticated (request, AuthenticationType.ToString (), AuthenticationType == AuthenticationType.NTLM);
+				return OnUnauthenticated (connection, request, AuthenticationType.ToString (), AuthenticationType == AuthenticationType.NTLM);
 			}
 
 			int pos = authHeader.IndexOf (' ');
@@ -103,7 +103,7 @@ namespace Xamarin.WebTests.HttpFramework
 				return null;
 
 			var token = "NTLM " + Convert.ToBase64String (bytes);
-			return OnUnauthenticated (request, token, false);
+			return OnUnauthenticated (connection, request, token, false);
 		}
 	}
 }

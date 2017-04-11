@@ -1,5 +1,5 @@
 ﻿//
-// Listener.cs
+// BuiltinHttpListener.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,58 +25,57 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Net;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Reflection;
+using System.Net;
 using System.Net.Sockets;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Net.Security;
-using System.Security.Authentication;
+using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
-using SD = System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Server {
+namespace Xamarin.WebTests.Server
+{
+	using HttpHandlers;
 	using HttpFramework;
-	using Server;
 
-	abstract class Listener {
-		public Listener (IPortableEndPoint endpoint, ListenerFlags flags)
+	class BuiltinHttpListener : BuiltinListener
+	{
+		public BuiltinHttpBackend Backend {
+			get;
+		}
+
+		public HttpServer Server {
+			get;
+		}
+
+		internal TestContext Context {
+			get;
+		}
+
+		public BuiltinHttpListener (TestContext ctx, BuiltinHttpBackend backend, HttpServer server)
+			: base (backend.ListenAddress, backend.Flags)
 		{
-			var ssl = (flags & ListenerFlags.SSL) != 0;
-			if (ssl & (flags & ListenerFlags.Proxy) != 0)
-				throw new InternalErrorException ();
+			Context = ctx;
 
-			var address = IPAddress.Parse (endpoint.Address);
-			NetworkEndPoint = new IPEndPoint (address, endpoint.Port);
-
-			Uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", endpoint.Address, endpoint.Port));
+			Backend = backend;
+			Server = server;
 		}
 
-		public IPortableEndPoint EndPoint {
-			get;
-		}
-
-		public IPEndPoint NetworkEndPoint {
-			get;
-		}
-
-		public Uri Uri {
-			get;
-		}
-
-		static void Debug (string message, params object[] args)
+		protected override HttpConnection CreateConnection (Socket socket)
 		{
-			SD.Debug.WriteLine (message, args);
+			var stream = new NetworkStream (socket);
+			return Server.CreateConnection (Context, stream);
 		}
 
-		public abstract Task Start ();
-
-		public abstract Task Stop ();
+		protected override bool HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
+		{
+			var request = connection.ReadRequest ();
+			return Server.HandleConnection (Context, connection, request);
+		}
 	}
 }
+
