@@ -52,10 +52,6 @@ namespace Xamarin.AsyncTests.Portable
 			get;
 		}
 
-		bool HasAppleTls {
-			get;
-		}
-
 		Version MonoRuntimeVersion {
 			get;
 		}

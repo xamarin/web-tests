@@ -90,8 +90,8 @@ namespace Xamarin.WebTests.Server {
 			ctx.Assert (SslStream, Is.Not.Null, "Needs SslStream");
 			ctx.Assert (SslStream.IsAuthenticated, "Must be authenticated");
 
-			var support = DependencyInjector.Get<IPortableSupport> ();
-			if (((Server.Backend.Flags & ListenerFlags.ForceTls12) != 0) || support.HasAppleTls)
+			var setup = DependencyInjector.Get <IConnectionFrameworkSetup> ();
+			if (((Server.Backend.Flags & ListenerFlags.ForceTls12) != 0) || setup.SupportsTls12)
 				ctx.Assert (SslStream.ProtocolVersion, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
 		}
 	}
