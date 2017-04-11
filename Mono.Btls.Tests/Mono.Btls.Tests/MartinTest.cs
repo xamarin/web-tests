@@ -1,4 +1,4 @@
-﻿//
+//
 // MartinTest.cs
 //
 // Author:
@@ -143,7 +143,7 @@ namespace Mono.Btls.Tests
 		[Work]
 		[AsyncTest]
 		public Task TestWebServer (TestContext ctx, CancellationToken cancellationToken,
-		                           [HttpServer (ListenerFlags.SSL)] HttpServer server)
+		                           [HttpServer (HttpServerFlags.SSL)] HttpServer server)
 		{
 			var handler = new HelloWorldHandler ("Hello World");
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);

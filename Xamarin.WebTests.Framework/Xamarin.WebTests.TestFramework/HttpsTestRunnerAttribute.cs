@@ -40,21 +40,21 @@ namespace Xamarin.WebTests.TestFramework
 	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
 	public sealed class HttpsTestRunnerAttribute : TestHostAttribute, ITestHost<HttpsTestRunner>
 	{
-		ListenerFlags listenerFlags;
+		HttpServerFlags serverFlags;
 
-		public HttpsTestRunnerAttribute (ListenerFlags listenerFlags = ListenerFlags.None)
+		public HttpsTestRunnerAttribute (HttpServerFlags serverFlags = HttpServerFlags.None)
 			: base (typeof (HttpsTestRunnerAttribute))
 		{
-			this.listenerFlags = listenerFlags;
+			this.serverFlags = serverFlags;
 		}
 
-		ListenerFlags GetListenerFlags (TestContext ctx)
+		HttpServerFlags GetListenerFlags (TestContext ctx)
 		{
-			ListenerFlags flags = listenerFlags | ListenerFlags.SSL;
+			HttpServerFlags flags = serverFlags | HttpServerFlags.SSL;
 
 			bool reuseConnection;
 			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)
-				flags |= ListenerFlags.ReuseConnection;
+				flags |= HttpServerFlags.ReuseConnection;
 
 			return flags;
 		}
@@ -83,16 +83,16 @@ namespace Xamarin.WebTests.TestFramework
 			if (parameters.ListenAddress == null)
 				parameters.ListenAddress = serverEndPoint;
 
-			var flags = listenerFlags | ListenerFlags.SSL;
+			var flags = serverFlags | HttpServerFlags.SSL;
 
 			bool reuseConnection;
 			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)
-				flags |= ListenerFlags.ReuseConnection;
+				flags |= HttpServerFlags.ReuseConnection;
 
 			Uri uri;
 			if (parameters.ExternalServer != null) {
 				uri = parameters.ExternalServer;
-				flags |= ListenerFlags.ExternalServer;
+				flags |= HttpServerFlags.ExternalServer;
 			} else if (parameters.TargetHost == null) {
 				parameters.TargetHost = parameters.EndPoint.HostName;
 				uri = new Uri (string.Format ("https://{0}:{1}/", parameters.EndPoint.Address, parameters.EndPoint.Port));

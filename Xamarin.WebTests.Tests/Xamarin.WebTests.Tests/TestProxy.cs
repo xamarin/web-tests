@@ -1,4 +1,4 @@
-﻿//
+//
 // TestProxyAsync.cs
 //
 // Author:
@@ -86,8 +86,8 @@ namespace Xamarin.WebTests.Tests
 		{
 			var endpoint = address.CopyWithPort (port);
 			var proxyEndpoint = address.CopyWithPort (proxyPort);
-			var target = new BuiltinHttpServer (endpoint, endpoint, ListenerFlags.None, parameters, null);
-			return new BuiltinProxyServer (target, proxyEndpoint, ListenerFlags.Proxy) {
+			var target = new BuiltinHttpServer (endpoint, endpoint, HttpServerFlags.None, parameters, null);
+			return new BuiltinProxyServer (target, proxyEndpoint, HttpServerFlags.Proxy) {
 				AuthenticationType = authType,
 				Credentials = credentials
 			};

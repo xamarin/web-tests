@@ -1,4 +1,4 @@
-﻿//
+//
 // TestFork.cs
 //
 // Author:
@@ -65,7 +65,7 @@ namespace Xamarin.WebTests.Tests
 		{
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			var endpoint = support.GetLoopbackEndpoint (9999);
-			return new BuiltinHttpServer (endpoint, endpoint, ListenerFlags.ReuseConnection, null, null);
+			return new BuiltinHttpServer (endpoint, endpoint, HttpServerFlags.ReuseConnection, null, null);
 		}
 
 		static HttpContent CreateRandomContent (TestContext ctx)

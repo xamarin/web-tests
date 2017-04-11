@@ -37,27 +37,27 @@ namespace Xamarin.WebTests.TestFramework
 
 	public class HttpServerAttribute : TestHostAttribute, ITestHost<HttpServer>
 	{
-		ListenerFlags listenerFlags;
+		HttpServerFlags serverFlags;
 
-		public HttpServerAttribute (ListenerFlags listenerFlags = ListenerFlags.None)
+		public HttpServerAttribute (HttpServerFlags serverFlags = HttpServerFlags.None)
 			: base (typeof (HttpServerAttribute), TestFlags.Hidden)
 		{
-			this.listenerFlags = listenerFlags;
+			this.serverFlags = serverFlags;
 		}
 
 		protected HttpServerAttribute (Type type, TestFlags flags = TestFlags.Hidden,
-		                               ListenerFlags listenerFlags = ListenerFlags.None)
+		                               HttpServerFlags serverFlags = HttpServerFlags.None)
 			: base (type, flags)
 		{
 		}
 
-		protected virtual ListenerFlags GetListenerFlags (TestContext ctx)
+		protected virtual HttpServerFlags GetListenerFlags (TestContext ctx)
 		{
-			ListenerFlags flags = listenerFlags;
+			HttpServerFlags flags = serverFlags;
 
 			bool reuseConnection;
 			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)
-				flags |= ListenerFlags.ReuseConnection;
+				flags |= HttpServerFlags.ReuseConnection;
 
 			return flags;
 		}
@@ -65,7 +65,7 @@ namespace Xamarin.WebTests.TestFramework
 		protected virtual bool GetParameters (TestContext ctx, out ConnectionParameters parameters)
 		{
 			bool useSSL;
-			if (((listenerFlags & ListenerFlags.SSL) == 0) && (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL)) {
+			if (((serverFlags & HttpServerFlags.SSL) == 0) && (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL)) {
 				parameters = null;
 				return false;
 			}

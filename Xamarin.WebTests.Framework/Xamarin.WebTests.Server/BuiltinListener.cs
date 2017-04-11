@@ -1,4 +1,4 @@
-﻿//
+//
 // BuiltinListener.cs
 //
 // Author:
@@ -53,7 +53,7 @@ namespace Xamarin.WebTests.Server
 		volatile TaskCompletionSource<bool> tcs;
 		volatile CancellationTokenSource cts;
 
-		public BuiltinListener (IPortableEndPoint endpoint, ListenerFlags flags)
+		public BuiltinListener (IPortableEndPoint endpoint, HttpServerFlags flags)
 			: base (endpoint, flags)
 		{
 			server = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);

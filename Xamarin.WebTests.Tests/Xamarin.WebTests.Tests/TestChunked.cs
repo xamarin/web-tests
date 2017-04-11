@@ -1,4 +1,4 @@
-﻿//
+//
 // TestChunked.cs
 //
 // Author:
@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task ServerErrorTests (TestContext ctx, CancellationToken cancellationToken,
-			[HttpServer (ListenerFlags.ExpectException)] HttpServer server,
+			[HttpServer (HttpServerFlags.ExpectException)] HttpServer server,
 			[ChunkContentType (ServerError = true)] ChunkContentType type, bool sendAsync)
 		{
 			var runner = new ChunkedTestRunner (server, type, sendAsync);

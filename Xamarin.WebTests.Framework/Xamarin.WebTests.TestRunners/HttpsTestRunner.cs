@@ -1,4 +1,4 @@
-﻿//
+//
 // HttpsTestRunner.cs
 //
 // Author:
@@ -61,12 +61,12 @@ namespace Xamarin.WebTests.TestRunners
 			get;
 		}
 
-		protected ListenerFlags ListenerFlags {
+		protected HttpServerFlags ListenerFlags {
 			get;
 		}
 
 		protected bool ExternalServer {
-			get { return (ListenerFlags & ListenerFlags.ExternalServer) != 0; }
+			get { return (ListenerFlags & HttpServerFlags.ExternalServer) != 0; }
 		}
 
 		public HttpServer Server {
@@ -78,7 +78,7 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		public HttpsTestRunner (IPortableEndPoint endpoint, HttpsTestParameters parameters,
-		                        ConnectionTestProvider provider, Uri uri, ListenerFlags flags)
+		                        ConnectionTestProvider provider, Uri uri, HttpServerFlags flags)
 			: base (endpoint, parameters)
 		{
 			Provider = provider;
