@@ -19,22 +19,6 @@ Jenkins-Install::
 Jenkins-Run::
 	$(MAKE) JENKINS=1 Run-$(JENKINS_TARGET)-$(JENKINS_TESTS)
 
-Jenkins-Build-ConsoleAppleTls::
-	echo "AppleTls is currently unusably broken; disabling the Mac build."
-	exit 1
-	
-Jenkins-Run-ConsoleAppleTls-%::
-	echo "AppleTls is currently unusably broken; disabling the Mac build."
-	exit 1
-
-Jenkins-Build-Mac::
-	echo "AppleTls is currently unusably broken; disabling the Mac build."
-	exit 1
-
-Jenkins-Run-Mac-%::
-	echo "AppleTls is currently unusably broken; disabling the Mac build."
-	exit 1
-
 #
 #
 #
@@ -61,6 +45,8 @@ Build-ConsoleLegacy::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugLegacy .Console-Internal-Build
 
 Build-ConsoleAppleTls::
+	echo "AppleTls is currently unusably broken; disabling the Mac build."
+	exit 1
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugAppleTls .Console-Internal-Build
 
 Run-Console-%::
@@ -70,6 +56,8 @@ Run-ConsoleLegacy-%::
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugLegacy .Console-Run-$*
 
 Run-ConsoleAppleTls-%::
+	echo "AppleTls is currently unusably broken; disabling the Mac build."
+	exit 1
 	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ CONSOLE_CONFIGURATION=DebugAppleTls .Console-Run-$*
 
 #
@@ -87,9 +75,13 @@ Run-IOS-Debug-%::
 #
 
 Build-Mac::
+	echo "AppleTls is currently unusably broken; disabling the Mac build."
+	exit 1
 	$(MAKE) ASYNCTESTS_COMMAND=mac TARGET_NAME=$@ MAC_CONFIGURATION=Debug .Mac-Internal-Build
 
 Run-Mac-%::
+	echo "AppleTls is currently unusably broken; disabling the Mac build."
+	exit 1
 	$(MAKE) ASYNCTESTS_COMMAND=mac TARGET_NAME=$@ MAC_CONFIGURATION=Debug .Mac-Run-$*
 
 #
