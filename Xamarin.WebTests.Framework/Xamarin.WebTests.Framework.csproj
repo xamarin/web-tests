@@ -177,6 +177,7 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\BuiltinHttpBackend.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\ProxyBackend.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\AuthenticationType.cs" />
+    <Compile Include="Xamarin.WebTests.Server\StreamConnection.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

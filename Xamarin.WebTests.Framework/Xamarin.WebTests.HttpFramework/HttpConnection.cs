@@ -39,9 +39,9 @@ namespace Xamarin.WebTests.HttpFramework
 	using ConnectionFramework;
 	using Server;
 
-	public class HttpConnection
+	public abstract class HttpConnection
 	{
-		public TestContext Context {
+		internal TestContext TestContext {
 			get;
 		}
 
@@ -49,73 +49,23 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
-		public Stream Stream {
-			get;
-		}
-
-		public ISslStream SslStream {
-			get;
-		}
-
-		StreamReader reader;
-		StreamWriter writer;
-
-		public HttpConnection (TestContext ctx, HttpServer server, Stream stream, ISslStream sslStream)
+		internal HttpConnection (TestContext ctx, HttpServer server)
 		{
-			Context = ctx;
+			TestContext = ctx;
 			Server = server;
-			Stream = stream;
-			SslStream = sslStream;
-
-			reader = new StreamReader (stream);
-			writer = new StreamWriter (stream);
-			writer.AutoFlush = true;
 		}
 
-		public bool HasRequest ()
-		{
-			return reader.Peek () >= 0 && !reader.EndOfStream;
-		}
+		public abstract bool HasRequest ();
 
-		public HttpRequest ReadRequest ()
-		{
-			if (reader.Peek () < 0 && reader.EndOfStream)
-				return null;
-			return HttpRequest.Read (reader);
-		}
+		public abstract HttpRequest ReadRequest ();
 
-		protected HttpResponse ReadResponse ()
-		{
-			return HttpResponse.Read (reader);
-		}
+		protected abstract HttpResponse ReadResponse ();
 
-		protected void WriteRequest (HttpRequest request)
-		{
-			request.Write (writer);
-		}
+		protected abstract void WriteRequest (HttpRequest request);
 
-		public void WriteResponse (HttpResponse response)
-		{
-			response.Write (writer);
-		}
+		public abstract void WriteResponse (HttpResponse response);
 
-		public void Close ()
-		{
-			writer.Flush ();
-		}
-
-		public void CheckEncryption (TestContext ctx)
-		{
-			if ((Server.Backend.Flags & (ListenerFlags.SSL | ListenerFlags.ForceTls12)) == 0)
-				return;
-
-			ctx.Assert (SslStream, Is.Not.Null, "Needs SslStream");
-			ctx.Assert (SslStream.IsAuthenticated, "Must be authenticated");
-
-			var support = DependencyInjector.Get<IPortableSupport> ();
-			if (((Server.Backend.Flags & ListenerFlags.ForceTls12) != 0) || support.HasAppleTls)
-				ctx.Assert (SslStream.ProtocolVersion, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
-		}
+		public abstract void CheckEncryption (TestContext ctx);
 	}
 }
 

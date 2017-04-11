@@ -1,4 +1,4 @@
-//
+﻿//
 // BuiltinHttpListener.cs
 //
 // Author:
@@ -47,6 +47,7 @@ namespace Xamarin.WebTests.Server
 		public BuiltinHttpBackend Backend {
 			get;
 		}
+
 		public HttpServer Server {
 			get;
 		}

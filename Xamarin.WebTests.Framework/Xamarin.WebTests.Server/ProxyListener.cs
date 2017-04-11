@@ -68,7 +68,7 @@ namespace Xamarin.WebTests.Server
 		protected override HttpConnection CreateConnection (Socket socket)
 		{
 			var stream = new NetworkStream (socket);
-			return new HttpConnection (Context, Server, stream, null);
+			return new StreamConnection (Context, Server, stream, null);
 		}
 
 		protected override bool HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
@@ -94,7 +94,7 @@ namespace Xamarin.WebTests.Server
 			}
 
 			if (request.Method.Equals ("CONNECT")) {
-				CreateTunnel (connection, socket, connection.Stream, request, cancellationToken);
+				CreateTunnel (connection, socket, ((StreamConnection)connection).Stream, request, cancellationToken);
 				return false;
 			}
 
