@@ -142,5 +142,10 @@ namespace Xamarin.WebTests.HttpFramework {
 				return false;
 			}
 		}
+
+		protected override string MyToString ()
+		{
+			return string.Format ("SSL={0}, AuthenticationType={1}", Target.UseSSL, AuthenticationType);
+		}
 	}
 }

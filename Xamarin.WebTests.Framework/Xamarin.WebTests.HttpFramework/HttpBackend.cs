@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
@@ -34,6 +35,7 @@ using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.HttpFramework {
+	[FriendlyName ("HttpBackend")]
 	public abstract class HttpBackend {
 		public abstract ListenerFlags Flags {
 			get;
@@ -54,5 +56,25 @@ namespace Xamarin.WebTests.HttpFramework {
 		public abstract Task Stop (TestContext ctx, HttpServer server, CancellationToken cancellationToken);
 
 		public abstract HttpConnection CreateConnection (TestContext ctx, HttpServer server, Stream stream);
+
+		protected virtual string MyToString ()
+		{
+			var sb = new StringBuilder ();
+			if ((Flags & ListenerFlags.ReuseConnection) != 0)
+				sb.Append ("shared");
+			if (UseSSL) {
+				if (sb.Length > 0)
+					sb.Append (",");
+				sb.Append ("ssl");
+			}
+			return sb.ToString ();
+		}
+
+		public override string ToString ()
+		{
+			var description = MyToString ();
+			var padding = string.IsNullOrEmpty (description) ? string.Empty : ": ";
+			return string.Format ("[{0}{1}{2}]", GetType ().Name, padding, description);
+		}
 	}
 }
