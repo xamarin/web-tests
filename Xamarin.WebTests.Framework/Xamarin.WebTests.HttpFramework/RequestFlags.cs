@@ -27,6 +27,7 @@ using System;
 
 namespace Xamarin.WebTests.HttpFramework
 {
+	[Flags]
 	public enum RequestFlags
 	{
 		None,
