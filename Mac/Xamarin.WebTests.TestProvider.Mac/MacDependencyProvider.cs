@@ -36,12 +36,8 @@ namespace Xamarin.WebTests.TestProvider.Mobile
 	{
 		public void Initialize ()
 		{
-#if FIXME && APPLETLS
+#if DEAD_CODE
 			DependencyInjector.RegisterDependency<IAppleCertificateProvider> (() => new AppleCertificateProvider ());
-#endif
-
-#if __XAMMAC__ && WRENCH
-			Mac.MacKeyChainProvider.CreateAndSelectCustomKeyChain ();
 #endif
 		}
 	}

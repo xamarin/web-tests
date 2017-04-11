@@ -23,6 +23,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+#if DEAD_CODE
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace Xamarin.WebTests.TestProvider.Mobile
 {
 	using TestFramework;
 
-	public class AppleCertificateProvider : IAppleCertificateProvider
+	class AppleCertificateProvider : IAppleCertificateProvider
 	{
 		#region IAppleCertificateProvider implementation
 
@@ -80,4 +81,4 @@ namespace Xamarin.WebTests.TestProvider.Mobile
 		#endregion
 	}
 }
-
+#endif
