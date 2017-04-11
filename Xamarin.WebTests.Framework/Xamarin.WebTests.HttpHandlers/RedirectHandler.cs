@@ -68,7 +68,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			var targetUri = Target.RegisterRequest (connection.Server);
+			var targetUri = Target.RegisterRequest (connection.Backend);
 			return HttpResponse.CreateRedirect (Code, targetUri);
 		}
 	}

@@ -50,11 +50,6 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
-		int countRequests;
-
-		static long nextId;
-		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
-
 		public HttpServer (HttpBackend backend)
 		{
 			Backend = backend;
@@ -113,21 +108,7 @@ namespace Xamarin.WebTests.HttpFramework
 			return Backend.Stop (ctx, this, cancellationToken);
 		}
 
-		public int CountRequests {
-			get { return countRequests; }
-		}
-
-		public Uri RegisterHandler (Handler handler)
-		{
-			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
-			handlers.Add (path, handler);
-			return new Uri (Backend.TargetUri, path);
-		}
-
-		public void RegisterHandler (string path, Handler handler)
-		{
-			handlers.Add (path, handler);
-		}
+		public int CountRequests => Backend.CountRequests;
 
 		public virtual HttpConnection CreateConnection (TestContext ctx, Stream stream)
 		{
@@ -140,14 +121,8 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request)
 		{
-			++countRequests;
 			OnHandleConnection (ctx, connection, request);
-
-			var path = request.Path;
-			var handler = handlers [path];
-			handlers.Remove (path);
-
-			return handler.HandleRequest (connection, request);
+			return Backend.HandleConnection (ctx, connection, request);
 		}
 
 		protected void Debug (TestContext ctx, int level, Handler handler, string message, params object[] args)

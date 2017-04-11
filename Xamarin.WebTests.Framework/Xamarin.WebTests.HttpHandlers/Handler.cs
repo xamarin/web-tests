@@ -171,14 +171,14 @@ namespace Xamarin.WebTests.HttpHandlers
 		[StackTraceEntryPoint]
 		protected internal abstract HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags);
 
-		public Uri RegisterRequest (HttpServer server)
+		public Uri RegisterRequest (HttpBackend backend)
 		{
 			lock (this) {
 				if (hasRequest)
 					throw new InvalidOperationException ();
 				hasRequest = true;
 
-				return server.RegisterHandler (this);
+				return backend.RegisterHandler (this);
 			}
 		}
 

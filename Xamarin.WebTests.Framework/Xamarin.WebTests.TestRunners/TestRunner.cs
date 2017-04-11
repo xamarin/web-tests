@@ -43,17 +43,14 @@ namespace Xamarin.WebTests.TestRunners
 	{
 		public HttpServer Server {
 			get;
-			private set;
 		}
 
 		public Handler Handler {
 			get;
-			private set;
 		}
 
 		public RedirectHandler Redirect {
 			get;
-			private set;
 		}
 
 		protected virtual string Name {
@@ -99,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			Handler target = (Handler)Redirect ?? Handler;
 
-			var uri = target.RegisterRequest (Server);
+			var uri = target.RegisterRequest (Server.Backend);
 			var request = CreateRequest (ctx, uri);
 			ConfigureRequest (ctx, uri, request);
 

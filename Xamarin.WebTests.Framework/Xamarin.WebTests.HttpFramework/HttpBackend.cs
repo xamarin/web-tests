@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -32,6 +33,7 @@ using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.HttpHandlers;
 using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.HttpFramework {
@@ -60,6 +62,35 @@ namespace Xamarin.WebTests.HttpFramework {
 		public abstract Task Stop (TestContext ctx, HttpServer server, CancellationToken cancellationToken);
 
 		public abstract HttpConnection CreateConnection (TestContext ctx, HttpServer server, Stream stream);
+
+		public int CountRequests => countRequests;
+
+		static long nextId;
+		int countRequests;
+		Dictionary<string, Handler> handlers = new Dictionary<string, Handler> ();
+
+		public Uri RegisterHandler (Handler handler)
+		{
+			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
+			handlers.Add (path, handler);
+			return new Uri (TargetUri, path);
+		}
+
+		public void RegisterHandler (string path, Handler handler)
+		{
+			handlers.Add (path, handler);
+		}
+
+		public bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request)
+		{
+			++countRequests;
+
+			var path = request.Path;
+			var handler = handlers[path];
+			handlers.Remove (path);
+
+			return handler.HandleRequest (connection, request);
+		}
 
 		protected virtual string MyToString ()
 		{
