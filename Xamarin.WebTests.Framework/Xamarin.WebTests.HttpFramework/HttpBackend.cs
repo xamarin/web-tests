@@ -38,7 +38,7 @@ using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.HttpFramework {
 	[FriendlyName ("HttpBackend")]
-	public abstract class HttpBackend {
+	public abstract class HttpBackend : ITestInstance {
 		public abstract ListenerFlags Flags {
 			get;
 		}
@@ -61,9 +61,48 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		public abstract IWebProxy GetProxy ();
 
+		public bool ReuseConnection {
+			get { return (Flags & ListenerFlags.ReuseConnection) != 0; }
+		}
+
+		#region ITestInstance implementation
+
+		int initialized;
+
+		public async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (Interlocked.CompareExchange (ref initialized, 1, 0) != 0)
+				throw new InternalErrorException ();
+
+			if (ReuseConnection)
+				await Start (ctx, cancellationToken);
+		}
+
+		public async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (!ReuseConnection)
+				await Start (ctx, cancellationToken);
+		}
+
+		public async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (!ReuseConnection)
+				await Stop (ctx, cancellationToken);
+		}
+
+		public async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (ReuseConnection)
+				await Stop (ctx, cancellationToken);
+
+			Interlocked.Exchange (ref initialized, 0);
+		}
+
 		public abstract Task Start (TestContext ctx, CancellationToken cancellationToken);
 
 		public abstract Task Stop (TestContext ctx, CancellationToken cancellationToken);
+
+		#endregion
 
 		public HttpConnection CreateConnection (TestContext ctx, Stream stream)
 		{

@@ -61,39 +61,24 @@ namespace Xamarin.WebTests.HttpFramework
 
 		#region ITestInstance implementation
 
-		bool initialized;
-
-		public async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		public Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (initialized)
-				throw new InvalidOperationException ();
-			initialized = true;
-
-			if (ReuseConnection)
-				await Start (ctx, cancellationToken);
+			return Backend.Initialize (ctx, cancellationToken);
 		}
 
-		public async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		public Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (!ReuseConnection)
-				await Start (ctx, cancellationToken);
+			return Backend.PreRun (ctx, cancellationToken);
 		}
 
-		public async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		public Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (!ReuseConnection)
-				await Stop (ctx, cancellationToken);
+			return Backend.PostRun (ctx, cancellationToken);
 		}
 
-		public async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
+		public Task Destroy (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (!initialized)
-				throw new InvalidOperationException ();
-
-			if (ReuseConnection)
-				await Stop (ctx, cancellationToken);
-
-			initialized = false;
+			return Backend.Destroy (ctx, cancellationToken);
 		}
 
 		#endregion
