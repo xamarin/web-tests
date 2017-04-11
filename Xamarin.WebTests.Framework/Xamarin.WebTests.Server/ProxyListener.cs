@@ -44,9 +44,6 @@ namespace Xamarin.WebTests.Server
 	{
 		ProxyAuthManager authManager;
 
-		public HttpServer Server {
-			get;
-		}
 		public ProxyBackend Backend {
 			get;
 		}
@@ -54,12 +51,11 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
-		public ProxyListener (TestContext ctx, ProxyBackend backend, HttpServer server)
+		public ProxyListener (TestContext ctx, ProxyBackend backend)
 			: base (backend.ProxyEndPoint, backend.Flags)
 		{
 			Context = ctx;
 			Backend = backend;
-			Server = server;
 
 			if (Backend.AuthenticationType != AuthenticationType.None)
 				authManager = new ProxyAuthManager (Backend.AuthenticationType);
@@ -68,7 +64,7 @@ namespace Xamarin.WebTests.Server
 		protected override HttpConnection CreateConnection (Socket socket)
 		{
 			var stream = new NetworkStream (socket);
-			return new StreamConnection (Context, Server, stream, null);
+			return Backend.CreateConnection (Context, stream);
 		}
 
 		protected override bool HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)

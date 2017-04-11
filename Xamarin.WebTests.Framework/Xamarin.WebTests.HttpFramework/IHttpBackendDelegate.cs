@@ -1,10 +1,10 @@
 ﻿//
-// Connection.cs
+// IHttpBackendDelegate.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,48 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Text;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Constraints;
+using Xamarin.WebTests.HttpHandlers;
 
-namespace Xamarin.WebTests.HttpFramework
-{
-	using ConnectionFramework;
-	using Server;
+namespace Xamarin.WebTests.HttpFramework {
+	public interface IHttpBackendDelegate {
+		bool CheckCreateConnection (TestContext ctx, HttpConnection connection, Exception error);
 
-	public abstract class HttpConnection
-	{
-		internal TestContext TestContext {
-			get;
-		}
-
-		public HttpBackend Backend {
-			get;
-		}
-
-		internal HttpConnection (TestContext ctx, HttpBackend backend)
-		{
-			TestContext = ctx;
-			Backend = backend;
-		}
-
-		public abstract bool HasRequest ();
-
-		public abstract HttpRequest ReadRequest ();
-
-		protected abstract HttpResponse ReadResponse ();
-
-		protected abstract void WriteRequest (HttpRequest request);
-
-		public abstract void WriteResponse (HttpResponse response);
-
-		public abstract void CheckEncryption (TestContext ctx);
+		bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler);
 	}
 }
-

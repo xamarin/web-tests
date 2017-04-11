@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests.Server;
+using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.HttpFramework {
 	public sealed class ProxyBackend : HttpBackend {
@@ -75,34 +76,44 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		AuthenticationType authType = AuthenticationType.None;
 
+		public override void RegisterHandler (string path, Handler handler)
+		{
+			Target.RegisterHandler (path, handler);
+		}
+
+		protected internal override Handler GetHandler (string path)
+		{
+			return Target.GetHandler (path);
+		}
+
 		ProxyListener currentListener;
 
-		public override async Task Start (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
+		public override async Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var listener = new ProxyListener (ctx, this, server);
+			var listener = new ProxyListener (ctx, this);
 			if (Interlocked.CompareExchange (ref currentListener, listener, null) != null)
 				throw new InternalErrorException ();
-			await Target.Start (ctx, server, cancellationToken).ConfigureAwait (false);
+			await Target.Start (ctx, cancellationToken).ConfigureAwait (false);
 			await listener.Start ();
 		}
 
-		public override async Task Stop (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
+		public override async Task Stop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var listener = Interlocked.Exchange (ref currentListener, null);
 			if (listener == null || listener.Context != ctx)
 				throw new InternalErrorException ();
 			try {
 				await listener.Stop ().ConfigureAwait (false);
-				await Target.Stop (ctx, server, cancellationToken);
+				await Target.Stop (ctx, cancellationToken);
 			} catch {
 				if ((Flags & ListenerFlags.ExpectException) == 0)
 					throw;
 			}
 		}
 
-		public override HttpConnection CreateConnection (TestContext ctx, HttpServer server, Stream stream)
+		protected override HttpConnection DoCreateConnection (TestContext ctx, Stream stream)
 		{
-			return Target.CreateConnection (ctx, server, stream);
+			return new StreamConnection (ctx, this, stream, null);
 		}
 
 		public override IWebProxy GetProxy ()

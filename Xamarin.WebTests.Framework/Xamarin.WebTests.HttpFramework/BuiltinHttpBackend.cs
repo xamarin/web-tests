@@ -36,7 +36,7 @@ using Xamarin.WebTests.Server;
 using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.HttpFramework {
-	public sealed class BuiltinHttpBackend : HttpBackend {
+	public class BuiltinHttpBackend : HttpBackend {
 		public IPortableEndPoint ListenAddress {
 			get;
 		}
@@ -80,11 +80,11 @@ namespace Xamarin.WebTests.HttpFramework {
 			}
 		}
 
-		public override ListenerFlags Flags {
+		public sealed override ListenerFlags Flags {
 			get;
 		}
 
-		public override bool UseSSL {
+		public sealed override bool UseSSL {
 			get { return SslStreamProvider != null; }
 		}
 
@@ -92,28 +92,42 @@ namespace Xamarin.WebTests.HttpFramework {
 			get;
 		}
 
-		public override Uri Uri {
+		public sealed override Uri Uri {
 			get;
 		}
 
-		public override Uri TargetUri => Uri;
+		public sealed override Uri TargetUri => Uri;
 
 		public override IWebProxy GetProxy ()
 		{
 			return null;
 		}
 
+		Dictionary<string, Handler> handlers = new Dictionary<string, Handler> ();
+
+		public override void RegisterHandler (string path, Handler handler)
+		{
+			handlers.Add (path, handler);
+		}
+
+		protected internal override Handler GetHandler (string path)
+		{
+			var handler = handlers[path];
+			handlers.Remove (path);
+			return handler;
+		}
+
 		BuiltinHttpListener currentListener;
 
-		public override Task Start (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
+		public override Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var listener = new BuiltinHttpListener (ctx, this, server);
+			var listener = new BuiltinHttpListener (ctx, this);
 			if (Interlocked.CompareExchange (ref currentListener, listener, null) != null)
 				throw new InternalErrorException ();
 			return listener.Start ();
 		}
 
-		public override async Task Stop (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
+		public override async Task Stop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var listener = Interlocked.Exchange (ref currentListener, null);
 			if (listener == null || listener.Context != ctx)
@@ -126,13 +140,13 @@ namespace Xamarin.WebTests.HttpFramework {
 			}
 		}
 
-		public override HttpConnection CreateConnection (TestContext ctx, HttpServer server, Stream stream)
+		protected override HttpConnection DoCreateConnection (TestContext ctx, Stream stream)
 		{
 			if (SslStreamProvider == null)
-				return new StreamConnection (ctx, server, stream, null);
+				return new StreamConnection (ctx, this, stream, null);
 
 			var sslStream = SslStreamProvider.CreateServerStream (stream, Parameters);
-			return new StreamConnection (ctx, server, sslStream.AuthenticatedStream, sslStream);
+			return new StreamConnection (ctx, this, sslStream.AuthenticatedStream, sslStream);
 		}
 	}
 }

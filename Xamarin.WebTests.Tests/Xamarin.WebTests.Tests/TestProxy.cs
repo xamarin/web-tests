@@ -147,7 +147,7 @@ namespace Xamarin.WebTests.Tests
 			[ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
-			var oldCount = server.CountRequests;
+			var oldCount = server.Backend.CountRequests;
 			if (kind == ProxyKind.Unauthenticated) {
 				await TestRunner.RunTraditional (
 					ctx, server, handler, cancellationToken, false,
@@ -155,7 +155,7 @@ namespace Xamarin.WebTests.Tests
 			} else {
 				await TestRunner.RunTraditional (
 					ctx, server, handler, cancellationToken, false).ConfigureAwait (false);
-				var newCount = server.CountRequests;
+				var newCount = server.Backend.CountRequests;
 				ctx.Assert (newCount, Is.GreaterThan (oldCount), "used proxy");
 			}
 		}
@@ -187,9 +187,9 @@ namespace Xamarin.WebTests.Tests
 			[ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
-			var oldCount = server.CountRequests;
+			var oldCount = server.Backend.CountRequests;
 			await TestRunner.RunTraditional (ctx, server, handler, cancellationToken, false);
-			var newCount = server.CountRequests;
+			var newCount = server.Backend.CountRequests;
 			ctx.Assert (newCount, Is.GreaterThan (oldCount), "used proxy");
 		}
 

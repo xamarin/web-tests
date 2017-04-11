@@ -51,7 +51,7 @@ namespace Xamarin.WebTests.TestRunners
 
 	[HttpsTestRunner]
 	[FriendlyName ("[HttpsTestRunner]")]
-	public class HttpsTestRunner : AbstractConnection
+	public class HttpsTestRunner : AbstractConnection, IHttpBackendDelegate
 	{
 		public ConnectionTestProvider Provider {
 			get;
@@ -77,7 +77,7 @@ namespace Xamarin.WebTests.TestRunners
 			get { return (HttpsTestParameters)base.Parameters; }
 		}
 
-		MyServer server;
+		HttpServer server;
 
 		public HttpsTestRunner (IPortableEndPoint endpoint, HttpsTestParameters parameters,
 		                        ConnectionTestProvider provider, Uri uri, ListenerFlags flags)
@@ -87,7 +87,9 @@ namespace Xamarin.WebTests.TestRunners
 			ListenerFlags = flags;
 			Uri = uri;
 
-			HttpBackend = new BuiltinHttpBackend (uri, endpoint, flags, parameters, null);
+			HttpBackend = new BuiltinHttpBackend (uri, endpoint, flags, parameters, null) {
+				Delegate = this
+			};
 		}
 
 		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object[] args)
@@ -460,7 +462,7 @@ namespace Xamarin.WebTests.TestRunners
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (!ExternalServer) {
-				server = new MyServer (this);
+				server = new HttpServer (HttpBackend);
 				await server.Initialize (ctx, cancellationToken);
 			}
 		}
@@ -542,64 +544,44 @@ namespace Xamarin.WebTests.TestRunners
 			return response;
 		}
 
-		class MyServer : HttpServer
+		bool IHttpBackendDelegate.CheckCreateConnection (TestContext ctx, HttpConnection connection, Exception error)
 		{
-			public HttpsTestRunner Parent {
-				get;
-			}
-
-			public HttpsTestParameters Parameters {
-				get { return Parent.Parameters; }
-			}
-
-			public MyServer (HttpsTestRunner parent)
-				: base (parent.HttpBackend)
-			{
-				Parent = parent;
-			}
-
-			public override HttpConnection CreateConnection (TestContext ctx, Stream stream)
-			{
-				try {
-					ctx.LogDebug (5, "HttpTestRunner - CreateConnection");
-					var connection = base.CreateConnection (ctx, stream);
-
-					/*
-					 * There seems to be some kind of a race condition here.
-					 *
-					 * When the client aborts the handshake due the a certificate validation failure,
-					 * then we either receive an exception during the TLS handshake or the connection
-					 * will be closed when the handshake is completed.
-					 *
-					 */
-					var haveReq = connection.HasRequest ();
-					ctx.LogDebug (5, "HttpTestRunner - CreateConnection #1: {0}", haveReq);
-					if (Parameters.ClientAbortsHandshake) {
-						ctx.Assert (haveReq, Is.False, "expected client to abort handshake");
-						return null;
-					} else {
-						ctx.Assert (haveReq, Is.True, "expected non-empty request");
-					}
-					return connection;
-				} catch (Exception ex) {
-					if (Parameters.ClientAbortsHandshake) {
-						ctx.LogDebug (5, "HttpTestRunner - CreateConnection got expected exception");
-						return null;
-					}
-					ctx.LogDebug (5, "HttpTestRunner - CreateConnection ex: {0}", ex);
-					throw;
+			if (error != null) {
+				if (Parameters.ClientAbortsHandshake) {
+					ctx.LogDebug (5, "HttpTestRunner - CreateConnection got expected exception");
+					return false;
 				}
+				ctx.LogDebug (5, "HttpTestRunner - CreateConnection ex: {0}", error);
+				throw error;
 			}
 
-			protected override void OnHandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request)
-			{
-				var streamConnection = (StreamConnection)connection;
-				ctx.Expect (streamConnection.SslStream.IsAuthenticated, "server is authenticated");
-				if (Parameters.RequireClientCertificate)
-					ctx.Expect (streamConnection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
-
-				base.OnHandleConnection (ctx, connection, request);
+			/*
+			 * There seems to be some kind of a race condition here.
+			 *
+			 * When the client aborts the handshake due the a certificate validation failure,
+			 * then we either receive an exception during the TLS handshake or the connection
+			 * will be closed when the handshake is completed.
+			 *
+			 */
+			var haveReq = connection.HasRequest ();
+			ctx.LogDebug (5, "HttpTestRunner - CreateConnection #1: {0}", haveReq);
+			if (Parameters.ClientAbortsHandshake) {
+				ctx.Assert (haveReq, Is.False, "expected client to abort handshake");
+				return false;
+			} else {
+				ctx.Assert (haveReq, Is.True, "expected non-empty request");
 			}
+			return true;
+		}
+
+		bool IHttpBackendDelegate.HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler)
+		{
+			var streamConnection = (StreamConnection)connection;
+			if (!ctx.Expect (streamConnection.SslStream.IsAuthenticated, "server is authenticated"))
+				return false;
+			if (Parameters.RequireClientCertificate)
+				return ctx.Expect (streamConnection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
+			return true;
 		}
 
 		class MyRunner : TestRunner

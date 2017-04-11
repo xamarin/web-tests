@@ -100,29 +100,12 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Backend.Start (ctx, this, cancellationToken);
+			return Backend.Start (ctx, cancellationToken);
 		}
 
 		public Task Stop (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Backend.Stop (ctx, this, cancellationToken);
-		}
-
-		public int CountRequests => Backend.CountRequests;
-
-		public virtual HttpConnection CreateConnection (TestContext ctx, Stream stream)
-		{
-			return Backend.CreateConnection (ctx, this, stream);
-		}
-
-		protected virtual void OnHandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request)
-		{
-		}
-
-		public bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request)
-		{
-			OnHandleConnection (ctx, connection, request);
-			return Backend.HandleConnection (ctx, connection, request);
+			return Backend.Stop (ctx, cancellationToken);
 		}
 
 		protected void Debug (TestContext ctx, int level, Handler handler, string message, params object[] args)

@@ -44,8 +44,8 @@ namespace Xamarin.WebTests.Server {
 		StreamReader reader;
 		StreamWriter writer;
 
-		public StreamConnection (TestContext ctx, HttpServer server, Stream stream, ISslStream sslStream)
-			: base (ctx, server)
+		public StreamConnection (TestContext ctx, HttpBackend backend, Stream stream, ISslStream sslStream)
+			: base (ctx, backend)
 		{
 			Stream = stream;
 			SslStream = sslStream;

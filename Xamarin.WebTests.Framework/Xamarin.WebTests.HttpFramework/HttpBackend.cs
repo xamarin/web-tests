@@ -55,39 +55,55 @@ namespace Xamarin.WebTests.HttpFramework {
 			get;
 		}
 
+		public IHttpBackendDelegate Delegate {
+			get; set;
+		}
+
 		public abstract IWebProxy GetProxy ();
 
-		public abstract Task Start (TestContext ctx, HttpServer server, CancellationToken cancellationToken);
+		public abstract Task Start (TestContext ctx, CancellationToken cancellationToken);
 
-		public abstract Task Stop (TestContext ctx, HttpServer server, CancellationToken cancellationToken);
+		public abstract Task Stop (TestContext ctx, CancellationToken cancellationToken);
 
-		public abstract HttpConnection CreateConnection (TestContext ctx, HttpServer server, Stream stream);
+		public HttpConnection CreateConnection (TestContext ctx, Stream stream)
+		{
+			++countRequests;
+			try {
+				var connection = DoCreateConnection (ctx, stream);
+				if (Delegate != null && !Delegate.CheckCreateConnection (ctx, connection, null))
+					return null;
+				return connection;
+			} catch (Exception error) {
+				if (Delegate == null)
+					throw;
+				Delegate.CheckCreateConnection (ctx, null, error);
+				return null;
+			}
+		}
+
+		protected abstract HttpConnection DoCreateConnection (TestContext ctx, Stream stream);
 
 		public int CountRequests => countRequests;
 
 		static long nextId;
 		int countRequests;
-		Dictionary<string, Handler> handlers = new Dictionary<string, Handler> ();
 
 		public Uri RegisterHandler (Handler handler)
 		{
 			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
-			handlers.Add (path, handler);
+			RegisterHandler (path, handler);
 			return new Uri (TargetUri, path);
 		}
 
-		public void RegisterHandler (string path, Handler handler)
-		{
-			handlers.Add (path, handler);
-		}
+		public abstract void RegisterHandler (string path, Handler handler);
+
+		protected internal abstract Handler GetHandler (string path);
 
 		public bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request)
 		{
-			++countRequests;
-
-			var path = request.Path;
-			var handler = handlers[path];
-			handlers.Remove (path);
+			var handler = GetHandler (request.Path);
+			if (Delegate != null && !Delegate.HandleConnection (ctx, connection, request, handler))
+				return false;
 
 			return handler.HandleRequest (connection, request);
 		}
