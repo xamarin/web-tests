@@ -49,10 +49,15 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
+		public HttpBackend Backend {
+			get;
+		}
+
 		internal HttpConnection (TestContext ctx, HttpServer server)
 		{
 			TestContext = ctx;
 			Server = server;
+			Backend = server.Backend;
 		}
 
 		public abstract bool HasRequest ();

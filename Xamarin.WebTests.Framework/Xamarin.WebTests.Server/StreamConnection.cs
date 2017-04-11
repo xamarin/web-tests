@@ -84,14 +84,14 @@ namespace Xamarin.WebTests.Server {
 
 		public override void CheckEncryption (TestContext ctx)
 		{
-			if ((Server.Backend.Flags & (ListenerFlags.SSL | ListenerFlags.ForceTls12)) == 0)
+			if ((Backend.Flags & (ListenerFlags.SSL | ListenerFlags.ForceTls12)) == 0)
 				return;
 
 			ctx.Assert (SslStream, Is.Not.Null, "Needs SslStream");
 			ctx.Assert (SslStream.IsAuthenticated, "Must be authenticated");
 
 			var setup = DependencyInjector.Get <IConnectionFrameworkSetup> ();
-			if (((Server.Backend.Flags & ListenerFlags.ForceTls12) != 0) || setup.SupportsTls12)
+			if (((Backend.Flags & ListenerFlags.ForceTls12) != 0) || setup.SupportsTls12)
 				ctx.Assert (SslStream.ProtocolVersion, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
 		}
 	}
