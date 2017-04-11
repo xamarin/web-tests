@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -30,7 +30,8 @@
     <Profiling>false</Profiling>
     <MonoBundlingExtraArgs></MonoBundlingExtraArgs>
     <XamMacArch>x86_64</XamMacArch>
-    <TlsProvider>Legacy</TlsProvider>
+    <HttpClientHandler>HttpClientHandler</HttpClientHandler>
+    <LinkMode>None</LinkMode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -46,26 +47,7 @@
     <EnablePackageSigning>false</EnablePackageSigning>
     <DefineConstants>MACUI</DefineConstants>
     <Profiling>false</Profiling>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugAppleTls|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\DebugAppleTls</OutputPath>
-    <DefineConstants>__UNIFIED__;DEBUG;MACUI;APPLETLS;</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-    <UseRefCounting>false</UseRefCounting>
-    <UseSGen>false</UseSGen>
-    <IncludeMonoRuntime>false</IncludeMonoRuntime>
-    <CreatePackage>false</CreatePackage>
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <Profiling>false</Profiling>
-    <TlsProvider>Default</TlsProvider>
-    <MonoBundlingExtraArgs>--xml=web-tests-linker.xml</MonoBundlingExtraArgs>
-    <XamMacArch>x86_64</XamMacArch>
+    <HttpClientHandler>HttpClientHandler</HttpClientHandler>
     <LinkMode>None</LinkMode>
   </PropertyGroup>
   <ItemGroup>
