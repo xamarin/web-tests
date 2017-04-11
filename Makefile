@@ -19,6 +19,14 @@ Jenkins-Install::
 Jenkins-Run::
 	$(MAKE) JENKINS=1 Run-$(JENKINS_TARGET)-$(JENKINS_TESTS)
 
+Jenkins-Build-ConsoleAppleTls::
+	echo "AppleTls is currently unusably broken; disabling the Mac build."
+	exit 1
+	
+Jenkins-Run-ConsoleAppleTls-%::
+	echo "AppleTls is currently unusably broken; disabling the Mac build."
+	exit 1
+
 Jenkins-Build-Mac::
 	echo "AppleTls is currently unusably broken; disabling the Mac build."
 	exit 1
