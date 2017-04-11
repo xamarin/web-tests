@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
@@ -45,6 +46,8 @@ namespace Xamarin.WebTests.HttpFramework {
 		public abstract Uri Uri {
 			get;
 		}
+
+		public abstract IWebProxy GetProxy ();
 
 		public abstract Task Start (TestContext ctx, HttpServer server, CancellationToken cancellationToken);
 

@@ -85,7 +85,7 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			Handler.ConfigureRequest (request, uri);
 
-			request.SetProxy (Server.GetProxy ());
+			request.SetProxy (Server.Backend.GetProxy ());
 		}
 
 		protected abstract Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Request request);

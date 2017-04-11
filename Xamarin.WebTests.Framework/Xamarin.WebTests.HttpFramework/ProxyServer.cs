@@ -40,7 +40,9 @@ namespace Xamarin.WebTests.HttpFramework
 	[FriendlyName ("[ProxyServer]")]
 	public class ProxyServer : HttpServer
 	{
-		AuthenticationType authType = AuthenticationType.None;
+		new public ProxyBackend Backend {
+			get { return (ProxyBackend)base.Backend; }
+		}
 
 		public HttpBackend Target {
 			get;
@@ -56,59 +58,9 @@ namespace Xamarin.WebTests.HttpFramework
 			get { return Target.Uri; }
 		}
 
-		public AuthenticationType AuthenticationType {
-			get { return authType; }
-			set { authType = value; }
-		}
-
-		public ICredentials Credentials {
-			get; set;
-		}
-
-		public override IWebProxy GetProxy ()
-		{
-			var proxy = new SimpleProxy (Backend.Uri);
-			if (Credentials != null)
-				proxy.Credentials = Credentials;
-			return proxy;
-		}
-
-		public static IWebProxy CreateSimpleProxy (Uri uri)
-		{
-			return new SimpleProxy (uri);
-		}
-
-		class SimpleProxy : IWebProxy
-		{
-			readonly Uri uri;
-
-			public SimpleProxy (Uri uri)
-			{
-				this.uri = uri;
-			}
-
-			public Uri Uri {
-				get { return uri; }
-			}
-
-			public ICredentials Credentials {
-				get; set;
-			}
-
-			public Uri GetProxy (Uri destination)
-			{
-				return uri;
-			}
-
-			public bool IsBypassed (Uri host)
-			{
-				return false;
-			}
-		}
-
 		protected override string MyToString ()
 		{
-			return string.Format ("SSL={0}, AuthenticationType={1}", Target.UseSSL, AuthenticationType);
+			return string.Format ("SSL={0}, AuthenticationType={1}", Target.UseSSL, Backend.AuthenticationType);
 		}
 	}
 }

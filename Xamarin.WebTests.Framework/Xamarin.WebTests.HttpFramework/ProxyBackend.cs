@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
@@ -61,6 +62,17 @@ namespace Xamarin.WebTests.HttpFramework {
 			get;
 		}
 
+		public ICredentials Credentials {
+			get; set;
+		}
+
+		public AuthenticationType AuthenticationType {
+			get { return authType; }
+			set { authType = value; }
+		}
+
+		AuthenticationType authType = AuthenticationType.None;
+
 		ProxyListener currentListener;
 
 		public override async Task Start (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
@@ -89,6 +101,46 @@ namespace Xamarin.WebTests.HttpFramework {
 		public override HttpConnection CreateConnection (TestContext ctx, HttpServer server, Stream stream)
 		{
 			return Target.CreateConnection (ctx, server, stream);
+		}
+
+		public override IWebProxy GetProxy ()
+		{
+			var proxy = new SimpleProxy (Uri);
+			if (Credentials != null)
+				proxy.Credentials = Credentials;
+			return proxy;
+		}
+
+		public static IWebProxy CreateSimpleProxy (Uri uri)
+		{
+			return new SimpleProxy (uri);
+		}
+
+		class SimpleProxy : IWebProxy {
+			readonly Uri uri;
+
+			public SimpleProxy (Uri uri)
+			{
+				this.uri = uri;
+			}
+
+			public Uri Uri {
+				get { return uri; }
+			}
+
+			public ICredentials Credentials {
+				get; set;
+			}
+
+			public Uri GetProxy (Uri destination)
+			{
+				return uri;
+			}
+
+			public bool IsBypassed (Uri host)
+			{
+				return false;
+			}
 		}
 	}
 }

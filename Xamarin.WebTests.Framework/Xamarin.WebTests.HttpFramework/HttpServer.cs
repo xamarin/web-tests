@@ -68,11 +68,6 @@ namespace Xamarin.WebTests.HttpFramework
 			get { return (Backend.Flags & ListenerFlags.ReuseConnection) != 0; }
 		}
 
-		public virtual IWebProxy GetProxy ()
-		{
-			return null;
-		}
-
 		#region ITestInstance implementation
 
 		bool initialized;

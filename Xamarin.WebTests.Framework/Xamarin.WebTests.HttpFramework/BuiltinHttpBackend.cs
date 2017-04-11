@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
@@ -91,6 +92,11 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		public override Uri Uri {
 			get;
+		}
+
+		public override IWebProxy GetProxy ()
+		{
+			return null;
 		}
 
 		BuiltinHttpListener currentListener;

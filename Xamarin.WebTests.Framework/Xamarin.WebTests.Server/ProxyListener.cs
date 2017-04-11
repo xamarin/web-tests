@@ -61,8 +61,8 @@ namespace Xamarin.WebTests.Server
 			Backend = backend;
 			Server = server;
 
-			if (Server.AuthenticationType != AuthenticationType.None)
-				authManager = new ProxyAuthManager (Server.AuthenticationType);
+			if (Backend.AuthenticationType != AuthenticationType.None)
+				authManager = new ProxyAuthManager (Backend.AuthenticationType);
 		}
 
 		protected override HttpConnection CreateConnection (Socket socket)
