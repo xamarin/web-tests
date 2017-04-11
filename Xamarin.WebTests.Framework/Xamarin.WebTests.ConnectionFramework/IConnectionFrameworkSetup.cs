@@ -1,4 +1,4 @@
-//
+﻿//
 // IConnectionFrameworkSetup.cs
 //
 // Author:
@@ -48,6 +48,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		bool SupportsTls12 {
+			get;
+		}
+
+		bool UsingBtls {
+			get;
+		}
+
+		bool UsingAppleTls {
 			get;
 		}
 
