@@ -1,4 +1,4 @@
-﻿//
+//
 // BuiltinHttpServer.cs
 //
 // Author:
@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			get;
 		}
 
-		public BuiltinHttpServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, ListenerFlags flags,
+		public BuiltinHttpServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, HttpServerFlags flags,
 		                           ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
 		{
 			ListenAddress = listenAddress;
@@ -53,9 +53,9 @@ namespace Xamarin.WebTests.HttpFramework {
 			SslStreamProvider = sslStreamProvider;
 
 			if (Parameters != null)
-				Flags |= ListenerFlags.SSL;
+				Flags |= HttpServerFlags.SSL;
 
-			if ((Flags & ListenerFlags.SSL) != 0) {
+			if ((Flags & HttpServerFlags.SSL) != 0) {
 				if (SslStreamProvider == null) {
 					var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 					SslStreamProvider = factory.DefaultSslStreamProvider;
@@ -65,7 +65,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			Uri = new Uri (string.Format ("http{0}://{1}:{2}/", SslStreamProvider != null ? "s" : "", clientEndPoint.Address, clientEndPoint.Port));
 		}
 
-		public BuiltinHttpServer (Uri uri, IPortableEndPoint listenAddress, ListenerFlags flags,
+		public BuiltinHttpServer (Uri uri, IPortableEndPoint listenAddress, HttpServerFlags flags,
 		                           ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
 		{
 			Uri = uri;
@@ -80,7 +80,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			}
 		}
 
-		public sealed override ListenerFlags Flags {
+		public sealed override HttpServerFlags Flags {
 			get;
 		}
 
@@ -135,7 +135,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			try {
 				await listener.Stop ().ConfigureAwait (false);
 			} catch {
-				if ((Flags & ListenerFlags.ExpectException) == 0)
+				if ((Flags & HttpServerFlags.ExpectException) == 0)
 					throw;
 			}
 		}

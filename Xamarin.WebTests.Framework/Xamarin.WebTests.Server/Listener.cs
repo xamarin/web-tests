@@ -1,4 +1,4 @@
-﻿//
+//
 // Listener.cs
 //
 // Author:
@@ -46,10 +46,10 @@ namespace Xamarin.WebTests.Server {
 	using Server;
 
 	abstract class Listener {
-		public Listener (IPortableEndPoint endpoint, ListenerFlags flags)
+		public Listener (IPortableEndPoint endpoint, HttpServerFlags flags)
 		{
-			var ssl = (flags & ListenerFlags.SSL) != 0;
-			if (ssl & (flags & ListenerFlags.Proxy) != 0)
+			var ssl = (flags & HttpServerFlags.SSL) != 0;
+			if (ssl & (flags & HttpServerFlags.Proxy) != 0)
 				throw new InternalErrorException ();
 
 			var address = IPAddress.Parse (endpoint.Address);

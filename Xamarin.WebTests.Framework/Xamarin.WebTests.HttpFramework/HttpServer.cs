@@ -1,4 +1,4 @@
-﻿//
+//
 // HttpServer.cs
 //
 // Author:
@@ -39,7 +39,7 @@ using Xamarin.WebTests.Server;
 namespace Xamarin.WebTests.HttpFramework {
 	[FriendlyName ("HttpServer")]
 	public abstract class HttpServer : ITestInstance {
-		public abstract ListenerFlags Flags {
+		public abstract HttpServerFlags Flags {
 			get;
 		}
 
@@ -62,7 +62,7 @@ namespace Xamarin.WebTests.HttpFramework {
 		public abstract IWebProxy GetProxy ();
 
 		public bool ReuseConnection {
-			get { return (Flags & ListenerFlags.ReuseConnection) != 0; }
+			get { return (Flags & HttpServerFlags.ReuseConnection) != 0; }
 		}
 
 		#region ITestInstance implementation
@@ -150,7 +150,7 @@ namespace Xamarin.WebTests.HttpFramework {
 		protected virtual string MyToString ()
 		{
 			var sb = new StringBuilder ();
-			if ((Flags & ListenerFlags.ReuseConnection) != 0)
+			if ((Flags & HttpServerFlags.ReuseConnection) != 0)
 				sb.Append ("shared");
 			if (UseSSL) {
 				if (sb.Length > 0)

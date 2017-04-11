@@ -1,5 +1,5 @@
 ﻿//
-// ListenerFlags.cs
+// HttpServerFlags.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -28,7 +28,7 @@ using System;
 namespace Xamarin.WebTests.HttpFramework
 {
 	[Flags]
-	public enum ListenerFlags
+	public enum HttpServerFlags
 	{
 		None				= 0,
 		Proxy				= 1,

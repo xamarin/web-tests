@@ -1,4 +1,4 @@
-﻿//
+//
 // BuiltinProxyServer.cs
 //
 // Author:
@@ -42,16 +42,16 @@ namespace Xamarin.WebTests.HttpFramework {
 			get;
 		}
 
-		public BuiltinProxyServer (HttpServer target, IPortableEndPoint proxyEndPoint, ListenerFlags flags)
+		public BuiltinProxyServer (HttpServer target, IPortableEndPoint proxyEndPoint, HttpServerFlags flags)
 		{
 			Target = target;
 			ProxyEndPoint = proxyEndPoint;
-			Flags = flags | ListenerFlags.Proxy;
+			Flags = flags | HttpServerFlags.Proxy;
 
 			Uri = new Uri (string.Format ("http://{0}:{1}/", ProxyEndPoint.Address, ProxyEndPoint.Port));
 		}
 
-		public override ListenerFlags Flags {
+		public override HttpServerFlags Flags {
 			get;
 		}
 
@@ -106,7 +106,7 @@ namespace Xamarin.WebTests.HttpFramework {
 				await listener.Stop ().ConfigureAwait (false);
 				await Target.Stop (ctx, cancellationToken);
 			} catch {
-				if ((Flags & ListenerFlags.ExpectException) == 0)
+				if ((Flags & HttpServerFlags.ExpectException) == 0)
 					throw;
 			}
 		}
