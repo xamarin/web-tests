@@ -45,12 +45,10 @@ namespace Xamarin.WebTests.Tests
 	using HttpHandlers;
 	using Server;
 
-	[SSL]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestHttps
 	{
 		[AsyncTest]
-		[CertificateTests]
 		[ConnectionTestCategory (ConnectionTestCategory.HttpsWithMono)]
 		public async Task TestMonoConnection (TestContext ctx, CancellationToken cancellationToken,
 			ConnectionTestProvider provider, HttpsTestParameters parameters,
@@ -60,7 +58,6 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		[CertificateTests]
 		[ConnectionTestCategory (ConnectionTestCategory.HttpsWithDotNet)]
 		public async Task TestDotNetConnection (TestContext ctx, CancellationToken cancellationToken,
 			ConnectionTestProvider provider, HttpsTestParameters parameters,
@@ -70,7 +67,6 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		[CertificateTests]
 		[ConnectionTestCategory (ConnectionTestCategory.HttpsCertificateValidators)]
 		public async Task TestCertificateValidators (TestContext ctx, CancellationToken cancellationToken,
 			ConnectionTestProvider provider, HttpsTestParameters parameters,

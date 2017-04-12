@@ -67,17 +67,6 @@ namespace Xamarin.WebTests
 		public readonly TestCategory HeavyCategory = new TestCategory ("Heavy") { IsExplicit = true };
 		public readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
 
-		readonly TestFeature sslFeature = new TestFeature ("SSL", "Use SSL", true);
-
-		public TestFeature SSL {
-			get { return sslFeature; }
-		}
-
-		public TestFeature CertificateTests {
-			get;
-			private set;
-		}
-
 		#region ITestConfigurationProvider implementation
 		public string Name {
 			get { return "Xamarin.WebTests.Tests"; }
@@ -85,15 +74,11 @@ namespace Xamarin.WebTests
 
 		public IEnumerable<TestFeature> Features {
 			get {
-				yield return SSL;
-
 				yield return NTLM;
 				yield return Redirect;
 				yield return Proxy;
 				yield return ProxyAuth;
 				yield return ReuseConnection;
-
-				yield return CertificateTests;
 			}
 		}
 
@@ -117,8 +102,7 @@ namespace Xamarin.WebTests
 			public IEnumerable<bool> GetParameters (TestContext ctx, string filter)
 			{
 				yield return false;
-				if (ctx.IsEnabled (Instance.SSL))
-					yield return true;
+				yield return true;
 			}
 			#endregion
 		}
@@ -201,9 +185,7 @@ namespace Xamarin.WebTests
 				}
 
 				yield return ProxyKind.Unauthenticated;
-
-				if (IncludeSSL && ctx.IsEnabled (Instance.SSL))
-					yield return ProxyKind.SSL;
+				yield return ProxyKind.SSL;
 			}
 		}
 
@@ -217,13 +199,7 @@ namespace Xamarin.WebTests
 
 			public IEnumerable<CertificateResourceType> GetParameters (TestContext ctx, string filter)
 			{
-				if (!ctx.IsEnabled (Instance.SSL))
-					yield break;
-
 				yield return CertificateResourceType.SelfSignedServerCertificate;
-				if (!ctx.IsEnabled (Instance.CertificateTests))
-					yield break;
-
 				yield return CertificateResourceType.ServerCertificateFromLocalCA;
 			}
 		}
@@ -252,12 +228,6 @@ namespace Xamarin.WebTests
 			}
 		}
 
-		bool SupportsCertificateTests ()
-		{
-			var support = DependencyInjector.Get<IHttpProvider> ();
-			return support.SupportsPerRequestCertificateValidator;
-		}
-
 		internal class Provider : IDependencyProvider
 		{
 			public void Initialize ()
@@ -269,9 +239,6 @@ namespace Xamarin.WebTests
 		WebTestFeatures ()
 		{
 			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandlerImpl ());
-
-			CertificateTests = new TestFeature (
-				"CertificateTests", "Whether the SSL Certificate tests are supported", () => SupportsCertificateTests ());
 		}
 	}
 }
