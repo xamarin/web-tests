@@ -1,4 +1,4 @@
-//
+﻿//
 // MartinTest.cs
 //
 // Author:
@@ -39,6 +39,7 @@ using Mono.Security.Interface;
 using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.Server;
 using Xamarin.WebTests.TestRunners;
+using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.HttpHandlers;
 using Xamarin.WebTests.MonoConnectionFramework;
@@ -142,8 +143,8 @@ namespace Mono.Btls.Tests
 
 		[Work]
 		[AsyncTest]
-		public Task TestWebServer (TestContext ctx, CancellationToken cancellationToken,
-		                           [HttpServer (HttpServerFlags.SSL)] HttpServer server)
+		[HttpServerFlags (HttpServerFlags.SSL)]
+		public Task TestWebServer (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
 			var handler = new HelloWorldHandler ("Hello World");
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);

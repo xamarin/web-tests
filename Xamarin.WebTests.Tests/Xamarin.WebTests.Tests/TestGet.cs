@@ -81,23 +81,24 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task Run (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server, [GetHandler] Handler handler)
+		public Task Run (TestContext ctx, CancellationToken cancellationToken,
+		                 HttpServer server, [GetHandler] Handler handler)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-			[HttpServer] HttpServer server, bool sendAsync, [GetHandler] Handler handler)
+		                 HttpServer server, bool sendAsync, [GetHandler] Handler handler)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}
 
 		[AsyncTest]
 		public Task Redirect (TestContext ctx, CancellationToken cancellationToken,
-			[HttpServer] HttpServer server, bool sendAsync,
-			[RedirectStatus] HttpStatusCode code,
-			[GetHandler] Handler handler)
+		                      HttpServer server, bool sendAsync,
+		                      [RedirectStatus] HttpStatusCode code,
+		                      [GetHandler] Handler handler)
 		{
 			var description = string.Format ("{0}: {1}", code, handler.Value);
 			var redirect = new RedirectHandler (handler, code, description);

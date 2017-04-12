@@ -132,9 +132,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task RedirectAsGetNoBuffering (
-			TestContext ctx, [HttpServer] HttpServer server,
-			CancellationToken cancellationToken)
+		public Task RedirectAsGetNoBuffering (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
 			var post = new PostHandler ("RedirectAsGetNoBuffering", HttpContent.HelloChunked, TransferMode.Chunked) {
 				Flags = RequestFlags.RedirectedAsGet,
@@ -145,9 +143,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task RedirectNoBuffering (
-			TestContext ctx, [HttpServer] HttpServer server,
-			CancellationToken cancellationToken)
+		public Task RedirectNoBuffering (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
 			var post = new PostHandler ("RedirectNoBuffering", HttpContent.HelloChunked, TransferMode.Chunked) {
 				Flags = RequestFlags.Redirected,
@@ -160,18 +156,17 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task Run (
-			TestContext ctx, [HttpServer] HttpServer server, bool sendAsync,
-			[PostHandler] Handler handler, CancellationToken cancellationToken)
+		public Task Run (TestContext ctx, HttpServer server, bool sendAsync,
+		                 [PostHandler] Handler handler, CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}
 
 		[AsyncTest]
-		public Task Redirect (
-			TestContext ctx, [HttpServer] HttpServer server, bool sendAsync,
-			[RedirectStatus] HttpStatusCode code,
-			[PostHandler ("post")] Handler handler, CancellationToken cancellationToken)
+		public Task Redirect (TestContext ctx, HttpServer server, bool sendAsync,
+		                      [RedirectStatus] HttpStatusCode code,
+		                      [PostHandler ("post")] Handler handler,
+		                      CancellationToken cancellationToken)
 		{
 			var post = (PostHandler)handler;
 			var support = DependencyInjector.Get<IPortableSupport> ();
@@ -189,9 +184,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public async Task Test18750 (
-			TestContext ctx, [HttpServer] HttpServer server,
-			CancellationToken cancellationToken)
+		public async Task Test18750 (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
 			var post = new PostHandler ("First post", new StringContent ("var1=value&var2=value2")) {
 				Flags = RequestFlags.RedirectedAsGet
@@ -210,9 +203,8 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task TestChunked (
-			TestContext ctx, [HttpServer] HttpServer server, bool sendAsync,
-			[PostHandler ("chunked")] Handler handler, CancellationToken cancellationToken)
+		public Task TestChunked (TestContext ctx, HttpServer server, bool sendAsync,
+		                         [PostHandler ("chunked")] Handler handler, CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}
@@ -234,10 +226,9 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public async Task Test10163 (
-			TestContext ctx, [HttpServer] HttpServer server,
-			[AuthenticationType] AuthenticationType authType,
-			CancellationToken cancellationToken)
+		public async Task Test10163 (TestContext ctx, HttpServer server,
+		                             [AuthenticationType] AuthenticationType authType,
+		                             CancellationToken cancellationToken)
 		{
 			var post = new PostHandler ("Post bug #10163", HttpContent.HelloWorld);
 
@@ -256,10 +247,9 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public async Task Test20359 (
-			TestContext ctx, [HttpServer] HttpServer server,
-			[AuthenticationType] AuthenticationType authType,
-			CancellationToken cancellationToken)
+		public async Task Test20359 (TestContext ctx, HttpServer server,
+		                             [AuthenticationType] AuthenticationType authType,
+		                             CancellationToken cancellationToken)
 		{
 			var post = new PostHandler ("Post bug #20359", new StringContent ("var1=value&var2=value2"));
 
@@ -297,7 +287,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task Test31830 (TestContext ctx, [HttpServer] HttpServer server, bool writeStreamBuffering, CancellationToken cancellationToken)
+		public Task Test31830 (TestContext ctx, HttpServer server, bool writeStreamBuffering, CancellationToken cancellationToken)
 		{
 			var handler = new PostHandler ("Obscure HTTP verb.");
 			handler.Method = "EXECUTE";
@@ -308,9 +298,9 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		[WebTestFeatures.RecentlyFixed]
-		public Task TestRecentlyFixed (
-			TestContext ctx, [HttpServer] HttpServer server, bool sendAsync,
-			[PostHandler ("recently-fixed")] Handler handler, CancellationToken cancellationToken)
+		public Task TestRecentlyFixed (TestContext ctx, HttpServer server, bool sendAsync,
+		                               [PostHandler ("recently-fixed")] Handler handler,
+		                               CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}

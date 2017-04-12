@@ -111,7 +111,7 @@ namespace Xamarin.WebTests
 
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-			[HttpServer] HttpServer server, [HttpClientHandler ("stable")] HttpClientHandler handler)
+		                 HttpServer server, [HttpClientHandler ("stable")] HttpClientHandler handler)
 		{
 			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
 		}
@@ -119,13 +119,13 @@ namespace Xamarin.WebTests
 		[AsyncTest]
 		[WebTestFeatures.RecentlyFixed]
 		public Task RunRecentlyFixed (TestContext ctx, CancellationToken cancellationToken,
-			[HttpServer] HttpServer server, [HttpClientHandler ("recently-fixed")] HttpClientHandler handler)
+		                              HttpServer server, [HttpClientHandler ("recently-fixed")] HttpClientHandler handler)
 		{
 			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
 		}
 
 		[AsyncTest]
-		public Task Run (TestContext ctx, CancellationToken cancellationToken, [HttpServer] HttpServer server)
+		public Task Run (TestContext ctx, CancellationToken cancellationToken, HttpServer server)
 		{
 			var handler = new HttpClientHandler ("PutRedirectEmptyBody", HttpClientOperation.PutString);
 			var redirect = new RedirectHandler (handler, HttpStatusCode.TemporaryRedirect);
@@ -133,14 +133,14 @@ namespace Xamarin.WebTests
 		}
 
 		[AsyncTest]
-		public Task SendAsync (TestContext ctx, [HttpServer] HttpServer server, CancellationToken cancellationToken)
+		public Task SendAsync (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
 			var handler = new HttpClientHandler ("SendAsyncEmptyBody", HttpClientOperation.SendAsync);
 			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
 		}
 
 		[AsyncTest]
-		public Task Test31830 (TestContext ctx, [HttpServer] HttpServer server, CancellationToken cancellationToken)
+		public Task Test31830 (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
 			var handler = new HttpClientHandler ("SendAsyncObscureVerb", HttpClientOperation.SendAsync);
 			handler.ObscureHttpMethod = "EXECUTE";

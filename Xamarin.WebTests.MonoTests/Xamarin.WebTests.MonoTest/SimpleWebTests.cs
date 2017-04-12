@@ -68,17 +68,17 @@ namespace Xamarin.WebTests.MonoTests
 		}
 
 		[AsyncTest]
+		[HttpServerFlags (HttpServerFlags.SSL)]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-			[HttpServer (HttpServerFlags.SSL)] HttpServer server,
-			[SimpleWebHandler] Handler handler)
+		                 HttpServer server, [SimpleWebHandler] Handler handler)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 
 		[AsyncTest]
+		[HttpServerFlags (HttpServerFlags.SSL | HttpServerFlags.ForceTls12)]
 		public Task ForceTls12 (TestContext ctx, CancellationToken cancellationToken,
-			[HttpServer (HttpServerFlags.SSL | HttpServerFlags.ForceTls12)] HttpServer server,
-			[SimpleWebHandler] Handler handler)
+		                        HttpServer server, [SimpleWebHandler] Handler handler)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}

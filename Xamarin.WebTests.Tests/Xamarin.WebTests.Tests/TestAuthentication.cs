@@ -89,7 +89,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Run (
-			TestContext ctx, [HttpServer] HttpServer server, bool sendAsync,
+			TestContext ctx, HttpServer server, bool sendAsync,
 			[AuthenticationType] AuthenticationType authType, [PostHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
@@ -99,7 +99,7 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task MustClearAuthOnRedirect (
-			TestContext ctx, [HttpServer] HttpServer server, bool sendAsync,
+			TestContext ctx, HttpServer server, bool sendAsync,
 			CancellationToken cancellationToken)
 		{
 			var target = new HelloWorldHandler ("Hello World");
