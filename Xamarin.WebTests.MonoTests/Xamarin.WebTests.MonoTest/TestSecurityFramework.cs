@@ -46,14 +46,6 @@ namespace Xamarin.WebTests.MonoTests
 	[AsyncTestFixture]
 	public class TestSecurityFramework
 	{
-		[Martin]
-		[AsyncTest]
-		public async Task MartinTest (TestContext ctx, CancellationToken cancellationToken)
-		{
-			await Task.Yield ();
-			ctx.LogMessage ("HELLO WORLD!");
-		}
-
 		[AsyncTest]
 		public void DefaultProvider (TestContext ctx)
 		{

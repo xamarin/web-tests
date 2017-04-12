@@ -1,4 +1,4 @@
-//
+﻿//
 // SimpleTests.cs
 //
 // Author:
@@ -76,7 +76,6 @@ namespace Xamarin.WebTests.MonoTests
 		}
 
 		[AsyncTest]
-		[NotWorking] // IMPORTANT FIXME: Remove the category flag when we ship!
 		public Task ForceTls12 (TestContext ctx, CancellationToken cancellationToken,
 			[HttpServer (HttpServerFlags.SSL | HttpServerFlags.ForceTls12)] HttpServer server,
 			[SimpleWebHandler] Handler handler)
