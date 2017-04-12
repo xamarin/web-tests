@@ -27,18 +27,16 @@ using System;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Mono.Security.Interface;
-#if !__MOBILE__
+#if !__MOBILE__ && !__IOS__
 using System.Reflection;
 #endif
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.MonoTestProvider
-{
+namespace Xamarin.WebTests.MonoTestProvider {
 	using MonoConnectionFramework;
 	using ConnectionFramework;
 
-	public sealed class MonoConnectionFrameworkSetup : IMonoConnectionFrameworkSetup
-	{
+	public sealed class MonoConnectionFrameworkSetup : IMonoConnectionFrameworkSetup {
 		public string Name {
 			get;
 		}
@@ -75,30 +73,30 @@ namespace Xamarin.WebTests.MonoTestProvider
 		{
 			Name = name;
 
-#if !__MOBILE__ && !__UNIFIED__
+#if !__MOBILE__ && !__UNIFIED__ && !__IOS__
 			var providerEnvVar = Environment.GetEnvironmentVariable ("MONO_TLS_PROVIDER");
 			switch (providerEnvVar) {
-			case "btls":
-				MonoTlsProviderFactory.Initialize ("btls");
-				break;
-			case "apple":
-				MonoTlsProviderFactory.Initialize ("apple");
-				break;
-			case "default":
-			case null:
+				case "btls":
+					MonoTlsProviderFactory.Initialize ("btls");
+					break;
+				case "apple":
+					MonoTlsProviderFactory.Initialize ("apple");
+					break;
+				case "default":
+				case null:
 #if APPLETLS
 				MonoTlsProviderFactory.Initialize ("apple");
 #elif LEGACY
 				MonoTlsProviderFactory.Initialize ("legacy");
 #else
-				MonoTlsProviderFactory.Initialize ("btls");
+					MonoTlsProviderFactory.Initialize ("btls");
 #endif
-				break;
-			case "legacy":
-				MonoTlsProviderFactory.Initialize ("legacy");
-				break;
-			default:
-				throw new NotSupportedException (string.Format ("Unsupported TLS Provider: `{0}'", providerEnvVar));
+					break;
+				case "legacy":
+					MonoTlsProviderFactory.Initialize ("legacy");
+					break;
+				default:
+					throw new NotSupportedException (string.Format ("Unsupported TLS Provider: `{0}'", providerEnvVar));
 			}
 #endif
 
@@ -106,6 +104,9 @@ namespace Xamarin.WebTests.MonoTestProvider
 			UsingBtls = TlsProvider.ID == ConnectionProviderFactory.BoringTlsGuid;
 			UsingAppleTls = TlsProvider.ID == ConnectionProviderFactory.AppleTlsGuid;
 			SupportsTls12 = UsingBtls || UsingAppleTls;
+
+			if (UsingAppleTls && !CheckAppleTls ())
+				throw new NotSupportedException ("AppleTls is not supported in this version of the Mono runtime.");
 		}
 
 		public void Initialize (ConnectionProviderFactory factory)
@@ -116,6 +117,27 @@ namespace Xamarin.WebTests.MonoTestProvider
 		public MonoTlsProvider GetDefaultProvider ()
 		{
 			return TlsProvider;
+		}
+
+		bool CheckAppleTls ()
+		{
+#if __IOS__
+			return true;
+#elif !__MOBILE__
+			/*
+			 * AppleTls is unusable broken on Jenkins because it would hang the bots
+			 * prior to mono/master commit 1eb27c1df8ed29d84ca935496ffd6c230447895a.
+			 * 
+			 * This commit also added a new internal class called Mono.AppleTls.SecAccess;
+			 * we use reflection to check for its existance to determine whether our runtime
+			 * is recent enough.
+			 * 
+			 */
+			var assembly = typeof (HttpWebRequest).Assembly;
+			return assembly.GetType ("Mono.AppleTls.SecAccess", false) != null;
+#else
+			return false;
+#endif
 		}
 	}
 }
