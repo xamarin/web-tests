@@ -1,10 +1,10 @@
 ﻿//
-// ConnectionTestCategoryAttribute.cs
+// HttpServerFlagsAttribute.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,41 +23,27 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
 using System;
 using Xamarin.AsyncTests;
+using Xamarin.WebTests.HttpFramework;
 
-namespace Xamarin.WebTests.TestFramework
-{
-	using ConnectionFramework;
-
+namespace Xamarin.WebTests.TestFramework {
 	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
-	public class ConnectionTestCategoryAttribute : FixedTestParameterAttribute
+	public class HttpServerFlagsAttribute : FixedTestParameterAttribute
 	{
-		public override Type Type {
-			get { return typeof(ConnectionTestCategory); }
+		public override Type Type => typeof(HttpServerFlags);
+
+		public override object Value => Flags;
+
+		public override string Identifier => Type.Name;
+
+		public HttpServerFlags Flags {
+			get;
 		}
 
-		public override object Value {
-			get { return Category; }
-		}
-
-		public override string Identifier {
-			get { return identifier; }
-		}
-
-		public ConnectionTestCategory Category {
-			get { return category; }
-		}
-
-		readonly string identifier;
-		readonly ConnectionTestCategory category;
-
-		public ConnectionTestCategoryAttribute (ConnectionTestCategory category)
+		public HttpServerFlagsAttribute (HttpServerFlags flags)
 		{
-			this.category = category;
-			this.identifier = Type.Name;
+			Flags = flags;
 		}
 	}
 }
-

@@ -1,4 +1,4 @@
-//
+﻿//
 // HttpServer.cs
 //
 // Author:
@@ -33,10 +33,12 @@ using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.HttpHandlers;
 using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.HttpFramework {
+	[HttpServer]
 	[FriendlyName ("HttpServer")]
 	public abstract class HttpServer : ITestInstance {
 		public abstract HttpServerFlags Flags {

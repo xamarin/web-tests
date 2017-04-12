@@ -37,17 +37,40 @@ namespace Xamarin.WebTests.TestFramework
 
 	public sealed class HttpServerAttribute : TestHostAttribute, ITestHost<HttpServer>
 	{
-		HttpServerFlags serverFlags;
+		internal HttpServerFlags? ExplicitServerFlags;
 
-		public HttpServerAttribute (HttpServerFlags serverFlags = HttpServerFlags.None)
+		public HttpServerAttribute (HttpServerFlags serverFlags)
 			: base (typeof (HttpServerAttribute), TestFlags.Hidden)
 		{
-			this.serverFlags = serverFlags;
+			ExplicitServerFlags = serverFlags;
+		}
+
+		public HttpServerAttribute ()
+			: base (typeof (HttpServerAttribute), TestFlags.Hidden)
+		{
+		}
+
+		HttpServerFlags? GetFixedFlags (TestContext ctx)
+		{
+			HttpServerFlags fixedFlags;
+			if (ctx.TryGetParameter (out fixedFlags))
+				return fixedFlags;
+			return null;
+		}
+
+		bool GetReuseConnection (TestContext ctx)
+		{
+			bool reuseConnection;
+			return ctx.TryGetParameter (out reuseConnection, "ReuseConnection") && reuseConnection;
 		}
 
 		HttpServerFlags GetServerFlags (TestContext ctx)
 		{
-			HttpServerFlags flags = serverFlags;
+			HttpServerFlags flags;
+			if (ExplicitServerFlags != null)
+				flags = ExplicitServerFlags.Value;
+			else if (!ctx.TryGetParameter (out flags))
+				flags = HttpServerFlags.None;
 
 			bool reuseConnection;
 			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)
@@ -56,10 +79,10 @@ namespace Xamarin.WebTests.TestFramework
 			return flags;
 		}
 
-		bool GetParameters (TestContext ctx, out ConnectionParameters parameters)
+		bool GetParameters (TestContext ctx, HttpServerFlags flags, out ConnectionParameters parameters)
 		{
 			bool useSSL;
-			if (((serverFlags & HttpServerFlags.SSL) == 0) && (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL)) {
+			if (((flags & HttpServerFlags.SSL) == 0) && (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL)) {
 				parameters = null;
 				return false;
 			}
@@ -88,7 +111,7 @@ namespace Xamarin.WebTests.TestFramework
 			ISslStreamProvider sslStreamProvider = null;
 
 			var flags = GetServerFlags (ctx);
-			if (GetParameters (ctx, out parameters))
+			if (GetParameters (ctx, flags, out parameters))
 				sslStreamProvider = GetSslStreamProvider (ctx);
 
 			return new BuiltinHttpServer (endpoint, endpoint, flags, parameters, sslStreamProvider);
