@@ -27,7 +27,6 @@ using System;
 using System.Net;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
-using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {

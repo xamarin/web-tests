@@ -1,4 +1,4 @@
-//
+﻿//
 // TestFork.cs
 //
 // Author:
@@ -41,7 +41,6 @@ namespace Xamarin.WebTests.Tests
 	using HttpFramework;
 	using TestFramework;
 	using TestRunners;
-	using Server;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class ForkHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>

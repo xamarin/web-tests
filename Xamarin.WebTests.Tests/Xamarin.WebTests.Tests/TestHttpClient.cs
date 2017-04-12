@@ -41,7 +41,6 @@ namespace Xamarin.WebTests
 	using HttpFramework;
 	using TestFramework;
 	using TestRunners;
-	using Features;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class HttpClientHandlerAttribute : TestParameterAttribute, ITestParameterSource<HttpClientHandler>

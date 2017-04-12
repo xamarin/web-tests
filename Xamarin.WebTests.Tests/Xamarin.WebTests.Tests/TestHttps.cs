@@ -40,10 +40,8 @@ namespace Xamarin.WebTests.Tests
 	using ConnectionFramework;
 	using TestFramework;
 	using TestRunners;
-	using Features;
 	using HttpFramework;
 	using HttpHandlers;
-	using Server;
 
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestHttps

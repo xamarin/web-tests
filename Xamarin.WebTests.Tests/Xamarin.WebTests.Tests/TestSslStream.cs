@@ -40,7 +40,6 @@ namespace Xamarin.WebTests.Tests
 	using ConnectionFramework;
 	using TestFramework;
 	using TestRunners;
-	using Features;
 
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestSslStream

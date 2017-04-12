@@ -15,7 +15,6 @@ using MSI = Mono.Security.Interface;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
-using Xamarin.WebTests.Server;
 using Xamarin.WebTests.ConnectionFramework;
 
 namespace Xamarin.WebTests.MonoConnectionFramework

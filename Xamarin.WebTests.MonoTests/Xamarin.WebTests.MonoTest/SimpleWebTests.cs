@@ -36,7 +36,6 @@ using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.HttpHandlers;
 using Xamarin.WebTests.TestRunners;
-using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.MonoTests
 {

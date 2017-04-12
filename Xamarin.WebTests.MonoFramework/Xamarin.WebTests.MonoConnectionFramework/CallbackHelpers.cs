@@ -32,7 +32,6 @@ using System.Security.Cryptography.X509Certificates;
 using MSI = Mono.Security.Interface;
 
 using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.MonoConnectionFramework
 {

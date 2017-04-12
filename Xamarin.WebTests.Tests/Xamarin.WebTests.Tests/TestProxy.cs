@@ -1,4 +1,4 @@
-//
+﻿//
 // TestProxyAsync.cs
 //
 // Author:
@@ -45,7 +45,6 @@ namespace Xamarin.WebTests.Tests
 	using TestFramework;
 	using TestRunners;
 	using Resources;
-	using Server;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class ProxyHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
