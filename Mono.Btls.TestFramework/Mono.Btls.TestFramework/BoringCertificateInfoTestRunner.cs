@@ -34,13 +34,13 @@ namespace Mono.Btls.TestFramework
 {
 	public static class BoringCertificateInfoTestRunner
 	{
-		public static void PrintName (TestContext ctx, BtlsX509Name name)
+		public static void PrintName (TestContext ctx, string prefix, BtlsX509Name name)
 		{
-			ctx.LogMessage ("STRING: {0}", name.GetString ());
-			ctx.LogMessage ("HASH: {0:x}", name.GetHash ());
-			ctx.LogMessage ("HASH OLD: {0:x}", name.GetHashOld ());
-			ctx.LogBufferAsCSharp ("rawData", "\t\t", name.GetRawData (false));
-			ctx.LogBufferAsCSharp ("rawDataCanon", "\t\t", name.GetRawData (true));
+			ctx.LogMessage ("{0} string: {1}", prefix, name.GetString ());
+			ctx.LogMessage ("{0} hash: {1:x}", prefix, name.GetHash ());
+			ctx.LogMessage ("{0} hash old: {1:x}", prefix, name.GetHashOld ());
+			ctx.LogBufferAsCSharp (prefix + "_rawData", "\t\t", name.GetRawData (false));
+			ctx.LogBufferAsCSharp (prefix + "_rawDataCanon", "\t\t", name.GetRawData (true));
 		}
 
 		public static void TestName (TestContext ctx, BtlsX509Name actual, CertificateNameInfo expected, string label)
@@ -56,13 +56,13 @@ namespace Mono.Btls.TestFramework
 		{
 			using (var subjectName = x509.GetSubjectName ()) {
 				if (debug)
-					PrintName (ctx, subjectName);
+					PrintName (ctx, "subject", subjectName);
 				TestName (ctx, subjectName, expected.SubjectName, "GetSubjectName()");
 			}
 
 			using (var issuerName = x509.GetIssuerName ()) {
 				if (debug)
-					PrintName (ctx, issuerName);
+					PrintName (ctx, "issuer", issuerName);
 				TestName (ctx, issuerName, expected.IssuerName, "GetIssuerName()");
 			}
 

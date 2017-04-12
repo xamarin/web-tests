@@ -33,10 +33,14 @@ namespace Xamarin.WebTests.Resources
 
 		static readonly byte[] tlsTestXamDevExpiredData;
 		static readonly X509Certificate tlsTestXamDevExpired;
+		static readonly byte[] tlsTestXamDevExpired2Data;
+		static readonly X509Certificate tlsTestXamDevExpired2;
 		static readonly byte[] tlsTestXamDevNewData;
 		static readonly X509Certificate tlsTestXamDevNew;
-		static readonly byte[] tlsTestXamDevCAData;
-		static readonly X509Certificate tlsTestXamDevCA;
+		static readonly byte[] tlsTestXamDevOldCAData;
+		static readonly X509Certificate tlsTestXamDevOldCA;
+		static readonly byte[] tlsTestXamDevNewCAData;
+		static readonly X509Certificate tlsTestXamDevNewCA;
 
 		static readonly byte[] intermediateCAData;
 		static readonly X509Certificate intermediateCA;
@@ -47,9 +51,10 @@ namespace Xamarin.WebTests.Resources
 		static readonly X509Certificate hamillerTubeIM;
 
 		static readonly HamillerTubeCAData hamillerTubeCAInfo;
+		static readonly TlsTestXamDevExpired2Data tlsTestXamDevExpired2Info;
 		static readonly TlsTestXamDevNewData tlsTestXamDevNewInfo;
 		static readonly TlsTestXamDevExpiredData tlsTestXamDevExpiredInfo;
-		static readonly TlsTestXamDevCAData tlsTestXamDevCAInfo;
+		static readonly TlsTestXamDevOldCAData tlsTestXamDevOldCAInfo;
 		static readonly SelfSignedServerData selfSignedServerInfo;
 		static readonly IntermediateCAData intermediateCAInfo;
 		static readonly IntermediateServerData intermediateServerInfo;
@@ -105,11 +110,16 @@ namespace Xamarin.WebTests.Resources
 			tlsTestXamDevExpiredData = ResourceManager.ReadResource ("CA.tlstest-xamdev-expired.pem");
 			tlsTestXamDevExpired = provider.GetCertificateFromData (tlsTestXamDevExpiredData);
 
+			tlsTestXamDevExpired2Data = ResourceManager.ReadResource ("CA.tlstest-xamdev-expired2.pem");
+			tlsTestXamDevExpired2 = provider.GetCertificateFromData (tlsTestXamDevExpired2Data);
+
 			tlsTestXamDevNewData = ResourceManager.ReadResource ("CA.tlstest-xamdev-new.pem");
 			tlsTestXamDevNew = provider.GetCertificateFromData (tlsTestXamDevNewData);
+			tlsTestXamDevNewCAData = ResourceManager.ReadResource ("CA.tlstest-xamdev-new-ca.pem");
+			tlsTestXamDevNewCA = provider.GetCertificateFromData (tlsTestXamDevNewCAData);
 
-			tlsTestXamDevCAData = ResourceManager.ReadResource ("CA.tlstest-xamdev-ca.pem");
-			tlsTestXamDevCA = provider.GetCertificateFromData (tlsTestXamDevCAData);
+			tlsTestXamDevOldCAData = ResourceManager.ReadResource ("CA.tlstest-xamdev-old-ca.pem");
+			tlsTestXamDevOldCA = provider.GetCertificateFromData (tlsTestXamDevOldCAData);
 
 			intermediateCAData = ResourceManager.ReadResource ("CA.intermediate-ca.pem");
 			intermediateCA = provider.GetCertificateFromData (intermediateCAData);
@@ -118,9 +128,10 @@ namespace Xamarin.WebTests.Resources
 
 			hamillerTubeCAInfo = new HamillerTubeCAData (cacertData);
 			selfSignedServerInfo = new SelfSignedServerData (selfServerCertNoKeyData);
+			tlsTestXamDevExpired2Info = new TlsTestXamDevExpired2Data (tlsTestXamDevExpired2Data);
 			tlsTestXamDevNewInfo = new TlsTestXamDevNewData (tlsTestXamDevNewData);
 			tlsTestXamDevExpiredInfo = new TlsTestXamDevExpiredData (tlsTestXamDevExpiredData);
-			tlsTestXamDevCAInfo = new TlsTestXamDevCAData (tlsTestXamDevCAData);
+			tlsTestXamDevOldCAInfo = new TlsTestXamDevOldCAData (tlsTestXamDevOldCAData);
 			intermediateCAInfo = new IntermediateCAData (intermediateCAData);
 			intermediateServerInfo = new IntermediateServerData (intermediateServerData);
 
@@ -230,10 +241,14 @@ namespace Xamarin.WebTests.Resources
 				return selfServerCertNoKey;
 			case CertificateResourceType.TlsTestXamDevExpired:
 				return tlsTestXamDevExpired;
+			case CertificateResourceType.TlsTestXamDevExpired2:
+				return tlsTestXamDevExpired2;
 			case CertificateResourceType.TlsTestXamDevNew:
 				return tlsTestXamDevNew;
-			case CertificateResourceType.TlsTestXamDevCA:
-				return tlsTestXamDevCA;
+			case CertificateResourceType.TlsTestXamDevOldCA:
+				return tlsTestXamDevOldCA;
+			case CertificateResourceType.TlsTestXamDevNewCA:
+				return tlsTestXamDevNewCA;
 			case CertificateResourceType.IntermediateCA:
 				return intermediateCA;
 			case CertificateResourceType.IntermediateServer:
@@ -255,7 +270,7 @@ namespace Xamarin.WebTests.Resources
 			case CertificateResourceType.ServerFromTrustedIntermediateCABare:
 				return serverCertTrustedIMBare;
 			default:
-				throw new InvalidOperationException ();
+				throw new InternalErrorException ();
 			}
 		}
 
@@ -272,10 +287,14 @@ namespace Xamarin.WebTests.Resources
 				return selfServerCertNoKeyData;
 			case CertificateResourceType.TlsTestXamDevExpired:
 				return tlsTestXamDevExpiredData;
+			case CertificateResourceType.TlsTestXamDevExpired2:
+				return tlsTestXamDevExpired2Data;
 			case CertificateResourceType.TlsTestXamDevNew:
 				return tlsTestXamDevNewData;
-			case CertificateResourceType.TlsTestXamDevCA:
-				return tlsTestXamDevCAData;
+			case CertificateResourceType.TlsTestXamDevOldCA:
+				return tlsTestXamDevOldCAData;
+			case CertificateResourceType.TlsTestXamDevNewCA:
+				return tlsTestXamDevNewCAData;
 			case CertificateResourceType.IntermediateCA:
 				return intermediateCAData;
 			case CertificateResourceType.IntermediateServer:
@@ -297,7 +316,7 @@ namespace Xamarin.WebTests.Resources
 			case CertificateResourceType.ServerFromTrustedIntermediateCABare:
 				return serverCertTrustedIMBareData;
 			default:
-				throw new InvalidOperationException ();
+				throw new InternalErrorException ();
 			}
 		}
 
@@ -324,10 +343,12 @@ namespace Xamarin.WebTests.Resources
 				return selfSignedServerInfo;
 			case CertificateResourceType.TlsTestXamDevExpired:
 				return tlsTestXamDevExpiredInfo;
+			case CertificateResourceType.TlsTestXamDevExpired2:
+				return tlsTestXamDevExpired2Info;
 			case CertificateResourceType.TlsTestXamDevNew:
 				return tlsTestXamDevNewInfo;
-			case CertificateResourceType.TlsTestXamDevCA:
-				return tlsTestXamDevCAInfo;
+			case CertificateResourceType.TlsTestXamDevOldCA:
+				return tlsTestXamDevOldCAInfo;
 			case CertificateResourceType.IntermediateCA:
 				return intermediateCAInfo;
 			case CertificateResourceType.IntermediateServer:

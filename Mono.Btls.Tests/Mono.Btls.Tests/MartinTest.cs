@@ -1,4 +1,4 @@
-﻿//
+//
 // MartinTest.cs
 //
 // Author:
@@ -87,8 +87,8 @@ namespace Mono.Btls.Tests
 			var chain = BtlsProvider.CreateNativeChain ();
 			ctx.LogMessage ("GOT CHAIN: {0}", chain);
 
-			var tlsTestData = ResourceManager.GetCertificateData (CertificateResourceType.TlsTestXamDevNew);
-			var tlsTestCaData = ResourceManager.GetCertificateData (CertificateResourceType.TlsTestXamDevCA);
+			var tlsTestData = ResourceManager.GetCertificateData (CertificateResourceType.TlsTestXamDevExpired2);
+			var tlsTestCaData = ResourceManager.GetCertificateData (CertificateResourceType.TlsTestXamDevOldCA);
 
 			var tlsTest = BtlsProvider.CreateNative (tlsTestData, BtlsX509Format.PEM);
 			var tlsTestCa = BtlsProvider.CreateNative (tlsTestCaData, BtlsX509Format.PEM);

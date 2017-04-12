@@ -57,13 +57,23 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.Expect (cert.Issuer, Is.EqualTo (expected.ManagedIssuerName), "Issue");
 			ctx.Expect (cert.NotBefore.ToUniversalTime (), Is.EqualTo (expected.NotBefore), "NotBefore");
 			ctx.Expect (cert.NotAfter.ToUniversalTime (), Is.EqualTo (expected.NotAfter), "NotAfter");
-			ctx.Expect (cert.GetCertHash (), Is.EqualTo (expected.Hash), "GetCertHash()");
 
-			ctx.Expect (cert.GetSerialNumber (), Is.EqualTo (expected.SerialNumberMono), "GetSerialNumber()");
+			if (!ctx.Expect (cert.GetCertHash (), Is.EqualTo (expected.Hash), "GetCertHash()")) {
+				if (debug)
+					ctx.LogBufferAsCSharp ("hash", "\t\t", cert.GetCertHash ());
+			}
+
+			if (!ctx.Expect (cert.GetSerialNumber (), Is.EqualTo (expected.SerialNumberMono), "GetSerialNumber()")) {
+				if (debug)
+					ctx.LogBufferAsCSharp ("serialMono", "\t\t", cert.GetSerialNumber ());
+			}
 
 			ctx.Expect (cert.Version, Is.EqualTo (expected.Version), "Version");
 
-			ctx.Expect (cert.GetPublicKey (), Is.EqualTo (expected.PublicKeyData), "GetPublicKey()");
+			if (!ctx.Expect (cert.GetPublicKey (), Is.EqualTo (expected.PublicKeyData), "GetPublicKey()")) {
+				if (debug)
+					ctx.LogBufferAsCSharp ("publicKeyData", "\t\t", cert.GetPublicKey ());
+			}
 
 			var signatureAlgorithm = cert.SignatureAlgorithm;
 			if (ctx.Expect (signatureAlgorithm, Is.Not.Null, "SignatureAlgorithm"))
@@ -80,6 +90,8 @@ namespace Xamarin.WebTests.TestRunners
 						ctx.Expect (value.Oid.Value, Is.EqualTo (expected.PublicKeyAlgorithmOid), "PublicKey.Oid.Value");
 
 					ctx.Expect (value.RawData, Is.EqualTo (expected.PublicKeyData), "PublicKey.RawData");
+					if (debug)
+						ctx.LogBuffer ("PublicKey", value.RawData);
 				}
 
 				var publicKeyParams = publicKey.EncodedParameters;

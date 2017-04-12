@@ -1,11 +1,10 @@
-﻿//
-// BoringCertificateResourceTypeAttribute.cs
+//
+// CertificateResourceTypeAttribute.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
-
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,25 +25,23 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using Xamarin.AsyncTests;
 using Xamarin.WebTests.Resources;
+using Xamarin.AsyncTests;
 
-namespace Mono.Btls.TestFramework
-{
+namespace Xamarin.WebTests.TestFramework {
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class BoringCertificateResourceTypeAttribute : TestParameterAttribute, ITestParameterSource<CertificateResourceType>
-	{
+	public class CertificateResourceTypeAttribute : TestParameterAttribute, ITestParameterSource<CertificateResourceType> {
 		public CertificateResourceType? ResourceType {
 			get;
 			private set;
 		}
 
-		public BoringCertificateResourceTypeAttribute (string filter = null)
+		public CertificateResourceTypeAttribute (string filter = null)
 			: base (filter, TestFlags.Browsable | TestFlags.ContinueOnError)
 		{
 		}
 
-		public BoringCertificateResourceTypeAttribute (CertificateResourceType type)
+		public CertificateResourceTypeAttribute (CertificateResourceType type)
 			: base (null, TestFlags.Browsable | TestFlags.ContinueOnError)
 		{
 			ResourceType = type;
@@ -60,12 +57,11 @@ namespace Mono.Btls.TestFramework
 			yield return CertificateResourceType.IntermediateCA;
 			yield return CertificateResourceType.IntermediateServer;
 			yield return CertificateResourceType.HamillerTubeCA;
+			yield return CertificateResourceType.TlsTestXamDevExpired2;
 			yield return CertificateResourceType.TlsTestXamDevNew;
 			yield return CertificateResourceType.TlsTestXamDevExpired;
-			yield return CertificateResourceType.TlsTestXamDevCA;
+			yield return CertificateResourceType.TlsTestXamDevOldCA;
 			yield return CertificateResourceType.SelfSignedServerCertificate;
 		}
 	}
-
 }
-

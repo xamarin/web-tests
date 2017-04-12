@@ -1,4 +1,4 @@
-﻿//
+//
 // BoringX509ChainHost.cs
 //
 // Author:
@@ -76,11 +76,11 @@ namespace Mono.Btls.TestFramework
 				AddCertificate (CertificateResourceType.SelfSignedServerCertificate);
 				break;
 			case CertificateResourceCollectionType.TlsTestXamDev:
-				AddCertificate (CertificateResourceType.TlsTestXamDevNew);
+				AddCertificate (CertificateResourceType.TlsTestXamDevExpired2);
 				break;
 			case CertificateResourceCollectionType.TlsTestXamDevWithCA:
-				AddCertificate (CertificateResourceType.TlsTestXamDevNew);
-				AddCertificate (CertificateResourceType.TlsTestXamDevCA);
+				AddCertificate (CertificateResourceType.TlsTestXamDevExpired2);
+				AddCertificate (CertificateResourceType.TlsTestXamDevOldCA);
 				break;
 			default:
 				ctx.AssertFail ("Invalid certificate chain collection type: '{0}'.", collectionType);

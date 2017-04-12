@@ -1,4 +1,4 @@
-﻿//
+//
 // TestCertificates.cs
 //
 // Author:
@@ -25,6 +25,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Xamarin.WebTests.Resources;
@@ -34,39 +35,23 @@ using Xamarin.WebTests.TestRunners;
 namespace Xamarin.WebTests.Tests
 {
 	[AsyncTestFixture]
-	public class TestCertificates
-	{
-		[AsyncTest]
-		[CertificateResourceType (CertificateResourceType.HamillerTubeCA)]
-		public void TestSimpleCertificate (TestContext ctx)
-		{
-			Run (ctx);
+	public class TestCertificates {
+
+		class CertificateTypeAttribute : TestParameterAttribute, ITestParameterSource<CertificateResourceType> {
+			public IEnumerable<CertificateResourceType> GetParameters (TestContext ctx, string filter)
+			{
+				yield return CertificateResourceType.HamillerTubeCA;
+				yield return CertificateResourceType.TlsTestXamDevExpired;
+				yield return CertificateResourceType.TlsTestXamDevOldCA;
+				yield return CertificateResourceType.TlsTestXamDevExpired2;
+				yield return CertificateResourceType.TlsTestXamDevNew;
+				yield return CertificateResourceType.SelfSignedServerCertificate;
+			}
 		}
 
 		[AsyncTest]
-		[CertificateResourceType (CertificateResourceType.TlsTestXamDevExpired)]
-		public void TestSimpleCertificate2 (TestContext ctx)
+		public void Run (TestContext ctx, [CertificateType] CertificateResourceType type)
 		{
-			Run (ctx);
-		}
-
-		[AsyncTest]
-		[CertificateResourceType (CertificateResourceType.TlsTestXamDevCA)]
-		public void TestSimpleCertificate3 (TestContext ctx)
-		{
-			Run (ctx);
-		}
-
-		[AsyncTest]
-		[CertificateResourceType (CertificateResourceType.SelfSignedServerCertificate)]
-		public void TestSimpleCertificate4 (TestContext ctx)
-		{
-			Run (ctx);
-		}
-
-		void Run (TestContext ctx)
-		{
-			var type = ctx.GetParameter<CertificateResourceType> ();
 			var data = ResourceManager.GetCertificateData (type);
 			var info = ResourceManager.GetCertificateInfo (type);
 			var cert = new X509Certificate2 (data);

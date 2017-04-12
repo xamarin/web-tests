@@ -193,7 +193,7 @@ namespace Xamarin.AsyncTests
 		public void LogBufferAsCSharp (string name, string indent, byte[] buffer, int offset, int size)
 		{
 			var sb = new StringBuilder ();
-			sb.AppendFormat ("{0}internal static readonly byte[] {1} = new byte[] {{\n", indent, name);
+			sb.AppendFormat ("{0}internal static readonly byte[] {1} = {{\n", indent, name);
 			for (int i = 0; i < size; i++) {
 				if ((i % 16) == 0)
 					sb.Append (indent + "\t");

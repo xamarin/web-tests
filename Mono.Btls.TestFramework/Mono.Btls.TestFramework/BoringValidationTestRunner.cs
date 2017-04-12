@@ -1,4 +1,4 @@
-﻿//
+//
 // BoringValidationTestRunner.cs
 //
 // Author:
@@ -110,7 +110,7 @@ namespace Mono.Btls.TestFramework
 			switch (type) {
 			case BoringValidationTestType.Simple:
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
 				parameters.VerifyParamType = BoringVerifyParamType.None;
 				parameters.AddTrustedRoots = true;
 				parameters.ExpectSuccess = true;
@@ -118,7 +118,7 @@ namespace Mono.Btls.TestFramework
 
 			case BoringValidationTestType.SslClientParameters:
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
 				parameters.VerifyParamType = BoringVerifyParamType.SslClient;
 				parameters.AddTrustedRoots = true;
 				parameters.ExpectSuccess = true;
@@ -126,7 +126,7 @@ namespace Mono.Btls.TestFramework
 
 			case BoringValidationTestType.NoTrustedRoots:
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
 				parameters.AddTrustedRoots = false;
 				parameters.ExpectedResult = BtlsX509Error.UNABLE_TO_GET_ISSUER_CERT_LOCALLY;
 				break;
@@ -139,7 +139,7 @@ namespace Mono.Btls.TestFramework
 
 			case BoringValidationTestType.BeforeExpirationDate:
 				parameters.Add (CertificateResourceType.TlsTestXamDevExpired);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.Add (CertificateResourceType.TlsTestXamDevOldCA);
 				parameters.VerifyParamType = BoringVerifyParamType.CopySslServer;
 				parameters.CheckTime = new DateTime (2016, 3, 17);
 				parameters.AddTrustedRoots = true;
@@ -148,7 +148,7 @@ namespace Mono.Btls.TestFramework
 
 			case BoringValidationTestType.AfterExpirationDate:
 				parameters.Add (CertificateResourceType.TlsTestXamDevExpired);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.Add (CertificateResourceType.TlsTestXamDevOldCA);
 				parameters.VerifyParamType = BoringVerifyParamType.CopySslServer;
 				parameters.CheckTime = new DateTime (2016, 4, 17);
 				parameters.ExpectedResult = BtlsX509Error.CERT_HAS_EXPIRED;
@@ -224,7 +224,7 @@ namespace Mono.Btls.TestFramework
 
 			case BoringValidationTestType.MartinTest:
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
 				parameters.AddTrustedRoots = true;
 				parameters.ExpectSuccess = true;
 				break;

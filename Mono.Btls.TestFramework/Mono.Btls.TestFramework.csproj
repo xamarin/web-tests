@@ -37,7 +37,6 @@
     <Compile Include="Mono.Btls.TestFramework\BoringX509Host.cs" />
     <Compile Include="Mono.Btls.TestFramework\BoringX509HostAttribute.cs" />
     <Compile Include="Mono.Btls.TestFramework\BoringCertificateInfoTestRunner.cs" />
-    <Compile Include="Mono.Btls.TestFramework\BoringCertificateResourceTypeAttribute.cs" />
     <Compile Include="Mono.Btls.TestFramework\BoringX509StoreHost.cs" />
     <Compile Include="Mono.Btls.TestFramework\BoringX509StoreHostAttribute.cs" />
     <Compile Include="Mono.Btls.TestFramework\BoringX509ChainHost.cs" />

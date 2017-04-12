@@ -1,4 +1,4 @@
-﻿//
+//
 // MonoValidationTestRunner.cs
 //
 // Author:
@@ -112,7 +112,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			case MonoValidationTestType.MartinTest:
 				parameters.Host = "tlstest-1.xamdev.com";
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
 				parameters.UseTestRunnerCallback = true;
 				parameters.ExpectSuccess = true;
 				break;
@@ -120,14 +120,14 @@ namespace Xamarin.WebTests.MonoTestFramework
 			case MonoValidationTestType.NoHost:
 				parameters.Host = null;
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
 				parameters.ExpectSuccess = true;
 				break;
 
 			case MonoValidationTestType.EmptyHost:
 				parameters.Host = string.Empty;
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
 				/*
 				 * Older versions of AppleTls prior to Xamarin.iOS 10 incorrectly
 				 * returned success.
@@ -138,14 +138,14 @@ namespace Xamarin.WebTests.MonoTestFramework
 			case MonoValidationTestType.WrongHost:
 				parameters.Host = "invalid.xamdev-error.com";
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
 				parameters.ExpectSuccess = false;
 				break;
 
 			case MonoValidationTestType.Success:
 				parameters.Host = "tlstest-1.xamdev.com";
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
 				parameters.ExpectSuccess = true;
 				break;
 
@@ -165,7 +165,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			case MonoValidationTestType.TestRunnerCallback:
 				parameters.Host = "tlstest-1.xamdev.com";
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
 				parameters.UseTestRunnerCallback = true;
 				parameters.ExpectSuccess = true;
 				break;
@@ -173,9 +173,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 			case MonoValidationTestType.TestRunnerCallbackChain:
 				parameters.Host = "tlstest-1.xamdev.com";
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
 				parameters.AddExpectedChainEntry (CertificateResourceType.TlsTestXamDevNew);
-				parameters.AddExpectedChainEntry (CertificateResourceType.TlsTestXamDevCA);
+				parameters.AddExpectedChainEntry (CertificateResourceType.TlsTestXamDevNewCA);
 				parameters.UseTestRunnerCallback = true;
 				parameters.ExpectSuccess = true;
 				break;

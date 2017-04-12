@@ -39,7 +39,7 @@ namespace Mono.Btls.Tests
 	[AsyncTestFixture]
 	public class TestBoringCertificates
 	{
-		[BoringCertificateResourceType]
+		[CertificateResourceType]
 		public CertificateResourceType ResourceType {
 			get; set;
 		}
