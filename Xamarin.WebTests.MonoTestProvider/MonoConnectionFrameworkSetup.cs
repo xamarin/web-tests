@@ -27,7 +27,7 @@ using System;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Mono.Security.Interface;
-#if !__MOBILE__
+#if !__MOBILE__ && !__IOS__
 using System.Reflection;
 #endif
 using Xamarin.AsyncTests;
@@ -73,7 +73,7 @@ namespace Xamarin.WebTests.MonoTestProvider {
 		{
 			Name = name;
 
-#if !__MOBILE__ && !__UNIFIED__
+#if !__MOBILE__ && !__UNIFIED__ && !__IOS__
 			var providerEnvVar = Environment.GetEnvironmentVariable ("MONO_TLS_PROVIDER");
 			switch (providerEnvVar) {
 				case "btls":
@@ -121,7 +121,9 @@ namespace Xamarin.WebTests.MonoTestProvider {
 
 		bool CheckAppleTls ()
 		{
-#if !__MOBILE__
+#if __IOS__
+			return true;
+#elif !__MOBILE__
 			/*
 			 * AppleTls is unusable broken on Jenkins because it would hang the bots
 			 * prior to mono/master commit 1eb27c1df8ed29d84ca935496ffd6c230447895a.
