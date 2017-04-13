@@ -115,7 +115,7 @@ namespace Xamarin.AsyncTests.Console
 			return avds;
 		}
 
-		internal async Task CreateAvd (bool replace, CancellationToken cancellationToken)
+		internal Task CreateAvd (bool replace, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
@@ -129,8 +129,7 @@ namespace Xamarin.AsyncTests.Console
 			if (replace)
 				args.Append ("  --force");
 
-			var output = await RunCommand (AndroidTool, args.ToString (), cancellationToken);
-			Program.Debug ("CREATE AVD: {0}", output);
+			return RunCommand (AndroidTool, args.ToString (), cancellationToken);
 		}
 
 		public async Task<bool> CheckEmulator (CancellationToken cancellationToken)
@@ -199,26 +198,24 @@ namespace Xamarin.AsyncTests.Console
 			return running;
 		}
 
-		internal async Task StartEmulator (string name, string logfile, CancellationToken cancellationToken)
+		internal Task StartEmulator (string name, string logfile, CancellationToken cancellationToken)
 		{
 			var args = string.Format ("@{0} > {1} 2>&1 &", name, logfile);
 			var shellArgs = string.Format ("-c \"{0} {1}\"", EmulatorTool, args);
 
-			var output = await RunCommandWithOutput ("/bin/sh", shellArgs, cancellationToken);
-			Program.Debug ("STARTED EMULATOR: {0}", output);
+			return RunCommand ("/bin/sh", shellArgs, cancellationToken);
 		}
 
 		internal async Task<bool> InstallApk (string apk, CancellationToken cancellationToken)
 		{
 			var args = string.Format ("install {0}", apk);
-			var result = await RunCommandWithOutput (Adb, args, cancellationToken);
-			Program.Debug ("INSTALLED APK: {0}", result);
+			await RunCommand (Adb, args, cancellationToken).ConfigureAwait (false);
 			return true;
 		}
 
-		Task<bool> RunCommand (string command, string args, CancellationToken cancellationToken)
+		Task RunCommand (string command, string args, CancellationToken cancellationToken)
 		{
-			var tcs = new TaskCompletionSource<bool> ();
+			var tcs = new TaskCompletionSource<object> ();
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 
 			Task.Run (() => {
@@ -242,7 +239,12 @@ namespace Xamarin.AsyncTests.Console
 
 					process.WaitForExit ();
 
-					tcs.TrySetResult (process.ExitCode == 0);
+					if (process.ExitCode != 0) {
+						var message = string.Format ("External tool failed with exit code {0}.", process.ExitCode);
+						tcs.TrySetException (new ExternalToolException (tool, message));
+					} else {
+						tcs.TrySetResult (null);
+					}
 				} catch (Exception ex) {
 					tcs.TrySetException (new ExternalToolException (tool, ex));
 				} finally {
