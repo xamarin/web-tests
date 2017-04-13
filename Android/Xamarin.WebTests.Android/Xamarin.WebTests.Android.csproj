@@ -27,6 +27,7 @@
     <AndroidLinkMode>None</AndroidLinkMode>
     <AndroidTlsProvider>legacy</AndroidTlsProvider>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    <AndroidSupportedAbis>armeabi-v7a;armeabi;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -49,6 +50,7 @@
     <AndroidLinkMode>None</AndroidLinkMode>
     <AndroidTlsProvider>btls</AndroidTlsProvider>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    <AndroidSupportedAbis>armeabi-v7a;x86_64;x86;arm64-v8a;armeabi</AndroidSupportedAbis>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -98,7 +100,6 @@
   <ItemGroup>
     <Compile Include="MainActivity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DroidFrameworkSetup.cs" />
     <Compile Include="..\..\Xamarin.WebTests.MonoTestProvider\MonoConnectionFrameworkSetup.cs">
       <Link>Xamarin.WebTests.MonoTestProvider\MonoConnectionFrameworkSetup.cs</Link>
     </Compile>
@@ -126,7 +127,7 @@
     </ProjectReference>
     <ProjectReference Include="..\..\Xamarin.WebTests.Tests\Xamarin.WebTests.Tests.csproj">
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
-      <Name>Xamarin.WebTests</Name>
+      <Name>Xamarin.WebTests.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
       <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>

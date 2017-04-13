@@ -19,8 +19,9 @@ namespace Xamarin.WebTests.Android
 	using AsyncTests.Framework;
 	using AsyncTests.Portable;
 	using AsyncTests.Mobile;
+    using Xamarin.WebTests.MonoTestProvider;
 
-	[Activity (Label = "Xamarin.WebTests.Android", Name = "com.xamarin.webtests.android.MainActivity", MainLauncher = true)]
+    [Activity (Label = "Xamarin.WebTests.Android", Name = "com.xamarin.webtests.android.MainActivity", MainLauncher = true)]
 	public class MainActivity : FormsApplicationActivity
 	{
 		public TestFramework Framework {
@@ -39,7 +40,7 @@ namespace Xamarin.WebTests.Android
 
 			Forms.Init (this, bundle);
 
-			var setup = new DroidFrameworkSetup ();
+            var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.Android");
 			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
 			DependencyInjector.RegisterDependency<IMonoConnectionFrameworkSetup> (() => setup);
 
