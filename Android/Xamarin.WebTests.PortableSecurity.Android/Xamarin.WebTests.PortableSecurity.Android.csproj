@@ -62,4 +62,5 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Target Name="PackageForAndroid" />
+  <Target Name="SignAndroidPackage" />
 </Project>

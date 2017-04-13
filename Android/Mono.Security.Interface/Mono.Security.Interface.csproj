@@ -47,6 +47,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Target Name="PackageForAndroid" />
+  <Target Name="SignAndroidPackage" />
   <ItemGroup>
     <Compile Include="..\..\PCL\Mono.Security.Interface.AssemblyInfo.cs">
       <Link>Mono.Security.Interface.AssemblyInfo.cs</Link>
