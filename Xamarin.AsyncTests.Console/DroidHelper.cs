@@ -208,7 +208,7 @@ namespace Xamarin.AsyncTests.Console
 
 		internal async Task<bool> InstallApk (string apk, CancellationToken cancellationToken)
 		{
-			var args = string.Format ("install {0}", apk);
+			var args = string.Format ("install -r -d {0}", apk);
 			await RunCommand (Adb, args, cancellationToken).ConfigureAwait (false);
 			return true;
 		}
