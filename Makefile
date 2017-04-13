@@ -82,8 +82,11 @@ Run-Mac-%::
 #
 #
 
-Build-Android::
+Build-Android-Debug::
 	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Internal-Build
+
+Build-Android-DebugBtls::
+	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=DebugBtls .Android-Internal-Build
 
 Install-Android::
 	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Internal-Install
