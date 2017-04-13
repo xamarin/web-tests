@@ -208,6 +208,14 @@ namespace Xamarin.AsyncTests.Console
 			Program.Debug ("STARTED EMULATOR: {0}", output);
 		}
 
+		internal async Task<bool> InstallApk (string apk, CancellationToken cancellationToken)
+		{
+			var args = string.Format ("install {0}", apk);
+			var result = await RunCommandWithOutput (Adb, args, cancellationToken);
+			Program.Debug ("INSTALLED APK: {0}", result);
+			return true;
+		}
+
 		Task<bool> RunCommand (string command, string args, CancellationToken cancellationToken)
 		{
 			var tcs = new TaskCompletionSource<bool> ();

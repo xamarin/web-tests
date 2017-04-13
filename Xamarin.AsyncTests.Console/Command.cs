@@ -40,6 +40,7 @@ namespace Xamarin.AsyncTests.Console
 		Android,
 		Result,
 		Avd,
+		Apk,
 		Emulator
 	}
 }

@@ -254,10 +254,12 @@ namespace Xamarin.AsyncTests.Console
 				dependencyAssemblies [i] = Assembly.LoadFile (dependencies [i]);
 			}
 
-			if (command == Command.Listen) {
+			switch (command) {
+			case Command.Listen:
 				if (EndPoint == null)
 					EndPoint = GetLocalEndPoint ();
-			} else if (command == Command.Local || command == Command.Listen) {
+				break;
+			case Command.Local:
 				if (assembly != null) {
 					if (arguments.Count != 0) {
 						arguments.ForEach (a => Debug ("Unexpected remaining argument: {0}", a));
@@ -269,7 +271,8 @@ namespace Xamarin.AsyncTests.Console
 				} else if (EndPoint == null) {
 					throw new InvalidOperationException ("Missing endpoint");
 				}
-			} else if (command == Command.Connect) {
+				break;
+			case Command.Connect:
 				if (assembly != null)
 					throw new InvalidOperationException ();
 				if (arguments.Count == 1)
@@ -281,7 +284,10 @@ namespace Xamarin.AsyncTests.Console
 					arguments.ForEach (a => Debug ("Unexpected remaining argument: {0}", a));
 					throw new InvalidOperationException ("Unexpected extra argument.");
 				}
-			} else if (command == Command.Simulator || command == Command.Device || command == Command.TVOS) {
+				break;
+			case Command.Simulator:
+			case Command.Device:
+			case Command.TVOS:
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected .app argument");
 				Launcher = new TouchLauncher (this, arguments [0], command, sdkroot, stdout, stderr, device, extraLauncherArgs);
@@ -289,7 +295,8 @@ namespace Xamarin.AsyncTests.Console
 
 				if (EndPoint == null)
 					EndPoint = GetLocalEndPoint ();
-			} else if (command == Command.Mac) {
+				break;
+			case Command.Mac:
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected .app argument");
 				Launcher = new MacLauncher (this, arguments [0], stdout, stderr);
@@ -297,7 +304,8 @@ namespace Xamarin.AsyncTests.Console
 
 				if (EndPoint == null)
 					EndPoint = GetLocalEndPoint ();
-			} else if (command == Command.Android) { // } || command == Command.Avd) {
+				break;
+			case Command.Android:
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected activity argument");
 
@@ -306,16 +314,26 @@ namespace Xamarin.AsyncTests.Console
 
 				if (EndPoint == null)
 					EndPoint = GetLocalEndPoint ();
-			} else if (command == Command.Avd || command == Command.Emulator) {
+				break;
+			case Command.Avd:
+			case Command.Emulator:
 				if (arguments.Count != 0)
 					throw new InvalidOperationException ("Unexpected extra arguments");
 
 				droidHelper = new DroidHelper (this, sdkroot);
-			} else if (command == Command.Result) {
+				break;
+			case Command.Apk:
+				if (arguments.Count != 1)
+					throw new InvalidOperationException ("Expected .apk argument");
+
+				droidHelper = new DroidHelper (this, sdkroot);
+				break;
+			case Command.Result:
 				if (arguments.Count != 1)
 					throw new InvalidOperationException ("Expected TestResult.xml argument");
 				ResultOutput = arguments[0];
-			} else {
+				break;
+			default:
 				throw new NotImplementedException ();
 			}
 		}
@@ -547,6 +565,8 @@ namespace Xamarin.AsyncTests.Console
 				return droidHelper.CheckAvd (cancellationToken);
 			case Command.Emulator:
 				return droidHelper.CheckEmulator (cancellationToken);
+			case Command.Apk:
+				return droidHelper.InstallApk (arguments [0], cancellationToken);
 			case Command.Result:
 				return ShowResult (cancellationToken);
 			default:

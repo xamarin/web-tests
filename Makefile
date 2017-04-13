@@ -95,9 +95,11 @@ Install-Android-DebugBtls::
 	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=DebugBtls .Android-Internal-Install
 
 Run-Android-Debug-%::
+	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Internal-Install
 	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Run-$*
 
 Run-Android-DebugBtls-%::
+	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=DebugBtls .Android-Internal-Install
 	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=DebugBtls .Android-Run-$*
 
 #
@@ -285,12 +287,14 @@ Run-Android-DebugBtls-%::
 
 .Android-Internal-Build::
 	$(MONO) $(NUGET_EXE) restore $(EXTRA_NUGET_RESTORE_ARGS) Xamarin.WebTests.Android.sln
-	$(MSBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' Xamarin.WebTests.Android.sln /t:PackageForAndroid
+	$(MSBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' Xamarin.WebTests.Android.sln
+	$(MSBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' Xamarin.WebTests.Android.sln /t:SignAndroidPackage
 
 .Android-Internal-Install::
+	ls -l $(WEBTESTS_ANDROID_APK)
 	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) avd
 	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) emulator
-	$(XBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' /t:Install $(WEBTESTS_ANDROID_PROJECT)
+	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) apk $(WEBTESTS_ANDROID_APK)
 
 .Android-Internal-Run::
 	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) $(ASYNCTESTS_ARGS) $(JENKINS_ARGS) --category=$(TEST_CATEGORY) \
