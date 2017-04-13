@@ -98,46 +98,6 @@ Run-Android-%::
 	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Run-$*
 
 #
-#
-#
-
-IOS-Sim-%::
-	$(MAKE) IOS_TARGET=iPhoneSimulator ASYNCTESTS_COMMAND=simulator TARGET_NAME=$@ .IOS-$*
-
-IOS-Dev-%::
-	$(MAKE) IOS_TARGET=iPhone ASYNCTESTS_COMMAND=device TARGET_NAME=$@ .IOS-$*
-
-TVOS-Sim-%::
-	$(MAKE) TVOS_TARGET=iPhoneSimulator ASYNCTESTS_COMMAND=tvos TARGET_NAME=$@ .TVOS-$*
-
-TVOS-Dev-%::
-	$(MAKE) TVOS_TARGET=iPhone ASYNCTESTS_COMMAND=device TARGET_NAME=$@ .TVOS-$*
-
-Console-%::
-	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$@ .Console-$*
-
-DotNet-%::
-	$(MAKE) ASYNCTESTS_COMMAND=local TARGET_NAME=$* .DotNet-$*
-
-Mac-%::
-	$(MAKE) ASYNCTESTS_COMMAND=mac TARGET_NAME=$@ .Mac-$*
-
-Android-%::
-	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ .Android-$*
-	
-Check-System::
-	@./system-dependencies.sh
-
-Create-Keychain::
-	-security create-keychain -p $(TEST_KEYCHAIN_PASSWORD) $(TEST_KEYCHAIN)
-	security default-keychain -s $(TEST_KEYCHAIN)
-	security unlock-keychain -p $(TEST_KEYCHAIN_PASSWORD) $(TEST_KEYCHAIN)
-
-Default-Keychain::
-	security default-keychain -s login.keychain
-	-security delete-keychain $(TEST_KEYCHAIN)
-
-#
 # Internal IOS make targets
 #
 
@@ -322,8 +282,7 @@ Default-Keychain::
 
 .Android-Internal-Build::
 	$(MONO) $(NUGET_EXE) restore $(EXTRA_NUGET_RESTORE_ARGS) Xamarin.WebTests.Android.sln
-	$(MSBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' Xamarin.WebTests.Android.sln
-	$(MSBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' Android/Xamarin.WebTests.Android/Xamarin.WebTests.Android.csproj /t:PackageForAndroid
+	$(MSBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' Xamarin.WebTests.Android.sln /t:PackageForAndroid
 
 .Android-Internal-Install::
 	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) avd
