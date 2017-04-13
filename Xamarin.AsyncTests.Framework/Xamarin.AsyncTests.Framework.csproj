@@ -127,6 +127,7 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestNodeInternal.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Target Name="PackageForAndroid" />
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>

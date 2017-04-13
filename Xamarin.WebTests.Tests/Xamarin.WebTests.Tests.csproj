@@ -38,6 +38,7 @@
     <Compile Include="Xamarin.WebTests.Tests\TestCertificates.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Target Name="PackageForAndroid" />
   <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
