@@ -88,8 +88,11 @@ Build-Android-Debug::
 Build-Android-DebugBtls::
 	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=DebugBtls .Android-Internal-Build
 
-Install-Android::
+Install-Android-Debug::
 	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Internal-Install
+
+Install-Android-DebugBtls::
+	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=DebugBtls .Android-Internal-Install
 
 Run-Android-%::
 	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Run-$*
@@ -319,7 +322,8 @@ Default-Keychain::
 
 .Android-Internal-Build::
 	$(MONO) $(NUGET_EXE) restore $(EXTRA_NUGET_RESTORE_ARGS) Xamarin.WebTests.Android.sln
-	$(XBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' Xamarin.WebTests.Android.sln
+	$(MSBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' Xamarin.WebTests.Android.sln
+	$(MSBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' Android/Xamarin.WebTests.Android/Xamarin.WebTests.Android.csproj /t:PackageForAndroid
 
 .Android-Internal-Install::
 	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) avd
