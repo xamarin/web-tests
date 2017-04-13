@@ -151,13 +151,13 @@ namespace Xamarin.AsyncTests.Console
 			var output = await RunCommandWithOutput (Adb, "devices", cancellationToken);
 			var re = new Regex ("(emulator-\\d+)\\s+(device|offline)");
 			foreach (var line in SplitOutputLines (output)) {
-				Program.Debug ("ADB DEVICES: {0}", line);
+				// Program.Debug ("ADB DEVICES: {0}", line);
 				var match = re.Match (line);
-				Program.Debug ("DO WE HAVE IT: {0}", match.Success);
+				// Program.Debug ("DO WE HAVE IT: {0}", match.Success);
 				if (!match.Success)
 					continue;
 
-				Program.Debug ("TEST: |{0}|{1}|", match.Groups [1].Value, match.Groups [2].Value);
+				// Program.Debug ("TEST: |{0}|{1}|", match.Groups [1].Value, match.Groups [2].Value);
 
 				if (match.Groups [2].Value.Equals ("offline")) {
 					Program.Debug ("Emulator is offline.");
@@ -186,15 +186,15 @@ namespace Xamarin.AsyncTests.Console
 		internal async Task<bool> WaitForEmulator (CancellationToken cancellationToken)
 		{
 			bool running;
-			var endtime = DateTime.Now + TimeSpan.FromMinutes (15);
+			var endtime = DateTime.Now + TimeSpan.FromMinutes (5);
+			Program.Debug ("Started to wait for emulator at {0} (will abort at {1}).", DateTime.Now, endtime);
 			do {
-				await Task.Delay (1000);
+				await Task.Delay (5000);
 				cancellationToken.ThrowIfCancellationRequested ();
-
-				Program.Debug ("Wait for emulator {0}", DateTime.Now);
 
 				running = await CheckEmulatorRunning (cancellationToken);
 			} while (!running && DateTime.Now < endtime);
+			Program.Debug ("Finished waiting for emulator at {0}: {1}", DateTime.Now, running ? "SUCCESS" : "FAILURE");
 			return running;
 		}
 
