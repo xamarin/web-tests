@@ -38,12 +38,39 @@ namespace Xamarin.WebTests.MonoTests
 	[AsyncTestFixture]
 	public class NetworkTests
 	{
+		[Tls12]
 		[AsyncTest]
 		public async Task TestWebClient (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var wc = new WebClient ();
-			var result = await wc.DownloadStringTaskAsync ("https://tlstest-1.xamdev.com/").ConfigureAwait (false);
+			var result = await wc.DownloadStringTaskAsync ("https://tlstest.xamdev.com/").ConfigureAwait (false);
 			ctx.Assert (result.Length, Is.GreaterThan (0), "result");
+		}
+
+		[AsyncTest]
+		public async Task TestWebClient10 (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var wc = new WebClient();
+			var result = await wc.DownloadStringTaskAsync("https://tlstest-1.xamdev.com/").ConfigureAwait(false);
+			ctx.Assert(result.Length, Is.GreaterThan(0), "result");
+		}
+
+		[Tls12]
+		[AsyncTest]
+		public async Task TestWebClient11 (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var wc = new WebClient();
+			var result = await wc.DownloadStringTaskAsync("https://tlstest-11.xamdev.com/").ConfigureAwait(false);
+			ctx.Assert(result.Length, Is.GreaterThan(0), "result");
+		}
+
+		[Tls12]
+		[AsyncTest]
+		public async Task TestWebClient12 (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var wc = new WebClient();
+			var result = await wc.DownloadStringTaskAsync("https://tlstest-12.xamdev.com/").ConfigureAwait(false);
+			ctx.Assert(result.Length, Is.GreaterThan(0), "result");
 		}
 	}
 }

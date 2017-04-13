@@ -74,6 +74,7 @@ namespace Xamarin.WebTests.MonoTests
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 
+		[Tls12]
 		[AsyncTest]
 		[HttpServerFlags (HttpServerFlags.SSL | HttpServerFlags.ForceTls12)]
 		public Task ForceTls12 (TestContext ctx, CancellationToken cancellationToken,
