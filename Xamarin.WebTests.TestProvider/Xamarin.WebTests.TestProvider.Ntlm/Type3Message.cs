@@ -37,13 +37,7 @@ using System;
 using System.Globalization;
 using System.Text;
 
-namespace Mono.Security.Protocol.Ntlm {
-
-#if INSIDE_SYSTEM || XAMARIN_WEBTESTS
-	internal
-#else
-	public
-#endif
+namespace Xamarin.WebTests.TestProvider.Ntlm {
 	class Type3Message : MessageBase {
 
 		private NtlmAuthLevel _level;
@@ -74,15 +68,9 @@ namespace Mono.Security.Protocol.Ntlm {
 					"unless explicitly enabled using DefaultAuthLevel.");
 
 			// default values
-			#if XAMARIN_WEBTESTS
 			_domain = "Xamarin.WebTests.TestDomain";
 			_host = "Xamarin.WebTests.TestMachine";
 			_username = "monkey";
-			#else
-			_domain = Environment.UserDomainName;
-			_host = Environment.MachineName;
-			_username = Environment.UserName;
-			#endif
 			_level = NtlmAuthLevel.LM_and_NTLM;
 			Flags = (NtlmFlags) 0x8201;
 		}
@@ -95,21 +83,12 @@ namespace Mono.Security.Protocol.Ntlm {
 		public Type3Message (Type2Message type2) : base (3)
 		{
 			_type2 = type2;
-			#if XAMARIN_WEBTESTS
 			_level = NtlmSettings.DefaultAuthLevel;
-			#else
-			_level = DefaultAuthLevel;
-			#endif
 			_challenge = (byte[]) type2.Nonce.Clone ();
 
 			_domain = type2.TargetName;
-			#if XAMARIN_WEBTESTS
 			_host = "Xamarin.WebTests.TestMachine";
 			_username = "monkey";
-			#else
-			_host = Environment.MachineName;
-			_username = Environment.UserName;
-			#endif
 
 			Flags = (NtlmFlags) 0x8200;
 			if ((type2.Flags & NtlmFlags.NegotiateUnicode) != 0)
@@ -160,7 +139,7 @@ namespace Mono.Security.Protocol.Ntlm {
 				if (value == null)
 					throw new ArgumentNullException ("Challenge");
 				if (value.Length != 8) {
-					string msg = Locale.GetText ("Invalid Challenge Length (should be 8 bytes).");
+					string msg = "Invalid Challenge Length (should be 8 bytes).";
 					throw new ArgumentException (msg, "Challenge");
 				}
 				_challenge = (byte[]) value.Clone (); 
@@ -259,11 +238,7 @@ namespace Mono.Security.Protocol.Ntlm {
 			if ((Flags & NtlmFlags.NegotiateUnicode) != 0)
 				return Encoding.Unicode.GetString (buffer, offset, len);
 			else
-				#if XAMARIN_WEBTESTS
 				return Encoding.UTF8.GetString (buffer, offset, len);
-				#else
-				return Encoding.ASCII.GetString (buffer, offset, len);
-				#endif
 		}
 
 		byte[] EncodeString (string text)
@@ -273,18 +248,11 @@ namespace Mono.Security.Protocol.Ntlm {
 			if ((Flags & NtlmFlags.NegotiateUnicode) != 0)
 				return Encoding.Unicode.GetBytes (text);
 			else
-				#if XAMARIN_WEBTESTS
 				return Encoding.UTF8.GetBytes (text);
-				#else
-				return Encoding.ASCII.GetBytes (text);
-				#endif
 		}
 
 		public override byte[] GetBytes ()
 		{
-			#if XAMARIN_WEBTESTS
-			throw new NotImplementedException ();
-			#else
 			byte[] target = EncodeString (_domain);
 			byte[] user = EncodeString (_username);
 			byte[] host = EncodeString (_host);
@@ -382,7 +350,6 @@ namespace Mono.Security.Protocol.Ntlm {
 			Array.Clear (ntlm, 0, ntlm.Length);
 
 			return data;
-			#endif
 		}
 	}
 }

@@ -25,5 +25,19 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\HttpProviderImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\BinaryContent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\EqualCertificateConstraint.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\NTLMHandlerImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\MessageBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\NtlmAuthLevel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\NtlmFlags.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\NtlmSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\Type1Message.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\Type2Message.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\Type3Message.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\ChallengeResponse.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\ChallengeResponse2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\BitConverterLE.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\" />
   </ItemGroup>
 </Project>

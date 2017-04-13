@@ -1,4 +1,4 @@
-//
+﻿//
 // Mono.Security.BitConverterLE.cs
 //  Like System.BitConverter but always little endian
 //
@@ -29,9 +29,9 @@
 
 using System;
 
-namespace Mono.Security
+namespace Xamarin.WebTests.TestProvider.Ntlm
 {
-	internal static class BitConverterLE
+	static class BitConverterLE
 	{
 		internal static ushort ToUInt16 (byte[] value, int startIndex)
 		{
@@ -67,6 +67,11 @@ namespace Mono.Security
 			}
 
 			return ret;
+		}
+
+		internal static byte[] GetBytes (long value)
+		{
+			return BitConverter.GetBytes (value);
 		}
 	}
 }

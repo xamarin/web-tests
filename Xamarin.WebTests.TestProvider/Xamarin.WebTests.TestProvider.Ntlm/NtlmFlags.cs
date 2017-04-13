@@ -37,14 +37,8 @@
 
 using System;
 
-namespace Mono.Security.Protocol.Ntlm {
+namespace Xamarin.WebTests.TestProvider.Ntlm {
 
-	[Flags]
-#if INSIDE_SYSTEM || XAMARIN_WEBTESTS
-	internal
-#else
-	public
-#endif
 	enum NtlmFlags : int {
 		// The client sets this flag to indicate that it supports Unicode strings.
 		NegotiateUnicode = 0x00000001,

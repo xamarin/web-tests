@@ -1,10 +1,10 @@
 ﻿//
-// Locale.cs
+// NTLMHandler.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,14 +24,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Xamarin.AsyncTests;
 
-namespace Mono.Security
+namespace Xamarin.WebTests.TestProvider
 {
-	internal static class Locale
+	using Server;
+	using Ntlm;
+
+	class NTLMHandlerImpl : NTLMHandler
 	{
-		public static string GetText (string text)
+		public bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge)
 		{
-			return text;
+			if (haveChallenge) {
+				// FIXME: We don't actually check the result.
+				var message = new Type3Message (bytes);
+				if (message.Type != 3)
+					throw new InvalidOperationException ();
+
+				return true;
+			} else {
+				var message = new Type1Message (bytes);
+				if (message.Type != 1)
+					throw new InvalidOperationException ();
+
+				var type2 = new Type2Message ();
+				haveChallenge = true;
+				bytes = type2.GetBytes ();
+				return false;
+			}
 		}
 	}
 }

@@ -1,10 +1,10 @@
-//
-// NtlmSettings.cs
+﻿//
+// NtlmAuthLevel.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2012 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,62 +24,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Reflection;
 
-namespace Mono.Security.Protocol.Ntlm {
-
+namespace Xamarin.WebTests.TestProvider.Ntlm {
+	
 	/*
 	 * On Windows, this is controlled by a registry setting
 	 * (http://msdn.microsoft.com/en-us/library/ms814176.aspx)
 	 *
 	 * This can be configured by setting the static
-	 * NtlmSettings.DefaultAuthLevel property, the default value
+	 * Type3Message.DefaultAuthLevel property, the default value
 	 * is LM_and_NTLM_and_try_NTLMv2_Session.
 	 */
-
-	#if INSIDE_SYSTEM || XAMARIN_WEBTESTS
-	internal
-	#else
-	public
-	#endif
-	static class NtlmSettings {
-
-		static NtlmAuthLevel defaultAuthLevel = NtlmAuthLevel.LM_and_NTLM_and_try_NTLMv2_Session;
-
-		static FieldInfo GetDefaultAuthLevelField ()
-		{
-			#if INSIDE_SYSTEM || XAMARIN_WEBTESTS
-			return null;
-			#else
-			var type = typeof (HttpWebRequest).Assembly.GetType ("Mono.Security.Protocol.Ntlm.NtlmSettings", false);
-			if (type == null)
-				return null;
-			return type.GetField ("defaultAuthLevel", BindingFlags.Static | BindingFlags.NonPublic);
-			#endif
-		}
-
-		#if INSIDE_SYSTEM || XAMARIN_WEBTESTS
-		internal
-		#else
-		public
-		#endif
-		static NtlmAuthLevel DefaultAuthLevel {
-			get {
-				var field = GetDefaultAuthLevelField ();
-				if (field != null)
-					return (NtlmAuthLevel)field.GetValue (null);
-				else
-					return defaultAuthLevel;
-			}
-
-			set {
-				var field = GetDefaultAuthLevelField ();
-				if (field != null)
-					field.SetValue (null, value);
-				else
-					defaultAuthLevel = value;
-			}
-		}
+	
+	enum NtlmAuthLevel {
+		/* Use LM and NTLM, never use NTLMv2 session security. */
+		LM_and_NTLM,
+		
+		/* Use NTLMv2 session security if the server supports it,
+		 * otherwise fall back to LM and NTLM. */
+		LM_and_NTLM_and_try_NTLMv2_Session,
+		
+		/* Use NTLMv2 session security if the server supports it,
+		 * otherwise fall back to NTLM.  Never use LM. */
+		NTLM_only,
+		
+		/* Use NTLMv2 only. */
+		NTLMv2_only,
 	}
 }
+

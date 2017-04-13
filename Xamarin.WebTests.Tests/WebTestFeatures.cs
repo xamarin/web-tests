@@ -46,7 +46,6 @@ namespace Xamarin.WebTests
 	using HttpFramework;
 	using TestFramework;
 	using Resources;
-	using Internal;
 	using Features;
 	using Server;
 	using Tests;
@@ -234,11 +233,6 @@ namespace Xamarin.WebTests
 			{
 				DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
 			}
-		}
-
-		WebTestFeatures ()
-		{
-			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandlerImpl ());
 		}
 	}
 }

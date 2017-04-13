@@ -35,17 +35,10 @@
 
 using System;
 using System.Text;
-#if !XAMARIN_WEBTESTS
 using System.Security.Cryptography;
-#endif
 
-namespace Mono.Security.Protocol.Ntlm {
+namespace Xamarin.WebTests.TestProvider.Ntlm {
 
-#if INSIDE_SYSTEM || XAMARIN_WEBTESTS
-	internal
-#else
-	public
-#endif
 	class Type2Message : MessageBase {
 
 		private byte[] _nonce;
@@ -55,13 +48,8 @@ namespace Mono.Security.Protocol.Ntlm {
 		public Type2Message () : base (2)
 		{
 			_nonce = new byte [8];
-			#if XAMARIN_WEBTESTS
 			var rng = new Random ();
 			rng.NextBytes (_nonce);
-			#else
-			RandomNumberGenerator rng = RandomNumberGenerator.Create ();
-			rng.GetBytes (_nonce);
-			#endif
 			// default values
 			Flags = (NtlmFlags) 0x8201;
 		}
@@ -86,7 +74,7 @@ namespace Mono.Security.Protocol.Ntlm {
 				if (value == null)
 					throw new ArgumentNullException ("Nonce");
 				if (value.Length != 8) {
-					string msg = Locale.GetText ("Invalid Nonce Length (should be 8 bytes).");
+					string msg = "Invalid Nonce Length (should be 8 bytes).";
 					throw new ArgumentException (msg, "Nonce");
 				}
 				_nonce = (byte[]) value.Clone (); 
@@ -114,12 +102,7 @@ namespace Mono.Security.Protocol.Ntlm {
 			var tname_len = BitConverterLE.ToUInt16 (message, 12);
 			var tname_off = BitConverterLE.ToUInt16 (message, 16);
 			if (tname_len > 0) {
-				#if !XAMARIN_WEBTESTS
-				if ((Flags & NtlmFlags.NegotiateOem) != 0)
-					_targetName = Encoding.ASCII.GetString (message, tname_off, tname_len);
-				else
-				#endif
-					_targetName = Encoding.Unicode.GetString (message, tname_off, tname_len);
+				_targetName = Encoding.Unicode.GetString (message, tname_off, tname_len);
 			}
 			
 			// The Target Info block is optional.

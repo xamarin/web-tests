@@ -37,13 +37,8 @@
 using System;
 using System.Globalization;
 
-namespace Mono.Security.Protocol.Ntlm {
+namespace Xamarin.WebTests.TestProvider.Ntlm {
 
-#if INSIDE_SYSTEM || XAMARIN_WEBTESTS
-	internal
-#else
-	public
-#endif
 	abstract class MessageBase {
 
 		static private byte[] header = { 0x4e, 0x54, 0x4c, 0x4d, 0x53, 0x53, 0x50, 0x00 };
@@ -84,12 +79,12 @@ namespace Mono.Security.Protocol.Ntlm {
 				throw new ArgumentNullException ("message");
 
 			if (message.Length < 12) {
-				string msg = Locale.GetText ("Minimum message length is 12 bytes.");
+				string msg = "Minimum message length is 12 bytes.";
 				throw new ArgumentOutOfRangeException ("message", message.Length, msg);
 			}
 
 			if (!CheckHeader (message)) {
-				string msg = String.Format (Locale.GetText ("Invalid Type{0} message."), _type);
+				string msg = String.Format ("Invalid Type{0} message.", _type);
 				throw new ArgumentException (msg, "message");
 			}
 		}
