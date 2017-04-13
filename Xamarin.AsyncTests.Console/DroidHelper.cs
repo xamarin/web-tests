@@ -39,27 +39,26 @@ namespace Xamarin.AsyncTests.Console
 	{
 		public Program Program {
 			get;
-			private set;
 		}
 
 		public string SdkRoot {
 			get;
-			private set;
 		}
 
 		public string Adb {
 			get;
-			private set;
 		}
 
 		public string AndroidTool {
 			get;
-			private set;
 		}
 
 		public string EmulatorTool {
 			get;
-			private set;
+		}
+
+		public DroidDevice Device {
+			get;
 		}
 
 		public DroidHelper (Program program, string sdkRoot)
@@ -77,6 +76,8 @@ namespace Xamarin.AsyncTests.Console
 			Adb = Path.Combine (SdkRoot, "platform-tools", "adb");
 			AndroidTool = Path.Combine (SdkRoot, "tools", "android");
 			EmulatorTool = Path.Combine (SdkRoot, "tools", "emulator");
+
+			Device = new DroidDevice ("XamarinWebTests", "android-23", "x86", "Galaxy Nexus");
 		}
 
 		public async Task<bool> CheckAvd (CancellationToken cancellationToken)
@@ -84,8 +85,8 @@ namespace Xamarin.AsyncTests.Console
 			var avds = await GetAvds (cancellationToken);
 			Program.Debug ("Available Adbs: {0}", string.Join (" ", avds));
 
-			if (!avds.Contains ("XamarinWebTests"))
-				await CreateAvd ("XamarinWebTests", "android-23", "armeabi-v7a", "Galaxy Nexus", true, cancellationToken);
+			if (!avds.Contains (Device.Name))
+				await CreateAvd (true, cancellationToken);
 			return true;
 		}
 
@@ -114,17 +115,17 @@ namespace Xamarin.AsyncTests.Console
 			return avds;
 		}
 
-		internal async Task CreateAvd (string name, string target, string abi, string device, bool replace, CancellationToken cancellationToken)
+		internal async Task CreateAvd (bool replace, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var args = new StringBuilder ();
 			args.Append ("-v ");
-			args.AppendFormat ("create avd -n {0} -t {1}", name, target);
-			if (!string.IsNullOrEmpty (abi))
-				args.AppendFormat (" --abi {0}", abi);
-			if (!string.IsNullOrEmpty (device))
-				args.AppendFormat (" --device \"{0}\"", device);
+			args.AppendFormat ("create avd -n {0} -t {1}", Device.Name, Device.Target);
+			if (!string.IsNullOrEmpty (Device.Abi))
+				args.AppendFormat (" --abi {0}", Device.Abi);
+			if (!string.IsNullOrEmpty (Device.Device))
+				args.AppendFormat (" --device \"{0}\"", Device.Device);
 			if (replace)
 				args.Append ("  --force");
 

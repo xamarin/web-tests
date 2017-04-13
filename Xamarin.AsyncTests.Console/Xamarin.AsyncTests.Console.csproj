@@ -48,6 +48,7 @@
     <Compile Include="DroidHelper.cs" />
     <Compile Include="ExternalToolException.cs" />
     <Compile Include="JUnitResultPrinter.cs" />
+    <Compile Include="DroidDevice.cs" />
   </ItemGroup>
   <Import Project="..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

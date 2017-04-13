@@ -297,7 +297,7 @@ namespace Xamarin.AsyncTests.Console
 
 				if (EndPoint == null)
 					EndPoint = GetLocalEndPoint ();
-			} else if (command == Command.Android || command == Command.Avd) {
+			} else if (command == Command.Android) { // } || command == Command.Avd) {
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected activity argument");
 

@@ -94,8 +94,11 @@ Install-Android-Debug::
 Install-Android-DebugBtls::
 	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=DebugBtls .Android-Internal-Install
 
-Run-Android-%::
+Run-Android-Debug-%::
 	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=Debug .Android-Run-$*
+
+Run-Android-DebugBtls-%::
+	$(MAKE) ASYNCTESTS_COMMAND=android TARGET_NAME=$@ ANDROID_CONFIGURATION=DebugBtls .Android-Run-$*
 
 #
 # Internal IOS make targets
@@ -285,8 +288,8 @@ Run-Android-%::
 	$(MSBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' Xamarin.WebTests.Android.sln /t:PackageForAndroid
 
 .Android-Internal-Install::
-	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) avd
-	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) emulator
+	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) avd
+	$(MONO) $(MONO_FLAGS) $(ASYNCTESTS_CONSOLE_EXE) emulator
 	$(XBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' /t:Install $(WEBTESTS_ANDROID_PROJECT)
 
 .Android-Internal-Run::

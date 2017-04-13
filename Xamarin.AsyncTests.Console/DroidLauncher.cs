@@ -46,40 +46,38 @@ namespace Xamarin.AsyncTests.Console
 	{
 		public Program Program {
 			get;
-			private set;
 		}
 
 		public string SdkRoot {
 			get;
-			private set;
 		}
 
 		public string Adb {
 			get;
-			private set;
 		}
 
 		public string AndroidTool {
 			get;
-			private set;
 		}
 
 		public string Application {
 			get;
-			private set;
 		}
 
 		public string RedirectStdout {
 			get;
-			private set;
 		}
 
 		public string RedirectStderr {
 			get;
-			private set;
 		}
 
-		DroidHelper helper;
+		public DroidHelper Helper {
+			get;
+		}
+
+		public DroidDevice Device => Helper.Device;
+
 		Process process;
 		TaskCompletionSource<bool> tcs;
 
@@ -99,7 +97,7 @@ namespace Xamarin.AsyncTests.Console
 			Adb = Path.Combine (SdkRoot, "platform-tools", "adb");
 			AndroidTool = Path.Combine (SdkRoot, "tools", "android");
 
-			helper = new DroidHelper (program, SdkRoot);
+			Helper = new DroidHelper (program, SdkRoot);
 		}
 
 		Process Launch (string launchArgs)
@@ -123,21 +121,16 @@ namespace Xamarin.AsyncTests.Console
 			return process;
 		}
 
-		public Task<bool> CheckAvd (CancellationToken cancellationToken)
-		{
-			return CheckAvd ("XamarinWebTests", "android-23", "armeabi-v7a", "Galaxy Nexus", cancellationToken);
-		}
-
-		public async Task<bool> CheckAvd (string name, string target, string abi, string device, CancellationToken cancellationToken)
+		public async Task<bool> CheckAvd (CancellationToken cancellationToken)
 		{
 			Program.Debug ("Check Avd: {0}", Adb);
-			var avds = await helper.GetAvds (cancellationToken);
+			var avds = await Helper.GetAvds (cancellationToken);
 			Program.Debug ("Check Avd #1: {0}", string.Join (" ", avds));
 
-			if (avds.Contains (name))
+			if (avds.Contains (Device.Name))
 				return true;
 
-			await helper.CreateAvd (name, target, abi, device, true, cancellationToken);
+			await Helper.CreateAvd (true, cancellationToken);
 			return true;
 		}
 
