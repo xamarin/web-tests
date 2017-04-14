@@ -35,10 +35,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	public interface IHttpProvider : ISingletonInstance
 	{
-		bool SupportsPerRequestCertificateValidator {
-			get;
-		}
-
 		bool SupportsHttpClient {
 			get;
 		}

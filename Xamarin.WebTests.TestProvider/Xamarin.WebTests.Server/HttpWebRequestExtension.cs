@@ -27,7 +27,6 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Security;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
@@ -39,23 +38,8 @@ namespace Xamarin.WebTests.Server
 
 	class HttpWebRequestExtension : IHttpWebRequestExtension
 	{
-		static readonly PropertyInfo callbackProp;
-
-		static HttpWebRequestExtension ()
-		{
-			/*
-			 * We use reflection to support older Mono runtimes, which don't have the property.
-			 *
-			 * HttpWebRequest.ServerCertificateValidationCallback is a new public property in .NET 4.5,
-			 * but has not been added to mono/master yet.
-			 */
-			var type = typeof(HttpWebRequest);
-			callbackProp = type.GetProperty ("ServerCertificateValidationCallback", BindingFlags.Public | BindingFlags.Instance);
-		}
-
 		public HttpWebRequest Request {
 			get;
-			private set;
 		}
 
 		public HttpWebRequest Object {
@@ -112,15 +96,9 @@ namespace Xamarin.WebTests.Server
 			return (HttpWebResponse)await Request.GetResponseAsync ();
 		}
 
-		internal static bool SupportsCertificateValidator {
-			get { return callbackProp != null; }
-		}
-
 		public void InstallCertificateValidator (RemoteCertificateValidationCallback validator)
 		{
-			if (!SupportsCertificateValidator)
-				throw new NotSupportedException ();
-			callbackProp.SetValue (Request, validator);
+			Request.ServerCertificateValidationCallback = validator;
 		}
 
 		public X509Certificate GetCertificate ()
