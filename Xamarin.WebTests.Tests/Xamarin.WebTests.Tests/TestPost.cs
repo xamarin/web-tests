@@ -252,10 +252,7 @@ namespace Xamarin.WebTests.Tests
 			var post = new PostHandler ("Post bug #20359", new StringContent ("var1=value&var2=value2"));
 
 			post.CustomHandler = (request) => {
-				string header;
-				if (!request.Headers.TryGetValue ("Content-Type", out header))
-					header = null;
-				ctx.Expect (header, Is.EqualTo ("application/x-www-form-urlencoded"), "Content-Type");
+				ctx.Expect (request.ContentType, Is.EqualTo ("application/x-www-form-urlencoded"), "Content-Type");
 				return null;
 			};
 

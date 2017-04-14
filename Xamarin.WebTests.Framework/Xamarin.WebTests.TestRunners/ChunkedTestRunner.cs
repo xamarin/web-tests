@@ -251,8 +251,8 @@ namespace Xamarin.WebTests.TestRunners
 			}
 			public override void AddHeadersTo (HttpMessage message)
 			{
-				message.SetHeader ("Transfer-Encoding", "chunked");
-				message.SetHeader ("Content-Type", "text/plain");
+				message.TransferEncoding = "chunked";
+				message.ContentType = "text/plain";
 			}
 			public override async Task WriteToAsync (StreamWriter writer)
 			{

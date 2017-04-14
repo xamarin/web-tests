@@ -127,7 +127,7 @@ namespace Xamarin.WebTests.HttpFramework
 		public override void AddHeadersTo (HttpMessage message)
 		{
 			if (SendChunked)
-				message.SetHeader ("Transfer-Encoding", "chunked");
+				message.TransferEncoding = "chunked";
 			else
 				message.ContentLength = Length;
 		}

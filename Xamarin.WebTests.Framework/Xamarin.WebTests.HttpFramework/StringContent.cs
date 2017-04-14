@@ -79,8 +79,8 @@ namespace Xamarin.WebTests.HttpFramework
 				message.ContentLength = content.Length;
 			else if (message.ContentLength.Value != content.Length)
 				throw new InvalidOperationException ();
-			if (!message.Headers.ContainsKey ("Content-Type"))
-				message.AddHeader ("Content-Type", "text/plain");
+			if (message.ContentType == null)
+				message.ContentType = "text/plain";
 		}
 
 		public override async Task WriteToAsync (StreamWriter writer)

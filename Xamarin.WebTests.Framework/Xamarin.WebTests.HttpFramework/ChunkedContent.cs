@@ -88,7 +88,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public override void AddHeadersTo (HttpMessage message)
 		{
-			message.SetHeader ("Transfer-Encoding", "chunked");
+			message.TransferEncoding = "chunked";
 		}
 
 		public override async Task WriteToAsync (StreamWriter writer)

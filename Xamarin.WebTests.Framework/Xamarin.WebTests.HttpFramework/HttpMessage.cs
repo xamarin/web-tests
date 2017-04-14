@@ -56,16 +56,16 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		public IDictionary<string,string> Headers {
+		internal IReadOnlyDictionary<string,string> Headers {
 			get { return headers; }
 		}
 
-		public void AddHeader (string header, object value)
+		internal void AddHeader (string header, object value)
 		{
 			headers.Add (header, value.ToString ());
 		}
 
-		public void SetHeader (string header, object value)
+		internal void SetHeader (string header, object value)
 		{
 			if (headers.ContainsKey (header))
 				headers [header] = value.ToString ();
@@ -85,6 +85,36 @@ namespace Xamarin.WebTests.HttpFramework
 					headers ["Content-Length"] = value.ToString ();
 				else
 					headers.Remove ("Content-Length");
+			}
+		}
+
+		public string ContentType {
+			get {
+				string value;
+				if (headers.TryGetValue ("Content-Type", out value))
+					return value;
+				return null;
+			}
+			set {
+				if (value != null)
+					headers ["Content-Type"] = value;
+				else
+					headers.Remove (value);
+			}
+		}
+
+		public string TransferEncoding {
+			get {
+				string value;
+				if (headers.TryGetValue ("Transfer-Encoding", out value))
+					return value;
+				return null;
+			}
+			set {
+				if (value != null)
+					headers ["Transfer-Encoding"] = value;
+				else
+					headers.Remove (value);
 			}
 		}
 
@@ -157,21 +187,12 @@ namespace Xamarin.WebTests.HttpFramework
 				return;
 			hasBody = true;
 
-			string contentType = null;
-			string transferEncoding = null;
-
-			string value;
-			if (Headers.TryGetValue ("Content-Type", out value))
-				contentType = value;
-			if (Headers.TryGetValue ("Transfer-Encoding", out value))
-				transferEncoding = value;
-
-			if (contentType != null && contentType.Equals ("application/octet-stream")) {
+			if (ContentType != null && ContentType.Equals ("application/octet-stream")) {
 				body = await BinaryContent.Read (reader, ContentLength.Value);
 			} else if (ContentLength != null) {
 				body = await StringContent.Read (reader, ContentLength.Value);
-			} else if (transferEncoding != null) {
-				if (!transferEncoding.Equals ("chunked"))
+			} else if (TransferEncoding != null) {
+				if (!TransferEncoding.Equals ("chunked"))
 					throw new InvalidOperationException ();
 				body = await ChunkedContent.Read (reader);
 			}

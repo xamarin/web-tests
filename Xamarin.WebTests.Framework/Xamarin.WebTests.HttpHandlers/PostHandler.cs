@@ -122,20 +122,18 @@ namespace Xamarin.WebTests.HttpHandlers
 					return customResponse;
 			}
 
-			var hasTransferEncoding = request.Headers.ContainsKey ("Transfer-Encoding");
-
 			if ((effectiveFlags & RequestFlags.RedirectedAsGet) != 0) {
 				ctx.Expect (request.ContentLength, Is.Null, "Content-Length header not allowed");
-				ctx.Expect (hasTransferEncoding, Is.False, "Transfer-Encoding header not allowed");
+				ctx.Expect (request.TransferEncoding, Is.Null, "Transfer-Encoding header not allowed");
 				return HttpResponse.CreateSuccess ();
 			}
 
 			if ((effectiveFlags & RequestFlags.NoContentLength) != 0) {
 				ctx.Expect (request.ContentLength, Is.Null, "Content-Length header not allowed");
-				ctx.Expect (hasTransferEncoding, Is.False, "Transfer-Encoding header not allowed");
+				ctx.Expect (request.TransferEncoding, Is.Null, "Transfer-Encoding header not allowed");
 			}
 
-			Debug (ctx, 2, "HANDLE POST #1", request.ContentLength, hasTransferEncoding);
+			Debug (ctx, 2, "HANDLE POST #1", request.ContentLength, request.TransferEncoding);
 
 			var content = request.ReadBody ();
 
@@ -151,7 +149,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			case TransferMode.ContentLength:
 				ctx.Expect (request.ContentLength, Is.Not.Null, "Missing Content-Length");
-				ctx.Expect (hasTransferEncoding, Is.False, "Transfer-Encoding header not allowed");
+				ctx.Expect (request.TransferEncoding, Is.Null, "Transfer-Encoding header not allowed");
 				break;
 
 			case TransferMode.Chunked:
@@ -159,12 +157,11 @@ namespace Xamarin.WebTests.HttpHandlers
 					goto case TransferMode.ContentLength;
 
 				ctx.Expect (request.ContentLength, Is.Null, "Content-Length header not allowed");
-				var ok = ctx.Expect (hasTransferEncoding, Is.True, "Missing Transfer-Encoding header");
+				var ok = ctx.Expect (request.TransferEncoding, Is.Not.Null, "Missing Transfer-Encoding header");
 				if (!ok)
 					break;
 
-				var transferEncoding = request.Headers ["Transfer-Encoding"];
-				ok &= ctx.Expect (transferEncoding.ToLowerInvariant (), Is.EqualTo ("chunked"), "Invalid Transfer-Encoding");
+				ok &= ctx.Expect (request.TransferEncoding.ToLowerInvariant (), Is.EqualTo ("chunked"), "Invalid Transfer-Encoding");
 				break;
 
 			default:
