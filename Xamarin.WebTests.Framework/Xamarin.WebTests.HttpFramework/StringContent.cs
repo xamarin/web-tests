@@ -75,8 +75,10 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public override void AddHeadersTo (HttpMessage message)
 		{
-			if (!message.Headers.ContainsKey ("Content-Length"))
-				message.AddHeader ("Content-Length", content.Length);
+			if (message.ContentLength == null)
+				message.ContentLength = content.Length;
+			else if (message.ContentLength.Value != content.Length)
+				throw new InvalidOperationException ();
 			if (!message.Headers.ContainsKey ("Content-Type"))
 				message.AddHeader ("Content-Type", "text/plain");
 		}

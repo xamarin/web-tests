@@ -218,7 +218,7 @@ namespace Xamarin.WebTests.TestRunners
 			}
 			public override void AddHeadersTo (HttpMessage message)
 			{
-				message.SetHeader ("Content-Length", 65536);
+				message.ContentLength = 65536;
 			}
 			public override async Task WriteToAsync (StreamWriter writer)
 			{

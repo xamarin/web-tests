@@ -70,7 +70,7 @@ namespace Xamarin.WebTests.HttpFramework
 		public override void AddHeadersTo (HttpMessage message)
 		{
 			message.SetHeader ("Content-Type", "application/octet-stream");
-			message.SetHeader ("Content-Length", Length);
+			message.ContentLength = Length;
 		}
 
 		public override HttpContent RemoveTransferEncoding ()

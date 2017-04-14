@@ -60,18 +60,14 @@ namespace Xamarin.WebTests.HttpHandlers
 			if (!request.Method.Equals ("DELETE"))
 				return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
 
-			string value;
-			var hasLength = request.Headers.TryGetValue ("Content-Length", out value);
 			var hasExplicitLength = (Flags & RequestFlags.ExplicitlySetLength) != 0;
 
-			if (hasLength) {
-				var length = int.Parse (value);
-
+			if (request.ContentLength != null) {
 				if (Body != null) {
 					request.ReadBody ();
 					return HttpResponse.CreateSuccess ();
 				} else if (hasExplicitLength) {
-					if (length != 0)
+					if (request.ContentLength.Value != 0)
 						return HttpResponse.CreateError ("Content-Length must be zero");
 				} else {
 					return HttpResponse.CreateError ("Content-Length not allowed.");

@@ -122,36 +122,35 @@ namespace Xamarin.WebTests.HttpHandlers
 					return customResponse;
 			}
 
-			var hasContentLength = request.Headers.ContainsKey ("Content-Length");
 			var hasTransferEncoding = request.Headers.ContainsKey ("Transfer-Encoding");
 
 			if ((effectiveFlags & RequestFlags.RedirectedAsGet) != 0) {
-				ctx.Expect (hasContentLength, Is.False, "Content-Length header not allowed");
+				ctx.Expect (request.ContentLength, Is.Null, "Content-Length header not allowed");
 				ctx.Expect (hasTransferEncoding, Is.False, "Transfer-Encoding header not allowed");
 				return HttpResponse.CreateSuccess ();
 			}
 
 			if ((effectiveFlags & RequestFlags.NoContentLength) != 0) {
-				ctx.Expect (hasContentLength, Is.False, "Content-Length header not allowed");
+				ctx.Expect (request.ContentLength, Is.Null, "Content-Length header not allowed");
 				ctx.Expect (hasTransferEncoding, Is.False, "Transfer-Encoding header not allowed");
 			}
 
-			Debug (ctx, 2, "HANDLE POST #1", hasContentLength, hasTransferEncoding);
+			Debug (ctx, 2, "HANDLE POST #1", request.ContentLength, hasTransferEncoding);
 
 			var content = request.ReadBody ();
 
 			switch (Mode) {
 			case TransferMode.Default:
 				if (Content != null) {
-					ctx.Expect (hasContentLength, Is.True, "Missing Content-Length");
+					ctx.Expect (request.ContentLength, Is.Not.Null, "Missing Content-Length");
 					break;
 				} else {
-					ctx.Expect (hasContentLength, Is.False, "Content-Length header not allowed");
+					ctx.Expect (request.ContentLength, Is.Null, "Content-Length header not allowed");
 					return HttpResponse.CreateSuccess ();
 				}
 
 			case TransferMode.ContentLength:
-				ctx.Expect (hasContentLength, Is.True, "Missing Content-Length");
+				ctx.Expect (request.ContentLength, Is.Not.Null, "Missing Content-Length");
 				ctx.Expect (hasTransferEncoding, Is.False, "Transfer-Encoding header not allowed");
 				break;
 
@@ -159,7 +158,7 @@ namespace Xamarin.WebTests.HttpHandlers
 				if ((effectiveFlags & RequestFlags.Redirected) != 0)
 					goto case TransferMode.ContentLength;
 
-				ctx.Expect (hasContentLength, Is.False, "Content-Length header not allowed");
+				ctx.Expect (request.ContentLength, Is.Null, "Content-Length header not allowed");
 				var ok = ctx.Expect (hasTransferEncoding, Is.True, "Missing Transfer-Encoding header");
 				if (!ok)
 					break;

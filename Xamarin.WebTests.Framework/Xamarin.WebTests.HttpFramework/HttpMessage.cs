@@ -73,6 +73,21 @@ namespace Xamarin.WebTests.HttpFramework
 				headers.Add (header, value.ToString ());
 		}
 
+		public int? ContentLength {
+			get {
+				string value;
+				if (headers.TryGetValue ("Content-Length", out value))
+					return int.Parse (value);
+				return null;
+			}
+			set {
+				if (value != null)
+					headers ["Content-Length"] = value.ToString ();
+				else
+					headers.Remove ("Content-Length");
+			}
+		}
+
 		bool hasBody;
 		HttpContent body;
 
@@ -144,33 +159,22 @@ namespace Xamarin.WebTests.HttpFramework
 
 			string contentType = null;
 			string transferEncoding = null;
-			int? contentLength = null;
 
 			string value;
 			if (Headers.TryGetValue ("Content-Type", out value))
 				contentType = value;
 			if (Headers.TryGetValue ("Transfer-Encoding", out value))
 				transferEncoding = value;
-			if (Headers.TryGetValue ("Content-Length", out value))
-				contentLength = int.Parse (value);
 
 			if (contentType != null && contentType.Equals ("application/octet-stream")) {
-				body = await BinaryContent.Read (reader, contentLength.Value);
-			} else if (contentLength != null) {
-				body = await StringContent.Read (reader, contentLength.Value);
+				body = await BinaryContent.Read (reader, ContentLength.Value);
+			} else if (ContentLength != null) {
+				body = await StringContent.Read (reader, ContentLength.Value);
 			} else if (transferEncoding != null) {
 				if (!transferEncoding.Equals ("chunked"))
 					throw new InvalidOperationException ();
 				body = await ChunkedContent.Read (reader);
 			}
-		}
-
-		int GetContentLength ()
-		{
-			string value;
-			if (!Headers.TryGetValue ("Content-Length", out value))
-				throw new InvalidOperationException ();
-			return int.Parse (value);
 		}
 	}
 }

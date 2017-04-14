@@ -129,7 +129,7 @@ namespace Xamarin.WebTests.HttpFramework
 			if (SendChunked)
 				message.SetHeader ("Transfer-Encoding", "chunked");
 			else
-				message.SetHeader ("Content-Length", Length);
+				message.ContentLength = Length;
 		}
 
 		static readonly char[] hexchars = new char[] {

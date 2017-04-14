@@ -133,19 +133,14 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			var body = request.ReadBody ();
 
-			int? contentLength = null;
-			if ((effectiveFlags & RequestFlags.NoContentLength) == 0) {
-				string contentLengthValue;
-				var hasContentLength = request.Headers.TryGetValue ("Content-Length", out contentLengthValue);
-				ctx.Assert (hasContentLength, "Missing Content-Length");
-				contentLength = int.Parse (contentLengthValue);
-			}
+			if ((effectiveFlags & RequestFlags.NoContentLength) == 0)
+				ctx.Assert (request.ContentLength, Is.Not.Null, "Missing Content-Length");
 
 			Debug (ctx, 5, "BODY", body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
 				ctx.Assert (body, Is.Not.Null, "body");
-				if (contentLength != null)
-					ctx.Assert (contentLength.Value, Is.EqualTo (0), "Zero Content-Length");
+				if (request.ContentLength != null)
+					ctx.Assert (request.ContentLength.Value, Is.EqualTo (0), "Zero Content-Length");
 				return HttpResponse.CreateSuccess ();
 			}
 
