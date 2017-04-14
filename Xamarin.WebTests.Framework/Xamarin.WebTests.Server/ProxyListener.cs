@@ -67,10 +67,11 @@ namespace Xamarin.WebTests.Server
 			return Server.CreateConnection (Context, stream);
 		}
 
-		protected override bool HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
+		protected override async Task<bool> HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
 		{
-			var request = connection.ReadRequest ();
+			var request = await connection.ReadRequest (cancellationToken);
 
+			cancellationToken.ThrowIfCancellationRequested ();
 			var remoteAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
 			request.AddHeader ("X-Forwarded-For", remoteAddress);
 
@@ -80,8 +81,8 @@ namespace Xamarin.WebTests.Server
 					authHeader = null;
 				var response = authManager.HandleAuthentication ((HttpConnection)connection, request, authHeader);
 				if (response != null) {
-					request.ReadBody (connection);
-					connection.WriteResponse (response);
+					await request.ReadBody (connection, cancellationToken);
+					await connection.WriteResponse (response, cancellationToken);
 					return false;
 				}
 
@@ -90,7 +91,7 @@ namespace Xamarin.WebTests.Server
 			}
 
 			if (request.Method.Equals ("CONNECT")) {
-				CreateTunnel (connection, socket, ((StreamConnection)connection).Stream, request, cancellationToken);
+				await CreateTunnel (connection, socket, ((StreamConnection)connection).Stream, request, cancellationToken);
 				return false;
 			}
 
@@ -102,24 +103,32 @@ namespace Xamarin.WebTests.Server
 			using (var targetWriter = new StreamWriter (targetStream)) {
 				targetWriter.AutoFlush = true;
 
-				var task = Task.Factory.StartNew (() => {
-					var response = HttpResponse.Read (targetReader);
-					response.SetHeader ("Connection", "close");
-					response.SetHeader ("Proxy-Connection", "close");
-					connection.WriteResponse (response);
-				});
+				var copyResponseTask = CopyResponse (connection, targetReader, cancellationToken);
 
-				request.Write (targetWriter);
+				await request.Write (targetWriter, cancellationToken);
 
-				var body = request.ReadBody (connection);
+				var body = await request.ReadBody (connection, cancellationToken);
 				if (body != null)
-					body.WriteToAsync (targetWriter).Wait ();
+					await body.WriteToAsync (targetWriter);
 
-				task.Wait ();
+				await copyResponseTask;
 			}
 
 			targetSocket.Close ();
 			return false;
+		}
+
+		async Task CopyResponse (HttpConnection connection, StreamReader targetReader, CancellationToken cancellationToken)
+		{
+			await Task.Yield ();
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			var response = await HttpResponse.Read (targetReader, cancellationToken).ConfigureAwait (false);
+			response.SetHeader ("Connection", "close");
+			response.SetHeader ("Proxy-Connection", "close");
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			await connection.WriteResponse (response, cancellationToken);
 		}
 
 		IPEndPoint GetConnectEndpoint (HttpRequest request)
@@ -133,8 +142,9 @@ namespace Xamarin.WebTests.Server
 			return new IPEndPoint (address, port);
 		}
 
-		void CreateTunnel (
-			HttpConnection connection, Socket socket, Stream stream, HttpRequest request, CancellationToken cancellationToken)
+		async Task CreateTunnel (
+			HttpConnection connection, Socket socket, Stream stream,
+			HttpRequest request, CancellationToken cancellationToken)
 		{
 			var targetEndpoint = GetConnectEndpoint (request);
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -145,7 +155,7 @@ namespace Xamarin.WebTests.Server
 			writer.AutoFlush = true;
 
 			var connectionEstablished = new HttpResponse (HttpStatusCode.OK, HttpProtocol.Http10, "Connection established");
-			connectionEstablished.Write (writer);
+			await connectionEstablished.Write (writer, cancellationToken);
 
 			try {
 				RunTunnel (socket, targetSocket, cancellationToken);

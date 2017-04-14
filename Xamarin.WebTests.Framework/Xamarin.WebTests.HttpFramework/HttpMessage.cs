@@ -46,16 +46,6 @@ namespace Xamarin.WebTests.HttpFramework
 			get; protected set;
 		}
 
-		public HttpContent Body {
-			get {
-				return body;
-			}
-			set {
-				body = value;
-				hasBody = true;
-			}
-		}
-
 		internal IReadOnlyDictionary<string,string> Headers {
 			get { return headers; }
 		}
@@ -118,8 +108,6 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		bool hasBody;
-		HttpContent body;
 		TaskCompletionSource<HttpContent> bodyTcs;
 
 		Dictionary<string,string> headers = new Dictionary<string, string> ();
@@ -173,45 +161,37 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		protected void WriteHeaders (StreamWriter writer)
+		protected async Task WriteHeaders (StreamWriter writer, CancellationToken cancellationToken)
 		{
-			foreach (var entry in Headers)
-				writer.Write ("{0}: {1}\r\n", entry.Key, entry.Value);
-			writer.Write ("\r\n");
+			foreach (var entry in Headers) {
+				cancellationToken.ThrowIfCancellationRequested ();
+				await writer.WriteAsync (string.Format ("{0}: {1}\r\n", entry.Key, entry.Value));
+			}
+			cancellationToken.ThrowIfCancellationRequested ();
+			await writer.WriteAsync ("\r\n");
 		}
 
-		public HttpContent ReadBody (HttpConnection connection)
+		public Task<HttpContent> ReadBody (HttpConnection connection, CancellationToken cancellationToken)
 		{
-			return connection.ReadBody (this);
-		}
-
-		internal Task<HttpContent> ReadBody (StreamReader reader)
-		{
+			cancellationToken.ThrowIfCancellationRequested ();
 			if (Interlocked.CompareExchange (ref bodyTcs, new TaskCompletionSource<HttpContent> (), null) != null)
 				return bodyTcs.Task;
 
-			if (hasBody) {
-				bodyTcs.TrySetResult (body);
-				return bodyTcs.Task;
-			}
-
-			DoReadBody (reader).ContinueWith (t => {
-				if (t.IsCompleted) {
-					if (bodyTcs.TrySetResult (t.Result)) {
-						body = t.Result;
-						hasBody = true;
-					}
-				} else if (t.IsFaulted)
-					bodyTcs.TrySetException (t.Exception);
+			connection.ReadBody (this, cancellationToken).ContinueWith (t => {
+				if (t.IsCompleted)
+					bodyTcs.TrySetResult (t.Result);
 				else if (t.IsCanceled)
 					bodyTcs.TrySetCanceled ();
+				else if (t.IsFaulted)
+					bodyTcs.TrySetException (t.Exception);
 			});
 
 			return bodyTcs.Task;
 		}
 
-		async Task<HttpContent> DoReadBody (StreamReader reader)
+		internal async Task<HttpContent> ReadBody (StreamReader reader, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested ();
 			if (ContentType != null && ContentType.Equals ("application/octet-stream"))
 				return await BinaryContent.Read (reader, ContentLength.Value);
 			if (ContentLength != null)

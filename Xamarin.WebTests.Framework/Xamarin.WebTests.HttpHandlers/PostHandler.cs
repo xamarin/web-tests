@@ -28,6 +28,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Globalization;
 using System.Collections.Generic;
 
@@ -98,7 +99,9 @@ namespace Xamarin.WebTests.HttpHandlers
 			return post;
 		}
 
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		internal protected override async Task<HttpResponse> HandleRequest (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			Debug (ctx, 2, "HANDLE POST", request.Path, request.Method, effectiveFlags);
 
@@ -135,7 +138,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			Debug (ctx, 2, "HANDLE POST #1", request.ContentLength, request.TransferEncoding);
 
-			var content = request.ReadBody (connection);
+			var content = await request.ReadBody (connection, cancellationToken);
 
 			switch (Mode) {
 			case TransferMode.Default:

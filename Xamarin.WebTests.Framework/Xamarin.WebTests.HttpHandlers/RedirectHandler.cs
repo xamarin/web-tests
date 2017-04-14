@@ -1,4 +1,4 @@
-//
+﻿//
 // RedirectHandler.cs
 //
 // Author:
@@ -26,6 +26,8 @@
 using System;
 using System.Net;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Globalization;
 
 using Xamarin.AsyncTests;
@@ -66,10 +68,12 @@ namespace Xamarin.WebTests.HttpHandlers
 			return icode == 301 || icode == 302 || icode == 303 || icode == 307;
 		}
 
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		internal protected override Task<HttpResponse> HandleRequest (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			var targetUri = Target.RegisterRequest (connection.Server);
-			return HttpResponse.CreateRedirect (Code, targetUri);
+			return Task.FromResult (HttpResponse.CreateRedirect (Code, targetUri));
 		}
 	}
 }

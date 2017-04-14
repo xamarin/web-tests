@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.AsyncTests.Constraints;
@@ -60,31 +62,33 @@ namespace Xamarin.WebTests.Server {
 			return reader.Peek () >= 0 && !reader.EndOfStream;
 		}
 
-		public override HttpRequest ReadRequest ()
+		public override Task<HttpRequest> ReadRequest (CancellationToken cancellationToken)
 		{
-			if (reader.Peek () < 0 && reader.EndOfStream)
-				return null;
-			return HttpRequest.Read (reader);
+			return Task.Run (() => {
+				if (reader.Peek () < 0 && reader.EndOfStream)
+					return null;
+				return HttpRequest.Read (reader);
+			});
 		}
 
-		public override HttpResponse ReadResponse ()
+		public override Task<HttpResponse> ReadResponse (CancellationToken cancellationToken)
 		{
-			return HttpResponse.Read (reader);
+			return HttpResponse.Read (reader, cancellationToken);
 		}
 
-		internal override HttpContent ReadBody (HttpMessage message)
+		internal override Task<HttpContent> ReadBody (HttpMessage message, CancellationToken cancellationToken)
 		{
-			return message.ReadBody (reader).Result;
+			return message.ReadBody (reader, cancellationToken);
 		}
 
-		internal override void WriteRequest (HttpRequest request)
+		internal override Task WriteRequest (HttpRequest request, CancellationToken cancellationToken)
 		{
-			request.Write (writer);
+			return request.Write (writer, cancellationToken);
 		}
 
-		internal override void WriteResponse (HttpResponse response)
+		internal override Task WriteResponse (HttpResponse response, CancellationToken cancellationToken)
 		{
-			response.Write (writer);
+			return response.Write (writer, cancellationToken);
 		}
 
 		public override void CheckEncryption (TestContext ctx)

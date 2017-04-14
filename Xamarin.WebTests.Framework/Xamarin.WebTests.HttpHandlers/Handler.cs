@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
@@ -68,20 +69,12 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public string Value {
 			get;
-			private set;
-		}
-
-		public Task<bool> Task {
-			get { return tcs.Task; }
 		}
 
 		Func<TestContext, bool> filter;
 
 		bool hasRequest;
 		RequestFlags flags;
-		TaskCompletionSource<bool> tcs;
-
-		Handler parent;
 
 		protected void WantToModify ()
 		{
@@ -92,9 +85,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		public Handler (Handler parent, string identifier = null)
 		{
 			Value = identifier;
-			this.parent = parent;
-
-			tcs = new TaskCompletionSource<bool> ();
+			Parent = parent;
 		}
 
 		public Handler (string identifier)
@@ -103,7 +94,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		}
 
 		public Handler Parent {
-			get { return parent; }
+			get;
 		}
 
 		protected void Debug (TestContext ctx, int level, string message, params object[] args)
@@ -127,7 +118,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			ctx.LogDebug (2, sb.ToString ());
 		}
 
-		public bool HandleRequest (HttpConnection connection, HttpRequest request)
+		public async Task<bool> HandleRequest (HttpConnection connection, HttpRequest request, CancellationToken cancellationToken)
 		{
 			var ctx = connection.TestContext;
 			if (ctx == null)
@@ -137,39 +128,45 @@ namespace Xamarin.WebTests.HttpHandlers
 				Debug (ctx, 1, "HANDLE REQUEST");
 				DumpHeaders (ctx, request);
 				connection.CheckEncryption (ctx);
-				var response = HandleRequest (ctx, connection, request, Flags);
+				var response = await HandleRequest (ctx, connection, request, Flags, cancellationToken);
 				if (response == null)
 					response = HttpResponse.CreateSuccess ();
 				if (!response.KeepAlive.HasValue && ((Flags & RequestFlags.KeepAlive) != 0))
 					response.KeepAlive = true;
-				request.ReadBody (connection);
-				connection.WriteResponse (response);
+
+				cancellationToken.ThrowIfCancellationRequested ();
+				await request.ReadBody (connection, cancellationToken);
+
+				cancellationToken.ThrowIfCancellationRequested ();
+				await connection.WriteResponse (response, cancellationToken);
+
 				Debug (ctx, 1, "HANDLE REQUEST DONE", response);
 				DumpHeaders (ctx, response);
-				tcs.SetResult (response.IsSuccess);
 				return response.KeepAlive ?? false;
 			} catch (AssertionException ex) {
 				Debug (ctx, 1, "HANDLE REQUEST - ASSERTION FAILED", ex);
+				cancellationToken.ThrowIfCancellationRequested ();
 				var response = HttpResponse.CreateError (ex.Message);
-				connection.WriteResponse (response);
-				tcs.SetException (ex);
+				await connection.WriteResponse (response, cancellationToken);
 				return false;
+			} catch (OperationCanceledException) {
+				throw;
 			} catch (Exception ex) {
 				if (ctx.IsCanceled) {
 					Debug (ctx, 1, "HANDLE REQUEST - CANCELED", ex);
-					tcs.SetCanceled ();
 					return false;
 				}
 				Debug (ctx, 1, "HANDLE REQUEST EX", ex);
+				cancellationToken.ThrowIfCancellationRequested ();
 				var response = HttpResponse.CreateError ("Caught unhandled exception", ex);
-				connection.WriteResponse (response);
-				tcs.SetException (ex);
+				await connection.WriteResponse (response, cancellationToken);
 				return false;
 			}
 		}
 
 		[StackTraceEntryPoint]
-		protected internal abstract HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags);
+		protected internal abstract Task<HttpResponse> HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request,
+		                                                              RequestFlags effectiveFlags, CancellationToken cancellationToken);
 
 		public Uri RegisterRequest (HttpServer server)
 		{

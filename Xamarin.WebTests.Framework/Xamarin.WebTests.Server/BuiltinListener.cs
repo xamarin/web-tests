@@ -1,4 +1,4 @@
-//
+﻿//
 // BuiltinListener.cs
 //
 // Author:
@@ -152,18 +152,15 @@ namespace Xamarin.WebTests.Server
 				connection = null;
 			}
 
-			try {
-				if (connection != null)
-					HandleConnection_internal (socket, connection, cts.Token);
-				Close (socket);
-			} catch (OperationCanceledException) {
-				;
-			} catch (Exception ex) {
-				OnException (ex);
-			}
+			HandleConnection_internal (socket, connection, cts.Token).ContinueWith (t => {
+				if (t.IsCompleted)
+					Close (socket);
+				if (t.IsFaulted)
+					OnException (t.Exception);
 
-			OnFinished ();
-			args.Dispose ();
+				OnFinished ();
+				args.Dispose ();
+			});
 		}
 
 		void OnFinished ()
@@ -226,10 +223,12 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		void HandleConnection_internal (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
+		async Task HandleConnection_internal (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
 		{
+			if (connection == null)
+				return;
 			while (!cancellationToken.IsCancellationRequested) {
-				var wantToReuse = HandleConnection (socket, connection, cancellationToken);
+				var wantToReuse = await HandleConnection (socket, connection, cancellationToken);
 				if (!wantToReuse || cancellationToken.IsCancellationRequested)
 					break;
 
@@ -239,6 +238,6 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected abstract bool HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken);
+		protected abstract Task<bool> HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken);
 	}
 }

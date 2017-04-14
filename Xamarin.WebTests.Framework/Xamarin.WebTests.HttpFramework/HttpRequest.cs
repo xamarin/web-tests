@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -83,10 +84,11 @@ namespace Xamarin.WebTests.HttpFramework
 			ReadHeaders (reader);
 		}
 
-		public void Write (StreamWriter writer)
+		public async Task Write (StreamWriter writer, CancellationToken cancellationToken)
 		{
-			writer.Write ("{0} {1} {2}\r\n", Method, Path, ProtocolToString (Protocol));
-			WriteHeaders (writer);
+			cancellationToken.ThrowIfCancellationRequested ();
+			await writer.WriteAsync (string.Format ("{0} {1} {2}\r\n", Method, Path, ProtocolToString (Protocol)));
+			await WriteHeaders (writer, cancellationToken);
 		}
 
 		public override string ToString ()

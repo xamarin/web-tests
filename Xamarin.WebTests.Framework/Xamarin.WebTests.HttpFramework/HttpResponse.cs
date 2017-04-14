@@ -26,6 +26,8 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -37,6 +39,10 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public string StatusMessage {
 			get; private set;
+		}
+
+		public HttpContent Body {
+			get;
 		}
 
 		public bool IsSuccess {
@@ -78,11 +84,12 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 		}
 
-		internal static HttpResponse Read (StreamReader reader)
+		internal static async Task<HttpResponse> Read (StreamReader reader, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested ();
 			try {
 				var response = new HttpResponse ();
-				response.InternalRead(reader);
+				await response.InternalRead (reader, cancellationToken).ConfigureAwait (false);
 				return response;
 			} catch (Exception ex) {
 				return CreateError (ex);
@@ -118,7 +125,7 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		void InternalRead (StreamReader reader)
+		async Task InternalRead (StreamReader reader, CancellationToken cancellationToken)
 		{
 			var header = reader.ReadLine ();
 			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
@@ -131,21 +138,23 @@ namespace Xamarin.WebTests.HttpFramework
 
 			ReadHeaders (reader);
 
-			ReadBody (reader).Wait ();
+			await ReadBody (reader, cancellationToken);
 		}
 
-		public void Write (StreamWriter writer)
+		public async Task Write (StreamWriter writer, CancellationToken cancellationToken)
 		{
 			CheckHeaders ();
 			responseWritten = true;
 
+			cancellationToken.ThrowIfCancellationRequested ();
+
 			var message = StatusMessage ?? ((HttpStatusCode)StatusCode).ToString ();
-			writer.Write ("{0} {1} {2}\r\n", ProtocolToString (Protocol), (int)StatusCode, message);
-			WriteHeaders (writer);
+			await writer.WriteAsync (string.Format ("{0} {1} {2}\r\n", ProtocolToString (Protocol), (int)StatusCode, message));
+			await WriteHeaders (writer, cancellationToken);
 
 			if (Body != null)
-				Body.WriteToAsync (writer).Wait ();
-			writer.Flush ();
+				await Body.WriteToAsync (writer);
+			await writer.FlushAsync ();
 		}
 
 		public static HttpResponse CreateSimple (HttpStatusCode status, string body = null)

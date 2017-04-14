@@ -28,6 +28,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Globalization;
 using System.Collections.Generic;
 
@@ -55,7 +56,9 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new DeleteHandler (Value, Body) { Flags = Flags };
 		}
 
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		internal protected override async Task<HttpResponse> HandleRequest (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			if (!request.Method.Equals ("DELETE"))
 				return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
@@ -64,7 +67,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			if (request.ContentLength != null) {
 				if (Body != null) {
-					request.ReadBody (connection);
+					await request.ReadBody (connection, cancellationToken);
 					return HttpResponse.CreateSuccess ();
 				} else if (hasExplicitLength) {
 					if (request.ContentLength.Value != 0)

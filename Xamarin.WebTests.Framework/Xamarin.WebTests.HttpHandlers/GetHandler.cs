@@ -28,6 +28,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Globalization;
 using System.Collections.Generic;
 
@@ -56,10 +57,11 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new GetHandler (Value, Content);
 		}
 
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		internal protected override Task<HttpResponse> HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request,
+		                                                              RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-			return new HttpResponse (HttpStatusCode.OK, Content);
+			return Task.FromResult (new HttpResponse (HttpStatusCode.OK, Content));
 		}
 	}
 }

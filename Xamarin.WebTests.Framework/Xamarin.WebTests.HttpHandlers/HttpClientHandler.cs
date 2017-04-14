@@ -73,35 +73,39 @@ namespace Xamarin.WebTests.HttpHandlers
 			return handler;
 		}
 
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		internal protected override Task<HttpResponse> HandleRequest (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			switch (Operation) {
 			case HttpClientOperation.GetString:
 				ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-				return HttpResponse.CreateSuccess (string.Format ("Hello World!"));
+				return Task.FromResult (HttpResponse.CreateSuccess (string.Format ("Hello World!")));
 
 			case HttpClientOperation.PostString:
-				return HandlePostString (ctx, connection, request, effectiveFlags);
+				return HandlePostString (ctx, connection, request, effectiveFlags, cancellationToken);
 
 			case HttpClientOperation.PutString:
-				return HandlePutString (ctx, connection, request, effectiveFlags);
+				return HandlePutString (ctx, connection, request, effectiveFlags, cancellationToken);
 
 			case HttpClientOperation.SendAsync:
-				return HandleSendAsync (ctx, connection, request, effectiveFlags);
+				return HandleSendAsync (ctx, connection, request, effectiveFlags, cancellationToken);
 
 			case HttpClientOperation.PutDataAsync:
-				return HandlePutDataAsync (ctx, connection, request, effectiveFlags);
+				return HandlePutDataAsync (ctx, connection, request, effectiveFlags, cancellationToken);
 
 			default:
 				throw new InvalidOperationException ();
 			}
 		}
 
-		HttpResponse HandlePostString (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		async Task<HttpResponse> HandlePostString (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("POST"), "method");
 
-			var body = request.ReadBody (connection);
+			var body = await request.ReadBody (connection, cancellationToken);
 
 			Debug (ctx, 5, "BODY", body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
@@ -113,11 +117,13 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 		}
 
-		HttpResponse HandlePutString (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		async Task<HttpResponse> HandlePutString (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("PUT"), "method");
 
-			var body = request.ReadBody (connection);
+			var body = await request.ReadBody (connection, cancellationToken);
 
 			Debug (ctx, 5, "BODY", body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
@@ -129,9 +135,11 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 		}
 
-		HttpResponse HandleSendAsync (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		async Task<HttpResponse> HandleSendAsync (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
-			var body = request.ReadBody (connection);
+			var body = await request.ReadBody (connection, cancellationToken);
 
 			if ((effectiveFlags & RequestFlags.NoContentLength) == 0)
 				ctx.Assert (request.ContentLength, Is.Not.Null, "Missing Content-Length");
@@ -148,11 +156,13 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 		}
 
-		HttpResponse HandlePutDataAsync (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		async Task<HttpResponse> HandlePutDataAsync (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("PUT"), "method");
 
-			var body = request.ReadBody (connection);
+			var body = await request.ReadBody (connection, cancellationToken);
 
 			Debug (ctx, 5, "BODY", body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {

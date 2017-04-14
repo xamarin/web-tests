@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 
@@ -45,10 +47,12 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HelloWorldHandler (Value);
 		}
 
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		internal protected override Task<HttpResponse> HandleRequest (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
+			return Task.FromResult (HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id)));
 		}
 	}
 }

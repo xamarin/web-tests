@@ -1,4 +1,4 @@
-//
+﻿//
 // AuthenticatedPostHandler.cs
 //
 // Author:
@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Xamarin.AsyncTests;
 
@@ -88,7 +90,9 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		readonly HttpAuthManager manager;
 
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		protected internal override async Task<HttpResponse> HandleRequest (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			string authHeader;
 			if (!request.Headers.TryGetValue ("Authorization", out authHeader))
@@ -98,7 +102,8 @@ namespace Xamarin.WebTests.HttpHandlers
 			if (response != null)
 				return response;
 
-			return Target.HandleRequest (ctx, connection, request, effectiveFlags);
+			cancellationToken.ThrowIfCancellationRequested (); 
+			return await Target.HandleRequest (ctx, connection, request, effectiveFlags, cancellationToken);
 		}
 
 		public override void ConfigureRequest (Request request, Uri uri)

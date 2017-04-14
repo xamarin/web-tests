@@ -57,15 +57,15 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public abstract bool HasRequest ();
 
-		public abstract HttpRequest ReadRequest ();
+		public abstract Task<HttpRequest> ReadRequest (CancellationToken cancellationToken);
 
-		internal abstract HttpContent ReadBody (HttpMessage message);
+		internal abstract Task<HttpContent> ReadBody (HttpMessage message, CancellationToken cancellationToken);
 
-		public abstract HttpResponse ReadResponse ();
+		public abstract Task<HttpResponse> ReadResponse (CancellationToken cancellationToken);
 
-		internal abstract void WriteRequest (HttpRequest request);
+		internal abstract Task WriteRequest (HttpRequest request, CancellationToken cancellationToken);
 
-		internal abstract void WriteResponse (HttpResponse response);
+		internal abstract Task WriteResponse (HttpResponse response, CancellationToken cancellationToken);
 
 		public abstract void CheckEncryption (TestContext ctx);
 	}
