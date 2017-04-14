@@ -120,6 +120,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		bool hasBody;
 		HttpContent body;
+		TaskCompletionSource<HttpContent> bodyTcs;
 
 		Dictionary<string,string> headers = new Dictionary<string, string> ();
 
@@ -184,22 +185,43 @@ namespace Xamarin.WebTests.HttpFramework
 			return connection.ReadBody (this);
 		}
 
-		internal async Task<HttpContent> ReadBody (StreamReader reader)
+		internal Task<HttpContent> ReadBody (StreamReader reader)
 		{
-			if (hasBody)
-				return body;
-			hasBody = true;
+			if (Interlocked.CompareExchange (ref bodyTcs, new TaskCompletionSource<HttpContent> (), null) != null)
+				return bodyTcs.Task;
 
-			if (ContentType != null && ContentType.Equals ("application/octet-stream")) {
-				body = await BinaryContent.Read (reader, ContentLength.Value);
-			} else if (ContentLength != null) {
-				body = await StringContent.Read (reader, ContentLength.Value);
-			} else if (TransferEncoding != null) {
+			if (hasBody) {
+				bodyTcs.TrySetResult (body);
+				return bodyTcs.Task;
+			}
+
+			DoReadBody (reader).ContinueWith (t => {
+				if (t.IsCompleted) {
+					if (bodyTcs.TrySetResult (t.Result)) {
+						body = t.Result;
+						hasBody = true;
+					}
+				} else if (t.IsFaulted)
+					bodyTcs.TrySetException (t.Exception);
+				else if (t.IsCanceled)
+					bodyTcs.TrySetCanceled ();
+			});
+
+			return bodyTcs.Task;
+		}
+
+		async Task<HttpContent> DoReadBody (StreamReader reader)
+		{
+			if (ContentType != null && ContentType.Equals ("application/octet-stream"))
+				return await BinaryContent.Read (reader, ContentLength.Value);
+			if (ContentLength != null)
+				return await StringContent.Read (reader, ContentLength.Value);
+			if (TransferEncoding != null) {
 				if (!TransferEncoding.Equals ("chunked"))
 					throw new InvalidOperationException ();
-				body = await ChunkedContent.Read (reader);
+				return await ChunkedContent.Read (reader);
 			}
-			return body;
+			return null;
 		}
 	}
 }
