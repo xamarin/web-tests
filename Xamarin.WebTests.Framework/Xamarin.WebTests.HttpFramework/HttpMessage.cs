@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // HttpMessage.cs
 //
 // Author:
@@ -179,12 +179,15 @@ namespace Xamarin.WebTests.HttpFramework
 			writer.Write ("\r\n");
 		}
 
-		public abstract HttpContent ReadBody (HttpConnection connection);
+		public HttpContent ReadBody (HttpConnection connection)
+		{
+			return connection.ReadBody (this);
+		}
 
-		protected async Task DoReadBody (StreamReader reader)
+		internal async Task<HttpContent> ReadBody (StreamReader reader)
 		{
 			if (hasBody)
-				return;
+				return body;
 			hasBody = true;
 
 			if (ContentType != null && ContentType.Equals ("application/octet-stream")) {
@@ -196,6 +199,7 @@ namespace Xamarin.WebTests.HttpFramework
 					throw new InvalidOperationException ();
 				body = await ChunkedContent.Read (reader);
 			}
+			return body;
 		}
 	}
 }

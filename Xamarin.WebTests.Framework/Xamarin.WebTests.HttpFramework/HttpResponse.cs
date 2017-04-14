@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // HttpResponse.cs
 //
 // Author:
@@ -131,12 +131,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 			ReadHeaders (reader);
 
-			DoReadBody (reader).Wait ();
-		}
-
-		public override HttpContent ReadBody (HttpConnection connection)
-		{
-			return Body;
+			ReadBody (reader).Wait ();
 		}
 
 		public void Write (StreamWriter writer)

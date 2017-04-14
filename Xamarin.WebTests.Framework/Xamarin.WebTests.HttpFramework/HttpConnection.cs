@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // Connection.cs
 //
 // Author:
@@ -59,11 +59,13 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public abstract HttpRequest ReadRequest ();
 
-		protected abstract HttpResponse ReadResponse ();
+		internal abstract HttpContent ReadBody (HttpMessage message);
 
-		protected abstract void WriteRequest (HttpRequest request);
+		public abstract HttpResponse ReadResponse ();
 
-		public abstract void WriteResponse (HttpResponse response);
+		internal abstract void WriteRequest (HttpRequest request);
+
+		internal abstract void WriteResponse (HttpResponse response);
 
 		public abstract void CheckEncryption (TestContext ctx);
 	}

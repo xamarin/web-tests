@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // HttpRequest.cs
 //
 // Author:
@@ -35,11 +35,8 @@ namespace Xamarin.WebTests.HttpFramework
 {
 	public class HttpRequest : HttpMessage
 	{
-		StreamReader reader;
-
-		HttpRequest (StreamReader reader)
+		HttpRequest ()
 		{
-			this.reader = reader;
 		}
 
 		public HttpRequest (HttpProtocol protocol, string method, string path, NameValueCollection headers)
@@ -53,8 +50,8 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			if (reader.Peek () < 0 && reader.EndOfStream)
 				return null;
-			var request = new HttpRequest (reader);
-			request.Read ();
+			var request = new HttpRequest ();
+			request.InternalRead (reader);
 			return request;
 		}
 
@@ -66,7 +63,7 @@ namespace Xamarin.WebTests.HttpFramework
 			get; private set;
 		}
 
-		void Read ()
+		void InternalRead (StreamReader reader)
 		{
 			var header = reader.ReadLine ();
 			if (header == null)
@@ -90,12 +87,6 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			writer.Write ("{0} {1} {2}\r\n", Method, Path, ProtocolToString (Protocol));
 			WriteHeaders (writer);
-		}
-
-		public override HttpContent ReadBody (HttpConnection connection)
-		{
-			DoReadBody (reader).Wait ();
-			return Body;
 		}
 
 		public override string ToString ()

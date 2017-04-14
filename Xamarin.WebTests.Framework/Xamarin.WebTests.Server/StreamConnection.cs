@@ -1,4 +1,4 @@
-//
+﻿//
 // StreamConnection.cs
 //
 // Author:
@@ -67,17 +67,22 @@ namespace Xamarin.WebTests.Server {
 			return HttpRequest.Read (reader);
 		}
 
-		protected override HttpResponse ReadResponse ()
+		public override HttpResponse ReadResponse ()
 		{
 			return HttpResponse.Read (reader);
 		}
 
-		protected override void WriteRequest (HttpRequest request)
+		internal override HttpContent ReadBody (HttpMessage message)
+		{
+			return message.ReadBody (reader).Result;
+		}
+
+		internal override void WriteRequest (HttpRequest request)
 		{
 			request.Write (writer);
 		}
 
-		public override void WriteResponse (HttpResponse response)
+		internal override void WriteResponse (HttpResponse response)
 		{
 			response.Write (writer);
 		}
