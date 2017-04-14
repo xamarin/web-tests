@@ -142,7 +142,7 @@ namespace Xamarin.WebTests.HttpHandlers
 					response = HttpResponse.CreateSuccess ();
 				if (!response.KeepAlive.HasValue && ((Flags & RequestFlags.KeepAlive) != 0))
 					response.KeepAlive = true;
-				request.ReadBody ();
+				request.ReadBody (connection);
 				connection.WriteResponse (response);
 				Debug (ctx, 1, "HANDLE REQUEST DONE", response);
 				DumpHeaders (ctx, response);

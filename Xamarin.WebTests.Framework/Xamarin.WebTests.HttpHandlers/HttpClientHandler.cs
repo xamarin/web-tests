@@ -101,7 +101,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("POST"), "method");
 
-			var body = request.ReadBody ();
+			var body = request.ReadBody (connection);
 
 			Debug (ctx, 5, "BODY", body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
@@ -117,7 +117,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("PUT"), "method");
 
-			var body = request.ReadBody ();
+			var body = request.ReadBody (connection);
 
 			Debug (ctx, 5, "BODY", body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
@@ -131,7 +131,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		HttpResponse HandleSendAsync (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			var body = request.ReadBody ();
+			var body = request.ReadBody (connection);
 
 			if ((effectiveFlags & RequestFlags.NoContentLength) == 0)
 				ctx.Assert (request.ContentLength, Is.Not.Null, "Missing Content-Length");
@@ -152,7 +152,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("PUT"), "method");
 
-			var body = request.ReadBody ();
+			var body = request.ReadBody (connection);
 
 			Debug (ctx, 5, "BODY", body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {

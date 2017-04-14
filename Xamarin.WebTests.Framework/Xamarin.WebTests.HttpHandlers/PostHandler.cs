@@ -135,7 +135,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			Debug (ctx, 2, "HANDLE POST #1", request.ContentLength, request.TransferEncoding);
 
-			var content = request.ReadBody ();
+			var content = request.ReadBody (connection);
 
 			switch (Mode) {
 			case TransferMode.Default:

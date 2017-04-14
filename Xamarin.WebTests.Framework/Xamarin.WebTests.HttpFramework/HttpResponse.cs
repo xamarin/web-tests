@@ -134,7 +134,7 @@ namespace Xamarin.WebTests.HttpFramework
 			DoReadBody (reader).Wait ();
 		}
 
-		public override HttpContent ReadBody ()
+		public override HttpContent ReadBody (HttpConnection connection)
 		{
 			return Body;
 		}

@@ -80,7 +80,7 @@ namespace Xamarin.WebTests.Server
 					authHeader = null;
 				var response = authManager.HandleAuthentication ((HttpConnection)connection, request, authHeader);
 				if (response != null) {
-					request.ReadBody ();
+					request.ReadBody (connection);
 					connection.WriteResponse (response);
 					return false;
 				}
@@ -111,7 +111,7 @@ namespace Xamarin.WebTests.Server
 
 				request.Write (targetWriter);
 
-				var body = request.ReadBody ();
+				var body = request.ReadBody (connection);
 				if (body != null)
 					body.WriteToAsync (targetWriter).Wait ();
 

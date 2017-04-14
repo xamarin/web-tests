@@ -179,7 +179,7 @@ namespace Xamarin.WebTests.HttpFramework
 			writer.Write ("\r\n");
 		}
 
-		public abstract HttpContent ReadBody ();
+		public abstract HttpContent ReadBody (HttpConnection connection);
 
 		protected async Task DoReadBody (StreamReader reader)
 		{

@@ -64,7 +64,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			if (request.ContentLength != null) {
 				if (Body != null) {
-					request.ReadBody ();
+					request.ReadBody (connection);
 					return HttpResponse.CreateSuccess ();
 				} else if (hasExplicitLength) {
 					if (request.ContentLength.Value != 0)
