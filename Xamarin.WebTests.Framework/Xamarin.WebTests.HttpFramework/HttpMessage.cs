@@ -189,21 +189,6 @@ namespace Xamarin.WebTests.HttpFramework
 
 			return bodyTcs.Task;
 		}
-
-		internal async Task<HttpContent> ReadBody (StreamReader reader, CancellationToken cancellationToken)
-		{
-			cancellationToken.ThrowIfCancellationRequested ();
-			if (ContentType != null && ContentType.Equals ("application/octet-stream"))
-				return await BinaryContent.Read (reader, ContentLength.Value);
-			if (ContentLength != null)
-				return await StringContent.Read (reader, ContentLength.Value);
-			if (TransferEncoding != null) {
-				if (!TransferEncoding.Equals ("chunked"))
-					throw new InvalidOperationException ();
-				return await ChunkedContent.Read (reader);
-			}
-			return null;
-		}
 	}
 }
 

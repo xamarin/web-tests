@@ -98,19 +98,20 @@ namespace Xamarin.WebTests.Server
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			targetSocket.Connect (Server.Target.Uri.Host, Server.Target.Uri.Port);
 
-			using (var targetStream = new NetworkStream (targetSocket))
-			using (var targetReader = new StreamReader (targetStream))
-			using (var targetWriter = new StreamWriter (targetStream)) {
-				targetWriter.AutoFlush = true;
+			using (var targetStream = new NetworkStream (targetSocket)) {
+				var targetConnection = new StreamConnection (Context, Server, targetStream, null);
 
-				var copyResponseTask = CopyResponse (connection, targetReader, cancellationToken);
+				var copyResponseTask = CopyResponse (connection, targetConnection, cancellationToken);
 
-				await request.Write (targetWriter, cancellationToken);
-
+				cancellationToken.ThrowIfCancellationRequested ();
 				var body = await request.ReadBody (connection, cancellationToken);
-				if (body != null)
-					await body.WriteToAsync (targetWriter);
 
+				cancellationToken.ThrowIfCancellationRequested ();
+				await targetConnection.WriteRequest (request, cancellationToken);
+
+				cancellationToken.ThrowIfCancellationRequested ();
+				if (body != null)
+					await targetConnection.WriteBody (body, cancellationToken);
 				await copyResponseTask;
 			}
 
@@ -118,14 +119,17 @@ namespace Xamarin.WebTests.Server
 			return false;
 		}
 
-		async Task CopyResponse (HttpConnection connection, StreamReader targetReader, CancellationToken cancellationToken)
+		async Task CopyResponse (HttpConnection connection, HttpConnection targetConnection, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			var response = await HttpResponse.Read (targetReader, cancellationToken).ConfigureAwait (false);
+			var response = await targetConnection.ReadResponse (cancellationToken).ConfigureAwait (false);
 			response.SetHeader ("Connection", "close");
 			response.SetHeader ("Proxy-Connection", "close");
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			await response.ReadBody (targetConnection, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			await connection.WriteResponse (response, cancellationToken);
