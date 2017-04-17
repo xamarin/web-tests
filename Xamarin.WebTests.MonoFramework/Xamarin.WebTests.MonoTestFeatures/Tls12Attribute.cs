@@ -27,8 +27,7 @@
 using System;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
-using Xamarin.WebTests.MonoConnectionFramework;
-using Xamarin.WebTests.MonoTestFramework;
+using Xamarin.WebTests.ConnectionFramework;
 
 namespace Xamarin.WebTests.MonoTestFeatures
 {
@@ -45,7 +44,7 @@ namespace Xamarin.WebTests.MonoTestFeatures
 
 		static bool HasTls12()
 		{
-			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup>();
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
 			return setup.SupportsTls12;
 		}
 	}

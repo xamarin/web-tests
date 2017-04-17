@@ -77,6 +77,7 @@ namespace Xamarin.WebTests
 				yield return Proxy;
 				yield return ProxyAuth;
 				yield return ReuseConnection;
+				yield return NetworkAttribute.Instance;
 			}
 		}
 

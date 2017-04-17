@@ -25,10 +25,8 @@
 // THE SOFTWARE.
 using System;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.WebTests.MonoTestFramework;
 
-namespace Xamarin.WebTests.MonoTestFeatures
+namespace Xamarin.WebTests.TestFramework
 {
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class NetworkAttribute : TestFeatureAttribute
