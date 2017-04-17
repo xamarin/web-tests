@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Features
+namespace Xamarin.WebTests.Tests
 {
 	using TestFramework;
 	using TestRunners;

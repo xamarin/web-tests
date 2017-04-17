@@ -34,8 +34,8 @@
     <Compile Include="Xamarin.WebTests.Tests\TestHttps.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestSslStream.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestChunked.cs" />
-    <Compile Include="Xamarin.WebTests.Features\ChunkContentTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestCertificates.cs" />
+    <Compile Include="Xamarin.WebTests.Tests\ChunkContentTypeAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Target Name="PackageForAndroid" />
@@ -54,9 +54,6 @@
       <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>
       <Name>Xamarin.WebTests.Framework</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Xamarin.WebTests.Features\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Xamarin.WebTests.PortableSecurity">
