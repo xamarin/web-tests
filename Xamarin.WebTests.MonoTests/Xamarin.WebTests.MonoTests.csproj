@@ -35,7 +35,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MonoWebTestFeatures.cs" />
     <Compile Include="Xamarin.WebTests.MonoTest\SimpleTests.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTest\SimpleWebTests.cs" />
     <Compile Include="Xamarin.WebTests.MonoTest\TestSecurityFramework.cs" />
     <Compile Include="Xamarin.WebTests.MonoTest\TestValidator.cs" />
     <Compile Include="Xamarin.WebTests.MonoTest\TestProvider.cs" />

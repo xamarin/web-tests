@@ -37,6 +37,7 @@
     <Compile Include="Xamarin.WebTests.Tests\TestCertificates.cs" />
     <Compile Include="Xamarin.WebTests.Tests\ChunkContentTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Tests\NetworkTests.cs" />
+    <Compile Include="Xamarin.WebTests.Tests\SimpleWebTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Target Name="PackageForAndroid" />

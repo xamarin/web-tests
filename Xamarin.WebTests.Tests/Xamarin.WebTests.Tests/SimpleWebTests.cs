@@ -27,23 +27,16 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Mono.Security.Interface;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
-using Xamarin.WebTests.MonoTestFeatures;
 using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.HttpHandlers;
 using Xamarin.WebTests.TestRunners;
 
-namespace Xamarin.WebTests.MonoTests
+namespace Xamarin.WebTests.Tests
 {
-	using MonoConnectionFramework;
-	using ConnectionFramework;
-	using MonoTestFramework;
-	using MonoTestFeatures;
-
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class SimpleWebHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
 	{
