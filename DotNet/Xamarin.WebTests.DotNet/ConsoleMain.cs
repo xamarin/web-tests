@@ -2,7 +2,7 @@
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Console;
 using Xamarin.WebTests.TestProvider;
-using Xamarin.WebTests.Resources;
+using Xamarin.WebTests.ConnectionFramework;
 
 [assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
 
@@ -12,6 +12,9 @@ namespace Xamarin.WebTests.DotNet
 	{
 		static void Main (string[] args)
 		{
+			var setup = new DotNetSetup ();
+			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
+
 			DependencyInjector.RegisterAssembly (typeof(ConsoleMain).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
 

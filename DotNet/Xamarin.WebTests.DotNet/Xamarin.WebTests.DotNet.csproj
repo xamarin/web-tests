@@ -34,6 +34,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ConsoleMain.cs" />
+    <Compile Include="DotNetSetup.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -51,7 +52,7 @@
     </ProjectReference>
     <ProjectReference Include="..\..\Xamarin.WebTests.Tests\Xamarin.WebTests.Tests.csproj">
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
-      <Name>Xamarin.WebTests</Name>
+      <Name>Xamarin.WebTests.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
       <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>

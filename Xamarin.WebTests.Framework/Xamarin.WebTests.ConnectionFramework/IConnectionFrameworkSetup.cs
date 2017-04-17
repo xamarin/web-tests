@@ -35,27 +35,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		string TlsProviderName {
-			get;
-		}
-
-		Guid TlsProviderId {
-			get;
-		}
-
 		bool InstallDefaultCertificateValidator {
 			get;
 		}
 
 		bool SupportsTls12 {
-			get;
-		}
-
-		bool UsingBtls {
-			get;
-		}
-
-		bool UsingAppleTls {
 			get;
 		}
 
