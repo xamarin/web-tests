@@ -9,7 +9,6 @@
     <Import_RootNamespace>Xamarin.WebTests.TestProvider</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\ConnectionHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpClientHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpClientProvider.cs" />
