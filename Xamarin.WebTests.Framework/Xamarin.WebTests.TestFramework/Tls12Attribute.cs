@@ -29,7 +29,7 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests.ConnectionFramework;
 
-namespace Xamarin.WebTests.MonoTestFeatures
+namespace Xamarin.WebTests.TestFramework
 {
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class Tls12Attribute : TestFeatureAttribute

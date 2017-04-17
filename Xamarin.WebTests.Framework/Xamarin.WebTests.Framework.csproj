@@ -180,6 +180,7 @@
     <Compile Include="Xamarin.WebTests.Resources\TlsTestXamDevNewData.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\CertificateResourceTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\NetworkAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\Tls12Attribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

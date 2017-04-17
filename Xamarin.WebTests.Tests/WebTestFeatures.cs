@@ -78,6 +78,7 @@ namespace Xamarin.WebTests
 				yield return ProxyAuth;
 				yield return ReuseConnection;
 				yield return NetworkAttribute.Instance;
+				yield return Tls12Attribute.Instance;
 			}
 		}
 
