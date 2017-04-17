@@ -59,22 +59,6 @@ namespace Xamarin.WebTests.TestProvider.Ntlm {
 			"to use the more secure NTLMv2 / NTLMv2 Session authentication modes. " +
 			"These require the Type 2 message from the server to compute the response.";
 		
-		[Obsolete (LegacyAPIWarning)]
-		public Type3Message () : base (3)
-		{
-			if (DefaultAuthLevel != NtlmAuthLevel.LM_and_NTLM)
-				throw new InvalidOperationException (
-					"Refusing to use legacy-mode LM/NTLM authentication " +
-					"unless explicitly enabled using DefaultAuthLevel.");
-
-			// default values
-			_domain = "Xamarin.WebTests.TestDomain";
-			_host = "Xamarin.WebTests.TestMachine";
-			_username = "monkey";
-			_level = NtlmAuthLevel.LM_and_NTLM;
-			Flags = (NtlmFlags) 0x8201;
-		}
-
 		public Type3Message (byte[] message) : base (3)
 		{
 			Decode (message);
@@ -110,41 +94,12 @@ namespace Xamarin.WebTests.TestProvider.Ntlm {
 				Array.Clear (_nt, 0, _nt.Length);
 		}
 
-		// Default auth level
-		[Obsolete ("Use NtlmSettings.DefaultAuthLevel")]
-		public static NtlmAuthLevel DefaultAuthLevel {
-			get { return NtlmSettings.DefaultAuthLevel; }
-			set { NtlmSettings.DefaultAuthLevel = value; }
-		}
-
 		public NtlmAuthLevel Level {
 			get { return _level; }
 			set { _level = value; }
 		}
 		
 		// properties
-
-		[Obsolete (LegacyAPIWarning)]
-		public byte[] Challenge {
-			get { 
-				if (_challenge == null)
-					return null;
-				return (byte[]) _challenge.Clone (); }
-			set { 
-				if ((_type2 != null) || (_level != NtlmAuthLevel.LM_and_NTLM))
-					throw new InvalidOperationException (
-						"Refusing to use legacy-mode LM/NTLM authentication " +
-							"unless explicitly enabled using DefaultAuthLevel.");
-				
-				if (value == null)
-					throw new ArgumentNullException ("Challenge");
-				if (value.Length != 8) {
-					string msg = "Invalid Challenge Length (should be 8 bytes).";
-					throw new ArgumentException (msg, "Challenge");
-				}
-				_challenge = (byte[]) value.Clone (); 
-			}
-		}
 
 		public string Domain {
 			get { return _domain; }
@@ -258,19 +213,7 @@ namespace Xamarin.WebTests.TestProvider.Ntlm {
 			byte[] host = EncodeString (_host);
 
 			byte[] lm, ntlm;
-			if (_type2 == null) {
-				if (_level != NtlmAuthLevel.LM_and_NTLM)
-					throw new InvalidOperationException (
-						"Refusing to use legacy-mode LM/NTLM authentication " +
-							"unless explicitly enabled using DefaultAuthLevel.");
-				
-				using (var legacy = new ChallengeResponse (_password, _challenge)) {
-					lm = legacy.LM;
-					ntlm = legacy.NT;
-				}
-			} else {
-				ChallengeResponse2.Compute (_type2, _level, _username, _password, _domain, out lm, out ntlm);
-			}
+			ChallengeResponse2.Compute (_type2, _level, _username, _password, _domain, out lm, out ntlm);
 
 			var lmresp_len = lm != null ? lm.Length : 0;
 			var ntresp_len = ntlm != null ? ntlm.Length : 0;

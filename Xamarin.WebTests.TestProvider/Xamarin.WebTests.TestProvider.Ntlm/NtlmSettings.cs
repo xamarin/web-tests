@@ -39,30 +39,6 @@ namespace Xamarin.WebTests.TestProvider.Ntlm {
 	 */
 
 	static class NtlmSettings {
-
-		static NtlmAuthLevel defaultAuthLevel = NtlmAuthLevel.LM_and_NTLM_and_try_NTLMv2_Session;
-
-		static FieldInfo GetDefaultAuthLevelField ()
-		{
-			return null;
-		}
-
-		internal static NtlmAuthLevel DefaultAuthLevel {
-			get {
-				var field = GetDefaultAuthLevelField ();
-				if (field != null)
-					return (NtlmAuthLevel)field.GetValue (null);
-				else
-					return defaultAuthLevel;
-			}
-
-			set {
-				var field = GetDefaultAuthLevelField ();
-				if (field != null)
-					field.SetValue (null, value);
-				else
-					defaultAuthLevel = value;
-			}
-		}
+		internal const NtlmAuthLevel DefaultAuthLevel = NtlmAuthLevel.LM_and_NTLM_and_try_NTLMv2_Session;
 	}
 }
