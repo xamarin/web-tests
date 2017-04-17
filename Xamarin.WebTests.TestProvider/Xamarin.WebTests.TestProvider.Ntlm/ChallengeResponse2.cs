@@ -45,8 +45,6 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
-using Mono.Security.Cryptography;
-
 namespace Xamarin.WebTests.TestProvider.Ntlm {
 
 	static class ChallengeResponse2 {
@@ -95,7 +93,7 @@ namespace Xamarin.WebTests.TestProvider.Ntlm {
 			var buffer = new byte [21];
 
 			// create NT password
-			MD4 md4 = MD4.Create ();
+			var md4 = MD5.Create ();
 			byte[] data = ((password == null) ? (new byte [0]) : (Encoding.Unicode.GetBytes (password)));
 			byte[] hash = md4.ComputeHash (data);
 			Buffer.BlockCopy (hash, 0, buffer, 0, 16);
