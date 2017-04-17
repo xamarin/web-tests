@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -47,12 +48,11 @@ namespace Xamarin.WebTests.HttpFramework
 			Path = path;
 		}
 
-		public static HttpRequest Read (StreamReader reader)
+		public static async Task<HttpRequest> Read (StreamReader reader, CancellationToken cancellationToken)
 		{
-			if (reader.Peek () < 0 && reader.EndOfStream)
-				return null;
+			cancellationToken.ThrowIfCancellationRequested ();
 			var request = new HttpRequest ();
-			request.InternalRead (reader);
+			await request.InternalRead (reader, cancellationToken);
 			return request;
 		}
 
@@ -64,9 +64,10 @@ namespace Xamarin.WebTests.HttpFramework
 			get; private set;
 		}
 
-		void InternalRead (StreamReader reader)
+		async Task InternalRead (StreamReader reader, CancellationToken cancellationToken)
 		{
-			var header = reader.ReadLine ();
+			cancellationToken.ThrowIfCancellationRequested ();
+			var header = await reader.ReadLineAsync ();
 			if (header == null)
 				throw new IOException ("Connection has been closed.");
 
@@ -81,7 +82,7 @@ namespace Xamarin.WebTests.HttpFramework
 			else
 				Path = fields [1].StartsWith ("/", StringComparison.Ordinal) ? fields [1] : new Uri (fields [1]).AbsolutePath;
 
-			ReadHeaders (reader);
+			await ReadHeaders (reader, cancellationToken);
 		}
 
 		public async Task Write (StreamWriter writer, CancellationToken cancellationToken)

@@ -145,10 +145,11 @@ namespace Xamarin.WebTests.HttpFramework
 				throw new InvalidOperationException ();
 		}
 
-		protected void ReadHeaders (StreamReader reader)
+		protected async Task ReadHeaders (StreamReader reader, CancellationToken cancellationToken)
 		{
 			string line;
-			while ((line = reader.ReadLine ()) != null) {
+			while ((line = await reader.ReadLineAsync ()) != null) {
+				cancellationToken.ThrowIfCancellationRequested ();
 				if (string.IsNullOrEmpty (line))
 					break;
 				var pos = line.IndexOf (':');

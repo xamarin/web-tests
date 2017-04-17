@@ -64,11 +64,7 @@ namespace Xamarin.WebTests.Server {
 
 		public override Task<HttpRequest> ReadRequest (CancellationToken cancellationToken)
 		{
-			return Task.Run (() => {
-				if (reader.Peek () < 0 && reader.EndOfStream)
-					return null;
-				return HttpRequest.Read (reader);
-			});
+			return HttpRequest.Read (reader, cancellationToken);
 		}
 
 		public override Task<HttpResponse> ReadResponse (CancellationToken cancellationToken)
