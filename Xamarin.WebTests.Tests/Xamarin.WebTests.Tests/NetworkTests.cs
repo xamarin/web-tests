@@ -30,9 +30,8 @@ using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.MonoTestFeatures;
 
-namespace Xamarin.WebTests.MonoTests
+namespace Xamarin.WebTests.Tests
 {
 	[Network]
 	[AsyncTestFixture]
