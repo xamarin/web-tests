@@ -57,10 +57,17 @@ namespace Xamarin.WebTests.Tests {
 				yield return new PostHandler ("Empty body", StringContent.Empty);
 				yield return new PostHandler ("Normal post", HttpContent.HelloWorld);
 				yield return new PostHandler ("Content-Length", HttpContent.HelloWorld, TransferMode.ContentLength);
+				yield return new PostHandler ("Chunked", HttpContent.HelloChunked, TransferMode.Chunked);
 				yield return new PostHandler ("Explicit length and empty body", StringContent.Empty, TransferMode.ContentLength);
 				yield return new PostHandler ("Explicit length and no body", null, TransferMode.ContentLength);
 				yield return new PostHandler ("Bug #41206", new RandomContent (102400));
 				yield return new PostHandler ("Bug #41206 odd size", new RandomContent (102431));
+				yield return new DeleteHandler ("Empty delete");
+				yield return new DeleteHandler ("DELETE with empty body", string.Empty);
+				yield return new DeleteHandler ("DELETE with request body", "I have a body!");
+				yield return new DeleteHandler ("DELETE with no body and a length") {
+					Flags = RequestFlags.ExplicitlySetLength
+				};
 				break;
 			case "martin":
 				yield return new PostHandler ("Chunked", HttpContent.HelloChunked, TransferMode.Chunked);
