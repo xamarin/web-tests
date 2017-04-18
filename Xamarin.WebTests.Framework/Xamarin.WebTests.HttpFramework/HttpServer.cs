@@ -32,6 +32,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.HttpHandlers;
@@ -148,6 +149,19 @@ namespace Xamarin.WebTests.HttpFramework {
 				return false;
 
 			return await handler.HandleRequest (connection, request, cancellationToken).ConfigureAwait (false);
+		}
+
+		public void CheckEncryption (TestContext ctx, ISslStream sslStream)
+		{
+			if ((Flags & (HttpServerFlags.SSL | HttpServerFlags.ForceTls12)) == 0)
+				return;
+
+			ctx.Assert (sslStream, Is.Not.Null, "Needs SslStream");
+			ctx.Assert (sslStream.IsAuthenticated, "Must be authenticated");
+
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+			if (((Flags & HttpServerFlags.ForceTls12) != 0) || setup.SupportsTls12)
+				ctx.Assert (sslStream.ProtocolVersion, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
 		}
 
 		protected virtual string MyToString ()

@@ -33,13 +33,11 @@ using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.HttpFramework;
 
-namespace Xamarin.WebTests.Server {
-	class StreamConnection : HttpConnection {
+namespace Xamarin.WebTests.Server
+{
+	class StreamConnection : HttpConnection
+	{
 		public Stream Stream {
-			get;
-		}
-
-		public ISslStream SslStream {
 			get;
 		}
 
@@ -47,10 +45,9 @@ namespace Xamarin.WebTests.Server {
 		StreamWriter writer;
 
 		public StreamConnection (TestContext ctx, HttpServer server, Stream stream, ISslStream sslStream)
-			: base (ctx, server)
+			: base (ctx, server, sslStream)
 		{
 			Stream = stream;
-			SslStream = sslStream;
 
 			reader = new StreamReader (stream);
 			writer = new StreamWriter (stream);
@@ -85,19 +82,6 @@ namespace Xamarin.WebTests.Server {
 		internal override Task WriteBody (HttpContent content, CancellationToken cancellationToken)
 		{
 			return content.WriteToAsync (writer);
-		}
-
-		public override void CheckEncryption (TestContext ctx)
-		{
-			if ((Server.Flags & (HttpServerFlags.SSL | HttpServerFlags.ForceTls12)) == 0)
-				return;
-
-			ctx.Assert (SslStream, Is.Not.Null, "Needs SslStream");
-			ctx.Assert (SslStream.IsAuthenticated, "Must be authenticated");
-
-			var setup = DependencyInjector.Get <IConnectionFrameworkSetup> ();
-			if (((Server.Flags & HttpServerFlags.ForceTls12) != 0) || setup.SupportsTls12)
-				ctx.Assert (SslStream.ProtocolVersion, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
 		}
 	}
 }

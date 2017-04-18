@@ -178,13 +178,13 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			if (ContentType != null && ContentType.Equals ("application/octet-stream"))
-				return await BinaryContent.Read (reader, ContentLength.Value);
+				return await BinaryContent.Read (reader, ContentLength.Value, cancellationToken);
 			if (ContentLength != null)
-				return await StringContent.Read (reader, ContentLength.Value);
+				return await StringContent.Read (reader, ContentLength.Value, cancellationToken);
 			if (TransferEncoding != null) {
 				if (!TransferEncoding.Equals ("chunked"))
 					throw new InvalidOperationException ();
-				return await ChunkedContent.Read (reader);
+				return await ChunkedContent.Read (reader, cancellationToken);
 			}
 			return null;
 		}

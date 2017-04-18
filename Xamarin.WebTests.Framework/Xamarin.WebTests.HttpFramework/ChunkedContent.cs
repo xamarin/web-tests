@@ -47,15 +47,35 @@ namespace Xamarin.WebTests.HttpFramework
 			this.chunks = new List<string> (chunks);
 		}
 
-		public static async Task<ChunkedContent> Read (StreamReader reader)
+		public static async Task<ChunkedContent> ReadNonChunked (StreamReader reader, CancellationToken cancellationToken)
+		{
+			var chunks = new List<string> ();
+
+			while (true) {
+				cancellationToken.ThrowIfCancellationRequested ();
+
+				var line = await reader.ReadLineAsync ().ConfigureAwait (false);
+				if (string.IsNullOrEmpty (line))
+					break;
+
+				chunks.Add (line);
+			}
+
+			return new ChunkedContent (chunks);
+		}
+
+		public static async Task<ChunkedContent> Read (StreamReader reader, CancellationToken cancellationToken)
 		{
 			var chunks = new List<string> ();
 
 			do {
-				var header = reader.ReadLine ();
+				cancellationToken.ThrowIfCancellationRequested ();
+				var header = await reader.ReadLineAsync ();
 				var length = int.Parse (header, NumberStyles.HexNumber);
 				if (length == 0)
 					break;
+
+				cancellationToken.ThrowIfCancellationRequested ();
 
 				var buffer = new char [length];
 				var ret = await reader.ReadAsync (buffer, 0, length);
@@ -64,7 +84,9 @@ namespace Xamarin.WebTests.HttpFramework
 
 				chunks.Add (new string (buffer));
 
-				var empty = reader.ReadLine ();
+				cancellationToken.ThrowIfCancellationRequested ();
+
+				var empty =  await reader.ReadLineAsync ();
 				if (!string.IsNullOrEmpty (empty))
 					throw new InvalidOperationException ();
 			} while (true);
