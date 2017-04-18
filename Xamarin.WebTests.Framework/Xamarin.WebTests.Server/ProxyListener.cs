@@ -129,10 +129,15 @@ namespace Xamarin.WebTests.Server
 			response.SetHeader ("Proxy-Connection", "close");
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			await response.ReadBody (targetConnection, cancellationToken);
+			var body = await response.ReadBody (targetConnection, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			await connection.WriteResponse (response, cancellationToken);
+
+			if (body != null) {
+				cancellationToken.ThrowIfCancellationRequested ();
+				await connection.WriteBody (body, cancellationToken);
+			}
 		}
 
 		IPEndPoint GetConnectEndpoint (HttpRequest request)

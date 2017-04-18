@@ -142,11 +142,12 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		protected async virtual Task<Response> GetResponseFromHttp (TestContext ctx, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
 		{
-			string content;
+			string content = null;
 			var status = response.StatusCode;
 
 			using (var reader = new StreamReader (response.GetResponseStream ())) {
-				content = await reader.ReadToEndAsync ().ConfigureAwait (false);
+				if (!reader.EndOfStream && response.ContentLength > 0)
+					content = await reader.ReadToEndAsync ().ConfigureAwait (false);
 			}
 			response.Dispose ();
 

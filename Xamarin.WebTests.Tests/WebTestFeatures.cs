@@ -171,11 +171,6 @@ namespace Xamarin.WebTests
 				if (!ctx.IsEnabled (Instance.Proxy))
 					yield break;
 
-				if (ctx.CurrentCategory == WorkAttribute.Instance) {
-					yield return ProxyKind.SSL;
-					yield break;
-				}
-
 				yield return ProxyKind.Simple;
 
 				if (ctx.IsEnabled (Instance.ProxyAuth)) {
