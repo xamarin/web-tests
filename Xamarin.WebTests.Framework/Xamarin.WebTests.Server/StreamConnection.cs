@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // StreamConnection.cs
 //
 // Author:
@@ -77,11 +77,6 @@ namespace Xamarin.WebTests.Server
 		internal override Task WriteResponse (HttpResponse response, CancellationToken cancellationToken)
 		{
 			return response.Write (writer, cancellationToken);
-		}
-
-		internal override Task WriteBody (HttpContent content, CancellationToken cancellationToken)
-		{
-			return content.WriteToAsync (writer);
 		}
 	}
 }

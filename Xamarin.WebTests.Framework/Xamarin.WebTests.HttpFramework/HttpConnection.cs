@@ -1,4 +1,4 @@
-﻿﻿//
+﻿﻿﻿//
 // Connection.cs
 //
 // Author:
@@ -69,8 +69,6 @@ namespace Xamarin.WebTests.HttpFramework
 		internal abstract Task WriteRequest (HttpRequest request, CancellationToken cancellationToken);
 
 		internal abstract Task WriteResponse (HttpResponse response, CancellationToken cancellationToken);
-
-		internal abstract Task WriteBody (HttpContent content, CancellationToken cancellationToken);
 	}
 }
 

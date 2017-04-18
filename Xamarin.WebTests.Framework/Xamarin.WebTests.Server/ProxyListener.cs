@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // ProxyListener.cs
 //
 // Author:
@@ -106,8 +106,6 @@ namespace Xamarin.WebTests.Server
 				await targetConnection.WriteRequest (request, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();
-				if (request.Body != null)
-					await targetConnection.WriteBody (request.Body, cancellationToken);
 				await copyResponseTask;
 			}
 
@@ -126,11 +124,6 @@ namespace Xamarin.WebTests.Server
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			await connection.WriteResponse (response, cancellationToken);
-
-			if (response.Body != null) {
-				cancellationToken.ThrowIfCancellationRequested ();
-				await connection.WriteBody (response.Body, cancellationToken);
-			}
 		}
 
 		IPEndPoint GetConnectEndpoint (HttpRequest request)

@@ -1,4 +1,4 @@
-﻿﻿//
+﻿﻿﻿//
 // HttpRequest.cs
 //
 // Author:
@@ -92,8 +92,17 @@ namespace Xamarin.WebTests.HttpFramework
 		public async Task Write (StreamWriter writer, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			await writer.WriteAsync (string.Format ("{0} {1} {2}\r\n", Method, Path, ProtocolToString (Protocol)));
+
+			var header = string.Format ("{0} {1} {2}\r\n", Method, Path, ProtocolToString (Protocol));
+			await writer.WriteAsync (header).ConfigureAwait (false);
+
+			cancellationToken.ThrowIfCancellationRequested ();
 			await WriteHeaders (writer, cancellationToken);
+
+			if (Body != null) {
+				cancellationToken.ThrowIfCancellationRequested ();
+				await Body.WriteToAsync (writer);
+			}
 		}
 
 		public override string ToString ()
