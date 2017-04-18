@@ -1,10 +1,10 @@
 ﻿//
-// HttpServerAttribute.cs
+// HttpBackendAttribute.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,64 +25,38 @@
 // THE SOFTWARE.
 using System;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.TestFramework
-{
+namespace Xamarin.WebTests.TestFramework {
 	using ConnectionFramework;
 	using HttpFramework;
 	using Resources;
 	using Server;
 
-	public sealed class HttpServerAttribute : TestHostAttribute, ITestHost<HttpServer>
+	public sealed class HttpBackendAttribute : TestHostAttribute, ITestHost<HttpBackend>
 	{
-		internal HttpServerFlags? ExplicitServerFlags;
+		HttpFlags httpFlags;
 
-		public HttpServerAttribute (HttpServerFlags serverFlags)
-			: base (typeof (HttpServerAttribute), TestFlags.Hidden)
+		public HttpBackendAttribute (HttpFlags httpFlags = HttpFlags.None)
+			: base (typeof (HttpBackendAttribute), TestFlags.Hidden)
 		{
-			ExplicitServerFlags = serverFlags;
+			this.httpFlags = httpFlags;
 		}
 
-		public HttpServerAttribute ()
-			: base (typeof (HttpServerAttribute), TestFlags.Hidden)
+		HttpFlags GetHttpFlags (TestContext ctx)
 		{
-		}
-
-		HttpServerFlags? GetFixedFlags (TestContext ctx)
-		{
-			HttpServerFlags fixedFlags;
-			if (ctx.TryGetParameter (out fixedFlags))
-				return fixedFlags;
-			return null;
-		}
-
-		bool GetReuseConnection (TestContext ctx)
-		{
-			bool reuseConnection;
-			return ctx.TryGetParameter (out reuseConnection, "ReuseConnection") && reuseConnection;
-		}
-
-		HttpServerFlags GetServerFlags (TestContext ctx)
-		{
-			HttpServerFlags flags;
-			if (ExplicitServerFlags != null)
-				flags = ExplicitServerFlags.Value;
-			else if (!ctx.TryGetParameter (out flags))
-				flags = HttpServerFlags.None;
+			HttpFlags flags = httpFlags;
 
 			bool reuseConnection;
 			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)
-				flags |= HttpServerFlags.ReuseConnection;
+				flags |= HttpFlags.ReuseConnection;
 
 			return flags;
 		}
 
-		bool GetParameters (TestContext ctx, HttpServerFlags flags, out ConnectionParameters parameters)
+		bool GetParameters (TestContext ctx, out ConnectionParameters parameters)
 		{
 			bool useSSL;
-			if (((flags & HttpServerFlags.SSL) == 0) && (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL)) {
+			if (((httpFlags & HttpFlags.SSL) == 0) && (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL)) {
 				parameters = null;
 				return false;
 			}
@@ -103,22 +77,23 @@ namespace Xamarin.WebTests.TestFramework
 			return provider.SupportsSslStreams ? provider.SslStreamProvider : null;
 		}
 
-		public HttpServer CreateInstance (TestContext ctx)
+		public HttpBackend CreateInstance (TestContext ctx)
 		{
 			var endpoint = ConnectionTestHelper.GetEndPoint (ctx);
 
 			ConnectionParameters parameters;
 			ISslStreamProvider sslStreamProvider = null;
 
-			var flags = GetServerFlags (ctx);
-			if (GetParameters (ctx, flags, out parameters))
+			var flags = GetHttpFlags (ctx);
+			if (GetParameters (ctx, out parameters))
 				sslStreamProvider = GetSslStreamProvider (ctx);
 
-			if ((flags & HttpServerFlags.HttpListener) != 0)
-				return new HttpListenerServer (endpoint, endpoint, flags, parameters, sslStreamProvider);
+			HttpBackend backend;
+			if ((flags & HttpFlags.HttpListener) != 0)
+				backend = new HttpListenerBackend (endpoint, endpoint, flags, parameters, sslStreamProvider);
 			else
-				return new BuiltinHttpServer (endpoint, endpoint, flags, parameters, sslStreamProvider);
+				backend = new BuiltinHttpBackend (endpoint, endpoint, flags, parameters, sslStreamProvider);
+			return backend;
 		}
 	}
 }
-

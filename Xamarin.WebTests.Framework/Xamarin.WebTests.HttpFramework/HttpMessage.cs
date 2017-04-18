@@ -67,6 +67,11 @@ namespace Xamarin.WebTests.HttpFramework
 				headers.Add (header, value.ToString ());
 		}
 
+		internal void SetBody (HttpContent body)
+		{
+			Body = body;
+		}
+
 		public int? ContentLength {
 			get {
 				string value;
