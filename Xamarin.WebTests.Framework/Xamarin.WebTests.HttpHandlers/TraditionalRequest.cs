@@ -146,7 +146,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			var status = response.StatusCode;
 
 			using (var reader = new StreamReader (response.GetResponseStream ())) {
-				if (!reader.EndOfStream && response.ContentLength > 0)
+				if (!reader.EndOfStream)
 					content = await reader.ReadToEndAsync ().ConfigureAwait (false);
 			}
 			response.Dispose ();

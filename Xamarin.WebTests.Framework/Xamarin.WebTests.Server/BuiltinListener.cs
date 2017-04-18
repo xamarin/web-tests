@@ -153,10 +153,10 @@ namespace Xamarin.WebTests.Server
 			}
 
 			HandleConnection_internal (socket, connection, cts.Token).ContinueWith (t => {
-				if (t.IsCompleted)
-					Close (socket);
 				if (t.IsFaulted)
 					OnException (t.Exception);
+				if (t.IsCompleted)
+					Close (socket);
 
 				OnFinished ();
 				args.Dispose ();
