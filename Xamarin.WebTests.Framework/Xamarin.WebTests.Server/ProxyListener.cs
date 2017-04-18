@@ -168,6 +168,8 @@ namespace Xamarin.WebTests.Server
 
 			try {
 				RunTunnel (socket, targetSocket, cancellationToken);
+			} catch (OperationCanceledException) {
+				throw;
 			} catch (Exception ex) {
 				System.Diagnostics.Debug.WriteLine ("ERROR: {0}", ex);
 				cancellationToken.ThrowIfCancellationRequested ();
