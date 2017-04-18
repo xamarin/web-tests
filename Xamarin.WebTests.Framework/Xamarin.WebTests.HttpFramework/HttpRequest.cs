@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.HttpFramework
 		async Task InternalRead (StreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			var header = await reader.ReadLineAsync ();
+			var header = await reader.ReadLineAsync ().ConfigureAwait (false);
 			if (header == null)
 				throw new IOException ("Connection has been closed.");
 
@@ -82,7 +82,11 @@ namespace Xamarin.WebTests.HttpFramework
 			else
 				Path = fields [1].StartsWith ("/", StringComparison.Ordinal) ? fields [1] : new Uri (fields [1]).AbsolutePath;
 
+			cancellationToken.ThrowIfCancellationRequested ();
 			await ReadHeaders (reader, cancellationToken);
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			Body = await ReadBody (reader, cancellationToken);
 		}
 
 		public async Task Write (StreamWriter writer, CancellationToken cancellationToken)

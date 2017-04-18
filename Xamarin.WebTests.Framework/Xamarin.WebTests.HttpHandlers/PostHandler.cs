@@ -103,6 +103,8 @@ namespace Xamarin.WebTests.HttpHandlers
 			TestContext ctx, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
+			await CompletedTask.ConfigureAwait (false);
+
 			Debug (ctx, 2, "HANDLE POST", request.Path, request.Method, effectiveFlags);
 
 			if (request.Headers.ContainsKey ("X-Mono-Redirected"))
@@ -138,8 +140,6 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			Debug (ctx, 2, "HANDLE POST #1", request.ContentLength, request.TransferEncoding);
 
-			var content = await request.ReadBody (connection, cancellationToken);
-
 			switch (Mode) {
 			case TransferMode.Default:
 				if (Content != null) {
@@ -172,16 +172,16 @@ namespace Xamarin.WebTests.HttpHandlers
 				return null;
 			}
 
-			Debug (ctx, 5, "BODY", content);
+			Debug (ctx, 5, "BODY", request.Body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
-				ctx.Expect (HttpContent.IsNullOrEmpty (content), "Must not send a body with this request.");
+				ctx.Expect (HttpContent.IsNullOrEmpty (request.Body), "Must not send a body with this request.");
 				return null;
 			}
 
 			if (Content != null)
-				HttpContent.Compare (ctx, content, Content, true);
+				HttpContent.Compare (ctx, request.Body, Content, true);
 			else
-				ctx.Expect (HttpContent.IsNullOrEmpty (content), "null or empty content");
+				ctx.Expect (HttpContent.IsNullOrEmpty (request.Body), "null or empty content");
 
 			return null;
 		}

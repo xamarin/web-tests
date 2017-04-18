@@ -81,7 +81,6 @@ namespace Xamarin.WebTests.Server
 					authHeader = null;
 				var response = authManager.HandleAuthentication ((HttpConnection)connection, request, authHeader);
 				if (response != null) {
-					await request.ReadBody (connection, cancellationToken);
 					await connection.WriteResponse (response, cancellationToken);
 					return false;
 				}
@@ -104,14 +103,11 @@ namespace Xamarin.WebTests.Server
 				var copyResponseTask = CopyResponse (connection, targetConnection, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();
-				var body = await request.ReadBody (connection, cancellationToken);
-
-				cancellationToken.ThrowIfCancellationRequested ();
 				await targetConnection.WriteRequest (request, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();
-				if (body != null)
-					await targetConnection.WriteBody (body, cancellationToken);
+				if (request.Body != null)
+					await targetConnection.WriteBody (request.Body, cancellationToken);
 				await copyResponseTask;
 			}
 
@@ -129,14 +125,11 @@ namespace Xamarin.WebTests.Server
 			response.SetHeader ("Proxy-Connection", "close");
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			var body = await response.ReadBody (targetConnection, cancellationToken);
-
-			cancellationToken.ThrowIfCancellationRequested ();
 			await connection.WriteResponse (response, cancellationToken);
 
-			if (body != null) {
+			if (response.Body != null) {
 				cancellationToken.ThrowIfCancellationRequested ();
-				await connection.WriteBody (body, cancellationToken);
+				await connection.WriteBody (response.Body, cancellationToken);
 			}
 		}
 

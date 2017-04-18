@@ -70,104 +70,90 @@ namespace Xamarin.WebTests.HttpHandlers
 			return handler;
 		}
 
-		internal protected override Task<HttpResponse> HandleRequest (
+		internal protected override async Task<HttpResponse> HandleRequest (
 			TestContext ctx, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
+			await CompletedTask.ConfigureAwait (false);
+
 			switch (Operation) {
 			case HttpClientOperation.GetString:
 				ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-				return Task.FromResult (new HttpResponse (HttpStatusCode.OK, ReturnContent));
+				return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 
 			case HttpClientOperation.PostString:
-				return HandlePostString (ctx, connection, request, effectiveFlags, cancellationToken);
+				return HandlePostString (ctx, request, effectiveFlags);
 
 			case HttpClientOperation.PutString:
-				return HandlePutString (ctx, connection, request, effectiveFlags, cancellationToken);
+				return HandlePutString (ctx, request, effectiveFlags);
 
 			case HttpClientOperation.SendAsync:
-				return HandleSendAsync (ctx, connection, request, effectiveFlags, cancellationToken);
+				return HandleSendAsync (ctx, request, effectiveFlags);
 
 			case HttpClientOperation.PutDataAsync:
-				return HandlePutDataAsync (ctx, connection, request, effectiveFlags, cancellationToken);
+				return HandlePutDataAsync (ctx, request, effectiveFlags);
 
 			default:
 				throw new InvalidOperationException ();
 			}
 		}
 
-		async Task<HttpResponse> HandlePostString (
-			TestContext ctx, HttpConnection connection, HttpRequest request,
-			RequestFlags effectiveFlags, CancellationToken cancellationToken)
+		HttpResponse HandlePostString (TestContext ctx, HttpRequest request, RequestFlags effectiveFlags)
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("POST"), "method");
 
-			var body = await request.ReadBody (connection, cancellationToken);
-
-			Debug (ctx, 5, "BODY", body);
+			Debug (ctx, 5, "BODY", request.Body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
-				ctx.Assert (body, Is.Not.Null, "body");
+				ctx.Assert (request.Body, Is.Not.Null, "body");
 				return HttpResponse.CreateSuccess ();
 			}
 
-			HttpContent.Compare (ctx, body, Content, false);
+			HttpContent.Compare (ctx, request.Body, Content, false);
 			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 		}
 
-		async Task<HttpResponse> HandlePutString (
-			TestContext ctx, HttpConnection connection, HttpRequest request,
-			RequestFlags effectiveFlags, CancellationToken cancellationToken)
+		HttpResponse HandlePutString (TestContext ctx, HttpRequest request, RequestFlags effectiveFlags)
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("PUT"), "method");
 
-			var body = await request.ReadBody (connection, cancellationToken);
-
-			Debug (ctx, 5, "BODY", body);
+			Debug (ctx, 5, "BODY", request.Body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
-				ctx.Assert (body, Is.Not.Null, "body");
+				ctx.Assert (request.Body, Is.Not.Null, "body");
 				return HttpResponse.CreateSuccess ();
 			}
 
-			HttpContent.Compare (ctx, body, Content, false);
+			HttpContent.Compare (ctx, request.Body, Content, false);
 			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 		}
 
-		async Task<HttpResponse> HandleSendAsync (
-			TestContext ctx, HttpConnection connection, HttpRequest request,
-			RequestFlags effectiveFlags, CancellationToken cancellationToken)
+		HttpResponse HandleSendAsync (TestContext ctx, HttpRequest request, RequestFlags effectiveFlags)
 		{
-			var body = await request.ReadBody (connection, cancellationToken);
-
 			if ((effectiveFlags & RequestFlags.NoContentLength) == 0)
 				ctx.Assert (request.ContentLength, Is.Not.Null, "Missing Content-Length");
 
-			Debug (ctx, 5, "BODY", body);
+			Debug (ctx, 5, "BODY", request.Body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
-				ctx.Assert (body, Is.Not.Null, "body");
+				ctx.Assert (request.Body, Is.Not.Null, "body");
 				if (request.ContentLength != null)
 					ctx.Assert (request.ContentLength.Value, Is.EqualTo (0), "Zero Content-Length");
 				return HttpResponse.CreateSuccess ();
 			}
 
-			HttpContent.Compare (ctx, body, Content, false);
+			HttpContent.Compare (ctx, request.Body, Content, false);
 			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 		}
 
-		async Task<HttpResponse> HandlePutDataAsync (
-			TestContext ctx, HttpConnection connection, HttpRequest request,
-			RequestFlags effectiveFlags, CancellationToken cancellationToken)
+		HttpResponse HandlePutDataAsync (TestContext ctx, HttpRequest request, RequestFlags effectiveFlags)
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("PUT"), "method");
 
-			var body = await request.ReadBody (connection, cancellationToken);
-
-			Debug (ctx, 5, "BODY", body);
+			Debug (ctx, 5, "BODY", request.Body);
 			if ((effectiveFlags & RequestFlags.NoBody) != 0) {
-				ctx.Assert (body, Is.Not.Null, "body");
+				ctx.Assert (request.Body, Is.Not.Null, "body");
 				return HttpResponse.CreateSuccess ();
 			}
 
-			HttpContent.Compare (ctx, body, Content, false);
+			HttpContent.Compare (ctx, request.Body, Content, false);
 			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 		}
 

@@ -41,10 +41,6 @@ namespace Xamarin.WebTests.HttpFramework
 			get; private set;
 		}
 
-		public HttpContent Body {
-			get;
-		}
-
 		public bool IsSuccess {
 			get { return StatusCode == HttpStatusCode.OK; }
 		}
@@ -128,7 +124,7 @@ namespace Xamarin.WebTests.HttpFramework
 		async Task InternalRead (StreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			var header = await reader.ReadLineAsync ();
+			var header = await reader.ReadLineAsync ().ConfigureAwait (false);
 			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
 			if (fields.Length < 2 || fields.Length > 3)
 				throw new InvalidOperationException ();
@@ -139,6 +135,9 @@ namespace Xamarin.WebTests.HttpFramework
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			await ReadHeaders (reader, cancellationToken);
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			Body = await ReadBody (reader, cancellationToken);
 		}
 
 		public async Task Write (StreamWriter writer, CancellationToken cancellationToken)

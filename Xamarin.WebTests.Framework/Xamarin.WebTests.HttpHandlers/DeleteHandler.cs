@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // DeleteHandler.cs
 //
 // Author:
@@ -61,16 +61,17 @@ namespace Xamarin.WebTests.HttpHandlers
 			TestContext ctx, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
+			await CompletedTask.ConfigureAwait (false);
+
 			if (!request.Method.Equals ("DELETE"))
 				return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
 
 			var hasExplicitLength = (Flags & RequestFlags.ExplicitlySetLength) != 0;
 
 			if (request.ContentLength != null) {
-				if (Body != null) {
-					await request.ReadBody (connection, cancellationToken);
+				if (Body != null)
 					return HttpResponse.CreateSuccess ();
-				} else if (hasExplicitLength) {
+				if (hasExplicitLength) {
 					if (request.ContentLength.Value != 0)
 						return HttpResponse.CreateError ("Content-Length must be zero");
 				} else {

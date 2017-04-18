@@ -46,6 +46,10 @@ namespace Xamarin.WebTests.HttpFramework
 			get; protected set;
 		}
 
+		public HttpContent Body {
+			get; protected set;
+		}
+
 		internal IReadOnlyDictionary<string,string> Headers {
 			get { return headers; }
 		}
@@ -107,8 +111,6 @@ namespace Xamarin.WebTests.HttpFramework
 					headers.Remove (value);
 			}
 		}
-
-		TaskCompletionSource<HttpContent> bodyTcs;
 
 		Dictionary<string,string> headers = new Dictionary<string, string> ();
 
@@ -172,22 +174,19 @@ namespace Xamarin.WebTests.HttpFramework
 			await writer.WriteAsync ("\r\n");
 		}
 
-		public Task<HttpContent> ReadBody (HttpConnection connection, CancellationToken cancellationToken)
+		protected async Task<HttpContent> ReadBody (StreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			if (Interlocked.CompareExchange (ref bodyTcs, new TaskCompletionSource<HttpContent> (), null) != null)
-				return bodyTcs.Task;
-
-			connection.ReadBody (this, cancellationToken).ContinueWith (t => {
-				if (t.IsCompleted)
-					bodyTcs.TrySetResult (t.Result);
-				else if (t.IsCanceled)
-					bodyTcs.TrySetCanceled ();
-				else if (t.IsFaulted)
-					bodyTcs.TrySetException (t.Exception);
-			});
-
-			return bodyTcs.Task;
+			if (ContentType != null && ContentType.Equals ("application/octet-stream"))
+				return await BinaryContent.Read (reader, ContentLength.Value);
+			if (ContentLength != null)
+				return await StringContent.Read (reader, ContentLength.Value);
+			if (TransferEncoding != null) {
+				if (!TransferEncoding.Equals ("chunked"))
+					throw new InvalidOperationException ();
+				return await ChunkedContent.Read (reader);
+			}
+			return null;
 		}
 	}
 }

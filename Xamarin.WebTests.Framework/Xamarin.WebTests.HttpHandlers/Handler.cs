@@ -97,6 +97,8 @@ namespace Xamarin.WebTests.HttpHandlers
 			get;
 		}
 
+		protected static readonly Task CompletedTask = Task.FromResult (0);
+
 		protected void Debug (TestContext ctx, int level, string message, params object[] args)
 		{
 			var sb = new StringBuilder ();
@@ -133,9 +135,6 @@ namespace Xamarin.WebTests.HttpHandlers
 					response = HttpResponse.CreateSuccess ();
 				if (!response.KeepAlive.HasValue && ((Flags & RequestFlags.KeepAlive) != 0))
 					response.KeepAlive = true;
-
-				cancellationToken.ThrowIfCancellationRequested ();
-				await request.ReadBody (connection, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();
 				await connection.WriteResponse (response, cancellationToken);
