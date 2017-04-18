@@ -49,17 +49,14 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public HttpClientOperation Operation {
 			get;
-			private set;
 		}
 
 		public HttpContent Content {
 			get;
-			private set;
 		}
 
 		public HttpContent ReturnContent {
 			get;
-			private set;
 		}
 
 		public string ObscureHttpMethod {
@@ -80,7 +77,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			switch (Operation) {
 			case HttpClientOperation.GetString:
 				ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-				return Task.FromResult (HttpResponse.CreateSuccess (string.Format ("Hello World!")));
+				return Task.FromResult (new HttpResponse (HttpStatusCode.OK, ReturnContent));
 
 			case HttpClientOperation.PostString:
 				return HandlePostString (ctx, connection, request, effectiveFlags, cancellationToken);
@@ -204,6 +201,23 @@ namespace Xamarin.WebTests.HttpHandlers
 			default:
 				throw new InvalidOperationException ();
 			}
+		}
+
+		public override bool CheckResponse (TestContext ctx, Response response)
+		{
+			if (ReturnContent == null)
+				return ctx.Expect (response.Content, Is.Null, "response.Content");
+
+			if (!ctx.Expect (response.Content, Is.Not.Null, "response.Content"))
+				return false;
+			if (response.Content.HasLength && ReturnContent.HasLength) {
+				if (!ctx.Expect (response.Content.Length, Is.EqualTo (ReturnContent.Length), "response.Content.Length"))
+					return false;
+				if (!ctx.Expect (response.Content.AsString (), Is.EqualTo (ReturnContent.AsString ()), "response.Content.AsString()"))
+					return false;
+			}
+
+			return true;
 		}
 	}
 }

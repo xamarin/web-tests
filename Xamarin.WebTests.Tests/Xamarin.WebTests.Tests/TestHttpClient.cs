@@ -67,7 +67,7 @@ namespace Xamarin.WebTests
 		static IEnumerable<HttpClientHandler> GetStableTests ()
 		{
 			yield return new HttpClientHandler (
-				"Get string", HttpClientOperation.GetString);
+				"Get string", HttpClientOperation.GetString, null, HttpContent.HelloWorld);
 			yield return new HttpClientHandler (
 				"Post string", HttpClientOperation.PostString, HttpContent.HelloWorld);
 			yield return new HttpClientHandler (
@@ -149,6 +149,12 @@ namespace Xamarin.WebTests
 		class Bug20583Content : HttpContent
 		{
 			#region implemented abstract members of HttpContent
+			public override bool HasLength {
+				get { return true; }
+			}
+			public override int Length {
+				get { return 4; }
+			}
 			public override string AsString ()
 			{
 				return "AAAA";

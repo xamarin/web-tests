@@ -106,6 +106,10 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
+		public override bool HasLength {
+			get { return true; }
+		}
+
 		public override int Length {
 			get { return totalSize; }
 		}

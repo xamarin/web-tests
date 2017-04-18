@@ -106,6 +106,11 @@ namespace Xamarin.WebTests.HttpHandlers
 			return await Target.HandleRequest (ctx, connection, request, effectiveFlags, cancellationToken);
 		}
 
+		public override bool CheckResponse (TestContext ctx, Response response)
+		{
+			return Target.CheckResponse (ctx, response);
+		}
+
 		public override void ConfigureRequest (Request request, Uri uri)
 		{
 			base.ConfigureRequest (request, uri);

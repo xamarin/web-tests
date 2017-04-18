@@ -38,6 +38,11 @@ namespace Xamarin.WebTests.HttpHandlers
 		public HelloWorldHandler (string identifier)
 			: base (identifier)
 		{
+			Message = string.Format ("Hello World {0}!", ++next_id);
+		}
+
+		public string Message {
+			get;
 		}
 
 		static int next_id;
@@ -52,7 +57,18 @@ namespace Xamarin.WebTests.HttpHandlers
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-			return Task.FromResult (HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id)));
+			return Task.FromResult (HttpResponse.CreateSuccess (Message));
+		}
+
+		public override bool CheckResponse (TestContext ctx, Response response)
+		{
+			if (!ctx.Expect (response.Content, Is.Not.Null, "response.Content != null"))
+				return false;
+			if (!ctx.Expect (response.Content.Length, Is.EqualTo (Message.Length), "response.Content.Length"))
+				return false;
+			if (!ctx.Expect (response.Content.AsString (), Is.EqualTo (Message), "response.Content.AsString()"))
+				return false;
+			return true;
 		}
 	}
 }

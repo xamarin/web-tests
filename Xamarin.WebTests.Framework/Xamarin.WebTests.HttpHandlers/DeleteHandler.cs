@@ -33,6 +33,7 @@ using System.Globalization;
 using System.Collections.Generic;
 
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
@@ -90,6 +91,11 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			if (Flags == RequestFlags.ExplicitlySetLength)
 				request.SetContentLength (Body != null ? Body.Length : 0);
+		}
+
+		public override bool CheckResponse (TestContext ctx, Response response)
+		{
+			return ctx.Expect (response.Content, Is.Null, "response.Content");
 		}
 	}
 }

@@ -171,7 +171,10 @@ namespace Xamarin.WebTests.TestRunners
 			} else {
 				var ok = ctx.Expect (expectedStatus, Is.EqualTo (response.Status), "status code");
 				if (ok)
-					ctx.Expect (response.IsSuccess, Is.True, "success status");
+					ok &= ctx.Expect (response.IsSuccess, Is.True, "success status");
+
+				if (ok)
+					ok &= Handler.CheckResponse (ctx, response);
 			}
 
 			if (response.Content != null)

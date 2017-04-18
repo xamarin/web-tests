@@ -72,6 +72,10 @@ namespace Xamarin.WebTests.HttpFramework
 			return new ChunkedContent (chunks);
 		}
 
+		public override bool HasLength {
+			get { return true; }
+		}
+
 		public override int Length {
 			get { return chunks.Sum (c => c.Length); }
 		}

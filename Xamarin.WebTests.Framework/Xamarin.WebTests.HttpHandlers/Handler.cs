@@ -185,6 +185,8 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public abstract object Clone ();
 
+		public abstract bool CheckResponse (TestContext ctx, Response response);
+
 		public override string ToString ()
 		{
 			var padding = string.IsNullOrEmpty (Value) ? string.Empty : ": ";

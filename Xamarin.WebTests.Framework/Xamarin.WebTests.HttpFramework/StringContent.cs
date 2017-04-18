@@ -63,6 +63,14 @@ namespace Xamarin.WebTests.HttpFramework
 			return new StringContent (new string (buffer));
 		}
 
+		public override bool HasLength {
+			get { return true; }
+		}
+
+		public override int Length {
+			get { return content.Length; }
+		}
+
 		public override string AsString ()
 		{
 			return content;

@@ -75,6 +75,11 @@ namespace Xamarin.WebTests.HttpHandlers
 			var targetUri = Target.RegisterRequest (connection.Server);
 			return Task.FromResult (HttpResponse.CreateRedirect (Code, targetUri));
 		}
+
+		public override bool CheckResponse (TestContext ctx, Response response)
+		{
+			return Target.CheckResponse (ctx, response);
+		}
 	}
 }
 

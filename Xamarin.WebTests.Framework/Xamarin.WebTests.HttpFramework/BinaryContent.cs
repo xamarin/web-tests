@@ -53,6 +53,10 @@ namespace Xamarin.WebTests.HttpFramework
 			return new BinaryContent (data);
 		}
 
+		public override bool HasLength {
+			get { return true; }
+		}
+
 		public override int Length {
 			get { return Data.Length; }
 		}

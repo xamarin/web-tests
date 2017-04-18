@@ -221,6 +221,11 @@ namespace Xamarin.WebTests.HttpHandlers
 				break;
 			}
 		}
+
+		public override bool CheckResponse (TestContext ctx, Response response)
+		{
+			return ctx.Expect (response.Content, Is.Null);
+		}
 	}
 }
 

@@ -208,6 +208,12 @@ namespace Xamarin.WebTests.TestRunners
 		class ServerAbortContent : HttpContent
 		{
 			#region implemented abstract members of HttpContent
+			public override bool HasLength {
+				get { return false; }
+			}
+			public override int Length {
+				get { throw new NotSupportedException (); }
+			}
 			public override string AsString ()
 			{
 				return GetType ().Name;
@@ -241,6 +247,12 @@ namespace Xamarin.WebTests.TestRunners
 			}
 
 			#region implemented abstract members of HttpContent
+			public override bool HasLength {
+				get { return false; }
+			}
+			public override int Length {
+				get { throw new NotSupportedException (); }
+			}
 			public override string AsString ()
 			{
 				return Type.ToString ();

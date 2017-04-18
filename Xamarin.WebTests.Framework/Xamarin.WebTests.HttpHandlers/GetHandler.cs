@@ -49,7 +49,6 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public HttpContent Content {
 			get;
-			private set;
 		}
 
 		public override object Clone ()
@@ -62,6 +61,22 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
 			return Task.FromResult (new HttpResponse (HttpStatusCode.OK, Content));
+		}
+
+		public override bool CheckResponse (TestContext ctx, Response response)
+		{
+			if (Content == null)
+				return ctx.Expect (response.Content, Is.Null, "response.Content");
+
+			if (!ctx.Expect (response.Content, Is.Not.Null, "response.Content"))
+				return false;
+			if (response.Content.HasLength && Content.HasLength) {
+				if (!ctx.Expect (response.Content.Length, Is.EqualTo (Content.Length), "response.Content.Length"))
+					return false;
+				if (!ctx.Expect (response.Content.AsString (), Is.EqualTo (Content.AsString ()), "response.Content.AsString ()"))
+					return false;
+			}
+			return true;
 		}
 	}
 }
