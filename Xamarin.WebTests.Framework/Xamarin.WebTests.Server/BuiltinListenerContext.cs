@@ -1,5 +1,5 @@
 ﻿//
-// BuiltinHttpListener.cs
+// BuiltinListenerContext.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,46 +25,55 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Text;
 using System.Net;
-using System.Net.Sockets;
-using System.Net.Security;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
+using System.Linq;
+using System.Text;
 using System.Threading;
+using System.Reflection;
+using System.Net.Sockets;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Net.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using SD = System.Diagnostics;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Server
 {
-	using HttpHandlers;
-	using HttpFramework;
-
-	class BuiltinHttpListener : BuiltinSocketListener
+	abstract class BuiltinListenerContext : IDisposable
 	{
-		public BuiltinHttpServer Server {
+		public abstract Stream CreateStream ();
+
+		public abstract IPEndPoint RemoteEndPoint {
 			get;
 		}
 
-		public BuiltinHttpListener (TestContext ctx, BuiltinHttpServer server)
-			: base (ctx, server.ListenAddress, server.Flags)
+		public abstract bool IsStillConnected ();
+
+		int disposed;
+
+		protected abstract void Close ();
+
+		void Dispose (bool disposing)
 		{
-			Server = server;
+			if (Interlocked.CompareExchange (ref disposed, 1, 0) != 0)
+				return;
+
+			Close ();
 		}
 
-		protected override Task<HttpConnection> CreateConnection (BuiltinListenerContext context, CancellationToken cancellationToken)
+		public void Dispose ()
 		{
-			var stream = context.CreateStream ();
-			return Server.CreateConnection (TestContext, stream, cancellationToken);
+			Dispose (true);
+			GC.SuppressFinalize (this);
 		}
 
-		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)
+		~BuiltinListenerContext ()
 		{
-			var request = await connection.ReadRequest (cancellationToken);
-			return await Server.HandleConnection (TestContext, connection, request, cancellationToken);
+			Dispose (false);
 		}
 	}
 }
-

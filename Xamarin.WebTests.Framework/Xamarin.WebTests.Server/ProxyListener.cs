@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
 
-	class ProxyListener : BuiltinListener
+	class ProxyListener : BuiltinSocketListener
 	{
 		ProxyAuthManager authManager;
 
@@ -57,18 +57,18 @@ namespace Xamarin.WebTests.Server
 				authManager = new ProxyAuthManager (Server.AuthenticationType);
 		}
 
-		protected override Task<HttpConnection> CreateConnection (Socket socket, CancellationToken cancellationToken)
+		protected override Task<HttpConnection> CreateConnection (BuiltinListenerContext context, CancellationToken cancellationToken)
 		{
-			var stream = new NetworkStream (socket);
+			var stream = context.CreateStream ();
 			return Server.CreateConnection (TestContext, stream, cancellationToken);
 		}
 
-		protected override async Task<bool> HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
+		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			var request = await connection.ReadRequest (cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			var remoteAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
+			var remoteAddress = context.RemoteEndPoint.Address;
 			request.AddHeader ("X-Forwarded-For", remoteAddress);
 
 			if (authManager != null) {
@@ -86,6 +86,7 @@ namespace Xamarin.WebTests.Server
 			}
 
 			if (request.Method.Equals ("CONNECT")) {
+				var socket = ((BuiltinSocketContext)context).Socket;
 				await CreateTunnel (connection, socket, ((StreamConnection)connection).Stream, request, cancellationToken);
 				return false;
 			}

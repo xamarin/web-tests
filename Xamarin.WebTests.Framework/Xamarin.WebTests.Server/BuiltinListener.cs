@@ -47,7 +47,6 @@ namespace Xamarin.WebTests.Server
 
 	abstract class BuiltinListener : Listener
 	{
-		Socket server;
 		int currentConnections;
 		volatile Exception currentError;
 		volatile TaskCompletionSource<bool> tcs;
@@ -61,9 +60,6 @@ namespace Xamarin.WebTests.Server
 			: base (endpoint, flags)
 		{
 			TestContext = ctx;
-			server = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			server.Bind (NetworkEndPoint);
-			server.Listen (1);
 		}
 
 		static void Debug (string message, params object[] args)
@@ -88,24 +84,35 @@ namespace Xamarin.WebTests.Server
 
 		void Listen ()
 		{
-			var args = new SocketAsyncEventArgs ();
-			args.Completed += (sender, e) => OnAccepted (e);
-
-			Interlocked.Increment (ref currentConnections);
-
-			try {
-				var retval = server.AcceptAsync (args);
-				if (retval)
-					return;
-				throw new InvalidOperationException ();
-			} catch (Exception ex) {
-				OnException (ex);
-				OnFinished ();
-				throw;
-			}
+			AcceptAsync (cts.Token).ContinueWith (OnAccepted);
 		}
 
-		void OnException (Exception error)
+		void OnAccepted (Task<BuiltinListenerContext> task)
+		{
+			if (task.IsCanceled || cts.IsCancellationRequested) {
+				OnFinished ();
+				return;
+			}
+			if (task.IsFaulted) {
+				OnException (task.Exception);
+				return;
+			}
+
+			Listen ();
+
+			var context = task.Result;
+
+			MainLoop (context, cts.Token).ContinueWith (t => {
+				if (t.IsFaulted)
+					OnException (t.Exception);
+				if (t.IsCompleted)
+					context.Dispose ();
+
+				OnFinished ();
+			});
+		}
+
+		protected void OnException (Exception error)
 		{
 			lock (this) {
 				if (currentError == null) {
@@ -125,39 +132,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		void OnAccepted (SocketAsyncEventArgs args)
-		{
-			if (cts.IsCancellationRequested) {
-				OnFinished ();
-				args.Dispose ();
-				return;
-			} else if (args.SocketError != SocketError.Success) {
-				var error = new IOException (string.Format ("Accept failed: {0}", args.SocketError));
-				OnException (error);
-				args.Dispose ();
-				return;
-			}
-
-			try {
-				Listen ();
-			} catch {
-				return;
-			}
-
-			var socket = args.AcceptSocket;
-
-			HandleConnection_internal (socket, cts.Token).ContinueWith (t => {
-				if (!t.IsCanceled && t.IsFaulted)
-					OnException (t.Exception);
-				if (t.IsCompleted)
-					Close (socket);
-
-				OnFinished ();
-				args.Dispose ();
-			});
-		}
-
-		void OnFinished ()
+		protected void OnFinished ()
 		{
 			lock (this) {
 				var connections = Interlocked.Decrement (ref currentConnections);
@@ -175,9 +150,7 @@ namespace Xamarin.WebTests.Server
 		public override async Task Stop ()
 		{
 			cts.Cancel ();
-			if (server.Connected)
-				server.Shutdown (SocketShutdown.Both);
-			server.Close ();
+			Shutdown ();
 			await tcs.Task;
 			OnStop ();
 
@@ -188,53 +161,36 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
+		protected virtual void Shutdown ()
+		{
+		}
+
 		protected virtual void OnStop ()
 		{
 		}
 
-		void Close (Socket socket)
-		{
-			try {
-				socket.Shutdown (SocketShutdown.Both);
-			} catch {
-				;
-			} finally {
-				socket.Close ();
-				socket.Dispose ();
-			}
-		}
+		public abstract Task<BuiltinListenerContext> AcceptAsync (CancellationToken cancellationToken);
 
-		protected abstract Task<HttpConnection> CreateConnection (Socket socket, CancellationToken cancellationToken);
+		protected abstract Task<HttpConnection> CreateConnection (BuiltinListenerContext context, CancellationToken cancellationToken);
 
-		bool IsStillConnected (Socket socket)
-		{
-			try {
-				if (!socket.Poll (-1, SelectMode.SelectRead))
-					return false;
-				return socket.Available > 0;
-			} catch {
-				return false;
-			}
-		}
+		protected abstract Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken);
 
-		async Task HandleConnection_internal (Socket socket, CancellationToken cancellationToken)
+		async Task MainLoop (BuiltinListenerContext context, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			var connection = await CreateConnection (socket, cancellationToken).ConfigureAwait (false);
+			var connection = await CreateConnection (context, cancellationToken).ConfigureAwait (false);
 			if (connection == null)
 				return;
 
 			while (!cancellationToken.IsCancellationRequested) {
-				var wantToReuse = await HandleConnection (socket, connection, cancellationToken);
+				var wantToReuse = await HandleConnection (context, connection, cancellationToken);
 				if (!wantToReuse || cancellationToken.IsCancellationRequested)
 					break;
 
-				bool connectionAvailable = IsStillConnected (socket);
-				if (!connectionAvailable && !cts.IsCancellationRequested)
+				bool connectionAvailable = context.IsStillConnected ();
+				if (!connectionAvailable && !cancellationToken.IsCancellationRequested)
 					throw new InvalidOperationException ("Expecting another connection, but socket has been shut down.");
 			}
 		}
-
-		protected abstract Task<bool> HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken);
 	}
 }

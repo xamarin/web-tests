@@ -1,10 +1,10 @@
 ﻿//
-// BuiltinHttpListener.cs
+// SocketHelper.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,46 +25,43 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Text;
-using System.Net;
 using System.Net.Sockets;
-using System.Net.Security;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
-
 namespace Xamarin.WebTests.Server
 {
-	using HttpHandlers;
-	using HttpFramework;
-
-	class BuiltinHttpListener : BuiltinSocketListener
+	static class SocketHelper
 	{
-		public BuiltinHttpServer Server {
-			get;
-		}
-
-		public BuiltinHttpListener (TestContext ctx, BuiltinHttpServer server)
-			: base (ctx, server.ListenAddress, server.Flags)
+		public static Task<Socket> AcceptAsync (this Socket socket, CancellationToken cancellationToken)
 		{
-			Server = server;
-		}
+			var tcs = new TaskCompletionSource<Socket> ();
+			if (cancellationToken.IsCancellationRequested) {
+				tcs.SetCanceled ();
+				return tcs.Task;
+			}
 
-		protected override Task<HttpConnection> CreateConnection (BuiltinListenerContext context, CancellationToken cancellationToken)
-		{
-			var stream = context.CreateStream ();
-			return Server.CreateConnection (TestContext, stream, cancellationToken);
-		}
+			var args = new SocketAsyncEventArgs ();
+			args.Completed += (sender, e) => {
+				if (cancellationToken.IsCancellationRequested) {
+					tcs.TrySetCanceled ();
+				} else if (args.SocketError != SocketError.Success) {
+					var error = new IOException (string.Format ("Accept failed: {0}", args.SocketError));
+					tcs.TrySetException (error);
+				} else {
+					tcs.TrySetResult (args.AcceptSocket);
+				}
+				args.Dispose ();
+			};
 
-		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)
-		{
-			var request = await connection.ReadRequest (cancellationToken);
-			return await Server.HandleConnection (TestContext, connection, request, cancellationToken);
+			try {
+				if (!socket.AcceptAsync (args))
+					throw new InvalidOperationException ();
+			} catch (Exception ex) {
+				tcs.TrySetException (ex);
+			}
+
+			return tcs.Task;
 		}
 	}
 }
-

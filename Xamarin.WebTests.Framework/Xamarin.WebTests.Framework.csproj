@@ -184,6 +184,10 @@
     <Compile Include="Xamarin.WebTests.TestFramework\CertificateResourceTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\NetworkAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\Tls12Attribute.cs" />
+    <Compile Include="Xamarin.WebTests.Server\BuiltinSocketListener.cs" />
+    <Compile Include="Xamarin.WebTests.Server\BuiltinListenerContext.cs" />
+    <Compile Include="Xamarin.WebTests.Server\BuiltinSocketContext.cs" />
+    <Compile Include="Xamarin.WebTests.Server\SocketHelper.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpStreamReader.cs" />
   </ItemGroup>
   <ItemGroup>

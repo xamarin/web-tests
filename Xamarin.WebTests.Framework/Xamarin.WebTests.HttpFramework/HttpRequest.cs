@@ -31,7 +31,6 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {

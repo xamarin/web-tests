@@ -1,10 +1,10 @@
 ﻿//
-// BuiltinHttpListener.cs
+// BuiltinSocketListener.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,41 +30,43 @@ using System.Net;
 using System.Net.Sockets;
 using System.Net.Security;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server
 {
-	using HttpHandlers;
-	using HttpFramework;
-
-	class BuiltinHttpListener : BuiltinSocketListener
+	abstract class BuiltinSocketListener : BuiltinListener
 	{
-		public BuiltinHttpServer Server {
-			get;
+		Socket server;
+
+		public BuiltinSocketListener (TestContext ctx, IPortableEndPoint endpoint, HttpServerFlags flags)
+			: base (ctx, endpoint, flags)
+		{
+			server = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			server.Bind (NetworkEndPoint);
+			server.Listen (1);
 		}
 
-		public BuiltinHttpListener (TestContext ctx, BuiltinHttpServer server)
-			: base (ctx, server.ListenAddress, server.Flags)
+		public override async Task<BuiltinListenerContext> AcceptAsync (CancellationToken cancellationToken)
 		{
-			Server = server;
+			TestContext.LogDebug (5, "LISTEN ASYNC: {0}", NetworkEndPoint);
+
+			var accepted = await server.AcceptAsync (cancellationToken).ConfigureAwait (false);
+			return new BuiltinSocketContext (accepted);
 		}
 
-		protected override Task<HttpConnection> CreateConnection (BuiltinListenerContext context, CancellationToken cancellationToken)
+		protected override void Shutdown ()
 		{
-			var stream = context.CreateStream ();
-			return Server.CreateConnection (TestContext, stream, cancellationToken);
+			TestContext.LogDebug (5, "SHUTDOWN: {0}", server.Connected);
+			if (server.Connected)
+				server.Shutdown (SocketShutdown.Both);
+			server.Close ();
+			base.Shutdown ();
 		}
 
-		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)
-		{
-			var request = await connection.ReadRequest (cancellationToken);
-			return await Server.HandleConnection (TestContext, connection, request, cancellationToken);
-		}
 	}
 }
-
