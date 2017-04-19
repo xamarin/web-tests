@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // SystemHttpListener.cs
 //
 // Author:
@@ -34,7 +34,7 @@ using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server {
-	class SystemHttpListener : Listener {
+	class SystemHttpListener {
 		public HttpListenerServer Server {
 			get;
 		}
@@ -44,7 +44,6 @@ namespace Xamarin.WebTests.Server {
 		}
 
 		public SystemHttpListener (TestContext ctx, HttpListenerServer server)
-			: base (server.ListenAddress, server.Flags)
 		{
 			TestContext = ctx;
 
@@ -55,7 +54,7 @@ namespace Xamarin.WebTests.Server {
 		TaskCompletionSource<bool> tcs;
 		CancellationTokenSource cts;
 
-		public override Task Start ()
+		public Task Start ()
 		{
 			if (Interlocked.CompareExchange (ref tcs, new TaskCompletionSource<bool> (), null) != null)
 				throw new InternalErrorException ();
@@ -112,7 +111,7 @@ namespace Xamarin.WebTests.Server {
 			return result;
 		}
 
-		public override async Task Stop ()
+		public async Task Stop ()
 		{
 			TestContext.LogDebug (4, "Listener stop.");
 

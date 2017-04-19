@@ -1,4 +1,4 @@
-﻿﻿//
+﻿﻿﻿//
 // BuiltinListener.cs
 //
 // Author:
@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
 
-	abstract class BuiltinListener : Listener
+	abstract class BuiltinListener
 	{
 		int currentConnections;
 		volatile Exception currentError;
@@ -56,18 +56,12 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
-		public BuiltinListener (TestContext ctx, IPortableEndPoint endpoint, HttpServerFlags flags)
-			: base (endpoint, flags)
+		public BuiltinListener (TestContext ctx)
 		{
 			TestContext = ctx;
 		}
 
-		static void Debug (string message, params object[] args)
-		{
-			SD.Debug.WriteLine (message, args);
-		}
-
-		public override Task Start ()
+		public Task Start ()
 		{
 			lock (this) {
 				if (cts != null)
@@ -147,7 +141,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		public override async Task Stop ()
+		public async Task Stop ()
 		{
 			cts.Cancel ();
 			Shutdown ();

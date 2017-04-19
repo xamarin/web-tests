@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // BuiltinSocketListener.cs
 //
 // Author:
@@ -41,11 +41,22 @@ namespace Xamarin.WebTests.Server
 {
 	abstract class BuiltinSocketListener : BuiltinListener
 	{
+		public IPEndPoint NetworkEndPoint {
+			get;
+		}
+
 		Socket server;
 
 		public BuiltinSocketListener (TestContext ctx, IPortableEndPoint endpoint, HttpServerFlags flags)
-			: base (ctx, endpoint, flags)
+			: base (ctx)
 		{
+			var ssl = (flags & HttpServerFlags.SSL) != 0;
+			if (ssl & (flags & HttpServerFlags.Proxy) != 0)
+				throw new InternalErrorException ();
+
+			var address = IPAddress.Parse (endpoint.Address);
+			NetworkEndPoint = new IPEndPoint (address, endpoint.Port);
+
 			server = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			server.Bind (NetworkEndPoint);
 			server.Listen (1);
