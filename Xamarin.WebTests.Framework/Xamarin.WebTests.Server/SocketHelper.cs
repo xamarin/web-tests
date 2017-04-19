@@ -46,7 +46,7 @@ namespace Xamarin.WebTests.Server
 				if (cancellationToken.IsCancellationRequested) {
 					tcs.TrySetCanceled ();
 				} else if (args.SocketError != SocketError.Success) {
-					var error = new IOException (string.Format ("Accept failed: {0}", args.SocketError));
+					var error = new IOException (string.Format ("AcceptAsync() failed: {0}", args.SocketError));
 					tcs.TrySetException (error);
 				} else {
 					tcs.TrySetResult (args.AcceptSocket);
@@ -63,5 +63,73 @@ namespace Xamarin.WebTests.Server
 
 			return tcs.Task;
 		}
+
+		public static Task<int> ReceiveAsync (this Socket socket, byte[] buffer, CancellationToken cancellationToken)
+		{
+			var tcs = new TaskCompletionSource<int> ();
+
+			if (cancellationToken.IsCancellationRequested) {
+				tcs.SetCanceled ();
+				return tcs.Task;
+			}
+
+			var args = new SocketAsyncEventArgs ();
+			args.SetBuffer (buffer, 0, buffer.Length);
+			args.Completed += (sender, e) => {
+				if (cancellationToken.IsCancellationRequested) {
+					tcs.TrySetCanceled ();
+				} else if (args.SocketError != SocketError.Success) {
+					var error = new IOException (string.Format ("ReceiveAsync() failed: {0}", args.SocketError));
+					tcs.TrySetException (error);
+				} else {
+					tcs.TrySetResult (args.BytesTransferred);
+				}
+				args.Dispose ();
+			};
+
+			try {
+				if (!socket.ReceiveAsync (args))
+					throw new InvalidOperationException ();
+			} catch (Exception ex) {
+				tcs.TrySetException (ex);
+			}
+
+			return tcs.Task;
+		}
+
+		public static Task<int> SendAsync (this Socket socket, byte[] buffer, int size, SocketFlags flags, CancellationToken cancellationToken)
+		{
+			var tcs = new TaskCompletionSource<int> ();
+
+			if (cancellationToken.IsCancellationRequested) {
+				tcs.SetCanceled ();
+				return tcs.Task;
+			}
+
+			var args = new SocketAsyncEventArgs ();
+			args.SetBuffer (buffer, 0, size);
+			args.SocketFlags = flags;
+			args.Completed += (sender, e) => {
+				if (cancellationToken.IsCancellationRequested) {
+					tcs.TrySetCanceled ();
+				} else if (args.SocketError != SocketError.Success) {
+					var error = new IOException (string.Format ("SendAsync() failed: {0}", args.SocketError));
+					tcs.TrySetException (error);
+				} else {
+					tcs.TrySetResult (args.BytesTransferred);
+				}
+				args.Dispose ();
+			};
+
+			try {
+				if (!socket.SendAsync (args))
+					throw new InvalidOperationException ();
+			} catch (Exception ex) {
+				tcs.TrySetException (ex);
+			}
+
+			return tcs.Task;
+		}
+
 	}
 }

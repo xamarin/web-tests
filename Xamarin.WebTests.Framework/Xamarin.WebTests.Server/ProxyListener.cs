@@ -86,8 +86,7 @@ namespace Xamarin.WebTests.Server
 			}
 
 			if (request.Method.Equals ("CONNECT")) {
-				var socket = ((BuiltinSocketContext)context).Socket;
-				await CreateTunnel (connection, socket, ((StreamConnection)connection).Stream, request, cancellationToken);
+				await CreateTunnel (connection, ((StreamConnection)connection).Stream, request, cancellationToken);
 				return false;
 			}
 
@@ -135,7 +134,7 @@ namespace Xamarin.WebTests.Server
 		}
 
 		async Task CreateTunnel (
-			HttpConnection connection, Socket socket, Stream stream,
+			HttpConnection connection, Stream stream,
 			HttpRequest request, CancellationToken cancellationToken)
 		{
 			var targetEndpoint = GetConnectEndpoint (request);
@@ -143,90 +142,107 @@ namespace Xamarin.WebTests.Server
 			targetSocket.Connect (targetEndpoint);
 			targetSocket.NoDelay = true;
 
+			var targetStream = new NetworkStream (targetSocket, true);
+
 			var writer = new StreamWriter (stream, new ASCIIEncoding ());
 			writer.AutoFlush = true;
 
 			var connectionEstablished = new HttpResponse (HttpStatusCode.OK, HttpProtocol.Http10, "Connection established");
-			await connectionEstablished.Write (writer, cancellationToken);
+			await connectionEstablished.Write (writer, cancellationToken).ConfigureAwait (false);
 
 			try {
-				RunTunnel (socket, targetSocket, cancellationToken);
+				await RunTunnel (stream, targetStream, cancellationToken);
 			} catch (OperationCanceledException) {
 				throw;
 			} catch (Exception ex) {
 				System.Diagnostics.Debug.WriteLine ("ERROR: {0}", ex);
 				cancellationToken.ThrowIfCancellationRequested ();
 				throw;
+			} finally {
+				targetSocket.Dispose ();
 			}
-
-			targetSocket.Close ();
 		}
 
-		void RunTunnel (Socket input, Socket output, CancellationToken cancellationToken)
+		async Task RunTunnel (Stream input, Stream output, CancellationToken cancellationToken)
 		{
+			await Task.Yield ();
+
 			bool doneSending = false;
 			bool doneReading = false;
-			while (!doneSending || !cancellationToken.IsCancellationRequested) {
-				var readList = new List<Socket> ();
-				if (!doneSending)
-					readList.Add (input);
-				if (!doneReading)
-					readList.Add (output);
+			Task<bool> inputTask = null;
+			Task<bool> outputTask = null;
 
-				Socket.Select (readList, null, null, 500);
-
+			while (!doneReading && !doneSending) {
 				cancellationToken.ThrowIfCancellationRequested ();
 
-				if (readList.Contains (input)) {
-					if (!Copy (input, output, cancellationToken))
-						doneSending = true;
+				TestContext.LogDebug (5, "RUN TUNNEL: {0} {1} {2} {3}",
+				                      doneReading, doneSending, inputTask != null, outputTask != null);
+
+				if (!doneReading && inputTask == null)
+					inputTask = Copy (input, output, cancellationToken);
+				if (!doneSending && outputTask == null)
+					outputTask = Copy (output, input, cancellationToken);
+
+				var tasks = new List<Task<bool>> ();
+				if (inputTask != null)
+					tasks.Add (inputTask);
+				if (outputTask != null)
+					tasks.Add (outputTask); 
+
+				TestContext.LogDebug (5, "RUN TUNNEL #1: {0}", tasks.Count);
+				var result = await Task.WhenAny (tasks).ConfigureAwait (false);
+				TestContext.LogDebug (5, "RUN TUNNEL #2: {0} {1} {2}", result, result == inputTask, result == outputTask);
+
+				if (result.IsCanceled) {
+					TestContext.LogDebug (5, "RUN TUNNEL - CANCEL");
+					throw new TaskCanceledException ();
+				}
+				if (result.IsFaulted) {
+					TestContext.LogDebug (5, "RUN TUNNEL - ERROR: {0}", result.Exception);
+					throw result.Exception;
 				}
 
-				cancellationToken.ThrowIfCancellationRequested ();
+				TestContext.LogDebug (5, "RUN TUNNEL #3: {0}", result.Result);
 
-				if (readList.Contains (output)) {
-					if (Copy (output, input, cancellationToken))
-						continue;
-
-					doneReading = true;
-					while (!doneSending) {
-						cancellationToken.ThrowIfCancellationRequested ();
-						if (!Copy (input, output, cancellationToken))
-							break;
-					}
-					break;
+				if (result == inputTask) {
+					if (!result.Result)
+						doneReading = true;
+					inputTask = null;
+				} else if (result == outputTask) {
+					if (!result.Result)
+						doneSending = true;
+					outputTask = null;
+				} else {
+					throw new NotSupportedException ();
 				}
 			}
 		}
 
-		bool Copy (Socket input, Socket output, CancellationToken cancellationToken)
+		async Task<bool> Copy (Stream input, Stream output, CancellationToken cancellationToken)
 		{
-			var buffer = new byte [4096];
+			var buffer = new byte[4096];
 			int ret;
 			try {
-				ret = input.Receive (buffer);
+				ret = await input.ReadAsync (buffer, 0, buffer.Length, cancellationToken).ConfigureAwait (false);
 			} catch {
 				cancellationToken.ThrowIfCancellationRequested ();
 				throw;
 			}
 			if (ret == 0) {
 				try {
-					output.Shutdown (SocketShutdown.Send);
+					output.Dispose ();
 				} catch {
 					;
 				}
 				return false;
 			}
 
-			int ret2;
 			try {
-				ret2 = output.Send (buffer, ret, SocketFlags.None);
+				await output.WriteAsync (buffer, 0, ret, cancellationToken);
 			} catch {
 				cancellationToken.ThrowIfCancellationRequested ();
 				throw;
 			}
-			if (ret2 != ret)
-				throw new InvalidOperationException ();
 			return true;
 		}
 
