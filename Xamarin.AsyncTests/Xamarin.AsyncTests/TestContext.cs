@@ -410,10 +410,8 @@ namespace Xamarin.AsyncTests
 		static int nextPort;
 		static int nextId;
 
-		public int GetUniquePort ()
+		public static int GetUniquePort ()
 		{
-			if (parent != null)
-				return parent.GetUniquePort ();
 			return 9000 + (++nextPort);
 		}
 

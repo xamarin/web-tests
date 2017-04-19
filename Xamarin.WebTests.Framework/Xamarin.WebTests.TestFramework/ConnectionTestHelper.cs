@@ -100,7 +100,7 @@ namespace Xamarin.WebTests.TestFramework
 		public static IPortableEndPoint GetEndPoint (TestContext ctx)
 		{
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			var port = ctx.GetUniquePort ();
+			var port = TestContext.GetUniquePort ();
 			return support.GetLoopbackEndpoint (port);
 		}
 

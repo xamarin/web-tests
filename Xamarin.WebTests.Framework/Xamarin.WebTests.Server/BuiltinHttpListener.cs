@@ -48,28 +48,22 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
-		internal TestContext Context {
-			get;
-		}
-
 		public BuiltinHttpListener (TestContext ctx, BuiltinHttpServer server)
-			: base (server.ListenAddress, server.Flags)
+			: base (ctx, server.ListenAddress, server.Flags)
 		{
-			Context = ctx;
-
 			Server = server;
 		}
 
 		protected override Task<HttpConnection> CreateConnection (Socket socket, CancellationToken cancellationToken)
 		{
 			var stream = new NetworkStream (socket);
-			return Server.CreateConnection (Context, stream, cancellationToken);
+			return Server.CreateConnection (TestContext, stream, cancellationToken);
 		}
 
 		protected override async Task<bool> HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			var request = await connection.ReadRequest (cancellationToken);
-			return await Server.HandleConnection (Context, connection, request, cancellationToken);
+			return await Server.HandleConnection (TestContext, connection, request, cancellationToken);
 		}
 	}
 }

@@ -104,6 +104,15 @@ namespace Xamarin.WebTests.HttpHandlers
 			Handler.Credentials = credentials;
 		}
 
+		string Format (string body)
+		{
+			if (body == null)
+				return "<null>";
+			if (string.IsNullOrEmpty (body))
+				return "<empty>";
+			return '"' + body + '"';
+		}
+
 		public async Task<Response> GetString (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
@@ -145,7 +154,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			string body = null;
 			if (response.Content != null) {
 				body = await response.Content.ReadAsStringAsync ();
-				ctx.LogDebug (5, "GOT BODY: {0}", body);
+				ctx.LogDebug (5, "GOT BODY: {0}", Format (body));
 			}
 
 			if (returnContent != null) {
@@ -176,7 +185,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			string body = null;
 			if (response.Content != null) {
 				body = await response.Content.ReadAsStringAsync ();
-				ctx.LogDebug (5, "GOT BODY: {0}", body);
+				ctx.LogDebug (5, "GOT BODY: {0}", Format (body));
 			}
 
 			ctx.Assert (body, Is.Empty, "returned body");
@@ -205,7 +214,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			string body = null;
 			if (response.Content != null) {
 				body = await response.Content.ReadAsStringAsync ();
-				ctx.LogDebug (5, "GOT BODY: {0}", body);
+				ctx.LogDebug (5, "GOT BODY: {0}", Format (body));
 			}
 
 			ctx.Assert (body, Is.Empty, "returned body");
@@ -229,7 +238,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			string body = null;
 			if (response.Content != null) {
 				body = await response.Content.ReadAsStringAsync ();
-				ctx.LogDebug (5, "GOT BODY: {0}", body);
+				ctx.LogDebug (5, "GOT BODY: {0}", Format (body));
 			}
 
 			ctx.Assert (body, Is.Empty, "returned body");

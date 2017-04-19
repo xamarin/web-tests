@@ -1,4 +1,4 @@
-﻿﻿//
+﻿﻿﻿//
 // ProxyListener.cs
 //
 // Author:
@@ -47,14 +47,10 @@ namespace Xamarin.WebTests.Server
 		public BuiltinProxyServer Server {
 			get;
 		}
-		internal TestContext Context {
-			get;
-		}
 
 		public ProxyListener (TestContext ctx, BuiltinProxyServer server)
-			: base (server.ProxyEndPoint, server.Flags)
+			: base (ctx, server.ProxyEndPoint, server.Flags)
 		{
-			Context = ctx;
 			Server = server;
 
 			if (Server.AuthenticationType != AuthenticationType.None)
@@ -64,7 +60,7 @@ namespace Xamarin.WebTests.Server
 		protected override Task<HttpConnection> CreateConnection (Socket socket, CancellationToken cancellationToken)
 		{
 			var stream = new NetworkStream (socket);
-			return Server.CreateConnection (Context, stream, cancellationToken);
+			return Server.CreateConnection (TestContext, stream, cancellationToken);
 		}
 
 		protected override async Task<bool> HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
@@ -98,7 +94,7 @@ namespace Xamarin.WebTests.Server
 			targetSocket.Connect (Server.Target.Uri.Host, Server.Target.Uri.Port);
 
 			using (var targetStream = new NetworkStream (targetSocket)) {
-				var targetConnection = new StreamConnection (Context, Server, targetStream, null);
+				var targetConnection = new StreamConnection (TestContext, Server, targetStream, null);
 
 				var copyResponseTask = CopyResponse (connection, targetConnection, cancellationToken);
 

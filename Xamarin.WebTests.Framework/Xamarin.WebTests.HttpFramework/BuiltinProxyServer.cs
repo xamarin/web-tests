@@ -100,7 +100,7 @@ namespace Xamarin.WebTests.HttpFramework {
 		public override async Task Stop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var listener = Interlocked.Exchange (ref currentListener, null);
-			if (listener == null || listener.Context != ctx)
+			if (listener == null || listener.TestContext != ctx)
 				throw new InternalErrorException ();
 			try {
 				await listener.Stop ().ConfigureAwait (false);

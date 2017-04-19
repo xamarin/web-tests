@@ -91,6 +91,13 @@ namespace Xamarin.WebTests.HttpFramework
 
 			return expected.Compare (ctx, actual);
 		}
+
+		internal static string Print (HttpContent content)
+		{
+			if (content == null)
+				return "<null>";
+			return string.Format ("[{0}: {1}]", content.GetType ().Name, content);
+		}
 	}
 }
 
