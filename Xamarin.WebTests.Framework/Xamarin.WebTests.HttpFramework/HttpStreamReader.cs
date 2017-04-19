@@ -5,10 +5,11 @@
 //   Dietmar Maurer (dietmar@ximian.com)
 //   Miguel de Icaza (miguel@ximian.com) 
 //   Marek Safar (marek.safar@gmail.com)
-//
+//   Martin Baulig (mabaul@microsoft.com)
+////
 // (C) Ximian, Inc.  http://www.ximian.com
 // Copyright (C) 2004 Novell (http://www.novell.com)
-// Copyright 2011, 2013 Xamarin Inc.
+// Copyright 2011, 2013, 2017 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
