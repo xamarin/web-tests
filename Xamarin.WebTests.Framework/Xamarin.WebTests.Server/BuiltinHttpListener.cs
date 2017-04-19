@@ -60,10 +60,10 @@ namespace Xamarin.WebTests.Server
 			Server = server;
 		}
 
-		protected override HttpConnection CreateConnection (Socket socket)
+		protected override Task<HttpConnection> CreateConnection (Socket socket, CancellationToken cancellationToken)
 		{
 			var stream = new NetworkStream (socket);
-			return Server.CreateConnection (Context, stream);
+			return Server.CreateConnection (Context, stream, cancellationToken);
 		}
 
 		protected override async Task<bool> HandleConnection (Socket socket, HttpConnection connection, CancellationToken cancellationToken)

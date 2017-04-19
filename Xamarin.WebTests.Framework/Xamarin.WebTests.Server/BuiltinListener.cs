@@ -140,20 +140,9 @@ namespace Xamarin.WebTests.Server
 			}
 
 			var socket = args.AcceptSocket;
-			HttpConnection connection;
 
-			try {
-				connection = CreateConnection (socket);
-			} catch (OperationCanceledException) {
-				connection = null;
-			} catch (Exception ex) {
-				if (!cts.IsCancellationRequested)
-					OnException (ex);
-				connection = null;
-			}
-
-			HandleConnection_internal (socket, connection, cts.Token).ContinueWith (t => {
-				if (t.IsFaulted)
+			HandleConnection_internal (socket, cts.Token).ContinueWith (t => {
+				if (!t.IsCanceled && t.IsFaulted)
 					OnException (t.Exception);
 				if (t.IsCompleted)
 					Close (socket);
@@ -210,7 +199,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected abstract HttpConnection CreateConnection (Socket socket);
+		protected abstract Task<HttpConnection> CreateConnection (Socket socket, CancellationToken cancellationToken);
 
 		bool IsStillConnected (Socket socket)
 		{
@@ -223,10 +212,13 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		async Task HandleConnection_internal (Socket socket, HttpConnection connection, CancellationToken cancellationToken)
+		async Task HandleConnection_internal (Socket socket, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested ();
+			var connection = await CreateConnection (socket, cancellationToken).ConfigureAwait (false);
 			if (connection == null)
 				return;
+
 			while (!cancellationToken.IsCancellationRequested) {
 				var wantToReuse = await HandleConnection (socket, connection, cancellationToken);
 				if (!wantToReuse || cancellationToken.IsCancellationRequested)

@@ -1,4 +1,4 @@
-//
+﻿//
 // BuiltinProxyServer.cs
 //
 // Author:
@@ -111,9 +111,9 @@ namespace Xamarin.WebTests.HttpFramework {
 			}
 		}
 
-		protected override HttpConnection DoCreateConnection (TestContext ctx, Stream stream)
+		protected override Task<HttpConnection> DoCreateConnection (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
-			return new StreamConnection (ctx, this, stream, null);
+			return Task.FromResult<HttpConnection> (new StreamConnection (ctx, this, stream, null));
 		}
 
 		public override IWebProxy GetProxy ()

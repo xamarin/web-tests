@@ -107,11 +107,11 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		#endregion
 
-		public HttpConnection CreateConnection (TestContext ctx, Stream stream)
+		public async Task<HttpConnection> CreateConnection (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
 			++countRequests;
 			try {
-				var connection = DoCreateConnection (ctx, stream);
+				var connection = await DoCreateConnection (ctx, stream, cancellationToken).ConfigureAwait (false);
 				if (Delegate != null && !Delegate.CheckCreateConnection (ctx, connection, null))
 					return null;
 				return connection;
@@ -123,7 +123,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			}
 		}
 
-		protected abstract HttpConnection DoCreateConnection (TestContext ctx, Stream stream);
+		protected abstract Task<HttpConnection> DoCreateConnection (TestContext ctx, Stream stream, CancellationToken cancellationToken);
 
 		public int CountRequests => countRequests;
 
