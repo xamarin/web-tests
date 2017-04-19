@@ -1,4 +1,4 @@
-﻿﻿//
+﻿﻿﻿//
 // SystemHttpListener.cs
 //
 // Author:
@@ -34,70 +34,49 @@ using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server {
-	class SystemHttpListener {
-		public HttpListenerServer Server {
+	class SystemHttpListener : BuiltinListener {
+		public HttpServer Server {
 			get;
 		}
 
-		internal TestContext TestContext {
-			get;
-		}
-
-		public SystemHttpListener (TestContext ctx, HttpListenerServer server)
+		public SystemHttpListener (TestContext ctx, HttpServer server)
+			: base (ctx)
 		{
-			TestContext = ctx;
-
 			Server = server;
+
+			listener = new HttpListener ();
+			listener.Prefixes.Add (Server.Uri.AbsoluteUri);
+			listener.Start ();
 		}
 
 		HttpListener listener;
-		TaskCompletionSource<bool> tcs;
-		CancellationTokenSource cts;
 
-		public Task Start ()
+		public override async Task<BuiltinListenerContext> AcceptAsync (CancellationToken cancellationToken)
 		{
-			if (Interlocked.CompareExchange (ref tcs, new TaskCompletionSource<bool> (), null) != null)
-				throw new InternalErrorException ();
+			TestContext.LogDebug (5, "LISTEN ASYNC: {0}", Server.Uri);
 
-			return Task.Run (() => {
-				TestContext.LogDebug (4, "Starting HttpListener: {0}.", Server.Uri.AbsoluteUri);
-				cts = new CancellationTokenSource ();
-				listener = new HttpListener ();
-				listener.Prefixes.Add (Server.Uri.AbsoluteUri);
-				listener.Start ();
-
-				TestContext.LogDebug (4, "Listener running.");
-
-				listener.GetContextAsync ().ContinueWith (OnGetContext);
-			});
-		}
-
-		async Task OnGetContext (Task<HttpListenerContext> task)
-		{
-			if (task.IsFaulted) {
-				tcs.TrySetException (task.Exception);
-				return;
-			} else if (task.IsCanceled) {
-				tcs.TrySetCanceled ();
-				return;
-			}
+			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 
 			try {
-				var result = await HandleRequest (task.Result, cts.Token).ConfigureAwait (false);
-				tcs.TrySetResult (result);
-			} catch (OperationCanceledException) {
-				tcs.TrySetCanceled ();
-			} catch (Exception ex) {
-				tcs.TrySetException (ex);
+				cts.Token.Register (() => {
+					TestContext.LogDebug (5, "LISTENER ABORT!");
+					listener.Abort ();
+				});
+
+				var context = await listener.GetContextAsync ().ConfigureAwait (false);
+				return new SystemHttpContext (context);
+			} finally {
+				cts.Dispose ();
 			}
 		}
 
-		async Task<bool> HandleRequest (HttpListenerContext context, CancellationToken cancellationToken)
+		protected override Task<HttpConnection> CreateConnection (BuiltinListenerContext context, CancellationToken cancellationToken)
 		{
-			cancellationToken.ThrowIfCancellationRequested ();
-			TestContext.LogDebug (4, "Handle request: {0} {1}", context, context.Request);
+			return Task.FromResult<HttpConnection> (new HttpListenerConnection (TestContext, Server, (SystemHttpContext)context));
+		}
 
-			var connection = new HttpListenerConnection (TestContext, Server, context);
+		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)
+		{
 			var request = await connection.ReadRequest (cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
@@ -106,27 +85,17 @@ namespace Xamarin.WebTests.Server {
 
 			TestContext.LogDebug (4, "Handle request #2: {0} {1} {2}", context, request, result);
 
-			context.Response.Close ();
-
+			context.Dispose ();
 			return result;
 		}
 
-		public async Task Stop ()
+		protected override void Shutdown ()
 		{
-			TestContext.LogDebug (4, "Listener stop.");
-
-			cts.Cancel ();
 			listener.Abort ();
+			listener.Stop ();
 			listener.Close ();
 			listener = null;
-
-			await tcs.Task;
-
-			lock (this) {
-				cts.Dispose ();
-				cts = null;
-				tcs = null;
-			}
+			base.Shutdown ();
 		}
 	}
 }

@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.HttpFramework {
 		}
 
 		public BuiltinHttpServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, HttpServerFlags flags,
-		                           ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
+		                          ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
 		{
 			ListenAddress = listenAddress;
 			Flags = flags;
@@ -117,11 +117,15 @@ namespace Xamarin.WebTests.HttpFramework {
 			return handler;
 		}
 
-		BuiltinHttpListener currentListener;
+		BuiltinListener currentListener;
 
 		public override Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var listener = new BuiltinHttpListener (ctx, this);
+			BuiltinListener listener;
+			if ((Flags & HttpServerFlags.HttpListener) != 0)
+				listener = new SystemHttpListener (ctx, this);
+			else
+				listener = new BuiltinHttpListener (ctx, this);
 			if (Interlocked.CompareExchange (ref currentListener, listener, null) != null)
 				throw new InternalErrorException ();
 			return listener.Start ();

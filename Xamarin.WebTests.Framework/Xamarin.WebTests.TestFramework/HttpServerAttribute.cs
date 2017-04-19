@@ -114,10 +114,7 @@ namespace Xamarin.WebTests.TestFramework
 			if (GetParameters (ctx, flags, out parameters))
 				sslStreamProvider = GetSslStreamProvider (ctx);
 
-			if ((flags & HttpServerFlags.HttpListener) != 0)
-				return new HttpListenerServer (endpoint, endpoint, flags, parameters, sslStreamProvider);
-			else
-				return new BuiltinHttpServer (endpoint, endpoint, flags, parameters, sslStreamProvider);
+			return new BuiltinHttpServer (endpoint, endpoint, flags, parameters, sslStreamProvider);
 		}
 	}
 }

@@ -35,11 +35,11 @@ using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server {
 	class HttpListenerConnection : HttpConnection {
-		public HttpListenerContext Context {
+		public SystemHttpContext Context {
 			get;
 		}
 
-		public HttpListenerConnection (TestContext ctx, HttpServer server, HttpListenerContext context)
+		public HttpListenerConnection (TestContext ctx, HttpServer server, SystemHttpContext context)
 			: base (ctx, server, null)
 		{
 			Context = context;
@@ -52,7 +52,7 @@ namespace Xamarin.WebTests.Server {
 
 		public override async Task<HttpRequest> ReadRequest (CancellationToken cancellationToken)
 		{
-			var listenerRequest = Context.Request;
+			var listenerRequest = Context.Context.Request;
 			var protocol = GetProtocol (listenerRequest.ProtocolVersion);
 			var request = new HttpRequest (protocol, listenerRequest.HttpMethod, listenerRequest.RawUrl, listenerRequest.Headers);
 
@@ -73,7 +73,7 @@ namespace Xamarin.WebTests.Server {
 		async Task<HttpContent> ReadBody (HttpMessage message, CancellationToken cancellationToken)
 		{
 			TestContext.LogDebug (5, "READ BODY: {0}", message);
-			using (var reader = new HttpStreamReader (Context.Request.InputStream)) {
+			using (var reader = new HttpStreamReader (Context.Context.Request.InputStream)) {
 				cancellationToken.ThrowIfCancellationRequested ();
 				if (message.ContentType != null && message.ContentType.Equals ("application/octet-stream"))
 					return await BinaryContent.Read (reader, message.ContentLength.Value, cancellationToken);
@@ -94,16 +94,16 @@ namespace Xamarin.WebTests.Server {
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			TestContext.LogDebug (5, "WRITE RESPONSE: {0}", response);
-			Context.Response.StatusCode = (int)response.StatusCode;
-			Context.Response.ProtocolVersion = GetProtocol (response.Protocol);
+			Context.Context.Response.StatusCode = (int)response.StatusCode;
+			Context.Context.Response.ProtocolVersion = GetProtocol (response.Protocol);
 
 			foreach (var header in response.Headers) {
-				Context.Response.AddHeader (header.Key, header.Value);
+				Context.Context.Response.AddHeader (header.Key, header.Value);
 			}
 
 			if (response.Body != null) {
 				cancellationToken.ThrowIfCancellationRequested ();
-				using (var writer = new StreamWriter (Context.Response.OutputStream))
+				using (var writer = new StreamWriter (Context.Context.Response.OutputStream))
 					await response.Body.WriteToAsync (writer);
 			}
 		}

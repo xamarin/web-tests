@@ -173,7 +173,6 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\BuiltinHttpServer.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\BuiltinProxyServer.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\AuthenticationType.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\HttpListenerServer.cs" />
     <Compile Include="Xamarin.WebTests.Server\SystemHttpListener.cs" />
     <Compile Include="Xamarin.WebTests.Server\StreamConnection.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\IHttpServerDelegate.cs" />
@@ -188,6 +187,7 @@
     <Compile Include="Xamarin.WebTests.Server\BuiltinSocketContext.cs" />
     <Compile Include="Xamarin.WebTests.Server\SocketHelper.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpStreamReader.cs" />
+    <Compile Include="Xamarin.WebTests.Server\SystemHttpContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

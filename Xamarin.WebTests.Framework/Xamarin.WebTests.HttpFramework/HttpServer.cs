@@ -107,7 +107,7 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		#endregion
 
-		public async Task<HttpConnection> CreateConnection (TestContext ctx, Stream stream, CancellationToken cancellationToken)
+		internal async Task<HttpConnection> CreateConnection (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
 			++countRequests;
 			try {
