@@ -48,7 +48,7 @@ namespace Xamarin.WebTests.HttpFramework
 			Path = path;
 		}
 
-		public static async Task<HttpRequest> Read (StreamReader reader, CancellationToken cancellationToken)
+		public static async Task<HttpRequest> Read (HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			var request = new HttpRequest ();
@@ -64,10 +64,10 @@ namespace Xamarin.WebTests.HttpFramework
 			get; private set;
 		}
 
-		async Task InternalRead (StreamReader reader, CancellationToken cancellationToken)
+		async Task InternalRead (HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			var header = await reader.ReadLineAsync ().ConfigureAwait (false);
+			var header = await reader.ReadLineAsync (cancellationToken).ConfigureAwait (false);
 			if (header == null)
 				throw new IOException ("Connection has been closed.");
 

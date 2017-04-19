@@ -47,14 +47,14 @@ namespace Xamarin.WebTests.HttpFramework
 			this.chunks = new List<string> (chunks);
 		}
 
-		public static async Task<ChunkedContent> ReadNonChunked (StreamReader reader, CancellationToken cancellationToken)
+		public static async Task<ChunkedContent> ReadNonChunked (HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			var chunks = new List<string> ();
 
 			while (true) {
 				cancellationToken.ThrowIfCancellationRequested ();
 
-				var line = await reader.ReadLineAsync ().ConfigureAwait (false);
+				var line = await reader.ReadLineAsync (cancellationToken).ConfigureAwait (false);
 				if (string.IsNullOrEmpty (line))
 					break;
 
@@ -64,13 +64,13 @@ namespace Xamarin.WebTests.HttpFramework
 			return new ChunkedContent (chunks);
 		}
 
-		public static async Task<ChunkedContent> Read (StreamReader reader, CancellationToken cancellationToken)
+		public static async Task<ChunkedContent> Read (HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			var chunks = new List<string> ();
 
 			do {
 				cancellationToken.ThrowIfCancellationRequested ();
-				var header = await reader.ReadLineAsync ();
+				var header = await reader.ReadLineAsync (cancellationToken);
 				var length = int.Parse (header, NumberStyles.HexNumber);
 				if (length == 0)
 					break;
@@ -78,7 +78,7 @@ namespace Xamarin.WebTests.HttpFramework
 				cancellationToken.ThrowIfCancellationRequested ();
 
 				var buffer = new char [length];
-				var ret = await reader.ReadAsync (buffer, 0, length);
+				var ret = await reader.ReadAsync (buffer, 0, length, cancellationToken);
 				if (ret != length)
 					throw new InvalidOperationException ();
 
@@ -86,7 +86,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 				cancellationToken.ThrowIfCancellationRequested ();
 
-				var empty =  await reader.ReadLineAsync ();
+				var empty =  await reader.ReadLineAsync (cancellationToken);
 				if (!string.IsNullOrEmpty (empty))
 					throw new InvalidOperationException ();
 			} while (true);

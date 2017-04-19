@@ -80,7 +80,7 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 		}
 
-		internal static async Task<HttpResponse> Read (StreamReader reader, CancellationToken cancellationToken)
+		internal static async Task<HttpResponse> Read (HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			try {
@@ -121,10 +121,10 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		async Task InternalRead (StreamReader reader, CancellationToken cancellationToken)
+		async Task InternalRead (HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			var header = await reader.ReadLineAsync ().ConfigureAwait (false);
+			var header = await reader.ReadLineAsync (cancellationToken).ConfigureAwait (false);
 			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
 			if (fields.Length < 2 || fields.Length > 3)
 				throw new InvalidOperationException ();

@@ -47,14 +47,14 @@ namespace Xamarin.WebTests.HttpFramework
 			return content != null ? new StringContent (content) : null;
 		}
 
-		public async static Task<StringContent> Read (StreamReader reader, int length, CancellationToken cancellationToken)
+		public async static Task<StringContent> Read (HttpStreamReader reader, int length, CancellationToken cancellationToken)
 		{
 			var buffer = new char [length];
 			int offset = 0;
 			while (offset < length) {
 				cancellationToken.ThrowIfCancellationRequested ();
 				var len = Math.Min (16384, length - offset);
-				var ret = await reader.ReadAsync (buffer, offset, len);
+				var ret = await reader.ReadAsync (buffer, offset, len, cancellationToken);
 				if (ret <= 0)
 					throw new InvalidOperationException ();
 

@@ -1,4 +1,3 @@
-﻿//
 // HttpsTestRunner.cs
 //
 // Author:

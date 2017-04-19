@@ -1,4 +1,4 @@
-﻿﻿//
+﻿﻿﻿//
 // StreamConnection.cs
 //
 // Author:
@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
-		StreamReader reader;
+		HttpStreamReader reader;
 		StreamWriter writer;
 
 		public StreamConnection (TestContext ctx, HttpServer server, Stream stream, ISslStream sslStream)
@@ -49,14 +49,14 @@ namespace Xamarin.WebTests.Server
 		{
 			Stream = stream;
 
-			reader = new StreamReader (stream);
+			reader = new HttpStreamReader (stream);
 			writer = new StreamWriter (stream);
 			writer.AutoFlush = true;
 		}
 
-		public override Task<bool> HasRequest (CancellationToken cancellationToken)
+		public override async Task<bool> HasRequest (CancellationToken cancellationToken)
 		{
-			return Task.FromResult (reader.Peek () >= 0 && !reader.EndOfStream);
+			return !await reader.IsEndOfStream (cancellationToken).ConfigureAwait (false);
 		}
 
 		public override Task<HttpRequest> ReadRequest (CancellationToken cancellationToken)

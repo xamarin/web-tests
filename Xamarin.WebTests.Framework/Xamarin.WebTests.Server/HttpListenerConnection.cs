@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // HttpListenerConnection.cs
 //
 // Author:
@@ -73,7 +73,7 @@ namespace Xamarin.WebTests.Server {
 		async Task<HttpContent> ReadBody (HttpMessage message, CancellationToken cancellationToken)
 		{
 			TestContext.LogDebug (5, "READ BODY: {0}", message);
-			using (var reader = new StreamReader (Context.Request.InputStream)) {
+			using (var reader = new HttpStreamReader (Context.Request.InputStream)) {
 				cancellationToken.ThrowIfCancellationRequested ();
 				if (message.ContentType != null && message.ContentType.Equals ("application/octet-stream"))
 					return await BinaryContent.Read (reader, message.ContentLength.Value, cancellationToken);

@@ -152,10 +152,10 @@ namespace Xamarin.WebTests.HttpFramework
 				throw new InvalidOperationException ();
 		}
 
-		protected async Task ReadHeaders (StreamReader reader, CancellationToken cancellationToken)
+		protected async Task ReadHeaders (HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			string line;
-			while ((line = await reader.ReadLineAsync ()) != null) {
+			while ((line = await reader.ReadLineAsync (cancellationToken).ConfigureAwait (false)) != null) {
 				cancellationToken.ThrowIfCancellationRequested ();
 				if (string.IsNullOrEmpty (line))
 					break;
@@ -179,7 +179,7 @@ namespace Xamarin.WebTests.HttpFramework
 			await writer.WriteAsync ("\r\n");
 		}
 
-		protected async Task<HttpContent> ReadBody (StreamReader reader, CancellationToken cancellationToken)
+		protected async Task<HttpContent> ReadBody (HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			if (ContentType != null && ContentType.Equals ("application/octet-stream"))
