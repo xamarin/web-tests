@@ -38,17 +38,17 @@ namespace Xamarin.WebTests.HttpFramework {
 		public HttpServer Target {
 			get;
 		}
-		public IPortableEndPoint ProxyEndPoint {
+		public override IPortableEndPoint ListenAddress {
 			get;
 		}
 
-		public BuiltinProxyServer (HttpServer target, IPortableEndPoint proxyEndPoint, HttpServerFlags flags)
+		public BuiltinProxyServer (HttpServer target, IPortableEndPoint listenAddress, HttpServerFlags flags)
 		{
 			Target = target;
-			ProxyEndPoint = proxyEndPoint;
+			ListenAddress = listenAddress;
 			Flags = flags | HttpServerFlags.Proxy;
 
-			Uri = new Uri (string.Format ("http://{0}:{1}/", ProxyEndPoint.Address, ProxyEndPoint.Port));
+			Uri = new Uri (string.Format ("http://{0}:{1}/", ListenAddress.Address, ListenAddress.Port));
 		}
 
 		public override HttpServerFlags Flags {

@@ -44,20 +44,9 @@ namespace Xamarin.WebTests.Server
 
 	class BuiltinHttpListener : BuiltinSocketListener
 	{
-		public BuiltinHttpServer Server {
-			get;
-		}
-
 		public BuiltinHttpListener (TestContext ctx, BuiltinHttpServer server)
-			: base (ctx, server.ListenAddress, server.Flags)
+			: base (ctx, server)
 		{
-			Server = server;
-		}
-
-		protected override Task<HttpConnection> CreateConnection (BuiltinListenerContext context, CancellationToken cancellationToken)
-		{
-			var stream = context.CreateStream ();
-			return Server.CreateConnection (TestContext, stream, cancellationToken);
 		}
 
 		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)

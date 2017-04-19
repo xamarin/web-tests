@@ -1,4 +1,4 @@
-﻿﻿﻿//
+﻿﻿﻿﻿//
 // BuiltinSocketListener.cs
 //
 // Author:
@@ -41,41 +41,52 @@ namespace Xamarin.WebTests.Server
 {
 	abstract class BuiltinSocketListener : BuiltinListener
 	{
+		public HttpServer Server {
+			get;
+		}
+
 		public IPEndPoint NetworkEndPoint {
 			get;
 		}
 
-		Socket server;
+		Socket socket;
 
-		public BuiltinSocketListener (TestContext ctx, IPortableEndPoint endpoint, HttpServerFlags flags)
+		public BuiltinSocketListener (TestContext ctx, HttpServer server)
 			: base (ctx)
 		{
-			var ssl = (flags & HttpServerFlags.SSL) != 0;
-			if (ssl & (flags & HttpServerFlags.Proxy) != 0)
+			Server = server;
+
+			var ssl = (server.Flags & HttpServerFlags.SSL) != 0;
+			if (ssl & (server.Flags & HttpServerFlags.Proxy) != 0)
 				throw new InternalErrorException ();
 
-			var address = IPAddress.Parse (endpoint.Address);
-			NetworkEndPoint = new IPEndPoint (address, endpoint.Port);
+			var address = IPAddress.Parse (server.ListenAddress.Address);
+			NetworkEndPoint = new IPEndPoint (address, server.ListenAddress.Port);
 
-			server = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			server.Bind (NetworkEndPoint);
-			server.Listen (1);
+			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			socket.Bind (NetworkEndPoint);
+			socket.Listen (1);
 		}
 
 		public override async Task<BuiltinListenerContext> AcceptAsync (CancellationToken cancellationToken)
 		{
 			TestContext.LogDebug (5, "LISTEN ASYNC: {0}", NetworkEndPoint);
 
-			var accepted = await server.AcceptAsync (cancellationToken).ConfigureAwait (false);
+			var accepted = await socket.AcceptAsync (cancellationToken).ConfigureAwait (false);
 			return new BuiltinSocketContext (accepted);
+		}
+
+		protected override Task<HttpConnection> CreateConnection (BuiltinListenerContext context, CancellationToken cancellationToken)
+		{
+			return Server.CreateConnection (TestContext, context, cancellationToken);
 		}
 
 		protected override void Shutdown ()
 		{
-			TestContext.LogDebug (5, "SHUTDOWN: {0}", server.Connected);
-			if (server.Connected)
-				server.Shutdown (SocketShutdown.Both);
-			server.Close ();
+			TestContext.LogDebug (5, "SHUTDOWN: {0}", socket.Connected);
+			if (socket.Connected)
+				socket.Shutdown (SocketShutdown.Both);
+			socket.Close ();
 			base.Shutdown ();
 		}
 

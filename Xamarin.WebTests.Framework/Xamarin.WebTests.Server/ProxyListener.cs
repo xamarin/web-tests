@@ -44,23 +44,15 @@ namespace Xamarin.WebTests.Server
 	{
 		ProxyAuthManager authManager;
 
-		public BuiltinProxyServer Server {
-			get;
+		new public BuiltinProxyServer Server {
+			get { return (BuiltinProxyServer)base.Server; }
 		}
 
 		public ProxyListener (TestContext ctx, BuiltinProxyServer server)
-			: base (ctx, server.ProxyEndPoint, server.Flags)
+			: base (ctx, server)
 		{
-			Server = server;
-
 			if (Server.AuthenticationType != AuthenticationType.None)
 				authManager = new ProxyAuthManager (Server.AuthenticationType);
-		}
-
-		protected override Task<HttpConnection> CreateConnection (BuiltinListenerContext context, CancellationToken cancellationToken)
-		{
-			var stream = context.CreateStream ();
-			return Server.CreateConnection (TestContext, stream, cancellationToken);
 		}
 
 		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)

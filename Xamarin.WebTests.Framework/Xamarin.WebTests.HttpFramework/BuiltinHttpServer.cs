@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // BuiltinHttpServer.cs
 //
 // Author:
@@ -36,8 +36,8 @@ using Xamarin.WebTests.Server;
 using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.HttpFramework {
-	public class BuiltinHttpServer : HttpServer {
-		public IPortableEndPoint ListenAddress {
+	public sealed class BuiltinHttpServer : HttpServer {
+		public override IPortableEndPoint ListenAddress {
 			get;
 		}
 		public ConnectionParameters Parameters {

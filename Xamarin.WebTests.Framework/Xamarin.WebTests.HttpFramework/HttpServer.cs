@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // HttpServer.cs
 //
 // Author:
@@ -62,6 +62,10 @@ namespace Xamarin.WebTests.HttpFramework {
 			get; set;
 		}
 
+		public abstract IPortableEndPoint ListenAddress {
+			get;
+		}
+
 		public abstract IWebProxy GetProxy ();
 
 		public bool ReuseConnection {
@@ -107,10 +111,11 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		#endregion
 
-		internal async Task<HttpConnection> CreateConnection (TestContext ctx, Stream stream, CancellationToken cancellationToken)
+		internal async Task<HttpConnection> CreateConnection (TestContext ctx, BuiltinListenerContext context, CancellationToken cancellationToken)
 		{
 			++countRequests;
 			try {
+				var stream = context.CreateStream ();
 				var connection = await DoCreateConnection (ctx, stream, cancellationToken).ConfigureAwait (false);
 				if (Delegate != null && !await Delegate.CheckCreateConnection (ctx, connection, null, cancellationToken))
 					return null;
