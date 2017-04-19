@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.Server {
 			Context = context;
 		}
 
-		public override bool HasRequest ()
+		public override Task<bool> HasRequest (CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException ();
 		}

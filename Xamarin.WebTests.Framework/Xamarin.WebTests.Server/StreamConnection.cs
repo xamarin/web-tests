@@ -54,9 +54,9 @@ namespace Xamarin.WebTests.Server
 			writer.AutoFlush = true;
 		}
 
-		public override bool HasRequest ()
+		public override Task<bool> HasRequest (CancellationToken cancellationToken)
 		{
-			return reader.Peek () >= 0 && !reader.EndOfStream;
+			return Task.FromResult (reader.Peek () >= 0 && !reader.EndOfStream);
 		}
 
 		public override Task<HttpRequest> ReadRequest (CancellationToken cancellationToken)

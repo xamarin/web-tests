@@ -112,13 +112,13 @@ namespace Xamarin.WebTests.HttpFramework {
 			++countRequests;
 			try {
 				var connection = await DoCreateConnection (ctx, stream, cancellationToken).ConfigureAwait (false);
-				if (Delegate != null && !Delegate.CheckCreateConnection (ctx, connection, null))
+				if (Delegate != null && !await Delegate.CheckCreateConnection (ctx, connection, null, cancellationToken))
 					return null;
 				return connection;
 			} catch (Exception error) {
 				if (Delegate == null)
 					throw;
-				Delegate.CheckCreateConnection (ctx, null, error);
+				await Delegate.CheckCreateConnection (ctx, null, error, cancellationToken);
 				return null;
 			}
 		}

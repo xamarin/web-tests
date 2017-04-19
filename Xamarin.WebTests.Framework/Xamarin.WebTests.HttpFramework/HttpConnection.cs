@@ -60,7 +60,7 @@ namespace Xamarin.WebTests.HttpFramework
 			SslStream = sslStream;
 		}
 
-		public abstract bool HasRequest ();
+		public abstract Task<bool> HasRequest (CancellationToken cancellationToken);
 
 		public abstract Task<HttpRequest> ReadRequest (CancellationToken cancellationToken);
 

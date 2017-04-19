@@ -25,11 +25,14 @@
 // THE SOFTWARE.
 using System;
 using Xamarin.AsyncTests;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.HttpFramework {
 	public interface IHttpServerDelegate {
-		bool CheckCreateConnection (TestContext ctx, HttpConnection connection, Exception error);
+		Task<bool> CheckCreateConnection (TestContext ctx, HttpConnection connection,
+		                                  Exception error, CancellationToken cancellationToken);
 
 		bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler);
 	}

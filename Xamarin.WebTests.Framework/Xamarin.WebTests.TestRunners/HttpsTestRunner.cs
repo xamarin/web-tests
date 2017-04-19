@@ -1,4 +1,4 @@
-//
+﻿//
 // HttpsTestRunner.cs
 //
 // Author:
@@ -535,7 +535,9 @@ namespace Xamarin.WebTests.TestRunners
 			return response;
 		}
 
-		bool IHttpServerDelegate.CheckCreateConnection (TestContext ctx, HttpConnection connection, Exception error)
+		async Task<bool> IHttpServerDelegate.CheckCreateConnection (
+			TestContext ctx, HttpConnection connection,
+			Exception error, CancellationToken cancellationToken)
 		{
 			if (error != null) {
 				if (Parameters.ClientAbortsHandshake) {
@@ -554,7 +556,7 @@ namespace Xamarin.WebTests.TestRunners
 			 * will be closed when the handshake is completed.
 			 *
 			 */
-			var haveReq = connection.HasRequest ();
+			var haveReq = await connection.HasRequest (cancellationToken).ConfigureAwait (false);
 			ctx.LogDebug (5, "HttpTestRunner - CreateConnection #1: {0}", haveReq);
 			if (Parameters.ClientAbortsHandshake) {
 				ctx.Assert (haveReq, Is.False, "expected client to abort handshake");
