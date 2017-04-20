@@ -35,15 +35,9 @@ using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server {
 	class SystemHttpListener : BuiltinListener {
-		public HttpServer Server {
-			get;
-		}
-
 		public SystemHttpListener (TestContext ctx, HttpServer server)
-			: base (ctx)
+			: base (ctx, server)
 		{
-			Server = server;
-
 			listener = new HttpListener ();
 			listener.Prefixes.Add (Server.Uri.AbsoluteUri);
 			listener.Start ();
@@ -64,15 +58,10 @@ namespace Xamarin.WebTests.Server {
 				});
 
 				var context = await listener.GetContextAsync ().ConfigureAwait (false);
-				return new SystemHttpContext (context);
+				return new SystemHttpContext (this, context);
 			} finally {
 				cts.Dispose ();
 			}
-		}
-
-		protected override Task<HttpConnection> CreateConnection (BuiltinListenerContext context, CancellationToken cancellationToken)
-		{
-			return Task.FromResult<HttpConnection> (new HttpListenerConnection (TestContext, Server, (SystemHttpContext)context));
 		}
 
 		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)

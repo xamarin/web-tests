@@ -143,14 +143,5 @@ namespace Xamarin.WebTests.HttpFramework {
 					throw;
 			}
 		}
-
-		protected override async Task<HttpConnection> DoCreateConnection (TestContext ctx, Stream stream, CancellationToken cancellationToken)
-		{
-			if (SslStreamProvider == null)
-				return new StreamConnection (ctx, this, stream, null);
-
-			var sslStream = await SslStreamProvider.CreateServerStreamAsync (stream, Parameters, cancellationToken).ConfigureAwait (false);
-			return new StreamConnection (ctx, this, sslStream.AuthenticatedStream, sslStream);
-		}
 	}
 }

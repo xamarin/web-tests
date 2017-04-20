@@ -115,8 +115,7 @@ namespace Xamarin.WebTests.HttpFramework {
 		{
 			++countRequests;
 			try {
-				var stream = context.CreateStream ();
-				var connection = await DoCreateConnection (ctx, stream, cancellationToken).ConfigureAwait (false);
+				var connection = await context.CreateConnection (ctx, cancellationToken).ConfigureAwait (false);
 				if (Delegate != null && !await Delegate.CheckCreateConnection (ctx, connection, null, cancellationToken))
 					return null;
 				return connection;
@@ -127,8 +126,6 @@ namespace Xamarin.WebTests.HttpFramework {
 				return null;
 			}
 		}
-
-		protected abstract Task<HttpConnection> DoCreateConnection (TestContext ctx, Stream stream, CancellationToken cancellationToken);
 
 		public int CountRequests => countRequests;
 

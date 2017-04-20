@@ -56,9 +56,14 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
-		public BuiltinListener (TestContext ctx)
+		internal HttpServer Server {
+			get;
+		}
+
+		public BuiltinListener (TestContext ctx, HttpServer server)
 		{
 			TestContext = ctx;
+			Server = server;
 		}
 
 		public Task Start ()
@@ -165,14 +170,12 @@ namespace Xamarin.WebTests.Server
 
 		public abstract Task<BuiltinListenerContext> AcceptAsync (CancellationToken cancellationToken);
 
-		protected abstract Task<HttpConnection> CreateConnection (BuiltinListenerContext context, CancellationToken cancellationToken);
-
 		protected abstract Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken);
 
 		async Task MainLoop (BuiltinListenerContext context, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			var connection = await CreateConnection (context, cancellationToken).ConfigureAwait (false);
+			var connection = await Server.CreateConnection (TestContext, context, cancellationToken).ConfigureAwait (false);
 			if (connection == null)
 				return;
 

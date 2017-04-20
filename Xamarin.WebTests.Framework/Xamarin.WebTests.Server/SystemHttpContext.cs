@@ -26,6 +26,11 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Xamarin.AsyncTests;
+using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server
 {
@@ -35,16 +40,15 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
-		public SystemHttpContext (HttpListenerContext context)
+		public SystemHttpContext (SystemHttpListener listener, HttpListenerContext context)
+			: base (listener, context.Request.RemoteEndPoint)
 		{
 			Context = context;
 		}
 
-		public override IPEndPoint RemoteEndPoint => throw new NotImplementedException ();
-
-		public override Stream CreateStream ()
+		public override Task<HttpConnection> CreateConnection (TestContext ctx, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException ();
+			return Task.FromResult<HttpConnection> (new HttpListenerConnection (ctx, Listener.Server, this));
 		}
 
 		public override bool IsStillConnected ()

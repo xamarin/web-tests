@@ -111,11 +111,6 @@ namespace Xamarin.WebTests.HttpFramework {
 			}
 		}
 
-		protected override Task<HttpConnection> DoCreateConnection (TestContext ctx, Stream stream, CancellationToken cancellationToken)
-		{
-			return Task.FromResult<HttpConnection> (new StreamConnection (ctx, this, stream, null));
-		}
-
 		public override IWebProxy GetProxy ()
 		{
 			var proxy = new SimpleProxy (Uri);

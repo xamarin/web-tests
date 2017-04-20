@@ -55,6 +55,11 @@ namespace Xamarin.WebTests.Server
 				authManager = new ProxyAuthManager (Server.AuthenticationType);
 		}
 
+		internal override Task<HttpConnection> CreateConnection (TestContext ctx, BuiltinSocketContext context, CancellationToken cancellationToken)
+		{
+			return Task.FromResult<HttpConnection> (new StreamConnection (ctx, Server, context.Stream, null));
+		}
+
 		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			var request = await connection.ReadRequest (cancellationToken);

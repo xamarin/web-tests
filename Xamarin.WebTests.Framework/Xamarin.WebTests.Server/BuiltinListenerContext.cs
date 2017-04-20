@@ -40,16 +40,27 @@ using SD = System.Diagnostics;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server
 {
 	abstract class BuiltinListenerContext : IDisposable
 	{
-		public abstract Stream CreateStream ();
-
-		public abstract IPEndPoint RemoteEndPoint {
+		public BuiltinListener Listener {
 			get;
 		}
+
+		public IPEndPoint RemoteEndPoint {
+			get;
+		}
+
+		protected BuiltinListenerContext (BuiltinListener listener, IPEndPoint remoteEndPoint)
+		{
+			Listener = listener;
+			RemoteEndPoint = remoteEndPoint;
+		}
+
+		public abstract Task<HttpConnection> CreateConnection (TestContext ctx, CancellationToken cancellationToken);
 
 		public abstract bool IsStillConnected ();
 

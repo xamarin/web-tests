@@ -41,10 +41,6 @@ namespace Xamarin.WebTests.Server
 {
 	abstract class BuiltinSocketListener : BuiltinListener
 	{
-		public HttpServer Server {
-			get;
-		}
-
 		public IPEndPoint NetworkEndPoint {
 			get;
 		}
@@ -52,10 +48,8 @@ namespace Xamarin.WebTests.Server
 		Socket socket;
 
 		public BuiltinSocketListener (TestContext ctx, HttpServer server)
-			: base (ctx)
+			: base (ctx, server)
 		{
-			Server = server;
-
 			var ssl = (server.Flags & HttpServerFlags.SSL) != 0;
 			if (ssl & (server.Flags & HttpServerFlags.Proxy) != 0)
 				throw new InternalErrorException ();
@@ -68,17 +62,14 @@ namespace Xamarin.WebTests.Server
 			socket.Listen (1);
 		}
 
+		internal abstract Task<HttpConnection> CreateConnection (TestContext ctx, BuiltinSocketContext context, CancellationToken cancellationToken);
+
 		public override async Task<BuiltinListenerContext> AcceptAsync (CancellationToken cancellationToken)
 		{
 			TestContext.LogDebug (5, "LISTEN ASYNC: {0}", NetworkEndPoint);
 
 			var accepted = await socket.AcceptAsync (cancellationToken).ConfigureAwait (false);
-			return new BuiltinSocketContext (accepted);
-		}
-
-		protected override Task<HttpConnection> CreateConnection (BuiltinListenerContext context, CancellationToken cancellationToken)
-		{
-			return Server.CreateConnection (TestContext, context, cancellationToken);
+			return new BuiltinSocketContext (this, accepted);
 		}
 
 		protected override void Shutdown ()

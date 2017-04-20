@@ -27,27 +27,41 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Xamarin.AsyncTests;
+using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server
 {
 	class BuiltinSocketContext : BuiltinListenerContext
 	{
+		new public BuiltinSocketListener Listener {
+			get { return (BuiltinSocketListener)base.Listener; }
+		}
+
 		public Socket Socket {
 			get;
 			private set;
 		}
 
-		public BuiltinSocketContext (Socket socket)
+		public NetworkStream Stream {
+			get;
+			private set;
+		}
+
+		public BuiltinSocketContext (BuiltinSocketListener listener, Socket socket)
+			: base (listener, (IPEndPoint)socket.RemoteEndPoint)
 		{
 			Socket = socket;
+			Stream = new NetworkStream (Socket, true);
 		}
 
-		public override Stream CreateStream ()
+		public override Task<HttpConnection> CreateConnection (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return new NetworkStream (Socket);
+			return Listener.CreateConnection (ctx, this, cancellationToken);
 		}
-
-		public override IPEndPoint RemoteEndPoint => (IPEndPoint)Socket.RemoteEndPoint;
 
 		public override bool IsStillConnected ()
 		{
@@ -62,17 +76,26 @@ namespace Xamarin.WebTests.Server
 
 		protected override void Close ()
 		{
-			if (Socket == null)
-				return;
-			try {
-				Socket.Shutdown (SocketShutdown.Both);
-			} catch {
-				;
-			} finally {
-				Socket.Close ();
-				Socket.Dispose ();
+			if (Stream != null) {
+				try {
+					Stream.Dispose ();
+				} catch {
+					;
+				} finally {
+					Stream = null;
+				}
 			}
-			Socket = null;
+			if (Socket != null) {
+				try {
+					Socket.Shutdown (SocketShutdown.Both);
+				} catch {
+					;
+				} finally {
+					Socket.Close ();
+					Socket.Dispose ();
+					Socket = null;
+				}
+			}
 		}
 	}
 }
