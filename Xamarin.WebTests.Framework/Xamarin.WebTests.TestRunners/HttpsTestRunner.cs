@@ -568,7 +568,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		bool IHttpServerDelegate.HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler)
 		{
-			var streamConnection = (StreamConnection)connection;
+			var streamConnection = (SocketConnection)connection;
 			if (!ctx.Expect (streamConnection.SslStream.IsAuthenticated, "server is authenticated"))
 				return false;
 			if (Parameters.RequireClientCertificate)

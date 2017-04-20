@@ -174,7 +174,7 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\BuiltinProxyServer.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\AuthenticationType.cs" />
     <Compile Include="Xamarin.WebTests.Server\SystemHttpListener.cs" />
-    <Compile Include="Xamarin.WebTests.Server\StreamConnection.cs" />
+    <Compile Include="Xamarin.WebTests.Server\SocketConnection.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\IHttpServerDelegate.cs" />
     <Compile Include="Xamarin.WebTests.Server\HttpListenerConnection.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\HttpServerFlagsAttribute.cs" />

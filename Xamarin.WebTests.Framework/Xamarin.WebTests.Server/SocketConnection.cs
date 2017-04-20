@@ -1,5 +1,5 @@
 ﻿﻿﻿//
-// StreamConnection.cs
+// SocketConnection.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -37,7 +37,7 @@ using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server
 {
-	class StreamConnection : HttpConnection
+	class SocketConnection : HttpConnection
 	{
 		public Socket Socket {
 			get;
@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.Server
 		HttpStreamReader reader;
 		StreamWriter writer;
 
-		StreamConnection (TestContext ctx, HttpServer server, Socket socket, Stream networkStream, Stream stream, ISslStream sslStream)
+		SocketConnection (TestContext ctx, HttpServer server, Socket socket, Stream networkStream, Stream stream, ISslStream sslStream)
 			: base (ctx, server, sslStream, (IPEndPoint)socket.RemoteEndPoint)
 		{
 			this.networkStream = networkStream;
@@ -77,11 +77,11 @@ namespace Xamarin.WebTests.Server
 
 			var builtinHttpServer = server as BuiltinHttpServer;
 			if (builtinHttpServer == null || builtinHttpServer.SslStreamProvider == null)
-				return new StreamConnection (ctx, server, socket, stream, stream, null);
+				return new SocketConnection (ctx, server, socket, stream, stream, null);
 
 			var sslStream = await builtinHttpServer.SslStreamProvider.CreateServerStreamAsync (
 				stream, builtinHttpServer.Parameters, cancellationToken).ConfigureAwait (false);
-			return new StreamConnection (ctx, server, socket, stream, sslStream.AuthenticatedStream, sslStream);
+			return new SocketConnection (ctx, server, socket, stream, sslStream.AuthenticatedStream, sslStream);
 		}
 
 		internal override bool IsStillConnected ()
