@@ -159,6 +159,7 @@ namespace Xamarin.WebTests.Tests
 			}
 		}
 
+		[NotWorking]
 		[AsyncTest]
 		public Task RunAuthentication (
 			TestContext ctx,
