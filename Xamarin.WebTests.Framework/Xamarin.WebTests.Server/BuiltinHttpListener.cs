@@ -53,14 +53,9 @@ namespace Xamarin.WebTests.Server
 		{
 		}
 
-		internal override async Task<HttpConnection> CreateConnection (TestContext ctx, BuiltinSocketContext context, CancellationToken cancellationToken)
+		internal override Task<HttpConnection> CreateConnection (TestContext ctx, BuiltinSocketContext context, CancellationToken cancellationToken)
 		{
-			if (Server.SslStreamProvider == null)
-				return new StreamConnection (ctx, Server, context.Stream, null);
-
-			var sslStream = await Server.SslStreamProvider.CreateServerStreamAsync (
-				context.Stream, Server.Parameters, cancellationToken).ConfigureAwait (false);
-			return new StreamConnection (ctx, Server, sslStream.AuthenticatedStream, sslStream);
+			return StreamConnection.CreateServer (ctx, Server, context.Socket, cancellationToken);
 		}
 
 		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)

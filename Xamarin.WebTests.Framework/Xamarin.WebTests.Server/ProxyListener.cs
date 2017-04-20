@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.Server
 
 		internal override Task<HttpConnection> CreateConnection (TestContext ctx, BuiltinSocketContext context, CancellationToken cancellationToken)
 		{
-			return Task.FromResult<HttpConnection> (new StreamConnection (ctx, Server, context.Stream, null));
+			return StreamConnection.CreateServer (ctx, Server, context.Socket, cancellationToken);
 		}
 
 		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)
@@ -90,9 +90,7 @@ namespace Xamarin.WebTests.Server
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			targetSocket.Connect (Server.Target.Uri.Host, Server.Target.Uri.Port);
 
-			using (var targetStream = new NetworkStream (targetSocket)) {
-				var targetConnection = new StreamConnection (TestContext, Server, targetStream, null);
-
+			using (var targetConnection = await StreamConnection.CreateServer (TestContext, Server, targetSocket, cancellationToken)) {
 				var copyResponseTask = CopyResponse (connection, targetConnection, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();

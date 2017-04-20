@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
@@ -37,22 +39,48 @@ namespace Xamarin.WebTests.Server
 {
 	class StreamConnection : HttpConnection
 	{
+		public Socket Socket {
+			get;
+			private set;
+		}
+
 		public Stream Stream {
 			get;
 			private set;
 		}
 
+		Stream networkStream;
+		ISslStream sslStream;
 		HttpStreamReader reader;
 		StreamWriter writer;
 
-		public StreamConnection (TestContext ctx, HttpServer server, Stream stream, ISslStream sslStream)
+		StreamConnection (TestContext ctx, HttpServer server, Socket socket, Stream networkStream, Stream stream, ISslStream sslStream)
 			: base (ctx, server, sslStream)
 		{
+			this.networkStream = networkStream;
+			this.sslStream = sslStream;
+
 			Stream = stream;
 
 			reader = new HttpStreamReader (stream);
 			writer = new StreamWriter (stream);
 			writer.AutoFlush = true;
+		}
+
+		public static async Task<HttpConnection> CreateServer (TestContext ctx, HttpServer server, Socket socket,
+		                                                       CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			var stream = new NetworkStream (socket, true);
+
+			var builtinHttpServer = server as BuiltinHttpServer;
+			if (builtinHttpServer == null || builtinHttpServer.SslStreamProvider == null)
+				return new StreamConnection (ctx, server, socket, stream, stream, null);
+
+			var sslStream = await builtinHttpServer.SslStreamProvider.CreateServerStreamAsync (
+				stream, builtinHttpServer.Parameters, cancellationToken).ConfigureAwait (false);
+			return new StreamConnection (ctx, server, socket, stream, sslStream.AuthenticatedStream, sslStream);
 		}
 
 		public override async Task<bool> HasRequest (CancellationToken cancellationToken)
@@ -90,9 +118,38 @@ namespace Xamarin.WebTests.Server
 				writer.Dispose ();
 				writer.Dispose ();
 			}
+			if (sslStream != null) {
+				sslStream.Close ();
+				sslStream = null;
+			}
+			if (networkStream != null) {
+				try {
+					networkStream.Dispose ();
+				} catch {
+					;
+				} finally {
+					networkStream = null;
+				}
+			}
 			if (Stream != null) {
-				Stream.Dispose ();
-				Stream = null;
+				try {
+					Stream.Dispose ();
+				} catch {
+					;
+				} finally {
+					Stream = null;
+				}
+			}
+			if (Socket != null) {
+				try {
+					Socket.Shutdown (SocketShutdown.Both);
+				} catch {
+					;
+				} finally {
+					Socket.Close ();
+					Socket.Dispose ();
+					Socket = null;
+				}
 			}
 		}
 	}

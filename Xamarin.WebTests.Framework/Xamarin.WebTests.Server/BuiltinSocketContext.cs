@@ -55,7 +55,6 @@ namespace Xamarin.WebTests.Server
 			: base (listener, (IPEndPoint)socket.RemoteEndPoint)
 		{
 			Socket = socket;
-			Stream = new NetworkStream (Socket);
 		}
 
 		public override Task<HttpConnection> CreateConnection (TestContext ctx, CancellationToken cancellationToken)
