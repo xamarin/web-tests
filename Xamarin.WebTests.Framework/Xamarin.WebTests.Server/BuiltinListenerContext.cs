@@ -81,10 +81,5 @@ namespace Xamarin.WebTests.Server
 			Dispose (true);
 			GC.SuppressFinalize (this);
 		}
-
-		~BuiltinListenerContext ()
-		{
-			Dispose (false);
-		}
 	}
 }

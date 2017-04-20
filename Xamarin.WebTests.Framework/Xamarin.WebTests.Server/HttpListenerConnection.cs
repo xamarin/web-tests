@@ -141,5 +141,10 @@ namespace Xamarin.WebTests.Server {
 				return HttpProtocol.Http12;
 			throw new InternalErrorException ();
 		}
+
+		protected override void Close ()
+		{
+			Context.Dispose ();
+		}
 	}
 }

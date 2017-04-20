@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.HttpFramework
 	using ConnectionFramework;
 	using Server;
 
-	public abstract class HttpConnection
+	public abstract class HttpConnection : IDisposable
 	{
 		internal TestContext TestContext {
 			get;
@@ -69,6 +69,17 @@ namespace Xamarin.WebTests.HttpFramework
 		internal abstract Task WriteRequest (HttpRequest request, CancellationToken cancellationToken);
 
 		internal abstract Task WriteResponse (HttpResponse response, CancellationToken cancellationToken);
+
+		int disposed;
+
+		protected abstract void Close ();
+
+		public void Dispose ()
+		{
+			if (Interlocked.CompareExchange (ref disposed, 1, 0) == 0)
+				Close ();
+			GC.SuppressFinalize (this);
+		}
 	}
 }
 

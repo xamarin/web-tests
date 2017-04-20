@@ -39,6 +39,7 @@ namespace Xamarin.WebTests.Server
 	{
 		public Stream Stream {
 			get;
+			private set;
 		}
 
 		HttpStreamReader reader;
@@ -77,6 +78,22 @@ namespace Xamarin.WebTests.Server
 		internal override Task WriteResponse (HttpResponse response, CancellationToken cancellationToken)
 		{
 			return response.Write (writer, cancellationToken);
+		}
+
+		protected override void Close ()
+		{
+			if (reader != null) {
+				reader.Dispose ();
+				reader = null;
+			}
+			if (writer != null) {
+				writer.Dispose ();
+				writer.Dispose ();
+			}
+			if (Stream != null) {
+				Stream.Dispose ();
+				Stream = null;
+			}
 		}
 	}
 }
