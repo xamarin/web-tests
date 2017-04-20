@@ -45,6 +45,8 @@ namespace Xamarin.WebTests.HttpHandlers
 			get;
 		}
 
+		public static HelloWorldHandler Simple => new HelloWorldHandler ("Hello World");
+
 		static int next_id;
 
 		public override object Clone ()

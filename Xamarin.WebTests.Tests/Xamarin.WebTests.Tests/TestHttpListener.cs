@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -70,7 +71,8 @@ namespace Xamarin.WebTests.Tests {
 				};
 				break;
 			case "martin":
-				yield return new PostHandler ("Chunked", HttpContent.HelloChunked, TransferMode.Chunked);
+				yield return new AuthenticationHandler (AuthenticationType.Basic, HelloWorldHandler.Simple);
+				yield return new RedirectHandler (HelloWorldHandler.Simple, HttpStatusCode.Redirect);
 				break;
 			case "not-working":
 				yield return new PostHandler ("No body");

@@ -37,10 +37,13 @@ namespace Xamarin.WebTests.HttpHandlers
 
 	public class AuthenticationHandler : AbstractRedirectHandler
 	{
+		bool cloneable;
+
 		public AuthenticationHandler (AuthenticationType type, Handler target, string identifier = null)
 			: base (target, identifier ?? CreateIdentifier (type, target))
 		{
 			manager = new HttpAuthManager (type, target);
+			cloneable = true;
 		}
 
 		static string CreateIdentifier (AuthenticationType type, Handler target)
@@ -56,7 +59,10 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public override object Clone ()
 		{
-			throw new InvalidOperationException ();
+			if (!cloneable)
+				throw new InternalErrorException ();
+			var clonedTarget = (Handler)Target.Clone ();
+			return new AuthenticationHandler (manager.AuthenticationType, clonedTarget, Value);
 		}
 
 		class HttpAuthManager : AuthenticationManager
