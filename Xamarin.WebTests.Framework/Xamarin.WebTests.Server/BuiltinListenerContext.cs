@@ -50,19 +50,12 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
-		public IPEndPoint RemoteEndPoint {
-			get;
-		}
-
 		protected BuiltinListenerContext (BuiltinListener listener, IPEndPoint remoteEndPoint)
 		{
 			Listener = listener;
-			RemoteEndPoint = remoteEndPoint;
 		}
 
 		public abstract Task<HttpConnection> CreateConnection (TestContext ctx, CancellationToken cancellationToken);
-
-		public abstract bool IsStillConnected ();
 
 		int disposed;
 

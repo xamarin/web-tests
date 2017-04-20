@@ -184,7 +184,7 @@ namespace Xamarin.WebTests.Server
 				if (!wantToReuse || cancellationToken.IsCancellationRequested)
 					break;
 
-				bool connectionAvailable = context.IsStillConnected ();
+				bool connectionAvailable = connection.IsStillConnected ();
 				if (!connectionAvailable && !cancellationToken.IsCancellationRequested)
 					throw new InvalidOperationException ("Expecting another connection, but socket has been shut down.");
 			}

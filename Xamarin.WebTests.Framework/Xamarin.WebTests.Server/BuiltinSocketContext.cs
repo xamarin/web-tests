@@ -62,17 +62,6 @@ namespace Xamarin.WebTests.Server
 			return Listener.CreateConnection (ctx, this, cancellationToken);
 		}
 
-		public override bool IsStillConnected ()
-		{
-			try {
-				if (!Socket.Poll (-1, SelectMode.SelectRead))
-					return false;
-				return Socket.Available > 0;
-			} catch {
-				return false;
-			}
-		}
-
 		protected override void Close ()
 		{
 			if (Stream != null) {

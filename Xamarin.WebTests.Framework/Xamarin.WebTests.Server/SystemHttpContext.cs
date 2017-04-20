@@ -48,12 +48,7 @@ namespace Xamarin.WebTests.Server
 
 		public override Task<HttpConnection> CreateConnection (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Task.FromResult<HttpConnection> (new HttpListenerConnection (ctx, Listener.Server, this));
-		}
-
-		public override bool IsStillConnected ()
-		{
-			return false;
+			return Task.FromResult<HttpConnection> (new HttpListenerConnection (ctx, Listener.Server, Context));
 		}
 
 		protected override void Close ()

@@ -55,11 +55,12 @@ namespace Xamarin.WebTests.Server
 		StreamWriter writer;
 
 		StreamConnection (TestContext ctx, HttpServer server, Socket socket, Stream networkStream, Stream stream, ISslStream sslStream)
-			: base (ctx, server, sslStream)
+			: base (ctx, server, sslStream, (IPEndPoint)socket.RemoteEndPoint)
 		{
 			this.networkStream = networkStream;
 			this.sslStream = sslStream;
 
+			Socket = socket;
 			Stream = stream;
 
 			reader = new HttpStreamReader (stream);
@@ -81,6 +82,17 @@ namespace Xamarin.WebTests.Server
 			var sslStream = await builtinHttpServer.SslStreamProvider.CreateServerStreamAsync (
 				stream, builtinHttpServer.Parameters, cancellationToken).ConfigureAwait (false);
 			return new StreamConnection (ctx, server, socket, stream, sslStream.AuthenticatedStream, sslStream);
+		}
+
+		internal override bool IsStillConnected ()
+		{
+			try {
+				if (!Socket.Poll (-1, SelectMode.SelectRead))
+					return false;
+				return Socket.Available > 0;
+			} catch {
+				return false;
+			}
 		}
 
 		public override async Task<bool> HasRequest (CancellationToken cancellationToken)

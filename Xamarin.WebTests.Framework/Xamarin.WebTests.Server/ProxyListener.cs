@@ -65,7 +65,7 @@ namespace Xamarin.WebTests.Server
 			var request = await connection.ReadRequest (cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			var remoteAddress = context.RemoteEndPoint.Address;
+			var remoteAddress = connection.RemoteEndPoint.Address;
 			request.AddHeader ("X-Forwarded-For", remoteAddress);
 
 			if (authManager != null) {

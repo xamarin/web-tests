@@ -35,14 +35,19 @@ using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server {
 	class HttpListenerConnection : HttpConnection {
-		public SystemHttpContext Context {
+		public HttpListenerContext Context {
 			get;
 		}
 
-		public HttpListenerConnection (TestContext ctx, HttpServer server, SystemHttpContext context)
-			: base (ctx, server, null)
+		public HttpListenerConnection (TestContext ctx, HttpServer server, HttpListenerContext context)
+			: base (ctx, server, null, context.Request.RemoteEndPoint)
 		{
 			Context = context;
+		}
+
+		internal override bool IsStillConnected ()
+		{
+			return false;
 		}
 
 		public override Task<bool> HasRequest (CancellationToken cancellationToken)
@@ -52,7 +57,7 @@ namespace Xamarin.WebTests.Server {
 
 		public override async Task<HttpRequest> ReadRequest (CancellationToken cancellationToken)
 		{
-			var listenerRequest = Context.Context.Request;
+			var listenerRequest = Context.Request;
 			var protocol = GetProtocol (listenerRequest.ProtocolVersion);
 			var request = new HttpRequest (protocol, listenerRequest.HttpMethod, listenerRequest.RawUrl, listenerRequest.Headers);
 
@@ -73,7 +78,7 @@ namespace Xamarin.WebTests.Server {
 		async Task<HttpContent> ReadBody (HttpMessage message, CancellationToken cancellationToken)
 		{
 			TestContext.LogDebug (5, "READ BODY: {0}", message);
-			using (var reader = new HttpStreamReader (Context.Context.Request.InputStream)) {
+			using (var reader = new HttpStreamReader (Context.Request.InputStream)) {
 				cancellationToken.ThrowIfCancellationRequested ();
 				if (message.ContentType != null && message.ContentType.Equals ("application/octet-stream"))
 					return await BinaryContent.Read (reader, message.ContentLength.Value, cancellationToken);
@@ -94,16 +99,16 @@ namespace Xamarin.WebTests.Server {
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			TestContext.LogDebug (5, "WRITE RESPONSE: {0}", response);
-			Context.Context.Response.StatusCode = (int)response.StatusCode;
-			Context.Context.Response.ProtocolVersion = GetProtocol (response.Protocol);
+			Context.Response.StatusCode = (int)response.StatusCode;
+			Context.Response.ProtocolVersion = GetProtocol (response.Protocol);
 
 			foreach (var header in response.Headers) {
-				Context.Context.Response.AddHeader (header.Key, header.Value);
+				Context.Response.AddHeader (header.Key, header.Value);
 			}
 
 			if (response.Body != null) {
 				cancellationToken.ThrowIfCancellationRequested ();
-				using (var writer = new StreamWriter (Context.Context.Response.OutputStream))
+				using (var writer = new StreamWriter (Context.Response.OutputStream))
 					await response.Body.WriteToAsync (writer);
 			}
 		}
@@ -144,7 +149,7 @@ namespace Xamarin.WebTests.Server {
 
 		protected override void Close ()
 		{
-			Context.Dispose ();
+			Context.Response.Close ();
 		}
 	}
 }
