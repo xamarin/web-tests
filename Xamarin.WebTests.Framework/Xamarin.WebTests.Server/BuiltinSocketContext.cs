@@ -55,7 +55,7 @@ namespace Xamarin.WebTests.Server
 			: base (listener, (IPEndPoint)socket.RemoteEndPoint)
 		{
 			Socket = socket;
-			Stream = new NetworkStream (Socket, true);
+			Stream = new NetworkStream (Socket);
 		}
 
 		public override Task<HttpConnection> CreateConnection (TestContext ctx, CancellationToken cancellationToken)
@@ -87,7 +87,8 @@ namespace Xamarin.WebTests.Server
 			}
 			if (Socket != null) {
 				try {
-					Socket.Shutdown (SocketShutdown.Both);
+					if (Socket.Connected)
+						Socket.Shutdown (SocketShutdown.Both);
 				} catch {
 					;
 				} finally {
