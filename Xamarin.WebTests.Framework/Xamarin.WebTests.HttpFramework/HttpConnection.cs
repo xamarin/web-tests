@@ -49,15 +49,14 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
-		public ISslStream SslStream {
+		public abstract ISslStream SslStream {
 			get;
 		}
 
-		internal HttpConnection (TestContext ctx, HttpServer server, ISslStream sslStream, IPEndPoint remoteEndPoint)
+		internal HttpConnection (TestContext ctx, HttpServer server, IPEndPoint remoteEndPoint)
 		{
 			TestContext = ctx;
 			Server = server;
-			SslStream = sslStream;
 			RemoteEndPoint = remoteEndPoint;
 		}
 
@@ -66,6 +65,8 @@ namespace Xamarin.WebTests.HttpFramework
 		}
 
 		internal abstract bool IsStillConnected ();
+
+		public abstract Task Initialize (CancellationToken cancellationToken);
 
 		public abstract Task<bool> HasRequest (CancellationToken cancellationToken);
 

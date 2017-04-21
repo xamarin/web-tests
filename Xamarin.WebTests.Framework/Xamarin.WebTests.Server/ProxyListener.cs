@@ -55,14 +55,9 @@ namespace Xamarin.WebTests.Server
 				authManager = new ProxyAuthManager (Server.AuthenticationType);
 		}
 
-		internal override Task<HttpConnection> CreateConnection (TestContext ctx, BuiltinSocketContext context, CancellationToken cancellationToken)
-		{
-			return SocketConnection.CreateServer (ctx, Server, context.Socket, cancellationToken);
-		}
-
 		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)
 		{
-			var request = await connection.ReadRequest (cancellationToken);
+			var request = await connection.ReadRequest (cancellationToken).ConfigureAwait (false);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			var remoteAddress = connection.RemoteEndPoint.Address;
@@ -90,7 +85,9 @@ namespace Xamarin.WebTests.Server
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			targetSocket.Connect (Server.Target.Uri.Host, Server.Target.Uri.Port);
 
-			using (var targetConnection = await SocketConnection.CreateServer (TestContext, Server, targetSocket, cancellationToken)) {
+			using (var targetConnection = new SocketConnection (TestContext, Server, targetSocket)) {
+				await targetConnection.Initialize (cancellationToken);
+
 				var copyResponseTask = CopyResponse (connection, targetConnection, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();

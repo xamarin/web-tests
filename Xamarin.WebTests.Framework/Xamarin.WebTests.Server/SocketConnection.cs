@@ -49,39 +49,36 @@ namespace Xamarin.WebTests.Server
 			private set;
 		}
 
+		public override ISslStream SslStream => sslStream;
+
 		Stream networkStream;
 		ISslStream sslStream;
 		HttpStreamReader reader;
 		StreamWriter writer;
 
-		SocketConnection (TestContext ctx, HttpServer server, Socket socket, Stream networkStream, Stream stream, ISslStream sslStream)
-			: base (ctx, server, sslStream, (IPEndPoint)socket.RemoteEndPoint)
+		public SocketConnection (TestContext ctx, HttpServer server, Socket socket)
+			: base (ctx, server, (IPEndPoint)socket.RemoteEndPoint)
 		{
-			this.networkStream = networkStream;
-			this.sslStream = sslStream;
-
 			Socket = socket;
-			Stream = stream;
-
-			reader = new HttpStreamReader (stream);
-			writer = new StreamWriter (stream);
-			writer.AutoFlush = true;
 		}
 
-		public static async Task<HttpConnection> CreateServer (TestContext ctx, HttpServer server, Socket socket,
-		                                                       CancellationToken cancellationToken)
+		public override async Task Initialize (CancellationToken cancellationToken)
 		{
-			cancellationToken.ThrowIfCancellationRequested ();
+			networkStream = new NetworkStream (Socket);
 
-			var stream = new NetworkStream (socket, true);
+			var builtinHttpServer = Server as BuiltinHttpServer;
+			if (builtinHttpServer?.SslStreamProvider != null) {
+				sslStream = await builtinHttpServer.SslStreamProvider.CreateServerStreamAsync (
+					networkStream, builtinHttpServer.Parameters, cancellationToken).ConfigureAwait (false);
+				Stream = sslStream.AuthenticatedStream;
+			} else {
+				Stream = networkStream;
+			}
 
-			var builtinHttpServer = server as BuiltinHttpServer;
-			if (builtinHttpServer == null || builtinHttpServer.SslStreamProvider == null)
-				return new SocketConnection (ctx, server, socket, stream, stream, null);
+			reader = new HttpStreamReader (Stream);
+			writer = new StreamWriter (Stream);
+			writer.AutoFlush = true;
 
-			var sslStream = await builtinHttpServer.SslStreamProvider.CreateServerStreamAsync (
-				stream, builtinHttpServer.Parameters, cancellationToken).ConfigureAwait (false);
-			return new SocketConnection (ctx, server, socket, stream, sslStream.AuthenticatedStream, sslStream);
 		}
 
 		internal override bool IsStillConnected ()

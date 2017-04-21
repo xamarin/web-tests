@@ -53,11 +53,6 @@ namespace Xamarin.WebTests.Server
 		{
 		}
 
-		internal override Task<HttpConnection> CreateConnection (TestContext ctx, BuiltinSocketContext context, CancellationToken cancellationToken)
-		{
-			return SocketConnection.CreateServer (ctx, Server, context.Socket, cancellationToken);
-		}
-
 		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			var request = await connection.ReadRequest (cancellationToken);

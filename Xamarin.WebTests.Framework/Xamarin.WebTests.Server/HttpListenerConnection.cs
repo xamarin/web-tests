@@ -39,10 +39,17 @@ namespace Xamarin.WebTests.Server {
 			get;
 		}
 
+		public override ISslStream SslStream => null;
+
 		public HttpListenerConnection (TestContext ctx, HttpServer server, HttpListenerContext context)
-			: base (ctx, server, null, context.Request.RemoteEndPoint)
+			: base (ctx, server, context.Request.RemoteEndPoint)
 		{
 			Context = context;
+		}
+
+		public override Task Initialize (CancellationToken cancellationToken)
+		{
+			return SocketHelper.CompletedTask;
 		}
 
 		internal override bool IsStillConnected ()
