@@ -165,7 +165,7 @@ namespace Xamarin.AsyncTests.Console
 
 				var task = program.Run (CancellationToken.None);
 				task.Wait ();
-				Environment.Exit (task.Result ? 0 : 1);
+				Environment.Exit (task.Result);
 			} catch (Exception ex) {
 				program.PrintException (ex);
 				Environment.Exit (-1);
@@ -542,40 +542,54 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
-		Task<bool> Run (CancellationToken cancellationToken)
+		async Task<int> Run (CancellationToken cancellationToken)
 		{
 			if (Jenkins)
 				global::System.Console.WriteLine ("[start] Running test suite.");
 
+			bool success = false;
+			int? exitCode = null;
+
 			switch (command) {
 			case Command.Local:
-				return RunLocal (cancellationToken);
+				exitCode = await RunLocal (cancellationToken).ConfigureAwait (false);
+				break;
 			case Command.Connect:
-				return ConnectToServer (cancellationToken);
+				exitCode = await ConnectToServer (cancellationToken).ConfigureAwait (false);
+				break;
 			case Command.Gui:
-				return ConnectToGui (cancellationToken);
+				exitCode = await ConnectToGui (cancellationToken).ConfigureAwait (false);
+				break;
 			case Command.Listen:
-				return WaitForConnection (cancellationToken);
+				exitCode = await WaitForConnection (cancellationToken).ConfigureAwait (false);
+				break;
 			case Command.Simulator:
 			case Command.Device:
 			case Command.Mac:
 			case Command.Android:
 			case Command.TVOS:
-				return LaunchApplication (cancellationToken);
+				exitCode = await LaunchApplication (cancellationToken).ConfigureAwait (false);
+				break;
 			case Command.Avd:
-				return droidHelper.CheckAvd (cancellationToken);
+				success = await droidHelper.CheckAvd (cancellationToken).ConfigureAwait (false);
+				break;
 			case Command.Emulator:
-				return droidHelper.CheckEmulator (cancellationToken);
+				success = await droidHelper.CheckEmulator (cancellationToken).ConfigureAwait (false);
+				break;
 			case Command.Apk:
-				return droidHelper.InstallApk (arguments [0], cancellationToken);
+				success = await droidHelper.InstallApk (arguments[0], cancellationToken).ConfigureAwait (false);
+				break;
 			case Command.Result:
-				return ShowResult (cancellationToken);
+				success = await ShowResult (cancellationToken).ConfigureAwait (false);
+				break;
 			default:
 				throw new NotImplementedException ();
 			}
+
+			return exitCode ?? (success ? 0 : 1);
 		}
 
-		async Task<bool> ConnectToGui (CancellationToken cancellationToken)
+		async Task<int> ConnectToGui (CancellationToken cancellationToken)
 		{
 			var framework = TestFramework.GetLocalFramework (Assembly, dependencyAssemblies);
 
@@ -594,7 +608,7 @@ namespace Xamarin.AsyncTests.Console
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			await server.WaitForExit (cancellationToken);
-			return true;
+			return 0;
 		}
 
 		bool ModifyConfiguration (TestConfiguration config)
@@ -692,18 +706,22 @@ namespace Xamarin.AsyncTests.Console
 			return modified;
 		}
 
-		bool IsSuccessResult {
+		int ExitCodeForResult {
 			get {
-				if (result.Status == TestStatus.Success)
-					return true;
-				else if (result.Status == TestStatus.Ignored)
-					return true;
-				else
-					return false;
+				switch (result.Status) {
+				case TestStatus.Success:
+					return 0;
+				case TestStatus.Unstable:
+					return 2;
+				case TestStatus.Canceled:
+					return 3;
+				default:
+					return 1;
+				}
 			}
 		}
 
-		async Task<bool> RunLocal (CancellationToken cancellationToken)
+		async Task<int> RunLocal (CancellationToken cancellationToken)
 		{
 			var framework = TestFramework.GetLocalFramework (Assembly, dependencyAssemblies);
 
@@ -721,10 +739,10 @@ namespace Xamarin.AsyncTests.Console
 
 			SaveResult ();
 
-			return IsSuccessResult;
+			return ExitCodeForResult;
 		}
 
-		async Task<bool> ConnectToServer (CancellationToken cancellationToken)
+		async Task<int> ConnectToServer (CancellationToken cancellationToken)
 		{
 			var endpoint = GetPortableEndPoint (EndPoint);
 			var server = await TestServer.ConnectToServer (this, endpoint, cancellationToken);
@@ -748,10 +766,10 @@ namespace Xamarin.AsyncTests.Console
 
 			await server.Stop (cancellationToken);
 
-			return IsSuccessResult;
+			return ExitCodeForResult;
 		}
 
-		async Task<bool> LaunchApplication (CancellationToken cancellationToken)
+		async Task<int> LaunchApplication (CancellationToken cancellationToken)
 		{
 			var endpoint = GetPortableEndPoint (EndPoint);
 
@@ -767,14 +785,14 @@ namespace Xamarin.AsyncTests.Console
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			Debug ("Test app launched.");
-			var ok = await RunRemoteSession (server, cancellationToken);
+			var exitCode = await RunRemoteSession (server, cancellationToken);
 
 			Debug ("Application finished.");
 
-			return ok;
+			return exitCode;
 		}
 
-		async Task<bool> WaitForConnection (CancellationToken cancellationToken)
+		async Task<int> WaitForConnection (CancellationToken cancellationToken)
 		{
 			var endpoint = GetPortableEndPoint (EndPoint);
 			var server = await TestServer.WaitForConnection (this, endpoint, cancellationToken);
@@ -784,7 +802,7 @@ namespace Xamarin.AsyncTests.Console
 			return await RunRemoteSession (server, cancellationToken);
 		}
 
-		async Task<bool> RunRemoteSession (TestServer server, CancellationToken cancellationToken)
+		async Task<int> RunRemoteSession (TestServer server, CancellationToken cancellationToken)
 		{
 			session = server.Session;
 			if (OnSessionCreated (session))
@@ -804,7 +822,7 @@ namespace Xamarin.AsyncTests.Console
 
 			await server.Stop (cancellationToken);
 
-			return IsSuccessResult;
+			return ExitCodeForResult;
 		}
 
 		void SaveResult ()
