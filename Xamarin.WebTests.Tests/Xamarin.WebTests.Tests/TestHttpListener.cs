@@ -82,18 +82,20 @@ namespace Xamarin.WebTests.Tests {
 
 		[Work]
 		[AsyncTest]
-		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-		                 [HttpServer (HttpServerFlags.HttpListener)] HttpServer server,
-		                 [HttpListenerHandler] Handler handler)
+		[HttpServerFlags (HttpServerFlags.HttpListener)]
+		public Task Run (TestContext ctx, HttpServer server,
+		                 [HttpListenerHandler] Handler handler,
+		                 CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 
 		[Martin]
 		[AsyncTest]
-		public Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
-		                        [HttpServer (HttpServerFlags.HttpListener)] HttpServer server,
-		                        [HttpListenerHandler ("martin")] Handler handler)
+		[HttpServerFlags (HttpServerFlags.HttpListener)]
+		public Task MartinTest (TestContext ctx, HttpServer server,
+		                        [HttpListenerHandler ("martin")] Handler handler,
+		                        CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
