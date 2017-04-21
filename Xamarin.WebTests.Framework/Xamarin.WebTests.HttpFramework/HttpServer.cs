@@ -116,7 +116,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			++countRequests;
 			var initTask = connection.Initialize (cancellationToken);
 			if (Delegate == null) {
-				await connection.Initialize (cancellationToken).ConfigureAwait (false);
+				await initTask.ConfigureAwait (false);
 				return true;
 			}
 

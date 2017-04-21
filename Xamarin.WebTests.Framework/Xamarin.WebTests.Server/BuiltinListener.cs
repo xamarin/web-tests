@@ -83,6 +83,7 @@ namespace Xamarin.WebTests.Server
 
 		void Listen ()
 		{
+			Interlocked.Increment (ref currentConnections);
 			AcceptAsync (cts.Token).ContinueWith (OnAccepted);
 		}
 
@@ -131,7 +132,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		protected void OnFinished ()
+		void OnFinished ()
 		{
 			lock (this) {
 				var connections = Interlocked.Decrement (ref currentConnections);

@@ -78,7 +78,6 @@ namespace Xamarin.WebTests.Server
 			reader = new HttpStreamReader (Stream);
 			writer = new StreamWriter (Stream);
 			writer.AutoFlush = true;
-
 		}
 
 		internal override bool IsStillConnected ()
