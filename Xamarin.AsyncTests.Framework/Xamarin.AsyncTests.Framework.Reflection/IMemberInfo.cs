@@ -35,7 +35,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get;
 		}
 
-		TypeInfo Type {
+		Type Type {
+			get;
+		}
+
+		TypeInfo TypeInfo {
 			get;
 		}
 
