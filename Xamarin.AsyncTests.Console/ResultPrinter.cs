@@ -44,11 +44,9 @@ namespace Xamarin.AsyncTests.Console
 		}
 
 		public bool ShowIgnored {
-			get { return showIgnored ?? true; }
-			set { showIgnored = value; }
+			get; set;
 		}
 
-		bool? showIgnored;
 		int current;
 
 		public ResultPrinter (TextWriter writer, TestResult result)
@@ -92,7 +90,7 @@ namespace Xamarin.AsyncTests.Console
 
 			Writer.WriteLine ("{0}) {1}: {2}", ++current, node.Path.FullName, node.Status);
 
-			if (node.Status == TestStatus.Error && node.HasErrors) {
+			if (node.HasErrors && (node.Status == TestStatus.Error || node.Status == TestStatus.Unstable)) {
 				foreach (var error in node.Errors) {
 					Writer.WriteLine ();
 					Writer.WriteLine (error);

@@ -122,8 +122,7 @@ namespace Xamarin.AsyncTests
 			if (error is SkipRestOfThisTestException)
 				return;
 
-			logger.OnException (Name.FullName, error);
-			logger.LogError (error);
+			LogError (error);
 		}
 
 		public void LogDebug (int level, string message)

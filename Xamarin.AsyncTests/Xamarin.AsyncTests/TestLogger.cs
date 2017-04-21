@@ -99,11 +99,6 @@ namespace Xamarin.AsyncTests
 				Type = TestLoggerBackend.StatisticsEventType.Finished, Name = name, Status = status
 			});
 		}
-
-		public void OnException (string name, Exception ex)
-		{
-			OnTestFinished (name, TestStatus.Error);
-		}
 	}
 }
 

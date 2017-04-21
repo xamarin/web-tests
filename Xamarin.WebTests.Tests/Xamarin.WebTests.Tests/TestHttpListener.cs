@@ -77,11 +77,12 @@ namespace Xamarin.WebTests.Tests {
 		}
 
 		[Martin]
-		[AsyncTest (ParameterFilter = "martin")]
 		[HttpServerFlags (HttpServerFlags.HttpListener)]
+		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
 		public Task MartinTest (TestContext ctx, HttpServer server, Handler handler,
 		                        CancellationToken cancellationToken)
 		{
+			ctx.AssertFail ("Expected Error!");
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 

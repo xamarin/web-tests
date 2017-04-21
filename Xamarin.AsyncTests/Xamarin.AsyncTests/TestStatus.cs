@@ -1,4 +1,4 @@
-//
+﻿//
 // Xamarin.AsyncTests.Framework.TestStatus
 //
 // Authors:

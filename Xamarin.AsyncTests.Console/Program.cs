@@ -808,7 +808,8 @@ namespace Xamarin.AsyncTests.Console
 
 		void SaveResult ()
 		{
-			WriteSummary ("{0} tests, {1} passed, {2} errors, {3} ignored.", countTests, countSuccess, countErrors, countIgnored);
+			WriteSummary ("{0} tests, {1} passed, {2} errors, {3} unstable, {4} ignored.",
+			              countTests, countSuccess, countErrors, countUnstable, countIgnored);
 			WriteSummary ("Total time: {0}.", endTime - startTime);
 
 			if (ResultOutput != null) {
@@ -865,6 +866,7 @@ namespace Xamarin.AsyncTests.Console
 		int countTests;
 		int countSuccess;
 		int countErrors;
+		int countUnstable;
 		int countIgnored;
 
 		void OnStatisticsEvent (TestLoggerBackend.StatisticsEventArgs args)
@@ -882,6 +884,9 @@ namespace Xamarin.AsyncTests.Console
 				case TestStatus.Ignored:
 				case TestStatus.None:
 					++countIgnored;
+					break;
+				case TestStatus.Unstable:
+					++countUnstable;
 					break;
 				default:
 					++countErrors;
@@ -913,7 +918,7 @@ namespace Xamarin.AsyncTests.Console
 
 				case EntryKind.Error:
 					if (entry.Error != null)
-						Program.OnLogMessage (string.Format ("ERROR: {0}", entry.Error));
+						Program.OnLogMessage (string.Format ("ERROR: {0}\n", entry.Error));
 					else
 						Program.OnLogMessage (entry.Text);
 					break;
