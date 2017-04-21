@@ -15,6 +15,7 @@ result.xml
 .DS_Store
 
 TestResult*.xml
+JUnitTestResult*.xml
 stdout*.txt
 stderr*.txt
 .IOS-*
