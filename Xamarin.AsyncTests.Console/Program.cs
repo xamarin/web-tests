@@ -202,6 +202,7 @@ namespace Xamarin.AsyncTests.Console
 			var dependencies = new List<string> ();
 
 			ResultOutput = "TestResult.xml";
+			JUnitResultOutput = "JUnitTestResult.xml";
 
 			var p = new OptionSet ();
 			p.Add ("settings=", v => SettingsFile = v);
