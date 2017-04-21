@@ -38,16 +38,21 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		public bool UseFixtureInstance {
+			get;
+		}
+
 		public string Filter {
 			get;
 		}
 
 		public ParameterSourceHost (
 			string name, ITestParameterSource<T> sourceInstance, IParameterSerializer serializer,
-			string filter, TestFlags flags = TestFlags.None)
+			string filter, bool useFixtureInstance, TestFlags flags = TestFlags.None)
 			: base (name, typeof (T).GetTypeInfo (), serializer, flags)
 		{
 			SourceInstance = sourceInstance;
+			UseFixtureInstance = useFixtureInstance;
 			Filter = filter;
 		}
 
@@ -83,7 +88,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 		{
-			return new ParameterSourceInstance<T> (this, node, parent, SourceInstance, Filter);
+			return new ParameterSourceInstance<T> (this, node, parent, SourceInstance, UseFixtureInstance, Filter);
 		}
 	}
 }

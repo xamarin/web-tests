@@ -29,11 +29,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework
-{
-	class ParameterSourceInstance<T> : ParameterizedTestInstance
-	{
-		List<Tuple<ITestParameter,T>> parameters;
+namespace Xamarin.AsyncTests.Framework {
+	class ParameterSourceInstance<T> : ParameterizedTestInstance {
+		List<Tuple<ITestParameter, T>> parameters;
 		bool hasNext;
 		ParameterizedTestValue current;
 		int index;
@@ -43,6 +41,10 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public ITestParameterSource<T> SourceInstance {
+			get;
+		}
+
+		public bool UseFixtureInstance {
 			get;
 		}
 
@@ -56,10 +58,11 @@ namespace Xamarin.AsyncTests.Framework
 
 		public ParameterSourceInstance (
 			ParameterSourceHost<T> host, TestNode node, TestInstance parent,
-			ITestParameterSource<T> sourceInstance, string filter)
+			ITestParameterSource<T> sourceInstance, bool useFixtureInstance, string filter)
 			: base (host, node, parent)
 		{
 			SourceInstance = sourceInstance;
+			UseFixtureInstance = useFixtureInstance;
 			Filter = filter;
 		}
 
@@ -74,8 +77,16 @@ namespace Xamarin.AsyncTests.Framework
 				return;
 			}
 
-			parameters = new List<Tuple<ITestParameter,T>> ();
-			foreach (var value in SourceInstance.GetParameters (ctx, Filter)) {
+			ITestParameterSource<T> instance;
+			if (UseFixtureInstance)
+				instance = (ITestParameterSource<T>)GetFixtureInstance ().Instance;
+			else if (SourceInstance != null)
+				instance = SourceInstance;
+			else
+				throw new InternalErrorException ();
+
+			parameters = new List<Tuple<ITestParameter, T>> ();
+			foreach (var value in instance.GetParameters (ctx, Filter)) {
 				var parameter = Host.Serialize (value);
 				parameters.Add (new Tuple<ITestParameter,T> (parameter, value));
 			}

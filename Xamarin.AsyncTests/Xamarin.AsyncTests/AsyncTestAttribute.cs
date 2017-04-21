@@ -1,4 +1,4 @@
-//
+﻿//
 // Xamarin.AsyncTests.Framework.AsyncTestAttribute
 //
 // Authors:
@@ -37,6 +37,10 @@ namespace Xamarin.AsyncTests
 		}
 
 		public int Timeout {
+			get; set;
+		}
+
+		public string ParameterFilter {
 			get; set;
 		}
 	}

@@ -217,16 +217,22 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		#region Test Hosts
 
-		internal static TestHost ResolveParameter (
-			ReflectionTestFixtureBuilder builder, ParameterInfo member)
+		internal static TestHost ResolveParameter (ReflectionTestCaseBuilder builder, ParameterInfo member)
 		{
-			return ResolveParameter (builder, new _ParameterInfo (member));
+			var host = ResolveParameter (builder, new _ParameterInfo (member));
+			if (host != null)
+				return host;
+
+			throw new InternalErrorException ();
 		}
 
-		internal static TestHost ResolveParameter (
-			ReflectionTestFixtureBuilder builder, PropertyInfo member)
+		internal static TestHost ResolveParameter (ReflectionTestFixtureBuilder builder, PropertyInfo member)
 		{
-			return ResolveParameter (builder, new _PropertyInfo (member));
+			var host = ResolveParameter (builder, new _PropertyInfo (member));
+			if (host != null)
+				return host;
+
+			throw new InternalErrorException ();
 		}
 
 		static T GetCustomAttributeForType<T> (TypeInfo type)
@@ -247,10 +253,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return null;
 		}
 
-		static TestHost ResolveParameter (
-			ReflectionTestFixtureBuilder fixture, IMemberInfo member)
+		static TestHost ResolveParameter (ReflectionTestFixtureBuilder fixture, IMemberInfo member)
 		{
-			if (typeof(ITestInstance).GetTypeInfo ().IsAssignableFrom (member.TypeInfo)) {
+			if (typeof (ITestInstance).GetTypeInfo ().IsAssignableFrom (member.TypeInfo)) {
 				var hostAttr = member.GetCustomAttribute<TestHostAttribute> ();
 				if (hostAttr == null)
 					hostAttr = member.TypeInfo.GetCustomAttribute<TestHostAttribute> ();
@@ -270,11 +275,24 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (typeAttr != null)
 				return CreateParameterAttributeHost (fixture.Type, member, typeAttr);
 
-			if (member.Type.Equals (typeof(bool)))
+			if (member.Type.Equals (typeof (bool)))
 				return CreateBoolean (member);
 
 			if (member.TypeInfo.IsEnum)
 				return CreateEnum (member);
+
+			return null;
+		}
+
+		static TestHost ResolveParameter (ReflectionTestCaseBuilder builder, IMemberInfo member)
+		{
+			var host = ResolveParameter (builder.Fixture, member);
+			if (host != null)
+				return host;
+
+			var parameterSourceType = typeof (ITestParameterSource<>).MakeGenericType (member.Type).GetTypeInfo ();
+			if (parameterSourceType.IsAssignableFrom (builder.Fixture.Type))
+				return CreateFixtureParameterSourceHost (builder, member);
 
 			throw new InternalErrorException ();
 		}
@@ -352,7 +370,20 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var type = typeof (ParameterSourceHost<>).MakeGenericType (member.Type);
 			return (TestHost)Activator.CreateInstance (
-				type, attr.Identifier ?? member.Name, sourceInstance, serializer, attr.Filter, attr.Flags);
+				type, attr.Identifier ?? member.Name, sourceInstance, serializer, attr.Filter, false, attr.Flags);
+		}
+
+		static TestHost CreateFixtureParameterSourceHost (ReflectionTestCaseBuilder builder, IMemberInfo member)
+		{
+			IParameterSerializer serializer;
+			if (!GetParameterSerializer (member.TypeInfo, out serializer))
+				throw new InternalErrorException ();
+
+			string filter = builder.Attribute.ParameterFilter;
+
+			var type = typeof (ParameterSourceHost<>).MakeGenericType (member.Type);
+			return (TestHost)Activator.CreateInstance (
+				type, member.Name, null, serializer, filter, true, TestFlags.None);
 		}
 
 		internal static TestHost CreateFixedParameterHost (TypeInfo fixtureType, FixedTestParameterAttribute attr)
@@ -382,14 +413,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var source = Activator.CreateInstance (sourceType);
 			return (ParameterizedTestHost)Activator.CreateInstance (
-				hostType, member.Name, source, serializer, null, TestFlags.ContinueOnError);
+				hostType, member.Name, source, serializer, null, false, TestFlags.ContinueOnError);
 		}
 
 		static TestHost CreateBoolean (IMemberInfo member)
 		{
 			return new ParameterSourceHost<bool> (
 				member.Name, new BooleanTestSource (),
-				GetBooleanSerializer (), null, TestFlags.None);
+				GetBooleanSerializer (), null, false, TestFlags.None);
 		}
 
 		class BooleanTestSource : ITestParameterSource<bool>

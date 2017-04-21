@@ -35,22 +35,9 @@ using Xamarin.WebTests.HttpHandlers;
 using Xamarin.WebTests.TestRunners;
 
 namespace Xamarin.WebTests.Tests {
-	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class HttpListenerHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler> {
-		public HttpListenerHandlerAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (filter, flags)
-		{
-		}
-
-		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
-		{
-			return TestHttpListener.GetParameters (ctx, filter ?? Filter);
-		}
-	}
-
 	[AsyncTestFixture]
-	public class TestHttpListener {
-		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
+	public class TestHttpListener : ITestParameterSource<Handler> {
+		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
 			switch (filter) {
 			case null:
@@ -83,27 +70,24 @@ namespace Xamarin.WebTests.Tests {
 		[Work]
 		[AsyncTest]
 		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		public Task Run (TestContext ctx, HttpServer server,
-		                 [HttpListenerHandler] Handler handler,
+		public Task Run (TestContext ctx, HttpServer server, Handler handler,
 		                 CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 
 		[Martin]
-		[AsyncTest]
+		[AsyncTest (ParameterFilter = "martin")]
 		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		public Task MartinTest (TestContext ctx, HttpServer server,
-		                        [HttpListenerHandler ("martin")] Handler handler,
+		public Task MartinTest (TestContext ctx, HttpServer server, Handler handler,
 		                        CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 
 		[Work]
-		[AsyncTest]
-		public Task RunWithInternalServer (TestContext ctx, HttpServer server,
-		                                   [HttpListenerHandler ("martin")] Handler handler,
+		[AsyncTest (ParameterFilter = "martin")]
+		public Task RunWithInternalServer (TestContext ctx, HttpServer server, Handler handler,
 		                                   CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, true);

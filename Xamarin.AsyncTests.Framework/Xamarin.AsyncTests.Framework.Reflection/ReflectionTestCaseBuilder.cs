@@ -151,7 +151,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					throw new InternalErrorException ();
 				}
 
-				yield return ReflectionHelper.ResolveParameter (Fixture, parameters [i]);
+				yield return ReflectionHelper.ResolveParameter (this, parameters [i]);
 			}
 
 			if (Attribute.Repeat != 0)
