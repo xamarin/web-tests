@@ -30,7 +30,7 @@ Build-FastCheck::
 
 Run-FastCheck-Provision::
 	$(MONO) --version
-	$(MAKE) Run-Console-Martin
+	$(MAKE) Run-Console-Work
 
 Run-FastCheck-%::
 	$(MONO) --version
