@@ -183,11 +183,8 @@
     <Compile Include="Xamarin.WebTests.TestFramework\NetworkAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\Tls12Attribute.cs" />
     <Compile Include="Xamarin.WebTests.Server\BuiltinSocketListener.cs" />
-    <Compile Include="Xamarin.WebTests.Server\BuiltinListenerContext.cs" />
-    <Compile Include="Xamarin.WebTests.Server\BuiltinSocketContext.cs" />
     <Compile Include="Xamarin.WebTests.Server\SocketHelper.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpStreamReader.cs" />
-    <Compile Include="Xamarin.WebTests.Server\SystemHttpContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

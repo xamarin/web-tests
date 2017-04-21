@@ -86,7 +86,7 @@ namespace Xamarin.WebTests.Server
 			AcceptAsync (cts.Token).ContinueWith (OnAccepted);
 		}
 
-		void OnAccepted (Task<BuiltinListenerContext> task)
+		void OnAccepted (Task<HttpConnection> task)
 		{
 			if (task.IsCanceled || cts.IsCancellationRequested) {
 				OnFinished ();
@@ -99,13 +99,13 @@ namespace Xamarin.WebTests.Server
 
 			Listen ();
 
-			var context = task.Result;
+			var connection = task.Result;
 
-			MainLoop (context, cts.Token).ContinueWith (t => {
+			MainLoop (connection, cts.Token).ContinueWith (t => {
 				if (t.IsFaulted)
 					OnException (t.Exception);
 				if (t.IsCompleted)
-					context.Dispose ();
+					connection.Dispose ();
 
 				OnFinished ();
 			});
@@ -168,14 +168,13 @@ namespace Xamarin.WebTests.Server
 		{
 		}
 
-		public abstract Task<BuiltinListenerContext> AcceptAsync (CancellationToken cancellationToken);
+		public abstract Task<HttpConnection> AcceptAsync (CancellationToken cancellationToken);
 
 		protected abstract Task<bool> HandleConnection (HttpConnection connection, CancellationToken cancellationToken);
 
-		async Task MainLoop (BuiltinListenerContext context, CancellationToken cancellationToken)
+		async Task MainLoop (HttpConnection connection, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			var connection = context.CreateConnection (TestContext);
 			if (!await Server.InitializeConnection (TestContext, connection, cancellationToken).ConfigureAwait (false))
 				return;
 

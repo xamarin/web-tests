@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.Server {
 
 		HttpListener listener;
 
-		public override async Task<BuiltinListenerContext> AcceptAsync (CancellationToken cancellationToken)
+		public override async Task<HttpConnection> AcceptAsync (CancellationToken cancellationToken)
 		{
 			TestContext.LogDebug (5, "LISTEN ASYNC: {0}", Server.Uri);
 
@@ -58,7 +58,7 @@ namespace Xamarin.WebTests.Server {
 				});
 
 				var context = await listener.GetContextAsync ().ConfigureAwait (false);
-				return new SystemHttpContext (this, context);
+				return new HttpListenerConnection (TestContext, Server, context);
 			} finally {
 				cts.Dispose ();
 			}

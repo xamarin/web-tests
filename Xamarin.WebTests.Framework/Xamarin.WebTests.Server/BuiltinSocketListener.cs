@@ -62,19 +62,12 @@ namespace Xamarin.WebTests.Server
 			socket.Listen (1);
 		}
 
-		internal async Task<HttpConnection> CreateConnection (TestContext ctx, BuiltinSocketContext context, CancellationToken cancellationToken)
-		{
-			var connection = new SocketConnection (ctx, Server, context.Socket);
-			await connection.Initialize (cancellationToken).ConfigureAwait (false);
-			return connection;
-		}
-
-		public override async Task<BuiltinListenerContext> AcceptAsync (CancellationToken cancellationToken)
+		public override async Task<HttpConnection> AcceptAsync (CancellationToken cancellationToken)
 		{
 			TestContext.LogDebug (5, "LISTEN ASYNC: {0}", NetworkEndPoint);
 
 			var accepted = await socket.AcceptAsync (cancellationToken).ConfigureAwait (false);
-			return new BuiltinSocketContext (this, accepted);
+			return new SocketConnection (TestContext, Server, accepted);
 		}
 
 		protected override void Shutdown ()
