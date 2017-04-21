@@ -41,10 +41,6 @@ namespace Xamarin.WebTests.HttpFramework
 
 	public abstract class HttpConnection : IDisposable
 	{
-		internal TestContext TestContext {
-			get;
-		}
-
 		public HttpServer Server {
 			get;
 		}
@@ -53,9 +49,8 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
-		internal HttpConnection (TestContext ctx, HttpServer server, IPEndPoint remoteEndPoint)
+		internal HttpConnection (HttpServer server, IPEndPoint remoteEndPoint)
 		{
-			TestContext = ctx;
 			Server = server;
 			RemoteEndPoint = remoteEndPoint;
 		}
@@ -66,7 +61,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		internal abstract bool IsStillConnected ();
 
-		public abstract Task Initialize (CancellationToken cancellationToken);
+		public abstract Task Initialize (TestContext ctx, CancellationToken cancellationToken);
 
 		public abstract Task<bool> HasRequest (CancellationToken cancellationToken);
 

@@ -114,7 +114,7 @@ namespace Xamarin.WebTests.HttpFramework {
 		internal async Task<bool> InitializeConnection (TestContext ctx, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			++countRequests;
-			var initTask = connection.Initialize (cancellationToken);
+			var initTask = connection.Initialize (ctx, cancellationToken);
 			if (Delegate == null) {
 				await initTask.ConfigureAwait (false);
 				return true;
@@ -146,7 +146,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			if (Delegate != null && !Delegate.HandleConnection (ctx, connection, request, handler))
 				return false;
 
-			return await handler.HandleRequest (connection, request, cancellationToken).ConfigureAwait (false);
+			return await handler.HandleRequest (ctx, connection, request, cancellationToken).ConfigureAwait (false);
 		}
 
 		public void CheckEncryption (TestContext ctx, ISslStream sslStream)

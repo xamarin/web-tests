@@ -32,9 +32,14 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.HttpFramework;
+using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.Server {
 	class HttpListenerConnection : HttpConnection {
+		internal TestContext TestContext {
+			get;
+		}
+
 		public HttpListenerContext Context {
 			get;
 		}
@@ -42,14 +47,15 @@ namespace Xamarin.WebTests.Server {
 		public override ISslStream SslStream => null;
 
 		public HttpListenerConnection (TestContext ctx, HttpServer server, HttpListenerContext context)
-			: base (ctx, server, context.Request.RemoteEndPoint)
+			: base (server, context.Request.RemoteEndPoint)
 		{
+			TestContext = ctx;
 			Context = context;
 		}
 
-		public override Task Initialize (CancellationToken cancellationToken)
+		public override Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return SocketHelper.CompletedTask;
+			return Handler.CompletedTask;
 		}
 
 		internal override bool IsStillConnected ()

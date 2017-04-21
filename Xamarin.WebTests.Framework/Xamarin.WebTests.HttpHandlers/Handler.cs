@@ -97,7 +97,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			get;
 		}
 
-		protected static readonly Task CompletedTask = Task.FromResult (0);
+		protected internal static readonly Task CompletedTask = Task.FromResult (0);
 
 		protected void Debug (TestContext ctx, int level, string message, params object[] args)
 		{
@@ -120,12 +120,8 @@ namespace Xamarin.WebTests.HttpHandlers
 			ctx.LogDebug (2, sb.ToString ());
 		}
 
-		public async Task<bool> HandleRequest (HttpConnection connection, HttpRequest request, CancellationToken cancellationToken)
+		public async Task<bool> HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, CancellationToken cancellationToken)
 		{
-			var ctx = connection.TestContext;
-			if (ctx == null)
-				throw new InvalidOperationException ();
-
 			try {
 				Debug (ctx, 1, "HANDLE REQUEST");
 				DumpHeaders (ctx, request);

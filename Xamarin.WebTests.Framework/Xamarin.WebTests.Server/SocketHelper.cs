@@ -33,8 +33,6 @@ namespace Xamarin.WebTests.Server
 {
 	static class SocketHelper
 	{
-		public static Task CompletedTask => Task.FromResult<object> (null);
-
 		public static Task<Socket> AcceptAsync (this Socket socket, CancellationToken cancellationToken)
 		{
 			var tcs = new TaskCompletionSource<Socket> ();

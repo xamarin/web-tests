@@ -56,13 +56,13 @@ namespace Xamarin.WebTests.Server
 		HttpStreamReader reader;
 		StreamWriter writer;
 
-		public SocketConnection (TestContext ctx, HttpServer server, Socket socket)
-			: base (ctx, server, (IPEndPoint)socket.RemoteEndPoint)
+		public SocketConnection (HttpServer server, Socket socket)
+			: base (server, (IPEndPoint)socket.RemoteEndPoint)
 		{
 			Socket = socket;
 		}
 
-		public override async Task Initialize (CancellationToken cancellationToken)
+		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
 			networkStream = new NetworkStream (Socket);
 
