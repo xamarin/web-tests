@@ -34,6 +34,7 @@ namespace Xamarin.AsyncTests
 		Success,
 		Ignored,
 		Error,
+		Unstable,
 		None,
 		Canceled
 	}

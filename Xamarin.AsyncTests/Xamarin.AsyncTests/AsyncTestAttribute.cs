@@ -40,6 +40,10 @@ namespace Xamarin.AsyncTests
 			get; set;
 		}
 
+		public bool Unstable {
+			get; set;
+		}
+
 		public string ParameterFilter {
 			get; set;
 		}

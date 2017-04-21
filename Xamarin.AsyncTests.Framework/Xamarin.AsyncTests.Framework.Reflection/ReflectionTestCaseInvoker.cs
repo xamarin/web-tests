@@ -185,7 +185,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var elapsedTime = DateTime.Now - startTime;
 
 			if (ctx.HasPendingException) {
-				ctx.OnTestFinished (TestStatus.Error, elapsedTime);
+				if (Builder.Attribute.Unstable)
+					ctx.OnTestFinished (TestStatus.Unstable, elapsedTime);
+				else
+					ctx.OnTestFinished (TestStatus.Error, elapsedTime);
 				return false;
 			} else if (ctx.IsCanceled) {
 				return false;

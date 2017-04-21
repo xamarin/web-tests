@@ -213,8 +213,11 @@ namespace Xamarin.AsyncTests
 				Status = childStatus;
 				break;
 
+			case TestStatus.Unstable:
 			case TestStatus.Success:
-				if (childStatus == TestStatus.Error || childStatus == TestStatus.Canceled)
+				if (childStatus == TestStatus.Unstable)
+					Status = childStatus;
+				else if (childStatus == TestStatus.Error || childStatus == TestStatus.Canceled)
 					Status = childStatus;
 				break;
 
