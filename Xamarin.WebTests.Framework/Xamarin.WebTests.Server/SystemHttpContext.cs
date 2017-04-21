@@ -46,6 +46,11 @@ namespace Xamarin.WebTests.Server
 			Context = context;
 		}
 
+		public override HttpConnection CreateConnection (TestContext ctx)
+		{
+			return new HttpListenerConnection (ctx, Listener.Server, Context);
+		}
+
 		public override Task<HttpConnection> CreateConnection (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return Task.FromResult<HttpConnection> (new HttpListenerConnection (ctx, Listener.Server, Context));

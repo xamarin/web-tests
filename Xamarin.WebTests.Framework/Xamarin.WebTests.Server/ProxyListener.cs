@@ -55,7 +55,7 @@ namespace Xamarin.WebTests.Server
 				authManager = new ProxyAuthManager (Server.AuthenticationType);
 		}
 
-		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)
+		protected override async Task<bool> HandleConnection (HttpConnection connection, CancellationToken cancellationToken)
 		{
 			var request = await connection.ReadRequest (cancellationToken).ConfigureAwait (false);
 
@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.Server
 				string authHeader;
 				if (!request.Headers.TryGetValue ("Proxy-Authorization", out authHeader))
 					authHeader = null;
-				var response = authManager.HandleAuthentication ((HttpConnection)connection, request, authHeader);
+				var response = authManager.HandleAuthentication (connection, request, authHeader);
 				if (response != null) {
 					await connection.WriteResponse (response, cancellationToken);
 					return false;

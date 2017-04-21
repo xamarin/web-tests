@@ -32,7 +32,7 @@ using Xamarin.WebTests.HttpHandlers;
 namespace Xamarin.WebTests.HttpFramework {
 	public interface IHttpServerDelegate {
 		Task<bool> CheckCreateConnection (TestContext ctx, HttpConnection connection,
-		                                  Exception error, CancellationToken cancellationToken);
+		                                  Task initTask, CancellationToken cancellationToken);
 
 		bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler);
 	}

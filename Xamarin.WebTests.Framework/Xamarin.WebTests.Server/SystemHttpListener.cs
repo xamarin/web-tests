@@ -64,17 +64,16 @@ namespace Xamarin.WebTests.Server {
 			}
 		}
 
-		protected override async Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken)
+		protected override async Task<bool> HandleConnection (HttpConnection connection, CancellationToken cancellationToken)
 		{
 			var request = await connection.ReadRequest (cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			TestContext.LogDebug (4, "Handle request #1: {0} {1}", context, request);
+			TestContext.LogDebug (4, "Handle request #1: {0} {1}", connection, request);
 			var result = await Server.HandleConnection (TestContext, connection, request, cancellationToken);
 
-			TestContext.LogDebug (4, "Handle request #2: {0} {1} {2}", context, request, result);
+			TestContext.LogDebug (4, "Handle request #2: {0} {1} {2}", connection, request, result);
 
-			context.Dispose ();
 			return result;
 		}
 

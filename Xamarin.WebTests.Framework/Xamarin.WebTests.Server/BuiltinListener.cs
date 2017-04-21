@@ -170,17 +170,17 @@ namespace Xamarin.WebTests.Server
 
 		public abstract Task<BuiltinListenerContext> AcceptAsync (CancellationToken cancellationToken);
 
-		protected abstract Task<bool> HandleConnection (BuiltinListenerContext context, HttpConnection connection, CancellationToken cancellationToken);
+		protected abstract Task<bool> HandleConnection (HttpConnection connection, CancellationToken cancellationToken);
 
 		async Task MainLoop (BuiltinListenerContext context, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			var connection = await Server.CreateConnection (TestContext, context, cancellationToken).ConfigureAwait (false);
-			if (connection == null)
+			var connection = context.CreateConnection (TestContext);
+			if (!await Server.InitializeConnection (TestContext, connection, cancellationToken).ConfigureAwait (false))
 				return;
 
 			while (!cancellationToken.IsCancellationRequested) {
-				var wantToReuse = await HandleConnection (context, connection, cancellationToken);
+				var wantToReuse = await HandleConnection (connection, cancellationToken);
 				if (!wantToReuse || cancellationToken.IsCancellationRequested)
 					break;
 

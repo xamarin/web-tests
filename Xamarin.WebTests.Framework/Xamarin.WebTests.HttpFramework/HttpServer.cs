@@ -1,4 +1,4 @@
-﻿﻿//
+﻿//
 // HttpServer.cs
 //
 // Author:
@@ -111,20 +111,16 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		#endregion
 
-		internal async Task<HttpConnection> CreateConnection (TestContext ctx, BuiltinListenerContext context, CancellationToken cancellationToken)
+		internal async Task<bool> InitializeConnection (TestContext ctx, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			++countRequests;
-			try {
-				var connection = await context.CreateConnection (ctx, cancellationToken).ConfigureAwait (false);
-				if (Delegate != null && !await Delegate.CheckCreateConnection (ctx, connection, null, cancellationToken))
-					return null;
-				return connection;
-			} catch (Exception error) {
-				if (Delegate == null)
-					throw;
-				await Delegate.CheckCreateConnection (ctx, null, error, cancellationToken);
-				return null;
+			var initTask = connection.Initialize (cancellationToken);
+			if (Delegate == null) {
+				await connection.Initialize (cancellationToken).ConfigureAwait (false);
+				return true;
 			}
+
+			return await Delegate.CheckCreateConnection (ctx, connection, initTask, cancellationToken);
 		}
 
 		public int CountRequests => countRequests;

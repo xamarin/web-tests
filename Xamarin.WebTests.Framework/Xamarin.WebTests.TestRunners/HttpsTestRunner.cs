@@ -1,4 +1,4 @@
-// HttpsTestRunner.cs
+﻿// HttpsTestRunner.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -535,16 +535,20 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		async Task<bool> IHttpServerDelegate.CheckCreateConnection (
-			TestContext ctx, HttpConnection connection,
-			Exception error, CancellationToken cancellationToken)
+			TestContext ctx, HttpConnection connection, Task initTask,
+			CancellationToken cancellationToken)
 		{
-			if (error != null) {
+			try {
+				await initTask.ConfigureAwait (false);
+			} catch (OperationCanceledException) {
+				throw;
+			} catch (Exception error) {
 				if (Parameters.ClientAbortsHandshake) {
 					ctx.LogDebug (5, "HttpTestRunner - CreateConnection got expected exception");
 					return false;
 				}
-				ctx.LogDebug (5, "HttpTestRunner - CreateConnection ex: {0}", error);
-				throw error;
+				ctx.LogDebug (5, "HttpTestRunner - CreateConnection ex: {0}",  error);
+				throw;
 			}
 
 			/*
@@ -560,9 +564,8 @@ namespace Xamarin.WebTests.TestRunners
 			if (Parameters.ClientAbortsHandshake) {
 				ctx.Assert (haveReq, Is.False, "expected client to abort handshake");
 				return false;
-			} else {
-				ctx.Assert (haveReq, Is.True, "expected non-empty request");
 			}
+			ctx.Assert (haveReq, Is.True, "expected non-empty request");
 			return true;
 		}
 

@@ -55,6 +55,8 @@ namespace Xamarin.WebTests.Server
 			Listener = listener;
 		}
 
+		public abstract HttpConnection CreateConnection (TestContext ctx);
+
 		public abstract Task<HttpConnection> CreateConnection (TestContext ctx, CancellationToken cancellationToken);
 
 		int disposed;
