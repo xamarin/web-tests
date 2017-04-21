@@ -55,6 +55,20 @@ namespace Xamarin.AsyncTests
 		public long ID {
 			get { return id; }
 		}
+
+		public override string ToString ()
+		{
+			string s = Message;
+
+			if (InnerException != null)
+				s = s + " ---> " + InnerException + Environment.NewLine +
+				"   --- End of inner exception stack trace ---";
+
+			if (StackTrace != null)
+				s += Environment.NewLine + StackTrace;
+
+			return s;
+		}
 	}
 }
 

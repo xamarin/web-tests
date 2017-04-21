@@ -856,6 +856,11 @@ namespace Xamarin.AsyncTests.Console
 			Debug (message);
 		}
 
+		void OnLogMessage (string format, params object[] args)
+		{
+			OnLogMessage (string.Format (format, args));
+		}
+
 		void OnLogDebug (int level, string message)
 		{
 			if (Settings.LocalLogLevel >= 0 && level > Settings.LocalLogLevel)
@@ -918,7 +923,7 @@ namespace Xamarin.AsyncTests.Console
 
 				case EntryKind.Error:
 					if (entry.Error != null)
-						Program.OnLogMessage (string.Format ("ERROR: {0}\n", entry.Error));
+						Program.OnLogMessage ("ERROR: {0}\n", entry.Error);
 					else
 						Program.OnLogMessage (entry.Text);
 					break;
