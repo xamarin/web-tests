@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			get;
 		}
 
-		public static HelloWorldHandler Simple => new HelloWorldHandler ("Hello World");
+		public static HelloWorldHandler Simple => new HelloWorldHandler ("SimpleHello");
 
 		static int next_id;
 

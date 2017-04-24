@@ -73,6 +73,7 @@ namespace Xamarin.AsyncTests
 
 			parameters.Reverse ();
 			arguments.Reverse ();
+			friendlyArguments.Reverse ();
 
 			Nodes = nodes.ToArray ();
 

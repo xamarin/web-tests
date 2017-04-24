@@ -69,7 +69,7 @@ namespace Xamarin.WebTests.Server {
 			var request = await connection.ReadRequest (cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			TestContext.LogDebug (4, "Handle request #1: {0} {1}", connection, request);
+			TestContext.LogDebug (4, "Handle request #1: {0} {1} {2}", connection, request, connection.RemoteEndPoint);
 			var result = await Server.HandleConnection (TestContext, connection, request, cancellationToken);
 
 			TestContext.LogDebug (4, "Handle request #2: {0} {1} {2}", connection, request, result);
