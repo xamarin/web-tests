@@ -40,13 +40,13 @@ namespace Xamarin.WebTests.TestFramework
 		internal HttpServerFlags? ExplicitServerFlags;
 
 		public HttpServerAttribute (HttpServerFlags serverFlags)
-			: base (typeof (HttpServerAttribute), TestFlags.Hidden)
+			: base (null, TestFlags.Hidden)
 		{
 			ExplicitServerFlags = serverFlags;
 		}
 
 		public HttpServerAttribute ()
-			: base (typeof (HttpServerAttribute), TestFlags.Hidden)
+			: base (null, TestFlags.Hidden)
 		{
 		}
 

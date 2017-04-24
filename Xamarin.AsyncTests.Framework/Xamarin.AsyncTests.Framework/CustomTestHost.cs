@@ -56,17 +56,23 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public CustomTestHost (string name, Type type, Type hostType, TestFlags flags, TestHostAttribute attr, bool useFixtureInstance)
+		public ITestHost<ITestInstance> StaticHost {
+			get;
+		}
+
+		public CustomTestHost (string name, Type type, Type hostType, TestFlags flags,
+		                       TestHostAttribute attr, ITestHost<ITestInstance> staticHost, bool useFixtureInstance)
 			: base (TestPathType.Parameter, name, name, type, hostType, flags)
 		{
 			HostType = hostType;
 			Attribute = attr;
+			StaticHost = staticHost;
 			UseFixtureInstance = useFixtureInstance;
 		}
 
 		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 		{
-			return new CustomTestInstance (this, node, parent, HostType, UseFixtureInstance);
+			return new CustomTestInstance (this, node, parent);
 		}
 
 		public override string ToString ()

@@ -299,7 +299,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		static Type GetCustomHostType (
 			TypeInfo fixtureType, IMemberInfo member, TestHostAttribute attr,
-			out bool useFixtureInstance)
+			out ITestHost<ITestInstance> staticHost, out bool useFixtureInstance)
 		{
 			var hostType = typeof(ITestHost<>).GetTypeInfo ();
 			var genericInstance = hostType.MakeGenericType (member.Type).GetTypeInfo ();
@@ -308,12 +308,21 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (!genericInstance.IsAssignableFrom (attr.HostType.GetTypeInfo ()))
 					throw new InternalErrorException ();
 				useFixtureInstance = genericInstance.IsAssignableFrom (fixtureType);
+				staticHost = (ITestHost<ITestInstance>)attr;
 				return attr.HostType;
 			}
 
 			if (genericInstance.IsAssignableFrom (fixtureType)) {
 				useFixtureInstance = true;
+				staticHost = null;
 				return null;
+			}
+
+			var attrType = attr.GetType ();
+			if (genericInstance.IsAssignableFrom (attrType.GetTypeInfo ())) {
+				useFixtureInstance = false;
+				staticHost = (ITestHost<ITestInstance>)attr;
+				return attrType;
 			}
 
 			throw new InternalErrorException ();
@@ -321,10 +330,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		static TestHost CreateCustomHost (TypeInfo fixture, IMemberInfo member, TestHostAttribute attr)
 		{
+			ITestHost<ITestInstance> staticHost;
 			bool useFixtureInstance;
-			var hostType = GetCustomHostType (fixture, member, attr, out useFixtureInstance);
+			var hostType = GetCustomHostType (fixture, member, attr, out staticHost, out useFixtureInstance);
 
-			return new CustomTestHost (attr.Identifier ?? member.Name, member.Type, hostType, attr.TestFlags, attr, useFixtureInstance);
+			return new CustomTestHost (attr.Identifier ?? member.Name, member.Type, hostType,
+			                           attr.TestFlags, attr, staticHost, useFixtureInstance);
 		}
 
 		static void Debug (string format, params object[] args)

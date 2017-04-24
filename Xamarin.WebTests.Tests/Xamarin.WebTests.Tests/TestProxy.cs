@@ -142,8 +142,7 @@ namespace Xamarin.WebTests.Tests
 		public async Task Run (
 			TestContext ctx,
 			[WebTestFeatures.SelectProxyKind (IncludeSSL = true)] ProxyKind kind,
-			[TestHost] HttpServer server,
-			[ProxyHandler] Handler handler,
+			HttpServer server, [ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
 			var oldCount = server.CountRequests;
@@ -164,8 +163,7 @@ namespace Xamarin.WebTests.Tests
 		public Task RunAuthentication (
 			TestContext ctx,
 			[WebTestFeatures.SelectProxyKind (IncludeSSL = true)] ProxyKind kind,
-			[TestHost] HttpServer server,
-			[AuthenticationType] AuthenticationType authType,
+			HttpServer server, [AuthenticationType] AuthenticationType authType,
 			[ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
@@ -182,9 +180,7 @@ namespace Xamarin.WebTests.Tests
 		[AsyncTest]
 		[WebTestFeatures.UseProxyKind (ProxyKind.SSL)]
 		public async Task RunSsl (
-			TestContext ctx,
-			[TestHost] HttpServer server,
-			[ProxyHandler] Handler handler,
+			TestContext ctx, HttpServer server, [ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
 			var oldCount = server.CountRequests;

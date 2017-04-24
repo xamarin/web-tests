@@ -38,20 +38,9 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (CustomTestHost)base.Host; }
 		}
 
-		public Type HostType {
-			get;
-		}
-
-		public bool UseFixtureInstance {
-			get;
-		}
-
-		public CustomTestInstance (CustomTestHost host, TestNode node, TestInstance parent, Type hostType, bool useFixtureInstance)
+		public CustomTestInstance (CustomTestHost host, TestNode node, TestInstance parent)
 			: base (host, node, parent)
 		{
-			HostType = hostType;
-			UseFixtureInstance = useFixtureInstance;
-			customHost = host.Attribute as ITestHost<ITestInstance>;
 		}
 
 		public override object Current {
@@ -60,14 +49,14 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (customHost == null) {
-				if (UseFixtureInstance)
-					customHost = (ITestHost<ITestInstance>)GetFixtureInstance ().Instance;
-				else if (HostType != null)
-					customHost = (ITestHost<ITestInstance>)Activator.CreateInstance (HostType);
-				else
-					throw new InternalErrorException ();
-			}
+			if (Host.UseFixtureInstance)
+				customHost = (ITestHost<ITestInstance>)GetFixtureInstance ().Instance;
+			else if (Host.StaticHost != null)
+				customHost = Host.StaticHost;
+			else if (Host.HostType != null)
+				customHost = (ITestHost<ITestInstance>)Activator.CreateInstance (Host.HostType);
+			else
+				throw new InternalErrorException ();
 
 			instance = customHost.CreateInstance (ctx);
 			await instance.Initialize (ctx, cancellationToken);

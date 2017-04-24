@@ -83,7 +83,7 @@ namespace Xamarin.WebTests.Tests
 		const string PostPuppy = "http://localhost/~martin/work/bugfree-octo-nemesis/www/cgi-bin/post-puppy.pl";
 
 		[AsyncTest]
-		public async Task Run (TestContext ctx, [TestHost] HttpServer server,
+		public async Task Run (TestContext ctx, HttpServer server,
 			[Fork (5, RandomDelay = 1500)] IFork fork, [Repeat (50)] int repeat,
 			[ForkHandler] Handler handler, CancellationToken cancellationToken)
 		{
@@ -97,7 +97,7 @@ namespace Xamarin.WebTests.Tests
 
 		[Martin]
 		[AsyncTest]
-		public async Task RunPuppy (TestContext ctx, [TestHost] HttpServer server,
+		public async Task RunPuppy (TestContext ctx, HttpServer server,
 			[Fork (5, RandomDelay = 1500)] IFork fork, [Repeat (50)] int repeat,
 			[ForkHandler] Handler handler, CancellationToken cancellationToken)
 		{
