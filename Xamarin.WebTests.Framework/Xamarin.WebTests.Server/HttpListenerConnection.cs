@@ -115,6 +115,8 @@ namespace Xamarin.WebTests.Server {
 			Context.Response.StatusCode = (int)response.StatusCode;
 			Context.Response.ProtocolVersion = GetProtocol (response.Protocol);
 
+			Context.Response.KeepAlive = (Server.Flags & HttpServerFlags.ReuseConnection) != 0;
+
 			foreach (var header in response.Headers) {
 				Context.Response.AddHeader (header.Key, header.Value);
 			}
