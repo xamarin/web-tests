@@ -26,6 +26,7 @@
 using System;
 using System.Text;
 using System.Linq;
+using System.Reflection;
 using System.Xml.Linq;
 using System.Collections.Generic;
 
@@ -82,11 +83,13 @@ namespace Xamarin.AsyncTests
 			if (parameters.Count > 0) {
 				ParameterList = "(" + string.Join (",", parameters) + ")";
 				ArgumentList = "(" + string.Join (",", arguments) + ")";
+				FriendlyArgumentList = "(" + string.Join (",", friendlyArguments) + ")";
 			} else {
-				ParameterList = ArgumentList = string.Empty;
+				ParameterList = ArgumentList = FriendlyArgumentList = string.Empty;
 			}
 
 			FullName = Name + ArgumentList;
+			FullFriendlyName = Name + FriendlyArgumentList;
 
 			TestName = new TestName (LocalName, Name, nameParameters.ToArray ());
 		}
@@ -153,6 +156,10 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
+		public string FullFriendlyName {
+			get;
+		}
+
 		public string LocalName {
 			get;
 		}
@@ -166,6 +173,10 @@ namespace Xamarin.AsyncTests
 		}
 
 		public string ArgumentList {
+			get;
+		}
+
+		public string FriendlyArgumentList {
 			get;
 		}
 
@@ -194,6 +205,16 @@ namespace Xamarin.AsyncTests
 				first = first.Parent;
 				second = second.Parent;
 			}
+		}
+
+		public static string GetFriendlyName (Type type)
+		{
+			if (type == null)
+				return null;
+			var friendlyAttr = type.GetTypeInfo ().GetCustomAttribute<FriendlyNameAttribute> ();
+			if (friendlyAttr != null)
+				return friendlyAttr.Name;
+			return type.Name;
 		}
 
 		public readonly int ID = ++next_id;

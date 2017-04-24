@@ -41,7 +41,7 @@ namespace Xamarin.AsyncTests.Framework
 		}
 
 		public HeavyTestHost (TestPathType pathType, string identifier, string name, Type type, Type hostType, TestFlags flags)
-			: base (pathType, identifier, name, TestName.GetFriendlyName (hostType), flags)
+			: base (pathType, identifier, name, TestPath.GetFriendlyName (hostType), flags)
 		{
 			Type = type;
 		}

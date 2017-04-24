@@ -30,11 +30,9 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Xml.Linq;
 
-namespace Xamarin.AsyncTests.Framework
-{
-	public static class TestSerializer
-	{
-		internal static void Debug (string message, params object [] args)
+namespace Xamarin.AsyncTests.Framework {
+	public static class TestSerializer {
+		internal static void Debug (string message, params object[] args)
 		{
 			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
 		}
@@ -58,8 +56,7 @@ namespace Xamarin.AsyncTests.Framework
 			return new ParameterWrapper { Value = value };
 		}
 
-		class ParameterWrapper : ITestParameter
-		{
+		class ParameterWrapper : ITestParameter {
 			public string Value {
 				get; set;
 			}
@@ -128,7 +125,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (!node.Name.LocalName.Equals ("TestResult"))
 				throw new InternalErrorException ();
 
-			var status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
+			var status = (TestStatus)Enum.Parse (typeof (TestStatus), node.Attribute ("Status").Value);
 
 			var path = TestPath.Read (node.Element ("TestPath"));
 
@@ -163,6 +160,7 @@ namespace Xamarin.AsyncTests.Framework
 			element.SetAttributeValue ("Status", instance.Status.ToString ());
 
 			element.SetAttributeValue ("Name", instance.Path.FullName);
+			element.SetAttributeValue ("FriendlyName", instance.Path.FullFriendlyName);
 
 			if (instance.Path != null)
 				element.Add (instance.Path.SerializePath ());
@@ -201,8 +199,8 @@ namespace Xamarin.AsyncTests.Framework
 				throw new InternalErrorException ();
 
 			var instance = new TestLoggerBackend.StatisticsEventArgs ();
-			instance.Type = (TestLoggerBackend.StatisticsEventType)Enum.Parse (typeof(TestLoggerBackend.StatisticsEventType), node.Attribute ("Type").Value);
-			instance.Status = (TestStatus)Enum.Parse (typeof(TestStatus), node.Attribute ("Status").Value);
+			instance.Type = (TestLoggerBackend.StatisticsEventType)Enum.Parse (typeof (TestLoggerBackend.StatisticsEventType), node.Attribute ("Type").Value);
+			instance.Status = (TestStatus)Enum.Parse (typeof (TestStatus), node.Attribute ("Status").Value);
 			instance.IsRemote = true;
 
 			var name = node.Attribute ("Name");
@@ -383,6 +381,38 @@ namespace Xamarin.AsyncTests.Framework
 			}
 
 			return config;
+		}
+
+		static readonly char[] invalid_chars = { '<', '>', '"', '\'', '&' };
+
+		// from System.Security.SecurityElement.Escape().
+		internal static string Escape (string str)
+		{
+			StringBuilder sb;
+
+			if (str == null)
+				return null;
+
+			if (str.IndexOfAny (invalid_chars) == -1)
+				return str;
+
+			sb = new StringBuilder ();
+			int len = str.Length;
+
+			for (int i = 0; i < len; i++) {
+				char c = str[i];
+
+				switch (c) {
+				case '<': sb.Append ("&lt;"); break;
+				case '>': sb.Append ("&gt;"); break;
+				case '"': sb.Append ("&quot;"); break;
+				case '\'': sb.Append ("&apos;"); break;
+				case '&': sb.Append ("&amp;"); break;
+				default: sb.Append (c); break;
+				}
+			}
+
+			return sb.ToString ();
 		}
 
 		class ConfigurationWrapper : ITestConfigurationProvider

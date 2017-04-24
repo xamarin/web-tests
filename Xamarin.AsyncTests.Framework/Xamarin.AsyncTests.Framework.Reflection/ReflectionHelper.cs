@@ -481,27 +481,29 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			public object Value {
 				get;
-				private set;
 			}
 
-			public string FriendlyValue => Value.ToString ();
-
-			string ITestParameter.Value {
-				get { return Value.ToString (); }
+			string StringValue {
+				get;
 			}
 
-			public ParameterWrapper (object value)
+			public string FriendlyValue {
+				get;
+			}
+
+			string ITestParameter.Value => StringValue;
+
+			public ParameterWrapper (object value, string stringValue, string friendlyValue)
 			{
 				Value = value;
+				StringValue = stringValue;
+				FriendlyValue = friendlyValue;
 			}
 		}
 
 		abstract class ParameterSerializer<T> : IParameterSerializer
 		{
-			public ITestParameter ObjectToParameter (object value)
-			{
-				return new ParameterWrapper (value);
-			}
+			public abstract ITestParameter ObjectToParameter (object value);
 
 			public object ParameterToObject (ITestParameter value)
 			{
@@ -530,6 +532,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		class BooleanSerializer : ParameterSerializer<bool>
 		{
+			public override ITestParameter ObjectToParameter (object value)
+			{
+				return new ParameterWrapper (value, value.ToString (), value.ToString ());
+			}
 			protected override string Serialize (bool value)
 			{
 				return value.ToString ();
@@ -542,6 +548,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		class IntegerSerializer : ParameterSerializer<int>
 		{
+			public override ITestParameter ObjectToParameter (object value)
+			{
+				return new ParameterWrapper (value, value.ToString (), value.ToString ());
+			}
 			protected override string Serialize (int value)
 			{
 				return value.ToString ();
@@ -554,6 +564,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		class StringSerializer : ParameterSerializer<string>
 		{
+			public override ITestParameter ObjectToParameter (object value)
+			{
+				var stringValue = (string)value;
+				var friendlyValue = '"' + TestSerializer.Escape (stringValue) + '"';
+				return new ParameterWrapper (value, stringValue, friendlyValue);
+			}
 			protected override string Serialize (string value)
 			{
 				return value;
@@ -567,6 +583,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		class EnumSerializer<T> : ParameterSerializer<T>
 			where T : struct
 		{
+			public override ITestParameter ObjectToParameter (object value)
+			{
+				return new ParameterWrapper (value, value.ToString (), value.ToString ());
+			}
 			protected override string Serialize (T value)
 			{
 				return Enum.GetName (typeof(T), value);

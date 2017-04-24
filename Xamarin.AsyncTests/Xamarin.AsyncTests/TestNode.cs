@@ -103,7 +103,7 @@ namespace Xamarin.AsyncTests
 					return false;
 				return Identifier.Equals (name);
 			} else {
-				var friendlyName = TestName.GetFriendlyName (typeof (T));
+				var friendlyName = TestPath.GetFriendlyName (typeof (T));
 				return friendlyName.Equals (ParameterType);
 			}
 		}
