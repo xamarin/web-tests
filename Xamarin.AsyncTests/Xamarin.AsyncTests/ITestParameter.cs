@@ -32,6 +32,10 @@ namespace Xamarin.AsyncTests
 		string Value {
 			get;
 		}
+
+		string FriendlyValue {
+			get;
+		}
 	}
 }
 

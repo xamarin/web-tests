@@ -50,6 +50,8 @@ namespace Xamarin.AsyncTests.Framework
 			get { return TestName.GetFriendlyName (Type); }
 		}
 
+		public string FriendlyValue => Value;
+
 		public TestHostAttribute Attribute {
 			get;
 		}

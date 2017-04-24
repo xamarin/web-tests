@@ -33,12 +33,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 	{
 		public ConnectionProvider Client {
 			get;
-			private set;
 		}
 
 		public ConnectionProvider Server {
 			get;
-			private set;
 		}
 
 		public virtual bool IsManual {
@@ -47,8 +45,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public string Value {
 			get;
-			private set;
 		}
+
+		string ITestParameter.FriendlyValue => Value;
 
 		public virtual IClient CreateClient (ConnectionParameters parameters)
 		{

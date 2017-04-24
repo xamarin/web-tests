@@ -37,17 +37,15 @@ namespace Xamarin.WebTests.MonoTestFramework
 	{
 		public ValidationTestCategory Category {
 			get;
-			private set;
 		}
 
 		public string Identifier {
 			get;
-			private set;
 		}
 
-		string ITestParameter.Value {
-			get { return Identifier; }
-		}
+		string ITestParameter.Value => Identifier;
+
+		string ITestParameter.FriendlyValue => Identifier;
 
 		public ValidationTestParameters (ValidationTestCategory category, string identifier)
 		{

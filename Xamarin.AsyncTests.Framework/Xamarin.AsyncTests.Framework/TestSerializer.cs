@@ -64,6 +64,8 @@ namespace Xamarin.AsyncTests.Framework
 				get; set;
 			}
 
+			public string FriendlyValue => Value;
+
 			public override string ToString ()
 			{
 				return string.Format ("[ParameterWrapper: {0}]", Value);

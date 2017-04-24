@@ -484,6 +484,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				private set;
 			}
 
+			public string FriendlyValue => Value.ToString ();
+
 			string ITestParameter.Value {
 				get { return Value.ToString (); }
 			}

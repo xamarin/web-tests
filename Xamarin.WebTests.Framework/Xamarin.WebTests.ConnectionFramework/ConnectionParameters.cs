@@ -10,12 +10,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 	{
 		public string Identifier {
 			get;
-			private set;
 		}
 
-		string ITestParameter.Value {
-			get { return Identifier; }
-		}
+		string ITestParameter.Value => Identifier;
+
+		string ITestParameter.FriendlyValue => Identifier;
 
 		public ConnectionParameters (string identifier, X509Certificate serverCertificate)
 		{

@@ -48,6 +48,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return Type.ToString (); }
 		}
 
+		string ITestParameter.FriendlyValue => Type.ToString ();
+
 		public ConnectionProviderFactory Factory {
 			get { return factory; }
 		}

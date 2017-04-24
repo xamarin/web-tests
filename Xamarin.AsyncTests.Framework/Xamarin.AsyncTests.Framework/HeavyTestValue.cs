@@ -50,5 +50,9 @@ namespace Xamarin.AsyncTests.Framework
 		string ITestParameter.Value {
 			get { return Instance.Host.Name; }
 		}
+
+		string ITestParameter.FriendlyValue {
+			get { return Instance.Host.Name; }
+		}
 	}
 }
