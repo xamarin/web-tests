@@ -37,8 +37,7 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Tests
-{
+namespace Xamarin.WebTests.Tests {
 	using ConnectionFramework;
 	using HttpHandlers;
 	using HttpFramework;
@@ -46,24 +45,9 @@ namespace Xamarin.WebTests.Tests
 	using TestRunners;
 	using Resources;
 
-	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class ProxyHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
-	{
-		public ProxyHandlerAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (filter, flags)
-		{
-		}
-
-		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
-		{
-			return TestProxy.GetParameters (ctx, filter);
-		}
-	}
-
 	[WebTestFeatures.Proxy]
 	[AsyncTestFixture (Timeout = 30000)]
-	public class TestProxy : ITestHost<HttpServer>
-	{
+	public class TestProxy : ITestHost<HttpServer>, ITestParameterSource<Handler> {
 		readonly static IPortableEndPoint address;
 		readonly static X509Certificate serverCertificate;
 		readonly static ConnectionParameters serverParameters;
@@ -80,8 +64,8 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		BuiltinProxyServer CreateBackend (int port, int proxyPort, ConnectionParameters parameters = null,
-		                            AuthenticationType authType = AuthenticationType.None,
-		                            ICredentials credentials = null)
+					    AuthenticationType authType = AuthenticationType.None,
+					    ICredentials credentials = null)
 		{
 			var endpoint = address.CopyWithPort (port);
 			var proxyEndpoint = address.CopyWithPort (proxyPort);
@@ -127,14 +111,21 @@ namespace Xamarin.WebTests.Tests
 			return CreateBackend (ctx);
 		}
 
-		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
+		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
 			var list = new List<Handler> ();
 			if (!hasNetwork)
 				return list;
 
-			list.Add (new HelloWorldHandler ("Hello World"));
-			list.AddRange (TestPost.GetParameters (ctx, filter, HttpServerFlags.Proxy));
+			switch (filter) {
+			case "martin":
+				list.Add (HelloWorldHandler.Simple);
+				break;
+			default:
+				list.Add (HelloWorldHandler.Simple);
+				list.AddRange (TestPost.GetParameters (ctx, filter, HttpServerFlags.Proxy));
+				break;
+			}
 			return list;
 		}
 
@@ -142,8 +133,7 @@ namespace Xamarin.WebTests.Tests
 		public async Task Run (
 			TestContext ctx,
 			[WebTestFeatures.SelectProxyKind (IncludeSSL = true)] ProxyKind kind,
-			HttpServer server, [ProxyHandler] Handler handler,
-			CancellationToken cancellationToken)
+			HttpServer server, Handler handler, CancellationToken cancellationToken)
 		{
 			var oldCount = server.CountRequests;
 			if (kind == ProxyKind.Unauthenticated) {
@@ -164,8 +154,7 @@ namespace Xamarin.WebTests.Tests
 			TestContext ctx,
 			[WebTestFeatures.SelectProxyKind (IncludeSSL = true)] ProxyKind kind,
 			HttpServer server, [AuthenticationType] AuthenticationType authType,
-			[ProxyHandler] Handler handler,
-			CancellationToken cancellationToken)
+			Handler handler, CancellationToken cancellationToken)
 		{
 			var authHandler = new AuthenticationHandler (authType, handler);
 			if (kind == ProxyKind.Unauthenticated)
@@ -180,7 +169,7 @@ namespace Xamarin.WebTests.Tests
 		[AsyncTest]
 		[WebTestFeatures.UseProxyKind (ProxyKind.SSL)]
 		public async Task RunSsl (
-			TestContext ctx, HttpServer server, [ProxyHandler] Handler handler,
+			TestContext ctx, HttpServer server, Handler handler,
 			CancellationToken cancellationToken)
 		{
 			var oldCount = server.CountRequests;
@@ -195,7 +184,7 @@ namespace Xamarin.WebTests.Tests
 		{
 			var url = string.Format ("https://{0}:8888/", address.Address);
 			var request = (HttpWebRequest)WebRequest.Create (url);
-			var requestExt = DependencyInjector.GetExtension<HttpWebRequest,IHttpWebRequestExtension> (request);
+			var requestExt = DependencyInjector.GetExtension<HttpWebRequest, IHttpWebRequestExtension> (request);
 			requestExt.SetProxy (BuiltinProxyServer.CreateSimpleProxy (new Uri (url)));
 		}
 	}

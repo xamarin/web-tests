@@ -505,6 +505,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var list = new List<string> ();
 			for (int i = 0; i < values.Length; i++) {
+				if (values[i] == 0)
+					continue;
 				if ((intValue & values[i]) == values[i])
 					list.Add (names[i]);
 			}
