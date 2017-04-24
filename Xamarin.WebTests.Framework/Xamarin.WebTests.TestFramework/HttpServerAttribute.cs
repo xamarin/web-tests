@@ -69,20 +69,24 @@ namespace Xamarin.WebTests.TestFramework
 			HttpServerFlags flags;
 			if (ExplicitServerFlags != null)
 				flags = ExplicitServerFlags.Value;
-			else if (!ctx.TryGetParameter (out flags))
+			else if (!ctx.TryGetParameter (out flags)) {
 				flags = HttpServerFlags.None;
 
-			bool reuseConnection;
-			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)
-				flags |= HttpServerFlags.ReuseConnection;
+				bool reuseConnection;
+				if (ctx.TryGetParameter (out reuseConnection, "ReuseConnection") && reuseConnection)
+					flags |= HttpServerFlags.ReuseConnection;
+
+				bool ssl;
+				if (ctx.TryGetParameter (out ssl, "SSL") && ssl)
+					flags |= HttpServerFlags.SSL;
+			}
 
 			return flags;
 		}
 
 		bool GetParameters (TestContext ctx, HttpServerFlags flags, out ConnectionParameters parameters)
 		{
-			bool useSSL;
-			if (((flags & HttpServerFlags.SSL) == 0) && (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL)) {
+			if ((flags & HttpServerFlags.SSL) == 0) {
 				parameters = null;
 				return false;
 			}
