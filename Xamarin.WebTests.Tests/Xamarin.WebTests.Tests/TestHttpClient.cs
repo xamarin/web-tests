@@ -42,29 +42,15 @@ namespace Xamarin.WebTests
 	using TestFramework;
 	using TestRunners;
 
-	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class HttpClientHandlerAttribute : TestParameterAttribute, ITestParameterSource<HttpClientHandler>
-	{
-		public HttpClientHandlerAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (filter, flags)
-		{
-		}
-
-		public IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)
-		{
-			return TestHttpClient.GetParameters (ctx, filter);
-		}
-	}
-
 	[AsyncTestFixture (Timeout = 10000)]
-	public class TestHttpClient
+	public class TestHttpClient : ITestParameterSource<HttpClientHandler>
 	{
-		[WebTestFeatures.SelectSSL]
-		public bool UseSSL {
+		[WebTestFeatures.SelectHttpServerFlags]
+		public HttpServerFlags Flags {
 			get; set;
 		}
 
-		static IEnumerable<HttpClientHandler> GetStableTests ()
+		IEnumerable<HttpClientHandler> GetStableTests ()
 		{
 			yield return new HttpClientHandler (
 				"Get string", HttpClientOperation.GetString, null, HttpContent.HelloWorld);
@@ -75,9 +61,10 @@ namespace Xamarin.WebTests
 				HttpContent.HelloWorld, new StringContent ("Returned body"));
 			yield return new HttpClientHandler (
 				"Put", HttpClientOperation.PutString, HttpContent.HelloWorld);
-			yield return new HttpClientHandler (
-				"Bug #20583", HttpClientOperation.PostString,
-				HttpContent.HelloWorld, new Bug20583Content ());
+			if ((Flags & HttpServerFlags.HttpListener) == 0)
+				yield return new HttpClientHandler (
+					"Bug #20583", HttpClientOperation.PostString,
+					HttpContent.HelloWorld, new Bug20583Content ());
 			yield return new HttpClientHandler (
 				"Bug #41206", HttpClientOperation.PutDataAsync,
 				BinaryContent.CreateRandom (102400));
@@ -91,7 +78,7 @@ namespace Xamarin.WebTests
 			yield break;
 		}
 
-		public static IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)
+		public IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)
 		{
 			var list = new List<HttpClientHandler> ();
 			switch (filter) {
@@ -108,17 +95,17 @@ namespace Xamarin.WebTests
 			return list;
 		}
 
-		[AsyncTest]
+		[AsyncTest (ParameterFilter = "stable")]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-		                 HttpServer server, [HttpClientHandler ("stable")] HttpClientHandler handler)
+		                 HttpServer server, HttpClientHandler handler)
 		{
 			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
 		}
 
-		[AsyncTest]
 		[WebTestFeatures.RecentlyFixed]
+		[AsyncTest (ParameterFilter = "recently-fixed")]
 		public Task RunRecentlyFixed (TestContext ctx, CancellationToken cancellationToken,
-		                              HttpServer server, [HttpClientHandler ("recently-fixed")] HttpClientHandler handler)
+		                              HttpServer server, HttpClientHandler handler)
 		{
 			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
 		}
