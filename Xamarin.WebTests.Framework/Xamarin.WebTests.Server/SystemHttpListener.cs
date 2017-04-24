@@ -38,7 +38,13 @@ namespace Xamarin.WebTests.Server {
 		public SystemHttpListener (TestContext ctx, HttpServer server)
 			: base (ctx, server)
 		{
-			listener = new HttpListener ();
+			if (server.SslStreamProvider != null) {
+				ctx.Assert (server.SslStreamProvider.SupportsHttpListener, "ISslStreamProvider.SupportsHttpListener");
+				listener = server.SslStreamProvider.CreateHttpListener (server.Parameters);
+			} else {
+				listener = new HttpListener ();
+			}
+
 			listener.Prefixes.Add (Server.Uri.AbsoluteUri);
 			listener.Start ();
 		}

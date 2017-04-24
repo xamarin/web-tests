@@ -70,9 +70,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public abstract IServer CreateServer (ConnectionParameters parameters);
 
-		public bool SupportsSslStreams {
-			get { return (Flags & ConnectionProviderFlags.SupportsSslStream) != 0; }
-		}
+		public bool SupportsSslStreams => (Flags & ConnectionProviderFlags.SupportsSslStream) != 0;
+
+		public bool SupportsMonoExtensions => (Flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
 
 		public abstract ProtocolVersions SupportedProtocols {
 			get;

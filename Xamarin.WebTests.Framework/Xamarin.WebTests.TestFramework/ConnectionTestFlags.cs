@@ -37,6 +37,7 @@ namespace Xamarin.WebTests.TestFramework
 		RequireHttp = 8,
 		AssumeSupportedByTest = 16,
 		RequireTrustedRoots = 32,
+		RequireMonoExtensions = 64
 	}
 }
 

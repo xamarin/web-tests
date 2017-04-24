@@ -58,8 +58,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		static bool SupportsMonoExtensions (ConnectionProvider provider)
 		{
-			var monoProvider = provider as MonoConnectionProvider;
-			return monoProvider != null && monoProvider.SupportsMonoExtensions;
+			return (provider.Flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
 		}
 
 		static bool SupportsTls12 (ConnectionProvider provider)

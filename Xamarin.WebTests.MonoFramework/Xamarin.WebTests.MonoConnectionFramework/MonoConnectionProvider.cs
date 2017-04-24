@@ -46,19 +46,23 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		readonly MSI.MonoTlsProvider tlsProvider;
 		readonly string name;
 
-		public MonoConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderType type, ConnectionProviderFlags flags, string name, MSI.MonoTlsProvider tlsProvider)
-			: base (factory, type, flags)
+		internal MonoConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderType type, ConnectionProviderFlags flags,
+		                                 string name, MSI.MonoTlsProvider tlsProvider)
+			: base (factory, type, GetFlags (flags, tlsProvider))
 		{
 			this.name = name;
 			this.tlsProvider = tlsProvider;
 		}
 
-		public override string Name {
-			get { return name; }
+		static ConnectionProviderFlags GetFlags (ConnectionProviderFlags flags, MSI.MonoTlsProvider tlsProvider)
+		{
+			if (tlsProvider.SupportsMonoExtensions)
+				flags |= ConnectionProviderFlags.SupportsMonoExtensions;
+			return flags;
 		}
 
-		public bool SupportsMonoExtensions {
-			get { return tlsProvider.SupportsMonoExtensions; }
+		public override string Name {
+			get { return name; }
 		}
 
 		public override ProtocolVersions SupportedProtocols {
