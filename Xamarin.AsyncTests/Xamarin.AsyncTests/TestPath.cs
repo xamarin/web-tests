@@ -59,7 +59,7 @@ namespace Xamarin.AsyncTests
 				if (current.PathType == TestPathType.Parameter) {
 					if (!current.IsHidden) {
 						parameters.Add (current.Identifier);
-						friendlyArguments.Add (current.ParameterValue); 
+						friendlyArguments.Add (current.FriendlyParameterValue); 
 						arguments.Add (current.ParameterValue);
 					}
 				} else if (!current.IsHidden && !string.IsNullOrEmpty (current.Name))

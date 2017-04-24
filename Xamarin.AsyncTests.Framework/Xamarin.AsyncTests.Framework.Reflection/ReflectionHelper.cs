@@ -477,6 +477,30 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return new IntegerSerializer ();
 		}
 
+		static string FormatEnum (Type type, object enumValue)
+		{
+			var underlyingType = Enum.GetUnderlyingType (type);
+			if (underlyingType != typeof (int))
+				return enumValue.ToString ();
+
+			var intValue = (int)enumValue;
+			var values = (int[])Enum.GetValues (type);
+			var names = Enum.GetNames (type);
+
+			for (int i = 0; i < values.Length; i++) {
+				if (intValue == values[i])
+					return names[i];
+			}
+
+			var list = new List<string> ();
+			for (int i = 0; i < values.Length; i++) {
+				if ((intValue & values[i]) == values[i])
+					list.Add (names[i]);
+			}
+
+			return string.Join ("|", list);
+		}
+
 		class ParameterWrapper : ITestParameter, ITestParameterWrapper
 		{
 			public object Value {
@@ -585,7 +609,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			public override ITestParameter ObjectToParameter (object value)
 			{
-				return new ParameterWrapper (value, value.ToString (), value.ToString ());
+				var friendlyName = FormatEnum (typeof (T), value);
+				return new ParameterWrapper (value, value.ToString (), friendlyName);
 			}
 			protected override string Serialize (T value)
 			{
