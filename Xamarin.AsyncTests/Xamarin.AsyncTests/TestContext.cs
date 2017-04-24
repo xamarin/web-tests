@@ -42,10 +42,6 @@ namespace Xamarin.AsyncTests
 		readonly ITestConfiguration config;
 		bool isCanceled;
 
-		public TestName Name {
-			get;
-		}
-
 		public string FriendlyName => CurrentPath.FullFriendlyName;
 
 		public TestResult Result {
@@ -62,7 +58,6 @@ namespace Xamarin.AsyncTests
 
 		internal TestContext (SettingsBag settings, TestLogger logger, ITestConfiguration config, string name)
 		{
-			Name = new TestName (name);
 			this.settings = settings;
 			this.config = config;
 			this.logger = logger;
@@ -74,7 +69,6 @@ namespace Xamarin.AsyncTests
 			this.result = result;
 
 			CurrentPath = path;
-			Name = CurrentPath.TestName;
 
 			if (result != null)
 				logger = new TestLogger (TestLoggerBackend.CreateForResult (result, parent.logger));
@@ -93,14 +87,14 @@ namespace Xamarin.AsyncTests
 
 		public void OnTestRunning ()
 		{
-			logger.OnTestRunning (Name.FullName);
+			logger.OnTestRunning (FriendlyName);
 		}
 
 		public void OnTestFinished (TestStatus status, TimeSpan? elapsedTime = null)
 		{
 			Result.Status = status;
 			Result.ElapsedTime = elapsedTime;
-			logger.OnTestFinished (Name.FullName, status);
+			logger.OnTestFinished (FriendlyName, status);
 		}
 
 		public void OnTestCanceled ()

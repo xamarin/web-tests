@@ -36,7 +36,6 @@
     <Compile Include="Xamarin.AsyncTests\TestCategoryAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\TestFlags.cs" />
     <Compile Include="Xamarin.AsyncTests\TestHostAttribute.cs" />
-    <Compile Include="Xamarin.AsyncTests\TestName.cs" />
     <Compile Include="Xamarin.AsyncTests\TestParameterAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\TestResult.cs" />
     <Compile Include="Xamarin.AsyncTests\TestStatus.cs" />

@@ -52,13 +52,11 @@ namespace Xamarin.AsyncTests
 			var arguments = new List<string> ();
 			var friendlyArguments = new List<string> ();
 			var parameters = new List<string> ();
-			var nameParameters = new List<TestName.Parameter> ();
 
 			for (var path = this; path != null; path = path.Parent) {
 				var current = path.Node;
 				nodes.Add (current);
 				if (current.PathType == TestPathType.Parameter) {
-					nameParameters.Add (new TestName.Parameter (current.Name, current.ParameterValue, current.IsHidden));
 					if (!current.IsHidden) {
 						parameters.Add (current.Identifier);
 						friendlyArguments.Add (current.ParameterValue); 
@@ -71,7 +69,6 @@ namespace Xamarin.AsyncTests
 			LocalName = parts.First ();
 
 			parts.Reverse ();
-			nameParameters.Reverse ();
 			nodes.Reverse ();
 
 			parameters.Reverse ();
@@ -90,8 +87,6 @@ namespace Xamarin.AsyncTests
 
 			FullName = Name + ArgumentList;
 			FullFriendlyName = Name + FriendlyArgumentList;
-
-			TestName = new TestName (LocalName, Name, nameParameters.ToArray ());
 		}
 
 		public XElement SerializePath (bool debug = true)
@@ -161,10 +156,6 @@ namespace Xamarin.AsyncTests
 		}
 
 		public string LocalName {
-			get;
-		}
-
-		public TestName TestName {
 			get;
 		}
 
