@@ -61,6 +61,7 @@ namespace Xamarin.WebTests
 		public readonly TestFeature ProxyAuth = new TestFeature ("ProxyAuth", "Proxy Authentication", true);
 
 		public readonly TestFeature ReuseConnection = new TestFeature ("ReuseConnection", "Reuse Connection", true);
+		public readonly TestFeature HttpListener = new TestFeature ("HttpListener", "Use HttpListener", true);
 
 		public readonly TestCategory HeavyCategory = new TestCategory ("Heavy") { IsExplicit = true };
 		public readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
@@ -77,6 +78,7 @@ namespace Xamarin.WebTests
 				yield return Proxy;
 				yield return ProxyAuth;
 				yield return ReuseConnection;
+				yield return HttpListener;
 				yield return NetworkAttribute.Instance;
 				yield return Tls12Attribute.Instance;
 			}
@@ -121,6 +123,31 @@ namespace Xamarin.WebTests
 				yield return false;
 				if (ctx.IsEnabled (Instance.ReuseConnection))
 					yield return true;
+			}
+			#endregion
+		}
+
+		[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
+		public class SelectHttpServerFlags : TestParameterAttribute, ITestParameterSource<HttpServerFlags> {
+			public SelectHttpServerFlags (string filter = null, TestFlags flags = TestFlags.None)
+				: base (filter, flags)
+			{
+			}
+
+			#region ITestParameterSource implementation
+			public IEnumerable<HttpServerFlags> GetParameters (TestContext ctx, string filter)
+			{
+				yield return HttpServerFlags.None;
+				yield return HttpServerFlags.SSL;
+				if (ctx.IsEnabled (Instance.ReuseConnection)) {
+					yield return HttpServerFlags.ReuseConnection;
+					yield return HttpServerFlags.SSL | HttpServerFlags.ReuseConnection;
+				}
+				if (ctx.IsEnabled (Instance.HttpListener)) {
+					yield return HttpServerFlags.HttpListener;
+					if (ctx.IsEnabled (Instance.ReuseConnection))
+						yield return HttpServerFlags.HttpListener | HttpServerFlags.ReuseConnection;
+				}
 			}
 			#endregion
 		}
