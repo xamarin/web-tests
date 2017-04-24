@@ -49,6 +49,7 @@ namespace Xamarin.AsyncTests
 			var nodes = new List<TestNode> ();
 			var parts = new List<string> ();
 			var arguments = new List<string> ();
+			var friendlyArguments = new List<string> ();
 			var parameters = new List<string> ();
 			var nameParameters = new List<TestName.Parameter> ();
 
@@ -59,6 +60,7 @@ namespace Xamarin.AsyncTests
 					nameParameters.Add (new TestName.Parameter (current.Name, current.ParameterValue, current.IsHidden));
 					if (!current.IsHidden) {
 						parameters.Add (current.Identifier);
+						friendlyArguments.Add (current.ParameterValue); 
 						arguments.Add (current.ParameterValue);
 					}
 				} else if (!current.IsHidden && !string.IsNullOrEmpty (current.Name))

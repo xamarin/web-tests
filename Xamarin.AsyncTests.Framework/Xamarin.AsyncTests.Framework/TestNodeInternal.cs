@@ -40,33 +40,23 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public override string Name {
-			get { return Host.Name; }
-		}
+		public override string Name => Host.Name;
 
-		public override bool HasParameter {
-			get { return Parameter != null; }
-		}
+		public override bool HasParameter => Parameter != null;
 
 		public override ITestParameter Parameter {
 			get;
 		}
 
-		public override string ParameterValue {
-			get { return Parameter?.Value; }
-		}
+		public override string ParameterValue => Parameter?.Value;
 
-		public override TestPathType PathType {
-			get { return Host.PathType; }
-		}
+		public override string FriendlyParameterValue => Parameter?.FriendlyValue;
 
-		public override string Identifier {
-			get { return Host.Identifier; }
-		}
+		public override TestPathType PathType => Host.PathType;
 
-		public override string ParameterType {
-			get { return Host.ParameterType; }
-		}
+		public override string Identifier => Host.Identifier;
+
+		public override string ParameterType => Host.ParameterType;
 
 		internal TestNodeInternal (TestHost host, ITestParameter parameter = null, TestFlags? flags = null)
 		{

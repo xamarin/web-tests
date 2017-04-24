@@ -55,6 +55,10 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
+		public abstract string FriendlyParameterValue {
+			get;
+		}
+
 		public bool IsParameterized {
 			get { return ParameterType != null; }
 		}
@@ -125,6 +129,8 @@ namespace Xamarin.AsyncTests
 				element.Add (new XAttribute ("ParameterType", ParameterType));
 			if (ParameterValue != null)
 				element.Add (new XAttribute ("Parameter", ParameterValue));
+			if (FriendlyParameterValue != null)
+				element.Add (new XAttribute ("FriendlyParameter", FriendlyParameterValue));
 			if (Flags != TestFlags.None)
 				element.Add (new XAttribute ("Flags", WriteTestFlags (Flags)));
 		}
@@ -196,6 +202,9 @@ namespace Xamarin.AsyncTests
 			public override string ParameterValue {
 				get;
 			}
+			public override string FriendlyParameterValue {
+				get;
+			}
 
 			public PathNodeWrapper (XElement element)
 			{
@@ -205,21 +214,15 @@ namespace Xamarin.AsyncTests
 				if (flagsAttr != null)
 					Flags = ReadTestFlags (flagsAttr.Value);
 
-				var identifierAttr = element.Attribute ("Identifier");
-				if (identifierAttr != null)
-					Identifier = identifierAttr.Value;
+				Identifier = element.Attribute ("Identifier")?.Value;
 
-				var nameAttr = element.Attribute ("Name");
-				if (nameAttr != null)
-					Name = nameAttr.Value;
+				Name = element.Attribute ("Name")?.Value;
 
-				var paramTypeAttr = element.Attribute ("ParameterType");
-				if (paramTypeAttr != null)
-					ParameterType = paramTypeAttr.Value;
+				ParameterType = element.Attribute ("ParameterType")?.Value;
 
-				var paramValueAttr = element.Attribute ("Parameter");
-				if (paramValueAttr != null)
-					ParameterValue = paramValueAttr.Value;
+				ParameterValue = element.Attribute ("Parameter")?.Value;
+
+				FriendlyParameterValue = element.Attribute ("FriendlyParameter")?.Value;
 			}
 
 			PathNodeWrapper (TestNode other)
@@ -230,6 +233,7 @@ namespace Xamarin.AsyncTests
 				Name = other.Name;
 				ParameterType = other.ParameterType;
 				ParameterValue = other.ParameterValue;
+				FriendlyParameterValue = other.FriendlyParameterValue;
 			}
 
 			public override bool HasParameter {
