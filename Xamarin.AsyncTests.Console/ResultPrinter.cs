@@ -65,7 +65,7 @@ namespace Xamarin.AsyncTests.Console
 		public bool Print ()
 		{
 			Writer.WriteLine ();
-			Writer.WriteLine ("Test result: {0} - {1}", Result.Path.FullName, Result.Status);
+			Writer.WriteLine ("Test result: {0} - {1}", Result.Path.FullFriendlyName, Result.Status);
 			Writer.WriteLine ();
 
 			if (Result.Status == TestStatus.Success)
@@ -88,7 +88,7 @@ namespace Xamarin.AsyncTests.Console
 			else if (node.Status == TestStatus.Ignored && !ShowIgnored)
 				return;
 
-			Writer.WriteLine ("{0}) {1}: {2}", ++current, node.Path.FullName, node.Status);
+			Writer.WriteLine ("{0}) {1}: {2}", ++current, node.Path.FullFriendlyName, node.Status);
 
 			if (node.HasErrors && (node.Status == TestStatus.Error || node.Status == TestStatus.Unstable)) {
 				foreach (var error in node.Errors) {

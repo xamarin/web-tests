@@ -81,6 +81,8 @@ namespace Xamarin.WebTests.HttpFramework {
 			if (Interlocked.CompareExchange (ref initialized, 1, 0) != 0)
 				throw new InternalErrorException ();
 
+			ctx.LogDebug (5, "Initialize {0}: {1}", this, Flags);
+
 			if (ReuseConnection)
 				await Start (ctx, cancellationToken);
 		}
@@ -101,6 +103,8 @@ namespace Xamarin.WebTests.HttpFramework {
 		{
 			if (ReuseConnection)
 				await Stop (ctx, cancellationToken);
+
+			ctx.LogDebug (5, "Destroy {0}: {1}", this, Flags);
 
 			Interlocked.Exchange (ref initialized, 0);
 		}
