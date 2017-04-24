@@ -52,7 +52,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		TestBuilderInstance SetUp (TestContext ctx, TestInstance instance)
 		{
-			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
+			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
 				if (!Host.Builder.RunFilter (ctx)) {
@@ -71,7 +71,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		bool TearDown (TestContext ctx, TestBuilderInstance instance)
 		{
-			ctx.LogDebug (10, "TearDown({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
+			ctx.LogDebug (10, "TearDown({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
 				instance.Destroy (ctx);

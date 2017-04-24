@@ -46,6 +46,8 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
+		public string FriendlyName => CurrentPath.FullFriendlyName;
+
 		public TestResult Result {
 			get { return result ?? parent.Result; }
 		}

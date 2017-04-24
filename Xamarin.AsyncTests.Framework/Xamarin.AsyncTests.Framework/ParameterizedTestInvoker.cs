@@ -59,7 +59,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		ParameterizedTestInstance SetUp (TestContext ctx, TestInstance instance)
 		{
-			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
+			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
 				var parameterizedInstance = CreateInstance (instance);
@@ -76,7 +76,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		bool MoveNext (TestContext ctx, TestInstance instance)
 		{
-			ctx.LogDebug (10, "MoveNext({0}): {1} {2}", ctx.Name, TestLogger.Print (Host), TestLogger.Print (instance));
+			ctx.LogDebug (10, "MoveNext({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
 				return ((ParameterizedTestInstance)instance).MoveNext (ctx);
