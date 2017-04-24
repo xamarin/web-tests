@@ -101,11 +101,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			return (SslProtocols)protocol;
 		}
 
-		public bool SupportsWebRequest {
-			get { return true; }
-		}
-
-		public HttpWebRequest CreateWebRequest (Uri uri, ConnectionParameters parameters)
+		MSI.MonoTlsSettings GetSettings (ConnectionParameters parameters)
 		{
 			MSI.MonoTlsSettings settings = null;
 			if (parameters.ValidationParameters != null && parameters.ValidationParameters.TrustedRoots != null) {
@@ -117,7 +113,25 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				}
 			}
 
+			return settings;
+		}
+
+		public bool SupportsWebRequest => true;
+
+		public HttpWebRequest CreateWebRequest (Uri uri, ConnectionParameters parameters)
+		{
+			var settings = GetSettings (parameters);
 			return MSI.MonoTlsProviderFactory.CreateHttpsRequest (uri, tlsProvider, settings);
+		}
+
+		public bool SupportsHttpListener => true;
+
+		public HttpListener CreateHttpListener (ConnectionParameters parameters)
+		{
+			var certificate = parameters.ServerCertificate;
+
+			var settings = GetSettings (parameters);
+			return MSI.MonoTlsProviderFactory.CreateHttpListener (certificate, tlsProvider, settings);
 		}
 
 		ISslStream ISslStreamProvider.CreateServerStream (Stream stream, ConnectionParameters parameters)

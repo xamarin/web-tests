@@ -51,6 +51,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		HttpWebRequest CreateWebRequest (Uri uri, ConnectionParameters parameters);
+
+		bool SupportsHttpListener {
+			get;
+		}
+
+		HttpListener CreateHttpListener (ConnectionParameters parameters);
 	}
 }
 
