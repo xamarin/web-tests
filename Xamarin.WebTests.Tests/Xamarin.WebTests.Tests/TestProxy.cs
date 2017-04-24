@@ -134,7 +134,7 @@ namespace Xamarin.WebTests.Tests
 				return list;
 
 			list.Add (new HelloWorldHandler ("Hello World"));
-			list.AddRange (TestPost.GetParameters (ctx, filter));
+			list.AddRange (TestPost.GetParameters (ctx, filter, HttpServerFlags.Proxy));
 			return list;
 		}
 

@@ -56,16 +56,16 @@ namespace Xamarin.WebTests.Tests
 	}
 
 	[AsyncTestFixture (Timeout = 10000)]
-	public class TestAuthentication
+	public class TestAuthentication : ITestParameterSource<Handler>
 	{
-		[WebTestFeatures.SelectSSL]
-		public bool UseSSL {
+		[WebTestFeatures.SelectHttpServerFlags]
+		public HttpServerFlags Flags {
 			get; set;
 		}
 
-		[WebTestFeatures.SelectReuseConnection]
-		public bool ReuseConnection {
-			get; set;
+		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
+		{
+			return TestPost.GetParameters (ctx, filter, Flags);
 		}
 
 		public static IEnumerable<AuthenticationType> GetAuthenticationTypes (TestContext ctx, string filter)
@@ -88,7 +88,7 @@ namespace Xamarin.WebTests.Tests
 		[AsyncTest]
 		public Task Run (
 			TestContext ctx, HttpServer server, bool sendAsync,
-			[AuthenticationType] AuthenticationType authType, [PostHandler] Handler handler,
+			[AuthenticationType] AuthenticationType authType, Handler handler,
 			CancellationToken cancellationToken)
 		{
 			var authHandler = new AuthenticationHandler (authType, handler);

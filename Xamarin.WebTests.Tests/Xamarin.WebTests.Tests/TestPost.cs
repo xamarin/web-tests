@@ -44,31 +44,18 @@ namespace Xamarin.WebTests.Tests
 	using TestFramework;
 	using TestRunners;
 
-	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class PostHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
-	{
-		public PostHandlerAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
-			: base (filter, flags)
-		{
-		}
-
-		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
-		{
-			return TestPost.GetParameters (ctx, filter);
-		}
-	}
-
 	[AsyncTestFixture (Timeout = 10000)]
-	public class TestPost
+	public class TestPost : ITestParameterSource<Handler>, ITestParameterSource<PostHandler>
 	{
-		[WebTestFeatures.SelectSSL]
-		public bool UseSSL {
+		[WebTestFeatures.SelectHttpServerFlags]
+		public HttpServerFlags Flags {
 			get; set;
 		}
 
-		public static IEnumerable<PostHandler> GetPostTests ()
+		public static IEnumerable<PostHandler> GetPostTests (HttpServerFlags flags)
 		{
-			yield return new PostHandler ("No body");
+			if ((flags & HttpServerFlags.HttpListener) == 0)
+				yield return new PostHandler ("No body");
 			yield return new PostHandler ("Empty body", StringContent.Empty);
 			yield return new PostHandler ("Normal post", HttpContent.HelloWorld);
 			yield return new PostHandler ("Content-Length", HttpContent.HelloWorld, TransferMode.ContentLength);
@@ -106,18 +93,28 @@ namespace Xamarin.WebTests.Tests
 			yield break;
 		}
 
-		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
+		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext ctx, string filter)
+		{
+			return GetParameters (ctx, filter, Flags);
+		}
+
+		IEnumerable<PostHandler> ITestParameterSource<PostHandler>.GetParameters (TestContext ctx, string filter)
+		{
+			return GetPostTests (Flags);
+		}
+
+		public static IEnumerable<Handler> GetParameters (TestContext ctx, string filter, HttpServerFlags flags)
 		{
 			switch (filter) {
 			case null:
 				var list = new List<Handler> ();
 				list.Add (new HelloWorldHandler ("hello world"));
-				list.AddRange (GetPostTests ());
+				list.AddRange (GetPostTests (flags));
 				list.AddRange (GetDeleteTests ());
 				list.AddRange (GetRecentlyFixed ());
 				return list;
 			case "post":
-				return GetPostTests ();
+				return GetPostTests (flags);
 			case "delete":
 				return GetDeleteTests ();
 			case "chunked":
@@ -155,18 +152,16 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Run (TestContext ctx, HttpServer server, bool sendAsync,
-		                 [PostHandler] Handler handler, CancellationToken cancellationToken)
+		                 Handler handler, CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}
 
 		[AsyncTest]
 		public Task Redirect (TestContext ctx, HttpServer server, bool sendAsync,
-		                      [RedirectStatus] HttpStatusCode code,
-		                      [PostHandler ("post")] Handler handler,
+		                      [RedirectStatus] HttpStatusCode code, PostHandler post,
 		                      CancellationToken cancellationToken)
 		{
-			var post = (PostHandler)handler;
 			var support = DependencyInjector.Get<IPortableSupport> ();
 			var isWindows = support.IsMicrosoftRuntime;
 			var hasBody = post.Content != null || ((post.Flags & RequestFlags.ExplicitlySetLength) != 0) || (post.Mode == TransferMode.ContentLength);
@@ -200,9 +195,9 @@ namespace Xamarin.WebTests.Tests
 			await TestRunner.RunTraditional (ctx, server, secondPost, cancellationToken);
 		}
 
-		[AsyncTest]
+		[AsyncTest (ParameterFilter = "chunked")]
 		public Task TestChunked (TestContext ctx, HttpServer server, bool sendAsync,
-		                         [PostHandler ("chunked")] Handler handler, CancellationToken cancellationToken)
+		                         Handler handler, CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
 		}
@@ -291,10 +286,9 @@ namespace Xamarin.WebTests.Tests
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 
-		[AsyncTest]
+		[AsyncTest (ParameterFilter = "recently-fixed")]
 		[WebTestFeatures.RecentlyFixed]
-		public Task TestRecentlyFixed (TestContext ctx, HttpServer server, bool sendAsync,
-		                               [PostHandler ("recently-fixed")] Handler handler,
+		public Task TestRecentlyFixed (TestContext ctx, HttpServer server, bool sendAsync, Handler handler,
 		                               CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, sendAsync);
