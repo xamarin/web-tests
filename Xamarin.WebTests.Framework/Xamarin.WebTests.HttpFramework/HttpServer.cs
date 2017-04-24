@@ -42,11 +42,7 @@ namespace Xamarin.WebTests.HttpFramework {
 	[HttpServer]
 	[FriendlyName ("HttpServer")]
 	public abstract class HttpServer : ITestInstance {
-		public abstract HttpServerFlags Flags {
-			get;
-		}
-
-		public abstract bool UseSSL {
+		public HttpServerFlags Flags {
 			get;
 		}
 
@@ -62,8 +58,37 @@ namespace Xamarin.WebTests.HttpFramework {
 			get; set;
 		}
 
-		public abstract IPortableEndPoint ListenAddress {
+		public IPortableEndPoint ListenAddress {
 			get;
+		}
+
+		public ConnectionParameters Parameters {
+			get;
+		}
+
+		public ISslStreamProvider SslStreamProvider {
+			get;
+		}
+
+		public bool UseSSL => SslStreamProvider != null;
+
+		public HttpServer (IPortableEndPoint listenAddress, HttpServerFlags flags,
+		                   ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
+		{
+			ListenAddress = listenAddress;
+			Flags = flags;
+			Parameters = parameters;
+			SslStreamProvider = sslStreamProvider;
+
+			if (Parameters != null)
+				Flags |= HttpServerFlags.SSL;
+
+			if ((Flags & HttpServerFlags.SSL) != 0) {
+				if (SslStreamProvider == null) {
+					var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
+					SslStreamProvider = factory.DefaultSslStreamProvider;
+				}
+			}
 		}
 
 		public abstract IWebProxy GetProxy ();

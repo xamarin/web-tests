@@ -1,4 +1,4 @@
-﻿﻿//
+﻿//
 // BuiltinHttpServer.cs
 //
 // Author:
@@ -37,66 +37,25 @@ using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.HttpFramework {
 	public sealed class BuiltinHttpServer : HttpServer {
-		public override IPortableEndPoint ListenAddress {
-			get;
-		}
-		public ConnectionParameters Parameters {
-			get;
-		}
-
 		public BuiltinHttpServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, HttpServerFlags flags,
-		                          ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
+					  ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
+			: base (listenAddress, flags, parameters, sslStreamProvider)
 		{
-			ListenAddress = listenAddress;
-			Flags = flags;
-			Parameters = parameters;
-			SslStreamProvider = sslStreamProvider;
-
-			if (Parameters != null)
-				Flags |= HttpServerFlags.SSL;
-
-			if ((Flags & HttpServerFlags.SSL) != 0) {
-				if (SslStreamProvider == null) {
-					var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-					SslStreamProvider = factory.DefaultSslStreamProvider;
-				}
-			}
-
 			Uri = new Uri (string.Format ("http{0}://{1}:{2}/", SslStreamProvider != null ? "s" : "", clientEndPoint.Address, clientEndPoint.Port));
 		}
 
 		public BuiltinHttpServer (Uri uri, IPortableEndPoint listenAddress, HttpServerFlags flags,
-		                           ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
+					  ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
+			: base (listenAddress, flags | HttpServerFlags.SSL, parameters, sslStreamProvider)
 		{
 			Uri = uri;
-			ListenAddress = listenAddress;
-			Flags = flags;
-			Parameters = parameters;
-			SslStreamProvider = sslStreamProvider;
-
-			if (SslStreamProvider == null) {
-				var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-				SslStreamProvider = factory.DefaultSslStreamProvider;
-			}
 		}
 
-		public sealed override HttpServerFlags Flags {
+		public override Uri Uri {
 			get;
 		}
 
-		public sealed override bool UseSSL {
-			get { return SslStreamProvider != null; }
-		}
-
-		public ISslStreamProvider SslStreamProvider {
-			get;
-		}
-
-		public sealed override Uri Uri {
-			get;
-		}
-
-		public sealed override Uri TargetUri => Uri;
+		public override Uri TargetUri => Uri;
 
 		public override IWebProxy GetProxy ()
 		{
