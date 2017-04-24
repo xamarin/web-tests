@@ -40,56 +40,17 @@ namespace Xamarin.WebTests.Tests {
 		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
 			switch (filter) {
-			case null:
-				yield return new HelloWorldHandler ("Hello World");
-				yield return new PostHandler ("Empty body", StringContent.Empty);
-				yield return new PostHandler ("Normal post", HttpContent.HelloWorld);
-				yield return new PostHandler ("Content-Length", HttpContent.HelloWorld, TransferMode.ContentLength);
-				yield return new PostHandler ("Chunked", HttpContent.HelloChunked, TransferMode.Chunked);
-				yield return new PostHandler ("Explicit length and empty body", StringContent.Empty, TransferMode.ContentLength);
-				yield return new PostHandler ("Explicit length and no body", null, TransferMode.ContentLength);
-				yield return new PostHandler ("Bug #41206", new RandomContent (102400));
-				yield return new PostHandler ("Bug #41206 odd size", new RandomContent (102431));
-				yield return new DeleteHandler ("Empty delete");
-				yield return new DeleteHandler ("DELETE with empty body", string.Empty);
-				yield return new DeleteHandler ("DELETE with request body", "I have a body!");
-				yield return new DeleteHandler ("DELETE with no body and a length") {
-					Flags = RequestFlags.ExplicitlySetLength
-				};
-				break;
 			case "martin":
-				yield return new AuthenticationHandler (AuthenticationType.Basic, HelloWorldHandler.Simple);
-				yield return new RedirectHandler (HelloWorldHandler.Simple, HttpStatusCode.Redirect);
-				break;
-			case "not-working":
-				yield return new PostHandler ("No body");
+				yield return HelloWorldHandler.Simple;
 				break;
 			}
 		}
 
-		[Work]
-		[AsyncTest]
-		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		public Task Run (TestContext ctx, HttpServer server, Handler handler,
-		                 CancellationToken cancellationToken)
-		{
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
-		}
-
 		[Martin]
-		[HttpServerFlags (HttpServerFlags.HttpListener)]
+		[HttpServerFlags (HttpServerFlags.HttpListener | HttpServerFlags.SSL)]
 		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
 		public Task MartinTest (TestContext ctx, HttpServer server, Handler handler,
 		                        CancellationToken cancellationToken)
-		{
-			ctx.AssertFail ("Expected Error!");
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
-		}
-
-		[Work]
-		[AsyncTest (ParameterFilter = "martin")]
-		public Task RunWithInternalServer (TestContext ctx, HttpServer server, Handler handler,
-		                                   CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, true);
 		}
