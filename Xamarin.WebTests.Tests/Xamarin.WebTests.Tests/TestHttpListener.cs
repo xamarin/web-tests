@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
+using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.HttpHandlers;
@@ -47,9 +48,11 @@ namespace Xamarin.WebTests.Tests {
 		}
 
 		[Martin]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireMonoServer)]
 		[HttpServerFlags (HttpServerFlags.HttpListener | HttpServerFlags.SSL)]
 		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		public Task MartinTest (TestContext ctx, HttpServer server, Handler handler,
+		public Task MartinTest (TestContext ctx, ConnectionTestProvider provider,
+		                        HttpServer server, Handler handler,
 		                        CancellationToken cancellationToken)
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, true);

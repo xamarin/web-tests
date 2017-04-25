@@ -1,4 +1,4 @@
-//
+﻿//
 // MonoConnectionProviderFilter.cs
 //
 // Author:
@@ -25,50 +25,32 @@
 // THE SOFTWARE.
 using System;
 using Xamarin.AsyncTests;
+using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.MonoConnectionFramework;
 using Mono.Security.Interface;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
-	using ConnectionFramework;
-
 	public class MonoConnectionProviderFilter : ConnectionProviderFilter
 	{
 		public MonoConnectionTestCategory Category {
 			get;
-			private set;
 		}
 
-		public MonoConnectionTestFlags Flags {
+		public ConnectionTestFlags Flags {
 			get;
-			private set;
 		}
 
-		public MonoConnectionProviderFilter (MonoConnectionTestCategory category, MonoConnectionTestFlags flags)
+		public MonoConnectionProviderFilter (MonoConnectionTestCategory category, ConnectionTestFlags flags)
 		{
 			Category = category;
 			Flags = flags;
 		}
 
-		bool HasFlag (MonoConnectionTestFlags flag)
+		bool HasFlag (ConnectionTestFlags flag)
 		{
 			return (Flags & flag) != 0;
-		}
-
-		static bool SupportsMonoExtensions (ConnectionProvider provider)
-		{
-			return (provider.Flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
-		}
-
-		static bool SupportsTls12 (ConnectionProvider provider)
-		{
-			return (provider.Flags & ConnectionProviderFlags.SupportsTls12) != 0;
-		}
-
-		static bool SupportsEcDhe (ConnectionProvider provider)
-		{
-			return (provider.Flags & ConnectionProviderFlags.SupportsEcDheCiphers) != 0;
 		}
 
 		protected override ClientAndServerProvider Create (ConnectionProvider client, ConnectionProvider server)
@@ -76,11 +58,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 			return new MonoConnectionTestProvider (client, server, Category, Flags);
 		}
 
-		protected virtual bool IsSupported (ConnectionProvider provider)
+		protected bool IsSupported (ConnectionProvider provider)
 		{
-			if (HasFlag (MonoConnectionTestFlags.RequireMonoClient) && !SupportsMonoExtensions (provider))
-				return false;
-			if (HasFlag (MonoConnectionTestFlags.RequireEcDhe) && !SupportsEcDhe (provider))
+			if (HasFlag (ConnectionTestFlags.RequireMonoClient) && !SupportsMonoExtensions (provider))
 				return false;
 			if (!SupportsTls12 (provider))
 				return false;
@@ -100,7 +80,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		public override bool IsClientSupported (TestContext ctx, ConnectionProvider provider, string filter)
 		{
-			if (HasFlag (MonoConnectionTestFlags.ManualClient) && provider.Type != ConnectionProviderType.Manual)
+			if (HasFlag (ConnectionTestFlags.ManualClient) && provider.Type != ConnectionProviderType.Manual)
 				return false;
 			if (!IsClientSupported (provider))
 				return false;
@@ -116,7 +96,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		public override bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter)
 		{
-			if (HasFlag (MonoConnectionTestFlags.ManualServer) && provider.Type != ConnectionProviderType.Manual)
+			if (HasFlag (ConnectionTestFlags.ManualServer) && provider.Type != ConnectionProviderType.Manual)
 				return false;
 			if (!IsServerSupported (provider))
 				return false;

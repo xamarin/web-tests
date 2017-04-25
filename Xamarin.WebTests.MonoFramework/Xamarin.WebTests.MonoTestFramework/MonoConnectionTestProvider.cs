@@ -1,4 +1,4 @@
-//
+﻿//
 // InstrumentationConnectionProvider.cs
 //
 // Author:
@@ -28,6 +28,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
+	using TestFramework;
 	using MonoTestFeatures;
 	using ConnectionFramework;
 
@@ -36,25 +37,23 @@ namespace Xamarin.WebTests.MonoTestFramework
 	{
 		public MonoConnectionTestCategory Category {
 			get;
-			private set;
 		}
 
-		public MonoConnectionTestFlags Flags {
+		public ConnectionTestFlags Flags {
 			get;
-			private set;
 		}
 
-		static string GetFlagsName (MonoConnectionTestFlags flags)
+		static string GetFlagsName (ConnectionTestFlags flags)
 		{
-			if ((flags & MonoConnectionTestFlags.ManualClient) != 0)
+			if ((flags & ConnectionTestFlags.ManualClient) != 0)
 				return ":ManualClient";
-			else if ((flags & MonoConnectionTestFlags.ManualServer) != 0)
+			else if ((flags & ConnectionTestFlags.ManualServer) != 0)
 				return ":ManualServer";
 			else
 				return string.Empty;
 		}
 
-		public MonoConnectionTestProvider (ConnectionProvider client, ConnectionProvider server, MonoConnectionTestCategory category, MonoConnectionTestFlags flags)
+		public MonoConnectionTestProvider (ConnectionProvider client, ConnectionProvider server, MonoConnectionTestCategory category, ConnectionTestFlags flags)
 			: base (client, server, string.Format ("{0}:{1}:{2}{3}", client.Name, server.Name, category, GetFlagsName (flags)))
 		{
 			Category = category;

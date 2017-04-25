@@ -53,7 +53,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get { return Parameters.Category; }
 		}
 
-		public MonoConnectionTestFlags ConnectionFlags {
+		public ConnectionTestFlags ConnectionFlags {
 			get { return Provider.Flags; }
 		}
 
@@ -73,35 +73,35 @@ namespace Xamarin.WebTests.MonoTestFramework
 			Provider = provider;
 		}
 
-		public static MonoConnectionTestFlags GetConnectionFlags (TestContext ctx, MonoConnectionTestCategory category)
+		public static ConnectionTestFlags GetConnectionFlags (TestContext ctx, MonoConnectionTestCategory category)
 		{
 			switch (category) {
 			case MonoConnectionTestCategory.SimpleMonoClient:
 			case MonoConnectionTestCategory.SelectClientCipher:
-				return MonoConnectionTestFlags.RequireMonoClient;
+				return ConnectionTestFlags.RequireMonoClient;
 			case MonoConnectionTestCategory.SimpleMonoServer:
 			case MonoConnectionTestCategory.SelectServerCipher:
-				return MonoConnectionTestFlags.RequireMonoServer;
+				return ConnectionTestFlags.RequireMonoServer;
 			case MonoConnectionTestCategory.SimpleMonoConnection:
 			case MonoConnectionTestCategory.MonoProtocolVersions:
 			case MonoConnectionTestCategory.SelectCipher:
-				return MonoConnectionTestFlags.RequireMono;
+				return ConnectionTestFlags.RequireMono;
 			case MonoConnectionTestCategory.ClientConnection:
 			case MonoConnectionTestCategory.MartinTestClient:
-				return MonoConnectionTestFlags.RequireMonoClient;
+				return ConnectionTestFlags.RequireMonoClient;
 			case MonoConnectionTestCategory.ServerConnection:
 			case MonoConnectionTestCategory.MartinTestServer:
-				return MonoConnectionTestFlags.RequireMonoServer;
+				return ConnectionTestFlags.RequireMonoServer;
 			case MonoConnectionTestCategory.Connection:
 			case MonoConnectionTestCategory.CertificateChecks:
 			case MonoConnectionTestCategory.SecurityFramework:
-				return MonoConnectionTestFlags.RequireMono;
+				return ConnectionTestFlags.RequireMono;
 			case MonoConnectionTestCategory.MartinTest:
-				// return MonoConnectionTestFlags.RequireMono | MonoConnectionTestFlags.RequireTls12;
-				return MonoConnectionTestFlags.None;
+				// return ConnectionTestFlags.RequireMono | ConnectionTestFlags.RequireTls12;
+				return ConnectionTestFlags.None;
 			default:
 				ctx.AssertFail ("Unsupported instrumentation category: '{0}'.", category);
-				return MonoConnectionTestFlags.None;
+				return ConnectionTestFlags.None;
 			}
 		}
 

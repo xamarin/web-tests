@@ -76,7 +76,7 @@ namespace Xamarin.WebTests.MonoTests
 		[Martin]
 		[AsyncTest]
 		[SecurityFramework]
-		[MonoConnectionTestFlags (MonoConnectionTestFlags.RequireTls12)]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireTls12)]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.SecurityFramework)]
 		public async Task TestInKeyChain (TestContext ctx, CancellationToken cancellationToken,
 			AppleCertificateHost certificateHost,
@@ -92,7 +92,7 @@ namespace Xamarin.WebTests.MonoTests
 		[Martin]
 		[AsyncTest]
 		[SecurityFramework]
-		[MonoConnectionTestFlags (MonoConnectionTestFlags.RequireTls12)]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireTls12)]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.SecurityFramework)]
 		public async Task TestInKeyChain2 (TestContext ctx, CancellationToken cancellationToken,
 			[AppleCertificateHost (CertificateResourceType.ServerCertificateFromLocalCA)]
@@ -109,7 +109,7 @@ namespace Xamarin.WebTests.MonoTests
 		[Martin]
 		[AsyncTest]
 		[SecurityFramework] [IOS]
-		[MonoConnectionTestFlags (MonoConnectionTestFlags.RequireTls12)]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireTls12)]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.SecurityFramework)]
 		public async Task TestNotInKeyChain (TestContext ctx, CancellationToken cancellationToken,
 			MonoConnectionTestProvider provider,

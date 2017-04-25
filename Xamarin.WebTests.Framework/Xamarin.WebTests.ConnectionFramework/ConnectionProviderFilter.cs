@@ -52,6 +52,21 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return false;
 		}
 
+		protected static bool SupportsMonoExtensions (ConnectionProvider provider)
+		{
+			return (provider.Flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
+		}
+
+		protected static bool SupportsTls12 (ConnectionProvider provider)
+		{
+			return (provider.Flags & ConnectionProviderFlags.SupportsTls12) != 0;
+		}
+
+		protected static bool SupportsEcDhe (ConnectionProvider provider)
+		{
+			return (provider.Flags & ConnectionProviderFlags.SupportsEcDheCiphers) != 0;
+		}
+
 		protected abstract ClientAndServerProvider Create (ConnectionProvider client, ConnectionProvider server);
 
 		public IEnumerable<ClientAndServerProvider> GetSupportedProviders (TestContext ctx, string filter)

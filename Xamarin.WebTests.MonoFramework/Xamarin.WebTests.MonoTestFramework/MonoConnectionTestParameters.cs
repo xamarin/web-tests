@@ -1,4 +1,4 @@
-//
+﻿//
 // MonoConnectionTestParameters.cs
 //
 // Author:
@@ -31,6 +31,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
+	using TestFramework;
 	using ConnectionFramework;
 
 	public abstract class MonoConnectionTestParameters : MonoConnectionParameters
@@ -40,7 +41,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			private set;
 		}
 
-		public MonoConnectionTestFlags ConnectionFlags {
+		public ConnectionTestFlags ConnectionFlags {
 			get; set;
 		}
 

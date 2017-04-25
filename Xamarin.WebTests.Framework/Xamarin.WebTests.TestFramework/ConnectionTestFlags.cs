@@ -28,16 +28,20 @@ using System;
 namespace Xamarin.WebTests.TestFramework
 {
 	[Flags]
-	public enum ConnectionTestFlags
-	{
+	public enum ConnectionTestFlags {
 		None = 0,
 		ManualClient = 1,
 		ManualServer = 2,
+
 		RequireSslStream = 4,
 		RequireHttp = 8,
 		AssumeSupportedByTest = 16,
 		RequireTrustedRoots = 32,
-		RequireMonoExtensions = 64
+		RequireTls12 = 64,
+
+		RequireMonoClient = 128,
+		RequireMonoServer = 256,
+		RequireMono = RequireMonoClient | RequireMonoServer
 	}
 }
 

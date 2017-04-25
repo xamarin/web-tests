@@ -1,4 +1,4 @@
-//
+﻿//
 // MonoConnectionTestProviderAttribute.cs
 //
 // Author:
@@ -32,6 +32,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.MonoTestFeatures
 {
+	using TestFramework;
 	using MonoTestFramework;
 
 	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
@@ -56,8 +57,8 @@ namespace Xamarin.WebTests.MonoTestFeatures
 			if (!ctx.TryGetParameter<MonoConnectionProviderFilter> (out filter)) {
 				var flags = MonoConnectionTestRunner.GetConnectionFlags (ctx, category);
 
-				MonoConnectionTestFlags explicitFlags;
-				if (ctx.TryGetParameter<MonoConnectionTestFlags> (out explicitFlags))
+				ConnectionTestFlags explicitFlags;
+				if (ctx.TryGetParameter<ConnectionTestFlags> (out explicitFlags))
 					flags |= explicitFlags;
 
 				filter = new MonoConnectionProviderFilter (category, flags);
