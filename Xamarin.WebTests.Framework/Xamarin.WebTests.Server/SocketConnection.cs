@@ -66,10 +66,9 @@ namespace Xamarin.WebTests.Server
 		{
 			networkStream = new NetworkStream (Socket);
 
-			var builtinHttpServer = Server as BuiltinHttpServer;
-			if (builtinHttpServer?.SslStreamProvider != null) {
-				sslStream = await builtinHttpServer.SslStreamProvider.CreateServerStreamAsync (
-					networkStream, builtinHttpServer.Parameters, cancellationToken).ConfigureAwait (false);
+			if (Server.SslStreamProvider != null) {
+				sslStream = await Server.SslStreamProvider.CreateServerStreamAsync (
+					networkStream, Server.Parameters, cancellationToken).ConfigureAwait (false);
 				Stream = sslStream.AuthenticatedStream;
 			} else {
 				Stream = networkStream;

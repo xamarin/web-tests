@@ -157,6 +157,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			throw new NotSupportedException ();
 		}
+
+		public bool SupportsHttpListenerContext => false;
+
+		public ISslStream GetSslStream (HttpListenerContext context)
+		{
+			throw new NotSupportedException ();
+		}
 	}
 }
 

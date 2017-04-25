@@ -57,6 +57,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		HttpListener CreateHttpListener (ConnectionParameters parameters);
+
+		bool SupportsHttpListenerContext {
+			get;
+		}
+
+		ISslStream GetSslStream (HttpListenerContext context);
 	}
 }
-

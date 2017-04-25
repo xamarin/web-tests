@@ -184,8 +184,10 @@ namespace Xamarin.WebTests.HttpFramework {
 				return;
 			if ((Flags & HttpServerFlags.HttpListener) != 0) {
 				// FIXME
-				ctx.LogMessage ("FIXME: Can't check ISslStream with HttpListener yet.");
-				return;
+				if (!SslStreamProvider.SupportsHttpListenerContext) {
+					ctx.LogMessage ("FIXME: Can't check ISslStream with HttpListener yet.");
+					return;
+				}
 			}
 
 			ctx.Assert (sslStream, Is.Not.Null, "Needs SslStream");

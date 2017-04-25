@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Authentication;
@@ -45,6 +46,13 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 	{
 		readonly MSI.MonoTlsProvider tlsProvider;
 		readonly string name;
+		static readonly MethodInfo getSslStreamFromHttpListenerContext;
+
+		static MonoConnectionProvider ()
+		{
+			var type = typeof (MSI.MonoTlsProviderFactory);
+			getSslStreamFromHttpListenerContext = type.GetRuntimeMethod ("GetMonoSslStream", new Type[] { typeof (HttpListenerContext) });
+		}
 
 		internal MonoConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderType type, ConnectionProviderFlags flags,
 		                                 string name, MSI.MonoTlsProvider tlsProvider)
@@ -136,6 +144,16 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 			var settings = GetSettings (parameters);
 			return MSI.MonoTlsProviderFactory.CreateHttpListener (certificate, tlsProvider, settings);
+		}
+
+		public bool SupportsHttpListenerContext => getSslStreamFromHttpListenerContext != null;
+
+		public ISslStream GetSslStream (HttpListenerContext context)
+		{
+			if (getSslStreamFromHttpListenerContext == null)
+				throw new NotSupportedException ();
+			var sslStream = getSslStreamFromHttpListenerContext.Invoke (null, new object[] { context });
+			return new MonoSslStream ((MSI.IMonoSslStream)sslStream);
 		}
 
 		ISslStream ISslStreamProvider.CreateServerStream (Stream stream, ConnectionParameters parameters)

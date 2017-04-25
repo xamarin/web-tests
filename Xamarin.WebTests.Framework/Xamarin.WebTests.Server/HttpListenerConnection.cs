@@ -44,7 +44,11 @@ namespace Xamarin.WebTests.Server {
 			get;
 		}
 
-		public override ISslStream SslStream => null;
+		public override ISslStream SslStream {
+			get { return sslStream; }
+		}
+
+		ISslStream sslStream;
 
 		public HttpListenerConnection (TestContext ctx, HttpServer server, HttpListenerContext context)
 			: base (server, context.Request.RemoteEndPoint)
@@ -55,6 +59,9 @@ namespace Xamarin.WebTests.Server {
 
 		public override Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
+			if (Server.SslStreamProvider?.SupportsHttpListenerContext ?? false)
+				sslStream = Server.SslStreamProvider.GetSslStream (Context);
+
 			return Handler.CompletedTask;
 		}
 
