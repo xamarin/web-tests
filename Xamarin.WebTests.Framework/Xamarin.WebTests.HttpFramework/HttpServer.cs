@@ -182,6 +182,11 @@ namespace Xamarin.WebTests.HttpFramework {
 		{
 			if ((Flags & (HttpServerFlags.SSL | HttpServerFlags.ForceTls12)) == 0)
 				return;
+			if ((Flags & HttpServerFlags.HttpListener) != 0) {
+				// FIXME
+				ctx.LogMessage ("FIXME: Can't check ISslStream with HttpListener yet.");
+				return;
+			}
 
 			ctx.Assert (sslStream, Is.Not.Null, "Needs SslStream");
 			ctx.Assert (sslStream.IsAuthenticated, "Must be authenticated");
