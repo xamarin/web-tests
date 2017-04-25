@@ -24,19 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.TestFramework
-{
+namespace Xamarin.WebTests.TestFramework {
 	using ConnectionFramework;
 	using HttpFramework;
 	using Resources;
 	using Server;
 
-	public sealed class HttpServerAttribute : TestHostAttribute, ITestHost<HttpServer>
-	{
+	public sealed class HttpServerAttribute : TestHostAttribute, ITestHost<HttpServer> {
 		internal HttpServerFlags? ExplicitServerFlags;
 
 		public HttpServerAttribute (HttpServerFlags serverFlags)
@@ -98,19 +98,26 @@ namespace Xamarin.WebTests.TestFramework
 
 		static ISslStreamProvider GetSslStreamProvider (TestContext ctx)
 		{
+			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
+
 			ConnectionProvider provider;
-			if (ctx.TryGetParameter (out provider)) {
-				ctx.Assert (provider.SupportsSslStreams, "Explicitly selected provider does not support Ssl.");
-				return provider.SslStreamProvider;
+			ConnectionTestFlags explicitFlags;
+			ConnectionProviderType providerType;
+
+			if (ctx.TryGetParameter (out providerType)) {
+				provider = factory.GetProvider (providerType);
+			} else if (ctx.TryGetParameter (out explicitFlags)) {
+				explicitFlags |= ConnectionTestFlags.RequireSslStream;
+				var filter = ConnectionProviderFilter.CreateSimpleFilter (explicitFlags);
+				provider = filter.GetDefaultServer (ctx, null);
+			} else {
+				return factory.DefaultSslStreamProvider;
 			}
 
-			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-			ConnectionProviderType providerType;
-			if (!ctx.TryGetParameter (out providerType))
-				return factory.DefaultSslStreamProvider;
+			ctx.Assert (provider, Is.Not.Null, "Failed to resolve ConnectionProvider");
+			ctx.Assert (provider.SupportsSslStreams, "Seleced ConnectionProvider `{0}' does not support SSL.", provider);
 
-			provider = factory.GetProvider (providerType);
-			return provider.SupportsSslStreams ? provider.SslStreamProvider : null;
+			return provider.SslStreamProvider;
 		}
 
 		public HttpServer CreateInstance (TestContext ctx)

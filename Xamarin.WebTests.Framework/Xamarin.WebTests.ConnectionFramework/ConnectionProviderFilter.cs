@@ -27,13 +27,13 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	using TestFramework;
 
-	public abstract class ConnectionProviderFilter
-	{
+	public abstract class ConnectionProviderFilter {
 		public ConnectionTestFlags Flags {
 			get;
 		}
@@ -126,12 +126,61 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 
-			var clientProviders = factory.GetProviders (p => IsClientSupported (ctx, p, clientFilter));
-			var serverProviders = factory.GetProviders (p => IsServerSupported (ctx, p, serverFilter));
+			var clientProviders = GetClientProviders (ctx, clientFilter);
+			var serverProviders = GetServerProviders (ctx, serverFilter);
 
 			return ConnectionTestHelper.Join (clientProviders, serverProviders, (c, s) => {
 				return Create (c, s);
 			});
+		}
+
+		public IEnumerable<ConnectionProvider> GetClientProviders (TestContext ctx, string filter)
+		{
+			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
+			return factory.GetProviders (p => IsClientSupported (ctx, p, filter));
+		}
+
+		public IEnumerable<ConnectionProvider> GetServerProviders (TestContext ctx, string filter)
+		{
+			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
+			return factory.GetProviders (p => IsServerSupported (ctx, p, filter));
+		}
+
+		public ConnectionProvider GetDefaultServer (TestContext ctx, string filter)
+		{
+			var supported = GetServerProviders (ctx, filter).ToList ();
+			ctx.Assert (supported.Count, Is.GreaterThan (0), "need at least one supported provider");
+			return supported[0];
+		}
+
+		public static ConnectionProviderFilter CreateSimpleFilter (ConnectionTestFlags flags)
+		{
+			return new SimpleFilter (flags);
+		}
+
+		class SimpleFilter : ConnectionProviderFilter {
+			public SimpleFilter (ConnectionTestFlags flags) : base (flags)
+			{
+			}
+
+			public override bool IsClientSupported (TestContext ctx, ConnectionProvider provider, string filter = null)
+			{
+				if (!IsClientSupported (provider))
+					return false;
+				return IsSupported (ctx, provider, filter) ?? true;
+			}
+
+			public override bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter = null)
+			{
+				if (!IsServerSupported (provider))
+					return false;
+				return IsSupported (ctx, provider, filter) ?? true;
+			}
+
+			protected override ClientAndServerProvider Create (ConnectionProvider client, ConnectionProvider server)
+			{
+				return new ClientAndServerProvider (client, server);
+			}
 		}
 	}
 }
