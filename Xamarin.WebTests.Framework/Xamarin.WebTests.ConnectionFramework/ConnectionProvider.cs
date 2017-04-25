@@ -74,6 +74,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public bool SupportsMonoExtensions => (Flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
 
+		public bool HasFlag (ConnectionProviderFlags flags)
+		{
+			return (Flags & flags) == flags;
+		}
+
 		public abstract ProtocolVersions SupportedProtocols {
 			get;
 		}

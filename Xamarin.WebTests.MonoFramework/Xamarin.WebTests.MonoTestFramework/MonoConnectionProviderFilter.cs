@@ -38,76 +38,32 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get;
 		}
 
-		public ConnectionTestFlags Flags {
-			get;
-		}
-
 		public MonoConnectionProviderFilter (MonoConnectionTestCategory category, ConnectionTestFlags flags)
+			: base (flags)
 		{
 			Category = category;
-			Flags = flags;
 		}
-
-		bool HasFlag (ConnectionTestFlags flag)
-		{
-			return (Flags & flag) != 0;
-		}
-
 		protected override ClientAndServerProvider Create (ConnectionProvider client, ConnectionProvider server)
 		{
 			return new MonoConnectionTestProvider (client, server, Category, Flags);
 		}
 
-		protected bool IsSupported (ConnectionProvider provider)
-		{
-			if (HasFlag (ConnectionTestFlags.RequireMonoClient) && !SupportsMonoExtensions (provider))
-				return false;
-			if (!SupportsTls12 (provider))
-				return false;
-
-			return true;
-		}
-
-		protected virtual bool IsClientSupported (ConnectionProvider provider)
-		{
-			return IsSupported (provider);
-		}
-
-		protected virtual bool IsServerSupported (ConnectionProvider provider)
-		{
-			return IsSupported (provider);
-		}
-
 		public override bool IsClientSupported (TestContext ctx, ConnectionProvider provider, string filter)
 		{
-			if (HasFlag (ConnectionTestFlags.ManualClient) && provider.Type != ConnectionProviderType.Manual)
-				return false;
 			if (!IsClientSupported (provider))
 				return false;
-
-			var match = MatchesFilter (provider, filter);
-			if (match != null)
-				return match.Value;
-			if ((provider.Flags & ConnectionProviderFlags.IsExplicit) != 0)
+			if (!provider.HasFlag (ConnectionProviderFlags.SupportsTls12))
 				return false;
-
-			return true;
+			return IsSupported (ctx, provider, filter) ?? true;
 		}
 
 		public override bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter)
 		{
-			if (HasFlag (ConnectionTestFlags.ManualServer) && provider.Type != ConnectionProviderType.Manual)
-				return false;
 			if (!IsServerSupported (provider))
 				return false;
-
-			var match = MatchesFilter (provider, filter);
-			if (match != null)
-				return match.Value;
-			if ((provider.Flags & ConnectionProviderFlags.IsExplicit) != 0)
+			if (!provider.HasFlag (ConnectionProviderFlags.SupportsTls12))
 				return false;
-
-			return true;
+			return IsSupported (ctx, provider, filter) ?? true;
 		}
 	}
 }

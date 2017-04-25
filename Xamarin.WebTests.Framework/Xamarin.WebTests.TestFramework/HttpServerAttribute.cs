@@ -98,12 +98,18 @@ namespace Xamarin.WebTests.TestFramework
 
 		static ISslStreamProvider GetSslStreamProvider (TestContext ctx)
 		{
+			ConnectionProvider provider;
+			if (ctx.TryGetParameter (out provider)) {
+				ctx.Assert (provider.SupportsSslStreams, "Explicitly selected provider does not support Ssl.");
+				return provider.SslStreamProvider;
+			}
+
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 			ConnectionProviderType providerType;
 			if (!ctx.TryGetParameter (out providerType))
 				return factory.DefaultSslStreamProvider;
 
-			var provider = factory.GetProvider (providerType);
+			provider = factory.GetProvider (providerType);
 			return provider.SupportsSslStreams ? provider.SslStreamProvider : null;
 		}
 

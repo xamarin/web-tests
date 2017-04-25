@@ -35,18 +35,12 @@ namespace Xamarin.WebTests.TestFramework
 	{
 		public ConnectionTestCategory Category {
 			get;
-			private set;
-		}
-
-		public ConnectionTestFlags Flags {
-			get;
-			private set;
 		}
 
 		public ConnectionTestProviderFilter (ConnectionTestCategory category, ConnectionTestFlags flags)
+			: base (flags)
 		{
 			Category = category;
-			Flags = flags;
 		}
 
 		protected override ClientAndServerProvider Create (ConnectionProvider client, ConnectionProvider server)
@@ -56,39 +50,24 @@ namespace Xamarin.WebTests.TestFramework
 
 		public override bool IsClientSupported (TestContext ctx, ConnectionProvider provider, string filter)
 		{
-			if ((Flags & ConnectionTestFlags.ManualClient) != 0)
-				return provider.Type == ConnectionProviderType.Manual;
-			return IsSupported (ctx, provider, filter);
+			if (!IsClientSupported (provider))
+				return false;
+
+			var supported = IsSupported (ctx, provider, filter);
+			if (supported != null)
+				return supported.Value;
+
+			return ConnectionTestRunner.IsSupported (ctx, Category, provider);
 		}
 
 		public override bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter)
 		{
-			if ((Flags & ConnectionTestFlags.ManualServer) != 0)
-				return provider.Type == ConnectionProviderType.Manual;
-			return IsSupported (ctx, provider, filter);
-		}
-
-		bool IsSupported (TestContext ctx, ConnectionProvider provider, string filter)
-		{
-			var supportsSslStream = (provider.Flags & ConnectionProviderFlags.SupportsSslStream) != 0;
-			var supportsHttps = (provider.Flags & ConnectionProviderFlags.SupportsHttp) != 0;
-			var supportsTrustedRoots = (provider.Flags & ConnectionProviderFlags.SupportsTrustedRoots) != 0;
-
-			if ((Flags & ConnectionTestFlags.RequireSslStream) != 0 && !supportsSslStream)
-				return false;
-			if ((Flags & ConnectionTestFlags.RequireHttp) != 0 && !supportsHttps)
-				return false;
-			if ((Flags & ConnectionTestFlags.RequireTrustedRoots) != 0 && !supportsTrustedRoots)
+			if (!IsServerSupported (provider))
 				return false;
 
-			var match = MatchesFilter (provider, filter);
-			if (match != null)
-				return match.Value;
-			if ((provider.Flags & ConnectionProviderFlags.IsExplicit) != 0)
-				return false;
-
-			if ((Flags & ConnectionTestFlags.AssumeSupportedByTest) != 0)
-				return true;
+			var supported = IsSupported (ctx, provider, filter);
+			if (supported != null)
+				return supported.Value;
 
 			return ConnectionTestRunner.IsSupported (ctx, Category, provider);
 		}

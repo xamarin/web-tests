@@ -34,6 +34,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	public abstract class ConnectionProviderFilter
 	{
+		public ConnectionTestFlags Flags {
+			get;
+		}
+
+		public ConnectionProviderFilter (ConnectionTestFlags flags)
+		{
+			Flags = flags;
+		}
+
 		public abstract bool IsClientSupported (TestContext ctx, ConnectionProvider provider, string filter = null);
 
 		public abstract bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter = null);
@@ -52,19 +61,50 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return false;
 		}
 
-		protected static bool SupportsMonoExtensions (ConnectionProvider provider)
+		protected bool HasFlag (ConnectionTestFlags flag)
 		{
-			return (provider.Flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
+			return (Flags & flag) == flag;
 		}
 
-		protected static bool SupportsTls12 (ConnectionProvider provider)
+		protected bool? IsSupported (TestContext ctx, ConnectionProvider provider, string filter)
 		{
-			return (provider.Flags & ConnectionProviderFlags.SupportsTls12) != 0;
+			if (HasFlag (ConnectionTestFlags.RequireSslStream) && !provider.HasFlag (ConnectionProviderFlags.SupportsSslStream))
+				return false;
+			if (HasFlag (ConnectionTestFlags.RequireHttp) && !provider.HasFlag (ConnectionProviderFlags.SupportsHttp))
+				return false;
+			if (HasFlag (ConnectionTestFlags.RequireTrustedRoots) && !provider.HasFlag (ConnectionProviderFlags.SupportsTrustedRoots))
+				return false;
+
+			var match = MatchesFilter (provider, filter);
+			if (match != null)
+				return match.Value;
+			if (provider.HasFlag (ConnectionProviderFlags.IsExplicit))
+				return false;
+
+			if ((Flags & ConnectionTestFlags.AssumeSupportedByTest) != 0)
+				return true;
+
+			return null;
 		}
 
-		protected static bool SupportsEcDhe (ConnectionProvider provider)
+		protected bool IsClientSupported (ConnectionProvider provider)
 		{
-			return (provider.Flags & ConnectionProviderFlags.SupportsEcDheCiphers) != 0;
+			if (HasFlag (ConnectionTestFlags.ManualClient))
+				return provider.Type == ConnectionProviderType.Manual;
+			if (HasFlag (ConnectionTestFlags.RequireMonoClient) && !provider.HasFlag (ConnectionProviderFlags.SupportsMonoExtensions))
+				return false;
+
+			return true;
+		}
+
+		protected bool IsServerSupported (ConnectionProvider provider)
+		{
+			if (HasFlag (ConnectionTestFlags.ManualServer))
+				return provider.Type == ConnectionProviderType.Manual;
+			if (HasFlag (ConnectionTestFlags.RequireMonoServer) && !provider.HasFlag (ConnectionProviderFlags.SupportsMonoExtensions))
+				return false;
+
+			return true;
 		}
 
 		protected abstract ClientAndServerProvider Create (ConnectionProvider client, ConnectionProvider server);
