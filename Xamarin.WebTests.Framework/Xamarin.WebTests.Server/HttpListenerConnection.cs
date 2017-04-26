@@ -119,8 +119,13 @@ namespace Xamarin.WebTests.Server {
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			TestContext.LogDebug (5, "WRITE RESPONSE: {0}", response);
-			Context.Response.StatusCode = (int)response.StatusCode;
-			Context.Response.ProtocolVersion = GetProtocol (response.Protocol);
+
+			try {
+				Context.Response.StatusCode = (int)response.StatusCode;
+				Context.Response.ProtocolVersion = GetProtocol (response.Protocol);
+			} catch (ObjectDisposedException) {
+				throw new NotSupportedException ("HttpContext.Response already closed when trying to write response.");
+			}
 
 			Context.Response.KeepAlive = (Server.Flags & HttpServerFlags.ReuseConnection) != 0;
 

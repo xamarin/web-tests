@@ -24,6 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
@@ -116,6 +119,52 @@ namespace Xamarin.WebTests.TestFramework
 						yield return result;
 				}
 			}
+		}
+
+		public static void CopyError (ref Exception error, Task task)
+		{
+			if (!task.IsFaulted)
+				return;
+
+			var aggregate = task.Exception;
+
+		again:
+			Exception newException = aggregate;
+			if (aggregate.InnerExceptions.Count == 1) {
+				var inner = aggregate.InnerExceptions[0];
+				var aggregate2 = inner as AggregateException;
+				if (aggregate2 != null && aggregate2 != aggregate) {
+					aggregate = aggregate2;
+					goto again;
+				}
+
+				if (inner is ObjectDisposedException)
+					return;
+
+				var io = inner as IOException;
+				if (io?.InnerException is ObjectDisposedException)
+					return;
+
+				if (Interlocked.CompareExchange (ref error, inner, null) == null)
+					return;
+
+				newException = inner;
+			}
+
+			var oldError = error;
+			var oldAggregate = oldError as AggregateException;
+			if (oldAggregate == null && Interlocked.CompareExchange (ref error, newException, null) == null)
+				return;
+
+			var newInner = new List<Exception> ();
+			if (oldAggregate != null)
+				newInner.AddRange (oldAggregate.InnerExceptions);
+			else if (oldError != null)
+				newInner.Add (oldError);
+			newInner.AddRange (aggregate.InnerExceptions);
+
+			newException = new AggregateException (newInner);
+			Interlocked.Exchange (ref error, newException);
 		}
 	}
 }

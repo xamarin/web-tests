@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.WebTests.TestFramework;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -161,52 +162,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return task.ContinueWith (t => OnWaitForClientConnectionCompleted (ctx, t));
 		}
 
-		static void CopyError (TestContext ctx, ref Exception error, Task task)
-		{
-			if (!task.IsFaulted)
-				return;
-
-			var aggregate = task.Exception;
-
-		again:
-			if (aggregate.InnerExceptions.Count > 1) {
-				error = aggregate;
-				return;
-			}
-
-			var inner = aggregate.InnerExceptions [0];
-			var aggregate2 = inner as AggregateException;
-			if (aggregate2 != null && aggregate2 != aggregate) {
-				aggregate = aggregate2;
-				goto again;
-			}
-
-			if (inner is ObjectDisposedException)
-				return;
-
-			var io = inner as IOException;
-			if (io != null) {
-				if (io.InnerException is ObjectDisposedException)
-					return;
-				if (error != null)
-					return;
-			}
-
-			if (error == null) {
-				error = inner;
-				return;
-			}
-
-			var newInner = new List<Exception> ();
-
-			var oldAggregate = error as AggregateException;
-			if (oldAggregate != null)
-				newInner.AddRange (oldAggregate.InnerExceptions);
-			newInner.Add (inner);
-
-			error = new AggregateException (newInner);
-		}
-
 		public override async Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var serverTask = WaitForServerConnection (ctx, cancellationToken);
@@ -227,8 +182,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw;
 			} catch (Exception ex) {
 				Exception error = null;
-				CopyError (ctx, ref error, clientTask);
-				CopyError (ctx, ref error, serverTask);
+				ConnectionTestHelper.CopyError (ref error, clientTask);
+				ConnectionTestHelper.CopyError (ref error, serverTask);
 				if (error == null)
 					error = ex;
 				throw error;

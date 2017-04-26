@@ -44,11 +44,12 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
+	using Xamarin.WebTests.TestFramework;
 
 	abstract class BuiltinListener
 	{
 		int currentConnections;
-		volatile Exception currentError;
+		Exception currentError;
 		volatile TaskCompletionSource<bool> tcs;
 		volatile CancellationTokenSource cts;
 
@@ -94,7 +95,7 @@ namespace Xamarin.WebTests.Server
 				return;
 			}
 			if (task.IsFaulted) {
-				OnException (task.Exception);
+				ConnectionTestHelper.CopyError (ref currentError, task);
 				return;
 			}
 
@@ -104,7 +105,7 @@ namespace Xamarin.WebTests.Server
 
 			MainLoop (connection, cts.Token).ContinueWith (t => {
 				if (t.IsFaulted)
-					OnException (t.Exception);
+					ConnectionTestHelper.CopyError (ref currentError, t);
 				if (t.IsCompleted)
 					connection.Dispose ();
 
@@ -112,38 +113,22 @@ namespace Xamarin.WebTests.Server
 			});
 		}
 
-		protected void OnException (Exception error)
-		{
-			lock (this) {
-				if (currentError == null) {
-					currentError = error;
-					return;
-				}
-
-				var aggregated = currentError as AggregateException;
-				if (aggregated == null) {
-					currentError = new AggregateException (error);
-					return;
-				}
-
-				var inner = aggregated.InnerExceptions.ToList ();
-				inner.Add (error);
-				currentError = new AggregateException (inner);
-			}
-		}
-
 		void OnFinished ()
 		{
 			lock (this) {
 				var connections = Interlocked.Decrement (ref currentConnections);
+				var error = Interlocked.Exchange (ref currentError, null);
+
+				TestContext.LogDebug (5, "ON FINISHED: {0} {1} {2}", this, connections, error);
+
+				if (error != null) {
+					tcs.SetException (error);
+					return;
+				}
 
 				if (connections > 0)
 					return;
-
-				if (currentError != null)
-					tcs.SetException (currentError);
-				else
-					tcs.SetResult (true);
+				tcs.SetResult (true);
 			}
 		}
 
