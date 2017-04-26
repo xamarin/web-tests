@@ -85,7 +85,7 @@ namespace Xamarin.WebTests.TestRunners
 			request.SetProxy (Server.GetProxy ());
 		}
 
-		protected abstract Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Request request);
+		protected abstract Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken);
 
 		public async Task Run (
 			TestContext ctx, CancellationToken cancellationToken,
@@ -100,7 +100,7 @@ namespace Xamarin.WebTests.TestRunners
 			var request = CreateRequest (ctx, uri);
 			ConfigureRequest (ctx, uri, request);
 
-			var response = await RunInner (ctx, cancellationToken, request);
+			var response = await Server.RunWithContext (ctx, (token) => RunInner (ctx, request, token), cancellationToken);
 
 			CheckResponse (ctx, response, cancellationToken, expectedStatus, expectedError);
 		}
@@ -114,7 +114,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			var request = CreateRequest (ctx, uri);
 
-			var response = await RunInner (ctx, cancellationToken, request);
+			var response = await Server.RunWithContext (ctx, (token) => RunInner (ctx, request, token), cancellationToken);
 
 			CheckResponse (ctx, response, cancellationToken, expectedStatus, expectedError);
 		}

@@ -102,5 +102,10 @@ namespace Xamarin.WebTests.HttpFramework {
 					throw;
 			}
 		}
+
+		public override Task<T> RunWithContext<T> (TestContext ctx, Func<CancellationToken, Task<T>> func, CancellationToken cancellationToken)
+		{
+			return currentListener.RunWithContext (ctx, func, cancellationToken);
+		}
 	}
 }

@@ -597,7 +597,7 @@ namespace Xamarin.WebTests.TestRunners
 			{
 				return parent.CreateRequest (ctx, uri);
 			}
-			protected override Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Request request)
+			protected override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
 			{
 				return parent.RunInner (ctx, cancellationToken, request);
 			}

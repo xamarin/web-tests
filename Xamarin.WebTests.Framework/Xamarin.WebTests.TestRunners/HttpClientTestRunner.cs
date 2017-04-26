@@ -51,7 +51,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new HttpClientRequest ((HttpClientHandler)Handler, uri);
 		}
 
-		protected override async Task<Response> RunInner (TestContext ctx, CancellationToken cancellationToken, Request request)
+		protected override async Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
 		{
 			var httpClientHandler = (HttpClientHandler)Handler;
 			var httpClientRequest = (HttpClientRequest)request;

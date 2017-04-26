@@ -125,6 +125,7 @@ namespace Xamarin.WebTests.Server
 
 				if (error != null) {
 					tcs.SetException (error);
+					cts.Cancel ();
 					return;
 				}
 
@@ -155,6 +156,12 @@ namespace Xamarin.WebTests.Server
 
 		protected virtual void OnStop ()
 		{
+		}
+
+		public async Task<T> RunWithContext<T> (TestContext ctx, Func<CancellationToken, Task<T>> func, CancellationToken cancellationToken)
+		{
+			using (var newCts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken, cts.Token))
+				return await func (newCts.Token).ConfigureAwait (false);
 		}
 
 		public abstract Task<HttpConnection> AcceptAsync (CancellationToken cancellationToken);

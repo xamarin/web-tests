@@ -198,6 +198,8 @@ namespace Xamarin.WebTests.HttpFramework {
 				ctx.Assert (sslStream.ProtocolVersion, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
 		}
 
+		public abstract Task<T> RunWithContext<T> (TestContext ctx, Func<CancellationToken, Task<T>> func, CancellationToken cancellationToken);
+
 		protected virtual string MyToString ()
 		{
 			var sb = new StringBuilder ();

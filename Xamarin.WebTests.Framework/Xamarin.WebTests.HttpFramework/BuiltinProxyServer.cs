@@ -99,6 +99,11 @@ namespace Xamarin.WebTests.HttpFramework {
 			}
 		}
 
+		public override Task<T> RunWithContext<T> (TestContext ctx, Func<CancellationToken, Task<T>> func, CancellationToken cancellationToken)
+		{
+			return currentListener.RunWithContext (ctx, func, cancellationToken);
+		}
+
 		public override IWebProxy GetProxy ()
 		{
 			var proxy = new SimpleProxy (Uri);
