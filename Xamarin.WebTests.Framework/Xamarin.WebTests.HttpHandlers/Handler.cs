@@ -33,6 +33,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
+	using ConnectionFramework;
 	using HttpFramework;
 
 	public abstract class Handler : Xamarin.AsyncTests.ICloneable, ITestFilter, ITestParameter
@@ -124,11 +125,14 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public async Task<bool> HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, CancellationToken cancellationToken)
 		{
+			Exception originalError;
+			HttpResponse response;
+
 			try {
 				Debug (ctx, 1, "HANDLE REQUEST");
 				DumpHeaders (ctx, request);
 				connection.Server.CheckEncryption (ctx, connection.SslStream);
-				var response = await HandleRequest (ctx, connection, request, Flags, cancellationToken);
+				response = await HandleRequest (ctx, connection, request, Flags, cancellationToken);
 				if (response == null)
 					response = HttpResponse.CreateSuccess ();
 				if (!response.KeepAlive.HasValue && ((Flags & RequestFlags.KeepAlive) != 0))
@@ -141,23 +145,34 @@ namespace Xamarin.WebTests.HttpHandlers
 				DumpHeaders (ctx, response);
 				return response.KeepAlive ?? false;
 			} catch (AssertionException ex) {
-				Debug (ctx, 1, "HANDLE REQUEST - ASSERTION FAILED", ex);
+				originalError = ex;
+				response = HttpResponse.CreateError (ex.Message);
+			} catch (OperationCanceledException) {
+				throw;
+			} catch (Exception ex) {
+				originalError = ex;
+				response = HttpResponse.CreateError ("Caught unhandled exception", ex);
+			}
+
+			if (ctx.IsCanceled || cancellationToken.IsCancellationRequested) {
+				Debug (ctx, 1, "HANDLE REQUEST - CANCELED");
+				return false;
+			}
+
+			if (originalError is AssertionException)
+				Debug (ctx, 1, "HANDLE REQUEST - ASSERTION FAILED", originalError);
+			else
+				Debug (ctx, 1, "HANDLE REQUEST - ERROR", originalError);
+
+			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				var response = HttpResponse.CreateError (ex.Message);
 				await connection.WriteResponse (response, cancellationToken);
 				return false;
 			} catch (OperationCanceledException) {
 				throw;
 			} catch (Exception ex) {
-				if (ctx.IsCanceled) {
-					Debug (ctx, 1, "HANDLE REQUEST - CANCELED", ex);
-					return false;
-				}
-				Debug (ctx, 1, "HANDLE REQUEST EX", ex);
-				cancellationToken.ThrowIfCancellationRequested ();
-				var response = HttpResponse.CreateError ("Caught unhandled exception", ex);
-				await connection.WriteResponse (response, cancellationToken);
-				return false;
+				Debug (ctx, 1, "FAILED TO SEND ERROR RESPONSE", originalError, ex);
+				throw new AggregateException ("Failed to send error response", originalError, ex);
 			}
 		}
 
