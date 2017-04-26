@@ -85,6 +85,7 @@ namespace Xamarin.WebTests.Server
 		void Listen ()
 		{
 			Interlocked.Increment (ref currentConnections);
+			TestContext.LogDebug (5, "LISTEN: {0} {1}", this, currentConnections);
 			AcceptAsync (cts.Token).ContinueWith (OnAccepted);
 		}
 
@@ -104,6 +105,7 @@ namespace Xamarin.WebTests.Server
 			var connection = task.Result;
 
 			MainLoop (connection, cts.Token).ContinueWith (t => {
+				TestContext.LogDebug (5, "MAIN LOOP DONE: {0} {1}", this, t.Status);
 				if (t.IsFaulted)
 					ConnectionTestHelper.CopyError (ref currentError, t);
 				if (t.IsCompleted)
@@ -134,6 +136,7 @@ namespace Xamarin.WebTests.Server
 
 		public async Task Stop ()
 		{
+			TestContext.LogDebug (5, "STOP: {0}", this);
 			cts.Cancel ();
 			Shutdown ();
 			await tcs.Task;
