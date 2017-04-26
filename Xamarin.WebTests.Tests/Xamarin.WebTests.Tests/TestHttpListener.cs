@@ -43,13 +43,14 @@ namespace Xamarin.WebTests.Tests {
 			switch (filter) {
 			case "martin":
 				yield return HelloWorldHandler.Simple;
+				yield return HelloWorldHandler.Simple;
 				break;
 			}
 		}
 
 		[Martin]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireMonoServer)]
-		[HttpServerFlags (HttpServerFlags.HttpListener | HttpServerFlags.SSL)]
+		[HttpServerFlags (HttpServerFlags.HttpListener | HttpServerFlags.SSL | HttpServerFlags.ReuseConnection)]
 		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
 		public Task MartinTest (TestContext ctx, HttpServer server, Handler handler,
 		                        CancellationToken cancellationToken)
