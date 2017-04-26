@@ -41,13 +41,12 @@ using SD = System.Diagnostics;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Server
-{
+namespace Xamarin.WebTests.Server {
+	using ConnectionFramework;
 	using HttpFramework;
-	using Xamarin.WebTests.TestFramework;
+	using TestFramework;
 
-	abstract class BuiltinListener
-	{
+	abstract class BuiltinListener {
 		int currentConnections;
 		Exception currentError;
 		volatile TaskCompletionSource<bool> tcs;
@@ -125,7 +124,6 @@ namespace Xamarin.WebTests.Server
 
 				if (error != null) {
 					tcs.SetException (error);
-					cts.Cancel ();
 					return;
 				}
 
@@ -160,8 +158,20 @@ namespace Xamarin.WebTests.Server
 
 		public async Task<T> RunWithContext<T> (TestContext ctx, Func<CancellationToken, Task<T>> func, CancellationToken cancellationToken)
 		{
-			using (var newCts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken, cts.Token))
-				return await func (newCts.Token).ConfigureAwait (false);
+			using (var newCts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken, cts.Token)) {
+				var userTask = func (newCts.Token);
+				var serverTask = tcs.Task;
+				var result = await Task.WhenAny (userTask, serverTask).ConfigureAwait (false);
+				if (result.IsFaulted)
+					throw result.Exception;
+				if (result.IsCanceled)
+					throw new OperationCanceledException ();
+				if (result == serverTask)
+					throw new ConnectionException ("Listener `{0}' exited before client operation finished.", this);
+				if (result.Status == TaskStatus.RanToCompletion)
+					return userTask.Result;
+				throw new ConnectionException ("User task finished with unknown status `{0}'.", result.Status);
+			}
 		}
 
 		public abstract Task<HttpConnection> AcceptAsync (CancellationToken cancellationToken);
@@ -181,7 +191,7 @@ namespace Xamarin.WebTests.Server
 
 				bool connectionAvailable = connection.IsStillConnected ();
 				if (!connectionAvailable && !cancellationToken.IsCancellationRequested)
-					throw new InvalidOperationException ("Expecting another connection, but socket has been shut down.");
+					throw new ConnectionException ("Expecting another connection, but socket has been shut down.");
 			}
 		}
 	}
