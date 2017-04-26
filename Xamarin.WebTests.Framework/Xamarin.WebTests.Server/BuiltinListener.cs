@@ -1,4 +1,4 @@
-﻿﻿﻿﻿//
+﻿//
 // BuiltinListener.cs
 //
 // Author:
@@ -95,7 +95,7 @@ namespace Xamarin.WebTests.Server {
 				return;
 			}
 			if (task.IsFaulted) {
-				ConnectionTestHelper.CopyError (ref currentError, task);
+				TestContext.AddException (ref currentError, task);
 				return;
 			}
 
@@ -106,7 +106,7 @@ namespace Xamarin.WebTests.Server {
 			MainLoop (connection, cts.Token).ContinueWith (t => {
 				TestContext.LogDebug (5, "MAIN LOOP DONE: {0} {1}", this, t.Status);
 				if (t.IsFaulted)
-					ConnectionTestHelper.CopyError (ref currentError, t);
+					TestContext.AddException (ref currentError, t);
 				if (t.IsCompleted)
 					connection.Dispose ();
 

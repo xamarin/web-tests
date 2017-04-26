@@ -124,7 +124,7 @@ namespace Xamarin.WebTests.Server {
 				Context.Response.StatusCode = (int)response.StatusCode;
 				Context.Response.ProtocolVersion = GetProtocol (response.Protocol);
 			} catch (ObjectDisposedException) {
-				throw new NotSupportedException ("HttpContext.Response already closed when trying to write response.");
+				throw new ConnectionException ("HttpContext.Response already closed when trying to write response.");
 			}
 
 			Context.Response.KeepAlive = (Server.Flags & HttpServerFlags.ReuseConnection) != 0;

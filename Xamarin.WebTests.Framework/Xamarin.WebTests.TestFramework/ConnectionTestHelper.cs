@@ -37,8 +37,7 @@ namespace Xamarin.WebTests.TestFramework
 	using TestRunners;
 	using ConnectionFramework;
 
-	public static class ConnectionTestHelper
-	{
+	public static class ConnectionTestHelper {
 		static readonly ConnectionProviderFactory Factory;
 
 		static ConnectionTestHelper ()
@@ -51,7 +50,7 @@ namespace Xamarin.WebTests.TestFramework
 			return Factory.GetProviderFlags (type);
 		}
 
-		public static R CreateTestRunner<P,A,R> (TestContext ctx, Func<IServer,IClient,P,A,R> constructor)
+		public static R CreateTestRunner<P, A, R> (TestContext ctx, Func<IServer, IClient, P, A, R> constructor)
 			where P : ClientAndServerProvider
 			where A : ConnectionParameters
 			where R : ClientAndServer
@@ -61,7 +60,7 @@ namespace Xamarin.WebTests.TestFramework
 			return CreateTestRunner (ctx, provider, parameters, constructor);
 		}
 
-		public static R CreateTestRunner<P,A,R> (TestContext ctx, P provider, A parameters, Func<IServer,IClient,P,A,R> constructor)
+		public static R CreateTestRunner<P, A, R> (TestContext ctx, P provider, A parameters, Func<IServer, IClient, P, A, R> constructor)
 			where P : ClientAndServerProvider
 			where A : ConnectionParameters
 			where R : ClientAndServer
@@ -111,7 +110,8 @@ namespace Xamarin.WebTests.TestFramework
 			get { return DependencyInjector.Get<IPortableSupport> ().IsMicrosoftRuntime; }
 		}
 
-		public static IEnumerable<R> Join<T,U,R> (IEnumerable<T> first, IEnumerable<U> second, Func<T, U, R> resultSelector, bool filterOutNull = true) {
+		public static IEnumerable<R> Join<T, U, R> (IEnumerable<T> first, IEnumerable<U> second, Func<T, U, R> resultSelector, bool filterOutNull = true)
+		{
 			foreach (var e1 in first) {
 				foreach (var e2 in second) {
 					var result = resultSelector (e1, e2);
@@ -119,52 +119,6 @@ namespace Xamarin.WebTests.TestFramework
 						yield return result;
 				}
 			}
-		}
-
-		public static void CopyError (ref Exception error, Task task)
-		{
-			if (!task.IsFaulted)
-				return;
-
-			var aggregate = task.Exception;
-
-		again:
-			Exception newException = aggregate;
-			if (aggregate.InnerExceptions.Count == 1) {
-				var inner = aggregate.InnerExceptions[0];
-				var aggregate2 = inner as AggregateException;
-				if (aggregate2 != null && aggregate2 != aggregate) {
-					aggregate = aggregate2;
-					goto again;
-				}
-
-				if (inner is ObjectDisposedException)
-					return;
-
-				var io = inner as IOException;
-				if (io?.InnerException is ObjectDisposedException)
-					return;
-
-				if (Interlocked.CompareExchange (ref error, inner, null) == null)
-					return;
-
-				newException = inner;
-			}
-
-			var oldError = error;
-			var oldAggregate = oldError as AggregateException;
-			if (oldAggregate == null && Interlocked.CompareExchange (ref error, newException, null) == null)
-				return;
-
-			var newInner = new List<Exception> ();
-			if (oldAggregate != null)
-				newInner.AddRange (oldAggregate.InnerExceptions);
-			else if (oldError != null)
-				newInner.Add (oldError);
-			newInner.AddRange (aggregate.InnerExceptions);
-
-			newException = new AggregateException (newInner);
-			Interlocked.Exchange (ref error, newException);
 		}
 	}
 }

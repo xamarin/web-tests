@@ -24,17 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests
-{
+namespace Xamarin.AsyncTests {
 	using Portable;
 	using Constraints;
 
-	public sealed class TestContext : ITestConfiguration
-	{
+	public sealed class TestContext : ITestConfiguration {
 		readonly TestContext parent;
 		readonly TestResult result;
 		readonly TestLogger logger;
@@ -54,7 +54,7 @@ namespace Xamarin.AsyncTests
 
 		internal TestPath CurrentPath {
 			get;
-		} 
+		}
 
 		internal TestContext (SettingsBag settings, TestLogger logger, ITestConfiguration config, string name)
 		{
@@ -146,11 +146,13 @@ namespace Xamarin.AsyncTests
 
 		public void LogError (string message, Exception error)
 		{
+			error = CleanupException (error);
 			logger.LogError (message, error);
 		}
 
 		public void LogError (Exception error)
 		{
+			error = CleanupException (error);
 			logger.LogError (error);
 		}
 
@@ -285,8 +287,7 @@ namespace Xamarin.AsyncTests
 			throw new SkipRestOfThisTestException ();
 		}
 
-		class SkipRestOfThisTestException : Exception
-		{
+		class SkipRestOfThisTestException : Exception {
 		}
 
 		[HideStackFrame]
@@ -398,8 +399,67 @@ namespace Xamarin.AsyncTests
 				path = path.Parent;
 			}
 
-			value = default(T);
+			value = default (T);
 			return false;
+		}
+
+		public static void AddException (ref Exception error, Task task)
+		{
+			if (!task.IsFaulted)
+				return;
+
+			AddException (ref error, task.Exception);
+		}
+
+		public static Exception CleanupException (Exception error)
+		{
+		again:
+			var aggregate = error as AggregateException;
+			if (aggregate?.InnerExceptions.Count == 1) {
+				error = aggregate.InnerExceptions[0];
+				var aggregate2 = error as AggregateException;
+				if (aggregate2 != null && aggregate2 != aggregate)
+					goto again;
+			}
+
+			return error;
+		}
+
+		public static void AddException (ref Exception error, Exception newException)
+		{
+			newException = CleanupException (newException);
+
+			var ioExc = newException as IOException;
+			if (newException is ObjectDisposedException || ioExc?.InnerException is ObjectDisposedException) {
+				// We silently ignore these if we already have an exception.
+				Interlocked.CompareExchange (ref error, newException, null);
+				return;
+			}
+
+			var oldError = Interlocked.CompareExchange (ref error, newException, null);
+			if (oldError == null)
+				return;
+
+			//
+			// We already have an exception.
+			//
+
+			var oldAggregate = oldError as AggregateException;
+
+			var newInner = new List<Exception> ();
+			if (oldAggregate != null)
+				newInner.AddRange (oldAggregate.InnerExceptions);
+			else
+				newInner.Add (oldError);
+
+			var newAggregate = newException as AggregateException;
+			if (newAggregate != null)
+				newInner.AddRange (newAggregate.InnerExceptions);
+			else
+				newInner.Add (newException);
+
+			newException = new AggregateException (newInner);
+			Interlocked.Exchange (ref error, newException);
 		}
 
 		static int nextPort;

@@ -182,8 +182,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw;
 			} catch (Exception ex) {
 				Exception error = null;
-				ConnectionTestHelper.CopyError (ref error, clientTask);
-				ConnectionTestHelper.CopyError (ref error, serverTask);
+				TestContext.AddException (ref error, clientTask);
+				TestContext.AddException (ref error, serverTask);
 				if (error == null)
 					error = ex;
 				throw error;
