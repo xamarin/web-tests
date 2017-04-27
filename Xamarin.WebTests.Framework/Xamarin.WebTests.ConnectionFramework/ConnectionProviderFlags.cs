@@ -40,7 +40,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		IsExplicit			= 64,
 		OverridesCipherSelection	= 128,
 		SupportsTrustedRoots		= 256,
-		SupportsMonoExtensions		= 512
+		SupportsMonoExtensions		= 512,
+		SupportsHttpListener		= 1024
 	}
 }
 

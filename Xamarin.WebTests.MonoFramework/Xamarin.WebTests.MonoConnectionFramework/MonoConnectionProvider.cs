@@ -65,7 +65,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		static ConnectionProviderFlags GetFlags (ConnectionProviderFlags flags, MSI.MonoTlsProvider tlsProvider)
 		{
 			if (tlsProvider.SupportsMonoExtensions)
-				flags |= ConnectionProviderFlags.SupportsMonoExtensions;
+				flags |= ConnectionProviderFlags.SupportsMonoExtensions | ConnectionProviderFlags.SupportsHttpListener;
 			return flags;
 		}
 

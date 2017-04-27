@@ -74,6 +74,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 				return false;
 			if (HasFlag (ConnectionTestFlags.RequireTrustedRoots) && !provider.HasFlag (ConnectionProviderFlags.SupportsTrustedRoots))
 				return false;
+			if (HasFlag (ConnectionTestFlags.RequireHttpListener) && !provider.HasFlag (ConnectionProviderFlags.SupportsHttpListener))
+				return false;
 
 			var match = MatchesFilter (provider, filter);
 			if (match != null)
