@@ -3,3 +3,7 @@ start /^\[start\] /
 error /^\[error\] /
 
 info /^\[info\] /
+
+info /^XQA:/
+
+info /^XQA_DEBUG:/
