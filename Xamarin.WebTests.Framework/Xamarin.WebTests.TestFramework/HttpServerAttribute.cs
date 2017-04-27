@@ -96,7 +96,16 @@ namespace Xamarin.WebTests.TestFramework {
 			return true;
 		}
 
-		static ISslStreamProvider GetSslStreamProvider (TestContext ctx)
+		static void CheckConnectionFlags (ref ConnectionTestFlags flags, HttpServerFlags serverFlags)
+		{
+			var sslListenerFlags = HttpServerFlags.HttpListener | HttpServerFlags.SSL;
+			if ((serverFlags & sslListenerFlags) == sslListenerFlags)
+				flags |= ConnectionTestFlags.RequireMonoServer | ConnectionTestFlags.RequireHttpListener;
+		}
+
+		const HttpServerFlags HttpListenerSsl = HttpServerFlags.HttpListener | HttpServerFlags.SSL;
+
+		static ISslStreamProvider GetSslStreamProvider (TestContext ctx, HttpServerFlags serverFlags)
 		{
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 
@@ -108,6 +117,10 @@ namespace Xamarin.WebTests.TestFramework {
 				provider = factory.GetProvider (providerType);
 			} else if (ctx.TryGetParameter (out explicitFlags)) {
 				explicitFlags |= ConnectionTestFlags.RequireSslStream;
+				var filter = ConnectionProviderFilter.CreateSimpleFilter (explicitFlags);
+				provider = filter.GetDefaultServer (ctx, null);
+			} else if ((serverFlags & HttpListenerSsl) == HttpListenerSsl) {
+				explicitFlags = ConnectionTestFlags.RequireHttpListener;
 				var filter = ConnectionProviderFilter.CreateSimpleFilter (explicitFlags);
 				provider = filter.GetDefaultServer (ctx, null);
 			} else {
@@ -129,7 +142,7 @@ namespace Xamarin.WebTests.TestFramework {
 
 			var flags = GetServerFlags (ctx);
 			if (GetParameters (ctx, flags, out parameters))
-				sslStreamProvider = GetSslStreamProvider (ctx);
+				sslStreamProvider = GetSslStreamProvider (ctx, flags);
 
 			return new BuiltinHttpServer (endpoint, endpoint, flags, parameters, sslStreamProvider);
 		}
