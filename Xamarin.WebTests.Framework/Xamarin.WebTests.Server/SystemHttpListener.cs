@@ -85,9 +85,13 @@ namespace Xamarin.WebTests.Server {
 
 		protected override void Shutdown ()
 		{
-			listener.Abort ();
-			listener.Stop ();
-			listener.Close ();
+			try {
+				listener.Abort ();
+				listener.Stop ();
+				listener.Close ();
+			} catch {
+				;
+			}
 			listener = null;
 			base.Shutdown ();
 		}
