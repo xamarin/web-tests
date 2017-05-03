@@ -112,8 +112,7 @@
     <Compile Include="Xamarin.AsyncTests\InternalErrorException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <Target Name="PackageForAndroid" />
-  <Target Name="SignAndroidPackage" />
+  <Import Project="..\Xamarin.WebTests.Common.targets" />
   <ItemGroup />
   <ItemGroup>
     <Folder Include="Xamarin.AsyncTests.Portable\" />

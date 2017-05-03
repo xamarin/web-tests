@@ -36,18 +36,18 @@ namespace Xamarin.AsyncTests.Remoting
 
 	public class LauncherConnection : ClientConnection
 	{
-		ApplicationLauncher launcher;
+		ExternalProcess process;
 
-		public LauncherConnection (TestApp app, Stream stream, IServerConnection connection, ApplicationLauncher launcher)
+		public LauncherConnection (TestApp app, Stream stream, IServerConnection connection, ExternalProcess process)
 			: base (app, stream, connection)
 		{
-			this.launcher = launcher;
+			this.process = process;
 		}
 
 		protected internal override void OnShutdown ()
 		{
 			base.OnShutdown ();
-			launcher.StopApplication ();
+			process.Dispose ();
 		}
 	}
 }

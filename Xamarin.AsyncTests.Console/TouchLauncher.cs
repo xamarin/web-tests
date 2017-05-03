@@ -46,259 +46,108 @@ namespace Xamarin.AsyncTests.Console
 	{
 		public Program Program {
 			get;
-			private set;
 		}
 
-		public string SdkRoot {
-			get;
-			private set;
-		}
+		public ProgramOptions Options => Program.Options;
 
 		public string MonoTouchRoot {
 			get;
-			private set;
-		}
-
-		public string MTouch {
-			get;
-			private set;
 		}
 
 		public string MLaunch {
 			get;
-			private set;
-		}
-
-		public string Application {
-			get;
-			private set;
-		}
-
-		public Command Command {
-			get;
-			private set;
-		}
-
-		public string RedirectStdout {
-			get;
-			private set;
-		}
-
-		public string RedirectStderr {
-			get;
-			private set;
 		}
 
 		public string DeviceName {
 			get;
-			private set;
 		}
 
-		public string ExtraMTouchArguments {
-			get;
-			private set;
-		}
-
-		public string DeviceType {
-			get;
-			private set;
-		}
-
-		public string Runtime {
-			get;
-			private set;
-		}
-
-		public bool UseMLaunch {
-			get;
-			private set;
-		}
-
-		Process process;
-		TaskCompletionSource<bool> tcs;
-
-		static string GetEnvironmentVariable (string name, string defaultValue)
-		{
-			var value = Environment.GetEnvironmentVariable (name);
-			if (string.IsNullOrEmpty (value))
-				value = defaultValue;
-			return value;
-		}
-
-		public TouchLauncher (Program program, string app, Command command, string sdkroot, string stdout, string stderr, string devname, string extraArgs)
+		public TouchLauncher (Program program)
 		{
 			Program = program;
-			Application = app;
-			Command = command;
-			RedirectStdout = stdout;
-			RedirectStderr = stderr;
-			DeviceName = devname;
-			ExtraMTouchArguments = extraArgs;
-			SdkRoot = sdkroot;
 
-			MonoTouchRoot = GetEnvironmentVariable ("MONOTOUCH_ROOT", "/Library/Frameworks/Xamarin.iOS.framework/Versions/Current");
+			MonoTouchRoot = ProgramOptions.GetEnvironmentVariable ("MONOTOUCH_ROOT", "/Library/Frameworks/Xamarin.iOS.framework/Versions/Current");
 
-			if (String.IsNullOrEmpty (SdkRoot)) {
-				SdkRoot = GetEnvironmentVariable ("XCODE_DEVELOPER_ROOT", "/Applications/Xcode.app/Contents/Developer");
-			}
+			MLaunch = Path.Combine (MonoTouchRoot, "bin", "mlaunch");
 
-			MTouch = Path.Combine (MonoTouchRoot, "bin", "mtouch");
-
-			switch (command) {
-			case Command.Device:
-			case Command.Simulator:
-				DeviceType = GetEnvironmentVariable ("IOS_DEVICE_TYPE", "iPhone-5s");
-				Runtime = GetEnvironmentVariable ("IOS_RUNTIME", "iOS-10-0");
-				break;
-			case Command.TVOS:
-				DeviceType = "Apple-TV-1080p";
-				Runtime = "tvOS-9-2";
-				break;
-			default:
-				throw new NotSupportedException ();
-			}
-
-			if (UseMLaunch) {
-				var mlaunchPath = "/Applications/Xamarin Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.IPhone/mlaunch.app/Contents/MacOS/mlaunch";
-				if (File.Exists (mlaunchPath))
-					MLaunch = mlaunchPath;
-				else {
-					MLaunch = null;
-					UseMLaunch = false;
-				}
-			} else if (DeviceName == null) {
-				DeviceName = string.Format (":v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}", DeviceType, Runtime);
-			}
+			DeviceName = string.Format (
+				":v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}",
+				Options.IOSDeviceType, Options.IOSRuntime);
 		}
 
 		void Install ()
 		{
 			var args = new StringBuilder ();
-			switch (Command) {
+			switch (Options.Command) {
 			case Command.Device:
-				args.AppendFormat (" --installdev={0}", Application);
+				args.AppendFormat (" --installdev={0}", Options.Application);
 				break;
 			case Command.Simulator:
-				args.AppendFormat (" --installsim={0}", Application);
+				args.AppendFormat (" --installsim={0}", Options.Application);
 				break;
 			case Command.TVOS:
-				args.AppendFormat (" --installsim={0}", Application);
-				// args.AppendFormat (" --device=:v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}", DeviceType, Runtime);
+				args.AppendFormat (" --installsim={0}", Options.Application);
 				break;
 			default:
 				throw new NotSupportedException ();
 			}
 
-			args.AppendFormat (" --sdkroot={0}", SdkRoot);
+			args.AppendFormat (" --sdkroot={0}", Options.SdkRoot);
+			args.AppendFormat ("  --device={0}", DeviceName);
 
-			if (DeviceName != null)
-				args.AppendFormat ("  --device={0}", DeviceName);
-
-			if (ExtraMTouchArguments != null) {
+			if (Options.ExtraLauncherArgs != null) {
 				args.Append (" ");
-				args.Append (ExtraMTouchArguments);
+				args.Append (Options.ExtraLauncherArgs);
 			}
 
-			var tool = UseMLaunch ? MLaunch : MTouch;
+			Program.Debug ("Launching mtouch: {0} {1}", MLaunch, args);
 
-			Program.Debug ("Launching mtouch: {0} {1}", tool, args);
-
-			var psi = new ProcessStartInfo (tool, args.ToString ());
+			var psi = new ProcessStartInfo (MLaunch, args.ToString ());
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
 
-			var process = Process.Start (psi);
+			var installProcess = Process.Start (psi);
 
-			Program.Debug ("Started: {0}", process);
+			Program.Debug ("Started: {0}", installProcess);
 
-			process.WaitForExit ();
+			installProcess.WaitForExit ();
 
-			Program.Debug ("Process finished: {0}", process.ExitCode);
-			if (process.ExitCode != 0)
+			Program.Debug ("Process finished: {0}", installProcess.ExitCode);
+			if (installProcess.ExitCode != 0)
 				throw new NotSupportedException ();
 		}
 
-		Process Launch (string launchArgs)
+		public override Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
 		{
 			var args = new StringBuilder ();
-			switch (Command) {
+			switch (Options.Command) {
 			case Command.Device:
-				args.AppendFormat (" --launchdev={0}", Application);
+				args.AppendFormat (" --launchdev={0}", Options.Application);
 				break;
 			case Command.Simulator:
-				args.AppendFormat (" --launchsim={0}", Application);
+				args.AppendFormat (" --launchsim={0}", Options.Application);
 				break;
 			case Command.TVOS:
-				args.AppendFormat (" --launchsim={0}", Application);
+				args.AppendFormat (" --launchsim={0}", Options.Application);
 				break;
 			default:
 				throw new NotSupportedException ();
 			}
 
-			args.AppendFormat (" --setenv=\"XAMARIN_ASYNCTESTS_OPTIONS={0}\"", launchArgs);
-			if (!string.IsNullOrWhiteSpace (RedirectStdout))
-				args.AppendFormat (" --stdout={0}", RedirectStdout);
-			if (!string.IsNullOrWhiteSpace (RedirectStderr))
-				args.AppendFormat (" --stderr={0}", RedirectStderr);
-			if (!string.IsNullOrWhiteSpace (DeviceName))
-				args.AppendFormat (" --devname={0}", DeviceName);
-			args.AppendFormat (" --sdkroot={0}", SdkRoot);
+			args.AppendFormat (" --setenv=\"XAMARIN_ASYNCTESTS_OPTIONS={0}\"", options);
+			if (!string.IsNullOrWhiteSpace (Options.StdOut))
+				args.AppendFormat (" --stdout={0}", Options.StdOut);
+			if (!string.IsNullOrWhiteSpace (Options.StdErr))
+				args.AppendFormat (" --stderr={0}", Options.StdErr);
+			args.AppendFormat (" --sdkroot={0}", Options.SdkRoot);
+			args.AppendFormat (" --device={0}", DeviceName);
 
-			if (DeviceName != null)
-				args.AppendFormat (" --device={0}", DeviceName);
-
-			if (ExtraMTouchArguments != null) {
+			if (Options.ExtraLauncherArgs != null) {
 				args.Append (" ");
-				args.Append (ExtraMTouchArguments);
+				args.Append (Options.ExtraLauncherArgs);
 			}
 
-			var tool = UseMLaunch ? MLaunch : MTouch;
-
-			Program.Debug ("Launching mtouch: {0} {1}", tool, args);
-
-			var psi = new ProcessStartInfo (tool, args.ToString ());
-			psi.UseShellExecute = false;
-			psi.RedirectStandardInput = true;
-
-			var process = Process.Start (psi);
-
-			Program.Debug ("Started: {0}", process);
-
-			return process;
-		}
-
-		public override void LaunchApplication (string args)
-		{
-			// Install ();
-			process = Launch (args);
-		}
-
-		public override Task<bool> WaitForExit ()
-		{
-			var oldTcs = Interlocked.CompareExchange (ref tcs, new TaskCompletionSource<bool> (), null);
-			if (oldTcs != null)
-				return oldTcs.Task;
-
-			ThreadPool.QueueUserWorkItem (_ => {
-				try {
-					process.WaitForExit ();
-					tcs.TrySetResult (process.ExitCode == 0);
-				} catch (Exception ex) {
-					tcs.TrySetException (ex);
-				}
-			});
-
-			return tcs.Task;
-		}
-
-		public override void StopApplication ()
-		{
-			try {
-				if (!process.HasExited)
-					process.Kill ();
-			} catch {
-				;
-			}
+			return ProcessHelper.StartCommand (MLaunch, args.ToString (), cancellationToken);
 		}
 	}
 }

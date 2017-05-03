@@ -33,11 +33,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 	public abstract class ApplicationLauncher
 	{
-		public abstract void LaunchApplication (string args);
-
-		public abstract Task<bool> WaitForExit ();
-
-		public abstract void StopApplication ();
+		public abstract Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken);
 	}
 }
 

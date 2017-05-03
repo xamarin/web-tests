@@ -82,7 +82,7 @@ namespace Xamarin.AsyncTests.Remoting
 		public static async Task<TestServer> LaunchApplication (TestApp app, IPortableEndPoint address, ApplicationLauncher launcher, LauncherOptions options, CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IServerHost> ();
-			var connection = await support.Listen (address, cancellationToken);
+			var connection = await support.Listen (address, cancellationToken).ConfigureAwait (false);
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var sb = new StringBuilder ();
@@ -95,14 +95,17 @@ namespace Xamarin.AsyncTests.Remoting
 					sb.AppendFormat (" --features={0}", options.Features);
 			}
 
-			launcher.LaunchApplication (sb.ToString ());
+			if (!string.IsNullOrWhiteSpace (app.PackageName))
+				sb.AppendFormat (" --package-name={0}", app.PackageName);
+
+			var process = await launcher.LaunchApplication (sb.ToString (), cancellationToken);
 
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.CancelAfter (90000);
 
 			bool launcherError = false;
-			var launcherTask = launcher.WaitForExit ().ContinueWith (t => {
-				if (t.IsFaulted || t.IsCanceled || !t.Result) {
+			var launcherTask = process.WaitForExit (cts.Token).ContinueWith (t => {
+				if (t.IsFaulted || t.IsCanceled) {
 					launcherError = true;
 					cts.Cancel ();
 				}
@@ -119,7 +122,7 @@ namespace Xamarin.AsyncTests.Remoting
 				throw;
 			}
 
-			var launcherConnection = new LauncherConnection (app, stream, connection, launcher);
+			var launcherConnection = new LauncherConnection (app, stream, connection, process);
 			var client = new Client (app, launcherConnection);
 			await client.Initialize (cancellationToken);
 			cts.Token.ThrowIfCancellationRequested ();

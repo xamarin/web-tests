@@ -79,7 +79,7 @@ namespace Xamarin.AsyncTests.Mobile
 			private set;
 		}
 
-		public MobileFormsTestApp (TestFramework framework, string options)
+		public MobileFormsTestApp (TestFramework framework, MobileTestOptions options)
 		{
 			App = new MobileTestApp (this, framework, options);
 

@@ -1,0 +1,175 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0" DefaultTargets="Build">
+	<PropertyGroup>
+		<JenkinsTarget Condition="'$(JenkinsTarget)' == ''">Console</JenkinsTarget>
+		<XamarinAsyncTestsConsole>Xamarin.AsyncTests.Console</XamarinAsyncTestsConsole>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Console'">
+		<ProjectConfiguration>Debug</ProjectConfiguration>
+		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
+		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
+		<JenkinsPlatform>Console</JenkinsPlatform>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Console-AppleTls'">
+		<ProjectConfiguration>DebugAppleTls</ProjectConfiguration>
+		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
+		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
+		<JenkinsPlatform>Console</JenkinsPlatform>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Console-Legacy'">
+		<ProjectConfiguration>DebugLegacy</ProjectConfiguration>
+		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
+		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
+		<JenkinsPlatform>Console</JenkinsPlatform>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'DotNet'">
+		<ProjectConfiguration>Debug</ProjectConfiguration>
+		<SolutionFile>Xamarin.WebTests.DotNet.sln</SolutionFile>
+		<MainAssembly>Xamarin.WebTests.DotNet</MainAssembly>
+		<JenkinsPlatform>Console</JenkinsPlatform>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'IOS'">
+		<ProjectConfiguration>Debug</ProjectConfiguration>
+		<SolutionFile>Xamarin.WebTests.iOS.sln</SolutionFile>
+		<MainAssembly>XamarinWebTestsIOS</MainAssembly>
+		<JenkinsPlatform>IOS</JenkinsPlatform>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Mac'">
+		<ProjectConfiguration>Debug</ProjectConfiguration>
+		<SolutionFile>Xamarin.WebTests.Mac.sln</SolutionFile>
+		<MainAssembly>Xamarin.WebTests.Mac</MainAssembly>
+		<JenkinsPlatform>Mac</JenkinsPlatform>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Android-Btls'">
+		<ProjectConfiguration>DebugBtls</ProjectConfiguration>
+		<SolutionFile>Xamarin.WebTests.Android.sln</SolutionFile>
+		<AndroidProjectFile>Android/Xamarin.WebTests.Android/Xamarin.WebTests.Android.csproj</AndroidProjectFile>
+		<AndroidPackageName>com.xamarin.webtests.android</AndroidPackageName>
+		<MainAssembly>Xamarin.WebTests.Android</MainAssembly>
+		<JenkinsPlatform>Android</JenkinsPlatform>
+	</PropertyGroup>
+
+	<Target Name="_ValidateJenkinsTarget">
+		<Error Condition="'$(SolutionFile)' == ''" Text="Invalid jenkins configuration '$(JenkinsTarget)'" />
+	</Target>
+	<Target Name="NuGetRestore" DependsOnTargets="_ValidateJenkinsTarget">
+		<Exec Command="nuget restore $(SolutionFile)" />
+	</Target>
+
+	<Target Name="BuildSolution" Returns="$(MainAssemblyOutput)" DependsOnTargets="_ValidateJenkinsTarget; NuGetRestore">
+		<PropertyGroup Condition="'$(AndroidProjectFile)' != ''">
+			<JenkinsBuildTargets>JenkinsBuild</JenkinsBuildTargets>
+		</PropertyGroup>
+		
+		<MSBuild Projects="$(SolutionFile)" Targets="Build; $(JenkinsBuildTargets)" Properties="Configuration=$(ProjectConfiguration)">
+			<Output TaskParameter="TargetOutputs" ItemName="_ChildOutputs" />
+		</MSBuild>
+
+		<Message Text="CHILD OUTPUTS: %(_ChildOutputs.Identity)" />
+
+		<MSBuild Projects="$(AndroidProjectFile)"
+				Targets="JenkinsGetApkFile"
+				Properties="Configuration=$(ProjectConfiguration);AndroidPackageName=$(AndroidPackageName)"
+				Condition="'$(JenkinsPlatform)' == 'Android'" >
+			<Output TaskParameter="TargetOutputs" ItemName="_ChildOutputs2" />
+		</MSBuild>
+
+		<Message Text="CHILD OUTPUTS 2: %(_ChildOutputs2.Identity)" />
+
+		<ItemGroup Condition="'$(JenkinsPlatform)' == 'Console'">
+			<_MainAssemblyOutput Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
+		</ItemGroup>
+		<ItemGroup Condition="('$(JenkinsPlatform)' == 'Mac') OR ('$(JenkinsPlatform)' == 'IOS')">
+			<_ChildOutputs3 Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
+			<_MainAssemblyOutput Include="@(_ChildOutputs3->'%(RootDir)%(Directory)%(filename).app')" />
+		</ItemGroup>
+		<ItemGroup Condition="'$(JenkinsPlatform)' == 'Android'">
+			<_MainAssemblyOutput Include="@(_ChildOutputs2)" Condition="'%(Extension)' == '.apk'" />
+		</ItemGroup>
+		<ItemGroup>
+			<_AsyncTestsConsoleOutput Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(XamarinAsyncTestsConsole)'" />
+		</ItemGroup>
+		
+		<PropertyGroup>
+			<MainAssemblyOutput>@(_MainAssemblyOutput)</MainAssemblyOutput>
+			<AsyncTestsConsoleOutput>@(_AsyncTestsConsoleOutput)</AsyncTestsConsoleOutput>
+		</PropertyGroup>
+		
+		<Error Condition="!Exists('$(MainAssemblyOutput)')" Text="Main assembly '$(MainAssemblyOutput)' does not exist!" />
+		<Error Condition="!Exists('$(AsyncTestsConsoleOutput)')" Text="Console assembly '$(AsyncTestsConsoleOutput)' does not exist!" />
+	</Target>
+
+	<Target Name="Build" DependsOnTargets="BuildSolution">
+		<Message Text="MAIN ASSEMBLY: $(MainAssemblyOutput)" Importance="high" />
+		<Message Text="CONSOLE ASSEMBLY: $(AsyncTestsConsoleOutput)" Importance="high" />
+	</Target>
+
+	<Target Name="MultiBuild">
+		<PropertyGroup Condition="'$(JenkinsTargets)' == 'all' OR '$(JenkinsTargets)' == ''">
+			<JenkinsTargets>Console:Console-AppleTls:Console-Legacy:DotNet:Mac:IOS:Android-Btls</JenkinsTargets>
+		</PropertyGroup>
+		<ItemGroup>
+			<JenkinsTargets Include="$(JenkinsTargets.Split(':'))" />
+		</ItemGroup>
+
+		<Message Importance="High" Text="Building Jenkins target: %(JenkinsTargets.Identity)" />
+
+		<MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="JenkinsTarget=%(JenkinsTargets.Identity)" />
+	</Target>
+	
+	<PropertyGroup>
+		<RunDependsOn>Build; _PrepareRun</RunDependsOn>
+		<TestCategory Condition="'$(TestCategory)' == ''">All</TestCategory>
+		<ResultOutput Condition="'$(ResultOutput)' == ''">TestResult.xml</ResultOutput>
+		<JUnitResultOutput Condition="'$(JUnitResultOutput)' == ''">JUnitTestResult.xml</JUnitResultOutput>
+		<JenkinsPackageName>$(JenkinsTarget)-$(TestCategory)</JenkinsPackageName>
+		<JenkinsArguments>--jenkins --package-name=$(JenkinsPackageName)</JenkinsArguments>
+		<ResultArguments>--result=$(ResultOutput) --junit-result=$(JUnitResultOutput)</ResultArguments>
+		<CategoryArguments>--category=$(TestCategory)</CategoryArguments>
+		<IosDeviceTypeArgument Condition="'$(IosDeviceType)' != ''">--ios-device-type=$(IosDeviceType)</IosDeviceTypeArgument>
+		<IosRuntimeArgument Condition="'$(IosRuntime)' != ''">--ios-runtime=$(IosRuntime)</IosRuntimeArgument>
+		<IosArguments Condition="'$(JenkinsPlatform)' == 'IOS'">$(IosDeviceTypeArgument) $(IosRuntimeArgument)</IosArguments>
+		<AsyncTestsArguments>$(JenkinsArguments) $(IosArguments) $(CategoryArguments) $(ResultArguments)</AsyncTestsArguments>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(JenkinsPlatform)' == 'Android'">
+		<RunDependsOn>$(RunDependsOn); _AndroidInstall</RunDependsOn>
+	</PropertyGroup>
+	
+	<Target Name="_PrepareRun">
+		<PropertyGroup Condition="'$(JenkinsPlatform)' == 'Console'">
+			<RunCommandLine>$(MainAssemblyOutput) $(AsyncTestsArguments)</RunCommandLine>
+			<_HasRunCommandLine>true</_HasRunCommandLine>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(JenkinsPlatform)' == 'IOS'">
+			<RunCommandLine>$(AsyncTestsConsoleOutput) $(AsyncTestsArguments) simulator $(MainAssemblyOutput)</RunCommandLine>
+			<_HasRunCommandLine>true</_HasRunCommandLine>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(JenkinsPlatform)' == 'Mac'">
+			<RunCommandLine>$(AsyncTestsConsoleOutput) $(AsyncTestsArguments) mac $(MainAssemblyOutput)</RunCommandLine>
+			<_HasRunCommandLine>true</_HasRunCommandLine>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(JenkinsPlatform)' == 'Android'">
+			<WebTestsAndroidPackageName>com.xamarin.webtests.android</WebTestsAndroidPackageName>
+			<WebTestsAndroidMainActivity>$(WebTestsAndroidPackageName)/$(WebTestsAndroidPackageName).MainActivity</WebTestsAndroidMainActivity>
+			<RunCommandLine>$(AsyncTestsConsoleOutput) $(AsyncTestsArguments) android $(WebTestsAndroidMainActivity)</RunCommandLine>
+			<_HasRunCommandLine>true</_HasRunCommandLine>
+		</PropertyGroup>
+		
+		<Error Condition="'$(_HasRunCommandLine)' != 'true'" Text="Unknown platform '$(JenkinsPlatform)'." />
+	</Target>
+	
+	<Target Name="_AndroidInstall" DependsOnTargets="Build; _PrepareRun">
+		<Message Importance="High" Text="ANDROID INSTALL!" />
+		
+		<Exec Command="$(AsyncTestsConsoleOutput) avd" />
+		<Exec Command="$(AsyncTestsConsoleOutput) emulator" />
+		<Exec Command="$(AsyncTestsConsoleOutput) apk $(MainAssemblyOutput)" />
+	</Target>
+
+	<Target Name="Run" DependsOnTargets="$(RunDependsOn)">
+		<Message Importance="High" Text="Running $(JenkinsTarget) $(JenkinsPlatform) $(TestCategory) - $(RunDependsOn)" />
+
+		<Exec Command="$(RunCommandLine)" />
+	</Target>
+	
+</Project>

@@ -81,8 +81,7 @@
     <Compile Include="Xamarin.WebTests.MonoConnectionFramework\IMonoConnectionInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <Target Name="PackageForAndroid" />
-  <Target Name="SignAndroidPackage" />
+  <Import Project="..\Xamarin.WebTests.Common.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>

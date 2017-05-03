@@ -46,82 +46,24 @@ namespace Xamarin.AsyncTests.Console
 	{
 		public Program Program {
 			get;
-			private set;
 		}
 
-		public string Application {
-			get;
-			private set;
-		}
-
-		public string RedirectStdout {
-			get;
-			private set;
-		}
-
-		public string RedirectStderr {
-			get;
-			private set;
-		}
-
-		Process process;
-		TaskCompletionSource<bool> tcs;
-
-		public MacLauncher (Program program, string app, string stdout, string stderr)
+		public MacLauncher (Program program)
 		{
 			Program = program;
-			Application = app;
-			RedirectStdout = stdout;
-			RedirectStderr = stderr;
 		}
 
-		Process Launch (string launchArgs)
+		public override Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
 		{
-			Program.Debug ("Launching app: {0}", Application);
+			Program.Debug ("Launching app: {0}", Program.Options.Application);
 
 			var psi = new ProcessStartInfo ("/usr/bin/open");
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
-			psi.Arguments = "-F -W -n " + Application;
-			psi.EnvironmentVariables.Add ("XAMARIN_ASYNCTESTS_OPTIONS", launchArgs);
-			var process = Process.Start (psi);
+			psi.Arguments = "-F -W -n " + Program.Options.Application;
+			psi.EnvironmentVariables.Add ("XAMARIN_ASYNCTESTS_OPTIONS", options);
 
-			Program.Debug ("Started: {0}", process);
-
-			return process;
-		}
-
-		public override void LaunchApplication (string args)
-		{
-			process = Launch (args);
-		}
-
-		public override Task<bool> WaitForExit ()
-		{
-			var oldTcs = Interlocked.CompareExchange (ref tcs, new TaskCompletionSource<bool> (), null);
-			if (oldTcs != null)
-				return oldTcs.Task;
-
-			ThreadPool.QueueUserWorkItem (_ => {
-				try {
-					process.WaitForExit ();
-					tcs.TrySetResult (process.ExitCode == 0);
-				} catch (Exception ex) {
-					tcs.TrySetException (ex);
-				}
-			});
-
-			return tcs.Task;
-		}
-
-		public override void StopApplication ()
-		{
-			try {
-				if (!process.HasExited)
-					process.Kill ();
-			} catch {
-				;
-			}
+			return ProcessHelper.StartCommand (psi, cancellationToken);
 		}
 	}
 }

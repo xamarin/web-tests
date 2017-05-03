@@ -59,7 +59,7 @@ namespace Xamarin.AsyncTests.Console
 			};
 			using (var writer = XmlWriter.Create (output, settings)) {
 				var printer = new JUnitResultPrinter (result);
-				var root = new RootElement (result);
+				var root = new RootElement (printer, result);
 				root.Visit ();
 				root.Node.WriteTo (writer);
 			}
@@ -72,6 +72,10 @@ namespace Xamarin.AsyncTests.Console
 
 		abstract class Element
 		{
+			public JUnitResultPrinter Printer {
+				get;
+			}
+
 			public Element Parent {
 				get;
 			}
@@ -88,8 +92,9 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
-			public Element (Element parent, XElement node, TestPath path)
+			public Element (JUnitResultPrinter printer, Element parent, XElement node, TestPath path)
 			{
+				Printer = printer;
 				Parent = parent;
 				Node = node;
 				Path = path;
@@ -120,8 +125,8 @@ namespace Xamarin.AsyncTests.Console
 
 			List<Element> children = new List<Element> ();
 
-			public ContainerElement (Element parent, XElement node, TestResult result)
-				: base (parent, node, result.Path)
+			public ContainerElement (JUnitResultPrinter printer, Element parent, XElement node, TestResult result)
+				: base (printer, parent, node, result.Path)
 			{
 				Result = result;
 			}
@@ -150,8 +155,8 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
-			public RootElement (TestResult result)
-				: base (null, new XElement ("testsuites"), result)
+			public RootElement (JUnitResultPrinter printer, TestResult result)
+				: base (printer, null, new XElement ("testsuites"), result)
 			{
 				Name = result.Path.Node.Name;
 			}
@@ -180,7 +185,7 @@ namespace Xamarin.AsyncTests.Console
 			public DateTime TimeStamp { get; } = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 
 			public SuiteElement (Element parent, TestPath path, TestResult result)
-				: base (parent, new XElement ("testsuite"), result)
+				: base (parent.Printer, parent, new XElement ("testsuite"), result)
 			{
 				Name = path.Name;
 			}
@@ -236,7 +241,7 @@ namespace Xamarin.AsyncTests.Console
 			StringBuilder errorOutput = new StringBuilder ();
 
 			public CaseElement (SuiteElement parent, TestResult result)
-				: base (parent, new XElement ("testcase"), result.Path)
+				: base (parent.Printer, parent, new XElement ("testcase"), result.Path)
 			{
 				Result = result;
 

@@ -40,184 +40,49 @@ namespace Xamarin.AsyncTests.Mobile
 	{
 		public ISimpleUIController Controller {
 			get;
-			private set;
 		}
 
 		public TestFramework Framework {
 			get;
-			private set;
 		}
 
-		public MobileSessionMode SessionMode {
+		public MobileTestOptions Options {
 			get;
-			private set;
-		}
-
-		public IPortableEndPoint EndPoint {
-			get;
-			private set;
 		}
 
 		public TestLogger Logger {
 			get;
-			private set;
+		}
+
+		public string PackageName {
+			get { return Options.PackageName; }
 		}
 
 		public SettingsBag Settings {
-			get;
-			private set;
+			get { return Options.Settings; }
+		}
+
+		public MobileSessionMode SessionMode {
+			get { return Options.SessionMode; }
+		}
+
+		public IPortableEndPoint EndPoint {
+			get { return Options.EndPoint; }
 		}
 
 		public event EventHandler FinishedEvent;
 
-		public MobileTestApp (ISimpleUIController controller, TestFramework framework, string options)
+		public MobileTestApp (ISimpleUIController controller, TestFramework framework, MobileTestOptions options)
 		{
 			Controller = controller;
 			Framework = framework;
-
-			Settings = SettingsBag.CreateDefault ();
-			Settings.LocalLogLevel = -1;
-
-			ParseSessionMode (options);
+			Options = options;
 
 			Logger = new TestLogger (new MobileLogger (this));
 
 			Controller.CategoryChangedEvent += (sender, e) => OnCategoryChanged (e);
 
 			Controller.SessionChangedEvent += (sender, e) => OnSessionChanged ();
-		}
-
-		int? logLevel;
-		bool debugMode;
-		string category;
-		string features;
-		string customSettings;
-
-		void ParseSessionMode (string options)
-		{
-			if (string.IsNullOrEmpty (options)) {
-				Settings.LogLevel = 0;
-				Settings.LocalLogLevel = 0;
-				Settings.DisableTimeouts = false;
-				SessionMode = MobileSessionMode.Local;
-				return;
-			}
-
-			Debug ("Got XAMARIN_ASYNCTESTS_OPTIONS argument: '{0}'.", options);
-
-			var p = new NDesk.Options.OptionSet ();
-			p.Add ("debug", v => debugMode = true);
-			p.Add ("log-level=", v => logLevel = int.Parse (v));
-			p.Add ("category=", v => category = v);
-			p.Add ("features=", v => features = v);
-			p.Add ("set=", v => customSettings = v);
-
-			var optArray = options.Split (new char [] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-			var args = p.Parse (optArray);
-
-			if (debugMode) {
-				Settings.LogLevel = -1;
-				Settings.LocalLogLevel = -1;
-				Settings.DisableTimeouts = true;
-			} else {
-				Settings.DisableTimeouts = false;
-			}
-
-			if (logLevel != null)
-				Settings.LogLevel = logLevel.Value;
-
-			if (customSettings != null)
-				ParseSettings (customSettings);
-
-			if (args.Count == 0) {
-				SessionMode = MobileSessionMode.Local;
-				return;
-			}
-
-			if (args [0] == "server")
-				SessionMode = MobileSessionMode.Server;
-			else if (args [0] == "connect") {
-				SessionMode = MobileSessionMode.Connect;
-			} else if (args [0] == "local") {
-				SessionMode = MobileSessionMode.Local;
-				if (args.Count != 1)
-					throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
-				return;
-			} else
-				throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
-
-			if (args.Count == 2) {
-				EndPoint = DependencyInjector.Get<IPortableEndPointSupport> ().ParseEndpoint (args [1]);
-			} else if (args.Count == 1) {
-				EndPoint = GetEndPoint ();
-			} else {
-				throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
-			}
-		}
-
-		void ParseSettings (string arg)
-		{
-			var parts = arg.Split (',');
-			foreach (var part in parts) {
-				var pos = part.IndexOf ('=');
-				if (pos > 0) {
-					var key = part.Substring (0, pos);
-					var value = part.Substring (pos + 1);
-					Debug ("SET: |{0}|{1}|", key, value);
-					if (key [0] == '-')
-						throw new InvalidOperationException ();
-					Settings.SetValue (key, value);
-				} else if (part [0] == '-') {
-					var key = part.Substring (1);
-					Settings.RemoveValue (key);
-				} else {
-					throw new InvalidOperationException ();
-				}
-			}
-		}
-
-		bool ModifyConfiguration (TestConfiguration config)
-		{
-			bool modified = false;
-
-			if (category != null) {
-				if (string.Equals (category, "all", StringComparison.OrdinalIgnoreCase))
-					config.CurrentCategory = TestCategory.All;
-				else if (string.Equals (category, "global", StringComparison.OrdinalIgnoreCase))
-					config.CurrentCategory = TestCategory.Global;
-				else
-					config.CurrentCategory = config.Categories.FirstOrDefault (c => c.Name.Equals (category)) ?? TestCategory.All;
-
-				modified = true;
-			}
-
-			if (features != null) {
-				modified = true;
-				var parts = features.Split (',');
-				foreach (var part in parts) {
-					var name = part;
-					bool enable = true;
-					if (part [0] == '-') {
-						name = part.Substring (1);
-						enable = false;
-					} else if (part [0] == '+') {
-						name = part.Substring (1);
-						enable = true;
-					}
-
-					if (name.Equals ("all")) {
-						foreach (var feature in config.Features) {
-							if (feature.CanModify)
-								config.SetIsEnabled (feature, enable);
-						}
-					} else {
-						var feature = config.Features.First (f => f.Name.Equals (name));
-						config.SetIsEnabled (feature, enable);
-					}
-				}
-			}
-
-			return modified;
 		}
 
 		public Task Run ()
@@ -304,12 +169,6 @@ namespace Xamarin.AsyncTests.Mobile
 
 			oldCts.Cancel ();
 			oldCts.Dispose ();
-		}
-
-		static IPortableEndPoint GetEndPoint ()
-		{
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			return support.GetEndpoint (8888);
 		}
 
 		TestServer server;
@@ -428,7 +287,7 @@ namespace Xamarin.AsyncTests.Mobile
 					return;
 				}
 
-				ModifyConfiguration (session.Configuration);
+				Options.ModifyConfiguration (session.Configuration);
 
 				if (session.Configuration.CurrentCategory == TestCategory.Global)
 					selected = 1;

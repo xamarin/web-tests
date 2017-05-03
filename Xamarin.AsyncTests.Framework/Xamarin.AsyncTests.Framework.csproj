@@ -125,10 +125,11 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestParameterValue.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderValue.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestNodeInternal.cs" />
+    <Compile Include="Xamarin.AsyncTests.Mobile\MobileTestOptions.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ExternalProcess.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <Target Name="PackageForAndroid" />
-  <Target Name="SignAndroidPackage" />
+  <Import Project="..\Xamarin.WebTests.Common.targets" />
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>

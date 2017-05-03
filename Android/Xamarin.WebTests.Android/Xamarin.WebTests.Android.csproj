@@ -11,7 +11,7 @@
     <AndroidApplication>True</AndroidApplication>
     <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
     <AssemblyName>Xamarin.WebTests.Android</AssemblyName>
-    <TargetFrameworkVersion>v6.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v7.1</TargetFrameworkVersion>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
   </PropertyGroup>
@@ -155,4 +155,11 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="..\..\packages\Xamarin.Forms.2.3.4.231\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets" Condition="Exists('..\..\packages\Xamarin.Forms.2.3.4.231\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" />
+  <Target Name="JenkinsBuild" DependsOnTargets="Build; SignAndroidPackage" />
+  <Target Name="JenkinsGetApkFile" Outputs="@(MyOutputs)">
+    <ItemGroup>
+      <MyOutDir Include="$(OutDir)" />
+      <MyOutputs Include="%(MyOutDir.FullPath)$(AndroidPackageName)-Signed.apk" />
+    </ItemGroup>
+  </Target>
 </Project>

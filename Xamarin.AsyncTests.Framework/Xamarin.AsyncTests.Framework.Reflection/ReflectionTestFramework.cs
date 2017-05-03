@@ -58,7 +58,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		List<Assembly> dependencyAssemblies;
 		List<ReflectionTestAssembly> assemblies;
 
-		public ReflectionTestFramework (Assembly assembly, params Assembly[] dependencies)
+		public ReflectionTestFramework (string packageName, Assembly assembly, params Assembly[] dependencies)
 		{
 			RootAssembly = assembly;
 			assemblies = new List<ReflectionTestAssembly> ();
@@ -67,7 +67,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (dependencies != null)
 				dependencyAssemblies.AddRange (dependencies);
 
-			name = RootAssembly.GetName ().Name;
+			name = packageName ?? RootAssembly.GetName ().Name;
 			providers = new ReflectionConfigurationProviderCollection (name);
 
 			Resolve ();

@@ -1,0 +1,6 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0">
+	<Target Name="PackageForAndroid" />
+	<Target Name="SignAndroidPackage" />
+
+	<Target Name="JenkinsBuild" DependsOnTargets="Build" />
+</Project>

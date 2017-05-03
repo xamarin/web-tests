@@ -1,10 +1,10 @@
 ﻿//
-// BuiltinTestServer.cs
+// ProgramException.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,25 +22,19 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.using System;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.MacUI
-{
-	using Xamarin.AsyncTests.MacUI;
-	using Xamarin.AsyncTests.Remoting;
-	using Xamarin.AsyncTests.Framework;
-
-	class BuiltinTestServer : IBuiltinTestServer
-	{
-		public Task<TestServer> Start (CancellationToken cancellationToken)
+namespace Xamarin.AsyncTests.Console {
+	public class ProgramException : Exception {
+		public ProgramException (string format, params object[] args)
+			: base (string.Format (format, args))
 		{
-			var app = AppDelegate.Instance.MacUI;
-			var framework = TestFramework.GetLocalFramework (app.PackageName, typeof(BuiltinTestServer).Assembly);
-			return TestServer.StartLocal (app, framework, cancellationToken);
+		}
+
+		public ProgramException (Exception innerException, string format, params object[] args)
+			: base (string.Format (format, args), innerException)
+		{
 		}
 	}
 }
-

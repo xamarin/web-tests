@@ -36,7 +36,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 	{
 		public List<ReflectionTestAssembly> Assemblies {
 			get;
-			private set;
 		}
 
 		public ReflectionTestSuiteBuilder (ReflectionTestSuite suite)

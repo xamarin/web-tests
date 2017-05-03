@@ -61,6 +61,5 @@
     <AndroidResource Include="Resources\values\Strings.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
-  <Target Name="PackageForAndroid" />
-  <Target Name="SignAndroidPackage" />
+  <Import Project="..\..\Xamarin.WebTests.Common.targets" />
 </Project>

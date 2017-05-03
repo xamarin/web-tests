@@ -1,10 +1,10 @@
 ﻿//
-// BuiltinTestServer.cs
+// ExternalProcess.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,20 +27,40 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.MacUI
-{
-	using Xamarin.AsyncTests.MacUI;
-	using Xamarin.AsyncTests.Remoting;
-	using Xamarin.AsyncTests.Framework;
-
-	class BuiltinTestServer : IBuiltinTestServer
-	{
-		public Task<TestServer> Start (CancellationToken cancellationToken)
-		{
-			var app = AppDelegate.Instance.MacUI;
-			var framework = TestFramework.GetLocalFramework (app.PackageName, typeof(BuiltinTestServer).Assembly);
-			return TestServer.StartLocal (app, framework, cancellationToken);
+namespace Xamarin.AsyncTests.Remoting {
+	public abstract class ExternalProcess : IDisposable {
+		public abstract string CommandLine {
+			get;
 		}
+
+		public abstract void Abort ();
+
+		protected abstract void Stop ();
+
+		public abstract Task WaitForExit (CancellationToken cancellationToken);
+
+		public event EventHandler<int> ExitedEvent;
+
+		protected virtual void OnExited (int exitCode)
+		{
+			ExitedEvent?.Invoke (this, exitCode);
+		}
+
+		#region IDisposable Support
+		int disposed;
+
+		public void Dispose ()
+		{
+			if (Interlocked.CompareExchange (ref disposed, 1, 0) != 0)
+				return;
+
+			try {
+				Stop ();
+			} catch {
+				;
+			}
+		}
+		#endregion
 	}
 }
 

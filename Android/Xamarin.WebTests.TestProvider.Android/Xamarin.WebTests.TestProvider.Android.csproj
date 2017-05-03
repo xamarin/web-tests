@@ -70,8 +70,7 @@
   <Import Project="..\..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
   <Import Project="..\..\Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
-  <Target Name="PackageForAndroid" />
-  <Target Name="SignAndroidPackage" />
+  <Import Project="..\..\Xamarin.WebTests.Common.targets" />
   <ItemGroup>
     <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>

@@ -62,6 +62,8 @@ namespace Xamarin.AsyncTests.MacUI
 			get { return settings; }
 		}
 
+		public string PackageName => null;
+
 		readonly TestLogger logger;
 		readonly SettingsBag settings;
 

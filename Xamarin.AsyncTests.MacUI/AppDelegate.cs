@@ -349,7 +349,7 @@ namespace Xamarin.AsyncTests.MacUI
 			if (args.Length < 2 || args [0] != "connect")
 				throw new NotImplementedException ();
 
-			var framework = TestFramework.GetLocalFramework (typeof(AppDelegate).Assembly);
+			var framework = TestFramework.GetLocalFramework (MacUI.PackageName, typeof(AppDelegate).Assembly);
 
 			var endpoint = DependencyInjector.Get<IPortableEndPointSupport> ().ParseEndpoint (args [1]);
 			Console.WriteLine ("Connecting to {0}:{1}.", endpoint.Address, endpoint.Port);

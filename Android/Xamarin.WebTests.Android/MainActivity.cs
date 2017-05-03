@@ -33,21 +33,23 @@ namespace Xamarin.WebTests.Android
 		{
 			base.OnCreate (bundle);
 
-			var options = Intent.GetStringExtra ("XAMARIN_ASYNCTESTS_OPTIONS");
+			var optionString = Intent.GetStringExtra ("XAMARIN_ASYNCTESTS_OPTIONS");
 
-			if (string.IsNullOrEmpty (options))
-				options = "--category=Global";
+			if (string.IsNullOrEmpty (optionString))
+				optionString = "--category=Global";
 
 			Forms.Init (this, bundle);
 
-            var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.Android");
+			var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.Android");
 			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
 			DependencyInjector.RegisterDependency<IMonoConnectionFrameworkSetup> (() => setup);
 
 			DependencyInjector.RegisterAssembly (typeof (WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (MainActivity).Assembly);
 
-			Framework = TestFramework.GetLocalFramework (typeof (MainActivity).Assembly);
+			var options = new MobileTestOptions (optionString);
+
+			Framework = TestFramework.GetLocalFramework (options.PackageName, typeof (MainActivity).Assembly);
 
 			var mobileTestApp = new MobileFormsTestApp (Framework, options);
 			// mobileTestApp.App.FinishedEvent += (sender, e) => TerminateWithSuccess ();

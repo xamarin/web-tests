@@ -1,4 +1,4 @@
-//
+﻿//
 // TestApp.cs
 //
 // Authors:
@@ -42,6 +42,10 @@ namespace Xamarin.AsyncTests.Framework
 
 	public interface TestApp
 	{
+		string PackageName {
+			get;
+		}
+
 		TestLogger Logger {
 			get;
 		}

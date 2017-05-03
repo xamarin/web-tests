@@ -83,9 +83,9 @@ namespace Xamarin.WebTests.iOS
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(AppDelegate).Assembly);
 
-			Framework = TestFramework.GetLocalFramework (typeof(AppDelegate).Assembly);
+			var options = new MobileTestOptions (Environment.GetEnvironmentVariable ("XAMARIN_ASYNCTESTS_OPTIONS"));
 
-			var options = Environment.GetEnvironmentVariable ("XAMARIN_ASYNCTESTS_OPTIONS");
+			Framework = TestFramework.GetLocalFramework (options.PackageName, typeof(AppDelegate).Assembly);
 
 			var mobileTestApp = new MobileFormsTestApp (Framework, options);
 			mobileTestApp.App.FinishedEvent += (sender, e) => TerminateWithSuccess ();

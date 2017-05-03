@@ -35,9 +35,9 @@ namespace Xamarin.AsyncTests.Framework
 
 	public abstract class TestFramework
 	{
-		public static TestFramework GetLocalFramework (Assembly assembly, params Assembly[] dependencies)
+		public static TestFramework GetLocalFramework (string name, Assembly assembly, params Assembly[] dependencies)
 		{
-			return new ReflectionTestFramework (assembly, dependencies);
+			return new ReflectionTestFramework (name, assembly, dependencies);
 		}
 
 		public abstract string Name {
