@@ -103,7 +103,7 @@ def run (String target, String testCategory, String resultOutput, String junitRe
 	sh "msbuild Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,$iosParams,$resultParams"
 }
 
-def runTests (String target, String category, int timeout = 10)
+def runTests (String target, String category, Integer timeout = 10)
 {
 	dir ('web-tests') {
 		def outputDir = "out/" + target + "/" + category
