@@ -82,12 +82,12 @@ namespace Xamarin.AsyncTests.Mobile {
 			p.Add ("package-name=", v => packageName = v);
 			p.Add ("set=", v => customSettings = v);
 
+			var optArray = options.Split (new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+			var args = p.Parse (optArray);
+
 			Category = category;
 			Features = features;
 			PackageName = packageName;
-
-			var optArray = options.Split (new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-			var args = p.Parse (optArray);
 
 			if (debugMode) {
 				Settings.LogLevel = -1;
@@ -108,22 +108,25 @@ namespace Xamarin.AsyncTests.Mobile {
 				return;
 			}
 
-			if (args[0] == "server")
+			if (args [0] == "server") {
 				SessionMode = MobileSessionMode.Server;
-			else if (args[0] == "connect") {
+				if (args.Count == 2) {
+					EndPoint = DependencyInjector.Get<IPortableEndPointSupport> ().ParseEndpoint (args [1]);
+				} else if (args.Count == 1) {
+					EndPoint = GetEndPoint ();
+				} else {
+					throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
+				}
+			} else if (args [0] == "connect") {
 				SessionMode = MobileSessionMode.Connect;
-			} else if (args[0] == "local") {
+				if (args.Count != 2)
+					throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
+				EndPoint = DependencyInjector.Get<IPortableEndPointSupport> ().ParseEndpoint (args [1]);
+			} else if (args [0] == "local") {
 				SessionMode = MobileSessionMode.Local;
 				if (args.Count != 1)
 					throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
 				return;
-			} else
-				throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
-
-			if (args.Count == 2) {
-				EndPoint = DependencyInjector.Get<IPortableEndPointSupport> ().ParseEndpoint (args[1]);
-			} else if (args.Count == 1) {
-				EndPoint = GetEndPoint ();
 			} else {
 				throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
 			}

@@ -86,17 +86,18 @@ namespace Xamarin.AsyncTests.Remoting
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var sb = new StringBuilder ();
-			sb.AppendFormat ("connect {0}:{1}", address.Address, address.Port);
 
 			if (options != null) {
 				if (options.Category != null)
-					sb.AppendFormat (" --category={0}", options.Category);
+					sb.AppendFormat ("--category={0} ", options.Category);
 				if (options.Features != null)
-					sb.AppendFormat (" --features={0}", options.Features);
+					sb.AppendFormat ("--features={0} ", options.Features);
 			}
 
 			if (!string.IsNullOrWhiteSpace (app.PackageName))
-				sb.AppendFormat (" --package-name={0}", app.PackageName);
+				sb.AppendFormat ("--package-name={0} ", app.PackageName);
+
+			sb.AppendFormat ("connect {0}:{1}", address.Address, address.Port);
 
 			var process = await launcher.LaunchApplication (sb.ToString (), cancellationToken);
 
