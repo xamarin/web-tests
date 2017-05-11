@@ -36,6 +36,7 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Remoting;
+using Xamarin.AsyncTests.Mobile;
 
 namespace Xamarin.AsyncTests.MacUI
 {
@@ -44,11 +45,16 @@ namespace Xamarin.AsyncTests.MacUI
 		MainWindowController mainWindowController;
 		SettingsDialogController settingsDialogController;
 		TestSession currentSession;
+		MobileTestOptions options;
 		bool isStopped;
 		bool hasServer;
 		MacUI ui;
 
 		public event EventHandler<TestSession> SessionChangedEvent;
+
+		public MobileTestOptions Options {
+			get { return options; }
+		}
 
 		public TestSession CurrentSession {
 			get { return currentSession; }
@@ -95,11 +101,9 @@ namespace Xamarin.AsyncTests.MacUI
 					SessionChangedEvent (this, e);
 			};
 
-			var options = Environment.GetEnvironmentVariable ("XAMARIN_ASYNCTESTS_OPTIONS");
-			if (options != null)
-				StartWithOptions (options);
-			else
-				StartServer ();
+			options = new MobileTestOptions (Environment.GetEnvironmentVariable ("XAMARIN_ASYNCTESTS_OPTIONS"));
+
+			StartWithOptions ();
 
 			settingsDialogController.DidFinishLaunching ();
 		}
@@ -341,20 +345,23 @@ namespace Xamarin.AsyncTests.MacUI
 			get { return Settings; }
 		}
 
-		async void StartWithOptions (string options)
+		async void StartWithOptions ()
 		{
 			await Task.Yield ();
 
-			var args = options.Split (' ');
-			if (args.Length < 2 || args [0] != "connect")
+			if (Options.SessionMode == MobileSessionMode.Local) {
+				StartServer ();
+				return;
+			}
+
+			if (Options.SessionMode != MobileSessionMode.Connect)
 				throw new NotImplementedException ();
 
-			var framework = TestFramework.GetLocalFramework (MacUI.PackageName, typeof(AppDelegate).Assembly);
+			var framework = TestFramework.GetLocalFramework (Options.PackageName ?? MacUI.PackageName, typeof(AppDelegate).Assembly);
 
-			var endpoint = DependencyInjector.Get<IPortableEndPointSupport> ().ParseEndpoint (args [1]);
-			Console.WriteLine ("Connecting to {0}:{1}.", endpoint.Address, endpoint.Port);
+			Console.WriteLine ("Connecting to {0}:{1}.", Options.EndPoint.Address, options.EndPoint.Port);
 
-			var server = await TestServer.ConnectToRemote (ui, endpoint, framework, CancellationToken.None);
+			var server = await TestServer.ConnectToRemote (ui, Options.EndPoint, framework, CancellationToken.None);
 			var session = server.Session;
 
 			Console.WriteLine ("Got test session {0} from {1}.", session.Name, server.App);
