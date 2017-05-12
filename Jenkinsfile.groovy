@@ -116,9 +116,9 @@ def runTests (String target, String category, Boolean unstable = false, Integer 
 			timeout (timeoutValue) {
 				run (target, category, resultOutput, junitResultOutput)
 			}
-		} catch (error) {
+		} catch (exception) {
 			def result = currentBuild.result
-			echo "RUN FAILED: $error $result $unstable"
+			echo "RUN FAILED: $exception $result $unstable"
 			if (unstable) {
 				currentBuild.result = "UNSTABLE"
 				echo "SETTING TO UNSTABLE"
