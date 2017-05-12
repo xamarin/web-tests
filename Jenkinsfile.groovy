@@ -117,9 +117,10 @@ def runTests (String target, String category, Boolean unstable = false, Integer 
 			}
 		} catch (error) {
 			def result = currentBuild.result
-			echo "RUN FAILED: $error $result"
+			echo "RUN FAILED: $error $result $unstable"
 			if (unstable) {
-				currentBuild.result = "UNSABLE"
+				currentBuild.result = "UNSTABLE"
+				echo "SETTING TO UNSTABLE"
 			}
 		} finally {
 			junit keepLongStdio: true, testResults: "$outputDir/*.xml"
