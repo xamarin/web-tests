@@ -103,7 +103,7 @@ def run (String target, String testCategory, String resultOutput, String junitRe
 	sh "msbuild Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,$iosParams,$resultParams"
 }
 
-def runTests (String target, String category, Integer timeoutValue = 10)
+def runTests (String target, String category, Boolean unstable = false, Integer timeoutValue = 10)
 {
 	dir ('web-tests') {
 		def outputDir = "out/" + target + "/" + category
@@ -118,6 +118,9 @@ def runTests (String target, String category, Integer timeoutValue = 10)
 		} catch (error) {
 			def result = currentBuild.result
 			echo "RUN FAILED: $error $result"
+			if (unstable) {
+				currentBuild.result = "UNSABLE"
+			}
 		} finally {
 			junit keepLongStdio: true, testResults: "$outputDir/*.xml"
 			archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
@@ -213,16 +216,16 @@ node ('jenkins-mac-1') {
 		}
 		if (enableXA ()) {
 			stage ('android-btls-martin') {
-				runTests ('Android-Btls', 'Martin')
+				runTests ('Android-Btls', 'Martin', true)
 			}
 			stage ('android-btls-work') {
-				runTests ('Android-Btls', 'Work')
+				runTests ('Android-Btls', 'Work', true)
 			}
 			stage ('android-btls-new') {
-				runTests ('Android-Btls', 'New')
+				runTests ('Android-Btls', 'New', true)
 			}
 			stage ('android-btls-all') {
-				runTests ('Android-Btls', 'All', 30)
+				runTests ('Android-Btls', 'All', true, 30)
 			}
 		}
 	}
