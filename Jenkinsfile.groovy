@@ -111,6 +111,7 @@ def runTests (String target, String category, Boolean unstable = false, Integer 
 		sh "mkdir -p $outputDirAbs"
 		def resultOutput = "$outputDirAbs/TestResult-${target}-${category}.xml"
 		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${target}-${category}.xml"
+		Boolean error = false
 		try {
 			timeout (timeoutValue) {
 				run (target, category, resultOutput, junitResultOutput)
@@ -121,10 +122,13 @@ def runTests (String target, String category, Boolean unstable = false, Integer 
 			if (unstable) {
 				currentBuild.result = "UNSTABLE"
 				echo "SETTING TO UNSTABLE"
+				error = true
 			}
 		} finally {
-			junit keepLongStdio: true, testResults: "$outputDir/*.xml"
-			archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
+			if (!error) {
+				junit keepLongStdio: true, testResults: "$outputDir/*.xml"
+				archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
+			}
 		}
 	}
 }
