@@ -37,20 +37,25 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public abstract class AbstractConnection : ITestInstance, IDisposable
 	{
-		public IPortableEndPoint EndPoint {
+		public IPortableEndPoint PortableEndPoint {
 			get;
-			private set;
+		}
+
+		public IPEndPoint EndPoint {
+			get;
 		}
 
 		public ConnectionParameters Parameters {
 			get;
-			private set;
 		}
 
 		protected AbstractConnection (IPortableEndPoint endpoint, ConnectionParameters parameters)
 		{
-			EndPoint = endpoint;
+			PortableEndPoint = endpoint;
 			Parameters = parameters;
+
+			if (PortableEndPoint != null)
+				EndPoint = new IPEndPoint (IPAddress.Parse (PortableEndPoint.Address), PortableEndPoint.Port);
 		}
 
 		protected internal static Task FinishedTask {
@@ -99,6 +104,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		#endregion
 
+		[StackTraceEntryPoint]
 		public void Close ()
 		{
 			if (Interlocked.CompareExchange (ref stopped, 1, 0) != 0)

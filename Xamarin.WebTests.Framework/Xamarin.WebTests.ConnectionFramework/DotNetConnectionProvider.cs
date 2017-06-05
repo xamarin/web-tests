@@ -25,6 +25,9 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Net.Security;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
@@ -49,15 +52,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return DependencyInjector.Get<IPortableSupport> ().IsMicrosoftRuntime; }
 		}
 
-		static bool SupportsTls12 {
-			get { return DependencyInjector.Get<IConnectionFrameworkSetup> ().SupportsTls12; }
-		}
-
 		static ConnectionProviderFlags GetFlags ()
 		{
 			var flags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp;
-			if (IsMicrosoftRuntime || SupportsTls12)
-				flags |= ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers | ConnectionProviderFlags.SupportsEcDheCiphers;
+			if (IsMicrosoftRuntime || (flags & ConnectionProviderFlags.SupportsTls12) != 0)
+				flags |= ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers |
+					ConnectionProviderFlags.SupportsEcDheCiphers;
+			if (IsMicrosoftRuntime || DependencyInjector.Get<IConnectionFrameworkSetup> ().SupportsCleanShutdown)
+				flags |= ConnectionProviderFlags.SupportsCleanShutdown;
 			return flags;
 		}
 
@@ -65,12 +67,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return protocols; }
 		}
 
-		public override IClient CreateClient (ConnectionParameters parameters)
+		public override Connection CreateClient (ConnectionParameters parameters)
 		{
 			return new DotNetClient (this, parameters, SslStreamProvider);
 		}
 
-		public override IServer CreateServer (ConnectionParameters parameters)
+		public override Connection CreateServer (ConnectionParameters parameters)
 		{
 			return new DotNetServer (this, parameters, SslStreamProvider);
 		}

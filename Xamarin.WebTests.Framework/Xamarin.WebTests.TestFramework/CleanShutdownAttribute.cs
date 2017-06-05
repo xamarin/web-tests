@@ -1,10 +1,10 @@
 ﻿//
-// IStreamInstrumentation.cs
+// CleanShutdownAttribute.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,20 +24,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
+using Xamarin.WebTests.ConnectionFramework;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	public interface IStreamInstrumentation
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class CleanShutdownAttribute : TestFeatureAttribute
 	{
-		void OnNextBeginRead (Action action);
+		public override TestFeature Feature {
+			get { return Instance; }
+		}
 
-		void OnNextBeginWrite (Action action);
+		static bool SupportsCleanShutdown ()
+		{
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+			return setup.SupportsCleanShutdown;
+		}
 
-		void OnNextRead (Func<Task> before, Func<Task> after);
-
-		void OnNextWrite (Func<Task> before, Func<Task> after);
+		public static readonly TestFeature Instance = new TestFeature (
+			"CleanShutdown", "Whether or not we have SslStream.ShutdownAsync", SupportsCleanShutdown ());
 	}
 }
-

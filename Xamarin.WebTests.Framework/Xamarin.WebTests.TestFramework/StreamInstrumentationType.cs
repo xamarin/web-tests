@@ -1,10 +1,10 @@
 ﻿//
-// IConnection.cs
+// StreamInstrumentationType.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,33 +24,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
-
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	public interface IConnection : ITestInstance, IDisposable
+	public enum StreamInstrumentationType
 	{
-		bool SupportsCleanShutdown {
-			get;
-		}
+		ClientHandshake,
+		ReadDuringClientAuth,
+		CloseBeforeClientAuth,
+		CloseDuringClientAuth,
+		DisposeDuringClientAuth,
+		InvalidDataDuringClientAuth,
+		ShortReadDuringClientAuth,
+		ShortReadAndClose,
+		RemoteClosesConnectionDuringRead,
 
-		IPortableEndPoint EndPoint {
-			get;
-		}
+		CleanShutdown,
+		DoubleShutdown,
+		WriteAfterShutdown,
+		ReadAfterShutdown,
+		WaitForShutdown,
 
-		ConnectionParameters Parameters {
-			get;
-		}
+		ConnectionReuse,
+		ConnectionReuseWithShutdown,
 
-		Task Start (TestContext ctx, CancellationToken cancellationToken);
-
-		Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken);
-
-		Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken);
+		MartinTest
 	}
 }
-

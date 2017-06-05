@@ -1,10 +1,10 @@
 ﻿//
-// SslStreamTestParametersAttribute.cs
+// StreamInstrumentationParametersAttribute.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,24 +34,24 @@ namespace Xamarin.WebTests.TestFramework
 	using TestRunners;
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
-	public class SslStreamTestParametersAttribute : TestParameterAttribute, ITestParameterSource<SslStreamTestParameters>
+	public class StreamInstrumentationParametersAttribute : TestParameterAttribute, ITestParameterSource<StreamInstrumentationParameters>
 	{
-		public ConnectionTestType? Type {
+		public StreamInstrumentationType? Type {
 			get; set;
 		}
 
-		public SslStreamTestParametersAttribute (string filter = null)
+		public StreamInstrumentationParametersAttribute (string filter = null)
 			: base (filter, TestFlags.Browsable | TestFlags.ContinueOnError)
 		{
 		}
 
-		public SslStreamTestParametersAttribute (ConnectionTestType type)
+		public StreamInstrumentationParametersAttribute (StreamInstrumentationType type)
 			: base (null, TestFlags.Browsable | TestFlags.ContinueOnError)
 		{
 			Type = type;
 		}
 
-		public IEnumerable<SslStreamTestParameters> GetParameters (TestContext ctx, string filter)
+		public IEnumerable<StreamInstrumentationParameters> GetParameters (TestContext ctx, string filter)
 		{
 			if (filter != null)
 				throw new NotImplementedException ();
@@ -59,12 +59,12 @@ namespace Xamarin.WebTests.TestFramework
 			var category = ctx.GetParameter<ConnectionTestCategory> ();
 
 			if (Type != null) {
-				yield return SslStreamTestRunner.GetParameters (ctx, category, Type.Value);
+				yield return StreamInstrumentationTestRunner.GetParameters (ctx, category, Type.Value);
 				yield break;
 			}
 
-			foreach (var type in ConnectionTestRunner.GetConnectionTestTypes (ctx, category))
-				yield return SslStreamTestRunner.GetParameters (ctx, category, type);
+			foreach (var type in StreamInstrumentationTestRunner.GetStreamInstrumentationTypes (ctx, category))
+				yield return StreamInstrumentationTestRunner.GetParameters (ctx, category, type);
 		}
 	}
 }

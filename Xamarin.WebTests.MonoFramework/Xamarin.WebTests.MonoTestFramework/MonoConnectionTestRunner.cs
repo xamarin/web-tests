@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // MonoConnectionTestRunner.cs
 //
 // Author:
@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			private set;
 		}
 
-		protected MonoConnectionTestRunner (IServer server, IClient client, MonoConnectionTestProvider provider, MonoConnectionTestParameters parameters)
+		protected MonoConnectionTestRunner (Connection server, Connection client, MonoConnectionTestProvider provider, MonoConnectionTestParameters parameters)
 			: base (server, client, parameters)
 		{
 			Provider = provider;
@@ -103,6 +103,26 @@ namespace Xamarin.WebTests.MonoTestFramework
 				ctx.AssertFail ("Unsupported instrumentation category: '{0}'.", category);
 				return ConnectionTestFlags.None;
 			}
+		}
+
+		protected override Task StartClient (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Client.Start (ctx, null, cancellationToken);
+		}
+
+		protected override Task StartServer (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Server.Start (ctx, null, cancellationToken);
+		}
+
+		protected override Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Client.Shutdown (ctx, cancellationToken);
+		}
+
+		protected override Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Server.Shutdown (ctx, cancellationToken);
 		}
 
 		protected override void InitializeConnection (TestContext ctx)
@@ -177,7 +197,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			base.OnWaitForServerConnectionCompleted (ctx, task);
 		}
 
-		protected bool CheckCipher (TestContext ctx, IMonoCommonConnection connection, CipherSuiteCode cipher)
+		protected bool CheckCipher (TestContext ctx, IMonoConnection connection, CipherSuiteCode cipher)
 		{
 			ctx.Assert (connection.SupportsConnectionInfo, "supports connection info");
 			var connectionInfo = connection.GetConnectionInfo ();
@@ -189,8 +209,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		protected override Task OnRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var monoClient = Client as IMonoClient;
-			var monoServer = Server as IMonoServer;
+			var monoClient = Client as IMonoConnection;
+			var monoServer = Server as IMonoConnection;
 
 			bool ok = true;
 			if (monoClient != null) {
@@ -211,7 +231,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			}
 
 			if (Server.Provider.SupportsSslStreams && Parameters.RequireClientCertificate) {
-				ctx.Expect (Server.SslStream.HasRemoteCertificate, "has remote certificate");
+				ctx.Expect (Server.SslStream.RemoteCertificate, Is.Not.Null, "has remote certificate");
 				ctx.Expect (Server.SslStream.IsMutuallyAuthenticated, "is mutually authenticated");
 			}
 
@@ -235,12 +255,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 		protected sealed override Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return ConnectionHandler.MainLoop (ctx, cancellationToken);
-		}
-
-		public override Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken)
-		{
-			ConnectionHandler.Shutdown (ctx);
-			return base.Shutdown (ctx, cancellationToken);
 		}
 	}
 }

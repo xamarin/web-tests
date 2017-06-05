@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿﻿using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,8 +15,10 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class DotNetServer : DotNetConnection, IServer
+	public class DotNetServer : DotNetConnection
 	{
+		public override ConnectionType ConnectionType => ConnectionType.Server;
+
 		readonly ISslStreamProvider sslStreamProvider;
 
 		public DotNetServer (ConnectionProvider provider, ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
@@ -29,13 +31,40 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return true; }
 		}
 
-		protected override async Task<ISslStream> Start (TestContext ctx, Stream stream, CancellationToken cancellationToken)
+		protected override async Task Start (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken)
 		{
-			var server = await sslStreamProvider.CreateServerStreamAsync (stream, Parameters, cancellationToken);
+			var certificate = Parameters.ServerCertificate;
+			var protocol = sslStreamProvider.GetProtocol (Parameters, IsServer);
+			var askForCert = Parameters.AskForClientCertificate || Parameters.RequireClientCertificate;
 
-			ctx.LogMessage ("Successfully authenticated server.");
+			Task task;
+			string function;
+			if (HasFlag (SslStreamFlags.SyncAuthenticate)) {
+				function = "SslStream.AuthenticateAsServer()";
+				ctx.LogDebug (1, "Calling {0} synchronously.", function);
+				task = Task.Run (() => sslStream.AuthenticateAsServer (certificate, askForCert, protocol, false));
+			} else if (HasFlag (SslStreamFlags.BeginEndAuthenticate)) {
+				function = "SslStream.BeginAuthenticateAsServer()";
+				ctx.LogDebug (1, "Calling {0}.", function);
+				task = Task.Factory.FromAsync (
+					(callback, state) => sslStream.BeginAuthenticateAsServer (certificate, askForCert, protocol, false, callback, state),
+					(result) => sslStream.EndAuthenticateAsServer (result), null);
+			} else {
+				function = "SslStream.AuthenticateAsServerAsync()";
+				ctx.LogDebug (1, "Calling {0} async.", function);
+				task = sslStream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false);
+			}
 
-			return server;
+			try {
+				await task.ConfigureAwait (false);
+				ctx.LogDebug (1, "{0} completed successfully.", function);
+			} catch (Exception ex) {
+				if (Parameters.ExpectClientException || Parameters.ExpectServerException)
+					ctx.LogDebug (1, "{0} failed (expected exception): {1}", function, ex.GetType ().Name);
+				else
+					ctx.LogDebug (1, "{0} failed: {1}.", function, ex);
+				throw;
+			}
 		}
 	}
 }

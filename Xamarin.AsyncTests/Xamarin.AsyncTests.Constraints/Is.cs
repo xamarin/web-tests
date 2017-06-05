@@ -54,14 +54,14 @@ namespace Xamarin.AsyncTests.Constraints
 			return new EqualConstraint (expected);
 		}
 
-		public static Constraint InstanceOfType (Type type)
+		public static Constraint InstanceOfType (Type type, bool allowSubclasses = false)
 		{
-			return new InstanceOfTypeConstraint (type);
+			return new InstanceOfTypeConstraint (type, allowSubclasses);
 		}
 
-		public static Constraint InstanceOf<T> ()
+		public static Constraint InstanceOf<T> (bool allowSubclasses = false)
 		{
-			return new InstanceOfTypeConstraint (typeof (T));
+			return new InstanceOfTypeConstraint (typeof (T), allowSubclasses);
 		}
 
 		public static Constraint GreaterThanOrEqualTo (object expected)

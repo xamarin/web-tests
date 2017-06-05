@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
@@ -32,17 +33,14 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class DummyConnection : Connection, ICommonConnection
+	public abstract class DummyConnection : Connection
 	{
-		readonly ConnectionProvider provider;
-
-		public DummyConnection (ConnectionProvider provider, IPortableEndPoint endpoint, ConnectionParameters parameters)
-			: base (endpoint, parameters)
+		public DummyConnection (ConnectionProvider provider, ConnectionParameters parameters)
+			: base (provider, parameters)
 		{
-			this.provider = provider;
 		}
 
-		public override Task Start (TestContext ctx, CancellationToken cancellationToken)
+		public override Task Start (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			return FinishedTask;
 		}
@@ -52,51 +50,24 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return FinishedTask;
 		}
 
-		public override Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken)
+		public override Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Task.FromResult (false);
+			return FinishedTask;
 		}
 
-		protected override void Stop ()
+		public override void Close ()
 		{
 			;
 		}
 
-		public ConnectionProvider Provider {
-			get { return provider; }
+		protected override void Destroy ()
+		{
+			;
 		}
 
-		public override bool SupportsCleanShutdown {
-			get { return false; }
-		}
+		public override SslStream SslStream => throw new NotSupportedException ();
 
-		public override ProtocolVersions SupportedProtocols {
-			get { return ProtocolVersions.Tls10 | ProtocolVersions.Tls11 | ProtocolVersions.Tls12; }
-		}
-
-		public ProtocolVersions ProtocolVersion {
-			get {
-				throw new NotImplementedException ();
-			}
-		}
-
-		public ISslStream SslStream {
-			get {
-				throw new NotSupportedException ();
-			}
-		}
-
-		public Stream Stream {
-			get {
-				throw new NotSupportedException ();
-			}
-		}
-
-		public IStreamInstrumentation StreamInstrumentation {
-			get {
-				throw new NotSupportedException ();
-			}
-		}
+		public override Stream Stream => throw new NotSupportedException ();
 	}
 }
 

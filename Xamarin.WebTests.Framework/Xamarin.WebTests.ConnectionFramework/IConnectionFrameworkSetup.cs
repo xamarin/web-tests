@@ -43,6 +43,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
+		bool SupportsCleanShutdown {
+			get;
+		}
+
+		bool UsingAppleTls {
+			get;
+		}
+
 		void Initialize (ConnectionProviderFactory factory);
 	}
 }

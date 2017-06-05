@@ -1,10 +1,10 @@
 ﻿//
-// ICommonConnection.cs
+// StreamInstrumentationParameters.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,35 +24,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
+using System.Security.Cryptography.X509Certificates;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	public interface ICommonConnection : IConnection
+	using ConnectionFramework;
+
+	[StreamInstrumentationParameters]
+	public class StreamInstrumentationParameters : ConnectionTestParameters
 	{
-		ConnectionProvider Provider {
+		public StreamInstrumentationType Type {
 			get;
 		}
 
-		ProtocolVersions SupportedProtocols {
-			get;
+		public StreamInstrumentationParameters (ConnectionTestCategory category, StreamInstrumentationType type,
+		                                        string identifier, X509Certificate certificate)
+			: base (category, identifier, certificate)
+		{
+			Type = type;
 		}
 
-		ProtocolVersions ProtocolVersion {
-			get;
+		protected StreamInstrumentationParameters (StreamInstrumentationParameters other)
+			: base (other)
+		{
+			Type = other.Type;
 		}
 
-		ISslStream SslStream {
-			get;
-		}
-
-		IStreamInstrumentation StreamInstrumentation {
-			get;
-		}
-
-		Stream Stream {
-			get;
+		public override ConnectionParameters DeepClone ()
+		{
+			return new StreamInstrumentationParameters (this);
 		}
 	}
 }
-

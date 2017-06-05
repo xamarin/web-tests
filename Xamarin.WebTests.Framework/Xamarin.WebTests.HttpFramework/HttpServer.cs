@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -178,7 +179,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			return await handler.HandleRequest (ctx, connection, request, cancellationToken).ConfigureAwait (false);
 		}
 
-		public void CheckEncryption (TestContext ctx, ISslStream sslStream)
+		public void CheckEncryption (TestContext ctx, SslStream sslStream)
 		{
 			if ((Flags & (HttpServerFlags.SSL | HttpServerFlags.ForceTls12)) == 0)
 				return;
@@ -195,7 +196,7 @@ namespace Xamarin.WebTests.HttpFramework {
 
 			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
 			if (((Flags & HttpServerFlags.ForceTls12) != 0) || setup.SupportsTls12)
-				ctx.Assert (sslStream.ProtocolVersion, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
+				ctx.Assert ((ProtocolVersions)sslStream.SslProtocol, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
 		}
 
 		public abstract Task<T> RunWithContext<T> (TestContext ctx, Func<CancellationToken, Task<T>> func, CancellationToken cancellationToken);

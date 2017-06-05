@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Text;
 using System.Collections.Generic;
 using System.Threading;
@@ -45,7 +46,7 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
-		public abstract ISslStream SslStream {
+		public abstract SslStream SslStream {
 			get;
 		}
 

@@ -1,10 +1,10 @@
 ﻿//
-// DotNetSslStream.cs
+// IConnectionInstrumentation.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,59 +25,22 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	class DotNetSslStream : ISslStream
+	public interface IConnectionInstrumentation
 	{
-		readonly SslStream stream;
+		Stream CreateClientStream (TestContext ctx, Connection connection, Socket socket);
 
-		public DotNetSslStream (SslStream stream)
-		{
-			this.stream = stream;
-		}
+		Stream CreateServerStream (TestContext ctx, Connection connection, Socket socket);
 
-		public bool IsAuthenticated {
-			get { return stream.IsAuthenticated; }
-		}
+		Task<bool> ClientHandshake (TestContext ctx, Func<Task> handshake, Connection connection);
 
-		public bool IsMutuallyAuthenticated {
-			get { return stream.IsMutuallyAuthenticated; }
-		}
-
-		public bool HasLocalCertificate {
-			get { return stream.LocalCertificate != null; }
-		}
-
-		public bool HasRemoteCertificate {
-			get { return stream.RemoteCertificate != null; }
-		}
-
-		public X509Certificate RemoteCertificate {
-			get {
-				var certificate = stream.RemoteCertificate;
-				if (certificate == null)
-					throw new InvalidOperationException ();
-
-				return certificate;
-			}
-		}
-
-		public Stream AuthenticatedStream {
-			get { return stream; }
-		}
-
-		public ProtocolVersions ProtocolVersion {
-			get { return (ProtocolVersions)stream.SslProtocol; }
-		}
-
-		public void Close ()
-		{
-			stream.Dispose ();
-		}
+		Task<bool> ServerHandshake (TestContext ctx, Func<Task> handshake, Connection connection);
 	}
 }
-

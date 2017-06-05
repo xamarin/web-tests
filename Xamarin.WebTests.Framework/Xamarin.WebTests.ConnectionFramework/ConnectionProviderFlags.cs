@@ -41,7 +41,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		OverridesCipherSelection	= 128,
 		SupportsTrustedRoots		= 256,
 		SupportsMonoExtensions		= 512,
-		SupportsHttpListener		= 1024
+		SupportsHttpListener		= 1024,
+		SupportsCleanShutdown		= 2048
 	}
 }
 

@@ -33,24 +33,37 @@ namespace Xamarin.AsyncTests.Constraints
 	{
 		public object Expected {
 			get;
-			private set;
+		}
+
+		public string ExpectedName {
+			get;
 		}
 
 		public EqualConstraint (object expected)
 		{
 			Expected = expected;
+			ExpectedName = Format (expected);
+		}
+
+		static string Format (object value)
+		{
+			if (value == null)
+				return "<null>";
+			if (value is Enum enumValue)
+				return string.Format ("{0}.{1}", enumValue.GetType ().Name, value);
+			return value.ToString ();
 		}
 
 		public override bool Evaluate (object actual, out string message)
 		{
-			if (Expected is string) {
+			if (Expected is string expectedString) {
 				if (actual == null) {
 					message = "Expected string, but got <null>.";
 					return false;
 				}
 				var actualString = actual as string;
 				if (actualString != null)
-					return CompareString ((string)Expected, actualString, out message);
+					return CompareString (expectedString, actualString, out message);
 				if (actual is Guid)
 					return CompareGuid (Expected, (Guid)actual, out message);
 
@@ -59,7 +72,7 @@ namespace Xamarin.AsyncTests.Constraints
 				return false;
 			}
 
-			if (Expected is IList) {
+			if (Expected is IList expectedList) {
 				if (actual == null) {
 					message = "Expected list, but got <null>.";
 					return false;
@@ -72,24 +85,24 @@ namespace Xamarin.AsyncTests.Constraints
 					return false;
 				}
 
-				return CompareList ((IList)Expected, actualList, out message);
+				return CompareList (expectedList, actualList, out message);
 			}
 
-			if (Expected is Enum) {
-				if (actual.GetType () != Expected.GetType ()) {
+			if (Expected is Enum expectedEnum) {
+				var expectedType = expectedEnum.GetType ();
+				if (actual.GetType () != expectedType) {
 					message = string.Format (
-						"Expected enum of type `{0}', but got `{1}'.", Expected.GetType (), actual.GetType ());
+						"Expected enum of type `{0}', but got `{1}'.", expectedType, actual.GetType ());
 					return false;
 				}
 
-				if (Enum.Equals (Expected, actual)) {
+				if (expectedEnum.Equals (actual)) {
 					message = null;
 					return true;
 				}
 			}
 
-			if (Expected is byte[]) {
-				var expectedBuffer = (byte[])Expected;
+			if (Expected is byte[] expectedBuffer) {
 				var actualBuffer = actual as byte[];
 				if (actualBuffer == null) {
 					if (actual == null)
@@ -106,7 +119,7 @@ namespace Xamarin.AsyncTests.Constraints
 			if (object.Equals (actual, Expected))
 				return true;
 
-			message = string.Format ("Expected '{0}', got '{1}'.", Expected, actual);
+			message = string.Format ("Expected '{0}', got '{1}'.", ExpectedName, Format (actual));
 			return false;
 		}
 
@@ -181,7 +194,7 @@ namespace Xamarin.AsyncTests.Constraints
 
 		public override string Print ()
 		{
-			return string.Format ("Equal({0})", Expected);
+			return string.Format ("Equal({0})", ExpectedName);
 		}
 	}
 }

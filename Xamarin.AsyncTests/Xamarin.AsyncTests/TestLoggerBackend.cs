@@ -44,22 +44,18 @@ namespace Xamarin.AsyncTests
 		{
 			public EntryKind Kind {
 				get;
-				private set;
 			}
 
 			public int LogLevel {
 				get;
-				private set;
 			}
 
 			public string Text {
 				get;
-				private set;
 			}
 
 			public Exception Error {
 				get;
-				private set;
 			}
 
 			internal bool AddedToResult;
@@ -114,16 +110,22 @@ namespace Xamarin.AsyncTests
 			return new TestResultBackend (result, parent != null ? parent.Backend : null);
 		}
 
+		public TestLoggerBackend CreateSynchronized ()
+		{
+			var synchronized = this as SynchronizedBackend;
+			if (synchronized != null)
+				return synchronized;
+			return new SynchronizedBackend (this);
+		}
+
 		class TestResultBackend : TestLoggerBackend
 		{
 			public TestResult Result {
 				get;
-				private set;
 			}
 
 			public TestLoggerBackend Parent {
 				get;
-				private set;
 			}
 
 			public TestResultBackend (TestResult result, TestLoggerBackend parent = null)
@@ -157,6 +159,34 @@ namespace Xamarin.AsyncTests
 			{
 				if (Parent != null)
 					Parent.OnStatisticsEvent (args);
+			}
+		}
+
+		class SynchronizedBackend : TestLoggerBackend
+		{
+			public TestLoggerBackend Backend {
+				get;
+			}
+
+			readonly object locker = new object ();
+
+			public SynchronizedBackend (TestLoggerBackend backend)
+			{
+				Backend = backend;
+			}
+
+			protected internal override void OnLogEvent (LogEntry entry)
+			{
+				lock (locker) {
+					Backend.OnLogEvent (entry);
+				}
+			}
+
+			protected internal override void OnStatisticsEvent (StatisticsEventArgs args)
+			{
+				lock (locker) {
+					Backend.OnStatisticsEvent (args);
+				}
 			}
 		}
 	}

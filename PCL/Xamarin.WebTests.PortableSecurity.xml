@@ -18,7 +18,9 @@ d0e61bdd
     <ImportAssembly>mscorlib</ImportAssembly>
     <ImportAssembly>System</ImportAssembly>
     <IncludeTypes>
-		<Type>System.Text.ASCIIEncoding</Type>
+        <Type>System.Text.ASCIIEncoding</Type>
+        <Type>System.SystemException</Type>
+        <Type>System.Security.Authentication.AuthenticationException</Type>
         <Type>System.Security.Authentication.CipherAlgorithmType</Type>
         <Type>System.Security.Authentication.ExchangeAlgorithmType</Type>
         <Type>System.Security.Authentication.HashAlgorithmType</Type>

@@ -28,7 +28,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			EndPoint = other.EndPoint;
 			ListenAddress = other.ListenAddress;
 			ProtocolVersion = other.ProtocolVersion;
-			UseStreamInstrumentation = other.UseStreamInstrumentation;
 			TargetHost = other.TargetHost;
 			ClientCertificate = other.ClientCertificate;
 			ClientCertificateValidator = other.ClientCertificateValidator;
@@ -40,6 +39,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 			EnableDebugging = other.EnableDebugging;
 			ExpectPolicyErrors = other.ExpectPolicyErrors;
 			ExpectChainStatus = other.ExpectChainStatus;
+			ExpectClientException = other.ExpectClientException;
+			ExpectServerException = other.ExpectServerException;
+			SslStreamFlags = other.SslStreamFlags;
 			GlobalValidationFlags = other.GlobalValidationFlags;
 			if (other.ValidationParameters != null)
 				ValidationParameters = other.ValidationParameters.DeepClone ();
@@ -64,10 +66,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public ProtocolVersions? ProtocolVersion {
-			get; set;
-		}
-
-		public bool UseStreamInstrumentation {
 			get; set;
 		}
 
@@ -121,6 +119,18 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public ValidationParameters ValidationParameters {
+			get; set;
+		}
+
+		public bool ExpectClientException {
+			get; set;
+		}
+
+		public bool ExpectServerException {
+			get; set;
+		}
+
+		public SslStreamFlags SslStreamFlags {
 			get; set;
 		}
 	}

@@ -43,7 +43,9 @@ namespace Xamarin.WebTests.TestFramework
 		RequireMonoServer = 256,
 		RequireMono = RequireMonoClient | RequireMonoServer,
 
-		RequireHttpListener = 512
+		RequireDotNet = 512,
+
+		RequireHttpListener = 1024
 	}
 }
 

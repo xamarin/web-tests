@@ -1,4 +1,4 @@
-﻿//
+﻿﻿﻿//
 // DummyServer.cs
 //
 // Author:
@@ -31,10 +31,12 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class DummyServer : DummyConnection, IServer
+	public class DummyServer : DummyConnection
 	{
-		public DummyServer (ConnectionProvider provider, IPortableEndPoint endpoint, ConnectionParameters parameters)
-			: base (provider, endpoint, parameters)
+		public override ConnectionType ConnectionType => ConnectionType.Server;
+
+		public DummyServer (ConnectionProvider provider, ConnectionParameters parameters)
+			: base (provider, parameters)
 		{
 		}
 	}

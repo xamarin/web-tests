@@ -44,11 +44,11 @@ namespace Xamarin.WebTests.TestFramework
 			private set;
 		}
 
-		protected IClient Client {
+		protected Connection Client {
 			get { return Runner.Client; }
 		}
 
-		protected IServer Server {
+		protected Connection Server {
 			get { return Runner.Server; }
 		}
 
@@ -110,16 +110,21 @@ namespace Xamarin.WebTests.TestFramework
 			ctx.LogDebug (level, formatted);
 		}
 
-		protected async Task ExpectBlob (TestContext ctx, ICommonConnection connection, string type, byte[] blob, CancellationToken cancellationToken)
+		internal Task ExpectBlob (TestContext ctx, Connection connection, CancellationToken cancellationToken)
+		{
+			return ExpectBlob (ctx, connection, TheQuickBrownFox, TheQuickBrownFoxBuffer, cancellationToken);
+		}
+
+		internal async Task ExpectBlob (TestContext ctx, Connection connection, string type, byte[] blob, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			LogDebug (ctx, 2, "ExpectBlob", connection, type);
+			LogDebug (ctx, 5, "ExpectBlob", connection, type);
 
 			var buffer = new byte [4096];
 			var ret = await connection.Stream.ReadAsync (buffer, 0, buffer.Length, cancellationToken);
 
-			LogDebug (ctx, 2, "ExpectBlob #1", connection, type, ret);
+			LogDebug (ctx, 5, "ExpectBlob #1", connection, type, ret);
 
 			if (ctx.Expect (ret, Is.GreaterThan (0), "read success")) {
 				var result = new byte [ret];
@@ -128,18 +133,23 @@ namespace Xamarin.WebTests.TestFramework
 				ctx.Expect (result, new IsEqualBlob (blob), "blob");
 			}
 
-			LogDebug (ctx, 2, "ExpectBlob done", connection, type);
+			LogDebug (ctx, 5, "ExpectBlob done", connection, type);
 		}
 
-		protected async Task WriteBlob (TestContext ctx, ICommonConnection connection, string type, byte[] blob, CancellationToken cancellationToken)
+		internal Task WriteBlob (TestContext ctx, Connection connection, CancellationToken cancellationToken)
+		{
+			return WriteBlob (ctx, connection, TheQuickBrownFox, TheQuickBrownFoxBuffer, cancellationToken);
+		}
+
+		internal async Task WriteBlob (TestContext ctx, Connection connection, string type, byte[] blob, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			LogDebug (ctx, 2, "WriteBlob", connection, type);
+			LogDebug (ctx, 5, "WriteBlob", connection, type);
 
 			await connection.Stream.WriteAsync (blob, 0, blob.Length, cancellationToken);
 
-			LogDebug (ctx, 2, "WriteBlob done", connection, type);
+			LogDebug (ctx, 5, "WriteBlob done", connection, type);
 		}
 
 		async Task MyHandleClientRead (TestContext ctx, CancellationToken cancellationToken)
@@ -147,9 +157,9 @@ namespace Xamarin.WebTests.TestFramework
 			await clientReadTcs.Task;
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			LogDebug (ctx, 1, "HandleClientRead");
+			LogDebug (ctx, 4, "HandleClientRead");
 			await HandleClientRead (ctx, cancellationToken);
-			LogDebug (ctx, 1, "HandleClientRead - done");
+			LogDebug (ctx, 4, "HandleClientRead - done");
 		}
 
 		async Task MyHandleClientWrite (TestContext ctx, CancellationToken cancellationToken)
@@ -157,9 +167,9 @@ namespace Xamarin.WebTests.TestFramework
 			await clientWriteTcs.Task;
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			LogDebug (ctx, 1, "HandleClientWrite");
+			LogDebug (ctx, 4, "HandleClientWrite");
 			await HandleClientWrite (ctx, cancellationToken);
-			LogDebug (ctx, 1, "HandleClientWrite - done");
+			LogDebug (ctx, 4, "HandleClientWrite - done");
 		}
 
 		async Task MyHandleServerRead (TestContext ctx, CancellationToken cancellationToken)
@@ -167,9 +177,9 @@ namespace Xamarin.WebTests.TestFramework
 			await serverReadTcs.Task;
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			LogDebug (ctx, 1, "HandleServerRead");
+			LogDebug (ctx, 4, "HandleServerRead");
 			await HandleServerRead (ctx, cancellationToken);
-			LogDebug (ctx, 1, "HandleServerRead - done");
+			LogDebug (ctx, 4, "HandleServerRead - done");
 		}
 
 		async Task MyHandleServerWrite (TestContext ctx, CancellationToken cancellationToken)
@@ -177,9 +187,9 @@ namespace Xamarin.WebTests.TestFramework
 			await serverWriteTcs.Task;
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			LogDebug (ctx, 1, "HandleServerWrite");
+			LogDebug (ctx, 4, "HandleServerWrite");
 			await HandleServerWrite (ctx, cancellationToken);
-			LogDebug (ctx, 1, "HandleServerWrite - done");
+			LogDebug (ctx, 4, "HandleServerWrite - done");
 		}
 
 		protected void StartClientRead ()
@@ -210,25 +220,25 @@ namespace Xamarin.WebTests.TestFramework
 
 		protected abstract Task HandleServerWrite (TestContext ctx, CancellationToken cancellationToken);
 
-		async Task HandleConnection (TestContext ctx, ICommonConnection connection, Task readTask, Task writeTask, CancellationToken cancellationToken)
+		async Task HandleConnection (TestContext ctx, Connection connection, Task readTask, Task writeTask, CancellationToken cancellationToken)
 		{
 			var t1 = readTask.ContinueWith (t => {
-				LogDebug (ctx, 1, "HandleConnection - read done", connection, t.Status, t.IsFaulted, t.IsCanceled);
+				LogDebug (ctx, 3, "HandleConnection - read done", connection, t.Status, t.IsFaulted, t.IsCanceled);
 				if (t.IsFaulted || t.IsCanceled)
 					Dispose ();
 			});
 			var t2 = writeTask.ContinueWith (t => {
-				LogDebug (ctx, 1, "HandleConnection - write done", connection, t.Status, t.IsFaulted, t.IsCanceled);
+				LogDebug (ctx, 3, "HandleConnection - write done", connection, t.Status, t.IsFaulted, t.IsCanceled);
 				if (t.IsFaulted || t.IsCanceled)
 					Dispose ();
 			});
 
-			LogDebug (ctx, 1, "HandleConnection", connection);
+			LogDebug (ctx, 3, "HandleConnection", connection);
 
 			await Task.WhenAll (readTask, writeTask, t1, t2);
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			LogDebug (ctx, 1, "HandleConnection done", connection);
+			LogDebug (ctx, 3, "HandleConnection done", connection);
 		}
 
 		public virtual async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
@@ -252,12 +262,12 @@ namespace Xamarin.WebTests.TestFramework
 				serverTask = MyHandleServer (ctx, cancellationToken);
 
 			var t1 = clientTask.ContinueWith (t => {
-				LogDebug (ctx, 1, "Client done", t.Status, t.IsFaulted, t.IsCanceled);
+				LogDebug (ctx, 3, "Client done", t.Status, t.IsFaulted, t.IsCanceled);
 				if (t.IsFaulted || t.IsCanceled)
 					Dispose ();
 			});
 			var t2 = serverTask.ContinueWith (t => {
-				LogDebug (ctx, 1, "Server done", t.Status, t.IsFaulted, t.IsCanceled);
+				LogDebug (ctx, 3, "Server done", t.Status, t.IsFaulted, t.IsCanceled);
 				if (t.IsFaulted || t.IsCanceled)
 					Dispose ();
 			});
@@ -267,16 +277,11 @@ namespace Xamarin.WebTests.TestFramework
 				await HandleMainLoop (ctx, cancellationToken);
 				cancellationToken.ThrowIfCancellationRequested ();
 
-				LogDebug (ctx, 1, "MainLoop");
+				LogDebug (ctx, 3, "MainLoop");
 				await mainLoopTask;
 				cancellationToken.ThrowIfCancellationRequested ();
-
-				if (Runner.SupportsCleanShutdown) {
-					LogDebug (ctx, 1, "MainLoop shutdown");
-					await Runner.Shutdown (ctx, cancellationToken);
-				}
 			} finally {
-				LogDebug (ctx, 1, "MainLoop done");
+				LogDebug (ctx, 3, "MainLoop done");
 			}
 		}
 
@@ -302,50 +307,41 @@ namespace Xamarin.WebTests.TestFramework
 			var readTask = MyHandleServerRead (ctx, cancellationToken);
 			var writeTask = MyHandleServerWrite (ctx, cancellationToken);
 
-			LogDebug (ctx, 1, "HandleServer");
+			LogDebug (ctx, 3, "HandleServer");
 
 			await HandleServer (ctx, cancellationToken);
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			LogDebug (ctx, 1, "HandleServer #1");
+			LogDebug (ctx, 3, "HandleServer #1");
 
 			await HandleConnection (ctx, Server, readTask, writeTask, cancellationToken);
 
-			LogDebug (ctx, 1, "HandleServer done");
+			LogDebug (ctx, 3, "HandleServer done");
 		}
 
 		protected virtual async Task HandleClientWithManualServer (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var clientStream = new StreamWrapper (Client.Stream);
 
-			LogDebug (ctx, 1, "HandleClientWithManualServer", Parameters.TargetHost ?? "<null>");
+			LogDebug (ctx, 3, "HandleClientWithManualServer", Parameters.TargetHost ?? "<null>");
 
 			await clientStream.WriteLineAsync ("Hello World!");
 
 			var line = await clientStream.ReadLineAsync ();
-			LogDebug (ctx, 1, "HandleClientWithManualServer done", line);
+			LogDebug (ctx, 3, "HandleClientWithManualServer done", line);
 		}
 
 		protected virtual async Task HandleServerWithManualClient (TestContext ctx, CancellationToken cancellationToken)
 		{
-			LogDebug (ctx, 1, "HandleServerWithManualClient");
+			LogDebug (ctx, 3, "HandleServerWithManualClient");
 
 			var serverStream = new StreamWrapper (Server.Stream);
 			await serverStream.WriteLineAsync ("Hello World!");
 
-			LogDebug (ctx, 1, "HandleServerWithManualClient reading");
+			LogDebug (ctx, 3, "HandleServerWithManualClient reading");
 
 			var line = await serverStream.ReadLineAsync ();
-			LogDebug (ctx, 1, "HandleServerWithManualClient done", line);
-		}
-
-		protected virtual void OnShutdown (TestContext ctx)
-		{
-		}
-
-		public void Shutdown (TestContext ctx)
-		{
-			OnShutdown (ctx);
+			LogDebug (ctx, 3, "HandleServerWithManualClient done", line);
 		}
 
 		public const string TheQuickBrownFox = "The quick brown fox jumps over the lazy dog";

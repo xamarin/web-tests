@@ -1,10 +1,10 @@
 ﻿//
-// IMonoServer.cs
+// ConnectionType.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.WebTests.ConnectionFramework;
-
-namespace Xamarin.WebTests.MonoTestFramework
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	public interface IMonoServer : IServer, IMonoCommonConnection
+	public enum ConnectionType
 	{
+		Client,
+		Server
 	}
 }
-

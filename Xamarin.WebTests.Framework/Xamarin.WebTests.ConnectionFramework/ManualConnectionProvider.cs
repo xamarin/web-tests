@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // ManualConnectionProvider.cs
 //
 // Author:
@@ -24,6 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net.Security;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
@@ -35,14 +38,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 		}
 
-		public override IClient CreateClient (ConnectionParameters parameters)
+		public override Connection CreateClient (ConnectionParameters parameters)
 		{
-			return new DummyClient (this, parameters.EndPoint, parameters);
+			return new DummyClient (this, parameters);
 		}
 
-		public override IServer CreateServer (ConnectionParameters parameters)
+		public override Connection CreateServer (ConnectionParameters parameters)
 		{
-			return new DummyServer (this, parameters.EndPoint, parameters);
+			return new DummyServer (this, parameters);
 		}
 
 		protected override ISslStreamProvider GetSslStreamProvider ()

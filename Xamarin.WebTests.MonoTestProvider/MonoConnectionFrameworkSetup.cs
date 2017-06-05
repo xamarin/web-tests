@@ -32,11 +32,14 @@ using System.Reflection;
 #endif
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.MonoTestProvider {
+namespace Xamarin.WebTests.MonoTestProvider
+{
 	using MonoConnectionFramework;
 	using ConnectionFramework;
+	using System.Net.Security;
 
-	public sealed class MonoConnectionFrameworkSetup : IMonoConnectionFrameworkSetup {
+	public sealed class MonoConnectionFrameworkSetup : IMonoConnectionFrameworkSetup
+	{
 		public string Name {
 			get;
 		}
@@ -61,6 +64,10 @@ namespace Xamarin.WebTests.MonoTestProvider {
 			get;
 		}
 
+		public bool SupportsCleanShutdown {
+			get;
+		}
+
 		public bool UsingBtls {
 			get;
 		}
@@ -76,27 +83,27 @@ namespace Xamarin.WebTests.MonoTestProvider {
 #if !__MOBILE__ && !__UNIFIED__ && !__IOS__
 			var providerEnvVar = Environment.GetEnvironmentVariable ("MONO_TLS_PROVIDER");
 			switch (providerEnvVar) {
-				case "btls":
-					MonoTlsProviderFactory.Initialize ("btls");
-					break;
-				case "apple":
-					MonoTlsProviderFactory.Initialize ("apple");
-					break;
-				case "default":
-				case null:
+			case "btls":
+				MonoTlsProviderFactory.Initialize ("btls");
+				break;
+			case "apple":
+				MonoTlsProviderFactory.Initialize ("apple");
+				break;
+			case "default":
+			case null:
 #if APPLETLS
 				MonoTlsProviderFactory.Initialize ("apple");
 #elif LEGACY
 				MonoTlsProviderFactory.Initialize ("legacy");
 #else
-					MonoTlsProviderFactory.Initialize ("btls");
+				MonoTlsProviderFactory.Initialize ("btls");
 #endif
-					break;
-				case "legacy":
-					MonoTlsProviderFactory.Initialize ("legacy");
-					break;
-				default:
-					throw new NotSupportedException (string.Format ("Unsupported TLS Provider: `{0}'", providerEnvVar));
+				break;
+			case "legacy":
+				MonoTlsProviderFactory.Initialize ("legacy");
+				break;
+			default:
+				throw new NotSupportedException (string.Format ("Unsupported TLS Provider: `{0}'", providerEnvVar));
 			}
 #endif
 
@@ -104,6 +111,8 @@ namespace Xamarin.WebTests.MonoTestProvider {
 			UsingBtls = TlsProvider.ID == ConnectionProviderFactory.BoringTlsGuid;
 			UsingAppleTls = TlsProvider.ID == ConnectionProviderFactory.AppleTlsGuid;
 			SupportsTls12 = UsingBtls || UsingAppleTls;
+
+			SupportsCleanShutdown = CheckCleanShutdown ();
 
 			if (UsingAppleTls && !CheckAppleTls ())
 				throw new NotSupportedException ("AppleTls is not supported in this version of the Mono runtime.");
@@ -117,6 +126,17 @@ namespace Xamarin.WebTests.MonoTestProvider {
 		public MonoTlsProvider GetDefaultProvider ()
 		{
 			return TlsProvider;
+		}
+
+		bool CheckCleanShutdown ()
+		{
+#if __IOS__ || __MOBILE__
+			return false;
+#else
+			var type = typeof (SslStream);
+			var method = type.GetMethod ("ShutdownAsync", BindingFlags.Instance | BindingFlags.Public);
+			return method != null;
+#endif
 		}
 
 		bool CheckAppleTls ()

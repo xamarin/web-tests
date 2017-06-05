@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
@@ -44,11 +45,11 @@ namespace Xamarin.WebTests.Server {
 			get;
 		}
 
-		public override ISslStream SslStream {
+		public override SslStream SslStream {
 			get { return sslStream; }
 		}
 
-		ISslStream sslStream;
+		SslStream sslStream;
 
 		public HttpListenerConnection (TestContext ctx, HttpServer server, HttpListenerContext context)
 			: base (server, context.Request.RemoteEndPoint)

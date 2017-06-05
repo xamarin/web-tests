@@ -559,8 +559,15 @@ namespace Xamarin.WebTests.TestRunners
 			 * will be closed when the handshake is completed.
 			 *
 			 */
-			var haveReq = await connection.HasRequest (cancellationToken).ConfigureAwait (false);
-			ctx.LogDebug (5, "HttpTestRunner - CreateConnection #1: {0}", haveReq);
+			bool haveReq;
+			try {
+				haveReq = await connection.HasRequest (cancellationToken).ConfigureAwait (false);
+				ctx.LogDebug (5, "HttpTestRunner - CreateConnection #1: {0}", haveReq);
+			} catch {
+				if (Parameters.ClientAbortsHandshake)
+					return false;
+				throw;
+			}
 			if (Parameters.ClientAbortsHandshake) {
 				ctx.Assert (haveReq, Is.False, "expected client to abort handshake");
 				return false;

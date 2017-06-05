@@ -48,21 +48,11 @@ namespace Xamarin.WebTests.TestFramework
 			: base (other)
 		{
 			Type = other.Type;
-			ExpectClientException = other.ExpectClientException;
-			ExpectServerException = other.ExpectServerException;
 		}
 
 		public override ConnectionParameters DeepClone ()
 		{
 			return new SslStreamTestParameters (this);
-		}
-
-		public bool ExpectClientException {
-			get; set;
-		}
-
-		public bool ExpectServerException {
-			get; set;
 		}
 	}
 }

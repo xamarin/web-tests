@@ -29,20 +29,18 @@ namespace Xamarin.AsyncTests
 {
 	public sealed class TestLogger
 	{
-		readonly TestLoggerBackend backend;
-
 		internal TestLoggerBackend Backend {
-			get { return backend; }
+			get;
 		}
 
 		public TestLogger (TestLoggerBackend backend)
 		{
-			this.backend = backend;
+			Backend = backend.CreateSynchronized ();
 		}
 
 		void OnLogEvent (TestLoggerBackend.LogEntry entry)
 		{
-			backend.OnLogEvent (entry);
+			Backend.OnLogEvent (entry);
 		}
 
 		public void LogDebug (int level, string message)
@@ -82,20 +80,20 @@ namespace Xamarin.AsyncTests
 
 		public void ResetStatistics ()
 		{
-			backend.OnStatisticsEvent (new TestLoggerBackend.StatisticsEventArgs {
+			Backend.OnStatisticsEvent (new TestLoggerBackend.StatisticsEventArgs {
 				Type = TestLoggerBackend.StatisticsEventType.Reset });
 		}
 
 		public void OnTestRunning (string name)
 		{
-			backend.OnStatisticsEvent (new TestLoggerBackend.StatisticsEventArgs {
+			Backend.OnStatisticsEvent (new TestLoggerBackend.StatisticsEventArgs {
 				Type = TestLoggerBackend.StatisticsEventType.Running, Name = name
 			});
 		}
 
 		public void OnTestFinished (string name, TestStatus status)
 		{
-			backend.OnStatisticsEvent (new TestLoggerBackend.StatisticsEventArgs {
+			Backend.OnStatisticsEvent (new TestLoggerBackend.StatisticsEventArgs {
 				Type = TestLoggerBackend.StatisticsEventType.Finished, Name = name, Status = status
 			});
 		}

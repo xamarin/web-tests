@@ -35,15 +35,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Xamarin.WebTests.MonoConnectionFramework\CallbackHelpers.cs" />
     <Compile Include="Xamarin.WebTests.MonoConnectionFramework\MonoClient.cs" />
-    <Compile Include="Xamarin.WebTests.MonoConnectionFramework\MonoConnection.cs" />
     <Compile Include="Xamarin.WebTests.MonoConnectionFramework\MonoConnectionProvider.cs" />
     <Compile Include="Xamarin.WebTests.MonoConnectionFramework\MonoConnectionProviderFactory.cs" />
     <Compile Include="Xamarin.WebTests.MonoConnectionFramework\MonoServer.cs" />
-    <Compile Include="Xamarin.WebTests.MonoConnectionFramework\MonoSslStream.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\ConnectionType.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFramework\IMonoClient.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFramework\IMonoCommonConnection.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFramework\IMonoServer.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFramework\IMonoConnection.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionHelper.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionParameters.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionTestRunner.cs" />

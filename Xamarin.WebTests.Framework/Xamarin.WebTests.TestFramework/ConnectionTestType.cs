@@ -39,9 +39,9 @@ namespace Xamarin.WebTests.TestFramework
 		OptionalClientCertificate,
 		RejectClientCertificate,
 		MissingClientCertificate,
+		SyncAuthenticate,
 
 		InvalidServerCertificate,
-		MartinTest,
 
 		DontInvokeGlobalValidator,
 		DontInvokeGlobalValidator2,
@@ -63,7 +63,9 @@ namespace Xamarin.WebTests.TestFramework
 		IntermediateServerCertificateBare,
 		IntermediateServerCertificateFull,
 
-		CertificateStore
+		CertificateStore,
+
+		MartinTest
 	}
 }
 

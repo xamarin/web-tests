@@ -1,4 +1,4 @@
-﻿﻿﻿//
+﻿﻿﻿﻿//
 // SocketConnection.cs
 //
 // Author:
@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,10 +50,10 @@ namespace Xamarin.WebTests.Server
 			private set;
 		}
 
-		public override ISslStream SslStream => sslStream;
+		public override SslStream SslStream => sslStream;
 
 		Stream networkStream;
-		ISslStream sslStream;
+		SslStream sslStream;
 		HttpStreamReader reader;
 		StreamWriter writer;
 
@@ -64,12 +65,11 @@ namespace Xamarin.WebTests.Server
 
 		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			networkStream = new NetworkStream (Socket);
+			networkStream = new NetworkStream (Socket, true);
 
 			if (Server.SslStreamProvider != null) {
-				sslStream = await Server.SslStreamProvider.CreateServerStreamAsync (
-					networkStream, Server.Parameters, cancellationToken).ConfigureAwait (false);
-				Stream = sslStream.AuthenticatedStream;
+				sslStream = await CreateSslStream (ctx, networkStream, cancellationToken).ConfigureAwait (false);
+				Stream = sslStream;
 			} else {
 				Stream = networkStream;
 			}
@@ -77,6 +77,19 @@ namespace Xamarin.WebTests.Server
 			reader = new HttpStreamReader (Stream);
 			writer = new StreamWriter (Stream);
 			writer.AutoFlush = true;
+		}
+
+		async Task<SslStream> CreateSslStream (TestContext ctx, Stream innerStream, CancellationToken cancellationToken)
+		{
+			var stream = Server.SslStreamProvider.CreateSslStream (ctx, innerStream, Server.Parameters, true);
+
+			var certificate = Server.Parameters.ServerCertificate;
+			var askForCert = Server.Parameters.AskForClientCertificate || Server.Parameters.RequireClientCertificate;
+			var protocol = Server.SslStreamProvider.GetProtocol (Server.Parameters, true);
+
+			await stream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false).ConfigureAwait (false);
+
+			return stream;
 		}
 
 		internal override bool IsStillConnected ()
@@ -126,7 +139,7 @@ namespace Xamarin.WebTests.Server
 				writer.Dispose ();
 			}
 			if (sslStream != null) {
-				sslStream.Close ();
+				sslStream.Dispose ();
 				sslStream = null;
 			}
 			if (networkStream != null) {

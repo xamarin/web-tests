@@ -1,10 +1,10 @@
 ﻿//
-// IMonoClient.cs
+// DotNetAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.MonoTestFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	public interface IMonoClient : IClient, IMonoCommonConnection
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class DotNetAttribute : TestFeatureAttribute
 	{
+		public override TestFeature Feature {
+			get { return Instance; }
+		}
+
+		static bool UsingDotNetRuntime ()
+		{
+			var provider = DependencyInjector.Get<IPortableSupport> ();
+			return provider.IsMicrosoftRuntime;
+		}
+
+		public static readonly TestFeature Instance = new TestFeature (
+			"DotNet", "Using the .NET runtime", UsingDotNetRuntime ());
 	}
 }
 

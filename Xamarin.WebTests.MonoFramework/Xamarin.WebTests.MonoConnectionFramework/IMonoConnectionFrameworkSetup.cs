@@ -49,9 +49,5 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		bool UsingBtls {
 			get;
 		}
-
-		bool UsingAppleTls {
-			get;
-		}
 	}
 }

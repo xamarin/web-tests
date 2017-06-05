@@ -49,12 +49,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		string ITestParameter.FriendlyValue => Value;
 
-		public virtual IClient CreateClient (ConnectionParameters parameters)
+		public virtual Connection CreateClient (ConnectionParameters parameters)
 		{
 			return Client.CreateClient (parameters);
 		}
 
-		public virtual IServer CreateServer (ConnectionParameters parameters)
+		public virtual Connection CreateServer (ConnectionParameters parameters)
 		{
 			return Server.CreateServer (parameters);
 		}

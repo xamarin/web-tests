@@ -1,10 +1,10 @@
 ﻿//
-// ISslStream.cs
+// StreamInstrumentationTestRunnerAttribute.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,38 +24,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
+using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	public interface ISslStream
+	using TestRunners;
+	using ConnectionFramework;
+	using HttpFramework;
+	using Resources;
+
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
+	public class StreamInstrumentationTestRunnerAttribute : TestHostAttribute, ITestHost<StreamInstrumentationTestRunner>
 	{
-		bool IsAuthenticated {
-			get;
+		public StreamInstrumentationTestRunnerAttribute ()
+			: base (typeof (StreamInstrumentationTestRunnerAttribute), TestFlags.Hidden)
+		{
 		}
 
-		bool IsMutuallyAuthenticated {
-			get;
+		public StreamInstrumentationTestRunner CreateInstance (TestContext ctx)
+		{
+			return ConnectionTestHelper.CreateTestRunner<ConnectionTestProvider, StreamInstrumentationParameters, StreamInstrumentationTestRunner> (
+				ctx, (s, c, t, p) => new StreamInstrumentationTestRunner (s, c, t, p));
 		}
-
-		bool HasLocalCertificate {
-			get;
-		}
-
-		bool HasRemoteCertificate {
-			get;
-		}
-
-		Stream AuthenticatedStream {
-			get;
-		}
-
-		ProtocolVersions ProtocolVersion {
-			get;
-		}
-
-		void Close ();
 	}
 }
-

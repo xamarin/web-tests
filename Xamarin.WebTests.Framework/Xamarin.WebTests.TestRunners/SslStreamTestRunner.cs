@@ -1,4 +1,4 @@
-﻿//
+﻿﻿﻿﻿//
 // SslStreamTestRunner.cs
 //
 // Author:
@@ -24,7 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Net.Security;
 using System.Text;
 using System.Threading;
@@ -33,6 +35,7 @@ using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Framework;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.TestRunners
 {
@@ -47,7 +50,7 @@ namespace Xamarin.WebTests.TestRunners
 			get { return (SslStreamTestParameters)base.Parameters; }
 		}
 
-		public SslStreamTestRunner (IServer server, IClient client, ConnectionTestProvider provider, SslStreamTestParameters parameters)
+		public SslStreamTestRunner (Connection server, Connection client, ConnectionTestProvider provider, SslStreamTestParameters parameters)
 			: base (server, client, provider, parameters)
 		{
 		}
@@ -159,9 +162,6 @@ namespace Xamarin.WebTests.TestRunners
 					ExpectClientException = true, ExpectServerException = true
 				};
 
-			case ConnectionTestType.MartinTest:
-				goto case ConnectionTestType.RequestClientCertificate;
-
 			case ConnectionTestType.MustNotInvokeGlobalValidator:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptAll,
@@ -174,8 +174,13 @@ namespace Xamarin.WebTests.TestRunners
 					ExpectClientException = true
 				};
 
+			case ConnectionTestType.SyncAuthenticate:
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptAll, SslStreamFlags = SslStreamFlags.SyncAuthenticate
+				};
+
 			default:
-				throw new InternalErrorException ();
+				throw ctx.AssertFail ("Invalid ConnectionTestType: `{0}'.", type);
 			}
 		}
 
@@ -192,20 +197,20 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Expect (Server.SslStream.IsAuthenticated, "server is authenticated");
 
 				if (Server.Parameters.RequireClientCertificate) {
-					ctx.LogDebug (1, "Client certificate required: {0} {1}", Server.SslStream.IsMutuallyAuthenticated, Server.SslStream.HasRemoteCertificate);
+					ctx.LogDebug (1, "Client certificate required: {0} {1}", Server.SslStream.IsMutuallyAuthenticated, Server.SslStream.RemoteCertificate != null);
 					ctx.Expect (Server.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
-					ctx.Expect (Server.SslStream.HasRemoteCertificate, "server has client certificate");
+					ctx.Expect (Server.SslStream.RemoteCertificate, Is.Not.Null, "server has client certificate");
 				}
 			}
 
 			if (!IsManualClient) {
 				ctx.Expect (Client.SslStream.IsAuthenticated, "client is authenticated");
 
-				ctx.Expect (Client.SslStream.HasRemoteCertificate, "client has server certificate");
+				ctx.Expect (Client.SslStream.RemoteCertificate, Is.Not.Null, "client has server certificate");
 			}
 
 			if (!IsManualConnection && Server.Parameters.AskForClientCertificate && Client.Parameters.ClientCertificate != null)
-				ctx.Expect (Client.SslStream.HasLocalCertificate, "client has local certificate");
+				ctx.Expect (Client.SslStream.LocalCertificate, Is.Not.Null, "client has local certificate");
 
 		}
 

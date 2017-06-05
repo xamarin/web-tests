@@ -53,10 +53,9 @@ namespace Xamarin.WebTests.TestRunners
 
 		public ConnectionHandler ConnectionHandler {
 			get;
-			private set;
 		}
 
-		public ConnectionTestRunner (IServer server, IClient client, ConnectionTestProvider provider, ConnectionTestParameters parameters)
+		public ConnectionTestRunner (Connection server, Connection client, ConnectionTestProvider provider, ConnectionTestParameters parameters)
 			: base (server, client, parameters)
 		{
 			Provider = provider;
@@ -102,6 +101,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.Default;
 				yield return ConnectionTestType.AcceptFromLocalCA;
 				yield return ConnectionTestType.RequireClientCertificate;
+				yield return ConnectionTestType.SyncAuthenticate;
 				yield break;
 
 			case ConnectionTestCategory.InvalidCertificatesInTls12:
@@ -157,6 +157,7 @@ namespace Xamarin.WebTests.TestRunners
 			var supportsTls12 = (flags & ConnectionProviderFlags.SupportsTls12) != 0;
 			var supportsClientCertificates = (flags & ConnectionProviderFlags.SupportsClientCertificates) != 0;
 			var supportsTrustedRoots = (flags & ConnectionProviderFlags.SupportsTrustedRoots) != 0;
+			var supportsMonoExtensions = (flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
 
 			switch (category) {
 			case ConnectionTestCategory.Https:
@@ -176,11 +177,36 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.TrustedRoots:
 			case ConnectionTestCategory.CertificateStore:
 				return supportsTrustedRoots;
+			case ConnectionTestCategory.SslStreamInstrumentation:
+			case ConnectionTestCategory.SslStreamInstrumentationExperimental:
+				return supportsSslStream && supportsTls12;
+			case ConnectionTestCategory.SslStreamInstrumentationMono:
+				return supportsSslStream && supportsTls12 && supportsMonoExtensions;
 			case ConnectionTestCategory.MartinTest:
 				return true;
 			default:
 				throw new NotSupportedException ();
 			}
+		}
+
+		protected sealed override Task StartClient (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Client.Start (ctx, null, cancellationToken);
+		}
+
+		protected sealed override Task StartServer (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Server.Start (ctx, null, cancellationToken);
+		}
+
+		protected override Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Client.Shutdown (ctx, cancellationToken);
+		}
+
+		protected override Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Server.Shutdown (ctx, cancellationToken);
 		}
 
 		protected override void InitializeConnection (TestContext ctx)
@@ -194,12 +220,6 @@ namespace Xamarin.WebTests.TestRunners
 		protected sealed override Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return ConnectionHandler.MainLoop (ctx, cancellationToken);
-		}
-
-		public override Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken)
-		{
-			ConnectionHandler.Shutdown (ctx);
-			return base.Shutdown (ctx, cancellationToken);
 		}
 	}
 }

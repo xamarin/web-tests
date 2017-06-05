@@ -53,7 +53,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get { return Parameters.Type; }
 		}
 
-		public SimpleConnectionTestRunner (IServer server, IClient client, MonoConnectionTestProvider provider, SimpleConnectionParameters parameters)
+		public SimpleConnectionTestRunner (Connection server, Connection client, MonoConnectionTestProvider provider, SimpleConnectionParameters parameters)
 			: base (server, client, provider, parameters)
 		{
 		}

@@ -50,7 +50,7 @@ namespace Xamarin.WebTests.TestFramework
 			return Factory.GetProviderFlags (type);
 		}
 
-		public static R CreateTestRunner<P, A, R> (TestContext ctx, Func<IServer, IClient, P, A, R> constructor)
+		public static R CreateTestRunner<P, A, R> (TestContext ctx, Func<Connection, Connection, P, A, R> constructor)
 			where P : ClientAndServerProvider
 			where A : ConnectionParameters
 			where R : ClientAndServer
@@ -60,7 +60,7 @@ namespace Xamarin.WebTests.TestFramework
 			return CreateTestRunner (ctx, provider, parameters, constructor);
 		}
 
-		public static R CreateTestRunner<P, A, R> (TestContext ctx, P provider, A parameters, Func<IServer, IClient, P, A, R> constructor)
+		public static R CreateTestRunner<P, A, R> (TestContext ctx, P provider, A parameters, Func<Connection, Connection, P, A, R> constructor)
 			where P : ClientAndServerProvider
 			where A : ConnectionParameters
 			where R : ClientAndServer

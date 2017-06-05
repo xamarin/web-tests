@@ -95,7 +95,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 				return provider.Type == ConnectionProviderType.Manual;
 			if (HasFlag (ConnectionTestFlags.RequireMonoClient) && !provider.HasFlag (ConnectionProviderFlags.SupportsMonoExtensions))
 				return false;
-
+			if (HasFlag (ConnectionTestFlags.RequireDotNet) && provider.Type != ConnectionProviderType.DotNet)
+				return false;
 			return true;
 		}
 
@@ -104,6 +105,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (HasFlag (ConnectionTestFlags.ManualServer))
 				return provider.Type == ConnectionProviderType.Manual;
 			if (HasFlag (ConnectionTestFlags.RequireMonoServer) && !provider.HasFlag (ConnectionProviderFlags.SupportsMonoExtensions))
+				return false;
+			if (HasFlag (ConnectionTestFlags.RequireDotNet) && provider.Type != ConnectionProviderType.DotNet)
 				return false;
 
 			return true;

@@ -24,6 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net.Security;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 
@@ -66,13 +69,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return flags; }
 		}
 
-		public abstract IClient CreateClient (ConnectionParameters parameters);
+		public abstract Connection CreateClient (ConnectionParameters parameters);
 
-		public abstract IServer CreateServer (ConnectionParameters parameters);
+		public abstract Connection CreateServer (ConnectionParameters parameters);
 
 		public bool SupportsSslStreams => (Flags & ConnectionProviderFlags.SupportsSslStream) != 0;
 
 		public bool SupportsMonoExtensions => (Flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
+
+		public bool SupportsCleanShutdown => (Flags & ConnectionProviderFlags.SupportsCleanShutdown) != 0;
 
 		public bool HasFlag (ConnectionProviderFlags flags)
 		{

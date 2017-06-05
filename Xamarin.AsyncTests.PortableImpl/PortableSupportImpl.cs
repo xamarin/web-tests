@@ -149,6 +149,11 @@ namespace Xamarin.AsyncTests.Portable
 			get { return Encoding.ASCII; }
 		}
 
+		public void Close (Stream stream)
+		{
+			stream.Close ();
+		}
+
 		#endregion
 
 		#region Stack Trace

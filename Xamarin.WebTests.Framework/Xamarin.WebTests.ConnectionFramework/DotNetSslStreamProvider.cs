@@ -32,6 +32,7 @@ using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -69,7 +70,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return selector.SelectionCallback;
 		}
 
-		static X509CertificateCollection GetClientCertificates (ConnectionParameters parameters)
+		public X509CertificateCollection GetClientCertificates (ConnectionParameters parameters)
 		{
 			if (parameters.ClientCertificate == null)
 				return null;
@@ -99,49 +100,21 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return (SslProtocols)protocol;
 		}
 
-		public ISslStream CreateServerStream (Stream stream, ConnectionParameters parameters)
+		public SslProtocols GetProtocol (ConnectionParameters parameters, bool server)
 		{
-			var certificate = parameters.ServerCertificate;
-
-			var protocol = GetProtocol (parameters);
-			var validator = GetServerValidationCallback (parameters);
-
-			var askForCert = parameters.AskForClientCertificate || parameters.RequireClientCertificate;
-
-			var sslStream = new SslStream (stream, false, validator);
-			sslStream.AuthenticateAsServer (certificate, askForCert, protocol, false);
-
-			return new DotNetSslStream (sslStream);
+			return GetProtocol (parameters);
 		}
 
-		public async Task<ISslStream> CreateServerStreamAsync (
-			Stream stream, ConnectionParameters parameters, CancellationToken cancellationToken)
+		public SslStream CreateSslStream (TestContext ctx, Stream stream, ConnectionParameters parameters, bool server)
 		{
-			var certificate = parameters.ServerCertificate;
-
-			var protocol = GetProtocol (parameters);
-			var validator = GetServerValidationCallback (parameters);
-
-			var askForCert = parameters.AskForClientCertificate || parameters.RequireClientCertificate;
-
-			var sslStream = new SslStream (stream, false, validator);
-			await sslStream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false);
-
-			return new DotNetSslStream (sslStream);
-		}
-
-		public async Task<ISslStream> CreateClientStreamAsync (
-			Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken)
-		{
-			var protocol = GetProtocol (parameters);
-			var clientCertificates = GetClientCertificates (parameters);
-			var validator = GetClientValidationCallback (parameters);
-			var selector = GetSelectionCallback (parameters);
-
-			var sslStream = new SslStream (stream, false, validator, selector);
-			await sslStream.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false);
-
-			return new DotNetSslStream (sslStream);
+			if (server) {
+				var validator = GetServerValidationCallback (parameters);
+				return new SslStream (stream, false, validator);
+			} else {
+				var validator = GetClientValidationCallback (parameters);
+				var selector = GetSelectionCallback (parameters);
+				return new SslStream (stream, false, validator, selector);
+			}
 		}
 
 		public bool SupportsWebRequest => true;
@@ -160,7 +133,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public bool SupportsHttpListenerContext => false;
 
-		public ISslStream GetSslStream (HttpListenerContext context)
+		public SslStream GetSslStream (HttpListenerContext context)
 		{
 			throw new NotSupportedException ();
 		}

@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
 
 namespace Xamarin.AsyncTests.Constraints
 {
@@ -31,12 +32,21 @@ namespace Xamarin.AsyncTests.Constraints
 	{
 		public Type ExpectedType {
 			get;
-			private set;
+		}
+
+		public bool AllowSubclasses {
+			get;
 		}
 
 		public override bool Evaluate (object actual, out string message)
 		{
-			if (actual.GetType ().Equals (ExpectedType)) {
+			var actualType = actual.GetType ();
+			if (actualType.Equals (ExpectedType)) {
+				message = null;
+				return true;
+			}
+
+			if (AllowSubclasses && ExpectedType.GetTypeInfo ().IsAssignableFrom (actualType.GetTypeInfo ())) {
 				message = null;
 				return true;
 			}
@@ -47,12 +57,13 @@ namespace Xamarin.AsyncTests.Constraints
 
 		public override string Print ()
 		{
-			return string.Format ("InstanceOfType({0})", ExpectedType);
+			return string.Format ("InstanceOfType({0}:{1})", ExpectedType, AllowSubclasses);
 		}
 
-		public InstanceOfTypeConstraint (Type expectedType)
+		public InstanceOfTypeConstraint (Type expectedType, bool allowSubclasses)
 		{
 			ExpectedType = expectedType;
+			AllowSubclasses = allowSubclasses;
 		}
 	}
 }

@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Text;
 
 namespace Xamarin.AsyncTests.Portable
@@ -59,6 +60,8 @@ namespace Xamarin.AsyncTests.Portable
 		Encoding ASCIIEncoding {
 			get;
 		}
+
+		void Close (Stream stream);
 	}
 }
 

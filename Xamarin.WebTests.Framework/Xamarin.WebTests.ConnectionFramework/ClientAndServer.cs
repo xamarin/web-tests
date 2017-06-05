@@ -1,4 +1,4 @@
-﻿//
+﻿﻿﻿﻿﻿//
 // ClientAndServer.cs
 //
 // Author:
@@ -36,24 +36,20 @@ using Xamarin.WebTests.TestFramework;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public abstract class ClientAndServer : Connection
+	public abstract class ClientAndServer : AbstractConnection
 	{
-		IServer server;
-		IClient client;
+		Connection server;
+		Connection client;
 
-		public IServer Server {
+		public Connection Server {
 			get { return server; }
 		}
 
-		public IClient Client {
+		public Connection Client {
 			get { return client; }
 		}
 
-		public override bool SupportsCleanShutdown {
-			get { return server.SupportsCleanShutdown && client.SupportsCleanShutdown; }
-		}
-
-		public override ProtocolVersions SupportedProtocols {
+		public ProtocolVersions SupportedProtocols {
 			get { return server.SupportedProtocols & client.SupportedProtocols; }
 		}
 
@@ -70,8 +66,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return null;
 		}
 
-		public ClientAndServer (IServer server, IClient client, ConnectionParameters parameters)
-			: base (server.EndPoint, parameters)
+		public ClientAndServer (Connection server, Connection client, ConnectionParameters parameters)
+			: base (server.PortableEndPoint, parameters)
 		{
 			this.server = server;
 			this.client = client;
@@ -96,6 +92,30 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return IsManualClient || IsManualServer; }
 		}
 
+		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		{
+			ctx.LogMessage ("Starting client and server: {0} {1} {2}", client, server, server.PortableEndPoint);
+			InitializeConnection (ctx);
+			await StartServer (ctx, cancellationToken);
+			await StartClient (ctx, cancellationToken);
+		}
+
+		protected override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return FinishedTask;
+		}
+
+		protected override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return FinishedTask;
+		}
+
+		protected override Task Destroy (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => Close ());
+		}
+
+		[StackTraceEntryPoint]
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			try {
@@ -111,8 +131,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			await MainLoop (ctx, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			if (SupportsCleanShutdown)
-				await Shutdown (ctx, cancellationToken);
+			await Shutdown (ctx, cancellationToken);
 		}
 
 		protected virtual void InitializeConnection (TestContext ctx)
@@ -142,13 +161,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 			ctx.Assert (task.Status, Is.EqualTo (TaskStatus.RanToCompletion), "expecting success");
 		}
 
-		public override async Task Start (TestContext ctx, CancellationToken cancellationToken)
-		{
-			ctx.LogMessage ("Starting client and server: {0} {1} {2}", client, server, server.EndPoint);
-			InitializeConnection (ctx);
-			await server.Start (ctx, cancellationToken);
-			await client.Start (ctx, cancellationToken);
-		}
+		protected abstract Task StartClient (TestContext ctx, CancellationToken cancellationToken);
+
+		protected abstract Task StartServer (TestContext ctx, CancellationToken cancellationToken);
+
+		protected abstract Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken);
+
+		protected abstract Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken);
 
 		protected virtual Task WaitForServerConnection (TestContext ctx, CancellationToken cancellationToken)
 		{
@@ -162,7 +181,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return task.ContinueWith (t => OnWaitForClientConnectionCompleted (ctx, t));
 		}
 
-		public override async Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken)
+		public async Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var serverTask = WaitForServerConnection (ctx, cancellationToken);
 			var clientTask = WaitForClientConnection (ctx, cancellationToken);
@@ -190,18 +209,26 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
+		int stopCalled;
+		int shutdownCalled;
+
 		protected override void Stop ()
 		{
+			if (Interlocked.CompareExchange (ref stopCalled, 1, 0) != 0)
+				throw new InternalErrorException ();
+
 			client.Dispose ();
 			server.Dispose ();
 		}
 
-		public override async Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken)
+		public async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var clientShutdown = client.Shutdown (ctx, cancellationToken);
-			var serverShutdown = server.Shutdown (ctx, cancellationToken);
+			if (Interlocked.CompareExchange (ref shutdownCalled, 1, 0) != 0)
+				throw new InternalErrorException ();
+
+			var clientShutdown = client.SupportsCleanShutdown ? ClientShutdown (ctx, cancellationToken) : FinishedTask;
+			var serverShutdown = server.SupportsCleanShutdown ? ServerShutdown (ctx, cancellationToken) : FinishedTask;
 			await Task.WhenAll (clientShutdown, serverShutdown);
-			return clientShutdown.Result && serverShutdown.Result;
 		}
 
 		protected class ConnectionFinishedException : Exception
