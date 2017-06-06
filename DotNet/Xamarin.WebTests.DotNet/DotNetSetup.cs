@@ -15,6 +15,8 @@ namespace Xamarin.WebTests.DotNet
 
 		public bool SupportsCleanShutdown => true;
 
+		public bool UsingAppleTls => false;
+
 		public void Initialize (ConnectionProviderFactory factory)
 		{
 			;
