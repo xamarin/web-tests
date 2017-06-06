@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.AsyncTests", "Xamarin.AsyncTests\Xamarin.AsyncTests.csproj", "{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}"
 EndProject
@@ -22,6 +22,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.TestProvider.DotNet", "DotNet\Xamarin.WebTests.TestProvider.DotNet\Xamarin.WebTests.TestProvider.DotNet.csproj", "{E6EC6736-08D0-4065-BC20-80820E33F772}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.DotNet", "DotNet\Xamarin.WebTests.DotNet\Xamarin.WebTests.DotNet.csproj", "{5454F80C-AD16-4A09-9721-91AEBDC62682}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{70102C3F-2CB3-4A47-8ED7-FB84178988A7}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
