@@ -96,6 +96,8 @@ namespace Xamarin.WebTests.Server
 			return (HttpWebResponse)await Request.GetResponseAsync ();
 		}
 
+		public ServicePoint ServicePoint => Request.ServicePoint;
+
 		public void InstallCertificateValidator (RemoteCertificateValidationCallback validator)
 		{
 			Request.ServerCertificateValidationCallback = validator;
@@ -129,6 +131,11 @@ namespace Xamarin.WebTests.Server
 		public string Host {
 			get { return Request.Host; }
 			set { Request.Host = value; }
+		}
+
+		public string ConnectionGroupName {
+			get { return Request.ConnectionGroupName; }
+			set { Request.ConnectionGroupName = value; }
 		}
 	}
 }

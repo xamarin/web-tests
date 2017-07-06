@@ -78,6 +78,14 @@ namespace Xamarin.WebTests
 			yield break;
 		}
 
+		static IEnumerable<HttpClientHandler> GetMartinTests ()
+		{
+			yield return new HttpClientHandler (
+				"Get string", HttpClientOperation.GetString, null, HttpContent.HelloWorld);
+			yield return new HttpClientHandler (
+				"Post string", HttpClientOperation.PostString, HttpContent.HelloWorld);
+		}
+
 		public IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)
 		{
 			var list = new List<HttpClientHandler> ();
@@ -88,6 +96,9 @@ namespace Xamarin.WebTests
 				break;
 			case "recently-fixed":
 				list.AddRange (GetRecentlyFixed ());
+				break;
+			case "martin":
+				list.AddRange (GetMartinTests ());
 				break;
 			default:
 				throw new InvalidOperationException ();
@@ -106,6 +117,14 @@ namespace Xamarin.WebTests
 		[AsyncTest (ParameterFilter = "recently-fixed")]
 		public Task RunRecentlyFixed (TestContext ctx, CancellationToken cancellationToken,
 		                              HttpServer server, HttpClientHandler handler)
+		{
+			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
+		}
+
+		[Martin]
+		// [AsyncTest (ParameterFilter = "martin")]
+		public Task RunMartin (TestContext ctx, CancellationToken cancellationToken,
+		                       HttpServer server, HttpClientHandler handler)
 		{
 			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
 		}
@@ -155,7 +174,7 @@ namespace Xamarin.WebTests
 				message.TransferEncoding = "chunked";
 				message.ContentType = "text/plain";
 			}
-			public override async Task WriteToAsync (StreamWriter writer)
+			public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
 			{
 				writer.AutoFlush = true;
 				await Task.Delay (500).ConfigureAwait (false);

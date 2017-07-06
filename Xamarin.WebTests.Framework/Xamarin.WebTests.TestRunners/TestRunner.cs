@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			Handler target = (Handler)Redirect ?? Handler;
 
-			var uri = target.RegisterRequest (Server);
+			var uri = target.RegisterRequest (ctx, Server);
 			var request = CreateRequest (ctx, uri);
 			ConfigureRequest (ctx, uri, request);
 
@@ -136,6 +136,15 @@ namespace Xamarin.WebTests.TestRunners
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
 			var runner = new HttpClientTestRunner (server, handler, redirect);
+			return runner.Run (ctx, cancellationToken, expectedStatus, expectedError);
+		}
+
+		public static Task RunHttpListener (
+			TestContext ctx, CancellationToken cancellationToken, HttpServer server,
+			HttpListenerHandler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK,
+			WebExceptionStatus expectedError = WebExceptionStatus.Success)
+		{
+			var runner = new HttpListenerTestRunner (server, handler);
 			return runner.Run (ctx, cancellationToken, expectedStatus, expectedError);
 		}
 

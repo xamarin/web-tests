@@ -351,6 +351,24 @@ namespace Xamarin.WebTests.TestFramework
 			0x68, 0x65, 0x20, 0x6c, 0x61, 0x7a, 0x79, 0x20, 0x64, 0x6f, 0x67
 		};
 
+		public static readonly StringContent TheQuickBrownFoxContent = new StringContent (TheQuickBrownFox);
+
+		public static string GetLargeTextBuffer (int count)
+		{
+			var sb = new StringBuilder ();
+			for (int i = 0; i < count; i++) {
+				if (i > 0)
+					sb.Append (" ");
+				sb.Append ($"The quick brown fox jumps over the lazy dog {count - i} times.");
+			}
+			return sb.ToString ();
+		}
+
+		public static StringContent GetLargeStringContent (int count)
+		{
+			return new StringContent (GetLargeTextBuffer (count));
+		}
+
 		public static byte[] GetTextBuffer (string type)
 		{
 			var text = string.Format ("@{0}:{1}", type, TheQuickBrownFox);

@@ -41,26 +41,31 @@ namespace Xamarin.WebTests.HttpHandlers
 
 	public class GetHandler : Handler
 	{
-		public GetHandler (string identifier, HttpContent content)
+		public GetHandler (string identifier, HttpContent content, HttpStatusCode status = HttpStatusCode.OK)
 			: base (identifier)
 		{
 			Content = content;
+			Status = status;
 		}
 
 		public HttpContent Content {
 			get;
 		}
 
+		public HttpStatusCode Status {
+			get;
+		}
+
 		public override object Clone ()
 		{
-			return new GetHandler (Value, Content);
+			return new GetHandler (Value, Content, Status);
 		}
 
 		internal protected override Task<HttpResponse> HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request,
 		                                                              RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-			return Task.FromResult (new HttpResponse (HttpStatusCode.OK, Content));
+			return Task.FromResult (new HttpResponse (Status, Content));
 		}
 
 		public override bool CheckResponse (TestContext ctx, Response response)

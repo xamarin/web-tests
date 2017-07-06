@@ -1,10 +1,10 @@
 ﻿//
-// TestHttpListener.cs
+// HttpListenerTestRunner.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2017 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,37 +24,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Text;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.HttpFramework;
-using Xamarin.WebTests.HttpHandlers;
-using Xamarin.WebTests.TestRunners;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Tests {
-	[AsyncTestFixture]
-	public class TestHttpListener : ITestParameterSource<HttpListenerHandler> {
-		public IEnumerable<HttpListenerHandler> GetParameters (TestContext ctx, string filter)
-		{
-			switch (filter) {
-			case "martin":
-				yield return new HttpListenerHandler (HttpListenerTestType.MartinTest);
-				break;
-			}
+namespace Xamarin.WebTests.TestRunners
+{
+	using HttpFramework;
+	using HttpHandlers;
+
+	public class HttpListenerTestRunner : TestRunner
+	{
+		new public HttpListenerHandler Handler {
+			get { return (HttpListenerHandler)base.Handler; }
 		}
 
-		[Martin]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireMonoServer)]
-		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		// [AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		public Task MartinTest (TestContext ctx, HttpServer server, HttpListenerHandler handler,
-		                        CancellationToken cancellationToken)
+		public HttpListenerTestRunner (HttpServer server, HttpListenerHandler handler)
+			: base (server, handler)
 		{
-			return TestRunner.RunHttpListener (ctx, cancellationToken, server, handler);
+		}
+
+		protected override Request CreateRequest (TestContext ctx, Uri uri)
+		{
+			return Handler.CreateRequest (ctx, Server, uri);
+		}
+
+		protected override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
+		{
+			// ctx.Assert (Server.IsHttpListener, "HttpServer.IsHttpListener");
+			return request.SendAsync (ctx, cancellationToken);
 		}
 	}
 }

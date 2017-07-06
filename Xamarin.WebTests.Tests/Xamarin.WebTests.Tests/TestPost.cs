@@ -80,7 +80,7 @@ namespace Xamarin.WebTests.Tests
 			};
 		}
 
-		static IEnumerable<Handler> GetChunkedTests ()
+		internal static Handler GetBigChunkedHandler ()
 		{
 			var chunks = new List<string> ();
 			for (var i = 'A'; i < 'Z'; i++) {
@@ -89,7 +89,12 @@ namespace Xamarin.WebTests.Tests
 
 			var content = new ChunkedContent (chunks);
 
-			yield return new PostHandler ("Big Chunked", content, TransferMode.Chunked);
+			return new PostHandler ("Big Chunked", content, TransferMode.Chunked);
+		}
+
+		static IEnumerable<Handler> GetChunkedTests ()
+		{
+			yield return GetBigChunkedHandler ();
 		}
 
 		static IEnumerable<PostHandler> GetRecentlyFixed ()
@@ -188,7 +193,7 @@ namespace Xamarin.WebTests.Tests
 			};
 			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
 
-			var uri = redirect.RegisterRequest (server);
+			var uri = redirect.RegisterRequest (ctx, server);
 			using (var wc = new WebClient ()) {
 				var res = await wc.UploadStringTaskAsync (uri, post.Content.AsString ());
 				ctx.LogDebug (2, "Test18750: {0}", res);
@@ -219,7 +224,7 @@ namespace Xamarin.WebTests.Tests
 			cancellationToken.Register (() => client.CancelAsync ());
 			var authHandler = handler as AuthenticationHandler;
 			if (authHandler != null)
-				client.Credentials = authHandler.GetCredentials ();
+				client.Credentials = authHandler.Manager.Credentials;
 		}
 
 		[AsyncTest]
@@ -227,20 +232,27 @@ namespace Xamarin.WebTests.Tests
 		                             [AuthenticationType] AuthenticationType authType,
 		                             CancellationToken cancellationToken)
 		{
+			int handlerCalled = 0;
 			var post = new PostHandler ("Post bug #10163", HttpContent.HelloWorld);
+			post.CustomHandler = (request) => {
+				Interlocked.Increment (ref handlerCalled);
+				return null;
+			};
 
 			var handler = CreateAuthMaybeNone (post, authType);
 
-			var uri = handler.RegisterRequest (server);
+			var uri = handler.RegisterRequest (ctx, server);
 			using (var client = new WebClient ()) {
 				ConfigureWebClient (client, handler, cancellationToken);
 
 				var stream = await client.OpenWriteTaskAsync (uri, "PUT");
 
 				using (var writer = new StreamWriter (stream)) {
-					await post.Content.WriteToAsync (writer);
+					await post.Content.WriteToAsync (ctx, writer);
 				}
 			}
+
+			ctx.Assert (handlerCalled, Is.EqualTo (1), "handler called");
 		}
 
 		[AsyncTest]
@@ -257,7 +269,7 @@ namespace Xamarin.WebTests.Tests
 
 			var handler = CreateAuthMaybeNone (post, authType);
 
-			var uri = handler.RegisterRequest (server);
+			var uri = handler.RegisterRequest (ctx, server);
 
 			using (var client = new WebClient ()) {
 				ConfigureWebClient (client, handler, cancellationToken);

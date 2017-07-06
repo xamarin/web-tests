@@ -189,6 +189,18 @@
     <Compile Include="Xamarin.WebTests.TestFramework\StreamInstrumentationType.cs" />
     <Compile Include="ReferenceSource\TaskToApm.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\CleanShutdownAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\HttpListenerTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.HttpHandlers\HttpListenerHandler.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpListenerTestType.cs" />
+    <Compile Include="Xamarin.WebTests.HttpHandlers\DelayHandler.cs" />
+    <Compile Include="Xamarin.WebTests.HttpHandlers\AbortHandler.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\HttpInstrumentationTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpInstrumentationTestType.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpInstrumentationTestRunnerAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpInstrumentationTestParameters.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpInstrumentationTestParametersAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\LongRunningAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\StressAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

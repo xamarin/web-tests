@@ -72,7 +72,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			TestContext ctx, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
-			var targetUri = Target.RegisterRequest (connection.Server);
+			var targetUri = Target.RegisterRequest (ctx, connection.Server);
 			return Task.FromResult (HttpResponse.CreateRedirect (Code, targetUri));
 		}
 

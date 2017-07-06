@@ -47,7 +47,7 @@ namespace Xamarin.WebTests.HttpFramework
 			return content != null ? new StringContent (content) : null;
 		}
 
-		public async static Task<StringContent> Read (HttpStreamReader reader, int length, CancellationToken cancellationToken)
+		public async static Task<StringContent> Read (TestContext ctx, HttpStreamReader reader, int length, CancellationToken cancellationToken)
 		{
 			var buffer = new char [length];
 			int offset = 0;
@@ -92,7 +92,7 @@ namespace Xamarin.WebTests.HttpFramework
 				message.ContentType = "text/plain";
 		}
 
-		public override async Task WriteToAsync (StreamWriter writer)
+		public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
 		{
 			if (!string.IsNullOrEmpty (content))
 				await writer.WriteAsync (content);

@@ -26,8 +26,10 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -45,6 +47,10 @@ namespace Xamarin.WebTests.HttpFramework
 			get { return StatusCode == HttpStatusCode.OK; }
 		}
 
+		internal HttpListenerResponse HttpListenerResponse {
+			get;
+		}
+
 		public bool? KeepAlive {
 			get { return keepAlive; }
 			set {
@@ -56,8 +62,18 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
+		public bool WriteAsBlob {
+			get { return writeAsBlob; }
+			set {
+				if (responseWritten)
+					throw new InvalidOperationException ();
+				writeAsBlob = value;
+			}
+		}
+
 		bool? keepAlive;
 		bool responseWritten;
+		bool writeAsBlob;
 
 		public HttpResponse (HttpStatusCode status, HttpContent content = null)
 		{
@@ -76,16 +92,20 @@ namespace Xamarin.WebTests.HttpFramework
 		}
 
 		HttpResponse ()
-			: base ()
 		{
 		}
 
-		internal static async Task<HttpResponse> Read (HttpStreamReader reader, CancellationToken cancellationToken)
+		HttpResponse (HttpListenerResponse response)
+		{
+			HttpListenerResponse = response;
+		}
+
+		internal static async Task<HttpResponse> Read (TestContext ctx, HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			try {
 				var response = new HttpResponse ();
-				await response.InternalRead (reader, cancellationToken).ConfigureAwait (false);
+				await response.InternalRead (ctx, reader, cancellationToken).ConfigureAwait (false);
 				return response;
 			} catch (Exception ex) {
 				return CreateError (ex);
@@ -121,7 +141,7 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		async Task InternalRead (HttpStreamReader reader, CancellationToken cancellationToken)
+		async Task InternalRead (TestContext ctx, HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			var header = await reader.ReadLineAsync (cancellationToken).ConfigureAwait (false);
@@ -134,26 +154,64 @@ namespace Xamarin.WebTests.HttpFramework
 			StatusMessage = fields.Length == 3 ? fields [2] : string.Empty;
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			await ReadHeaders (reader, cancellationToken);
+			await ReadHeaders (ctx, reader, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			Body = await ReadBody (reader, cancellationToken);
+			Body = await ReadBody (ctx, reader, cancellationToken);
 		}
 
-		public async Task Write (StreamWriter writer, CancellationToken cancellationToken)
+		public async Task Write (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
 			CheckHeaders ();
 			responseWritten = true;
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			var message = StatusMessage ?? ((HttpStatusCode)StatusCode).ToString ();
-			await writer.WriteAsync (string.Format ("{0} {1} {2}\r\n", ProtocolToString (Protocol), (int)StatusCode, message));
-			await WriteHeaders (writer, cancellationToken);
+			StreamWriter writer = null;
+			if (!WriteAsBlob) {
+				writer = new StreamWriter (stream, new ASCIIEncoding (), 1024, true);
+				writer.AutoFlush = true;
+			}
 
-			if (Body != null)
-				await Body.WriteToAsync (writer);
-			await writer.FlushAsync ();
+			try {
+				var message = StatusMessage ?? ((HttpStatusCode)StatusCode).ToString ();
+				var headerLine = $"{ProtocolToString (Protocol)} {(int)StatusCode} {message}\r\n";
+
+				bool bodyWritten = false;
+
+				if (WriteAsBlob) {
+					var sb = new StringBuilder ();
+					sb.Append (headerLine);
+					foreach (var entry in Headers)
+						sb.Append ($"{entry.Key}: {entry.Value}\r\n");
+					sb.Append ("\r\n");
+
+					if (Body is StringContent stringContent) {
+						sb.Append (stringContent.AsString ());
+						bodyWritten = true;
+					}
+
+					var blob = Encoding.UTF8.GetBytes (sb.ToString ());
+					await stream.WriteAsync (blob, 0, blob.Length).ConfigureAwait (false);
+					await stream.FlushAsync ();
+				} else {
+					await writer.WriteAsync (headerLine).ConfigureAwait (false);
+					await WriteHeaders (writer, cancellationToken);
+				}
+
+				if (!bodyWritten && Body != null) {
+					cancellationToken.ThrowIfCancellationRequested ();
+					if (writer == null) {
+						writer = new StreamWriter (stream, new ASCIIEncoding (), 1024, true);
+						writer.AutoFlush = true;
+					}
+					await Body.WriteToAsync (ctx, writer);
+				}
+				await stream.FlushAsync ();
+			} finally {
+				if (writer != null)
+					writer.Dispose ();
+			}
 		}
 
 		public static HttpResponse CreateSimple (HttpStatusCode status, string body = null)
@@ -166,6 +224,11 @@ namespace Xamarin.WebTests.HttpFramework
 			var response = new HttpResponse (code);
 			response.AddHeader ("Location", uri);
 			return response;
+		}
+
+		public static HttpResponse CreateFrom (HttpListenerResponse response)
+		{
+			return new HttpResponse (response);
 		}
 
 		public static HttpResponse CreateSuccess (string body = null)

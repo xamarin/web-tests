@@ -226,7 +226,7 @@ namespace Xamarin.WebTests.TestRunners
 			{
 				message.ContentLength = 65536;
 			}
-			public override async Task WriteToAsync (StreamWriter writer)
+			public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
 			{
 				await writer.WriteAsync ("A");
 				await writer.FlushAsync ();
@@ -266,7 +266,7 @@ namespace Xamarin.WebTests.TestRunners
 				message.TransferEncoding = "chunked";
 				message.ContentType = "text/plain";
 			}
-			public override async Task WriteToAsync (StreamWriter writer)
+			public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
 			{
 				writer.AutoFlush = true;
 				await writer.WriteAsync ("4\r\n");

@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
@@ -39,10 +40,30 @@ namespace Xamarin.WebTests.HttpHandlers
 	{
 		bool cloneable;
 
+		public AuthenticationType AuthenticationType {
+			get;
+		}
+
+		public AuthenticationManager Manager {
+			get;
+		}
+
 		public AuthenticationHandler (AuthenticationType type, Handler target, string identifier = null)
 			: base (target, identifier ?? CreateIdentifier (type, target))
 		{
-			manager = new HttpAuthManager (type, target);
+			AuthenticationType = type;
+			if ((target.Flags & RequestFlags.KeepAlive) != 0)
+				Flags |= RequestFlags.KeepAlive;
+			Manager = new AuthenticationManager (AuthenticationType, GetCredentials ());
+			cloneable = true;
+		}
+
+		AuthenticationHandler (AuthenticationHandler other)
+			: base ((Handler)other.Target.Clone (), other.Value)
+		{
+			AuthenticationType = other.AuthenticationType;
+			Flags = other.Flags;
+			Manager = new AuthenticationManager (AuthenticationType, GetCredentials ());
 			cloneable = true;
 		}
 
@@ -51,62 +72,43 @@ namespace Xamarin.WebTests.HttpHandlers
 			return string.Format ("Authentication({0}): {1}", type, target.Value);
 		}
 
-		AuthenticationHandler (HttpAuthManager manager)
-			: base (manager.Target, manager.Target.Value)
-		{
-			this.manager = manager;
-		}
-
 		public override object Clone ()
 		{
 			if (!cloneable)
 				throw new InternalErrorException ();
-			var clonedTarget = (Handler)Target.Clone ();
-			return new AuthenticationHandler (manager.AuthenticationType, clonedTarget, Value);
+			return new AuthenticationHandler (this);
 		}
-
-		class HttpAuthManager : AuthenticationManager
-		{
-			public readonly Handler Target;
-
-			public HttpAuthManager (AuthenticationType type, Handler target)
-				: base (type)
-			{
-				Target = target;
-			}
-
-			protected override HttpResponse OnError (string message)
-			{
-				return HttpResponse.CreateError (message);
-			}
-
-			protected override HttpResponse OnUnauthenticated (HttpConnection connection, HttpRequest request, string token, bool omitBody)
-			{
-				var handler = new AuthenticationHandler (this);
-				if (omitBody)
-					handler.Flags |= RequestFlags.NoBody;
-				handler.Flags |= RequestFlags.Redirected;
-				connection.Server.RegisterHandler (request.Path, handler);
-
-				var response = new HttpResponse (HttpStatusCode.Unauthorized);
-				response.AddHeader ("WWW-Authenticate", token);
-				return response;
-			}
-		}
-
-		readonly HttpAuthManager manager;
 
 		protected internal override async Task<HttpResponse> HandleRequest (
 			TestContext ctx, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
-			string authHeader;
-			if (!request.Headers.TryGetValue ("Authorization", out authHeader))
-				authHeader = null;
+			AuthenticationState state;
+			var response = Manager.HandleAuthentication (ctx, connection, request, out state);
 
-			var response = manager.HandleAuthentication (connection, request, authHeader);
-			if (response != null)
+			if (request.Method == "GET" || request.Method == "HEAD" || request.Body == null) {
+				if (request.Headers.TryGetValue ("Transfer-Encoding", out string transferEncoding))
+					ctx.AssertFail ($"Must not send 'Transfer-Encoding' header with '${request.Method}' request.");
+				if (request.Headers.TryGetValue ("Content-Length", out string contentLength))
+					ctx.AssertFail ($"Must not send 'Content-Length' header with '${request.Method}' request.");
+			} else if (state == AuthenticationState.Challenge) {
+				if (request.Headers.TryGetValue ("Content-Length", out string contentLength))
+					ctx.Assert (int.Parse (contentLength), Is.EqualTo (0), "Must send zero-length content with NTLM challenge.");
+				else
+					ctx.AssertFail ("Must send 'Content-Length: 0' with NTLM challenge.");
+			} else {
+				if (request.Headers.TryGetValue ("Transfer-Encoding", out string transferEncoding))
+					ctx.Assert (transferEncoding, Is.EqualTo ("chunked"), "Transfer-Encoding");
+				else if (!request.Headers.TryGetValue ("Content-Length", out string contentLength))
+					ctx.AssertFail ("Need either 'Transfer-Encoding' or 'Content-Length'");
+			}
+
+			if (response != null) {
+				connection.Server.RegisterHandler (ctx, request.Path, this);
 				return response;
+			}
+
+			effectiveFlags |= RequestFlags.Redirected;
 
 			cancellationToken.ThrowIfCancellationRequested (); 
 			return await Target.HandleRequest (ctx, connection, request, effectiveFlags, cancellationToken);
@@ -120,10 +122,10 @@ namespace Xamarin.WebTests.HttpHandlers
 		public override void ConfigureRequest (Request request, Uri uri)
 		{
 			base.ConfigureRequest (request, uri);
-			request.SetCredentials (new NetworkCredential ("xamarin", "monkey"));
+			Manager.ConfigureRequest (request);
 		}
 
-		public ICredentials GetCredentials ()
+		internal static ICredentials GetCredentials ()
 		{
 			return new NetworkCredential ("xamarin", "monkey");
 		}

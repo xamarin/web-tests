@@ -27,6 +27,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Net.Security;
 using System.Threading;
 using System.Threading.Tasks;
@@ -99,6 +100,8 @@ namespace Xamarin.WebTests.TestRunners
 			return sb.ToString ();
 		}
 
+		const ConnectionTestType MartinTest = ConnectionTestType.Abort;
+
 		public static HttpsTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category, ConnectionTestType type)
 		{
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
@@ -110,7 +113,9 @@ namespace Xamarin.WebTests.TestRunners
 
 			var name = GetTestName (category, type);
 
-			switch (type) {
+			var effectiveType = type == ConnectionTestType.MartinTest ? MartinTest : type;
+
+			switch (effectiveType) {
 			case ConnectionTestType.Default:
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptAll
@@ -331,20 +336,45 @@ namespace Xamarin.WebTests.TestRunners
 				};
 				return parameters;
 
-			case ConnectionTestType.MartinTest:
-				goto case ConnectionTestType.ServerCertificateWithCA;
+			case ConnectionTestType.Abort:
+				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptAll
+				};
 
 			default:
 				throw new InternalErrorException ();
 			}
 		}
 
+		public ConnectionTestType EffectiveType {
+			get {
+				if (Parameters.Type == ConnectionTestType.MartinTest)
+					return MartinTest;
+				return Parameters.Type;
+			}
+		}
+
+		static Handler GetBigChunkedHandler ()
+		{
+			var chunks = new List<string> ();
+			for (var i = 'A'; i < 'Z'; i++) {
+				chunks.Add (new string (i, 1000));
+			}
+
+			var content = new ChunkedContent (chunks);
+
+			return new PostHandler ("Big Chunked", content, TransferMode.Chunked);
+		}
+
 		Handler CreateHandler (TestContext ctx)
 		{
 			if (ExternalServer)
 				return null;
-			else
-				return new HelloWorldHandler ("hello");
+			if (EffectiveType == ConnectionTestType.Abort)
+				return new AbortHandler ("abort");
+			if (Parameters.ChunkedResponse)
+				return new GetHandler ("chunked", HttpContent.HelloChunked);
+			return new HelloWorldHandler ("hello");
 		}
 
 		public Task Run (TestContext ctx, CancellationToken cancellationToken)
@@ -361,6 +391,9 @@ namespace Xamarin.WebTests.TestRunners
 			} else if (Parameters.ExpectWebException) {
 				expectedStatus = HttpStatusCode.InternalServerError;
 				expectedException = WebExceptionStatus.AnyErrorStatus;
+			} else if (EffectiveType == ConnectionTestType.Abort) {
+				expectedStatus = HttpStatusCode.InternalServerError;
+				expectedException = WebExceptionStatus.RequestCanceled;
 			} else {
 				expectedStatus = HttpStatusCode.OK;
 				expectedException = WebExceptionStatus.Success;
@@ -378,6 +411,13 @@ namespace Xamarin.WebTests.TestRunners
 			var webRequest = Provider.Client.SslStreamProvider.CreateWebRequest (uri, Parameters);
 
 			var request = new TraditionalRequest (webRequest);
+
+			if (false && Parameters.Type == ConnectionTestType.MartinTest) {
+				request.RequestExt.Timeout = 1500;
+			}
+
+			if (Parameters.SendChunked)
+				request.RequestExt.SetSendChunked (true);
 
 			if (Parameters.OverrideTargetHost != null)
 				request.RequestExt.Host = Parameters.OverrideTargetHost;
@@ -576,6 +616,14 @@ namespace Xamarin.WebTests.TestRunners
 			return true;
 		}
 
+		bool IHttpServerDelegate.HasConnectionHandler => false;
+
+		Task<bool> IHttpServerDelegate.HandleConnection (TestContext ctx, HttpServer server,
+		                                                 HttpConnection connection, CancellationToken cancellationToken)
+		{
+			throw new InternalErrorException ();
+		}
+
 		bool IHttpServerDelegate.HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler)
 		{
 			var streamConnection = (SocketConnection)connection;
@@ -584,6 +632,11 @@ namespace Xamarin.WebTests.TestRunners
 			if (Parameters.RequireClientCertificate)
 				return ctx.Expect (streamConnection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
 			return true;
+		}
+
+		Stream IHttpServerDelegate.CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket)
+		{
+			return null;
 		}
 
 		class MyRunner : TestRunner

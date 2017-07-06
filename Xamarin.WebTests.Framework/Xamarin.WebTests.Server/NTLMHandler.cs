@@ -30,7 +30,7 @@ namespace Xamarin.WebTests.Server
 {
 	public interface NTLMHandler : ISingletonInstance
 	{
-		bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge);
+		bool HandleNTLM (ref byte[] bytes);
 	}
 }
 

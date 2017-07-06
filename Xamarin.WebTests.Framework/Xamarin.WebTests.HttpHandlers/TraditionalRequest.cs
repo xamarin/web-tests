@@ -114,7 +114,7 @@ namespace Xamarin.WebTests.HttpHandlers
 				if (Content != null) {
 					using (var stream = await RequestExt.GetRequestStreamAsync ()) {
 						using (var writer = new StreamWriter (stream)) {
-							await Content.WriteToAsync (writer);
+							await Content.WriteToAsync (ctx, writer);
 							await writer.FlushAsync ();
 						}
 					}
@@ -159,7 +159,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			try {
 				if (Content != null) {
 					using (var writer = new StreamWriter (RequestExt.GetRequestStream ())) {
-						Content.WriteToAsync (writer).Wait ();
+						Content.WriteToAsync (ctx, writer).Wait ();
 					}
 				}
 

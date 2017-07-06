@@ -76,7 +76,7 @@ namespace Xamarin.WebTests.Server {
 			throw new NotImplementedException ();
 		}
 
-		public override async Task<HttpRequest> ReadRequest (CancellationToken cancellationToken)
+		public override async Task<HttpRequest> ReadRequest (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var listenerRequest = Context.Request;
 			var protocol = GetProtocol (listenerRequest.ProtocolVersion);
@@ -91,7 +91,7 @@ namespace Xamarin.WebTests.Server {
 			return request;
 		}
 
-		public override Task<HttpResponse> ReadResponse (CancellationToken cancellationToken)
+		public override Task<HttpResponse> ReadResponse (TestContext ctx, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException ();
 		}
@@ -104,7 +104,7 @@ namespace Xamarin.WebTests.Server {
 				if (message.ContentType != null && message.ContentType.Equals ("application/octet-stream"))
 					return await BinaryContent.Read (reader, message.ContentLength.Value, cancellationToken);
 				if (message.ContentLength != null)
-					return await StringContent.Read (reader, message.ContentLength.Value, cancellationToken);
+					return await StringContent.Read (TestContext, reader, message.ContentLength.Value, cancellationToken);
 				if (message.TransferEncoding != null) {
 					if (!message.TransferEncoding.Equals ("chunked"))
 						throw new InvalidOperationException ();
@@ -114,12 +114,18 @@ namespace Xamarin.WebTests.Server {
 			}
 		}
 
-		internal override async Task WriteResponse (HttpResponse response, CancellationToken cancellationToken)
+		internal override async Task WriteResponse (TestContext ctx, HttpResponse response, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			TestContext.LogDebug (5, "WRITE RESPONSE: {0}", response);
+
+			if (response.HttpListenerResponse != null) {
+				if (response.HttpListenerResponse != Context.Response)
+					throw new ConnectionException ("Invalid HttpListenerResponse object.");
+				return;
+			}
 
 			try {
 				Context.Response.StatusCode = (int)response.StatusCode;
@@ -137,11 +143,11 @@ namespace Xamarin.WebTests.Server {
 			if (response.Body != null) {
 				cancellationToken.ThrowIfCancellationRequested ();
 				using (var writer = new StreamWriter (Context.Response.OutputStream))
-					await response.Body.WriteToAsync (writer);
+					await response.Body.WriteToAsync (ctx, writer);
 			}
 		}
 
-		internal override Task WriteRequest (HttpRequest request, CancellationToken cancellationToken)
+		internal override Task WriteRequest (TestContext ctx, HttpRequest request, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException ();
 		}

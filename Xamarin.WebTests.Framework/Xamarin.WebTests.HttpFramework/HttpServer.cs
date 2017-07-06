@@ -135,9 +135,13 @@ namespace Xamarin.WebTests.HttpFramework {
 			Interlocked.Exchange (ref initialized, 0);
 		}
 
+		public abstract Task StartParallel (TestContext ctx, CancellationToken cancellationToken);
+
 		public abstract Task Start (TestContext ctx, CancellationToken cancellationToken);
 
 		public abstract Task Stop (TestContext ctx, CancellationToken cancellationToken);
+
+		public abstract void CloseAll ();
 
 		#endregion
 
@@ -155,24 +159,38 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		public int CountRequests => countRequests;
 
+		static int nextServerId;
+		public readonly int ID = ++nextServerId;
+
 		static long nextId;
 		int countRequests;
 
-		public Uri RegisterHandler (Handler handler)
+		public Uri RegisterHandler (TestContext ctx, Handler handler)
 		{
-			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
-			RegisterHandler (path, handler);
+			var id = Interlocked.Increment (ref nextId);
+			var path = string.Format ("/{0}/{1}/", handler.GetType (), id);
+			RegisterHandler (ctx, path, handler);
 			return new Uri (TargetUri, path);
 		}
 
-		public abstract void RegisterHandler (string path, Handler handler);
+		public abstract void RegisterHandler (TestContext ctx, string path, Handler handler);
 
-		protected internal abstract Handler GetHandler (string path);
+		protected internal abstract Handler GetHandler (TestContext ctx, string path);
+
+		public async Task<bool> HandleConnection (TestContext ctx, HttpConnection connection,
+		                                          CancellationToken cancellationToken)
+		{
+			if (Delegate != null && Delegate.HasConnectionHandler)
+				return await Delegate.HandleConnection (ctx, this, connection, cancellationToken).ConfigureAwait (false);
+
+			var request = await connection.ReadRequest (ctx, cancellationToken);
+			return await HandleConnection (ctx, connection, request, cancellationToken);
+		}
 
 		public async Task<bool> HandleConnection (TestContext ctx, HttpConnection connection,
 		                                          HttpRequest request, CancellationToken cancellationToken)
 		{
-			var handler = GetHandler (request.Path);
+			var handler = GetHandler (ctx, request.Path);
 			if (Delegate != null && !Delegate.HandleConnection (ctx, connection, request, handler))
 				return false;
 

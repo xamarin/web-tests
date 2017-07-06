@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -47,11 +48,11 @@ namespace Xamarin.WebTests.HttpFramework
 			Path = path;
 		}
 
-		public static async Task<HttpRequest> Read (HttpStreamReader reader, CancellationToken cancellationToken)
+		public static async Task<HttpRequest> Read (TestContext ctx, HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			var request = new HttpRequest ();
-			await request.InternalRead (reader, cancellationToken);
+			await request.InternalRead (ctx, reader, cancellationToken);
 			return request;
 		}
 
@@ -63,7 +64,7 @@ namespace Xamarin.WebTests.HttpFramework
 			get; private set;
 		}
 
-		async Task InternalRead (HttpStreamReader reader, CancellationToken cancellationToken)
+		async Task InternalRead (TestContext ctx, HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			var header = await reader.ReadLineAsync (cancellationToken).ConfigureAwait (false);
@@ -82,13 +83,13 @@ namespace Xamarin.WebTests.HttpFramework
 				Path = fields [1].StartsWith ("/", StringComparison.Ordinal) ? fields [1] : new Uri (fields [1]).AbsolutePath;
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			await ReadHeaders (reader, cancellationToken);
+			await ReadHeaders (ctx, reader, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			Body = await ReadBody (reader, cancellationToken);
+			Body = await ReadBody (ctx, reader, cancellationToken);
 		}
 
-		public async Task Write (StreamWriter writer, CancellationToken cancellationToken)
+		public async Task Write (TestContext ctx, StreamWriter writer, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
@@ -100,7 +101,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 			if (Body != null) {
 				cancellationToken.ThrowIfCancellationRequested ();
-				await Body.WriteToAsync (writer);
+				await Body.WriteToAsync (ctx, writer);
 			}
 		}
 

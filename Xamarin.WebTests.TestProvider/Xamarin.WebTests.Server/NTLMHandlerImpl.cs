@@ -33,25 +33,31 @@ namespace Xamarin.WebTests.TestProvider
 
 	class NTLMHandlerImpl : NTLMHandler
 	{
-		public bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge)
+		public bool HandleNTLM (ref byte[] bytes)
 		{
-			if (haveChallenge) {
+			var type = MessageBase.GetType (bytes);
+			if (type < 0)
+				throw new InvalidOperationException ();
+
+			if (type == 3) {
 				// FIXME: We don't actually check the result.
 				var message = new Type3Message (bytes);
 				if (message.Type != 3)
 					throw new InvalidOperationException ();
 
 				return true;
-			} else {
+			}
+			if (type == 1) {
 				var message = new Type1Message (bytes);
 				if (message.Type != 1)
 					throw new InvalidOperationException ();
 
 				var type2 = new Type2Message ();
-				haveChallenge = true;
 				bytes = type2.GetBytes ();
 				return false;
 			}
+
+			throw new InvalidOperationException ();
 		}
 	}
 }

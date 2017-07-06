@@ -47,6 +47,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
+		public bool IgnoreErrors {
+			get; set;
+		}
+
+		public bool Debug {
+			get; set;
+		}
+
 		public StreamInstrumentation (TestContext ctx, string name, Socket socket, bool ownsSocket = true)
 			: base (socket, ownsSocket)
 		{
@@ -81,6 +89,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return asyncResult is TaskToApm.TaskWrapperAsyncResult || asyncResult is Task;
 		}
 
+		void LogDebug (string message)
+		{
+			if (Debug)
+				Context.LogDebug (4, message);
+		}
+
 		public override Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
 			var message = string.Format ("{0}.WriteAsync({1},{2})", Name, offset, count);
@@ -100,20 +114,22 @@ namespace Xamarin.WebTests.ConnectionFramework
 		async Task WriteAsync (byte[] buffer, int offset, int count, string message,
 		                       AsyncWriteFunc func, AsyncWriteHandler handler, CancellationToken cancellationToken)
 		{
-			Context.LogDebug (4, message);
+			LogDebug (message);
 			try {
 				await handler (buffer, offset, count, func, cancellationToken).ConfigureAwait (false);
-				Context.LogDebug (4, "{0} done", message);
+				LogDebug ($"{message} done");
 			} catch (Exception ex) {
-				Context.LogDebug (4, "{0} failed: {1}", message, ex);
+				if (IgnoreErrors)
+					return;
+				LogDebug ($"{message} failed: {ex}");
 				throw;
 			}
 		}
 
 		public override IAsyncResult BeginWrite (byte[] buffer, int offset, int size, AsyncCallback callback, object state)
 		{
-			var message = string.Format ("{0}.BeginWrite({1},{2})", Name, offset, size);
-			Context.LogDebug (4, message);
+			var message = $"{Name}.BeginWrite({offset},{size})";
+			LogDebug (message);
 
 			AsyncWriteFunc asyncBaseWrite = (b, o, s, _) => Task.Factory.FromAsync (
 				(ca, st) => base.BeginWrite (b, o, s, ca, st),
@@ -127,12 +143,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			AsyncWriteFunc writeFunc = (b, o, s, ct) => action.AsyncWrite (b, o, s, asyncBaseWrite, ct);
 			try {
-				Context.LogDebug (4, message);
 				var writeTask = writeFunc (buffer, offset, size, CancellationToken.None);
-				Context.LogDebug (4, "{0} got task: {1}", message, writeTask.Status);
+				LogDebug ($"{message} got task: {writeTask.Status}");
 				return TaskToApm.Begin (writeTask, callback, state);
 			} catch (Exception ex) {
-				Context.LogDebug (4, "{0} failed: {1}", message, ex);
+				LogDebug ($"{message} failed: {ex}");
 				throw;
 			}
 		}
@@ -149,7 +164,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override void Write (byte[] buffer, int offset, int size)
 		{
-			var message = string.Format ("{0}.Write({1},{2})", Name, offset, size);
+			var message = $"{Name}.Write({offset},{size})";
 
 			SyncWriteFunc syncWrite = (b, o, s) => base.Write (b, o, s);
 			SyncWriteFunc originalSyncWrite = syncWrite;
@@ -170,12 +185,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		void Write_internal (byte[] buffer, int offset, int size, string message, SyncWriteFunc func)
 		{
-			Context.LogDebug (4, message);
+			LogDebug (message);
 			try {
 				func (buffer, offset, size);
-				Context.LogDebug (4, "{0} done", message);
+				LogDebug ($"{message} done");
 			} catch (Exception ex) {
-				Context.LogDebug (4, "{0} failed: {1}", message, ex);
+				if (IgnoreErrors)
+					return;
+				LogDebug ($"{message} failed: {ex}");
 				throw;
 			}
 		}
@@ -186,7 +203,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
-			var message = string.Format ("{0}.ReadAsync({1},{2})", Name, offset, count);
+			var message = $"{Name}.ReadAsync({offset},{count})";
 
 			AsyncReadFunc asyncBaseRead = base.ReadAsync;
 			AsyncReadHandler asyncReadHandler = (b, o, c, func, ct) => func (b, o, c, ct);
@@ -203,21 +220,23 @@ namespace Xamarin.WebTests.ConnectionFramework
 		async Task<int> ReadAsync (byte[] buffer, int offset, int count, string message,
 		                           AsyncReadFunc func, AsyncReadHandler handler, CancellationToken cancellationToken)
 		{
-			Context.LogDebug (4, message);
+			LogDebug (message);
 			try {
 				var ret = await handler (buffer, offset, count, func, cancellationToken).ConfigureAwait (false);
-				Context.LogDebug (4, "{0} done: {1}", message, ret);
+				LogDebug ($"{message} done: {ret}");
 				return ret;
 			} catch (Exception ex) {
-				Context.LogDebug (4, "{0} failed: {1}", message, ex);
+				if (IgnoreErrors)
+					return -1;
+				LogDebug ($"{message} failed: {ex}");
 				throw;
 			}
 		}
 
 		public override IAsyncResult BeginRead (byte[] buffer, int offset, int size, AsyncCallback callback, object state)
 		{
-			var message = string.Format ("{0}.BeginRead({1},{2})", Name, offset, size);
-			Context.LogDebug (4, message);
+			var message = $"{Name}.BeginRead({offset},{size})";
+			LogDebug (message);
 
 			AsyncReadFunc asyncBaseRead = (b, o, s, _) => Task.Factory.FromAsync (
 				(ca, st) => base.BeginRead (b, o, s, ca, st),
@@ -231,12 +250,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			AsyncReadFunc readFunc = (b, o, s, ct) => action.AsyncRead (b, o, s, asyncBaseRead, ct);
 			try {
-				Context.LogDebug (4, message);
 				var readTask = readFunc (buffer, offset, size, CancellationToken.None);
-				Context.LogDebug (4, "{0} got task: {1}", message, readTask.Status);
+				LogDebug ($"{message} got task: {readTask.Status}");
 				return TaskToApm.Begin (readTask, callback, state);
 			} catch (Exception ex) {
-				Context.LogDebug (4, "{0} failed: {1}", message, ex);
+				LogDebug ($"{message} failed: {ex}");
 				throw;
 			}
 		}
@@ -251,7 +269,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override int Read (byte[] buffer, int offset, int size)
 		{
-			var message = string.Format ("{0}.Read({1},{2})", Name, offset, size);
+			var message = $"{Name}.Read({offset},{size})";
 
 			SyncReadFunc syncRead = (b, o, s) => base.Read (b, o, s);
 			SyncReadFunc originalSyncRead = syncRead;
@@ -272,13 +290,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		int Read_internal (byte[] buffer, int offset, int size, string message, SyncReadFunc func)
 		{
-			Context.LogDebug (4, message);
+			LogDebug (message);
 			try {
 				int ret = func (buffer, offset, size);
-				Context.LogDebug (4, "{0} done: {1}", message, ret);
+				LogDebug ($"{message} done: {ret}");
 				return ret;
 			} catch (Exception ex) {
-				Context.LogDebug (4, "{0} failed: {1}", message, ex);
+				if (IgnoreErrors)
+					return -1;
+				LogDebug ($"{message} failed: {ex}");
 				throw;
 			}
 		}

@@ -82,7 +82,7 @@ namespace Xamarin.WebTests.HttpFramework
 			return this;
 		}
 
-		public override Task WriteToAsync (StreamWriter writer)
+		public override Task WriteToAsync (TestContext ctx, StreamWriter writer)
 		{
 			throw new NotSupportedException ();
 		}

@@ -42,7 +42,9 @@ namespace Xamarin.WebTests.Server
 
 	class ProxyListener : BuiltinSocketListener
 	{
-		ProxyAuthManager authManager;
+		public AuthenticationManager AuthenticationManager {
+			get;
+		}
 
 		new public BuiltinProxyServer Server {
 			get { return (BuiltinProxyServer)base.Server; }
@@ -52,24 +54,22 @@ namespace Xamarin.WebTests.Server
 			: base (ctx, server)
 		{
 			if (Server.AuthenticationType != AuthenticationType.None)
-				authManager = new ProxyAuthManager (Server.AuthenticationType);
+				AuthenticationManager = new AuthenticationManager (Server.AuthenticationType, true);
 		}
 
 		protected override async Task<bool> HandleConnection (HttpConnection connection, CancellationToken cancellationToken)
 		{
-			var request = await connection.ReadRequest (cancellationToken).ConfigureAwait (false);
+			var request = await connection.ReadRequest (TestContext, cancellationToken).ConfigureAwait (false);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			var remoteAddress = connection.RemoteEndPoint.Address;
 			request.AddHeader ("X-Forwarded-For", remoteAddress);
 
-			if (authManager != null) {
-				string authHeader;
-				if (!request.Headers.TryGetValue ("Proxy-Authorization", out authHeader))
-					authHeader = null;
-				var response = authManager.HandleAuthentication (connection, request, authHeader);
+			if (AuthenticationManager != null) {
+				AuthenticationState state;
+				var response = AuthenticationManager.HandleAuthentication (TestContext, connection, request, out state);
 				if (response != null) {
-					await connection.WriteResponse (response, cancellationToken);
+					await connection.WriteResponse (TestContext, response, cancellationToken);
 					return false;
 				}
 
@@ -91,7 +91,7 @@ namespace Xamarin.WebTests.Server
 				var copyResponseTask = CopyResponse (connection, targetConnection, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();
-				await targetConnection.WriteRequest (request, cancellationToken);
+				await targetConnection.WriteRequest (TestContext, request, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();
 				await copyResponseTask;
@@ -106,12 +106,12 @@ namespace Xamarin.WebTests.Server
 			await Task.Yield ();
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			var response = await targetConnection.ReadResponse (cancellationToken).ConfigureAwait (false);
+			var response = await targetConnection.ReadResponse (TestContext, cancellationToken).ConfigureAwait (false);
 			response.SetHeader ("Connection", "close");
 			response.SetHeader ("Proxy-Connection", "close");
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			await connection.WriteResponse (response, cancellationToken);
+			await connection.WriteResponse (TestContext, response, cancellationToken);
 		}
 
 		IPEndPoint GetConnectEndpoint (HttpRequest request)
@@ -136,11 +136,8 @@ namespace Xamarin.WebTests.Server
 
 			var targetStream = new NetworkStream (targetSocket, true);
 
-			var writer = new StreamWriter (stream, new ASCIIEncoding ());
-			writer.AutoFlush = true;
-
 			var connectionEstablished = new HttpResponse (HttpStatusCode.OK, HttpProtocol.Http10, "Connection established");
-			await connectionEstablished.Write (writer, cancellationToken).ConfigureAwait (false);
+			await connectionEstablished.Write (TestContext, stream, cancellationToken).ConfigureAwait (false);
 
 			try {
 				await RunTunnel (stream, targetStream, cancellationToken);
@@ -236,20 +233,6 @@ namespace Xamarin.WebTests.Server
 				throw;
 			}
 			return true;
-		}
-
-		class ProxyAuthManager : AuthenticationManager
-		{
-			public ProxyAuthManager (AuthenticationType type)
-				: base (type)
-			{ }
-
-			protected override HttpResponse OnUnauthenticated (HttpConnection connection, HttpRequest request, string token, bool omitBody)
-			{
-				var response = new HttpResponse (HttpStatusCode.ProxyAuthenticationRequired);
-				response.AddHeader ("Proxy-Authenticate", token);
-				return response;
-			}
 		}
 	}
 }

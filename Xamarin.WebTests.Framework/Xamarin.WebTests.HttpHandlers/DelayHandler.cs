@@ -1,5 +1,5 @@
 ﻿//
-// TestHttpListener.cs
+// DelayHandler.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,37 +24,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Globalization;
 using System.Collections.Generic;
-using Xamarin.AsyncTests;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.HttpFramework;
-using Xamarin.WebTests.HttpHandlers;
-using Xamarin.WebTests.TestRunners;
 
-namespace Xamarin.WebTests.Tests {
-	[AsyncTestFixture]
-	public class TestHttpListener : ITestParameterSource<HttpListenerHandler> {
-		public IEnumerable<HttpListenerHandler> GetParameters (TestContext ctx, string filter)
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
+
+namespace Xamarin.WebTests.HttpHandlers
+{
+	using HttpFramework;
+
+	public class DelayHandler : Handler
+	{
+		public DelayHandler (int delay, string identifier = null)
+			: base (identifier ?? delay.ToString ())
 		{
-			switch (filter) {
-			case "martin":
-				yield return new HttpListenerHandler (HttpListenerTestType.MartinTest);
-				break;
-			}
+			Delay = delay;
 		}
 
-		[Martin]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireMonoServer)]
-		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		// [AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		public Task MartinTest (TestContext ctx, HttpServer server, HttpListenerHandler handler,
-		                        CancellationToken cancellationToken)
+		public int Delay {
+			get;
+		}
+
+		public override object Clone ()
 		{
-			return TestRunner.RunHttpListener (ctx, cancellationToken, server, handler);
+			return new DelayHandler (Delay, Value);
+		}
+
+		internal protected override async Task<HttpResponse> HandleRequest (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
+		{
+			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
+			await Task.Delay (Delay).ConfigureAwait (false);
+			return HttpResponse.CreateSuccess ();
+		}
+
+		public override bool CheckResponse (TestContext ctx, Response response)
+		{
+			return ctx.Expect (response.Content, Is.Null, "response.Content");
 		}
 	}
 }

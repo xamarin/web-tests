@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Net.Sockets;
 using Xamarin.AsyncTests;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,6 +36,14 @@ namespace Xamarin.WebTests.HttpFramework {
 		Task<bool> CheckCreateConnection (TestContext ctx, HttpConnection connection,
 		                                  Task initTask, CancellationToken cancellationToken);
 
+		bool HasConnectionHandler {
+			get;
+		}
+
+		Task<bool> HandleConnection (TestContext ctx, HttpServer server, HttpConnection connection, CancellationToken cancellationToken);
+
 		bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler);
+
+		Stream CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket);
 	}
 }

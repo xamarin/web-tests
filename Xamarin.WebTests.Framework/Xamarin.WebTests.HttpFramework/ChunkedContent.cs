@@ -30,6 +30,7 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -64,7 +65,7 @@ namespace Xamarin.WebTests.HttpFramework
 			return new ChunkedContent (chunks);
 		}
 
-		public static async Task<ChunkedContent> Read (HttpStreamReader reader, CancellationToken cancellationToken)
+		public static async Task<ChunkedContent> Read (TestContext ctx, HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			var chunks = new List<string> ();
 
@@ -117,7 +118,7 @@ namespace Xamarin.WebTests.HttpFramework
 			message.TransferEncoding = "chunked";
 		}
 
-		public override async Task WriteToAsync (StreamWriter writer)
+		public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
 		{
 			foreach (var chunk in chunks)
 				await writer.WriteAsync (string.Format ("{0:x}\r\n{1}\r\n", chunk.Length, chunk));

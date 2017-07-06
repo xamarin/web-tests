@@ -1,5 +1,5 @@
 ﻿//
-// TestHttpListener.cs
+// HttpInstrumentationTestParameters.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -23,38 +23,53 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 using System;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Xamarin.AsyncTests;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.HttpFramework;
-using Xamarin.WebTests.HttpHandlers;
-using Xamarin.WebTests.TestRunners;
+using System.Security.Cryptography.X509Certificates;
 
-namespace Xamarin.WebTests.Tests {
-	[AsyncTestFixture]
-	public class TestHttpListener : ITestParameterSource<HttpListenerHandler> {
-		public IEnumerable<HttpListenerHandler> GetParameters (TestContext ctx, string filter)
-		{
-			switch (filter) {
-			case "martin":
-				yield return new HttpListenerHandler (HttpListenerTestType.MartinTest);
-				break;
-			}
+namespace Xamarin.WebTests.TestFramework
+{
+	using ConnectionFramework;
+
+	[HttpInstrumentationTestParameters]
+	public class HttpInstrumentationTestParameters : ConnectionTestParameters
+	{
+		public HttpInstrumentationTestType Type {
+			get;
 		}
 
-		[Martin]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireMonoServer)]
-		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		// [AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		public Task MartinTest (TestContext ctx, HttpServer server, HttpListenerHandler handler,
-		                        CancellationToken cancellationToken)
+		public HttpInstrumentationTestParameters (ConnectionTestCategory category, HttpInstrumentationTestType type,
+		                                          string identifier, X509Certificate certificate)
+			: base (category, identifier, certificate)
 		{
-			return TestRunner.RunHttpListener (ctx, cancellationToken, server, handler);
+			Type = type;
+		}
+
+		protected HttpInstrumentationTestParameters (HttpInstrumentationTestParameters other)
+			: base (other)
+		{
+			Type = other.Type;
+			CountParallelRequests = other.CountParallelRequests;
+			ConnectionLimit = other.ConnectionLimit;
+			IdleTime = other.IdleTime;
+		}
+
+		public int CountParallelRequests {
+			get; set;
+		}
+
+		public int ConnectionLimit {
+			get; set;
+		}
+
+		public int IdleTime {
+			get; set;
+		}
+
+		public override ConnectionParameters DeepClone ()
+		{
+			return new HttpInstrumentationTestParameters (this);
 		}
 	}
 }

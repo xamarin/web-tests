@@ -46,6 +46,7 @@ namespace Xamarin.WebTests.Server
 		}
 
 		Socket socket;
+		List<SocketConnection> connections;
 
 		public BuiltinSocketListener (TestContext ctx, HttpServer server)
 			: base (ctx, server)
@@ -59,7 +60,9 @@ namespace Xamarin.WebTests.Server
 
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			socket.Bind (NetworkEndPoint);
-			socket.Listen (1);
+			socket.Listen (128);
+
+			connections = new List<SocketConnection> ();
 		}
 
 		public override async Task<HttpConnection> AcceptAsync (CancellationToken cancellationToken)
@@ -67,7 +70,32 @@ namespace Xamarin.WebTests.Server
 			TestContext.LogDebug (5, "LISTEN ASYNC: {0}", NetworkEndPoint);
 
 			var accepted = await socket.AcceptAsync (cancellationToken).ConfigureAwait (false);
-			return new SocketConnection (Server, accepted);
+			var connection = new SocketConnection (Server, accepted);
+			connection.ClosedEvent += (sender, e) => {
+				lock (this) {
+					connections.Remove (connection);
+				}
+			};
+			lock (this) {
+				connections.Add (connection);
+			}
+			return connection;
+		}
+
+		public override void CloseAll ()
+		{
+			base.CloseAll ();
+			SocketConnection[] array;
+			lock (this) {
+				array = connections.ToArray ();
+			}
+			foreach (var connection in array) {
+				try {
+					connection.Dispose ();
+				} catch {
+					;
+				}
+			}
 		}
 
 		protected override void Shutdown ()

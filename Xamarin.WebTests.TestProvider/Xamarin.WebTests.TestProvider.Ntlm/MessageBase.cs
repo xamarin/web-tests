@@ -89,6 +89,22 @@ namespace Xamarin.WebTests.TestProvider.Ntlm {
 			}
 		}
 
+		internal static int GetType (byte[] message)
+		{
+			if (message == null)
+				throw new ArgumentNullException ("message");
+
+			if (message.Length < 12) {
+				string msg = "Minimum message length is 12 bytes.";
+				throw new ArgumentOutOfRangeException ("message", message.Length, msg);
+			}
+
+			for (int i = 0; i < header.Length; i++) {
+				if (message[i] != header[i])
+					return -1;
+			}
+			return (int)BitConverterLE.ToUInt32 (message, 8);
+		}
 
 		protected bool CheckHeader (byte[] message) 
 		{

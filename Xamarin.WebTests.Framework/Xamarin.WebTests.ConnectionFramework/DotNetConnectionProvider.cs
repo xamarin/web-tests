@@ -54,11 +54,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		static ConnectionProviderFlags GetFlags ()
 		{
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
 			var flags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp;
-			if (IsMicrosoftRuntime || (flags & ConnectionProviderFlags.SupportsTls12) != 0)
+			if (IsMicrosoftRuntime || (flags & ConnectionProviderFlags.SupportsTls12) != 0 || setup.SupportsTls12)
 				flags |= ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers |
 					ConnectionProviderFlags.SupportsEcDheCiphers;
-			if (IsMicrosoftRuntime || DependencyInjector.Get<IConnectionFrameworkSetup> ().SupportsCleanShutdown)
+			if (IsMicrosoftRuntime || setup.SupportsCleanShutdown)
 				flags |= ConnectionProviderFlags.SupportsCleanShutdown;
 			return flags;
 		}

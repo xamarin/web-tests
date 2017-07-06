@@ -161,7 +161,7 @@ namespace Xamarin.WebTests.HttpFramework
 			return this;
 		}
 
-		public override async Task WriteToAsync (StreamWriter writer)
+		public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
 		{
 			if (!SendChunked) {
 				var chunk = ConvertToString (chunks [0]);

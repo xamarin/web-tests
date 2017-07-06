@@ -96,13 +96,24 @@ namespace Xamarin.WebTests.Tests
 
 		[Martin]
 		// [AsyncTest]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireTrustedRoots)]
+		// [ConnectionTestFlags (ConnectionTestFlags.RequireTrustedRoots)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
 			ConnectionTestProvider provider, HttpsTestParameters parameters,
 			HttpsTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
+		}
+
+		[Martin]
+		// [AsyncTest]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireTrustedRoots)]
+		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
+		public async Task MartinTest2 (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
+		{
+			var handler = HelloWorldHandler.GetSimple ();
+			var authHandler = new AuthenticationHandler (AuthenticationType.NTLM, handler);
+			await TestRunner.RunTraditional (ctx, server, authHandler, cancellationToken).ConfigureAwait (false);
 		}
 	}
 }

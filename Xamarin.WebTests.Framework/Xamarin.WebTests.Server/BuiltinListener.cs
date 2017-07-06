@@ -51,6 +51,11 @@ namespace Xamarin.WebTests.Server {
 		Exception currentError;
 		volatile TaskCompletionSource<bool> tcs;
 		volatile CancellationTokenSource cts;
+		volatile bool closed;
+
+		static int nextID;
+		public readonly int ID = ++nextID;
+		readonly string ME;
 
 		internal TestContext TestContext {
 			get;
@@ -64,6 +69,7 @@ namespace Xamarin.WebTests.Server {
 		{
 			TestContext = ctx;
 			Server = server;
+			ME = $"BuiltinListener({ID})";
 		}
 
 		public Task Start ()
@@ -76,19 +82,21 @@ namespace Xamarin.WebTests.Server {
 				tcs = new TaskCompletionSource<bool> ();
 			}
 
+			TestContext.LogDebug (5, $"{ME}: START: {currentConnections}");
+
 			return Task.Run (() => {
-				Listen ();
+				Listen (false);
 			});
 		}
 
-		void Listen ()
+		void Listen (bool singleRequest)
 		{
 			Interlocked.Increment (ref currentConnections);
-			TestContext.LogDebug (5, "LISTEN: {0} {1}", this, currentConnections);
-			AcceptAsync (cts.Token).ContinueWith (OnAccepted);
+			TestContext.LogDebug (5, $"{ME}: LISTEN: {singleRequest} {currentConnections}");
+			AcceptAsync (cts.Token).ContinueWith (t => OnAccepted (singleRequest, t));
 		}
 
-		void OnAccepted (Task<HttpConnection> task)
+		void OnAccepted (bool singleRequest, Task<HttpConnection> task)
 		{
 			if (task.IsCanceled || cts.IsCancellationRequested) {
 				OnFinished ();
@@ -96,17 +104,21 @@ namespace Xamarin.WebTests.Server {
 			}
 			if (task.IsFaulted) {
 				TestContext.AddException (ref currentError, task);
+				OnFinished ();
 				return;
 			}
 
-			Listen ();
+			if (!singleRequest)
+				Listen (false);
 
 			var connection = task.Result;
 
 			MainLoop (connection, cts.Token).ContinueWith (t => {
-				TestContext.LogDebug (5, "MAIN LOOP DONE: {0} {1}", this, t.Status);
-				if (t.IsFaulted)
+				TestContext.LogDebug (5, $"{ME}: MAIN LOOP DONE: {connection.RemoteEndPoint} {t.Status} {t.Exception?.Message}");
+				if (t.IsFaulted) {
+					TestContext.LogDebug (5, $"{ME}: MAIN LOOP DONE - EX: {connection.RemoteEndPoint} {t.Exception}");
 					TestContext.AddException (ref currentError, t);
+				}
 				if (t.IsCompleted)
 					connection.Dispose ();
 
@@ -120,7 +132,7 @@ namespace Xamarin.WebTests.Server {
 				var connections = Interlocked.Decrement (ref currentConnections);
 				var error = Interlocked.Exchange (ref currentError, null);
 
-				TestContext.LogDebug (5, "ON FINISHED: {0} {1} {2}", this, connections, error);
+				TestContext.LogDebug (5, $"{ME}: ON FINISHED: {connections} {error}");
 
 				if (error != null) {
 					tcs.SetException (error);
@@ -133,18 +145,32 @@ namespace Xamarin.WebTests.Server {
 			}
 		}
 
+		public virtual void CloseAll ()
+		{
+			closed = true;
+			TestContext.LogDebug (5, $"{ME}: CLOSE ALL");
+			cts.Cancel ();
+		}
+
 		public async Task Stop ()
 		{
-			TestContext.LogDebug (5, "STOP: {0}", this);
+			TestContext.LogDebug (5, $"{ME}: STOP: {this}");
 			cts.Cancel ();
 			Shutdown ();
-			await tcs.Task;
-			OnStop ();
+			TestContext.LogDebug (5, $"{ME}: STOP #1: {currentConnections}");
+			try {
+				await tcs.Task;
+				TestContext.LogDebug (5, $"{ME}: STOP #2: {currentConnections}");
+				OnStop ();
 
-			lock (this) {
-				cts.Dispose ();
-				cts = null;
-				tcs = null;
+				lock (this) {
+					cts.Dispose ();
+					cts = null;
+					tcs = null;
+				}
+			} catch (Exception ex) {
+				TestContext.LogDebug (5, $"{ME}: STOP ERROR: {ex}");
+				throw;
 			}
 		}
 
@@ -154,6 +180,11 @@ namespace Xamarin.WebTests.Server {
 
 		protected virtual void OnStop ()
 		{
+		}
+
+		public void StartParallel ()
+		{
+			Listen (true);
 		}
 
 		public async Task<T> RunWithContext<T> (TestContext ctx, Func<CancellationToken, Task<T>> func, CancellationToken cancellationToken)
@@ -185,13 +216,20 @@ namespace Xamarin.WebTests.Server {
 				return;
 
 			while (!cancellationToken.IsCancellationRequested) {
+				TestContext.LogDebug (5, $"{ME}: MAIN LOOP: {connection.RemoteEndPoint}");
 				var wantToReuse = await HandleConnection (connection, cancellationToken);
+				TestContext.LogDebug (5, $"{ME}: MAIN LOOP #1: {connection.RemoteEndPoint} {wantToReuse}");
 				if (!wantToReuse || cancellationToken.IsCancellationRequested)
 					break;
-
+	
 				bool connectionAvailable = connection.IsStillConnected ();
-				if (!connectionAvailable && !cancellationToken.IsCancellationRequested)
-					throw new ConnectionException ("Expecting another connection, but socket has been shut down.");
+				TestContext.LogDebug (5, $"{ME}: MAIN LOOP #2: {connection.RemoteEndPoint} {connectionAvailable} {closed} {cancellationToken.IsCancellationRequested}");
+				if (!closed && !connectionAvailable && !cancellationToken.IsCancellationRequested)
+				{
+					TestContext.LogMessage ("Expecting another connection, but socket has been shut down.");
+					// throw new ConnectionException ("Expecting another connection, but socket has been shut down.");
+					return;
+				}
 			}
 		}
 	}

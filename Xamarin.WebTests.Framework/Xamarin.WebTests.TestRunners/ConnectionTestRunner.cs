@@ -153,6 +153,7 @@ namespace Xamarin.WebTests.TestRunners
 		public static bool IsSupported (TestContext ctx, ConnectionTestCategory category, ConnectionProvider provider)
 		{
 			var flags = provider.Flags;
+			var supportsHttp = (flags & ConnectionProviderFlags.SupportsHttp) != 0;
 			var supportsSslStream = (flags & ConnectionProviderFlags.SupportsSslStream) != 0;
 			var supportsTls12 = (flags & ConnectionProviderFlags.SupportsTls12) != 0;
 			var supportsClientCertificates = (flags & ConnectionProviderFlags.SupportsClientCertificates) != 0;
@@ -182,6 +183,10 @@ namespace Xamarin.WebTests.TestRunners
 				return supportsSslStream && supportsTls12;
 			case ConnectionTestCategory.SslStreamInstrumentationMono:
 				return supportsSslStream && supportsTls12 && supportsMonoExtensions;
+			case ConnectionTestCategory.HttpInstrumentation:
+			case ConnectionTestCategory.HttpInstrumentationStress:
+			case ConnectionTestCategory.HttpInstrumentationExperimental:
+				return supportsHttp && supportsSslStream && supportsTls12;
 			case ConnectionTestCategory.MartinTest:
 				return true;
 			default:

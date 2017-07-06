@@ -65,6 +65,8 @@ namespace Xamarin.WebTests.TestFramework
 
 		CertificateStore,
 
+		Abort,
+
 		MartinTest
 	}
 }

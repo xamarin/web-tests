@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Text;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -55,7 +56,6 @@ namespace Xamarin.WebTests.Server
 		Stream networkStream;
 		SslStream sslStream;
 		HttpStreamReader reader;
-		StreamWriter writer;
 
 		public SocketConnection (HttpServer server, Socket socket)
 			: base (server, (IPEndPoint)socket.RemoteEndPoint)
@@ -63,9 +63,14 @@ namespace Xamarin.WebTests.Server
 			Socket = socket;
 		}
 
+		public event EventHandler ClosedEvent;
+
 		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			networkStream = new NetworkStream (Socket, true);
+			if (Server.Delegate != null)
+				networkStream = Server.Delegate.CreateNetworkStream (ctx, Socket, true);
+			if (networkStream == null)
+				networkStream = new NetworkStream (Socket, true);
 
 			if (Server.SslStreamProvider != null) {
 				sslStream = await CreateSslStream (ctx, networkStream, cancellationToken).ConfigureAwait (false);
@@ -75,8 +80,6 @@ namespace Xamarin.WebTests.Server
 			}
 
 			reader = new HttpStreamReader (Stream);
-			writer = new StreamWriter (Stream);
-			writer.AutoFlush = true;
 		}
 
 		async Task<SslStream> CreateSslStream (TestContext ctx, Stream innerStream, CancellationToken cancellationToken)
@@ -108,35 +111,36 @@ namespace Xamarin.WebTests.Server
 			return !await reader.IsEndOfStream (cancellationToken).ConfigureAwait (false);
 		}
 
-		public override Task<HttpRequest> ReadRequest (CancellationToken cancellationToken)
+		public override Task<HttpRequest> ReadRequest (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return HttpRequest.Read (reader, cancellationToken);
+			return HttpRequest.Read (ctx, reader, cancellationToken);
 		}
 
-		public override Task<HttpResponse> ReadResponse (CancellationToken cancellationToken)
+		public override Task<HttpResponse> ReadResponse (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return HttpResponse.Read (reader, cancellationToken);
+			return HttpResponse.Read (ctx, reader, cancellationToken);
 		}
 
-		internal override Task WriteRequest (HttpRequest request, CancellationToken cancellationToken)
+		internal override async Task WriteRequest (TestContext ctx, HttpRequest request, CancellationToken cancellationToken)
 		{
-			return request.Write (writer, cancellationToken);
+			using (var writer = new StreamWriter (Stream, new ASCIIEncoding (), 1024, true)) {
+				writer.AutoFlush = true;
+				await request.Write (ctx, writer, cancellationToken).ConfigureAwait (false);
+			}
 		}
 
-		internal override Task WriteResponse (HttpResponse response, CancellationToken cancellationToken)
+		internal override Task WriteResponse (TestContext ctx, HttpResponse response, CancellationToken cancellationToken)
 		{
-			return response.Write (writer, cancellationToken);
+			return response.Write (ctx, Stream, cancellationToken);
 		}
 
 		protected override void Close ()
 		{
+			ClosedEvent?.Invoke (this, EventArgs.Empty);
+
 			if (reader != null) {
 				reader.Dispose ();
 				reader = null;
-			}
-			if (writer != null) {
-				writer.Dispose ();
-				writer.Dispose ();
 			}
 			if (sslStream != null) {
 				sslStream.Dispose ();

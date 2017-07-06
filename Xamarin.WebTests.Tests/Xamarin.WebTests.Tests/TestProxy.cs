@@ -64,8 +64,8 @@ namespace Xamarin.WebTests.Tests {
 		}
 
 		BuiltinProxyServer CreateBackend (int port, int proxyPort, ConnectionParameters parameters = null,
-					    AuthenticationType authType = AuthenticationType.None,
-					    ICredentials credentials = null)
+		                                  AuthenticationType authType = AuthenticationType.None,
+		                                  ICredentials credentials = null)
 		{
 			var endpoint = address.CopyWithPort (port);
 			var proxyEndpoint = address.CopyWithPort (proxyPort);
@@ -96,7 +96,10 @@ namespace Xamarin.WebTests.Tests {
 				return CreateBackend (9993, 9992, null, AuthenticationType.Basic);
 
 			case ProxyKind.SSL:
-				return CreateBackend (9991, 9900, serverParameters);
+				return CreateBackend (9991, 9990, serverParameters);
+
+			case ProxyKind.NtlmWithSSL:
+				return CreateBackend (9989, 9988, serverParameters, AuthenticationType.NTLM, monkeyCredential);
 
 			default:
 				throw new InternalErrorException ();
@@ -119,10 +122,10 @@ namespace Xamarin.WebTests.Tests {
 
 			switch (filter) {
 			case "martin":
-				list.Add (HelloWorldHandler.Simple);
+				list.Add (HelloWorldHandler.GetSimple ());
 				break;
 			default:
-				list.Add (HelloWorldHandler.Simple);
+				list.Add (HelloWorldHandler.GetSimple ());
 				list.AddRange (TestPost.GetParameters (ctx, filter, HttpServerFlags.Proxy));
 				break;
 			}
@@ -186,6 +189,19 @@ namespace Xamarin.WebTests.Tests {
 			var request = (HttpWebRequest)WebRequest.Create (url);
 			var requestExt = DependencyInjector.GetExtension<HttpWebRequest, IHttpWebRequestExtension> (request);
 			requestExt.SetProxy (BuiltinProxyServer.CreateSimpleProxy (new Uri (url)));
+		}
+
+		[Martin]
+		// [AsyncTest (ParameterFilter = "martin", Unstable = true)]
+		[WebTestFeatures.UseProxyKind (ProxyKind.NtlmWithSSL)]
+		public async Task MartinTest (
+			TestContext ctx, HttpServer server, Handler handler,
+			CancellationToken cancellationToken)
+		{
+			var oldCount = server.CountRequests;
+			await TestRunner.RunTraditional (ctx, server, handler, cancellationToken, false);
+			var newCount = server.CountRequests;
+			ctx.Assert (newCount, Is.GreaterThan (oldCount), "used proxy");
 		}
 	}
 }

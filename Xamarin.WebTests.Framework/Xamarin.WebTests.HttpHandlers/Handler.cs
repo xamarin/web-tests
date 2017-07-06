@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.HttpHandlers
 	public abstract class Handler : Xamarin.AsyncTests.ICloneable, ITestFilter, ITestParameter
 	{
 		static int next_id;
-		public readonly int ID = ++next_id;
+		public readonly int ID = Interlocked.Increment (ref next_id);
 
 		public RequestFlags Flags {
 			get { return flags; }
@@ -129,7 +129,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			HttpResponse response;
 
 			try {
-				Debug (ctx, 1, "HANDLE REQUEST");
+				Debug (ctx, 1, $"HANDLE REQUEST: {connection.RemoteEndPoint}");
 				DumpHeaders (ctx, request);
 				connection.Server.CheckEncryption (ctx, connection.SslStream);
 				response = await HandleRequest (ctx, connection, request, Flags, cancellationToken);
@@ -139,11 +139,12 @@ namespace Xamarin.WebTests.HttpHandlers
 					response.KeepAlive = true;
 
 				cancellationToken.ThrowIfCancellationRequested ();
-				await connection.WriteResponse (response, cancellationToken);
+				await connection.WriteResponse (ctx, response, cancellationToken);
 
-				Debug (ctx, 1, "HANDLE REQUEST DONE", response);
+				var keepAlive = (response.KeepAlive ?? false) && ((Flags & RequestFlags.CloseConnection) == 0);
+				Debug (ctx, 1, $"HANDLE REQUEST DONE: {connection.RemoteEndPoint} {keepAlive}", response);
 				DumpHeaders (ctx, response);
-				return response.KeepAlive ?? false;
+				return keepAlive;
 			} catch (AssertionException ex) {
 				originalError = ex;
 				response = HttpResponse.CreateError (ex.Message);
@@ -166,7 +167,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				await connection.WriteResponse (response, cancellationToken);
+				await connection.WriteResponse (ctx, response, cancellationToken);
 				return false;
 			} catch (OperationCanceledException) {
 				throw;
@@ -180,14 +181,14 @@ namespace Xamarin.WebTests.HttpHandlers
 		protected internal abstract Task<HttpResponse> HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request,
 		                                                              RequestFlags effectiveFlags, CancellationToken cancellationToken);
 
-		public Uri RegisterRequest (HttpServer server)
+		public Uri RegisterRequest (TestContext ctx, HttpServer server)
 		{
 			lock (this) {
 				if (hasRequest)
 					throw new InvalidOperationException ();
 				hasRequest = true;
 
-				return server.RegisterHandler (this);
+				return server.RegisterHandler (ctx, this);
 			}
 		}
 
@@ -202,7 +203,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		public override string ToString ()
 		{
 			var padding = string.IsNullOrEmpty (Value) ? string.Empty : ": ";
-			return string.Format ("[{0}{1}{2}]", GetType ().Name, padding, Value);
+			return $"[{GetType ().Name}:{ID}{padding}{Value}]";
 		}
 	}
 }

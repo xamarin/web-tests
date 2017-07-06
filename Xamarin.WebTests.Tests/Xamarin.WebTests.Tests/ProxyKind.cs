@@ -33,7 +33,8 @@ namespace Xamarin.WebTests.Tests
 		BasicAuth,
 		NtlmAuth,
 		Unauthenticated,
-		SSL
+		SSL,
+		NtlmWithSSL
 	}
 }
 

@@ -1,5 +1,5 @@
 ﻿//
-// TestHttpListener.cs
+// LongRunningAttribute.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,37 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.HttpFramework;
-using Xamarin.WebTests.HttpHandlers;
-using Xamarin.WebTests.TestRunners;
 
-namespace Xamarin.WebTests.Tests {
-	[AsyncTestFixture]
-	public class TestHttpListener : ITestParameterSource<HttpListenerHandler> {
-		public IEnumerable<HttpListenerHandler> GetParameters (TestContext ctx, string filter)
-		{
-			switch (filter) {
-			case "martin":
-				yield return new HttpListenerHandler (HttpListenerTestType.MartinTest);
-				break;
-			}
-		}
+namespace Xamarin.WebTests.TestFramework
+{
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class LongRunningAttribute : TestCategoryAttribute
+	{
+		public static readonly TestCategory Instance = new TestCategory ("LongRunning") { IsExplicit = true };
 
-		[Martin]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireMonoServer)]
-		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		// [AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		public Task MartinTest (TestContext ctx, HttpServer server, HttpListenerHandler handler,
-		                        CancellationToken cancellationToken)
-		{
-			return TestRunner.RunHttpListener (ctx, cancellationToken, server, handler);
+		public override TestCategory Category {
+			get { return Instance; }
 		}
 	}
 }

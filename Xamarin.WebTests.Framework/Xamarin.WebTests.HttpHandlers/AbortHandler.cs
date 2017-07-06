@@ -1,5 +1,5 @@
 ﻿//
-// TestHttpListener.cs
+// AbortHandler.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,37 +24,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Globalization;
 using System.Collections.Generic;
-using Xamarin.AsyncTests;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.HttpFramework;
-using Xamarin.WebTests.HttpHandlers;
-using Xamarin.WebTests.TestRunners;
 
-namespace Xamarin.WebTests.Tests {
-	[AsyncTestFixture]
-	public class TestHttpListener : ITestParameterSource<HttpListenerHandler> {
-		public IEnumerable<HttpListenerHandler> GetParameters (TestContext ctx, string filter)
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
+
+namespace Xamarin.WebTests.HttpHandlers
+{
+	using HttpFramework;
+
+	public class AbortHandler : Handler
+	{
+		public AbortHandler (string identifier)
+			: base (identifier)
 		{
-			switch (filter) {
-			case "martin":
-				yield return new HttpListenerHandler (HttpListenerTestType.MartinTest);
-				break;
-			}
 		}
 
-		[Martin]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireMonoServer)]
-		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		// [AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		public Task MartinTest (TestContext ctx, HttpServer server, HttpListenerHandler handler,
-		                        CancellationToken cancellationToken)
+		public override object Clone ()
 		{
-			return TestRunner.RunHttpListener (ctx, cancellationToken, server, handler);
+			return new AbortHandler (Value);
+		}
+
+		TraditionalRequest clientRequest;
+
+		public override void ConfigureRequest (Request request, Uri uri)
+		{
+			clientRequest = (TraditionalRequest)request;
+			base.ConfigureRequest (request, uri);
+		}
+
+		internal protected override Task<HttpResponse> HandleRequest (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
+		{
+			clientRequest.Request.Abort ();
+			return Task.FromResult (HttpResponse.CreateSuccess ());
+		}
+
+		public override bool CheckResponse (TestContext ctx, Response response)
+		{
+			return ctx.Expect (response.Content, Is.Null, "response.Content");
 		}
 	}
 }

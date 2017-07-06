@@ -64,13 +64,17 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		Dictionary<string, Handler> handlers = new Dictionary<string, Handler> ();
 
-		public override void RegisterHandler (string path, Handler handler)
+		public override void RegisterHandler (TestContext ctx, string path, Handler handler)
 		{
+			if (handlers.ContainsKey (path))
+				throw new NotSupportedException ($"Attempted to register path '{path}' a second time.");
 			handlers.Add (path, handler);
 		}
 
-		protected internal override Handler GetHandler (string path)
+		protected internal override Handler GetHandler (TestContext ctx, string path)
 		{
+			if (!handlers.ContainsKey (path))
+				throw new NotSupportedException ($"No handler registered for path '{path}'.");
 			var handler = handlers[path];
 			handlers.Remove (path);
 			return handler;
@@ -101,6 +105,16 @@ namespace Xamarin.WebTests.HttpFramework {
 				if ((Flags & HttpServerFlags.ExpectException) == 0)
 					throw;
 			}
+		}
+
+		public override void CloseAll ()
+		{
+			currentListener.CloseAll ();
+		}
+
+		public override Task StartParallel (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => currentListener.StartParallel ());
 		}
 
 		public override Task<T> RunWithContext<T> (TestContext ctx, Func<CancellationToken, Task<T>> func, CancellationToken cancellationToken)

@@ -380,7 +380,7 @@ namespace Xamarin.AsyncTests {
 		}
 
 		[HideStackFrame]
-		public void IgnoreThisTest ()
+		public Exception IgnoreThisTest ()
 		{
 			OnTestIgnored ();
 			throw new SkipRestOfThisTestException ();
@@ -405,6 +405,13 @@ namespace Xamarin.AsyncTests {
 		public void Assert (object actual, Constraint constraint, string format, params object[] args)
 		{
 			Expect (actual, constraint, true, format, args);
+		}
+
+		[HideStackFrame]
+		public Task AssertException<T> (Action action, string format = null, params object[] args)
+			where T : Exception
+		{
+			return ExpectException<T> (() => Task.Run (action), true, format, args);
 		}
 
 		[HideStackFrame]
