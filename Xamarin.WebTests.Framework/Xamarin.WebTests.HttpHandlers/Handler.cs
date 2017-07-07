@@ -78,6 +78,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		bool hasRequest;
 		RequestFlags flags;
+		TaskCompletionSource<HttpResponse> serverTask;
 
 		protected void WantToModify ()
 		{
@@ -144,11 +145,13 @@ namespace Xamarin.WebTests.HttpHandlers
 				var keepAlive = (response.KeepAlive ?? false) && ((Flags & RequestFlags.CloseConnection) == 0);
 				Debug (ctx, 1, $"HANDLE REQUEST DONE: {connection.RemoteEndPoint} {keepAlive}", response);
 				DumpHeaders (ctx, response);
+				serverTask.TrySetResult (response);
 				return keepAlive;
 			} catch (AssertionException ex) {
 				originalError = ex;
 				response = HttpResponse.CreateError (ex.Message);
 			} catch (OperationCanceledException) {
+				serverTask.TrySetCanceled ();
 				throw;
 			} catch (Exception ex) {
 				originalError = ex;
@@ -157,6 +160,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			if (ctx.IsCanceled || cancellationToken.IsCancellationRequested) {
 				Debug (ctx, 1, "HANDLE REQUEST - CANCELED");
+				serverTask.TrySetCanceled ();
 				return false;
 			}
 
@@ -168,12 +172,16 @@ namespace Xamarin.WebTests.HttpHandlers
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
 				await connection.WriteResponse (ctx, response, cancellationToken);
+				serverTask.TrySetResult (response);
 				return false;
 			} catch (OperationCanceledException) {
+				serverTask.TrySetCanceled ();
 				throw;
 			} catch (Exception ex) {
 				Debug (ctx, 1, "FAILED TO SEND ERROR RESPONSE", originalError, ex);
-				throw new AggregateException ("Failed to send error response", originalError, ex);
+				var newError = new AggregateException ("Failed to send error response", originalError, ex);
+				serverTask.TrySetException (newError);
+				throw newError;
 			}
 		}
 
@@ -187,9 +195,15 @@ namespace Xamarin.WebTests.HttpHandlers
 				if (hasRequest)
 					throw new InvalidOperationException ();
 				hasRequest = true;
+				serverTask = new TaskCompletionSource<HttpResponse> ();
 
 				return server.RegisterHandler (ctx, this);
 			}
+		}
+
+		public Task<HttpResponse> WaitForCompletion ()
+		{
+			return serverTask.Task;
 		}
 
 		public virtual void ConfigureRequest (Request request, Uri uri)
