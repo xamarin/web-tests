@@ -37,25 +37,34 @@ using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.Server {
 	class HttpListenerConnection : HttpConnection {
-		internal TestContext TestContext {
+		public HttpListener Listener {
 			get;
 		}
 
 		public HttpListenerContext Context {
 			get;
+			private set;
 		}
 
 		public override SslStream SslStream {
 			get { return sslStream; }
 		}
 
-		SslStream sslStream;
+		internal override IPEndPoint RemoteEndPoint => remoteEndPoint;
 
-		public HttpListenerConnection (TestContext ctx, HttpServer server, HttpListenerContext context)
-			: base (server, context.Request.RemoteEndPoint)
+		SslStream sslStream;
+		IPEndPoint remoteEndPoint;
+
+		public HttpListenerConnection (HttpServer server, HttpListener listener)
+			: base (server)
 		{
-			TestContext = ctx;
-			Context = context;
+			Listener = listener;
+		}
+
+		public override async Task AcceptAsync (TestContext ctx, CancellationToken cancellationToken)
+		{
+			Context = await Listener.GetContextAsync ().ConfigureAwait (false);
+			remoteEndPoint = Context.Request.RemoteEndPoint;
 		}
 
 		public override Task Initialize (TestContext ctx, CancellationToken cancellationToken)
@@ -82,10 +91,10 @@ namespace Xamarin.WebTests.Server {
 			var protocol = GetProtocol (listenerRequest.ProtocolVersion);
 			var request = new HttpRequest (protocol, listenerRequest.HttpMethod, listenerRequest.RawUrl, listenerRequest.Headers);
 
-			TestContext.LogDebug (5, "GOT REQUEST: {0} {1}", request, listenerRequest.HasEntityBody);
+			ctx.LogDebug (5, "GOT REQUEST: {0} {1}", request, listenerRequest.HasEntityBody);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			var body = await ReadBody (request, cancellationToken).ConfigureAwait (false);
+			var body = await ReadBody (ctx, request, cancellationToken).ConfigureAwait (false);
 			request.SetBody (body);
 
 			return request;
@@ -96,15 +105,15 @@ namespace Xamarin.WebTests.Server {
 			throw new NotImplementedException ();
 		}
 
-		async Task<HttpContent> ReadBody (HttpMessage message, CancellationToken cancellationToken)
+		async Task<HttpContent> ReadBody (TestContext ctx, HttpMessage message, CancellationToken cancellationToken)
 		{
-			TestContext.LogDebug (5, "READ BODY: {0}", message);
+			ctx.LogDebug (5, "READ BODY: {0}", message);
 			using (var reader = new HttpStreamReader (Context.Request.InputStream)) {
 				cancellationToken.ThrowIfCancellationRequested ();
 				if (message.ContentType != null && message.ContentType.Equals ("application/octet-stream"))
 					return await BinaryContent.Read (reader, message.ContentLength.Value, cancellationToken);
 				if (message.ContentLength != null)
-					return await StringContent.Read (TestContext, reader, message.ContentLength.Value, cancellationToken);
+					return await StringContent.Read (ctx, reader, message.ContentLength.Value, cancellationToken);
 				if (message.TransferEncoding != null) {
 					if (!message.TransferEncoding.Equals ("chunked"))
 						throw new InvalidOperationException ();
@@ -119,7 +128,7 @@ namespace Xamarin.WebTests.Server {
 			await Task.Yield ();
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			TestContext.LogDebug (5, "WRITE RESPONSE: {0}", response);
+			ctx.LogDebug (5, "WRITE RESPONSE: {0}", response);
 
 			if (response.HttpListenerResponse != null) {
 				if (response.HttpListenerResponse != Context.Response)

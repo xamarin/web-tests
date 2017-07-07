@@ -69,16 +69,16 @@ namespace Xamarin.WebTests.Server
 		{
 			TestContext.LogDebug (5, "LISTEN ASYNC: {0}", NetworkEndPoint);
 
-			var accepted = await socket.AcceptAsync (cancellationToken).ConfigureAwait (false);
-			var connection = new SocketConnection (Server, accepted);
+			var connection = new SocketConnection (Server, socket);
+			lock (this) {
+				connections.Add (connection);
+			}
 			connection.ClosedEvent += (sender, e) => {
 				lock (this) {
 					connections.Remove (connection);
 				}
 			};
-			lock (this) {
-				connections.Add (connection);
-			}
+			await connection.AcceptAsync (TestContext, cancellationToken).ConfigureAwait (false);
 			return connection;
 		}
 

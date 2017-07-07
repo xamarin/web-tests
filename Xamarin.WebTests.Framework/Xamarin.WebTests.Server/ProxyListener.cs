@@ -82,10 +82,12 @@ namespace Xamarin.WebTests.Server
 				return false;
 			}
 
-			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			targetSocket.Connect (Server.Target.Uri.Host, Server.Target.Uri.Port);
+			using (var targetConnection = new SocketConnection (Server)) {
+				var targetEndPoint = new DnsEndPoint (Server.Target.Uri.Host, Server.Target.Uri.Port);
+				cancellationToken.ThrowIfCancellationRequested ();
+				await targetConnection.ConnectAsync (TestContext, targetEndPoint, cancellationToken);
 
-			using (var targetConnection = new SocketConnection (Server, targetSocket)) {
+				cancellationToken.ThrowIfCancellationRequested ();
 				await targetConnection.Initialize (TestContext, cancellationToken);
 
 				var copyResponseTask = CopyResponse (connection, targetConnection, cancellationToken);
@@ -97,7 +99,6 @@ namespace Xamarin.WebTests.Server
 				await copyResponseTask;
 			}
 
-			targetSocket.Close ();
 			return false;
 		}
 

@@ -63,8 +63,9 @@ namespace Xamarin.WebTests.Server {
 					listener.Abort ();
 				});
 
-				var context = await listener.GetContextAsync ().ConfigureAwait (false);
-				return new HttpListenerConnection (TestContext, Server, context);
+				var connection = new HttpListenerConnection (Server, listener);
+				await connection.AcceptAsync (TestContext, cancellationToken).ConfigureAwait (false);
+				return connection;
 			} finally {
 				cts.Dispose ();
 			}

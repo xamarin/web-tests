@@ -50,17 +50,18 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
-		internal HttpConnection (HttpServer server, IPEndPoint remoteEndPoint)
+		internal HttpConnection (HttpServer server)
 		{
 			Server = server;
-			RemoteEndPoint = remoteEndPoint;
 		}
 
-		internal IPEndPoint RemoteEndPoint {
+		internal abstract IPEndPoint RemoteEndPoint {
 			get;
 		}
 
 		internal abstract bool IsStillConnected ();
+
+		public abstract Task AcceptAsync (TestContext ctx, CancellationToken cancellationToken);
 
 		public abstract Task Initialize (TestContext ctx, CancellationToken cancellationToken);
 

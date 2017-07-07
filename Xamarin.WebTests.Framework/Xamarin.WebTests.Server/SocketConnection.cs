@@ -41,6 +41,11 @@ namespace Xamarin.WebTests.Server
 {
 	class SocketConnection : HttpConnection
 	{
+		public Socket ListenSocket {
+			get;
+			private set;
+		}
+
 		public Socket Socket {
 			get;
 			private set;
@@ -53,20 +58,42 @@ namespace Xamarin.WebTests.Server
 
 		public override SslStream SslStream => sslStream;
 
+		internal override IPEndPoint RemoteEndPoint => remoteEndPoint;
+
 		Stream networkStream;
 		SslStream sslStream;
 		HttpStreamReader reader;
+		IPEndPoint remoteEndPoint;
 
 		public SocketConnection (HttpServer server, Socket socket)
-			: base (server, (IPEndPoint)socket.RemoteEndPoint)
+			: base (server)
 		{
-			Socket = socket;
+			ListenSocket = socket;
+		}
+
+		public SocketConnection (HttpServer server)
+			: base (server)
+		{
 		}
 
 		public event EventHandler ClosedEvent;
 
+		public override async Task AcceptAsync (TestContext ctx, CancellationToken cancellationToken)
+		{
+			Socket = await ListenSocket.AcceptAsync (cancellationToken).ConfigureAwait (false);
+			remoteEndPoint = (IPEndPoint)Socket.RemoteEndPoint;
+		}
+
+		public async Task ConnectAsync (TestContext ctx, EndPoint endpoint, CancellationToken cancellationToken)
+		{
+			Socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			await Socket.ConnectAsync (endpoint, cancellationToken).ConfigureAwait (false);
+			remoteEndPoint = (IPEndPoint)Socket.RemoteEndPoint;
+		}
+
 		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
+			remoteEndPoint = (IPEndPoint)Socket.RemoteEndPoint;
 			if (Server.Delegate != null)
 				networkStream = Server.Delegate.CreateNetworkStream (ctx, Socket, true);
 			if (networkStream == null)
