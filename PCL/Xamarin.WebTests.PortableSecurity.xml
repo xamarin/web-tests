@@ -41,7 +41,7 @@ d0e61bdd
 		<Type>System.Net.IPAddress</Type>
         <Type>System.Net.EndPoint</Type>
         <Type>System.Net.IPEndPoint</Type>
-	<Type>System.Net.DnsEndPoint</Type>
+        <Type>System.Net.DnsEndPoint</Type>
         <Type>System.Net.IPHostEntry</Type>
 		<Type>System.Net.IWebProxy</Type>
 		<Type>System.Net.NetworkCredential</Type>
@@ -95,5 +95,17 @@ d0e61bdd
 		<Type>System.Security.Cryptography.X509Certificates.X509ChainStatusFlags</Type>
 		<Type>System.Security.Cryptography.X509Certificates.X509RevocationFlag</Type>
 		<Type>System.Security.Cryptography.X509Certificates.X509RevocationMode</Type>
+        <!-- Tuples -->
+        <Type>System.ValueTuple</Type>
+        <Type>System.ValueTuple`1</Type>
+        <Type>System.ValueTuple`2</Type>
+        <Type>System.ValueTuple`3</Type>
+        <Type>System.ValueTuple`4</Type>
+        <Type>System.ValueTuple`5</Type>
+        <Type>System.ValueTuple`6</Type>
+        <Type>System.ValueTuple`7</Type>
+        <Type>System.ValueTuple`8</Type>
+        <Type>System.TupleExtensions</Type>
+        <Type>System.Runtime.CompilerServices.TupleElementNamesAttribute</Type>
     </IncludeTypes>
 </CustomAssemblyDefinition>
