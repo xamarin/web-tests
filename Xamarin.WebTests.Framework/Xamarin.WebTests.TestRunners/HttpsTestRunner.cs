@@ -618,20 +618,22 @@ namespace Xamarin.WebTests.TestRunners
 
 		bool IHttpServerDelegate.HasConnectionHandler => false;
 
-		Task<bool> IHttpServerDelegate.HandleConnection (TestContext ctx, HttpServer server,
-		                                                 HttpConnection connection, CancellationToken cancellationToken)
+		Task<(bool complete, bool result)> IHttpServerDelegate.HandleConnection (
+			TestContext ctx, HttpServer server, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			throw new InternalErrorException ();
 		}
 
-		bool IHttpServerDelegate.HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler)
+		(bool complete, bool result) IHttpServerDelegate.HandleConnection (
+			TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler)
 		{
 			var streamConnection = (SocketConnection)connection;
 			if (!ctx.Expect (streamConnection.SslStream.IsAuthenticated, "server is authenticated"))
-				return false;
-			if (Parameters.RequireClientCertificate)
-				return ctx.Expect (streamConnection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
-			return true;
+				return (true, false);
+			if (Parameters.RequireClientCertificate &&
+			    !ctx.Expect (streamConnection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated"))
+				return (true, false);
+			return (false, true);
 		}
 
 		Stream IHttpServerDelegate.CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket)

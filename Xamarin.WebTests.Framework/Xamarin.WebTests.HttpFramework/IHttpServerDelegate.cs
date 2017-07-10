@@ -40,9 +40,11 @@ namespace Xamarin.WebTests.HttpFramework {
 			get;
 		}
 
-		Task<bool> HandleConnection (TestContext ctx, HttpServer server, HttpConnection connection, CancellationToken cancellationToken);
+		Task<(bool complete, bool result)> HandleConnection (TestContext ctx, HttpServer server,
+		                                                     HttpConnection connection, CancellationToken cancellationToken);
 
-		bool HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler);
+		(bool complete, bool result) HandleConnection (TestContext ctx, HttpConnection connection,
+		                                               HttpRequest request, Handler handler);
 
 		Stream CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket);
 	}

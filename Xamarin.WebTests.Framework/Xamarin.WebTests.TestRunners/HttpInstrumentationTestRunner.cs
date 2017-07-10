@@ -710,20 +710,20 @@ namespace Xamarin.WebTests.TestRunners
 
 		bool IHttpServerDelegate.HasConnectionHandler => true;
 
-		async Task<bool> IHttpServerDelegate.HandleConnection (TestContext ctx, HttpServer server,
-								       HttpConnection connection, CancellationToken cancellationToken)
+		Task<(bool complete,bool result)> IHttpServerDelegate.HandleConnection (
+			TestContext ctx, HttpServer server, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			if (EffectiveType == HttpInstrumentationTestType.CloseRequestStream) {
-				return false;
+				return Task.FromResult ((true, false));
 			}
 
-			var request = await connection.ReadRequest (ctx, cancellationToken).ConfigureAwait (false);
-			return await server.HandleConnection (ctx, connection, request, cancellationToken);
+			return Task.FromResult ((false, false));
 		}
 
-		bool IHttpServerDelegate.HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler)
+		(bool complete, bool result) IHttpServerDelegate.HandleConnection (
+			TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler)
 		{
-			return true;
+			return (false, true);
 		}
 
 		Stream IHttpServerDelegate.CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket)
