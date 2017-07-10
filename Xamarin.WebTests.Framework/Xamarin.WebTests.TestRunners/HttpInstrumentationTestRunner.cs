@@ -103,8 +103,6 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.AbortDuringHandshake,
 			HttpInstrumentationTestType.ParallelRequests,
 			HttpInstrumentationTestType.ThreeParallelRequests,
-			HttpInstrumentationTestType.ParallelRequestsSomeQueued,
-			HttpInstrumentationTestType.ManyParallelRequests,
 			HttpInstrumentationTestType.SimpleQueuedRequest,
 			HttpInstrumentationTestType.CancelQueuedRequest,
 			HttpInstrumentationTestType.CancelMainWhileQueued,
@@ -117,7 +115,6 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.PostNtlm,
 			HttpInstrumentationTestType.NtlmChunked,
 			HttpInstrumentationTestType.Get404,
-			HttpInstrumentationTestType.NtlmInstrumentation,
 			HttpInstrumentationTestType.LargeHeader,
 			HttpInstrumentationTestType.LargeHeader2,
 			HttpInstrumentationTestType.SendResponseAsBlob,
@@ -126,15 +123,21 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.ReuseCustomConnectionGroup,
 			HttpInstrumentationTestType.CloseCustomConnectionGroup,
 			HttpInstrumentationTestType.CloseRequestStream,
-			HttpInstrumentationTestType.CloseIdleConnection,
 			HttpInstrumentationTestType.NtlmClosesConnection,
-			HttpInstrumentationTestType.ReadTimeout,
 			HttpInstrumentationTestType.AbortResponse,
+		};
+
+		static readonly HttpInstrumentationTestType[] NewWebStackTests = {
+			HttpInstrumentationTestType.NtlmInstrumentation,
 			HttpInstrumentationTestType.NtlmWhileQueued,
+			HttpInstrumentationTestType.CloseIdleConnection,
+			HttpInstrumentationTestType.ReadTimeout,
 			HttpInstrumentationTestType.ParallelNtlm
 		};
 
 		static readonly HttpInstrumentationTestType[] UnstableTests = {
+			HttpInstrumentationTestType.ManyParallelRequests,
+			HttpInstrumentationTestType.ParallelRequestsSomeQueued,
 		};
 
 		static readonly HttpInstrumentationTestType[] StressTests = {
@@ -158,6 +161,9 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestCategory.HttpInstrumentationStress:
 				return StressTests;
+
+			case ConnectionTestCategory.HttpInstrumentationNewWebStack:
+				return NewWebStackTests;
 
 			case ConnectionTestCategory.HttpInstrumentationExperimental:
 				return UnstableTests;

@@ -54,6 +54,7 @@ namespace Xamarin.WebTests.TestFramework
 
 		HttpInstrumentation,
 		HttpInstrumentationStress,
+		HttpInstrumentationNewWebStack,
 		HttpInstrumentationExperimental,
 
 		MartinTest,

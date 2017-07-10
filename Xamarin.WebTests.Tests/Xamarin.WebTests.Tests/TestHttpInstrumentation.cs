@@ -66,6 +66,18 @@ namespace Xamarin.WebTests.Tests
 			return runner.Run (ctx, cancellationToken);
 		}
 
+		[AsyncTest]
+		[NewWebStack]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
+		[ConnectionTestCategory (ConnectionTestCategory.HttpInstrumentationNewWebStack)]
+		public Task RunNewWebStack (TestContext ctx, CancellationToken cancellationToken,
+					    ConnectionTestProvider provider,
+					    HttpInstrumentationTestParameters parameters,
+					    HttpInstrumentationTestRunner runner)
+		{
+			return runner.Run (ctx, cancellationToken);
+		}
+
 		[Work]
 		[AsyncTest]
 		[Experimental]
