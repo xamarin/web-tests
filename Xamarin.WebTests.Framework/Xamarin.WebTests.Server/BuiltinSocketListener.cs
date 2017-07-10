@@ -39,7 +39,7 @@ using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server
 {
-	abstract class BuiltinSocketListener : BuiltinListener
+	class BuiltinSocketListener : BuiltinListener
 	{
 		public IPEndPoint NetworkEndPoint {
 			get;

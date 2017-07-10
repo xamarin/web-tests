@@ -88,7 +88,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			if ((Flags & HttpServerFlags.HttpListener) != 0)
 				listener = new SystemHttpListener (ctx, this);
 			else
-				listener = new BuiltinHttpListener (ctx, this);
+				listener = new BuiltinSocketListener (ctx, this);
 			if (Interlocked.CompareExchange (ref currentListener, listener, null) != null)
 				throw new InternalErrorException ();
 			return listener.Start ();

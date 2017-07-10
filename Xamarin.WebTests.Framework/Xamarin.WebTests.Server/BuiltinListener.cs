@@ -207,8 +207,6 @@ namespace Xamarin.WebTests.Server {
 
 		public abstract Task<HttpConnection> AcceptAsync (CancellationToken cancellationToken);
 
-		protected abstract Task<bool> HandleConnection (HttpConnection connection, CancellationToken cancellationToken);
-
 		async Task MainLoop (HttpConnection connection, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
@@ -217,7 +215,7 @@ namespace Xamarin.WebTests.Server {
 
 			while (!cancellationToken.IsCancellationRequested) {
 				TestContext.LogDebug (5, $"{ME}: MAIN LOOP: {connection.RemoteEndPoint}");
-				var wantToReuse = await HandleConnection (connection, cancellationToken);
+				var wantToReuse = await Server.HandleConnection (TestContext, connection, cancellationToken);
 				TestContext.LogDebug (5, $"{ME}: MAIN LOOP #1: {connection.RemoteEndPoint} {wantToReuse}");
 				if (!wantToReuse || cancellationToken.IsCancellationRequested)
 					break;
