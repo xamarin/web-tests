@@ -45,9 +45,5 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		Guid TlsProviderId {
 			get;
 		}
-
-		bool UsingBtls {
-			get;
-		}
 	}
 }

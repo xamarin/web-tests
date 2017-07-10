@@ -82,6 +82,7 @@ namespace Xamarin.WebTests
 				yield return HttpListener;
 				yield return HttpListenerSsl;
 				yield return DotNetAttribute.Instance;
+				yield return NewWebStackAttribute.Instance;
 				yield return NetworkAttribute.Instance;
 				yield return Tls12Attribute.Instance;
 				yield return CleanShutdownAttribute.Instance;

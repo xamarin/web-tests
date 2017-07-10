@@ -76,6 +76,10 @@ namespace Xamarin.WebTests.MonoTestProvider
 			get;
 		}
 
+		public bool HasNewWebStack {
+			get;
+		}
+
 		public MonoConnectionFrameworkSetup (string name)
 		{
 			Name = name;
@@ -113,6 +117,7 @@ namespace Xamarin.WebTests.MonoTestProvider
 			SupportsTls12 = UsingBtls || UsingAppleTls;
 
 			SupportsCleanShutdown = CheckCleanShutdown ();
+			HasNewWebStack = CheckNewWebStack ();
 
 			if (UsingAppleTls && !CheckAppleTls ())
 				throw new NotSupportedException ("AppleTls is not supported in this version of the Mono runtime.");
@@ -136,6 +141,17 @@ namespace Xamarin.WebTests.MonoTestProvider
 			var type = typeof (SslStream);
 			var method = type.GetMethod ("ShutdownAsync", BindingFlags.Instance | BindingFlags.Public);
 			return method != null;
+#endif
+		}
+
+		bool CheckNewWebStack ()
+		{
+#if __IOS__ || __MOBILE__
+			return false;
+#else
+			var asm = typeof (HttpWebRequest).Assembly;
+			var type = asm.GetType ("System.Net.WebOperation");
+			return type != null;
 #endif
 		}
 

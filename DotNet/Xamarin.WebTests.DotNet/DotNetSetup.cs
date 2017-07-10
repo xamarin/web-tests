@@ -17,6 +17,10 @@ namespace Xamarin.WebTests.DotNet
 
 		public bool UsingAppleTls => false;
 
+		public bool UsingBtls => false;
+
+		public bool HasNewWebStack => true;
+
 		public void Initialize (ConnectionProviderFactory factory)
 		{
 			;

@@ -1,10 +1,10 @@
 ﻿//
-// IConnectionFrameworkSetup.cs
+// NewWebStackAttribute.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2016 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,42 +24,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
+using Xamarin.WebTests.ConnectionFramework;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	public interface IConnectionFrameworkSetup : ISingletonInstance
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class NewWebStackAttribute : TestFeatureAttribute
 	{
-		string Name {
-			get;
+		public override TestFeature Feature {
+			get { return Instance; }
 		}
 
-		bool InstallDefaultCertificateValidator {
-			get;
+		static bool HasNewWebStack ()
+		{
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+			return setup.HasNewWebStack;
 		}
 
-		bool SupportsTls12 {
-			get;
-		}
-
-		bool SupportsCleanShutdown {
-			get;
-		}
-
-		bool UsingAppleTls {
-			get;
-		}
-
-		bool UsingBtls {
-			get;
-		}
-
-		bool HasNewWebStack {
-			get;
-		}
-
-		void Initialize (ConnectionProviderFactory factory);
+		public static readonly TestFeature Instance = new TestFeature (
+			"NewWebStack", "Whether we have the new web stack", HasNewWebStack ());
 	}
 }
-

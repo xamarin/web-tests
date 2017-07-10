@@ -201,6 +201,7 @@
     <Compile Include="Xamarin.WebTests.TestFramework\HttpInstrumentationTestParametersAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\LongRunningAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\StressAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\NewWebStackAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
