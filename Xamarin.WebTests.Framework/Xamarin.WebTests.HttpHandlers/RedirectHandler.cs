@@ -62,7 +62,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			return string.Format ("Redirect({0}): {1}", code, target.Value);
 		}
 
-		static bool IsRedirectStatus (HttpStatusCode code)
+		internal static bool IsRedirectStatus (HttpStatusCode code)
 		{
 			var icode = (int)code;
 			return icode == 301 || icode == 302 || icode == 303 || icode == 307;

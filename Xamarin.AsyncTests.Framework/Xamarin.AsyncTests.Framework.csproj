@@ -127,6 +127,7 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestNodeInternal.cs" />
     <Compile Include="Xamarin.AsyncTests.Mobile\MobileTestOptions.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\ExternalProcess.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\RepeatedTestInvoker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

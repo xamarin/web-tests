@@ -164,5 +164,16 @@ namespace Xamarin.WebTests.Server
 			return tcs.Task;
 		}
 
+		public static Task<bool> PollAsync (this Socket socket, CancellationToken cancellationToken)
+		{
+			return Task.Run (() => {
+				while (socket.Connected && !cancellationToken.IsCancellationRequested) {
+					if (socket.Poll (100, SelectMode.SelectRead))
+						return socket.Connected;
+				}
+				return false;
+			});
+		}
+
 	}
 }

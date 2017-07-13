@@ -37,6 +37,9 @@ namespace Xamarin.WebTests.HttpFramework
 		ExpectException			= 8,
 		ForceTls12			= 16,
 		ExternalServer			= 32,
-		HttpListener			= 64
+		HttpListener			= 64,
+		ProxySSL			= 128,
+		ProxyAuthentication		= 256,
+		NewListener			= 512
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// IHttpServerDelegate.cs
+// RepeatedTestInvoker.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,28 +24,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net.Sockets;
-using Xamarin.AsyncTests;
 using System.Threading;
 using System.Threading.Tasks;
-using Xamarin.WebTests.HttpHandlers;
 
-namespace Xamarin.WebTests.HttpFramework {
-	public interface IHttpServerDelegate {
-		Task<bool> CheckCreateConnection (TestContext ctx, HttpConnection connection,
-		                                  Task initTask, CancellationToken cancellationToken);
-
-		bool HasConnectionHandler {
+namespace Xamarin.AsyncTests.Framework
+{
+	class RepeatedTestInvoker : AggregatedTestInvoker
+	{
+		public TestInvoker Invoker {
 			get;
 		}
 
-		Task<(bool complete, bool result)> HandleConnection (TestContext ctx, HttpServer server,
-		                                                     HttpConnection connection, CancellationToken cancellationToken);
+		public int Count {
+			get;
+		}
 
-		(bool complete, bool result) HandleConnection (TestContext ctx, HttpConnection connection,
-		                                               HttpRequest request, Handler handler);
+		public RepeatedTestInvoker (TestFlags flags, TestInvoker invoker, int count)
+			: base (flags)
+		{
+			Invoker = invoker;
+			Count = count;
+		}
 
-		Stream CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket);
+		public override async Task<bool> Invoke (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
+		{
+			for (int i = 0; i < Count; i++) {
+				cancellationToken.ThrowIfCancellationRequested ();
+				if (!await InvokeInner (ctx, instance, Invoker, cancellationToken).ConfigureAwait (false))
+					return false;
+			}
+			return true;
+		}
 	}
 }

@@ -41,12 +41,24 @@ namespace Xamarin.WebTests.HttpFramework {
 			get;
 		}
 
-		public BuiltinProxyServer (HttpServer target, IPortableEndPoint listenAddress, HttpServerFlags flags)
-			: base (listenAddress, flags | HttpServerFlags.Proxy, null, null)
+		public BuiltinProxyServer (HttpServer target, IPortableEndPoint listenAddress, HttpServerFlags flags,
+		                           AuthenticationType proxyAuth = AuthenticationType.None)
+			: base (listenAddress, GetFlags (flags, target, proxyAuth), null, null)
 		{
 			Target = target;
+			AuthenticationType = proxyAuth;
 
 			Uri = new Uri (string.Format ("http://{0}:{1}/", ListenAddress.Address, ListenAddress.Port));
+		}
+
+		static HttpServerFlags GetFlags (HttpServerFlags flags, HttpServer target, AuthenticationType proxyAuth)
+		{
+			flags |= HttpServerFlags.Proxy;
+			if (target.UseSSL)
+				flags |= HttpServerFlags.ProxySSL;
+			if (proxyAuth != AuthenticationType.None)
+				flags |= HttpServerFlags.ProxyAuthentication;
+			return flags;
 		}
 
 		public override Uri Uri {
@@ -60,15 +72,12 @@ namespace Xamarin.WebTests.HttpFramework {
 		}
 
 		public AuthenticationType AuthenticationType {
-			get { return authType; }
-			set { authType = value; }
+			get;
 		}
 
 		public AuthenticationManager AuthenticationManager {
 			get; private set;
 		}
-
-		AuthenticationType authType = AuthenticationType.None;
 
 		public override void RegisterHandler (TestContext ctx, string path, Handler handler)
 		{
@@ -115,8 +124,9 @@ namespace Xamarin.WebTests.HttpFramework {
 			Target.CloseAll ();
 		}
 
-		public override async Task<bool> HandleConnection (TestContext ctx, HttpConnection connection,
-		                                                   HttpRequest request, CancellationToken cancellationToken)
+		protected override async Task<bool> HandleConnection (TestContext ctx, HttpOperation operation,
+		                                                      HttpConnection connection, HttpRequest request,
+		                                                      CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			var remoteAddress = connection.RemoteEndPoint.Address;
@@ -293,12 +303,8 @@ namespace Xamarin.WebTests.HttpFramework {
 			}
 			return true;
 		}
-		public override Task StartParallel (TestContext ctx, CancellationToken cancellationToken)
-		{
-			throw new NotSupportedException ();
-		}
 
-		public override Task<T> RunWithContext<T> (TestContext ctx, Func<CancellationToken, Task<T>> func, CancellationToken cancellationToken)
+		public override Task<Response> RunWithContext (TestContext ctx, Func<CancellationToken, Task<Response>> func, CancellationToken cancellationToken)
 		{
 			return currentListener.RunWithContext (ctx, func, cancellationToken);
 		}
@@ -341,11 +347,6 @@ namespace Xamarin.WebTests.HttpFramework {
 			{
 				return false;
 			}
-		}
-
-		protected override string MyToString ()
-		{
-			return string.Format ("SSL={0}, AuthenticationType={1}", Target.UseSSL, AuthenticationType);
 		}
 	}
 }

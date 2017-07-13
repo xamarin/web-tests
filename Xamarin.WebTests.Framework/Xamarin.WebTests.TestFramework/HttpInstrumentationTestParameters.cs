@@ -31,6 +31,7 @@ using System.Security.Cryptography.X509Certificates;
 namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
+	using HttpFramework;
 
 	[HttpInstrumentationTestParameters]
 	public class HttpInstrumentationTestParameters : ConnectionTestParameters
@@ -53,6 +54,9 @@ namespace Xamarin.WebTests.TestFramework
 			CountParallelRequests = other.CountParallelRequests;
 			ConnectionLimit = other.ConnectionLimit;
 			IdleTime = other.IdleTime;
+			ExpectedStatus = other.ExpectedStatus;
+			ExpectedError = other.ExpectedError;
+			HasReadHandler = other.HasReadHandler;
 		}
 
 		public int CountParallelRequests {
@@ -64,6 +68,18 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		public int IdleTime {
+			get; set;
+		}
+
+		public bool HasReadHandler {
+			get; set;
+		}
+
+		public HttpStatusCode ExpectedStatus {
+			get; set;
+		}
+
+		public WebExceptionStatus ExpectedError {
 			get; set;
 		}
 

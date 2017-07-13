@@ -70,8 +70,7 @@ namespace Xamarin.WebTests.Tests {
 			var endpoint = address.CopyWithPort (port);
 			var proxyEndpoint = address.CopyWithPort (proxyPort);
 			var target = new BuiltinHttpServer (endpoint, endpoint, HttpServerFlags.None, parameters, null);
-			return new BuiltinProxyServer (target, proxyEndpoint, HttpServerFlags.Proxy) {
-				AuthenticationType = authType,
+			return new BuiltinProxyServer (target, proxyEndpoint, HttpServerFlags.Proxy, authType) {
 				Credentials = credentials
 			};
 		}

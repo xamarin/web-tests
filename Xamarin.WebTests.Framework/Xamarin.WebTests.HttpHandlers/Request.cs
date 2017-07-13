@@ -56,6 +56,8 @@ namespace Xamarin.WebTests.HttpHandlers
 		public abstract void SetCredentials (ICredentials credentials);
 
 		public abstract Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken);
+
+		public abstract void Abort ();
 	}
 }
 

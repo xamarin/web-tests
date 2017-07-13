@@ -53,8 +53,8 @@ namespace Xamarin.WebTests.TestRunners
 			get;
 		}
 
-		protected virtual string Name {
-			get { return string.Format ("{0}:{1}", Server, Handler); }
+		public string ME {
+			get;
 		}
 
 		protected TestRunner (HttpServer server, Handler handler, RedirectHandler redirect = null)
@@ -62,18 +62,25 @@ namespace Xamarin.WebTests.TestRunners
 			Server = server;
 			Handler = handler;
 			Redirect = redirect;
+
+			ME = $"[{GetType ().Name}:{Server}:{Handler}]";
+		}
+
+		internal static void Debug (TestContext ctx, string me, int level, string message, params object[] args)
+		{
+			var sb = new StringBuilder ();
+			sb.AppendFormat ("{0}: {1}", me, message);
+			for (int i = 0; i < args.Length; i++) {
+				sb.Append (" ");
+				sb.Append (args[i] != null ? args[i].ToString () : "<null>");
+			}
+
+			ctx.LogDebug (level, sb.ToString ());
 		}
 
 		protected void Debug (TestContext ctx, int level, string message, params object[] args)
 		{
-			var sb = new StringBuilder ();
-			sb.AppendFormat ("{0}: {1}", Name, message);
-			for (int i = 0; i < args.Length; i++) {
-				sb.Append (" ");
-				sb.Append (args [i] != null ? args [i].ToString () : "<null>");
-			}
-
-			ctx.LogDebug (level, sb.ToString ());
+			Debug (ctx, ME, level, message, args);
 		}
 
 		protected abstract Request CreateRequest (TestContext ctx, Uri uri);
@@ -148,11 +155,11 @@ namespace Xamarin.WebTests.TestRunners
 			return runner.Run (ctx, cancellationToken, expectedStatus, expectedError);
 		}
 
-		protected virtual void CheckResponse (
-			TestContext ctx, Response response, CancellationToken cancellationToken,
+		internal static void CheckResponse (
+			TestContext ctx, string me, Handler handler, Response response, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK, WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
-			Debug (ctx, 1, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error != null ? response.Error.Message : string.Empty);
+			Debug (ctx, me, 1, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error?.Message);
 
 			if (ctx.HasPendingException)
 				return;
@@ -183,11 +190,18 @@ namespace Xamarin.WebTests.TestRunners
 					ok &= ctx.Expect (response.IsSuccess, Is.True, "success status");
 
 				if (ok)
-					ok &= Handler.CheckResponse (ctx, response);
+					ok &= handler.CheckResponse (ctx, response);
 			}
 
 			if (response.Content != null)
-				Debug (ctx, 5, "GOT RESPONSE BODY", response.Content);
+				Debug (ctx, me, 5, "GOT RESPONSE BODY", response.Content);
+		}
+
+		protected void CheckResponse (
+			TestContext ctx, Response response, CancellationToken cancellationToken,
+			HttpStatusCode expectedStatus = HttpStatusCode.OK, WebExceptionStatus expectedError = WebExceptionStatus.Success)
+		{
+			CheckResponse (ctx, ME, Handler, response, cancellationToken, expectedStatus, expectedError);
 		}
 	}
 }

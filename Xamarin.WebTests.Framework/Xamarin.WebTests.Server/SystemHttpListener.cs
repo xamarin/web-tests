@@ -71,6 +71,11 @@ namespace Xamarin.WebTests.Server {
 			}
 		}
 
+		protected override HttpConnection CreateConnection ()
+		{
+			return new HttpListenerConnection (Server, listener);
+		}
+
 		protected override void Shutdown ()
 		{
 			try {

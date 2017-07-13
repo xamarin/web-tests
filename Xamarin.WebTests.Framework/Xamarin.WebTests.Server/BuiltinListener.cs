@@ -41,21 +41,23 @@ using SD = System.Diagnostics;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Server {
+namespace Xamarin.WebTests.Server
+{
 	using ConnectionFramework;
 	using HttpFramework;
 	using TestFramework;
 
-	abstract class BuiltinListener {
+	abstract class BuiltinListener
+	{
 		int currentConnections;
 		Exception currentError;
+		LinkedList<HttpConnection> connections;
 		volatile TaskCompletionSource<bool> tcs;
 		volatile CancellationTokenSource cts;
 		volatile bool closed;
 
 		static int nextID;
 		public readonly int ID = ++nextID;
-		readonly string ME;
 
 		internal TestContext TestContext {
 			get;
@@ -65,15 +67,23 @@ namespace Xamarin.WebTests.Server {
 			get;
 		}
 
+		internal string ME {
+			get;
+		}
+
 		public BuiltinListener (TestContext ctx, HttpServer server)
 		{
 			TestContext = ctx;
 			Server = server;
 			ME = $"BuiltinListener({ID})";
+			connections = new LinkedList<HttpConnection> ();
 		}
 
 		public Task Start ()
 		{
+			if ((Server.Flags & HttpServerFlags.NewListener) != 0)
+				throw new NotSupportedException ();
+
 			lock (this) {
 				if (cts != null)
 					throw new InvalidOperationException ();
@@ -129,17 +139,17 @@ namespace Xamarin.WebTests.Server {
 		void OnFinished ()
 		{
 			lock (this) {
-				var connections = Interlocked.Decrement (ref currentConnections);
+				var newCount = Interlocked.Decrement (ref currentConnections);
 				var error = Interlocked.Exchange (ref currentError, null);
 
-				TestContext.LogDebug (5, $"{ME}: ON FINISHED: {connections} {error}");
+				TestContext.LogDebug (5, $"{ME}: ON FINISHED: {newCount} {error}");
 
 				if (error != null) {
 					tcs.SetException (error);
 					return;
 				}
 
-				if (connections > 0)
+				if (newCount > 0)
 					return;
 				tcs.SetResult (true);
 			}
@@ -147,17 +157,33 @@ namespace Xamarin.WebTests.Server {
 
 		public virtual void CloseAll ()
 		{
-			closed = true;
-			TestContext.LogDebug (5, $"{ME}: CLOSE ALL");
-			cts.Cancel ();
+			lock (this) {
+				closed = true;
+				TestContext.LogDebug (5, $"{ME}: CLOSE ALL");
+
+				var iter = connections.First;
+				while (iter != null) {
+					var node = iter.Value;
+					iter = iter.Next;
+
+					node.Dispose ();
+					connections.Remove (node);
+				}
+
+				cts?.Cancel ();
+			}
 		}
 
 		public async Task Stop ()
 		{
 			TestContext.LogDebug (5, $"{ME}: STOP: {this}");
-			cts.Cancel ();
+			cts?.Cancel ();
 			Shutdown ();
 			TestContext.LogDebug (5, $"{ME}: STOP #1: {currentConnections}");
+
+			if ((Server.Flags & HttpServerFlags.NewListener) != 0)
+				return;
+
 			try {
 				await tcs.Task;
 				TestContext.LogDebug (5, $"{ME}: STOP #2: {currentConnections}");
@@ -182,11 +208,6 @@ namespace Xamarin.WebTests.Server {
 		{
 		}
 
-		public void StartParallel ()
-		{
-			Listen (true);
-		}
-
 		public async Task<T> RunWithContext<T> (TestContext ctx, Func<CancellationToken, Task<T>> func, CancellationToken cancellationToken)
 		{
 			using (var newCts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken, cts.Token)) {
@@ -205,6 +226,50 @@ namespace Xamarin.WebTests.Server {
 			}
 		}
 
+		HttpConnection FindIdleConnection (TestContext ctx, HttpOperation operation)
+		{
+			var iter = connections.First;
+			while (iter != null) {
+				var node = iter.Value;
+				iter = iter.Next;
+
+				if (node.StartOperation (ctx, operation))
+					return node;
+			}
+
+			return null;
+		}
+
+		public (HttpConnection connection, bool reused) CreateConnection (
+			TestContext ctx, HttpOperation operation, bool reuse)
+		{
+			lock (this) {
+				HttpConnection connection = null;
+				if (reuse)
+					connection = FindIdleConnection (ctx, operation);
+
+				if (connection != null) {
+					ctx.LogDebug (5, $"{ME} REUSING CONNECTION: {connection} {connections.Count}");
+					return (connection, true);
+				}
+
+				connection = CreateConnection ();
+				ctx.LogDebug (5, $"{ME} CREATE CONNECTION: {connection} {connections.Count}");
+				connections.AddLast (connection);
+				connection.ClosedEvent += (sender, e) => {
+					lock (this) {
+						if (!e)
+							connections.Remove (connection);
+					}
+				};
+				if (!connection.StartOperation (ctx, operation))
+					throw new InvalidOperationException ();
+				return (connection, false);
+			}
+		}
+
+		protected abstract HttpConnection CreateConnection ();
+
 		public abstract Task<HttpConnection> AcceptAsync (CancellationToken cancellationToken);
 
 		async Task MainLoop (HttpConnection connection, CancellationToken cancellationToken)
@@ -215,7 +280,7 @@ namespace Xamarin.WebTests.Server {
 
 			while (!cancellationToken.IsCancellationRequested) {
 				TestContext.LogDebug (5, $"{ME}: MAIN LOOP: {connection.RemoteEndPoint}");
-				var wantToReuse = await Server.HandleConnection (TestContext, connection, cancellationToken);
+				var wantToReuse = await Server.HandleConnection (TestContext, null, connection, cancellationToken);
 				TestContext.LogDebug (5, $"{ME}: MAIN LOOP #1: {connection.RemoteEndPoint} {wantToReuse}");
 				if (!wantToReuse || cancellationToken.IsCancellationRequested)
 					break;

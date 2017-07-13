@@ -46,6 +46,8 @@ namespace Xamarin.WebTests.HttpHandlers
 				Flags |= RequestFlags.SendContinue;
 			else
 				Flags &= ~RequestFlags.SendContinue;
+			if ((target.Flags & RequestFlags.KeepAlive) != 0)
+				Flags |= RequestFlags.KeepAlive;
 		}
 
 		public override void ConfigureRequest (Request request, Uri uri)

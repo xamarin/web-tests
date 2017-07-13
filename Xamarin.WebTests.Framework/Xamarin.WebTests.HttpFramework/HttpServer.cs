@@ -55,10 +55,6 @@ namespace Xamarin.WebTests.HttpFramework {
 			get;
 		}
 
-		public IHttpServerDelegate Delegate {
-			get; set;
-		}
-
 		public IPortableEndPoint ListenAddress {
 			get;
 		}
@@ -73,8 +69,12 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		public bool UseSSL => SslStreamProvider != null;
 
+		public string ME {
+			get;
+		}
+
 		public HttpServer (IPortableEndPoint listenAddress, HttpServerFlags flags,
-		                   ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
+				   ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
 		{
 			ListenAddress = listenAddress;
 			Flags = flags;
@@ -90,6 +90,15 @@ namespace Xamarin.WebTests.HttpFramework {
 					SslStreamProvider = factory.DefaultSslStreamProvider;
 				}
 			}
+
+			var description = FormatFlags (Flags);
+			if (!string.IsNullOrEmpty (description))
+				description = ": " + description;
+			var identifier = parameters?.Identifier;
+			if (identifier != null)
+				identifier = ": " + identifier;
+
+			ME = $"[{GetType ().Name}:{ID}{identifier}{description}]";
 		}
 
 		public abstract IWebProxy GetProxy ();
@@ -135,8 +144,6 @@ namespace Xamarin.WebTests.HttpFramework {
 			Interlocked.Exchange (ref initialized, 0);
 		}
 
-		public abstract Task StartParallel (TestContext ctx, CancellationToken cancellationToken);
-
 		public abstract Task Start (TestContext ctx, CancellationToken cancellationToken);
 
 		public abstract Task Stop (TestContext ctx, CancellationToken cancellationToken);
@@ -148,13 +155,8 @@ namespace Xamarin.WebTests.HttpFramework {
 		internal async Task<bool> InitializeConnection (TestContext ctx, HttpConnection connection, CancellationToken cancellationToken)
 		{
 			++countRequests;
-			var initTask = connection.Initialize (ctx, cancellationToken);
-			if (Delegate == null) {
-				await initTask.ConfigureAwait (false);
-				return true;
-			}
-
-			return await Delegate.CheckCreateConnection (ctx, connection, initTask, cancellationToken);
+			await connection.Initialize (ctx, cancellationToken).ConfigureAwait (false);
+			return true;
 		}
 
 		public int CountRequests => countRequests;
@@ -177,31 +179,19 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		protected internal abstract Handler GetHandler (TestContext ctx, string path);
 
-		public async Task<bool> HandleConnection (TestContext ctx, HttpConnection connection,
-		                                          CancellationToken cancellationToken)
+		public async Task<bool> HandleConnection (TestContext ctx, HttpOperation operation,
+		                                          HttpConnection connection, CancellationToken cancellationToken)
 		{
-			if (Delegate != null && Delegate.HasConnectionHandler) {
-				var (complete, result) = await Delegate.HandleConnection (
-					ctx, this, connection, cancellationToken).ConfigureAwait (false);
-				if (complete)
-					return result;
-			}
-
 			var request = await connection.ReadRequest (ctx, cancellationToken);
-			return await HandleConnection (ctx, connection, request, cancellationToken);
+			return await HandleConnection (ctx, operation, connection, request, cancellationToken);
 		}
 
-		public virtual async Task<bool> HandleConnection (TestContext ctx, HttpConnection connection,
-		                                                  HttpRequest request, CancellationToken cancellationToken)
+		protected virtual async Task<bool> HandleConnection (TestContext ctx, HttpOperation operation,
+		                                                     HttpConnection connection, HttpRequest request,
+		                                                     CancellationToken cancellationToken)
 		{
 			var handler = GetHandler (ctx, request.Path);
-			if (Delegate != null) {
-				var (complete, result) = Delegate.HandleConnection (ctx, connection, request, handler);
-				if (complete)
-					return result;
-			}
-
-			return await handler.HandleRequest (ctx, connection, request, cancellationToken).ConfigureAwait (false);
+			return await handler.HandleRequest (ctx, operation, connection, request, cancellationToken).ConfigureAwait (false);
 		}
 
 		public void CheckEncryption (TestContext ctx, SslStream sslStream)
@@ -224,26 +214,31 @@ namespace Xamarin.WebTests.HttpFramework {
 				ctx.Assert ((ProtocolVersions)sslStream.SslProtocol, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
 		}
 
-		public abstract Task<T> RunWithContext<T> (TestContext ctx, Func<CancellationToken, Task<T>> func, CancellationToken cancellationToken);
+		public abstract Task<Response> RunWithContext (TestContext ctx, Func<CancellationToken, Task<Response>> func, CancellationToken cancellationToken);
 
-		protected virtual string MyToString ()
+		static string FormatFlags (HttpServerFlags flags)
 		{
 			var sb = new StringBuilder ();
-			if ((Flags & HttpServerFlags.ReuseConnection) != 0)
-				sb.Append ("shared");
-			if (UseSSL) {
+			Append ("shared", HttpServerFlags.ReuseConnection);
+			Append ("ssl", HttpServerFlags.SSL);
+			Append ("proxy", HttpServerFlags.Proxy);
+			Append ("ssl-proxy", HttpServerFlags.ProxySSL);
+			Append ("proxy-auth", HttpServerFlags.ProxyAuthentication);
+			return sb.ToString ();
+
+			void Append (string name, HttpServerFlags flag)
+			{
+				if ((flags & flag) == 0)
+					return;
 				if (sb.Length > 0)
 					sb.Append (",");
-				sb.Append ("ssl");
+				sb.Append (name);
 			}
-			return sb.ToString ();
 		}
 
 		public override string ToString ()
 		{
-			var description = MyToString ();
-			var padding = string.IsNullOrEmpty (description) ? string.Empty : ": ";
-			return string.Format ("[{0}{1}{2}]", GetType ().Name, padding, description);
+			return ME;
 		}
 	}
 }

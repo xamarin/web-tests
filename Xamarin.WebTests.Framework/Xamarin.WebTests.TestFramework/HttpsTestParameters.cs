@@ -24,11 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
+	using HttpFramework;
 	using Resources;
 
 	[HttpsTestParameters]
@@ -57,14 +59,17 @@ namespace Xamarin.WebTests.TestFramework
 		{
 			Type = other.Type;
 			CertificateType = other.CertificateType;
-			ExpectWebException = other.ExpectWebException;
-			ExpectTrustFailure = other.ExpectTrustFailure;
-			ClientAbortsHandshake = other.ClientAbortsHandshake;
 			ExternalServer = other.ExternalServer;
 			OverrideTargetHost = other.OverrideTargetHost;
 			SendChunked = other.SendChunked;
 			ChunkedResponse = other.ChunkedResponse;
+			ExpectedStatus = other.ExpectedStatus;
+			ExpectedError = other.ExpectedError;
+			Flags = other.Flags;
 		}
+
+		HttpStatusCode expectedStatus = HttpStatusCode.OK;
+		WebExceptionStatus exepectedError = WebExceptionStatus.Success;
 
 		public override ConnectionParameters DeepClone ()
 		{
@@ -72,18 +77,6 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		public CertificateResourceType? CertificateType {
-			get; set;
-		}
-
-		public bool ExpectWebException {
-			get; set;
-		}
-
-		public bool ExpectTrustFailure {
-			get; set;
-		}
-
-		public bool ClientAbortsHandshake {
 			get; set;
 		}
 
@@ -100,6 +93,20 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		public string OverrideTargetHost {
+			get; set;
+		}
+
+		public HttpStatusCode ExpectedStatus {
+			get { return expectedStatus; }
+			set { expectedStatus = value; }
+		}
+
+		public WebExceptionStatus ExpectedError {
+			get { return exepectedError; }
+			set { exepectedError = value; }
+		}
+
+		public HttpOperationFlags Flags {
 			get; set;
 		}
 	}

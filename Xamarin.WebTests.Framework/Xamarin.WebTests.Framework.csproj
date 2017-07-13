@@ -167,7 +167,6 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\AuthenticationType.cs" />
     <Compile Include="Xamarin.WebTests.Server\SystemHttpListener.cs" />
     <Compile Include="Xamarin.WebTests.Server\SocketConnection.cs" />
-    <Compile Include="Xamarin.WebTests.HttpFramework\IHttpServerDelegate.cs" />
     <Compile Include="Xamarin.WebTests.Server\HttpListenerConnection.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\HttpServerFlagsAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Resources\TlsTestXamDevNewData.cs" />
@@ -201,6 +200,8 @@
     <Compile Include="Xamarin.WebTests.TestFramework\LongRunningAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\StressAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\NewWebStackAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\HttpOperation.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\HttpOperationFlags.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

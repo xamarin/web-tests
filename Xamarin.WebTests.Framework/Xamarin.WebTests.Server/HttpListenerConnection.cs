@@ -75,6 +75,11 @@ namespace Xamarin.WebTests.Server {
 			return Handler.CompletedTask;
 		}
 
+		public override Task<bool> ReuseConnection (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Task.FromResult (false);
+		}
+
 		internal override bool IsStillConnected ()
 		{
 			return false;
@@ -190,8 +195,23 @@ namespace Xamarin.WebTests.Server {
 			throw new InternalErrorException ();
 		}
 
+		public override bool StartOperation (TestContext ctx, HttpOperation operation)
+		{
+			return false;
+		}
+
+		public override void Continue (TestContext ctx, bool keepAlive)
+		{
+			if (keepAlive) {
+				OnClosed (true);
+				return;
+			}
+			Close (); 
+		}
+
 		protected override void Close ()
 		{
+			OnClosed (false);
 			Context.Response.Close ();
 		}
 	}

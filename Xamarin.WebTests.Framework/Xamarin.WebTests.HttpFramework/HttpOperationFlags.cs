@@ -1,5 +1,5 @@
 ﻿//
-// HttpInstrumentationTestType.cs
+// HttpOperationFlags.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,52 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-namespace Xamarin.WebTests.TestFramework
-{
-	public enum HttpInstrumentationTestType
-	{
-		Simple,
-		InvalidDataDuringHandshake,
-		AbortDuringHandshake,
-		ParallelRequests,
-		ThreeParallelRequests,
-		ParallelRequestsSomeQueued,
-		ManyParallelRequests,
-		ManyParallelRequestsStress,
-		SimpleQueuedRequest,
-		CancelQueuedRequest,
-		CancelMainWhileQueued,
-		SimpleNtlm,
-		NtlmWhileQueued,
-		ReuseConnection,
-		MartinTest,
-		SimplePost,
-		SimpleRedirect,
-		PostRedirect,
-		PostNtlm,
-		NtlmChunked,
-		ReuseConnection2,
-		Get404,
-		CloseIdleConnection,
-		NtlmInstrumentation,
-		NtlmClosesConnection,
-		ParallelNtlm,
-		LargeHeader,
-		LargeHeader2,
-		SendResponseAsBlob,
-		ReuseAfterPartialRead,
-		CustomConnectionGroup,
-		ReuseCustomConnectionGroup,
-		CloseCustomConnectionGroup,
-		CloseRequestStream,
-		ReadTimeout,
-		AbortResponse,
 
-		NewListener,
-		NewListenerReuseConnection,
-		NewListenerRedirect,
-		NewListenerRedirectNoReuse,
-		NewListenerRedirectNoLength,
-		NewListenerParallel
+namespace Xamarin.WebTests.HttpFramework
+{
+	[Flags]
+	public enum HttpOperationFlags
+	{
+		None = 0,
+		ServerAbortsHandshake		= 1,
+		ClientAbortsHandshake		= 2,
+		DontReuseConnection		= 4,
+		ClientUsesNewConnection		= 8,
+		ExpectServerException		= 16,
+		AbortAfterClientExits		= 32,
+		RequireClientCertificate	= 64
 	}
 }

@@ -30,6 +30,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -71,9 +72,19 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
+		public bool NoContentLength {
+			get { return noContentLength; }
+			set {
+				if (responseWritten)
+					throw new InvalidOperationException ();
+				noContentLength = value;
+			}
+		}
+
 		bool? keepAlive;
 		bool responseWritten;
 		bool writeAsBlob;
+		bool noContentLength;
 
 		public HttpResponse (HttpStatusCode status, HttpContent content = null)
 		{
@@ -112,10 +123,43 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
+		public bool IsRedirect {
+			get {
+				switch (StatusCode) {
+				case HttpStatusCode.Moved:
+				case HttpStatusCode.Redirect:
+				case HttpStatusCode.SeeOther:
+				case HttpStatusCode.TemporaryRedirect:
+				case HttpStatusCode.Unauthorized:
+				case HttpStatusCode.ProxyAuthenticationRequired:
+					return true;
+				default:
+					return false;
+				}
+			}
+		}
+
+		bool NeedsContentLength {
+			get {
+				switch (StatusCode) {
+				case HttpStatusCode.Moved:
+				case HttpStatusCode.Redirect:
+				case HttpStatusCode.SeeOther:
+				case HttpStatusCode.TemporaryRedirect:
+				case HttpStatusCode.OK:
+					return true;
+				default:
+					return false;
+				}
+			}
+		}
+
 		void CheckHeaders ()
 		{
 			if (Body != null)
 				Body.AddHeadersTo (this);
+			if (ContentLength == null && NeedsContentLength && !NoContentLength)
+				ContentLength = 0;
 
 			if (Protocol == HttpProtocol.Http11 && !Headers.ContainsKey ("Connection"))
 				AddHeader ("Connection", (KeepAlive ?? false) ? "keep-alive" : "close");

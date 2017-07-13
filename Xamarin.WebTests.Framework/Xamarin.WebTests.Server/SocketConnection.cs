@@ -1,4 +1,4 @@
-﻿﻿﻿﻿//
+﻿//
 // SocketConnection.cs
 //
 // Author:
@@ -41,6 +41,10 @@ namespace Xamarin.WebTests.Server
 {
 	class SocketConnection : HttpConnection
 	{
+		public BuiltinSocketListener Listener {
+			get;
+		}
+
 		public Socket ListenSocket {
 			get;
 			private set;
@@ -60,14 +64,19 @@ namespace Xamarin.WebTests.Server
 
 		internal override IPEndPoint RemoteEndPoint => remoteEndPoint;
 
+		internal bool Idle => idle;
+
 		Stream networkStream;
 		SslStream sslStream;
 		HttpStreamReader reader;
 		IPEndPoint remoteEndPoint;
+		HttpOperation currentOperation;
+		bool idle = true;
 
-		public SocketConnection (HttpServer server, Socket socket)
+		public SocketConnection (BuiltinSocketListener listener, HttpServer server, Socket socket)
 			: base (server)
 		{
+			Listener = listener;
 			ListenSocket = socket;
 		}
 
@@ -76,10 +85,13 @@ namespace Xamarin.WebTests.Server
 		{
 		}
 
-		public event EventHandler ClosedEvent;
-
 		public override async Task AcceptAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
+			lock (Listener) {
+				if (!idle)
+					throw new NotSupportedException ();
+				idle = true;
+			}
 			Socket = await ListenSocket.AcceptAsync (cancellationToken).ConfigureAwait (false);
 			remoteEndPoint = (IPEndPoint)Socket.RemoteEndPoint;
 		}
@@ -94,8 +106,9 @@ namespace Xamarin.WebTests.Server
 		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
 			remoteEndPoint = (IPEndPoint)Socket.RemoteEndPoint;
-			if (Server.Delegate != null)
-				networkStream = Server.Delegate.CreateNetworkStream (ctx, Socket, true);
+			var operation = currentOperation;
+			if (operation != null)
+				networkStream = operation.CreateNetworkStream (ctx, Socket, true);
 			if (networkStream == null)
 				networkStream = new NetworkStream (Socket, true);
 
@@ -120,6 +133,21 @@ namespace Xamarin.WebTests.Server
 			await stream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false).ConfigureAwait (false);
 
 			return stream;
+		}
+
+		public override async Task<bool> ReuseConnection (TestContext ctx, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+			var socket = Socket;
+			if (!socket.Connected)
+				return false;
+
+			var reusable = await socket.PollAsync (cancellationToken).ConfigureAwait (false);
+			ctx.LogDebug (5, $"{ME}: REUSE CONNECTION: {reusable} {socket.Connected} {socket.Available} {socket.Blocking} {socket.IsBound}");
+			if (!reusable)
+				return false;
+
+			return reusable;
 		}
 
 		internal override bool IsStillConnected ()
@@ -161,9 +189,35 @@ namespace Xamarin.WebTests.Server
 			return response.Write (ctx, Stream, cancellationToken);
 		}
 
+		public override bool StartOperation (TestContext ctx, HttpOperation operation)
+		{
+			lock (Listener) {
+				ctx.LogDebug (5, $"{ME} START OPERATION: {currentOperation != null}");
+				if (Interlocked.CompareExchange (ref currentOperation, operation, null) != null)
+					return false;
+				// idle = false;
+				return true;
+			}
+		}
+
+		public override void Continue (TestContext ctx, bool keepAlive)
+		{
+			lock (Listener) {
+				ctx.LogDebug (5, $"{ME} CONTINUE: {keepAlive}");
+				if (!keepAlive) {
+					Close ();
+					return;
+				}
+
+				idle = true;
+				currentOperation = null;
+				OnClosed (true);
+			}
+		}
+
 		protected override void Close ()
 		{
-			ClosedEvent?.Invoke (this, EventArgs.Empty);
+			OnClosed (false);
 
 			if (reader != null) {
 				reader.Dispose ();

@@ -176,6 +176,11 @@ namespace Xamarin.WebTests.HttpHandlers
 			}
 		}
 
+		public override void Abort ()
+		{
+			Request.Abort ();
+		}
+
 		#endregion
 	}
 }

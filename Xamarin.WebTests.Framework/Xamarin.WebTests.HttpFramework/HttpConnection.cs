@@ -50,10 +50,20 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
+		static int nextId;
+		public readonly int ID = ++nextId;
+
+		public string ME {
+			get;
+		}
+
 		internal HttpConnection (HttpServer server)
 		{
 			Server = server;
+			ME = $"[{GetType ().Name}:{ID}:{server.ME}]";
 		}
+
+		public event EventHandler<bool> ClosedEvent;
 
 		internal abstract IPEndPoint RemoteEndPoint {
 			get;
@@ -65,6 +75,8 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public abstract Task Initialize (TestContext ctx, CancellationToken cancellationToken);
 
+		public abstract Task<bool> ReuseConnection (TestContext ctx, CancellationToken cancellationToken);
+
 		public abstract Task<bool> HasRequest (CancellationToken cancellationToken);
 
 		public abstract Task<HttpRequest> ReadRequest (TestContext ctx, CancellationToken cancellationToken);
@@ -75,7 +87,16 @@ namespace Xamarin.WebTests.HttpFramework
 
 		internal abstract Task WriteResponse (TestContext ctx, HttpResponse response, CancellationToken cancellationToken);
 
+		public abstract bool StartOperation (TestContext ctx, HttpOperation operation);
+
+		public abstract void Continue (TestContext ctx, bool keepAlive);
+
 		int disposed;
+
+		protected void OnClosed (bool keepAlive)
+		{
+			ClosedEvent?.Invoke (this, keepAlive);
+		}
 
 		protected abstract void Close ();
 

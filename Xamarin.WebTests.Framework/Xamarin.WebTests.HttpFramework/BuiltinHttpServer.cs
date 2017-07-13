@@ -91,6 +91,8 @@ namespace Xamarin.WebTests.HttpFramework {
 				listener = new BuiltinSocketListener (ctx, this);
 			if (Interlocked.CompareExchange (ref currentListener, listener, null) != null)
 				throw new InternalErrorException ();
+			if ((Flags & HttpServerFlags.NewListener) != 0)
+				return Handler.CompletedTask;
 			return listener.Start ();
 		}
 
@@ -107,17 +109,16 @@ namespace Xamarin.WebTests.HttpFramework {
 			}
 		}
 
+		internal BuiltinListener Listener {
+			get { return currentListener; }
+		}
+
 		public override void CloseAll ()
 		{
 			currentListener.CloseAll ();
 		}
 
-		public override Task StartParallel (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Task.Run (() => currentListener.StartParallel ());
-		}
-
-		public override Task<T> RunWithContext<T> (TestContext ctx, Func<CancellationToken, Task<T>> func, CancellationToken cancellationToken)
+		public override Task<Response> RunWithContext (TestContext ctx, Func<CancellationToken, Task<Response>> func, CancellationToken cancellationToken)
 		{
 			return currentListener.RunWithContext (ctx, func, cancellationToken);
 		}

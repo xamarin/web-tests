@@ -173,6 +173,7 @@ namespace Xamarin.AsyncTests.Console {
 			string customSettings = null;
 			string sdkRoot = null, iosDeviceType = null, iosRuntime = null;
 			string androidSdkRoot = null;
+			int? repeat = null;
 
 			bool debugMode = false;
 			int? logLevel = null, localLogLevel = null;
@@ -207,6 +208,7 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("save-logcat=", v => SaveLogCat = v);
 			p.Add ("jenkins", v => Jenkins = true);
 			p.Add ("output-dir=", v => outputDir = v);
+			p.Add ("repeat=", v => repeat = int.Parse (v));
 			var arguments = p.Parse (args);
 
 			PackageName = packageName;
@@ -351,6 +353,11 @@ namespace Xamarin.AsyncTests.Console {
 				Settings = SettingsBag.CreateDefault ();
 			} else {
 				Settings = LoadSettings (settingsFile);
+			}
+
+			if (repeat != null) {
+				Settings.Repeat = true;
+				Settings.RepeatCount = repeat.Value;
 			}
 
 			if (customSettings != null) {

@@ -116,6 +116,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		public async Task<TestResult> Run (ReflectionTestSession session, CancellationToken cancellationToken)
 		{
 			var ctx = session.RootContext;
+			var settings = session.App.Settings;
 
 			var result = new TestResult (Node.Path);
 			var childCtx = ctx.CreateChild (Node.Path, result);
@@ -125,6 +126,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			try {
 				invoker = Node.CreateInvoker (ctx);
+				if (settings.Repeat)
+					invoker = new RepeatedTestInvoker (TestFlags.None, invoker, settings.RepeatCount);
 				ok = await invoker.Invoke (childCtx, null, cancellationToken);
 			} catch (Exception ex) {
 				result.AddError (ex);

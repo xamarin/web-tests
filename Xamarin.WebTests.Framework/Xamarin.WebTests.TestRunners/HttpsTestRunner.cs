@@ -51,7 +51,7 @@ namespace Xamarin.WebTests.TestRunners
 
 	[HttpsTestRunner]
 	[FriendlyName ("[HttpsTestRunner]")]
-	public class HttpsTestRunner : AbstractConnection, IHttpServerDelegate
+	public class HttpsTestRunner : AbstractConnection
 	{
 		public ConnectionTestProvider Provider {
 			get;
@@ -77,17 +77,21 @@ namespace Xamarin.WebTests.TestRunners
 			get { return (HttpsTestParameters)base.Parameters; }
 		}
 
+		public string ME {
+			get;
+		}
+
 		public HttpsTestRunner (IPortableEndPoint endpoint, HttpsTestParameters parameters,
 		                        ConnectionTestProvider provider, Uri uri, HttpServerFlags flags)
 			: base (endpoint, parameters)
 		{
 			Provider = provider;
-			ServerFlags = flags;
+			ServerFlags = flags | HttpServerFlags.NewListener;
 			Uri = uri;
 
-			Server = new BuiltinHttpServer (uri, endpoint, flags, parameters, null) {
-				Delegate = this
-			};
+			Server = new BuiltinHttpServer (uri, endpoint, ServerFlags, parameters, null);
+
+			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
 		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object[] args)
@@ -100,7 +104,7 @@ namespace Xamarin.WebTests.TestRunners
 			return sb.ToString ();
 		}
 
-		const ConnectionTestType MartinTest = ConnectionTestType.Abort;
+		const ConnectionTestType MartinTest = ConnectionTestType.RejectClientCertificate;
 
 		public static HttpsTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category, ConnectionTestType type)
 		{
@@ -129,14 +133,18 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestType.NoValidator:
 				// The default validator only allows ResourceManager.SelfSignedServerCertificate.
 				return new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
-					ExpectTrustFailure = true, ClientAbortsHandshake = true
+					ExpectedStatus = HttpStatusCode.InternalServerError,
+					ExpectedError = WebExceptionStatus.TrustFailure,
+					Flags = HttpOperationFlags.ClientAbortsHandshake
 				};
 
 			case ConnectionTestType.RejectAll:
 				// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ExpectTrustFailure = true, ClientCertificateValidator = rejectAll,
-					ClientAbortsHandshake = true
+					ClientCertificateValidator = rejectAll,
+					ExpectedStatus = HttpStatusCode.InternalServerError,
+					ExpectedError = WebExceptionStatus.TrustFailure,
+					Flags = HttpOperationFlags.ClientAbortsHandshake
 				};
 
 			case ConnectionTestType.UnrequestedClientCertificate:
@@ -163,7 +171,8 @@ namespace Xamarin.WebTests.TestRunners
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
 					AskForClientCertificate = true, RequireClientCertificate = true,
-					ServerCertificateValidator = acceptFromLocalCA
+					ServerCertificateValidator = acceptFromLocalCA,
+					Flags = HttpOperationFlags.RequireClientCertificate
 				};
 
 			case ConnectionTestType.OptionalClientCertificate:
@@ -185,16 +194,21 @@ namespace Xamarin.WebTests.TestRunners
 				// Reject client certificate.
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
-					ExpectWebException = true, ServerCertificateValidator = rejectAll,
-					AskForClientCertificate = true, ClientAbortsHandshake = true
+					ServerCertificateValidator = rejectAll,
+					AskForClientCertificate = true,
+					ExpectedStatus = HttpStatusCode.InternalServerError,
+					ExpectedError = WebExceptionStatus.AnyErrorStatus,
+					Flags = HttpOperationFlags.ClientAbortsHandshake
 				};
 
 			case ConnectionTestType.MissingClientCertificate:
 				// Missing client certificate.
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptSelfSigned, ExpectWebException = true,
+					ClientCertificateValidator = acceptSelfSigned,
 					AskForClientCertificate = true, RequireClientCertificate = true,
-					ClientAbortsHandshake = true
+					ExpectedStatus = HttpStatusCode.InternalServerError,
+					ExpectedError = WebExceptionStatus.AnyErrorStatus,
+					Flags = HttpOperationFlags.ClientAbortsHandshake | HttpOperationFlags.RequireClientCertificate
 				};
 
 			case ConnectionTestType.DontInvokeGlobalValidator:
@@ -207,13 +221,17 @@ namespace Xamarin.WebTests.TestRunners
 				return new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
 					ClientCertificateValidator = rejectAll,
 					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner | GlobalValidationFlags.MustNotInvoke,
-					ExpectTrustFailure = true, ClientAbortsHandshake = true
+					ExpectedStatus = HttpStatusCode.InternalServerError,
+					ExpectedError = WebExceptionStatus.TrustFailure,
+					Flags = HttpOperationFlags.ClientAbortsHandshake
 				};
 
 			case ConnectionTestType.GlobalValidatorIsNull:
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					GlobalValidationFlags = GlobalValidationFlags.SetToNull,
-					ExpectTrustFailure = true, ClientAbortsHandshake = true
+					ExpectedStatus = HttpStatusCode.InternalServerError,
+					ExpectedError = WebExceptionStatus.TrustFailure,
+					Flags = HttpOperationFlags.ClientAbortsHandshake
 				};
 
 			case ConnectionTestType.MustInvokeGlobalValidator:
@@ -338,7 +356,10 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestType.Abort:
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptAll
+					ClientCertificateValidator = acceptAll,
+					ExpectedStatus = HttpStatusCode.InternalServerError,
+					ExpectedError = WebExceptionStatus.RequestCanceled,
+					Flags = HttpOperationFlags.ExpectServerException
 				};
 
 			default:
@@ -380,29 +401,15 @@ namespace Xamarin.WebTests.TestRunners
 		public Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var handler = CreateHandler (ctx);
-			var impl = new MyRunner (this, Server, handler);
 
-			HttpStatusCode expectedStatus;
-			WebExceptionStatus expectedException;
+			var operation = new Operation (this, handler);
 
-			if (Parameters.ExpectTrustFailure) {
-				expectedStatus = HttpStatusCode.InternalServerError;
-				expectedException = WebExceptionStatus.TrustFailure;
-			} else if (Parameters.ExpectWebException) {
-				expectedStatus = HttpStatusCode.InternalServerError;
-				expectedException = WebExceptionStatus.AnyErrorStatus;
-			} else if (EffectiveType == ConnectionTestType.Abort) {
-				expectedStatus = HttpStatusCode.InternalServerError;
-				expectedException = WebExceptionStatus.RequestCanceled;
-			} else {
-				expectedStatus = HttpStatusCode.OK;
-				expectedException = WebExceptionStatus.Success;
+			if (ExternalServer) {
+				throw new NotImplementedException ();
+				// return operation.RunExternal (ctx, cancellationToken, Uri);
 			}
 
-			if (ExternalServer)
-				return impl.RunExternal (ctx, cancellationToken, Uri, expectedStatus, expectedException);
-			else
-				return impl.Run (ctx, cancellationToken, expectedStatus, expectedException);
+			return operation.Run (ctx, cancellationToken);
 		}
 
 		protected Request CreateRequest (TestContext ctx, Uri uri)
@@ -574,94 +581,45 @@ namespace Xamarin.WebTests.TestRunners
 			return response;
 		}
 
-		async Task<bool> IHttpServerDelegate.CheckCreateConnection (
-			TestContext ctx, HttpConnection connection, Task initTask,
-			CancellationToken cancellationToken)
+		class Operation : HttpOperation
 		{
-			try {
-				await initTask.ConfigureAwait (false);
-			} catch (OperationCanceledException) {
-				throw;
-			} catch (Exception error) {
-				if (Parameters.ClientAbortsHandshake) {
-					ctx.LogDebug (5, "HttpTestRunner - CreateConnection got expected exception");
-					return false;
-				}
-				ctx.LogDebug (5, "HttpTestRunner - CreateConnection ex: {0}",  error);
-				throw;
+			public HttpsTestRunner Parent {
+				get;
 			}
 
-			/*
-			 * There seems to be some kind of a race condition here.
-			 *
-			 * When the client aborts the handshake due the a certificate validation failure,
-			 * then we either receive an exception during the TLS handshake or the connection
-			 * will be closed when the handshake is completed.
-			 *
-			 */
-			bool haveReq;
-			try {
-				haveReq = await connection.HasRequest (cancellationToken).ConfigureAwait (false);
-				ctx.LogDebug (5, "HttpTestRunner - CreateConnection #1: {0}", haveReq);
-			} catch {
-				if (Parameters.ClientAbortsHandshake)
-					return false;
-				throw;
-			}
-			if (Parameters.ClientAbortsHandshake) {
-				ctx.Assert (haveReq, Is.False, "expected client to abort handshake");
-				return false;
-			}
-			ctx.Assert (haveReq, Is.True, "expected non-empty request");
-			return true;
-		}
-
-		bool IHttpServerDelegate.HasConnectionHandler => false;
-
-		Task<(bool complete, bool result)> IHttpServerDelegate.HandleConnection (
-			TestContext ctx, HttpServer server, HttpConnection connection, CancellationToken cancellationToken)
-		{
-			throw new InternalErrorException ();
-		}
-
-		(bool complete, bool result) IHttpServerDelegate.HandleConnection (
-			TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler)
-		{
-			var streamConnection = (SocketConnection)connection;
-			if (!ctx.Expect (streamConnection.SslStream.IsAuthenticated, "server is authenticated"))
-				return (true, false);
-			if (Parameters.RequireClientCertificate &&
-			    !ctx.Expect (streamConnection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated"))
-				return (true, false);
-			return (false, true);
-		}
-
-		Stream IHttpServerDelegate.CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket)
-		{
-			return null;
-		}
-
-		class MyRunner : TestRunner
-		{
-			readonly HttpsTestRunner parent;
-
-			public MyRunner (HttpsTestRunner runner, HttpServer server, Handler handler)
-				: base (server, handler)
+			public Operation (HttpsTestRunner parent, Handler handler)
+				: base (parent.Server, parent.ME, handler, parent.Parameters.Flags,
+				        parent.Parameters.ExpectedStatus, parent.Parameters.ExpectedError)
 			{
-				this.parent = runner;
+				Parent = parent;
 			}
 
-			protected override string Name {
-				get { return string.Format ("[{0}:{1}]", parent.GetType ().Name, parent.Parameters.Identifier); }
+			public async Task Run (TestContext ctx, CancellationToken cancellationToken)
+			{
+				cancellationToken.ThrowIfCancellationRequested ();
+				Start (ctx, cancellationToken);
+				await WaitForCompletion ().ConfigureAwait (false);
 			}
 
 			protected override Request CreateRequest (TestContext ctx, Uri uri)
 			{
-				return parent.CreateRequest (ctx, uri);
+				return Parent.CreateRequest (ctx, uri);
 			}
+
+			protected override void ConfigureRequest (TestContext ctx, Uri uri, Request request)
+			{
+				Handler.ConfigureRequest (request, uri);
+
+				request.SetProxy (Parent.Server.GetProxy ());
+			}
+
 			protected override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
 			{
-				return parent.RunInner (ctx, cancellationToken, request);
+				return Parent.RunInner (ctx, cancellationToken, request);
+			}
+
+			protected override void Destroy ()
+			{
 			}
 		}
 	}

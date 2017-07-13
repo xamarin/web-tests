@@ -246,7 +246,10 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new SimpleResponse (this, response.StatusCode, null);
 		}
 
-
+		public override void Abort ()
+		{
+			throw new NotSupportedException ();
+		}
 	}
 }
 

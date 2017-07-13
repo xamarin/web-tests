@@ -124,25 +124,35 @@ namespace Xamarin.WebTests.HttpHandlers
 			ctx.LogDebug (2, sb.ToString ());
 		}
 
-		public async Task<bool> HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, CancellationToken cancellationToken)
+		public async Task<bool> HandleRequest (TestContext ctx, HttpOperation operation,
+		                                       HttpConnection connection, HttpRequest request,
+		                                       CancellationToken cancellationToken)
 		{
 			Exception originalError;
 			HttpResponse response;
+
+			var expectServerError = operation?.HasAnyFlags (HttpOperationFlags.ExpectServerException) ?? false;
 
 			try {
 				Debug (ctx, 1, $"HANDLE REQUEST: {connection.RemoteEndPoint}");
 				DumpHeaders (ctx, request);
 				connection.Server.CheckEncryption (ctx, connection.SslStream);
 				response = await HandleRequest (ctx, connection, request, Flags, cancellationToken);
+
 				if (response == null)
 					response = HttpResponse.CreateSuccess ();
 				if (!response.KeepAlive.HasValue && ((Flags & RequestFlags.KeepAlive) != 0))
 					response.KeepAlive = true;
+				var keepAlive = (response.KeepAlive ?? false) && ((Flags & RequestFlags.CloseConnection) == 0);
+
+				if (response.IsRedirect && operation != null) {
+					Debug (ctx, 1, $"HANDLE REQUEST - REDIRECT: {keepAlive}");
+					operation.PrepareRedirect (ctx, connection, keepAlive);
+				}
 
 				cancellationToken.ThrowIfCancellationRequested ();
 				await connection.WriteResponse (ctx, response, cancellationToken);
 
-				var keepAlive = (response.KeepAlive ?? false) && ((Flags & RequestFlags.CloseConnection) == 0);
 				Debug (ctx, 1, $"HANDLE REQUEST DONE: {connection.RemoteEndPoint} {keepAlive}", response);
 				DumpHeaders (ctx, response);
 				serverTask.TrySetResult (response);
@@ -166,6 +176,8 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			if (originalError is AssertionException)
 				Debug (ctx, 1, "HANDLE REQUEST - ASSERTION FAILED", originalError);
+			else if (expectServerError)
+				Debug (ctx, 1, "HANDLE REQUEST - EXPECTED ERROR", originalError.GetType ());
 			else
 				Debug (ctx, 1, "HANDLE REQUEST - ERROR", originalError);
 
@@ -178,7 +190,8 @@ namespace Xamarin.WebTests.HttpHandlers
 				serverTask.TrySetCanceled ();
 				throw;
 			} catch (Exception ex) {
-				Debug (ctx, 1, "FAILED TO SEND ERROR RESPONSE", originalError, ex);
+				if (!expectServerError)
+					Debug (ctx, 1, "FAILED TO SEND ERROR RESPONSE", originalError, ex);
 				var newError = new AggregateException ("Failed to send error response", originalError, ex);
 				serverTask.TrySetException (newError);
 				throw newError;

@@ -67,19 +67,26 @@ namespace Xamarin.WebTests.Server
 
 		public override async Task<HttpConnection> AcceptAsync (CancellationToken cancellationToken)
 		{
-			TestContext.LogDebug (5, "LISTEN ASYNC: {0}", NetworkEndPoint);
+			TestContext.LogDebug (5, $"{ME} LISTEN ASYNC: {NetworkEndPoint}");
 
-			var connection = new SocketConnection (Server, socket);
+			var connection = new SocketConnection (this, Server, socket);
 			lock (this) {
 				connections.Add (connection);
 			}
 			connection.ClosedEvent += (sender, e) => {
 				lock (this) {
-					connections.Remove (connection);
+					TestContext.LogDebug (5, $"{ME} CONNECTION CLOSED: {connection} {e}");
+					if (!e)
+						connections.Remove (connection);
 				}
 			};
 			await connection.AcceptAsync (TestContext, cancellationToken).ConfigureAwait (false);
 			return connection;
+		}
+
+		protected override HttpConnection CreateConnection ()
+		{
+			return new SocketConnection (this, Server, socket);
 		}
 
 		public override void CloseAll ()
