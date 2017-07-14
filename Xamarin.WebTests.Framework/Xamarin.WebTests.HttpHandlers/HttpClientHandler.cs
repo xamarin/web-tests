@@ -34,20 +34,21 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.HttpHandlers
 {
 	using HttpFramework;
+	using HttpOperations;
 
 	public class HttpClientHandler : Handler
 	{
 		public HttpClientHandler (
-			string identifier, HttpClientOperation operation,
+			string identifier, HttpClientOperationType type,
 			HttpContent content = null, HttpContent returnContent = null)
 			: base (identifier)
 		{
-			Operation = operation;
+			Type = type;
 			Content = content;
 			ReturnContent = returnContent;
 		}
 
-		public HttpClientOperation Operation {
+		public HttpClientOperationType Type {
 			get;
 		}
 
@@ -65,7 +66,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public override object Clone ()
 		{
-			var handler = new HttpClientHandler (Value, Operation, Content, ReturnContent);
+			var handler = new HttpClientHandler (Value, Type, Content, ReturnContent);
 			handler.Flags = Flags;
 			return handler;
 		}
@@ -76,21 +77,21 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			await CompletedTask.ConfigureAwait (false);
 
-			switch (Operation) {
-			case HttpClientOperation.GetString:
+			switch (Type) {
+			case HttpClientOperationType.GetString:
 				ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
 				return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 
-			case HttpClientOperation.PostString:
+			case HttpClientOperationType.PostString:
 				return HandlePostString (ctx, request, effectiveFlags);
 
-			case HttpClientOperation.PutString:
+			case HttpClientOperationType.PutString:
 				return HandlePutString (ctx, request, effectiveFlags);
 
-			case HttpClientOperation.SendAsync:
+			case HttpClientOperationType.SendAsync:
 				return HandleSendAsync (ctx, request, effectiveFlags);
 
-			case HttpClientOperation.PutDataAsync:
+			case HttpClientOperationType.PutDataAsync:
 				return HandlePutDataAsync (ctx, request, effectiveFlags);
 
 			default:
@@ -160,27 +161,27 @@ namespace Xamarin.WebTests.HttpHandlers
 		public override void ConfigureRequest (Request request, Uri uri)
 		{
 			base.ConfigureRequest (request, uri);
-			switch (Operation) {
-			case HttpClientOperation.GetString:
+			switch (Type) {
+			case HttpClientOperationType.GetString:
 				request.Method = "GET";
 				if (Content != null)
 					throw new InvalidOperationException ();
 				break;
-			case HttpClientOperation.PostString:
+			case HttpClientOperationType.PostString:
 				request.Method = "POST";
 				if (Content == null)
 					throw new InvalidOperationException ();
 				request.Content = Content;
 				break;
-			case HttpClientOperation.PutString:
+			case HttpClientOperationType.PutString:
 				request.Method = "PUT";
 				request.Content = Content;
 				break;
-			case HttpClientOperation.SendAsync:
+			case HttpClientOperationType.SendAsync:
 				request.Method = "POST";
 				request.Content = Content;
 				break;
-			case HttpClientOperation.PutDataAsync:
+			case HttpClientOperationType.PutDataAsync:
 				request.Method = "PUT";
 				request.Content = Content;
 				break;

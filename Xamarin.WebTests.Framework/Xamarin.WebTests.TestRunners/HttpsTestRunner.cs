@@ -86,7 +86,7 @@ namespace Xamarin.WebTests.TestRunners
 			: base (endpoint, parameters)
 		{
 			Provider = provider;
-			ServerFlags = flags | HttpServerFlags.NewListener;
+			ServerFlags = flags;
 			Uri = uri;
 
 			Server = new BuiltinHttpServer (uri, endpoint, ServerFlags, parameters, null);
@@ -592,13 +592,6 @@ namespace Xamarin.WebTests.TestRunners
 				        parent.Parameters.ExpectedStatus, parent.Parameters.ExpectedError)
 			{
 				Parent = parent;
-			}
-
-			public async Task Run (TestContext ctx, CancellationToken cancellationToken)
-			{
-				cancellationToken.ThrowIfCancellationRequested ();
-				Start (ctx, cancellationToken);
-				await WaitForCompletion ().ConfigureAwait (false);
 			}
 
 			protected override Request CreateRequest (TestContext ctx, Uri uri)

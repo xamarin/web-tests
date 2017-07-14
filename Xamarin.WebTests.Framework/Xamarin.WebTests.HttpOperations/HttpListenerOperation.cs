@@ -1,10 +1,10 @@
 ﻿//
-// TraditionalTestRunner.cs
+// HttpListenerOperation.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,41 +34,46 @@ using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.TestRunners
+namespace Xamarin.WebTests.HttpOperations
 {
 	using HttpFramework;
 	using HttpHandlers;
 
-	public class TraditionalTestRunner : TestRunner
+	public class HttpListenerOperation : HttpOperation
 	{
-		public TraditionalTestRunner (HttpServer server, Handler handler, bool sendAsync)
-			: base (server, handler)
-		{
-			SendAsync = sendAsync;
+		new public HttpListenerHandler Handler {
+			get { return (HttpListenerHandler)base.Handler; }
 		}
 
-		public bool SendAsync {
-			get;
-			private set;
+		public HttpListenerOperation (HttpServer server, HttpListenerHandler handler,
+		                              HttpOperationFlags flags = HttpOperationFlags.None,
+		                              HttpStatusCode expectedStatus = HttpStatusCode.OK,
+		                              WebExceptionStatus expectedError = WebExceptionStatus.Success)
+			: base (server, $"{server.ME}:{handler.Value}", handler, flags,
+			        expectedStatus, expectedError)
+		{
 		}
 
 		protected override Request CreateRequest (TestContext ctx, Uri uri)
 		{
-			return new TraditionalRequest (uri);
+			return Handler.CreateRequest (ctx, Server, uri);
 		}
 
-		protected override async Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
+		protected override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
 		{
-			var traditionalRequest = (TraditionalRequest)request;
+			// ctx.Assert (Server.IsHttpListener, "HttpServer.IsHttpListener");
+			return request.SendAsync (ctx, cancellationToken);
+		}
 
-			Response response;
-			if (SendAsync)
-				response = await traditionalRequest.SendAsync (ctx, cancellationToken);
-			else
-				response = await traditionalRequest.Send (ctx, cancellationToken);
+		protected override void ConfigureRequest (TestContext ctx, Uri uri, Request request)
+		{
+			Handler.ConfigureRequest (request, uri);
 
-			return response;
+			request.SetProxy (Server.GetProxy ());
+		}
+
+		protected override void Destroy ()
+		{
 		}
 	}
 }
-

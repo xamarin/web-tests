@@ -1,10 +1,10 @@
 ﻿//
-// ChunkContentType.cs
+// WebClientOperationType.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,18 +25,13 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.TestRunners
+namespace Xamarin.WebTests.HttpOperations
 {
-	public enum ChunkContentType
+	public enum WebClientOperationType
 	{
-		NormalChunk,
-		TruncatedChunk,
-		MissingTrailer,
-		BeginEndAsyncRead,
-		BeginEndAsyncReadNoWait,
-		SyncRead,
-		SyncReadTimeout,
-		ServerAbort
+		DownloadStringTaskAsync,
+		UploadStringTaskAsync,
+		OpenWriteTaskAsync,
+		UploadValuesTaskAsync
 	}
 }
-

@@ -54,6 +54,7 @@ namespace Xamarin.WebTests.Server {
 
 		SslStream sslStream;
 		IPEndPoint remoteEndPoint;
+		HttpOperation currentOperation;
 
 		public HttpListenerConnection (HttpServer server, HttpListener listener)
 			: base (server)
@@ -87,7 +88,7 @@ namespace Xamarin.WebTests.Server {
 
 		public override Task<bool> HasRequest (CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException ();
+			return Task.FromResult (Listener.IsListening);
 		}
 
 		public override async Task<HttpRequest> ReadRequest (TestContext ctx, CancellationToken cancellationToken)
@@ -197,22 +198,32 @@ namespace Xamarin.WebTests.Server {
 
 		public override bool StartOperation (TestContext ctx, HttpOperation operation)
 		{
-			return false;
+			lock (Listener) {
+				ctx.LogDebug (5, $"{ME} START OPERATION: {currentOperation != null}");
+				if (Interlocked.CompareExchange (ref currentOperation, operation, null) != null)
+					return false;
+				return true;
+			}
 		}
 
 		public override void Continue (TestContext ctx, bool keepAlive)
 		{
-			if (keepAlive) {
+			lock (Listener) {
+				ctx.LogDebug (5, $"{ME} CONTINUE: {keepAlive}");
+				if (!keepAlive) {
+					Close ();
+					return;
+				}
+
+				currentOperation = null;
 				OnClosed (true);
-				return;
 			}
-			Close (); 
 		}
 
 		protected override void Close ()
 		{
 			OnClosed (false);
-			Context.Response.Close ();
+			Context?.Response?.Close ();
 		}
 	}
 }

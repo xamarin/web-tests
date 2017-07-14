@@ -91,6 +91,10 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		ProxyListener currentListener;
 
+		internal override Listener Listener {
+			get { return currentListener; }
+		}
+
 		public override async Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var listener = new ProxyListener (ctx, this);
@@ -99,7 +103,6 @@ namespace Xamarin.WebTests.HttpFramework {
 			if (AuthenticationType != AuthenticationType.None)
 				AuthenticationManager = new AuthenticationManager (AuthenticationType, true);
 			await Target.Start (ctx, cancellationToken).ConfigureAwait (false);
-			await listener.Start ();
 		}
 
 		public override async Task Stop (TestContext ctx, CancellationToken cancellationToken)
@@ -108,7 +111,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			if (listener == null || listener.TestContext != ctx)
 				throw new InternalErrorException ();
 			try {
-				await listener.Stop ().ConfigureAwait (false);
+				listener.Dispose ();
 				await Target.Stop (ctx, cancellationToken);
 			} catch {
 				if ((Flags & HttpServerFlags.ExpectException) == 0)
@@ -125,18 +128,22 @@ namespace Xamarin.WebTests.HttpFramework {
 		}
 
 		protected override async Task<bool> HandleConnection (TestContext ctx, HttpOperation operation,
-		                                                      HttpConnection connection, HttpRequest request,
-		                                                      CancellationToken cancellationToken)
+								      HttpConnection connection, HttpRequest request,
+								      CancellationToken cancellationToken)
 		{
-			cancellationToken.ThrowIfCancellationRequested ();
+			var proxyConnection = (ProxyConnection)connection;
+
 			var remoteAddress = connection.RemoteEndPoint.Address;
 			request.AddHeader ("X-Forwarded-For", remoteAddress);
+
+			ctx.LogDebug (5, $"{ME} HANDLE CONNECTION: {remoteAddress}");
 
 			if (AuthenticationManager != null) {
 				AuthenticationState state;
 				var response = AuthenticationManager.HandleAuthentication (ctx, connection, request, out state);
 				if (response != null) {
 					await connection.WriteResponse (ctx, response, cancellationToken);
+					operation.PrepareRedirect (ctx, connection, false);
 					return false;
 				}
 
@@ -144,29 +151,82 @@ namespace Xamarin.WebTests.HttpFramework {
 				request.AddHeader ("X-Mono-Redirected", "true");
 			}
 
+			var serverTask = proxyConnection.RunTarget (ctx, operation, cancellationToken);
+			var proxyTask = HandleConnection (ctx, operation, proxyConnection, request, cancellationToken);
+
+			bool serverFinished = false, proxyFinished = false;
+			while (!serverFinished || !proxyFinished) {
+				ctx.LogDebug (5, $"{ME} HANDLE CONNECTION #1: {serverFinished} {proxyFinished}");
+
+				var list = new List<Task> ();
+				if (!serverFinished)
+					list.Add (serverTask);
+				if (!proxyFinished)
+					list.Add (proxyTask);
+				var ret = await Task.WhenAny (list).ConfigureAwait (false);
+				ctx.LogDebug (5, $"{ME} HANDLE CONNECTION #2: {serverTask.Status} {proxyTask.Status}");
+				if (ret.Status == TaskStatus.Canceled || ret.Status == TaskStatus.Faulted)
+					throw ret.Exception;
+				if (ret == serverTask)
+					serverFinished = true;
+				if (ret == proxyTask)
+					proxyFinished = true;
+			}
+
+			return false;
+		}
+
+		async Task HandleConnection (TestContext ctx, HttpOperation operation,
+		                             ProxyConnection connection, HttpRequest request,
+		                             CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+			// var remoteAddress = connection.RemoteEndPoint.Address;
+			// request.AddHeader ("X-Forwarded-For", remoteAddress);
+
+			if (false && AuthenticationManager != null) {
+				AuthenticationState state;
+				var response = AuthenticationManager.HandleAuthentication (ctx, connection, request, out state);
+				if (response != null) {
+					await connection.WriteResponse (ctx, response, cancellationToken);
+					return;
+				}
+
+				// HACK: Mono rewrites chunked requests into non-chunked.
+				request.AddHeader ("X-Mono-Redirected", "true");
+			}
+
 			if (request.Method.Equals ("CONNECT")) {
-				await CreateTunnel (ctx, connection, ((SocketConnection)connection).Stream, request, cancellationToken);
-				return false;
+				await CreateTunnel (ctx, connection, connection.Stream, request, cancellationToken);
+				return;
 			}
 
 			using (var targetConnection = new SocketConnection (this)) {
 				var targetEndPoint = new DnsEndPoint (Target.Uri.Host, Target.Uri.Port);
+				ctx.LogDebug (5, $"{ME} HANDLE CONNECTION #1: {targetEndPoint}");
+
 				cancellationToken.ThrowIfCancellationRequested ();
 				await targetConnection.ConnectAsync (ctx, targetEndPoint, cancellationToken);
 
+				ctx.LogDebug (5, $"{ME} HANDLE CONNECTION #2");
+
 				cancellationToken.ThrowIfCancellationRequested ();
 				await targetConnection.Initialize (ctx, cancellationToken);
+
+				ctx.LogDebug (5, $"{ME} HANDLE CONNECTION #3");
 
 				var copyResponseTask = CopyResponse (ctx, connection, targetConnection, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();
 				await targetConnection.WriteRequest (ctx, request, cancellationToken);
 
+				ctx.LogDebug (5, $"{ME} HANDLE CONNECTION #4");
+
 				cancellationToken.ThrowIfCancellationRequested ();
 				await copyResponseTask;
-			}
 
-			return false;
+				ctx.LogDebug (5, $"{ME} HANDLE CONNECTION #5");
+			}
 		}
 
 		async Task CopyResponse (TestContext ctx, HttpConnection connection,
@@ -302,11 +362,6 @@ namespace Xamarin.WebTests.HttpFramework {
 				throw;
 			}
 			return true;
-		}
-
-		public override Task<Response> RunWithContext (TestContext ctx, Func<CancellationToken, Task<Response>> func, CancellationToken cancellationToken)
-		{
-			return currentListener.RunWithContext (ctx, func, cancellationToken);
 		}
 
 		public override IWebProxy GetProxy ()

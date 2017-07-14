@@ -40,26 +40,26 @@ namespace Xamarin.WebTests.Tests
 	using HttpHandlers;
 	using HttpFramework;
 	using TestFramework;
-	using TestRunners;
+	using HttpOperations;
 
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestChunked
 	{
 		[AsyncTest]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken, HttpServer server,
-		                 [ChunkContentType] ChunkContentType type, bool sendAsync)
+		                 [ChunkedOperationType] ChunkedOperationType type, bool sendAsync)
 		{
-			var runner = new ChunkedTestRunner (server, type, sendAsync);
+			var runner = ChunkedOperation.Create (server, type, sendAsync);
 			return runner.Run (ctx, cancellationToken);
 		}
 
 		[AsyncTest]
 		[HttpServerFlags (HttpServerFlags.ExpectException)]
 		public Task ServerErrorTests (TestContext ctx, HttpServer server, bool sendAsync,
-		                              [ChunkContentType (ServerError = true)] ChunkContentType type,
+		                              [ChunkedOperationType (ServerError = true)] ChunkedOperationType type,
 		                              CancellationToken cancellationToken)
 		{
-			var runner = new ChunkedTestRunner (server, type, sendAsync);
+			var runner = ChunkedOperation.Create (server, type, sendAsync);
 			return runner.Run (ctx, cancellationToken);
 		}
 	}

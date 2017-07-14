@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.Server
 {
 	class SocketConnection : HttpConnection
 	{
-		public BuiltinSocketListener Listener {
+		public SocketListener Listener {
 			get;
 		}
 
@@ -64,8 +64,6 @@ namespace Xamarin.WebTests.Server
 
 		internal override IPEndPoint RemoteEndPoint => remoteEndPoint;
 
-		internal bool Idle => idle;
-
 		Stream networkStream;
 		SslStream sslStream;
 		HttpStreamReader reader;
@@ -73,7 +71,7 @@ namespace Xamarin.WebTests.Server
 		HttpOperation currentOperation;
 		bool idle = true;
 
-		public SocketConnection (BuiltinSocketListener listener, HttpServer server, Socket socket)
+		public SocketConnection (SocketListener listener, HttpServer server, Socket socket)
 			: base (server)
 		{
 			Listener = listener;
@@ -87,13 +85,17 @@ namespace Xamarin.WebTests.Server
 
 		public override async Task AcceptAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
+			ctx.LogDebug (5, $"{ME} ACCEPT: {ListenSocket.LocalEndPoint}");
 			lock (Listener) {
 				if (!idle)
+					throw new NotSupportedException ();
+				if (Socket != null)
 					throw new NotSupportedException ();
 				idle = true;
 			}
 			Socket = await ListenSocket.AcceptAsync (cancellationToken).ConfigureAwait (false);
 			remoteEndPoint = (IPEndPoint)Socket.RemoteEndPoint;
+			ctx.LogDebug (5, $"{ME} ACCEPT #1: {ListenSocket.LocalEndPoint} {remoteEndPoint}");
 		}
 
 		public async Task ConnectAsync (TestContext ctx, EndPoint endpoint, CancellationToken cancellationToken)
@@ -107,6 +109,7 @@ namespace Xamarin.WebTests.Server
 		{
 			remoteEndPoint = (IPEndPoint)Socket.RemoteEndPoint;
 			var operation = currentOperation;
+			ctx.LogDebug (5, $"{ME} INITIALIZE: {ListenSocket?.LocalEndPoint} {remoteEndPoint} {operation?.ME}");
 			if (operation != null)
 				networkStream = operation.CreateNetworkStream (ctx, Socket, true);
 			if (networkStream == null)
@@ -120,6 +123,7 @@ namespace Xamarin.WebTests.Server
 			}
 
 			reader = new HttpStreamReader (Stream);
+			ctx.LogDebug (5, $"{ME} INITIALIZE DONE: {ListenSocket?.LocalEndPoint} {remoteEndPoint}");
 		}
 
 		async Task<SslStream> CreateSslStream (TestContext ctx, Stream innerStream, CancellationToken cancellationToken)
@@ -166,9 +170,12 @@ namespace Xamarin.WebTests.Server
 			return !await reader.IsEndOfStream (cancellationToken).ConfigureAwait (false);
 		}
 
-		public override Task<HttpRequest> ReadRequest (TestContext ctx, CancellationToken cancellationToken)
+		public override async Task<HttpRequest> ReadRequest (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return HttpRequest.Read (ctx, reader, cancellationToken);
+			ctx.LogDebug (5, $"{ME} READ REQUEST: {ListenSocket?.LocalEndPoint} {remoteEndPoint}");
+			var request = await HttpRequest.Read (ctx, reader, cancellationToken).ConfigureAwait (false);
+			ctx.LogDebug (5, $"{ME} READ REQUEST DONE: {ListenSocket?.LocalEndPoint} {remoteEndPoint} - {request}");
+			return request;
 		}
 
 		public override Task<HttpResponse> ReadResponse (TestContext ctx, CancellationToken cancellationToken)
@@ -195,9 +202,14 @@ namespace Xamarin.WebTests.Server
 				ctx.LogDebug (5, $"{ME} START OPERATION: {currentOperation != null}");
 				if (Interlocked.CompareExchange (ref currentOperation, operation, null) != null)
 					return false;
-				// idle = false;
+				StartOperation_internal (ctx, operation);
 				return true;
 			}
+		}
+
+		protected virtual void StartOperation_internal (TestContext ctx, HttpOperation operation)
+		{
+			
 		}
 
 		public override void Continue (TestContext ctx, bool keepAlive)

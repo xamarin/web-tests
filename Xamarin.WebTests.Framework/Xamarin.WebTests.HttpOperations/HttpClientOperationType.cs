@@ -1,5 +1,5 @@
 ﻿//
-// HttpClientOperation.cs
+// HttpClientOperationType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,9 +25,9 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests
+namespace Xamarin.WebTests.HttpOperations
 {
-	public enum HttpClientOperation
+	public enum HttpClientOperationType
 	{
 		GetString,
 		PostString,

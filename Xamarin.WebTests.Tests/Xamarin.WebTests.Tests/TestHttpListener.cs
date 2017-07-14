@@ -29,13 +29,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.HttpFramework;
-using Xamarin.WebTests.HttpHandlers;
-using Xamarin.WebTests.TestRunners;
 
 namespace Xamarin.WebTests.Tests {
+	using ConnectionFramework;
+	using TestFramework;
+	using HttpFramework;
+	using HttpHandlers;
+	using HttpOperations;
+
 	[AsyncTestFixture]
 	public class TestHttpListener : ITestParameterSource<HttpListenerHandler> {
 		public IEnumerable<HttpListenerHandler> GetParameters (TestContext ctx, string filter)
@@ -51,10 +52,12 @@ namespace Xamarin.WebTests.Tests {
 		[ConnectionTestFlags (ConnectionTestFlags.RequireMonoServer)]
 		[HttpServerFlags (HttpServerFlags.HttpListener)]
 		// [AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		public Task MartinTest (TestContext ctx, HttpServer server, HttpListenerHandler handler,
-		                        CancellationToken cancellationToken)
+		public async Task MartinTest (TestContext ctx, HttpServer server, HttpListenerHandler handler,
+		                              CancellationToken cancellationToken)
 		{
-			return TestRunner.RunHttpListener (ctx, cancellationToken, server, handler);
+			using (var operation = new HttpListenerOperation (server, handler)) {
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+			}
 		}
 	}
 }

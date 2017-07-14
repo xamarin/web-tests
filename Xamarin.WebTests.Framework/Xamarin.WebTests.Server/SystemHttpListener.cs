@@ -34,7 +34,7 @@ using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server {
-	class SystemHttpListener : BuiltinListener {
+	class SystemHttpListener : Listener {
 		public SystemHttpListener (TestContext ctx, HttpServer server)
 			: base (ctx, server)
 		{

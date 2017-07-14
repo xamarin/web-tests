@@ -38,80 +38,11 @@ namespace Xamarin.WebTests.TestRunners
 {
 	using HttpFramework;
 	using HttpHandlers;
+	using HttpOperations;
 
-	public abstract class TestRunner
+	public static class TestRunner
 	{
-		public HttpServer Server {
-			get;
-		}
-
-		public Handler Handler {
-			get;
-		}
-
-		public RedirectHandler Redirect {
-			get;
-		}
-
-		public string ME {
-			get;
-		}
-
-		protected TestRunner (HttpServer server, Handler handler, RedirectHandler redirect = null)
-		{
-			Server = server;
-			Handler = handler;
-			Redirect = redirect;
-
-			ME = $"[{GetType ().Name}:{Server}:{Handler}]";
-		}
-
-		internal static void Debug (TestContext ctx, string me, int level, string message, params object[] args)
-		{
-			var sb = new StringBuilder ();
-			sb.AppendFormat ("{0}: {1}", me, message);
-			for (int i = 0; i < args.Length; i++) {
-				sb.Append (" ");
-				sb.Append (args[i] != null ? args[i].ToString () : "<null>");
-			}
-
-			ctx.LogDebug (level, sb.ToString ());
-		}
-
-		protected void Debug (TestContext ctx, int level, string message, params object[] args)
-		{
-			Debug (ctx, ME, level, message, args);
-		}
-
-		protected abstract Request CreateRequest (TestContext ctx, Uri uri);
-
-		protected virtual void ConfigureRequest (TestContext ctx, Uri uri, Request request)
-		{
-			Handler.ConfigureRequest (request, uri);
-
-			request.SetProxy (Server.GetProxy ());
-		}
-
-		protected abstract Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken);
-
-		public async Task Run (
-			TestContext ctx, CancellationToken cancellationToken,
-			HttpStatusCode expectedStatus = HttpStatusCode.OK,
-			WebExceptionStatus expectedError = WebExceptionStatus.Success)
-		{
-			Debug (ctx, 1, "RUN");
-
-			Handler target = (Handler)Redirect ?? Handler;
-
-			var uri = target.RegisterRequest (ctx, Server);
-			var request = CreateRequest (ctx, uri);
-			ConfigureRequest (ctx, uri, request);
-
-			var response = await Server.RunWithContext (ctx, (token) => RunInner (ctx, request, token), cancellationToken);
-
-			CheckResponse (ctx, response, cancellationToken, expectedStatus, expectedError);
-		}
-
+#if FIXME
 		public async Task RunExternal (
 			TestContext ctx, CancellationToken cancellationToken, Uri uri,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
@@ -125,83 +56,18 @@ namespace Xamarin.WebTests.TestRunners
 
 			CheckResponse (ctx, response, cancellationToken, expectedStatus, expectedError);
 		}
+#endif
 
-		public static Task RunTraditional (
+		public static async Task RunTraditional (
 			TestContext ctx, HttpServer server, Handler handler,
 			CancellationToken cancellationToken, bool sendAsync = false,
+			HttpOperationFlags flags = HttpOperationFlags.None,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
-			var runner = new TraditionalTestRunner (server, handler, sendAsync);
-			return runner.Run (ctx, cancellationToken, expectedStatus, expectedError);
-		}
-
-		public static Task RunHttpClient (
-			TestContext ctx, CancellationToken cancellationToken, HttpServer server,
-			HttpClientHandler handler, RedirectHandler redirect = null,
-			HttpStatusCode expectedStatus = HttpStatusCode.OK,
-			WebExceptionStatus expectedError = WebExceptionStatus.Success)
-		{
-			var runner = new HttpClientTestRunner (server, handler, redirect);
-			return runner.Run (ctx, cancellationToken, expectedStatus, expectedError);
-		}
-
-		public static Task RunHttpListener (
-			TestContext ctx, CancellationToken cancellationToken, HttpServer server,
-			HttpListenerHandler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK,
-			WebExceptionStatus expectedError = WebExceptionStatus.Success)
-		{
-			var runner = new HttpListenerTestRunner (server, handler);
-			return runner.Run (ctx, cancellationToken, expectedStatus, expectedError);
-		}
-
-		internal static void CheckResponse (
-			TestContext ctx, string me, Handler handler, Response response, CancellationToken cancellationToken,
-			HttpStatusCode expectedStatus = HttpStatusCode.OK, WebExceptionStatus expectedError = WebExceptionStatus.Success)
-		{
-			Debug (ctx, me, 1, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error?.Message);
-
-			if (ctx.HasPendingException)
-				return;
-
-			if (cancellationToken.IsCancellationRequested) {
-				ctx.OnTestCanceled ();
-				return;
-			}
-
-			if (expectedError != WebExceptionStatus.Success) {
-				ctx.Expect (response.Error, Is.Not.Null, "expecting exception");
-				ctx.Expect (response.Status, Is.EqualTo (expectedStatus));
-				var wexc = response.Error as WebException;
-				ctx.Expect (wexc, Is.Not.Null, "WebException");
-				if (expectedError != WebExceptionStatus.AnyErrorStatus)
-					ctx.Expect ((WebExceptionStatus)wexc.Status, Is.EqualTo (expectedError));
-				return;
-			}
-
-			if (response.Error != null) {
-				if (response.Content != null)
-					ctx.OnError (new WebException (response.Content.AsString (), response.Error));
-				else
-					ctx.OnError (response.Error);
-			} else {
-				var ok = ctx.Expect (expectedStatus, Is.EqualTo (response.Status), "status code");
-				if (ok)
-					ok &= ctx.Expect (response.IsSuccess, Is.True, "success status");
-
-				if (ok)
-					ok &= handler.CheckResponse (ctx, response);
-			}
-
-			if (response.Content != null)
-				Debug (ctx, me, 5, "GOT RESPONSE BODY", response.Content);
-		}
-
-		protected void CheckResponse (
-			TestContext ctx, Response response, CancellationToken cancellationToken,
-			HttpStatusCode expectedStatus = HttpStatusCode.OK, WebExceptionStatus expectedError = WebExceptionStatus.Success)
-		{
-			CheckResponse (ctx, ME, Handler, response, cancellationToken, expectedStatus, expectedError);
+			var operation = new TraditionalOperation (server, handler, sendAsync, flags, expectedStatus, expectedError);
+			operation.Start (ctx, cancellationToken);
+			await operation.WaitForCompletion ().ConfigureAwait (false);
 		}
 	}
 }

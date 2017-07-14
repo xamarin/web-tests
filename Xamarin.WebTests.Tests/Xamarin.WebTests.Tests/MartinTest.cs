@@ -1,5 +1,5 @@
 ﻿//
-// HttpOperationFlags.cs
+// MartinTest.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,20 +24,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.HttpFramework
+namespace Xamarin.WebTests.Tests
 {
-	[Flags]
-	public enum HttpOperationFlags
+	using HttpFramework;
+	using HttpHandlers;
+	using TestFramework;
+	using TestRunners;
+	using HttpOperations;
+	using System.Collections.Specialized;
+
+	[Martin]
+	[AsyncTestFixture]
+	public class MartinTest
 	{
-		None = 0,
-		ServerAbortsHandshake		= 1,
-		ClientAbortsHandshake		= 2,
-		DontReuseConnection		= 4,
-		ClientUsesNewConnection		= 8,
-		ExpectServerException		= 16,
-		AbortAfterClientExits		= 32,
-		RequireClientCertificate	= 64,
-		ClientDoesNotSendRedirect	= 128
+		// [AsyncTest (ParameterFilter = "hello", Unstable = true)]
+		[HttpServerFlags (HttpServerFlags.HttpListener)]
+		public Task Run (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
+		{
+			var handler = HelloWorldHandler.GetSimple ();
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, true);
+		}
 	}
 }

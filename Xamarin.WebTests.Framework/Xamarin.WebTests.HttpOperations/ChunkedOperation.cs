@@ -1,5 +1,5 @@
 ﻿//
-// ChunkedTestRunner.cs
+// ChunkedOperation.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -33,15 +33,15 @@ using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.TestRunners
+namespace Xamarin.WebTests.HttpOperations
 {
 	using ConnectionFramework;
 	using HttpFramework;
 	using HttpHandlers;
 
-	public class ChunkedTestRunner : TraditionalTestRunner
+	public class ChunkedOperation : TraditionalOperation
 	{
-		public ChunkContentType Type {
+		public ChunkedOperationType Type {
 			get;
 			private set;
 		}
@@ -49,11 +49,11 @@ namespace Xamarin.WebTests.TestRunners
 		bool ExpectException {
 			get {
 				switch (Type) {
-				case ChunkContentType.NormalChunk:
-				case ChunkContentType.SyncRead:
-				case ChunkContentType.BeginEndAsyncRead:
-				case ChunkContentType.BeginEndAsyncReadNoWait:
-				case ChunkContentType.ServerAbort:
+				case ChunkedOperationType.NormalChunk:
+				case ChunkedOperationType.SyncRead:
+				case ChunkedOperationType.BeginEndAsyncRead:
+				case ChunkedOperationType.BeginEndAsyncReadNoWait:
+				case ChunkedOperationType.ServerAbort:
 					return false;
 				default:
 					return true;
@@ -61,17 +61,26 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		public ChunkedTestRunner (HttpServer server, ChunkContentType type, bool sendAsync)
-			: base (server, CreateHandler (type), sendAsync)
+		ChunkedOperation (HttpServer server, Handler handler, ChunkedOperationType type, bool sendAsync,
+		                   HttpOperationFlags flags, HttpStatusCode expectedStatus,
+		                   WebExceptionStatus expectedError)
+			: base (server, handler, sendAsync, flags, expectedStatus, expectedError)
 		{
 			Type = type;
+		}
+
+		public static ChunkedOperation Create (HttpServer server, ChunkedOperationType type, bool sendAsync)
+		{
+			var (flags, status, error) = GetParameters (type);
+			var handler = new GetHandler (ChunkTypeName (type), ChunkContent (type));
+			return new ChunkedOperation (server, handler, type, sendAsync, flags, status, error);
 		}
 
 		protected override Request CreateRequest (TestContext ctx, Uri uri)
 		{
 			var request = new ChunkedRequest (this, uri);
 			// May need to adjust these values a bit.
-			if (Type == ChunkContentType.SyncReadTimeout)
+			if (Type == ChunkedOperationType.SyncReadTimeout)
 				request.RequestExt.ReadWriteTimeout = 500;
 			else
 				request.RequestExt.ReadWriteTimeout = 1500;
@@ -83,21 +92,21 @@ namespace Xamarin.WebTests.TestRunners
 			base.ConfigureRequest (ctx, uri, request);
 		}
 
-		public Task Run (TestContext ctx, CancellationToken cancellationToken)
+		static (HttpOperationFlags flags, HttpStatusCode status, WebExceptionStatus error) GetParameters (ChunkedOperationType type)
 		{
-			switch (Type) {
-			case ChunkContentType.SyncRead:
-			case ChunkContentType.NormalChunk:
-			case ChunkContentType.BeginEndAsyncRead:
-			case ChunkContentType.BeginEndAsyncReadNoWait:
-			case ChunkContentType.ServerAbort:
-				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);
-			case ChunkContentType.SyncReadTimeout:
-				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Timeout);
-			case ChunkContentType.MissingTrailer:
-				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.ResponseContentException);
-			case ChunkContentType.TruncatedChunk:
-				return Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.ResponseContentTruncated);
+			switch (type) {
+			case ChunkedOperationType.SyncRead:
+			case ChunkedOperationType.NormalChunk:
+			case ChunkedOperationType.BeginEndAsyncRead:
+			case ChunkedOperationType.BeginEndAsyncReadNoWait:
+			case ChunkedOperationType.ServerAbort:
+				return (HttpOperationFlags.None, HttpStatusCode.OK, WebExceptionStatus.Success);
+			case ChunkedOperationType.SyncReadTimeout:
+				return (HttpOperationFlags.None, HttpStatusCode.OK, WebExceptionStatus.Timeout);
+			case ChunkedOperationType.MissingTrailer:
+				return (HttpOperationFlags.None, HttpStatusCode.OK, WebExceptionStatus.ResponseContentException);
+			case ChunkedOperationType.TruncatedChunk:
+				return (HttpOperationFlags.None, HttpStatusCode.OK, WebExceptionStatus.ResponseContentTruncated);
 			default:
 				throw new NotImplementedException ();
 			}
@@ -105,12 +114,12 @@ namespace Xamarin.WebTests.TestRunners
 
 		class ChunkedRequest : TraditionalRequest
 		{
-			public ChunkedTestRunner Runner {
+			public ChunkedOperation Runner {
 				get;
 				private set;
 			}
 
-			public ChunkedRequest (ChunkedTestRunner runner, Uri uri)
+			public ChunkedRequest (ChunkedOperation runner, Uri uri)
 				: base (uri)
 			{
 				Runner = runner;
@@ -133,13 +142,13 @@ namespace Xamarin.WebTests.TestRunners
 			var stream = response.GetResponseStream ();
 
 			try {
-				if (Type == ChunkContentType.BeginEndAsyncRead || Type == ChunkContentType.BeginEndAsyncReadNoWait) {
+				if (Type == ChunkedOperationType.BeginEndAsyncRead || Type == ChunkedOperationType.BeginEndAsyncReadNoWait) {
 					var provider = DependencyInjector.Get<IStreamProvider> ();
 
 					var buffer = new byte [1024];
 					var result = provider.BeginRead (stream, buffer, 0, buffer.Length, null, null);
 
-					if (Type != ChunkContentType.BeginEndAsyncReadNoWait) {
+					if (Type != ChunkedOperationType.BeginEndAsyncReadNoWait) {
 						await Task.Run (() => {
 							var timeout = ctx.Settings.DisableTimeouts ? -1 : 500;
 							var waitResult = result.AsyncWaitHandle.WaitOne (timeout);
@@ -153,13 +162,13 @@ namespace Xamarin.WebTests.TestRunners
 				}
 
 				var reader = new StreamReader (stream);
-				if (Type == ChunkContentType.SyncRead || Type == ChunkContentType.SyncReadTimeout) {
+				if (Type == ChunkedOperationType.SyncRead || Type == ChunkedOperationType.SyncReadTimeout) {
 					content += reader.ReadToEnd ();
 				} else {
 					content += await reader.ReadToEndAsync ();
 				}
 
-				if (Type == ChunkContentType.ServerAbort) {
+				if (Type == ChunkedOperationType.ServerAbort) {
 					ctx.Assert (content.Length, Is.EqualTo (1), "read one byte");
 				}
 
@@ -169,10 +178,10 @@ namespace Xamarin.WebTests.TestRunners
 				error = new WebException ("failed to read response", ex, (XWebExceptionStatus)WebExceptionStatus.ResponseContentException, response);
 				content = null;
 			} catch (WebException ex) {
-				if (Type == ChunkContentType.SyncReadTimeout) {
+				if (Type == ChunkedOperationType.SyncReadTimeout) {
 					ctx.Assert ((WebExceptionStatus)ex.Status, Is.EqualTo (WebExceptionStatus.Timeout), "expected Timeout");
 					error = new WebException (ex.Message, ex, (XWebExceptionStatus)WebExceptionStatus.Timeout, response);
-				} else if (Type == ChunkContentType.TruncatedChunk) {
+				} else if (Type == ChunkedOperationType.TruncatedChunk) {
 					ctx.Assert ((WebExceptionStatus)ex.Status, Is.EqualTo (WebExceptionStatus.ConnectionClosed), "expected ConnectionClosed");
 					error = new WebException (ex.Message, ex, (XWebExceptionStatus)WebExceptionStatus.ResponseContentTruncated, response);
 				} else {
@@ -187,22 +196,17 @@ namespace Xamarin.WebTests.TestRunners
 			return new SimpleResponse (request, status, StringContent.CreateMaybeNull (content), error);
 		}
 
-		static string ChunkTypeName (ChunkContentType type)
+		static string ChunkTypeName (ChunkedOperationType type)
 		{
 			return type.ToString ();
 		}
 
-		static HttpContent ChunkContent (ChunkContentType type)
+		static HttpContent ChunkContent (ChunkedOperationType type)
 		{
-			if (type == ChunkContentType.ServerAbort)
+			if (type == ChunkedOperationType.ServerAbort)
 				return new ServerAbortContent ();
 			else
 				return new TestChunkedContent (type);
-		}
-
-		public static Handler CreateHandler (ChunkContentType type)
-		{
-			return new GetHandler (ChunkTypeName (type), ChunkContent (type));
 		}
 
 		class ServerAbortContent : HttpContent
@@ -236,12 +240,12 @@ namespace Xamarin.WebTests.TestRunners
 
 		class TestChunkedContent : HttpContent
 		{
-			public ChunkContentType Type {
+			public ChunkedOperationType Type {
 				get;
 				private set;
 			}
 
-			public TestChunkedContent (ChunkContentType type)
+			public TestChunkedContent (ChunkedOperationType type)
 			{
 				Type = type;
 			}
@@ -271,26 +275,26 @@ namespace Xamarin.WebTests.TestRunners
 				writer.AutoFlush = true;
 				await writer.WriteAsync ("4\r\n");
 				await writer.WriteAsync ("AAAA\r\n");
-				if (Type == ChunkContentType.BeginEndAsyncRead || Type == ChunkContentType.BeginEndAsyncReadNoWait)
+				if (Type == ChunkedOperationType.BeginEndAsyncRead || Type == ChunkedOperationType.BeginEndAsyncReadNoWait)
 					await Task.Delay (50);
-				else if (Type == ChunkContentType.SyncReadTimeout)
+				else if (Type == ChunkedOperationType.SyncReadTimeout)
 					await Task.Delay (5000);
 				await writer.WriteAsync ("8\r\n");
 				await writer.WriteAsync ("BBBBBBBB\r\n");
 
 				switch (Type) {
-				case ChunkContentType.SyncRead:
-				case ChunkContentType.SyncReadTimeout:
-				case ChunkContentType.NormalChunk:
-				case ChunkContentType.BeginEndAsyncRead:
-				case ChunkContentType.BeginEndAsyncReadNoWait:
+				case ChunkedOperationType.SyncRead:
+				case ChunkedOperationType.SyncReadTimeout:
+				case ChunkedOperationType.NormalChunk:
+				case ChunkedOperationType.BeginEndAsyncRead:
+				case ChunkedOperationType.BeginEndAsyncReadNoWait:
 					await writer.WriteAsync ("0\r\n\r\n");
 					break;
-				case ChunkContentType.TruncatedChunk:
+				case ChunkedOperationType.TruncatedChunk:
 					await writer.WriteAsync ("8\r\n");
 					await writer.WriteAsync ("B");
 					break;
-				case ChunkContentType.MissingTrailer:
+				case ChunkedOperationType.MissingTrailer:
 					break;
 				default:
 					throw new NotImplementedException ();

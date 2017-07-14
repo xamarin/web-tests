@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.Tests
 	using HttpHandlers;
 	using HttpFramework;
 	using TestFramework;
+	using HttpOperations;
 	using TestRunners;
 
 	[AsyncTestFixture (Timeout = 10000)]
@@ -156,6 +157,7 @@ namespace Xamarin.WebTests.Tests
 			var handler = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
 			return TestRunner.RunTraditional (
 				ctx, server, handler, cancellationToken, SendAsync,
+				HttpOperationFlags.ClientDoesNotSendRedirect,
 				HttpStatusCode.TemporaryRedirect, WebExceptionStatus.ProtocolError);
 		}
 
@@ -193,15 +195,15 @@ namespace Xamarin.WebTests.Tests
 			};
 			var redirect = new RedirectHandler (post, HttpStatusCode.Redirect);
 
-			var uri = redirect.RegisterRequest (ctx, server);
-			using (var wc = new WebClient ()) {
-				var res = await wc.UploadStringTaskAsync (uri, post.Content.AsString ());
-				ctx.LogDebug (2, "Test18750: {0}", res);
+			using (var operation = new WebClientOperation (server, redirect, WebClientOperationType.UploadStringTaskAsync)) {
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 			}
 
 			var secondPost = new PostHandler ("Second post", new StringContent ("Should send this"));
 
-			await TestRunner.RunTraditional (ctx, server, secondPost, cancellationToken, SendAsync);
+			using (var operation = new TraditionalOperation (server, secondPost, true)) {
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+			}
 		}
 
 		[AsyncTest (ParameterFilter = "chunked")]
@@ -234,6 +236,7 @@ namespace Xamarin.WebTests.Tests
 		{
 			int handlerCalled = 0;
 			var post = new PostHandler ("Post bug #10163", HttpContent.HelloWorld);
+			post.Method = "PUT";
 			post.CustomHandler = (request) => {
 				Interlocked.Increment (ref handlerCalled);
 				return null;
@@ -241,15 +244,8 @@ namespace Xamarin.WebTests.Tests
 
 			var handler = CreateAuthMaybeNone (post, authType);
 
-			var uri = handler.RegisterRequest (ctx, server);
-			using (var client = new WebClient ()) {
-				ConfigureWebClient (client, handler, cancellationToken);
-
-				var stream = await client.OpenWriteTaskAsync (uri, "PUT");
-
-				using (var writer = new StreamWriter (stream)) {
-					await post.Content.WriteToAsync (ctx, writer);
-				}
+			using (var operation = new WebClientOperation (server, handler, WebClientOperationType.OpenWriteTaskAsync)) {
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 			}
 
 			ctx.Assert (handlerCalled, Is.EqualTo (1), "handler called");
@@ -261,6 +257,7 @@ namespace Xamarin.WebTests.Tests
 		                             CancellationToken cancellationToken)
 		{
 			var post = new PostHandler ("Post bug #20359", new StringContent ("var1=value&var2=value2"));
+			post.Method = "POST";
 
 			post.CustomHandler = (request) => {
 				ctx.Expect (request.ContentType, Is.EqualTo ("application/x-www-form-urlencoded"), "Content-Type");
@@ -269,26 +266,14 @@ namespace Xamarin.WebTests.Tests
 
 			var handler = CreateAuthMaybeNone (post, authType);
 
-			var uri = handler.RegisterRequest (ctx, server);
-
-			using (var client = new WebClient ()) {
-				ConfigureWebClient (client, handler, cancellationToken);
-
+			using (var operation = new WebClientOperation (server, handler, WebClientOperationType.UploadValuesTaskAsync)) {
 				var collection = new NameValueCollection ();
 				collection.Add ("var1", "value");
 				collection.Add ("var2", "value2");
 
-				byte[] data;
-				try {
-					data = await client.UploadValuesTaskAsync (uri, "POST", collection);
-				} catch {
-					if (ctx.HasPendingException)
-						return;
-					throw;
-				}
+				operation.Values = collection;
 
-				var ok = ctx.Expect (data, Is.Not.Null, "Returned array");
-				ok &= ctx.Expect (data.Length, Is.EqualTo (0), "Returned array");
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 			}
 		}
 

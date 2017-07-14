@@ -25,14 +25,15 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Runtime.ExceptionServices;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests.HttpHandlers;
 using Xamarin.WebTests.TestRunners;
 using Xamarin.WebTests.Server;
@@ -78,12 +79,12 @@ namespace Xamarin.WebTests.HttpFramework
 			ExpectedStatus = expectedStatus;
 			ExpectedError = expectedError;
 
-			ME = $"[{me}:{ID}]";
+			ME = $"[{GetType ().Name}:{me}:{ID}]";
 
 			serverInitTask = new TaskCompletionSource<bool> ();
 			serverStartTask = new TaskCompletionSource<object> ();
 			requestTask = new TaskCompletionSource<Request> ();
-			requestDoneTask = new TaskCompletionSource<bool> ();
+			requestDoneTask = new TaskCompletionSource<Response> ();
 			cts = new CancellationTokenSource (); 
 		}
 
@@ -110,11 +111,11 @@ namespace Xamarin.WebTests.HttpFramework
 
 		Request currentRequest;
 		ServicePoint servicePoint;
-		BuiltinListener listener;
+		Listener listener;
 		TaskCompletionSource<bool> serverInitTask;
 		TaskCompletionSource<object> serverStartTask;
 		TaskCompletionSource<Request> requestTask;
-		TaskCompletionSource<bool> requestDoneTask;
+		TaskCompletionSource<Response> requestDoneTask;
 		CancellationTokenSource cts;
 		HttpConnection redirectRequested;
 		int requestStarted;
@@ -125,6 +126,14 @@ namespace Xamarin.WebTests.HttpFramework
 
 		protected abstract void ConfigureRequest (TestContext ctx, Uri uri, Request request);
 
+		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+			Start (ctx, cancellationToken);
+
+			await WaitForCompletion ().ConfigureAwait (false);
+		}
+
 		public async void Start (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (Interlocked.CompareExchange (ref requestStarted, 1, 0) != 0)
@@ -132,11 +141,10 @@ namespace Xamarin.WebTests.HttpFramework
 
 			var linkedCts = CancellationTokenSource.CreateLinkedTokenSource (cts.Token, cancellationToken);
 			try {
-				if ((Server.Flags & HttpServerFlags.NewListener) != 0)
-					await RunNewListener (ctx, linkedCts.Token).ConfigureAwait (false);
-				else
-					await RunLegacy (ctx, linkedCts.Token).ConfigureAwait (false);
-				requestDoneTask.TrySetResult (true);
+				Response response;
+				if (true)
+					response = await RunNewListener (ctx, linkedCts.Token).ConfigureAwait (false);
+				requestDoneTask.TrySetResult (response);
 			} catch (OperationCanceledException) {
 				requestDoneTask.TrySetCanceled ();
 			} catch (Exception ex) {
@@ -151,48 +159,17 @@ namespace Xamarin.WebTests.HttpFramework
 			return requestTask.Task;
 		}
 
-		public async Task<bool> WaitForCompletion (bool ignoreErrors = false)
+		public Task<Response> WaitForCompletion ()
 		{
-			try {
-				await requestDoneTask.Task.ConfigureAwait (false);
-				return true;
-			} catch {
-				if (ignoreErrors)
-					return false;
-				throw;
-			}
+			return requestDoneTask.Task;
 		}
 
-		async Task RunLegacy (TestContext ctx, CancellationToken cancellationToken)
-		{
-			ctx.LogDebug (1, $"{ME} RUN LEGACY");
-
-			var uri = Handler.RegisterRequest (ctx, Server);
-			var request = CreateRequest (ctx, uri);
-			currentRequest = request;
-
-			if (request is TraditionalRequest traditionalRequest)
-				servicePoint = traditionalRequest.RequestExt.ServicePoint;
-
-			ConfigureRequest (ctx, uri, request);
-
-			requestTask.SetResult (request);
-
-			ctx.LogDebug (2, $"{ME} RUN LEGACY #1: {uri} {request}");
-
-			Response response;
-			response = await Server.RunWithContext (
-				ctx, (token) => RunInner (ctx, request, token), cancellationToken).ConfigureAwait (false);
-
-			TestRunner.CheckResponse (ctx, ME, Handler, response, cancellationToken, ExpectedStatus, ExpectedError);
-		}
-
-		async Task RunNewListener (TestContext ctx, CancellationToken cancellationToken)
+		async Task<Response> RunNewListener (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME} RUN";
 			ctx.LogDebug (1, me);
 
-			listener = ((BuiltinHttpServer)Server).Listener;
+			listener = Server.Listener;
 
 			var uri = Handler.RegisterRequest (ctx, Server);
 			var request = CreateRequest (ctx, uri);
@@ -269,7 +246,9 @@ namespace Xamarin.WebTests.HttpFramework
 
 			ctx.LogDebug (2, $"{me} DONE: {response}");
 
-			TestRunner.CheckResponse (ctx, ME, Handler, response, cancellationToken, ExpectedStatus, ExpectedError);
+			CheckResponse (ctx, Handler, response, cancellationToken, ExpectedStatus, ExpectedError);
+
+			return response;
 		}
 
 		async Task RunServer (TestContext ctx, CancellationToken cancellationToken)
@@ -336,6 +315,11 @@ namespace Xamarin.WebTests.HttpFramework
 
 					if (redirect == null) {
 						connection.Continue (ctx, keepAlive);
+						return;
+					}
+
+					if (HasAnyFlags (HttpOperationFlags.ClientDoesNotSendRedirect)) {
+						connection.Dispose ();
 						return;
 					}
 
@@ -441,6 +425,60 @@ namespace Xamarin.WebTests.HttpFramework
 		internal virtual Stream CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket)
 		{
 			return null;
+		}
+
+		void Debug (TestContext ctx, int level, string message, params object[] args)
+		{
+			var sb = new StringBuilder ();
+			sb.AppendFormat ("{0}: {1}", ME, message);
+			for (int i = 0; i < args.Length; i++) {
+				sb.Append (" ");
+				sb.Append (args[i] != null ? args[i].ToString () : "<null>");
+			}
+
+			ctx.LogDebug (level, sb.ToString ());
+		}
+
+		void CheckResponse (
+			TestContext ctx, Handler handler, Response response, CancellationToken cancellationToken,
+			HttpStatusCode expectedStatus = HttpStatusCode.OK, WebExceptionStatus expectedError = WebExceptionStatus.Success)
+		{
+			Debug (ctx, 1, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error?.Message);
+
+			if (ctx.HasPendingException)
+				return;
+
+			if (cancellationToken.IsCancellationRequested) {
+				ctx.OnTestCanceled ();
+				return;
+			}
+
+			if (expectedError != WebExceptionStatus.Success) {
+				ctx.Expect (response.Error, Is.Not.Null, "expecting exception");
+				ctx.Expect (response.Status, Is.EqualTo (expectedStatus));
+				var wexc = response.Error as WebException;
+				ctx.Expect (wexc, Is.Not.Null, "WebException");
+				if (expectedError != WebExceptionStatus.AnyErrorStatus)
+					ctx.Expect ((WebExceptionStatus)wexc.Status, Is.EqualTo (expectedError));
+				return;
+			}
+
+			if (response.Error != null) {
+				if (response.Content != null)
+					ctx.OnError (new WebException (response.Content.AsString (), response.Error));
+				else
+					ctx.OnError (response.Error);
+			} else {
+				var ok = ctx.Expect (expectedStatus, Is.EqualTo (response.Status), "status code");
+				if (ok)
+					ok &= ctx.Expect (response.IsSuccess, Is.True, "success status");
+
+				if (ok)
+					ok &= handler.CheckResponse (ctx, response);
+			}
+
+			if (response.Content != null)
+				Debug (ctx, 5, "GOT RESPONSE BODY", response.Content);
 		}
 
 		protected abstract void Destroy ();

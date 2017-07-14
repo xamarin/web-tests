@@ -40,6 +40,7 @@ namespace Xamarin.WebTests
 	using HttpHandlers;
 	using HttpFramework;
 	using TestFramework;
+	using HttpOperations;
 	using TestRunners;
 
 	[AsyncTestFixture (Timeout = 10000)]
@@ -53,23 +54,23 @@ namespace Xamarin.WebTests
 		IEnumerable<HttpClientHandler> GetStableTests ()
 		{
 			yield return new HttpClientHandler (
-				"Get string", HttpClientOperation.GetString, null, HttpContent.HelloWorld);
+				"Get string", HttpClientOperationType.GetString, null, HttpContent.HelloWorld);
 			yield return new HttpClientHandler (
-				"Post string", HttpClientOperation.PostString, HttpContent.HelloWorld);
+				"Post string", HttpClientOperationType.PostString, HttpContent.HelloWorld);
 			yield return new HttpClientHandler (
-				"Post string with result", HttpClientOperation.PostString,
+				"Post string with result", HttpClientOperationType.PostString,
 				HttpContent.HelloWorld, new StringContent ("Returned body"));
 			yield return new HttpClientHandler (
-				"Put", HttpClientOperation.PutString, HttpContent.HelloWorld);
+				"Put", HttpClientOperationType.PutString, HttpContent.HelloWorld);
 			if ((Flags & HttpServerFlags.HttpListener) == 0)
 				yield return new HttpClientHandler (
-					"Bug #20583", HttpClientOperation.PostString,
+					"Bug #20583", HttpClientOperationType.PostString,
 					HttpContent.HelloWorld, new Bug20583Content ());
 			yield return new HttpClientHandler (
-				"Bug #41206", HttpClientOperation.PutDataAsync,
+				"Bug #41206", HttpClientOperationType.PutDataAsync,
 				BinaryContent.CreateRandom (102400));
 			yield return new HttpClientHandler (
-				"Bug #41206 odd size", HttpClientOperation.PutDataAsync,
+				"Bug #41206 odd size", HttpClientOperationType.PutDataAsync,
 				BinaryContent.CreateRandom (102431));
 		}
 
@@ -81,9 +82,9 @@ namespace Xamarin.WebTests
 		static IEnumerable<HttpClientHandler> GetMartinTests ()
 		{
 			yield return new HttpClientHandler (
-				"Get string", HttpClientOperation.GetString, null, HttpContent.HelloWorld);
+				"Get string", HttpClientOperationType.GetString, null, HttpContent.HelloWorld);
 			yield return new HttpClientHandler (
-				"Post string", HttpClientOperation.PostString, HttpContent.HelloWorld);
+				"Post string", HttpClientOperationType.PostString, HttpContent.HelloWorld);
 		}
 
 		public IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)
@@ -107,49 +108,61 @@ namespace Xamarin.WebTests
 		}
 
 		[AsyncTest (ParameterFilter = "stable")]
-		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-		                 HttpServer server, HttpClientHandler handler)
+		public async Task Run (TestContext ctx, CancellationToken cancellationToken,
+		                       HttpServer server, HttpClientHandler handler)
 		{
-			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
+			using (var operation = new HttpClientOperation (server, handler)) {
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+			}
 		}
 
 		[WebTestFeatures.RecentlyFixed]
 		[AsyncTest (ParameterFilter = "recently-fixed")]
-		public Task RunRecentlyFixed (TestContext ctx, CancellationToken cancellationToken,
-		                              HttpServer server, HttpClientHandler handler)
+		public async Task RunRecentlyFixed (TestContext ctx, CancellationToken cancellationToken,
+		                                    HttpServer server, HttpClientHandler handler)
 		{
-			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
+			using (var operation = new HttpClientOperation (server, handler)) {
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+			}
 		}
 
 		[Martin]
 		// [AsyncTest (ParameterFilter = "martin")]
-		public Task RunMartin (TestContext ctx, CancellationToken cancellationToken,
-		                       HttpServer server, HttpClientHandler handler)
+		public async Task RunMartin (TestContext ctx, CancellationToken cancellationToken,
+		                             HttpServer server, HttpClientHandler handler)
 		{
-			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
+			using (var operation = new HttpClientOperation (server, handler)) {
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+			}
 		}
 
 		[AsyncTest]
-		public Task Run (TestContext ctx, CancellationToken cancellationToken, HttpServer server)
+		public async Task Run (TestContext ctx, CancellationToken cancellationToken, HttpServer server)
 		{
-			var handler = new HttpClientHandler ("PutRedirectEmptyBody", HttpClientOperation.PutString);
+			var handler = new HttpClientHandler ("PutRedirectEmptyBody", HttpClientOperationType.PutString);
 			var redirect = new RedirectHandler (handler, HttpStatusCode.TemporaryRedirect);
-			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler, redirect);
+			using (var operation = new HttpClientOperation (server, redirect)) {
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+			}
 		}
 
 		[AsyncTest]
-		public Task SendAsync (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
+		public async Task SendAsync (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
-			var handler = new HttpClientHandler ("SendAsyncEmptyBody", HttpClientOperation.SendAsync);
-			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
+			var handler = new HttpClientHandler ("SendAsyncEmptyBody", HttpClientOperationType.SendAsync);
+			using (var operation = new HttpClientOperation (server, handler)) {
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+			}
 		}
 
 		[AsyncTest]
-		public Task Test31830 (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
+		public async Task Test31830 (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
-			var handler = new HttpClientHandler ("SendAsyncObscureVerb", HttpClientOperation.SendAsync);
+			var handler = new HttpClientHandler ("SendAsyncObscureVerb", HttpClientOperationType.SendAsync);
 			handler.ObscureHttpMethod = "EXECUTE";
-			return TestRunner.RunHttpClient (ctx, cancellationToken, server, handler);
+			using (var operation = new HttpClientOperation (server, handler)) {
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+			}
 		}
 
 		class Bug20583Content : HttpContent

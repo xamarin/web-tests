@@ -1,5 +1,5 @@
 ﻿//
-// ChunkContentTypeAttribute.cs
+// ChunkedOperationTypeAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -28,26 +28,25 @@ using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Tests
+namespace Xamarin.WebTests.HttpOperations
 {
 	using TestFramework;
-	using TestRunners;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
-	public class ChunkContentTypeAttribute : TestParameterAttribute, ITestParameterSource<ChunkContentType>
+	public class ChunkedOperationTypeAttribute : TestParameterAttribute, ITestParameterSource<ChunkedOperationType>
 	{
-		public ChunkContentTypeAttribute (string filter = null, TestFlags flags = TestFlags.Browsable | TestFlags.ContinueOnError)
+		public ChunkedOperationTypeAttribute (string filter = null, TestFlags flags = TestFlags.Browsable | TestFlags.ContinueOnError)
 			: base (filter, flags)
 		{
 		}
 
-		public ChunkContentTypeAttribute (ChunkContentType type, TestFlags flags = TestFlags.Browsable | TestFlags.ContinueOnError)
+		public ChunkedOperationTypeAttribute (ChunkedOperationType type, TestFlags flags = TestFlags.Browsable | TestFlags.ContinueOnError)
 			: base (null, flags)
 		{
 			Type = type;
 		}
 
-		public ChunkContentType? Type {
+		public ChunkedOperationType? Type {
 			get;
 			private set;
 		}
@@ -56,7 +55,7 @@ namespace Xamarin.WebTests.Tests
 			get; set;
 		}
 
-		public IEnumerable<ChunkContentType> GetParameters (TestContext ctx, string filter)
+		public IEnumerable<ChunkedOperationType> GetParameters (TestContext ctx, string filter)
 		{
 			if (Type != null) {
 				yield return Type.Value;
@@ -67,26 +66,26 @@ namespace Xamarin.WebTests.Tests
 
 			if (ServerError) {
 				if (includeNotWorking)
-					yield return ChunkContentType.SyncReadTimeout;
+					yield return ChunkedOperationType.SyncReadTimeout;
 				yield break;
 			}
 
-			yield return ChunkContentType.SyncRead;
-			yield return ChunkContentType.NormalChunk;
+			yield return ChunkedOperationType.SyncRead;
+			yield return ChunkedOperationType.NormalChunk;
 
 			var support = DependencyInjector.Get<IPortableSupport> ();
 			if (!support.IsMicrosoftRuntime) {
 				// Doesn't work on .NET.
-				yield return ChunkContentType.ServerAbort;
+				yield return ChunkedOperationType.ServerAbort;
 			}
 
 			if (includeNotWorking) {
-				yield return ChunkContentType.TruncatedChunk;
-				yield return ChunkContentType.MissingTrailer;
-				yield return ChunkContentType.BeginEndAsyncRead;
+				yield return ChunkedOperationType.TruncatedChunk;
+				yield return ChunkedOperationType.MissingTrailer;
+				yield return ChunkedOperationType.BeginEndAsyncRead;
 			}
 
-			yield return ChunkContentType.BeginEndAsyncReadNoWait;
+			yield return ChunkedOperationType.BeginEndAsyncReadNoWait;
 		}
 	}
 }

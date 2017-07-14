@@ -35,12 +35,12 @@
     <Compile Include="Xamarin.WebTests.Tests\TestSslStream.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestChunked.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestCertificates.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\ChunkContentTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Tests\NetworkTests.cs" />
     <Compile Include="Xamarin.WebTests.Tests\SimpleWebTests.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpListener.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestStreamInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpInstrumentation.cs" />
+    <Compile Include="Xamarin.WebTests.Tests\MartinTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

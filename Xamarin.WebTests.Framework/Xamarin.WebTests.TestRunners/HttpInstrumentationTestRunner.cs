@@ -85,7 +85,7 @@ namespace Xamarin.WebTests.TestRunners
 			: base (endpoint, parameters)
 		{
 			Provider = provider;
-			ServerFlags = flags | HttpServerFlags.NewListener;
+			ServerFlags = flags;
 			Uri = uri;
 
 			Server = new BuiltinHttpServer (uri, endpoint, ServerFlags, parameters, null);
@@ -93,7 +93,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.CustomConnectionGroup;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NewListenerRedirect;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,

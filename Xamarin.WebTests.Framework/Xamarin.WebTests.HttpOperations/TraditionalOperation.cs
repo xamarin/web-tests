@@ -1,10 +1,10 @@
 ﻿//
-// HttpClientTestRunner.cs
+// TraditionalOperation.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,62 +24,60 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Text;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.TestRunners
+namespace Xamarin.WebTests.HttpOperations
 {
 	using HttpFramework;
 	using HttpHandlers;
 
-	public class HttpClientTestRunner : TestRunner
+	public class TraditionalOperation : HttpOperation
 	{
-		public HttpClientTestRunner (HttpServer server, HttpClientHandler handler, RedirectHandler redirect = null)
-			: base (server, handler, redirect)
+		public TraditionalOperation (HttpServer server, Handler handler, bool sendAsync,
+		                             HttpOperationFlags flags = HttpOperationFlags.None,
+		                             HttpStatusCode expectedStatus = HttpStatusCode.OK,
+		                             WebExceptionStatus expectedError = WebExceptionStatus.Success)
+			: base (server, $"{server.ME}:{handler.Value}", handler, flags,
+			        expectedStatus, expectedError)
 		{
+			SendAsync = sendAsync;
+		}
+
+		public bool SendAsync {
+			get;
+		}
+
+		protected override void ConfigureRequest (TestContext ctx, Uri uri, Request request)
+		{
+			Handler.ConfigureRequest (request, uri);
+
+			request.SetProxy (Server.GetProxy ());
 		}
 
 		protected override Request CreateRequest (TestContext ctx, Uri uri)
 		{
-			return new HttpClientRequest ((HttpClientHandler)Handler, uri);
+			return new TraditionalRequest (uri);
+		}
+
+		protected override void Destroy ()
+		{
+			;
 		}
 
 		protected override async Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
 		{
-			var httpClientHandler = (HttpClientHandler)Handler;
-			var httpClientRequest = (HttpClientRequest)request;
+			var traditionalRequest = (TraditionalRequest)request;
 
 			Response response;
-
-			switch (httpClientHandler.Operation) {
-			case HttpClientOperation.GetString:
-				response = await httpClientRequest.GetString (ctx, cancellationToken);
-				break;
-			case HttpClientOperation.PostString:
-				response = await httpClientRequest.PostString (ctx, httpClientHandler.ReturnContent, cancellationToken);
-				break;
-			case HttpClientOperation.PutString:
-				response = await httpClientRequest.PutString (ctx, cancellationToken);
-				break;
-			case HttpClientOperation.SendAsync:
-				response = await httpClientRequest.SendAsync (ctx, cancellationToken);
-				break;
-			case HttpClientOperation.PutDataAsync:
-				response = await httpClientRequest.PutDataAsync (ctx, cancellationToken);
-				break;
-			default:
-				throw new InvalidOperationException ();
-			}
+			if (SendAsync)
+				response = await traditionalRequest.SendAsync (ctx, cancellationToken).ConfigureAwait (false);
+			else
+				response = await traditionalRequest.Send (ctx, cancellationToken).ConfigureAwait (false);
 
 			return response;
 		}
 	}
 }
-

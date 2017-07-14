@@ -141,6 +141,7 @@ namespace Xamarin.WebTests.Tests {
 			if (kind == ProxyKind.Unauthenticated) {
 				await TestRunner.RunTraditional (
 					ctx, server, handler, cancellationToken, false,
+					HttpOperationFlags.AbortAfterClientExits,
 					HttpStatusCode.ProxyAuthenticationRequired, WebExceptionStatus.ProtocolError);
 			} else {
 				await TestRunner.RunTraditional (
@@ -162,6 +163,7 @@ namespace Xamarin.WebTests.Tests {
 			if (kind == ProxyKind.Unauthenticated)
 				return TestRunner.RunTraditional (
 					ctx, server, authHandler, cancellationToken, false,
+					HttpOperationFlags.AbortAfterClientExits,
 					HttpStatusCode.ProxyAuthenticationRequired, WebExceptionStatus.ProtocolError);
 			else
 				return TestRunner.RunTraditional (

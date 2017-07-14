@@ -152,11 +152,8 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		#endregion
 
-		internal async Task<bool> InitializeConnection (TestContext ctx, HttpConnection connection, CancellationToken cancellationToken)
-		{
-			++countRequests;
-			await connection.Initialize (ctx, cancellationToken).ConfigureAwait (false);
-			return true;
+		internal abstract Listener Listener {
+			get;
 		}
 
 		public int CountRequests => countRequests;
@@ -183,6 +180,7 @@ namespace Xamarin.WebTests.HttpFramework {
 		                                          HttpConnection connection, CancellationToken cancellationToken)
 		{
 			var request = await connection.ReadRequest (ctx, cancellationToken);
+			++countRequests;
 			return await HandleConnection (ctx, operation, connection, request, cancellationToken);
 		}
 
@@ -213,8 +211,6 @@ namespace Xamarin.WebTests.HttpFramework {
 			if (((Flags & HttpServerFlags.ForceTls12) != 0) || setup.SupportsTls12)
 				ctx.Assert ((ProtocolVersions)sslStream.SslProtocol, Is.EqualTo (ProtocolVersions.Tls12), "Needs TLS 1.2");
 		}
-
-		public abstract Task<Response> RunWithContext (TestContext ctx, Func<CancellationToken, Task<Response>> func, CancellationToken cancellationToken);
 
 		static string FormatFlags (HttpServerFlags flags)
 		{

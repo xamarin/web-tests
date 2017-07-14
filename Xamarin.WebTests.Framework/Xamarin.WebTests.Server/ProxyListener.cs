@@ -40,15 +40,20 @@ namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
 
-	class ProxyListener : BuiltinSocketListener
+	class ProxyListener : SocketListener
 	{
-		new public BuiltinProxyServer Server {
-			get { return (BuiltinProxyServer)base.Server; }
-		}
+		new public BuiltinProxyServer Server => (BuiltinProxyServer)base.Server;
+
+		public HttpServer Target => Server.Target;
 
 		public ProxyListener (TestContext ctx, BuiltinProxyServer server)
 			: base (ctx, server)
 		{
+		}
+
+		protected override HttpConnection CreateConnection ()
+		{
+			return new ProxyConnection (this, Server, Socket);
 		}
 	}
 }

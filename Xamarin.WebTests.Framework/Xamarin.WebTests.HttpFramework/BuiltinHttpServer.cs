@@ -80,47 +80,42 @@ namespace Xamarin.WebTests.HttpFramework {
 			return handler;
 		}
 
-		BuiltinListener currentListener;
+		Listener currentListener;
 
 		public override Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			BuiltinListener listener;
+			Listener listener;
 			if ((Flags & HttpServerFlags.HttpListener) != 0)
 				listener = new SystemHttpListener (ctx, this);
 			else
-				listener = new BuiltinSocketListener (ctx, this);
+				listener = new SocketListener (ctx, this);
 			if (Interlocked.CompareExchange (ref currentListener, listener, null) != null)
 				throw new InternalErrorException ();
-			if ((Flags & HttpServerFlags.NewListener) != 0)
-				return Handler.CompletedTask;
-			return listener.Start ();
+			return Handler.CompletedTask;
 		}
 
-		public override async Task Stop (TestContext ctx, CancellationToken cancellationToken)
+		public override Task Stop (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var listener = Interlocked.Exchange (ref currentListener, null);
-			if (listener == null || listener.TestContext != ctx)
-				throw new InternalErrorException ();
-			try {
-				await listener.Stop ().ConfigureAwait (false);
-			} catch {
-				if ((Flags & HttpServerFlags.ExpectException) == 0)
-					throw;
-			}
+			return Task.Run (() => {
+				var listener = Interlocked.Exchange (ref currentListener, null);
+				if (listener == null || listener.TestContext != ctx)
+					throw new InternalErrorException ();
+				try {
+					listener.Dispose ();
+				} catch {
+					if ((Flags & HttpServerFlags.ExpectException) == 0)
+						throw;
+				}
+			});
 		}
 
-		internal BuiltinListener Listener {
+		internal override Listener Listener {
 			get { return currentListener; }
 		}
 
 		public override void CloseAll ()
 		{
 			currentListener.CloseAll ();
-		}
-
-		public override Task<Response> RunWithContext (TestContext ctx, Func<CancellationToken, Task<Response>> func, CancellationToken cancellationToken)
-		{
-			return currentListener.RunWithContext (ctx, func, cancellationToken);
 		}
 	}
 }

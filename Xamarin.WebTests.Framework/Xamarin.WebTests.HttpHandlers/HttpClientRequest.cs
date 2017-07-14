@@ -47,7 +47,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		string contentType;
 		long? contentLength;
 
-		public HttpClientRequest (HttpClientHandler parent, Uri uri)
+		public HttpClientRequest (Uri uri)
 		{
 			RequestUri = uri;
 			Provider = DependencyInjector.Get<IHttpClientProvider> ();
