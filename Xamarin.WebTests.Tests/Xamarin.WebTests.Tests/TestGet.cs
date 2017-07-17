@@ -38,7 +38,7 @@ namespace Xamarin.WebTests.Tests {
 	using HttpHandlers;
 	using HttpFramework;
 	using TestFramework;
-	using TestRunners;
+	using HttpOperations;
 
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestGet : ITestParameterSource<Handler> {
@@ -63,21 +63,23 @@ namespace Xamarin.WebTests.Tests {
 		}
 
 		[AsyncTest]
-		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-		                 HttpServer server, Handler handler)
+		public async Task Run (TestContext ctx, CancellationToken cancellationToken,
+		                       HttpServer server, Handler handler)
 		{
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, SendAsync);
+			using (var operation = new TraditionalOperation (server, handler, SendAsync))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
 		[AsyncTest]
-		public Task Redirect (TestContext ctx, CancellationToken cancellationToken,
-		                      HttpServer server, [RedirectStatus] HttpStatusCode code,
-		                      Handler handler)
+		public async Task Redirect (TestContext ctx, CancellationToken cancellationToken,
+		                            HttpServer server, [RedirectStatus] HttpStatusCode code,
+		                            Handler handler)
 		{
 			var description = string.Format ("{0}: {1}", code, handler.Value);
 			var redirect = new RedirectHandler (handler, code, description);
 
-			return TestRunner.RunTraditional (ctx, server, redirect, cancellationToken, SendAsync);
+			using (var operation = new TraditionalOperation (server, redirect, SendAsync))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 		}
 	}
 }

@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.Tests
 	using HttpHandlers;
 	using HttpFramework;
 	using TestFramework;
-	using TestRunners;
+	using HttpOperations;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class ForkHandlerAttribute : TestParameterAttribute, ITestParameterSource<Handler>
@@ -90,7 +90,8 @@ namespace Xamarin.WebTests.Tests
 			var support = DependencyInjector.Get<IPortableSupport> ();
 			ctx.LogMessage ("FORK START: {0} {1}", fork.ID, support.CurrentThreadId);
 
-			await TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+			using (var operation = new TraditionalOperation (server, handler, true))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 
 			ctx.LogMessage ("FORK DONE: {0} {1}", fork.ID, support.CurrentThreadId);
 		}

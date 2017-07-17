@@ -40,6 +40,7 @@ using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.TestRunners;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.HttpHandlers;
+using Xamarin.WebTests.HttpOperations;
 using Xamarin.WebTests.MonoConnectionFramework;
 
 namespace Mono.Btls.Tests
@@ -142,10 +143,12 @@ namespace Mono.Btls.Tests
 		[Work]
 		[AsyncTest]
 		[HttpServerFlags (HttpServerFlags.SSL)]
-		public Task TestWebServer (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
+		public async Task TestWebServer (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
 			var handler = new HelloWorldHandler ("Hello World");
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+			using (var operation = new TraditionalOperation (server, handler, true))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+
 		}
 
 		// [Martin]

@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.Tests
 	using TestRunners;
 	using HttpFramework;
 	using HttpHandlers;
+	using HttpOperations;
 
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestHttps
@@ -113,7 +114,9 @@ namespace Xamarin.WebTests.Tests
 		{
 			var handler = HelloWorldHandler.GetSimple ();
 			var authHandler = new AuthenticationHandler (AuthenticationType.NTLM, handler);
-			await TestRunner.RunTraditional (ctx, server, authHandler, cancellationToken).ConfigureAwait (false);
+			using (var operation = new TraditionalOperation (server, authHandler, true))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+
 		}
 	}
 }

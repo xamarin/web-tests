@@ -43,7 +43,6 @@ namespace Xamarin.WebTests.Tests
 	using HttpFramework;
 	using TestFramework;
 	using HttpOperations;
-	using TestRunners;
 
 	[AsyncTestFixture (Timeout = 10000)]
 	public class TestPost : ITestParameterSource<Handler>, ITestParameterSource<PostHandler>
@@ -137,41 +136,44 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task RedirectAsGetNoBuffering (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
+		public async Task RedirectAsGetNoBuffering (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
 			var post = new PostHandler ("RedirectAsGetNoBuffering", HttpContent.HelloChunked, TransferMode.Chunked) {
 				Flags = RequestFlags.RedirectedAsGet,
 				AllowWriteStreamBuffering = false
 			};
 			var handler = new RedirectHandler (post, HttpStatusCode.Redirect);
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, SendAsync);
+			using (var operation = new TraditionalOperation (server, handler, SendAsync))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
 		[AsyncTest]
-		public Task RedirectNoBuffering (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
+		public async Task RedirectNoBuffering (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
 			var post = new PostHandler ("RedirectNoBuffering", HttpContent.HelloChunked, TransferMode.Chunked) {
 				Flags = RequestFlags.Redirected,
 				AllowWriteStreamBuffering = false
 			};
 			var handler = new RedirectHandler (post, HttpStatusCode.TemporaryRedirect);
-			return TestRunner.RunTraditional (
-				ctx, server, handler, cancellationToken, SendAsync,
-				HttpOperationFlags.ClientDoesNotSendRedirect,
-				HttpStatusCode.TemporaryRedirect, WebExceptionStatus.ProtocolError);
+			using (var operation = new TraditionalOperation (
+				server, handler, SendAsync, HttpOperationFlags.ClientDoesNotSendRedirect,
+				HttpStatusCode.TemporaryRedirect, WebExceptionStatus.ProtocolError)) {
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+			}
 		}
 
 		[AsyncTest]
-		public Task Run (TestContext ctx, HttpServer server,
-		                 Handler handler, CancellationToken cancellationToken)
+		public async Task Run (TestContext ctx, HttpServer server,
+		                       Handler handler, CancellationToken cancellationToken)
 		{
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, SendAsync);
+			using (var operation = new TraditionalOperation (server, handler, SendAsync))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
 		[AsyncTest]
-		public Task Redirect (TestContext ctx, HttpServer server,
-		                      [RedirectStatus] HttpStatusCode code, PostHandler post,
-		                      CancellationToken cancellationToken)
+		public async Task Redirect (TestContext ctx, HttpServer server,
+		                            [RedirectStatus] HttpStatusCode code, PostHandler post,
+		                            CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IPortableSupport> ();
 			var isWindows = support.IsMicrosoftRuntime;
@@ -184,7 +186,8 @@ namespace Xamarin.WebTests.Tests
 			var identifier = string.Format ("{0}: {1}", code, post.ID);
 			var redirect = new RedirectHandler (post, code, identifier);
 
-			return TestRunner.RunTraditional (ctx, server, redirect, cancellationToken, SendAsync);
+			using (var operation = new TraditionalOperation (server, redirect, SendAsync))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
 		[AsyncTest]
@@ -207,10 +210,11 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest (ParameterFilter = "chunked")]
-		public Task TestChunked (TestContext ctx, HttpServer server, bool sendAsync,
-		                         Handler handler, CancellationToken cancellationToken)
+		public async Task TestChunked (TestContext ctx, HttpServer server,
+		                               Handler handler, CancellationToken cancellationToken)
 		{
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, SendAsync);
+			using (var operation = new TraditionalOperation (server, handler, SendAsync))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
 		Handler CreateAuthMaybeNone (Handler handler, AuthenticationType authType)
@@ -278,21 +282,24 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task Test31830 (TestContext ctx, HttpServer server, bool writeStreamBuffering, CancellationToken cancellationToken)
+		public async Task Test31830 (TestContext ctx, HttpServer server,
+		                             bool writeStreamBuffering, CancellationToken cancellationToken)
 		{
 			var handler = new PostHandler ("Obscure HTTP verb.");
 			handler.Method = "EXECUTE";
 			handler.AllowWriteStreamBuffering = writeStreamBuffering;
 			handler.Flags |= RequestFlags.NoContentLength;
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, SendAsync);
+			using (var operation = new TraditionalOperation (server, handler, SendAsync))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
 		[AsyncTest (ParameterFilter = "recently-fixed")]
 		[WebTestFeatures.RecentlyFixed]
-		public Task TestRecentlyFixed (TestContext ctx, HttpServer server, bool sendAsync, Handler handler,
-		                               CancellationToken cancellationToken)
+		public async Task TestRecentlyFixed (TestContext ctx, HttpServer server, Handler handler,
+		                                     CancellationToken cancellationToken)
 		{
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, SendAsync);
+			using (var operation = new TraditionalOperation (server, handler, SendAsync))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 		}
 	}
 }

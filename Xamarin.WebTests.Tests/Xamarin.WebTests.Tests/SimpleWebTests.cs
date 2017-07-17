@@ -33,7 +33,7 @@ using Xamarin.AsyncTests.Framework;
 using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.HttpHandlers;
-using Xamarin.WebTests.TestRunners;
+using Xamarin.WebTests.HttpOperations;
 
 namespace Xamarin.WebTests.Tests
 {
@@ -61,19 +61,23 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		[HttpServerFlags (HttpServerFlags.SSL)]
-		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-		                 HttpServer server, [SimpleWebHandler] Handler handler)
+		public async Task Run (TestContext ctx, CancellationToken cancellationToken,
+		                       HttpServer server, [SimpleWebHandler] Handler handler)
 		{
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+			using (var operation = new TraditionalOperation (server, handler, true))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+
 		}
 
 		[Tls12]
 		[AsyncTest]
 		[HttpServerFlags (HttpServerFlags.SSL | HttpServerFlags.ForceTls12)]
-		public Task ForceTls12 (TestContext ctx, CancellationToken cancellationToken,
-		                        HttpServer server, [SimpleWebHandler] Handler handler)
+		public async Task ForceTls12 (TestContext ctx, CancellationToken cancellationToken,
+		                              HttpServer server, [SimpleWebHandler] Handler handler)
 		{
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+			using (var operation = new TraditionalOperation (server, handler, true))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+
 		}
 	}
 }

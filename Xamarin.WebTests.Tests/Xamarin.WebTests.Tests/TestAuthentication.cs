@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.Tests
 	using HttpHandlers;
 	using HttpFramework;
 	using TestFramework;
-	using TestRunners;
+	using HttpOperations;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class AuthenticationTypeAttribute : TestParameterAttribute, ITestParameterSource<AuthenticationType>
@@ -90,17 +90,19 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task Run (
+		public async Task Run (
 			TestContext ctx, HttpServer server,
 			[AuthenticationType] AuthenticationType authType, Handler handler,
 			CancellationToken cancellationToken)
 		{
 			var authHandler = new AuthenticationHandler (authType, handler);
-			return TestRunner.RunTraditional (ctx, server, authHandler, cancellationToken, SendAsync);
+			using (var operation = new TraditionalOperation (server, authHandler, true))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+
 		}
 
 		[AsyncTest]
-		public Task MustClearAuthOnRedirect (
+		public async Task MustClearAuthOnRedirect (
 			TestContext ctx, HttpServer server,
 			CancellationToken cancellationToken)
 		{
@@ -110,7 +112,9 @@ namespace Xamarin.WebTests.Tests
 			var redirect = new RedirectHandler (targetAuth, HttpStatusCode.Redirect);
 			var authHandler = new AuthenticationHandler (AuthenticationType.Basic, redirect);
 
-			return TestRunner.RunTraditional (ctx, server, authHandler, cancellationToken, SendAsync);
+			using (var operation = new TraditionalOperation (server, authHandler, true))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+
 		}
 	}
 }

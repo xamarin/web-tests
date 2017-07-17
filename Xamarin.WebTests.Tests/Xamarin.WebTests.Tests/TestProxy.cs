@@ -42,7 +42,7 @@ namespace Xamarin.WebTests.Tests {
 	using HttpHandlers;
 	using HttpFramework;
 	using TestFramework;
-	using TestRunners;
+	using HttpOperations;
 	using Resources;
 
 	[WebTestFeatures.Proxy]
@@ -138,36 +138,44 @@ namespace Xamarin.WebTests.Tests {
 			HttpServer server, Handler handler, CancellationToken cancellationToken)
 		{
 			var oldCount = server.CountRequests;
-			if (kind == ProxyKind.Unauthenticated) {
-				await TestRunner.RunTraditional (
-					ctx, server, handler, cancellationToken, false,
-					HttpOperationFlags.AbortAfterClientExits,
+			HttpOperation operation;
+			if (kind == ProxyKind.Unauthenticated)
+				operation = new TraditionalOperation (
+					server, handler, true, HttpOperationFlags.AbortAfterClientExits,
 					HttpStatusCode.ProxyAuthenticationRequired, WebExceptionStatus.ProtocolError);
-			} else {
-				await TestRunner.RunTraditional (
-					ctx, server, handler, cancellationToken, false).ConfigureAwait (false);
+			else
+				operation = new TraditionalOperation (
+				server, handler, true);
+			try {
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 				var newCount = server.CountRequests;
 				ctx.Assert (newCount, Is.GreaterThan (oldCount), "used proxy");
+			} finally {
+				operation.Dispose ();
 			}
 		}
 
 		[NotWorking]
 		[AsyncTest]
-		public Task RunAuthentication (
+		public async Task RunAuthentication (
 			TestContext ctx,
 			[WebTestFeatures.SelectProxyKind (IncludeSSL = true)] ProxyKind kind,
 			HttpServer server, [AuthenticationType] AuthenticationType authType,
 			Handler handler, CancellationToken cancellationToken)
 		{
 			var authHandler = new AuthenticationHandler (authType, handler);
+			HttpOperation operation;
 			if (kind == ProxyKind.Unauthenticated)
-				return TestRunner.RunTraditional (
-					ctx, server, authHandler, cancellationToken, false,
+				operation = new TraditionalOperation (server, authHandler, true,
 					HttpOperationFlags.AbortAfterClientExits,
 					HttpStatusCode.ProxyAuthenticationRequired, WebExceptionStatus.ProtocolError);
 			else
-				return TestRunner.RunTraditional (
-					ctx, server, authHandler, cancellationToken, false);
+				operation = new TraditionalOperation (server, authHandler, true);
+			try {
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+			} finally {
+				operation.Dispose ();
+			}
 		}
 
 		[AsyncTest]
@@ -177,7 +185,8 @@ namespace Xamarin.WebTests.Tests {
 			CancellationToken cancellationToken)
 		{
 			var oldCount = server.CountRequests;
-			await TestRunner.RunTraditional (ctx, server, handler, cancellationToken, false);
+			using (var operation = new TraditionalOperation (server, handler, true))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 			var newCount = server.CountRequests;
 			ctx.Assert (newCount, Is.GreaterThan (oldCount), "used proxy");
 		}
@@ -200,7 +209,8 @@ namespace Xamarin.WebTests.Tests {
 			CancellationToken cancellationToken)
 		{
 			var oldCount = server.CountRequests;
-			await TestRunner.RunTraditional (ctx, server, handler, cancellationToken, false);
+			using (var operation = new TraditionalOperation (server, handler, true))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 			var newCount = server.CountRequests;
 			ctx.Assert (newCount, Is.GreaterThan (oldCount), "used proxy");
 		}

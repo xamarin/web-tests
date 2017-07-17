@@ -46,10 +46,12 @@ namespace Xamarin.WebTests.Tests
 	{
 		// [AsyncTest (ParameterFilter = "hello", Unstable = true)]
 		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		public Task Run (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
+		public async Task Run (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
 			var handler = HelloWorldHandler.GetSimple ();
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, true);
+			using (var operation = new TraditionalOperation (server, handler, true))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+
 		}
 	}
 }
