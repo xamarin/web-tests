@@ -199,9 +199,9 @@ namespace Xamarin.WebTests.Server
 		public override bool StartOperation (TestContext ctx, HttpOperation operation)
 		{
 			lock (Listener) {
-				ctx.LogDebug (5, $"{ME} START OPERATION: {currentOperation != null}");
 				if (Interlocked.CompareExchange (ref currentOperation, operation, null) != null)
 					return false;
+				ctx.LogDebug (5, $"{ME} START OPERATION: {operation.ME}");
 				StartOperation_internal (ctx, operation);
 				return true;
 			}

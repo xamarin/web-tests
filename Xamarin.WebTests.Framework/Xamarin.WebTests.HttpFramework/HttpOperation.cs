@@ -79,7 +79,7 @@ namespace Xamarin.WebTests.HttpFramework
 			ExpectedStatus = expectedStatus;
 			ExpectedError = expectedError;
 
-			ME = $"[{GetType ().Name}:{me}:{ID}]";
+			ME = $"[{GetType ().Name}({ID}:{me})]";
 
 			serverInitTask = new TaskCompletionSource<bool> ();
 			serverStartTask = new TaskCompletionSource<object> ();
@@ -119,6 +119,11 @@ namespace Xamarin.WebTests.HttpFramework
 		CancellationTokenSource cts;
 		HttpConnection redirectRequested;
 		int requestStarted;
+
+		string FormatConnection (HttpConnection connection)
+		{
+			return $"[{ME}:{connection.ME}]";
+		}
 
 		public bool HasRequest => currentRequest != null;
 
@@ -275,7 +280,8 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 
 			while (true) {
-				ctx.LogDebug (2, $"{me} LOOP: {connection.ME} {reused}");
+				var cncMe = FormatConnection (connection);
+				ctx.LogDebug (2, $"{cncMe} LOOP: {reused}");
 				try {
 					if (!reused && !await InitConnection (ctx, connection, cancellationToken).ConfigureAwait (false)) {
 						serverInitTask.TrySetResult (false);
@@ -298,20 +304,20 @@ namespace Xamarin.WebTests.HttpFramework
 					throw;
 				}
 
-				ctx.LogDebug (2, $"{me} LOOP #1: {connection.ME} {reused}");
+				ctx.LogDebug (2, $"{cncMe} LOOP #1: {reused}");
 
 				bool keepAlive;
 				try {
 					keepAlive = await Server.HandleConnection (ctx, this, connection, cancellationToken).ConfigureAwait (false);
 				} catch (Exception ex) {
-					ctx.LogDebug (2, $"{me} - ERROR {ex.Message}");
+					ctx.LogDebug (2, $"{cncMe} - ERROR {ex.Message}");
 					connection.Dispose ();
 					throw;
 				}
 
 				lock (listener) {
 					var redirect = Interlocked.Exchange (ref redirectRequested, null);
-					ctx.LogDebug (2, $"{me} SERVER LOOP #2: {keepAlive} {redirect?.ME}");
+					ctx.LogDebug (2, $"{cncMe} SERVER LOOP #2: {keepAlive} {redirect?.ME}");
 
 					if (redirect == null) {
 						connection.Continue (ctx, keepAlive);
@@ -334,7 +340,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		async Task<bool> ReuseConnection (TestContext ctx, HttpConnection connection, CancellationToken cancellationToken)
 		{
-			var me = $"{ME}({connection.ME}) REUSE";
+			var me = $"{FormatConnection (connection)} REUSE";
 			ctx.LogDebug (2, $"{me}");
 
 			serverStartTask.TrySetResult (null);
@@ -348,7 +354,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		async Task<bool> InitConnection (TestContext ctx, HttpConnection connection, CancellationToken cancellationToken)
 		{
-			var me = $"{ME}({connection.ME}) INIT";
+			var me = $"{FormatConnection (connection)} INIT";
 			ctx.LogDebug (2, $"{me}");
 
 			cancellationToken.ThrowIfCancellationRequested ();
@@ -386,7 +392,7 @@ namespace Xamarin.WebTests.HttpFramework
 			} catch (Exception ex) {
 				if (HasAnyFlags (HttpOperationFlags.ServerAbortsHandshake, HttpOperationFlags.ClientAbortsHandshake))
 					return false;
-				ctx.LogDebug (2, $"{me} FAILED: {ex.Message}");
+				ctx.LogDebug (2, $"{me} FAILED: {ex.Message}\n{ex}");
 				throw;
 			}
 
@@ -408,7 +414,8 @@ namespace Xamarin.WebTests.HttpFramework
 		internal void PrepareRedirect (TestContext ctx, HttpConnection connection, bool keepAlive)
 		{
 			lock (listener) {
-				ctx.LogDebug (5, $"{ME} PREPARE REDIRECT: {keepAlive}");
+				var me = $"{FormatConnection (connection)} PREPARE REDIRECT";
+				ctx.LogDebug (5, $"{me}: {keepAlive}");
 				HttpConnection next;
 				if (keepAlive)
 					next = connection;

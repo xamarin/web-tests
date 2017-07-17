@@ -93,7 +93,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ParallelRequests;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ManyParallelRequests;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -585,7 +585,8 @@ namespace Xamarin.WebTests.TestRunners
 			public Operation (HttpInstrumentationTestRunner parent, Handler handler,
 					  bool parallel, HttpOperationFlags flags,
 			                  HttpStatusCode expectedStatus, WebExceptionStatus expectedError)
-				: base (parent.Server, $"{parent.ME}:{parallel}", handler, flags, expectedStatus, expectedError)
+				: base (parent.Server, $"{parent.EffectiveType}:{parallel}",
+				        handler, flags, expectedStatus, expectedError)
 			{
 				Parent = parent;
 				IsParallelRequest = parallel;

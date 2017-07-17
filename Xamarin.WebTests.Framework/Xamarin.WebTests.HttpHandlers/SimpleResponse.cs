@@ -59,6 +59,12 @@ namespace Xamarin.WebTests.HttpHandlers
 			this.content = content;
 			this.error = error;
 		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[SimpleResponse {0}]", Status);
+		}
+
 	}
 }
 

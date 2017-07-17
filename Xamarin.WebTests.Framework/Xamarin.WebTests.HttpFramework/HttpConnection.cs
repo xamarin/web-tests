@@ -60,7 +60,7 @@ namespace Xamarin.WebTests.HttpFramework
 		internal HttpConnection (HttpServer server)
 		{
 			Server = server;
-			ME = $"[{GetType ().Name}:{ID}:{server.ME}]";
+			ME = $"[{GetType ().Name}({ID}:{server.ME})]";
 		}
 
 		public event EventHandler<bool> ClosedEvent;
