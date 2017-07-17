@@ -93,7 +93,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NewListenerRedirect;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ParallelRequests;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -122,11 +122,7 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.CloseRequestStream,
 			HttpInstrumentationTestType.NtlmClosesConnection,
 			HttpInstrumentationTestType.AbortResponse,
-
-			HttpInstrumentationTestType.NewListener,
-			HttpInstrumentationTestType.NewListenerReuseConnection,
-			HttpInstrumentationTestType.NewListenerRedirect,
-			HttpInstrumentationTestType.NewListenerRedirectNoReuse
+			HttpInstrumentationTestType.RedirectNoReuse
 		};
 
 		static readonly HttpInstrumentationTestType[] NewWebStackTests = {
@@ -263,7 +259,6 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ExpectedError = WebExceptionStatus.RequestCanceled;
 				break;
 			case HttpInstrumentationTestType.ParallelRequests:
-			case HttpInstrumentationTestType.NewListenerParallel:
 				parameters.HasReadHandler = true;
 				break;
 			case HttpInstrumentationTestType.Simple:
@@ -285,11 +280,8 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.CustomConnectionGroup:
 			case HttpInstrumentationTestType.ReuseCustomConnectionGroup:
 			case HttpInstrumentationTestType.ParallelNtlm:
-			case HttpInstrumentationTestType.NewListener:
-			case HttpInstrumentationTestType.NewListenerReuseConnection:
-			case HttpInstrumentationTestType.NewListenerRedirect:
-			case HttpInstrumentationTestType.NewListenerRedirectNoReuse:
-			case HttpInstrumentationTestType.NewListenerRedirectNoLength:
+			case HttpInstrumentationTestType.RedirectNoReuse:
+			case HttpInstrumentationTestType.RedirectNoLength:
 				break;
 			default:
 				throw ctx.AssertFail (GetEffectiveType (type));
@@ -321,7 +313,6 @@ namespace Xamarin.WebTests.TestRunners
 
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.ParallelRequests:
-			case HttpInstrumentationTestType.NewListenerParallel:
 				ctx.Assert (readHandlerCalled, Is.EqualTo (2), "ReadHandler called twice");
 				break;
 			case HttpInstrumentationTestType.ThreeParallelRequests:
@@ -354,9 +345,6 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.LogDebug (5, $"{me}: active connections: {currentOperation.ServicePoint.CurrentConnections}");
 				currentOperation.ServicePoint.CloseConnectionGroup (((TraditionalRequest)currentOperation.Request).RequestExt.ConnectionGroupName);
 				ctx.LogDebug (5, $"{me}: active connections #1: {currentOperation.ServicePoint.CurrentConnections}");
-				break;
-			case HttpInstrumentationTestType.NewListenerReuseConnection:
-				secondOperation = StartSecond (ctx, cancellationToken);
 				break;
 			}
 
@@ -453,13 +441,9 @@ namespace Xamarin.WebTests.TestRunners
 				return (new HttpInstrumentationHandler (this, null, null, !primary), flags);
 			case HttpInstrumentationTestType.CloseRequestStream:
 				return (new HttpInstrumentationHandler (this, null, null, !primary), HttpOperationFlags.AbortAfterClientExits);
-			case HttpInstrumentationTestType.NewListenerReuseConnection:
-				return (helloKeepAlive, flags);
-			case HttpInstrumentationTestType.NewListenerRedirect:
-				return (new RedirectHandler (helloKeepAlive, HttpStatusCode.Redirect), flags);
-			case HttpInstrumentationTestType.NewListenerRedirectNoReuse:
+			case HttpInstrumentationTestType.RedirectNoReuse:
 				return (new RedirectHandler (hello, HttpStatusCode.Redirect), flags);
-			case HttpInstrumentationTestType.NewListenerRedirectNoLength:
+			case HttpInstrumentationTestType.RedirectNoLength:
 				return (new HttpInstrumentationHandler (this, null, null, false), flags);
 			default:
 				return (hello, flags);
@@ -647,7 +631,6 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.CancelQueuedRequest:
 				case HttpInstrumentationTestType.CancelMainWhileQueued:
 				case HttpInstrumentationTestType.NtlmWhileQueued:
-				case HttpInstrumentationTestType.NewListenerParallel:
 					ctx.Assert (ServicePoint, Is.Not.Null, "ServicePoint");
 					ctx.Assert (ServicePoint.CurrentConnections, Is.EqualTo (1), "ServicePoint.CurrentConnections");
 					break;
@@ -660,7 +643,6 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.ReuseAfterPartialRead:
 				case HttpInstrumentationTestType.ParallelNtlm:
 				case HttpInstrumentationTestType.CustomConnectionGroup:
-				case HttpInstrumentationTestType.NewListenerReuseConnection:
 					break;
 				case HttpInstrumentationTestType.ReuseCustomConnectionGroup:
 					request.RequestExt.ConnectionGroupName = "custom";
@@ -738,7 +720,6 @@ namespace Xamarin.WebTests.TestRunners
 
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.ParallelRequests:
-			case HttpInstrumentationTestType.NewListenerParallel:
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
 					await RunSimpleHello ().ConfigureAwait (false);
@@ -1103,7 +1084,7 @@ namespace Xamarin.WebTests.TestRunners
 					Target = new HelloWorldHandler (ME);
 
 				switch (parent.EffectiveType) {
-				case HttpInstrumentationTestType.NewListenerRedirectNoLength:
+				case HttpInstrumentationTestType.RedirectNoLength:
 					Target = new HelloWorldHandler (ME);
 					break;
 				}
@@ -1226,7 +1207,7 @@ namespace Xamarin.WebTests.TestRunners
 					return await HandleNtlmRequest (
 						ctx, connection, request, effectiveFlags, cancellationToken).ConfigureAwait (false);
 
-				case HttpInstrumentationTestType.NewListenerRedirectNoLength:
+				case HttpInstrumentationTestType.RedirectNoLength:
 					break;
 
 				default:
@@ -1271,7 +1252,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.ReuseConnection2:
 					return new HttpResponse (HttpStatusCode.OK, Content);
 
-				case HttpInstrumentationTestType.NewListenerRedirectNoLength:
+				case HttpInstrumentationTestType.RedirectNoLength:
 					var targetUri = Target.RegisterRequest (ctx, connection.Server);
 					response = HttpResponse.CreateRedirect (HttpStatusCode.Redirect, targetUri);
 					response.NoContentLength = true;

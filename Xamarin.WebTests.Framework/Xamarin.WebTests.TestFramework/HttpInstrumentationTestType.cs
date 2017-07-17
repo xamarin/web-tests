@@ -64,12 +64,7 @@ namespace Xamarin.WebTests.TestFramework
 		CloseRequestStream,
 		ReadTimeout,
 		AbortResponse,
-
-		NewListener,
-		NewListenerReuseConnection,
-		NewListenerRedirect,
-		NewListenerRedirectNoReuse,
-		NewListenerRedirectNoLength,
-		NewListenerParallel
+		RedirectNoReuse,
+		RedirectNoLength
 	}
 }
