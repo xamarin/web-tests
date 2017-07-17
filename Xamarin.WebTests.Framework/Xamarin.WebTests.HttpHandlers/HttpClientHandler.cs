@@ -91,6 +91,9 @@ namespace Xamarin.WebTests.HttpHandlers
 			case HttpClientOperationType.SendAsync:
 				return HandleSendAsync (ctx, request, effectiveFlags);
 
+			case HttpClientOperationType.SendAsyncChunked:
+				return HandleSendAsync (ctx, request, effectiveFlags | RequestFlags.NoContentLength);
+
 			case HttpClientOperationType.PutDataAsync:
 				return HandlePutDataAsync (ctx, request, effectiveFlags);
 
@@ -180,6 +183,11 @@ namespace Xamarin.WebTests.HttpHandlers
 			case HttpClientOperationType.SendAsync:
 				request.Method = "POST";
 				request.Content = Content;
+				break;
+			case HttpClientOperationType.SendAsyncChunked:
+				request.Method = "POST";
+				request.Content = Content.RemoveTransferEncoding ();
+				request.SendChunked ();
 				break;
 			case HttpClientOperationType.PutDataAsync:
 				request.Method = "PUT";

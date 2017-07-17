@@ -88,6 +88,7 @@ namespace Xamarin.WebTests.HttpOperations
 				response = await httpClientRequest.PutString (ctx, cancellationToken);
 				break;
 			case HttpClientOperationType.SendAsync:
+			case HttpClientOperationType.SendAsyncChunked:
 				response = await httpClientRequest.SendAsync (ctx, cancellationToken);
 				break;
 			case HttpClientOperationType.PutDataAsync:

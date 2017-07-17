@@ -76,15 +76,18 @@ namespace Xamarin.WebTests
 
 		static IEnumerable<HttpClientHandler> GetRecentlyFixed ()
 		{
-			yield break;
+			yield return new HttpClientHandler (
+				"Put chunked", HttpClientOperationType.SendAsyncChunked,
+				ConnectionHandler.GetLargeChunkedContent (50)) {
+			};
 		}
 
 		static IEnumerable<HttpClientHandler> GetMartinTests ()
 		{
 			yield return new HttpClientHandler (
-				"Get string", HttpClientOperationType.GetString, null, HttpContent.HelloWorld);
-			yield return new HttpClientHandler (
-				"Post string", HttpClientOperationType.PostString, HttpContent.HelloWorld);
+				"Put chunked", HttpClientOperationType.SendAsyncChunked,
+				ConnectionHandler.GetLargeChunkedContent (50)) {
+			};
 		}
 
 		public IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)

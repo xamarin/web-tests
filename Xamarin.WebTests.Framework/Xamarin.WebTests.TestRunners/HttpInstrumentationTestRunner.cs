@@ -130,7 +130,8 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.NtlmWhileQueued,
 			HttpInstrumentationTestType.CloseIdleConnection,
 			HttpInstrumentationTestType.ReadTimeout,
-			HttpInstrumentationTestType.ParallelNtlm
+			HttpInstrumentationTestType.ParallelNtlm,
+			HttpInstrumentationTestType.PutChunkDontCloseRequest
 		};
 
 		static readonly HttpInstrumentationTestType[] UnstableTests = {

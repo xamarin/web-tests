@@ -107,6 +107,11 @@ namespace Xamarin.WebTests.HttpClient
 			get { return Content; }
 			set { Content = (HttpContent)value; }
 		}
+
+		public void SendChunked ()
+		{
+			message.Headers.TransferEncodingChunked = true;
+		}
 	}
 }
 

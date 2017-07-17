@@ -42,6 +42,8 @@ namespace Xamarin.WebTests.HttpClient
 		IHttpContent Content {
 			get; set;
 		}
+
+		void SendChunked ();
 	}
 }
 

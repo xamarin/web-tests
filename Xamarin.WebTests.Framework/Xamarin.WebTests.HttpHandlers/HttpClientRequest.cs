@@ -46,6 +46,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		HttpMethod method = HttpMethod.Get;
 		string contentType;
 		long? contentLength;
+		bool sendChunked;
 
 		public HttpClientRequest (Uri uri)
 		{
@@ -92,7 +93,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public override void SendChunked ()
 		{
-			throw new NotSupportedException ();
+			this.sendChunked = true;
 		}
 
 		public override void SetProxy (IWebProxy proxy)
@@ -198,6 +199,9 @@ namespace Xamarin.WebTests.HttpHandlers
 			var request = Handler.CreateRequestMessage ();
 			request.Method = method;
 			request.RequestUri = RequestUri;
+
+			if (sendChunked)
+				request.SendChunked ();
 
 			if (Content != null)
 				request.Content = Handler.CreateStringContent (Content.AsString ());
