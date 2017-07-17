@@ -57,6 +57,14 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public abstract void AddHeadersTo (HttpMessage message);
 
+		public virtual async Task WriteToAsync (TestContext ctx, Stream stream)
+		{
+			using (var writer = new StreamWriter (stream)) {
+				await WriteToAsync (ctx, writer).ConfigureAwait (false);
+				await writer.FlushAsync ();
+			}
+		}
+
 		public abstract Task WriteToAsync (TestContext ctx, StreamWriter writer);
 
 		public static bool IsNullOrEmpty (HttpContent content)

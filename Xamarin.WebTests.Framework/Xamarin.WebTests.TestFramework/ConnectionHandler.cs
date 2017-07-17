@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -367,6 +368,14 @@ namespace Xamarin.WebTests.TestFramework
 		public static StringContent GetLargeStringContent (int count)
 		{
 			return new StringContent (GetLargeTextBuffer (count));
+		}
+
+		public static ChunkedContent GetLargeChunkedContent (int count)
+		{
+			var chunks = new List<string> ();
+			for (int i = 0; i < count; i++)
+				chunks.Add ($"The quick brown fox jumps over the lazy dog {count - i, 2} times.");
+			return new ChunkedContent (chunks);
 		}
 
 		public static byte[] GetTextBuffer (string type)

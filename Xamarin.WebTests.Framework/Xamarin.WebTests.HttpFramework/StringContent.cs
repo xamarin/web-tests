@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
@@ -90,6 +91,20 @@ namespace Xamarin.WebTests.HttpFramework
 				throw new InvalidOperationException ();
 			if (message.ContentType == null)
 				message.ContentType = "text/plain";
+		}
+
+		internal static byte[] GetBytes (string format, params object[] args)
+		{
+			var text = string.Format (format, args);
+			return new ASCIIEncoding ().GetBytes (text);
+		}
+
+		public override async Task WriteToAsync (TestContext ctx, Stream stream)
+		{
+			if (string.IsNullOrEmpty (content))
+				return;
+			var bytes = GetBytes (content);
+			await stream.WriteAsync (bytes, 0, bytes.Length).ConfigureAwait (false);
 		}
 
 		public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
