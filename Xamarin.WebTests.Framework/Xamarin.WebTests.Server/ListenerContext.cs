@@ -62,11 +62,12 @@ namespace Xamarin.WebTests.Server
 			ReusingConnection = reusing;
 
 			Listener = listener;
-			State = ConnectionState.Listening;
-			ME = $"[{ID}:{GetType ().Name}:{listener.ME}]";
+			ME = $"[{ID}:{GetType ().Name}:{listener.ME}:{reusing}]";
 
 			serverStartTask = new TaskCompletionSource<object> ();
 			serverReadyTask = new TaskCompletionSource<object> ();
+
+			State = listener.UsingInstrumentation ? ConnectionState.Idle : ConnectionState.Listening;
 		}
 
 		public HttpConnection Connection {
@@ -85,59 +86,60 @@ namespace Xamarin.WebTests.Server
 			get { return currentListenerTask; }
 		}
 
-		public bool Listening {
-			get;
-			private set;
-		}
-
 		HttpRequest currentRequest;
 		HttpResponse currentResponse;
 		ListenerOperation redirectRequested;
 		ListenerOperation currentOperation;
-		HttpOperation currentInstrumentation;
+		InstrumentationContext currentInstrumentation;
+		ListenerOperation assignedOperation;
 		HttpConnection connection;
 		SocketConnection targetConnection;
 		ListenerTask currentListenerTask;
 		ListenerContext redirectContext;
 
-		public bool StartOperation (HttpOperation operation)
+		internal void AssignContext (InstrumentationContext instrumentation)
 		{
 			if (!Listener.UsingInstrumentation)
 				throw new InvalidOperationException ();
-
-			if (Interlocked.CompareExchange (ref currentInstrumentation, operation, null) != null)
-				return false;
-
+			if (Interlocked.CompareExchange (ref currentInstrumentation, instrumentation, null) != null)
+				throw new InvalidOperationException ();
+			if (State != ConnectionState.Idle && State != ConnectionState.WaitingForContext)
+				throw new InvalidOperationException ();
+			assignedOperation = instrumentation.Operation;
 			State = ConnectionState.Listening;
-			return true;
 		}
 
 		internal void Redirect (ListenerContext newContext)
 		{
 			if (State == ConnectionState.NeedContextForRedirect) {
 				redirectContext = newContext;
-				redirectContext.currentInstrumentation = currentInstrumentation;
 				State = ConnectionState.RequestComplete;
 			} else if (State == ConnectionState.CannotReuseConnection) {
-				newContext.currentInstrumentation = currentInstrumentation;
 				State = ConnectionState.Closed;
 			} else {
 				throw new InvalidOperationException ();
 			}
+
+			newContext.assignedOperation = assignedOperation;
+			newContext.State = ConnectionState.Listening;
 		}
 
 		public ListenerTask MainLoopListenerTask (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{Listener.ME}({Connection.ME}) TASK";
 
-			HttpOperation instrumentation;
+			HttpOperation clientOperation = null;
+			InstrumentationContext instrumentation;
 			lock (Listener) {
 				if (currentListenerTask != null)
 					throw new InvalidOperationException ();
 
 				instrumentation = currentInstrumentation;
-				if (Listener.UsingInstrumentation && instrumentation == null)
-					throw new InvalidOperationException ();
+				if (Listener.UsingInstrumentation) {
+					if (assignedOperation == null)
+						throw new InvalidOperationException ();
+					clientOperation = assignedOperation.Operation;
+				}
 			}
 
 			ctx.LogDebug (5, $"{me} {State}");
@@ -173,14 +175,12 @@ namespace Xamarin.WebTests.Server
 
 			Task<(bool complete, bool success)> Start ()
 			{
-				Listening = true;
-				return Initialize (ctx, instrumentation, cancellationToken);
+				return Initialize (ctx, clientOperation, cancellationToken);
 			}
 
 			ConnectionState Accepted (bool completed, bool success)
 			{
 				ctx.LogDebug (5, $"{me} ACCEPTED: {completed} {success}");
-				Listening = false;
 
 				if (!completed)
 					return ConnectionState.CannotReuseConnection;
@@ -375,7 +375,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		public void MainLoopListenerTaskDone (TestContext ctx, CancellationToken cancellationToken)
+		public bool MainLoopListenerTaskDone (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{Listener.ME}({Connection.ME}) TASK DONE";
 
@@ -386,13 +386,13 @@ namespace Xamarin.WebTests.Server
 			if (task.Task.Status == TaskStatus.Canceled) {
 				OnCanceled ();
 				State = ConnectionState.Closed;
-				return;
+				return false;
 			}
 
 			if (task.Task.Status == TaskStatus.Faulted) {
 				OnError (task.Task.Exception);
 				State = ConnectionState.Closed;
-				return;
+				return false;
 			}
 
 			var nextState = task.Continue ();
@@ -400,6 +400,7 @@ namespace Xamarin.WebTests.Server
 			ctx.LogDebug (5, $"{me} DONE: {State} -> {nextState}");
 
 			State = nextState;
+			return true;
 		}
 
 		TaskCompletionSource<object> serverReadyTask;
@@ -456,6 +457,7 @@ namespace Xamarin.WebTests.Server
 			ctx.LogDebug (2, $"{me}");
 
 			serverStartTask.TrySetResult (null);
+			currentInstrumentation?.Finish ();
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			var reusable = await connection.ReuseConnection (ctx, cancellationToken).ConfigureAwait (false);
@@ -491,6 +493,8 @@ namespace Xamarin.WebTests.Server
 			await acceptTask.ConfigureAwait (false);
 
 			ctx.LogDebug (2, $"{me} ACCEPTED {connection.RemoteEndPoint}");
+
+			currentInstrumentation?.Finish ();
 
 			bool haveRequest;
 

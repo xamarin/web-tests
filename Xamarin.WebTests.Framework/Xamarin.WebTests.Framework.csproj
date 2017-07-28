@@ -219,6 +219,7 @@
     <Compile Include="Xamarin.WebTests.Server\ListenerTask.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\Martin3Attribute.cs" />
     <Compile Include="Xamarin.WebTests.Server\ListenerType.cs" />
+    <Compile Include="Xamarin.WebTests.Server\InstrumentationContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

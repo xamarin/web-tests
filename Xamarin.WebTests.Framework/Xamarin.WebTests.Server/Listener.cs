@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.Server
 	{
 		LinkedList<ListenerContext> connections;
 		LinkedList<ListenerTask> listenerTasks;
+		InstrumentationContext currentInstrumentation;
 		bool closed;
 
 		int running;
@@ -162,6 +163,10 @@ namespace Xamarin.WebTests.Server
 				var finished = await Task.WhenAny (taskList).ConfigureAwait (false);
 				Debug ($"MAIN LOOP #1: {finished.Status} {finished == taskList[0]} {taskList[0].Status}");
 
+				InstrumentationContext instrumentation = null;
+				ListenerContext context;
+				bool success;
+
 				lock (this) {
 					if (closed)
 						break;
@@ -179,18 +184,26 @@ namespace Xamarin.WebTests.Server
 					}
 
 					var task = contextList[idx];
-					var context = task.Context;
+					context = task.Context;
 					listenerTasks.Remove (task);
 
 					Debug ($"MAIN LOOP #2: {idx} {context.State}");
 
+					if (context.State == ConnectionState.Listening && currentInstrumentation?.AssignedContext == context) {
+						instrumentation = Interlocked.Exchange (ref currentInstrumentation, null);
+					}
+
 					try {
-						context.MainLoopListenerTaskDone (TestContext, cts.Token);
+						success = context.MainLoopListenerTaskDone (TestContext, cts.Token);
 					} catch {
 						connections.Remove (context);
 						context.Dispose ();
+						success = false;
 					}
 				}
+
+				if (instrumentation != null)
+					instrumentation.Finish ();
 			}
 
 			Debug ($"MAIN LOOP COMPLETE");
@@ -269,12 +282,18 @@ namespace Xamarin.WebTests.Server
 				var listening = false;
 				ListenerContext listeningContext = null;
 				ListenerContext redirectContext = null;
+				ListenerContext idleContext = null;
+
+				var me = $"RUN SCHEDULER - TASKS";
+				Debug ($"{me}");
 
 				var iter = connections.First;
 				while (iter != null) {
 					var node = iter;
 					var context = node.Value;
 					iter = iter.Next;
+
+					Debug ($"{me}: {context.State} {context.CurrentTask != null} {context.ME}");
 
 					if (UsingInstrumentation && listening && context.State == ConnectionState.Listening)
 						continue;
@@ -283,9 +302,12 @@ namespace Xamarin.WebTests.Server
 						continue;
 
 					switch (context.State) {
+					case ConnectionState.Idle:
 					case ConnectionState.WaitingForContext:
 						if (!UsingInstrumentation)
 							throw new InvalidOperationException ();
+						if (idleContext == null && listeningContext == null)
+							idleContext = context;
 						continue;
 
 					case ConnectionState.NeedContextForRedirect:
@@ -293,52 +315,85 @@ namespace Xamarin.WebTests.Server
 						if (redirectContext == null)
 							redirectContext = context;
 						continue;
+
+					case ConnectionState.Listening:
+						if (idleContext == null && listeningContext == null)
+							listeningContext = context;
+						break;
 					}
 
 					var task = context.MainLoopListenerTask (TestContext, cts.Token);
 					listenerTasks.AddLast (task);
 
-					if (context.Listening && !listening) {
+					if (context.State == ConnectionState.Listening && !listening) {
 						listeningContext = context;
 						listening = true;
 					}
 				}
 
+				Debug ($"{me} DONE: instrumentation={currentInstrumentation != null} " +
+				       $"redirect={redirectContext != null} idle={idleContext != null} listening={listeningContext != null}");
+
+				var availableContext = idleContext ?? listeningContext;
+
+				if (currentInstrumentation != null) {
+					if (currentInstrumentation.AssignedContext != null) {
+						return true;
+					}
+					var operation = currentInstrumentation.Operation.Operation;
+					if (availableContext == null || operation.HasAnyFlags (HttpOperationFlags.ForceNewConnection)) {
+						var connection = Backend.CreateConnection ();
+						availableContext = new ListenerContext (this, connection, false);
+						connections.AddLast (availableContext);
+					}
+					currentInstrumentation.AssignContext (availableContext);
+					return false;
+				}
+
 				if (redirectContext == null)
 					return true;
 
-				if (listeningContext == null) {
+				if (availableContext == null) {
 					var connection = Backend.CreateConnection ();
-					listeningContext = new ListenerContext (this, connection, false);
-					connections.AddLast (listeningContext);
+					availableContext = new ListenerContext (this, connection, false);
+					connections.AddLast (availableContext);
 				}
 
-				redirectContext.Redirect (listeningContext);
+				redirectContext.Redirect (availableContext);
 				return false;
 			}
 		}
 
-		(ListenerContext context, bool reused) FindOrCreateContext (HttpOperation operation, bool reuse)
+		internal void ReleaseInstrumentation (InstrumentationContext context)
 		{
 			lock (this) {
-				var iter = connections.First;
-				while (reuse && iter != null) {
-					var node = iter.Value;
-					iter = iter.Next;
+				if (currentInstrumentation != context)
+					throw new InvalidOperationException ();
+				currentInstrumentation = null;
+				mainLoopEvent.Set ();
+			}
+		}
 
-					if (node.StartOperation (operation)) {
-						mainLoopEvent.Set ();
-						return (node, true);
-					}
+		async Task<ListenerContext> FindContext (TestContext ctx, ListenerOperation operation, bool reusing)
+		{
+			var me = $"{ME}({operation.Operation.ME}:{reusing}) FIND CONTEXT";
+
+			var instrumentation = new InstrumentationContext (this, operation);
+
+			while (true) {
+				InstrumentationContext oldInstrumentation;
+				lock (this) {
+					oldInstrumentation = Interlocked.CompareExchange (ref currentInstrumentation, instrumentation, null);
+					if (oldInstrumentation == null)
+						break;
+					ctx.LogDebug (2, $"{me} - WAITING FOR OPERATION {oldInstrumentation.Operation.ME}");
 				}
 
-				var connection = Backend.CreateConnection ();
-				var context = new ListenerContext (this, connection, false);
-				context.StartOperation (operation);
-				connections.AddLast (context);
-				mainLoopEvent.Set ();
-				return (context, false);
+				await oldInstrumentation.Wait ().ConfigureAwait (false);
 			}
+
+			mainLoopEvent.Set ();
+			return await instrumentation.WaitForContext ().ConfigureAwait (false);
 		}
 
 		public async Task<Response> RunWithContext (TestContext ctx, ListenerOperation operation, Request request,
@@ -351,7 +406,8 @@ namespace Xamarin.WebTests.Server
 			var reusing = !operation.Operation.HasAnyFlags (HttpOperationFlags.DontReuseConnection);
 
 			if (UsingInstrumentation) {
-				(context, reusing) = FindOrCreateContext (operation.Operation, reusing);
+				context = await FindContext (ctx, operation, reusing);
+				reusing = context.ReusingConnection;
 
 				ctx.LogDebug (2, $"{me} - CREATE CONTEXT: {reusing} {context.ME}");
 
@@ -359,7 +415,7 @@ namespace Xamarin.WebTests.Server
 			}
 
 			if (TargetListener?.UsingInstrumentation ?? false) {
-				(targetContext, _) = TargetListener.FindOrCreateContext (operation.Operation, false);
+				targetContext = await TargetListener.FindContext (ctx, operation, false);
 				ctx.LogDebug (2, $"{me} - CREATE TARGET CONTEXT: {reusing} {targetContext.ME}");
 				try {
 					await targetContext.ServerStartTask.ConfigureAwait (false);

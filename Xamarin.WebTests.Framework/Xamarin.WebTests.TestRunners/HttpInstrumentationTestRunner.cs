@@ -95,7 +95,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.CloseRequestStream;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.CustomConnectionGroup;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -440,7 +440,8 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.SendResponseAsBlob:
 				return (new HttpInstrumentationHandler (this, null, ConnectionHandler.TheQuickBrownFoxContent, true), flags);
 			case HttpInstrumentationTestType.CustomConnectionGroup:
-				return (new HttpInstrumentationHandler (this, null, null, !primary), HttpOperationFlags.DontReuseConnection);
+				return (new HttpInstrumentationHandler (this, null, null, !primary),
+				        HttpOperationFlags.DontReuseConnection | HttpOperationFlags.ForceNewConnection);
 			case HttpInstrumentationTestType.ReuseCustomConnectionGroup:
 			case HttpInstrumentationTestType.ReadTimeout:
 			case HttpInstrumentationTestType.AbortResponse:
