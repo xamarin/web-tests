@@ -1,5 +1,5 @@
 ﻿//
-// ProxyConnection.cs
+// ParallelListenerOperation.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,9 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
@@ -35,43 +32,36 @@ namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
 
-	class ProxyConnection : SocketConnection
+	class ParallelListenerOperation : ListenerOperation
 	{
-		public InstrumentationListener TargetListener {
-			get;
+		public ParallelListenerOperation (ParallelListener listener, HttpOperation operation, Uri uri)
+			: base (listener, operation, uri)
+		{
+			serverInitTask = new TaskCompletionSource<object> ();
+			serverStartTask = new TaskCompletionSource<object> (); 
 		}
 
-		ListenerContext targetContext;
+		TaskCompletionSource<object> serverInitTask;
+		TaskCompletionSource<object> serverStartTask;
 
-		public ProxyConnection (BuiltinProxyServer server, Socket socket, HttpServer target)
-			: base (server, socket)
-		{
-			TargetListener = (InstrumentationListener)target.Listener;
-		}
+		public override Task ServerInitTask => serverInitTask.Task;
 
-		public override async Task AcceptAsync (TestContext ctx, CancellationToken cancellationToken)
-		{
-			await base.AcceptAsync (ctx, cancellationToken).ConfigureAwait (false);
-		}
+		public override Task ServerStartTask => serverStartTask.Task;
 
-		public override Task Initialize (TestContext ctx, HttpOperation operation, CancellationToken cancellationToken)
+		public async Task HandleRequest (TestContext ctx, HttpConnection connection,
+		                                 HttpRequest request, CancellationToken cancellationToken)
 		{
-			targetContext = TargetListener.CreateContext (ctx, operation, false);
-			return base.Initialize (ctx, operation, cancellationToken);
-		}
-
-		internal async Task RunTarget (TestContext ctx, HttpOperation operation, CancellationToken cancellationToken)
-		{
-			await targetContext.Run (ctx, cancellationToken).ConfigureAwait (false);
-		}
-
-		protected override void Close ()
-		{
-			if (targetContext != null) {
-				targetContext.Dispose ();
-				targetContext = null;
+			serverInitTask.TrySetResult (null);
+			try {
+				await Operation.HandleRequest (ctx, connection, request, cancellationToken).ConfigureAwait (false);
+				serverStartTask.TrySetResult (null);
+			} catch (OperationCanceledException) {
+				serverStartTask.TrySetCanceled ();
+				throw;
+			} catch (Exception ex) {
+				serverStartTask.TrySetException (ex);
+				throw;
 			}
-			base.Close ();
 		}
 	}
 }

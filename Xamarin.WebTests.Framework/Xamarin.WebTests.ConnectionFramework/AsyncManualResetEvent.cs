@@ -1,5 +1,5 @@
 ﻿//
-// ProxyConnection.cs
+// AsyncManualResetEvent.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,54 +24,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	using HttpFramework;
-
-	class ProxyConnection : SocketConnection
+	// https://blogs.msdn.microsoft.com/pfxteam/2012/02/11/building-async-coordination-primitives-part-1-asyncmanualresetevent/
+	class AsyncManualResetEvent
 	{
-		public InstrumentationListener TargetListener {
-			get;
+		volatile TaskCompletionSource<bool> m_tcs = new TaskCompletionSource<bool> ();
+
+		public Task WaitAsync () { return m_tcs.Task; }
+
+		public bool WaitOne (int millisecondTimeout)
+		{
+			return m_tcs.Task.Wait (millisecondTimeout);
 		}
 
-		ListenerContext targetContext;
-
-		public ProxyConnection (BuiltinProxyServer server, Socket socket, HttpServer target)
-			: base (server, socket)
+		public async Task<bool> WaitAsync (int millisecondTimeout)
 		{
-			TargetListener = (InstrumentationListener)target.Listener;
+			var timeoutTask = Task.Delay (millisecondTimeout);
+			var ret = await Task.WhenAny (m_tcs.Task, timeoutTask).ConfigureAwait (false);
+			return ret != timeoutTask;
 		}
 
-		public override async Task AcceptAsync (TestContext ctx, CancellationToken cancellationToken)
+		public void Set ()
 		{
-			await base.AcceptAsync (ctx, cancellationToken).ConfigureAwait (false);
+			var tcs = m_tcs;
+			Task.Factory.StartNew (s => ((TaskCompletionSource<bool>)s).TrySetResult (true),
+			    tcs, CancellationToken.None, TaskCreationOptions.PreferFairness, TaskScheduler.Default);
+			tcs.Task.Wait ();
 		}
 
-		public override Task Initialize (TestContext ctx, HttpOperation operation, CancellationToken cancellationToken)
+		public void Reset ()
 		{
-			targetContext = TargetListener.CreateContext (ctx, operation, false);
-			return base.Initialize (ctx, operation, cancellationToken);
-		}
-
-		internal async Task RunTarget (TestContext ctx, HttpOperation operation, CancellationToken cancellationToken)
-		{
-			await targetContext.Run (ctx, cancellationToken).ConfigureAwait (false);
-		}
-
-		protected override void Close ()
-		{
-			if (targetContext != null) {
-				targetContext.Dispose ();
-				targetContext = null;
+			while (true) {
+				var tcs = m_tcs;
+				if (!tcs.Task.IsCompleted ||
+				    Interlocked.CompareExchange (ref m_tcs, new TaskCompletionSource<bool> (), tcs) == tcs)
+					return;
 			}
-			base.Close ();
+		}
+
+		public AsyncManualResetEvent (bool state)
+		{
+			if (state)
+				Set ();
 		}
 	}
 }

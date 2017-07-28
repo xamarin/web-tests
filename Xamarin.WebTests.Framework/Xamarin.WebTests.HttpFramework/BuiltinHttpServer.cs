@@ -36,7 +36,8 @@ using Xamarin.WebTests.Server;
 using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.HttpFramework {
-	public sealed class BuiltinHttpServer : HttpServer {
+	public sealed class BuiltinHttpServer : HttpServer
+	{
 		public BuiltinHttpServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, HttpServerFlags flags,
 					  ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
 			: base (listenAddress, flags, parameters, sslStreamProvider)
@@ -81,16 +82,26 @@ namespace Xamarin.WebTests.HttpFramework {
 		}
 
 		Listener currentListener;
+		ListenerBackend currentBackend;
 
 		public override Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			Listener listener;
+			ListenerBackend backend;
 			if ((Flags & HttpServerFlags.HttpListener) != 0)
-				listener = new SystemHttpListener (ctx, this);
+				backend = new HttpListenerBackend (ctx, this);
 			else
-				listener = new SocketListener (ctx, this);
-			if (Interlocked.CompareExchange (ref currentListener, listener, null) != null)
+				backend = new SocketBackend (ctx, this);
+			if (Interlocked.CompareExchange (ref currentBackend, backend, null) != null)
 				throw new InternalErrorException ();
+
+			if ((Flags & HttpServerFlags.NewListener) != 0) {
+				var parallelListener = new ParallelListener (ctx, this, backend);
+				parallelListener.RequestParallelConnections = 10;
+				currentListener = parallelListener;
+			} else {
+				currentListener = new InstrumentationListener (ctx, this, backend);
+			}
+
 			return Handler.CompletedTask;
 		}
 
@@ -105,6 +116,8 @@ namespace Xamarin.WebTests.HttpFramework {
 				} catch {
 					if ((Flags & HttpServerFlags.ExpectException) == 0)
 						throw;
+				} finally {
+					currentBackend = null;
 				}
 			});
 		}
@@ -115,7 +128,7 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		public override void CloseAll ()
 		{
-			currentListener.CloseAll ();
+			currentListener.Dispose ();
 		}
 	}
 }

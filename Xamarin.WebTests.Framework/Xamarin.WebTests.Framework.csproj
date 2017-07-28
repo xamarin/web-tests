@@ -117,7 +117,6 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\StreamInstrumentation.cs" />
     <Compile Include="ReferenceSource\SimpleAsyncResult.cs" />
     <Compile Include="Xamarin.WebTests.Server\Listener.cs" />
-    <Compile Include="Xamarin.WebTests.Server\ProxyListener.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateSelector.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateValidator.cs" />
     <Compile Include="Xamarin.WebTests.Server\NTLMHandler.cs" />
@@ -159,7 +158,6 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\BuiltinHttpServer.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\BuiltinProxyServer.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\AuthenticationType.cs" />
-    <Compile Include="Xamarin.WebTests.Server\SystemHttpListener.cs" />
     <Compile Include="Xamarin.WebTests.Server\SocketConnection.cs" />
     <Compile Include="Xamarin.WebTests.Server\HttpListenerConnection.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\HttpServerFlagsAttribute.cs" />
@@ -167,7 +165,6 @@
     <Compile Include="Xamarin.WebTests.TestFramework\CertificateResourceTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\NetworkAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\Tls12Attribute.cs" />
-    <Compile Include="Xamarin.WebTests.Server\SocketListener.cs" />
     <Compile Include="Xamarin.WebTests.Server\SocketHelper.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpStreamReader.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\SslStreamFlags.cs" />
@@ -205,6 +202,25 @@
     <Compile Include="Xamarin.WebTests.HttpOperations\HttpClientOperationType.cs" />
     <Compile Include="Xamarin.WebTests.HttpOperations\HttpListenerOperation.cs" />
     <Compile Include="Xamarin.WebTests.Server\ProxyConnection.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\HttpStressTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpStressTestRunnerAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpStressTestParameters.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpStressTestType.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpStressTestParametersAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\AsyncManualResetEvent.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\Martin2Attribute.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ListenerBackend.cs" />
+    <Compile Include="Xamarin.WebTests.Server\SocketBackend.cs" />
+    <Compile Include="Xamarin.WebTests.Server\HttpListenerBackend.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ProxyBackend.cs" />
+    <Compile Include="Xamarin.WebTests.Server\InstrumentationListener.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ParallelListener.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ListenerContext.cs" />
+    <Compile Include="Xamarin.WebTests.Server\InstrumentationListenerContext.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ParallelListenerContext.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ConnectionState.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ListenerOperation.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ParallelListenerOperation.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

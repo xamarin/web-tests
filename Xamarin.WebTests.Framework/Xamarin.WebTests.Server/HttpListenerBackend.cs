@@ -1,5 +1,5 @@
-﻿﻿﻿//
-// SystemHttpListener.cs
+﻿//
+// HttpListenerBackend.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -33,10 +33,12 @@ using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.HttpFramework;
 
-namespace Xamarin.WebTests.Server {
-	class SystemHttpListener : Listener {
-		public SystemHttpListener (TestContext ctx, HttpServer server)
-			: base (ctx, server)
+namespace Xamarin.WebTests.Server
+{
+	class HttpListenerBackend : ListenerBackend
+	{
+		public HttpListenerBackend (TestContext ctx, HttpServer server)
+			: base (server)
 		{
 			if (server.SslStreamProvider != null) {
 				ctx.Assert (server.SslStreamProvider.SupportsHttpListener, "ISslStreamProvider.SupportsHttpListener");
@@ -51,32 +53,12 @@ namespace Xamarin.WebTests.Server {
 
 		HttpListener listener;
 
-		public override async Task<HttpConnection> AcceptAsync (CancellationToken cancellationToken)
-		{
-			TestContext.LogDebug (5, "LISTEN ASYNC: {0}", Server.Uri);
-
-			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-
-			try {
-				cts.Token.Register (() => {
-					TestContext.LogDebug (5, "LISTENER ABORT!");
-					listener.Abort ();
-				});
-
-				var connection = new HttpListenerConnection (Server, listener);
-				await connection.AcceptAsync (TestContext, cancellationToken).ConfigureAwait (false);
-				return connection;
-			} finally {
-				cts.Dispose ();
-			}
-		}
-
-		protected override HttpConnection CreateConnection ()
+		public override HttpConnection CreateConnection ()
 		{
 			return new HttpListenerConnection (Server, listener);
 		}
 
-		protected override void Shutdown ()
+		protected override void Close ()
 		{
 			try {
 				listener.Abort ();
@@ -86,7 +68,6 @@ namespace Xamarin.WebTests.Server {
 				;
 			}
 			listener = null;
-			base.Shutdown ();
 		}
 	}
 }

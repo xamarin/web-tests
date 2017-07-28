@@ -1,10 +1,10 @@
-﻿﻿﻿//
-// ProxyListener.cs
+﻿//
+// ListenerOperation.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,36 +24,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Text;
-using System.Net;
-using System.Net.Sockets;
-using System.Reflection;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
 
-	class ProxyListener : SocketListener
+	abstract class ListenerOperation
 	{
-		new public BuiltinProxyServer Server => (BuiltinProxyServer)base.Server;
-
-		public HttpServer Target => Server.Target;
-
-		public ProxyListener (TestContext ctx, BuiltinProxyServer server)
-			: base (ctx, server)
-		{
+		public Listener Listener {
+			get;
 		}
 
-		protected override HttpConnection CreateConnection ()
+		public HttpOperation Operation {
+			get;
+		}
+
+		public Uri Uri {
+			get;
+		}
+
+		public ListenerOperation (Listener listener, HttpOperation operation, Uri uri)
 		{
-			return new ProxyConnection (this, Server, Socket);
+			Listener = listener;
+			Operation = operation;
+			Uri = uri;
+		}
+
+		public abstract Task ServerInitTask {
+			get;
+		}
+
+		public abstract Task ServerStartTask {
+			get;
 		}
 	}
 }

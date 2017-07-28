@@ -1,10 +1,10 @@
 ﻿//
-// ConnectionTestCategory.cs
+// Martin2Attribute.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,43 +24,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.TestFramework
 {
-	public enum ConnectionTestCategory
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class Martin2Attribute : TestCategoryAttribute
 	{
-		// Run all
-		Https,
-		// Only run tests which are working with the existing Mono.
-		HttpsWithMono,
-		// These tests don't work with Mono yet.
-		HttpsWithDotNet,
-		// TLS 1.2 tests; we can only run these with SslStream because the
-		// HTTP framework doesn't let us specify the protocol version.
-		SslStreamWithTls12,
-		InvalidCertificatesInTls12,
+		public static readonly TestCategory Instance = new TestCategory ("Martin2") { IsExplicit = true };
 
-		HttpsCertificateValidators,
-		SslStreamCertificateValidators,
-
-		NotYetWorking,
-
-		TrustedRoots,
-		CertificateStore,
-
-		SslStreamInstrumentation,
-		SslStreamInstrumentationMono,
-		SslStreamInstrumentationExperimental,
-
-		HttpInstrumentation,
-		HttpInstrumentationStress,
-		HttpInstrumentationNewWebStack,
-		HttpInstrumentationExperimental,
-
-		HttpStress,
-		HttpStressExperimental,
-
-		MartinTest,
+		public override TestCategory Category {
+			get { return Instance; }
+		}
 	}
 }
 

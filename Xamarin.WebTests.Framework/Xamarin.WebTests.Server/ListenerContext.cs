@@ -1,5 +1,5 @@
 ﻿//
-// HttpInstrumentationTestType.cs
+// ListenerContext.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,50 +24,66 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-namespace Xamarin.WebTests.TestFramework
-{
-	public enum HttpInstrumentationTestType
-	{
-		Simple,
-		InvalidDataDuringHandshake,
-		AbortDuringHandshake,
-		ParallelRequests,
-		ThreeParallelRequests,
-		ParallelRequestsSomeQueued,
-		ManyParallelRequests,
-		ManyParallelRequestsStress,
-		SimpleQueuedRequest,
-		CancelQueuedRequest,
-		CancelMainWhileQueued,
-		SimpleNtlm,
-		NtlmWhileQueued,
-		ReuseConnection,
-		SimplePost,
-		SimpleRedirect,
-		PostRedirect,
-		PostNtlm,
-		NtlmChunked,
-		ReuseConnection2,
-		Get404,
-		CloseIdleConnection,
-		NtlmInstrumentation,
-		NtlmClosesConnection,
-		ParallelNtlm,
-		LargeHeader,
-		LargeHeader2,
-		SendResponseAsBlob,
-		ReuseAfterPartialRead,
-		CustomConnectionGroup,
-		ReuseCustomConnectionGroup,
-		CloseCustomConnectionGroup,
-		CloseRequestStream,
-		ReadTimeout,
-		AbortResponse,
-		RedirectNoReuse,
-		RedirectNoLength,
-		PutChunked,
-		PutChunkDontCloseRequest,
+using System.Threading;
+using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
-		MartinTest
+namespace Xamarin.WebTests.Server
+{
+	using HttpFramework;
+
+	abstract class ListenerContext : IDisposable
+	{
+		public Listener Listener {
+			get;
+		}
+
+		public HttpServer Server => Listener.Server;
+
+		public abstract HttpConnection Connection {
+			get;
+		}
+
+		public ConnectionState State {
+			get;
+			protected set;
+		}
+
+		public ListenerContext (Listener listener)
+		{
+			Listener = listener;
+			State = ConnectionState.None;
+		}
+
+		public abstract void Continue ();
+
+		public abstract Task ServerInitTask {
+			get;
+		}
+
+		public abstract Task ServerStartTask {
+			get;
+		}
+
+		public abstract Task Run (TestContext ctx, CancellationToken cancellationToken);
+
+		public abstract void PrepareRedirect (TestContext ctx, HttpConnection connection, bool keepAlive);
+
+		protected abstract void Close ();
+
+		protected string FormatConnection (HttpConnection connection)
+		{
+			return $"[{Listener.ME}:{connection.ME}]";
+		}
+
+		bool disposed;
+
+		public void Dispose ()
+		{
+			if (disposed)
+				return;
+			disposed = true;
+			Close ();
+		}
 	}
 }

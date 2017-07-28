@@ -1,5 +1,5 @@
 ﻿//
-// HttpInstrumentationTestType.cs
+// HttpStressTestParametersAttribute.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,50 +24,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Collections.Generic;
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.TestFramework
 {
-	public enum HttpInstrumentationTestType
-	{
-		Simple,
-		InvalidDataDuringHandshake,
-		AbortDuringHandshake,
-		ParallelRequests,
-		ThreeParallelRequests,
-		ParallelRequestsSomeQueued,
-		ManyParallelRequests,
-		ManyParallelRequestsStress,
-		SimpleQueuedRequest,
-		CancelQueuedRequest,
-		CancelMainWhileQueued,
-		SimpleNtlm,
-		NtlmWhileQueued,
-		ReuseConnection,
-		SimplePost,
-		SimpleRedirect,
-		PostRedirect,
-		PostNtlm,
-		NtlmChunked,
-		ReuseConnection2,
-		Get404,
-		CloseIdleConnection,
-		NtlmInstrumentation,
-		NtlmClosesConnection,
-		ParallelNtlm,
-		LargeHeader,
-		LargeHeader2,
-		SendResponseAsBlob,
-		ReuseAfterPartialRead,
-		CustomConnectionGroup,
-		ReuseCustomConnectionGroup,
-		CloseCustomConnectionGroup,
-		CloseRequestStream,
-		ReadTimeout,
-		AbortResponse,
-		RedirectNoReuse,
-		RedirectNoLength,
-		PutChunked,
-		PutChunkDontCloseRequest,
+	using ConnectionFramework;
+	using TestRunners;
 
-		MartinTest
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
+	public class HttpStressTestParametersAttribute : TestParameterAttribute, ITestParameterSource<HttpStressTestParameters>
+	{
+		public HttpStressTestType? Type {
+			get; set;
+		}
+
+		public HttpStressTestParametersAttribute (string filter = null)
+			: base (filter, TestFlags.Browsable | TestFlags.ContinueOnError)
+		{
+		}
+
+		public HttpStressTestParametersAttribute (HttpStressTestType type)
+			: base (null, TestFlags.Browsable | TestFlags.ContinueOnError)
+		{
+			Type = type;
+		}
+
+		public IEnumerable<HttpStressTestParameters> GetParameters (TestContext ctx, string filter)
+		{
+			if (filter != null)
+				throw new NotImplementedException ();
+
+			var category = ctx.GetParameter<ConnectionTestCategory> ();
+
+			if (Type != null) {
+				yield return HttpStressTestRunner.GetParameters (ctx, category, Type.Value);
+				yield break;
+			}
+
+			foreach (var type in HttpStressTestRunner.GetStressTypes (ctx, category))
+				yield return HttpStressTestRunner.GetParameters (ctx, category, type);
+		}
 	}
 }

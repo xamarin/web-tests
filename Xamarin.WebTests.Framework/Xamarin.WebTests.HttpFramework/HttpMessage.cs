@@ -124,6 +124,11 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 		}
 
+		protected HttpMessage (HttpProtocol protocol)
+		{
+			Protocol = protocol;
+		}
+
 		protected HttpMessage (HttpProtocol protocol, NameValueCollection headerCollection)
 		{
 			Protocol = protocol;
@@ -131,6 +136,22 @@ namespace Xamarin.WebTests.HttpFramework
 			foreach (string header in headerCollection) {
 				headers.Add (header, headerCollection [header]); 
 			}
+		}
+
+		internal static (string method, HttpProtocol protocol, string path) ReadHttpHeader (string header)
+		{
+			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
+			if (fields.Length != 3)
+				throw new InvalidOperationException ();
+
+			var method = fields[0];
+			var protocol = ProtocolFromString (fields[2]);
+			string path;
+			if (method.Equals ("CONNECT"))
+				path = fields[1];
+			else
+				path = fields[1].StartsWith ("/", StringComparison.Ordinal) ? fields[1] : new Uri (fields[1]).AbsolutePath;
+			return (method, protocol, path);
 		}
 
 		internal static HttpProtocol ProtocolFromString (string proto)

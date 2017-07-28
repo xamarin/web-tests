@@ -1,8 +1,8 @@
-﻿﻿﻿﻿//
-// SocketListener.cs
+﻿//
+// SocketBackend.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
 // Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
@@ -39,7 +39,7 @@ using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server
 {
-	class SocketListener : Listener
+	class SocketBackend : ListenerBackend
 	{
 		public IPEndPoint NetworkEndPoint {
 			get;
@@ -51,8 +51,8 @@ namespace Xamarin.WebTests.Server
 
 		List<SocketConnection> connections;
 
-		public SocketListener (TestContext ctx, HttpServer server)
-			: base (ctx, server)
+		public SocketBackend (TestContext ctx, HttpServer server)
+			: base (server)
 		{
 			var ssl = (server.Flags & HttpServerFlags.SSL) != 0;
 			if (ssl & (server.Flags & HttpServerFlags.Proxy) != 0)
@@ -68,54 +68,16 @@ namespace Xamarin.WebTests.Server
 			connections = new List<SocketConnection> ();
 		}
 
-		public override async Task<HttpConnection> AcceptAsync (CancellationToken cancellationToken)
+		public override HttpConnection CreateConnection ()
 		{
-			TestContext.LogDebug (5, $"{ME} ACCEPT ASYNC: {NetworkEndPoint}");
-
-			var connection = new SocketConnection (this, Server, Socket);
-			lock (this) {
-				connections.Add (connection);
-			}
-			connection.ClosedEvent += (sender, e) => {
-				lock (this) {
-					TestContext.LogDebug (5, $"{ME} CONNECTION CLOSED: {connection} {e}");
-					if (!e)
-						connections.Remove (connection);
-				}
-			};
-			await connection.AcceptAsync (TestContext, cancellationToken).ConfigureAwait (false);
-			return connection;
+			return new SocketConnection (Server, Socket);
 		}
 
-		protected override HttpConnection CreateConnection ()
+		protected override void Close ()
 		{
-			return new SocketConnection (this, Server, Socket);
-		}
-
-		public override void CloseAll ()
-		{
-			base.CloseAll ();
-			SocketConnection[] array;
-			lock (this) {
-				array = connections.ToArray ();
-			}
-			foreach (var connection in array) {
-				try {
-					connection.Dispose ();
-				} catch {
-					;
-				}
-			}
-		}
-
-		protected override void Shutdown ()
-		{
-			TestContext.LogDebug (5, "SHUTDOWN: {0}", Socket.Connected);
 			if (Socket.Connected)
 				Socket.Shutdown (SocketShutdown.Both);
 			Socket.Close ();
-			base.Shutdown ();
 		}
-
 	}
 }

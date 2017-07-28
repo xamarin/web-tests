@@ -176,6 +176,7 @@ namespace Xamarin.AsyncTests.Console {
 			int? repeat = null;
 
 			bool debugMode = false;
+			bool noJUnit = false;
 			int? logLevel = null, localLogLevel = null;
 
 			var p = new OptionSet ();
@@ -191,6 +192,7 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("local-log-level=", v => localLogLevel = int.Parse (v));
 			p.Add ("dependency=", v => dependencies.Add (v));
 			p.Add ("optional-gui", v => OptionalGui = true);
+			p.Add ("no-junit", v => noJUnit = true);
 			p.Add ("set=", v => customSettings = v);
 			p.Add ("category=", v => Category = v);
 			p.Add ("features=", v => Features = v);
@@ -333,7 +335,8 @@ namespace Xamarin.AsyncTests.Console {
 			StdOut = MakeAbsolute (OutputDirectory, stdout);
 			StdErr = MakeAbsolute (OutputDirectory, stderr);
 			ResultOutput = MakeAbsolute (OutputDirectory, resultOutput);
-			JUnitResultOutput = MakeAbsolute (OutputDirectory, junitResultOutput);
+			if (!noJUnit)
+				JUnitResultOutput = MakeAbsolute (OutputDirectory, junitResultOutput);
 
 			if (settingsFile != null) {
 				if (saveSettings == null)

@@ -41,10 +41,6 @@ namespace Xamarin.WebTests.Server
 {
 	class SocketConnection : HttpConnection
 	{
-		public SocketListener Listener {
-			get;
-		}
-
 		public Socket ListenSocket {
 			get;
 			private set;
@@ -68,13 +64,10 @@ namespace Xamarin.WebTests.Server
 		SslStream sslStream;
 		HttpStreamReader reader;
 		IPEndPoint remoteEndPoint;
-		HttpOperation currentOperation;
-		bool idle = true;
 
-		public SocketConnection (SocketListener listener, HttpServer server, Socket socket)
+		public SocketConnection (HttpServer server, Socket socket)
 			: base (server)
 		{
-			Listener = listener;
 			ListenSocket = socket;
 		}
 
@@ -86,13 +79,8 @@ namespace Xamarin.WebTests.Server
 		public override async Task AcceptAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
 			ctx.LogDebug (5, $"{ME} ACCEPT: {ListenSocket.LocalEndPoint}");
-			lock (Listener) {
-				if (!idle)
-					throw new NotSupportedException ();
-				if (Socket != null)
-					throw new NotSupportedException ();
-				idle = true;
-			}
+			if (Socket != null)
+				throw new NotSupportedException ();
 			Socket = await ListenSocket.AcceptAsync (cancellationToken).ConfigureAwait (false);
 			remoteEndPoint = (IPEndPoint)Socket.RemoteEndPoint;
 			ctx.LogDebug (5, $"{ME} ACCEPT #1: {ListenSocket.LocalEndPoint} {remoteEndPoint}");
@@ -105,10 +93,9 @@ namespace Xamarin.WebTests.Server
 			remoteEndPoint = (IPEndPoint)Socket.RemoteEndPoint;
 		}
 
-		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		public override async Task Initialize (TestContext ctx, HttpOperation operation, CancellationToken cancellationToken)
 		{
 			remoteEndPoint = (IPEndPoint)Socket.RemoteEndPoint;
-			var operation = currentOperation;
 			ctx.LogDebug (5, $"{ME} INITIALIZE: {ListenSocket?.LocalEndPoint} {remoteEndPoint} {operation?.ME}");
 			if (operation != null)
 				networkStream = operation.CreateNetworkStream (ctx, Socket, true);
@@ -196,41 +183,8 @@ namespace Xamarin.WebTests.Server
 			return response.Write (ctx, Stream, cancellationToken);
 		}
 
-		public override bool StartOperation (TestContext ctx, HttpOperation operation)
-		{
-			lock (Listener) {
-				if (Interlocked.CompareExchange (ref currentOperation, operation, null) != null)
-					return false;
-				ctx.LogDebug (5, $"{ME} START OPERATION: {operation.ME}");
-				StartOperation_internal (ctx, operation);
-				return true;
-			}
-		}
-
-		protected virtual void StartOperation_internal (TestContext ctx, HttpOperation operation)
-		{
-			
-		}
-
-		public override void Continue (TestContext ctx, bool keepAlive)
-		{
-			lock (Listener) {
-				ctx.LogDebug (5, $"{ME} CONTINUE: {keepAlive}");
-				if (!keepAlive) {
-					Close ();
-					return;
-				}
-
-				idle = true;
-				currentOperation = null;
-				OnClosed (true);
-			}
-		}
-
 		protected override void Close ()
 		{
-			OnClosed (false);
-
 			if (reader != null) {
 				reader.Dispose ();
 				reader = null;

@@ -1,10 +1,10 @@
 ﻿//
-// ConnectionTestCategory.cs
+// HttpStressTestParameters.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,43 +24,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.TestFramework
 {
-	public enum ConnectionTestCategory
+	using ConnectionFramework;
+	using HttpFramework;
+
+	[HttpStressTestParameters]
+	public class HttpStressTestParameters : ConnectionTestParameters
 	{
-		// Run all
-		Https,
-		// Only run tests which are working with the existing Mono.
-		HttpsWithMono,
-		// These tests don't work with Mono yet.
-		HttpsWithDotNet,
-		// TLS 1.2 tests; we can only run these with SslStream because the
-		// HTTP framework doesn't let us specify the protocol version.
-		SslStreamWithTls12,
-		InvalidCertificatesInTls12,
+		public HttpStressTestType Type {
+			get;
+		}
 
-		HttpsCertificateValidators,
-		SslStreamCertificateValidators,
+		public HttpStressTestParameters (ConnectionTestCategory category, HttpStressTestType type,
+		                                 string identifier, X509Certificate certificate)
+			: base (category, identifier, certificate)
+		{
+			Type = type;
+		}
 
-		NotYetWorking,
+		protected HttpStressTestParameters (HttpStressTestParameters other)
+			: base (other)
+		{
+			Type = other.Type;
+		}
 
-		TrustedRoots,
-		CertificateStore,
-
-		SslStreamInstrumentation,
-		SslStreamInstrumentationMono,
-		SslStreamInstrumentationExperimental,
-
-		HttpInstrumentation,
-		HttpInstrumentationStress,
-		HttpInstrumentationNewWebStack,
-		HttpInstrumentationExperimental,
-
-		HttpStress,
-		HttpStressExperimental,
-
-		MartinTest,
+		public override ConnectionParameters DeepClone ()
+		{
+			return new HttpStressTestParameters (this);
+		}
 	}
 }
-

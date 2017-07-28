@@ -89,7 +89,8 @@ namespace Xamarin.WebTests.HttpFramework {
 			return Target.GetHandler (ctx, path);
 		}
 
-		ProxyListener currentListener;
+		Listener currentListener;
+		ProxyBackend currentBackend;
 
 		internal override Listener Listener {
 			get { return currentListener; }
@@ -97,9 +98,10 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		public override async Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var listener = new ProxyListener (ctx, this);
-			if (Interlocked.CompareExchange (ref currentListener, listener, null) != null)
+			var backend = new ProxyBackend (ctx, this);
+			if (Interlocked.CompareExchange (ref currentBackend, backend, null) != null)
 				throw new InternalErrorException ();
+			currentListener = new InstrumentationListener (ctx, this, backend);
 			if (AuthenticationType != AuthenticationType.None)
 				AuthenticationManager = new AuthenticationManager (AuthenticationType, true);
 			await Target.Start (ctx, cancellationToken).ConfigureAwait (false);
@@ -117,13 +119,14 @@ namespace Xamarin.WebTests.HttpFramework {
 				if ((Flags & HttpServerFlags.ExpectException) == 0)
 					throw;
 			} finally {
+				currentBackend = null;
 				AuthenticationManager = null;
 			}
 		}
 
 		public override void CloseAll ()
 		{
-			currentListener.CloseAll ();
+			currentListener.Dispose ();
 			Target.CloseAll ();
 		}
 
@@ -211,7 +214,7 @@ namespace Xamarin.WebTests.HttpFramework {
 				ctx.LogDebug (5, $"{ME} HANDLE CONNECTION #2");
 
 				cancellationToken.ThrowIfCancellationRequested ();
-				await targetConnection.Initialize (ctx, cancellationToken);
+				await targetConnection.Initialize (ctx, operation, cancellationToken);
 
 				ctx.LogDebug (5, $"{ME} HANDLE CONNECTION #3");
 

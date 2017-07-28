@@ -155,13 +155,13 @@ namespace Xamarin.WebTests.HttpHandlers
 
 				Debug (ctx, 1, $"HANDLE REQUEST DONE: {connection.RemoteEndPoint} {keepAlive}", response);
 				DumpHeaders (ctx, response);
-				serverTask.TrySetResult (response);
+				serverTask?.TrySetResult (response);
 				return keepAlive;
 			} catch (AssertionException ex) {
 				originalError = ex;
 				response = HttpResponse.CreateError (ex.Message);
 			} catch (OperationCanceledException) {
-				serverTask.TrySetCanceled ();
+				serverTask?.TrySetCanceled ();
 				throw;
 			} catch (Exception ex) {
 				originalError = ex;
@@ -170,7 +170,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			if (ctx.IsCanceled || cancellationToken.IsCancellationRequested) {
 				Debug (ctx, 1, "HANDLE REQUEST - CANCELED");
-				serverTask.TrySetCanceled ();
+				serverTask?.TrySetCanceled ();
 				return false;
 			}
 
@@ -184,16 +184,16 @@ namespace Xamarin.WebTests.HttpHandlers
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
 				await connection.WriteResponse (ctx, response, cancellationToken);
-				serverTask.TrySetResult (response);
+				serverTask?.TrySetResult (response);
 				return false;
 			} catch (OperationCanceledException) {
-				serverTask.TrySetCanceled ();
+				serverTask?.TrySetCanceled ();
 				throw;
 			} catch (Exception ex) {
 				if (!expectServerError)
 					Debug (ctx, 1, "FAILED TO SEND ERROR RESPONSE", originalError, ex);
 				var newError = new AggregateException ("Failed to send error response", originalError, ex);
-				serverTask.TrySetException (newError);
+				serverTask?.TrySetException (newError);
 				throw newError;
 			}
 		}

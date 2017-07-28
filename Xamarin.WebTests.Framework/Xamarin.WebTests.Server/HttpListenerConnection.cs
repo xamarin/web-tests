@@ -54,7 +54,6 @@ namespace Xamarin.WebTests.Server {
 
 		SslStream sslStream;
 		IPEndPoint remoteEndPoint;
-		HttpOperation currentOperation;
 
 		public HttpListenerConnection (HttpServer server, HttpListener listener)
 			: base (server)
@@ -68,7 +67,7 @@ namespace Xamarin.WebTests.Server {
 			remoteEndPoint = Context.Request.RemoteEndPoint;
 		}
 
-		public override Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		public override Task Initialize (TestContext ctx, HttpOperation operation, CancellationToken cancellationToken)
 		{
 			if (Server.SslStreamProvider?.SupportsHttpListenerContext ?? false)
 				sslStream = Server.SslStreamProvider.GetSslStream (Context);
@@ -196,33 +195,8 @@ namespace Xamarin.WebTests.Server {
 			throw new InternalErrorException ();
 		}
 
-		public override bool StartOperation (TestContext ctx, HttpOperation operation)
-		{
-			lock (Listener) {
-				ctx.LogDebug (5, $"{ME} START OPERATION: {currentOperation != null}");
-				if (Interlocked.CompareExchange (ref currentOperation, operation, null) != null)
-					return false;
-				return true;
-			}
-		}
-
-		public override void Continue (TestContext ctx, bool keepAlive)
-		{
-			lock (Listener) {
-				ctx.LogDebug (5, $"{ME} CONTINUE: {keepAlive}");
-				if (!keepAlive) {
-					Close ();
-					return;
-				}
-
-				currentOperation = null;
-				OnClosed (true);
-			}
-		}
-
 		protected override void Close ()
 		{
-			OnClosed (false);
 			Context?.Response?.Close ();
 		}
 	}

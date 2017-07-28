@@ -41,6 +41,7 @@
     <Compile Include="Xamarin.WebTests.Tests\TestStreamInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.Tests\MartinTest.cs" />
+    <Compile Include="Xamarin.WebTests.Tests\TestHttpStress.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

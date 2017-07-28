@@ -24,22 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Reflection;
-using System.Net.Sockets;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Net.Security;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-using SD = System.Diagnostics;
-
+using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Server
 {
@@ -49,14 +37,19 @@ namespace Xamarin.WebTests.Server
 
 	abstract class Listener : IDisposable
 	{
-		LinkedList<HttpConnection> connections;
+		Dictionary<string, ListenerOperation> registry;
 		volatile bool disposed;
-		volatile bool closed;
 
 		static int nextID;
+		static long nextRequestID;
+
 		public readonly int ID = ++nextID;
 
 		internal TestContext TestContext {
+			get;
+		}
+
+		internal ListenerBackend Backend {
 			get;
 		}
 
@@ -68,86 +61,57 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
-		public Listener (TestContext ctx, HttpServer server)
+		public Listener (TestContext ctx, HttpServer server, ListenerBackend backend)
 		{
 			TestContext = ctx;
 			Server = server;
-			ME = $"BuiltinListener({ID})";
-			connections = new LinkedList<HttpConnection> ();
+			Backend = backend;
+			ME = $"{GetType ().Name}({ID})";
+			registry = new Dictionary<string, ListenerOperation> ();
 		}
 
-		public virtual void CloseAll ()
+		protected internal string FormatConnection (HttpConnection connection)
+		{
+			return $"[{ME}:{connection.ME}]";
+		}
+
+		protected void Debug (string message)
+		{
+			TestContext.LogDebug (5, $"{ME}: {message}");
+		}
+
+		protected abstract ListenerOperation CreateOperation (HttpOperation operation, Uri uri);
+
+		public ListenerOperation RegisterOperation (TestContext ctx, HttpOperation operation)
 		{
 			lock (this) {
-				if (closed)
-					return;
-				closed = true;
-				TestContext.LogDebug (5, $"{ME}: CLOSE ALL");
-
-				var iter = connections.First;
-				while (iter != null) {
-					var node = iter.Value;
-					iter = iter.Next;
-
-					node.Dispose ();
-					connections.Remove (node);
-				}
+				var id = Interlocked.Increment (ref nextRequestID);
+				var path = $"/id/{operation.ID}/{operation.Handler.GetType ().Name}/";
+				var uri = new Uri (Server.TargetUri, path);
+				var listenerOperation = CreateOperation (operation, uri);
+				registry.Add (path, listenerOperation);
+				return listenerOperation;
 			}
 		}
 
-		protected virtual void Shutdown ()
-		{
-		}
-
-		protected virtual void OnStop ()
-		{
-		}
-
-		HttpConnection FindIdleConnection (TestContext ctx, HttpOperation operation)
-		{
-			var iter = connections.First;
-			while (iter != null) {
-				var node = iter.Value;
-				iter = iter.Next;
-
-				if (node.StartOperation (ctx, operation))
-					return node;
-			}
-
-			return null;
-		}
-
-		public (HttpConnection connection, bool reused) CreateConnection (
-			TestContext ctx, HttpOperation operation, bool reuse)
+		protected ListenerOperation GetOperation (ListenerContext context, HttpRequest request)
 		{
 			lock (this) {
-				HttpConnection connection = null;
-				if (reuse)
-					connection = FindIdleConnection (ctx, operation);
+				var me = $"{nameof (GetOperation)}({context.Connection.ME})";
+				Debug ($"{me} {request.Method} {request.Path} {request.Protocol}");
 
-				if (connection != null) {
-					ctx.LogDebug (5, $"{ME} REUSING CONNECTION: {connection} {connections.Count}");
-					return (connection, true);
+				var operation = registry[request.Path];
+				if (operation == null) {
+					Debug ($"{me} INVALID PATH: {request.Path}!");
+					return null;
 				}
 
-				connection = CreateConnection ();
-				ctx.LogDebug (5, $"{ME} CREATE CONNECTION: {connection} {connections.Count}");
-				connections.AddLast (connection);
-				connection.ClosedEvent += (sender, e) => {
-					lock (this) {
-						if (!e)
-							connections.Remove (connection);
-					}
-				};
-				if (!connection.StartOperation (ctx, operation))
-					throw new InvalidOperationException ();
-				return (connection, false);
+				registry.Remove (request.Path);
+				return operation;
 			}
 		}
 
-		protected abstract HttpConnection CreateConnection ();
-
-		public abstract Task<HttpConnection> AcceptAsync (CancellationToken cancellationToken);
+		protected abstract void Close ();
 
 		public void Dispose ()
 		{
@@ -155,9 +119,10 @@ namespace Xamarin.WebTests.Server
 				if (disposed)
 					return;
 				disposed = true;
-				CloseAll ();
-				Shutdown ();
+				Close ();
+				Backend.Dispose ();
 			}
 		}
+
 	}
 }
