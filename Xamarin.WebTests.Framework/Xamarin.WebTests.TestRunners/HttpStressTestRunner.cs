@@ -87,7 +87,7 @@ namespace Xamarin.WebTests.TestRunners
 			: base (endpoint, parameters)
 		{
 			Provider = provider;
-			ServerFlags = flags | HttpServerFlags.NewListener;
+			ServerFlags = flags | HttpServerFlags.ParallelListener;
 			Uri = uri;
 
 			Server = new BuiltinHttpServer (uri, endpoint, ServerFlags, parameters, null);
@@ -164,13 +164,23 @@ namespace Xamarin.WebTests.TestRunners
 			var me = $"{ME}.{nameof (Run)}()";
 			ctx.LogDebug (2, $"{me}");
 
-			var operation = new TraditionalOperation (Server, HelloWorldHandler.GetSimple (), true);
+			var helloKeepAlive = new HelloWorldHandler (EffectiveType.ToString ()) {
+				Flags = RequestFlags.KeepAlive
+			};
+			var redirect = new RedirectHandler (helloKeepAlive, HttpStatusCode.Redirect);
+			var auth = new AuthenticationHandler (AuthenticationType.NTLM, helloKeepAlive);
+
+			var operation = new TraditionalOperation (Server, helloKeepAlive, true);
 			await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 
-			var secondOperation = new TraditionalOperation (Server, HelloWorldHandler.GetSimple (), true);
+			ctx.LogDebug (2, $"{me} first operation done.");
+
+			var secondOperation = new TraditionalOperation (Server, helloKeepAlive, true);
 			await secondOperation.Run (ctx, cancellationToken);
 
-			for (int i = 0; i < 500; i++) {
+			ctx.LogDebug (2, $"{me} second operation done.");
+
+			for (int i = 0; i < -500; i++) {
 				var loopOperation = new TraditionalOperation (Server, HelloWorldHandler.GetSimple (), true);
 				await loopOperation.Run (ctx, cancellationToken);
 			}

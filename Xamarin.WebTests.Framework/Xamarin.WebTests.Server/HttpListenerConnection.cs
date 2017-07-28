@@ -90,42 +90,18 @@ namespace Xamarin.WebTests.Server {
 			return Task.FromResult (Listener.IsListening);
 		}
 
-		public override async Task<HttpRequest> ReadRequest (TestContext ctx, CancellationToken cancellationToken)
+		public override Task<HttpRequest> ReadRequestHeader (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var listenerRequest = Context.Request;
 			var protocol = GetProtocol (listenerRequest.ProtocolVersion);
-			var request = new HttpRequest (protocol, listenerRequest.HttpMethod, listenerRequest.RawUrl, listenerRequest.Headers);
-
+			var request = new HttpRequest (protocol, listenerRequest);
 			ctx.LogDebug (5, "GOT REQUEST: {0} {1}", request, listenerRequest.HasEntityBody);
-
-			cancellationToken.ThrowIfCancellationRequested ();
-			var body = await ReadBody (ctx, request, cancellationToken).ConfigureAwait (false);
-			request.SetBody (body);
-
-			return request;
+			return Task.FromResult (request);
 		}
 
 		public override Task<HttpResponse> ReadResponse (TestContext ctx, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException ();
-		}
-
-		async Task<HttpContent> ReadBody (TestContext ctx, HttpMessage message, CancellationToken cancellationToken)
-		{
-			ctx.LogDebug (5, "READ BODY: {0}", message);
-			using (var reader = new HttpStreamReader (Context.Request.InputStream)) {
-				cancellationToken.ThrowIfCancellationRequested ();
-				if (message.ContentType != null && message.ContentType.Equals ("application/octet-stream"))
-					return await BinaryContent.Read (reader, message.ContentLength.Value, cancellationToken);
-				if (message.ContentLength != null)
-					return await StringContent.Read (ctx, reader, message.ContentLength.Value, cancellationToken);
-				if (message.TransferEncoding != null) {
-					if (!message.TransferEncoding.Equals ("chunked"))
-						throw new InvalidOperationException ();
-					return await ChunkedContent.ReadNonChunked (reader, cancellationToken);
-				}
-				return null;
-			}
 		}
 
 		internal override async Task WriteResponse (TestContext ctx, HttpResponse response, CancellationToken cancellationToken)

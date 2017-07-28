@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,24 +38,6 @@ namespace Xamarin.WebTests.HttpFramework
 {
 	public class HttpRequest : HttpMessage
 	{
-		HttpRequest ()
-		{
-		}
-
-		public HttpRequest (HttpProtocol protocol, string method, string path, NameValueCollection headers)
-			: base (protocol, headers)
-		{
-			Method = method;
-			Path = path;
-		}
-
-		internal HttpRequest (HttpProtocol protocol, string method, string path)
-			: base (protocol)
-		{
-			Method = method;
-			Path = path;
-		}
-
 		internal HttpRequest (HttpProtocol protocol, string method, string path, HttpStreamReader reader)
 			: base (protocol)
 		{
@@ -63,23 +46,50 @@ namespace Xamarin.WebTests.HttpFramework
 			this.reader = reader;
 		}
 
+		internal HttpRequest (HttpProtocol protocol, HttpListenerRequest request)
+			: base (protocol, request.Headers)
+		{
+			this.listenerRequest = request;
+			Method = request.HttpMethod;
+			Path = request.RawUrl;
+		}
+
 		HttpStreamReader reader;
+		HttpListenerRequest listenerRequest;
+		bool headersRead;
+		bool bodyRead;
+
+		internal async Task ReadHeaders (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (headersRead)
+				return;
+			headersRead = true;
+
+			if (listenerRequest != null)
+				return;
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			await ReadHeaders (ctx, reader, cancellationToken).ConfigureAwait (false);
+		}
 
 		internal async Task Read (TestContext ctx, CancellationToken cancellationToken)
 		{
-			cancellationToken.ThrowIfCancellationRequested ();
-			await ReadHeaders (ctx, reader, cancellationToken);
+			if (bodyRead)
+				return;
+			bodyRead = true;
+
+			await ReadHeaders (ctx, cancellationToken).ConfigureAwait (false);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			Body = await ReadBody (ctx, reader, cancellationToken);
-		}
+			if (listenerRequest != null) {
+				using (var bodyReader = new HttpStreamReader (listenerRequest.InputStream)) {
+					Body = await ReadBody (ctx, bodyReader, true, cancellationToken).ConfigureAwait (false);
+					return;
+				}
+			}
 
-		public static async Task<HttpRequest> Read (TestContext ctx, HttpStreamReader reader, CancellationToken cancellationToken)
-		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			var request = new HttpRequest ();
-			await request.InternalRead (ctx, reader, cancellationToken);
-			return request;
+			Body = await ReadBody (ctx, reader, false, cancellationToken);
 		}
 
 		public string Method {
@@ -88,31 +98,6 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public string Path {
 			get; private set;
-		}
-
-		async Task InternalRead (TestContext ctx, HttpStreamReader reader, CancellationToken cancellationToken)
-		{
-			cancellationToken.ThrowIfCancellationRequested ();
-			var header = await reader.ReadLineAsync (cancellationToken).ConfigureAwait (false);
-			if (header == null)
-				throw new IOException ("Connection has been closed.");
-
-			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
-			if (fields.Length != 3)
-				throw new InvalidOperationException ();
-
-			Method = fields [0];
-			Protocol = ProtocolFromString (fields [2]);
-			if (Method.Equals ("CONNECT"))
-				Path = fields [1];
-			else
-				Path = fields [1].StartsWith ("/", StringComparison.Ordinal) ? fields [1] : new Uri (fields [1]).AbsolutePath;
-
-			cancellationToken.ThrowIfCancellationRequested ();
-			await ReadHeaders (ctx, reader, cancellationToken);
-
-			cancellationToken.ThrowIfCancellationRequested ();
-			Body = await ReadBody (ctx, reader, cancellationToken);
 		}
 
 		public async Task Write (TestContext ctx, StreamWriter writer, CancellationToken cancellationToken)

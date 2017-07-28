@@ -30,10 +30,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.HttpFramework
 {
+	using Server;
+
 	public class HttpResponse : HttpMessage
 	{
 		public HttpStatusCode StatusCode {
@@ -63,6 +64,15 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
+		public bool CloseConnection {
+			get { return closeConnection; }
+			set {
+				if (responseWritten)
+					throw new InvalidOperationException ();
+				closeConnection = value;
+			}
+		}
+
 		public bool WriteAsBlob {
 			get { return writeAsBlob; }
 			set {
@@ -81,10 +91,21 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
+		internal ListenerOperation Redirect {
+			get { return redirect; }
+			set {
+				if (responseWritten)
+					throw new InvalidOperationException ();
+				redirect = value;
+			}
+		}
+
 		bool? keepAlive;
+		bool closeConnection;
 		bool responseWritten;
 		bool writeAsBlob;
 		bool noContentLength;
+		ListenerOperation redirect;
 
 		public HttpResponse (HttpStatusCode status, HttpContent content = null)
 		{
@@ -201,7 +222,7 @@ namespace Xamarin.WebTests.HttpFramework
 			await ReadHeaders (ctx, reader, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			Body = await ReadBody (ctx, reader, cancellationToken);
+			Body = await ReadBody (ctx, reader, false, cancellationToken);
 		}
 
 		public async Task Write (TestContext ctx, Stream stream, CancellationToken cancellationToken)
@@ -267,6 +288,13 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			var response = new HttpResponse (code);
 			response.AddHeader ("Location", uri);
+			return response;
+		}
+
+		internal static HttpResponse CreateRedirect (HttpStatusCode code, ListenerOperation redirect)
+		{
+			var response = CreateRedirect (code, redirect.Uri);
+			response.redirect = redirect;
 			return response;
 		}
 

@@ -79,7 +79,17 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public abstract Task<bool> HasRequest (CancellationToken cancellationToken);
 
-		public abstract Task<HttpRequest> ReadRequest (TestContext ctx, CancellationToken cancellationToken);
+		public async Task<HttpRequest> ReadRequest (TestContext ctx, CancellationToken cancellationToken)
+		{
+			cancellationToken.ToString ();
+			var request = await ReadRequestHeader (ctx, cancellationToken).ConfigureAwait (false);
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			await request.Read (ctx, cancellationToken);
+			return request;
+		}
+
+		public abstract Task<HttpRequest> ReadRequestHeader (TestContext ctx, CancellationToken cancellationToken);
 
 		public abstract Task<HttpResponse> ReadResponse (TestContext ctx, CancellationToken cancellationToken);
 

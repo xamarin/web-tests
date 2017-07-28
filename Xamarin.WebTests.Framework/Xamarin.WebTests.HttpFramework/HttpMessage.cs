@@ -201,13 +201,16 @@ namespace Xamarin.WebTests.HttpFramework
 			await writer.WriteAsync ("\r\n");
 		}
 
-		protected async Task<HttpContent> ReadBody (TestContext ctx, HttpStreamReader reader, CancellationToken cancellationToken)
+		protected async Task<HttpContent> ReadBody (TestContext ctx, HttpStreamReader reader,
+		                                            bool readNonChunked, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			if (TransferEncoding != null) {
 				if (!TransferEncoding.Equals ("chunked"))
 					throw new InvalidOperationException ();
-				return await ChunkedContent.Read (ctx, reader, cancellationToken);
+				if (readNonChunked)
+					return await ChunkedContent.ReadNonChunked (reader, cancellationToken);
+				return await ChunkedContent.Read (reader, cancellationToken);
 			}
 			if (ContentType != null && ContentType.Equals ("application/octet-stream"))
 				return await BinaryContent.Read (reader, ContentLength.Value, cancellationToken);

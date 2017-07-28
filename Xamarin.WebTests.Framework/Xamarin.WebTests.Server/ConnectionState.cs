@@ -30,8 +30,19 @@ namespace Xamarin.WebTests.Server
 	enum ConnectionState
 	{
 		None,
+		WaitingForContext,
+		Listening,
 		Accepted,
+		WaitingForRequest,
 		HasRequest,
+		RequestComplete,
+		NeedContextForRedirect,
+		CannotReuseConnection,
+		InitializeProxyConnection,
+		ConnectToTarget,
+		HandleProxyConnection,
+		RunTunnel,
+		ReuseConnection,
 		Closed
 	}
 }

@@ -72,7 +72,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		}
 
 		protected internal override async Task<HttpResponse> HandleRequest (
-			TestContext ctx, HttpConnection connection, HttpRequest request,
+			TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			var listenerContext = ((HttpListenerConnection)connection).Context;

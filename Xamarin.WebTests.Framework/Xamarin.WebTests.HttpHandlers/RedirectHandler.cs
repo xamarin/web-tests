@@ -69,11 +69,17 @@ namespace Xamarin.WebTests.HttpHandlers
 		}
 
 		internal protected override Task<HttpResponse> HandleRequest (
-			TestContext ctx, HttpConnection connection, HttpRequest request,
+			TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
-			var targetUri = Target.RegisterRequest (ctx, connection.Server);
-			return Task.FromResult (HttpResponse.CreateRedirect (Code, targetUri));
+			var keepAlive = (effectiveFlags & (RequestFlags.KeepAlive | RequestFlags.CloseConnection)) == RequestFlags.KeepAlive;
+
+			var redirect = operation.RegisterRedirect (ctx, Target);
+			var response = HttpResponse.CreateRedirect (Code, redirect.Uri);
+			if (keepAlive)
+				response.KeepAlive = true;
+			response.Redirect = redirect;
+			return Task.FromResult (response);
 		}
 
 		public override bool CheckResponse (TestContext ctx, Response response)

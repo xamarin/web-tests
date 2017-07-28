@@ -63,24 +63,6 @@ namespace Xamarin.WebTests.HttpFramework {
 			return null;
 		}
 
-		Dictionary<string, Handler> handlers = new Dictionary<string, Handler> ();
-
-		public override void RegisterHandler (TestContext ctx, string path, Handler handler)
-		{
-			if (handlers.ContainsKey (path))
-				throw new NotSupportedException ($"Attempted to register path '{path}' a second time.");
-			handlers.Add (path, handler);
-		}
-
-		protected internal override Handler GetHandler (TestContext ctx, string path)
-		{
-			if (!handlers.ContainsKey (path))
-				throw new NotSupportedException ($"No handler registered for path '{path}'.");
-			var handler = handlers[path];
-			handlers.Remove (path);
-			return handler;
-		}
-
 		Listener currentListener;
 		ListenerBackend currentBackend;
 
@@ -94,32 +76,30 @@ namespace Xamarin.WebTests.HttpFramework {
 			if (Interlocked.CompareExchange (ref currentBackend, backend, null) != null)
 				throw new InternalErrorException ();
 
-			if ((Flags & HttpServerFlags.NewListener) != 0) {
-				var parallelListener = new ParallelListener (ctx, this, backend);
-				parallelListener.RequestParallelConnections = 10;
-				currentListener = parallelListener;
-			} else {
-				currentListener = new InstrumentationListener (ctx, this, backend);
-			}
+			var type = (Flags & HttpServerFlags.InstrumentationListener) != 0 ?
+				ListenerType.Instrumentation : ListenerType.Parallel;
+
+			var listener = new Listener (ctx, this, type, backend);
+			listener.Start ();
+			currentListener = listener;
 
 			return Handler.CompletedTask;
 		}
 
-		public override Task Stop (TestContext ctx, CancellationToken cancellationToken)
+		public override async Task Stop (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Task.Run (() => {
-				var listener = Interlocked.Exchange (ref currentListener, null);
-				if (listener == null || listener.TestContext != ctx)
-					throw new InternalErrorException ();
-				try {
-					listener.Dispose ();
-				} catch {
-					if ((Flags & HttpServerFlags.ExpectException) == 0)
-						throw;
-				} finally {
-					currentBackend = null;
-				}
-			});
+			var listener = Interlocked.Exchange (ref currentListener, null);
+			if (listener == null || listener.TestContext != ctx)
+				throw new InternalErrorException ();
+			try {
+				await listener.Shutdown ().ConfigureAwait (false);
+				listener.Dispose ();
+			} catch {
+				if ((Flags & HttpServerFlags.ExpectException) == 0)
+					throw;
+			} finally {
+				currentBackend = null;
+			}
 		}
 
 		internal override Listener Listener {

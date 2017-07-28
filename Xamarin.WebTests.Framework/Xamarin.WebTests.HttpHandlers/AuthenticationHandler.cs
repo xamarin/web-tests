@@ -80,7 +80,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		}
 
 		protected internal override async Task<HttpResponse> HandleRequest (
-			TestContext ctx, HttpConnection connection, HttpRequest request,
+			TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			AuthenticationState state;
@@ -103,15 +103,16 @@ namespace Xamarin.WebTests.HttpHandlers
 					ctx.AssertFail ("Need either 'Transfer-Encoding' or 'Content-Length'");
 			}
 
+			var keepAlive = (effectiveFlags & (RequestFlags.KeepAlive | RequestFlags.CloseConnection)) == RequestFlags.KeepAlive;
 			if (response != null) {
-				connection.Server.RegisterHandler (ctx, request.Path, this);
+				response.Redirect = operation.RegisterRedirect (ctx, this, request.Path);
 				return response;
 			}
 
 			effectiveFlags |= RequestFlags.Redirected;
 
 			cancellationToken.ThrowIfCancellationRequested (); 
-			return await Target.HandleRequest (ctx, connection, request, effectiveFlags, cancellationToken);
+			return await Target.HandleRequest (ctx, operation, connection, request, effectiveFlags, cancellationToken);
 		}
 
 		public override bool CheckResponse (TestContext ctx, Response response)

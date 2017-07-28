@@ -1,5 +1,5 @@
 ﻿//
-// ParallelListenerOperation.cs
+// ListenerType.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,44 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Server
 {
-	using HttpFramework;
-
-	class ParallelListenerOperation : ListenerOperation
+	public enum ListenerType
 	{
-		public ParallelListenerOperation (ParallelListener listener, HttpOperation operation, Uri uri)
-			: base (listener, operation, uri)
-		{
-			serverInitTask = new TaskCompletionSource<object> ();
-			serverStartTask = new TaskCompletionSource<object> (); 
-		}
-
-		TaskCompletionSource<object> serverInitTask;
-		TaskCompletionSource<object> serverStartTask;
-
-		public override Task ServerInitTask => serverInitTask.Task;
-
-		public override Task ServerStartTask => serverStartTask.Task;
-
-		public async Task HandleRequest (TestContext ctx, HttpConnection connection,
-		                                 HttpRequest request, CancellationToken cancellationToken)
-		{
-			serverInitTask.TrySetResult (null);
-			try {
-				await Operation.HandleRequest (ctx, connection, request, cancellationToken).ConfigureAwait (false);
-				serverStartTask.TrySetResult (null);
-			} catch (OperationCanceledException) {
-				serverStartTask.TrySetCanceled ();
-				throw;
-			} catch (Exception ex) {
-				serverStartTask.TrySetException (ex);
-				throw;
-			}
-		}
+		Parallel,
+		Instrumentation,
+		Proxy
 	}
 }

@@ -26,12 +26,14 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
+	using HttpHandlers;
 
-	abstract class ListenerOperation
+	class ListenerOperation
 	{
 		public Listener Listener {
 			get;
@@ -41,23 +43,116 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
+		public Handler Handler {
+			get;
+		}
+
 		public Uri Uri {
 			get;
 		}
 
-		public ListenerOperation (Listener listener, HttpOperation operation, Uri uri)
+		internal string ME {
+			get;
+		}
+
+		static int nextID;
+		public readonly int ID = Interlocked.Increment (ref nextID);
+
+		TaskCompletionSource<object> serverInitTask;
+		TaskCompletionSource<object> serverFinishedTask;
+		ListenerOperation parentOperation;
+
+		public ListenerOperation (Listener listener, HttpOperation operation, Handler handler, Uri uri)
 		{
 			Listener = listener;
 			Operation = operation;
+			Handler = handler;
 			Uri = uri;
+
+			ME = $"[{ID}:{GetType ().Name}:{operation.ME}]";
+			serverInitTask = new TaskCompletionSource<object> ();
+			serverFinishedTask = new TaskCompletionSource<object> ();
 		}
 
-		public abstract Task ServerInitTask {
-			get;
+		public Task ServerInitTask => serverInitTask.Task;
+
+		public Task ServerFinishedTask => serverFinishedTask.Task;
+
+		internal async Task<HttpResponse> HandleRequest (
+			TestContext ctx, ListenerContext context, HttpConnection connection,
+			HttpRequest request, CancellationToken cancellationToken)
+		{
+			var me = $"{ME} HANDLE REQUEST";
+			ctx.LogDebug (2, $"{me} {connection.ME} {request}");
+
+			OnInit ();
+
+			HttpResponse response;
+
+			try {
+				cancellationToken.ThrowIfCancellationRequested ();
+				await request.Read (ctx, cancellationToken).ConfigureAwait (false);
+
+				ctx.LogDebug (2, $"{me} REQUEST FULLY READ");
+
+				response = await Handler.HandleRequest (
+					ctx, Operation, connection, request, cancellationToken).ConfigureAwait (false);
+
+				ctx.LogDebug (2, $"{me} HANDLE REQUEST DONE: {response}");
+
+			} catch (OperationCanceledException) {
+				OnCanceled ();
+				throw;
+			} catch (Exception ex) {
+				OnError (ex);
+				throw;
+			}
+
+			if (response.Redirect == null) {
+				OnFinished ();
+				return response;
+			}
+
+			if (Operation.HasAnyFlags (HttpOperationFlags.ClientDoesNotSendRedirect)) {
+				Listener.UnregisterOperation (response.Redirect);
+				response.Redirect = null;
+				OnFinished ();
+			} else {
+				response.Redirect.parentOperation = this;
+			}
+
+			return response;
 		}
 
-		public abstract Task ServerStartTask {
-			get;
+		internal void RegisterProxyAuth (ListenerOperation redirect)
+		{
+			redirect.parentOperation = this;
+		}
+
+		void OnInit ()
+		{
+			serverInitTask.TrySetResult (null);
+			parentOperation?.OnInit ();
+		}
+
+		void OnFinished ()
+		{
+			serverFinishedTask.TrySetResult (null);
+			parentOperation?.OnFinished ();
+		}
+
+		void OnCanceled ()
+		{
+			serverInitTask.TrySetCanceled ();
+			serverFinishedTask.TrySetCanceled ();
+			parentOperation?.OnCanceled ();
+		}
+
+		internal void OnError (Exception error)
+		{
+			serverInitTask.TrySetException (error);
+			serverFinishedTask.TrySetException (error);
+			parentOperation?.OnCanceled ();
 		}
 	}
 }

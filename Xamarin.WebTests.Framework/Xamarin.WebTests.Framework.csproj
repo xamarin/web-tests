@@ -213,14 +213,12 @@
     <Compile Include="Xamarin.WebTests.Server\SocketBackend.cs" />
     <Compile Include="Xamarin.WebTests.Server\HttpListenerBackend.cs" />
     <Compile Include="Xamarin.WebTests.Server\ProxyBackend.cs" />
-    <Compile Include="Xamarin.WebTests.Server\InstrumentationListener.cs" />
-    <Compile Include="Xamarin.WebTests.Server\ParallelListener.cs" />
     <Compile Include="Xamarin.WebTests.Server\ListenerContext.cs" />
-    <Compile Include="Xamarin.WebTests.Server\InstrumentationListenerContext.cs" />
-    <Compile Include="Xamarin.WebTests.Server\ParallelListenerContext.cs" />
     <Compile Include="Xamarin.WebTests.Server\ConnectionState.cs" />
     <Compile Include="Xamarin.WebTests.Server\ListenerOperation.cs" />
-    <Compile Include="Xamarin.WebTests.Server\ParallelListenerOperation.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ListenerTask.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\Martin3Attribute.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ListenerType.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

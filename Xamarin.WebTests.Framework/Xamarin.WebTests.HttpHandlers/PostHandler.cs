@@ -68,7 +68,6 @@ namespace Xamarin.WebTests.HttpHandlers
 				return method;
 			}
 			set {
-				WantToModify ();
 				method = value;
 			}
 		}
@@ -78,14 +77,12 @@ namespace Xamarin.WebTests.HttpHandlers
 				return allowWriteBuffering;
 			}
 			set {
-				WantToModify ();
 				allowWriteBuffering = value;
 			}
 		}
 
 		public Func<HttpRequest, HttpResponse> CustomHandler {
 			set {
-				WantToModify ();
 				customHandler = value;
 			}
 		}
@@ -100,7 +97,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		}
 
 		internal protected override async Task<HttpResponse> HandleRequest (
-			TestContext ctx, HttpConnection connection, HttpRequest request,
+			TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			await CompletedTask.ConfigureAwait (false);

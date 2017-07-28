@@ -157,12 +157,20 @@ namespace Xamarin.WebTests.Server
 			return !await reader.IsEndOfStream (cancellationToken).ConfigureAwait (false);
 		}
 
-		public override async Task<HttpRequest> ReadRequest (TestContext ctx, CancellationToken cancellationToken)
+		public override async Task<HttpRequest> ReadRequestHeader (TestContext ctx, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested ();
 			ctx.LogDebug (5, $"{ME} READ REQUEST: {ListenSocket?.LocalEndPoint} {remoteEndPoint}");
-			var request = await HttpRequest.Read (ctx, reader, cancellationToken).ConfigureAwait (false);
-			ctx.LogDebug (5, $"{ME} READ REQUEST DONE: {ListenSocket?.LocalEndPoint} {remoteEndPoint} - {request}");
-			return request;
+			var header = await reader.ReadLineAsync (cancellationToken);
+			if (header == null) {
+				ctx.LogDebug (5, $"{ME} READ REQUEST - CLOSED CONNECTION!");
+				throw new IOException ();
+			}
+			var (method, protocol, path) = HttpMessage.ReadHttpHeader (header);
+			ctx.LogDebug (5, $"{ME} READ REQUEST #1: {ListenSocket?.LocalEndPoint} {remoteEndPoint} - {method} {protocol} {path}");
+			ctx.LogDebug (5, $"{ME} READ REQUEST DONE: {method} {protocol} {path}");
+
+			return new HttpRequest (protocol, method, path, reader);
 		}
 
 		public override Task<HttpResponse> ReadResponse (TestContext ctx, CancellationToken cancellationToken)
@@ -213,7 +221,8 @@ namespace Xamarin.WebTests.Server
 			}
 			if (Socket != null) {
 				try {
-					Socket.Shutdown (SocketShutdown.Both);
+					if (Socket.Connected)
+						Socket.Shutdown (SocketShutdown.Both);
 				} catch {
 					;
 				} finally {

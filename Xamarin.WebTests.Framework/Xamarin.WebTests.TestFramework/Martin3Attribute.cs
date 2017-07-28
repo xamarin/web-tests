@@ -1,10 +1,10 @@
 ﻿//
-// HttpServerFlags.cs
+// Martin3Attribute.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,23 +24,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.HttpFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	[Flags]
-	public enum HttpServerFlags
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class Martin3Attribute : TestCategoryAttribute
 	{
-		None				= 0,
-		Proxy				= 1,
-		ReuseConnection			= 2,
-		SSL				= 4,
-		ExpectException			= 8,
-		ForceTls12			= 16,
-		ExternalServer			= 32,
-		HttpListener			= 64,
-		ProxySSL			= 128,
-		ProxyAuthentication		= 256,
-		ParallelListener		= 512,
-		InstrumentationListener		= 1024
+		public static readonly TestCategory Instance = new TestCategory ("Martin3") { IsExplicit = true };
+
+		public override TestCategory Category {
+			get { return Instance; }
+		}
 	}
 }
+

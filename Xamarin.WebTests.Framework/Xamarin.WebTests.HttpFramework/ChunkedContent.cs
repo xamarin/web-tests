@@ -65,7 +65,7 @@ namespace Xamarin.WebTests.HttpFramework
 			return new ChunkedContent (chunks);
 		}
 
-		public static async Task<ChunkedContent> Read (TestContext ctx, HttpStreamReader reader, CancellationToken cancellationToken)
+		public static async Task<ChunkedContent> Read (HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			var chunks = new List<string> ();
 

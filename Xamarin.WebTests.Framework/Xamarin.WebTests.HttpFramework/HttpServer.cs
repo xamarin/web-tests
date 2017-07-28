@@ -161,35 +161,11 @@ namespace Xamarin.WebTests.HttpFramework {
 		static int nextServerId;
 		public readonly int ID = ++nextServerId;
 
-		static long nextId;
-		int countRequests;
+		volatile int countRequests;
 
-		public Uri RegisterHandler (TestContext ctx, Handler handler)
+		internal void BumpRequestCount ()
 		{
-			var id = Interlocked.Increment (ref nextId);
-			var path = string.Format ("/{0}/{1}/", handler.GetType (), id);
-			RegisterHandler (ctx, path, handler);
-			return new Uri (TargetUri, path);
-		}
-
-		public abstract void RegisterHandler (TestContext ctx, string path, Handler handler);
-
-		protected internal abstract Handler GetHandler (TestContext ctx, string path);
-
-		public async Task<bool> HandleConnection (TestContext ctx, HttpOperation operation,
-		                                          HttpConnection connection, CancellationToken cancellationToken)
-		{
-			var request = await connection.ReadRequest (ctx, cancellationToken);
-			++countRequests;
-			return await HandleConnection (ctx, operation, connection, request, cancellationToken);
-		}
-
-		protected virtual async Task<bool> HandleConnection (TestContext ctx, HttpOperation operation,
-		                                                     HttpConnection connection, HttpRequest request,
-		                                                     CancellationToken cancellationToken)
-		{
-			var handler = GetHandler (ctx, request.Path);
-			return await handler.HandleRequest (ctx, operation, connection, request, cancellationToken).ConfigureAwait (false);
+			Interlocked.Increment (ref countRequests);
 		}
 
 		public void CheckEncryption (TestContext ctx, SslStream sslStream)
