@@ -332,7 +332,8 @@ namespace Xamarin.WebTests.Server
 				}
 
 				Debug ($"{me} DONE: instrumentation={currentInstrumentation != null} " +
-				       $"redirect={redirectContext != null} idle={idleContext != null} listening={listeningContext != null}");
+				       $"redirect={redirectContext != null} idle={idleContext != null} " +
+				       $"listening={listeningContext != null} assigned={currentInstrumentation?.AssignedContext != null}");
 
 				var availableContext = idleContext ?? listeningContext;
 
@@ -346,6 +347,7 @@ namespace Xamarin.WebTests.Server
 						availableContext = new ListenerContext (this, connection, false);
 						connections.AddLast (availableContext);
 					}
+					Debug ($"{me} ASSIGN CONTEXT: {currentInstrumentation} {availableContext.ME}");
 					currentInstrumentation.AssignContext (availableContext);
 					return false;
 				}

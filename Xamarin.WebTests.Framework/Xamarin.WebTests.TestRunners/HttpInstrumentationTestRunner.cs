@@ -498,11 +498,10 @@ namespace Xamarin.WebTests.TestRunners
 				var newHandler = (HttpInstrumentationHandler)firstHandler.Clone ();
 				var flags = currentOperation.Flags;
 
-				var operation = await StartParallel (ctx, cancellationToken, newHandler, flags).ConfigureAwait (false);
+				var operation = StartParallel (ctx, cancellationToken, newHandler, flags);
 				if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 					throw ctx.AssertFail ("Invalid nested call");
 				await operation.WaitForRequest ();
-				// await operation.WaitForCompletion (false).ConfigureAwait (false);
 			}
 
 			void MustNotReuseConnection ()
@@ -524,11 +523,10 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		async Task<Operation> StartParallel (TestContext ctx, CancellationToken cancellationToken, Handler handler,
-						     HttpOperationFlags flags, HttpStatusCode expectedStatus = HttpStatusCode.OK,
-						     WebExceptionStatus expectedError = WebExceptionStatus.Success)
+		Operation StartParallel (TestContext ctx, CancellationToken cancellationToken, Handler handler,
+		                         HttpOperationFlags flags, HttpStatusCode expectedStatus = HttpStatusCode.OK,
+		                         WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
-			await Task.Yield ();
 			var operation = new Operation (this, handler, true, flags, expectedStatus, expectedError);
 			operation.Start (ctx, cancellationToken);
 			return operation;
@@ -538,7 +536,7 @@ namespace Xamarin.WebTests.TestRunners
 					HttpOperationFlags flags, HttpStatusCode expectedStatus = HttpStatusCode.OK,
 					WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
-			var operation = await StartParallel (ctx, cancellationToken, handler, flags, expectedStatus, expectedError).ConfigureAwait (false);
+			var operation = StartParallel (ctx, cancellationToken, handler, flags, expectedStatus, expectedError);
 			await operation.WaitForCompletion ();
 		}
 
@@ -750,7 +748,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.SimpleQueuedRequest:
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
-					var operation = await StartSimpleHello ().ConfigureAwait (false);
+					var operation = StartSimpleHello ();
 					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 						throw ctx.AssertFail ("Invalid nested call");
 				}
@@ -773,8 +771,11 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
 					var parallelTasks = new Task[Parameters.CountParallelRequests];
+					var parallelOperations = new Operation[Parameters.CountParallelRequests];
+					for (int i = 0; i < parallelOperations.Length; i++)
+						parallelOperations[i] = StartSimpleHello ();
 					for (int i = 0; i < parallelTasks.Length; i++)
-						parallelTasks[i] = RunSimpleHello ();
+						parallelTasks[i] = parallelOperations[i].WaitForCompletion ();
 					await Task.WhenAll (parallelTasks).ConfigureAwait (false);
 				} else {
 					// ctx.Expect (currentServicePoint.CurrentConnections, Is.EqualTo (3), "ServicePoint.CurrentConnections");
@@ -801,9 +802,9 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.CancelQueuedRequest:
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
-					var operation = await StartParallel (
+					var operation = StartParallel (
 						ctx, cancellationToken, HelloWorldHandler.GetSimple (), HttpOperationFlags.AbortAfterClientExits,
-						HttpStatusCode.InternalServerError, WebExceptionStatus.RequestCanceled).ConfigureAwait (false);
+						HttpStatusCode.InternalServerError, WebExceptionStatus.RequestCanceled);
 					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 						throw new InvalidOperationException ("Invalid nested call.");
 					var request = await operation.WaitForRequest ().ConfigureAwait (false);
@@ -816,7 +817,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.CancelMainWhileQueued:
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
-					var operation = await StartSimpleHello ().ConfigureAwait (false);
+					var operation = StartSimpleHello ();
 					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 						throw new InvalidOperationException ("Invalid nested call.");
 					var request = await operation.WaitForRequest ().ConfigureAwait (false);
@@ -830,7 +831,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.NtlmWhileQueued:
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
-					var operation = await StartSimpleHello ().ConfigureAwait (false);
+					var operation = StartSimpleHello ();
 					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 						throw ctx.AssertFail ("Invalid nested call");
 				}
@@ -842,7 +843,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			return ret;
 
-			Task<Operation> StartSimpleHello ()
+			Operation StartSimpleHello ()
 			{
 				return StartParallel (ctx, cancellationToken, HelloWorldHandler.GetSimple (), HttpOperationFlags.None);
 			}
