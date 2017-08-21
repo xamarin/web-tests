@@ -106,7 +106,7 @@ namespace Xamarin.WebTests.Server
 			State = state;
 			StartFunc = start;
 			Continuation = continuation;
-			tcs = new TaskCompletionSource<T> ();
+			tcs = Listener.TaskSupport.CreateAsyncCompletionSource<T> ();
 		}
 
 		public override void Start ()

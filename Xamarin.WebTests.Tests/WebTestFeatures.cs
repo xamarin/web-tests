@@ -211,7 +211,7 @@ namespace Xamarin.WebTests
 				yield return ProxyKind.Simple;
 				yield return ProxyKind.SSL;
 
-				if (ctx.IsEnabled (Instance.ProxyAuth)) {
+				if (ctx.IsEnabled (ExperimentalAttribute.Instance) && ctx.IsEnabled (Instance.ProxyAuth)) {
 					yield return ProxyKind.BasicAuth;
 					if (ctx.IsEnabled (Instance.NTLM)) {
 						yield return ProxyKind.NtlmAuth;

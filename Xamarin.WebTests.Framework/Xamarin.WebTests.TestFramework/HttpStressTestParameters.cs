@@ -50,11 +50,26 @@ namespace Xamarin.WebTests.TestFramework
 			: base (other)
 		{
 			Type = other.Type;
+			MaxServicePoints = other.MaxServicePoints;
+			CountParallelTasks = other.CountParallelTasks;
+			RepeatCount = other.RepeatCount;
 		}
 
 		public override ConnectionParameters DeepClone ()
 		{
 			return new HttpStressTestParameters (this);
+		}
+
+		public int? MaxServicePoints {
+			get; set;
+		}
+
+		public int CountParallelTasks {
+			get; set;
+		}
+
+		public int RepeatCount {
+			get; set;
 		}
 	}
 }

@@ -56,7 +56,7 @@ namespace Xamarin.WebTests.HttpFramework
 		public bool? KeepAlive {
 			get { return keepAlive; }
 			set {
-				if (responseWritten)
+				if (headersResolved)
 					throw new InvalidOperationException ();
 				if (!value.HasValue)
 					throw new InvalidOperationException ();
@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.HttpFramework
 		public bool CloseConnection {
 			get { return closeConnection; }
 			set {
-				if (responseWritten)
+				if (headersResolved)
 					throw new InvalidOperationException ();
 				closeConnection = value;
 			}
@@ -76,7 +76,7 @@ namespace Xamarin.WebTests.HttpFramework
 		public bool WriteAsBlob {
 			get { return writeAsBlob; }
 			set {
-				if (responseWritten)
+				if (headersResolved)
 					throw new InvalidOperationException ();
 				writeAsBlob = value;
 			}
@@ -85,7 +85,7 @@ namespace Xamarin.WebTests.HttpFramework
 		public bool NoContentLength {
 			get { return noContentLength; }
 			set {
-				if (responseWritten)
+				if (headersResolved)
 					throw new InvalidOperationException ();
 				noContentLength = value;
 			}
@@ -94,7 +94,7 @@ namespace Xamarin.WebTests.HttpFramework
 		internal ListenerOperation Redirect {
 			get { return redirect; }
 			set {
-				if (responseWritten)
+				if (headersResolved)
 					throw new InvalidOperationException ();
 				redirect = value;
 			}
@@ -102,7 +102,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		bool? keepAlive;
 		bool closeConnection;
-		bool responseWritten;
+		bool headersResolved;
 		bool writeAsBlob;
 		bool noContentLength;
 		ListenerOperation redirect;
@@ -175,8 +175,11 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		void CheckHeaders ()
+		internal void ResolveHeaders ()
 		{
+			if (headersResolved)
+				return;
+			headersResolved = true;
 			if (Body != null)
 				Body.AddHeadersTo (this);
 			if (ContentLength == null && NeedsContentLength && !NoContentLength)
@@ -227,8 +230,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public async Task Write (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
-			CheckHeaders ();
-			responseWritten = true;
+			ResolveHeaders ();
 
 			cancellationToken.ThrowIfCancellationRequested ();
 

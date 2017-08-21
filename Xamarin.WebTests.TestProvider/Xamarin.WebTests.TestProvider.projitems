@@ -34,6 +34,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\Type3Message.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\ChallengeResponse2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\BitConverterLE.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\WebClientExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\" />

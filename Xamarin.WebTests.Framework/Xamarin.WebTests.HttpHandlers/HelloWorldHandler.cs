@@ -38,7 +38,13 @@ namespace Xamarin.WebTests.HttpHandlers
 		public HelloWorldHandler (string identifier)
 			: base (identifier)
 		{
-			Message = string.Format ("Hello World ({0}:{1})!", ID, identifier);
+			Message = $"Hello World ({ID}:{identifier})!";
+		}
+
+		HelloWorldHandler (string identifier, string message)
+			: base (identifier)
+		{
+			Message = $"Hello World ({ID}:{identifier}): {message}";
 		}
 
 		public string Message {
@@ -48,6 +54,11 @@ namespace Xamarin.WebTests.HttpHandlers
 		public static HelloWorldHandler GetSimple ()
 		{
 			return new HelloWorldHandler ("SimpleHello");
+		}
+
+		public static HelloWorldHandler GetSimple (string message)
+		{
+			return new HelloWorldHandler ("SimpleHello", message);
 		}
 
 		public override object Clone ()

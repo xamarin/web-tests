@@ -1,10 +1,10 @@
 ﻿//
-// DependencyProvider.cs
+// WebClientExtension.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,23 +24,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Net.Security;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
 
-[assembly: DependencyProvider (typeof (Xamarin.AsyncTests.Portable.PortableDependencyProvider))]
-
-namespace Xamarin.AsyncTests.Portable
+namespace Xamarin.WebTests.Server
 {
-	class PortableDependencyProvider : IDependencyProvider
+	using ConnectionFramework;
+
+	class WebClientExtension : IWebClientExtension
 	{
-		public void Initialize ()
+		public WebClient Client {
+			get;
+		}
+
+		public WebClient Object => Client;
+
+		public WebClientExtension (WebClient client)
 		{
-			DependencyInjector.RegisterDependency<IPortableSupport> (() => new PortableSupportImpl ());
-			DependencyInjector.RegisterDependency<IPortableEndPointSupport> (() => new PortableEndPointSupportImpl ());
-			DependencyInjector.RegisterDependency<IServerHost> (() => new ServerHostImpl ());
-			DependencyInjector.RegisterDependency<IPortableTaskSupport> (() => new PortableTaskSupportImpl ());
+			Client = client;
+		}
+
+		public void SetProxy (IWebProxy proxy)
+		{
+			Client.Proxy = proxy;
 		}
 	}
 }
-

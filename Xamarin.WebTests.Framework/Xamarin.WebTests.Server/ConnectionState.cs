@@ -33,6 +33,7 @@ namespace Xamarin.WebTests.Server
 		Idle,
 		WaitingForContext,
 		Listening,
+		InitializeConnection,
 		Accepted,
 		WaitingForRequest,
 		HasRequest,

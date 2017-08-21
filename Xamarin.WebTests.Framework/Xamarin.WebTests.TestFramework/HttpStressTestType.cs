@@ -29,6 +29,7 @@ namespace Xamarin.WebTests.TestFramework
 	public enum HttpStressTestType
 	{
 		Simple,
+		RepeatedHttpClient,
 
 		MartinTest
 	}

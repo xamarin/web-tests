@@ -81,8 +81,8 @@ namespace Xamarin.WebTests.HttpFramework
 
 			ME = $"[{GetType ().Name}({ID}:{me})]";
 
-			requestTask = new TaskCompletionSource<Request> ();
-			requestDoneTask = new TaskCompletionSource<Response> ();
+			requestTask = Listener.TaskSupport.CreateAsyncCompletionSource<Request> ();
+			requestDoneTask = Listener.TaskSupport.CreateAsyncCompletionSource<Response> ();
 			cts = new CancellationTokenSource ();
 		}
 

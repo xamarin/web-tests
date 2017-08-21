@@ -137,6 +137,7 @@ namespace Xamarin.WebTests.HttpHandlers
 					response.CloseConnection = true;
 				if (!response.KeepAlive.HasValue && ((Flags & RequestFlags.KeepAlive) != 0))
 					response.KeepAlive = true;
+				response.ResolveHeaders ();
 
 				Debug (ctx, 1, $"HANDLE REQUEST DONE: {connection.RemoteEndPoint}", response);
 				DumpHeaders (ctx, response);

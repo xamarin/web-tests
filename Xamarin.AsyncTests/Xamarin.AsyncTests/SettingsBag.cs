@@ -130,6 +130,18 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public bool DontSaveLogging {
+			get {
+				if (TryGetValue ("DontSaveLogging", out string value))
+					return bool.Parse (value);
+				return false;
+			}
+			set {
+				SetValue ("DontSaveLogging", value.ToString ());
+				OnPropertyChanged ("DontSaveLogging");
+			}
+		}
+
 		public bool Debug_DumpTestPath {
 			get {
 				string value;

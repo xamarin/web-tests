@@ -88,14 +88,14 @@ namespace Xamarin.WebTests.TestRunners
 			Provider = provider;
 			Uri = uri;
 
-			ServerFlags = flags | HttpServerFlags.ParallelListener | HttpServerFlags.InstrumentationListener;
+			ServerFlags = flags | HttpServerFlags.InstrumentationListener;
 
 			Server = new BuiltinHttpServer (uri, endpoint, ServerFlags, parameters, null);
 
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.CustomConnectionGroup;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.RedirectNoLength;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -122,7 +122,6 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.ReuseCustomConnectionGroup,
 			HttpInstrumentationTestType.CloseCustomConnectionGroup,
 			HttpInstrumentationTestType.CloseRequestStream,
-			HttpInstrumentationTestType.NtlmClosesConnection,
 			HttpInstrumentationTestType.AbortResponse,
 			HttpInstrumentationTestType.RedirectNoReuse,
 			HttpInstrumentationTestType.PutChunked
@@ -134,16 +133,22 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.CloseIdleConnection,
 			HttpInstrumentationTestType.ReadTimeout,
 			HttpInstrumentationTestType.ParallelNtlm,
+			HttpInstrumentationTestType.NtlmClosesConnection,
+			HttpInstrumentationTestType.NtlmReusesConnection,
 			HttpInstrumentationTestType.PutChunkDontCloseRequest
 		};
 
 		static readonly HttpInstrumentationTestType[] UnstableTests = {
-			HttpInstrumentationTestType.ThreeParallelRequests,
-			HttpInstrumentationTestType.ManyParallelRequests,
-			HttpInstrumentationTestType.ParallelRequestsSomeQueued,
+			HttpInstrumentationTestType.RedirectNoLength,
+			HttpInstrumentationTestType.PutChunked,
+			HttpInstrumentationTestType.PutChunkDontCloseRequest,
+			HttpInstrumentationTestType.ServerAbortsRedirect
 		};
 
 		static readonly HttpInstrumentationTestType[] StressTests = {
+			HttpInstrumentationTestType.ThreeParallelRequests,
+			HttpInstrumentationTestType.ManyParallelRequests,
+			HttpInstrumentationTestType.ParallelRequestsSomeQueued,
 			HttpInstrumentationTestType.ManyParallelRequestsStress
 		};
 
@@ -278,6 +283,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.NtlmChunked:
 			case HttpInstrumentationTestType.NtlmInstrumentation:
 			case HttpInstrumentationTestType.NtlmClosesConnection:
+			case HttpInstrumentationTestType.NtlmReusesConnection:
 			case HttpInstrumentationTestType.ReuseConnection:
 			case HttpInstrumentationTestType.ReuseConnection2:
 			case HttpInstrumentationTestType.ReuseAfterPartialRead:
@@ -288,6 +294,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.RedirectNoLength:
 			case HttpInstrumentationTestType.PutChunked:
 			case HttpInstrumentationTestType.PutChunkDontCloseRequest:
+			case HttpInstrumentationTestType.ServerAbortsRedirect:
 				break;
 			default:
 				throw ctx.AssertFail (GetEffectiveType (type));
@@ -408,7 +415,7 @@ namespace Xamarin.WebTests.TestRunners
 				return (new HttpInstrumentationHandler (this, null, null, !primary), flags);
 			case HttpInstrumentationTestType.ReuseAfterPartialRead:
 				return (new HttpInstrumentationHandler (
-					this, null, ConnectionHandler.GetLargeStringContent (250), !primary),
+					this, null, ConnectionHandler.GetLargeStringContent (2500), !primary),
 				        HttpOperationFlags.ClientUsesNewConnection);
 			case HttpInstrumentationTestType.ReuseConnection2:
 				if (primary)
@@ -431,6 +438,8 @@ namespace Xamarin.WebTests.TestRunners
 				return (new HttpInstrumentationHandler (this, null, null, false), flags);
 			case HttpInstrumentationTestType.NtlmClosesConnection:
 				return (new HttpInstrumentationHandler (this, GetAuthenticationManager (), null, true), flags);
+			case HttpInstrumentationTestType.NtlmReusesConnection:
+				return (new HttpInstrumentationHandler (this, GetAuthenticationManager (), null, false), flags);
 			case HttpInstrumentationTestType.ParallelNtlm:
 			case HttpInstrumentationTestType.NtlmInstrumentation:
 			case HttpInstrumentationTestType.NtlmWhileQueued:
@@ -455,6 +464,8 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.PutChunked:
 			case HttpInstrumentationTestType.PutChunkDontCloseRequest:
 				return (new HttpInstrumentationHandler (this, null, null, true), flags);
+			case HttpInstrumentationTestType.ServerAbortsRedirect:
+				return (new HttpInstrumentationHandler (this, null, null, false), HttpOperationFlags.ServerAbortsRedirection);
 			default:
 				return (hello, flags);
 			}
@@ -1104,6 +1115,11 @@ namespace Xamarin.WebTests.TestRunners
 				get;
 			}
 
+			public bool IsSecondRequest {
+				get;
+				private set;
+			}
+
 			public string ME {
 				get;
 			}
@@ -1252,6 +1268,7 @@ namespace Xamarin.WebTests.TestRunners
 
 				case HttpInstrumentationTestType.NtlmInstrumentation:
 				case HttpInstrumentationTestType.NtlmClosesConnection:
+				case HttpInstrumentationTestType.NtlmReusesConnection:
 				case HttpInstrumentationTestType.ParallelNtlm:
 				case HttpInstrumentationTestType.NtlmWhileQueued:
 					return await HandleNtlmRequest (
@@ -1260,6 +1277,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.RedirectNoLength:
 				case HttpInstrumentationTestType.PutChunked:
 				case HttpInstrumentationTestType.PutChunkDontCloseRequest:
+				case HttpInstrumentationTestType.ServerAbortsRedirect:
 					break;
 
 				default:
@@ -1308,6 +1326,15 @@ namespace Xamarin.WebTests.TestRunners
 					var redirect = operation.RegisterRedirect (ctx, Target);
 					response = HttpResponse.CreateRedirect (HttpStatusCode.Redirect, redirect);
 					response.NoContentLength = true;
+					return response;
+
+				case HttpInstrumentationTestType.ServerAbortsRedirect:
+					if (IsSecondRequest)
+						throw ctx.AssertFail ("Should never happen.");
+					var cloned = new HttpInstrumentationHandler (this);
+					cloned.IsSecondRequest = true;
+					redirect = operation.RegisterRedirect (ctx, cloned);
+					response = HttpResponse.CreateRedirect (HttpStatusCode.Redirect, redirect);
 					return response;
 
 				default:

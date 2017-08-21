@@ -1,10 +1,10 @@
 ﻿//
-// DependencyProvider.cs
+// PortableTaskSupportImpl.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,23 +24,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
-
-[assembly: DependencyProvider (typeof (Xamarin.AsyncTests.Portable.PortableDependencyProvider))]
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Portable
 {
-	class PortableDependencyProvider : IDependencyProvider
+	class PortableTaskSupportImpl : IPortableTaskSupport
 	{
-		public void Initialize ()
+		public TaskCompletionSource<T> CreateAsyncCompletionSource<T> ()
 		{
-			DependencyInjector.RegisterDependency<IPortableSupport> (() => new PortableSupportImpl ());
-			DependencyInjector.RegisterDependency<IPortableEndPointSupport> (() => new PortableEndPointSupportImpl ());
-			DependencyInjector.RegisterDependency<IServerHost> (() => new ServerHostImpl ());
-			DependencyInjector.RegisterDependency<IPortableTaskSupport> (() => new PortableTaskSupportImpl ());
+			return new TaskCompletionSource<T> (TaskCreationOptions.RunContinuationsAsynchronously);
+		}
+
+		public Task CompletedTask => Task.CompletedTask;
+
+		public Task FromCanceled (CancellationToken cancellationToken)
+		{
+			return Task.FromCanceled (cancellationToken);
+		}
+
+		public Task<T> FromCanceled<T> (CancellationToken cancellationToken)
+		{
+			return Task.FromCanceled<T> (cancellationToken);
+		}
+
+		public Task FromException (Exception exception)
+		{
+			return Task.FromException (exception);
+		}
+
+		public Task<T> FromException<T> (Exception exception)
+		{
+			return Task.FromException<T> (exception);
 		}
 	}
 }
-

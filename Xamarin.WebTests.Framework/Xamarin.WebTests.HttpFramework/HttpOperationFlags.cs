@@ -39,6 +39,7 @@ namespace Xamarin.WebTests.HttpFramework
 		AbortAfterClientExits		= 32,
 		RequireClientCertificate	= 64,
 		ClientDoesNotSendRedirect	= 128,
-		ForceNewConnection		= 256
+		ForceNewConnection		= 256,
+		ServerAbortsRedirection		= 512
 	}
 }

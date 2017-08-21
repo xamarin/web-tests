@@ -177,6 +177,7 @@ namespace Xamarin.AsyncTests.Console {
 
 			bool debugMode = false;
 			bool noJUnit = false;
+			bool dontSaveLogging = false;
 			int? logLevel = null, localLogLevel = null;
 
 			var p = new OptionSet ();
@@ -211,6 +212,7 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("jenkins", v => Jenkins = true);
 			p.Add ("output-dir=", v => outputDir = v);
 			p.Add ("repeat=", v => repeat = int.Parse (v));
+			p.Add ("dont-save-logging", v => dontSaveLogging = true);
 			var arguments = p.Parse (args);
 
 			PackageName = packageName;
@@ -382,6 +384,9 @@ namespace Xamarin.AsyncTests.Console {
 
 			if (!debugMode)
 				Settings.DisableTimeouts = Settings.LogLevel > SettingsBag.DisableTimeoutsAtLogLevel;
+
+			if (dontSaveLogging)
+				Settings.DontSaveLogging = true;
 
 			bool needSdk = false, needAndroidSdk = false;
 

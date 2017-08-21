@@ -78,7 +78,12 @@ namespace Xamarin.WebTests.HttpHandlers
 			var response = HttpResponse.CreateRedirect (Code, redirect.Uri);
 			if (keepAlive)
 				response.KeepAlive = true;
-			response.Redirect = redirect;
+
+			if (operation.HasAnyFlags (HttpOperationFlags.ClientDoesNotSendRedirect))
+				redirect.Listener.UnregisterOperation (redirect);
+			else
+				response.Redirect = redirect;
+
 			return Task.FromResult (response);
 		}
 

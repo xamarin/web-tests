@@ -1,5 +1,5 @@
 ﻿//
-// InstrumentationContext.cs
+// IPortableTaskSupport.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -26,64 +26,23 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
-using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.AsyncTests.Portable
 {
-	using ConnectionFramework;
-	using HttpFramework;
-	using HttpHandlers;
-	using TestFramework;
-
-	class InstrumentationContext
+	public interface IPortableTaskSupport : ISingletonInstance
 	{
-		public Listener Listener {
+		TaskCompletionSource<T> CreateAsyncCompletionSource<T> ();
+
+		Task CompletedTask {
 			get;
 		}
-		public ListenerOperation Operation {
-			get;
-		}
 
-		TaskCompletionSource<ListenerContext> contextTask;
-		TaskCompletionSource<object> finishedTask;
+		Task FromCanceled (CancellationToken cancellationToken);
 
-		public ListenerContext AssignedContext {
-			get;
-			private set;
-		}
+		Task<T> FromCanceled<T> (CancellationToken cancellationToken);
 
-		public InstrumentationContext (Listener listener, ListenerOperation operation)
-		{
-			Listener = listener;
-			Operation = operation;
-			contextTask = new TaskCompletionSource<ListenerContext> ();
-			finishedTask = new TaskCompletionSource<object> ();
-		}
+		Task FromException (Exception exception);
 
-		public void AssignContext (ListenerContext context)
-		{
-			AssignedContext = context;
-			context.AssignContext (this);
-			contextTask.TrySetResult (context);
-		}
-
-		public Task Wait ()
-		{
-			return finishedTask.Task;
-		}
-
-		public Task<ListenerContext> WaitForContext ()
-		{
-			return contextTask.Task;
-		}
-
-		public void Finish ()
-		{
-			Listener.ReleaseInstrumentation (this);
-			finishedTask.TrySetResult (null);
-			contextTask.TrySetCanceled ();
-		}
+		Task<T> FromException<T> (Exception exception);
 	}
 }

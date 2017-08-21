@@ -13,5 +13,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)PortableEndPointSupportImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerHostImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PortableDependencyProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PortableTaskSupportImpl.cs" />
   </ItemGroup>
 </Project>

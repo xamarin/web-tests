@@ -28,11 +28,12 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Specialized;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpOperations
 {
-	using System.Collections.Specialized;
+	using ConnectionFramework;
 	using HttpFramework;
 	using HttpHandlers;
 
@@ -147,7 +148,8 @@ namespace Xamarin.WebTests.HttpOperations
 
 			public override void SetProxy (IWebProxy proxy)
 			{
-				Client.Proxy = proxy;
+				var clientExt = DependencyInjector.GetExtension<WebClient, IWebClientExtension> (Client);
+				clientExt.SetProxy (proxy);
 			}
 
 			public override void SetCredentials (ICredentials credentials)

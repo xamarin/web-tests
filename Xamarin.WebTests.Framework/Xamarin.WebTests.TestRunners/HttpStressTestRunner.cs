@@ -83,7 +83,7 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		public HttpStressTestRunner (IPortableEndPoint endpoint, HttpStressTestParameters parameters,
-		                             ConnectionTestProvider provider, Uri uri, HttpServerFlags flags)
+					     ConnectionTestProvider provider, Uri uri, HttpServerFlags flags)
 			: base (endpoint, parameters)
 		{
 			Provider = provider;
@@ -95,7 +95,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpStressTestType MartinTest = HttpStressTestType.Simple;
+		const HttpStressTestType MartinTest = HttpStressTestType.RepeatedHttpClient;
 
 		static readonly HttpStressTestType[] WorkingTests = {
 		};
@@ -151,6 +151,12 @@ namespace Xamarin.WebTests.TestRunners
 
 			switch (GetEffectiveType (type)) {
 			case HttpStressTestType.Simple:
+				parameters.MaxServicePoints = 100;
+				parameters.CountParallelTasks = 75;
+				parameters.RepeatCount = 2500;
+				break;
+			case HttpStressTestType.RepeatedHttpClient:
+				parameters.RepeatCount = 5000;
 				break;
 			default:
 				throw ctx.AssertFail (GetEffectiveType (type));
@@ -161,31 +167,70 @@ namespace Xamarin.WebTests.TestRunners
 
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var me = $"{ME}.{nameof (Run)}()";
+			var me = $"{ME}.{nameof (Run)}({EffectiveType})";
 			ctx.LogDebug (2, $"{me}");
 
-			var helloKeepAlive = new HelloWorldHandler (EffectiveType.ToString ()) {
-				Flags = RequestFlags.KeepAlive
-			};
-			var redirect = new RedirectHandler (helloKeepAlive, HttpStatusCode.Redirect);
-			var auth = new AuthenticationHandler (AuthenticationType.NTLM, helloKeepAlive);
-
-			var operation = new TraditionalOperation (Server, helloKeepAlive, true);
-			await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
-
-			ctx.LogDebug (2, $"{me} first operation done.");
-
-			var secondOperation = new TraditionalOperation (Server, helloKeepAlive, true);
-			await secondOperation.Run (ctx, cancellationToken);
-
-			ctx.LogDebug (2, $"{me} second operation done.");
-
-			for (int i = 0; i < -500; i++) {
-				var loopOperation = new TraditionalOperation (Server, HelloWorldHandler.GetSimple (), true);
-				await loopOperation.Run (ctx, cancellationToken);
+			switch (EffectiveType) {
+			case HttpStressTestType.Simple:
+			case HttpStressTestType.RepeatedHttpClient:
+				await RunSimple ().ConfigureAwait (false);
+				break;
+			default:
+				throw ctx.AssertFail (EffectiveType);
 			}
 
 			ctx.LogDebug (2, $"{me} DONE");
+
+			async Task RunSimple ()
+			{
+				if (Parameters.MaxServicePoints != null)
+					ServicePointManager.MaxServicePoints = Parameters.MaxServicePoints.Value;
+
+				var tasks = new Task[Parameters.CountParallelTasks + 1];
+				for (int i = 0; i < tasks.Length; i++) {
+					tasks[i] = RunLoop (i);
+				}
+
+				ctx.LogDebug (2, $"{me} GOT TASKS");
+
+				await Task.WhenAll (tasks);
+
+			}
+
+			async Task RunLoop (int idx)
+			{
+				var loopMe = $"{me} LOOP {idx}";
+
+				for (int i = 0; i < Parameters.RepeatCount; i++) {
+					await LoopOperation (i).ConfigureAwait (false);
+					if ((i % 10) == 0)
+						ctx.LogMessage ($"{loopMe} {i} DONE");
+				}
+			}
+
+			async Task LoopOperation (int idx)
+			{
+				Handler handler;
+				HttpOperation loopOperation;
+
+				switch (EffectiveType) {
+				case HttpStressTestType.Simple:
+					handler = HelloWorldHandler.GetSimple (me);
+					loopOperation = new TraditionalOperation (Server, handler, true);
+					break;
+
+				case HttpStressTestType.RepeatedHttpClient:
+					handler = new HttpClientHandler (
+						me, HttpClientOperationType.GetString, null, HttpContent.HelloWorld);
+					loopOperation = new HttpClientOperation (Server, handler);
+					break;
+
+				default:
+					throw ctx.AssertFail (EffectiveType);
+				}
+
+				await loopOperation.Run (ctx, cancellationToken).ConfigureAwait (false);
+			}
 		}
 
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
