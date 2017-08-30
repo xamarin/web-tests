@@ -136,9 +136,14 @@ namespace Xamarin.WebTests.TestRunners
 
 			var name = GetTestName (category, type);
 
-			return new StreamInstrumentationParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+			var parameters = new StreamInstrumentationParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 				ClientCertificateValidator = acceptAll
 			};
+
+			if (category == ConnectionTestCategory.SslStreamInstrumentationShutdown)
+				parameters.SslStreamFlags = SslStreamFlags.CleanShutdown;
+
+			return parameters;
 		}
 
 		StreamInstrumentation clientInstrumentation;

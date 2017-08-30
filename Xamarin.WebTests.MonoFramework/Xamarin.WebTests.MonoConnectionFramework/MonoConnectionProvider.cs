@@ -124,11 +124,14 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			return CallbackHelpers.GetClientCertificates (parameters);
 		}
 
-		MSI.MonoTlsSettings GetSettings (ConnectionParameters parameters)
+		MSI.MonoTlsSettings GetSettings (ConnectionParameters parameters, bool requireSettings)
 		{
 			MSI.MonoTlsSettings settings = null;
-			if (parameters.ValidationParameters != null && parameters.ValidationParameters.TrustedRoots != null) {
+			if (requireSettings)
 				settings = MSI.MonoTlsSettings.CopyDefaultSettings ();
+			if (parameters.ValidationParameters != null && parameters.ValidationParameters.TrustedRoots != null) {
+				if (settings == null)
+					settings = MSI.MonoTlsSettings.CopyDefaultSettings ();
 				settings.TrustAnchors = new X509CertificateCollection ();
 				foreach (var trustedRoot in parameters.ValidationParameters.TrustedRoots) {
 					var trustedRootCert = ResourceManager.GetCertificate (trustedRoot);
@@ -149,7 +152,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		public HttpWebRequest CreateWebRequest (Uri uri, ConnectionParameters parameters)
 		{
-			var settings = GetSettings (parameters);
+			var settings = GetSettings (parameters, false);
 			return MSI.MonoTlsProviderFactory.CreateHttpsRequest (uri, tlsProvider, settings);
 		}
 
@@ -159,7 +162,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		{
 			var certificate = parameters.ServerCertificate;
 
-			var settings = GetSettings (parameters);
+			var settings = GetSettings (parameters, false);
 			return MSI.MonoTlsProviderFactory.CreateHttpListener (certificate, tlsProvider, settings);
 		}
 
@@ -175,7 +178,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		public SslStream CreateSslStream (TestContext ctx, Stream stream, ConnectionParameters parameters, bool server)
 		{
-			var settings = new MSI.MonoTlsSettings ();
+			var settings = GetSettings (parameters, true);
 			if (parameters is MonoConnectionParameters monoParams) {
 				if (monoParams.ClientCiphers != null)
 					settings.EnabledCiphers = monoParams.ClientCiphers.ToArray ();
