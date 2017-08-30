@@ -609,7 +609,9 @@ namespace Xamarin.WebTests.TestRunners
 			Task DoubleShutdown ()
 			{
 				// Don't use Client.Shutdown() as that might throw a different exception.
-				return ctx.AssertException<InvalidOperationException> (Client.SslStream.ShutdownAsync, "double shutdown");
+				var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+				return ctx.AssertException<InvalidOperationException> (
+					() => setup.ShutdownAsync (Client.SslStream), "double shutdown");
 			}
 
 			Task WriteAfterShutdown ()

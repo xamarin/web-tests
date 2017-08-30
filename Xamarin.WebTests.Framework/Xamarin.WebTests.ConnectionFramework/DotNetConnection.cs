@@ -197,8 +197,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (closed != 0 || Interlocked.CompareExchange (ref shutdown, 1, 0) != 0)
 				throw new InvalidOperationException ("Cannot call Shutdown() after the connection has been closed.");
 
-			if (SupportsCleanShutdown)
-				await sslStream.ShutdownAsync ().ConfigureAwait (false);
+			if (SupportsCleanShutdown) {
+				var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+				await setup.ShutdownAsync (sslStream).ConfigureAwait (false);
+			}
 		}
 
 		public async Task Restart (TestContext ctx, CancellationToken cancellationToken)

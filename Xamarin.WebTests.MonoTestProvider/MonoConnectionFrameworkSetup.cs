@@ -269,5 +269,14 @@ namespace Xamarin.WebTests.MonoTestProvider
 			setSendCloseNotify.Invoke (settings, new object[] { value });
 #endif
 		}
+
+		public Task ShutdownAsync (SslStream stream)
+		{
+#if __IOS__ || __MOBILE__
+			throw new NotSupportedException ();
+#else
+			return stream.ShutdownAsync ();
+#endif
+		}
 	}
 }

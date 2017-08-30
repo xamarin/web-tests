@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Net.Security;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
@@ -60,6 +62,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		void Initialize (ConnectionProviderFactory factory);
+
+		Task ShutdownAsync (SslStream stream);
 	}
 }
 

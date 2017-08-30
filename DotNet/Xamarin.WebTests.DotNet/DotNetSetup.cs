@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net;
+using System.Net.Security;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xamarin.WebTests.ConnectionFramework;
 
 namespace Xamarin.WebTests.DotNet
@@ -24,6 +26,11 @@ namespace Xamarin.WebTests.DotNet
 		public void Initialize (ConnectionProviderFactory factory)
 		{
 			;
+		}
+
+		public Task ShutdownAsync (SslStream stream)
+		{
+			return stream.ShutdownAsync ();
 		}
 	}
 }
