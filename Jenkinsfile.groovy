@@ -133,7 +133,7 @@ def runTests (String target, String category, Boolean unstable = false, Integer 
 	}
 }
 
-node ('jenkins-mac-2') {
+node ('felix-25-sierra') {
 	timestamps {
 		stage ('checkout') {
 			dir ('web-tests') {
