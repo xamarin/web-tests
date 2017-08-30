@@ -255,6 +255,8 @@ namespace Xamarin.WebTests.MonoTestProvider
 #if __IOS__ || __MOBILE__
 			throw new NotSupportedException ();
 #else
+			if (getSupportsCleanShutdown == null)
+				return false;
 			return (bool)getSupportsCleanShutdown.Invoke (provider, null);
 #endif
 		}
