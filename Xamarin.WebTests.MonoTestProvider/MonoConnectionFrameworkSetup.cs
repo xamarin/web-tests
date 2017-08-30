@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Net.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
@@ -141,6 +142,8 @@ namespace Xamarin.WebTests.MonoTestProvider
 				if (UsingAppleTls)
 					throw new NotSupportedException ("AppleTls is not supported in this version of the Mono runtime.");
 			}
+
+			InitReflection ();
 		}
 
 		public void Initialize (ConnectionProviderFactory factory)
@@ -154,6 +157,15 @@ namespace Xamarin.WebTests.MonoTestProvider
 		public MonoTlsProvider GetDefaultProvider ()
 		{
 			return TlsProvider;
+		}
+
+		void InitReflection ()
+		{
+#if !__IOS__ && !__MOBILE__
+			var type = typeof (MonoTlsProviderFactory);
+			getSslStreamFromHttpListenerContext = type.GetRuntimeMethod ("GetMonoSslStream", new Type[] { typeof (HttpListenerContext) });
+			clientCertIssuersProp = typeof (MonoTlsSettings).GetTypeInfo ().GetDeclaredProperty ("ClientCertificateIssuers");
+#endif
 		}
 
 		bool CheckCleanShutdown ()
@@ -215,6 +227,8 @@ namespace Xamarin.WebTests.MonoTestProvider
 		MethodInfo getSupportsCleanShutdown;
 		PropertyInfo sendCloseNotify;
 		MethodInfo setSendCloseNotify;
+		MethodInfo getSslStreamFromHttpListenerContext;
+		PropertyInfo clientCertIssuersProp;
 #endif
 
 		bool CheckRenegotiation ()
@@ -278,5 +292,49 @@ namespace Xamarin.WebTests.MonoTestProvider
 			return stream.ShutdownAsync ();
 #endif
 		}
+
+		public bool SupportsHttpListenerContext {
+			get {
+#if __IOS__ || __MOBILE__
+				return false;
+#else
+				return getSslStreamFromHttpListenerContext != null;
+#endif
+			}
+		}
+
+		public SslStream GetSslStream (HttpListenerContext context)
+		{
+#if __IOS__ || __MOBILE__
+			throw new NotSupportedException ();
+#else
+			if (getSslStreamFromHttpListenerContext == null)
+				throw new NotSupportedException ();
+			var sslStream = (IMonoSslStream)getSslStreamFromHttpListenerContext.Invoke (null, new object[] { context });
+			return (SslStream)sslStream;
+#endif
+		}
+
+		public bool SupportsClientCertificateIssuers {
+			get {
+#if __IOS__ || __MOBILE__
+				return false;
+#else
+				return clientCertIssuersProp != null;
+#endif
+			}
+		}
+
+		public void SetClientCertificateIssuers (MonoTlsSettings settings, string[] issuers)
+		{
+#if __IOS__ || __MOBILE__
+			throw new NotSupportedException ();
+#else
+			if (clientCertIssuersProp == null)
+				throw new NotSupportedException ();
+			clientCertIssuersProp.SetValue (settings, issuers);
+#endif
+		}
+
 	}
 }

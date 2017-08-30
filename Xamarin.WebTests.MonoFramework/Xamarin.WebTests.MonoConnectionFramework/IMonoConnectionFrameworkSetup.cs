@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Net.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
@@ -59,5 +60,17 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		bool ProviderSupportsCleanShutdown (MonoTlsProvider provider);
 
 		void SendCloseNotify (MonoTlsSettings settings, bool value);
+
+		bool SupportsHttpListenerContext {
+			get;
+		}
+
+		SslStream GetSslStream (HttpListenerContext context);
+
+		bool SupportsClientCertificateIssuers {
+			get;
+		}
+
+		void SetClientCertificateIssuers (MonoTlsSettings settings, string[] issuers);
 	}
 }
