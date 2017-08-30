@@ -65,6 +65,8 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get;
 		}
 
+		SslStream GetSslStream (IMonoSslStream stream);
+
 		SslStream GetSslStream (HttpListenerContext context);
 
 		bool SupportsClientCertificateIssuers {

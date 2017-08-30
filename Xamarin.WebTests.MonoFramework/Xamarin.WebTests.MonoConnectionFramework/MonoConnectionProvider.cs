@@ -163,6 +163,12 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get;
 		}
 
+		public SslStream GetSslStream (MSI.IMonoSslStream stream)
+		{
+			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
+			return setup.GetSslStream (stream);
+		}
+
 		public SslStream GetSslStream (HttpListenerContext context)
 		{
 			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
@@ -191,7 +197,8 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				CallbackHelpers.AddCertificateSelector (settings, parameters.ClientCertificateSelector);
 			}
 
-			return tlsProvider.CreateSslStream (stream, false, settings).SslStream;
+			var monoSslStream = tlsProvider.CreateSslStream (stream, false, settings);
+			return GetSslStream (monoSslStream);
 		}
 
 		public override string ToString ()

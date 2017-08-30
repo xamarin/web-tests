@@ -303,6 +303,11 @@ namespace Xamarin.WebTests.MonoTestProvider
 			}
 		}
 
+		public SslStream GetSslStream (IMonoSslStream stream)
+		{
+			return (SslStream)stream;
+		}
+
 		public SslStream GetSslStream (HttpListenerContext context)
 		{
 #if __IOS__ || __MOBILE__
