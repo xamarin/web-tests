@@ -154,9 +154,6 @@ node ('felix-25-sierra') {
 			buildAll ()
 		}
 		if (enableMono ()) {
-			stage ('console-martin') {
-				runTests ('Console', 'Martin')
-			}
 			stage ('console-work') {
 				runTests ('Console', 'Work')
 			}
@@ -166,9 +163,6 @@ node ('felix-25-sierra') {
 			stage ('console-all') {
 				runTests ('Console', 'All')
 			}
-			stage ('console-appletls-martin') {
-				runTests ('Console-AppleTls', 'Martin')
-			}
 			stage ('console-appletls-work') {
 				runTests ('Console-AppleTls', 'Work')
 			}
@@ -177,9 +171,6 @@ node ('felix-25-sierra') {
 			}
 			stage ('console-appletls-all') {
 				runTests ('Console-AppleTls', 'All')
-			}
-			stage ('console-legacy-martin') {
-				runTests ('Console-Legacy', 'Martin')
 			}
 			stage ('console-legacy-work') {
 				runTests ('Console-Legacy', 'Work')
@@ -192,9 +183,6 @@ node ('felix-25-sierra') {
 			}
 		}
 		if (enableXI ()) {
-			stage ('ios-martin') {
-				runTests ('IOS', 'Martin')
-			}
 			stage ('ios-work') {
 				runTests ('IOS', 'Work')
 			}
@@ -206,9 +194,6 @@ node ('felix-25-sierra') {
 			}
 		}
 		if (enableXM ()) {
-			stage ('mac-martin') {
-				runTests ('Mac', 'Martin')
-			}
 			stage ('mac-work') {
 				runTests ('Mac', 'Work')
 			}
@@ -220,9 +205,6 @@ node ('felix-25-sierra') {
 			}
 		}
 		if (enableXA ()) {
-			stage ('android-btls-martin') {
-				runTests ('Android-Btls', 'Martin', true)
-			}
 			stage ('android-btls-work') {
 				runTests ('Android-Btls', 'Work', true)
 			}
