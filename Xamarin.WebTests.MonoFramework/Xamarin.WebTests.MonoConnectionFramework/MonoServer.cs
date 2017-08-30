@@ -36,5 +36,25 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			var monoSslStream = MSI.MonoTlsProviderFactory.GetMonoSslStream (SslStream);
 			return monoSslStream.GetConnectionInfo ();
 		}
+
+		public MSI.IMonoSslStream GetMonoSslStream ()
+		{
+			return MSI.MonoTlsProviderFactory.GetMonoSslStream (SslStream);
+		}
+
+		public bool CanRenegotiate {
+			get {
+				var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
+				return setup.CanRenegotiate (GetMonoSslStream ());
+			}
+		}
+
+		public Task RenegotiateAsync (CancellationToken cancellationToken)
+		{
+			if (!CanRenegotiate)
+				throw new NotSupportedException ();
+			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
+			return setup.RenegotiateAsync (GetMonoSslStream (), cancellationToken);
+		}
 	}
 }

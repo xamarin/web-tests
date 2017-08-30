@@ -47,18 +47,20 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public abstract bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter = null);
 
-		protected static bool? MatchesFilter (ConnectionProvider provider, string filter)
+		protected static (bool match, bool success, bool wildcard) MatchesFilter (ConnectionProvider provider, string filter)
 		{
 			if (filter == null)
-				return null;
+				return (false, false, false);
 
 			var parts = filter.Split (',');
 			foreach (var part in parts) {
+				if (part.Equals ("*"))
+					return (true, true, true);
 				if (string.Equals (provider.Name, part, StringComparison.OrdinalIgnoreCase))
-					return true;
+					return (true, true, false);
 			}
 
-			return false;
+			return (true, false, false);
 		}
 
 		protected bool HasFlag (ConnectionTestFlags flag)
@@ -77,9 +79,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (HasFlag (ConnectionTestFlags.RequireHttpListener) && !provider.HasFlag (ConnectionProviderFlags.SupportsHttpListener))
 				return false;
 
-			var match = MatchesFilter (provider, filter);
-			if (match != null)
-				return match.Value;
+			var (match, success, wildcard) = MatchesFilter (provider, filter);
+			if (match) {
+				if (!success)
+					return false;
+				if (wildcard && provider.HasFlag (ConnectionProviderFlags.IsExplicit))
+					return false;
+				return true;
+			}
+
 			if (provider.HasFlag (ConnectionProviderFlags.IsExplicit))
 				return false;
 
@@ -131,8 +139,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 
-			var clientProviders = GetClientProviders (ctx, clientFilter);
-			var serverProviders = GetServerProviders (ctx, serverFilter);
+			var clientProviders = GetClientProviders (ctx, clientFilter).ToList ();
+			var serverProviders = GetServerProviders (ctx, serverFilter).ToList ();
+
+			if (filter != null) {
+				if (clientProviders.Count == 0)
+					ctx.LogMessage ($"WARNING: No TLS Provider matches client filter '{clientFilter}'");
+				if (serverProviders.Count == 0)
+					ctx.LogMessage ($"WARNING: No TLS Provider matches server filter '{serverFilter}'");
+			}
 
 			return ConnectionTestHelper.Join (clientProviders, serverProviders, (c, s) => {
 				return Create (c, s);

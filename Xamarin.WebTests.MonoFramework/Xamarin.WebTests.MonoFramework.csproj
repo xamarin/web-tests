@@ -75,6 +75,12 @@
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\AppleTlsAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoConnectionFramework\IMonoConnectionFrameworkSetup.cs" />
     <Compile Include="Xamarin.WebTests.MonoConnectionFramework\IMonoConnectionInfo.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFramework\RenegotiationTestType.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFramework\RenegotiationTestParameters.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFramework\RenegotiationTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFeatures\RenegotiationTestParametersAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFeatures\RenegotiationTestRunnerAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFeatures\RenegotiationAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

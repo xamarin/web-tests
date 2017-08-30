@@ -159,6 +159,7 @@ namespace Xamarin.WebTests.TestRunners
 			var supportsClientCertificates = (flags & ConnectionProviderFlags.SupportsClientCertificates) != 0;
 			var supportsTrustedRoots = (flags & ConnectionProviderFlags.SupportsTrustedRoots) != 0;
 			var supportsMonoExtensions = (flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
+			var supportsCleanShutdown = (flags & ConnectionProviderFlags.SupportsCleanShutdown) != 0;
 
 			switch (category) {
 			case ConnectionTestCategory.Https:
@@ -183,6 +184,8 @@ namespace Xamarin.WebTests.TestRunners
 				return supportsSslStream && supportsTls12;
 			case ConnectionTestCategory.SslStreamInstrumentationMono:
 				return supportsSslStream && supportsTls12 && supportsMonoExtensions;
+			case ConnectionTestCategory.SslStreamInstrumentationShutdown:
+				return supportsSslStream && supportsMonoExtensions && supportsCleanShutdown;
 			case ConnectionTestCategory.HttpInstrumentation:
 			case ConnectionTestCategory.HttpInstrumentationStress:
 			case ConnectionTestCategory.HttpInstrumentationNewWebStack:

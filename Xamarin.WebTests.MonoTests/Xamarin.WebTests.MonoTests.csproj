@@ -38,6 +38,7 @@
     <Compile Include="Xamarin.WebTests.MonoTest\TestSecurityFramework.cs" />
     <Compile Include="Xamarin.WebTests.MonoTest\TestValidator.cs" />
     <Compile Include="Xamarin.WebTests.MonoTest\TestProvider.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTest\TestRenegotiation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

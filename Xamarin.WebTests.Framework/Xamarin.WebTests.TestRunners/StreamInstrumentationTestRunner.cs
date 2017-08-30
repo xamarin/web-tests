@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ConnectionReuse;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ConnectionReuseWithShutdown;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -91,15 +91,14 @@ namespace Xamarin.WebTests.TestRunners
 				yield return StreamInstrumentationType.ShortReadDuringClientAuth;
 				yield return StreamInstrumentationType.ShortReadAndClose;
 				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
+				yield break;
 
+			case ConnectionTestCategory.SslStreamInstrumentationShutdown:
 				yield return StreamInstrumentationType.CleanShutdown;
 				yield return StreamInstrumentationType.DoubleShutdown;
 				yield return StreamInstrumentationType.WriteAfterShutdown;
 				yield return StreamInstrumentationType.WaitForShutdown;
-
-				if (!setup.UsingAppleTls)
-					yield return StreamInstrumentationType.ReadAfterShutdown;
-
+				yield return StreamInstrumentationType.ReadAfterShutdown;
 				yield return StreamInstrumentationType.ConnectionReuse;
 				yield return StreamInstrumentationType.ConnectionReuseWithShutdown;
 				yield break;
@@ -692,7 +691,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		async Task ServerShutdown_ConnectionReuse (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var me = "ServerShutdown_ConnectionReuse()";
+			var me = $"ServerShutdown_ConnectionReuse({EffectiveType})";
 			LogDebug (ctx, 4, me);
 
 			Task<int> serverRead;

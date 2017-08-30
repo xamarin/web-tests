@@ -37,10 +37,12 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 {
 	public static class MonoConnectionProviderFactory
 	{
-		public static MonoConnectionProvider RegisterProvider (ConnectionProviderFactory factory, MonoTlsProvider provider)
+		public static MonoConnectionProvider RegisterProvider (ConnectionProviderFactory factory, MonoTlsProvider provider, bool second)
 		{
 			var type = ConnectionProviderFactory.GetConnectionProviderType (provider.ID);
 			var flags = ConnectionProviderFactory.GetConnectionProviderFlags (type);
+			if (second)
+				flags |= ConnectionProviderFlags.IsExplicit;
 			var mcp = new MonoConnectionProvider (factory, type, flags, provider.Name, provider);
 			factory.Install (mcp);
 			return mcp;

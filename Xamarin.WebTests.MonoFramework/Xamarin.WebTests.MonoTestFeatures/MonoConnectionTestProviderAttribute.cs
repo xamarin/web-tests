@@ -35,7 +35,7 @@ namespace Xamarin.WebTests.MonoTestFeatures
 	using TestFramework;
 	using MonoTestFramework;
 
-	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
 	public class MonoConnectionTestProviderAttribute : TestParameterAttribute, ITestParameterSource<MonoConnectionTestProvider>
 	{
 		public MonoConnectionTestProviderAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)

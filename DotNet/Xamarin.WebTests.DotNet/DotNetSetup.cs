@@ -13,7 +13,7 @@ namespace Xamarin.WebTests.DotNet
 
 		public bool SupportsTls12 => true;
 
-		public bool SupportsCleanShutdown => true;
+		public bool SupportsCleanShutdown => false;
 
 		public bool UsingAppleTls => false;
 

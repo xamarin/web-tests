@@ -32,6 +32,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		None = 0,
 		SyncAuthenticate = 1,
 		BeginEndAuthenticate = 2,
-		MartinTest = 4
+		CleanShutdown = 4,
+		MartinTest = 8
 	}
 }

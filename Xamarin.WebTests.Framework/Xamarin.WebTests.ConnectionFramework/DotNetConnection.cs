@@ -179,6 +179,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			Task TheHandshake ()
 			{
+				if (destroyed != null)
+					throw destroyed;
 				return Start (ctx, sslStream, cancellationToken);
 			}
 		}

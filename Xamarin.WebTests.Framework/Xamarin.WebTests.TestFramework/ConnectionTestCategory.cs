@@ -50,6 +50,7 @@ namespace Xamarin.WebTests.TestFramework
 
 		SslStreamInstrumentation,
 		SslStreamInstrumentationMono,
+		SslStreamInstrumentationShutdown,
 		SslStreamInstrumentationExperimental,
 
 		HttpInstrumentation,

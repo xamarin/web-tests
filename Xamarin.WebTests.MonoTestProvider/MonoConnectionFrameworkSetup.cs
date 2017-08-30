@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 using Mono.Security.Interface;
 #if !__MOBILE__ && !__IOS__
@@ -56,6 +58,10 @@ namespace Xamarin.WebTests.MonoTestProvider
 			get;
 		}
 
+		public MonoTlsProvider SecondTlsProvider {
+			get;
+		}
+
 		public bool InstallDefaultCertificateValidator {
 			get { return true; }
 		}
@@ -77,6 +83,10 @@ namespace Xamarin.WebTests.MonoTestProvider
 		}
 
 		public bool HasNewWebStack {
+			get;
+		}
+
+		public bool SupportsRenegotiation {
 			get;
 		}
 
@@ -118,14 +128,27 @@ namespace Xamarin.WebTests.MonoTestProvider
 
 			SupportsCleanShutdown = CheckCleanShutdown ();
 			HasNewWebStack = CheckNewWebStack ();
+			SupportsRenegotiation = CheckRenegotiation ();
 
-			if (UsingAppleTls && !CheckAppleTls ())
-				throw new NotSupportedException ("AppleTls is not supported in this version of the Mono runtime.");
+			if (CheckAppleTls ()) {
+#if !XAMMAC
+				if (UsingBtls)
+					SecondTlsProvider = MonoTlsProviderFactory.GetProvider ("apple");
+				if (UsingAppleTls)
+					SecondTlsProvider = MonoTlsProviderFactory.GetProvider ("btls");
+#endif
+			} else {
+				if (UsingAppleTls)
+					throw new NotSupportedException ("AppleTls is not supported in this version of the Mono runtime.");
+			}
 		}
 
 		public void Initialize (ConnectionProviderFactory factory)
 		{
-			MonoConnectionProviderFactory.RegisterProvider (factory, TlsProvider);
+			MonoConnectionProviderFactory.RegisterProvider (factory, TlsProvider, false);
+
+			if (SecondTlsProvider != null)
+				MonoConnectionProviderFactory.RegisterProvider (factory, SecondTlsProvider, true);
 		}
 
 		public MonoTlsProvider GetDefaultProvider ()
@@ -138,9 +161,17 @@ namespace Xamarin.WebTests.MonoTestProvider
 #if __IOS__ || __MOBILE__
 			return false;
 #else
-			var type = typeof (SslStream);
-			var method = type.GetMethod ("ShutdownAsync", BindingFlags.Instance | BindingFlags.Public);
-			return method != null;
+			var type = typeof (MonoTlsProvider);
+			supportsCleanShutdown = type.GetProperty ("SupportsCleanShutdown", BindingFlags.Instance | BindingFlags.NonPublic);
+			if (supportsCleanShutdown == null)
+				return false;
+			getSupportsCleanShutdown = supportsCleanShutdown.GetMethod;
+			var settings = typeof (MonoTlsSettings);
+			sendCloseNotify = settings.GetProperty ("SendCloseNotify", BindingFlags.Instance | BindingFlags.NonPublic);
+			if (sendCloseNotify == null)
+				return false;
+			setSendCloseNotify = sendCloseNotify.SetMethod;
+			return true;
 #endif
 		}
 
@@ -173,6 +204,67 @@ namespace Xamarin.WebTests.MonoTestProvider
 			return assembly.GetType ("Mono.AppleTls.SecAccess", false) != null;
 #else
 			return false;
+#endif
+		}
+
+#if !__IOS__ && !__MOBILE__
+		PropertyInfo canRenegotiate;
+		MethodInfo getCanRenegotiate;
+		MethodInfo renegotiateAsync;
+		PropertyInfo supportsCleanShutdown;
+		MethodInfo getSupportsCleanShutdown;
+		PropertyInfo sendCloseNotify;
+		MethodInfo setSendCloseNotify;
+#endif
+
+		bool CheckRenegotiation ()
+		{
+#if __IOS__ || __MOBILE__
+			return false;
+#else
+			var type = typeof (IMonoSslStream);
+			canRenegotiate = type.GetProperty ("CanRenegotiate");
+			if (canRenegotiate == null)
+				return false;
+			getCanRenegotiate = canRenegotiate.GetGetMethod ();
+			renegotiateAsync = type.GetMethod ("RenegotiateAsync");
+			return renegotiateAsync != null;
+#endif
+		}
+
+		public bool CanRenegotiate (IMonoSslStream stream)
+		{
+#if __IOS__ || __MOBILE__
+			throw new NotSupportedException ();
+#else
+			return (bool)getCanRenegotiate.Invoke (stream, null);
+#endif
+		}
+
+		public Task RenegotiateAsync (IMonoSslStream stream, CancellationToken cancellationToken)
+		{
+#if __IOS__ || __MOBILE__
+			throw new NotSupportedException ();
+#else
+			return (Task)renegotiateAsync.Invoke (stream, new object[] { cancellationToken });
+#endif
+		}
+
+		public bool ProviderSupportsCleanShutdown (MonoTlsProvider provider)
+		{
+#if __IOS__ || __MOBILE__
+			throw new NotSupportedException ();
+#else
+			return (bool)getSupportsCleanShutdown.Invoke (provider, null);
+#endif
+		}
+
+		public void SendCloseNotify (MonoTlsSettings settings, bool value)
+		{
+#if __IOS__ || __MOBILE__
+			throw new NotSupportedException ();
+#else
+			setSendCloseNotify.Invoke (settings, new object[] { value });
 #endif
 		}
 	}

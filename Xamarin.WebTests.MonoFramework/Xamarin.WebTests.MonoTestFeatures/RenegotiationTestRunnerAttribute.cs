@@ -1,10 +1,10 @@
 ﻿//
-// IMonoConnectionFrameworkSetup.cs
+// RenegotiationTestRunnerAttribute.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2016 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,40 +24,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
-using Mono.Security.Interface;
-using Xamarin.WebTests.MonoConnectionFramework;
 
-[assembly: RequireDependency (typeof (IMonoConnectionFrameworkSetup))]
-
-namespace Xamarin.WebTests.MonoConnectionFramework
+namespace Xamarin.WebTests.MonoTestFeatures
 {
+	using TestRunners;
+	using TestFramework;
+	using MonoTestFramework;
 	using ConnectionFramework;
+	using HttpFramework;
+	using Resources;
 
-	public interface IMonoConnectionFrameworkSetup : IConnectionFrameworkSetup
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
+	public class RenegotiationTestRunnerAttribute : TestHostAttribute, ITestHost<RenegotiationTestRunner>
 	{
-		string TlsProviderName {
-			get;
+		public RenegotiationTestRunnerAttribute ()
+			: base (typeof (RenegotiationTestRunnerAttribute), TestFlags.Hidden)
+		{
 		}
 
-		Guid TlsProviderId {
-			get;
+		public RenegotiationTestRunner CreateInstance (TestContext ctx)
+		{
+			return ConnectionTestHelper.CreateTestRunner<MonoConnectionTestProvider, RenegotiationTestParameters, RenegotiationTestRunner> (
+				ctx, (s, c, t, p) => new RenegotiationTestRunner (s, c, t, p));
 		}
-
-		bool SupportsRenegotiation {
-			get;
-		}
-
-		bool CanRenegotiate (IMonoSslStream stream);
-
-		Task RenegotiateAsync (IMonoSslStream stream, CancellationToken cancellationToken);
-
-		bool ProviderSupportsCleanShutdown (MonoTlsProvider provider);
-
-		void SendCloseNotify (MonoTlsSettings settings, bool value);
 	}
 }

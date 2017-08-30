@@ -134,7 +134,7 @@ namespace Mono.Btls.Tests
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public Task TestWeb (
 			TestContext ctx, CancellationToken cancellationToken,
-			[ConnectionTestProvider ("BoringTLS")] ConnectionTestProvider provider,
+			[ConnectionTestProvider ("btls")] ConnectionTestProvider provider,
 			HttpsTestParameters parameters, HttpsTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
@@ -157,7 +157,7 @@ namespace Mono.Btls.Tests
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public void TestProvider (
 			TestContext ctx, CancellationToken cancellationToken,
-			[ConnectionTestProvider ("BoringTLS")] ConnectionTestProvider provider)
+			[ConnectionTestProvider ("btls")] ConnectionTestProvider provider)
 		{
 			ctx.LogMessage ("TEST PROVIDER: {0}", provider);
 			var tlsProvider = MonoTlsProviderFactory.GetProvider ();

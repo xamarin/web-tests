@@ -1,10 +1,10 @@
 ﻿//
-// IMonoConnectionFrameworkSetup.cs
+// RenegotiationTestParameters.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2016 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,40 +24,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
-using Xamarin.AsyncTests;
-using Mono.Security.Interface;
-using Xamarin.WebTests.MonoConnectionFramework;
 
-[assembly: RequireDependency (typeof (IMonoConnectionFrameworkSetup))]
-
-namespace Xamarin.WebTests.MonoConnectionFramework
+namespace Xamarin.WebTests.MonoTestFramework
 {
+	using MonoTestFeatures;
 	using ConnectionFramework;
+	using TestFramework;
 
-	public interface IMonoConnectionFrameworkSetup : IConnectionFrameworkSetup
+	[RenegotiationTestParameters]
+	public class RenegotiationTestParameters : MonoConnectionTestParameters
 	{
-		string TlsProviderName {
+		public RenegotiationTestType Type {
 			get;
 		}
 
-		Guid TlsProviderId {
-			get;
+		public RenegotiationTestParameters (MonoConnectionTestCategory category, RenegotiationTestType type,
+		                                    string identifier, X509Certificate certificate)
+			: base (category, identifier, certificate)
+		{
+			Type = type;
 		}
 
-		bool SupportsRenegotiation {
-			get;
+		protected RenegotiationTestParameters (RenegotiationTestParameters other)
+			: base (other)
+		{
+			Type = other.Type;
 		}
 
-		bool CanRenegotiate (IMonoSslStream stream);
-
-		Task RenegotiateAsync (IMonoSslStream stream, CancellationToken cancellationToken);
-
-		bool ProviderSupportsCleanShutdown (MonoTlsProvider provider);
-
-		void SendCloseNotify (MonoTlsSettings settings, bool value);
+		public override ConnectionParameters DeepClone ()
+		{
+			return new RenegotiationTestParameters (this);
+		}
 	}
 }

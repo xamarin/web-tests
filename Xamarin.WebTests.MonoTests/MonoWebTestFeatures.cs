@@ -61,6 +61,7 @@ namespace Xamarin.WebTests.MonoTests
 				yield return IOSAttribute.Instance;
 				yield return SecurityFrameworkAttribute.Instance;
 				yield return AppleTlsAttribute.Instance;
+				yield return RenegotiationAttribute.Instance;
 			}
 		}
 

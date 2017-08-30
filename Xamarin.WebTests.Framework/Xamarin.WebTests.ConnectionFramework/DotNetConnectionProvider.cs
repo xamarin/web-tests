@@ -59,8 +59,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (IsMicrosoftRuntime || (flags & ConnectionProviderFlags.SupportsTls12) != 0 || setup.SupportsTls12)
 				flags |= ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers |
 					ConnectionProviderFlags.SupportsEcDheCiphers;
-			if (IsMicrosoftRuntime || setup.SupportsCleanShutdown)
-				flags |= ConnectionProviderFlags.SupportsCleanShutdown;
 			return flags;
 		}
 
