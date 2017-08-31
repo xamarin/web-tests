@@ -135,7 +135,7 @@ def runTests (String target, String category, Boolean unstable = false, Integer 
 				error = true
 			}
 		} finally {
-			archiveArtifacts artifacts: "$outputDir/*.log", fingerprint: true
+			archiveArtifacts artifacts: "$outputDir/*.log", fingerprint: true, allowEmptyArchive: true
 			if (!error) {
 				junit keepLongStdio: true, testResults: "$outputDir/*.xml"
 				archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
