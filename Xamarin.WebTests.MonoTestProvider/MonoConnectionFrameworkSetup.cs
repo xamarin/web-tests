@@ -132,7 +132,7 @@ namespace Xamarin.WebTests.MonoTestProvider
 			SupportsRenegotiation = CheckRenegotiation ();
 
 			if (CheckAppleTls ()) {
-#if !XAMMAC
+#if !__IOS__ && !__MOBILE__ && !XAMMAC
 				if (UsingBtls)
 					SecondTlsProvider = MonoTlsProviderFactory.GetProvider ("apple");
 				if (UsingAppleTls)
