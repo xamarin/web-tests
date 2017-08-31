@@ -91,6 +91,10 @@ namespace Xamarin.WebTests.MonoTestProvider
 			get;
 		}
 
+		public bool SupportsMonoExtensions {
+			get;
+		}
+
 		public MonoConnectionFrameworkSetup (string name)
 		{
 			Name = name;
@@ -131,6 +135,10 @@ namespace Xamarin.WebTests.MonoTestProvider
 			HasNewWebStack = CheckNewWebStack ();
 			SupportsRenegotiation = CheckRenegotiation ();
 
+#if !__IOS__ && !__MOBILE__ && !XAMMAC
+			SupportsMonoExtensions = true;
+#endif
+
 			if (CheckAppleTls ()) {
 #if !__IOS__ && !__MOBILE__ && !XAMMAC
 				if (UsingBtls)
@@ -148,10 +156,10 @@ namespace Xamarin.WebTests.MonoTestProvider
 
 		public void Initialize (ConnectionProviderFactory factory)
 		{
-			MonoConnectionProviderFactory.RegisterProvider (factory, TlsProvider, false);
+			MonoConnectionProviderFactory.RegisterProvider (factory, TlsProvider, this, false);
 
 			if (SecondTlsProvider != null)
-				MonoConnectionProviderFactory.RegisterProvider (factory, SecondTlsProvider, true);
+				MonoConnectionProviderFactory.RegisterProvider (factory, SecondTlsProvider, this, true);
 		}
 
 		public MonoTlsProvider GetDefaultProvider ()

@@ -75,7 +75,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public bool SupportsSslStreams => (Flags & ConnectionProviderFlags.SupportsSslStream) != 0;
 
-		public bool SupportsMonoExtensions => (Flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
+		public bool DisableMonoExtensions => (Flags & ConnectionProviderFlags.DisableMonoExtensions) != 0;
+
+		public bool SupportsMonoExtensions => !DisableMonoExtensions && (Flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
 
 		public bool SupportsCleanShutdown => (Flags & ConnectionProviderFlags.SupportsCleanShutdown) != 0;
 

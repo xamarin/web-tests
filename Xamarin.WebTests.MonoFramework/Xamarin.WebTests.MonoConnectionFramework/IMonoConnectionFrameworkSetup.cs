@@ -49,6 +49,10 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get;
 		}
 
+		bool SupportsMonoExtensions {
+			get;
+		}
+
 		bool SupportsRenegotiation {
 			get;
 		}
