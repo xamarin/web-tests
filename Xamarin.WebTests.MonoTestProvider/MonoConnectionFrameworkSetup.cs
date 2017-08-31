@@ -267,7 +267,7 @@ namespace Xamarin.WebTests.MonoTestProvider
 		public bool ProviderSupportsCleanShutdown (MonoTlsProvider provider)
 		{
 #if __IOS__ || __MOBILE__
-			throw new NotSupportedException ();
+			return false;
 #else
 			if (getSupportsCleanShutdown == null)
 				return false;
