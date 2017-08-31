@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;MACUI</DefineConstants>
+    <DefineConstants>__UNIFIED__;__MACOS__;DEBUG;MACUI;__MOBILE__</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -138,7 +138,6 @@
     <InterfaceDefinition Include="..\..\Xamarin.AsyncTests.MacUI\SettingsDialog.xib" />
     <InterfaceDefinition Include="..\..\Xamarin.AsyncTests.MacUI\MainMenu.xib" />
   </ItemGroup>
-  <Import Project="..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
   <ItemGroup>
     <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
