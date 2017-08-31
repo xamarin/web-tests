@@ -93,7 +93,7 @@ namespace Xamarin.AsyncTests.Console
 			}
 
 			args.AppendFormat (" --sdkroot={0}", Options.SdkRoot);
-			args.AppendFormat ("  --device={0}", DeviceName);
+			args.AppendFormat ("  --device=\"{0}\"", DeviceName);
 
 			if (Options.ExtraLauncherArgs != null) {
 				args.Append (" ");
@@ -140,7 +140,7 @@ namespace Xamarin.AsyncTests.Console
 			if (!string.IsNullOrWhiteSpace (Options.StdErr))
 				args.AppendFormat (" --stderr={0}", Options.StdErr);
 			args.AppendFormat (" --sdkroot={0}", Options.SdkRoot);
-			args.AppendFormat (" --device={0}", DeviceName);
+			args.AppendFormat (" --device=\"{0}\"", DeviceName);
 
 			if (Options.ExtraLauncherArgs != null) {
 				args.Append (" ");
