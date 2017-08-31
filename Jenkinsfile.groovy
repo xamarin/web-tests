@@ -61,10 +61,17 @@ def enableXA ()
 	return params.QA_USE_XA_LANE != 'NONE'
 }
 
+def runShell (String command)
+{
+    def dir = pwd()
+    echo "SHELL ($dir): $command"
+    sh command
+}
+
 def build (String targets)
 {
 	dir ('web-tests') {
-		sh "msbuild Jenkinsfile.targets /t:MultiBuild /p:JenkinsTargets=$targets"
+		runShell ("msbuild Jenkinsfile.targets /t:MultiBuild /p:JenkinsTargets=$targets")
 	}
 }
 
@@ -100,7 +107,7 @@ def run (String target, String testCategory, String resultOutput, String junitRe
 {
 	iosParams = "IosRuntime=$IOS_RUNTIME,IosDeviceType=$IOS_DEVICE_TYPE"
 	resultParams = "ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
-	sh "msbuild Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,$iosParams,$resultParams"
+	runShell ("msbuild Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,$iosParams,$resultParams")
 }
 
 def runTests (String target, String category, Boolean unstable = false, Integer timeoutValue = 10)
