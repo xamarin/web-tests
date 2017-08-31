@@ -103,11 +103,12 @@ def buildAll ()
 	build (targetList)
 }
 
-def run (String target, String testCategory, String resultOutput, String junitResultOutput)
+def run (String target, String testCategory, String resultOutput, String junitResultOutput, String stdOut, String stdErr)
 {
 	iosParams = "IosRuntime=$IOS_RUNTIME,IosDeviceType=$IOS_DEVICE_TYPE"
 	resultParams = "ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
-	runShell ("msbuild Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,$iosParams,$resultParams")
+    outputParams = "StdOut=$stdOut,StdErr=$stdErr"
+	runShell ("msbuild Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,$iosParams,$resultParams,$outputParams")
 }
 
 def runTests (String target, String category, Boolean unstable = false, Integer timeoutValue = 10)
@@ -118,10 +119,12 @@ def runTests (String target, String category, Boolean unstable = false, Integer 
 		sh "mkdir -p $outputDirAbs"
 		def resultOutput = "$outputDirAbs/TestResult-${target}-${category}.xml"
 		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${target}-${category}.xml"
+        def stdOutLog = "$outputDirAbs/stdout-${target}-${category}.log"
+        def stdErrLog = "$outputDirAbs/stderr-${target}-${category}.log"
 		Boolean error = false
 		try {
 			timeout (timeoutValue) {
-				run (target, category, resultOutput, junitResultOutput)
+				run (target, category, resultOutput, junitResultOutput, stdOutLog, stdErrLog)
 			}
 		} catch (exception) {
 			def result = currentBuild.result
@@ -132,6 +135,7 @@ def runTests (String target, String category, Boolean unstable = false, Integer 
 				error = true
 			}
 		} finally {
+			archiveArtifacts artifacts: "$outputDir/*.log", fingerprint: true
 			if (!error) {
 				junit keepLongStdio: true, testResults: "$outputDir/*.xml"
 				archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
