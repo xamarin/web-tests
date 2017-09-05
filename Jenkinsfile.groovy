@@ -10,7 +10,7 @@ properties([
 	])
 ])
 
-def logParsingRuleFile = "${env.WORKSPACE}/../workspace@script/jenkins-log-parser.txt"
+def logParsingRuleFile = ""
 
 def provision (String product, String lane)
 {
@@ -147,104 +147,99 @@ def runTests (String target, String category, Boolean unstable = false, Integer 
 }
 
 node ('master') {
-    stage ('martin-test') {
+    stage ('initialize') {
+        // We need to define this on the master node.
         logParsingRuleFile = "${env.WORKSPACE}/../workspace@script/jenkins-log-parser.txt"
-        def dir = pwd()
-        sh 'pwd'
-        sh 'env'
-        sh 'ls -l ../workspace@script/'
-        sh "ls -l $logParsingRuleFile"
-//        step ([$class: 'LogParserPublisher', parsingRulesPath: "$logParsingRuleFile", useProjectRule: false, failBuildOnError: true]);
     }
 }
 
 node ('felix-25-sierra') {
-	timestamps {
-		stage ('checkout') {
-			dir ('web-tests') {
-				git url: 'git@github.com:xamarin/web-tests.git', branch: 'master'
-				sh 'git clean -xffd'
-			}
-			dir ('QA') {
-				git url: 'git@github.com:xamarin/QualityAssurance.git'
-			}
-		}
-		stage ('provision') {
-			provisionMono ()
-			provisionXI ()
-			provisionXM ()
-			provisionXA ()
-		}
-		stage ('build') {
-			buildAll ()
-		}
-		if (enableMono ()) {
-			stage ('console-work') {
-				runTests ('Console', 'Work')
-			}
-			stage ('console-new') {
-				runTests ('Console', 'New')
-			}
-			stage ('console-all') {
-				runTests ('Console', 'All')
-			}
-			stage ('console-appletls-work') {
-				runTests ('Console-AppleTls', 'Work')
-			}
-			stage ('console-appletls-new') {
-				runTests ('Console-AppleTls', 'New')
-			}
-			stage ('console-appletls-all') {
-				runTests ('Console-AppleTls', 'All')
-			}
-			stage ('console-legacy-work') {
-				runTests ('Console-Legacy', 'Work')
-			}
-			stage ('console-legacy-new') {
-				runTests ('Console-Legacy', 'New')
-			}
-			stage ('console-legacy-all') {
-				runTests ('Console-Legacy', 'All')
-			}
-		}
-		if (enableXI ()) {
-			stage ('ios-work') {
-				runTests ('IOS', 'Work')
-			}
-			stage ('ios-new') {
-				runTests ('IOS', 'New')
-			}
-			stage ('ios-all') {
-				runTests ('IOS', 'All')
-			}
-		}
-		if (enableXM ()) {
-			stage ('mac-work') {
-				runTests ('Mac', 'Work')
-			}
-			stage ('mac-new') {
-				runTests ('Mac', 'New')
-			}
-			stage ('mac-all') {
-				runTests ('Mac', 'All')
-			}
-		}
-		if (enableXA ()) {
-			stage ('android-btls-work') {
-				runTests ('Android-Btls', 'Work', true)
-			}
-			stage ('android-btls-new') {
-				runTests ('Android-Btls', 'New', true)
-			}
-			stage ('android-btls-all') {
-				runTests ('Android-Btls', 'All', true, 30)
-			}
-		}
-	}
-    stage ('parse-logs') {
-        def newLogParsingRuleFile = "${env.WORKSPACE}/../workspace@script/jenkins-log-parser.txt"
-        echo "TEST: $logParsingRuleFile"
-        echo "TEST #1: $newLogParsingRuleFile"
-        step ([$class: 'LogParserPublisher', parsingRulesPath: "$logParsingRuleFile", useProjectRule: false, failBuildOnError: true]);
+    try {
+        timestamps {
+            stage ('checkout') {
+                dir ('web-tests') {
+                    git url: 'git@github.com:xamarin/web-tests.git', branch: 'master'
+                    sh 'git clean -xffd'
+                }
+                dir ('QA') {
+                    git url: 'git@github.com:xamarin/QualityAssurance.git'
+                }
+            }
+            stage ('provision') {
+                provisionMono ()
+                provisionXI ()
+                provisionXM ()
+                provisionXA ()
+            }
+            stage ('build') {
+                buildAll ()
+            }
+            if (enableMono ()) {
+                stage ('console-work') {
+                    runTests ('Console', 'Work')
+                }
+                stage ('console-new') {
+                    runTests ('Console', 'New')
+                }
+                stage ('console-all') {
+                    runTests ('Console', 'All')
+                }
+                stage ('console-appletls-work') {
+                    runTests ('Console-AppleTls', 'Work')
+                }
+                stage ('console-appletls-new') {
+                    runTests ('Console-AppleTls', 'New')
+                }
+                stage ('console-appletls-all') {
+                    runTests ('Console-AppleTls', 'All')
+                }
+                stage ('console-legacy-work') {
+                    runTests ('Console-Legacy', 'Work')
+                }
+                stage ('console-legacy-new') {
+                    runTests ('Console-Legacy', 'New')
+                }
+                stage ('console-legacy-all') {
+                    runTests ('Console-Legacy', 'All')
+                }
+            }
+            if (enableXI ()) {
+                stage ('ios-work') {
+                    runTests ('IOS', 'Work')
+                }
+                stage ('ios-new') {
+                    runTests ('IOS', 'New')
+                }
+                stage ('ios-all') {
+                    runTests ('IOS', 'All')
+                }
+            }
+            if (enableXM ()) {
+                stage ('mac-work') {
+                    runTests ('Mac', 'Work')
+                }
+                stage ('mac-new') {
+                    runTests ('Mac', 'New')
+                }
+                stage ('mac-all') {
+                    runTests ('Mac', 'All')
+                }
+            }
+            if (enableXA ()) {
+                stage ('android-btls-work') {
+                    runTests ('Android-Btls', 'Work', true)
+                }
+                stage ('android-btls-new') {
+                    runTests ('Android-Btls', 'New', true)
+                }
+                stage ('android-btls-all') {
+                    runTests ('Android-Btls', 'All', true, 30)
+                }
+            }
+        }
+    } finally {
+        stage ('parse-logs') {
+            step ([$class: 'LogParserPublisher', parsingRulesPath: "$logParsingRuleFile", useProjectRule: false, failBuildOnError: true]);
+        }
     }
 }
