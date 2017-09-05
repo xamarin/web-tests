@@ -2,6 +2,8 @@ start /^\[start\] /
 
 error /^\[error\] /
 
+warning /^WARN:/
+
 info /^\[info\] /
 
 info /^XQA:/

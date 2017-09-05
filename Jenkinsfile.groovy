@@ -241,5 +241,10 @@ node ('felix-25-sierra') {
 			}
 		}
 	}
-    step ([$class: 'LogParserPublisher', parsingRulesPath: "$logParsingRuleFile", useProjectRule: false, failBuildOnError: true]);
+    stage ('parse-logs') {
+        def newLogParsingRuleFile = "${env.WORKSPACE}/../workspace@script/jenkins-log-parser.txt"
+        echo "TEST: $logParsingRuleFile"
+        echo "TEST #1: $newLogParsingRuleFile"
+        step ([$class: 'LogParserPublisher', parsingRulesPath: "$logParsingRuleFile", useProjectRule: false, failBuildOnError: true]);
+    }
 }
