@@ -10,6 +10,8 @@ properties([
 	])
 ])
 
+def logParsingRuleFile = "${env.WORKSPACE}/../workspace@script/jenkins-log-parser.txt"
+
 def provision (String product, String lane)
 {
 	dir ('QA/Automation/XQA') {
@@ -144,6 +146,18 @@ def runTests (String target, String category, Boolean unstable = false, Integer 
 	}
 }
 
+node ('master') {
+    stage ('martin-test') {
+        logParsingRuleFile = "${env.WORKSPACE}/../workspace@script/jenkins-log-parser.txt"
+        def dir = pwd()
+        sh 'pwd'
+        sh 'env'
+        sh 'ls -l ../workspace@script/'
+        sh "ls -l $logParsingRuleFile"
+//        step ([$class: 'LogParserPublisher', parsingRulesPath: "$logParsingRuleFile", useProjectRule: false, failBuildOnError: true]);
+    }
+}
+
 node ('felix-25-sierra') {
 	timestamps {
 		stage ('checkout') {
@@ -227,4 +241,5 @@ node ('felix-25-sierra') {
 			}
 		}
 	}
+    step ([$class: 'LogParserPublisher', parsingRulesPath: "$logParsingRuleFile", useProjectRule: false, failBuildOnError: true]);
 }
