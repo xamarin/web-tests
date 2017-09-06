@@ -40,6 +40,7 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	using ConnectionFramework;
+	using TestFramework;
 
 	public abstract class DotNetConnection : Connection
 	{
@@ -118,7 +119,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			socket.Bind (EndPoint);
 			socket.Listen (1);
 
-			ctx.LogMessage ("Listening at {0}.", EndPoint);
+			ctx.LogDebug (LogCategories.SimpleConnections, 1, "Listening at {0}.", EndPoint);
 
 			tcs = new TaskCompletionSource<SslStream> ();
 
@@ -126,7 +127,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				try {
 					accepted = socket.EndAccept (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
-					ctx.LogMessage ("Accepted connection from {0}.", accepted.RemoteEndPoint);
+					ctx.LogDebug (LogCategories.SimpleConnections, 1, "Accepted connection from {0}.", accepted.RemoteEndPoint);
 					innerSocket = accepted;
 					await Handshake (ctx, cancellationToken).ConfigureAwait (false);
 					tcs.SetResult (sslStream);
@@ -140,7 +141,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-			ctx.LogMessage ("Connecting to {0}.", EndPoint);
+			ctx.LogDebug (LogCategories.SimpleConnections, 1, "Connecting to {0}.", EndPoint);
 
 			tcs = new TaskCompletionSource<SslStream> ();
 

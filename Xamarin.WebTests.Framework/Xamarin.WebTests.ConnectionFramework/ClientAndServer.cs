@@ -94,7 +94,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			ctx.LogMessage ("Starting client and server: {0} {1} {2}", client, server, server.PortableEndPoint);
+			ctx.LogDebug (LogCategories.SimpleConnections, 1, $"Starting client and server: {client} {server} {server.PortableEndPoint}");
 			InitializeConnection (ctx);
 			await StartServer (ctx, cancellationToken);
 			await StartClient (ctx, cancellationToken);

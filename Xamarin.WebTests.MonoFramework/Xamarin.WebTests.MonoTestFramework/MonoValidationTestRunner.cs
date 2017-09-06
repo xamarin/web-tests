@@ -34,13 +34,12 @@ using System.Security.Cryptography.X509Certificates;
 using Mono.Security.Interface;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
-using Xamarin.WebTests.Resources;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.MonoConnectionFramework;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
+	using TestFramework;
 	using MonoTestFeatures;
+	using Resources;
 
 	[MonoValidationTestRunner]
 	public class MonoValidationTestRunner : ValidationTestRunner
@@ -190,7 +189,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		public override void Run (TestContext ctx)
 		{
-			ctx.LogMessage ("RUN: {0}", this);
+			ctx.LogDebug (LogCategories.CertificateValidator, 1, "RUN: {0}", this);
 
 			var validator = GetValidator (ctx);
 			ctx.Assert (validator, Is.Not.Null, "has validator");

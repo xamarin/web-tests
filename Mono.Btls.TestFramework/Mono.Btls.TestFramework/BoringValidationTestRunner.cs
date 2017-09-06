@@ -36,6 +36,7 @@ using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests.Resources;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.MonoConnectionFramework;
+using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.MonoTestFramework;
 using Mono.Btls.Interface;
 
@@ -332,10 +333,10 @@ namespace Mono.Btls.TestFramework
 
 		public override void Run (TestContext ctx)
 		{
-			ctx.LogMessage ("BORING VALIDATION RUNNER: {0}", store);
+			ctx.LogDebug (LogCategories.BoringValidator, 1, "BORING VALIDATION RUNNER: {0}", store);
 			var result = storeCtx.Verify ();
 			var error = storeCtx.GetError ();
-			ctx.LogMessage ("BORING VALIDATION RUNNER #1: {0} {1}", result, error);
+			ctx.LogDebug (LogCategories.BoringValidator, 1, "BORING VALIDATION RUNNER #1: {0} {1}", result, error);
 
 			if (Parameters.ExpectSuccess) {
 				ctx.Assert (result, Is.EqualTo (1), "validation success");

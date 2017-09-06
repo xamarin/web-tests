@@ -81,6 +81,7 @@
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\RenegotiationTestParametersAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\RenegotiationTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\RenegotiationAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFramework\LogCategories.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

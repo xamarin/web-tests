@@ -414,7 +414,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected Request CreateRequest (TestContext ctx, Uri uri)
 		{
-			ctx.LogMessage ("Create request: {0}", uri);
+			ctx.LogDebug (LogCategories.Https, 1, "Create request: {0}", uri);
 			var webRequest = Provider.Client.SslStreamProvider.CreateWebRequest (uri, Parameters);
 
 			var request = new TraditionalRequest (webRequest);
@@ -461,7 +461,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		void SetGlobalValidationCallback (TestContext ctx, RemoteCertificateValidationCallback callback)
 		{
-			ctx.LogMessage ("Set validator: {0}", callback != null);
+			ctx.LogDebug (LogCategories.Https, 1, "Set validator: {0}", callback != null);
 			savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
 			ServicePointManager.ServerCertificateValidationCallback = callback;
 			savedContext = ctx;
@@ -475,7 +475,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		bool GlobalValidator (TestContext ctx, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
 		{
-			ctx.LogMessage ("Global validator: {0}", globalValidatorInvoked);
+			ctx.LogDebug (LogCategories.Https, 1, "Global validator: {0}", globalValidatorInvoked);
 			if (HasFlag (GlobalValidationFlags.MustNotInvoke)) {
 				ctx.AssertFail ("Global validator has been invoked!");
 				return false;
