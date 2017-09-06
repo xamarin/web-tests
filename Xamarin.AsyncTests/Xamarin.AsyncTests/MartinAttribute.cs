@@ -42,12 +42,6 @@ namespace Xamarin.AsyncTests
 		{
 			Parameter = parameter;
 		}
-
-		[Obsolete]
-		public MartinAttribute ()
-		{
-			
-		}
 	}
 }
 

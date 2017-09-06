@@ -73,9 +73,9 @@ namespace Xamarin.WebTests.MonoTests
 				ctx.Assert (has12, Is.True, "Tls12 must be enabled.");
 		}
 
-		[Martin]
 		[AsyncTest]
 		[SecurityFramework]
+		[Martin ("SecurityFramework")]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireTls12)]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.SecurityFramework)]
 		public async Task TestInKeyChain (TestContext ctx, CancellationToken cancellationToken,
@@ -89,9 +89,9 @@ namespace Xamarin.WebTests.MonoTests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-		[Martin]
 		[AsyncTest]
 		[SecurityFramework]
+		[Martin ("SecurityFramework")]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireTls12)]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.SecurityFramework)]
 		public async Task TestInKeyChain2 (TestContext ctx, CancellationToken cancellationToken,
@@ -106,9 +106,9 @@ namespace Xamarin.WebTests.MonoTests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-		[Martin]
 		[AsyncTest]
 		[SecurityFramework] [IOS]
+		[Martin ("SecurityFramework")]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireTls12)]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.SecurityFramework)]
 		public async Task TestNotInKeyChain (TestContext ctx, CancellationToken cancellationToken,

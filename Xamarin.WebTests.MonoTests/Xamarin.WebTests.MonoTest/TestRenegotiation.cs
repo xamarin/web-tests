@@ -39,8 +39,8 @@ namespace Xamarin.WebTests.MonoTests
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestRenegotiation
 	{
-		[Martin]
 		[AsyncTest]
+		[Martin ("Renegotiation")]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireMono)]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.MartinTest)]
 		public async Task MartinTest (TestContext ctx, CancellationToken cancellationToken,

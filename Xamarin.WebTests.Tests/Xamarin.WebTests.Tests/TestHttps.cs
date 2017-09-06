@@ -83,8 +83,8 @@ namespace Xamarin.WebTests.Tests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-		[Martin]
-		// [AsyncTest]
+		[AsyncTest]
+		[Martin ("HttpsCertificateStore")]
 		[CertificateStore]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireTrustedRoots)]
 		[ConnectionTestCategory (ConnectionTestCategory.CertificateStore)]
@@ -95,8 +95,8 @@ namespace Xamarin.WebTests.Tests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-		[Martin]
-		// [AsyncTest]
+		[AsyncTest]
+		[Martin ("Https")]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireTrustedRoots)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
@@ -106,8 +106,8 @@ namespace Xamarin.WebTests.Tests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-		[Martin]
-		// [AsyncTest]
+		[AsyncTest]
+		[Martin ("HttpsAuth")]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireTrustedRoots)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task MartinTest2 (TestContext ctx, HttpServer server, CancellationToken cancellationToken)

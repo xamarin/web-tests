@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.Tests
 			ctx.LogMessage ("FORK DONE: {0} {1}", fork.ID, support.CurrentThreadId);
 		}
 
-		[Martin]
+		[Martin ("ForkPuppy")]
 		[AsyncTest]
 		public async Task RunPuppy (TestContext ctx, HttpServer server,
 			[Fork (5, RandomDelay = 1500)] IFork fork, [Repeat (50)] int repeat,

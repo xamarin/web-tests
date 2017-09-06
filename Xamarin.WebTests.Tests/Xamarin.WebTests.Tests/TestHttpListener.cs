@@ -48,10 +48,10 @@ namespace Xamarin.WebTests.Tests {
 			}
 		}
 
-		[Martin]
+		[Martin ("HttpListener")]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireMonoServer)]
 		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		// [AsyncTest (ParameterFilter = "martin", Unstable = true)]
+		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
 		public async Task MartinTest (TestContext ctx, HttpServer server, HttpListenerHandler handler,
 		                              CancellationToken cancellationToken)
 		{

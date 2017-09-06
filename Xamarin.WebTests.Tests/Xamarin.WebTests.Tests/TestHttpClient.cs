@@ -129,8 +129,8 @@ namespace Xamarin.WebTests
 			}
 		}
 
-		[Martin]
-		// [AsyncTest (ParameterFilter = "martin")]
+		[Martin ("HttpClient")]
+		[AsyncTest (ParameterFilter = "martin")]
 		public async Task RunMartin (TestContext ctx, CancellationToken cancellationToken,
 		                             HttpServer server, HttpClientHandler handler)
 		{

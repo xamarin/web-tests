@@ -40,11 +40,11 @@ namespace Xamarin.WebTests.Tests
 	using HttpOperations;
 	using System.Collections.Specialized;
 
-	[Martin]
+	[Martin ("MartinTest")]
 	[AsyncTestFixture]
 	public class MartinTest
 	{
-		// [AsyncTest (ParameterFilter = "hello", Unstable = true)]
+		[AsyncTest (ParameterFilter = "hello", Unstable = true)]
 		[HttpServerFlags (HttpServerFlags.HttpListener)]
 		public async Task Run (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{

@@ -88,8 +88,8 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[DotNet]
-		[Martin]
-		// [AsyncTest]
+		[AsyncTest]
+		[Martin ("StreamInstrumentation")]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task MartinTestDotNet (TestContext ctx, CancellationToken cancellationToken,
