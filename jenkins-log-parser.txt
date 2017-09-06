@@ -10,7 +10,8 @@ info /^XQA:/
 
 info /^XQA_DEBUG:/
 
-info /^#\[.*\]\dXQA:/
+info /XQA:/
 
-info /^#\[.*\]\dXQA_DEBUG:/
+info /XQA_DEBUG:/
 
+info /\[info\] /
