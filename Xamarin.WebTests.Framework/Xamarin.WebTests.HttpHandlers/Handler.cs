@@ -1,5 +1,5 @@
 ﻿//
-// Behavior.cs
+// Handler.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -36,31 +36,16 @@ namespace Xamarin.WebTests.HttpHandlers
 	using ConnectionFramework;
 	using HttpFramework;
 
-	public abstract class Handler : Xamarin.AsyncTests.ICloneable, ITestFilter, ITestParameter
+	public abstract class Handler : Xamarin.AsyncTests.ICloneable, ITestParameter
 	{
 		static int next_id;
 		public readonly int ID = Interlocked.Increment (ref next_id);
 
 		public RequestFlags Flags {
 			get { return flags; }
-			set { flags = value;
+			set {
+				flags = value;
 			}
-		}
-
-		public Func<TestContext, bool> Filter {
-			get { return filter; }
-			set { filter = value; }
-		}
-
-		bool ITestFilter.Filter (TestContext ctx, out bool enabled)
-		{
-			if (filter == null) {
-				enabled = true;
-				return false;
-			}
-
-			enabled = filter (ctx);
-			return true;
 		}
 
 		public string Value {
@@ -68,8 +53,6 @@ namespace Xamarin.WebTests.HttpHandlers
 		}
 
 		string ITestParameter.FriendlyValue => Value;
-
-		Func<TestContext, bool> filter;
 
 		RequestFlags flags;
 
