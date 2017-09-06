@@ -202,8 +202,8 @@ namespace Xamarin.WebTests.Tests {
 			requestExt.SetProxy (BuiltinProxyServer.CreateSimpleProxy (new Uri (url)));
 		}
 
-		[Martin3]
-		// [AsyncTest (ParameterFilter = "martin", Unstable = true)]
+		[Martin ("Proxy")]
+		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
 		[WebTestFeatures.UseProxyKind (ProxyKind.Simple)]
 		public async Task MartinTest (
 			TestContext ctx, HttpServer server, Handler handler,

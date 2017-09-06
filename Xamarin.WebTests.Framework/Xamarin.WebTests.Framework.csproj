@@ -216,7 +216,6 @@
     <Compile Include="Xamarin.WebTests.Server\ConnectionState.cs" />
     <Compile Include="Xamarin.WebTests.Server\ListenerOperation.cs" />
     <Compile Include="Xamarin.WebTests.Server\ListenerTask.cs" />
-    <Compile Include="Xamarin.WebTests.TestFramework\Martin3Attribute.cs" />
     <Compile Include="Xamarin.WebTests.Server\ListenerType.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IWebClientExtension.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\LogCategories.cs" />
