@@ -32,10 +32,10 @@ namespace Xamarin.AsyncTests.Framework
 	class TestFilter
 	{
 		readonly TestFilter parent;
-		readonly IEnumerable<TestCategory> categories;
+		readonly IList<TestCategoryAttribute> categories;
 		readonly IEnumerable<TestFeature> features;
 
-		public TestFilter (TestFilter parent, IEnumerable<TestCategory> categories, IEnumerable<TestFeature> features)
+		public TestFilter (TestFilter parent, IList<TestCategoryAttribute> categories, IEnumerable<TestFeature> features)
 		{
 			this.parent = parent;
 			this.categories = categories;
@@ -48,7 +48,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public bool Filter (TestContext ctx, out bool enabled)
 		{
-			if (categories != null && categories.Contains (TestCategory.Global)) {
+			if (categories.Any (attr => attr.Category == TestCategory.Global)) {
 				enabled = true;
 				return true;
 			}
@@ -60,15 +60,25 @@ namespace Xamarin.AsyncTests.Framework
 				}
 			}
 
-			if (categories != null) {
-				foreach (var category in categories) {
-					if (ctx.CurrentCategory == category) {
-						enabled = true;
-						return true;
-					} else if (category.IsExplicit) {
+			foreach (var attr in categories) {
+				if (attr is MartinAttribute martin) {
+					if (ctx.CurrentCategory != TestCategory.Martin) {
 						enabled = false;
 						return true;
 					}
+					if (!string.IsNullOrEmpty (ctx.Settings.MartinTest) &&
+					    !string.Equals (ctx.Settings.MartinTest, martin.Parameter, StringComparison.OrdinalIgnoreCase)) {
+						enabled = false;
+						return true;
+					}
+				}
+				if (ctx.CurrentCategory == attr.Category) {
+					enabled = true;
+					return true;
+				}
+				if (attr.Category.IsExplicit) {
+					enabled = false;
+					return true;
 				}
 			}
 

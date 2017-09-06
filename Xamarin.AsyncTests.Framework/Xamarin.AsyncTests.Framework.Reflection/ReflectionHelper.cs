@@ -642,15 +642,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		#region Misc
 
-		internal static IEnumerable<TestCategory> GetCategories (IMemberInfo member)
+		static IList<TestCategoryAttribute> GetCategories (IMemberInfo member)
 		{
-			var cattrs = member.GetCustomAttributes<TestCategoryAttribute> ();
-			if (cattrs.Count () == 0)
-				return null;
-			return cattrs.Select (c => c.Category);
+			return member.GetCustomAttributes<TestCategoryAttribute> ().ToList ();
 		}
 
-		internal static IEnumerable<TestFeature> GetFeatures (IMemberInfo member)
+		static IEnumerable<TestFeature> GetFeatures (IMemberInfo member)
 		{
 			foreach (var cattr in member.GetCustomAttributes<TestFeatureAttribute> ())
 				yield return cattr.Feature;
@@ -658,8 +655,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		internal static TestFilter CreateTestFilter (TestFilter parent, IMemberInfo member)
 		{
-			var categories = ReflectionHelper.GetCategories (member);
-			var features = ReflectionHelper.GetFeatures (member);
+			var categories = GetCategories (member);
+			var features = GetFeatures (member);
 
 			return new TestFilter (parent, categories, features);
 		}

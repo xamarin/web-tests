@@ -33,6 +33,21 @@ namespace Xamarin.AsyncTests
 		public override TestCategory Category {
 			get { return TestCategory.Martin; }
 		}
+
+		public string Parameter {
+			get;
+		}
+
+		public MartinAttribute (string parameter)
+		{
+			Parameter = parameter;
+		}
+
+		[Obsolete]
+		public MartinAttribute ()
+		{
+			
+		}
 	}
 }
 
