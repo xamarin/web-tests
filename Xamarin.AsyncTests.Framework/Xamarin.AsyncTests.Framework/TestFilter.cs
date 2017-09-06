@@ -66,11 +66,14 @@ namespace Xamarin.AsyncTests.Framework
 						enabled = false;
 						return true;
 					}
-					if (!string.IsNullOrEmpty (ctx.Settings.MartinTest) &&
-					    !string.Equals (ctx.Settings.MartinTest, martin.Parameter, StringComparison.OrdinalIgnoreCase)) {
-						enabled = false;
+					if (string.IsNullOrEmpty (ctx.Settings.MartinTest) ||
+					    string.Equals (ctx.Settings.MartinTest, "all", StringComparison.OrdinalIgnoreCase) ||
+					    string.Equals (ctx.Settings.MartinTest, martin.Parameter, StringComparison.OrdinalIgnoreCase)) {
+						enabled = true;
 						return true;
 					}
+					enabled = false;
+					return true;
 				}
 				if (ctx.CurrentCategory == attr.Category) {
 					enabled = true;

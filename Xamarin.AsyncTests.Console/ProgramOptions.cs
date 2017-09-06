@@ -203,7 +203,7 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("set=", v => customSettings = v);
 			p.Add ("category=", v => Category = v);
 			p.Add ("features=", v => Features = v);
-			p.Add ("martin-test=", v => MartinTest = v);
+			p.Add ("martin=", v => MartinTest = v);
 			p.Add ("debug", v => debugMode = true);
 			p.Add ("save-options", v => saveSettings = true);
 			p.Add ("show-categories", v => ShowCategories = true);
@@ -399,8 +399,12 @@ namespace Xamarin.AsyncTests.Console {
 			if (dontSaveLogging)
 				Settings.DontSaveLogging = true;
 
-			if (MartinTest != null)
+			if (MartinTest != null) {
+				if (Category != null)
+					throw new ProgramException ("Cannot use both --category and --martin");
+				Category = "martin";
 				Settings.MartinTest = MartinTest;
+			}
 
 			bool needSdk = false, needAndroidSdk = false;
 
