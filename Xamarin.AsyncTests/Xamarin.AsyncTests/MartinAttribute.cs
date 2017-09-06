@@ -38,6 +38,13 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
+		public bool IsExplicit {
+			get { return isExplicit; }
+			set { isExplicit = value; }
+		}
+
+		bool isExplicit = true;
+
 		public MartinAttribute (string parameter)
 		{
 			Parameter = parameter;
