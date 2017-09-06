@@ -148,6 +148,11 @@ namespace Xamarin.AsyncTests.Console {
 			private set;
 		}
 
+		public string MartinTest {
+			get;
+			private set;
+		}
+
 		public IList<string> Arguments {
 			get;
 		}
@@ -198,6 +203,7 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("set=", v => customSettings = v);
 			p.Add ("category=", v => Category = v);
 			p.Add ("features=", v => Features = v);
+			p.Add ("martin-test=", v => MartinTest = v);
 			p.Add ("debug", v => debugMode = true);
 			p.Add ("save-options", v => saveSettings = true);
 			p.Add ("show-categories", v => ShowCategories = true);
@@ -392,6 +398,9 @@ namespace Xamarin.AsyncTests.Console {
 
 			if (dontSaveLogging)
 				Settings.DontSaveLogging = true;
+
+			if (MartinTest != null)
+				Settings.MartinTest = MartinTest;
 
 			bool needSdk = false, needAndroidSdk = false;
 

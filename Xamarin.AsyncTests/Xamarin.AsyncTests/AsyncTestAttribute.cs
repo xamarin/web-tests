@@ -48,5 +48,4 @@ namespace Xamarin.AsyncTests
 			get; set;
 		}
 	}
-
 }

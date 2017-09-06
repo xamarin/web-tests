@@ -168,6 +168,18 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public string MartinTest {
+			get {
+				if (TryGetValue ("MartinTest", out string value))
+					return value;
+				return null;
+			}
+			set {
+				SetValue ("MartinTest", value);
+				OnPropertyChanged ("MartinTest");
+			}
+		}
+
 		protected void OnPropertyChanged (string propertyName)
 		{
 			if (PropertyChanged != null)
