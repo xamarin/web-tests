@@ -44,6 +44,6 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		public static readonly TestFeature Instance = new TestFeature (
-			"CleanShutdown", "Whether or not we have SslStream.ShutdownAsync", SupportsCleanShutdown ());
+			"CleanShutdown", "Whether or not we have SslStream.ShutdownAsync", () => SupportsCleanShutdown ());
 	}
 }

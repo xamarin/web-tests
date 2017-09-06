@@ -44,6 +44,6 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		public static readonly TestFeature Instance = new TestFeature (
-			"NewWebStack", "Whether we have the new web stack", HasNewWebStack ());
+			"NewWebStack", "Whether we have the new web stack", () => HasNewWebStack ());
 	}
 }

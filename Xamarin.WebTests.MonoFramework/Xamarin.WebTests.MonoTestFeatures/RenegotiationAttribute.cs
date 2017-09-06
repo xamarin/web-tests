@@ -44,6 +44,6 @@ namespace Xamarin.WebTests.MonoTestFeatures
 		}
 
 		public static readonly TestFeature Instance = new TestFeature (
-			"Renegotiation", "Whether we support renegotiation", SupportsRenegotiation ());
+			"Renegotiation", "Whether we support renegotiation", () => SupportsRenegotiation ());
 	}
 }

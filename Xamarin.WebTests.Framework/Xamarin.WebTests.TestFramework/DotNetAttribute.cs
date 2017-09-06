@@ -43,7 +43,7 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		public static readonly TestFeature Instance = new TestFeature (
-			"DotNet", "Using the .NET runtime", UsingDotNetRuntime ());
+			"DotNet", "Using the .NET runtime", () => UsingDotNetRuntime ());
 	}
 }
 
