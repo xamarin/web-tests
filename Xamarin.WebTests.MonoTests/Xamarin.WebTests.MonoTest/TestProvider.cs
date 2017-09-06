@@ -42,14 +42,10 @@ namespace Xamarin.WebTests.MonoTests
 		[AsyncTest]
 		public void TestDefaultProvider (TestContext ctx)
 		{
-			ctx.LogMessage ("TEST DEFAULT PROVIDER!");
 			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
 			var provider = MonoTlsProviderFactory.GetProvider ();
-			ctx.LogMessage ("TEST DEFAULT PROVIDER #1: {0}", provider);
 
-			ctx.LogMessage ("SETUP: {0} - {1} - {2}", setup.Name, setup.TlsProviderName, setup.TlsProviderId);
-
-			ctx.LogMessage ("TEST: {0}", ctx.GetUniqueId ());
+			ctx.LogMessage ($"TLS PROVIDER SETUP: {setup.Name} - {setup.TlsProviderName} - {setup.TlsProviderId} - {provider}");
 
 			ctx.Assert (provider.ID, Is.EqualTo (setup.TlsProviderId), "Default TLS Provider");
 		}
