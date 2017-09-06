@@ -245,13 +245,17 @@ namespace Xamarin.AsyncTests.Framework {
 				exception = new SavedException (errorMessage, stackTrace != null ? stackTrace.Value : null);
 			}
 
-			return new TestLoggerBackend.LogEntry (kind, logLevel, text, exception);
+			var category = node.Attribute ("Category")?.Value;
+
+			return new TestLoggerBackend.LogEntry (kind, category, logLevel, text, exception);
 		}
 
 		public static XElement WriteLogEntry (TestLoggerBackend.LogEntry instance)
 		{
 			var element = new XElement ("LogEntry");
 			element.SetAttributeValue ("Kind", instance.Kind);
+			if (instance.Category != null)
+				element.SetAttributeValue ("Category", instance.Category);
 			element.SetAttributeValue ("LogLevel", instance.LogLevel);
 			element.SetAttributeValue ("Text", instance.Text);
 

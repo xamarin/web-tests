@@ -123,15 +123,26 @@ namespace Xamarin.AsyncTests {
 
 		public void LogDebug (int level, string message)
 		{
-			var logLevel = Settings.LogLevel;
-			if (logLevel >= 0 && level > logLevel)
-				return;
-			logger.LogDebug (level, message);
+			LogDebug (null, level, message);
 		}
 
 		public void LogDebug (int level, string format, params object[] args)
 		{
-			LogDebug (level, string.Format (format, args));
+			LogDebug (null, level, string.Format (format, args));
+		}
+
+		public void LogDebug (string category, int level, string message)
+		{
+			var categoryLevel = !string.IsNullOrEmpty (category) ? Settings.GetLogLevel (category) : null;
+			var effectiveLevel = categoryLevel ?? Settings.LogLevel;
+			if (level > effectiveLevel)
+				return;
+			logger.LogDebug (category, level, message);
+		}
+
+		public void LogDebug (string category, int level, string format, params object[] args)
+		{
+			LogDebug (category, level, string.Format (format, args));
 		}
 
 		public void LogMessage (string message)

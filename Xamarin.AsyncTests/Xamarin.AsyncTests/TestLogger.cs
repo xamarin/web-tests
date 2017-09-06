@@ -43,11 +43,23 @@ namespace Xamarin.AsyncTests
 			Backend.OnLogEvent (entry);
 		}
 
+		public void LogDebug (string category, int level, string message)
+		{
+			OnLogEvent (new TestLoggerBackend.LogEntry (TestLoggerBackend.EntryKind.Debug, category, level, message));
+		}
+
+		public void LogDebug (string category, int level, string format, params object[] args)
+		{
+			LogDebug (category, level, string.Format (format, args));
+		}
+
+		[Obsolete ("Use the new 'category' variant.")]
 		public void LogDebug (int level, string message)
 		{
 			OnLogEvent (new TestLoggerBackend.LogEntry (TestLoggerBackend.EntryKind.Debug, level, message));
 		}
 
+		[Obsolete ("Use the new 'category' variant.")]
 		public void LogDebug (int level, string format, params object[] args)
 		{
 			LogDebug (level, string.Format (format, args));

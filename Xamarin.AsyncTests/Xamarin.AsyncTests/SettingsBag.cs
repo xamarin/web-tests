@@ -65,8 +65,7 @@ namespace Xamarin.AsyncTests
 
 		public int LogLevel {
 			get {
-				string value;
-				if (TryGetValue ("LogLevel", out value))
+				if (TryGetValue ("LogLevel", out string value))
 					return int.Parse (value);
 				return 0;
 			}
@@ -74,6 +73,20 @@ namespace Xamarin.AsyncTests
 				SetValue ("LogLevel", value.ToString ());
 				OnPropertyChanged ("LogLevel");
 			}
+		}
+
+		public int? GetLogLevel (string category)
+		{
+			if (TryGetValue ($"LogLevel_{category}", out string value))
+				return int.Parse (value);
+			return null;
+		}
+
+		public void SetLogLevel (string category, int value)
+		{
+			var name = $"LogLevel_{category}";
+			SetValue (name, value.ToString ());
+			OnPropertyChanged (name);
 		}
 
 		public int LocalLogLevel {

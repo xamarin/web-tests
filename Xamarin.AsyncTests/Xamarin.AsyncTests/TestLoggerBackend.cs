@@ -46,6 +46,10 @@ namespace Xamarin.AsyncTests
 				get;
 			}
 
+			public string Category {
+				get;
+			}
+
 			public int LogLevel {
 				get;
 			}
@@ -68,9 +72,20 @@ namespace Xamarin.AsyncTests
 				Error = error;
 			}
 
+			public LogEntry (EntryKind kind, string category, int level, string text, Exception error = null)
+			{
+				Kind = kind;
+				Category = category;
+				LogLevel = level;
+				Text = text;
+				Error = error;
+			}
+
 			public override string ToString ()
 			{
-				return string.Format ("[LogEntry: Kind={0}, LogLevel={1}, Text={2}]", Kind, LogLevel, Text);
+				if (!string.IsNullOrEmpty (Category))
+					return $"[LogEntry: Kind={Kind}, Category={Category}, LogLevel={LogLevel}, Text={Text}]";
+				return $"[LogEntry: Kind={Kind}, LogLevel={LogLevel}, Text={Text}]";
 			}
 		}
 
