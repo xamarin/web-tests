@@ -4,8 +4,13 @@ error /^\[error\] /
 
 warning /^WARN:/
 
-info /^\[info\] /
+info /^\d?\[info\] /
 
 info /^XQA:/
 
 info /^XQA_DEBUG:/
+
+info /^#\[.*\]\dXQA:/
+
+info /^#\[.*\]\dXQA_DEBUG:/
+
