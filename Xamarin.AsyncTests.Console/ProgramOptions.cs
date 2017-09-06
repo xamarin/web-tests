@@ -178,7 +178,8 @@ namespace Xamarin.AsyncTests.Console {
 			bool debugMode = false;
 			bool noJUnit = false;
 			bool dontSaveLogging = false;
-			int? logLevel = null, localLogLevel = null;
+			string logLevel = null;
+			int? localLogLevel = null;
 
 			var p = new OptionSet ();
 			p.Add ("settings=", v => settingsFile = v);
@@ -189,7 +190,7 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("package-name=", v => packageName = v);
 			p.Add ("result=", v => resultOutput = v);
 			p.Add ("junit-result=", v => junitResultOutput = v);
-			p.Add ("log-level=", v => logLevel = int.Parse (v));
+			p.Add ("log-level=", v => logLevel = v);
 			p.Add ("local-log-level=", v => localLogLevel = int.Parse (v));
 			p.Add ("dependency=", v => dependencies.Add (v));
 			p.Add ("optional-gui", v => OptionalGui = true);
@@ -377,8 +378,12 @@ namespace Xamarin.AsyncTests.Console {
 				Settings.DisableTimeouts = true;
 			}
 
-			if (logLevel != null)
-				Settings.LogLevel = logLevel.Value;
+			if (logLevel != null) {
+				var (defaultLevel, categories) = ParseLogLevel (logLevel);
+				Settings.LogLevel = defaultLevel;
+				foreach (var entry in categories)
+					Settings.SetLogLevel (entry.Key, entry.Value);
+			}
 			if (localLogLevel != null)
 				Settings.LocalLogLevel = localLogLevel.Value;
 
@@ -420,6 +425,26 @@ namespace Xamarin.AsyncTests.Console {
 					AndroidSdkRoot = Path.Combine (home, "Library", "Developer", "Xamarin", "android-sdk-macosx");
 				}
 			}
+		}
+
+		static (int level, Dictionary<string,int> categories) ParseLogLevel (string argument)
+		{
+			var categories = new Dictionary<string, int> ();
+			if (int.TryParse (argument, out int level))
+				return (level, categories);
+			int? defaultLevel = null;
+			foreach (var part in argument.Split (',')) {
+				var pos = part.IndexOf (':');
+				if (pos < 0) {
+					if (defaultLevel != null)
+						throw new ProgramException ("Duplicate default log level");
+					defaultLevel = int.Parse (part);
+				} else {
+					var name = part.Substring (0, pos).Trim ();
+					categories.Add (name, int.Parse (part.Substring (pos + 1)));
+				}
+			}
+			return (defaultLevel ?? 0, categories);
 		}
 
 		static SettingsBag LoadSettings (string file)
