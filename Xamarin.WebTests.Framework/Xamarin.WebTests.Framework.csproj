@@ -99,7 +99,6 @@
     <Compile Include="Xamarin.WebTests.TestFramework\ManualServerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ExperimentalAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\WorkAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestFramework\MartinAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\NotWorkingAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\IncludeNotWorkingAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ManualSslStreamAttribute.cs" />

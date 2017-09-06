@@ -110,6 +110,7 @@
     <Compile Include="Xamarin.AsyncTests\TestNode.cs" />
     <Compile Include="Xamarin.AsyncTests\InternalErrorException.cs" />
     <Compile Include="Xamarin.AsyncTests.Portable\IPortableTaskSupport.cs" />
+    <Compile Include="Xamarin.AsyncTests\MartinAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
