@@ -68,7 +68,6 @@ namespace Xamarin.WebTests.TestFramework
 		public IEnumerable<TestCategory> Categories {
 			get {
 				yield return WorkAttribute.Instance;
-				yield return MartinAttribute.Instance;
 				yield return Martin2Attribute.Instance;
 				yield return Martin3Attribute.Instance;
 				yield return NewAttribute.Instance;

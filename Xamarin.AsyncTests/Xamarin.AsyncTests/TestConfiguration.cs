@@ -153,6 +153,8 @@ namespace Xamarin.AsyncTests
 					category = TestCategory.All;
 				else if (string.Equals (value, "global", StringComparison.OrdinalIgnoreCase))
 					category = TestCategory.Global;
+				else if (string.Equals (value, "martin", StringComparison.OrdinalIgnoreCase))
+					category = TestCategory.Martin;
 				else
 					category = categories.FirstOrDefault (c => c.Name.Equals (value)) ?? TestCategory.All;
 				if (category == currentCategory)

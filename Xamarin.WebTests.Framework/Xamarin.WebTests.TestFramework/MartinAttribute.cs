@@ -31,10 +31,8 @@ namespace Xamarin.WebTests.TestFramework
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class MartinAttribute : TestCategoryAttribute
 	{
-		public static readonly TestCategory Instance = new TestCategory ("Martin") { IsExplicit = true };
-
 		public override TestCategory Category {
-			get { return Instance; }
+			get { return TestCategory.Martin; }
 		}
 	}
 }

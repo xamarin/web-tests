@@ -167,6 +167,8 @@ namespace Xamarin.AsyncTests.Mobile {
 					config.CurrentCategory = TestCategory.All;
 				else if (string.Equals (Category, "global", StringComparison.OrdinalIgnoreCase))
 					config.CurrentCategory = TestCategory.Global;
+				else if (string.Equals (Category, "martin", StringComparison.OrdinalIgnoreCase))
+					config.CurrentCategory = TestCategory.Martin;
 				else
 					config.CurrentCategory = config.Categories.FirstOrDefault (c => c.Name.Equals (Category)) ?? TestCategory.All;
 
