@@ -108,15 +108,6 @@ namespace Xamarin.AsyncTests.Framework
 
 				var path = parameterizedInstance.GetCurrentPath ();
 
-				bool enabled;
-
-				var filter = parameterizedInstance.Current as ITestFilter;
-				if (filter != null && filter.Filter (ctx, out enabled) && !enabled) {
-					var ignoredResult = new TestResult (path, TestStatus.Ignored);
-					ctx.Result.AddChild (ignoredResult);
-					continue;
-				}
-
 				found = true;
 
 				var innerCtx = ctx.CreateChild (path, ctx.Result);
