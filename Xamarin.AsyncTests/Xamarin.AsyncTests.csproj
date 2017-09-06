@@ -48,7 +48,6 @@
     <Compile Include="Xamarin.AsyncTests\TestFeature.cs" />
     <Compile Include="Xamarin.AsyncTests\AsyncTestSuiteAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\TestCategory.cs" />
-    <Compile Include="Xamarin.AsyncTests\ITestFilter.cs" />
     <Compile Include="Xamarin.AsyncTests\TestFeatureAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\ICloneable.cs" />
     <Compile Include="Xamarin.AsyncTests\SettingsBag.cs" />

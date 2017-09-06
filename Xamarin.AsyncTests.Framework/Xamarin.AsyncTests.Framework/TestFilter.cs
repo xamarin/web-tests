@@ -29,9 +29,9 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class TestFilter : ITestFilter
+	class TestFilter
 	{
-		readonly ITestFilter parent;
+		readonly TestFilter parent;
 		readonly IEnumerable<TestCategory> categories;
 		readonly IEnumerable<TestFeature> features;
 
