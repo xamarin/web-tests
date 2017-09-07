@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.MonoTestFeatures
 
 		public RenegotiationTestRunner CreateInstance (TestContext ctx)
 		{
-			return ConnectionTestHelper.CreateTestRunner<MonoConnectionTestProvider, RenegotiationTestParameters, RenegotiationTestRunner> (
+			return ConnectionTestHelper.CreateTestRunner<ConnectionTestProvider, RenegotiationTestParameters, RenegotiationTestRunner> (
 				ctx, (s, c, t, p) => new RenegotiationTestRunner (s, c, t, p));
 		}
 	}

@@ -40,9 +40,9 @@ namespace Xamarin.WebTests.MonoTests
 	public class SimpleTests
 	{
 		[AsyncTest]
-		[MonoConnectionTestCategory (MonoConnectionTestCategory.SimpleMonoClient)]
+		[ConnectionTestCategory (ConnectionTestCategory.SimpleMonoClient)]
 		public async Task TestClient (TestContext ctx, CancellationToken cancellationToken,
-			MonoConnectionTestProvider provider,
+			ConnectionTestProvider provider,
 			SimpleConnectionParameters parameters,
 			SimpleConnectionTestRunner runner)
 		{
@@ -51,9 +51,9 @@ namespace Xamarin.WebTests.MonoTests
 
 		[AsyncTest]
 		[Martin ("SimpleTests")]
-		[MonoConnectionTestCategory (MonoConnectionTestCategory.MartinTest)]
+		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
-			MonoConnectionTestProvider provider,
+			ConnectionTestProvider provider,
 			SimpleConnectionParameters parameters,
 			SimpleConnectionTestRunner runner)
 		{
@@ -61,9 +61,9 @@ namespace Xamarin.WebTests.MonoTests
 		}
 
 		[AsyncTest]
-		[MonoConnectionTestCategory (MonoConnectionTestCategory.SimpleMonoServer)]
+		[ConnectionTestCategory (ConnectionTestCategory.SimpleMonoServer)]
 		public async Task TestServer (TestContext ctx, CancellationToken cancellationToken,
-			MonoConnectionTestProvider provider,
+			ConnectionTestProvider provider,
 			SimpleConnectionParameters parameters,
 			SimpleConnectionTestRunner runner)
 		{
@@ -71,9 +71,9 @@ namespace Xamarin.WebTests.MonoTests
 		}
 
 		[AsyncTest]
-		[MonoConnectionTestCategory (MonoConnectionTestCategory.SimpleMonoConnection)]
+		[ConnectionTestCategory (ConnectionTestCategory.SimpleMonoConnection)]
 		public async Task TestConnection (TestContext ctx, CancellationToken cancellationToken,
-			MonoConnectionTestProvider provider,
+			ConnectionTestProvider provider,
 			SimpleConnectionParameters parameters,
 			SimpleConnectionTestRunner runner)
 		{

@@ -42,9 +42,9 @@ namespace Xamarin.WebTests.MonoTests
 		[AsyncTest]
 		[Martin ("Renegotiation")]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireMono)]
-		[MonoConnectionTestCategory (MonoConnectionTestCategory.MartinTest)]
+		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
-		                              [MonoConnectionTestProvider ("*:apple-tls")] MonoConnectionTestProvider provider,
+		                              [ConnectionTestProvider ("*:apple-tls")] ConnectionTestProvider provider,
 		                              RenegotiationTestParameters parameters,
 		                              RenegotiationTestRunner runner)
 		{

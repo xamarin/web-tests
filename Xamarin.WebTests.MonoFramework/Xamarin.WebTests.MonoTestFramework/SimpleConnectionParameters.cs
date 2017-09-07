@@ -31,6 +31,7 @@ using Xamarin.WebTests.ConnectionFramework;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
+	using TestFramework;
 	using MonoTestFeatures;
 
 	[SimpleConnectionParameters]
@@ -41,7 +42,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			private set;
 		}
 
-		public SimpleConnectionParameters (MonoConnectionTestCategory category, SimpleConnectionType type, string identifier, X509Certificate certificate)
+		public SimpleConnectionParameters (ConnectionTestCategory category, SimpleConnectionType type, string identifier, X509Certificate certificate)
 			: base (category, identifier, certificate)
 		{
 			Type = type;

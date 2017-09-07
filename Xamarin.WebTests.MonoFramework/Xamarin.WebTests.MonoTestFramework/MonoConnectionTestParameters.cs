@@ -36,16 +36,15 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 	public abstract class MonoConnectionTestParameters : MonoConnectionParameters
 	{
-		public MonoConnectionTestCategory Category {
+		public ConnectionTestCategory Category {
 			get;
-			private set;
 		}
 
 		public ConnectionTestFlags ConnectionFlags {
 			get; set;
 		}
 
-		public MonoConnectionTestParameters (MonoConnectionTestCategory category, string identifier, X509Certificate certificate)
+		public MonoConnectionTestParameters (ConnectionTestCategory category, string identifier, X509Certificate certificate)
 			: base (identifier, certificate)
 		{
 			Category = category;

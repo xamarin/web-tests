@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get;
 		}
 
-		public RenegotiationTestParameters (MonoConnectionTestCategory category, RenegotiationTestType type,
+		public RenegotiationTestParameters (ConnectionTestCategory category, RenegotiationTestType type,
 		                                    string identifier, X509Certificate certificate)
 			: base (category, identifier, certificate)
 		{

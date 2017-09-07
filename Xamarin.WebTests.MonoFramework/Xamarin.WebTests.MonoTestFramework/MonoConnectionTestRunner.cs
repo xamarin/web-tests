@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get { return (MonoConnectionTestParameters)base.Parameters; }
 		}
 
-		public MonoConnectionTestCategory Category {
+		public ConnectionTestCategory Category {
 			get { return Parameters.Category; }
 		}
 
@@ -57,9 +57,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get { return Provider.Flags; }
 		}
 
-		public MonoConnectionTestProvider Provider {
+		public ConnectionTestProvider Provider {
 			get;
-			private set;
 		}
 
 		public ConnectionHandler ConnectionHandler {
@@ -67,36 +66,26 @@ namespace Xamarin.WebTests.MonoTestFramework
 			private set;
 		}
 
-		protected MonoConnectionTestRunner (Connection server, Connection client, MonoConnectionTestProvider provider, MonoConnectionTestParameters parameters)
+		protected MonoConnectionTestRunner (Connection server, Connection client, ConnectionTestProvider provider, MonoConnectionTestParameters parameters)
 			: base (server, client, parameters)
 		{
 			Provider = provider;
 		}
 
-		public static ConnectionTestFlags GetConnectionFlags (TestContext ctx, MonoConnectionTestCategory category)
+		public static ConnectionTestFlags GetConnectionFlags (TestContext ctx, ConnectionTestCategory category)
 		{
 			switch (category) {
-			case MonoConnectionTestCategory.SimpleMonoClient:
-			case MonoConnectionTestCategory.SelectClientCipher:
+			case ConnectionTestCategory.SimpleMonoClient:
 				return ConnectionTestFlags.RequireMonoClient;
-			case MonoConnectionTestCategory.SimpleMonoServer:
-			case MonoConnectionTestCategory.SelectServerCipher:
+			case ConnectionTestCategory.SimpleMonoServer:
 				return ConnectionTestFlags.RequireMonoServer;
-			case MonoConnectionTestCategory.SimpleMonoConnection:
-			case MonoConnectionTestCategory.MonoProtocolVersions:
-			case MonoConnectionTestCategory.SelectCipher:
+			case ConnectionTestCategory.SimpleMonoConnection:
+			case ConnectionTestCategory.MonoProtocolVersions:
 				return ConnectionTestFlags.RequireMono;
-			case MonoConnectionTestCategory.ClientConnection:
-			case MonoConnectionTestCategory.MartinTestClient:
-				return ConnectionTestFlags.RequireMonoClient;
-			case MonoConnectionTestCategory.ServerConnection:
-			case MonoConnectionTestCategory.MartinTestServer:
-				return ConnectionTestFlags.RequireMonoServer;
-			case MonoConnectionTestCategory.Connection:
-			case MonoConnectionTestCategory.CertificateChecks:
-			case MonoConnectionTestCategory.SecurityFramework:
+			case ConnectionTestCategory.CertificateChecks:
+			case ConnectionTestCategory.SecurityFramework:
 				return ConnectionTestFlags.RequireMono;
-			case MonoConnectionTestCategory.MartinTest:
+			case ConnectionTestCategory.MartinTest:
 				// return ConnectionTestFlags.RequireMono | ConnectionTestFlags.RequireTls12;
 				return ConnectionTestFlags.None;
 			default:

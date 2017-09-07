@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.MonoTestFeatures
 			if (filter != null)
 				throw new NotImplementedException ();
 
-			var category = ctx.GetParameter<MonoConnectionTestCategory> ();
+			var category = ctx.GetParameter<ConnectionTestCategory> ();
 
 			if (Type != null) {
 				yield return RenegotiationTestRunner.GetParameters (ctx, category, Type.Value);

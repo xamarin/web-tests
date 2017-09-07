@@ -53,7 +53,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get { return Parameters.Type; }
 		}
 
-		public SimpleConnectionTestRunner (Connection server, Connection client, MonoConnectionTestProvider provider, SimpleConnectionParameters parameters)
+		public SimpleConnectionTestRunner (Connection server, Connection client, ConnectionTestProvider provider, SimpleConnectionParameters parameters)
 			: base (server, client, provider, parameters)
 		{
 		}
@@ -63,22 +63,22 @@ namespace Xamarin.WebTests.MonoTestFramework
 			return new DefaultConnectionHandler (this);
 		}
 
-		public static IEnumerable<SimpleConnectionType> GetTestTypes (TestContext ctx, MonoConnectionTestCategory category)
+		public static IEnumerable<SimpleConnectionType> GetTestTypes (TestContext ctx, ConnectionTestCategory category)
 		{
 			switch (category) {
-			case MonoConnectionTestCategory.SimpleMonoClient:
+			case ConnectionTestCategory.SimpleMonoClient:
 				yield return SimpleConnectionType.SimpleTls10;
 				yield return SimpleConnectionType.SimpleTls11;
 				yield return SimpleConnectionType.SimpleTls12;
 				yield break;
 
-			case MonoConnectionTestCategory.SimpleMonoServer:
+			case ConnectionTestCategory.SimpleMonoServer:
 				yield return SimpleConnectionType.SimpleTls10;
 				yield return SimpleConnectionType.SimpleTls11;
 				yield return SimpleConnectionType.SimpleTls12;
 				yield break;
 
-			case MonoConnectionTestCategory.SimpleMonoConnection:
+			case ConnectionTestCategory.SimpleMonoConnection:
 				yield return SimpleConnectionType.SimpleTls10;
 				yield return SimpleConnectionType.SimpleTls11;
 				yield return SimpleConnectionType.SimpleTls12;
@@ -89,7 +89,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				yield return SimpleConnectionType.CipherSelectionOrder2;
 				yield break;
 
-			case MonoConnectionTestCategory.MonoProtocolVersions:
+			case ConnectionTestCategory.MonoProtocolVersions:
 				yield return SimpleConnectionType.Simple;
 				yield return SimpleConnectionType.ValidateCertificate;
 				yield return SimpleConnectionType.RequestClientCertificate;
@@ -97,13 +97,12 @@ namespace Xamarin.WebTests.MonoTestFramework
 				yield return SimpleConnectionType.RequireClientCertificateDHE;
 				yield break;
 
-			case MonoConnectionTestCategory.SecurityFramework:
+			case ConnectionTestCategory.SecurityFramework:
 				yield return SimpleConnectionType.Simple;
 				yield break;
 
-			case MonoConnectionTestCategory.MartinTest:
+			case ConnectionTestCategory.MartinTest:
 				yield return SimpleConnectionType.MartinTest;
-				// goto case MonoConnectionTestCategory.SimpleMonoConnection;
 				yield break;
 
 			default:
@@ -112,12 +111,12 @@ namespace Xamarin.WebTests.MonoTestFramework
 			}
 		}
 
-		public static IEnumerable<SimpleConnectionParameters> GetParameters (TestContext ctx, ClientAndServerProvider provider, MonoConnectionTestCategory category)
+		public static IEnumerable<SimpleConnectionParameters> GetParameters (TestContext ctx, ClientAndServerProvider provider, ConnectionTestCategory category)
 		{
 			return GetTestTypes (ctx, category).Select (t => Create (ctx, provider, category, t));
 		}
 
-		static SimpleConnectionParameters CreateParameters (MonoConnectionTestCategory category, SimpleConnectionType type, params object[] args)
+		static SimpleConnectionParameters CreateParameters (ConnectionTestCategory category, SimpleConnectionType type, params object[] args)
 		{
 			var sb = new StringBuilder ();
 			sb.Append (type);
@@ -131,7 +130,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			};
 		}
 
-		static SimpleConnectionParameters Create (TestContext ctx, ClientAndServerProvider provider, MonoConnectionTestCategory category, SimpleConnectionType type)
+		static SimpleConnectionParameters Create (TestContext ctx, ClientAndServerProvider provider, ConnectionTestCategory category, SimpleConnectionType type)
 		{
 			var parameters = CreateParameters (category, type);
 

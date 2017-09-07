@@ -45,7 +45,9 @@ namespace Xamarin.WebTests.TestFramework
 
 		RequireDotNet = 512,
 
-		RequireHttpListener = 1024
+		RequireHttpListener = 1024,
+		RequireClientCertificates = 2048,
+		RequireCleanShutdown = 4096
 	}
 }
 

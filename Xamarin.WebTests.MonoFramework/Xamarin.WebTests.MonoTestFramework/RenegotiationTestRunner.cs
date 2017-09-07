@@ -68,7 +68,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get;
 		}
 
-		public RenegotiationTestRunner (Connection server, Connection client, MonoConnectionTestProvider provider,
+		public RenegotiationTestRunner (Connection server, Connection client, ConnectionTestProvider provider,
 		                                RenegotiationTestParameters parameters)
 			: base (server, client, parameters)
 		{
@@ -78,12 +78,12 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		const RenegotiationTestType MartinTest = RenegotiationTestType.MartinTest;
 
-		public static IEnumerable<RenegotiationTestType> GetRenegotiationTestTypes (TestContext ctx, MonoConnectionTestCategory category)
+		public static IEnumerable<RenegotiationTestType> GetRenegotiationTestTypes (TestContext ctx, ConnectionTestCategory category)
 		{
 			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
 
 			switch (category) {
-			case MonoConnectionTestCategory.MartinTest:
+			case ConnectionTestCategory.MartinTest:
 				yield return RenegotiationTestType.MartinTest;
 				yield break;
 
@@ -92,7 +92,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			}
 		}
 
-		static string GetTestName (MonoConnectionTestCategory category, RenegotiationTestType type, params object[] args)
+		static string GetTestName (ConnectionTestCategory category, RenegotiationTestType type, params object[] args)
 		{
 			var sb = new StringBuilder ();
 			sb.Append (type);
@@ -102,7 +102,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			return sb.ToString ();
 		}
 
-		public static RenegotiationTestParameters GetParameters (TestContext ctx, MonoConnectionTestCategory category,
+		public static RenegotiationTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category,
 		                                                         RenegotiationTestType type)
 		{
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();

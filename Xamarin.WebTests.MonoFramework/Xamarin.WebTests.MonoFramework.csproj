@@ -44,12 +44,7 @@
     <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionParameters.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\CipherList.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionTestCategory.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionTestParameters.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionTestProvider.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionProviderFilter.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFeatures\MonoConnectionTestProviderAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFeatures\MonoConnectionTestCategoryAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\SimpleConnectionTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\SimpleConnectionParameters.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\SimpleConnectionType.cs" />

@@ -68,8 +68,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return (Flags & flag) == flag;
 		}
 
-		protected bool? IsSupported (TestContext ctx, ConnectionProvider provider, string filter)
+		bool IsSupported (ConnectionProvider provider)
 		{
+			if (HasFlag (ConnectionTestFlags.AssumeSupportedByTest))
+				return true;
 			if (HasFlag (ConnectionTestFlags.RequireSslStream) && !provider.HasFlag (ConnectionProviderFlags.SupportsSslStream))
 				return false;
 			if (HasFlag (ConnectionTestFlags.RequireHttp) && !provider.HasFlag (ConnectionProviderFlags.SupportsHttp))
@@ -77,6 +79,21 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (HasFlag (ConnectionTestFlags.RequireTrustedRoots) && !provider.HasFlag (ConnectionProviderFlags.SupportsTrustedRoots))
 				return false;
 			if (HasFlag (ConnectionTestFlags.RequireHttpListener) && !provider.HasFlag (ConnectionProviderFlags.SupportsHttpListener))
+				return false;
+			if (HasFlag (ConnectionTestFlags.RequireClientCertificates) && !provider.HasFlag (ConnectionProviderFlags.SupportsClientCertificates))
+				return false;
+			if (HasFlag (ConnectionTestFlags.RequireCleanShutdown) && !provider.HasFlag (ConnectionProviderFlags.SupportsCleanShutdown))
+				return false;
+			if (HasFlag (ConnectionTestFlags.RequireMono) && !provider.HasFlag (ConnectionProviderFlags.SupportsMonoExtensions))
+				return false;
+			if (HasFlag (ConnectionTestFlags.RequireTls12) && !provider.HasFlag (ConnectionProviderFlags.SupportsTls12))
+				return false;
+			return true;
+		}
+
+		protected bool IsSupported (TestContext ctx, ConnectionProvider provider, string filter)
+		{
+			if (!IsSupported (provider))
 				return false;
 
 			var (match, success, wildcard) = MatchesFilter (provider, filter);
@@ -94,7 +111,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if ((Flags & ConnectionTestFlags.AssumeSupportedByTest) != 0)
 				return true;
 
-			return null;
+			return true;
 		}
 
 		protected bool IsClientSupported (ConnectionProvider provider)
@@ -187,14 +204,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			{
 				if (!IsClientSupported (provider))
 					return false;
-				return IsSupported (ctx, provider, filter) ?? true;
+				return IsSupported (ctx, provider, filter);
 			}
 
 			public override bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter = null)
 			{
 				if (!IsServerSupported (provider))
 					return false;
-				return IsSupported (ctx, provider, filter) ?? true;
+				return IsSupported (ctx, provider, filter);
 			}
 
 			protected override ClientAndServerProvider Create (ConnectionProvider client, ConnectionProvider server)

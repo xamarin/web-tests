@@ -41,20 +41,33 @@ namespace Xamarin.WebTests.TestFramework
 		public ConnectionTestProviderAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
 			: base (filter, flags)
 		{
+			Optional = true;
+		}
+
+		public bool Optional {
+			get; set;
 		}
 
 		public IEnumerable<ConnectionTestProvider> GetParameters (TestContext ctx, string argument)
 		{
 			var category = ctx.GetParameter<ConnectionTestCategory> ();
-			ConnectionTestFlags flags;
-			if (!ctx.TryGetParameter<ConnectionTestFlags> (out flags))
-				flags = ConnectionTestFlags.None;
 
 			ConnectionProviderFilter filter;
-			if (!ctx.TryGetParameter<ConnectionProviderFilter> (out filter))
-				filter = new ConnectionTestProviderFilter (category, flags);
+			if (!ctx.TryGetParameter<ConnectionProviderFilter> (out filter)) {
+				var flags = ConnectionTestRunner.GetConnectionFlags (ctx, category);
 
-			return filter.GetSupportedProviders (ctx, argument).Cast<ConnectionTestProvider> ();
+				ConnectionTestFlags explicitFlags;
+				if (ctx.TryGetParameter<ConnectionTestFlags> (out explicitFlags))
+					flags |= explicitFlags;
+
+				filter = new ConnectionTestProviderFilter (category, flags);
+			}
+
+			var supportedProviders = filter.GetSupportedProviders (ctx, argument).Cast<ConnectionTestProvider> ().ToList ();
+			if (!Optional && supportedProviders.Count == 0)
+				ctx.AssertFail ("Could not find any supported ConnectionTestProvider.");
+
+			return supportedProviders;
 		}
 	}
 }

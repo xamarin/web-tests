@@ -48,6 +48,14 @@ namespace Xamarin.WebTests.TestFramework
 		TrustedRoots,
 		CertificateStore,
 
+		CertificateChecks,
+		SecurityFramework,
+		MonoProtocolVersions,
+
+		SimpleMonoClient,
+		SimpleMonoServer,
+		SimpleMonoConnection,
+
 		SslStreamInstrumentation,
 		SslStreamInstrumentationMono,
 		SslStreamInstrumentationShutdown,

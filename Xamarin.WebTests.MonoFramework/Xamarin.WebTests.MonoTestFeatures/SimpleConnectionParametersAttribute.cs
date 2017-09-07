@@ -31,6 +31,7 @@ using Xamarin.WebTests.Resources;
 
 namespace Xamarin.WebTests.MonoTestFeatures
 {
+	using TestFramework;
 	using MonoTestFramework;
 
 	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
@@ -56,8 +57,8 @@ namespace Xamarin.WebTests.MonoTestFeatures
 			if (filter != null)
 				throw new NotImplementedException ();
 
-			var category = ctx.GetParameter<MonoConnectionTestCategory> ();
-			var provider = ctx.GetParameter<MonoConnectionTestProvider> ();
+			var category = ctx.GetParameter<ConnectionTestCategory> ();
+			var provider = ctx.GetParameter<ConnectionTestProvider> ();
 
 			var parameters = SimpleConnectionTestRunner.GetParameters (ctx, provider, category);
 			if (Type != null)

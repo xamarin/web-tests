@@ -53,11 +53,7 @@ namespace Xamarin.WebTests.TestFramework
 			if (!IsClientSupported (provider))
 				return false;
 
-			var supported = IsSupported (ctx, provider, filter);
-			if (supported != null)
-				return supported.Value;
-
-			return ConnectionTestRunner.IsSupported (ctx, Category, provider);
+			return IsSupported (ctx, provider, filter);
 		}
 
 		public override bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter)
@@ -65,11 +61,7 @@ namespace Xamarin.WebTests.TestFramework
 			if (!IsServerSupported (provider))
 				return false;
 
-			var supported = IsSupported (ctx, provider, filter);
-			if (supported != null)
-				return supported.Value;
-
-			return ConnectionTestRunner.IsSupported (ctx, Category, provider);
+			return IsSupported (ctx, provider, filter);
 		}
 	}
 }

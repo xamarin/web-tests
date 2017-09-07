@@ -51,9 +51,9 @@ namespace Mono.Btls.Tests
 	{
 		[Work]
 		[AsyncTest]
-		[MonoConnectionTestCategory (MonoConnectionTestCategory.MartinTest)]
+		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task TestClient (TestContext ctx, CancellationToken cancellationToken,
-			MonoConnectionTestProvider provider,
+			ConnectionTestProvider provider,
 			SimpleConnectionParameters parameters,
 			SimpleConnectionTestRunner runner)
 		{

@@ -150,53 +150,55 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		public static bool IsSupported (TestContext ctx, ConnectionTestCategory category, ConnectionProvider provider)
+		public static ConnectionTestFlags GetConnectionFlags (TestContext ctx, ConnectionTestCategory category)
 		{
-			var flags = provider.Flags;
-			var supportsHttp = (flags & ConnectionProviderFlags.SupportsHttp) != 0;
-			var supportsSslStream = (flags & ConnectionProviderFlags.SupportsSslStream) != 0;
-			var supportsTls12 = (flags & ConnectionProviderFlags.SupportsTls12) != 0;
-			var supportsClientCertificates = (flags & ConnectionProviderFlags.SupportsClientCertificates) != 0;
-			var supportsTrustedRoots = (flags & ConnectionProviderFlags.SupportsTrustedRoots) != 0;
-			var supportsMonoExtensions = (flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
-			var supportsCleanShutdown = (flags & ConnectionProviderFlags.SupportsCleanShutdown) != 0;
-
 			switch (category) {
 			case ConnectionTestCategory.Https:
-				return supportsSslStream;
+				return ConnectionTestFlags.RequireSslStream;
 			case ConnectionTestCategory.HttpsWithMono:
-				return supportsSslStream;
+				return ConnectionTestFlags.RequireSslStream;
 			case ConnectionTestCategory.HttpsWithDotNet:
-				return supportsSslStream && supportsTls12 && supportsClientCertificates;
+				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12 | ConnectionTestFlags.RequireClientCertificates;
 			case ConnectionTestCategory.SslStreamWithTls12:
-				return supportsSslStream && supportsTls12;
+				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12;
 			case ConnectionTestCategory.InvalidCertificatesInTls12:
-				return supportsSslStream && supportsTls12 && supportsClientCertificates;
+				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12 | ConnectionTestFlags.RequireClientCertificates;
 			case ConnectionTestCategory.HttpsCertificateValidators:
-				return true;
+				return ConnectionTestFlags.RequireHttp;
 			case ConnectionTestCategory.SslStreamCertificateValidators:
-				return supportsSslStream;
+				return ConnectionTestFlags.RequireSslStream;
 			case ConnectionTestCategory.TrustedRoots:
 			case ConnectionTestCategory.CertificateStore:
-				return supportsTrustedRoots;
+				return ConnectionTestFlags.RequireTrustedRoots;
+			case ConnectionTestCategory.SimpleMonoClient:
+				return ConnectionTestFlags.RequireMono;
+			case ConnectionTestCategory.SimpleMonoServer:
+				return ConnectionTestFlags.RequireMono;
+			case ConnectionTestCategory.SimpleMonoConnection:
+			case ConnectionTestCategory.MonoProtocolVersions:
+				return ConnectionTestFlags.RequireMono;
+			case ConnectionTestCategory.CertificateChecks:
+			case ConnectionTestCategory.SecurityFramework:
+				return ConnectionTestFlags.RequireMono;
 			case ConnectionTestCategory.SslStreamInstrumentation:
 			case ConnectionTestCategory.SslStreamInstrumentationExperimental:
-				return supportsSslStream && supportsTls12 && supportsMonoExtensions;
+				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12 | ConnectionTestFlags.RequireMono;
 			case ConnectionTestCategory.SslStreamInstrumentationMono:
-				return supportsSslStream && supportsTls12 && supportsMonoExtensions;
+				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12 | ConnectionTestFlags.RequireMono;
 			case ConnectionTestCategory.SslStreamInstrumentationShutdown:
-				return supportsSslStream && supportsMonoExtensions && supportsCleanShutdown;
+				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireMono | ConnectionTestFlags.RequireCleanShutdown;
 			case ConnectionTestCategory.HttpInstrumentation:
 			case ConnectionTestCategory.HttpInstrumentationStress:
 			case ConnectionTestCategory.HttpInstrumentationNewWebStack:
 			case ConnectionTestCategory.HttpInstrumentationExperimental:
 			case ConnectionTestCategory.HttpStress:
 			case ConnectionTestCategory.HttpStressExperimental:
-				return supportsHttp && supportsSslStream && supportsTls12;
+				return ConnectionTestFlags.RequireHttp | ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12;
 			case ConnectionTestCategory.MartinTest:
-				return true;
+				return ConnectionTestFlags.AssumeSupportedByTest;
 			default:
-				throw new NotSupportedException ();
+				ctx.AssertFail ("Unsupported instrumentation category: '{0}'.", category);
+				return ConnectionTestFlags.None;
 			}
 		}
 
