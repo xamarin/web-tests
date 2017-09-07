@@ -6,7 +6,8 @@ properties([
 		choice (name: 'QA_USE_XM_LANE', choices: 'NONE\nmacios-mac-d15-4\nmacios-mac-master', description: 'XM lane'),
 		choice (name: 'QA_USE_XA_LANE', choices: 'NONE\nmonodroid-mavericks-d15-4\nmonodroid-mavericks-master', description: 'XA lane'),
 		choice (name: 'IOS_DEVICE_TYPE', choices: 'iPhone-5s', description: ''),
-		choice (name: 'IOS_RUNTIME', choices: 'iOS-10-0\niOS-10-3', description: '')
+		choice (name: 'IOS_RUNTIME', choices: 'iOS-10-0\niOS-10-3', description: ''),
+		string (defaultValue: '', description: '', name: 'EXTRA_JENKINS_ARGUMENTS')
 	])
 ])
 
@@ -107,10 +108,15 @@ def buildAll ()
 
 def run (String target, String testCategory, String resultOutput, String junitResultOutput, String stdOut, String stdErr)
 {
-	iosParams = "IosRuntime=$IOS_RUNTIME,IosDeviceType=$IOS_DEVICE_TYPE"
-	resultParams = "ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
-    outputParams = "StdOut=$stdOut,StdErr=$stdErr"
-	runShell ("msbuild Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,$iosParams,$resultParams,$outputParams")
+	def iosParams = "IosRuntime=$IOS_RUNTIME,IosDeviceType=$IOS_DEVICE_TYPE"
+	def resultParams = "ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
+	def outputParams = "StdOut=$stdOut,StdErr=$stdErr"
+	def extraParams = ""
+	if (params.EXTRA_JENKINS_ARGUMENTS != '') {
+		def extraParamValue = params.EXTRA_JENKINS_ARGUMENTS
+		extraParams = ",JenkinsExtraArguments=\"$extraParamValue\""
+	}
+	runShell ("msbuild Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,$iosParams,$resultParams,$outputParams$extraParams")
 }
 
 def runTests (String target, String category, Boolean unstable = false, Integer timeoutValue = 10)
