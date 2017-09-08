@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>__UNIFIED__;__MACOS__;DEBUG;MACUI;__MOBILE__</DefineConstants>
+    <DefineConstants>__UNIFIED__;__MACOS__;DEBUG;MACUI;__MOBILE__;__XAMMAC__</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -45,7 +45,7 @@
     <CreatePackage>false</CreatePackage>
     <EnableCodeSigning>false</EnableCodeSigning>
     <EnablePackageSigning>false</EnablePackageSigning>
-    <DefineConstants>MACUI</DefineConstants>
+    <DefineConstants>__UNIFIED__;__MACOS__;MACUI;__MOBILE__;__XAMMAC__</DefineConstants>
     <Profiling>false</Profiling>
     <HttpClientHandler>HttpClientHandler</HttpClientHandler>
     <LinkMode>None</LinkMode>

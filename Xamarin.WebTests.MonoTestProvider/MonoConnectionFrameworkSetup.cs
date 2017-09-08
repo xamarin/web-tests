@@ -135,12 +135,12 @@ namespace Xamarin.WebTests.MonoTestProvider
 			HasNewWebStack = CheckNewWebStack ();
 			SupportsRenegotiation = CheckRenegotiation ();
 
-#if !__IOS__ && !__MOBILE__ && !XAMMAC
+#if !__IOS__ && !__MOBILE__ && !__XAMMAC__
 			SupportsMonoExtensions = true;
 #endif
 
 			if (CheckAppleTls ()) {
-#if !__IOS__ && !__MOBILE__ && !XAMMAC
+#if !__IOS__ && !__MOBILE__ && !__XAMMAC__
 				if (UsingBtls)
 					SecondTlsProvider = MonoTlsProviderFactory.GetProvider ("apple");
 				if (UsingAppleTls)
@@ -208,7 +208,7 @@ namespace Xamarin.WebTests.MonoTestProvider
 		{
 #if __IOS__
 			return true;
-#elif !__MOBILE__
+#elif __XAMMAC__ || !__MOBILE__
 			/*
 			 * AppleTls is unusable broken on Jenkins because it would hang the bots
 			 * prior to mono/master commit 1eb27c1df8ed29d84ca935496ffd6c230447895a.
