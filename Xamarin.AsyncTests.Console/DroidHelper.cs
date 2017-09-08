@@ -68,7 +68,7 @@ namespace Xamarin.AsyncTests.Console
 			AndroidTool = Path.Combine (Options.AndroidSdkRoot, "tools", "android");
 			EmulatorTool = Path.Combine (Options.AndroidSdkRoot, "tools", "emulator");
 
-			Device = new DroidDevice ("XamarinWebTests", "android-25", "x86", "Galaxy Nexus");
+			Device = new DroidDevice ("XamarinWebTests", "android-23", "x86", "Default");
 		}
 
 		public async Task<bool> CheckAvd (CancellationToken cancellationToken)
