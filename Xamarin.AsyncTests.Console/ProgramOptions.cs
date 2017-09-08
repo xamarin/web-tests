@@ -435,7 +435,7 @@ namespace Xamarin.AsyncTests.Console {
 				AndroidSdkRoot = androidSdkRoot ?? Environment.GetEnvironmentVariable ("ANDROID_SDK_PATH");
 				if (String.IsNullOrEmpty (AndroidSdkRoot)) {
 					var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
-					AndroidSdkRoot = Path.Combine (home, "Library", "Developer", "Xamarin", "android-sdk-macosx");
+					AndroidSdkRoot = Path.Combine (home, "Library", "Developer", "Xamarin", "android-sdk");
 				}
 			}
 		}
