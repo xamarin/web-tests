@@ -53,9 +53,6 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		{
 			this.name = name;
 			this.tlsProvider = tlsProvider;
-
-			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
-			SupportsHttpListenerContext = setup.SupportsHttpListenerContext;
 		}
 
 		static ConnectionProviderFlags GetFlags (ConnectionProviderFlags flags, MSI.MonoTlsProvider tlsProvider)
@@ -159,20 +156,11 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			return MSI.MonoTlsProviderFactory.CreateHttpListener (certificate, tlsProvider, settings);
 		}
 
-		public bool SupportsHttpListenerContext {
-			get;
-		}
-
-		public SslStream GetSslStream (MSI.IMonoSslStream stream)
-		{
-			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
-			return setup.GetSslStream (stream);
-		}
+		public bool SupportsHttpListenerContext => true;
 
 		public SslStream GetSslStream (HttpListenerContext context)
 		{
-			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
-			return setup.GetSslStream (context);
+			return MSI.MonoTlsProviderFactory.GetMonoSslStream (context).SslStream;
 		}
 
 		public SslStream CreateSslStream (TestContext ctx, Stream stream, ConnectionParameters parameters, bool server)
@@ -198,7 +186,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			}
 
 			var monoSslStream = tlsProvider.CreateSslStream (stream, false, settings);
-			return GetSslStream (monoSslStream);
+			return monoSslStream.SslStream;
 		}
 
 		public override string ToString ()

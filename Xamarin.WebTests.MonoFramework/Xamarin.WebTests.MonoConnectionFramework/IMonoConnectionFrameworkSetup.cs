@@ -65,14 +65,6 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		void SendCloseNotify (MonoTlsSettings settings, bool value);
 
-		bool SupportsHttpListenerContext {
-			get;
-		}
-
-		SslStream GetSslStream (IMonoSslStream stream);
-
-		SslStream GetSslStream (HttpListenerContext context);
-
 		bool SupportsClientCertificateIssuers {
 			get;
 		}

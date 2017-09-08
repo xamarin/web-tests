@@ -170,12 +170,7 @@ namespace Xamarin.WebTests.MonoTestProvider
 		void InitReflection ()
 		{
 #if !__IOS__ && !__MOBILE__
-			var factoryType = typeof (MonoTlsProviderFactory);
-			getSslStreamFromHttpListenerContext = factoryType.GetRuntimeMethod ("GetMonoSslStream", new Type[] { typeof (HttpListenerContext) });
 			clientCertIssuersProp = typeof (MonoTlsSettings).GetTypeInfo ().GetDeclaredProperty ("ClientCertificateIssuers");
-			var monoSslStreamType = typeof (IMonoSslStream);
-			getSslStreamProp = monoSslStreamType.GetProperty ("SslStream");
-			getSslStream = getSslStreamProp.GetMethod;
 #endif
 		}
 
@@ -238,10 +233,7 @@ namespace Xamarin.WebTests.MonoTestProvider
 		MethodInfo getSupportsCleanShutdown;
 		PropertyInfo sendCloseNotify;
 		MethodInfo setSendCloseNotify;
-		MethodInfo getSslStreamFromHttpListenerContext;
 		PropertyInfo clientCertIssuersProp;
-		MethodInfo getSslStream;
-		PropertyInfo getSslStreamProp;
 #endif
 
 		bool CheckRenegotiation ()
@@ -303,37 +295,6 @@ namespace Xamarin.WebTests.MonoTestProvider
 			throw new NotSupportedException ();
 #else
 			return stream.ShutdownAsync ();
-#endif
-		}
-
-		public bool SupportsHttpListenerContext {
-			get {
-#if __IOS__ || __MOBILE__
-				return false;
-#else
-				return getSslStreamFromHttpListenerContext != null;
-#endif
-			}
-		}
-
-		public SslStream GetSslStream (IMonoSslStream stream)
-		{
-#if __IOS__ || __MOBILE__
-			throw new NotSupportedException ();
-#else
-			return (SslStream)getSslStream.Invoke (stream, null);
-#endif
-		}
-
-		public SslStream GetSslStream (HttpListenerContext context)
-		{
-#if __IOS__ || __MOBILE__
-			throw new NotSupportedException ();
-#else
-			if (getSslStreamFromHttpListenerContext == null)
-				throw new NotSupportedException ();
-			var sslStream = (IMonoSslStream)getSslStreamFromHttpListenerContext.Invoke (null, new object[] { context });
-			return (SslStream)sslStream;
 #endif
 		}
 
