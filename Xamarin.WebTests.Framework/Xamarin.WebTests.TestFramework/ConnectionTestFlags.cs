@@ -47,7 +47,12 @@ namespace Xamarin.WebTests.TestFramework
 
 		RequireHttpListener = 1024,
 		RequireClientCertificates = 2048,
-		RequireCleanShutdown = 4096
+
+		RequireCleanClientShutdown = 4096,
+		RequireCleanServerShutdown = 8192,
+		RequireCleanShutdown = RequireCleanClientShutdown | RequireCleanServerShutdown,
+
+		AllowWildcardMatches = 16384
 	}
 }
 

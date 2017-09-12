@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ConnectionReuseWithShutdown;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ServerShutdown;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -101,6 +101,10 @@ namespace Xamarin.WebTests.TestRunners
 				yield return StreamInstrumentationType.ReadAfterShutdown;
 				yield return StreamInstrumentationType.ConnectionReuse;
 				yield return StreamInstrumentationType.ConnectionReuseWithShutdown;
+				yield break;
+
+			case ConnectionTestCategory.SslStreamInstrumentationServerShutdown:
+				yield return StreamInstrumentationType.ServerShutdown;
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationExperimental:
@@ -238,6 +242,8 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ConnectionReuseWithShutdown:
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown |
 					InstrumentationFlags.ReuseClientSocket | InstrumentationFlags.ReuseServerSocket;
+			case StreamInstrumentationType.ServerShutdown:
+				return InstrumentationFlags.None;
 			default:
 				throw new InternalErrorException ();
 			}
