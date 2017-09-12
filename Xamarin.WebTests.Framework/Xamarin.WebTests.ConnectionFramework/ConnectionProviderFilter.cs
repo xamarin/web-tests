@@ -43,11 +43,31 @@ namespace Xamarin.WebTests.ConnectionFramework
 			Flags = flags;
 		}
 
-		public abstract bool IsClientSupported (TestContext ctx, ConnectionProvider provider, string filter = null);
+		bool IsClientSupported (TestContext ctx, ConnectionProvider provider, string filter)
+		{
+			if (HasFlag (ConnectionTestFlags.ManualClient))
+				return provider.Type == ConnectionProviderType.Manual;
+			if (HasFlag (ConnectionTestFlags.RequireMonoClient) && !provider.HasFlag (ConnectionProviderFlags.SupportsMonoExtensions))
+				return false;
+			if (HasFlag (ConnectionTestFlags.RequireDotNet) && provider.Type != ConnectionProviderType.DotNet)
+				return false;
 
-		public abstract bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter = null);
+			return IsSupported (ctx, provider, filter);
+		}
 
-		protected static (bool match, bool success, bool wildcard) MatchesFilter (ConnectionProvider provider, string filter)
+		bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter)
+		{
+			if (HasFlag (ConnectionTestFlags.ManualServer))
+				return provider.Type == ConnectionProviderType.Manual;
+			if (HasFlag (ConnectionTestFlags.RequireMonoServer) && !provider.HasFlag (ConnectionProviderFlags.SupportsMonoExtensions))
+				return false;
+			if (HasFlag (ConnectionTestFlags.RequireDotNet) && provider.Type != ConnectionProviderType.DotNet)
+				return false;
+
+			return IsSupported (ctx, provider, filter);
+		}
+
+		static (bool match, bool success, bool wildcard) MatchesFilter (ConnectionProvider provider, string filter)
 		{
 			if (filter == null)
 				return (false, false, false);
@@ -63,12 +83,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return (true, false, false);
 		}
 
-		protected bool HasFlag (ConnectionTestFlags flag)
+		bool HasFlag (ConnectionTestFlags flag)
 		{
 			return (Flags & flag) == flag;
 		}
 
-		bool IsSupported (ConnectionProvider provider)
+		bool IsSupported (TestContext ctx, ConnectionProvider provider, string filter)
 		{
 			if (HasFlag (ConnectionTestFlags.AssumeSupportedByTest))
 				return true;
@@ -88,13 +108,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 				return false;
 			if (HasFlag (ConnectionTestFlags.RequireTls12) && !provider.HasFlag (ConnectionProviderFlags.SupportsTls12))
 				return false;
-			return true;
-		}
-
-		protected bool IsSupported (TestContext ctx, ConnectionProvider provider, string filter)
-		{
-			if (!IsSupported (provider))
-				return false;
 
 			var (match, success, wildcard) = MatchesFilter (provider, filter);
 			if (match) {
@@ -110,29 +123,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			if ((Flags & ConnectionTestFlags.AssumeSupportedByTest) != 0)
 				return true;
-
-			return true;
-		}
-
-		protected bool IsClientSupported (ConnectionProvider provider)
-		{
-			if (HasFlag (ConnectionTestFlags.ManualClient))
-				return provider.Type == ConnectionProviderType.Manual;
-			if (HasFlag (ConnectionTestFlags.RequireMonoClient) && !provider.HasFlag (ConnectionProviderFlags.SupportsMonoExtensions))
-				return false;
-			if (HasFlag (ConnectionTestFlags.RequireDotNet) && provider.Type != ConnectionProviderType.DotNet)
-				return false;
-			return true;
-		}
-
-		protected bool IsServerSupported (ConnectionProvider provider)
-		{
-			if (HasFlag (ConnectionTestFlags.ManualServer))
-				return provider.Type == ConnectionProviderType.Manual;
-			if (HasFlag (ConnectionTestFlags.RequireMonoServer) && !provider.HasFlag (ConnectionProviderFlags.SupportsMonoExtensions))
-				return false;
-			if (HasFlag (ConnectionTestFlags.RequireDotNet) && provider.Type != ConnectionProviderType.DotNet)
-				return false;
 
 			return true;
 		}
@@ -198,20 +188,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		class SimpleFilter : ConnectionProviderFilter {
 			public SimpleFilter (ConnectionTestFlags flags) : base (flags)
 			{
-			}
-
-			public override bool IsClientSupported (TestContext ctx, ConnectionProvider provider, string filter = null)
-			{
-				if (!IsClientSupported (provider))
-					return false;
-				return IsSupported (ctx, provider, filter);
-			}
-
-			public override bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter = null)
-			{
-				if (!IsServerSupported (provider))
-					return false;
-				return IsSupported (ctx, provider, filter);
 			}
 
 			protected override ClientAndServerProvider Create (ConnectionProvider client, ConnectionProvider server)

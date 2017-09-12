@@ -47,22 +47,6 @@ namespace Xamarin.WebTests.TestFramework
 		{
 			return new ConnectionTestProvider (client, server, Category, Flags);
 		}
-
-		public override bool IsClientSupported (TestContext ctx, ConnectionProvider provider, string filter)
-		{
-			if (!IsClientSupported (provider))
-				return false;
-
-			return IsSupported (ctx, provider, filter);
-		}
-
-		public override bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter)
-		{
-			if (!IsServerSupported (provider))
-				return false;
-
-			return IsSupported (ctx, provider, filter);
-		}
 	}
 }
 
