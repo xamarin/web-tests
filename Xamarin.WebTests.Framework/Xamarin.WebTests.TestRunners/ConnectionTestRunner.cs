@@ -181,7 +181,6 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.SecurityFramework:
 				return ConnectionTestFlags.RequireMono;
 			case ConnectionTestCategory.SslStreamInstrumentation:
-			case ConnectionTestCategory.SslStreamInstrumentationRecentlyFixed:
 			case ConnectionTestCategory.SslStreamInstrumentationExperimental:
 				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12 | ConnectionTestFlags.RequireMono;
 			case ConnectionTestCategory.SslStreamInstrumentationMono:
@@ -190,6 +189,8 @@ namespace Xamarin.WebTests.TestRunners
 				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireMono | ConnectionTestFlags.RequireCleanShutdown;
 			case ConnectionTestCategory.SslStreamInstrumentationServerShutdown:
 				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireMono | ConnectionTestFlags.RequireCleanServerShutdown;
+			case ConnectionTestCategory.SslStreamInstrumentationRecentlyFixed:
+				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12;
 			case ConnectionTestCategory.HttpInstrumentation:
 			case ConnectionTestCategory.HttpInstrumentationStress:
 			case ConnectionTestCategory.HttpInstrumentationNewWebStack:
