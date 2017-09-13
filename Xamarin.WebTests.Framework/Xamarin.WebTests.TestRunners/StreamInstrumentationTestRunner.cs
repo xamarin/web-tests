@@ -247,7 +247,8 @@ namespace Xamarin.WebTests.TestRunners
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown |
 					InstrumentationFlags.ReuseClientSocket | InstrumentationFlags.ReuseServerSocket;
 			case StreamInstrumentationType.FlushAfterDispose:
-				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
+				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown |
+					InstrumentationFlags.ClientInstrumentation;
 			case StreamInstrumentationType.ServerShutdown:
 				return InstrumentationFlags.None;
 			default:

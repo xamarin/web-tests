@@ -65,6 +65,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		MyAction writeAction;
 		MyAction readAction;
+		MyAction flushAction;
 
 		public void OnNextRead (AsyncReadHandler handler)
 		{
@@ -77,6 +78,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			var myAction = new MyAction (handler);
 			if (Interlocked.CompareExchange (ref writeAction, myAction, null) != null)
+				throw new InvalidOperationException ();
+		}
+
+		public void OnNextFlush (AsyncFlushHandler handler)
+		{
+			var myAction = new MyAction (null);
+			if (Interlocked.CompareExchange (ref flushAction, myAction, null) != null)
 				throw new InvalidOperationException ();
 		}
 
@@ -303,10 +311,80 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
+		public delegate Task AsyncFlushHandler (AsyncFlushFunc func, CancellationToken cancellationToken);
+		public delegate Task AsyncFlushFunc (CancellationToken cancellationToken);
+		delegate void SyncFlushFunc ();
+
+		public override void Flush ()
+		{
+			var message = $"{Name}.Flush()";
+
+			SyncFlushFunc syncFlush = () => base.Flush ();
+			SyncFlushFunc originalSyncFlush = syncFlush;
+
+			var action = Interlocked.Exchange (ref flushAction, null);
+			if (action?.AsyncFlush != null) {
+				message += " - action";
+
+				AsyncFlushFunc asyncBaseFlush = (_) => Task.Factory.FromAsync (
+					(callback, state) => originalSyncFlush.BeginInvoke (callback, state),
+					(result) => originalSyncFlush.EndInvoke (result), null);
+
+				syncFlush = () => action.AsyncFlush (asyncBaseFlush, CancellationToken.None).Wait ();
+			}
+
+			Flush_internal (message, syncFlush);
+		}
+
+		void Flush_internal (string message, SyncFlushFunc func)
+		{
+			LogDebug (message);
+			try {
+				func ();
+				LogDebug ($"{message} done");
+			} catch (Exception ex) {
+				if (IgnoreErrors)
+					return;
+				LogDebug ($"{message} failed: {ex}");
+				throw;
+			}
+		}
+
+		public override Task FlushAsync (CancellationToken cancellationToken)
+		{
+			var message = $"{Name}.FlushAsync()";
+
+			AsyncFlushFunc asyncBaseFlush = base.FlushAsync;
+			AsyncFlushHandler asyncFlushHandler = (func, ct) => func (ct);
+
+			var action = Interlocked.Exchange (ref flushAction, null);
+			if (action?.AsyncFlush != null) {
+				message += " - action";
+				return FlushAsync (message, asyncBaseFlush, action.AsyncFlush, cancellationToken);
+			}
+
+			return FlushAsync (message, asyncBaseFlush, asyncFlushHandler, cancellationToken);
+		}
+
+		async Task FlushAsync (string message, AsyncFlushFunc func, AsyncFlushHandler handler, CancellationToken cancellationToken)
+		{
+			LogDebug (message);
+			try {
+				await handler (func, cancellationToken).ConfigureAwait (false);
+				LogDebug ($"{message} done");
+			} catch (Exception ex) {
+				if (IgnoreErrors)
+					return;
+				LogDebug ($"{message} failed: {ex}");
+				throw;
+			}
+		}
+
 		class MyAction
 		{
 			public readonly AsyncReadHandler AsyncRead;
 			public readonly AsyncWriteHandler AsyncWrite;
+			public readonly AsyncFlushHandler AsyncFlush;
 
 			public MyAction (AsyncReadHandler handler)
 			{
@@ -317,7 +395,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 			{
 				AsyncWrite = handler;
 			}
+
+			public MyAction (AsyncFlushHandler handler)
+			{
+				AsyncFlush = handler;
+			}
 		}
 	}
 }
-
