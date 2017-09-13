@@ -67,10 +67,15 @@ namespace Xamarin.WebTests.TestRunners
 			get;
 		}
 
+		public string ME {
+			get;
+		}
+
 		public StreamInstrumentationTestRunner (Connection server, Connection client, ConnectionTestProvider provider,
 							StreamInstrumentationParameters parameters)
 			: base (server, client, parameters)
 		{
+			ME = $"StreamInstrumentationTestRunner({EffectiveType})";
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
@@ -188,7 +193,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected sealed override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
 		{
-			ctx.LogDebug (4, "StreamInstrumentationTestRunner({0}) - main loop", EffectiveType);
+			LogDebug (ctx, 4, "MainLoop()");
 			if (HasFlag (InstrumentationFlags.SkipMainLoop))
 				return;
 			await ConnectionHandler.MainLoop (ctx, cancellationToken);
@@ -269,8 +274,12 @@ namespace Xamarin.WebTests.TestRunners
 
 		void LogDebug (TestContext ctx, int level, string message, params object[] args)
 		{
-			var formatted = string.Format (message, args);
-			ctx.LogDebug (level, string.Format ("StreamInstrumentationTestRunner({0}): {1}", EffectiveType, formatted));
+			LogDebug (ctx, level, string.Format (message, args));
+		}
+
+		void LogDebug (TestContext ctx, int level, string message)
+		{
+			ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, level, $"{ME}: {message}");
 		}
 
 		protected override Task StartClient (TestContext ctx, CancellationToken cancellationToken)
@@ -784,10 +793,18 @@ namespace Xamarin.WebTests.TestRunners
 
 		Task ClientShutdown_FlushAfterDispose (TestContext ctx, CancellationToken cancellationToken)
 		{
+			clientInstrumentation.OnNextFlush (FlushHandler);
+
 			Client.SslStream.Dispose ();
 			Client.SslStream.Flush ();
 
 			return FinishedTask;
+
+			async Task FlushHandler (StreamInstrumentation.AsyncFlushFunc func,
+						 CancellationToken innerCancellationToken)
+			{
+				LogDebug (ctx, 4, $"FLUSH HANDLER!");
+			}
 		}
 	}
 }

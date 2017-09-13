@@ -32,5 +32,7 @@ namespace Xamarin.WebTests.TestFramework
 		public const string CertificateValidator = "validator";
 		public const string SimpleConnections = "simple-connection";
 		public const string Https = "https";
+		public const string StreamInstrumentationTestRunner = "stream-instrumentation-test";
+		public const string StreamInstrumentation = "stream-instrumentation";
 	}
 }

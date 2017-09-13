@@ -33,6 +33,8 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	using TestFramework;
+
 	public class StreamInstrumentation : NetworkStream
 	{
 		public TestContext Context {
@@ -100,7 +102,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		void LogDebug (string message)
 		{
 			if (Debug)
-				Context.LogDebug (4, message);
+				Context.LogDebug (LogCategories.StreamInstrumentation, 4, message);
 		}
 
 		public override Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
