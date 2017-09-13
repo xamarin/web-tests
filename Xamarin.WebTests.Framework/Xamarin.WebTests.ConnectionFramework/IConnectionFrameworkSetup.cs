@@ -61,6 +61,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
+		bool UsingDotNet {
+			get;
+		}
+
+		int InternalVersion {
+			get;
+		}
+
 		void Initialize (ConnectionProviderFactory factory);
 
 		Task ShutdownAsync (SslStream stream);

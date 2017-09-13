@@ -391,6 +391,57 @@ namespace Xamarin.AsyncTests {
 		}
 
 		[HideStackFrame]
+		public Tuple<bool,T> Expect<T> (Func<T> func, Constraint constraint, bool fatal, string format = null, params object[] args)
+		{
+			var sb = new StringBuilder ();
+			sb.AppendFormat ("AssertionFailed ({0})", constraint.Print ());
+			if (format != null) {
+				sb.Append (": ");
+				if (args != null)
+					sb.AppendFormat (format, args);
+				else
+					sb.Append (format);
+			}
+
+			try {
+				var actual = func ();
+				if (constraint.Evaluate (actual, out string error))
+					return new Tuple<bool, T> (true, actual);
+
+				if (error != null) {
+					sb.AppendLine ();
+					sb.Append (error);
+				} else {
+					sb.AppendLine ();
+					sb.AppendFormat ("Actual value: {0}", Print (actual));
+				}
+			} catch (Exception ex) {
+				ex = CleanupException (ex);
+				sb.AppendLine ();
+				sb.AppendFormat ("Got unexpected exception: {0}", Print (ex));
+			}
+
+			var exception = new AssertionException (sb.ToString (), GetStackTrace ());
+			OnError (exception);
+			if (fatal)
+				throw new SkipRestOfThisTestException ();
+			return new Tuple<bool, T> (false, default (T));
+		}
+
+		[HideStackFrame]
+		public Tuple<bool,T> Expect<T> (Func<T> func, Constraint constraint, string format = null, params object[] args)
+		{
+			return Expect (func, constraint, false, format, args);
+		}
+
+		[HideStackFrame]
+		public T Assert<T> (Func<T> func, Constraint constraint, string format = null, params object[] args)
+		{
+			var ret = Expect (func, constraint, true, format, args);
+			return ret.Item2;
+		}
+
+		[HideStackFrame]
 		public Exception IgnoreThisTest ()
 		{
 			OnTestIgnored ();

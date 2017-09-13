@@ -68,6 +68,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		MyAction writeAction;
 		MyAction readAction;
 		MyAction flushAction;
+		MyAction disposeAction;
 
 		public void OnNextRead (AsyncReadHandler handler)
 		{
@@ -85,8 +86,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public void OnNextFlush (AsyncFlushHandler handler)
 		{
-			var myAction = new MyAction (null);
+			var myAction = new MyAction (handler);
 			if (Interlocked.CompareExchange (ref flushAction, myAction, null) != null)
+				throw new InvalidOperationException ();
+		}
+
+		public void OnDispose (DisposeHandler handler)
+		{
+			var myAction = new MyAction (handler);
+			if (Interlocked.CompareExchange (ref disposeAction, myAction, null) != null)
 				throw new InvalidOperationException ();
 		}
 
@@ -382,11 +390,50 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
+		public delegate void DisposeHandler (DisposeFunc func);
+		public delegate void DisposeFunc ();
+
+		protected override void Dispose (bool disposing)
+		{
+			if (!disposing) {
+				base.Dispose (disposing);
+				return;
+			}
+
+			var message = $"{Name}.Dispose()";
+
+			DisposeFunc baseDispose = () => base.Dispose (true);
+			DisposeFunc originalDispose = baseDispose;
+
+			var action = Interlocked.Exchange (ref disposeAction, null);
+			if (action?.Dispose != null) {
+				message += " - action";
+				baseDispose = () => action.Dispose (originalDispose);
+			}
+
+			Dispose_internal (message, baseDispose);
+		}
+
+		void Dispose_internal (string message, DisposeFunc func)
+		{
+			LogDebug (message);
+			try {
+				func ();
+				LogDebug ($"{message} done");
+			} catch (Exception ex) {
+				if (IgnoreErrors)
+					return;
+				LogDebug ($"{message} failed: {ex}");
+				throw;
+			}
+		}
+
 		class MyAction
 		{
 			public readonly AsyncReadHandler AsyncRead;
 			public readonly AsyncWriteHandler AsyncWrite;
 			public readonly AsyncFlushHandler AsyncFlush;
+			public readonly DisposeHandler Dispose;
 
 			public MyAction (AsyncReadHandler handler)
 			{
@@ -401,6 +448,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 			public MyAction (AsyncFlushHandler handler)
 			{
 				AsyncFlush = handler;
+			}
+
+			public MyAction (DisposeHandler dispose)
+			{
+				Dispose = dispose;
 			}
 		}
 	}

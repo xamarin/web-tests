@@ -23,6 +23,10 @@ namespace Xamarin.WebTests.DotNet
 
 		public bool HasNewWebStack => true;
 
+		public bool UsingDotNet => true;
+
+		public int InternalVersion => 0;
+
 		public void Initialize (ConnectionProviderFactory factory)
 		{
 			;

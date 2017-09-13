@@ -79,7 +79,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.FlushAfterDispose;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.DisposeClosesInnerStream;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -96,10 +96,15 @@ namespace Xamarin.WebTests.TestRunners
 				yield return StreamInstrumentationType.ShortReadDuringClientAuth;
 				yield return StreamInstrumentationType.ShortReadAndClose;
 				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
+				if (setup.UsingDotNet || setup.InternalVersion >= 1) {
+					yield return StreamInstrumentationType.Flush;
+					yield return StreamInstrumentationType.WriteDoesNotFlush;
+					yield return StreamInstrumentationType.FlushAfterDispose;
+					yield return StreamInstrumentationType.PropertiesAfterDispose;
+				}
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationRecentlyFixed:
-				yield return StreamInstrumentationType.FlushAfterDispose;
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationShutdown:
@@ -194,9 +199,26 @@ namespace Xamarin.WebTests.TestRunners
 		protected sealed override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			LogDebug (ctx, 4, "MainLoop()");
-			if (HasFlag (InstrumentationFlags.SkipMainLoop))
+			if (!HasFlag (InstrumentationFlags.SkipMainLoop)) {
+				await ConnectionHandler.MainLoop (ctx, cancellationToken).ConfigureAwait (false);
 				return;
-			await ConnectionHandler.MainLoop (ctx, cancellationToken);
+			}
+
+			switch (EffectiveType) {
+			case StreamInstrumentationType.InvalidDataDuringClientAuth:
+				return;
+			case StreamInstrumentationType.Flush:
+			case StreamInstrumentationType.WriteDoesNotFlush:
+			case StreamInstrumentationType.FlushAfterDispose:
+				await FlushInstrumentation (ctx, cancellationToken).ConfigureAwait (false);
+				break;
+			case StreamInstrumentationType.DisposeClosesInnerStream:
+			case StreamInstrumentationType.PropertiesAfterDispose:
+				await DisposeInstrumentation (ctx, cancellationToken).ConfigureAwait (false);
+				break;
+			default:
+				throw ctx.AssertFail (EffectiveType);
+			}
 		}
 
 		[Flags]
@@ -215,6 +237,7 @@ namespace Xamarin.WebTests.TestRunners
 			SkipMainLoop = 1024,
 			ReuseClientSocket = 2048,
 			ReuseServerSocket = 4096,
+			SkipShutdown = 8192,
 
 			HandshakeFails = ClientHandshakeFails | ServerHandshakeFails,
 
@@ -251,9 +274,13 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ConnectionReuseWithShutdown:
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown |
 					InstrumentationFlags.ReuseClientSocket | InstrumentationFlags.ReuseServerSocket;
+			case StreamInstrumentationType.Flush:
+			case StreamInstrumentationType.WriteDoesNotFlush:
 			case StreamInstrumentationType.FlushAfterDispose:
-				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown |
-					InstrumentationFlags.ClientInstrumentation;
+			case StreamInstrumentationType.DisposeClosesInnerStream:
+			case StreamInstrumentationType.PropertiesAfterDispose:
+				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.SkipMainLoop |
+					InstrumentationFlags.SkipShutdown;
 			case StreamInstrumentationType.ServerShutdown:
 				return InstrumentationFlags.None;
 			default:
@@ -298,6 +325,8 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
+			if (HasFlag (InstrumentationFlags.SkipShutdown))
+				return FinishedTask;
 			if (!HasAnyFlag (InstrumentationFlags.ClientShutdown)) {
 				if (HasAnyFlag (InstrumentationFlags.HandshakeFails))
 					return FinishedTask;
@@ -318,8 +347,6 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ConnectionReuse:
 			case StreamInstrumentationType.ConnectionReuseWithShutdown:
 				return ClientShutdown_ConnectionReuse (ctx, cancellationToken);
-			case StreamInstrumentationType.FlushAfterDispose:
-				return ClientShutdown_FlushAfterDispose (ctx, cancellationToken);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -327,6 +354,8 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
+			if (HasFlag (InstrumentationFlags.SkipShutdown))
+				return FinishedTask;
 			if (!HasAnyFlag (InstrumentationFlags.ServerShutdown)) {
 				if (HasAnyFlag (InstrumentationFlags.HandshakeFails))
 					return FinishedTask;
@@ -348,8 +377,6 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ConnectionReuse:
 			case StreamInstrumentationType.ConnectionReuseWithShutdown:
 				return ServerShutdown_ConnectionReuse (ctx, cancellationToken);
-			case StreamInstrumentationType.FlushAfterDispose:
-				return FinishedTask;
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -791,19 +818,59 @@ namespace Xamarin.WebTests.TestRunners
 			clientTcs.TrySetResult (true);
 		}
 
-		Task ClientShutdown_FlushAfterDispose (TestContext ctx, CancellationToken cancellationToken)
+		async Task FlushInstrumentation (TestContext ctx, CancellationToken cancellationToken)
 		{
+			var me = $"{nameof (FlushInstrumentation)}";
+			LogDebug (ctx, 4, $"{me}");
+
+			int flushCalled = 0;
 			clientInstrumentation.OnNextFlush (FlushHandler);
 
-			Client.SslStream.Dispose ();
-			Client.SslStream.Flush ();
+			if (EffectiveType == StreamInstrumentationType.WriteDoesNotFlush) {
+				var text = ConnectionHandler.TheQuickBrownFoxBuffer;
+				await Client.SslStream.WriteAsync (text, 0, text.Length, cancellationToken).ConfigureAwait (false);
+				ctx.Assert (flushCalled, Is.EqualTo (0), "WriteAsync() does not flush the inner stream");
+			}
 
-			return FinishedTask;
+			if (EffectiveType == StreamInstrumentationType.FlushAfterDispose)
+				Client.SslStream.Dispose ();
 
-			async Task FlushHandler (StreamInstrumentation.AsyncFlushFunc func,
-						 CancellationToken innerCancellationToken)
+			await Client.SslStream.FlushAsync ().ConfigureAwait (false);
+			ctx.Assert (flushCalled, Is.EqualTo (1), "Flush() called on inner stream");
+
+			LogDebug (ctx, 4, $"{me} done");
+
+			Task FlushHandler (StreamInstrumentation.AsyncFlushFunc func,
+			                   CancellationToken innerCancellationToken)
 			{
 				LogDebug (ctx, 4, $"FLUSH HANDLER!");
+				Interlocked.Increment (ref flushCalled);
+				return FinishedTask;
+			}
+		}
+
+		async Task DisposeInstrumentation (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var me = $"{nameof (DisposeInstrumentation)}";
+			LogDebug (ctx, 4, $"{me}");
+
+			await FinishedTask;
+
+			int disposeCalled = 0;
+			clientInstrumentation.OnDispose (DisposeHandler);
+
+			Client.SslStream.Dispose ();
+
+			ctx.Expect (disposeCalled, Is.EqualTo (1), "called Dispose() on inner stream");
+
+			ctx.Expect (() => Client.SslStream.CanRead, Is.False, "SslStream.CanRead after dispose");
+			ctx.Expect (() => Client.SslStream.CanWrite, Is.False, "SslStream.CanWrite after dispose");
+			ctx.Assert (() => Client.SslStream.CanTimeout, Is.True, "SslStream.CanTimeout after dispose");
+
+			void DisposeHandler (StreamInstrumentation.DisposeFunc func)
+			{
+				Interlocked.Increment (ref disposeCalled);
+				func ();
 			}
 		}
 	}

@@ -95,6 +95,13 @@ namespace Xamarin.WebTests.MonoTestProvider
 			get;
 		}
 
+		public int InternalVersion {
+			get;
+			private set;
+		}
+
+		public bool UsingDotNet => false;
+
 		public MonoConnectionFrameworkSetup (string name)
 		{
 			Name = name;
@@ -171,6 +178,11 @@ namespace Xamarin.WebTests.MonoTestProvider
 		{
 #if !__IOS__ && !__MOBILE__
 			clientCertIssuersProp = typeof (MonoTlsSettings).GetTypeInfo ().GetDeclaredProperty ("ClientCertificateIssuers");
+
+			var versionConst = typeof (MonoTlsProviderFactory).GetField ("InternalVersion", BindingFlags.Static | BindingFlags.NonPublic);
+			if (versionConst != null) {
+				InternalVersion = (int)versionConst.GetValue (null);
+			}
 #endif
 		}
 
