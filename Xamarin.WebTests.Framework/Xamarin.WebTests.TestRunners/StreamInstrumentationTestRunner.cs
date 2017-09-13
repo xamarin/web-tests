@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ServerShutdown;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.FlushAfterDispose;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -91,6 +91,10 @@ namespace Xamarin.WebTests.TestRunners
 				yield return StreamInstrumentationType.ShortReadDuringClientAuth;
 				yield return StreamInstrumentationType.ShortReadAndClose;
 				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
+				yield break;
+
+			case ConnectionTestCategory.SslStreamInstrumentationRecentlyFixed:
+				yield return StreamInstrumentationType.FlushAfterDispose;
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationShutdown:
@@ -242,6 +246,8 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ConnectionReuseWithShutdown:
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown |
 					InstrumentationFlags.ReuseClientSocket | InstrumentationFlags.ReuseServerSocket;
+			case StreamInstrumentationType.FlushAfterDispose:
+				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
 			case StreamInstrumentationType.ServerShutdown:
 				return InstrumentationFlags.None;
 			default:
@@ -302,6 +308,8 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ConnectionReuse:
 			case StreamInstrumentationType.ConnectionReuseWithShutdown:
 				return ClientShutdown_ConnectionReuse (ctx, cancellationToken);
+			case StreamInstrumentationType.FlushAfterDispose:
+				return ClientShutdown_FlushAfterDispose (ctx, cancellationToken);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -330,6 +338,8 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ConnectionReuse:
 			case StreamInstrumentationType.ConnectionReuseWithShutdown:
 				return ServerShutdown_ConnectionReuse (ctx, cancellationToken);
+			case StreamInstrumentationType.FlushAfterDispose:
+				return FinishedTask;
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -769,6 +779,14 @@ namespace Xamarin.WebTests.TestRunners
 			Client.Close ();
 
 			clientTcs.TrySetResult (true);
+		}
+
+		Task ClientShutdown_FlushAfterDispose (TestContext ctx, CancellationToken cancellationToken)
+		{
+			Client.SslStream.Dispose ();
+			Client.SslStream.Flush ();
+
+			return FinishedTask;
 		}
 	}
 }

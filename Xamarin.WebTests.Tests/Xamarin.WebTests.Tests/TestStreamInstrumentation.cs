@@ -66,6 +66,18 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
+		[WebTestFeatures.RecentlyFixed]
+		[ProtocolVersion (ProtocolVersions.Tls12)]
+		[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationRecentlyFixed)]
+		public async Task RunRecentlyFixed (TestContext ctx, CancellationToken cancellationToken,
+		                                    ConnectionTestProvider provider,
+		                                    StreamInstrumentationParameters parameters,
+		                                    StreamInstrumentationTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
+		[AsyncTest]
 		[CleanShutdown]
 		[ProtocolVersion (ProtocolVersions.Tls12)]
 		[ConnectionTestFlags (ConnectionTestFlags.AllowWildcardMatches)]

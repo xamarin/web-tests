@@ -37,6 +37,7 @@ namespace Xamarin.WebTests.TestFramework
 		ShortReadDuringClientAuth,
 		ShortReadAndClose,
 		RemoteClosesConnectionDuringRead,
+		FlushAfterDispose,
 
 		CleanShutdown,
 		DoubleShutdown,
