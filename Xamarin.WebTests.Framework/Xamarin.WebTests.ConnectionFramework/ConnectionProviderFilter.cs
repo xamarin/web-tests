@@ -92,7 +92,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return (Flags & flag) == flag;
 		}
 
-		bool IsSupported (TestContext ctx, ConnectionProvider provider, string filter)
+		bool IsSupported (ConnectionProvider provider)
 		{
 			if (HasFlag (ConnectionTestFlags.AssumeSupportedByTest))
 				return true;
@@ -111,6 +111,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (HasFlag (ConnectionTestFlags.RequireMono) && !provider.HasFlag (ConnectionProviderFlags.SupportsMonoExtensions))
 				return false;
 			if (HasFlag (ConnectionTestFlags.RequireTls12) && !provider.HasFlag (ConnectionProviderFlags.SupportsTls12))
+				return false;
+			return true;
+		}
+
+		bool IsSupported (TestContext ctx, ConnectionProvider provider, string filter)
+		{
+			if (!IsSupported (provider))
 				return false;
 
 			var (match, success, wildcard) = MatchesFilter (provider, filter);
@@ -149,9 +156,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
+			var providers = factory.GetProviders (p => IsSupported (p)).ToList ();
+			if (providers.Count == 0)
+				return new ClientAndServerProvider[0];
 
-			var clientProviders = GetClientProviders (ctx, clientFilter).ToList ();
-			var serverProviders = GetServerProviders (ctx, serverFilter).ToList ();
+			var clientProviders = providers.Where (p => IsClientSupported (ctx, p, clientFilter)).ToList ();
+			var serverProviders = providers.Where (p => IsServerSupported (ctx, p, serverFilter)).ToList ();
 
 			if (filter != null) {
 				if (clientProviders.Count == 0)
@@ -165,23 +175,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 			});
 		}
 
-		public IEnumerable<ConnectionProvider> GetClientProviders (TestContext ctx, string filter)
-		{
-			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-			return factory.GetProviders (p => IsClientSupported (ctx, p, filter));
-		}
-
-		public IEnumerable<ConnectionProvider> GetServerProviders (TestContext ctx, string filter)
-		{
-			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-			return factory.GetProviders (p => IsServerSupported (ctx, p, filter));
-		}
-
 		public ConnectionProvider GetDefaultServer (TestContext ctx, string filter)
 		{
-			var supported = GetServerProviders (ctx, filter).ToList ();
+			var supported = GetSupportedProviders (ctx, filter).ToList ();
 			ctx.Assert (supported.Count, Is.GreaterThan (0), "need at least one supported provider");
-			return supported[0];
+			return supported[0].Server;
 		}
 
 		public static ConnectionProviderFilter CreateSimpleFilter (ConnectionTestFlags flags)
