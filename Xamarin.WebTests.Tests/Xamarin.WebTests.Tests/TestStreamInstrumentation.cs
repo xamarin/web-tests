@@ -66,7 +66,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		[WebTestFeatures.RecentlyFixed]
+		[RecentlyFixed]
 		[ProtocolVersion (ProtocolVersions.Tls12)]
 		[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationRecentlyFixed)]
 		public async Task RunRecentlyFixed (TestContext ctx, CancellationToken cancellationToken,

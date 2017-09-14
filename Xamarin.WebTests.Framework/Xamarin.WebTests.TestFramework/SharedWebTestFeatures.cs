@@ -69,6 +69,7 @@ namespace Xamarin.WebTests.TestFramework
 			get {
 				yield return WorkAttribute.Instance;
 				yield return NewAttribute.Instance;
+				yield return RecentlyFixedAttribute.Instance;
 				yield return StressAttribute.Instance;
 				yield return LongRunningAttribute.Instance;
 

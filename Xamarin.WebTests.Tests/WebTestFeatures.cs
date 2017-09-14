@@ -65,7 +65,6 @@ namespace Xamarin.WebTests
 		public readonly TestFeature HttpListenerSsl = new TestFeature ("HttpListenerSsl", "Use HttpListener with SSL", false);
 
 		public readonly TestCategory HeavyCategory = new TestCategory ("Heavy") { IsExplicit = true };
-		public readonly TestCategory RecentlyFixedCategory = new TestCategory ("RecentlyFixed") { IsExplicit = true };
 
 		#region ITestConfigurationProvider implementation
 		public string Name {
@@ -92,7 +91,6 @@ namespace Xamarin.WebTests
 		public IEnumerable<TestCategory> Categories {
 			get {
 				yield return HeavyCategory;
-				yield return RecentlyFixedCategory;
 			}
 		}
 		#endregion
@@ -235,14 +233,6 @@ namespace Xamarin.WebTests
 			{
 				yield return CertificateResourceType.SelfSignedServerCertificate;
 				yield return CertificateResourceType.ServerCertificateFromLocalCA;
-			}
-		}
-
-		[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-		public class RecentlyFixedAttribute : TestCategoryAttribute
-		{
-			public override TestCategory Category {
-				get { return WebTestFeatures.Instance.RecentlyFixedCategory; }
 			}
 		}
 

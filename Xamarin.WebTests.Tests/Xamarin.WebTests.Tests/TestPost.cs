@@ -294,7 +294,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest (ParameterFilter = "recently-fixed")]
-		[WebTestFeatures.RecentlyFixed]
+		[RecentlyFixed]
 		public async Task TestRecentlyFixed (TestContext ctx, HttpServer server, Handler handler,
 		                                     CancellationToken cancellationToken)
 		{

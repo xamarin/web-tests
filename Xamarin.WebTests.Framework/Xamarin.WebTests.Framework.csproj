@@ -218,6 +218,7 @@
     <Compile Include="Xamarin.WebTests.Server\ListenerType.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IWebClientExtension.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\LogCategories.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\RecentlyFixedAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
