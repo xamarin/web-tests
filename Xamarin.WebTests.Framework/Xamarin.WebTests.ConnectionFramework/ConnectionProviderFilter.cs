@@ -43,7 +43,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			Flags = flags;
 		}
 
-		bool IsClientSupported (TestContext ctx, ConnectionProvider provider, string filter)
+		bool IsClientSupported (ConnectionProvider provider)
 		{
 			if (HasFlag (ConnectionTestFlags.ManualClient))
 				return provider.Type == ConnectionProviderType.Manual;
@@ -54,10 +54,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (HasFlag (ConnectionTestFlags.RequireCleanClientShutdown) && !provider.HasFlag (ConnectionProviderFlags.SupportsCleanShutdown))
 				return false;
 
-			return IsSupported (ctx, provider, filter);
+			return true;
 		}
 
-		bool IsServerSupported (TestContext ctx, ConnectionProvider provider, string filter)
+		bool IsServerSupported (ConnectionProvider provider)
 		{
 			if (HasFlag (ConnectionTestFlags.ManualServer))
 				return provider.Type == ConnectionProviderType.Manual;
@@ -68,7 +68,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (HasFlag (ConnectionTestFlags.RequireCleanServerShutdown) && !provider.HasFlag (ConnectionProviderFlags.SupportsCleanShutdown))
 				return false;
 
-			return IsSupported (ctx, provider, filter);
+			return true;
 		}
 
 		static (bool match, bool success, bool wildcard) MatchesFilter (ConnectionProvider provider, string filter)
@@ -160,17 +160,23 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (providers.Count == 0)
 				return new ClientAndServerProvider[0];
 
-			var clientProviders = providers.Where (p => IsClientSupported (ctx, p, clientFilter)).ToList ();
-			var serverProviders = providers.Where (p => IsServerSupported (ctx, p, serverFilter)).ToList ();
+			var supportedClientProviders = providers.Where (p => IsClientSupported (p)).ToList ();
+			var supportedServerProviders = providers.Where (p => IsServerSupported (p)).ToList ();
+
+			if (supportedClientProviders.Count == 0 || supportedServerProviders.Count == 0)
+				return new ClientAndServerProvider[0];
+
+			var filteredClientProviders = supportedClientProviders.Where (p => IsSupported (ctx, p, clientFilter)).ToList ();
+			var filteredServerProviders = supportedServerProviders.Where (p => IsSupported (ctx, p, serverFilter)).ToList ();
 
 			if (filter != null) {
-				if (clientProviders.Count == 0)
+				if (filteredClientProviders.Count == 0)
 					ctx.LogMessage ($"WARNING: No TLS Provider matches client filter '{clientFilter}'");
-				if (serverProviders.Count == 0)
+				if (filteredServerProviders.Count == 0)
 					ctx.LogMessage ($"WARNING: No TLS Provider matches server filter '{serverFilter}'");
 			}
 
-			return ConnectionTestHelper.Join (clientProviders, serverProviders, (c, s) => {
+			return ConnectionTestHelper.Join (filteredClientProviders, filteredServerProviders, (c, s) => {
 				return Create (c, s);
 			});
 		}
