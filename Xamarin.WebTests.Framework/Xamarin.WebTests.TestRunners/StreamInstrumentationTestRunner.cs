@@ -205,6 +205,9 @@ namespace Xamarin.WebTests.TestRunners
 			}
 
 			switch (EffectiveType) {
+			case StreamInstrumentationType.CloseBeforeClientAuth:
+			case StreamInstrumentationType.CloseDuringClientAuth:
+			case StreamInstrumentationType.DisposeDuringClientAuth:
 			case StreamInstrumentationType.InvalidDataDuringClientAuth:
 				return;
 			case StreamInstrumentationType.Flush:
