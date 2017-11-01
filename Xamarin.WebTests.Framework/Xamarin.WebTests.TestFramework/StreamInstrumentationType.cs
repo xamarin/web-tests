@@ -52,7 +52,8 @@ namespace Xamarin.WebTests.TestFramework
 		ConnectionReuse,
 		ConnectionReuseWithShutdown,
 
-		ServerShutdown,
+		ServerRequestsShutdown,
+		ServerRequestsShutdownDuringWrite,
 
 		MartinTest
 	}

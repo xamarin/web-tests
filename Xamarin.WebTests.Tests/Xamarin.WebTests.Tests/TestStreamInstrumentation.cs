@@ -136,5 +136,18 @@ namespace Xamarin.WebTests.Tests
 		{
 			await runner.Run (ctx, cancellationToken);
 		}
+
+		[AsyncTest]
+		[Martin ("StreamInstrumentationShutdown")]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireMono)]
+		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
+		public async Task MartinTestShutdown (TestContext ctx, CancellationToken cancellationToken,
+		                                      [ConnectionTestProvider ("apple-tls:btls")] ConnectionTestProvider provider,
+		                                      StreamInstrumentationParameters parameters,
+		                                      StreamInstrumentationTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
 	}
 }

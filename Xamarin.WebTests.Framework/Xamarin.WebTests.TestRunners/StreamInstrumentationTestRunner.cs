@@ -79,7 +79,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.DisposeClosesInnerStream;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ServerRequestsShutdownDuringWrite;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -118,7 +118,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationServerShutdown:
-				yield return StreamInstrumentationType.ServerShutdown;
+				yield return StreamInstrumentationType.ServerRequestsShutdown;
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationExperimental:
@@ -140,8 +140,10 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			var sb = new StringBuilder ();
 			sb.Append (type);
+			if (type == StreamInstrumentationType.MartinTest)
+				sb.Append ($"({MartinTest})");
 			foreach (var arg in args) {
-				sb.AppendFormat (":{0}", arg);
+				sb.Append ($":{arg}");
 			}
 			return sb.ToString ();
 		}
@@ -151,12 +153,20 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 			var acceptAll = certificateProvider.AcceptAll ();
+			var effectiveType = type == StreamInstrumentationType.MartinTest ? MartinTest : type;
 
 			var name = GetTestName (category, type);
 
 			var parameters = new StreamInstrumentationParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 				ClientCertificateValidator = acceptAll
 			};
+
+			switch (effectiveType) {
+			case StreamInstrumentationType.ServerRequestsShutdown:
+			case StreamInstrumentationType.ServerRequestsShutdownDuringWrite:
+				parameters.SslStreamFlags |= SslStreamFlags.CleanShutdown;
+				break;
+			}
 
 			if (category == ConnectionTestCategory.SslStreamInstrumentationShutdown)
 				parameters.SslStreamFlags = SslStreamFlags.CleanShutdown;
@@ -218,6 +228,10 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.DisposeClosesInnerStream:
 			case StreamInstrumentationType.PropertiesAfterDispose:
 				await DisposeInstrumentation (ctx, cancellationToken).ConfigureAwait (false);
+				break;
+			case StreamInstrumentationType.ServerRequestsShutdown:
+			case StreamInstrumentationType.ServerRequestsShutdownDuringWrite:
+				await Instrumentation_ServerRequestsShutdown (ctx, cancellationToken);
 				break;
 			default:
 				throw ctx.AssertFail (EffectiveType);
@@ -284,8 +298,10 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.PropertiesAfterDispose:
 				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.SkipMainLoop |
 					InstrumentationFlags.SkipShutdown;
-			case StreamInstrumentationType.ServerShutdown:
-				return InstrumentationFlags.None;
+			case StreamInstrumentationType.ServerRequestsShutdown:
+			case StreamInstrumentationType.ServerRequestsShutdownDuringWrite:
+				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.SkipMainLoop |
+					InstrumentationFlags.SkipShutdown;
 			default:
 				throw new InternalErrorException ();
 			}
@@ -874,6 +890,101 @@ namespace Xamarin.WebTests.TestRunners
 			{
 				Interlocked.Increment (ref disposeCalled);
 				func ();
+			}
+		}
+
+		async Task Instrumentation_ServerRequestsShutdown (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var me = "Instrumentation_ServerRequestsShutdown";
+			LogDebug (ctx, 4, me);
+
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			var writeEvent = new TaskCompletionSource<object> ();
+			var shutdownEvent = new TaskCompletionSource<object> ();
+			cancellationToken.Register (() => writeEvent.TrySetCanceled ());
+			cancellationToken.Register (() => shutdownEvent.TrySetCanceled ());
+
+			clientInstrumentation.OnNextWrite (WriteHandler);
+
+			int totalBytes = 0;
+
+			if (EffectiveType == StreamInstrumentationType.ServerRequestsShutdownDuringWrite) {
+				var largeBuffer = ConnectionHandler.GetLargeTextBuffer (512);
+				var largeBlob = Encoding.UTF8.GetBytes (largeBuffer);
+
+				totalBytes = largeBlob.Length;
+				LogDebug (ctx, 4, $"{me} writing {totalBytes} bytes");
+				var writeTask = Client.SslStream.WriteAsync (largeBlob, 0, largeBlob.Length, cancellationToken);
+
+				cancellationToken.ThrowIfCancellationRequested ();
+				await writeEvent.Task.ConfigureAwait (false);
+				LogDebug (ctx, 4, $"{me} done writing");
+			}
+
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			LogDebug (ctx, 4, $"{me}: server shutdown");
+			await Server.Shutdown (ctx, cancellationToken).ConfigureAwait (false);
+			LogDebug (ctx, 4, $"{me}: server shutdown done");
+
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			var readBuffer = new byte[32768];
+			var ret = await Client.SslStream.ReadAsync (readBuffer, 0, readBuffer.Length, cancellationToken);
+			LogDebug (ctx, 4, $"{me}: client read: {ret}");
+
+			shutdownEvent.TrySetResult (null);
+
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			int remainingBytes = totalBytes;
+			while (remainingBytes > 0) {
+				LogDebug (ctx, 4, $"{me}: server read - {remainingBytes} / {totalBytes} remaining.");
+
+				ret = await Server.SslStream.ReadAsync (readBuffer, 0, readBuffer.Length, cancellationToken);
+				LogDebug (ctx, 4, $"{me}: server read returned: {ret}");
+
+				if (ret <= 0)
+					break;
+
+				remainingBytes -= ret;
+			}
+
+			if (remainingBytes > 0)
+				LogDebug (ctx, 4, $"{me} server read - connection closed with {remainingBytes} bytes remaining.");
+			else
+				LogDebug (ctx, 4, $"{me} server read complete.");
+
+			async Task WriteHandler (byte[] buffer, int offset, int count,
+			                         StreamInstrumentation.AsyncWriteFunc func,
+			                         CancellationToken innerCancellationToken)
+			{
+				innerCancellationToken.ThrowIfCancellationRequested ();
+
+				var writeMe = $"{me}: write handler ({ctx.GetUniqueId ()})";
+				LogDebug (ctx, 4, $"{writeMe}: {offset} {count}");
+
+				clientInstrumentation.OnNextWrite (WriteHandler);
+
+				const int shortWrite = 4096;
+				if (count > shortWrite) {
+					await func (buffer, offset, shortWrite, innerCancellationToken).ConfigureAwait (false);
+					offset += shortWrite;
+					count -= shortWrite;
+
+					LogDebug (ctx, 4, $"{writeMe}: short write done");
+					writeEvent.TrySetResult (null);
+
+					await shutdownEvent.Task;
+
+					LogDebug (ctx, 4, $"{writeMe}: remaining {offset} {count}");
+				}
+
+				await func (buffer, offset, count, innerCancellationToken).ConfigureAwait (false);
+				LogDebug (ctx, 4, $"{writeMe}: done");
+
+				await FinishedTask;
 			}
 		}
 	}
