@@ -1,10 +1,10 @@
 #!/bin/groovy
 properties([
 	parameters([
-		choice (name: 'QA_USE_MONO_LANE', choices: 'NONE\nmono-2017-06\nmono-2017-08\nmono-martin-new-webstack\nmono-master', description: 'Mono lane'),
-		choice (name: 'QA_USE_XI_LANE', choices: 'NONE\nmacios-mac-master', description: 'XI lane'),
-		choice (name: 'QA_USE_XM_LANE', choices: 'NONE\nmacios-mac-master', description: 'XM lane'),
-		choice (name: 'QA_USE_XA_LANE', choices: 'NONE\nmonodroid-mavericks-d15-4\nmonodroid-mavericks-master', description: 'XA lane'),
+		choice (name: 'QA_USE_MONO_LANE', choices: 'NONE\nmono-2017-06\nmono-2017-08\nmono-2017-10\nmono-martin-new-webstack\nmono-master', description: 'Mono lane'),
+		choice (name: 'QA_USE_XI_LANE', choices: 'NONE\nmacios-mac-master\nmacios-mac-d15-5', description: 'XI lane'),
+		choice (name: 'QA_USE_XM_LANE', choices: 'NONE\nmacios-mac-master\nmacios-mac-d15-5', description: 'XM lane'),
+		choice (name: 'QA_USE_XA_LANE', choices: 'NONE\nmonodroid-mavericks-d15-4\nmonodroid-mavericks-d15-5\nmonodroid-mavericks-master', description: 'XA lane'),
 		choice (name: 'IOS_DEVICE_TYPE', choices: 'iPhone-5s', description: ''),
 		choice (name: 'IOS_RUNTIME', choices: 'iOS-10-0\niOS-10-3', description: ''),
 		string (defaultValue: '', description: '', name: 'EXTRA_JENKINS_ARGUMENTS')
