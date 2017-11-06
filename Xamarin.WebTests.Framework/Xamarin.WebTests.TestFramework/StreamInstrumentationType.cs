@@ -55,6 +55,8 @@ namespace Xamarin.WebTests.TestFramework
 		ServerRequestsShutdown,
 		ServerRequestsShutdownDuringWrite,
 
+		VerifyAsyncStreamCalls,
+
 		MartinTest
 	}
 }

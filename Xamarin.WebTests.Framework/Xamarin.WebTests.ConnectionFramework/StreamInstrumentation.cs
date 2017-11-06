@@ -53,6 +53,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
+		public bool RequireAsync {
+			get; set;
+		}
+
 		public StreamInstrumentation (TestContext ctx, string name, Socket socket, bool ownsSocket = true)
 			: base (socket, ownsSocket)
 		{
@@ -151,6 +155,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var message = $"{Name}.BeginWrite({offset},{size})";
 			LogDebug (message);
 
+			if (RequireAsync)
+				throw Context.AssertFail ($"{message}: async API required.");
+
 			AsyncWriteFunc asyncBaseWrite = (b, o, s, _) => Task.Factory.FromAsync (
 				(ca, st) => base.BeginWrite (b, o, s, ca, st),
 				(result) => base.EndWrite (result), null);
@@ -185,6 +192,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public override void Write (byte[] buffer, int offset, int size)
 		{
 			var message = $"{Name}.Write({offset},{size})";
+
+			if (RequireAsync)
+				throw Context.AssertFail ($"{message}: async API required.");
 
 			SyncWriteFunc syncWrite = (b, o, s) => base.Write (b, o, s);
 			SyncWriteFunc originalSyncWrite = syncWrite;
@@ -221,11 +231,18 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public delegate Task<int> AsyncReadHandler (byte[] buffer, int offset, int count, AsyncReadFunc func, CancellationToken cancellationToken);
 		delegate int SyncReadFunc (byte[] buffer, int offset, int count);
 
+		Task<int> BaseReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
+			return Task.Factory.FromAsync (
+				(ca, st) => base.BeginRead (buffer, offset, count, ca, st),
+				(result) => base.EndRead (result), null);
+		}
+
 		public override Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
 			var message = $"{Name}.ReadAsync({offset},{count})";
 
-			AsyncReadFunc asyncBaseRead = base.ReadAsync;
+			AsyncReadFunc asyncBaseRead = BaseReadAsync;
 			AsyncReadHandler asyncReadHandler = (b, o, c, func, ct) => func (b, o, c, ct);
 
 			var action = Interlocked.Exchange (ref readAction, null);
@@ -257,6 +274,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			var message = $"{Name}.BeginRead({offset},{size})";
 			LogDebug (message);
+
+			if (RequireAsync)
+				throw Context.AssertFail ($"{message}: async API required.");
 
 			AsyncReadFunc asyncBaseRead = (b, o, s, _) => Task.Factory.FromAsync (
 				(ca, st) => base.BeginRead (b, o, s, ca, st),
@@ -290,6 +310,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public override int Read (byte[] buffer, int offset, int size)
 		{
 			var message = $"{Name}.Read({offset},{size})";
+
+			if (RequireAsync)
+				throw Context.AssertFail ($"{message}: async API required.");
 
 			SyncReadFunc syncRead = (b, o, s) => base.Read (b, o, s);
 			SyncReadFunc originalSyncRead = syncRead;
@@ -330,6 +353,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public override void Flush ()
 		{
 			var message = $"{Name}.Flush()";
+
+			if (RequireAsync)
+				throw Context.AssertFail ($"{message}: async API required.");
 
 			SyncFlushFunc syncFlush = () => base.Flush ();
 			SyncFlushFunc originalSyncFlush = syncFlush;
