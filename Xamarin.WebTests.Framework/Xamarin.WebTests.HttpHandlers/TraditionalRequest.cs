@@ -159,9 +159,8 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			try {
 				if (Content != null) {
-					using (var writer = new StreamWriter (RequestExt.GetRequestStream ())) {
-						Content.WriteToAsync (ctx, writer).Wait ();
-					}
+					using (var stream = RequestExt.GetRequestStream ())
+						Content.WriteToAsync (ctx, stream).Wait ();
 				}
 
 				var response = RequestExt.GetResponse ();
