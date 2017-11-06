@@ -710,7 +710,12 @@ namespace Xamarin.WebTests.TestRunners
 			protected override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
 			{
 				ctx.LogDebug (2, $"{ME} RUN INNER");
-				return ((TraditionalRequest)request).SendAsync (ctx, cancellationToken);
+				switch (Parent.EffectiveType) {
+				case HttpInstrumentationTestType.ServerAbortsPost:
+					return ((TraditionalRequest)request).Send (ctx, cancellationToken);
+				default:
+					return ((TraditionalRequest)request).SendAsync (ctx, cancellationToken);
+				}
 			}
 
 			internal override Stream CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket)
@@ -1186,7 +1191,6 @@ namespace Xamarin.WebTests.TestRunners
 				switch (TestRunner.EffectiveType) {
 				case HttpInstrumentationTestType.ReuseConnection2:
 					request.Method = "POST";
-
 					if (Content != null) {
 						request.SetContentType ("text/plain");
 						request.Content = Content.RemoveTransferEncoding ();
@@ -1208,9 +1212,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.ServerAbortsPost:
 					request.Method = "POST";
 					request.SetContentType ("application/x-www-form-urlencoded");
-
 					request.Content = new FormContent (("foo", "bar"), ("hello", "world"), ("escape", "this needs % escaping"));
-
 					break;
 				}
 
