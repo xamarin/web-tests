@@ -108,10 +108,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		protected virtual async Task WriteBody (TestContext ctx, CancellationToken cancellationToken)
 		{
 			using (var stream = await RequestExt.GetRequestStreamAsync ().ConfigureAwait (false)) {
-				using (var writer = new StreamWriter (stream)) {
-					await Content.WriteToAsync (ctx, writer);
-					await writer.FlushAsync ();
-				}
+				await Content.WriteToAsync (ctx, stream);
 			}
 		}
 

@@ -102,5 +102,17 @@ namespace Xamarin.WebTests.Tests
 		{
 			return runner.Run (ctx, cancellationToken);
 		}
+
+		[New]
+		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
+		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
+		public Task MartinTest2 (TestContext ctx, CancellationToken cancellationToken,
+		                         [ConnectionTestProvider ("apple-tls:apple-tls")] ConnectionTestProvider provider,
+					 HttpInstrumentationTestParameters parameters,
+					 HttpInstrumentationTestRunner runner)
+		{
+			return runner.Run (ctx, cancellationToken);
+		}
+
 	}
 }

@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -95,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.RedirectNoLength;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ServerAbortsPost;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -296,6 +297,10 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.PutChunkDontCloseRequest:
 			case HttpInstrumentationTestType.ServerAbortsRedirect:
 				break;
+			case HttpInstrumentationTestType.ServerAbortsPost:
+				parameters.ExpectedStatus = HttpStatusCode.BadRequest;
+				parameters.ExpectedError = WebExceptionStatus.ProtocolError;
+				break;
 			default:
 				throw ctx.AssertFail (GetEffectiveType (type));
 			}
@@ -466,6 +471,8 @@ namespace Xamarin.WebTests.TestRunners
 				return (new HttpInstrumentationHandler (this, null, null, true), flags);
 			case HttpInstrumentationTestType.ServerAbortsRedirect:
 				return (new HttpInstrumentationHandler (this, null, null, false), HttpOperationFlags.ServerAbortsRedirection);
+			case HttpInstrumentationTestType.ServerAbortsPost:
+				return (new HttpInstrumentationHandler (this, null, null, true), HttpOperationFlags.ServerAbortsRedirection);
 			default:
 				return (hello, flags);
 			}
@@ -1197,6 +1204,14 @@ namespace Xamarin.WebTests.TestRunners
 					request.SetContentLength (request.Content.Length);
 					request.SendChunked ();
 					break;
+
+				case HttpInstrumentationTestType.ServerAbortsPost:
+					request.Method = "POST";
+					request.SetContentType ("application/x-www-form-urlencoded");
+
+					request.Content = new FormContent (("foo", "bar"), ("hello", "world"), ("escape", "this needs % escaping"));
+
+					break;
 				}
 
 				base.ConfigureRequest (request, uri);
@@ -1263,6 +1278,7 @@ namespace Xamarin.WebTests.TestRunners
 					break;
 
 				case HttpInstrumentationTestType.ReuseConnection2:
+				case HttpInstrumentationTestType.ServerAbortsPost:
 					ctx.Assert (request.Method, Is.EqualTo ("POST"), "method");
 					break;
 
@@ -1336,6 +1352,9 @@ namespace Xamarin.WebTests.TestRunners
 					redirect = operation.RegisterRedirect (ctx, cloned);
 					response = HttpResponse.CreateRedirect (HttpStatusCode.Redirect, redirect);
 					return response;
+
+				case HttpInstrumentationTestType.ServerAbortsPost:
+					return new HttpResponse (HttpStatusCode.BadRequest, Content);
 
 				default:
 					return HttpResponse.CreateSuccess (ME);
