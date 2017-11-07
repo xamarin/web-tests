@@ -124,6 +124,10 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.SslStreamInstrumentationExperimental:
 				yield break;
 
+			case ConnectionTestCategory.SslStreamInstrumentationNewWebStack:
+				yield return StreamInstrumentationType.VerifyAsyncStreamCalls;
+				yield break;
+
 			case ConnectionTestCategory.SslStreamInstrumentationMono:
 				yield break;
 

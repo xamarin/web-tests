@@ -191,6 +191,8 @@ namespace Xamarin.WebTests.TestRunners
 				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireMono | ConnectionTestFlags.RequireCleanServerShutdown;
 			case ConnectionTestCategory.SslStreamInstrumentationRecentlyFixed:
 				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12;
+			case ConnectionTestCategory.SslStreamInstrumentationNewWebStack:
+				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12;
 			case ConnectionTestCategory.HttpInstrumentation:
 			case ConnectionTestCategory.HttpInstrumentationStress:
 			case ConnectionTestCategory.HttpInstrumentationNewWebStack:
