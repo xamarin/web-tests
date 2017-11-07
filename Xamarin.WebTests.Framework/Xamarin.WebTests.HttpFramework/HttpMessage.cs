@@ -210,7 +210,7 @@ namespace Xamarin.WebTests.HttpFramework
 					throw new InvalidOperationException ();
 				if (readNonChunked)
 					return await ChunkedContent.ReadNonChunked (reader, cancellationToken);
-				return await ChunkedContent.Read (reader, cancellationToken);
+				return await ChunkedContent.Read (ctx, reader, cancellationToken);
 			}
 			if (ContentType != null && ContentType.Equals ("application/octet-stream"))
 				return await BinaryContent.Read (reader, ContentLength.Value, cancellationToken);
