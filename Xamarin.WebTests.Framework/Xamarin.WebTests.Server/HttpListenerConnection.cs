@@ -127,7 +127,10 @@ namespace Xamarin.WebTests.Server {
 			Context.Response.KeepAlive = (Server.Flags & HttpServerFlags.ReuseConnection) != 0;
 
 			foreach (var header in response.Headers) {
-				Context.Response.AddHeader (header.Key, header.Value);
+				if (string.Equals (header.Key, "Content-Length", StringComparison.Ordinal))
+					Context.Response.ContentLength64 = long.Parse (header.Value);
+				else
+					Context.Response.AddHeader (header.Key, header.Value);
 			}
 
 			if (response.Body != null) {

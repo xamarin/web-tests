@@ -21,7 +21,7 @@ namespace Xamarin.WebTests.DotNet
 
 		public bool UsingBtls => false;
 
-		public bool HasNewWebStack => true;
+		public bool HasNewWebStack => false;
 
 		public bool UsingDotNet => true;
 
