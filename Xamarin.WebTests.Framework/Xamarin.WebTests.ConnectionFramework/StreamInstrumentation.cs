@@ -61,6 +61,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
+		public bool AllowSyncFlush {
+			get; set;
+		}
+
 		public StreamInstrumentation (TestContext ctx, string name, Socket socket, bool ownsSocket = true)
 			: base (socket, ownsSocket)
 		{
@@ -358,7 +362,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			var message = $"{Name}.Flush()";
 
-			if (RequireAsync)
+			if (RequireAsync && !AllowSyncFlush)
 				throw Context.AssertFail ($"{message}: async API required.");
 
 			SyncFlushFunc syncFlush = () => base.Flush ();

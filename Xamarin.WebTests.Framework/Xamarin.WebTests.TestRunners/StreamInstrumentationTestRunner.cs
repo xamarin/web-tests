@@ -421,8 +421,10 @@ namespace Xamarin.WebTests.TestRunners
 			switch (EffectiveType) {
 			case StreamInstrumentationType.VerifyAsyncStreamCalls:
 				instrumentation.RequireAsync = true;
-				if (setup.UsingDotNet)
+				if (setup.UsingDotNet) {
 					instrumentation.AllowBeginEndAsync = true;
+					instrumentation.AllowSyncFlush = true;
+				}
 				break;
 			}
 
