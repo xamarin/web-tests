@@ -36,6 +36,7 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
+	using System.Text;
 
 	class ListenerContext : IDisposable
 	{
@@ -586,8 +587,10 @@ namespace Xamarin.WebTests.Server
 
 			var targetStream = new NetworkStream (targetSocket, true);
 
-			var connectionEstablished = new HttpResponse (HttpStatusCode.OK, HttpProtocol.Http10, "Connection established");
-			await connectionEstablished.Write (ctx, stream, cancellationToken).ConfigureAwait (false);
+			var response = "HTTP/1.0 200 Connection established\r\n\r\n";
+			var responseBlob = Encoding.UTF8.GetBytes(response);
+			await stream.WriteAsync(responseBlob, 0, responseBlob.Length);
+			await stream.FlushAsync();
 
 			try {
 				await RunTunnel (ctx, stream, targetStream, cancellationToken);
