@@ -57,6 +57,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
+		public bool AllowBeginEndAsync {
+			get; set;
+		}
+
 		public StreamInstrumentation (TestContext ctx, string name, Socket socket, bool ownsSocket = true)
 			: base (socket, ownsSocket)
 		{
@@ -155,7 +159,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var message = $"{Name}.BeginWrite({offset},{size})";
 			LogDebug (message);
 
-			if (RequireAsync)
+			if (RequireAsync && !AllowBeginEndAsync)
 				throw Context.AssertFail ($"{message}: async API required.");
 
 			AsyncWriteFunc asyncBaseWrite = (b, o, s, _) => Task.Factory.FromAsync (
@@ -275,7 +279,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var message = $"{Name}.BeginRead({offset},{size})";
 			LogDebug (message);
 
-			if (RequireAsync)
+			if (RequireAsync && !AllowBeginEndAsync)
 				throw Context.AssertFail ($"{message}: async API required.");
 
 			AsyncReadFunc asyncBaseRead = (b, o, s, _) => Task.Factory.FromAsync (

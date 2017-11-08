@@ -416,9 +416,13 @@ namespace Xamarin.WebTests.TestRunners
 			var ownsSocket = !HasFlag (InstrumentationFlags.ReuseClientSocket);
 			var instrumentation = new StreamInstrumentation (ctx, name, socket, ownsSocket);
 
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+
 			switch (EffectiveType) {
 			case StreamInstrumentationType.VerifyAsyncStreamCalls:
 				instrumentation.RequireAsync = true;
+				if (setup.UsingDotNet)
+					instrumentation.AllowBeginEndAsync = true;
 				break;
 			}
 
