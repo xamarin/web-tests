@@ -113,9 +113,10 @@ namespace Xamarin.WebTests.HttpFramework
 				return OnError ("Must not contain any auth header.");
 			}
 
+			HttpResponse response;
 			if (authHeader == null) {
 				state = AuthenticationState.Unauthenticated;
-				var response = OnUnauthenticated (ctx, connection, request, AuthenticationType.ToString ());
+				response = OnUnauthenticated (ctx, connection, request, AuthenticationType.ToString ());
 				response.CloseConnection = true;
 				return response;
 			}
@@ -157,7 +158,9 @@ namespace Xamarin.WebTests.HttpFramework
 			state = AuthenticationState.Challenge;
 
 			var token = "NTLM " + Convert.ToBase64String (bytes);
-			return OnUnauthenticated (ctx, connection, request, token);
+			response = OnUnauthenticated (ctx, connection, request, token);
+			response.SetBody (new StringContent ("I don't know you, who are you?"));
+			return response;
 		}
 	}
 }
