@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ServerAbortsPost;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NtlmInstrumentation;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -1234,7 +1234,11 @@ namespace Xamarin.WebTests.TestRunners
 					ctx.Assert (RemoteEndPoint, Is.Null, "first request");
 					RemoteEndPoint = connection.RemoteEndPoint;
 				} else if (TestRunner.EffectiveType == HttpInstrumentationTestType.NtlmInstrumentation) {
-					ctx.Assert (connection.RemoteEndPoint, Is.EqualTo (RemoteEndPoint), "must reuse connection");
+					if (state == AuthenticationState.Challenge) {
+						ctx.LogDebug (3, $"{me}: {connection.RemoteEndPoint} {RemoteEndPoint}");
+						RemoteEndPoint = connection.RemoteEndPoint;
+					} else
+						ctx.Assert (connection.RemoteEndPoint, Is.EqualTo (RemoteEndPoint), "must reuse connection");
 				}
 
 				await TestRunner.HandleRequest (

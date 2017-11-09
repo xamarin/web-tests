@@ -115,7 +115,9 @@ namespace Xamarin.WebTests.HttpFramework
 
 			if (authHeader == null) {
 				state = AuthenticationState.Unauthenticated;
-				return OnUnauthenticated (ctx, connection, request, AuthenticationType.ToString ());
+				var response = OnUnauthenticated (ctx, connection, request, AuthenticationType.ToString ());
+				response.CloseConnection = true;
+				return response;
 			}
 
 			int pos = authHeader.IndexOf (' ');
