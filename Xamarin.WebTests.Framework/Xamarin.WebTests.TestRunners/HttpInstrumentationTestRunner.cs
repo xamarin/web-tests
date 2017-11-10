@@ -124,6 +124,7 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.CloseCustomConnectionGroup,
 			HttpInstrumentationTestType.CloseRequestStream,
 			HttpInstrumentationTestType.AbortResponse,
+			HttpInstrumentationTestType.RedirectOnSameConnection,
 			HttpInstrumentationTestType.RedirectNoReuse,
 			HttpInstrumentationTestType.PutChunked
 		};
@@ -150,6 +151,7 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.CloseCustomConnectionGroup,
 			HttpInstrumentationTestType.CloseRequestStream,
 			HttpInstrumentationTestType.AbortResponse,
+			HttpInstrumentationTestType.RedirectOnSameConnection,
 			HttpInstrumentationTestType.RedirectNoReuse,
 			HttpInstrumentationTestType.PutChunked
 		};
