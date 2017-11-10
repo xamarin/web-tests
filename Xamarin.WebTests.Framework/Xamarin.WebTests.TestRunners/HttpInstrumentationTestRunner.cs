@@ -128,6 +128,32 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.PutChunked
 		};
 
+		static readonly HttpInstrumentationTestType[] WorkingTestsNoSSL = {
+			HttpInstrumentationTestType.Simple,
+			HttpInstrumentationTestType.ParallelRequests,
+			HttpInstrumentationTestType.SimpleQueuedRequest,
+			HttpInstrumentationTestType.CancelQueuedRequest,
+			HttpInstrumentationTestType.SimpleNtlm,
+			HttpInstrumentationTestType.ReuseConnection,
+			HttpInstrumentationTestType.ReuseConnection2,
+			HttpInstrumentationTestType.SimplePost,
+			HttpInstrumentationTestType.SimpleRedirect,
+			HttpInstrumentationTestType.PostRedirect,
+			HttpInstrumentationTestType.PostNtlm,
+			HttpInstrumentationTestType.NtlmChunked,
+			HttpInstrumentationTestType.Get404,
+			HttpInstrumentationTestType.LargeHeader,
+			HttpInstrumentationTestType.LargeHeader2,
+			HttpInstrumentationTestType.SendResponseAsBlob,
+			HttpInstrumentationTestType.CustomConnectionGroup,
+			HttpInstrumentationTestType.ReuseCustomConnectionGroup,
+			HttpInstrumentationTestType.CloseCustomConnectionGroup,
+			HttpInstrumentationTestType.CloseRequestStream,
+			HttpInstrumentationTestType.AbortResponse,
+			HttpInstrumentationTestType.RedirectNoReuse,
+			HttpInstrumentationTestType.PutChunked
+		};
+
 		static readonly HttpInstrumentationTestType[] NewWebStackTests = {
 			HttpInstrumentationTestType.NtlmInstrumentation,
 			HttpInstrumentationTestType.CloseIdleConnection,
@@ -167,6 +193,9 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestCategory.HttpInstrumentation:
 				return WorkingTests;
+
+			case ConnectionTestCategory.HttpInstrumentationNoSSL:
+				return WorkingTestsNoSSL;
 
 			case ConnectionTestCategory.HttpInstrumentationStress:
 				return StressTests;
