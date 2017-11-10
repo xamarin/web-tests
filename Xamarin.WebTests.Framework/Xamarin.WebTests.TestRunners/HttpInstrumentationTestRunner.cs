@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NtlmInstrumentation;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.RedirectOnSameConnection;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -291,6 +291,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.CustomConnectionGroup:
 			case HttpInstrumentationTestType.ReuseCustomConnectionGroup:
 			case HttpInstrumentationTestType.ParallelNtlm:
+			case HttpInstrumentationTestType.RedirectOnSameConnection:
 			case HttpInstrumentationTestType.RedirectNoReuse:
 			case HttpInstrumentationTestType.RedirectNoLength:
 			case HttpInstrumentationTestType.PutChunked:
@@ -462,6 +463,8 @@ namespace Xamarin.WebTests.TestRunners
 				return (new HttpInstrumentationHandler (this, null, null, !primary), flags);
 			case HttpInstrumentationTestType.CloseRequestStream:
 				return (new HttpInstrumentationHandler (this, null, null, !primary), HttpOperationFlags.AbortAfterClientExits);
+			case HttpInstrumentationTestType.RedirectOnSameConnection:
+				return (new HttpInstrumentationHandler (this, null, null, false), flags);
 			case HttpInstrumentationTestType.RedirectNoReuse:
 				return (new RedirectHandler (hello, HttpStatusCode.Redirect), flags);
 			case HttpInstrumentationTestType.RedirectNoLength:
@@ -486,6 +489,7 @@ namespace Xamarin.WebTests.TestRunners
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.ReuseConnection:
 			case HttpInstrumentationTestType.ReuseCustomConnectionGroup:
+			case HttpInstrumentationTestType.RedirectOnSameConnection:
 				MustReuseConnection ();
 				break;
 
@@ -1153,6 +1157,7 @@ namespace Xamarin.WebTests.TestRunners
 					Target = new HelloWorldHandler (ME);
 
 				switch (parent.EffectiveType) {
+				case HttpInstrumentationTestType.RedirectOnSameConnection:
 				case HttpInstrumentationTestType.RedirectNoLength:
 					Target = new HelloWorldHandler (ME);
 					break;
@@ -1280,6 +1285,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.CloseRequestStream:
 				case HttpInstrumentationTestType.ReadTimeout:
 				case HttpInstrumentationTestType.AbortResponse:
+				case HttpInstrumentationTestType.RedirectOnSameConnection:
 					ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
 					break;
 
@@ -1313,6 +1319,7 @@ namespace Xamarin.WebTests.TestRunners
 
 				HttpResponse response;
 				HttpInstrumentationContent content;
+				ListenerOperation redirect;
 
 				switch (TestRunner.EffectiveType) {
 				case HttpInstrumentationTestType.LargeHeader:
@@ -1344,8 +1351,14 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.ReuseConnection2:
 					return new HttpResponse (HttpStatusCode.OK, Content);
 
+				case HttpInstrumentationTestType.RedirectOnSameConnection:
+					redirect = operation.RegisterRedirect (ctx, Target);
+					response = HttpResponse.CreateRedirect (HttpStatusCode.Redirect, redirect);
+					response.SetBody (new StringContent ($"{ME} Redirecting"));
+					return response;
+
 				case HttpInstrumentationTestType.RedirectNoLength:
-					var redirect = operation.RegisterRedirect (ctx, Target);
+					redirect = operation.RegisterRedirect (ctx, Target);
 					response = HttpResponse.CreateRedirect (HttpStatusCode.Redirect, redirect);
 					response.NoContentLength = true;
 					return response;
