@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.HttpFramework
 		ProxySSL			= 128,
 		ProxyAuthentication		= 256,
 		ParallelListener		= 512,
-		InstrumentationListener		= 1024
+		InstrumentationListener		= 1024,
+		NoSSL				= 2048
 	}
 }

@@ -102,5 +102,17 @@ namespace Xamarin.WebTests.Tests
 		{
 			return runner.Run (ctx, cancellationToken);
 		}
+
+		[Martin ("HttpInstrumentationNoSSL")]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
+		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
+		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
+		public Task MartinTestNoSSL (TestContext ctx, CancellationToken cancellationToken,
+		                             ConnectionTestProvider provider,
+		                             HttpInstrumentationTestParameters parameters,
+		                             [HttpInstrumentationTestRunner (HttpServerFlags.NoSSL)] HttpInstrumentationTestRunner runner)
+		{
+			return runner.Run (ctx, cancellationToken);
+		}
 	}
 }
