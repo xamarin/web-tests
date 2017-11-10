@@ -1355,6 +1355,7 @@ namespace Xamarin.WebTests.TestRunners
 					redirect = operation.RegisterRedirect (ctx, Target);
 					response = HttpResponse.CreateRedirect (HttpStatusCode.Redirect, redirect);
 					response.SetBody (new StringContent ($"{ME} Redirecting"));
+					response.WriteAsBlob = true;
 					return response;
 
 				case HttpInstrumentationTestType.RedirectNoLength:
