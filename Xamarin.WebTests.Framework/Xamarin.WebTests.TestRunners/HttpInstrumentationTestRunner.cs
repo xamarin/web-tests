@@ -130,7 +130,6 @@ namespace Xamarin.WebTests.TestRunners
 
 		static readonly HttpInstrumentationTestType[] NewWebStackTests = {
 			HttpInstrumentationTestType.NtlmInstrumentation,
-			HttpInstrumentationTestType.NtlmWhileQueued,
 			HttpInstrumentationTestType.CloseIdleConnection,
 			HttpInstrumentationTestType.ReadTimeout,
 			HttpInstrumentationTestType.ParallelNtlm,
@@ -143,7 +142,8 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.RedirectNoLength,
 			HttpInstrumentationTestType.PutChunked,
 			HttpInstrumentationTestType.PutChunkDontCloseRequest,
-			HttpInstrumentationTestType.ServerAbortsRedirect
+			HttpInstrumentationTestType.ServerAbortsRedirect,
+			HttpInstrumentationTestType.NtlmWhileQueued,
 		};
 
 		static readonly HttpInstrumentationTestType[] StressTests = {
