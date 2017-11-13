@@ -168,8 +168,6 @@ namespace Xamarin.WebTests.TestRunners
 
 		static readonly HttpInstrumentationTestType[] UnstableTests = {
 			HttpInstrumentationTestType.RedirectNoLength,
-			HttpInstrumentationTestType.PutChunked,
-			HttpInstrumentationTestType.PutChunkDontCloseRequest,
 			HttpInstrumentationTestType.ServerAbortsRedirect,
 			HttpInstrumentationTestType.NtlmWhileQueued,
 		};
