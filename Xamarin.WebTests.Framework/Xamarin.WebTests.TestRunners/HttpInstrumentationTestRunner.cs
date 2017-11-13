@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.RedirectOnSameConnection;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.RedirectNoLength;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -497,7 +497,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.RedirectNoReuse:
 				return (new RedirectHandler (hello, HttpStatusCode.Redirect), flags);
 			case HttpInstrumentationTestType.RedirectNoLength:
-				return (new HttpInstrumentationHandler (this, null, null, false), flags);
+				return (new HttpInstrumentationHandler (this, null, null, false), flags | HttpOperationFlags.ServerUsesNewConnection);
 			case HttpInstrumentationTestType.PutChunked:
 			case HttpInstrumentationTestType.PutChunkDontCloseRequest:
 				return (new HttpInstrumentationHandler (this, null, null, true), flags);

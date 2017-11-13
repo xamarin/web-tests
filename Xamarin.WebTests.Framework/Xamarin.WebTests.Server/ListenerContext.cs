@@ -380,7 +380,8 @@ namespace Xamarin.WebTests.Server
 				if (redirect == null)
 					return ConnectionState.ReuseConnection;
 
-				if (operation?.Operation.HasAnyFlags (HttpOperationFlags.ServerAbortsRedirection) ?? false)
+				if (operation?.Operation.HasAnyFlags (
+					HttpOperationFlags.ServerAbortsRedirection, HttpOperationFlags.ServerUsesNewConnection) ?? false)
 					connection.Dispose ();
 
 				return ConnectionState.WaitingForRequest;

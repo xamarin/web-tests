@@ -40,6 +40,7 @@ namespace Xamarin.WebTests.HttpFramework
 		RequireClientCertificate	= 64,
 		ClientDoesNotSendRedirect	= 128,
 		ForceNewConnection		= 256,
-		ServerAbortsRedirection		= 512
+		ServerAbortsRedirection		= 512,
+		ServerUsesNewConnection		= 1024
 	}
 }
