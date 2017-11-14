@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.TestFramework
 	using Server;
 	using Resources;
 
-	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
 	public sealed class HttpInstrumentationTestRunnerAttribute : TestHostAttribute, ITestHost<HttpInstrumentationTestRunner>
 	{
 		public HttpServerFlags ServerFlags {
@@ -74,7 +74,11 @@ namespace Xamarin.WebTests.TestFramework
 			if (parameters.ListenAddress == null)
 				parameters.ListenAddress = serverEndPoint;
 
-			var flags = ServerFlags | HttpServerFlags.SSL;
+			var flags = ServerFlags;
+			if ((flags & HttpServerFlags.NoSSL) == 0)
+				flags |= HttpServerFlags.SSL;
+
+			var ssl = (flags & HttpServerFlags.SSL) != 0;
 
 			bool reuseConnection;
 			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)
@@ -83,9 +87,9 @@ namespace Xamarin.WebTests.TestFramework
 			Uri uri;
 			if (parameters.TargetHost == null) {
 				parameters.TargetHost = parameters.EndPoint.HostName;
-				uri = new Uri (string.Format ("https://{0}:{1}/", parameters.EndPoint.Address, parameters.EndPoint.Port));
+				uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", parameters.EndPoint.Address, parameters.EndPoint.Port));
 			} else {
-				uri = new Uri (string.Format ("https://{0}/", parameters.TargetHost));
+				uri = new Uri (string.Format ("http{0}://{1}/", ssl ? "s" : "", parameters.TargetHost));
 			}
 
 			return new HttpInstrumentationTestRunner (parameters.EndPoint, parameters, provider, uri, flags);

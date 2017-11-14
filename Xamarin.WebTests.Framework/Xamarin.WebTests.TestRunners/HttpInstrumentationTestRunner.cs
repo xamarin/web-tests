@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -95,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.RedirectNoLength;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ErrorResponse;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -123,13 +124,40 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.CloseCustomConnectionGroup,
 			HttpInstrumentationTestType.CloseRequestStream,
 			HttpInstrumentationTestType.AbortResponse,
+			HttpInstrumentationTestType.RedirectOnSameConnection,
+			HttpInstrumentationTestType.RedirectNoReuse,
+			HttpInstrumentationTestType.PutChunked
+		};
+
+		static readonly HttpInstrumentationTestType[] WorkingTestsNoSSL = {
+			HttpInstrumentationTestType.Simple,
+			HttpInstrumentationTestType.ParallelRequests,
+			HttpInstrumentationTestType.SimpleQueuedRequest,
+			HttpInstrumentationTestType.CancelQueuedRequest,
+			HttpInstrumentationTestType.SimpleNtlm,
+			HttpInstrumentationTestType.ReuseConnection,
+			HttpInstrumentationTestType.ReuseConnection2,
+			HttpInstrumentationTestType.SimplePost,
+			HttpInstrumentationTestType.SimpleRedirect,
+			HttpInstrumentationTestType.PostRedirect,
+			HttpInstrumentationTestType.PostNtlm,
+			HttpInstrumentationTestType.NtlmChunked,
+			HttpInstrumentationTestType.Get404,
+			HttpInstrumentationTestType.LargeHeader,
+			HttpInstrumentationTestType.LargeHeader2,
+			HttpInstrumentationTestType.SendResponseAsBlob,
+			HttpInstrumentationTestType.CustomConnectionGroup,
+			HttpInstrumentationTestType.ReuseCustomConnectionGroup,
+			HttpInstrumentationTestType.CloseCustomConnectionGroup,
+			HttpInstrumentationTestType.CloseRequestStream,
+			HttpInstrumentationTestType.AbortResponse,
+			HttpInstrumentationTestType.RedirectOnSameConnection,
 			HttpInstrumentationTestType.RedirectNoReuse,
 			HttpInstrumentationTestType.PutChunked
 		};
 
 		static readonly HttpInstrumentationTestType[] NewWebStackTests = {
 			HttpInstrumentationTestType.NtlmInstrumentation,
-			HttpInstrumentationTestType.NtlmWhileQueued,
 			HttpInstrumentationTestType.CloseIdleConnection,
 			HttpInstrumentationTestType.ReadTimeout,
 			HttpInstrumentationTestType.ParallelNtlm,
@@ -140,9 +168,8 @@ namespace Xamarin.WebTests.TestRunners
 
 		static readonly HttpInstrumentationTestType[] UnstableTests = {
 			HttpInstrumentationTestType.RedirectNoLength,
-			HttpInstrumentationTestType.PutChunked,
-			HttpInstrumentationTestType.PutChunkDontCloseRequest,
-			HttpInstrumentationTestType.ServerAbortsRedirect
+			HttpInstrumentationTestType.ServerAbortsRedirect,
+			HttpInstrumentationTestType.NtlmWhileQueued,
 		};
 
 		static readonly HttpInstrumentationTestType[] StressTests = {
@@ -166,6 +193,9 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestCategory.HttpInstrumentation:
 				return WorkingTests;
+
+			case ConnectionTestCategory.HttpInstrumentationNoSSL:
+				return WorkingTestsNoSSL;
 
 			case ConnectionTestCategory.HttpInstrumentationStress:
 				return StressTests;
@@ -290,11 +320,20 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.CustomConnectionGroup:
 			case HttpInstrumentationTestType.ReuseCustomConnectionGroup:
 			case HttpInstrumentationTestType.ParallelNtlm:
+			case HttpInstrumentationTestType.RedirectOnSameConnection:
 			case HttpInstrumentationTestType.RedirectNoReuse:
 			case HttpInstrumentationTestType.RedirectNoLength:
 			case HttpInstrumentationTestType.PutChunked:
 			case HttpInstrumentationTestType.PutChunkDontCloseRequest:
 			case HttpInstrumentationTestType.ServerAbortsRedirect:
+				break;
+			case HttpInstrumentationTestType.ServerAbortsPost:
+				parameters.ExpectedStatus = HttpStatusCode.BadRequest;
+				parameters.ExpectedError = WebExceptionStatus.ProtocolError;
+				break;
+			case HttpInstrumentationTestType.ErrorResponse:
+				parameters.ExpectedStatus = HttpStatusCode.BadRequest;
+				parameters.ExpectedError = WebExceptionStatus.ProtocolError;
 				break;
 			default:
 				throw ctx.AssertFail (GetEffectiveType (type));
@@ -457,15 +496,21 @@ namespace Xamarin.WebTests.TestRunners
 				return (new HttpInstrumentationHandler (this, null, null, !primary), flags);
 			case HttpInstrumentationTestType.CloseRequestStream:
 				return (new HttpInstrumentationHandler (this, null, null, !primary), HttpOperationFlags.AbortAfterClientExits);
+			case HttpInstrumentationTestType.RedirectOnSameConnection:
+				return (new HttpInstrumentationHandler (this, null, null, false), flags);
 			case HttpInstrumentationTestType.RedirectNoReuse:
 				return (new RedirectHandler (hello, HttpStatusCode.Redirect), flags);
 			case HttpInstrumentationTestType.RedirectNoLength:
-				return (new HttpInstrumentationHandler (this, null, null, false), flags);
+				return (new HttpInstrumentationHandler (this, null, null, false), flags | HttpOperationFlags.ServerUsesNewConnection);
 			case HttpInstrumentationTestType.PutChunked:
 			case HttpInstrumentationTestType.PutChunkDontCloseRequest:
 				return (new HttpInstrumentationHandler (this, null, null, true), flags);
 			case HttpInstrumentationTestType.ServerAbortsRedirect:
 				return (new HttpInstrumentationHandler (this, null, null, false), HttpOperationFlags.ServerAbortsRedirection);
+			case HttpInstrumentationTestType.ServerAbortsPost:
+				return (new HttpInstrumentationHandler (this, null, null, true), HttpOperationFlags.ServerAbortsRedirection);
+			case HttpInstrumentationTestType.ErrorResponse:
+				return (new HttpInstrumentationHandler (this, null, HttpContent.HelloWorld, false), flags);
 			default:
 				return (hello, flags);
 			}
@@ -479,6 +524,7 @@ namespace Xamarin.WebTests.TestRunners
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.ReuseConnection:
 			case HttpInstrumentationTestType.ReuseCustomConnectionGroup:
+			case HttpInstrumentationTestType.RedirectOnSameConnection:
 				MustReuseConnection ();
 				break;
 
@@ -632,6 +678,9 @@ namespace Xamarin.WebTests.TestRunners
 						Content = ConnectionHandler.GetLargeStringContent (50)
 					};
 
+				case HttpInstrumentationTestType.ErrorResponse:
+					return new HttpInstrumentationRequest (Parent, uri);
+
 				default:
 					return new TraditionalRequest (uri);
 				}
@@ -703,7 +752,12 @@ namespace Xamarin.WebTests.TestRunners
 			protected override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
 			{
 				ctx.LogDebug (2, $"{ME} RUN INNER");
-				return ((TraditionalRequest)request).SendAsync (ctx, cancellationToken);
+				switch (Parent.EffectiveType) {
+				case HttpInstrumentationTestType.ServerAbortsPost:
+					return ((TraditionalRequest)request).Send (ctx, cancellationToken);
+				default:
+					return ((TraditionalRequest)request).SendAsync (ctx, cancellationToken);
+				}
 			}
 
 			internal override Stream CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket)
@@ -936,6 +990,16 @@ namespace Xamarin.WebTests.TestRunners
 					}
 				}
 
+				if (TestRunner.EffectiveType == HttpInstrumentationTestType.ErrorResponse) {
+					try {
+						await RequestExt.GetResponseAsync ().ConfigureAwait (false);
+						throw ctx.AssertFail ("Expected exception.");
+					} catch (Exception ex) {
+						ctx.Assert (ex, Is.InstanceOf<WebException> (), "got WebException");
+						return new HttpInstrumentationResponse (this, (WebException)ex);
+					}
+				}
+
 				return await base.SendAsync (ctx, cancellationToken).ConfigureAwait (false);
 			}
 
@@ -1082,9 +1146,79 @@ namespace Xamarin.WebTests.TestRunners
 					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
 					break;
 
+				case HttpInstrumentationTestType.ErrorResponse:
+					await writer.WriteAsync (ConnectionHandler.TheQuickBrownFox).ConfigureAwait (false);
+					await writer.FlushAsync ();
+					await Task.Delay (500).ConfigureAwait (false);
+					break;
+
 				default:
 					throw ctx.AssertFail (TestRunner.EffectiveType);
 				}
+			}
+		}
+
+		class HttpInstrumentationResponse : Response
+		{
+			public HttpInstrumentationTestRunner TestRunner {
+				get;
+			}
+
+			public HttpWebResponse Response {
+				get;
+			}
+
+			public string ME {
+				get;
+			}
+
+			TaskCompletionSource<bool> finishedTcs;
+
+			public Task WaitForCompletion ()
+			{
+				return finishedTcs.Task;
+			}
+
+			public HttpInstrumentationResponse (HttpInstrumentationRequest request, HttpWebResponse response)
+				: base (request)
+			{
+				TestRunner = request.TestRunner;
+				Response = response;
+				finishedTcs = new TaskCompletionSource<bool> ();
+				ME = $"{GetType ().Name}({TestRunner.EffectiveType})";
+			}
+
+			public HttpInstrumentationResponse (HttpInstrumentationRequest request, WebException error)
+				: base (request)
+			{
+				TestRunner = request.TestRunner;
+				Response = (HttpWebResponse)error.Response;
+				Error = error;
+				finishedTcs = new TaskCompletionSource<bool> ();
+				ME = $"{GetType ().Name}({TestRunner.EffectiveType})";
+			}
+
+			public override bool IsSuccess => false;
+
+			public override HttpStatusCode Status => Response.StatusCode;
+
+			public override Exception Error {
+				get;
+			}
+
+			public override HttpContent Content => null;
+
+			internal async Task CheckResponse (TestContext ctx, CancellationToken cancellationToken)
+			{
+				ctx.LogMessage ("CHECK RESPONSE");
+				cancellationToken.ThrowIfCancellationRequested ();
+
+				var stream = Response.GetResponseStream ();
+
+				var buffer = new byte[1024];
+				var ret = await stream.ReadAsync (buffer, 0, buffer.Length, cancellationToken).ConfigureAwait (false);
+
+				ctx.LogMessage ($"CHECK RESPONSE #1: {ret}");
 			}
 		}
 
@@ -1141,6 +1275,7 @@ namespace Xamarin.WebTests.TestRunners
 					Target = new HelloWorldHandler (ME);
 
 				switch (parent.EffectiveType) {
+				case HttpInstrumentationTestType.RedirectOnSameConnection:
 				case HttpInstrumentationTestType.RedirectNoLength:
 					Target = new HelloWorldHandler (ME);
 					break;
@@ -1179,7 +1314,6 @@ namespace Xamarin.WebTests.TestRunners
 				switch (TestRunner.EffectiveType) {
 				case HttpInstrumentationTestType.ReuseConnection2:
 					request.Method = "POST";
-
 					if (Content != null) {
 						request.SetContentType ("text/plain");
 						request.Content = Content.RemoveTransferEncoding ();
@@ -1196,6 +1330,12 @@ namespace Xamarin.WebTests.TestRunners
 					request.SetContentType ("application/octet-stream");
 					request.SetContentLength (request.Content.Length);
 					request.SendChunked ();
+					break;
+
+				case HttpInstrumentationTestType.ServerAbortsPost:
+					request.Method = "POST";
+					request.SetContentType ("application/x-www-form-urlencoded");
+					request.Content = new FormContent (("foo", "bar"), ("hello", "world"), ("escape", "this needs % escaping"));
 					break;
 				}
 
@@ -1217,7 +1357,11 @@ namespace Xamarin.WebTests.TestRunners
 					ctx.Assert (RemoteEndPoint, Is.Null, "first request");
 					RemoteEndPoint = connection.RemoteEndPoint;
 				} else if (TestRunner.EffectiveType == HttpInstrumentationTestType.NtlmInstrumentation) {
-					ctx.Assert (connection.RemoteEndPoint, Is.EqualTo (RemoteEndPoint), "must reuse connection");
+					if (state == AuthenticationState.Challenge) {
+						ctx.LogDebug (3, $"{me}: {connection.RemoteEndPoint} {RemoteEndPoint}");
+						RemoteEndPoint = connection.RemoteEndPoint;
+					} else
+						ctx.Assert (connection.RemoteEndPoint, Is.EqualTo (RemoteEndPoint), "must reuse connection");
 				}
 
 				await TestRunner.HandleRequest (
@@ -1259,10 +1403,12 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.CloseRequestStream:
 				case HttpInstrumentationTestType.ReadTimeout:
 				case HttpInstrumentationTestType.AbortResponse:
+				case HttpInstrumentationTestType.RedirectOnSameConnection:
 					ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
 					break;
 
 				case HttpInstrumentationTestType.ReuseConnection2:
+				case HttpInstrumentationTestType.ServerAbortsPost:
 					ctx.Assert (request.Method, Is.EqualTo ("POST"), "method");
 					break;
 
@@ -1278,6 +1424,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.PutChunked:
 				case HttpInstrumentationTestType.PutChunkDontCloseRequest:
 				case HttpInstrumentationTestType.ServerAbortsRedirect:
+				case HttpInstrumentationTestType.ErrorResponse:
 					break;
 
 				default:
@@ -1291,6 +1438,7 @@ namespace Xamarin.WebTests.TestRunners
 
 				HttpResponse response;
 				HttpInstrumentationContent content;
+				ListenerOperation redirect;
 
 				switch (TestRunner.EffectiveType) {
 				case HttpInstrumentationTestType.LargeHeader:
@@ -1322,8 +1470,15 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.ReuseConnection2:
 					return new HttpResponse (HttpStatusCode.OK, Content);
 
+				case HttpInstrumentationTestType.RedirectOnSameConnection:
+					redirect = operation.RegisterRedirect (ctx, Target);
+					response = HttpResponse.CreateRedirect (HttpStatusCode.Redirect, redirect);
+					response.SetBody (new StringContent ($"{ME} Redirecting"));
+					response.WriteAsBlob = true;
+					return response;
+
 				case HttpInstrumentationTestType.RedirectNoLength:
-					var redirect = operation.RegisterRedirect (ctx, Target);
+					redirect = operation.RegisterRedirect (ctx, Target);
 					response = HttpResponse.CreateRedirect (HttpStatusCode.Redirect, redirect);
 					response.NoContentLength = true;
 					return response;
@@ -1335,6 +1490,14 @@ namespace Xamarin.WebTests.TestRunners
 					cloned.IsSecondRequest = true;
 					redirect = operation.RegisterRedirect (ctx, cloned);
 					response = HttpResponse.CreateRedirect (HttpStatusCode.Redirect, redirect);
+					return response;
+
+				case HttpInstrumentationTestType.ServerAbortsPost:
+					return new HttpResponse (HttpStatusCode.BadRequest, Content);
+
+				case HttpInstrumentationTestType.ErrorResponse:
+					response = new HttpResponse (HttpStatusCode.BadRequest);
+					response.SetBody (new HttpInstrumentationContent (TestRunner, currentRequest));
 					return response;
 
 				default:
@@ -1368,6 +1531,19 @@ namespace Xamarin.WebTests.TestRunners
 					return false;
 
 				return HttpContent.Compare (ctx, response.Content, expectedContent, false, "response.Content");
+			}
+
+			public override Task CheckResponse (TestContext ctx, Response response,
+			                                    CancellationToken cancellationToken,
+			                                    HttpStatusCode expectedStatus = HttpStatusCode.OK,
+			                                    WebExceptionStatus expectedError = WebExceptionStatus.Success)
+			{
+				switch (TestRunner.EffectiveType) {
+				case HttpInstrumentationTestType.ErrorResponse:
+					return ((HttpInstrumentationResponse)response).CheckResponse (ctx, cancellationToken);
+				}
+
+				return base.CheckResponse (ctx, response, cancellationToken, expectedStatus, expectedError);
 			}
 		}
 	}

@@ -79,7 +79,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ServerRequestsShutdownDuringWrite;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.VerifyAsyncStreamCalls;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -122,6 +122,10 @@ namespace Xamarin.WebTests.TestRunners
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationExperimental:
+				yield break;
+
+			case ConnectionTestCategory.SslStreamInstrumentationNewWebStack:
+				yield return StreamInstrumentationType.VerifyAsyncStreamCalls;
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationMono:
@@ -302,6 +306,8 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ServerRequestsShutdownDuringWrite:
 				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.SkipMainLoop |
 					InstrumentationFlags.SkipShutdown;
+			case StreamInstrumentationType.VerifyAsyncStreamCalls:
+				return InstrumentationFlags.ClientStream;
 			default:
 				throw new InternalErrorException ();
 			}
@@ -409,6 +415,19 @@ namespace Xamarin.WebTests.TestRunners
 			var name = string.Format ("Client:{0}", EffectiveType);
 			var ownsSocket = !HasFlag (InstrumentationFlags.ReuseClientSocket);
 			var instrumentation = new StreamInstrumentation (ctx, name, socket, ownsSocket);
+
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+
+			switch (EffectiveType) {
+			case StreamInstrumentationType.VerifyAsyncStreamCalls:
+				instrumentation.RequireAsync = true;
+				if (setup.UsingDotNet) {
+					instrumentation.AllowBeginEndAsync = true;
+					instrumentation.AllowSyncFlush = true;
+				}
+				break;
+			}
+
 			if (Interlocked.CompareExchange (ref clientInstrumentation, instrumentation, null) != null)
 				throw new InternalErrorException ();
 
@@ -440,6 +459,8 @@ namespace Xamarin.WebTests.TestRunners
 					if (size <= 5)
 						instrumentation.OnNextRead (ReadHandler);
 					size = 1;
+					break;
+				case StreamInstrumentationType.VerifyAsyncStreamCalls:
 					break;
 				default:
 					throw ctx.AssertFail (EffectiveType);

@@ -182,48 +182,6 @@ namespace Xamarin.WebTests.HttpFramework
 			ctx.LogDebug (level, sb.ToString ());
 		}
 
-		void CheckResponse (
-			TestContext ctx, Handler handler, Response response, CancellationToken cancellationToken,
-			HttpStatusCode expectedStatus = HttpStatusCode.OK, WebExceptionStatus expectedError = WebExceptionStatus.Success)
-		{
-			Debug (ctx, 1, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error?.Message);
-
-			if (ctx.HasPendingException)
-				return;
-
-			if (cancellationToken.IsCancellationRequested) {
-				ctx.OnTestCanceled ();
-				return;
-			}
-
-			if (expectedError != WebExceptionStatus.Success) {
-				ctx.Expect (response.Error, Is.Not.Null, "expecting exception");
-				ctx.Expect (response.Status, Is.EqualTo (expectedStatus));
-				var wexc = response.Error as WebException;
-				ctx.Expect (wexc, Is.Not.Null, "WebException");
-				if (expectedError != WebExceptionStatus.AnyErrorStatus)
-					ctx.Expect ((WebExceptionStatus)wexc.Status, Is.EqualTo (expectedError));
-				return;
-			}
-
-			if (response.Error != null) {
-				if (response.Content != null)
-					ctx.OnError (new WebException (response.Content.AsString (), response.Error));
-				else
-					ctx.OnError (response.Error);
-			} else {
-				var ok = ctx.Expect (expectedStatus, Is.EqualTo (response.Status), "status code");
-				if (ok)
-					ok &= ctx.Expect (response.IsSuccess, Is.True, "success status");
-
-				if (ok)
-					ok &= handler.CheckResponse (ctx, response);
-			}
-
-			if (response.Content != null)
-				Debug (ctx, 5, "GOT RESPONSE BODY", response.Content);
-		}
-
 		async Task<Response> RunListener (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME} RUN LISTENER";
@@ -249,7 +207,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 			ctx.LogDebug (2, $"{me} DONE: {response}");
 
-			CheckResponse (ctx, Handler, response, cancellationToken, ExpectedStatus, ExpectedError);
+			await Handler.CheckResponse (ctx, response, cancellationToken, ExpectedStatus, ExpectedError).ConfigureAwait (false);
 
 			return response;
 		}

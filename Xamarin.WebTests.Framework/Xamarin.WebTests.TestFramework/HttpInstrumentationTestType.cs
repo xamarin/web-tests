@@ -64,11 +64,14 @@ namespace Xamarin.WebTests.TestFramework
 		CloseRequestStream,
 		ReadTimeout,
 		AbortResponse,
+		RedirectOnSameConnection,
 		RedirectNoReuse,
 		RedirectNoLength,
 		PutChunked,
 		PutChunkDontCloseRequest,
 		ServerAbortsRedirect,
+		ServerAbortsPost,
+		ErrorResponse,
 
 		MartinTest
 	}

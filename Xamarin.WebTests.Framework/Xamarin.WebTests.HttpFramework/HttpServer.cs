@@ -84,11 +84,17 @@ namespace Xamarin.WebTests.HttpFramework {
 			if (Parameters != null)
 				Flags |= HttpServerFlags.SSL;
 
+			if ((Flags & HttpServerFlags.NoSSL) != 0)
+				Flags &= ~HttpServerFlags.SSL;
+
+
 			if ((Flags & HttpServerFlags.SSL) != 0) {
 				if (SslStreamProvider == null) {
 					var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 					SslStreamProvider = factory.DefaultSslStreamProvider;
 				}
+			} else {
+				SslStreamProvider = null;
 			}
 
 			var description = FormatFlags (Flags);

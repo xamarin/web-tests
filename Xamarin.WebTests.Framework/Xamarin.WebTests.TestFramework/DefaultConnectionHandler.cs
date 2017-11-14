@@ -62,9 +62,10 @@ namespace Xamarin.WebTests.TestFramework
 			await WriteBlob (ctx, Server, TestCompletedString, TestCompletedBlob, cancellationToken);
 		}
 
-		protected override Task HandleMainLoop (TestContext ctx, CancellationToken cancellationToken)
+		protected override async Task HandleMainLoop (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return FinishedTask;
+			await Client.Stream.FlushAsync ().ConfigureAwait (false);
+			await Server.Stream.FlushAsync ();
 		}
 
 		protected override Task HandleClient (TestContext ctx, CancellationToken cancellationToken)

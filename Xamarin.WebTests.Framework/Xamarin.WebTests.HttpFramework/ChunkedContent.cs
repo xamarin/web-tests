@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -65,7 +66,7 @@ namespace Xamarin.WebTests.HttpFramework
 			return new ChunkedContent (chunks);
 		}
 
-		public static async Task<ChunkedContent> Read (HttpStreamReader reader, CancellationToken cancellationToken)
+		public static async Task<ChunkedContent> Read (TestContext ctx, HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			var chunks = new List<string> ();
 
@@ -79,9 +80,18 @@ namespace Xamarin.WebTests.HttpFramework
 				cancellationToken.ThrowIfCancellationRequested ();
 
 				var buffer = new char [length];
-				var ret = await reader.ReadAsync (buffer, 0, length, cancellationToken);
-				if (ret != length)
-					throw new InvalidOperationException ();
+				int pos = 0;
+				while (pos < length)
+				{
+					var ret = await reader.ReadAsync (buffer, pos, length - pos, cancellationToken);
+					if (ret < 0)
+						throw new IOException ();
+					if (ret == 0)
+						break;
+					pos += ret;
+				}
+
+				ctx.Assert (pos, Is.EqualTo (length), "read entire chunk");
 
 				chunks.Add (new string (buffer));
 

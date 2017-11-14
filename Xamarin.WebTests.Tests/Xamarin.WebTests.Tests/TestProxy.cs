@@ -204,7 +204,7 @@ namespace Xamarin.WebTests.Tests {
 
 		[Martin ("Proxy")]
 		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		[WebTestFeatures.UseProxyKind (ProxyKind.Simple)]
+		[WebTestFeatures.UseProxyKind (ProxyKind.SSL)]
 		public async Task MartinTest (
 			TestContext ctx, HttpServer server, Handler handler,
 			CancellationToken cancellationToken)

@@ -114,6 +114,17 @@ namespace Xamarin.WebTests.Tests
 			await runner.Run (ctx, cancellationToken);
 		}
 
+		[AsyncTest]
+		[NewWebStack]
+		[ProtocolVersion (ProtocolVersions.Tls12)]
+		[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationNewWebStack)]
+		public async Task RunNewWebStack (TestContext ctx, CancellationToken cancellationToken,
+						  ConnectionTestProvider provider, StreamInstrumentationParameters parameters,
+						  StreamInstrumentationTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
 		[DotNet]
 		[AsyncTest]
 		[Martin ("StreamInstrumentation")]

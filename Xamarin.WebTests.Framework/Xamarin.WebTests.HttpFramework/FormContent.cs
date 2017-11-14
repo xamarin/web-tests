@@ -1,5 +1,5 @@
 ﻿//
-// HttpOperationFlags.cs
+// FormContent.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,23 +24,53 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
-	[Flags]
-	public enum HttpOperationFlags
+	public class FormContent : HttpContent
 	{
-		None = 0,
-		ServerAbortsHandshake		= 1,
-		ClientAbortsHandshake		= 2,
-		DontReuseConnection		= 4,
-		ClientUsesNewConnection		= 8,
-		ExpectServerException		= 16,
-		AbortAfterClientExits		= 32,
-		RequireClientCertificate	= 64,
-		ClientDoesNotSendRedirect	= 128,
-		ForceNewConnection		= 256,
-		ServerAbortsRedirection		= 512,
-		ServerUsesNewConnection		= 1024
+		List<(string Key, string Value)> elements;
+
+		public FormContent (params (string,string)[] args)
+		{
+			elements = new List<(string, string)> ();
+			elements.AddRange (args);
+		}
+
+		public override bool HasLength => false;
+
+		public override int Length => throw new NotImplementedException ();
+
+		public override void AddHeadersTo (HttpMessage message)
+		{
+			message.ContentType = "application/x-www-form-urlencoded";
+		}
+
+		public override byte[] AsByteArray ()
+		{
+			return Encoding.UTF8.GetBytes (String.Join ("&", elements.Select (p => p.Key + "=" + Uri.EscapeDataString (p.Value))));
+		}
+
+		public override string AsString ()
+		{
+			throw new NotImplementedException ();
+		}
+
+		public override async Task WriteToAsync (TestContext ctx, Stream stream)
+		{
+			var bytes = AsByteArray ();
+			await stream.WriteAsync (bytes, 0, bytes.Length).ConfigureAwait (false);
+		}
+
+		public override Task WriteToAsync (TestContext ctx, StreamWriter writer)
+		{
+			throw new NotImplementedException ();
+		}
 	}
 }
