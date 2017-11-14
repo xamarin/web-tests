@@ -207,7 +207,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 			ctx.LogDebug (2, $"{me} DONE: {response}");
 
-			Handler.CheckResponse (ctx, response, cancellationToken, ExpectedStatus, ExpectedError);
+			await Handler.CheckResponse (ctx, response, cancellationToken, ExpectedStatus, ExpectedError).ConfigureAwait (false);
 
 			return response;
 		}

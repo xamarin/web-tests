@@ -994,11 +994,9 @@ namespace Xamarin.WebTests.TestRunners
 					try {
 						await RequestExt.GetResponseAsync ().ConfigureAwait (false);
 						throw ctx.AssertFail ("Expected exception.");
-					} catch (WebException wexc) {
-						ctx.Assert (wexc, Is.InstanceOf<WebException> (), "got WebException");
-						return new SimpleResponse (this, HttpStatusCode.BadRequest, null, wexc);
 					} catch (Exception ex) {
-						return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, ex);
+						ctx.Assert (ex, Is.InstanceOf<WebException> (), "got WebException");
+						return new HttpInstrumentationResponse (this, (WebException)ex);
 					}
 				}
 
@@ -1151,6 +1149,70 @@ namespace Xamarin.WebTests.TestRunners
 				default:
 					throw ctx.AssertFail (TestRunner.EffectiveType);
 				}
+			}
+		}
+
+		class HttpInstrumentationResponse : Response
+		{
+			public HttpInstrumentationTestRunner TestRunner {
+				get;
+			}
+
+			public HttpWebResponse Response {
+				get;
+			}
+
+			public string ME {
+				get;
+			}
+
+			TaskCompletionSource<bool> finishedTcs;
+
+			public Task WaitForCompletion ()
+			{
+				return finishedTcs.Task;
+			}
+
+			public HttpInstrumentationResponse (HttpInstrumentationRequest request, HttpWebResponse response)
+				: base (request)
+			{
+				TestRunner = request.TestRunner;
+				Response = response;
+				finishedTcs = new TaskCompletionSource<bool> ();
+				ME = $"{GetType ().Name}({TestRunner.EffectiveType})";
+			}
+
+			public HttpInstrumentationResponse (HttpInstrumentationRequest request, WebException error)
+				: base (request)
+			{
+				TestRunner = request.TestRunner;
+				Response = (HttpWebResponse)error.Response;
+				Error = error;
+				finishedTcs = new TaskCompletionSource<bool> ();
+				ME = $"{GetType ().Name}({TestRunner.EffectiveType})";
+			}
+
+			public override bool IsSuccess => false;
+
+			public override HttpStatusCode Status => Response.StatusCode;
+
+			public override Exception Error {
+				get;
+			}
+
+			public override HttpContent Content => null;
+
+			internal async Task CheckResponse (TestContext ctx, CancellationToken cancellationToken)
+			{
+				ctx.LogMessage ("CHECK RESPONSE");
+				cancellationToken.ThrowIfCancellationRequested ();
+
+				var stream = Response.GetResponseStream ();
+
+				var buffer = new byte[1024];
+				var ret = await stream.ReadAsync (buffer, 0, buffer.Length, cancellationToken).ConfigureAwait (false);
+
+				ctx.LogMessage ($"CHECK RESPONSE #1: {ret}");
 			}
 		}
 
@@ -1463,17 +1525,17 @@ namespace Xamarin.WebTests.TestRunners
 				return HttpContent.Compare (ctx, response.Content, expectedContent, false, "response.Content");
 			}
 
-			public override void CheckResponse (TestContext ctx, Response response,
+			public override Task CheckResponse (TestContext ctx, Response response,
 			                                    CancellationToken cancellationToken,
 			                                    HttpStatusCode expectedStatus = HttpStatusCode.OK,
 			                                    WebExceptionStatus expectedError = WebExceptionStatus.Success)
 			{
 				switch (TestRunner.EffectiveType) {
 				case HttpInstrumentationTestType.ErrorResponse:
-					break;
+					return ((HttpInstrumentationResponse)response).CheckResponse (ctx, cancellationToken);
 				}
 
-				base.CheckResponse(ctx, response, cancellationToken, expectedStatus, expectedError);
+				return base.CheckResponse (ctx, response, cancellationToken, expectedStatus, expectedError);
 			}
 		}
 	}

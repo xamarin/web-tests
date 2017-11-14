@@ -164,11 +164,13 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public abstract object Clone ();
 
-		public virtual void CheckResponse (
+		public virtual async Task CheckResponse (
 			TestContext ctx, Response response, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK, WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
 			Debug (ctx, 1, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error?.Message);
+
+			await CompletedTask.ConfigureAwait (false);
 
 			if (ctx.HasPendingException)
 				return;
