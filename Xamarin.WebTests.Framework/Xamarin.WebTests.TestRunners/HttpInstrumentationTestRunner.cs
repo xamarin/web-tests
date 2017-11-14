@@ -1146,6 +1146,12 @@ namespace Xamarin.WebTests.TestRunners
 					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
 					break;
 
+				case HttpInstrumentationTestType.ErrorResponse:
+					await writer.WriteAsync (ConnectionHandler.TheQuickBrownFox).ConfigureAwait (false);
+					await writer.FlushAsync ();
+					await Task.Delay (500).ConfigureAwait (false);
+					break;
+
 				default:
 					throw ctx.AssertFail (TestRunner.EffectiveType);
 				}
@@ -1490,7 +1496,9 @@ namespace Xamarin.WebTests.TestRunners
 					return new HttpResponse (HttpStatusCode.BadRequest, Content);
 
 				case HttpInstrumentationTestType.ErrorResponse:
-					return new HttpResponse (HttpStatusCode.BadRequest, Content);
+					response = new HttpResponse (HttpStatusCode.BadRequest);
+					response.SetBody (new HttpInstrumentationContent (TestRunner, currentRequest));
+					return response;
 
 				default:
 					return HttpResponse.CreateSuccess (ME);
