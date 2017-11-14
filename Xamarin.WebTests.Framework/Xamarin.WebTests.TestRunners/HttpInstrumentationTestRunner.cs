@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ErrorResponse;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NtlmInstrumentation;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -331,10 +331,6 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ExpectedStatus = HttpStatusCode.BadRequest;
 				parameters.ExpectedError = WebExceptionStatus.ProtocolError;
 				break;
-			case HttpInstrumentationTestType.ErrorResponse:
-				parameters.ExpectedStatus = HttpStatusCode.BadRequest;
-				parameters.ExpectedError = WebExceptionStatus.ProtocolError;
-				break;
 			default:
 				throw ctx.AssertFail (GetEffectiveType (type));
 			}
@@ -509,8 +505,6 @@ namespace Xamarin.WebTests.TestRunners
 				return (new HttpInstrumentationHandler (this, null, null, false), HttpOperationFlags.ServerAbortsRedirection);
 			case HttpInstrumentationTestType.ServerAbortsPost:
 				return (new HttpInstrumentationHandler (this, null, null, true), HttpOperationFlags.ServerAbortsRedirection);
-			case HttpInstrumentationTestType.ErrorResponse:
-				return (new HttpInstrumentationHandler (this, null, HttpContent.HelloWorld, false), flags);
 			default:
 				return (hello, flags);
 			}
@@ -677,10 +671,6 @@ namespace Xamarin.WebTests.TestRunners
 					return new HttpInstrumentationRequest (Parent, uri) {
 						Content = ConnectionHandler.GetLargeStringContent (50)
 					};
-
-				case HttpInstrumentationTestType.ErrorResponse:
-					return new HttpInstrumentationRequest (Parent, uri);
-
 				default:
 					return new TraditionalRequest (uri);
 				}
@@ -990,16 +980,6 @@ namespace Xamarin.WebTests.TestRunners
 					}
 				}
 
-				if (TestRunner.EffectiveType == HttpInstrumentationTestType.ErrorResponse) {
-					try {
-						await RequestExt.GetResponseAsync ().ConfigureAwait (false);
-						throw ctx.AssertFail ("Expected exception.");
-					} catch (Exception ex) {
-						ctx.Assert (ex, Is.InstanceOf<WebException> (), "got WebException");
-						return new HttpInstrumentationResponse (this, (WebException)ex);
-					}
-				}
-
 				return await base.SendAsync (ctx, cancellationToken).ConfigureAwait (false);
 			}
 
@@ -1144,12 +1124,6 @@ namespace Xamarin.WebTests.TestRunners
 					await Task.Delay (500).ConfigureAwait (false);
 					TestRunner.currentOperation.Request.Abort ();
 					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
-					break;
-
-				case HttpInstrumentationTestType.ErrorResponse:
-					await writer.WriteAsync (ConnectionHandler.TheQuickBrownFox).ConfigureAwait (false);
-					await writer.FlushAsync ();
-					await Task.Delay (500).ConfigureAwait (false);
 					break;
 
 				default:
@@ -1424,7 +1398,6 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.PutChunked:
 				case HttpInstrumentationTestType.PutChunkDontCloseRequest:
 				case HttpInstrumentationTestType.ServerAbortsRedirect:
-				case HttpInstrumentationTestType.ErrorResponse:
 					break;
 
 				default:
@@ -1495,11 +1468,6 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.ServerAbortsPost:
 					return new HttpResponse (HttpStatusCode.BadRequest, Content);
 
-				case HttpInstrumentationTestType.ErrorResponse:
-					response = new HttpResponse (HttpStatusCode.BadRequest);
-					response.SetBody (new HttpInstrumentationContent (TestRunner, currentRequest));
-					return response;
-
 				default:
 					return HttpResponse.CreateSuccess (ME);
 				}
@@ -1539,11 +1507,9 @@ namespace Xamarin.WebTests.TestRunners
 			                                    WebExceptionStatus expectedError = WebExceptionStatus.Success)
 			{
 				switch (TestRunner.EffectiveType) {
-				case HttpInstrumentationTestType.ErrorResponse:
-					return ((HttpInstrumentationResponse)response).CheckResponse (ctx, cancellationToken);
+				default:
+					return base.CheckResponse (ctx, response, cancellationToken, expectedStatus, expectedError);
 				}
-
-				return base.CheckResponse (ctx, response, cancellationToken, expectedStatus, expectedError);
 			}
 		}
 	}
