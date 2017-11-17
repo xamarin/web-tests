@@ -151,7 +151,8 @@ namespace Xamarin.WebTests.Server
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				await request.Read (ctx, cancellationToken).ConfigureAwait (false);
+				if (!Operation.HasAnyFlags (HttpOperationFlags.DontReadRequestBody))
+					await request.Read (ctx, cancellationToken).ConfigureAwait (false);
 
 				ctx.LogDebug (2, $"{me} REQUEST FULLY READ");
 

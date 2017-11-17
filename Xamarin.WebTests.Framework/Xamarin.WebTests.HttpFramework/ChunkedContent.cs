@@ -1,4 +1,4 @@
-﻿//
+//
 // ChunkedContent.cs
 //
 // Author:
@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Threading;
@@ -72,37 +73,46 @@ namespace Xamarin.WebTests.HttpFramework
 
 			do {
 				cancellationToken.ThrowIfCancellationRequested ();
-				var header = await reader.ReadLineAsync (cancellationToken);
-				var length = int.Parse (header, NumberStyles.HexNumber);
-				if (length == 0)
+				var chunk = await ReadChunk (ctx, reader, cancellationToken).ConfigureAwait (false);
+				if (chunk == null)
 					break;
 
-				cancellationToken.ThrowIfCancellationRequested ();
-
-				var buffer = new char [length];
-				int pos = 0;
-				while (pos < length)
-				{
-					var ret = await reader.ReadAsync (buffer, pos, length - pos, cancellationToken);
-					if (ret < 0)
-						throw new IOException ();
-					if (ret == 0)
-						break;
-					pos += ret;
-				}
-
-				ctx.Assert (pos, Is.EqualTo (length), "read entire chunk");
-
-				chunks.Add (new string (buffer));
-
-				cancellationToken.ThrowIfCancellationRequested ();
-
-				var empty =  await reader.ReadLineAsync (cancellationToken);
-				if (!string.IsNullOrEmpty (empty))
-					throw new InvalidOperationException ();
+				chunks.Add (Encoding.UTF8.GetString (chunk, 0, chunk.Length));
 			} while (true);
 
 			return new ChunkedContent (chunks);
+		}
+
+		public static async Task<byte[]> ReadChunk (TestContext ctx, HttpStreamReader reader, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+			var header = await reader.ReadLineAsync (cancellationToken);
+			var length = int.Parse (header, NumberStyles.HexNumber);
+			if (length == 0)
+				return null;
+
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			var buffer = new byte[length];
+			int pos = 0;
+			while (pos < length) {
+				var ret = await reader.ReadAsync (buffer, pos, length - pos, cancellationToken);
+				if (ret < 0)
+					throw new IOException ();
+				if (ret == 0)
+					break;
+				pos += ret;
+			}
+
+			ctx.Assert (pos, Is.EqualTo (length), "read entire chunk");
+
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			var empty = await reader.ReadLineAsync (cancellationToken);
+			if (!string.IsNullOrEmpty (empty))
+				throw new InvalidOperationException ();
+
+			return buffer;
 		}
 
 		public override bool HasLength {

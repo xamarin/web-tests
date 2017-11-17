@@ -128,7 +128,7 @@ namespace Xamarin.WebTests.HttpHandlers
 				if (response == null)
 					return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, wexc);
 
-				return GetResponseFromHttpSync (ctx, response, wexc);
+				return await GetResponseFromHttp (ctx, response, wexc, cancellationToken);
 			} catch (Exception ex) {
 				return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, ex);
 			} finally {

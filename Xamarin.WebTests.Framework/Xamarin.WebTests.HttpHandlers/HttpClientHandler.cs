@@ -97,6 +97,9 @@ namespace Xamarin.WebTests.HttpHandlers
 			case HttpClientOperationType.PutDataAsync:
 				return HandlePutDataAsync (ctx, request, effectiveFlags);
 
+			case HttpClientOperationType.PostRedirect:
+				return HandlePostRedirect (ctx, operation, request, effectiveFlags);
+
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -161,6 +164,15 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 		}
 
+		HttpResponse HandlePostRedirect (TestContext ctx, HttpOperation operation, HttpRequest request, RequestFlags effectiveFlags)
+		{
+			ctx.Assert (request.Method, Is.EqualTo ("POST"), "method");
+
+			var target = new PostHandler (Value, Content) { ReturnContent = ReturnContent };
+			var redirect = operation.RegisterRedirect (ctx, target);
+			return HttpResponse.CreateRedirect (HttpStatusCode.TemporaryRedirect, redirect);
+		}
+
 		public override void ConfigureRequest (Request request, Uri uri)
 		{
 			base.ConfigureRequest (request, uri);
@@ -191,6 +203,10 @@ namespace Xamarin.WebTests.HttpHandlers
 				break;
 			case HttpClientOperationType.PutDataAsync:
 				request.Method = "PUT";
+				request.Content = Content;
+				break;
+			case HttpClientOperationType.PostRedirect:
+				request.Method = "POST";
 				request.Content = Content;
 				break;
 			default:

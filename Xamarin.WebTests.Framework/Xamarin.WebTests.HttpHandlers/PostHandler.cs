@@ -1,4 +1,4 @@
-﻿//
+//
 // SimplePostHandler.cs
 //
 // Author:
@@ -63,6 +63,10 @@ namespace Xamarin.WebTests.HttpHandlers
 			private set;
 		}
 
+		public HttpContent ReturnContent {
+			get; set;
+		}
+
 		public string Method {
 			get {
 				return method;
@@ -93,6 +97,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			post.Flags = Flags;
 			post.allowWriteBuffering = allowWriteBuffering;
 			post.customHandler = customHandler;
+			post.ReturnContent = ReturnContent;
 			return post;
 		}
 
@@ -179,6 +184,9 @@ namespace Xamarin.WebTests.HttpHandlers
 				HttpContent.Compare (ctx, request.Body, Content, true);
 			else
 				ctx.Expect (HttpContent.IsNullOrEmpty (request.Body), "null or empty content");
+
+			if (ReturnContent != null)
+				return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 
 			return null;
 		}

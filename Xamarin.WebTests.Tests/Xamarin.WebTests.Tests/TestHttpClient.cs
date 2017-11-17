@@ -85,9 +85,8 @@ namespace Xamarin.WebTests
 		static IEnumerable<HttpClientHandler> GetMartinTests ()
 		{
 			yield return new HttpClientHandler (
-				"Put chunked", HttpClientOperationType.SendAsyncChunked,
-				ConnectionHandler.GetLargeChunkedContent (50)) {
-			};
+				"Post redirect", HttpClientOperationType.PostRedirect,
+				HttpContent.HelloWorld, new StringContent ("Returned body"));
 		}
 
 		public IEnumerable<HttpClientHandler> GetParameters (TestContext ctx, string filter)

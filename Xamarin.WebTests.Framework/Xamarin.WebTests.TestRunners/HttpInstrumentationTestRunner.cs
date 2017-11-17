@@ -1,4 +1,4 @@
-﻿//
+//
 // HttpInstrumentationTestRunner.cs
 //
 // Author:
@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NtlmInstrumentation;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.PostChunked;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -126,7 +126,8 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.AbortResponse,
 			HttpInstrumentationTestType.RedirectOnSameConnection,
 			HttpInstrumentationTestType.RedirectNoReuse,
-			HttpInstrumentationTestType.PutChunked
+			HttpInstrumentationTestType.PutChunked,
+			HttpInstrumentationTestType.PostChunked
 		};
 
 		static readonly HttpInstrumentationTestType[] WorkingTestsNoSSL = {
@@ -326,6 +327,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.PutChunked:
 			case HttpInstrumentationTestType.PutChunkDontCloseRequest:
 			case HttpInstrumentationTestType.ServerAbortsRedirect:
+			case HttpInstrumentationTestType.PostChunked:
 				break;
 			case HttpInstrumentationTestType.ServerAbortsPost:
 				parameters.ExpectedStatus = HttpStatusCode.BadRequest;
@@ -505,6 +507,8 @@ namespace Xamarin.WebTests.TestRunners
 				return (new HttpInstrumentationHandler (this, null, null, false), HttpOperationFlags.ServerAbortsRedirection);
 			case HttpInstrumentationTestType.ServerAbortsPost:
 				return (new HttpInstrumentationHandler (this, null, null, true), HttpOperationFlags.ServerAbortsRedirection);
+			case HttpInstrumentationTestType.PostChunked:
+				return (new HttpInstrumentationHandler (this, null, null, false), HttpOperationFlags.DontReadRequestBody);
 			default:
 				return (hello, flags);
 			}
@@ -660,17 +664,19 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.CloseRequestStream:
 				case HttpInstrumentationTestType.ReadTimeout:
 				case HttpInstrumentationTestType.AbortResponse:
-					return new HttpInstrumentationRequest (Parent, uri);
+					return new HttpInstrumentationRequest (InstrumentationHandler, uri);
 				case HttpInstrumentationTestType.NtlmWhileQueued:
 					if (IsParallelRequest)
 						return new TraditionalRequest (uri);
-					return new HttpInstrumentationRequest (Parent, uri);
+					return new HttpInstrumentationRequest (InstrumentationHandler, uri);
 
 				case HttpInstrumentationTestType.PutChunked:
 				case HttpInstrumentationTestType.PutChunkDontCloseRequest:
-					return new HttpInstrumentationRequest (Parent, uri) {
+					return new HttpInstrumentationRequest (InstrumentationHandler, uri) {
 						Content = ConnectionHandler.GetLargeStringContent (50)
 					};
+				case HttpInstrumentationTestType.PostChunked:
+					return new HttpInstrumentationRequest (InstrumentationHandler, uri);
 				default:
 					return new TraditionalRequest (uri);
 				}
@@ -921,6 +927,10 @@ namespace Xamarin.WebTests.TestRunners
 
 		class HttpInstrumentationRequest : TraditionalRequest
 		{
+			public HttpInstrumentationHandler Handler {
+				get;
+			}
+
 			public HttpInstrumentationTestRunner TestRunner {
 				get;
 			}
@@ -936,12 +946,21 @@ namespace Xamarin.WebTests.TestRunners
 				return finishedTcs.Task;
 			}
 
-			public HttpInstrumentationRequest (HttpInstrumentationTestRunner runner, Uri uri)
+			public HttpInstrumentationRequest (HttpInstrumentationHandler handler, Uri uri)
 				: base (uri)
 			{
-				TestRunner = runner;
+				Handler = handler;
+				TestRunner = handler.TestRunner;
 				finishedTcs = new TaskCompletionSource<bool> ();
-				ME = $"{GetType ().Name}({runner.EffectiveType})";
+				ME = $"{GetType ().Name}({TestRunner.EffectiveType})";
+
+				switch (TestRunner.EffectiveType) {
+				case HttpInstrumentationTestType.PostChunked:
+					Content = new HttpInstrumentationContent (TestRunner, this);
+					Method = "POST";
+					SendChunked ();
+					break;
+				}
 			}
 
 			protected override async Task WriteBody (TestContext ctx, CancellationToken cancellationToken)
@@ -1126,8 +1145,27 @@ namespace Xamarin.WebTests.TestRunners
 					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
 					break;
 
+				case HttpInstrumentationTestType.PostChunked:
+					await HandlePostChunked ().ConfigureAwait (false);
+					break;
+
 				default:
 					throw ctx.AssertFail (TestRunner.EffectiveType);
+				}
+
+				async Task HandlePostChunked ()
+				{
+					await writer.WriteAsync (ConnectionHandler.TheQuickBrownFox).ConfigureAwait (false);
+					await writer.FlushAsync ();
+
+					var timeoutTask = Task.Delay (1500);
+					var readyTask = Request.Handler.WaitUntilReady ();
+
+					var ret = await Task.WhenAny (readyTask, timeoutTask);
+					if (ret == timeoutTask)
+						throw ctx.AssertFail ("Timeout!");
+
+					await writer.WriteAsync (ConnectionHandler.GetLargeTextBuffer (50));
 				}
 			}
 		}
@@ -1232,6 +1270,8 @@ namespace Xamarin.WebTests.TestRunners
 				get;
 			}
 
+			TaskCompletionSource<bool> readyTcs;
+
 			public HttpInstrumentationHandler (HttpInstrumentationTestRunner parent, AuthenticationManager authManager,
 							   HttpContent content, bool closeConnection)
 				: base (parent.EffectiveType.ToString ())
@@ -1241,6 +1281,7 @@ namespace Xamarin.WebTests.TestRunners
 				Content = content;
 				CloseConnection = closeConnection;
 				ME = $"{GetType ().Name}({parent.EffectiveType})";
+				readyTcs = new TaskCompletionSource<bool> ();
 				Flags = RequestFlags.KeepAlive;
 				if (closeConnection)
 					Flags |= RequestFlags.CloseConnection;
@@ -1266,6 +1307,7 @@ namespace Xamarin.WebTests.TestRunners
 				Flags = other.Flags;
 				Target = other.Target;
 				AuthManager = other.AuthManager;
+				readyTcs = new TaskCompletionSource<bool> ();
 			}
 
 			HttpInstrumentationRequest currentRequest;
@@ -1360,6 +1402,38 @@ namespace Xamarin.WebTests.TestRunners
 				return ret;
 			}
 
+			async Task<HttpResponse> HandlePostChunked (
+				TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
+				RequestFlags effectiveFlags, CancellationToken cancellationToken)
+			{
+				var me = $"{ME}.{nameof (HandlePostChunked)}";
+				ctx.LogDebug (3, $"{me}: {connection.RemoteEndPoint}");
+
+				await request.ReadHeaders (ctx, cancellationToken).ConfigureAwait (false);
+				ctx.LogDebug (3, $"{me} read headers");
+
+				var firstChunk = await ChunkedContent.ReadChunk (ctx, request.Reader, cancellationToken).ConfigureAwait (false);
+				ctx.LogDebug (3, $"{me} got first chunk: {firstChunk.Length}");
+
+				ctx.Assert (firstChunk, Is.EqualTo (ConnectionHandler.TheQuickBrownFoxBuffer), "first chunk");
+
+				readyTcs.TrySetResult (true);
+
+				ctx.LogDebug (3, $"{me} reading remaining body");
+
+				await ChunkedContent.Read (ctx, request.Reader, cancellationToken).ConfigureAwait (false);
+
+				await TestRunner.HandleRequest (
+					ctx, this, connection, request, AuthenticationState.None, cancellationToken).ConfigureAwait (false);
+
+				return HttpResponse.CreateSuccess (ME);
+			}
+
+			internal Task WaitUntilReady ()
+			{
+				return readyTcs.Task;
+			}
+
 			protected internal override async Task<HttpResponse> HandleRequest (
 				TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
 				RequestFlags effectiveFlags, CancellationToken cancellationToken)
@@ -1399,6 +1473,10 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.PutChunkDontCloseRequest:
 				case HttpInstrumentationTestType.ServerAbortsRedirect:
 					break;
+
+				case HttpInstrumentationTestType.PostChunked:
+					return await HandlePostChunked (
+						ctx, operation, connection, request, effectiveFlags, cancellationToken).ConfigureAwait (false);
 
 				default:
 					throw ctx.AssertFail (TestRunner.EffectiveType);

@@ -94,6 +94,9 @@ namespace Xamarin.WebTests.HttpOperations
 			case HttpClientOperationType.PutDataAsync:
 				response = await httpClientRequest.PutDataAsync (ctx, cancellationToken);
 				break;
+			case HttpClientOperationType.PostRedirect:
+				response = await httpClientRequest.PostString (ctx, HttpClientHandler.ReturnContent, cancellationToken);
+				break;
 			default:
 				throw new InvalidOperationException ();
 			}

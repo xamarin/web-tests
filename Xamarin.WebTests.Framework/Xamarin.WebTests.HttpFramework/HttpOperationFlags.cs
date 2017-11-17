@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.HttpFramework
 		ClientDoesNotSendRedirect	= 128,
 		ForceNewConnection		= 256,
 		ServerAbortsRedirection		= 512,
-		ServerUsesNewConnection		= 1024
+		ServerUsesNewConnection		= 1024,
+		DontReadRequestBody		= 2048
 	}
 }

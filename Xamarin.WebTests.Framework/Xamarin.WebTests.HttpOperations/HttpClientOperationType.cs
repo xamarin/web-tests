@@ -34,7 +34,8 @@ namespace Xamarin.WebTests.HttpOperations
 		PutString,
 		SendAsync,
 		SendAsyncChunked,
-		PutDataAsync
+		PutDataAsync,
+		PostRedirect
 	}
 }
 

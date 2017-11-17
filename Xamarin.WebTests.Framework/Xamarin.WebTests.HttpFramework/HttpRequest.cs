@@ -83,13 +83,11 @@ namespace Xamarin.WebTests.HttpFramework
 			cancellationToken.ThrowIfCancellationRequested ();
 			if (listenerRequest != null) {
 				using (var bodyReader = new HttpStreamReader (listenerRequest.InputStream)) {
-					Body = await ReadBody (ctx, bodyReader, true, cancellationToken).ConfigureAwait (false);
-					return;
+					Body = await ReadBody (ctx, bodyReader, true, cancellationToken);
 				}
+			} else {
+				Body = await ReadBody (ctx, reader, false, cancellationToken);
 			}
-
-			cancellationToken.ThrowIfCancellationRequested ();
-			Body = await ReadBody (ctx, reader, false, cancellationToken);
 		}
 
 		public string Method {
@@ -99,6 +97,8 @@ namespace Xamarin.WebTests.HttpFramework
 		public string Path {
 			get; private set;
 		}
+
+		internal HttpStreamReader Reader => reader;
 
 		public async Task Write (TestContext ctx, StreamWriter writer, CancellationToken cancellationToken)
 		{
