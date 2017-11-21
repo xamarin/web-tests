@@ -106,7 +106,6 @@ namespace Xamarin.WebTests.TestRunners
 			HttpClientTestType.PutString,
 			HttpClientTestType.PutChunked,
 			HttpClientTestType.SendAsyncEmptyBody,
-			HttpClientTestType.SendAsyncObscureVerb,
 			HttpClientTestType.SendAsyncGet,
 			HttpClientTestType.SendAsyncHead,
 			HttpClientTestType.SendLargeBlob,
@@ -117,7 +116,9 @@ namespace Xamarin.WebTests.TestRunners
 
 		static readonly HttpClientTestType[] NewWebStackTests = {
 			HttpClientTestType.PutRedirect,
-			HttpClientTestType.PutRedirectKeepAlive
+			HttpClientTestType.PutRedirectKeepAlive,
+			// Fixed in PR #6059 / #6068.
+			HttpClientTestType.SendAsyncObscureVerb
 		};
 
 		static readonly HttpClientTestType[] MartinTests = {
