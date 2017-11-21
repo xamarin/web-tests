@@ -1156,14 +1156,14 @@ namespace Xamarin.WebTests.TestRunners
 					break;
 
 				case HttpInstrumentationTestType.ReadTimeout:
-					await WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer).ConfigureAwait (false);
-					await stream.FlushAsync ();
+					await stream.WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer, cancellationToken).ConfigureAwait (false);
+					await stream.FlushAsync (cancellationToken);
 					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
 					break;
 
 				case HttpInstrumentationTestType.AbortResponse:
-					await WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer).ConfigureAwait (false);
-					await stream.FlushAsync ();
+					await stream.WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer, cancellationToken).ConfigureAwait (false);
+					await stream.FlushAsync (cancellationToken);
 					await Task.Delay (500).ConfigureAwait (false);
 					TestRunner.currentOperation.Request.Abort ();
 					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
@@ -1174,22 +1174,17 @@ namespace Xamarin.WebTests.TestRunners
 					break;
 
 				case HttpInstrumentationTestType.EntityTooBig:
-					await WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer).ConfigureAwait (false);
+					await stream.WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer, cancellationToken).ConfigureAwait (false);
 					break;
 
 				default:
 					throw ctx.AssertFail (TestRunner.EffectiveType);
 				}
 
-				Task WriteAsync (byte[] buffer)
-				{
-					return stream.WriteAsync (buffer, 0, buffer.Length);
-				}
-
 				async Task HandlePostChunked ()
 				{
-					await WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer).ConfigureAwait (false);
-					await stream.FlushAsync ();
+					await stream.WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer, cancellationToken).ConfigureAwait (false);
+					await stream.FlushAsync (cancellationToken);
 
 					var timeoutTask = Task.Delay (1500);
 					var readyTask = Request.Handler.WaitUntilReady ();
@@ -1198,7 +1193,7 @@ namespace Xamarin.WebTests.TestRunners
 					if (ret == timeoutTask)
 						throw ctx.AssertFail ("Timeout!");
 
-					await WriteAsync (ConnectionHandler.GetLargeTextBuffer (50));
+					await stream.WriteAsync (ConnectionHandler.GetLargeTextBuffer (50), cancellationToken);
 				}
 			}
 		}
