@@ -220,6 +220,12 @@
     <Compile Include="Xamarin.WebTests.TestFramework\LogCategories.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\RecentlyFixedAttribute.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\FormContent.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpClientTestType.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpClientTestRunnerAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpClientTestParameters.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpClientTestParametersAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\HttpClientTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClient\ICustomHttpContent.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

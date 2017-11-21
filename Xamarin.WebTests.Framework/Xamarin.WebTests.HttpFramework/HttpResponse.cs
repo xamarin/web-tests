@@ -180,8 +180,11 @@ namespace Xamarin.WebTests.HttpFramework
 			if (headersResolved)
 				return;
 			headersResolved = true;
-			if (Body != null)
+			if (Body != null) {
 				Body.AddHeadersTo (this);
+				if (!Body.HasLength)
+					noContentLength = true;
+			}
 			if (ContentLength == null && NeedsContentLength && !NoContentLength)
 				ContentLength = 0;
 

@@ -36,6 +36,7 @@ namespace Xamarin.WebTests.HttpFramework
 	public abstract class HttpContent
 	{
 		public static readonly HttpContent HelloWorld = new StringContent ("Hello World!");
+		public static readonly HttpContent ReturningWorld = new StringContent ("Returning World!");
 		public static readonly HttpContent HelloChunked = new ChunkedContent ("Hello Chunked World!");
 
 		public abstract bool HasLength {

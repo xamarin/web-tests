@@ -1,10 +1,10 @@
 ﻿//
-// HttpMethod.cs
+// HttpClientTestType.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,17 +24,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-
-namespace Xamarin.WebTests.HttpClient
+namespace Xamarin.WebTests.TestFramework
 {
-	public enum HttpMethod
+	public enum HttpClientTestType
 	{
-		Get,
-		Post,
-		Put,
-		Head,
-		Delete,
-		Custom
+		Simple,
+		GetString,
+		PostString,
+		PostStringWithResult,
+		PutString,
+		PutChunked,
+		SendAsyncEmptyBody,
+		// Bug 31830
+		SendAsyncObscureVerb,
+		SendAsyncGet,
+		SendAsyncHead,
+		// Bug 41206
+		SendLargeBlob,
+		SendLargeBlobOddSize,
+		// Bug 20583
+		ChunkSizeWithLeadingZero,
+		PutRedirectEmptyBody,
+		PutRedirect,
+		PutRedirectKeepAlive,
+		RedirectCustomContent,
+		MartinTest
 	}
 }
-

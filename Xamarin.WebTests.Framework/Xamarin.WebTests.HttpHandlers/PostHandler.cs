@@ -229,7 +229,19 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public override bool CheckResponse (TestContext ctx, Response response)
 		{
-			return ctx.Expect (response.Content, Is.Null);
+			if (ReturnContent == null)
+				return ctx.Expect (response.Content, Is.Null, "response.Content");
+
+			if (!ctx.Expect (response.Content, Is.Not.Null, "response.Content"))
+				return false;
+			if (response.Content.HasLength && ReturnContent.HasLength) {
+				if (!ctx.Expect (response.Content.Length, Is.EqualTo (ReturnContent.Length), "response.Content.Length"))
+					return false;
+				if (!ctx.Expect (response.Content.AsString (), Is.EqualTo (ReturnContent.AsString ()), "response.Content.AsString()"))
+					return false;
+			}
+
+			return true;
 		}
 	}
 }

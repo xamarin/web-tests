@@ -1,10 +1,10 @@
 ﻿//
-// HttpMethod.cs
+// HttpClientTestParameters.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,17 +24,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
-namespace Xamarin.WebTests.HttpClient
+namespace Xamarin.WebTests.TestFramework
 {
-	public enum HttpMethod
+	using ConnectionFramework;
+	using HttpFramework;
+
+	[HttpClientTestParameters]
+	public class HttpClientTestParameters : ConnectionTestParameters
 	{
-		Get,
-		Post,
-		Put,
-		Head,
-		Delete,
-		Custom
+		public HttpClientTestType Type {
+			get;
+		}
+
+		public HttpClientTestParameters (ConnectionTestCategory category, HttpClientTestType type,
+		                                 string identifier, X509Certificate certificate)
+			: base (category, identifier, certificate)
+		{
+			Type = type;
+		}
+
+		protected HttpClientTestParameters (HttpClientTestParameters other)
+			: base (other)
+		{
+			Type = other.Type;
+		}
+
+		public override ConnectionParameters DeepClone ()
+		{
+			return new HttpClientTestParameters (this);
+		}
 	}
 }
-

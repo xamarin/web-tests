@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.PostChunked;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.EntityTooBig;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -333,6 +333,8 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ExpectedStatus = HttpStatusCode.BadRequest;
 				parameters.ExpectedError = WebExceptionStatus.ProtocolError;
 				break;
+			case HttpInstrumentationTestType.EntityTooBig:
+				break;
 			default:
 				throw ctx.AssertFail (GetEffectiveType (type));
 			}
@@ -509,6 +511,8 @@ namespace Xamarin.WebTests.TestRunners
 				return (new HttpInstrumentationHandler (this, null, null, true), HttpOperationFlags.ServerAbortsRedirection);
 			case HttpInstrumentationTestType.PostChunked:
 				return (new HttpInstrumentationHandler (this, null, null, false), HttpOperationFlags.DontReadRequestBody);
+			case HttpInstrumentationTestType.EntityTooBig:
+				return (new HttpInstrumentationHandler (this, null, null, false), HttpOperationFlags.AbortAfterClientExits);
 			default:
 				return (hello, flags);
 			}
@@ -676,6 +680,7 @@ namespace Xamarin.WebTests.TestRunners
 						Content = ConnectionHandler.GetLargeStringContent (50)
 					};
 				case HttpInstrumentationTestType.PostChunked:
+				case HttpInstrumentationTestType.EntityTooBig:
 					return new HttpInstrumentationRequest (InstrumentationHandler, uri);
 				default:
 					return new TraditionalRequest (uri);
@@ -960,6 +965,10 @@ namespace Xamarin.WebTests.TestRunners
 					Method = "POST";
 					SendChunked ();
 					break;
+				case HttpInstrumentationTestType.EntityTooBig:
+					Content = new HttpInstrumentationContent (TestRunner, this);
+					Method = "POST";
+					break;
 				}
 			}
 
@@ -1097,11 +1106,26 @@ namespace Xamarin.WebTests.TestRunners
 				TestRunner = runner;
 				Request = request;
 				ME = $"{GetType ().Name}({runner.EffectiveType})";
+
+				switch (runner.EffectiveType) {
+				case HttpInstrumentationTestType.EntityTooBig:
+					HasLength = true;
+					Length = 16;
+					break;
+				default:
+					HasLength = true;
+					Length = 4096;
+					break;
+				}
 			}
 
-			public override bool HasLength => true;
+			public sealed override bool HasLength {
+				get;
+			}
 
-			public override int Length => 4096;
+			public sealed override int Length {
+				get;
+			}
 
 			public override void AddHeadersTo (HttpMessage message)
 			{
@@ -1119,7 +1143,7 @@ namespace Xamarin.WebTests.TestRunners
 				throw new NotImplementedException ();
 			}
 
-			public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
+			public override async Task WriteToAsync (TestContext ctx, Stream stream)
 			{
 				ctx.LogDebug (4, $"{ME} WRITE BODY");
 
@@ -1131,6 +1155,58 @@ namespace Xamarin.WebTests.TestRunners
 					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
 					break;
 
+				case HttpInstrumentationTestType.ReadTimeout:
+					await WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer).ConfigureAwait (false);
+					await stream.FlushAsync ();
+					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
+					break;
+
+				case HttpInstrumentationTestType.AbortResponse:
+					await WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer).ConfigureAwait (false);
+					await stream.FlushAsync ();
+					await Task.Delay (500).ConfigureAwait (false);
+					TestRunner.currentOperation.Request.Abort ();
+					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
+					break;
+
+				case HttpInstrumentationTestType.PostChunked:
+					await HandlePostChunked ().ConfigureAwait (false);
+					break;
+
+				case HttpInstrumentationTestType.EntityTooBig:
+					await WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer).ConfigureAwait (false);
+					break;
+
+				default:
+					throw ctx.AssertFail (TestRunner.EffectiveType);
+				}
+
+				Task WriteAsync (byte[] buffer)
+				{
+					return stream.WriteAsync (buffer, 0, buffer.Length);
+				}
+
+				async Task HandlePostChunked ()
+				{
+					await WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer).ConfigureAwait (false);
+					await stream.FlushAsync ();
+
+					var timeoutTask = Task.Delay (1500);
+					var readyTask = Request.Handler.WaitUntilReady ();
+
+					var ret = await Task.WhenAny (readyTask, timeoutTask);
+					if (ret == timeoutTask)
+						throw ctx.AssertFail ("Timeout!");
+
+					await WriteAsync (ConnectionHandler.GetLargeTextBuffer (50));
+				}
+			}
+
+			public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
+			{
+				ctx.LogDebug (4, $"{ME} WRITE BODY");
+
+				switch (TestRunner.EffectiveType) {
 				case HttpInstrumentationTestType.ReadTimeout:
 					await writer.WriteAsync (ConnectionHandler.TheQuickBrownFox).ConfigureAwait (false);
 					await writer.FlushAsync ();
@@ -1165,7 +1241,7 @@ namespace Xamarin.WebTests.TestRunners
 					if (ret == timeoutTask)
 						throw ctx.AssertFail ("Timeout!");
 
-					await writer.WriteAsync (ConnectionHandler.GetLargeTextBuffer (50));
+					await writer.WriteAsync (ConnectionHandler.GetLargeText (50));
 				}
 			}
 		}
@@ -1214,7 +1290,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			public override HttpStatusCode Status => Response.StatusCode;
 
-			public override Exception Error {
+			public sealed override Exception Error {
 				get;
 			}
 
@@ -1353,6 +1429,12 @@ namespace Xamarin.WebTests.TestRunners
 					request.SetContentType ("application/x-www-form-urlencoded");
 					request.Content = new FormContent (("foo", "bar"), ("hello", "world"), ("escape", "this needs % escaping"));
 					break;
+
+				case HttpInstrumentationTestType.EntityTooBig:
+					request.Method = "POST";
+					request.SetContentType ("text/plain");
+					request.SetContentLength (request.Content.Length);
+					break;
 				}
 
 				base.ConfigureRequest (request, uri);
@@ -1472,6 +1554,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.PutChunked:
 				case HttpInstrumentationTestType.PutChunkDontCloseRequest:
 				case HttpInstrumentationTestType.ServerAbortsRedirect:
+				case HttpInstrumentationTestType.EntityTooBig:
 					break;
 
 				case HttpInstrumentationTestType.PostChunked:
@@ -1494,12 +1577,12 @@ namespace Xamarin.WebTests.TestRunners
 				switch (TestRunner.EffectiveType) {
 				case HttpInstrumentationTestType.LargeHeader:
 					response = new HttpResponse (HttpStatusCode.OK, Content);
-					response.AddHeader ("LargeTest", ConnectionHandler.GetLargeTextBuffer (100));
+					response.AddHeader ("LargeTest", ConnectionHandler.GetLargeText (100));
 					return response;
 
 				case HttpInstrumentationTestType.LargeHeader2:
 					response = new HttpResponse (HttpStatusCode.OK, Content);
-					response.AddHeader ("LargeTest", ConnectionHandler.GetLargeTextBuffer (100));
+					response.AddHeader ("LargeTest", ConnectionHandler.GetLargeText (100));
 					response.WriteAsBlob = true;
 					return response;
 

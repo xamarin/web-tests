@@ -1,5 +1,5 @@
 ﻿//
-// HttpInstrumentationTestType.cs
+// HttpClientTestParametersAttribute.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,56 +24,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Collections.Generic;
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.TestFramework
 {
-	public enum HttpInstrumentationTestType
-	{
-		Simple,
-		InvalidDataDuringHandshake,
-		AbortDuringHandshake,
-		ParallelRequests,
-		ThreeParallelRequests,
-		ParallelRequestsSomeQueued,
-		ManyParallelRequests,
-		ManyParallelRequestsStress,
-		SimpleQueuedRequest,
-		CancelQueuedRequest,
-		CancelMainWhileQueued,
-		SimpleNtlm,
-		NtlmWhileQueued,
-		ReuseConnection,
-		SimplePost,
-		SimpleRedirect,
-		PostRedirect,
-		PostNtlm,
-		NtlmChunked,
-		ReuseConnection2,
-		Get404,
-		CloseIdleConnection,
-		NtlmInstrumentation,
-		NtlmClosesConnection,
-		NtlmReusesConnection,
-		ParallelNtlm,
-		LargeHeader,
-		LargeHeader2,
-		SendResponseAsBlob,
-		ReuseAfterPartialRead,
-		CustomConnectionGroup,
-		ReuseCustomConnectionGroup,
-		CloseCustomConnectionGroup,
-		CloseRequestStream,
-		ReadTimeout,
-		AbortResponse,
-		RedirectOnSameConnection,
-		RedirectNoReuse,
-		RedirectNoLength,
-		PutChunked,
-		PutChunkDontCloseRequest,
-		ServerAbortsRedirect,
-		ServerAbortsPost,
-		PostChunked,
-		EntityTooBig,
+	using ConnectionFramework;
+	using TestRunners;
 
-		MartinTest
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
+	public class HttpClientTestParametersAttribute : TestParameterAttribute, ITestParameterSource<HttpClientTestParameters>
+	{
+		public HttpClientTestType? Type {
+			get; set;
+		}
+
+		public HttpClientTestParametersAttribute (string filter = null)
+			: base (filter, TestFlags.Browsable | TestFlags.ContinueOnError)
+		{
+		}
+
+		public HttpClientTestParametersAttribute (HttpClientTestType type)
+			: base (null, TestFlags.Browsable | TestFlags.ContinueOnError)
+		{
+			Type = type;
+		}
+
+		public IEnumerable<HttpClientTestParameters> GetParameters (TestContext ctx, string filter)
+		{
+			if (filter != null)
+				throw new NotImplementedException ();
+
+			var category = ctx.GetParameter<ConnectionTestCategory> ();
+
+			if (Type != null) {
+				yield return HttpClientTestRunner.GetParameters (ctx, category, Type.Value);
+				yield break;
+			}
+
+			foreach (var type in HttpClientTestRunner.GetTestTypes (ctx, category))
+				yield return HttpClientTestRunner.GetParameters (ctx, category, type);
+		}
 	}
 }

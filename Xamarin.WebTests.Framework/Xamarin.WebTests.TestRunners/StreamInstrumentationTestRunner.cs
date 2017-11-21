@@ -931,7 +931,7 @@ namespace Xamarin.WebTests.TestRunners
 			int totalBytes = 0;
 
 			if (EffectiveType == StreamInstrumentationType.ServerRequestsShutdownDuringWrite) {
-				var largeBuffer = ConnectionHandler.GetLargeTextBuffer (512);
+				var largeBuffer = ConnectionHandler.GetLargeText (512);
 				var largeBlob = Encoding.UTF8.GetBytes (largeBuffer);
 
 				totalBytes = largeBlob.Length;

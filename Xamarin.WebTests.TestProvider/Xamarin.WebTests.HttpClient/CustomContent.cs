@@ -1,10 +1,10 @@
 ﻿//
-// HttpContent.cs
+// CustomContent.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,57 +24,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
-using Http = System.Net.Http;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.HttpClient;
 
 namespace Xamarin.WebTests.HttpClient
 {
-	public class HttpContent : IHttpContent
+	using Http = System.Net.Http;
+
+	class CustomContent : Http.HttpContent
 	{
-		readonly Http.HttpContent content;
+		ICustomHttpContent Impl;
 
-		public HttpContent (Http.HttpContent content)
+		public CustomContent (ICustomHttpContent impl)
 		{
-			this.content = content;
+			Impl = impl;
 		}
 
-		public Http.HttpContent Content {
-			get { return content; }
-		}
-
-		public Task<string> ReadAsStringAsync ()
+		protected override Task<Stream> CreateContentReadStreamAsync()
 		{
-			return content.ReadAsStringAsync ();
+			return Impl.CreateContentReadStreamAsync ();
 		}
 
-		public long? ContentLength {
-			get { return content.Headers.ContentLength; }
-			set { content.Headers.ContentLength = value; }
+		protected override Task SerializeToStreamAsync (Stream stream, TransportContext context)
+		{
+			return Impl.SerializeToStreamAsync (stream);
 		}
 
-		public string ContentType {
-			get {
-				var header = content.Headers.ContentType;
-				if (header == null)
-					return null;
-				return header.MediaType;
-			}
-			set {
-				if (value == null) {
-					content.Headers.ContentType = null;
-					return;
-				}
-
-				Http.Headers.MediaTypeHeaderValue contentType;
-				if (!Http.Headers.MediaTypeHeaderValue.TryParse (value, out contentType))
-					throw new InvalidOperationException ();
-				content.Headers.ContentType = contentType;
-			}
+		protected override bool TryComputeLength (out long length)
+		{
+			return Impl.TryComputeLength (out length);
 		}
 	}
 }
-

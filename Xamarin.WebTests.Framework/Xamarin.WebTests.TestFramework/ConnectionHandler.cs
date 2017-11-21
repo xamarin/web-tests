@@ -354,7 +354,7 @@ namespace Xamarin.WebTests.TestFramework
 
 		public static readonly StringContent TheQuickBrownFoxContent = new StringContent (TheQuickBrownFox);
 
-		public static string GetLargeTextBuffer (int count)
+		public static string GetLargeText (int count)
 		{
 			var sb = new StringBuilder ();
 			for (int i = 0; i < count; i++) {
@@ -365,9 +365,14 @@ namespace Xamarin.WebTests.TestFramework
 			return sb.ToString ();
 		}
 
+		public static byte[] GetLargeTextBuffer (int count)
+		{
+			return Encoding.UTF8.GetBytes (GetLargeText (count));
+		}
+
 		public static StringContent GetLargeStringContent (int count)
 		{
-			return new StringContent (GetLargeTextBuffer (count));
+			return new StringContent (GetLargeText (count));
 		}
 
 		public static ChunkedContent GetLargeChunkedContent (int count)

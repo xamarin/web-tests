@@ -45,6 +45,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		readonly IHttpClientProvider Provider;
 		HttpMethod method = HttpMethod.Get;
 		string contentType;
+		string obscureMethod;
 		long? contentLength;
 		bool sendChunked;
 
@@ -59,6 +60,8 @@ namespace Xamarin.WebTests.HttpHandlers
 		public override string Method {
 			get { return method.ToString ().ToUpper (); }
 			set {
+				if (string.Equals (value, obscureMethod))
+					return;
 				switch (value.ToUpper ()) {
 				case "GET":
 					method = HttpMethod.Get;
@@ -76,7 +79,9 @@ namespace Xamarin.WebTests.HttpHandlers
 					method = HttpMethod.Delete;
 					break;
 				default:
-					throw new NotImplementedException ();
+					method = HttpMethod.Custom;
+					obscureMethod = value;
+					break;
 				}
 			}
 		}
@@ -135,7 +140,10 @@ namespace Xamarin.WebTests.HttpHandlers
 			var message = Handler.CreateRequestMessage ();
 			message.Method = HttpMethod.Post;
 			message.RequestUri = RequestUri;
-			message.Content = Handler.CreateStringContent (Content.AsString ());
+			if (Content is ICustomHttpContent httpContent)
+				message.SetCustomContent (httpContent);
+			else
+				message.Content = Handler.CreateStringContent (Content.AsString ());
 
 			if (contentLength != null)
 				message.Content.ContentLength = contentLength;
@@ -197,7 +205,10 @@ namespace Xamarin.WebTests.HttpHandlers
 		public override async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var request = Handler.CreateRequestMessage ();
-			request.Method = method;
+			if (obscureMethod != null)
+				request.SetObscureMethod (obscureMethod);
+			else
+				request.Method = method;
 			request.RequestUri = RequestUri;
 
 			if (sendChunked)

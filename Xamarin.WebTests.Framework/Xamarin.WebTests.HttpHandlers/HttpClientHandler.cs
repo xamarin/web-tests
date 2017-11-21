@@ -193,7 +193,7 @@ namespace Xamarin.WebTests.HttpHandlers
 				request.Content = Content;
 				break;
 			case HttpClientOperationType.SendAsync:
-				request.Method = "POST";
+				request.Method = ObscureHttpMethod ?? "POST";
 				request.Content = Content;
 				break;
 			case HttpClientOperationType.SendAsyncChunked:

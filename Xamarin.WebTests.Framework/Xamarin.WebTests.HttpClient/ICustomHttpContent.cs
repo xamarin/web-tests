@@ -1,10 +1,10 @@
 ﻿//
-// HttpContent.cs
+// ICustomHttpContent.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,57 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Http = System.Net.Http;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.HttpClient;
 
 namespace Xamarin.WebTests.HttpClient
 {
-	public class HttpContent : IHttpContent
+	public interface ICustomHttpContent
 	{
-		readonly Http.HttpContent content;
+		Task<Stream> CreateContentReadStreamAsync ();
 
-		public HttpContent (Http.HttpContent content)
-		{
-			this.content = content;
-		}
+		Task SerializeToStreamAsync (Stream stream);
 
-		public Http.HttpContent Content {
-			get { return content; }
-		}
-
-		public Task<string> ReadAsStringAsync ()
-		{
-			return content.ReadAsStringAsync ();
-		}
-
-		public long? ContentLength {
-			get { return content.Headers.ContentLength; }
-			set { content.Headers.ContentLength = value; }
-		}
-
-		public string ContentType {
-			get {
-				var header = content.Headers.ContentType;
-				if (header == null)
-					return null;
-				return header.MediaType;
-			}
-			set {
-				if (value == null) {
-					content.Headers.ContentType = null;
-					return;
-				}
-
-				Http.Headers.MediaTypeHeaderValue contentType;
-				if (!Http.Headers.MediaTypeHeaderValue.TryParse (value, out contentType))
-					throw new InvalidOperationException ();
-				content.Headers.ContentType = contentType;
-			}
-		}
+		bool TryComputeLength (out long length);
 	}
 }
-

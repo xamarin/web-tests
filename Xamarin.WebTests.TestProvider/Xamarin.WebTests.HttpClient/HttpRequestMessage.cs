@@ -108,6 +108,11 @@ namespace Xamarin.WebTests.HttpClient
 			set { Content = (HttpContent)value; }
 		}
 
+		public void SetCustomContent (ICustomHttpContent content)
+		{
+			Content = new HttpContent (new CustomContent (content));
+		}
+
 		public void SendChunked ()
 		{
 			message.Headers.TransferEncodingChunked = true;
