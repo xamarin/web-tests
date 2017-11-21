@@ -445,14 +445,13 @@ namespace Xamarin.WebTests.TestRunners
 				message.TransferEncoding = "chunked";
 				message.ContentType = "text/plain";
 			}
-			public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
+			public override async Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 			{
-				writer.AutoFlush = true;
 				await Task.Delay (500).ConfigureAwait (false);
-				await writer.WriteAsync ("0");
+				await stream.WriteAsync ("0");
 				await Task.Delay (500);
-				await writer.WriteAsync ("4\r\n");
-				await writer.WriteAsync ("AAAA\r\n0\r\n\r\n");
+				await stream.WriteAsync ("4\r\n");
+				await stream.WriteAsync ("AAAA\r\n0\r\n\r\n");
 			}
 			#endregion
 		}
@@ -489,10 +488,9 @@ namespace Xamarin.WebTests.TestRunners
 			{
 			}
 
-			public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
+			public override async Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 			{
-				writer.AutoFlush = true;
-				await writer.WriteAsync (AsString ()).ConfigureAwait (false);
+				await stream.WriteAsync (AsString (), cancellationToken).ConfigureAwait (false);
 			}
 
 			public override HttpContent RemoveTransferEncoding()

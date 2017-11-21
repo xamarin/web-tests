@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Xamarin.AsyncTests;
@@ -58,15 +59,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public abstract void AddHeadersTo (HttpMessage message);
 
-		public virtual async Task WriteToAsync (TestContext ctx, Stream stream)
-		{
-			using (var writer = new StreamWriter (stream)) {
-				await WriteToAsync (ctx, writer).ConfigureAwait (false);
-				await writer.FlushAsync ();
-			}
-		}
-
-		public abstract Task WriteToAsync (TestContext ctx, StreamWriter writer);
+		public abstract Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken);
 
 		public static bool IsNullOrEmpty (HttpContent content)
 		{

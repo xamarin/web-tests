@@ -36,6 +36,8 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
+	using TestFramework;
+
 	public class HttpRequest : HttpMessage
 	{
 		internal HttpRequest (HttpProtocol protocol, string method, string path, HttpStreamReader reader)
@@ -100,19 +102,18 @@ namespace Xamarin.WebTests.HttpFramework
 
 		internal HttpStreamReader Reader => reader;
 
-		public async Task Write (TestContext ctx, StreamWriter writer, CancellationToken cancellationToken)
+		public async Task Write (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			var header = string.Format ("{0} {1} {2}\r\n", Method, Path, ProtocolToString (Protocol));
-			await writer.WriteAsync (header).ConfigureAwait (false);
+			await stream.WriteAsync ($"{Method} {Path} {ProtocolToString (Protocol)}\r\n", cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			await WriteHeaders (writer, cancellationToken);
+			await WriteHeaders (stream, cancellationToken);
 
 			if (Body != null) {
 				cancellationToken.ThrowIfCancellationRequested ();
-				await Body.WriteToAsync (ctx, writer);
+				await Body.WriteToAsync (ctx, stream, cancellationToken);
 			}
 		}
 

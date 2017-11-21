@@ -33,6 +33,8 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpFramework
 {
+	using TestFramework;
+
 	public class RandomContent : HttpContent
 	{
 		public bool SendChunked {
@@ -161,20 +163,20 @@ namespace Xamarin.WebTests.HttpFramework
 			return this;
 		}
 
-		public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
+		public override async Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
 			if (!SendChunked) {
-				var chunk = ConvertToString (chunks [0]);
-				await writer.WriteAsync (chunk);
-				await writer.FlushAsync ();
+				var chunk = ConvertToString (chunks[0]);
+				await stream.WriteAsync (chunk, cancellationToken).ConfigureAwait (false);
+				await stream.FlushAsync ();
 				return;
 			}
 
 			for (int i = 0; i < chunks.Length; i++) {
 				var chunk = ConvertToString (chunks [i]);
-				await writer.WriteAsync (string.Format ("{0:x}\r\n{1}\r\n", chunk.Length, chunk));
+				await stream.WriteAsync ($"{chunk.Length:x}\r\n{chunk}\r\n", cancellationToken).ConfigureAwait (false);
 			}
-			await writer.WriteAsync ("0\r\n\r\n\r\n");
+			await stream.WriteAsync ("0\r\n\r\n\r\n", cancellationToken).ConfigureAwait (false);
 		}
 
 		protected override bool IsNullOrEmpty ()

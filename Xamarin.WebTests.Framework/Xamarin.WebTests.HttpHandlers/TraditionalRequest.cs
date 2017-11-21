@@ -108,7 +108,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		protected virtual async Task WriteBody (TestContext ctx, CancellationToken cancellationToken)
 		{
 			using (var stream = await RequestExt.GetRequestStreamAsync ().ConfigureAwait (false)) {
-				await Content.WriteToAsync (ctx, stream);
+				await Content.WriteToAsync (ctx, stream, cancellationToken);
 			}
 		}
 
@@ -160,7 +160,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			try {
 				if (Content != null) {
 					using (var stream = RequestExt.GetRequestStream ())
-						Content.WriteToAsync (ctx, stream).Wait ();
+						Content.WriteToAsync (ctx, stream, CancellationToken.None).Wait ();
 				}
 
 				var response = RequestExt.GetResponse ();

@@ -36,6 +36,7 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.HttpOperations
 {
 	using ConnectionFramework;
+	using TestFramework;
 	using HttpFramework;
 	using HttpHandlers;
 
@@ -230,10 +231,10 @@ namespace Xamarin.WebTests.HttpOperations
 			{
 				message.ContentLength = 65536;
 			}
-			public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
+			public override async Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 			{
-				await writer.WriteAsync ("A");
-				await writer.FlushAsync ();
+				await stream.WriteAsync ("A", cancellationToken).ConfigureAwait (false);
+				await stream.FlushAsync ();
 			}
 			#endregion
 		}
@@ -270,17 +271,16 @@ namespace Xamarin.WebTests.HttpOperations
 				message.TransferEncoding = "chunked";
 				message.ContentType = "text/plain";
 			}
-			public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
+			public override async Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 			{
-				writer.AutoFlush = true;
-				await writer.WriteAsync ("4\r\n");
-				await writer.WriteAsync ("AAAA\r\n");
+				await stream.WriteAsync ("4\r\n");
+				await stream.WriteAsync ("AAAA\r\n");
 				if (Type == ChunkedOperationType.BeginEndAsyncRead || Type == ChunkedOperationType.BeginEndAsyncReadNoWait)
 					await Task.Delay (50);
 				else if (Type == ChunkedOperationType.SyncReadTimeout)
 					await Task.Delay (5000);
-				await writer.WriteAsync ("8\r\n");
-				await writer.WriteAsync ("BBBBBBBB\r\n");
+				await stream.WriteAsync ("8\r\n");
+				await stream.WriteAsync ("BBBBBBBB\r\n");
 
 				switch (Type) {
 				case ChunkedOperationType.SyncRead:
@@ -288,11 +288,11 @@ namespace Xamarin.WebTests.HttpOperations
 				case ChunkedOperationType.NormalChunk:
 				case ChunkedOperationType.BeginEndAsyncRead:
 				case ChunkedOperationType.BeginEndAsyncReadNoWait:
-					await writer.WriteAsync ("0\r\n\r\n");
+					await stream.WriteAsync ("0\r\n\r\n");
 					break;
 				case ChunkedOperationType.TruncatedChunk:
-					await writer.WriteAsync ("8\r\n");
-					await writer.WriteAsync ("B");
+					await stream.WriteAsync ("8\r\n");
+					await stream.WriteAsync ("B");
 					break;
 				case ChunkedOperationType.MissingTrailer:
 					break;

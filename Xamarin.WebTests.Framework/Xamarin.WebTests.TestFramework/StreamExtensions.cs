@@ -1,5 +1,5 @@
 ﻿//
-// FormContent.cs
+// StreamExtensions.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -26,49 +26,33 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.HttpFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	using TestFramework;
-
-	public class FormContent : HttpContent
+	public static class StreamExtensions
 	{
-		List<(string Key, string Value)> elements;
-
-		public FormContent (params (string,string)[] args)
+		public static Task WriteAsync (this Stream stream, byte[] buffer)
 		{
-			elements = new List<(string, string)> ();
-			elements.AddRange (args);
+			return stream.WriteAsync (buffer, 0, buffer.Length);
 		}
 
-		public override bool HasLength => false;
-
-		public override int Length => throw new NotImplementedException ();
-
-		public override void AddHeadersTo (HttpMessage message)
+		public static Task WriteAsync (this Stream stream, byte[] buffer, CancellationToken cancellationToken)
 		{
-			message.ContentType = "application/x-www-form-urlencoded";
+			cancellationToken.ThrowIfCancellationRequested ();
+			return stream.WriteAsync (buffer, 0, buffer.Length, cancellationToken);
 		}
 
-		public override byte[] AsByteArray ()
+		public static Task WriteAsync (this Stream stream, string text)
 		{
-			return Encoding.UTF8.GetBytes (String.Join ("&", elements.Select (p => p.Key + "=" + Uri.EscapeDataString (p.Value))));
+			return stream.WriteAsync (Encoding.UTF8.GetBytes (text));
 		}
 
-		public override string AsString ()
+		public static Task WriteAsync (this Stream stream, string text, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException ();
-		}
-
-		public override async Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken)
-		{
-			var bytes = AsByteArray ();
-			await stream.WriteAsync (bytes, cancellationToken).ConfigureAwait (false);
+			cancellationToken.ThrowIfCancellationRequested ();
+			return stream.WriteAsync (Encoding.UTF8.GetBytes (text), cancellationToken);
 		}
 	}
 }

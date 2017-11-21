@@ -33,6 +33,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
+	using TestFramework;
 	using Server;
 
 	public class HttpResponse : HttpMessage
@@ -237,51 +238,36 @@ namespace Xamarin.WebTests.HttpFramework
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			StreamWriter writer = null;
-			if (!WriteAsBlob) {
-				writer = new StreamWriter (stream, new ASCIIEncoding (), 1024, true);
-				writer.AutoFlush = true;
-			}
+			var message = StatusMessage ?? ((HttpStatusCode)StatusCode).ToString ();
+			var headerLine = $"{ProtocolToString (Protocol)} {(int)StatusCode} {message}\r\n";
 
-			try {
-				var message = StatusMessage ?? ((HttpStatusCode)StatusCode).ToString ();
-				var headerLine = $"{ProtocolToString (Protocol)} {(int)StatusCode} {message}\r\n";
+			bool bodyWritten = false;
 
-				bool bodyWritten = false;
+			if (WriteAsBlob) {
+				var sb = new StringBuilder ();
+				sb.Append (headerLine);
+				foreach (var entry in Headers)
+					sb.Append ($"{entry.Key}: {entry.Value}\r\n");
+				sb.Append ("\r\n");
 
-				if (WriteAsBlob) {
-					var sb = new StringBuilder ();
-					sb.Append (headerLine);
-					foreach (var entry in Headers)
-						sb.Append ($"{entry.Key}: {entry.Value}\r\n");
-					sb.Append ("\r\n");
-
-					if (Body is StringContent stringContent) {
-						sb.Append (stringContent.AsString ());
-						bodyWritten = true;
-					}
-
-					var blob = Encoding.UTF8.GetBytes (sb.ToString ());
-					await stream.WriteAsync (blob, 0, blob.Length).ConfigureAwait (false);
-					await stream.FlushAsync ();
-				} else {
-					await writer.WriteAsync (headerLine).ConfigureAwait (false);
-					await WriteHeaders (writer, cancellationToken);
+				if (Body is StringContent stringContent) {
+					sb.Append (stringContent.AsString ());
+					bodyWritten = true;
 				}
 
-				if (!bodyWritten && Body != null) {
-					cancellationToken.ThrowIfCancellationRequested ();
-					if (writer == null) {
-						writer = new StreamWriter (stream, new ASCIIEncoding (), 1024, true);
-						writer.AutoFlush = true;
-					}
-					await Body.WriteToAsync (ctx, writer);
-				}
+				var blob = Encoding.UTF8.GetBytes (sb.ToString ());
+				await stream.WriteAsync (blob, 0, blob.Length).ConfigureAwait (false);
 				await stream.FlushAsync ();
-			} finally {
-				if (writer != null)
-					writer.Dispose ();
+			} else {
+				await stream.WriteAsync (headerLine, cancellationToken).ConfigureAwait (false);
+				await WriteHeaders (stream, cancellationToken);
 			}
+
+			if (!bodyWritten && Body != null) {
+				cancellationToken.ThrowIfCancellationRequested ();
+				await Body.WriteToAsync (ctx, stream, cancellationToken);
+			}
+			await stream.FlushAsync ();
 		}
 
 		public static HttpResponse CreateSimple (HttpStatusCode status, string body = null)

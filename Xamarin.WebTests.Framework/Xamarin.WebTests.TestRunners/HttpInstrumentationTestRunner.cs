@@ -979,7 +979,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.PutChunkDontCloseRequest:
 					var stream = await RequestExt.GetRequestStreamAsync ().ConfigureAwait (false);
 					try {
-						await Content.WriteToAsync (ctx, stream).ConfigureAwait (false);
+						await Content.WriteToAsync (ctx, stream, cancellationToken).ConfigureAwait (false);
 						await stream.FlushAsync ();
 					} finally {
 						if (TestRunner.EffectiveType == HttpInstrumentationTestType.PutChunked)
@@ -1143,7 +1143,7 @@ namespace Xamarin.WebTests.TestRunners
 				throw new NotImplementedException ();
 			}
 
-			public override async Task WriteToAsync (TestContext ctx, Stream stream)
+			public override async Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 			{
 				ctx.LogDebug (4, $"{ME} WRITE BODY");
 
@@ -1199,49 +1199,6 @@ namespace Xamarin.WebTests.TestRunners
 						throw ctx.AssertFail ("Timeout!");
 
 					await WriteAsync (ConnectionHandler.GetLargeTextBuffer (50));
-				}
-			}
-
-			public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
-			{
-				ctx.LogDebug (4, $"{ME} WRITE BODY");
-
-				switch (TestRunner.EffectiveType) {
-				case HttpInstrumentationTestType.ReadTimeout:
-					await writer.WriteAsync (ConnectionHandler.TheQuickBrownFox).ConfigureAwait (false);
-					await writer.FlushAsync ();
-					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
-					break;
-
-				case HttpInstrumentationTestType.AbortResponse:
-					await writer.WriteAsync (ConnectionHandler.TheQuickBrownFox).ConfigureAwait (false);
-					await writer.FlushAsync ();
-					await Task.Delay (500).ConfigureAwait (false);
-					TestRunner.currentOperation.Request.Abort ();
-					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
-					break;
-
-				case HttpInstrumentationTestType.PostChunked:
-					await HandlePostChunked ().ConfigureAwait (false);
-					break;
-
-				default:
-					throw ctx.AssertFail (TestRunner.EffectiveType);
-				}
-
-				async Task HandlePostChunked ()
-				{
-					await writer.WriteAsync (ConnectionHandler.TheQuickBrownFox).ConfigureAwait (false);
-					await writer.FlushAsync ();
-
-					var timeoutTask = Task.Delay (1500);
-					var readyTask = Request.Handler.WaitUntilReady ();
-
-					var ret = await Task.WhenAny (readyTask, timeoutTask);
-					if (ret == timeoutTask)
-						throw ctx.AssertFail ("Timeout!");
-
-					await writer.WriteAsync (ConnectionHandler.GetLargeText (50));
 				}
 			}
 		}

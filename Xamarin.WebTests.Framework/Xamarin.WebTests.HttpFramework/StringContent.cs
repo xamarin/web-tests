@@ -32,6 +32,8 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
+	using TestFramework;
+
 	public class StringContent : HttpContent
 	{
 		string content;
@@ -93,24 +95,11 @@ namespace Xamarin.WebTests.HttpFramework
 				message.ContentType = "text/plain";
 		}
 
-		internal static byte[] GetBytes (string format, params object[] args)
-		{
-			var text = string.Format (format, args);
-			return new ASCIIEncoding ().GetBytes (text);
-		}
-
-		public override async Task WriteToAsync (TestContext ctx, Stream stream)
+		public override async Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
 			if (string.IsNullOrEmpty (content))
 				return;
-			var bytes = GetBytes (content);
-			await stream.WriteAsync (bytes, 0, bytes.Length).ConfigureAwait (false);
-		}
-
-		public override async Task WriteToAsync (TestContext ctx, StreamWriter writer)
-		{
-			if (!string.IsNullOrEmpty (content))
-				await writer.WriteAsync (content);
+			await stream.WriteAsync (content, cancellationToken).ConfigureAwait (false);
 		}
 	}
 }

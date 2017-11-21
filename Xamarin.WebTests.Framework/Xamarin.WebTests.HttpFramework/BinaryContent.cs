@@ -82,9 +82,9 @@ namespace Xamarin.WebTests.HttpFramework
 			return this;
 		}
 
-		public override Task WriteToAsync (TestContext ctx, StreamWriter writer)
+		public override Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
-			throw new NotSupportedException ();
+			throw new NotImplementedException();
 		}
 
 		protected override bool IsNullOrEmpty ()

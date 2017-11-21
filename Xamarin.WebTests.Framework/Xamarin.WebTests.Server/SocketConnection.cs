@@ -178,12 +178,9 @@ namespace Xamarin.WebTests.Server
 			return HttpResponse.Read (ctx, reader, cancellationToken);
 		}
 
-		internal override async Task WriteRequest (TestContext ctx, HttpRequest request, CancellationToken cancellationToken)
+		internal override Task WriteRequest (TestContext ctx, HttpRequest request, CancellationToken cancellationToken)
 		{
-			using (var writer = new StreamWriter (Stream, new ASCIIEncoding (), 1024, true)) {
-				writer.AutoFlush = true;
-				await request.Write (ctx, writer, cancellationToken).ConfigureAwait (false);
-			}
+			return request.Write (ctx, Stream, cancellationToken);
 		}
 
 		internal override Task WriteResponse (TestContext ctx, HttpResponse response, CancellationToken cancellationToken)

@@ -175,7 +175,7 @@ namespace Xamarin.WebTests.HttpOperations
 
 				case WebClientOperationType.OpenWriteTaskAsync:
 					using (var stream = await Client.OpenWriteTaskAsync (Uri, Method).ConfigureAwait (false))
-						await Operation.Content.WriteToAsync (ctx, stream);
+						await Operation.Content.WriteToAsync (ctx, stream, cancellationToken);
 					return new SimpleResponse (this, HttpStatusCode.OK, null);
 
 				case WebClientOperationType.UploadValuesTaskAsync:

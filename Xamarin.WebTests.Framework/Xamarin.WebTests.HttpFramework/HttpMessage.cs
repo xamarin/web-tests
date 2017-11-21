@@ -35,6 +35,8 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
+	using TestFramework;
+
 	public enum HttpProtocol {
 		Http10,
 		Http11,
@@ -191,14 +193,13 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		protected async Task WriteHeaders (StreamWriter writer, CancellationToken cancellationToken)
+		protected async Task WriteHeaders (Stream stream, CancellationToken cancellationToken)
 		{
-			foreach (var entry in Headers) {
-				cancellationToken.ThrowIfCancellationRequested ();
-				await writer.WriteAsync (string.Format ("{0}: {1}\r\n", entry.Key, entry.Value));
-			}
 			cancellationToken.ThrowIfCancellationRequested ();
-			await writer.WriteAsync ("\r\n");
+			foreach (var entry in Headers) {
+				await stream.WriteAsync ($"{entry.Key}: {entry.Value}\r\n", cancellationToken);
+			}
+			await stream.WriteAsync ("\r\n", cancellationToken).ConfigureAwait (false);
 		}
 
 		protected async Task<HttpContent> ReadBody (TestContext ctx, HttpStreamReader reader,
