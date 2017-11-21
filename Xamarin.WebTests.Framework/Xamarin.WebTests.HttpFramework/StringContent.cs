@@ -58,8 +58,11 @@ namespace Xamarin.WebTests.HttpFramework
 				cancellationToken.ThrowIfCancellationRequested ();
 				var len = Math.Min (16384, length - offset);
 				var ret = await reader.ReadAsync (buffer, offset, len, cancellationToken);
-				if (ret <= 0)
+				if (ret <= 0) {
+					if (offset == 0)
+						throw new IOException ("Client didn't send any body.");
 					throw new InvalidOperationException ();
+				}
 
 				offset += ret;
 			}

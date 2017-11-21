@@ -1,4 +1,4 @@
-﻿//
+//
 // HttpOperationFlags.cs
 //
 // Author:
@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.HttpFramework
 		ForceNewConnection		= 256,
 		ServerAbortsRedirection		= 512,
 		ServerUsesNewConnection		= 1024,
-		DontReadRequestBody		= 2048
+		DontReadRequestBody		= 2048,
+		ClientAbortsRequest		= 4096
 	}
 }

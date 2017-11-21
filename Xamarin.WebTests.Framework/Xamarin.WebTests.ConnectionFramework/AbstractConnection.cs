@@ -62,6 +62,17 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return Task.FromResult<object> (null); }
 		}
 
+		internal static async Task WaitWithTimeout (TestContext ctx, int timeout, params Task[] tasks)
+		{
+			var timeoutTask = Task.Delay (timeout);
+			var allTasks = new Task[tasks.Length + 1];
+			allTasks[0] = timeoutTask;
+			tasks.CopyTo (allTasks, 1);
+			var ret = await Task.WhenAny (allTasks).ConfigureAwait (false);
+			if (ret == timeoutTask)
+				throw ctx.AssertFail ("Timeout!");
+		}
+
 		#region ITestInstance implementation
 
 		bool initialized;

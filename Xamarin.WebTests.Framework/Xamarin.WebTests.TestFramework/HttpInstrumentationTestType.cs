@@ -73,6 +73,7 @@ namespace Xamarin.WebTests.TestFramework
 		ServerAbortsPost,
 		PostChunked,
 		EntityTooBig,
+		PostContentLength,
 
 		MartinTest
 	}
