@@ -133,11 +133,15 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.MartinTest:
 				return MartinTests;
 
-			case ConnectionTestCategory.HttpClient:
-				return WorkingTests;
-
 			case ConnectionTestCategory.HttpClientNewWebStack:
 				return NewWebStackTests;
+
+			case ConnectionTestCategory.HttpClient:
+				var list = new List<HttpClientTestType> ();
+				list.AddRange (WorkingTests);
+				if (setup.UsingDotNet || setup.InternalVersion >= 1)
+					list.Add (HttpClientTestType.SendAsyncObscureVerb);
+				return list;
 
 			default:
 				throw ctx.AssertFail (category);

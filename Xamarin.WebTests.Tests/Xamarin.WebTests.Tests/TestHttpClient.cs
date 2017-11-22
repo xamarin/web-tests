@@ -158,6 +158,7 @@ namespace Xamarin.WebTests
 		}
 
 		[AsyncTest]
+		[NewWebStack]
 		public async Task Test31830 (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
 			var handler = new HttpClientHandler ("SendAsyncObscureVerb", HttpClientOperationType.SendAsync);
