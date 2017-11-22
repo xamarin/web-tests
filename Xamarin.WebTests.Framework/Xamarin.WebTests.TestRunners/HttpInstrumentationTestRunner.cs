@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ClientAbortsPost;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.EntityTooBig;
 
 		static readonly (HttpInstrumentationTestType type, HttpInstrumentationTestFlags flags)[] TestRegistration = {
 			(HttpInstrumentationTestType.Simple, HttpInstrumentationTestFlags.Working),
@@ -143,9 +143,9 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpInstrumentationTestType.ServerAbortsRedirect, HttpInstrumentationTestFlags.Unstable),
 			(HttpInstrumentationTestType.ServerAbortsPost, HttpInstrumentationTestFlags.Ignore),
 			(HttpInstrumentationTestType.PostChunked, HttpInstrumentationTestFlags.Working),
-			(HttpInstrumentationTestType.EntityTooBig, HttpInstrumentationTestFlags.Unstable),
+			(HttpInstrumentationTestType.EntityTooBig, HttpInstrumentationTestFlags.NewWebStack),
 			(HttpInstrumentationTestType.PostContentLength, HttpInstrumentationTestFlags.Working),
-			(HttpInstrumentationTestType.ClientAbortsPost, HttpInstrumentationTestFlags.Ignore),
+			(HttpInstrumentationTestType.ClientAbortsPost, HttpInstrumentationTestFlags.NewWebStack),
 		};
 
 		public static IList<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
@@ -302,7 +302,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.EntityTooBig:
 			case HttpInstrumentationTestType.ClientAbortsPost:
 				parameters.ExpectedStatus = HttpStatusCode.InternalServerError;
-				parameters.ExpectedError = WebExceptionStatus.RequestCanceled;
+				parameters.ExpectedError = WebExceptionStatus.AnyErrorStatus;
 				break;
 			default:
 				throw ctx.AssertFail (GetEffectiveType (type));
@@ -1674,6 +1674,7 @@ namespace Xamarin.WebTests.TestRunners
 			                                    WebExceptionStatus expectedError = WebExceptionStatus.Success)
 			{
 				switch (TestRunner.EffectiveType) {
+				case HttpInstrumentationTestType.EntityTooBig:
 				default:
 					return base.CheckResponse (ctx, response, cancellationToken, expectedStatus, expectedError);
 				}
