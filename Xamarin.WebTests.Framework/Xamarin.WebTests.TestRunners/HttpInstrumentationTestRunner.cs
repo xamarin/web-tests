@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.EntityTooBig;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ServerAbortsPost;
 
 		static readonly (HttpInstrumentationTestType type, HttpInstrumentationTestFlags flags)[] TestRegistration = {
 			(HttpInstrumentationTestType.Simple, HttpInstrumentationTestFlags.Working),
@@ -141,7 +141,7 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpInstrumentationTestType.PutChunked, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.PutChunkDontCloseRequest, HttpInstrumentationTestFlags.NewWebStack),
 			(HttpInstrumentationTestType.ServerAbortsRedirect, HttpInstrumentationTestFlags.Unstable),
-			(HttpInstrumentationTestType.ServerAbortsPost, HttpInstrumentationTestFlags.Ignore),
+			(HttpInstrumentationTestType.ServerAbortsPost, HttpInstrumentationTestFlags.NewWebStack),
 			(HttpInstrumentationTestType.PostChunked, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.EntityTooBig, HttpInstrumentationTestFlags.NewWebStack),
 			(HttpInstrumentationTestType.PostContentLength, HttpInstrumentationTestFlags.Working),
