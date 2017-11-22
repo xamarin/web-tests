@@ -96,122 +96,84 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.EntityTooBig;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ClientAbortsPost;
 
-		static readonly HttpInstrumentationTestType[] WorkingTests = {
-			HttpInstrumentationTestType.Simple,
-			HttpInstrumentationTestType.InvalidDataDuringHandshake,
-			HttpInstrumentationTestType.AbortDuringHandshake,
-			HttpInstrumentationTestType.ParallelRequests,
-			HttpInstrumentationTestType.SimpleQueuedRequest,
-			HttpInstrumentationTestType.CancelQueuedRequest,
-			HttpInstrumentationTestType.CancelMainWhileQueued,
-			HttpInstrumentationTestType.SimpleNtlm,
-			HttpInstrumentationTestType.ReuseConnection,
-			HttpInstrumentationTestType.ReuseConnection2,
-			HttpInstrumentationTestType.SimplePost,
-			HttpInstrumentationTestType.SimpleRedirect,
-			HttpInstrumentationTestType.PostRedirect,
-			HttpInstrumentationTestType.PostNtlm,
-			HttpInstrumentationTestType.NtlmChunked,
-			HttpInstrumentationTestType.Get404,
-			HttpInstrumentationTestType.LargeHeader,
-			HttpInstrumentationTestType.LargeHeader2,
-			HttpInstrumentationTestType.SendResponseAsBlob,
-			HttpInstrumentationTestType.ReuseAfterPartialRead,
-			HttpInstrumentationTestType.CustomConnectionGroup,
-			HttpInstrumentationTestType.ReuseCustomConnectionGroup,
-			HttpInstrumentationTestType.CloseCustomConnectionGroup,
-			HttpInstrumentationTestType.CloseRequestStream,
-			HttpInstrumentationTestType.AbortResponse,
-			HttpInstrumentationTestType.RedirectOnSameConnection,
-			HttpInstrumentationTestType.RedirectNoReuse,
-			HttpInstrumentationTestType.PutChunked,
-			HttpInstrumentationTestType.PostChunked,
-			HttpInstrumentationTestType.PostContentLength
-		};
-
-		static readonly HttpInstrumentationTestType[] WorkingTestsNoSSL = {
-			HttpInstrumentationTestType.Simple,
-			HttpInstrumentationTestType.ParallelRequests,
-			HttpInstrumentationTestType.SimpleQueuedRequest,
-			HttpInstrumentationTestType.CancelQueuedRequest,
-			HttpInstrumentationTestType.SimpleNtlm,
-			HttpInstrumentationTestType.ReuseConnection,
-			HttpInstrumentationTestType.ReuseConnection2,
-			HttpInstrumentationTestType.SimplePost,
-			HttpInstrumentationTestType.SimpleRedirect,
-			HttpInstrumentationTestType.PostRedirect,
-			HttpInstrumentationTestType.PostNtlm,
-			HttpInstrumentationTestType.NtlmChunked,
-			HttpInstrumentationTestType.Get404,
-			HttpInstrumentationTestType.LargeHeader,
-			HttpInstrumentationTestType.LargeHeader2,
-			HttpInstrumentationTestType.SendResponseAsBlob,
-			HttpInstrumentationTestType.CustomConnectionGroup,
-			HttpInstrumentationTestType.ReuseCustomConnectionGroup,
-			HttpInstrumentationTestType.CloseCustomConnectionGroup,
-			HttpInstrumentationTestType.CloseRequestStream,
-			HttpInstrumentationTestType.AbortResponse,
-			HttpInstrumentationTestType.RedirectOnSameConnection,
-			HttpInstrumentationTestType.RedirectNoReuse,
-			HttpInstrumentationTestType.PutChunked,
-			HttpInstrumentationTestType.PostContentLength
-		};
-
-		static readonly HttpInstrumentationTestType[] NewWebStackTests = {
-			HttpInstrumentationTestType.NtlmInstrumentation,
-			HttpInstrumentationTestType.CloseIdleConnection,
-			HttpInstrumentationTestType.ReadTimeout,
-			HttpInstrumentationTestType.ParallelNtlm,
-			HttpInstrumentationTestType.NtlmClosesConnection,
-			HttpInstrumentationTestType.NtlmReusesConnection,
-			HttpInstrumentationTestType.PutChunkDontCloseRequest,
-			HttpInstrumentationTestType.EntityTooBig
-		};
-
-		static readonly HttpInstrumentationTestType[] UnstableTests = {
-			HttpInstrumentationTestType.RedirectNoLength,
-			HttpInstrumentationTestType.ServerAbortsRedirect,
-			HttpInstrumentationTestType.NtlmWhileQueued,
-		};
-
-		static readonly HttpInstrumentationTestType[] StressTests = {
-			HttpInstrumentationTestType.ThreeParallelRequests,
-			HttpInstrumentationTestType.ManyParallelRequests,
-			HttpInstrumentationTestType.ParallelRequestsSomeQueued,
-			HttpInstrumentationTestType.ManyParallelRequestsStress
-		};
-
-		static readonly HttpInstrumentationTestType[] MartinTests = {
-			HttpInstrumentationTestType.MartinTest
+		static readonly (HttpInstrumentationTestType type, HttpInstrumentationTestFlags flags)[] TestRegistration = {
+			(HttpInstrumentationTestType.Simple, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.InvalidDataDuringHandshake, HttpInstrumentationTestFlags.WorkingRequireSSL),
+			(HttpInstrumentationTestType.AbortDuringHandshake, HttpInstrumentationTestFlags.WorkingRequireSSL),
+			(HttpInstrumentationTestType.ParallelRequests, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.ThreeParallelRequests, HttpInstrumentationTestFlags.Stress),
+			(HttpInstrumentationTestType.ParallelRequestsSomeQueued, HttpInstrumentationTestFlags.Stress),
+			(HttpInstrumentationTestType.ManyParallelRequests, HttpInstrumentationTestFlags.Stress),
+			(HttpInstrumentationTestType.ManyParallelRequestsStress, HttpInstrumentationTestFlags.Stress),
+			(HttpInstrumentationTestType.SimpleQueuedRequest, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.CancelQueuedRequest, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.CancelMainWhileQueued, HttpInstrumentationTestFlags.WorkingRequireSSL),
+			(HttpInstrumentationTestType.SimpleNtlm, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.NtlmWhileQueued, HttpInstrumentationTestFlags.Unstable),
+			(HttpInstrumentationTestType.ReuseConnection, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.SimplePost, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.SimpleRedirect, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.PostRedirect, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.PostNtlm, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.NtlmChunked, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.ReuseConnection2, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.Get404, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.CloseIdleConnection, HttpInstrumentationTestFlags.NewWebStack),
+			(HttpInstrumentationTestType.NtlmInstrumentation, HttpInstrumentationTestFlags.NewWebStack),
+			(HttpInstrumentationTestType.NtlmClosesConnection, HttpInstrumentationTestFlags.NewWebStack),
+			(HttpInstrumentationTestType.NtlmReusesConnection, HttpInstrumentationTestFlags.NewWebStack),
+			(HttpInstrumentationTestType.ParallelNtlm, HttpInstrumentationTestFlags.NewWebStack),
+			(HttpInstrumentationTestType.LargeHeader, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.LargeHeader2, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.SendResponseAsBlob, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.ReuseAfterPartialRead, HttpInstrumentationTestFlags.WorkingRequireSSL),
+			(HttpInstrumentationTestType.CustomConnectionGroup, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.ReuseCustomConnectionGroup, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.CloseCustomConnectionGroup, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.CloseRequestStream, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.ReadTimeout, HttpInstrumentationTestFlags.NewWebStack),
+			(HttpInstrumentationTestType.AbortResponse, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.RedirectOnSameConnection, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.RedirectNoReuse, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.RedirectNoLength, HttpInstrumentationTestFlags.Unstable),
+			(HttpInstrumentationTestType.PutChunked, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.PutChunkDontCloseRequest, HttpInstrumentationTestFlags.NewWebStack),
+			(HttpInstrumentationTestType.ServerAbortsRedirect, HttpInstrumentationTestFlags.Unstable),
+			(HttpInstrumentationTestType.ServerAbortsPost, HttpInstrumentationTestFlags.Ignore),
+			(HttpInstrumentationTestType.PostChunked, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.EntityTooBig, HttpInstrumentationTestFlags.Unstable),
+			(HttpInstrumentationTestType.PostContentLength, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.ClientAbortsPost, HttpInstrumentationTestFlags.Ignore),
 		};
 
 		public static IList<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
-			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+			if (category == ConnectionTestCategory.MartinTest)
+				return new[] { MartinTest };
 
-			switch (category) {
-			case ConnectionTestCategory.MartinTest:
-				return MartinTests;
+			return TestRegistration.Where (t => Filter (t.flags)).Select (t => t.type).ToList ();
 
-			case ConnectionTestCategory.HttpInstrumentation:
-				return WorkingTests;
-
-			case ConnectionTestCategory.HttpInstrumentationNoSSL:
-				return WorkingTestsNoSSL;
-
-			case ConnectionTestCategory.HttpInstrumentationStress:
-				return StressTests;
-
-			case ConnectionTestCategory.HttpInstrumentationNewWebStack:
-				return NewWebStackTests;
-
-			case ConnectionTestCategory.HttpInstrumentationExperimental:
-				return UnstableTests;
-
-			default:
-				throw ctx.AssertFail (category);
+			bool Filter (HttpInstrumentationTestFlags flags)
+			{
+				switch (category) {
+				case ConnectionTestCategory.MartinTest:
+					return false;
+				case ConnectionTestCategory.HttpInstrumentation:
+					return flags == HttpInstrumentationTestFlags.Working ||
+						flags == HttpInstrumentationTestFlags.WorkingRequireSSL;
+				case ConnectionTestCategory.HttpInstrumentationNoSSL:
+					return flags == HttpInstrumentationTestFlags.Working;
+				case ConnectionTestCategory.HttpInstrumentationStress:
+					return flags == HttpInstrumentationTestFlags.Stress;
+				case ConnectionTestCategory.HttpInstrumentationNewWebStack:
+					return flags == HttpInstrumentationTestFlags.NewWebStack;
+				case ConnectionTestCategory.HttpInstrumentationExperimental:
+					return flags == HttpInstrumentationTestFlags.Unstable;
+				default:
+					throw ctx.AssertFail (category);
+				}
 			}
 		}
 
@@ -338,6 +300,7 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ExpectedError = WebExceptionStatus.ProtocolError;
 				break;
 			case HttpInstrumentationTestType.EntityTooBig:
+			case HttpInstrumentationTestType.ClientAbortsPost:
 				parameters.ExpectedStatus = HttpStatusCode.InternalServerError;
 				parameters.ExpectedError = WebExceptionStatus.RequestCanceled;
 				break;
@@ -518,6 +481,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.PostChunked:
 				return (new HttpInstrumentationHandler (this, null, null, false), HttpOperationFlags.DontReadRequestBody);
 			case HttpInstrumentationTestType.EntityTooBig:
+			case HttpInstrumentationTestType.ClientAbortsPost:
 				return (new HttpInstrumentationHandler (this, null, null, false),
 					HttpOperationFlags.AbortAfterClientExits | HttpOperationFlags.DontReadRequestBody);
 			case HttpInstrumentationTestType.PostContentLength:
@@ -692,6 +656,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.PostChunked:
 				case HttpInstrumentationTestType.EntityTooBig:
 				case HttpInstrumentationTestType.PostContentLength:
+				case HttpInstrumentationTestType.ClientAbortsPost:
 					return new HttpInstrumentationRequest (InstrumentationHandler, uri);
 				default:
 					return new TraditionalRequest (uri);
@@ -978,6 +943,7 @@ namespace Xamarin.WebTests.TestRunners
 					break;
 				case HttpInstrumentationTestType.EntityTooBig:
 				case HttpInstrumentationTestType.PostContentLength:
+				case HttpInstrumentationTestType.ClientAbortsPost:
 					Content = new HttpInstrumentationContent (TestRunner, this);
 					Method = "POST";
 					break;
@@ -996,6 +962,9 @@ namespace Xamarin.WebTests.TestRunners
 
 				case HttpInstrumentationTestType.PostContentLength:
 					return PostContentLength ();
+
+				case HttpInstrumentationTestType.ClientAbortsPost:
+					return ClientAbortsPost ();
 
 				default:
 					return base.WriteBody (ctx, cancellationToken);
@@ -1027,6 +996,16 @@ namespace Xamarin.WebTests.TestRunners
 					} finally {
 						if (TestRunner.EffectiveType == HttpInstrumentationTestType.PutChunked)
 							stream.Dispose ();
+					}
+				}
+
+				async Task ClientAbortsPost ()
+				{
+					var stream = await RequestExt.GetRequestStreamAsync ().ConfigureAwait (false);
+					try {
+						stream.Dispose ();
+					} catch (Exception ex) {
+						ctx.LogMessage ($"{ME} GOT EX: {ex.Message}");
 					}
 				}
 			}
@@ -1147,6 +1126,7 @@ namespace Xamarin.WebTests.TestRunners
 
 				switch (runner.EffectiveType) {
 				case HttpInstrumentationTestType.EntityTooBig:
+				case HttpInstrumentationTestType.ClientAbortsPost:
 					HasLength = true;
 					Length = 16;
 					break;
@@ -1428,6 +1408,7 @@ namespace Xamarin.WebTests.TestRunners
 
 				case HttpInstrumentationTestType.EntityTooBig:
 				case HttpInstrumentationTestType.PostContentLength:
+				case HttpInstrumentationTestType.ClientAbortsPost:
 					request.Method = "POST";
 					request.SetContentType ("text/plain");
 					request.SetContentLength (request.Content.Length);
@@ -1562,6 +1543,10 @@ namespace Xamarin.WebTests.TestRunners
 					await PostContentLength ().ConfigureAwait (false);
 					break;
 
+				case HttpInstrumentationTestType.ClientAbortsPost:
+					await ClientAbortsPost ().ConfigureAwait (false);
+					return null;
+
 				default:
 					throw ctx.AssertFail (TestRunner.EffectiveType);
 				}
@@ -1635,6 +1620,12 @@ namespace Xamarin.WebTests.TestRunners
 				}
 
 				async Task EntityTooBig ()
+				{
+					await request.ReadHeaders (ctx, cancellationToken).ConfigureAwait (false);
+					await ctx.AssertException<IOException> (() => request.Read (ctx, cancellationToken), "client doesn't send any body");
+				}
+
+				async Task ClientAbortsPost ()
 				{
 					await request.ReadHeaders (ctx, cancellationToken).ConfigureAwait (false);
 					await ctx.AssertException<IOException> (() => request.Read (ctx, cancellationToken), "client doesn't send any body");

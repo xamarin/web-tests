@@ -1,5 +1,5 @@
 ﻿//
-// HttpInstrumentationTestType.cs
+// HttpInstrumentationTestFlags.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,58 +24,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+
 namespace Xamarin.WebTests.TestFramework
 {
-	public enum HttpInstrumentationTestType
+	public enum HttpInstrumentationTestFlags
 	{
-		Simple,
-		InvalidDataDuringHandshake,
-		AbortDuringHandshake,
-		ParallelRequests,
-		ThreeParallelRequests,
-		ParallelRequestsSomeQueued,
-		ManyParallelRequests,
-		ManyParallelRequestsStress,
-		SimpleQueuedRequest,
-		CancelQueuedRequest,
-		CancelMainWhileQueued,
-		SimpleNtlm,
-		NtlmWhileQueued,
-		ReuseConnection,
-		SimplePost,
-		SimpleRedirect,
-		PostRedirect,
-		PostNtlm,
-		NtlmChunked,
-		ReuseConnection2,
-		Get404,
-		CloseIdleConnection,
-		NtlmInstrumentation,
-		NtlmClosesConnection,
-		NtlmReusesConnection,
-		ParallelNtlm,
-		LargeHeader,
-		LargeHeader2,
-		SendResponseAsBlob,
-		ReuseAfterPartialRead,
-		CustomConnectionGroup,
-		ReuseCustomConnectionGroup,
-		CloseCustomConnectionGroup,
-		CloseRequestStream,
-		ReadTimeout,
-		AbortResponse,
-		RedirectOnSameConnection,
-		RedirectNoReuse,
-		RedirectNoLength,
-		PutChunked,
-		PutChunkDontCloseRequest,
-		ServerAbortsRedirect,
-		ServerAbortsPost,
-		PostChunked,
-		EntityTooBig,
-		PostContentLength,
-		ClientAbortsPost,
-
-		MartinTest
+		Working,
+		WorkingRequireSSL,
+		NewWebStack,
+		Stress,
+		Unstable,
+		Ignore
 	}
 }

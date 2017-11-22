@@ -1,4 +1,4 @@
-﻿//
+//
 // HttpClientTestRunner.cs
 //
 // Author:
@@ -98,53 +98,50 @@ namespace Xamarin.WebTests.TestRunners
 
 		const HttpClientTestType MartinTest = HttpClientTestType.RedirectCustomContent;
 
-		static readonly HttpClientTestType[] WorkingTests = {
-			HttpClientTestType.Simple,
-			HttpClientTestType.GetString,
-			HttpClientTestType.PostString,
-			HttpClientTestType.PostStringWithResult,
-			HttpClientTestType.PutString,
-			HttpClientTestType.PutChunked,
-			HttpClientTestType.SendAsyncEmptyBody,
-			HttpClientTestType.SendAsyncGet,
-			HttpClientTestType.SendAsyncHead,
-			HttpClientTestType.SendLargeBlob,
-			HttpClientTestType.SendLargeBlobOddSize,
-			HttpClientTestType.ChunkSizeWithLeadingZero,
-			HttpClientTestType.PutRedirectEmptyBody
-		};
-
-		static readonly HttpClientTestType[] NewWebStackTests = {
-			HttpClientTestType.PutRedirect,
-			HttpClientTestType.PutRedirectKeepAlive,
+		static readonly (HttpClientTestType type, HttpClientTestFlags flags)[] TestRegistration = {
+			(HttpClientTestType.Simple, HttpClientTestFlags.Working),
+			(HttpClientTestType.GetString, HttpClientTestFlags.Working),
+			(HttpClientTestType.PostString, HttpClientTestFlags.Working),
+			(HttpClientTestType.PostStringWithResult, HttpClientTestFlags.Working),
+			(HttpClientTestType.PutString, HttpClientTestFlags.Working),
+			(HttpClientTestType.PutChunked, HttpClientTestFlags.Working),
+			(HttpClientTestType.SendAsyncEmptyBody, HttpClientTestFlags.Working),
+			(HttpClientTestType.SendAsyncGet, HttpClientTestFlags.Working),
+			(HttpClientTestType.SendAsyncHead, HttpClientTestFlags.Working),
+			(HttpClientTestType.SendLargeBlob, HttpClientTestFlags.Working),
+			(HttpClientTestType.SendLargeBlobOddSize, HttpClientTestFlags.Working),
+			(HttpClientTestType.ChunkSizeWithLeadingZero, HttpClientTestFlags.Working),
+			(HttpClientTestType.PutRedirectEmptyBody, HttpClientTestFlags.Working),
+			(HttpClientTestType.PutRedirect, HttpClientTestFlags.NewWebStack),
+			(HttpClientTestType.PutRedirectKeepAlive, HttpClientTestFlags.NewWebStack),
 			// Fixed in PR #6059 / #6068.
-			HttpClientTestType.SendAsyncObscureVerb
-		};
-
-		static readonly HttpClientTestType[] MartinTests = {
-			HttpClientTestType.MartinTest
+			(HttpClientTestType.SendAsyncObscureVerb, HttpClientTestFlags.WorkingMaster),
 		};
 
 		public static IList<HttpClientTestType> GetTestTypes (TestContext ctx, ConnectionTestCategory category)
 		{
+			if (category == ConnectionTestCategory.MartinTest)
+				return new[] { MartinTest };
+
 			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+			return TestRegistration.Where (t => Filter (t.flags)).Select (t => t.type).ToList ();
 
-			switch (category) {
-			case ConnectionTestCategory.MartinTest:
-				return MartinTests;
-
-			case ConnectionTestCategory.HttpClientNewWebStack:
-				return NewWebStackTests;
-
-			case ConnectionTestCategory.HttpClient:
-				var list = new List<HttpClientTestType> ();
-				list.AddRange (WorkingTests);
-				if (setup.UsingDotNet || setup.InternalVersion >= 1)
-					list.Add (HttpClientTestType.SendAsyncObscureVerb);
-				return list;
-
-			default:
-				throw ctx.AssertFail (category);
+			bool Filter (HttpClientTestFlags flags)
+			{
+				switch (category) {
+				case ConnectionTestCategory.MartinTest:
+					return false;
+				case ConnectionTestCategory.HttpClient:
+					if (flags == HttpClientTestFlags.Working)
+						return true;
+					if (setup.UsingDotNet || setup.InternalVersion >= 1)
+						return flags == HttpClientTestFlags.WorkingMaster;
+					return false;
+				case ConnectionTestCategory.HttpClientNewWebStack:
+					return flags == HttpClientTestFlags.NewWebStack;
+				default:
+					throw ctx.AssertFail (category);
+				}
 			}
 		}
 
