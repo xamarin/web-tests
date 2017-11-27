@@ -1,10 +1,10 @@
 ﻿//
-// TraditionalResponse.cs
+// HttpClientResponse.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,38 +25,46 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
+	using ConnectionFramework;
 	using HttpFramework;
+	using HttpClient;
 
-	public sealed class SimpleResponse : Response
+	public sealed class HttpClientResponse : Response
 	{
-		public override HttpStatusCode Status {
+		public IHttpResponseMessage Response {
 			get;
 		}
+
+		public override HttpStatusCode Status => Response.StatusCode;
 
 		public override HttpContent Content {
 			get;
 		}
 
-		public override bool IsSuccess => Error == null;
+		public override bool IsSuccess => Response.IsSuccessStatusCode;
 
 		public override Exception Error {
 			get;
 		}
 
-		public SimpleResponse (Request request, HttpStatusCode code, HttpContent content, Exception error = null)
+		public HttpClientResponse (Request request, IHttpResponseMessage response, Exception error = null)
 			: base (request)
 		{
-			Status = code;
-			Content = content;
+			Response = response;
 			Error = error;
 		}
 
 		public override string ToString ()
 		{
-			return $"[SimpleResponse {Status}]";
+			return $"[HttpClientResponse {Status}]";
 		}
 	}
 }
