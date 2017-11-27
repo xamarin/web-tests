@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
@@ -97,33 +98,31 @@ namespace Xamarin.WebTests.TestRunners
 
 		const HttpStressTestType MartinTest = HttpStressTestType.RepeatedHttpClient;
 
-		static readonly HttpStressTestType[] WorkingTests = {
-		};
-
-		static readonly HttpStressTestType[] UnstableTests = {
-			HttpStressTestType.Simple
-		};
-
-		static readonly HttpStressTestType[] MartinTests = {
-			HttpStressTestType.MartinTest
+		static readonly (HttpStressTestType type, HttpStressTestFlags flags)[] TestRegistration = {
+			(HttpStressTestType.Simple, HttpStressTestFlags.Unstable),
+			(HttpStressTestType.RepeatedHttpClient, HttpStressTestFlags.Ignore),
 		};
 
 		public static IList<HttpStressTestType> GetStressTypes (TestContext ctx, ConnectionTestCategory category)
 		{
+			if (category == ConnectionTestCategory.MartinTest)
+				return new[] { MartinTest };
+
 			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+			return TestRegistration.Where (t => Filter (t.flags)).Select (t => t.type).ToList ();
 
-			switch (category) {
-			case ConnectionTestCategory.HttpStress:
-				return WorkingTests;
-
-			case ConnectionTestCategory.HttpStressExperimental:
-				return UnstableTests;
-
-			case ConnectionTestCategory.MartinTest:
-				return MartinTests;
-
-			default:
-				throw ctx.AssertFail (category);
+			bool Filter (HttpStressTestFlags flags)
+			{
+				switch (category) {
+				case ConnectionTestCategory.MartinTest:
+					return false;
+				case ConnectionTestCategory.HttpStress:
+					return flags == HttpStressTestFlags.Working;
+				case ConnectionTestCategory.HttpStressExperimental:
+					return flags == HttpStressTestFlags.Unstable;
+				default:
+					throw ctx.AssertFail (category);
+				}
 			}
 		}
 
