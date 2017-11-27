@@ -116,9 +116,7 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpClientTestType.PutRedirectKeepAlive, HttpClientTestFlags.NewWebStack),
 			// Fixed in PR #6059 / #6068.
 			(HttpClientTestType.SendAsyncObscureVerb, HttpClientTestFlags.WorkingMaster),
-
-			// Martin
-			(HttpClientTestType.GetError, HttpClientTestFlags.Ignore)
+			(HttpClientTestType.GetError, HttpClientTestFlags.Working)
 		};
 
 		public static IList<HttpClientTestType> GetTestTypes (TestContext ctx, ConnectionTestCategory category)
