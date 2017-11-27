@@ -1,5 +1,5 @@
 ﻿//
-// HttpContent.cs
+// HttpClientContent.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -33,11 +33,11 @@ using Xamarin.WebTests.HttpClient;
 
 namespace Xamarin.WebTests.HttpClient
 {
-	public class HttpContent : IHttpContent
+	class HttpClientContent : IHttpContent
 	{
 		readonly Http.HttpContent content;
 
-		public HttpContent (Http.HttpContent content)
+		public HttpClientContent (Http.HttpContent content)
 		{
 			this.content = content;
 		}

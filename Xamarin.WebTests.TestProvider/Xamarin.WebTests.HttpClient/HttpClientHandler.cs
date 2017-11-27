@@ -33,7 +33,7 @@ using Xamarin.WebTests.HttpClient;
 
 namespace Xamarin.WebTests.HttpClient
 {
-	public class HttpClientHandler : IHttpClientHandler
+	class HttpClientHandler : IHttpClientHandler
 	{
 		readonly Http.HttpClientHandler handler;
 		IWebProxy proxy;

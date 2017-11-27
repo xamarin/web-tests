@@ -28,7 +28,7 @@ namespace Xamarin.WebTests.HttpClient
 {
 	using Http = System.Net.Http;
 
-	class BinaryContent : HttpContent
+	class BinaryContent : HttpClientContent
 	{
 		public BinaryContent (Http.ByteArrayContent content)
 			: base (content)

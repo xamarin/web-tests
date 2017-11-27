@@ -33,10 +33,10 @@ using Xamarin.WebTests.HttpClient;
 
 namespace Xamarin.WebTests.HttpClient
 {
-	public class HttpResponseMessage : IHttpResponseMessage
+	class HttpResponseMessage : IHttpResponseMessage
 	{
 		readonly Http.HttpResponseMessage message;
-		HttpContent content;
+		HttpClientContent content;
 
 		public HttpResponseMessage (Http.HttpResponseMessage message)
 		{

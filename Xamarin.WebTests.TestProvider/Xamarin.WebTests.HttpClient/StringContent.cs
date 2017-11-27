@@ -27,7 +27,7 @@ namespace Xamarin.WebTests.HttpClient
 {
 	using Http = System.Net.Http;
 
-	class StringContent : HttpContent
+	class StringContent : HttpClientContent
 	{
 		public StringContent (Http.StringContent content)
 			: base (content)
