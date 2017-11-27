@@ -82,7 +82,7 @@ namespace Xamarin.WebTests.HttpOperations
 				response = await httpClientRequest.GetString (ctx, cancellationToken);
 				break;
 			case HttpClientOperationType.PostString:
-				response = await httpClientRequest.PostString (ctx, HttpClientHandler.ReturnContent, cancellationToken);
+				response = await httpClientRequest.PostString (ctx, cancellationToken);
 				break;
 			case HttpClientOperationType.PutString:
 				response = await httpClientRequest.PutString (ctx, cancellationToken);
@@ -95,7 +95,7 @@ namespace Xamarin.WebTests.HttpOperations
 				response = await httpClientRequest.PutDataAsync (ctx, cancellationToken);
 				break;
 			case HttpClientOperationType.PostRedirect:
-				response = await httpClientRequest.PostString (ctx, HttpClientHandler.ReturnContent, cancellationToken);
+				response = await httpClientRequest.PostString (ctx, cancellationToken);
 				break;
 			default:
 				throw new InvalidOperationException ();

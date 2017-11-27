@@ -393,7 +393,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpClientTestType.PostString:
 				case HttpClientTestType.PostStringWithResult:
 				case HttpClientTestType.ChunkSizeWithLeadingZero:
-					return httpClientRequest.PostString (ctx, ((PostHandler)Handler).ReturnContent, cancellationToken);
+					return httpClientRequest.PostString (ctx, cancellationToken);
 				case HttpClientTestType.PutString:
 				case HttpClientTestType.PutRedirectEmptyBody:
 				case HttpClientTestType.PutRedirect:
@@ -410,7 +410,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpClientTestType.SendLargeBlobOddSize:
 					return httpClientRequest.PutDataAsync (ctx, cancellationToken);
 				case HttpClientTestType.RedirectCustomContent:
-					return httpClientRequest.PostString (ctx, null, cancellationToken);
+					return httpClientRequest.PostString (ctx, cancellationToken);
 				default:
 					throw ctx.AssertFail (Parent.EffectiveType);
 				}

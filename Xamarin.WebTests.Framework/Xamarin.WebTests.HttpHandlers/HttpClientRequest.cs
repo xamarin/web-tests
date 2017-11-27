@@ -134,8 +134,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			}
 		}
 
-		public async Task<Response> PostString (
-			TestContext ctx, HttpContent returnContent, CancellationToken cancellationToken)
+		public async Task<Response> PostString (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var message = Handler.CreateRequestMessage ();
 			message.Method = HttpMethod.Post;
