@@ -134,34 +134,6 @@ namespace Xamarin.WebTests.HttpHandlers
 			}
 		}
 
-		async Task<Response> ProcessResponse (
-			TestContext ctx, IHttpResponseMessage response, HttpContent returnContent = null)
-		{
-			ctx.Assert (response, Is.Not.Null, "response");
-
-			ctx.LogDebug (3, "GOT RESPONSE: {0}", response.StatusCode);
-
-			if (!response.IsSuccessStatusCode)
-				return new SimpleResponse (this, response.StatusCode, null);
-
-			string body = null;
-			if (response.Content != null) {
-				body = await response.Content.ReadAsStringAsync ().ConfigureAwait (false);
-				ctx.LogDebug (5, "GOT BODY: {0}", Format (body));
-			}
-
-			if (returnContent != null) {
-				ctx.Assert (body, Is.Not.Null, "returned body");
-
-				body = body.TrimEnd ();
-				ctx.Assert (body, Is.EqualTo (returnContent.AsString ()), "returned body");
-			} else {
-				ctx.Assert (body, Is.Empty, "returned body");
-			}
-
-			return new SimpleResponse (this, response.StatusCode, returnContent);
-		}
-
 		public async Task<Response> PostString (
 			TestContext ctx, HttpContent returnContent, CancellationToken cancellationToken)
 		{
@@ -181,7 +153,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			var response = await Client.SendAsync (
 				message, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait (false);
 
-			return await ProcessResponse (ctx, response, returnContent);
+			return await HttpClientResponse.Create (this, response);
 		}
 
 		public async Task<Response> PutString (TestContext ctx, CancellationToken cancellationToken)
@@ -190,7 +162,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			var response = await Client.PutAsync (RequestUri, content, cancellationToken).ConfigureAwait (false);
 
-			return await ProcessResponse (ctx, response);
+			return await HttpClientResponse.Create (this, response);
 		}
 
 		public override async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
@@ -211,7 +183,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			var response = await Client.SendAsync (
 				request, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait (false);
 
-			return await ProcessResponse (ctx, response);
+			return await HttpClientResponse.Create (this, response);
 		}
 
 		public async Task<Response> PutDataAsync (TestContext ctx, CancellationToken cancellationToken)
@@ -220,7 +192,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			var response = await Client.PutAsync (RequestUri, content, cancellationToken).ConfigureAwait (false);
 
-			return await ProcessResponse (ctx, response);
+			return await HttpClientResponse.Create (this, response);
 		}
 
 		public override void Abort ()

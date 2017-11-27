@@ -55,12 +55,18 @@ namespace Xamarin.WebTests.HttpHandlers
 			get;
 		}
 
-		public HttpClientResponse (Request request, IHttpResponseMessage response, HttpContent content, Exception error = null)
+		HttpClientResponse (Request request, IHttpResponseMessage response, HttpContent content, Exception error = null)
 			: base (request)
 		{
 			Response = response;
 			Content = content;
 			Error = error;
+		}
+
+		public static async Task<HttpClientResponse> Create (HttpClientRequest request, IHttpResponseMessage response)
+		{
+			var content = await response.Content.GetContent ().ConfigureAwait (false);
+			return new HttpClientResponse (request, response, content);
 		}
 
 		public override string ToString ()
