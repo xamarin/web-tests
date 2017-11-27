@@ -48,6 +48,9 @@ namespace Xamarin.WebTests.TestFramework
 		PutRedirect,
 		PutRedirectKeepAlive,
 		RedirectCustomContent,
+
+		GetError,
+
 		MartinTest
 	}
 }

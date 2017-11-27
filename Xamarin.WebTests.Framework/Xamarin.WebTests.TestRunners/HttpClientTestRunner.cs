@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpClientTestType MartinTest = HttpClientTestType.RedirectCustomContent;
+		const HttpClientTestType MartinTest = HttpClientTestType.GetError;
 
 		static readonly (HttpClientTestType type, HttpClientTestFlags flags)[] TestRegistration = {
 			(HttpClientTestType.Simple, HttpClientTestFlags.Working),
@@ -116,6 +116,9 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpClientTestType.PutRedirectKeepAlive, HttpClientTestFlags.NewWebStack),
 			// Fixed in PR #6059 / #6068.
 			(HttpClientTestType.SendAsyncObscureVerb, HttpClientTestFlags.WorkingMaster),
+
+			// Martin
+			(HttpClientTestType.GetError, HttpClientTestFlags.Ignore)
 		};
 
 		public static IList<HttpClientTestType> GetTestTypes (TestContext ctx, ConnectionTestCategory category)
@@ -270,6 +273,9 @@ namespace Xamarin.WebTests.TestRunners
 					Flags = RequestFlags.KeepAlive
 				};
 				break;
+			case HttpClientTestType.GetError:
+				handler = new GetHandler (identifier, HttpContent.HelloWorld, HttpStatusCode.InternalServerError);
+				break;
 
 			default:
 				throw ctx.AssertFail (EffectiveType);
@@ -350,6 +356,7 @@ namespace Xamarin.WebTests.TestRunners
 					httpClientRequest.SendChunked ();
 					break;
 				case HttpClientTestType.RedirectCustomContent:
+				case HttpClientTestType.GetError:
 					break;
 				default:
 					throw ctx.AssertFail (Parent.EffectiveType);
@@ -384,6 +391,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpClientTestType.SendAsyncObscureVerb:
 				case HttpClientTestType.SendAsyncGet:
 				case HttpClientTestType.SendAsyncHead:
+				case HttpClientTestType.GetError:
 					return httpClientRequest.SendAsync (ctx, cancellationToken);
 				case HttpClientTestType.SendLargeBlob:
 				case HttpClientTestType.SendLargeBlobOddSize:
