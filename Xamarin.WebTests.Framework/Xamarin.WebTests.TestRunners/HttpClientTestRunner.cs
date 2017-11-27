@@ -474,6 +474,8 @@ namespace Xamarin.WebTests.TestRunners
 				ME = $"{parent.ME} - CUSTOM CONTENT";
 			}
 
+			HttpContent ICustomHttpContent.Content => this;
+
 			public override bool HasLength => true;
 			public override int Length => AsByteArray ().Length;
 

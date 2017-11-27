@@ -23,15 +23,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
+using System.Threading.Tasks;
+
 namespace Xamarin.WebTests.HttpClient
 {
+	using X = HttpFramework;
 	using Http = System.Net.Http;
 
 	class StreamContent : HttpClientContent
 	{
+		new public Http.StreamContent Content => (Http.StreamContent)base.Content;
+
 		public StreamContent (Http.StreamContent content)
 			: base (content)
 		{
+		}
+
+		protected override Task<X.HttpContent> LoadContent()
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }

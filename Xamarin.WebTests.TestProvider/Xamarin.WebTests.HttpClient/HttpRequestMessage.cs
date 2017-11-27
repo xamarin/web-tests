@@ -110,7 +110,7 @@ namespace Xamarin.WebTests.HttpClient
 
 		public void SetCustomContent (ICustomHttpContent content)
 		{
-			Content = new HttpClientContent (new CustomContent (content));
+			Content = new CustomContent (content);
 		}
 
 		public void SendChunked ()

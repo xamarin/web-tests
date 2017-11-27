@@ -29,6 +29,8 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.HttpClient
 {
+	using HttpFramework;
+
 	public interface IHttpContent
 	{
 		long? ContentLength {
@@ -40,6 +42,8 @@ namespace Xamarin.WebTests.HttpClient
 		}
 
 		Task<string> ReadAsStringAsync ();
+
+		Task<HttpContent> GetContent ();
 	}
 }
 

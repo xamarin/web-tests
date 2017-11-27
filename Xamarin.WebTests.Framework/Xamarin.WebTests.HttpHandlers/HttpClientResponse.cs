@@ -55,10 +55,11 @@ namespace Xamarin.WebTests.HttpHandlers
 			get;
 		}
 
-		public HttpClientResponse (Request request, IHttpResponseMessage response, Exception error = null)
+		public HttpClientResponse (Request request, IHttpResponseMessage response, HttpContent content, Exception error = null)
 			: base (request)
 		{
 			Response = response;
+			Content = content;
 			Error = error;
 		}
 

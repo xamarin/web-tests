@@ -24,15 +24,28 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
+using System.Threading.Tasks;
+
 namespace Xamarin.WebTests.HttpClient
 {
+	using X = HttpFramework;
 	using Http = System.Net.Http;
 
 	class BinaryContent : HttpClientContent
 	{
+		new public Http.ByteArrayContent Content => (Http.ByteArrayContent)base.Content;
+
 		public BinaryContent (Http.ByteArrayContent content)
 			: base (content)
 		{
 		}
+
+		protected override async Task<X.HttpContent> LoadContent ()
+		{
+			var data = await Content.ReadAsByteArrayAsync ().ConfigureAwait (false);
+			return new X.BinaryContent (data);
+		}
 	}
 }
+

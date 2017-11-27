@@ -31,8 +31,14 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.HttpClient
 {
+	using HttpFramework;
+
 	public interface ICustomHttpContent
 	{
+		HttpContent Content {
+			get;
+		}
+
 		Task<Stream> CreateContentReadStreamAsync ();
 
 		Task SerializeToStreamAsync (Stream stream);
