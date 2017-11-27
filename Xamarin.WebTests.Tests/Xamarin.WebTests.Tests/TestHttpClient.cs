@@ -85,10 +85,6 @@ namespace Xamarin.WebTests
 		static IEnumerable<HttpClientHandler> GetMartinTests ()
 		{
 			yield return new HttpClientHandler (
-				"Bug #20583", HttpClientOperationType.PostString,
-				HttpContent.HelloWorld, new Bug20583Content ());
-			yield break;
-			yield return new HttpClientHandler (
 				"Post redirect", HttpClientOperationType.PostRedirect,
 				HttpContent.HelloWorld, new StringContent ("Returned body"));
 		}
