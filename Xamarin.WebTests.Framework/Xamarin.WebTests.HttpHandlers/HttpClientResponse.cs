@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			get;
 		}
 
-		public override bool IsSuccess => Response.IsSuccessStatusCode;
+		public override bool IsSuccess => Error == null;
 
 		public override Exception Error {
 			get;

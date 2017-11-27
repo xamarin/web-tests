@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpClientTestType MartinTest = HttpClientTestType.SendAsyncGet;
+		const HttpClientTestType MartinTest = HttpClientTestType.GetError;
 
 		static readonly (HttpClientTestType type, HttpClientTestFlags flags)[] TestRegistration = {
 			(HttpClientTestType.Simple, HttpClientTestFlags.Working),
