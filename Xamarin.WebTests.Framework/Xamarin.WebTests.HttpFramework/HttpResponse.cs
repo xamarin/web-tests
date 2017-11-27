@@ -186,6 +186,9 @@ namespace Xamarin.WebTests.HttpFramework
 				if (!Body.HasLength)
 					noContentLength = true;
 			}
+			if (Headers.TryGetValue ("Transfer-Encoding", out string transferEncoding) &&
+			    string.Equals (transferEncoding, "chunked", StringComparison.OrdinalIgnoreCase))
+				noContentLength = true;
 			if (ContentLength == null && NeedsContentLength && !NoContentLength)
 				ContentLength = 0;
 

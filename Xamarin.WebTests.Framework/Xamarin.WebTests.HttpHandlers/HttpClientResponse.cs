@@ -1,5 +1,5 @@
 ﻿//
-// ICustomHttpContent.cs
+// HttpClientResponse.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,25 +24,54 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.HttpClient
-{
-	using HttpFramework;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
-	public interface ICustomHttpContent
+namespace Xamarin.WebTests.HttpHandlers
+{
+	using ConnectionFramework;
+	using HttpFramework;
+	using HttpClient;
+
+	public sealed class HttpClientResponse : Response
 	{
-		HttpContent Content {
+		public IHttpResponseMessage Response {
 			get;
 		}
 
-		Task<Stream> CreateContentReadStreamAsync ();
+		public override HttpStatusCode Status => Response.StatusCode;
 
-		Task SerializeToStreamAsync (Stream stream);
+		public override HttpContent Content {
+			get;
+		}
 
-		bool TryComputeLength (out long length);
+		public override bool IsSuccess => Error == null;
+
+		public override Exception Error {
+			get;
+		}
+
+		HttpClientResponse (Request request, IHttpResponseMessage response, HttpContent content, Exception error = null)
+			: base (request)
+		{
+			Response = response;
+			Content = content;
+			Error = error;
+		}
+
+		public static async Task<HttpClientResponse> Create (HttpClientRequest request, IHttpResponseMessage response)
+		{
+			var content = await response.Content.GetContent ().ConfigureAwait (false);
+			return new HttpClientResponse (request, response, content);
+		}
+
+		public override string ToString ()
+		{
+			return $"[HttpClientResponse {Status}]";
+		}
 	}
 }

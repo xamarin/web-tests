@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpClientTestType MartinTest = HttpClientTestType.RedirectCustomContent;
+		const HttpClientTestType MartinTest = HttpClientTestType.GetError;
 
 		static readonly (HttpClientTestType type, HttpClientTestFlags flags)[] TestRegistration = {
 			(HttpClientTestType.Simple, HttpClientTestFlags.Working),
@@ -116,6 +116,7 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpClientTestType.PutRedirectKeepAlive, HttpClientTestFlags.NewWebStack),
 			// Fixed in PR #6059 / #6068.
 			(HttpClientTestType.SendAsyncObscureVerb, HttpClientTestFlags.WorkingMaster),
+			(HttpClientTestType.GetError, HttpClientTestFlags.Working)
 		};
 
 		public static IList<HttpClientTestType> GetTestTypes (TestContext ctx, ConnectionTestCategory category)
@@ -168,26 +169,14 @@ namespace Xamarin.WebTests.TestRunners
 			};
 
 			switch (GetEffectiveType (type)) {
-			case HttpClientTestType.Simple:
-			case HttpClientTestType.GetString:
-			case HttpClientTestType.PostString:
-			case HttpClientTestType.PostStringWithResult:
-			case HttpClientTestType.PutString:
-			case HttpClientTestType.PutChunked:
-			case HttpClientTestType.SendAsyncEmptyBody:
-			case HttpClientTestType.SendAsyncObscureVerb:
-			case HttpClientTestType.SendAsyncGet:
-			case HttpClientTestType.SendAsyncHead:
-			case HttpClientTestType.SendLargeBlob:
-			case HttpClientTestType.SendLargeBlobOddSize:
-			case HttpClientTestType.ChunkSizeWithLeadingZero:
-			case HttpClientTestType.PutRedirectEmptyBody:
-			case HttpClientTestType.PutRedirect:
-			case HttpClientTestType.PutRedirectKeepAlive:
-			case HttpClientTestType.RedirectCustomContent:
+			case HttpClientTestType.GetError:
+				parameters.ExpectedError = WebExceptionStatus.Success;
+				parameters.ExpectedStatus = HttpStatusCode.InternalServerError;
 				break;
 			default:
-				throw ctx.AssertFail (GetEffectiveType (type));
+				parameters.ExpectedError = WebExceptionStatus.Success;
+				parameters.ExpectedStatus = HttpStatusCode.OK;
+				break;
 			}
 
 			return parameters;
@@ -295,6 +284,9 @@ namespace Xamarin.WebTests.TestRunners
 					Flags = RequestFlags.KeepAlive
 				};
 				break;
+			case HttpClientTestType.GetError:
+				handler = new GetHandler (identifier, HttpContent.HelloWorld, HttpStatusCode.InternalServerError);
+				break;
 
 			default:
 				throw ctx.AssertFail (EffectiveType);
@@ -337,7 +329,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			public Operation (HttpClientTestRunner parent, Handler handler, HttpOperationFlags flags)
 				: base (parent.Server, $"{parent.EffectiveType}",
-				        handler, flags, HttpStatusCode.OK, WebExceptionStatus.Success)
+				        handler, flags, parent.Parameters.ExpectedStatus, parent.Parameters.ExpectedError)
 			{
 				Parent = parent;
 			}
@@ -375,6 +367,7 @@ namespace Xamarin.WebTests.TestRunners
 					httpClientRequest.SendChunked ();
 					break;
 				case HttpClientTestType.RedirectCustomContent:
+				case HttpClientTestType.GetError:
 					break;
 				default:
 					throw ctx.AssertFail (Parent.EffectiveType);
@@ -398,7 +391,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpClientTestType.PostString:
 				case HttpClientTestType.PostStringWithResult:
 				case HttpClientTestType.ChunkSizeWithLeadingZero:
-					return httpClientRequest.PostString (ctx, ((PostHandler)Handler).ReturnContent, cancellationToken);
+					return httpClientRequest.PostString (ctx, cancellationToken);
 				case HttpClientTestType.PutString:
 				case HttpClientTestType.PutRedirectEmptyBody:
 				case HttpClientTestType.PutRedirect:
@@ -409,12 +402,13 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpClientTestType.SendAsyncObscureVerb:
 				case HttpClientTestType.SendAsyncGet:
 				case HttpClientTestType.SendAsyncHead:
+				case HttpClientTestType.GetError:
 					return httpClientRequest.SendAsync (ctx, cancellationToken);
 				case HttpClientTestType.SendLargeBlob:
 				case HttpClientTestType.SendLargeBlobOddSize:
 					return httpClientRequest.PutDataAsync (ctx, cancellationToken);
 				case HttpClientTestType.RedirectCustomContent:
-					return httpClientRequest.PostString (ctx, null, cancellationToken);
+					return httpClientRequest.PostString (ctx, cancellationToken);
 				default:
 					throw ctx.AssertFail (Parent.EffectiveType);
 				}
@@ -477,6 +471,8 @@ namespace Xamarin.WebTests.TestRunners
 				Context = ctx;
 				ME = $"{parent.ME} - CUSTOM CONTENT";
 			}
+
+			HttpContent ICustomHttpContent.Content => this;
 
 			public override bool HasLength => true;
 			public override int Length => AsByteArray ().Length;

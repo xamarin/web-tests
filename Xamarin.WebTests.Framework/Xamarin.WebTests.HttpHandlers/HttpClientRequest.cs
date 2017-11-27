@@ -134,8 +134,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			}
 		}
 
-		public async Task<Response> PostString (
-			TestContext ctx, HttpContent returnContent, CancellationToken cancellationToken)
+		public async Task<Response> PostString (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var message = Handler.CreateRequestMessage ();
 			message.Method = HttpMethod.Post;
@@ -151,55 +150,18 @@ namespace Xamarin.WebTests.HttpHandlers
 				message.Content.ContentType = contentType;
 
 			var response = await Client.SendAsync (
-				message, HttpCompletionOption.ResponseContentRead, cancellationToken);
+				message, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait (false);
 
-			ctx.Assert (response, Is.Not.Null, "response");
-
-			ctx.LogDebug (3, "GOT RESPONSE: {0}", response.StatusCode);
-
-			if (!response.IsSuccessStatusCode)
-				return new SimpleResponse (this, response.StatusCode, null);
-
-			string body = null;
-			if (response.Content != null) {
-				body = await response.Content.ReadAsStringAsync ();
-				ctx.LogDebug (5, "GOT BODY: {0}", Format (body));
-			}
-
-			if (returnContent != null) {
-				ctx.Assert (body, Is.Not.Null, "returned body");
-
-				body = body.TrimEnd ();
-				ctx.Assert (body, Is.EqualTo (returnContent.AsString ()), "returned body");
-			} else {
-				ctx.Assert (body, Is.Empty, "returned body");
-			}
-
-			return new SimpleResponse (this, response.StatusCode, returnContent);
+			return await HttpClientResponse.Create (this, response);
 		}
 
 		public async Task<Response> PutString (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var content = Handler.CreateStringContent (Content != null ? Content.AsString () : string.Empty);
 
-			var response = await Client.PutAsync (RequestUri, content, cancellationToken);
+			var response = await Client.PutAsync (RequestUri, content, cancellationToken).ConfigureAwait (false);
 
-			ctx.Assert (response, Is.Not.Null, "response");
-
-			ctx.LogDebug (3, "GOT RESPONSE: {0}", response.StatusCode);
-
-			if (!response.IsSuccessStatusCode)
-				return new SimpleResponse (this, response.StatusCode, null);
-
-			string body = null;
-			if (response.Content != null) {
-				body = await response.Content.ReadAsStringAsync ();
-				ctx.LogDebug (5, "GOT BODY: {0}", Format (body));
-			}
-
-			ctx.Assert (body, Is.Empty, "returned body");
-
-			return new SimpleResponse (this, response.StatusCode, null);
+			return await HttpClientResponse.Create (this, response);
 		}
 
 		public override async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
@@ -217,48 +179,19 @@ namespace Xamarin.WebTests.HttpHandlers
 			if (Content != null)
 				request.Content = Handler.CreateStringContent (Content.AsString ());
 
-			var response = await Client.SendAsync (request, HttpCompletionOption.ResponseContentRead, cancellationToken);
+			var response = await Client.SendAsync (
+				request, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait (false);
 
-			ctx.Assert (response, Is.Not.Null, "response");
-
-			ctx.LogDebug (3, "GOT RESPONSE: {0}", response.StatusCode);
-
-			if (!response.IsSuccessStatusCode)
-				return new SimpleResponse (this, response.StatusCode, null);
-
-			string body = null;
-			if (response.Content != null) {
-				body = await response.Content.ReadAsStringAsync ();
-				ctx.LogDebug (5, "GOT BODY: {0}", Format (body));
-			}
-
-			ctx.Assert (body, Is.Empty, "returned body");
-
-			return new SimpleResponse (this, response.StatusCode, null);
+			return await HttpClientResponse.Create (this, response);
 		}
 
 		public async Task<Response> PutDataAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var content = Handler.CreateBinaryContent (Content != null ? Content.AsByteArray () : null);
 
-			var response = await Client.PutAsync (RequestUri, content, cancellationToken);
+			var response = await Client.PutAsync (RequestUri, content, cancellationToken).ConfigureAwait (false);
 
-			ctx.Assert (response, Is.Not.Null, "response");
-
-			ctx.LogDebug (3, "GOT RESPONSE: {0}", response.StatusCode);
-
-			if (!response.IsSuccessStatusCode)
-				return new SimpleResponse (this, response.StatusCode, null);
-
-			string body = null;
-			if (response.Content != null) {
-				body = await response.Content.ReadAsStringAsync ();
-				ctx.LogDebug (5, "GOT BODY: {0}", Format (body));
-			}
-
-			ctx.Assert (body, Is.Empty, "returned body");
-
-			return new SimpleResponse (this, response.StatusCode, null);
+			return await HttpClientResponse.Create (this, response);
 		}
 
 		public override void Abort ()

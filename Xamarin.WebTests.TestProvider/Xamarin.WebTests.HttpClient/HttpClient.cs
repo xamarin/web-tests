@@ -32,7 +32,7 @@ using Xamarin.WebTests.HttpClient;
 
 namespace Xamarin.WebTests.HttpClient
 {
-	public class HttpClient : IHttpClient
+	class HttpClient : IHttpClient
 	{
 		readonly Http.HttpClient client;
 
@@ -62,7 +62,7 @@ namespace Xamarin.WebTests.HttpClient
 		{
 			Http.HttpContent httpContent = null;
 			if (content != null)
-				httpContent = ((HttpContent)content).Content;
+				httpContent = ((HttpClientContent)content).Content;
 			var response = await client.PutAsync (requestUri, httpContent, cancellationToken);
 			return new HttpResponseMessage (response);
 		}

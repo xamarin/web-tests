@@ -1,5 +1,5 @@
 ﻿//
-// HttpContent.cs
+// HttpClientContent.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -28,53 +28,64 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Http = System.Net.Http;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.HttpClient;
 
 namespace Xamarin.WebTests.HttpClient
 {
-	public class HttpContent : IHttpContent
-	{
-		readonly Http.HttpContent content;
+	using HttpFramework;
 
-		public HttpContent (Http.HttpContent content)
+	abstract class HttpClientContent : IHttpContent
+	{
+		HttpContent httpContent;
+
+		public HttpClientContent (Http.HttpContent content)
 		{
-			this.content = content;
+			Content = content;
 		}
 
 		public Http.HttpContent Content {
-			get { return content; }
+			get;
 		}
 
 		public Task<string> ReadAsStringAsync ()
 		{
-			return content.ReadAsStringAsync ();
+			return Content.ReadAsStringAsync ();
 		}
 
 		public long? ContentLength {
-			get { return content.Headers.ContentLength; }
-			set { content.Headers.ContentLength = value; }
+			get { return Content.Headers.ContentLength; }
+			set { Content.Headers.ContentLength = value; }
 		}
 
 		public string ContentType {
 			get {
-				var header = content.Headers.ContentType;
+				var header = Content.Headers.ContentType;
 				if (header == null)
 					return null;
 				return header.MediaType;
 			}
 			set {
 				if (value == null) {
-					content.Headers.ContentType = null;
+					Content.Headers.ContentType = null;
 					return;
 				}
 
 				Http.Headers.MediaTypeHeaderValue contentType;
 				if (!Http.Headers.MediaTypeHeaderValue.TryParse (value, out contentType))
 					throw new InvalidOperationException ();
-				content.Headers.ContentType = contentType;
+				Content.Headers.ContentType = contentType;
 			}
 		}
+
+		public async Task<HttpContent> GetContent ()
+		{
+			if (httpContent != null)
+				return httpContent;
+
+			httpContent = await LoadContent ().ConfigureAwait (false);
+			return httpContent;
+		}
+
+		protected abstract Task<HttpContent> LoadContent ();
 	}
 }
 

@@ -31,29 +31,47 @@ using System.Threading.Tasks;
 namespace Xamarin.WebTests.HttpClient
 {
 	using Http = System.Net.Http;
+	using X = HttpFramework;
 
-	class CustomContent : Http.HttpContent
+	class CustomContent : HttpClientContent
 	{
-		ICustomHttpContent Impl;
+		new Custom Content => (Custom)base.Content;
 
-		public CustomContent (ICustomHttpContent impl)
+		public CustomContent (ICustomHttpContent content)
+			: base (new Custom (content))
 		{
-			Impl = impl;
 		}
 
-		protected override Task<Stream> CreateContentReadStreamAsync()
+		protected override Task<X.HttpContent> LoadContent ()
 		{
-			return Impl.CreateContentReadStreamAsync ();
+			return Task.FromResult (Content.Impl.Content);
 		}
 
-		protected override Task SerializeToStreamAsync (Stream stream, TransportContext context)
+		class Custom : Http.HttpContent
 		{
-			return Impl.SerializeToStreamAsync (stream);
-		}
+			public ICustomHttpContent Impl {
+				get;
+			}
 
-		protected override bool TryComputeLength (out long length)
-		{
-			return Impl.TryComputeLength (out length);
+			public Custom (ICustomHttpContent impl)
+			{
+				Impl = impl;
+			}
+
+			protected override Task<Stream> CreateContentReadStreamAsync ()
+			{
+				return Impl.CreateContentReadStreamAsync ();
+			}
+
+			protected override Task SerializeToStreamAsync (Stream stream, TransportContext context)
+			{
+				return Impl.SerializeToStreamAsync (stream);
+			}
+
+			protected override bool TryComputeLength (out long length)
+			{
+				return Impl.TryComputeLength (out length);
+			}
 		}
 	}
 }

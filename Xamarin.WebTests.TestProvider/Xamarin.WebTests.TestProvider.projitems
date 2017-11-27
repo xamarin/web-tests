@@ -12,7 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpClientHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpClientProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpContent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpClientContent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpRequestMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpResponseMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\StreamContent.cs" />

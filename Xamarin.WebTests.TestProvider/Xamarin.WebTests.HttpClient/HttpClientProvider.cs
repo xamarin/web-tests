@@ -28,7 +28,7 @@ using Http = System.Net.Http;
 
 namespace Xamarin.WebTests.HttpClient
 {
-	public class HttpClientProvider : IHttpClientProvider
+	class HttpClientProvider : IHttpClientProvider
 	{
 		public IHttpClientHandler Create ()
 		{

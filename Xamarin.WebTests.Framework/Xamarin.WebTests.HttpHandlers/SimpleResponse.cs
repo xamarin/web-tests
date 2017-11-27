@@ -30,41 +30,33 @@ namespace Xamarin.WebTests.HttpHandlers
 {
 	using HttpFramework;
 
-	public class SimpleResponse : Response
+	public sealed class SimpleResponse : Response
 	{
-		HttpStatusCode code;
-		HttpContent content;
-		Exception error;
-
 		public override HttpStatusCode Status {
-			get { return code; }
+			get;
 		}
 
 		public override HttpContent Content {
-			get { return content; }
+			get;
 		}
 
-		public override bool IsSuccess {
-			get { return error == null; }
-		}
+		public override bool IsSuccess => Error == null;
 
 		public override Exception Error {
-			get { return error; }
+			get;
 		}
 
 		public SimpleResponse (Request request, HttpStatusCode code, HttpContent content, Exception error = null)
 			: base (request)
 		{
-			this.code = code;
-			this.content = content;
-			this.error = error;
+			Status = code;
+			Content = content;
+			Error = error;
 		}
 
 		public override string ToString ()
 		{
-			return string.Format ("[SimpleResponse {0}]", Status);
+			return $"[SimpleResponse {Status}]";
 		}
-
 	}
 }
-

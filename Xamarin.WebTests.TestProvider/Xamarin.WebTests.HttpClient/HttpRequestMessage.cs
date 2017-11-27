@@ -33,10 +33,10 @@ using Xamarin.WebTests.HttpClient;
 
 namespace Xamarin.WebTests.HttpClient
 {
-	public class HttpRequestMessage : IHttpRequestMessage
+	class HttpRequestMessage : IHttpRequestMessage
 	{
 		readonly Http.HttpRequestMessage message;
-		HttpContent content;
+		HttpClientContent content;
 
 		public HttpRequestMessage (Http.HttpRequestMessage message)
 		{
@@ -95,7 +95,7 @@ namespace Xamarin.WebTests.HttpClient
 			set { message.RequestUri = value; }
 		}
 
-		public HttpContent Content {
+		public HttpClientContent Content {
 			get { return content; }
 			set {
 				content = value;
@@ -105,12 +105,12 @@ namespace Xamarin.WebTests.HttpClient
 
 		IHttpContent IHttpRequestMessage.Content {
 			get { return Content; }
-			set { Content = (HttpContent)value; }
+			set { Content = (HttpClientContent)value; }
 		}
 
 		public void SetCustomContent (ICustomHttpContent content)
 		{
-			Content = new HttpContent (new CustomContent (content));
+			Content = new CustomContent (content);
 		}
 
 		public void SendChunked ()
