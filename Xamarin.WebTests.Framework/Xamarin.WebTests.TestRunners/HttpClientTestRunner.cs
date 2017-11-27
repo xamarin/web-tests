@@ -163,34 +163,9 @@ namespace Xamarin.WebTests.TestRunners
 
 			var name = GetTestName (category, type);
 
-			var parameters = new HttpClientTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+			return new HttpClientTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 				ClientCertificateValidator = acceptAll
 			};
-
-			switch (GetEffectiveType (type)) {
-			case HttpClientTestType.Simple:
-			case HttpClientTestType.GetString:
-			case HttpClientTestType.PostString:
-			case HttpClientTestType.PostStringWithResult:
-			case HttpClientTestType.PutString:
-			case HttpClientTestType.PutChunked:
-			case HttpClientTestType.SendAsyncEmptyBody:
-			case HttpClientTestType.SendAsyncObscureVerb:
-			case HttpClientTestType.SendAsyncGet:
-			case HttpClientTestType.SendAsyncHead:
-			case HttpClientTestType.SendLargeBlob:
-			case HttpClientTestType.SendLargeBlobOddSize:
-			case HttpClientTestType.ChunkSizeWithLeadingZero:
-			case HttpClientTestType.PutRedirectEmptyBody:
-			case HttpClientTestType.PutRedirect:
-			case HttpClientTestType.PutRedirectKeepAlive:
-			case HttpClientTestType.RedirectCustomContent:
-				break;
-			default:
-				throw ctx.AssertFail (GetEffectiveType (type));
-			}
-
-			return parameters;
 		}
 
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
