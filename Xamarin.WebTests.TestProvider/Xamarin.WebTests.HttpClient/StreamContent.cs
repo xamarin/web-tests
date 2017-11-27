@@ -40,8 +40,19 @@ namespace Xamarin.WebTests.HttpClient
 		{
 		}
 
-		protected override Task<X.HttpContent> LoadContent()
+		protected override async Task<X.HttpContent> LoadContent()
 		{
+			if (Content.Headers.ContentLength == 0)
+				return null;
+
+			if (Content.Headers.ContentLength != null) {
+				if (string.Equals (ContentType, "text/plain")) {
+					var text = await Content.ReadAsStringAsync ().ConfigureAwait (false);
+					return new X.StringContent (text);
+				}
+				var data = await Content.ReadAsByteArrayAsync ().ConfigureAwait (false);
+				return new X.BinaryContent (data);
+			}
 			throw new NotImplementedException ();
 		}
 	}
