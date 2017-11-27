@@ -50,6 +50,16 @@ namespace Xamarin.WebTests.TestFramework
 			: base (other)
 		{
 			Type = other.Type;
+			ExpectedStatus = other.ExpectedStatus;
+			ExpectedError = other.ExpectedError;
+		}
+
+		public HttpStatusCode ExpectedStatus {
+			get; set;
+		}
+
+		public WebExceptionStatus ExpectedError {
+			get; set;
 		}
 
 		public override ConnectionParameters DeepClone ()

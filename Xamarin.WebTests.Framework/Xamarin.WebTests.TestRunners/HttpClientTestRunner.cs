@@ -166,9 +166,22 @@ namespace Xamarin.WebTests.TestRunners
 
 			var name = GetTestName (category, type);
 
-			return new HttpClientTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+			var parameters = new HttpClientTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 				ClientCertificateValidator = acceptAll
 			};
+
+			switch (GetEffectiveType (type)) {
+			case HttpClientTestType.GetError:
+				parameters.ExpectedError = WebExceptionStatus.Success;
+				parameters.ExpectedStatus = HttpStatusCode.InternalServerError;
+				break;
+			default:
+				parameters.ExpectedError = WebExceptionStatus.Success;
+				parameters.ExpectedStatus = HttpStatusCode.OK;
+				break;
+			}
+
+			return parameters;
 		}
 
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
@@ -318,7 +331,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			public Operation (HttpClientTestRunner parent, Handler handler, HttpOperationFlags flags)
 				: base (parent.Server, $"{parent.EffectiveType}",
-				        handler, flags, HttpStatusCode.OK, WebExceptionStatus.Success)
+				        handler, flags, parent.Parameters.ExpectedStatus, parent.Parameters.ExpectedError)
 			{
 				Parent = parent;
 			}
