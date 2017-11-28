@@ -217,6 +217,23 @@ namespace Xamarin.WebTests.HttpFramework
 			return Server.Listener.RegisterOperation (ctx, this, handler, path);
 		}
 
+		internal async Task StartDelayedListener (TestContext ctx)
+		{
+			/*
+			 * We previously called RunListener() with HttpOperationFlags.DelayedListenerContext,
+			 * which called the RunInner() function before actually starting to listening for a connection.
+			 * 
+			 */
+			var me = $"{ME} DELAYED LISTENER";
+			if (listenerOperation == null)
+				throw new InvalidOperationException ();
+			if (!listenerOperation.Operation.HasAnyFlags (HttpOperationFlags.DelayedListenerContext))
+				throw new InvalidOperationException ();
+			var context = await Server.Listener.FindContext (ctx, listenerOperation, false).ConfigureAwait (false);
+			ctx.LogDebug (2, $"{ME} GOT CONTEXT: {context.ID}");
+			listenerOperation.AssignContext (context);
+		}
+
 		protected abstract void Destroy ();
 
 		int disposed;

@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ServerAbortsPost;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NtlmWhileQueued2;
 
 		static readonly (HttpInstrumentationTestType type, HttpInstrumentationTestFlags flags)[] TestRegistration = {
 			(HttpInstrumentationTestType.Simple, HttpInstrumentationTestFlags.Working),
@@ -111,7 +111,8 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpInstrumentationTestType.CancelQueuedRequest, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.CancelMainWhileQueued, HttpInstrumentationTestFlags.WorkingRequireSSL),
 			(HttpInstrumentationTestType.SimpleNtlm, HttpInstrumentationTestFlags.Working),
-			(HttpInstrumentationTestType.NtlmWhileQueued, HttpInstrumentationTestFlags.Unstable),
+			(HttpInstrumentationTestType.NtlmWhileQueued, HttpInstrumentationTestFlags.NewWebStackMono),
+			(HttpInstrumentationTestType.NtlmWhileQueued2, HttpInstrumentationTestFlags.NewWebStackMono),
 			(HttpInstrumentationTestType.ReuseConnection, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.SimplePost, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.SimpleRedirect, HttpInstrumentationTestFlags.Working),
@@ -153,6 +154,7 @@ namespace Xamarin.WebTests.TestRunners
 			if (category == ConnectionTestCategory.MartinTest)
 				return new[] { MartinTest };
 
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
 			return TestRegistration.Where (t => Filter (t.flags)).Select (t => t.type).ToList ();
 
 			bool Filter (HttpInstrumentationTestFlags flags)
@@ -168,6 +170,8 @@ namespace Xamarin.WebTests.TestRunners
 				case ConnectionTestCategory.HttpInstrumentationStress:
 					return flags == HttpInstrumentationTestFlags.Stress;
 				case ConnectionTestCategory.HttpInstrumentationNewWebStack:
+					if (flags == HttpInstrumentationTestFlags.NewWebStackMono && !setup.UsingDotNet)
+						return true;
 					return flags == HttpInstrumentationTestFlags.NewWebStack;
 				case ConnectionTestCategory.HttpInstrumentationExperimental:
 					return flags == HttpInstrumentationTestFlags.Unstable;
@@ -227,6 +231,10 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ConnectionLimit = 1;
 				parameters.ExpectedStatus = HttpStatusCode.InternalServerError;
 				parameters.ExpectedError = WebExceptionStatus.RequestCanceled;
+				parameters.HasReadHandler = true;
+				break;
+			case HttpInstrumentationTestType.NtlmWhileQueued2:
+				parameters.ConnectionLimit = 1;
 				parameters.HasReadHandler = true;
 				break;
 			case HttpInstrumentationTestType.ThreeParallelRequests:
@@ -451,6 +459,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.ParallelNtlm:
 			case HttpInstrumentationTestType.NtlmInstrumentation:
 			case HttpInstrumentationTestType.NtlmWhileQueued:
+			case HttpInstrumentationTestType.NtlmWhileQueued2:
 				return (new HttpInstrumentationHandler (this, GetAuthenticationManager (), null, false), flags);
 			case HttpInstrumentationTestType.LargeHeader:
 			case HttpInstrumentationTestType.LargeHeader2:
@@ -645,6 +654,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.AbortResponse:
 					return new HttpInstrumentationRequest (InstrumentationHandler, uri);
 				case HttpInstrumentationTestType.NtlmWhileQueued:
+				case HttpInstrumentationTestType.NtlmWhileQueued2:
 					if (IsParallelRequest)
 						return new TraditionalRequest (uri);
 					return new HttpInstrumentationRequest (InstrumentationHandler, uri);
@@ -686,6 +696,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.CancelQueuedRequest:
 				case HttpInstrumentationTestType.CancelMainWhileQueued:
 				case HttpInstrumentationTestType.NtlmWhileQueued:
+				case HttpInstrumentationTestType.NtlmWhileQueued2:
 					ctx.Assert (ServicePoint, Is.Not.Null, "ServicePoint");
 					ctx.Assert (ServicePoint.CurrentConnections, Is.EqualTo (1), "ServicePoint.CurrentConnections");
 					break;
@@ -778,6 +789,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			Interlocked.Increment (ref readHandlerCalled);
 
+			Operation operation;
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.ParallelRequests:
 				ctx.Assert (currentOperation.HasRequest, "current request");
@@ -791,7 +803,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.SimpleQueuedRequest:
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
-					var operation = StartSimpleHello ();
+					operation = StartSimpleHello ();
 					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 						throw ctx.AssertFail ("Invalid nested call");
 				}
@@ -845,7 +857,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.CancelQueuedRequest:
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
-					var operation = StartParallel (
+					operation = StartParallel (
 						ctx, cancellationToken, HelloWorldHandler.GetSimple (), HttpOperationFlags.AbortAfterClientExits,
 						HttpStatusCode.InternalServerError, WebExceptionStatus.RequestCanceled);
 					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
@@ -860,7 +872,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.CancelMainWhileQueued:
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
-					var operation = StartSimpleHello ();
+					operation = StartSimpleHello ();
 					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 						throw new InvalidOperationException ("Invalid nested call.");
 					var request = await operation.WaitForRequest ().ConfigureAwait (false);
@@ -873,10 +885,19 @@ namespace Xamarin.WebTests.TestRunners
 
 			case HttpInstrumentationTestType.NtlmWhileQueued:
 				ctx.Assert (currentOperation.HasRequest, "current request");
-				if (primary) {
-					var operation = StartSimpleHello ();
-					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
-						throw ctx.AssertFail ("Invalid nested call");
+				if (primary && queuedOperation == null) {
+					queuedOperation = StartParallel (
+						ctx, cancellationToken, HelloWorldHandler.GetSimple (),
+						HttpOperationFlags.DelayedListenerContext | HttpOperationFlags.ClientAbortsRequest);
+				}
+				break;
+
+			case HttpInstrumentationTestType.NtlmWhileQueued2:
+				ctx.Assert (currentOperation.HasRequest, "current request");
+				if (primary && queuedOperation == null) {
+					queuedOperation = StartParallel (
+						ctx, cancellationToken, HelloWorldHandler.GetSimple (),
+						HttpOperationFlags.DelayedListenerContext);
 				}
 				break;
 
@@ -1135,6 +1156,10 @@ namespace Xamarin.WebTests.TestRunners
 					HasLength = true;
 					Length = ConnectionHandler.TheQuickBrownFoxBuffer.Length;
 					break;
+				case HttpInstrumentationTestType.NtlmWhileQueued2:
+					HasLength = true;
+					Length = ((HelloWorldHandler)request.Handler.Target).Message.Length;
+					break;
 				default:
 					HasLength = true;
 					Length = 4096;
@@ -1172,10 +1197,11 @@ namespace Xamarin.WebTests.TestRunners
 
 				switch (TestRunner.EffectiveType) {
 				case HttpInstrumentationTestType.NtlmWhileQueued:
-					await Task.Delay (500).ConfigureAwait (false);
-					ctx.LogDebug (4, $"{ME} WRITE BODY - ABORT!");
-					TestRunner.currentOperation.Request.Abort ();
-					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
+					await HandleNtlmWhileQueued ().ConfigureAwait (false);
+					break;
+
+				case HttpInstrumentationTestType.NtlmWhileQueued2:
+					await HandleNtlmWhileQueued2 ().ConfigureAwait (false);
 					break;
 
 				case HttpInstrumentationTestType.ReadTimeout:
@@ -1209,6 +1235,53 @@ namespace Xamarin.WebTests.TestRunners
 
 				default:
 					throw ctx.AssertFail (TestRunner.EffectiveType);
+				}
+
+				async Task HandleNtlmWhileQueued ()
+				{
+					/*
+					 * HandleNtlmWhileQueued and HandleNtlmWhileQueued2 don't work on .NET because they
+					 * don't do the "priority request" mechanic to send the NTLM challenge before processing
+					 * any queued requests.
+					 */
+
+					/*
+					 * This test is tricky.  We set ServicePoint.ConnectionLimit to 1, then start an NTLM
+					 * request.  Using the instrumentation's read handler, we then start another simple
+					 * "Hello World" GET request, which will then be queued by the ServicePoint.
+					 * 
+					 * Once we got to this point, the client did the full NTLM authentication and we are about
+					 * to return the final response body.
+					 * 
+					 * Now we start listening for a new connection by calling StartDelayedListener().
+					 * 
+					 */
+					await Task.Delay (500).ConfigureAwait (false);
+					ctx.LogDebug (4, $"{ME} WRITE BODY - ABORT!");
+
+					await TestRunner.queuedOperation.StartDelayedListener (ctx);
+
+					/*
+					 * Then we abort the client-side NTLM request and wait for it to complete.
+					 * This will eventually close the connection, so the ServicePoint scheduler will
+					 * start the "Hello World" request.
+					 */
+
+					TestRunner.currentOperation.Request.Abort ();
+					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
+				}
+
+				async Task HandleNtlmWhileQueued2 ()
+				{
+					/*
+					 * Similar to NtlmWhileQueued, but we now complete both requests.
+					 */
+					await Task.Delay (500).ConfigureAwait (false);
+					await TestRunner.queuedOperation.StartDelayedListener (ctx);
+
+					var message = ((HelloWorldHandler)Request.Handler.Target).Message;
+					await stream.WriteAsync (message, cancellationToken).ConfigureAwait (false);
+					await stream.FlushAsync (cancellationToken);
 				}
 
 				async Task HandlePostChunked ()
@@ -1452,9 +1525,14 @@ namespace Xamarin.WebTests.TestRunners
 
 				cancellationToken.ThrowIfCancellationRequested ();
 
-				if (TestRunner.EffectiveType == HttpInstrumentationTestType.NtlmWhileQueued) {
-					var content = new HttpInstrumentationContent (TestRunner, currentRequest);
+				HttpInstrumentationContent content;
+				switch (TestRunner.EffectiveType) {
+				case HttpInstrumentationTestType.NtlmWhileQueued:
+					content = new HttpInstrumentationContent (TestRunner, currentRequest);
 					return new HttpResponse (HttpStatusCode.OK, content);
+				case HttpInstrumentationTestType.NtlmWhileQueued2:
+					content = new HttpInstrumentationContent (TestRunner, currentRequest);
+					return new HttpResponse (HttpStatusCode.OK, content) { CloseConnection = true };
 				}
 
 				var ret = await Target.HandleRequest (ctx, operation, connection, request, effectiveFlags, cancellationToken);
@@ -1523,6 +1601,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.NtlmReusesConnection:
 				case HttpInstrumentationTestType.ParallelNtlm:
 				case HttpInstrumentationTestType.NtlmWhileQueued:
+				case HttpInstrumentationTestType.NtlmWhileQueued2:
 					return await HandleNtlmRequest (
 						ctx, operation, connection, request, effectiveFlags, cancellationToken).ConfigureAwait (false);
 
