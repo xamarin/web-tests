@@ -426,9 +426,14 @@ namespace Xamarin.WebTests.Server
 			ListenerContext context = null;
 			ListenerContext targetContext = null;
 			var reusing = !operation.Operation.HasAnyFlags (HttpOperationFlags.DontReuseConnection);
-			var dontListen = operation.Operation.HasAnyFlags (HttpOperationFlags.DelayedListenerContext);
+			var delayedContext = operation.Operation.HasAnyFlags (HttpOperationFlags.DelayedListenerContext);
 
-			if (UsingInstrumentation && !dontListen) {
+			/*
+			 * When using HttpOperationFlags.DelayedListenerContext, then we call the `clientFunc` before we
+			 * actually start listening.
+			 */
+
+			if (UsingInstrumentation && !delayedContext) {
 				context = await FindContext (ctx, operation, reusing);
 				reusing = context.ReusingConnection;
 

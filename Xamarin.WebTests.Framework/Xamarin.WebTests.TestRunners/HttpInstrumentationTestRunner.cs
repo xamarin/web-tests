@@ -1175,11 +1175,6 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.NtlmWhileQueued:
 					await HandleNtlmWhileQueued ().ConfigureAwait (false);
 					break;
-					await Task.Delay (500).ConfigureAwait (false);
-					ctx.LogDebug (4, $"{ME} WRITE BODY - ABORT!");
-					TestRunner.currentOperation.Request.Abort ();
-					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
-					break;
 
 				case HttpInstrumentationTestType.ReadTimeout:
 					await stream.WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer, cancellationToken).ConfigureAwait (false);
@@ -1216,10 +1211,27 @@ namespace Xamarin.WebTests.TestRunners
 
 				async Task HandleNtlmWhileQueued ()
 				{
+					/*
+					 * This test is tricky.  We set ServicePoint.ConnectionLimit to 1, then start an NTLM
+					 * request.  Using the instrumentation's read handler, we then start another simple
+					 * "Hello World" GET request, which will then be queued by the ServicePoint.
+					 * 
+					 * Once we got to this point, the client did the full NTLM authentication and we are about
+					 * to return the final response body.
+					 * 
+					 * Now we start listening for a new connection by calling StartDelayedListener().
+					 * 
+					 */
 					await Task.Delay (500).ConfigureAwait (false);
 					ctx.LogDebug (4, $"{ME} WRITE BODY - ABORT!");
 
 					await TestRunner.queuedOperation.StartDelayedListener (ctx);
+
+					/*
+					 * Then we abort the client-side NTLM request and wait for it to complete.
+					 * This will eventually close the connection, so the ServicePoint scheduler will
+					 * start the "Hello World" request.
+					 */
 
 					TestRunner.currentOperation.Request.Abort ();
 					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));

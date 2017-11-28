@@ -219,6 +219,11 @@ namespace Xamarin.WebTests.HttpFramework
 
 		internal async Task StartDelayedListener (TestContext ctx)
 		{
+			/*
+			 * We previously called RunListener() with HttpOperationFlags.DelayedListenerContext,
+			 * which called the RunInner() function before actually starting to listening for a connection.
+			 * 
+			 */
 			var me = $"{ME} DELAYED LISTENER";
 			if (listenerOperation == null)
 				throw new InvalidOperationException ();
