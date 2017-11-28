@@ -189,22 +189,24 @@ namespace Xamarin.WebTests.Server
 					context = task.Context;
 					listenerTasks.Remove (task);
 
-					Debug ($"MAIN LOOP TASK #1: {idx} {context.State}");
+					var me = $"MAIN LOOP TASK #1 ({idx}, {context.State})";
+					Debug ($"{me}");
 
 					if (context.State == ConnectionState.Listening && currentOperation?.AssignedContext == context) {
 						operation = Interlocked.Exchange (ref currentOperation, null);
+						Debug ($"{me} GOT OPERATION {operation.ID}");
 					}
 
 					try {
 						success = context.MainLoopListenerTaskDone (TestContext, cts.Token);
 					} catch (Exception ex) {
-						Debug ($"MAIN LOOP TASK EX: {idx} {context.State} {ex.Message}");
+						Debug ($"{me} EX: {ex.Message}");
 						connections.Remove (context);
 						context.Dispose ();
 						success = false;
 					}
 
-					Debug ($"MAIN LOOP TASK #2: {idx} {context.State} {operation != null}");
+					Debug ($"{me} OP={operation?.ID}");
 				}
 
 				if (operation != null)
