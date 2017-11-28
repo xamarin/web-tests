@@ -396,7 +396,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		async Task<ListenerContext> FindContext (TestContext ctx, ListenerOperation operation, bool reusing)
+		internal async Task<ListenerContext> FindContext (TestContext ctx, ListenerOperation operation, bool reusing)
 		{
 			var me = $"{ME}({operation.Operation.ME}:{reusing}) FIND CONTEXT";
 
@@ -426,7 +426,7 @@ namespace Xamarin.WebTests.Server
 			ListenerContext context = null;
 			ListenerContext targetContext = null;
 			var reusing = !operation.Operation.HasAnyFlags (HttpOperationFlags.DontReuseConnection);
-			var dontListen = operation.Operation.HasAnyFlags (HttpOperationFlags.DontListen);
+			var dontListen = operation.Operation.HasAnyFlags (HttpOperationFlags.DelayedListenerContext);
 
 			if (UsingInstrumentation && !dontListen) {
 				context = await FindContext (ctx, operation, reusing);

@@ -874,11 +874,10 @@ namespace Xamarin.WebTests.TestRunners
 
 			case HttpInstrumentationTestType.NtlmWhileQueued:
 				ctx.Assert (currentOperation.HasRequest, "current request");
-				if (primary) {
-					operation = StartParallel (
-						ctx, cancellationToken, HelloWorldHandler.GetSimple (), HttpOperationFlags.DontListen);
-					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
-						throw ctx.AssertFail ("Invalid nested call");
+				if (primary && queuedOperation == null) {
+					queuedOperation = StartParallel (
+						ctx, cancellationToken, HelloWorldHandler.GetSimple (),
+						HttpOperationFlags.DelayedListenerContext | HttpOperationFlags.ClientAbortsRequest);
 				}
 				break;
 
@@ -1174,6 +1173,8 @@ namespace Xamarin.WebTests.TestRunners
 
 				switch (TestRunner.EffectiveType) {
 				case HttpInstrumentationTestType.NtlmWhileQueued:
+					await HandleNtlmWhileQueued ().ConfigureAwait (false);
+					break;
 					await Task.Delay (500).ConfigureAwait (false);
 					ctx.LogDebug (4, $"{ME} WRITE BODY - ABORT!");
 					TestRunner.currentOperation.Request.Abort ();
@@ -1211,6 +1212,17 @@ namespace Xamarin.WebTests.TestRunners
 
 				default:
 					throw ctx.AssertFail (TestRunner.EffectiveType);
+				}
+
+				async Task HandleNtlmWhileQueued ()
+				{
+					await Task.Delay (500).ConfigureAwait (false);
+					ctx.LogDebug (4, $"{ME} WRITE BODY - ABORT!");
+
+					await TestRunner.queuedOperation.StartDelayedListener (ctx);
+
+					TestRunner.currentOperation.Request.Abort ();
+					await Task.WhenAny (Request.WaitForCompletion (), Task.Delay (10000));
 				}
 
 				async Task HandlePostChunked ()

@@ -101,10 +101,15 @@ namespace Xamarin.WebTests.Server
 		{
 			if (!Listener.UsingInstrumentation)
 				throw new InvalidOperationException ();
-			if (Interlocked.CompareExchange (ref assignedOperation, operation, null) != null)
-				throw new InvalidOperationException ();
-			if (State != ConnectionState.Idle && State != ConnectionState.WaitingForContext)
-				throw new InvalidOperationException ();
+			var oldOperation = Interlocked.CompareExchange (ref assignedOperation, operation, null);
+			if (oldOperation != null) {
+				if (!operation.Operation.HasAnyFlags (HttpOperationFlags.DelayedListenerContext) || oldOperation != operation)
+					throw new InvalidOperationException ();
+			}
+			if (State != ConnectionState.Idle && State != ConnectionState.WaitingForContext) {
+				if (!operation.Operation.HasAnyFlags (HttpOperationFlags.DelayedListenerContext) || State != ConnectionState.Listening)
+					throw new InvalidOperationException ();
+			}
 			State = ConnectionState.Listening;
 		}
 

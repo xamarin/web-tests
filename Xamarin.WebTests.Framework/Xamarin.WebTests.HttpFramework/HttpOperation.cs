@@ -217,6 +217,18 @@ namespace Xamarin.WebTests.HttpFramework
 			return Server.Listener.RegisterOperation (ctx, this, handler, path);
 		}
 
+		internal async Task StartDelayedListener (TestContext ctx)
+		{
+			var me = $"{ME} DELAYED LISTENER";
+			if (listenerOperation == null)
+				throw new InvalidOperationException ();
+			if (!listenerOperation.Operation.HasAnyFlags (HttpOperationFlags.DelayedListenerContext))
+				throw new InvalidOperationException ();
+			var context = await Server.Listener.FindContext (ctx, listenerOperation, false).ConfigureAwait (false);
+			ctx.LogDebug (2, $"{ME} GOT CONTEXT: {context.ID}");
+			listenerOperation.AssignContext (context);
+		}
+
 		protected abstract void Destroy ();
 
 		int disposed;
