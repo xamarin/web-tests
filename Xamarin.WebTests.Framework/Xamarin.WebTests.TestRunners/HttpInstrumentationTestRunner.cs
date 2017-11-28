@@ -96,7 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ServerAbortsPost;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NtlmWhileQueued;
 
 		static readonly (HttpInstrumentationTestType type, HttpInstrumentationTestFlags flags)[] TestRegistration = {
 			(HttpInstrumentationTestType.Simple, HttpInstrumentationTestFlags.Working),
@@ -778,6 +778,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			Interlocked.Increment (ref readHandlerCalled);
 
+			Operation operation;
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.ParallelRequests:
 				ctx.Assert (currentOperation.HasRequest, "current request");
@@ -791,7 +792,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.SimpleQueuedRequest:
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
-					var operation = StartSimpleHello ();
+					operation = StartSimpleHello ();
 					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 						throw ctx.AssertFail ("Invalid nested call");
 				}
@@ -845,7 +846,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.CancelQueuedRequest:
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
-					var operation = StartParallel (
+					operation = StartParallel (
 						ctx, cancellationToken, HelloWorldHandler.GetSimple (), HttpOperationFlags.AbortAfterClientExits,
 						HttpStatusCode.InternalServerError, WebExceptionStatus.RequestCanceled);
 					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
@@ -860,7 +861,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.CancelMainWhileQueued:
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
-					var operation = StartSimpleHello ();
+					operation = StartSimpleHello ();
 					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 						throw new InvalidOperationException ("Invalid nested call.");
 					var request = await operation.WaitForRequest ().ConfigureAwait (false);
@@ -874,7 +875,8 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.NtlmWhileQueued:
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
-					var operation = StartSimpleHello ();
+					operation = StartParallel (
+						ctx, cancellationToken, HelloWorldHandler.GetSimple (), HttpOperationFlags.DontListen);
 					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 						throw ctx.AssertFail ("Invalid nested call");
 				}

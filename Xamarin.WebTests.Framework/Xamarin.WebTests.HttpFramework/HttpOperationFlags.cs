@@ -43,6 +43,7 @@ namespace Xamarin.WebTests.HttpFramework
 		ServerAbortsRedirection		= 512,
 		ServerUsesNewConnection		= 1024,
 		DontReadRequestBody		= 2048,
-		ClientAbortsRequest		= 4096
+		ClientAbortsRequest		= 4096,
+		DontListen			= 8192
 	}
 }

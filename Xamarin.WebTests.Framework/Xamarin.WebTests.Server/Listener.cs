@@ -426,8 +426,9 @@ namespace Xamarin.WebTests.Server
 			ListenerContext context = null;
 			ListenerContext targetContext = null;
 			var reusing = !operation.Operation.HasAnyFlags (HttpOperationFlags.DontReuseConnection);
+			var dontListen = operation.Operation.HasAnyFlags (HttpOperationFlags.DontListen);
 
-			if (UsingInstrumentation) {
+			if (UsingInstrumentation && !dontListen) {
 				context = await FindContext (ctx, operation, reusing);
 				reusing = context.ReusingConnection;
 
