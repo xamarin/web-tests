@@ -525,6 +525,7 @@ namespace Xamarin.WebTests.TestRunners
 			async Task ParallelNtlm ()
 			{
 				var firstHandler = currentOperation.InstrumentationHandler;
+				ctx.LogDebug (2, $"{handler.ME}: {handler == firstHandler} {state}");
 				if (handler != firstHandler || state != AuthenticationState.Challenge)
 					return;
 

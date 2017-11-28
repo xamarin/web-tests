@@ -42,7 +42,7 @@ namespace Xamarin.WebTests.Server
 	{
 		LinkedList<ListenerContext> connections;
 		LinkedList<ListenerTask> listenerTasks;
-		ListenerOperation currentInstrumentation;
+		ListenerOperation currentOperation;
 		bool closed;
 
 		int running;
@@ -165,7 +165,7 @@ namespace Xamarin.WebTests.Server
 				var finished = await Task.WhenAny (taskList).ConfigureAwait (false);
 				Debug ($"MAIN LOOP TASK: {finished.Status} {finished == taskList[0]} {taskList[0].Status}");
 
-				ListenerOperation instrumentation = null;
+				ListenerOperation operation = null;
 				ListenerContext context;
 				bool success;
 
@@ -189,26 +189,28 @@ namespace Xamarin.WebTests.Server
 					context = task.Context;
 					listenerTasks.Remove (task);
 
-					Debug ($"MAIN LOOP TASK #1: {idx} {context.State}");
+					var me = $"MAIN LOOP TASK #1 ({idx}, {context.State})";
+					Debug ($"{me}");
 
-					if (context.State == ConnectionState.Listening && currentInstrumentation?.AssignedContext == context) {
-						instrumentation = Interlocked.Exchange (ref currentInstrumentation, null);
+					if (context.State == ConnectionState.Listening && currentOperation?.AssignedContext == context) {
+						operation = Interlocked.Exchange (ref currentOperation, null);
+						Debug ($"{me} GOT OPERATION {operation.ID}");
 					}
 
 					try {
 						success = context.MainLoopListenerTaskDone (TestContext, cts.Token);
 					} catch (Exception ex) {
-						Debug ($"MAIN LOOP TASK EX: {idx} {context.State} {ex.Message}");
+						Debug ($"{me} EX: {ex.Message}");
 						connections.Remove (context);
 						context.Dispose ();
 						success = false;
 					}
 
-					Debug ($"MAIN LOOP TASK #2: {idx} {context.State} {instrumentation != null}");
+					Debug ($"{me} OP={operation?.ID}");
 				}
 
-				if (instrumentation != null)
-					instrumentation.Finish ();
+				if (operation != null)
+					operation.Finish ();
 			}
 
 			Debug ($"MAIN LOOP COMPLETE");
@@ -340,19 +342,19 @@ namespace Xamarin.WebTests.Server
 					}
 				}
 
-				Debug ($"{me} DONE: instrumentation={currentInstrumentation?.ID} listening={listening} " +
+				Debug ($"{me} DONE: instrumentation={currentOperation?.ID} listening={listening} " +
 				       $"redirect={redirectContext != null} idleContext={idleContext != null} " +
 				       $"listeningContext={listeningContext != null} " +
-				       $"assigned={currentInstrumentation?.AssignedContext != null}");
+				       $"assigned={currentOperation?.AssignedContext != null}");
 
 				var availableContext = idleContext ?? listeningContext;
 
-				if (currentInstrumentation != null) {
-					if (currentInstrumentation.AssignedContext != null) {
+				if (currentOperation != null) {
+					if (currentOperation.AssignedContext != null) {
 						return true;
 					}
 
-					var operation = currentInstrumentation.Operation;
+					var operation = currentOperation.Operation;
 					var forceNewCnc = operation.HasAnyFlags (HttpOperationFlags.ForceNewConnection);
 					if (listening && !forceNewCnc)
 						return true;
@@ -362,8 +364,8 @@ namespace Xamarin.WebTests.Server
 						availableContext = new ListenerContext (this, connection, false);
 						connections.AddLast (availableContext);
 					}
-					Debug ($"{me} ASSIGN CONTEXT: {availableContext.ME} {currentInstrumentation.ME}");
-					currentInstrumentation.AssignContext (availableContext);
+					Debug ($"{me} ASSIGN CONTEXT: {availableContext.ME} {currentOperation.ME}");
+					currentOperation.AssignContext (availableContext);
 					return false;
 				}
 
@@ -376,9 +378,9 @@ namespace Xamarin.WebTests.Server
 					connections.AddLast (availableContext);
 				}
 
-				currentInstrumentation = redirectContext.Redirect (availableContext);
-				currentInstrumentation.AssignContext (availableContext);
-				Debug ($"{me} DONE #1: {availableContext.ME} {currentInstrumentation?.ME}");
+				currentOperation = redirectContext.Redirect (availableContext);
+				currentOperation.AssignContext (availableContext);
+				Debug ($"{me} DONE #1: {availableContext.ME} {currentOperation?.ME}");
 				return false;
 			}
 		}
@@ -387,9 +389,9 @@ namespace Xamarin.WebTests.Server
 		{
 			lock (this) {
 				Debug ($"{ME} RELEASE CONTEXT: {operation.ME}");
-				if (currentInstrumentation != operation)
+				if (currentOperation != operation)
 					throw new InvalidOperationException ();
-				currentInstrumentation = null;
+				currentOperation = null;
 				mainLoopEvent.Set ();
 			}
 		}
@@ -403,7 +405,7 @@ namespace Xamarin.WebTests.Server
 			while (true) {
 				ListenerOperation oldInstrumentation;
 				lock (this) {
-					oldInstrumentation = Interlocked.CompareExchange (ref currentInstrumentation, instrumentation, null);
+					oldInstrumentation = Interlocked.CompareExchange (ref currentOperation, instrumentation, null);
 					if (oldInstrumentation == null)
 						break;
 					ctx.LogDebug (2, $"{me} - WAITING FOR OPERATION {oldInstrumentation.Operation.ME}");
@@ -432,6 +434,8 @@ namespace Xamarin.WebTests.Server
 				ctx.LogDebug (2, $"{me} - CREATE CONTEXT: {reusing} {context.ME}");
 
 				await context.ServerStartTask.ConfigureAwait (false);
+
+				ctx.LogDebug (2, $"{me} - CREATE CONTEXT #1: {reusing} {context.ME}");
 			}
 
 			if (TargetListener?.UsingInstrumentation ?? false) {
