@@ -111,8 +111,8 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpInstrumentationTestType.CancelQueuedRequest, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.CancelMainWhileQueued, HttpInstrumentationTestFlags.WorkingRequireSSL),
 			(HttpInstrumentationTestType.SimpleNtlm, HttpInstrumentationTestFlags.Working),
-			(HttpInstrumentationTestType.NtlmWhileQueued, HttpInstrumentationTestFlags.Unstable),
-			(HttpInstrumentationTestType.NtlmWhileQueued2, HttpInstrumentationTestFlags.Unstable),
+			(HttpInstrumentationTestType.NtlmWhileQueued, HttpInstrumentationTestFlags.NewWebStackMono),
+			(HttpInstrumentationTestType.NtlmWhileQueued2, HttpInstrumentationTestFlags.NewWebStackMono),
 			(HttpInstrumentationTestType.ReuseConnection, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.SimplePost, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.SimpleRedirect, HttpInstrumentationTestFlags.Working),
@@ -154,6 +154,7 @@ namespace Xamarin.WebTests.TestRunners
 			if (category == ConnectionTestCategory.MartinTest)
 				return new[] { MartinTest };
 
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
 			return TestRegistration.Where (t => Filter (t.flags)).Select (t => t.type).ToList ();
 
 			bool Filter (HttpInstrumentationTestFlags flags)
@@ -169,6 +170,8 @@ namespace Xamarin.WebTests.TestRunners
 				case ConnectionTestCategory.HttpInstrumentationStress:
 					return flags == HttpInstrumentationTestFlags.Stress;
 				case ConnectionTestCategory.HttpInstrumentationNewWebStack:
+					if (flags == HttpInstrumentationTestFlags.NewWebStackMono && !setup.UsingDotNet)
+						return true;
 					return flags == HttpInstrumentationTestFlags.NewWebStack;
 				case ConnectionTestCategory.HttpInstrumentationExperimental:
 					return flags == HttpInstrumentationTestFlags.Unstable;
@@ -1236,6 +1239,12 @@ namespace Xamarin.WebTests.TestRunners
 
 				async Task HandleNtlmWhileQueued ()
 				{
+					/*
+					 * HandleNtlmWhileQueued and HandleNtlmWhileQueued2 don't work on .NET because they
+					 * don't do the "priority request" mechanic to send the NTLM challenge before processing
+					 * any queued requests.
+					 */
+
 					/*
 					 * This test is tricky.  We set ServicePoint.ConnectionLimit to 1, then start an NTLM
 					 * request.  Using the instrumentation's read handler, we then start another simple
