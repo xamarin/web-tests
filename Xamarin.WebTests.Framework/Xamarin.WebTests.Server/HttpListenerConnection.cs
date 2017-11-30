@@ -85,7 +85,7 @@ namespace Xamarin.WebTests.Server {
 			return false;
 		}
 
-		public override Task<bool> HasRequest (CancellationToken cancellationToken)
+		public override Task<bool> WaitForRequest (CancellationToken cancellationToken)
 		{
 			return Task.FromResult (Listener.IsListening);
 		}

@@ -398,17 +398,16 @@ namespace Xamarin.WebTests.Server
 				return ConnectionState.WaitingForRequest;
 			}
 
-			async Task WaitForClose ()
+			async Task<bool> WaitForClose ()
 			{
-				ctx.LogDebug (5, $"{me} WAIT FOR CLOSE");
-				var result = await Connection.HasRequest (cancellationToken).ConfigureAwait (false);
+				var result = await Connection.WaitForRequest (2500, cancellationToken).ConfigureAwait (false);
 				ctx.LogDebug (5, $"{me} WAIT FOR CLOSE #1: {result}");
-				ctx.Assert (result, Is.False, "expected client to close the connection");
+				return ctx.Expect (result, Is.False, "expected client to close the connection");
 			}
 
-			ConnectionState WaitForCloseDone ()
+			ConnectionState WaitForCloseDone (bool result)
 			{
-				return ConnectionState.CannotReuseConnection;
+				return result ? ConnectionState.Closed : ConnectionState.CannotReuseConnection;
 			}
 		}
 
@@ -563,7 +562,7 @@ namespace Xamarin.WebTests.Server
 				 * will be closed when the handshake is completed.
 				 *
 				 */
-				haveRequest = await connection.HasRequest (cancellationToken);
+				haveRequest = await connection.WaitForRequest (cancellationToken);
 				ctx.LogDebug (2, $"{me} #2 {haveRequest}");
 
 				if (operation != null && operation.HasAnyFlags (HttpOperationFlags.ClientAbortsHandshake))

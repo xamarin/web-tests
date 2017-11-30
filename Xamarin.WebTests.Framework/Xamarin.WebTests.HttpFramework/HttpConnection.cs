@@ -77,7 +77,20 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public abstract Task<bool> ReuseConnection (TestContext ctx, CancellationToken cancellationToken);
 
-		public abstract Task<bool> HasRequest (CancellationToken cancellationToken);
+		public async Task<bool> WaitForRequest (int timeout, CancellationToken cancellationToken)
+		{
+			using (var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken)) {
+				cts.CancelAfter (timeout);
+				var timeoutTask = Task.Delay (timeout);
+				var workerTask = WaitForRequest (cts.Token);
+				var ret = await Task.WhenAny (timeoutTask, workerTask).ConfigureAwait (false);
+				if (cts.Token.IsCancellationRequested || ret == timeoutTask)
+					throw new ConnectionException ("Timeout while waiting for request.");
+				return workerTask.Result;
+			}
+		}
+
+		public abstract Task<bool> WaitForRequest (CancellationToken cancellationToken);
 
 		public async Task<HttpRequest> ReadRequest (TestContext ctx, CancellationToken cancellationToken)
 		{

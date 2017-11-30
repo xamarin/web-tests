@@ -152,7 +152,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		public override async Task<bool> HasRequest (CancellationToken cancellationToken)
+		public override async Task<bool> WaitForRequest (CancellationToken cancellationToken)
 		{
 			return !await reader.IsEndOfStream (cancellationToken).ConfigureAwait (false);
 		}
