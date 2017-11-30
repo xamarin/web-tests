@@ -138,7 +138,7 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpInstrumentationTestType.AbortResponse, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.RedirectOnSameConnection, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.RedirectNoReuse, HttpInstrumentationTestFlags.Working),
-			(HttpInstrumentationTestType.RedirectNoLength, HttpInstrumentationTestFlags.Unstable),
+			(HttpInstrumentationTestType.RedirectNoLength, HttpInstrumentationTestFlags.NewWebStack),
 			(HttpInstrumentationTestType.PutChunked, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.PutChunkDontCloseRequest, HttpInstrumentationTestFlags.NewWebStack),
 			(HttpInstrumentationTestType.ServerAbortsRedirect, HttpInstrumentationTestFlags.Unstable),
