@@ -1,4 +1,4 @@
-﻿//
+//
 // ListenerContext.cs
 //
 // Author:

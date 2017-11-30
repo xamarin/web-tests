@@ -1,4 +1,4 @@
-﻿//
+//
 // StringContent.cs
 //
 // Author:
