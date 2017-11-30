@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Server
@@ -171,6 +172,8 @@ namespace Xamarin.WebTests.Server
 					return ListenerTask.Create (this, State, HandleProxyConnection, ProxyConnectionFinished);
 				case ConnectionState.RunTunnel:
 					return ListenerTask.Create (this, State, ProxyConnect, ProxyConnectDone);
+				case ConnectionState.WaitForClose:
+					return ListenerTask.Create (this, State, WaitForClose, WaitForCloseDone);
 				default:
 					throw ctx.AssertFail (State);
 				}
@@ -347,7 +350,8 @@ namespace Xamarin.WebTests.Server
 				currentResponse = response;
 
 				var keepAlive = (response.KeepAlive ?? false) && !response.CloseConnection;
-				if (response.Redirect != null && !keepAlive && Listener.UsingInstrumentation)
+				if (response.Redirect != null && Listener.UsingInstrumentation &&
+				    (!keepAlive || Operation.Operation.HasAnyFlags (HttpOperationFlags.RedirectOnNewConnection)))
 					return ConnectionState.NeedContextForRedirect;
 
 				return ConnectionState.RequestComplete;
@@ -379,17 +383,32 @@ namespace Xamarin.WebTests.Server
 				var operation = Interlocked.Exchange (ref currentOperation, null);
 				var redirect = Interlocked.Exchange (ref redirectRequested, null);
 
+				if (redirect != null && (operation?.Operation.HasAnyFlags (HttpOperationFlags.RedirectOnNewConnection) ?? false))
+					return ConnectionState.WaitForClose;
+
 				if (!keepAlive)
 					return ConnectionState.Closed;
 
 				if (redirect == null)
 					return ConnectionState.ReuseConnection;
 
-				if (operation?.Operation.HasAnyFlags (
-					HttpOperationFlags.ServerAbortsRedirection, HttpOperationFlags.ServerUsesNewConnection) ?? false)
+				if (operation?.Operation.HasAnyFlags (HttpOperationFlags.ServerAbortsRedirection) ?? false)
 					connection.Dispose ();
 
 				return ConnectionState.WaitingForRequest;
+			}
+
+			async Task WaitForClose ()
+			{
+				ctx.LogDebug (5, $"{me} WAIT FOR CLOSE");
+				var result = await Connection.HasRequest (cancellationToken).ConfigureAwait (false);
+				ctx.LogDebug (5, $"{me} WAIT FOR CLOSE #1: {result}");
+				ctx.Assert (result, Is.False, "expected client to close the connection");
+			}
+
+			ConnectionState WaitForCloseDone ()
+			{
+				return ConnectionState.CannotReuseConnection;
 			}
 		}
 

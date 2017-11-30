@@ -45,6 +45,7 @@ namespace Xamarin.WebTests.Server
 		HandleProxyConnection,
 		RunTunnel,
 		ReuseConnection,
+		WaitForClose,
 		Closed
 	}
 }
