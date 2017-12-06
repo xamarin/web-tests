@@ -68,6 +68,7 @@ namespace Xamarin.WebTests.TestFramework
 		HttpInstrumentationNoSSL,
 		HttpInstrumentationStress,
 		HttpInstrumentationNewWebStack,
+		HttpInstrumentationNewWebStackNoSSL,
 		HttpInstrumentationExperimental,
 
 		HttpStress,

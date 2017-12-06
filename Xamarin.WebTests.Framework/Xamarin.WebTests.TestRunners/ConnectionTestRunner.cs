@@ -197,6 +197,7 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.HttpInstrumentationNoSSL:
 			case ConnectionTestCategory.HttpInstrumentationStress:
 			case ConnectionTestCategory.HttpInstrumentationNewWebStack:
+			case ConnectionTestCategory.HttpInstrumentationNewWebStackNoSSL:
 			case ConnectionTestCategory.HttpInstrumentationExperimental:
 			case ConnectionTestCategory.HttpStress:
 			case ConnectionTestCategory.HttpStressExperimental:

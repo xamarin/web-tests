@@ -33,6 +33,7 @@ namespace Xamarin.WebTests.TestFramework
 		WorkingRequireSSL,
 		NewWebStack,
 		NewWebStackMono,
+		NewWebStackRequireSSL,
 		Stress,
 		Unstable,
 		Ignore

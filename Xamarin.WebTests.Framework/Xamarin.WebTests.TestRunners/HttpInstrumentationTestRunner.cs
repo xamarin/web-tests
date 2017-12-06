@@ -111,8 +111,8 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpInstrumentationTestType.CancelQueuedRequest, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.CancelMainWhileQueued, HttpInstrumentationTestFlags.WorkingRequireSSL),
 			(HttpInstrumentationTestType.SimpleNtlm, HttpInstrumentationTestFlags.Working),
-			(HttpInstrumentationTestType.NtlmWhileQueued, HttpInstrumentationTestFlags.NewWebStackMono),
-			(HttpInstrumentationTestType.NtlmWhileQueued2, HttpInstrumentationTestFlags.NewWebStackMono),
+			(HttpInstrumentationTestType.NtlmWhileQueued, HttpInstrumentationTestFlags.NewWebStackRequireSSL),
+			(HttpInstrumentationTestType.NtlmWhileQueued2, HttpInstrumentationTestFlags.NewWebStackRequireSSL),
 			(HttpInstrumentationTestType.ReuseConnection, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.SimplePost, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.SimpleRedirect, HttpInstrumentationTestFlags.Working),
@@ -170,6 +170,12 @@ namespace Xamarin.WebTests.TestRunners
 				case ConnectionTestCategory.HttpInstrumentationStress:
 					return flags == HttpInstrumentationTestFlags.Stress;
 				case ConnectionTestCategory.HttpInstrumentationNewWebStack:
+					if (!setup.UsingDotNet &&
+					    (flags == HttpInstrumentationTestFlags.NewWebStackMono ||
+					     flags == HttpInstrumentationTestFlags.NewWebStackRequireSSL))
+						return true;
+					return flags == HttpInstrumentationTestFlags.NewWebStack;
+				case ConnectionTestCategory.HttpInstrumentationNewWebStackNoSSL:
 					if (flags == HttpInstrumentationTestFlags.NewWebStackMono && !setup.UsingDotNet)
 						return true;
 					return flags == HttpInstrumentationTestFlags.NewWebStack;
