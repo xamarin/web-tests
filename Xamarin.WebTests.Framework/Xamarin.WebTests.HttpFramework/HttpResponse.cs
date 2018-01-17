@@ -1,4 +1,4 @@
-﻿﻿//
+﻿//
 // HttpResponse.cs
 //
 // Author:
@@ -83,6 +83,17 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
+		public bool WriteBodyAsBlob {
+			get { return writeBodyAsBlob; }
+			set {
+				if (headersResolved)
+					throw new InvalidOperationException ();
+				writeBodyAsBlob = value;
+				if (value)
+					writeAsBlob = true;
+			}
+		}
+
 		public bool NoContentLength {
 			get { return noContentLength; }
 			set {
@@ -105,6 +116,7 @@ namespace Xamarin.WebTests.HttpFramework
 		bool closeConnection;
 		bool headersResolved;
 		bool writeAsBlob;
+		bool writeBodyAsBlob;
 		bool noContentLength;
 		ListenerOperation redirect;
 
@@ -253,13 +265,17 @@ namespace Xamarin.WebTests.HttpFramework
 					sb.Append ($"{entry.Key}: {entry.Value}\r\n");
 				sb.Append ("\r\n");
 
-				if (Body is StringContent stringContent) {
-					sb.Append (stringContent.AsString ());
+				var ms = new MemoryStream ();
+				var blob = Encoding.UTF8.GetBytes (sb.ToString ());
+				ms.Write (blob, 0, blob.Length);
+
+				if (WriteBodyAsBlob || Body is StringContent) {
+					await Body.WriteToAsync (ctx, ms, cancellationToken).ConfigureAwait (false);
 					bodyWritten = true;
 				}
 
-				var blob = Encoding.UTF8.GetBytes (sb.ToString ());
-				await stream.WriteAsync (blob, 0, blob.Length).ConfigureAwait (false);
+				var buffer = ms.ToArray ();
+				await stream.WriteAsync (buffer, 0, buffer.Length).ConfigureAwait (false);
 				await stream.FlushAsync ();
 			} else {
 				await stream.WriteAsync (headerLine, cancellationToken).ConfigureAwait (false);

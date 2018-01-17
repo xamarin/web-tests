@@ -55,6 +55,12 @@ namespace Xamarin.WebTests.HttpClient
 			return new HttpRequestMessage (message);
 		}
 
+		public IHttpRequestMessage CreateRequestMessage (HttpMethod method, Uri requestUri)
+		{
+			var message = new Http.HttpRequestMessage (HttpRequestMessage.GetMethod (method), requestUri);
+			return new HttpRequestMessage (message);
+		}
+
 		public IHttpContent CreateStringContent (string content)
 		{
 			return new StringContent (new Http.StringContent (content));
@@ -77,6 +83,18 @@ namespace Xamarin.WebTests.HttpClient
 			set {
 				proxy = value;
 				handler.Proxy = value;
+			}
+		}
+
+		public bool AutomaticDecompression {
+			get {
+				return handler.AutomaticDecompression != DecompressionMethods.None;
+			}
+			set {
+				if (value)
+					handler.AutomaticDecompression = DecompressionMethods.GZip;
+				else
+					handler.AutomaticDecompression = DecompressionMethods.None;
 			}
 		}
 	}

@@ -117,6 +117,30 @@ namespace Xamarin.WebTests.HttpFramework
 			return buffer;
 		}
 
+		public static async Task WriteChunk (Stream stream, byte[] chunk, CancellationToken cancellationToken)
+		{
+			await stream.WriteAsync ($"{chunk.Length:x}\r\n", cancellationToken).ConfigureAwait (false);
+			await stream.WriteAsync (chunk, cancellationToken);
+			await stream.WriteAsync ("\r\n", cancellationToken);
+		}
+
+		public static async Task WriteChunkAsBlob (Stream stream, byte[] chunk, CancellationToken cancellationToken)
+		{
+			using (var ms = new MemoryStream ()) {
+				var header = Encoding.UTF8.GetBytes ($"{chunk.Length:x}\r\n");
+				var newline = Encoding.UTF8.GetBytes ("\n\r");
+				ms.Write (header, 0, header.Length);
+				ms.Write (chunk, 0, chunk.Length);
+				ms.Write (newline, 0, newline.Length);
+				await stream.WriteAsync (ms.ToArray (), cancellationToken).ConfigureAwait (false);
+			}
+		}
+
+		public static Task WriteChunkTrailer (Stream stream, CancellationToken cancellationToken)
+		{
+			return stream.WriteAsync ("0\r\n\r\n", cancellationToken);
+		}
+
 		public override bool HasLength {
 			get { return true; }
 		}
@@ -143,9 +167,10 @@ namespace Xamarin.WebTests.HttpFramework
 		public override async Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
 			foreach (var chunk in chunks) {
-				await stream.WriteAsync ($"{chunk.Length:x}\r\n{chunk}\r\n", cancellationToken).ConfigureAwait (false);
+				var bytes = Encoding.UTF8.GetBytes (chunk);
+				await WriteChunk (stream, bytes, cancellationToken).ConfigureAwait (false);
 			}
-			await stream.WriteAsync ("0\r\n\r\n\r\n", cancellationToken).ConfigureAwait (false);
+			await WriteChunkTrailer (stream, cancellationToken).ConfigureAwait (false);
 		}
 	}
 }

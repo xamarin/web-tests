@@ -47,7 +47,7 @@ namespace Xamarin.WebTests.HttpClient
 			get { return message; }
 		}
 
-		static HttpMethod GetMethod (Http.HttpMethod method)
+		internal static HttpMethod GetMethod (Http.HttpMethod method)
 		{
 			if (method == Http.HttpMethod.Get)
 				return HttpMethod.Get;
@@ -62,7 +62,7 @@ namespace Xamarin.WebTests.HttpClient
 			throw new InvalidOperationException ();
 		}
 
-		static Http.HttpMethod GetMethod (HttpMethod method)
+		internal static Http.HttpMethod GetMethod (HttpMethod method)
 		{
 			switch (method) {
 			case HttpMethod.Get:
@@ -117,6 +117,10 @@ namespace Xamarin.WebTests.HttpClient
 		{
 			message.Headers.TransferEncodingChunked = true;
 		}
+
+		public void SetKeepAlive ()
+		{
+			message.Headers.Connection.Add ("keep-alive");
+		}
 	}
 }
-

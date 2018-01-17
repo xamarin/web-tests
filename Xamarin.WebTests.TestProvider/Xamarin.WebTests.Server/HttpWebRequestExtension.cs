@@ -137,6 +137,15 @@ namespace Xamarin.WebTests.Server
 			get { return Request.ConnectionGroupName; }
 			set { Request.ConnectionGroupName = value; }
 		}
+
+		public bool AutomaticDecompression {
+			get { return Request.AutomaticDecompression == DecompressionMethods.GZip; }
+			set {
+				if (value)
+					Request.AutomaticDecompression = DecompressionMethods.GZip;
+				else
+					Request.AutomaticDecompression = DecompressionMethods.None;
+			}
+		}
 	}
 }
-

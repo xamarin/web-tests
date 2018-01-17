@@ -1,10 +1,10 @@
 ﻿//
-// HttpClientResponse.cs
+// GZipProvider.cs
 //
 // Author:
-//       Martin Baulig <mabaul@microsoft.com>
+//       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,54 +24,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.HttpHandlers
-{
+namespace Xamarin.WebTests.Server {
 	using ConnectionFramework;
-	using HttpFramework;
-	using HttpClient;
 
-	public sealed class HttpClientResponse : Response
+	public sealed class GZipProvider : IGZipProvider
 	{
-		public IHttpResponseMessage Response {
-			get;
-		}
-
-		public override HttpStatusCode Status => Response.StatusCode;
-
-		public override HttpContent Content {
-			get;
-		}
-
-		public override bool IsSuccess => Error == null;
-
-		public override Exception Error {
-			get;
-		}
-
-		public HttpClientResponse (Request request, IHttpResponseMessage response, HttpContent content, Exception error = null)
-			: base (request)
+		public Stream Compress (Stream stream, bool leaveOpen)
 		{
-			Response = response;
-			Content = content;
-			Error = error;
+			return new GZipStream (stream, CompressionLevel.Optimal, leaveOpen);
 		}
 
-		public static async Task<HttpClientResponse> Create (HttpClientRequest request, IHttpResponseMessage response)
+		public Stream Decompress (Stream stream, bool leaveOpen)
 		{
-			var content = await response.Content.GetContent ().ConfigureAwait (false);
-			return new HttpClientResponse (request, response, content);
-		}
-
-		public override string ToString ()
-		{
-			return $"[HttpClientResponse {Status}]";
+			return new GZipStream(stream, CompressionMode.Decompress, leaveOpen);
 		}
 	}
 }

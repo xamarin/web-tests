@@ -81,6 +81,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		string ConnectionGroupName {
 			get; set;
 		}
+
+		bool AutomaticDecompression {
+			get; set;
+		}
 	}
 }
 

@@ -46,6 +46,8 @@ namespace Xamarin.WebTests.HttpClient
 		void SetCustomContent (ICustomHttpContent content);
 
 		void SendChunked ();
+
+		void SetKeepAlive ();
 	}
 }
 

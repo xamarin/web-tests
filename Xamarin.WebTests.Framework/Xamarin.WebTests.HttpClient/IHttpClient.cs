@@ -35,6 +35,8 @@ namespace Xamarin.WebTests.HttpClient
 
 		Task<string> GetStringAsync (Uri requestUri);
 
+		Task<IHttpResponseMessage> GetAsync (Uri requestUri, HttpCompletionOption completionOption, CancellationToken cancellationToken);
+
 		Task<IHttpResponseMessage> SendAsync (IHttpRequestMessage request, HttpCompletionOption completionOption, CancellationToken cancellationToken);
 
 		Task<IHttpResponseMessage> PutAsync (Uri requestUri, IHttpContent content, CancellationToken cancellationToken);

@@ -51,8 +51,16 @@ namespace Xamarin.WebTests.HttpClient
 			return client.GetStringAsync (requestUri);
 		}
 
+		public async Task<IHttpResponseMessage> GetAsync (Uri requestUri, HttpCompletionOption completionOption, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+			var response = await client.GetAsync (requestUri, (Http.HttpCompletionOption)completionOption, cancellationToken).ConfigureAwait (false);
+			return new HttpResponseMessage (response);
+		}
+
 		public async Task<IHttpResponseMessage> SendAsync (IHttpRequestMessage request, HttpCompletionOption completionOption, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested ();
 			var message = ((HttpRequestMessage)request).Message;
 			var response = await client.SendAsync (message, (Http.HttpCompletionOption)completionOption, cancellationToken);
 			return new HttpResponseMessage (response);
@@ -60,6 +68,7 @@ namespace Xamarin.WebTests.HttpClient
 
 		public async Task<IHttpResponseMessage> PutAsync (Uri requestUri, IHttpContent content, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested ();
 			Http.HttpContent httpContent = null;
 			if (content != null)
 				httpContent = ((HttpClientContent)content).Content;

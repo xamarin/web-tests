@@ -73,7 +73,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpClientTestType MartinTest = HttpClientTestType.SimpleQueuedRequest;
+		const HttpClientTestType MartinTest = HttpClientTestType.ReuseHandlerGZip;
 
 		static readonly (HttpClientTestType type, HttpClientTestFlags flags)[] TestRegistration = {
 			(HttpClientTestType.Simple, HttpClientTestFlags.Working),
@@ -96,7 +96,19 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpClientTestType.GetError, HttpClientTestFlags.Working),
 
 			(HttpClientTestType.ParallelRequests, HttpClientTestFlags.Working),
-			(HttpClientTestType.SimpleQueuedRequest, HttpClientTestFlags.Ignore)
+			(HttpClientTestType.SimpleQueuedRequest, HttpClientTestFlags.Working),
+			(HttpClientTestType.SimpleGZip, HttpClientTestFlags.Working),
+			(HttpClientTestType.ParallelGZip, HttpClientTestFlags.Working),
+			(HttpClientTestType.SequentialRequests, HttpClientTestFlags.Working),
+			(HttpClientTestType.SequentialChunked, HttpClientTestFlags.Working),
+			(HttpClientTestType.SequentialGZip, HttpClientTestFlags.Working),
+
+			(HttpClientTestType.ParallelGZipNoClose, HttpClientTestFlags.Ignore),
+
+			(HttpClientTestType.ReuseHandler, HttpClientTestFlags.Working),
+			(HttpClientTestType.ReuseHandlerNoClose, HttpClientTestFlags.Working),
+			(HttpClientTestType.ReuseHandlerChunked, HttpClientTestFlags.Working),
+			(HttpClientTestType.ReuseHandlerGZip, HttpClientTestFlags.Ignore),
 		};
 
 		public static IList<HttpClientTestType> GetTestTypes (TestContext ctx, ConnectionTestCategory category)
@@ -159,7 +171,28 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ExpectedStatus = HttpStatusCode.OK;
 				break;
 			case HttpClientTestType.SimpleQueuedRequest:
+				parameters.NeedsServicePoint = true;
 				parameters.HasReadHandler = true;
+				parameters.ConnectionLimit = 1;
+				parameters.ExpectedError = WebExceptionStatus.Success;
+				parameters.ExpectedStatus = HttpStatusCode.OK;
+				break;
+			case HttpClientTestType.ParallelGZip:
+			case HttpClientTestType.ParallelGZipNoClose:
+				parameters.NeedsServicePoint = true;
+				parameters.HasReadHandler = true;
+				parameters.ConnectionLimit = 1;
+				parameters.ExpectedError = WebExceptionStatus.Success;
+				parameters.ExpectedStatus = HttpStatusCode.OK;
+				break;
+			case HttpClientTestType.SequentialRequests:
+			case HttpClientTestType.SequentialChunked:
+			case HttpClientTestType.SequentialGZip:
+			case HttpClientTestType.ReuseHandler:
+			case HttpClientTestType.ReuseHandlerNoClose:
+			case HttpClientTestType.ReuseHandlerChunked:
+			case HttpClientTestType.ReuseHandlerGZip:
+				parameters.NeedsServicePoint = true;
 				parameters.ConnectionLimit = 1;
 				parameters.ExpectedError = WebExceptionStatus.Success;
 				parameters.ExpectedStatus = HttpStatusCode.OK;
@@ -177,12 +210,46 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			var me = $"{ME}.{nameof (RunSecondary)}()";
 
-			await FinishedTask.ConfigureAwait (false);
+			Operation secondOperation = null;
 
 			switch (EffectiveType) {
 			case HttpClientTestType.ParallelRequests:
+			case HttpClientTestType.ParallelGZip:
 				ctx.Assert (ReadHandlerCalled, Is.EqualTo (2), "ReadHandler called twice");
 				break;
+			case HttpClientTestType.ParallelGZipNoClose:
+				ctx.Assert (ReadHandlerCalled, Is.GreaterThanOrEqualTo (2), "ReadHandler called twice");
+				break;
+			case HttpClientTestType.SequentialRequests:
+			case HttpClientTestType.SequentialChunked:
+			case HttpClientTestType.SequentialGZip:
+			case HttpClientTestType.ReuseHandler:
+			case HttpClientTestType.ReuseHandlerNoClose:
+			case HttpClientTestType.ReuseHandlerChunked:
+			case HttpClientTestType.ReuseHandlerGZip:
+				secondOperation = StartSequentialRequest ();
+				break;
+			}
+
+			if (secondOperation != null) {
+				ctx.LogDebug (2, $"{me} waiting for second operation.");
+				try {
+					await secondOperation.WaitForCompletion ().ConfigureAwait (false);
+					ctx.LogDebug (2, $"{me} done waiting for second operation.");
+				} catch (Exception ex) {
+					ctx.LogDebug (2, $"{me} waiting for second operation failed: {ex.Message}.");
+					throw;
+				}
+			}
+
+			Operation StartSequentialRequest ()
+			{
+				var (handler, flags) = CreateHandler (ctx, false);
+				var operation = new Operation (
+					this, handler, InstrumentationOperationType.Parallel, flags,
+					Parameters.ExpectedStatus, Parameters.ExpectedError);
+				operation.Start (ctx, cancellationToken);
+				return operation;
 			}
 		}
 
@@ -271,12 +338,68 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpClientTestType.ParallelRequests:
 			case HttpClientTestType.SimpleQueuedRequest:
 				return (hello, flags);
-
+			case HttpClientTestType.SimpleGZip:
+			case HttpClientTestType.ParallelGZip:
+			case HttpClientTestType.ParallelGZipNoClose:
+			case HttpClientTestType.SequentialRequests:
+			case HttpClientTestType.SequentialChunked:
+			case HttpClientTestType.SequentialGZip:
+				handler = new HttpClientInstrumentationHandler (this, true);
+				flags = HttpOperationFlags.DontReuseConnection;
+				break;
+			case HttpClientTestType.ReuseHandler:
+			case HttpClientTestType.ReuseHandlerNoClose:
+			case HttpClientTestType.ReuseHandlerChunked:
+			case HttpClientTestType.ReuseHandlerGZip:
+				handler = new HttpClientInstrumentationHandler (this, !primary);
+				break;
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
 
 			return (handler, flags);
+		}
+
+		void HandleRequest (
+			TestContext ctx, HttpClientInstrumentationHandler handler,
+			HttpConnection connection, HttpRequest request)
+		{
+			switch (EffectiveType) {
+			case HttpClientTestType.SequentialRequests:
+			case HttpClientTestType.SequentialChunked:
+			case HttpClientTestType.SequentialGZip:
+			case HttpClientTestType.ParallelGZip:
+				MustNotReuseConnection ();
+				break;
+			case HttpClientTestType.ReuseHandler:
+			case HttpClientTestType.ReuseHandlerNoClose:
+			case HttpClientTestType.ReuseHandlerChunked:
+			case HttpClientTestType.ReuseHandlerGZip:
+				MustReuseConnection ();
+				break;
+			case HttpClientTestType.SimpleGZip:
+				break;
+			default:
+				throw ctx.AssertFail (EffectiveType);
+			}
+
+			void MustNotReuseConnection ()
+			{
+				var firstHandler = (HttpClientInstrumentationHandler)PrimaryOperation.Handler;
+				ctx.LogDebug (2, $"{handler.ME}: {handler == firstHandler} {handler.RemoteEndPoint}");
+				if (handler == firstHandler)
+					return;
+				ctx.Assert (connection.RemoteEndPoint, Is.Not.EqualTo (firstHandler.RemoteEndPoint), "RemoteEndPoint");
+			}
+
+			void MustReuseConnection ()
+			{
+				var firstHandler = (HttpClientInstrumentationHandler)PrimaryOperation.Handler;
+				ctx.LogDebug (2, $"{handler.ME}: {handler == firstHandler} {handler.RemoteEndPoint}");
+				if (handler == firstHandler)
+					return;
+				ctx.Assert (connection.RemoteEndPoint, Is.EqualTo (firstHandler.RemoteEndPoint), "RemoteEndPoint");
+			}
 		}
 
 		protected override async Task PrimaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
@@ -286,6 +409,12 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpClientTestType.SimpleQueuedRequest:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
 				await RunSimpleHello ().ConfigureAwait (false);
+				break;
+
+			case HttpClientTestType.ParallelGZip:
+			case HttpClientTestType.ParallelGZipNoClose:
+				ctx.Assert (PrimaryOperation.HasRequest, "current request");
+				await RunParallelGZip ().ConfigureAwait (false);
 				break;
 
 			default:
@@ -298,14 +427,20 @@ namespace Xamarin.WebTests.TestRunners
 					ctx, cancellationToken, HelloWorldHandler.GetSimple (),
 					InstrumentationOperationType.Parallel, HttpOperationFlags.None).WaitForCompletion ();
 			}
+
+			Task RunParallelGZip ()
+			{
+				return StartOperation (
+					ctx, cancellationToken, new HttpClientInstrumentationHandler (this, true),
+					InstrumentationOperationType.Parallel, HttpOperationFlags.None).WaitForCompletion ();
+			}
 		}
 
 		protected override async Task SecondaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
 		{
-			await FinishedTask.ConfigureAwait (false);
-
 			switch (EffectiveType) {
 			case HttpClientTestType.ParallelRequests:
+			case HttpClientTestType.ParallelGZip:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
 				break;
 
@@ -314,8 +449,21 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Assert (PrimaryOperation.ServicePoint.CurrentConnections, Is.EqualTo (2), "ServicePoint.CurrentConnections");
 				break;
 
+			case HttpClientTestType.ParallelGZipNoClose:
+				ctx.Assert (PrimaryOperation.HasRequest, "current request");
+				if (ReadHandlerCalled == 2)
+					await RunParallelGZip ().ConfigureAwait (false);
+				break;
+
 			default:
 				throw ctx.AssertFail (EffectiveType);
+			}
+
+			Task RunParallelGZip ()
+			{
+				return StartOperation (
+					ctx, cancellationToken, new HttpClientInstrumentationHandler (this, true),
+					InstrumentationOperationType.Parallel, HttpOperationFlags.None).WaitForCompletion ();
 			}
 		}
 
@@ -331,55 +479,61 @@ namespace Xamarin.WebTests.TestRunners
 			new public HttpClientTestRunner Parent => (HttpClientTestRunner)base.Parent;
 
 			public Operation (HttpClientTestRunner parent, Handler handler,
-		                          InstrumentationOperationType type, HttpOperationFlags flags,
-			                  HttpStatusCode expectedStatus, WebExceptionStatus expectedError)
+					  InstrumentationOperationType type, HttpOperationFlags flags,
+					  HttpStatusCode expectedStatus, WebExceptionStatus expectedError)
 				: base (parent, $"{parent.EffectiveType}",
-				        handler, type, flags, expectedStatus, expectedError)
+					handler, type, flags, expectedStatus, expectedError)
 			{
+			}
+
+			bool ReuseHandler {
+				get {
+					switch (Parent.EffectiveType) {
+					case HttpClientTestType.ReuseHandler:
+					case HttpClientTestType.ReuseHandlerNoClose:
+					case HttpClientTestType.ReuseHandlerChunked:
+					case HttpClientTestType.ReuseHandlerGZip:
+						return true;
+					default:
+						return false;
+					}
+				}
 			}
 
 			protected override Request CreateRequest (TestContext ctx, Uri uri)
 			{
-				return new HttpClientRequest (uri);
+				var instrumentationHandler = Handler as HttpClientInstrumentationHandler;
+				if (instrumentationHandler == null)
+					return new HttpClientRequest (uri);
+
+				if (Type == InstrumentationOperationType.Primary || !ReuseHandler)
+					return new HttpClientInstrumentationRequest (
+						this, instrumentationHandler, uri);
+
+				var primaryRequest = (HttpClientInstrumentationRequest)Parent.PrimaryOperation.Request;
+				return new HttpClientInstrumentationRequest (
+					this, instrumentationHandler, primaryRequest, uri);
 			}
 
 			protected override void ConfigureRequest (TestContext ctx, Uri uri, Request request)
 			{
-				var httpClientRequest = (HttpClientRequest)request;
+				if (Type == InstrumentationOperationType.Primary) {
+					if (Parent.Parameters.NeedsServicePoint)
+						ServicePoint = ServicePointManager.FindServicePoint (uri);
+					if (Parent.Parameters.ConnectionLimit != 0)
+						ServicePoint.ConnectionLimit = Parent.Parameters.ConnectionLimit;
+				}
 
-				switch (Parent.EffectiveType) {
-				case HttpClientTestType.Simple:
-				case HttpClientTestType.GetString:
-				case HttpClientTestType.SendAsyncEmptyBody:
-				case HttpClientTestType.SendAsyncObscureVerb:
-				case HttpClientTestType.SendAsyncGet:
-				case HttpClientTestType.SendAsyncHead:
-				case HttpClientTestType.PutRedirectEmptyBody:
-				case HttpClientTestType.PutRedirect:
-				case HttpClientTestType.PutRedirectKeepAlive:
-					break;
-				case HttpClientTestType.PostString:
-				case HttpClientTestType.PostStringWithResult:
-				case HttpClientTestType.PutString:
-				case HttpClientTestType.SendLargeBlob:
-				case HttpClientTestType.SendLargeBlobOddSize:
-				case HttpClientTestType.ChunkSizeWithLeadingZero:
-					httpClientRequest.Content = ((PostHandler)Handler).Content;
-					break;
-				case HttpClientTestType.PutChunked:
-					httpClientRequest.Content = ((PostHandler)Handler).Content.RemoveTransferEncoding ();
-					httpClientRequest.SendChunked ();
-					break;
-				case HttpClientTestType.RedirectCustomContent:
-				case HttpClientTestType.GetError:
-					break;
-				case HttpClientTestType.ParallelRequests:
-					break;
-				case HttpClientTestType.SimpleQueuedRequest:
-					ServicePoint = ServicePointManager.FindServicePoint (uri);
-					break;
-				default:
-					throw ctx.AssertFail (Parent.EffectiveType);
+				if (request is HttpClientInstrumentationRequest instrumentationRequest) {
+					instrumentationRequest.ConfigureRequest (ctx, uri);
+					return;
+				}
+
+				if (request is HttpClientRequest httpClientRequest) {
+					if (Type == InstrumentationOperationType.Primary)
+						ConfigurePrimaryRequest (ctx, httpClientRequest);
+					else
+						ConfigureParallelRequest (ctx, httpClientRequest);
 				}
 
 				Handler.ConfigureRequest (request, uri);
@@ -387,40 +541,98 @@ namespace Xamarin.WebTests.TestRunners
 				request.SetProxy (Parent.Server.GetProxy ());
 			}
 
-			protected override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
+			void ConfigurePrimaryRequest (TestContext ctx, HttpClientRequest request)
 			{
-				ctx.LogDebug (2, $"{ME} RUN INNER");
-
-				var httpClientRequest = (HttpClientRequest)request;
-
 				switch (Parent.EffectiveType) {
 				case HttpClientTestType.Simple:
 				case HttpClientTestType.GetString:
-					return httpClientRequest.GetString (ctx, cancellationToken);
+				case HttpClientTestType.SendAsyncEmptyBody:
+				case HttpClientTestType.SendAsyncObscureVerb:
+				case HttpClientTestType.SendAsyncGet:
+				case HttpClientTestType.SendAsyncHead:
+				case HttpClientTestType.PutRedirectEmptyBody:
+				case HttpClientTestType.PutRedirect:
+				case HttpClientTestType.PutRedirectKeepAlive:
+					break;
+				case HttpClientTestType.PostString:
+				case HttpClientTestType.PostStringWithResult:
+				case HttpClientTestType.PutString:
+				case HttpClientTestType.SendLargeBlob:
+				case HttpClientTestType.SendLargeBlobOddSize:
+				case HttpClientTestType.ChunkSizeWithLeadingZero:
+					request.Content = ((PostHandler)Handler).Content;
+					break;
+				case HttpClientTestType.PutChunked:
+					request.Content = ((PostHandler)Handler).Content.RemoveTransferEncoding ();
+					request.SendChunked ();
+					break;
+				case HttpClientTestType.RedirectCustomContent:
+				case HttpClientTestType.GetError:
+					break;
+				case HttpClientTestType.ParallelRequests:
+				case HttpClientTestType.SimpleQueuedRequest:
+					break;
+				default:
+					throw ctx.AssertFail (Parent.EffectiveType);
+				}
+			}
+
+			void ConfigureParallelRequest (TestContext ctx, HttpClientRequest request)
+			{
+				switch (Parent.EffectiveType) {
+				case HttpClientTestType.ParallelRequests:
+				case HttpClientTestType.SimpleQueuedRequest:
+					break;
+				default:
+					throw ctx.AssertFail (Parent.EffectiveType);
+				}
+			}
+
+			protected override async Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
+			{
+				ctx.LogDebug (2, $"{ME} RUN INNER");
+
+				if (request is HttpClientInstrumentationRequest instrumentationRequest) {
+					using (var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken)) {
+						cts.Token.Register (() => instrumentationRequest.Abort ());
+						return await instrumentationRequest.SendAsync (ctx, cts.Token).ConfigureAwait (false);
+					}
+				}
+
+				var httpClientRequest = (HttpClientRequest)request;
+				return await Run (ctx, httpClientRequest, cancellationToken).ConfigureAwait (false);
+			}
+
+			Task<Response> Run (TestContext ctx, HttpClientRequest request, CancellationToken cancellationToken)
+			{
+				switch (Parent.EffectiveType) {
+				case HttpClientTestType.Simple:
+				case HttpClientTestType.GetString:
+					return request.GetString (ctx, cancellationToken);
 				case HttpClientTestType.PostString:
 				case HttpClientTestType.PostStringWithResult:
 				case HttpClientTestType.ChunkSizeWithLeadingZero:
-					return httpClientRequest.PostString (ctx, cancellationToken);
+					return request.PostString (ctx, cancellationToken);
 				case HttpClientTestType.PutString:
 				case HttpClientTestType.PutRedirectEmptyBody:
 				case HttpClientTestType.PutRedirect:
 				case HttpClientTestType.PutRedirectKeepAlive:
-					return httpClientRequest.PutString (ctx, cancellationToken);
+					return request.PutString (ctx, cancellationToken);
 				case HttpClientTestType.PutChunked:
 				case HttpClientTestType.SendAsyncEmptyBody:
 				case HttpClientTestType.SendAsyncObscureVerb:
 				case HttpClientTestType.SendAsyncGet:
 				case HttpClientTestType.SendAsyncHead:
 				case HttpClientTestType.GetError:
-					return httpClientRequest.SendAsync (ctx, cancellationToken);
+					return request.SendAsync (ctx, cancellationToken);
 				case HttpClientTestType.SendLargeBlob:
 				case HttpClientTestType.SendLargeBlobOddSize:
-					return httpClientRequest.PutDataAsync (ctx, cancellationToken);
+					return request.PutDataAsync (ctx, cancellationToken);
 				case HttpClientTestType.RedirectCustomContent:
-					return httpClientRequest.PostString (ctx, cancellationToken);
+					return request.PostString (ctx, cancellationToken);
 				case HttpClientTestType.ParallelRequests:
 				case HttpClientTestType.SimpleQueuedRequest:
-					return httpClientRequest.GetString (ctx, cancellationToken);
+					return request.GetString (ctx, cancellationToken);
 				default:
 					throw ctx.AssertFail (Parent.EffectiveType);
 				}
@@ -432,9 +644,160 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
+		class HttpClientInstrumentationRequest : Request
+		{
+			public Operation Operation {
+				get;
+			}
+
+			public HttpClientInstrumentationHandler Parent {
+				get;
+			}
+
+			public Uri RequestUri {
+				get;
+			}
+
+			protected IHttpClient Client {
+				get;
+			}
+
+			protected IHttpClientHandler Handler {
+				get;
+			}
+
+			public HttpClientInstrumentationRequest (
+				Operation operation,
+				HttpClientInstrumentationHandler handler,
+				Uri requestUri)
+			{
+				Operation = operation;
+				Parent = handler;
+				RequestUri = requestUri;
+
+				var provider = DependencyInjector.Get<IHttpClientProvider> ();
+				Handler = provider.Create ();
+				Client = Handler.CreateHttpClient ();
+			}
+
+			public HttpClientInstrumentationRequest (
+				Operation operation,
+				HttpClientInstrumentationHandler handler,
+				HttpClientInstrumentationRequest primaryRequest,
+				Uri requestUri)
+			{
+				Operation = operation;
+				Parent = handler;
+				RequestUri = requestUri;
+
+				Handler = primaryRequest.Handler;
+				Client = primaryRequest.Client;
+			}
+
+			public override string Method {
+				get => throw new NotSupportedException ();
+				set => throw new NotSupportedException ();
+			}
+
+			public override void Abort ()
+			{
+				Client.CancelPendingRequests ();
+			}
+
+			public void ConfigureRequest (TestContext ctx, Uri uri)
+			{
+				switch (Parent.TestRunner.EffectiveType) {
+				case HttpClientTestType.SimpleGZip:
+				case HttpClientTestType.ParallelGZip:
+				case HttpClientTestType.ParallelGZipNoClose:
+				case HttpClientTestType.SequentialGZip:
+					Handler.AutomaticDecompression = true;
+					break;
+				case HttpClientTestType.ReuseHandlerGZip:
+					if (Operation.Type == InstrumentationOperationType.Primary)
+						Handler.AutomaticDecompression = true;
+					break;
+				case HttpClientTestType.SequentialRequests:
+				case HttpClientTestType.SequentialChunked:
+				case HttpClientTestType.ReuseHandler:
+				case HttpClientTestType.ReuseHandlerNoClose:
+				case HttpClientTestType.ReuseHandlerChunked:
+					break;
+				default:
+					throw ctx.AssertFail (Parent.TestRunner.EffectiveType);
+				}
+			}
+
+			public override Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
+			{
+				switch (Parent.TestRunner.EffectiveType) {
+				case HttpClientTestType.SimpleGZip:
+				case HttpClientTestType.ParallelGZip:
+				case HttpClientTestType.ReuseHandler:
+					return GetString (ctx, cancellationToken);
+				case HttpClientTestType.ParallelGZipNoClose:
+				case HttpClientTestType.SequentialRequests:
+				case HttpClientTestType.SequentialChunked:
+				case HttpClientTestType.SequentialGZip:
+				case HttpClientTestType.ReuseHandlerNoClose:
+				case HttpClientTestType.ReuseHandlerChunked:
+				case HttpClientTestType.ReuseHandlerGZip:
+					return GetStringNoClose (ctx, cancellationToken);
+				default:
+					throw ctx.AssertFail (Parent.TestRunner.EffectiveType);
+				}
+			}
+
+			public override void SendChunked ()
+			{
+				throw new NotSupportedException ();
+			}
+
+			public override void SetContentLength (long contentLength)
+			{
+				throw new NotSupportedException ();
+			}
+
+			public override void SetContentType (string contentType)
+			{
+				throw new NotSupportedException ();
+			}
+
+			public override void SetCredentials (ICredentials credentials)
+			{
+				throw new NotSupportedException ();
+			}
+
+			public override void SetProxy (IWebProxy proxy)
+			{
+				throw new NotSupportedException ();
+			}
+
+			async Task<Response> GetString (TestContext ctx, CancellationToken cancellationToken)
+			{
+				try {
+					var body = await Client.GetStringAsync (RequestUri);
+					return new SimpleResponse (this, HttpStatusCode.OK, StringContent.CreateMaybeNull (body));
+				} catch (Exception ex) {
+					return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, ex);
+				}
+			}
+
+			async Task<Response> GetStringNoClose (TestContext ctx, CancellationToken cancellationToken)
+			{
+				var method = Handler.CreateRequestMessage (HttpMethod.Get, RequestUri);
+				method.SetKeepAlive ();
+				var response = await Client.SendAsync (
+					method, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait (false);
+				ctx.Assert (response.IsSuccessStatusCode, "success");
+				var content = await response.Content.ReadAsStringAsync ();
+				return new SimpleResponse (this, HttpStatusCode.OK, StringContent.CreateMaybeNull (content));
+			}
+		}
+
 		class Bug20583Content : HttpContent
 		{
-			#region implemented abstract members of HttpContent
+#region implemented abstract members of HttpContent
 			public override bool HasLength => false;
 			public override int Length => throw new InvalidOperationException ();
 			public override string AsString ()
@@ -458,7 +821,7 @@ namespace Xamarin.WebTests.TestRunners
 				await stream.WriteAsync ("4\r\n");
 				await stream.WriteAsync ("AAAA\r\n0\r\n\r\n");
 			}
-			#endregion
+#endregion
 		}
 
 		class CustomContent : HttpContent, ICustomHttpContent
@@ -500,7 +863,7 @@ namespace Xamarin.WebTests.TestRunners
 				await stream.WriteAsync (AsString (), cancellationToken).ConfigureAwait (false);
 			}
 
-			public override HttpContent RemoveTransferEncoding()
+			public override HttpContent RemoveTransferEncoding ()
 			{
 				return this;
 			}
@@ -537,7 +900,118 @@ namespace Xamarin.WebTests.TestRunners
 				length = -1;
 				return false;
 			}
+		}
 
+		class HttpClientInstrumentationHandler : Handler
+		{
+			public HttpClientTestRunner TestRunner {
+				get;
+			}
+
+			public string ME {
+				get;
+			}
+
+			public bool CloseConnection {
+				get;
+			}
+
+			public IPEndPoint RemoteEndPoint {
+				get;
+				private set;
+			}
+
+			public HttpClientInstrumentationHandler (HttpClientTestRunner parent, bool closeConnection)
+
+				: base (parent.EffectiveType.ToString ())
+			{
+				TestRunner = parent;
+				ME = $"{GetType ().Name}({parent.EffectiveType})";
+				CloseConnection = closeConnection;
+
+				Flags = RequestFlags.KeepAlive;
+				if (CloseConnection)
+					Flags |= RequestFlags.CloseConnection;
+			}
+
+			HttpClientInstrumentationHandler (HttpClientInstrumentationHandler other)
+				: base (other.Value)
+			{
+				TestRunner = other.TestRunner;
+				ME = other.ME;
+				CloseConnection = other.CloseConnection;
+				Flags = other.Flags;
+			}
+
+			public override object Clone ()
+			{
+				return new HttpClientInstrumentationHandler (this);
+			}
+
+			protected internal override async Task<HttpResponse> HandleRequest (
+				TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
+				RequestFlags effectiveFlags, CancellationToken cancellationToken)
+			{
+				await FinishedTask.ConfigureAwait (false);
+
+				RemoteEndPoint = connection.RemoteEndPoint;
+
+				TestRunner.HandleRequest (ctx, this, connection, request);
+
+				HttpContent content;
+				switch (TestRunner.EffectiveType) {
+				case HttpClientTestType.SimpleGZip:
+				case HttpClientTestType.ParallelGZip:
+				case HttpClientTestType.ParallelGZipNoClose:
+				case HttpClientTestType.SequentialGZip:
+				case HttpClientTestType.ReuseHandlerGZip:
+					content = new GZipContent (ConnectionHandler.TheQuickBrownFoxBuffer);
+					break;
+
+				case HttpClientTestType.SequentialRequests:
+				case HttpClientTestType.ReuseHandler:
+				case HttpClientTestType.ReuseHandlerNoClose:
+					content = HttpContent.TheQuickBrownFox;
+					break;
+
+				case HttpClientTestType.ReuseHandlerChunked:
+				case HttpClientTestType.SequentialChunked:
+					content = new ChunkedContent (ConnectionHandler.TheQuickBrownFox);
+					break;
+
+				default:
+					throw ctx.AssertFail (TestRunner.EffectiveType);
+				}
+
+				return new HttpResponse (HttpStatusCode.OK, content);
+			}
+
+			public override bool CheckResponse (TestContext ctx, Response response)
+			{
+				HttpContent expectedContent;
+				switch (TestRunner.EffectiveType) {
+				case HttpClientTestType.SimpleGZip:
+				case HttpClientTestType.ParallelGZip:
+				case HttpClientTestType.ParallelGZipNoClose:
+				case HttpClientTestType.SequentialRequests:
+				case HttpClientTestType.SequentialChunked:
+				case HttpClientTestType.SequentialGZip:
+				case HttpClientTestType.ReuseHandler:
+				case HttpClientTestType.ReuseHandlerNoClose:
+				case HttpClientTestType.ReuseHandlerChunked:
+				case HttpClientTestType.ReuseHandlerGZip:
+					expectedContent = HttpContent.TheQuickBrownFox;
+					break;
+				default:
+					expectedContent = new StringContent (ME);
+					break;
+				}
+
+				if (!ctx.Expect (response.Content, Is.Not.Null, "response.Content != null"))
+					return false;
+
+				return HttpContent.Compare (ctx, response.Content, expectedContent, false, "response.Content");
+			}
 		}
 	}
 }

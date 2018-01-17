@@ -76,6 +76,10 @@ namespace Xamarin.WebTests.TestFramework
 		EntityTooBig,
 		PostContentLength,
 		ClientAbortsPost,
+		GetChunked,
+		SimpleGZip,
+		TestResponseStream,
+		LargeChunkRead,
 
 		MartinTest
 	}

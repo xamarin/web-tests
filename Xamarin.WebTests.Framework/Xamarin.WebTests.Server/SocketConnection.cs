@@ -133,8 +133,9 @@ namespace Xamarin.WebTests.Server
 			if (!socket.Connected)
 				return false;
 
+			ctx.LogDebug (5, $"{ME}: REUSE CONNECTION: {socket.Connected} {socket.Available} {socket.Blocking} {socket.IsBound}");
 			var reusable = await socket.PollAsync (cancellationToken).ConfigureAwait (false);
-			ctx.LogDebug (5, $"{ME}: REUSE CONNECTION: {reusable} {socket.Connected} {socket.Available} {socket.Blocking} {socket.IsBound}");
+			ctx.LogDebug (5, $"{ME}: REUSE CONNECTION #1: {reusable} {socket.Connected} {socket.Available} {socket.Blocking} {socket.IsBound}");
 			if (!reusable)
 				return false;
 

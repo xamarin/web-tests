@@ -52,6 +52,7 @@ namespace Xamarin.WebTests.TestProvider
 			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandlerImpl ());
 			DependencyInjector.RegisterExtension<HttpWebRequest> ((request) => new HttpWebRequestExtension (request));
 			DependencyInjector.RegisterExtension<WebClient> ((client) => new WebClientExtension (client));
+			DependencyInjector.RegisterDependency<IGZipProvider> (() => new GZipProvider ());
 		}
 	}
 }

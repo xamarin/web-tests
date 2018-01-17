@@ -34,11 +34,15 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpFramework
 {
+	using TestFramework;
+
 	public abstract class HttpContent
 	{
 		public static readonly HttpContent HelloWorld = new StringContent ("Hello World!");
 		public static readonly HttpContent ReturningWorld = new StringContent ("Returning World!");
 		public static readonly HttpContent HelloChunked = new ChunkedContent ("Hello Chunked World!");
+		public static readonly HttpContent TheQuickBrownFox = new StringContent (ConnectionHandler.TheQuickBrownFox);
+		public static readonly HttpContent TheQuickBrownFoxChunked = new ChunkedContent (ConnectionHandler.TheQuickBrownFox);
 
 		public abstract bool HasLength {
 			get;

@@ -1,10 +1,10 @@
 ﻿//
-// HttpClientResponse.cs
+// IGZipProvider.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,54 +24,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.HttpHandlers
-{
-	using ConnectionFramework;
-	using HttpFramework;
-	using HttpClient;
-
-	public sealed class HttpClientResponse : Response
+namespace Xamarin.WebTests.ConnectionFramework {
+	public interface IGZipProvider : ISingletonInstance
 	{
-		public IHttpResponseMessage Response {
-			get;
-		}
+		Stream Compress (Stream stream, bool leaveOpen);
 
-		public override HttpStatusCode Status => Response.StatusCode;
-
-		public override HttpContent Content {
-			get;
-		}
-
-		public override bool IsSuccess => Error == null;
-
-		public override Exception Error {
-			get;
-		}
-
-		public HttpClientResponse (Request request, IHttpResponseMessage response, HttpContent content, Exception error = null)
-			: base (request)
-		{
-			Response = response;
-			Content = content;
-			Error = error;
-		}
-
-		public static async Task<HttpClientResponse> Create (HttpClientRequest request, IHttpResponseMessage response)
-		{
-			var content = await response.Content.GetContent ().ConfigureAwait (false);
-			return new HttpClientResponse (request, response, content);
-		}
-
-		public override string ToString ()
-		{
-			return $"[HttpClientResponse {Status}]";
-		}
+		Stream Decompress (Stream stream, bool leaveOpen);
 	}
 }

@@ -53,6 +53,17 @@ namespace Xamarin.WebTests.TestFramework
 
 		ParallelRequests,
 		SimpleQueuedRequest,
+		SimpleGZip,
+		ParallelGZip,
+		ParallelGZipNoClose,
+		SequentialRequests,
+		SequentialChunked,
+		SequentialGZip,
+
+		ReuseHandler,
+		ReuseHandlerNoClose,
+		ReuseHandlerChunked,
+		ReuseHandlerGZip,
 
 		MartinTest
 	}

@@ -79,7 +79,9 @@ namespace Xamarin.WebTests.HttpHandlers
 			if (response.Content.HasLength && Content.HasLength) {
 				if (!ctx.Expect (response.Content.Length, Is.EqualTo (Content.Length), "response.Content.Length"))
 					return false;
-				if (!ctx.Expect (response.Content.AsString (), Is.EqualTo (Content.AsString ()), "response.Content.AsString ()"))
+				if (!HttpContent.Compare (ctx, response.Content, Content, true, "response.Content"))
+					return false;
+				if (false && !ctx.Expect (response.Content.AsString (), Is.EqualTo (Content.AsString ()), "response.Content.AsString ()"))
 					return false;
 			}
 			return true;
