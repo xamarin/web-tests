@@ -51,6 +51,9 @@ namespace Xamarin.WebTests.TestFramework
 
 		GetError,
 
+		ParallelRequests,
+		SimpleQueuedRequest,
+
 		MartinTest
 	}
 }

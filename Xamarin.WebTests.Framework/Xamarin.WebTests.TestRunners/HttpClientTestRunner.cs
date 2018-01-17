@@ -47,20 +47,8 @@ namespace Xamarin.WebTests.TestRunners
 	using Resources;
 
 	[HttpClientTestRunner]
-	public class HttpClientTestRunner : AbstractConnection
+	public class HttpClientTestRunner : InstrumentationTestRunner
 	{
-		public ConnectionTestProvider Provider {
-			get;
-		}
-
-		protected Uri Uri {
-			get;
-		}
-
-		protected HttpServerFlags ServerFlags {
-			get;
-		}
-
 		new public HttpClientTestParameters Parameters {
 			get { return (HttpClientTestParameters)base.Parameters; }
 		}
@@ -74,29 +62,18 @@ namespace Xamarin.WebTests.TestRunners
 			return type;
 		}
 
-		public HttpServer Server {
-			get;
-		}
-
-		public string ME {
+		public sealed override string ME {
 			get;
 		}
 
 		public HttpClientTestRunner (IPortableEndPoint endpoint, HttpClientTestParameters parameters,
 					     ConnectionTestProvider provider, Uri uri, HttpServerFlags flags)
-			: base (endpoint, parameters)
+			: base (endpoint, parameters, provider, uri, flags)
 		{
-			Provider = provider;
-			Uri = uri;
-
-			ServerFlags = flags | HttpServerFlags.InstrumentationListener;
-
-			Server = new BuiltinHttpServer (uri, endpoint, ServerFlags, parameters, null);
-
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpClientTestType MartinTest = HttpClientTestType.GetError;
+		const HttpClientTestType MartinTest = HttpClientTestType.SimpleQueuedRequest;
 
 		static readonly (HttpClientTestType type, HttpClientTestFlags flags)[] TestRegistration = {
 			(HttpClientTestType.Simple, HttpClientTestFlags.Working),
@@ -116,7 +93,10 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpClientTestType.PutRedirectKeepAlive, HttpClientTestFlags.NewWebStack),
 			// Fixed in PR #6059 / #6068.
 			(HttpClientTestType.SendAsyncObscureVerb, HttpClientTestFlags.WorkingMaster),
-			(HttpClientTestType.GetError, HttpClientTestFlags.Working)
+			(HttpClientTestType.GetError, HttpClientTestFlags.Working),
+
+			(HttpClientTestType.ParallelRequests, HttpClientTestFlags.Working),
+			(HttpClientTestType.SimpleQueuedRequest, HttpClientTestFlags.Ignore)
 		};
 
 		public static IList<HttpClientTestType> GetTestTypes (TestContext ctx, ConnectionTestCategory category)
@@ -173,6 +153,17 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ExpectedError = WebExceptionStatus.Success;
 				parameters.ExpectedStatus = HttpStatusCode.InternalServerError;
 				break;
+			case HttpClientTestType.ParallelRequests:
+				parameters.HasReadHandler = true;
+				parameters.ExpectedError = WebExceptionStatus.Success;
+				parameters.ExpectedStatus = HttpStatusCode.OK;
+				break;
+			case HttpClientTestType.SimpleQueuedRequest:
+				parameters.HasReadHandler = true;
+				parameters.ConnectionLimit = 1;
+				parameters.ExpectedError = WebExceptionStatus.Success;
+				parameters.ExpectedStatus = HttpStatusCode.OK;
+				break;
 			default:
 				parameters.ExpectedError = WebExceptionStatus.Success;
 				parameters.ExpectedStatus = HttpStatusCode.OK;
@@ -182,30 +173,20 @@ namespace Xamarin.WebTests.TestRunners
 			return parameters;
 		}
 
-		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
+		protected override async Task RunSecondary (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var me = $"{ME}.{nameof (Run)}()";
-			ctx.LogDebug (2, $"{me}");
+			var me = $"{ME}.{nameof (RunSecondary)}()";
 
-			var (handler, flags) = CreateHandler (ctx, true);
+			await FinishedTask.ConfigureAwait (false);
 
-			ctx.LogDebug (2, $"{me}");
-
-			currentOperation = new Operation (this, handler, flags);
-			currentOperation.Start (ctx, cancellationToken);
-
-			try {
-				await currentOperation.WaitForCompletion ().ConfigureAwait (false);
-				ctx.LogDebug (2, $"{me} operation done");
-			} catch (Exception ex) {
-				ctx.LogDebug (2, $"{me} operation failed: {ex.Message}");
-				throw;
+			switch (EffectiveType) {
+			case HttpClientTestType.ParallelRequests:
+				ctx.Assert (ReadHandlerCalled, Is.EqualTo (2), "ReadHandler called twice");
+				break;
 			}
-
-			Server.CloseAll ();
 		}
 
-		(Handler handler, HttpOperationFlags flags) CreateHandler (TestContext ctx, bool primary)
+		protected override (Handler handler, HttpOperationFlags flags) CreateHandler (TestContext ctx, bool primary)
 		{
 			var identifier = EffectiveType.ToString ();
 			var hello = new HelloWorldHandler (identifier);
@@ -287,6 +268,9 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpClientTestType.GetError:
 				handler = new GetHandler (identifier, HttpContent.HelloWorld, HttpStatusCode.InternalServerError);
 				break;
+			case HttpClientTestType.ParallelRequests:
+			case HttpClientTestType.SimpleQueuedRequest:
+				return (hello, flags);
 
 			default:
 				throw ctx.AssertFail (EffectiveType);
@@ -295,43 +279,63 @@ namespace Xamarin.WebTests.TestRunners
 			return (handler, flags);
 		}
 
-		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		protected override async Task PrimaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
 		{
-			await Server.Initialize (ctx, cancellationToken).ConfigureAwait (false);
-		}
+			switch (EffectiveType) {
+			case HttpClientTestType.ParallelRequests:
+			case HttpClientTestType.SimpleQueuedRequest:
+				ctx.Assert (PrimaryOperation.HasRequest, "current request");
+				await RunSimpleHello ().ConfigureAwait (false);
+				break;
 
-		protected override async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
-		{
-			currentOperation?.Dispose ();
-			currentOperation = null;
-			await Server.Destroy (ctx, cancellationToken).ConfigureAwait (false);
-		}
-
-		protected override async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
-		{
-			await Server.PreRun (ctx, cancellationToken).ConfigureAwait (false);
-		}
-
-		protected override async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
-		{
-			await Server.PostRun (ctx, cancellationToken).ConfigureAwait (false);
-		}
-
-		protected override void Stop ()
-		{
-		}
-
-		class Operation : HttpOperation
-		{
-			public HttpClientTestRunner Parent {
-				get;
+			default:
+				throw ctx.AssertFail (EffectiveType);
 			}
 
-			public Operation (HttpClientTestRunner parent, Handler handler, HttpOperationFlags flags)
-				: base (parent.Server, $"{parent.EffectiveType}",
-				        handler, flags, parent.Parameters.ExpectedStatus, parent.Parameters.ExpectedError)
+			Task RunSimpleHello ()
 			{
-				Parent = parent;
+				return StartOperation (
+					ctx, cancellationToken, HelloWorldHandler.GetSimple (),
+					InstrumentationOperationType.Parallel, HttpOperationFlags.None).WaitForCompletion ();
+			}
+		}
+
+		protected override async Task SecondaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		{
+			await FinishedTask.ConfigureAwait (false);
+
+			switch (EffectiveType) {
+			case HttpClientTestType.ParallelRequests:
+				ctx.Assert (PrimaryOperation.HasRequest, "current request");
+				break;
+
+			case HttpClientTestType.SimpleQueuedRequest:
+				ctx.Assert (PrimaryOperation.HasRequest, "current request");
+				ctx.Assert (PrimaryOperation.ServicePoint.CurrentConnections, Is.EqualTo (2), "ServicePoint.CurrentConnections");
+				break;
+
+			default:
+				throw ctx.AssertFail (EffectiveType);
+			}
+		}
+
+		protected override InstrumentationOperation CreateOperation (
+			TestContext ctx, Handler handler, InstrumentationOperationType type, HttpOperationFlags flags,
+			HttpStatusCode expectedStatus, WebExceptionStatus expectedError)
+		{
+			return new Operation (this, handler, type, flags, expectedStatus, expectedError);
+		}
+
+		class Operation : InstrumentationOperation
+		{
+			new public HttpClientTestRunner Parent => (HttpClientTestRunner)base.Parent;
+
+			public Operation (HttpClientTestRunner parent, Handler handler,
+		                          InstrumentationOperationType type, HttpOperationFlags flags,
+			                  HttpStatusCode expectedStatus, WebExceptionStatus expectedError)
+				: base (parent, $"{parent.EffectiveType}",
+				        handler, type, flags, expectedStatus, expectedError)
+			{
 			}
 
 			protected override Request CreateRequest (TestContext ctx, Uri uri)
@@ -368,6 +372,11 @@ namespace Xamarin.WebTests.TestRunners
 					break;
 				case HttpClientTestType.RedirectCustomContent:
 				case HttpClientTestType.GetError:
+					break;
+				case HttpClientTestType.ParallelRequests:
+					break;
+				case HttpClientTestType.SimpleQueuedRequest:
+					ServicePoint = ServicePointManager.FindServicePoint (uri);
 					break;
 				default:
 					throw ctx.AssertFail (Parent.EffectiveType);
@@ -409,6 +418,9 @@ namespace Xamarin.WebTests.TestRunners
 					return httpClientRequest.PutDataAsync (ctx, cancellationToken);
 				case HttpClientTestType.RedirectCustomContent:
 					return httpClientRequest.PostString (ctx, cancellationToken);
+				case HttpClientTestType.ParallelRequests:
+				case HttpClientTestType.SimpleQueuedRequest:
+					return httpClientRequest.GetString (ctx, cancellationToken);
 				default:
 					throw ctx.AssertFail (Parent.EffectiveType);
 				}
@@ -419,8 +431,6 @@ namespace Xamarin.WebTests.TestRunners
 				;
 			}
 		}
-
-		Operation currentOperation;
 
 		class Bug20583Content : HttpContent
 		{

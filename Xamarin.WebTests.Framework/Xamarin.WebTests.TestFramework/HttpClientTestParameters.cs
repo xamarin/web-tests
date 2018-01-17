@@ -33,7 +33,7 @@ namespace Xamarin.WebTests.TestFramework
 	using HttpFramework;
 
 	[HttpClientTestParameters]
-	public class HttpClientTestParameters : ConnectionTestParameters
+	public class HttpClientTestParameters : InstrumentationTestParameters
 	{
 		public HttpClientTestType Type {
 			get;
@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.TestFramework
 
 		public HttpClientTestParameters (ConnectionTestCategory category, HttpClientTestType type,
 		                                 string identifier, X509Certificate certificate)
-			: base (category, identifier, certificate)
+			: base (category, identifier, certificate, type.ToString ())
 		{
 			Type = type;
 		}
@@ -50,16 +50,6 @@ namespace Xamarin.WebTests.TestFramework
 			: base (other)
 		{
 			Type = other.Type;
-			ExpectedStatus = other.ExpectedStatus;
-			ExpectedError = other.ExpectedError;
-		}
-
-		public HttpStatusCode ExpectedStatus {
-			get; set;
-		}
-
-		public WebExceptionStatus ExpectedError {
-			get; set;
 		}
 
 		public override ConnectionParameters DeepClone ()

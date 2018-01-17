@@ -1,10 +1,10 @@
 ﻿//
-// HttpInstrumentationTestParameters.cs
+// InstrumentationTestParameters.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,45 +28,50 @@ using System;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 
-namespace Xamarin.WebTests.TestFramework
-{
+namespace Xamarin.WebTests.TestFramework {
 	using ConnectionFramework;
 	using HttpFramework;
 
-	[HttpInstrumentationTestParameters]
-	public class HttpInstrumentationTestParameters : InstrumentationTestParameters
+	public abstract class InstrumentationTestParameters : ConnectionTestParameters
 	{
-		public HttpInstrumentationTestType Type {
+		public string EffectiveType {
 			get;
 		}
 
-		public HttpInstrumentationTestParameters (ConnectionTestCategory category, HttpInstrumentationTestType type,
-		                                          string identifier, X509Certificate certificate)
-			: base (category, identifier, certificate, type.ToString ())
+		public InstrumentationTestParameters (ConnectionTestCategory category, string identifier, X509Certificate certificate, string effectiveType)
+			: base (category, identifier, certificate)
 		{
-			Type = type;
+			EffectiveType = effectiveType;
 		}
 
-		protected HttpInstrumentationTestParameters (HttpInstrumentationTestParameters other)
+		protected InstrumentationTestParameters (InstrumentationTestParameters other)
 			: base (other)
 		{
-			Type = other.Type;
-			CountParallelRequests = other.CountParallelRequests;
-			ConnectionLimit = other.ConnectionLimit;
-			IdleTime = other.IdleTime;
+			EffectiveType = other.EffectiveType;
+			ExpectedStatus = other.ExpectedStatus;
+			ExpectedError = other.ExpectedError;
+			HasReadHandler = other.HasReadHandler;
+			IgnoreStreamErrors = other.IgnoreStreamErrors;
 		}
 
-		public int CountParallelRequests {
+		public HttpStatusCode ExpectedStatus {
 			get; set;
 		}
 
-		public int IdleTime {
+		public WebExceptionStatus ExpectedError {
 			get; set;
 		}
 
-		public override ConnectionParameters DeepClone ()
-		{
-			return new HttpInstrumentationTestParameters (this);
+		public int ConnectionLimit {
+			get; set;
+		}
+
+		public bool HasReadHandler {
+			get; set;
+		}
+
+		public bool IgnoreStreamErrors {
+			get; set;
 		}
 	}
 }
