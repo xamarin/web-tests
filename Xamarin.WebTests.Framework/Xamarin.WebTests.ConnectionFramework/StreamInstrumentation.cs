@@ -429,12 +429,18 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public delegate void DisposeHandler (DisposeFunc func);
 		public delegate void DisposeFunc ();
 
+		bool disposed;
+
 		protected override void Dispose (bool disposing)
 		{
 			if (!disposing) {
 				base.Dispose (disposing);
 				return;
 			}
+
+			if (disposed)
+				return;
+			disposed = true;
 
 			var message = $"{Name}.Dispose()";
 
