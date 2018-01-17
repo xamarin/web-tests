@@ -51,7 +51,7 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
-		protected Handler Handler {
+		protected internal Handler Handler {
 			get;
 		}
 
@@ -99,6 +99,9 @@ namespace Xamarin.WebTests.HttpFramework
 				if (servicePoint == null)
 					throw new InvalidOperationException ();
 				return servicePoint;
+			}
+			protected set {
+				servicePoint = value;
 			}
 		}
 

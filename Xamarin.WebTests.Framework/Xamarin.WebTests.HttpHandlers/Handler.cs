@@ -196,7 +196,7 @@ namespace Xamarin.WebTests.HttpHandlers
 				else
 					ctx.OnError (response.Error);
 			} else {
-				var ok = ctx.Expect (expectedStatus, Is.EqualTo (response.Status), "status code");
+				var ok = ctx.Expect (response.Status, Is.EqualTo (expectedStatus), "status code");
 				if (ok)
 					ok &= ctx.Expect (response.IsSuccess, Is.True, "success status");
 
