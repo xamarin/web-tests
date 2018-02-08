@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -136,13 +137,36 @@ namespace Xamarin.AsyncTests.Constraints
 		bool CompareString (string expected, string actual, out string message)
 		{
 			if (actual.Length != expected.Length) {
-				message = string.Format (
-					"Strings differ in length: expected {0}, got {1}.", expected.Length, actual.Length);
+				message = FormatError (-1);
+				return false;
+			}
+
+			var length = Math.Min (expected.Length, actual.Length);
+			for (int i = 0; i < length; i++) {
+				if (expected[i] == actual[i])
+					continue;
+				message = FormatError (i);
 				return false;
 			}
 
 			message = null;
-			return string.Compare (expected, actual) == 0;
+			return true;
+
+			string FormatError (int index)
+			{
+				var sb = new StringBuilder ();
+				if (actual.Length != expected.Length)
+					sb.Append ($"Expected string length {expected.Length} but was {actual.Length}.");
+				if (index >= 0) {
+					if (sb.Length > 0)
+						sb.Append (" ");
+					sb.Append ($"Strings differ at index {index}.");
+				}
+				sb.AppendLine ();
+				sb.AppendLine ($"Expected: \"{expected}\"");
+				sb.AppendLine ($"Actual:   \"{actual}\"");
+				return sb.ToString ();
+			}
 		}
 
 		bool CompareElement (object expected, object actual)
