@@ -82,9 +82,9 @@ namespace Xamarin.WebTests.TestFramework
 		LargeChunkRead,
 		LargeGZipRead,
 		GZipWithLength,
-
 		ResponseStreamCheckLength,
 		ResponseStreamCheckLength2,
+		GetNoLength,
 
 		MartinTest
 	}

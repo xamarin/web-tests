@@ -73,7 +73,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ResponseStreamCheckLength;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.GetNoLength;
 
 		static readonly (HttpInstrumentationTestType type, HttpInstrumentationTestFlags flags) [] TestRegistration = {
 			(HttpInstrumentationTestType.Simple, HttpInstrumentationTestFlags.Working),
@@ -132,6 +132,7 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpInstrumentationTestType.GZipWithLength, HttpInstrumentationTestFlags.GZip),
 			(HttpInstrumentationTestType.ResponseStreamCheckLength2, HttpInstrumentationTestFlags.GZip),
 			(HttpInstrumentationTestType.ResponseStreamCheckLength, HttpInstrumentationTestFlags.GZip),
+			(HttpInstrumentationTestType.GetNoLength, HttpInstrumentationTestFlags.Working),
 		};
 
 		public static IList<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
@@ -319,6 +320,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.GZipWithLength:
 			case HttpInstrumentationTestType.ResponseStreamCheckLength2:
 			case HttpInstrumentationTestType.ResponseStreamCheckLength:
+			case HttpInstrumentationTestType.GetNoLength:
 				parameters.ExpectedStatus = HttpStatusCode.OK;
 				parameters.ExpectedError = WebExceptionStatus.Success;
 				break;
@@ -487,6 +489,8 @@ namespace Xamarin.WebTests.TestRunners
 				return (new HttpInstrumentationHandler (this, null, HttpContent.HelloChunked, false), flags);
 			case HttpInstrumentationTestType.ResponseStreamCheckLength:
 				return (new HttpInstrumentationHandler (this, null, HttpContent.HelloWorld, false), flags);
+			case HttpInstrumentationTestType.GetNoLength:
+				return (new HttpInstrumentationHandler (this, null, null, false), flags);
 			default:
 				return (hello, flags);
 			}
@@ -753,6 +757,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.GZipWithLength:
 				case HttpInstrumentationTestType.ResponseStreamCheckLength2:
 				case HttpInstrumentationTestType.ResponseStreamCheckLength:
+				case HttpInstrumentationTestType.GetNoLength:
 					return new HttpInstrumentationRequest (InstrumentationHandler, uri);
 				default:
 					return new TraditionalRequest (uri);
@@ -1036,6 +1041,10 @@ namespace Xamarin.WebTests.TestRunners
 						content = await ResponseStreamCheckLength (stream, false).ConfigureAwait (false);
 						break;
 
+					case HttpInstrumentationTestType.GetNoLength:
+						content = await GetNoLength (stream).ConfigureAwait (false);
+						break;
+
 					default:
 						content = await ReadAsString (stream).ConfigureAwait (false);
 						break;
@@ -1131,6 +1140,13 @@ namespace Xamarin.WebTests.TestRunners
 					}
 					return await GZipWithLength (stream).ConfigureAwait (false);
 				}
+
+				async Task<HttpContent> GetNoLength (Stream stream)
+				{
+					ctx.Assert (response.ContentLength, Is.EqualTo (-1L), "ContentLength");
+					ctx.Assert (response.Headers["Content-Length"], Is.Null, "No Content-Length: header");
+					return await ReadAsString (stream);
+				}
 			}
 		}
 
@@ -1170,6 +1186,9 @@ namespace Xamarin.WebTests.TestRunners
 					break;
 				case HttpInstrumentationTestType.LargeChunkRead:
 					break;
+				case HttpInstrumentationTestType.GetNoLength:
+					NoLength = true;
+					break;
 				default:
 					HasLength = true;
 					Length = 4096;
@@ -1185,11 +1204,17 @@ namespace Xamarin.WebTests.TestRunners
 				get;
 			}
 
+			public bool NoLength {
+				get;
+			}
+
 			public override void AddHeadersTo (HttpMessage message)
 			{
-				if (HasLength) {
-					message.ContentLength = Length;
+				if (NoLength) {
 					message.ContentType = "text/plain";
+				} else if (HasLength) {
+					message.ContentType = "text/plain";
+					message.ContentLength = Length;
 				} else {
 					message.TransferEncoding = "chunked";
 				}
@@ -1249,6 +1274,12 @@ namespace Xamarin.WebTests.TestRunners
 
 				case HttpInstrumentationTestType.LargeChunkRead:
 					await HandleLargeChunkRead ().ConfigureAwait (false);
+					break;
+
+				case HttpInstrumentationTestType.GetNoLength:
+					await stream.WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer, cancellationToken).ConfigureAwait (false);
+					await stream.FlushAsync (cancellationToken);
+					stream.Dispose ();
 					break;
 
 				default:
@@ -1630,6 +1661,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.GZipWithLength:
 				case HttpInstrumentationTestType.ResponseStreamCheckLength2:
 				case HttpInstrumentationTestType.ResponseStreamCheckLength:
+				case HttpInstrumentationTestType.GetNoLength:
 					ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
 					break;
 
@@ -1766,6 +1798,10 @@ namespace Xamarin.WebTests.TestRunners
 					response = new HttpResponse (HttpStatusCode.OK, Content);
 					return response;
 
+				case HttpInstrumentationTestType.GetNoLength:
+					content = new HttpInstrumentationContent (TestRunner, currentRequest);
+					return new HttpResponse (HttpStatusCode.OK, content);
+
 				default:
 					return HttpResponse.CreateSuccess (ME);
 				}
@@ -1828,6 +1864,10 @@ namespace Xamarin.WebTests.TestRunners
 
 				case HttpInstrumentationTestType.GZipWithLength:
 					expectedContent = Content;
+					break;
+
+				case HttpInstrumentationTestType.GetNoLength:
+					expectedContent = ConnectionHandler.TheQuickBrownFoxContent;
 					break;
 				}
 
