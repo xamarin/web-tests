@@ -25,6 +25,8 @@ namespace Xamarin.WebTests.DotNet
 
 		public bool UsingDotNet => true;
 
+		public bool SupportsGZip => true;
+
 		public int InternalVersion => 0;
 
 		public void Initialize (ConnectionProviderFactory factory)

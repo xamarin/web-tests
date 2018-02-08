@@ -100,6 +100,10 @@ namespace Xamarin.WebTests.MonoTestProvider
 			private set;
 		}
 
+		public bool SupportsGZip {
+			get;
+		}
+
 		public bool UsingDotNet => false;
 
 		public MonoConnectionFrameworkSetup (string name)
@@ -141,6 +145,7 @@ namespace Xamarin.WebTests.MonoTestProvider
 			SupportsCleanShutdown = CheckCleanShutdown ();
 			HasNewWebStack = CheckNewWebStack ();
 			SupportsRenegotiation = CheckRenegotiation ();
+			SupportsGZip = CheckSupportsGZip ();
 
 #if !__IOS__ && !__MOBILE__ && !__XAMMAC__
 			SupportsMonoExtensions = true;
@@ -331,5 +336,15 @@ namespace Xamarin.WebTests.MonoTestProvider
 #endif
 		}
 
+		bool CheckSupportsGZip ()
+		{
+#if __IOS__ || __MOBILE__
+			return false;
+#else
+			var asm = typeof (HttpWebRequest).Assembly;
+			var type = asm.GetType ("System.Net.FixedSizeReadStream");
+			return type != null;
+#endif
+		}
 	}
 }

@@ -34,6 +34,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		IAsyncResult BeginRead (Stream stream, byte[] buffer, int offset, int count, AsyncCallback callback, object state);
 
 		int EndRead (Stream stream, IAsyncResult asyncResult);
+
+		byte[] GetBuffer (MemoryStream stream);
 	}
 }
 

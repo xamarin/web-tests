@@ -73,7 +73,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.LargeChunkRead;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ResponseStreamCheckLength;
 
 		static readonly (HttpInstrumentationTestType type, HttpInstrumentationTestFlags flags) [] TestRegistration = {
 			(HttpInstrumentationTestType.Simple, HttpInstrumentationTestFlags.Working),
@@ -128,6 +128,10 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpInstrumentationTestType.SimpleGZip, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.TestResponseStream, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.LargeChunkRead, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.LargeGZipRead, HttpInstrumentationTestFlags.GZip),
+			(HttpInstrumentationTestType.GZipWithLength, HttpInstrumentationTestFlags.GZip),
+			(HttpInstrumentationTestType.ResponseStreamCheckLength2, HttpInstrumentationTestFlags.GZip),
+			(HttpInstrumentationTestType.ResponseStreamCheckLength, HttpInstrumentationTestFlags.GZip),
 		};
 
 		public static IList<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
@@ -140,6 +144,12 @@ namespace Xamarin.WebTests.TestRunners
 
 			bool Filter (HttpInstrumentationTestFlags flags)
 			{
+				if (flags == HttpInstrumentationTestFlags.GZip) {
+					if (!setup.SupportsGZip)
+						return false;
+					flags = HttpInstrumentationTestFlags.Working;
+				}
+
 				switch (category) {
 				case ConnectionTestCategory.MartinTest:
 					return false;
@@ -305,6 +315,10 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.SimpleGZip:
 			case HttpInstrumentationTestType.TestResponseStream:
 			case HttpInstrumentationTestType.LargeChunkRead:
+			case HttpInstrumentationTestType.LargeGZipRead:
+			case HttpInstrumentationTestType.GZipWithLength:
+			case HttpInstrumentationTestType.ResponseStreamCheckLength2:
+			case HttpInstrumentationTestType.ResponseStreamCheckLength:
 				parameters.ExpectedStatus = HttpStatusCode.OK;
 				parameters.ExpectedError = WebExceptionStatus.Success;
 				break;
@@ -465,6 +479,14 @@ namespace Xamarin.WebTests.TestRunners
 				return (new HttpInstrumentationHandler (this, null, new StringContent ("AAAA"), true), flags);
 			case HttpInstrumentationTestType.LargeChunkRead:
 				return (new HttpInstrumentationHandler (this, null, HttpContent.TheQuickBrownFoxChunked, false), flags);
+			case HttpInstrumentationTestType.LargeGZipRead:
+				return (new HttpInstrumentationHandler (this, null, ConnectionHandler.GetLargeChunkedContent (16384), false), flags);
+			case HttpInstrumentationTestType.GZipWithLength:
+				return (new HttpInstrumentationHandler (this, null, ConnectionHandler.GetLargeStringContent (16384), false), flags);
+			case HttpInstrumentationTestType.ResponseStreamCheckLength2:
+				return (new HttpInstrumentationHandler (this, null, HttpContent.HelloChunked, false), flags);
+			case HttpInstrumentationTestType.ResponseStreamCheckLength:
+				return (new HttpInstrumentationHandler (this, null, HttpContent.HelloWorld, false), flags);
 			default:
 				return (hello, flags);
 			}
@@ -727,6 +749,10 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.SimpleGZip:
 				case HttpInstrumentationTestType.TestResponseStream:
 				case HttpInstrumentationTestType.LargeChunkRead:
+				case HttpInstrumentationTestType.LargeGZipRead:
+				case HttpInstrumentationTestType.GZipWithLength:
+				case HttpInstrumentationTestType.ResponseStreamCheckLength2:
+				case HttpInstrumentationTestType.ResponseStreamCheckLength:
 					return new HttpInstrumentationRequest (InstrumentationHandler, uri);
 				default:
 					return new TraditionalRequest (uri);
@@ -878,6 +904,8 @@ namespace Xamarin.WebTests.TestRunners
 					Method = "POST";
 					break;
 				case HttpInstrumentationTestType.SimpleGZip:
+				case HttpInstrumentationTestType.LargeGZipRead:
+				case HttpInstrumentationTestType.GZipWithLength:
 					RequestExt.AutomaticDecompression = true;
 					break;
 				}
@@ -970,28 +998,48 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.LogDebug (4, $"{ME} GET RESPONSE FROM HTTP");
 
 				switch (TestRunner.EffectiveType) {
-				case HttpInstrumentationTestType.ReuseAfterPartialRead:
-					content = await ReadStringAsBuffer (1234).ConfigureAwait (false);
-					break;
-
 				case HttpInstrumentationTestType.ReadTimeout:
 					return await ReadWithTimeout (5000, WebExceptionStatus.Timeout).ConfigureAwait (false);
 
 				case HttpInstrumentationTestType.AbortResponse:
 				case HttpInstrumentationTestType.NtlmWhileQueued:
 					return await ReadWithTimeout (0, WebExceptionStatus.RequestCanceled).ConfigureAwait (false);
+				}
 
-				case HttpInstrumentationTestType.TestResponseStream:
-					content = await TestResponseStream ().ConfigureAwait (false);
-					break;
+				using (var stream = response.GetResponseStream ()) {
+					switch (TestRunner.EffectiveType) {
+					case HttpInstrumentationTestType.ReuseAfterPartialRead:
+						content = await ReadStringAsBuffer (stream, 1234).ConfigureAwait (false);
+						break;
 
-				case HttpInstrumentationTestType.LargeChunkRead:
-					content = await LargeChunkRead ().ConfigureAwait (false);
-					break;
+					case HttpInstrumentationTestType.TestResponseStream:
+						content = await TestResponseStream (stream).ConfigureAwait (false);
+						break;
 
-				default:
-					content = await ReadAsString ().ConfigureAwait (false);
-					break;
+					case HttpInstrumentationTestType.LargeChunkRead:
+						content = await LargeChunkRead (stream).ConfigureAwait (false);
+						break;
+
+					case HttpInstrumentationTestType.LargeGZipRead:
+						content = await ReadAsString (stream).ConfigureAwait (false);
+						break;
+
+					case HttpInstrumentationTestType.GZipWithLength:
+						content = await GZipWithLength (stream).ConfigureAwait (false);
+						break;
+
+					case HttpInstrumentationTestType.ResponseStreamCheckLength2:
+						content = await ResponseStreamCheckLength (stream, true).ConfigureAwait (false);
+						break;
+
+					case HttpInstrumentationTestType.ResponseStreamCheckLength:
+						content = await ResponseStreamCheckLength (stream, false).ConfigureAwait (false);
+						break;
+
+					default:
+						content = await ReadAsString (stream).ConfigureAwait (false);
+						break;
+					}
 				}
 
 				var status = response.StatusCode;
@@ -1023,19 +1071,17 @@ namespace Xamarin.WebTests.TestRunners
 					}
 				}
 
-				async Task<HttpContent> ReadStringAsBuffer (int size)
+				async Task<HttpContent> ReadStringAsBuffer (Stream stream, int size)
 				{
-					using (var stream = response.GetResponseStream ()) {
-						var buffer = new byte[size];
-						var ret = await stream.ReadAsync (buffer, 0, buffer.Length).ConfigureAwait (false);
-						ctx.Assert (ret, Is.EqualTo (buffer.Length));
-						return StringContent.CreateMaybeNull (new ASCIIEncoding ().GetString (buffer, 0, ret));
-					}
+					var buffer = new byte[size];
+					var ret = await stream.ReadAsync (buffer, 0, buffer.Length).ConfigureAwait (false);
+					ctx.Assert (ret, Is.EqualTo (buffer.Length));
+					return StringContent.CreateMaybeNull (new ASCIIEncoding ().GetString (buffer, 0, ret));
 				}
 
-				async Task<HttpContent> ReadAsString ()
+				async Task<HttpContent> ReadAsString (Stream stream)
 				{
-					using (var reader = new StreamReader (response.GetResponseStream ())) {
+					using (var reader = new StreamReader (stream)) {
 						string text = null;
 						if (!reader.EndOfStream)
 							text = await reader.ReadToEndAsync ().ConfigureAwait (false);
@@ -1043,29 +1089,47 @@ namespace Xamarin.WebTests.TestRunners
 					}
 				}
 
-				async Task<HttpContent> TestResponseStream ()
+				async Task<HttpContent> TestResponseStream (Stream stream)
 				{
-					using (var stream = response.GetResponseStream ()) {
-						var buffer = new byte[5];
-						var ret = await stream.ReadAsync (buffer, 4, 1).ConfigureAwait (false);
-						ctx.Assert (ret, Is.EqualTo (1), "#A1");
-						ctx.Assert (buffer[4], Is.EqualTo ((byte)65), "#A2");
-						ret = await stream.ReadAsync (buffer, 0, 2);
-						ctx.Assert (ret, Is.EqualTo (2), "#B1");
-						return Handler.Content;
+					var buffer = new byte[5];
+					var ret = await stream.ReadAsync (buffer, 4, 1).ConfigureAwait (false);
+					ctx.Assert (ret, Is.EqualTo (1), "#A1");
+					ctx.Assert (buffer[4], Is.EqualTo ((byte)65), "#A2");
+					ret = await stream.ReadAsync (buffer, 0, 2);
+					ctx.Assert (ret, Is.EqualTo (2), "#B1");
+					return Handler.Content;
+				}
+
+				async Task<HttpContent> LargeChunkRead (Stream stream)
+				{
+					var buffer = new byte[43];
+					var ret = await stream.ReadAsync (buffer, 0, buffer.Length).ConfigureAwait (false);
+					ctx.Assert (ret, Is.EqualTo (ConnectionHandler.TheQuickBrownFox.Length), "#A1");
+					var text = Encoding.UTF8.GetString (buffer, 0, ret);
+					return new StringContent (text);
+				}
+
+				async Task<HttpContent> GZipWithLength (Stream stream)
+				{
+					using (var ms = new MemoryStream ()) {
+						await stream.CopyToAsync (ms, 16384).ConfigureAwait (false);
+						var bytes = ms.ToArray ();
+						var text = Encoding.UTF8.GetString (bytes, 0, bytes.Length);
+						return new StringContent (text);
 					}
 				}
 
-				async Task<HttpContent> LargeChunkRead ()
+				async Task<HttpContent> ResponseStreamCheckLength (Stream stream, bool chunked)
 				{
-					using (var stream = response.GetResponseStream ()) {
-						var buffer = new byte[43];
-						var ret = await stream.ReadAsync (buffer, 0, buffer.Length).ConfigureAwait (false);
-						ctx.LogMessage ($"TEST: {ret}");
-						ctx.Assert (ret, Is.EqualTo (ConnectionHandler.TheQuickBrownFox.Length), "#A1");
-						var text = Encoding.UTF8.GetString (buffer, 0, ret);
-						return new StringContent (text);
+					await ctx.AssertException<NotSupportedException> (() => Task.FromResult (stream.Length), "Length should throw");
+					if (chunked) {
+						ctx.Assert (response.ContentLength, Is.EqualTo (-1L), "ContentLength");
+						ctx.Assert (response.Headers["Transfer-Encoding"], Is.EqualTo ("chunked"), "chunked encoding");
+					} else {
+						ctx.Assert (response.ContentLength, Is.EqualTo ((long)Handler.Content.Length), "ContentLength");
+						ctx.Assert (response.Headers["Content-Length"], Is.EqualTo (Handler.Content.Length.ToString ()), "Content-Length header");
 					}
+					return await GZipWithLength (stream).ConfigureAwait (false);
 				}
 			}
 		}
@@ -1254,10 +1318,6 @@ namespace Xamarin.WebTests.TestRunners
 						stream, ConnectionHandler.TheQuickBrownFoxBuffer,
 						cancellationToken).ConfigureAwait (false);
 					await stream.FlushAsync (cancellationToken);
-
-					// await Task.Delay (500);
-
-					// await WaitWithTimeout (ctx, 1500, Request.Handler.WaitUntilReady ());
 
 					await ChunkedContent.WriteChunkAsBlob (
 						stream, ConnectionHandler.GetLargeTextBuffer (50),
@@ -1566,6 +1626,10 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.SimpleGZip:
 				case HttpInstrumentationTestType.TestResponseStream:
 				case HttpInstrumentationTestType.LargeChunkRead:
+				case HttpInstrumentationTestType.LargeGZipRead:
+				case HttpInstrumentationTestType.GZipWithLength:
+				case HttpInstrumentationTestType.ResponseStreamCheckLength2:
+				case HttpInstrumentationTestType.ResponseStreamCheckLength:
 					ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
 					break;
 
@@ -1687,6 +1751,21 @@ namespace Xamarin.WebTests.TestRunners
 					response.WriteBodyAsBlob = true;
 					return response;
 
+				case HttpInstrumentationTestType.LargeGZipRead:
+					gzipContent = new GZipContent ((ChunkedContent)Content);
+					response = new HttpResponse (HttpStatusCode.OK, gzipContent);
+					return response;
+
+				case HttpInstrumentationTestType.GZipWithLength:
+					gzipContent = new GZipContent ((StringContent)Content);
+					response = new HttpResponse (HttpStatusCode.OK, gzipContent);
+					return response;
+
+				case HttpInstrumentationTestType.ResponseStreamCheckLength2:
+				case HttpInstrumentationTestType.ResponseStreamCheckLength:
+					response = new HttpResponse (HttpStatusCode.OK, Content);
+					return response;
+
 				default:
 					return HttpResponse.CreateSuccess (ME);
 				}
@@ -1736,6 +1815,19 @@ namespace Xamarin.WebTests.TestRunners
 
 				case HttpInstrumentationTestType.LargeChunkRead:
 					expectedContent = Content.RemoveTransferEncoding ();
+					break;
+
+				case HttpInstrumentationTestType.LargeGZipRead:
+				case HttpInstrumentationTestType.ResponseStreamCheckLength2:
+					expectedContent = Content.RemoveTransferEncoding ();
+					break;
+
+				case HttpInstrumentationTestType.ResponseStreamCheckLength:
+					expectedContent = Content;
+					break;
+
+				case HttpInstrumentationTestType.GZipWithLength:
+					expectedContent = Content;
 					break;
 				}
 

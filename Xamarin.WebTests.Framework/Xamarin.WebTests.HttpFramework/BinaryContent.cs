@@ -110,6 +110,25 @@ namespace Xamarin.WebTests.HttpFramework
 			return new BinaryContent (buffer);
 		}
 
+		internal static async Task<HttpContent> ReadAll (HttpStreamReader reader, CancellationToken cancellationToken)
+		{
+			using (var ms = new MemoryStream ()) {
+				var buffer = new byte[16384];
+				while (true) {
+					cancellationToken.ThrowIfCancellationRequested ();
+					var ret = await reader.ReadAsync (
+						buffer, 0, buffer.Length, cancellationToken).ConfigureAwait (false);
+					if (ret == 0)
+						break;
+					if (ret < 0)
+						throw new InvalidOperationException ();
+					ms.Write (buffer, 0, ret);
+				}
+
+				return new BinaryContent (ms.ToArray ());
+			}
+		}
+
 		protected override bool Compare (TestContext ctx, HttpContent actual)
 		{
 			if (!ctx.Expect (actual.Length, Is.EqualTo (Length), "length"))

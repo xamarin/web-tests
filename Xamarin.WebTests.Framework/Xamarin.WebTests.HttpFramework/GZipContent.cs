@@ -42,6 +42,8 @@ namespace Xamarin.WebTests.HttpFramework {
 	{
 		List<byte[]> chunks;
 		List<byte []> compressed;
+		int compressedSize;
+		int? length;
 
 		public GZipContent (params byte[][] chunks)
 		{
@@ -49,25 +51,66 @@ namespace Xamarin.WebTests.HttpFramework {
 			Compress ();
 		}
 
+		public GZipContent (ChunkedContent chunked)
+		{
+			chunks = new List<byte[]> ();
+			foreach (var chunk in chunked.CopyChunks ())
+				chunks.Add (chunk);
+			Compress ();
+		}
+
+		public GZipContent (StringContent content)
+		{
+			chunks = new List<byte[]> ();
+			var bytes = Encoding.UTF8.GetBytes (content.AsString ());
+			chunks.Add (bytes);
+			Compress ();
+			length = compressedSize;
+		}
+
 		void Compress ()
 		{
 			if (!DependencyInjector.IsAvailable<IGZipProvider> ())
 				throw new NotSupportedException ();
-			var provider = DependencyInjector.Get<IGZipProvider> ();
+			var gzipProvider = DependencyInjector.Get<IGZipProvider> ();
+			var streamProvider = DependencyInjector.Get<IStreamProvider> ();
 			compressed = new List<byte []> ();
-			for (int i = 0; i < chunks.Count; i++) {
-				using (var ms = new MemoryStream ()) {
-					using (var gzip = provider.Compress (ms, true)) {
-						gzip.Write (chunks [i], 0, chunks [i].Length);
+			int position = 0;
+			using (var ms = new MemoryStream ()) {
+				using (var gzip = gzipProvider.Compress (ms, true)) {
+					for (int i = 0; i < chunks.Count; i++) {
+						gzip.Write (chunks[i], 0, chunks[i].Length);
+						gzip.Flush ();
+						CopyBuffer ();
 					}
-					compressed.Add (ms.ToArray ());
+				}
+
+				CopyBuffer ();
+
+				void CopyBuffer ()
+				{
+					if (ms.Position == position)
+						return;
+					var msBuffer = streamProvider.GetBuffer (ms);
+					var newLength = (int)ms.Position - position;
+					var buffer = new byte[newLength];
+					Buffer.BlockCopy (msBuffer, position, buffer, 0, newLength);
+					position += newLength;
+					compressedSize += newLength;
+					compressed.Add (buffer);
 				}
 			}
 		}
 
-		public override bool HasLength => false;
+		public override bool HasLength => length != null;
 
-		public override int Length => throw new NotSupportedException ();
+		public override int Length {
+			get {
+				if (!HasLength)
+					throw new NotSupportedException ();
+				return length.Value;
+			}
+		}
 
 		public override string AsString ()
 		{
@@ -81,16 +124,23 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		public override void AddHeadersTo (HttpMessage message)
 		{
-			message.TransferEncoding = "chunked";
+			if (HasLength)
+				message.ContentLength = Length;
+			else
+				message.TransferEncoding = "chunked";
 			message.AddHeader ("Content-Encoding", "gzip");
 		}
 
 		public override async Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
-			for (int i = 0; i < chunks.Count; i++) {
-				await ChunkedContent.WriteChunk (stream, compressed [i], cancellationToken).ConfigureAwait (false);
+			for (int i = 0; i < compressed.Count; i++) {
+				if (HasLength)
+					await stream.WriteAsync (compressed[i], cancellationToken).ConfigureAwait (false);
+				else
+					await ChunkedContent.WriteChunk (stream, compressed [i], cancellationToken).ConfigureAwait (false);
 			}
-			await ChunkedContent.WriteChunkTrailer (stream, cancellationToken).ConfigureAwait (false);
+			if (!HasLength)
+				await ChunkedContent.WriteChunkTrailer (stream, cancellationToken).ConfigureAwait (false);
 		}
 	}
 }

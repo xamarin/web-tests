@@ -31,6 +31,7 @@ namespace Xamarin.WebTests.TestFramework
 		Working,
 		WorkingMaster,
 		NewWebStack,
+		GZip,
 		Ignore
 	}
 }

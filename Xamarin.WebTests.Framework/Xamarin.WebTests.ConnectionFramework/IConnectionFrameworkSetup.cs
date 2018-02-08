@@ -65,6 +65,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
+		bool SupportsGZip {
+			get;
+		}
+
 		int InternalVersion {
 			get;
 		}

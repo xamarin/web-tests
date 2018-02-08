@@ -52,6 +52,16 @@ namespace Xamarin.WebTests.HttpFramework
 			this.chunks = new List<string> (chunks);
 		}
 
+		internal IReadOnlyList<byte[]> CopyChunks ()
+		{
+			var list = new List<byte[]> ();
+			foreach (var chunk in chunks) {
+				var bytes = Encoding.UTF8.GetBytes (chunk);
+				list.Add (bytes);
+			}
+			return list;
+		}
+
 		public static async Task<ChunkedContent> ReadNonChunked (HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			var chunks = new List<string> ();

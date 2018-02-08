@@ -43,7 +43,7 @@ namespace Xamarin.WebTests.Server {
 
 		public Stream Decompress (Stream stream, bool leaveOpen)
 		{
-			return new GZipStream(stream, CompressionMode.Decompress, leaveOpen);
+			return new GZipStream (stream, CompressionMode.Decompress, leaveOpen);
 		}
 	}
 }

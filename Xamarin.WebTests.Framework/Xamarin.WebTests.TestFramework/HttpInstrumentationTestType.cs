@@ -80,6 +80,11 @@ namespace Xamarin.WebTests.TestFramework
 		SimpleGZip,
 		TestResponseStream,
 		LargeChunkRead,
+		LargeGZipRead,
+		GZipWithLength,
+
+		ResponseStreamCheckLength,
+		ResponseStreamCheckLength2,
 
 		MartinTest
 	}

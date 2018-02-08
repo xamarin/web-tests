@@ -41,6 +41,11 @@ namespace Xamarin.WebTests.Server
 		{
 			return stream.EndRead (asyncResult);
 		}
+
+		public byte[] GetBuffer (MemoryStream stream)
+		{
+			return stream.GetBuffer ();
+		}
 	}
 }
 

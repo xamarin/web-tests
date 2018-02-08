@@ -97,17 +97,17 @@ namespace Xamarin.WebTests.TestRunners
 
 			(HttpClientTestType.ParallelRequests, HttpClientTestFlags.Working),
 			(HttpClientTestType.SimpleQueuedRequest, HttpClientTestFlags.Working),
-			(HttpClientTestType.SimpleGZip, HttpClientTestFlags.Working),
-			(HttpClientTestType.ParallelGZip, HttpClientTestFlags.Working),
+			(HttpClientTestType.SimpleGZip, HttpClientTestFlags.GZip),
+			(HttpClientTestType.ParallelGZip, HttpClientTestFlags.GZip),
 			(HttpClientTestType.SequentialRequests, HttpClientTestFlags.Working),
 			(HttpClientTestType.SequentialChunked, HttpClientTestFlags.Working),
-			(HttpClientTestType.SequentialGZip, HttpClientTestFlags.Working),
-
-			(HttpClientTestType.ParallelGZipNoClose, HttpClientTestFlags.Ignore),
+			(HttpClientTestType.SequentialGZip, HttpClientTestFlags.GZip),
+			(HttpClientTestType.ParallelGZipNoClose, HttpClientTestFlags.GZip),
 
 			(HttpClientTestType.ReuseHandler, HttpClientTestFlags.Working),
 			(HttpClientTestType.ReuseHandlerNoClose, HttpClientTestFlags.Working),
 			(HttpClientTestType.ReuseHandlerChunked, HttpClientTestFlags.Working),
+
 			(HttpClientTestType.ReuseHandlerGZip, HttpClientTestFlags.Ignore),
 		};
 
@@ -121,6 +121,12 @@ namespace Xamarin.WebTests.TestRunners
 
 			bool Filter (HttpClientTestFlags flags)
 			{
+				if (flags == HttpClientTestFlags.GZip) {
+					if (!setup.SupportsGZip)
+						return false;
+					flags = HttpClientTestFlags.Working;
+				}
+
 				switch (category) {
 				case ConnectionTestCategory.MartinTest:
 					return false;
@@ -369,6 +375,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpClientTestType.SequentialChunked:
 			case HttpClientTestType.SequentialGZip:
 			case HttpClientTestType.ParallelGZip:
+			case HttpClientTestType.ParallelGZipNoClose:
 				MustNotReuseConnection ();
 				break;
 			case HttpClientTestType.ReuseHandler:
