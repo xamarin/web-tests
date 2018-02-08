@@ -86,6 +86,11 @@ namespace Xamarin.WebTests.TestFramework
 		ResponseStreamCheckLength2,
 		GetNoLength,
 
+		ImplicitHost,
+		CustomHost,
+		CustomHostWithPort,
+		CustomHostDefaultPort,
+
 		MartinTest
 	}
 }

@@ -73,7 +73,7 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.GetNoLength;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.CustomHostDefaultPort;
 
 		static readonly (HttpInstrumentationTestType type, HttpInstrumentationTestFlags flags) [] TestRegistration = {
 			(HttpInstrumentationTestType.Simple, HttpInstrumentationTestFlags.Working),
@@ -133,6 +133,10 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpInstrumentationTestType.ResponseStreamCheckLength2, HttpInstrumentationTestFlags.GZip),
 			(HttpInstrumentationTestType.ResponseStreamCheckLength, HttpInstrumentationTestFlags.GZip),
 			(HttpInstrumentationTestType.GetNoLength, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.ImplicitHost, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.CustomHost, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.CustomHostWithPort, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.CustomHostDefaultPort, HttpInstrumentationTestFlags.Working),
 		};
 
 		public static IList<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
@@ -321,6 +325,10 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.ResponseStreamCheckLength2:
 			case HttpInstrumentationTestType.ResponseStreamCheckLength:
 			case HttpInstrumentationTestType.GetNoLength:
+			case HttpInstrumentationTestType.ImplicitHost:
+			case HttpInstrumentationTestType.CustomHost:
+			case HttpInstrumentationTestType.CustomHostWithPort:
+			case HttpInstrumentationTestType.CustomHostDefaultPort:
 				parameters.ExpectedStatus = HttpStatusCode.OK;
 				parameters.ExpectedError = WebExceptionStatus.Success;
 				break;
@@ -490,6 +498,10 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.ResponseStreamCheckLength:
 				return (new HttpInstrumentationHandler (this, null, HttpContent.HelloWorld, false), flags);
 			case HttpInstrumentationTestType.GetNoLength:
+			case HttpInstrumentationTestType.ImplicitHost:
+			case HttpInstrumentationTestType.CustomHost:
+			case HttpInstrumentationTestType.CustomHostWithPort:
+			case HttpInstrumentationTestType.CustomHostDefaultPort:
 				return (new HttpInstrumentationHandler (this, null, null, false), flags);
 			default:
 				return (hello, flags);
@@ -1553,6 +1565,22 @@ namespace Xamarin.WebTests.TestRunners
 
 				case HttpInstrumentationTestType.SimpleGZip:
 					break;
+
+				case HttpInstrumentationTestType.ImplicitHost:
+					break;
+
+				case HttpInstrumentationTestType.CustomHost:
+					((TraditionalRequest)request).RequestExt.Host = "custom";
+					break;
+
+				case HttpInstrumentationTestType.CustomHostWithPort:
+					((TraditionalRequest)request).RequestExt.Host = "custom:8888";
+					break;
+
+				case HttpInstrumentationTestType.CustomHostDefaultPort:
+					var defaultPort = TestRunner.Server.UseSSL ? 443 : 80;
+					((TraditionalRequest)request).RequestExt.Host = $"custom:{defaultPort}";
+					break;
 				}
 
 				base.ConfigureRequest (request, uri);
@@ -1700,6 +1728,24 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.ClientAbortsPost:
 					await ClientAbortsPost ().ConfigureAwait (false);
 					return null;
+
+				case HttpInstrumentationTestType.ImplicitHost:
+					var hostAndPort = TestRunner.Uri.GetComponents (UriComponents.HostAndPort, UriFormat.Unescaped);
+					ctx.Assert (request.Headers["Host"], Is.EqualTo (hostAndPort), "host");
+					break;
+
+				case HttpInstrumentationTestType.CustomHost:
+					ctx.Assert (request.Headers["Host"], Is.EqualTo ("custom"), "host");
+					break;
+
+				case HttpInstrumentationTestType.CustomHostWithPort:
+					ctx.Assert (request.Headers["Host"], Is.EqualTo ("custom:8888"), "host");
+					break;
+
+				case HttpInstrumentationTestType.CustomHostDefaultPort:
+					var defaultPort = TestRunner.Server.UseSSL ? 443 : 80;
+					ctx.Assert (request.Headers["Host"], Is.EqualTo ($"custom:{defaultPort}"), "host");
+					break;
 
 				default:
 					throw ctx.AssertFail (TestRunner.EffectiveType);
