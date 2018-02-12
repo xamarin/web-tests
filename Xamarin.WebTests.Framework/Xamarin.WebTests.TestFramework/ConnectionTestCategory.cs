@@ -77,6 +77,8 @@ namespace Xamarin.WebTests.TestFramework
 		HttpClient,
 		HttpClientNewWebStack,
 
+		HttpListener,
+
 		MartinTest,
 	}
 }

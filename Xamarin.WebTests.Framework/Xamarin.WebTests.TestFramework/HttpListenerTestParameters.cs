@@ -1,10 +1,10 @@
 ﻿//
-// HttpListenerTestType.cs
+// HttpListenerTestParameters.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
+
 namespace Xamarin.WebTests.TestFramework
 {
-	public enum HttpListenerTestType
+	using ConnectionFramework;
+	using HttpFramework;
+
+	[HttpListenerTestParameters]
+	public class HttpListenerTestParameters : InstrumentationTestParameters
 	{
-		Simple,
-		SimpleInstrumentation,
-		MartinTest
+		public HttpListenerTestType Type {
+			get;
+		}
+
+		public HttpListenerTestParameters (ConnectionTestCategory category, HttpListenerTestType type,
+		                                   string identifier, X509Certificate certificate)
+			: base (category, identifier, certificate, type.ToString ())
+		{
+			Type = type;
+		}
+
+		protected HttpListenerTestParameters (HttpListenerTestParameters other)
+			: base (other)
+		{
+			Type = other.Type;
+		}
+
+		public override ConnectionParameters DeepClone ()
+		{
+			return new HttpListenerTestParameters (this);
+		}
 	}
 }

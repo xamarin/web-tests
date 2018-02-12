@@ -1,10 +1,10 @@
 ﻿//
-// TestHttpClientInstrumentation.cs
+// TestHttpListenerInstrumentation.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -39,40 +39,28 @@ using Xamarin.WebTests.TestRunners;
 namespace Xamarin.WebTests
 {
 	[AsyncTestFixture]
-	public class TestHttpClientInstrumentation
+	public class TestHttpListenerInstrumentation
 	{
 		[Work]
 		[AsyncTest]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpClient)]
+		[ConnectionTestCategory (ConnectionTestCategory.HttpListener)]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
 				 ConnectionTestProvider provider,
-		                 HttpClientTestParameters parameters,
-		                 HttpClientTestRunner runner)
+				 HttpListenerTestParameters parameters,
+				 HttpListenerTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
 		}
 
-		[AsyncTest]
-		[NewWebStack]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpClientNewWebStack)]
-		public Task RunNewWebStack (TestContext ctx, CancellationToken cancellationToken,
-					    ConnectionTestProvider provider,
-		                            HttpClientTestParameters parameters,
-		                            HttpClientTestRunner runner)
-		{
-			return runner.Run (ctx, cancellationToken);
-		}
-
-		[Martin ("HttpClientInstrumentation")]
+		[Martin ("HttpListenerInstrumentation")]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		[AsyncTest (Unstable = true)]
 		public Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
 					ConnectionTestProvider provider,
-		                        HttpClientTestParameters parameters,
-		                        HttpClientTestRunner runner)
+					HttpListenerTestParameters parameters,
+					HttpListenerTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
 		}

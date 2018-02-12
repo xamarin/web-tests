@@ -235,6 +235,11 @@
     <Compile Include="Xamarin.WebTests.TestFramework\InstrumentationTestParameters.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\GZipContent.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IGZipProvider.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\HttpListenerTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpListenerTestRunnerAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpListenerTestParameters.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpListenerTestParametersAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\HttpListenerTestFlags.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
