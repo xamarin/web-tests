@@ -1,7 +1,7 @@
 #!/bin/groovy
 properties([
 	parameters([
-		choice (name: 'QA_USE_MONO_LANE', choices: 'NONE\nmono-2017-06\nmono-2017-08\nmono-2017-10\nmono-2017-02\nmono-2018-02\nmono-master', description: 'Mono lane'),
+		choice (name: 'USE_MONO_BRANCH', choices: 'NONE\n2017-06\n2017-08\n2017-10\n2017-02\n2018-02\nmaster', description: 'Mono lane'),
 		choice (name: 'QA_USE_XI_LANE', choices: 'NONE\nmacios-mac-master\nmacios-mac-d15-6', description: 'XI lane'),
 		choice (name: 'QA_USE_XM_LANE', choices: 'NONE\nmacios-mac-master\nmacios-mac-d15-6', description: 'XM lane'),
 		choice (name: 'QA_USE_XA_LANE', choices: 'NONE\nmonodroid-mavericks-master\nmonodroid-mavericks-d15-6', description: 'XA lane'),
@@ -26,7 +26,13 @@ def provision (String product, String lane)
 
 def provisionMono ()
 {
-	provision ('Mono', params.QA_USE_MONO_LANE)
+	dir ('QA/Automation/XQA') {
+		if (params.USE_MONO_BRANCH != 'NONE') {
+			sh "./build.sh --target XQASetup --category=InstallMonoFromGithub -Verbose"
+		} else {
+			echo "Skipping $product."
+		}
+	}
 }
 
 def provisionXI ()
@@ -46,7 +52,7 @@ def provisionXA ()
 
 def enableMono ()
 {
-	return params.QA_USE_MONO_LANE != 'NONE'
+	return params.USE_MONO_BRANCH != 'NONE'
 }
 
 def enableXI ()
