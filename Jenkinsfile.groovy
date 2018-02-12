@@ -1,7 +1,7 @@
 #!/bin/groovy
 properties([
 	parameters([
-		choice (name: 'USE_MONO_BRANCH', choices: 'NONE\n2017-06\n2017-08\n2017-10\n2017-02\n2018-02\nmaster', description: 'Mono lane'),
+		choice (name: 'USE_MONO_BRANCH', choices: 'NONE\n2017-12\n2018-02\nmaster', description: 'Mono lane'),
 		choice (name: 'QA_USE_XI_LANE', choices: 'NONE\nmacios-mac-master\nmacios-mac-d15-6', description: 'XI lane'),
 		choice (name: 'QA_USE_XM_LANE', choices: 'NONE\nmacios-mac-master\nmacios-mac-d15-6', description: 'XM lane'),
 		choice (name: 'QA_USE_XA_LANE', choices: 'NONE\nmonodroid-mavericks-master\nmonodroid-mavericks-d15-6', description: 'XA lane'),
