@@ -37,7 +37,7 @@ def newAutoProvisionTool (String command, String branch)
 
 def newProvision (String product, String branch)
 {
-	if ("$lane" != 'NONE') {
+	if ("$branch" != 'NONE') {
 		newAutoProvisionTool ("provision-$product", branch)
 	} else {
 		echo "Skipping $product."
