@@ -36,8 +36,10 @@ namespace AutoProvisionTool
 			client = new GitHubClient (product);
 
 			var token = Environment.GetEnvironmentVariable ("JENKINS_OAUTH_TOKEN");
-			if (!string.IsNullOrEmpty (token))
+			if (!string.IsNullOrEmpty (token)) {
+				Program.Log ($"Using OAUTH token.");
 				client.Credentials = new Credentials (token);
+			}
 
 			repository = await client.Repository.Get (Owner, Name).ConfigureAwait (false);
 		}
