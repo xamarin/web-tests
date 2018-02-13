@@ -29,7 +29,7 @@ def newAutoProvisionTool ()
 	dir ('web-tests/Tools/AutoProvisionTool') {
 		runShell ("nuget restore AutoProvisionTool.sln")
 		runShell ("msbuild AutoProvisionTool.sln")
-		runShell ("mono --debug ./bin/Debug/AutoProvisionTool.exe install-mono master")
+		runShell ("mono --debug ./bin/Debug/AutoProvisionTool.exe provision-mono master")
 	}
 }
 
