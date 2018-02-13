@@ -57,7 +57,6 @@ namespace AutoProvisionTool
 			var oldVersion = await GetMonoVersion ().ConfigureAwait (false);
 			Log ($"Provisioning Mono from {branch}.");
 			var github = new GitHubTool ("mono", "mono", branch);
-			await github.Initialize ().ConfigureAwait (false);
 			var latest = await github.GetLatestCommit ();
 			var package = github.GetPackageFromCommit (latest, "mono");
 			Log ($"Got package url {package}.");
@@ -72,7 +71,6 @@ namespace AutoProvisionTool
 		{
 			Log ($"Provisioning XI from {branch}.");
 			var github = new GitHubTool ("xamarin", "xamarin-macios", branch);
-			await github.Initialize ().ConfigureAwait (false);
 			var latest = await github.GetLatestCommit ();
 			var package = github.GetPackageFromCommit (latest, "xamarin.ios");
 			Log ($"Got package url {package}.");
@@ -84,7 +82,6 @@ namespace AutoProvisionTool
 		{
 			Log ($"Provisioning XM from {branch}.");
 			var github = new GitHubTool ("xamarin", "xamarin-macios", branch);
-			await github.Initialize ().ConfigureAwait (false);
 			var latest = await github.GetLatestCommit ();
 			var package = github.GetPackageFromCommit (latest, "xamarin.mac");
 			Log ($"Got package url {package}.");
@@ -96,7 +93,6 @@ namespace AutoProvisionTool
 		{
 			Log ($"Provisioning XA from {branch}.");
 			var github = new GitHubTool ("xamarin", "monodroid", branch);
-			await github.Initialize ().ConfigureAwait (false);
 			var latest = await github.GetLatestCommit ();
 			var package = github.GetPackageFromCommit (latest, "xamarin.android");
 			Log ($"Got package url {package}.");

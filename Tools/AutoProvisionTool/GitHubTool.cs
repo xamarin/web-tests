@@ -25,12 +25,13 @@ namespace AutoProvisionTool
 			Owner = owner;
 			Name = name;
 			Branch = branch;
+
+			Initialize ();
 		}
 
 		GitHubClient client;
-		Repository repository;
 
-		public async Task Initialize ()
+		void Initialize ()
 		{
 			var product = new ProductHeaderValue ("AutoProvisionTool");
 			client = new GitHubClient (product);
@@ -40,8 +41,6 @@ namespace AutoProvisionTool
 				Program.Log ($"Using OAUTH token.");
 				client.Credentials = new Credentials (token);
 			}
-
-			repository = await client.Repository.Get (Owner, Name).ConfigureAwait (false);
 		}
 
 		public async Task<CombinedCommitStatus> GetLatestCommit ()
@@ -51,7 +50,7 @@ namespace AutoProvisionTool
 				var commit = goBack == 0 ? Branch : $"{Branch}~{goBack}";
 				Program.Log ($"Trying {commit}");
 				var combined = await client.Repository.Status.GetCombined (
-					repository.Id, commit).ConfigureAwait (false);
+					Owner, Name, commit).ConfigureAwait (false);
 
 				Program.Log ($"Found commit {combined.Sha}: {combined.State}");
 
