@@ -24,11 +24,21 @@ def provision (String product, String lane)
 	}
 }
 
+def newAutoProvisionTool ()
+{
+	dir ('web-tests/Tools/AutoProvisionTool') {
+		runShell ("nuget restore AutoProvisionTool.sln")
+		runShell ("msbuild AutoProvisionTool.sln")
+		runShell ("mono --debug ./bin/Debug/AutoProvisionTool.exe install-mono master")
+	}
+}
+
 def provisionMono ()
 {
 	dir ('QA/Automation/XQA') {
 		if (params.USE_MONO_BRANCH != 'NONE') {
-			sh "./build.sh --target XQASetup --category=InstallMonoFromGithub -Verbose"
+			newAutoProvisionTool ()
+			// sh "./build.sh --target XQASetup --category=InstallMonoFromGithub -Verbose"
 		} else {
 			echo "Skipping $product."
 		}
