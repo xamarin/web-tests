@@ -29,7 +29,9 @@ def newAutoProvisionTool (String branch)
 	dir ('web-tests/Tools/AutoProvisionTool') {
 		runShell ("nuget restore AutoProvisionTool.sln")
 		runShell ("msbuild AutoProvisionTool.sln")
-		runShell ("mono --debug ./bin/Debug/AutoProvisionTool.exe provision-mono $branch")
+		withCredentials ([string(credentialsId: 'mono-webtests-github-token', variable: 'JENKINS_OAUTH_TOKEN')]) {
+			runShell ("mono --debug ./bin/Debug/AutoProvisionTool.exe provision-mono $branch")
+		}
 	}
 }
 
