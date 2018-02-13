@@ -13,18 +13,7 @@ properties([
 
 def logParsingRuleFile = ""
 
-def provision (String product, String lane)
-{
-	dir ('QA/Automation/XQA') {
-		if ("$lane" != 'NONE') {
-			sh "./build.sh --target XQASetup --category=Install$product -Verbose -- -UseLane=$lane"
-		} else {
-			echo "Skipping $product."
-		}
-	}
-}
-
-def newAutoProvisionTool (String command, String branch)
+def autoProvisionTool (String command, String branch)
 {
 	dir ('web-tests/Tools/AutoProvisionTool') {
 		runShell ("nuget restore AutoProvisionTool.sln")
@@ -35,10 +24,10 @@ def newAutoProvisionTool (String command, String branch)
 	}
 }
 
-def newProvision (String product, String branch)
+def provision (String product, String branch)
 {
 	if ("$branch" != 'NONE') {
-		newAutoProvisionTool ("provision-$product", branch)
+		autoProvisionTool ("provision-$product", branch)
 	} else {
 		echo "Skipping $product."
 	}
@@ -46,22 +35,22 @@ def newProvision (String product, String branch)
 
 def provisionMono ()
 {
-	newProvision ('mono', params.USE_MONO_BRANCH)
+	provision ('mono', params.USE_MONO_BRANCH)
 }
 
 def provisionXI ()
 {
-	newProvision ('ios', params.USE_XI_BRANCH)
+	provision ('ios', params.USE_XI_BRANCH)
 }
 
 def provisionXM ()
 {
-	newProvision ('mac', params.USE_XM_BRANCH)
+	provision ('mac', params.USE_XM_BRANCH)
 }
 
 def provisionXA ()
 {
-	newProvision ('android', params.USE_XA_BRANCH)
+	provision ('android', params.USE_XA_BRANCH)
 }
 
 def enableMono ()
