@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests.Console;
 
 namespace AutoProvisionTool
 {
@@ -21,6 +22,9 @@ namespace AutoProvisionTool
 				}
 				ProvisionMono (args[1]).Wait (); 
 				break;
+			case "mono-version":
+				PrintMonoVersion ().Wait ();
+				break;
 			default:
 				LogError ($"Invalid command: `{args[0]}'.");
 				return;
@@ -29,6 +33,7 @@ namespace AutoProvisionTool
 
 		public static async Task ProvisionMono (string branch)
 		{
+			var oldVersion = await GetMonoVersion ().ConfigureAwait (false);
 			Log ($"Provisioning Mono from {branch}.");
 			var github = new GitHubTool ("mono", "mono", branch);
 			await github.Initialize ().ConfigureAwait (false);
@@ -37,6 +42,23 @@ namespace AutoProvisionTool
 			Log ($"Got package url {package}.");
 			await InstallTool.InstallPackage (package);
 			Log ($"Successfully provisioned Mono from {branch}.");
+			var newVersion = await GetMonoVersion ().ConfigureAwait (false);
+			Log ($"Old Mono version: {oldVersion}");
+			Log ($"New Mono version: {newVersion}");
+		}
+
+		public static async Task<string> GetMonoVersion ()
+		{
+			var output = await ProcessHelper.RunCommandWithOutput (
+				"mono", "--version", CancellationToken.None).ConfigureAwait (false);
+			return output.Split ('\n')[0];
+		}
+
+		public static async Task PrintMonoVersion ()
+		{
+			var output = await ProcessHelper.RunCommandWithOutput (
+				"mono", "--version", CancellationToken.None).ConfigureAwait (false);
+			Log (output);
 		}
 
 		internal const string ME = "AutoProvisionTool";
