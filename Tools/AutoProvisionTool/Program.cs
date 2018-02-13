@@ -22,6 +22,13 @@ namespace AutoProvisionTool
 				}
 				ProvisionMono (args[1]).Wait (); 
 				break;
+			case "provision-xi":
+				if (args.Length != 2) {
+					LogError ("Branch name expected.");
+					return;
+				}
+				ProvisionXI (args[1]).Wait ();
+				break;
 			case "mono-version":
 				PrintMonoVersion ().Wait ();
 				break;
@@ -38,13 +45,25 @@ namespace AutoProvisionTool
 			var github = new GitHubTool ("mono", "mono", branch);
 			await github.Initialize ().ConfigureAwait (false);
 			var latest = await github.GetLatestCommit ();
-			var package = github.GetPackageFromCommit (latest);
+			var package = github.GetPackageFromCommit (latest, "mono");
 			Log ($"Got package url {package}.");
 			await InstallTool.InstallPackage (package);
 			Log ($"Successfully provisioned Mono from {branch}.");
 			var newVersion = await GetMonoVersion ().ConfigureAwait (false);
 			Log ($"Old Mono version: {oldVersion}");
 			Log ($"New Mono version: {newVersion}");
+		}
+
+		public static async Task ProvisionXI (string branch)
+		{
+			Log ($"Provisioning XI from {branch}.");
+			var github = new GitHubTool ("xamarin", "xamarin-macios", branch);
+			await github.Initialize ().ConfigureAwait (false);
+			var latest = await github.GetLatestCommit ();
+			var package = github.GetPackageFromCommit (latest, "xamarin.ios");
+			Log ($"Got package url {package}.");
+			await InstallTool.InstallPackage (package);
+			Log ($"Successfully provisioned XI from {branch}.");
 		}
 
 		public static async Task<string> GetMonoVersion ()

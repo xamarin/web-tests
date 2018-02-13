@@ -61,11 +61,12 @@ namespace AutoProvisionTool
 			return null;
 		}
 
-		public Uri GetPackageFromCommit (CombinedCommitStatus commit)
+		public Uri GetPackageFromCommit (CombinedCommitStatus commit, string product)
 		{
 			Program.Log ($"Getting package from commit {commit.Sha} {commit.State} {commit.TotalCount}");
+			var context = $"PKG-{product}";
 			var package = commit.Statuses.FirstOrDefault (
-				s => string.Equals (s.Context, "PKG-mono", StringComparison.Ordinal));
+				s => string.Equals (s.Context, context, StringComparison.Ordinal));
 			if (package == null) {
 				Program.LogError ($"Failed to get package from commit {commit.Sha}");
 				return null;
