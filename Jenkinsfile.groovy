@@ -176,9 +176,6 @@ node ('felix-25-sierra') {
                     git url: 'git@github.com:xamarin/web-tests.git', branch: 'master'
                     sh 'git clean -xffd'
                 }
-                dir ('QA') {
-                    git url: 'git@github.com:xamarin/QualityAssurance.git'
-                }
             }
             stage ('provision') {
                 provisionMono ()
