@@ -35,13 +35,11 @@ def newAutoProvisionTool ()
 
 def provisionMono ()
 {
-	dir ('QA/Automation/XQA') {
-		if (params.USE_MONO_BRANCH != 'NONE') {
-			newAutoProvisionTool ()
-			// sh "./build.sh --target XQASetup --category=InstallMonoFromGithub -Verbose"
-		} else {
-			echo "Skipping $product."
-		}
+	if (params.USE_MONO_BRANCH != 'NONE') {
+		newAutoProvisionTool ()
+		// sh "./build.sh --target XQASetup --category=InstallMonoFromGithub -Verbose"
+	} else {
+		echo "Skipping $product."
 	}
 }
 
