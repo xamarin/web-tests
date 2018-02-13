@@ -1,9 +1,9 @@
 #!/bin/groovy
 properties([
 	parameters([
-		choice (name: 'USE_MONO_BRANCH', choices: 'NONE\n2017-12\n2018-02\nmaster', description: 'Mono lane'),
-		choice (name: 'QA_USE_XI_LANE', choices: 'NONE\nmaster\nd15-6', description: 'XI lane'),
-		choice (name: 'QA_USE_XM_LANE', choices: 'NONE\nmacios-mac-master\nmacios-mac-d15-6', description: 'XM lane'),
+		choice (name: 'USE_MONO_BRANCH', choices: 'NONE\n2017-12\n2018-02\nmaster', description: 'Mono branch'),
+		choice (name: 'USE_XI_BRANCH', choices: 'NONE\nmaster\nd15-6\nmono-2018-02', description: 'XI branch'),
+		choice (name: 'USE_XM_BRANCH', choices: 'NONE\nmaster\nd15-6\nmono-2018-02', description: 'XM branch'),
 		choice (name: 'QA_USE_XA_LANE', choices: 'NONE\nmonodroid-mavericks-master\nmonodroid-mavericks-d15-6', description: 'XA lane'),
 		choice (name: 'IOS_DEVICE_TYPE', choices: 'iPhone-5s', description: ''),
 		choice (name: 'IOS_RUNTIME', choices: 'iOS-10-0\niOS-10-3', description: ''),
@@ -51,12 +51,12 @@ def provisionMono ()
 
 def provisionXI ()
 {
-	newProvision ('ios', params.QA_USE_XI_LANE)
+	newProvision ('ios', params.USE_XI_BRANCH)
 }
 
 def provisionXM ()
 {
-	provision ('XM', params.QA_USE_XM_LANE)
+	newProvision ('mac', params.USE_XM_BRANCH)
 }
 
 def provisionXA ()
@@ -71,12 +71,12 @@ def enableMono ()
 
 def enableXI ()
 {
-	return params.QA_USE_XI_LANE != 'NONE'
+	return params.USE_XI_BRANCH != 'NONE'
 }
 
 def enableXM ()
 {
-	return params.QA_USE_XM_LANE != 'NONE'
+	return params.USE_XM_BRANCH != 'NONE'
 }
 
 def enableXA ()

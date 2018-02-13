@@ -29,6 +29,13 @@ namespace AutoProvisionTool
 				}
 				ProvisionXI (args[1]).Wait ();
 				break;
+			case "provision-mac":
+				if (args.Length != 2) {
+					LogError ("Branch name expected.");
+					return;
+				}
+				ProvisionXM (args[1]).Wait ();
+				break;
 			case "mono-version":
 				PrintMonoVersion ().Wait ();
 				break;
@@ -64,6 +71,18 @@ namespace AutoProvisionTool
 			Log ($"Got package url {package}.");
 			await InstallTool.InstallPackage (package);
 			Log ($"Successfully provisioned XI from {branch}.");
+		}
+
+		public static async Task ProvisionXM (string branch)
+		{
+			Log ($"Provisioning XM from {branch}.");
+			var github = new GitHubTool ("xamarin", "xamarin-macios", branch);
+			await github.Initialize ().ConfigureAwait (false);
+			var latest = await github.GetLatestCommit ();
+			var package = github.GetPackageFromCommit (latest, "xamarin.mac");
+			Log ($"Got package url {package}.");
+			await InstallTool.InstallPackage (package);
+			Log ($"Successfully provisioned XM from {branch}.");
 		}
 
 		public static async Task<string> GetMonoVersion ()
