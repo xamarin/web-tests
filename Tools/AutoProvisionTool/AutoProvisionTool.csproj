@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{FB06ED0E-056C-4897-9603-C70371B895D4}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>AutoProvisionTool</RootNamespace>
+    <AssemblyName>AutoProvisionTool</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Octokit">
+      <HintPath>packages\Octokit.0.28.0\lib\net45\Octokit.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="GitHubTool.cs" />
+    <Compile Include="InstallTool.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.Console\ExternalToolException.cs">
+      <Link>External\ExternalToolException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Xamarin.AsyncTests.Console\ProcessHelper.cs">
+      <Link>External\ProcessHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Remoting\ExternalProcess.cs">
+      <Link>External\ExternalProcess.cs</Link>
+    </Compile>
+    <Compile Include="External\ProgramHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="External\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
