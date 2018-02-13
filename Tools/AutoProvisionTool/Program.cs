@@ -22,7 +22,7 @@ namespace AutoProvisionTool
 				}
 				ProvisionMono (args[1]).Wait (); 
 				break;
-			case "provision-xi":
+			case "provision-ios":
 				if (args.Length != 2) {
 					LogError ("Branch name expected.");
 					return;

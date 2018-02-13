@@ -24,29 +24,34 @@ def provision (String product, String lane)
 	}
 }
 
-def newAutoProvisionTool (String branch)
+def newAutoProvisionTool (String command, String branch)
 {
 	dir ('web-tests/Tools/AutoProvisionTool') {
 		runShell ("nuget restore AutoProvisionTool.sln")
 		runShell ("msbuild AutoProvisionTool.sln")
 		withCredentials ([string(credentialsId: 'mono-webtests-github-token', variable: 'JENKINS_OAUTH_TOKEN')]) {
-			runShell ("mono --debug ./bin/Debug/AutoProvisionTool.exe provision-mono $branch")
+			runShell ("mono --debug ./bin/Debug/AutoProvisionTool.exe $command $branch")
 		}
 	}
 }
 
-def provisionMono ()
+def newProvision (String product, String branch)
 {
-	if (params.USE_MONO_BRANCH != 'NONE') {
-		newAutoProvisionTool (params.USE_MONO_BRANCH)
+	if ("$lane" != 'NONE') {
+		newAutoProvisionTool ("provision-$product", branch)
 	} else {
 		echo "Skipping $product."
 	}
 }
 
+def provisionMono ()
+{
+	newProvision ('mono', params.USE_MONO_BRANCH)
+}
+
 def provisionXI ()
 {
-	provision ('XI', params.QA_USE_XI_LANE)
+	newProvision ('ios', params.QA_USE_XI_LANE)
 }
 
 def provisionXM ()
