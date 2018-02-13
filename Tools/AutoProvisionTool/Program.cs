@@ -36,6 +36,13 @@ namespace AutoProvisionTool
 				}
 				ProvisionXM (args[1]).Wait ();
 				break;
+			case "provision-android":
+				if (args.Length != 2) {
+					LogError ("Branch name expected.");
+					return;
+				}
+				ProvisionXA (args[1]).Wait ();
+				break;
 			case "mono-version":
 				PrintMonoVersion ().Wait ();
 				break;
@@ -83,6 +90,18 @@ namespace AutoProvisionTool
 			Log ($"Got package url {package}.");
 			await InstallTool.InstallPackage (package);
 			Log ($"Successfully provisioned XM from {branch}.");
+		}
+
+		public static async Task ProvisionXA (string branch)
+		{
+			Log ($"Provisioning XA from {branch}.");
+			var github = new GitHubTool ("xamarin", "monodroid", branch);
+			await github.Initialize ().ConfigureAwait (false);
+			var latest = await github.GetLatestCommit ();
+			var package = github.GetPackageFromCommit (latest, "xamarin.android");
+			Log ($"Got package url {package}.");
+			await InstallTool.InstallPackage (package);
+			Log ($"Successfully provisioned XA from {branch}.");
 		}
 
 		public static async Task<string> GetMonoVersion ()

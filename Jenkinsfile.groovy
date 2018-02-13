@@ -61,7 +61,7 @@ def provisionXM ()
 
 def provisionXA ()
 {
-	provision ('XA', params.QA_USE_XA_LANE)
+	newProvision ('android', params.QA_USE_XA_LANE)
 }
 
 def enableMono ()
