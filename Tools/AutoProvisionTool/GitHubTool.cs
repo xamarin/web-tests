@@ -84,10 +84,10 @@ namespace AutoProvisionTool
 					continue;
 
 				var selected = filter (combined);
-				if (selected == null)
-					Program.Debug ($"Commit {combined.Sha} does not have any packages.");
+				if (selected != null)
+					return selected;
 
-				return selected;
+				Program.Debug ($"Commit {combined.Sha} does not have any packages.");
 			}
 
 			Program.LogError ("Failed to found a successful commit.");
@@ -97,6 +97,11 @@ namespace AutoProvisionTool
 		public async Task<Uri> GetLatestPackage (string product)
 		{
 			var status = await GetLatestCommit (Filter).ConfigureAwait (false);
+			if (status == null) {
+				Program.LogError ($"Unable to find a package for {product}.");
+				return null;
+			}
+
 			Program.Log ($"Got package url {status.TargetUrl}");
 			return new Uri (status.TargetUrl);
 
