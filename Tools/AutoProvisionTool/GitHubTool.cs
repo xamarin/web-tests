@@ -68,7 +68,8 @@ namespace AutoProvisionTool
 			}
 		}
 
-		public async Task<CombinedCommitStatus> GetLatestCommit ()
+		public async Task<T> GetLatestCommit<T> (Func<CombinedCommitStatus,T> filter)
+			where T : class
 		{
 			Program.Log ($"Getting latest commit from {Owner}/{Name}:{Branch}");
 			for (int goBack = 0; goBack < 25; goBack++) {
@@ -79,26 +80,34 @@ namespace AutoProvisionTool
 
 				Program.Log ($"Found commit {combined.Sha}: {combined.State}");
 
-				if (combined.State.Value == CommitState.Success)
-					return combined;
+				if (combined.State.Value != CommitState.Success)
+					continue;
+
+				var selected = filter (combined);
+				if (selected != null)
+					return selected;
 			}
 
 			Program.LogError ("Failed to found a successful commit.");
 			return null;
 		}
 
-		public Uri GetPackageFromCommit (CombinedCommitStatus commit, string product)
+		public async Task<Uri> GetLatestPackage (string product)
 		{
-			Program.Log ($"Getting package from commit {commit.Sha} {commit.State} {commit.TotalCount}");
-			var context = $"PKG-{product}";
-			var package = commit.Statuses.FirstOrDefault (
-				s => string.Equals (s.Context, context, StringComparison.Ordinal));
-			if (package == null) {
-				Program.LogError ($"Failed to get package from commit {commit.Sha}");
-				return null;
+			var status = await GetLatestCommit (Filter).ConfigureAwait (false);
+			Program.Log ($"Got package url {status.TargetUrl}");
+			return new Uri (status.TargetUrl);
+
+			CommitStatus Filter (CombinedCommitStatus commit)
+			{
+				Program.Log ($"Getting package from commit {commit.Sha} {commit.State} {commit.TotalCount}");
+				var context = $"PKG-{product}";
+				var package = commit.Statuses.FirstOrDefault (
+					s => string.Equals (s.Context, context, StringComparison.Ordinal));
+				if (package == null)
+					Program.Log ($"Failed to get package from commit {commit.Sha}");
+				return package;
 			}
-			Program.Log ($"Got package url {package.TargetUrl}");
-			return new Uri (package.TargetUrl);
 		}
 	}
 }

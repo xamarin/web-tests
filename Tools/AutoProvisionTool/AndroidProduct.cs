@@ -64,8 +64,7 @@ namespace AutoProvisionTool
 		public override async Task Provision ()
 		{
 			var github = new GitHubTool ("xamarin", "monodroid", Branch);
-			var latest = await github.GetLatestCommit ().ConfigureAwait (false);
-			var package = github.GetPackageFromCommit (latest, "xamarin.android");
+			var package = await github.GetLatestPackage ("xamarin.android").ConfigureAwait (false);
 			await InstallTool.InstallPackage (package);
 		}
 	}
