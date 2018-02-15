@@ -1,117 +1,194 @@
-﻿using System;
+﻿//
+// Program.cs
+//
+// Author:
+//       Martin Baulig <mabaul@microsoft.com>
+//
+// Copyright (c) 2018 Xamarin, Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+using System;
+using System.IO;
+using System.Text;
+using System.Reflection;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests.Console;
+using NDesk.Options;
+using Mono.Unix;
 
 namespace AutoProvisionTool
 {
 	class Program
 	{
+		enum Command {
+			Version,
+			Provision
+		}
+
+		static TextWriter Output;
+
 		public static void Main (string[] args)
 		{
+			var products = new List<Product> ();
+			string summaryFile = null;
+			string outputFile = null;
+			var p = new OptionSet ();
+			p.Add ("summary=", "Write summary to file", v => summaryFile = v);
+			p.Add ("out=", "Write output to file", v => outputFile = v);
+			p.Add ("mono=", "Mono branch", v => products.Add (new MonoProduct (v)));
+			p.Add ("xi=", "Xamarin.iOS branch", v => products.Add (new IOSProduct (v)));
+			p.Add ("xm=", "Xamarin.Mac branch", v => products.Add (new MacProduct (v)));
+			p.Add ("xa=", "Xamarin.Android branch", v => products.Add (new AndroidProduct (v)));
+
+			List<string> arguments;
+			try {
+				arguments = p.Parse (args);
+			} catch (OptionException ex) {
+				Usage (ex.Message);
+				return;
+			}
+
 			if (args.Length < 1) {
-				LogError ("Usage error.");
+				Usage ("Missing command.");
 				return;
 			}
 
-			switch (args [0]) {
-			case "provision-mono":
-				if (args.Length != 2) {
-					LogError ("Branch name expected.");
-					return;
+			Command command;
+			if (!Enum.TryParse (arguments[0], true, out command)) {
+				Usage ("Invalid command.");
+				return;
+			}
+
+			if (outputFile != null) {
+				Output = new StreamWriter (outputFile);
+				Log ($"Logging output to {outputFile}.");
+			}
+
+			try {
+				Run (command, products).Wait ();
+			} catch {
+				LogError ("Provisioning failed.");
+			}
+
+			var versionProducts = new List<Product> (products);
+			if (versionProducts.Count == 0)
+				versionProducts.AddRange (Product.GetDefaultProducts ());
+
+			var shortSummary = GetVersionSummary (products, VersionFormat.Summary).Result;
+			var detailedSummary = GetVersionSummary (versionProducts, VersionFormat.Normal).Result;
+
+			if (summaryFile != null) {
+				Log ($"Writing version summary to {summaryFile}.");
+				using (var writer = new StreamWriter (summaryFile)) {
+					writer.WriteLine (shortSummary);
+					writer.Flush ();
 				}
-				ProvisionMono (args[1]).Wait (); 
-				break;
-			case "provision-ios":
-				if (args.Length != 2) {
-					LogError ("Branch name expected.");
-					return;
+			}
+
+			Log ("Short version summary:");
+			LogOutput (shortSummary);
+			Log ("Detailed version summary:");
+			LogOutput (detailedSummary); 
+
+			Log ("Provisioning complete.");
+
+			if (Output != null) {
+				Output.Flush ();
+				Output.Dispose ();
+			}
+
+			void Usage (string message = null)
+			{
+				var me = Assembly.GetEntryAssembly ().GetName ().Name;
+				using (var sw = new StringWriter ()) {
+					if (!string.IsNullOrEmpty (message)) {
+						sw.WriteLine ($"Usage error: {message}");
+						sw.WriteLine ();
+					}
+					sw.WriteLine ($"Usage: {me} [options] command [args]");
+					sw.WriteLine ();
+					sw.WriteLine ("Options:");
+					p.WriteOptionDescriptions (sw);
+					sw.WriteLine ();
+					var options = sw.ToString ();
+					LogError (options);
 				}
-				ProvisionXI (args[1]).Wait ();
-				break;
-			case "provision-mac":
-				if (args.Length != 2) {
-					LogError ("Branch name expected.");
-					return;
-				}
-				ProvisionXM (args[1]).Wait ();
-				break;
-			case "provision-android":
-				if (args.Length != 2) {
-					LogError ("Branch name expected.");
-					return;
-				}
-				ProvisionXA (args[1]).Wait ();
-				break;
-			case "mono-version":
-				PrintMonoVersion ().Wait ();
-				break;
+			}
+		}
+
+		static Task Run (Command command, IList<Product> products)
+		{
+			switch (command) {
+			case Command.Version:
+				return PrintVersions (Output ?? Console.Error, products);
+			case Command.Provision:
+				return ProvisionProducts (products);
 			default:
-				LogError ($"Invalid command: `{args[0]}'.");
-				return;
+				throw new InvalidOperationException ();
 			}
 		}
 
-		public static async Task ProvisionMono (string branch)
+		static async Task PrintVersions (TextWriter writer, IList<Product> products)
 		{
-			var oldVersion = await GetMonoVersion ().ConfigureAwait (false);
-			Log ($"Provisioning Mono from {branch}.");
-			var github = new GitHubTool ("mono", "mono", branch);
-			var latest = await github.GetLatestCommit ();
-			var package = github.GetPackageFromCommit (latest, "mono");
-			Log ($"Got package url {package}.");
-			await InstallTool.InstallPackage (package);
-			Log ($"Successfully provisioned Mono from {branch}.");
-			var newVersion = await GetMonoVersion ().ConfigureAwait (false);
-			Log ($"Old Mono version: {oldVersion}");
-			Log ($"New Mono version: {newVersion}");
+			if (products.Count == 0)
+				products = Product.GetDefaultProducts ();
+			foreach (var product in products) {
+				var version = await product.PrintVersion (VersionFormat.Full).ConfigureAwait (false);
+				writer.WriteLine ($"{product.Name}: {version}");
+			}
 		}
 
-		public static async Task ProvisionXI (string branch)
+		static async Task<string> GetVersionSummary (IList<Product> products, VersionFormat format)
 		{
-			Log ($"Provisioning XI from {branch}.");
-			var github = new GitHubTool ("xamarin", "xamarin-macios", branch);
-			var latest = await github.GetLatestCommit ();
-			var package = github.GetPackageFromCommit (latest, "xamarin.ios");
-			Log ($"Got package url {package}.");
-			await InstallTool.InstallPackage (package);
-			Log ($"Successfully provisioned XI from {branch}.");
+			if (products.Count == 0)
+				return "No products enabled.";
+			var sb = new StringBuilder ();
+			foreach (var product in products) {
+				var version = await product.PrintVersion (VersionFormat.Summary).ConfigureAwait (false);
+				if (format == VersionFormat.Summary) {
+					if (sb.Length > 0)
+						sb.Append ("<br>");
+					sb.Append ($"{product.ShortName}: {version}");
+				} else {
+					sb.AppendLine ($"{product.Name}: {version}");
+				}
+			}
+			return sb.ToString ();
 		}
 
-		public static async Task ProvisionXM (string branch)
+		static async Task ProvisionProducts (IList<Product> products)
 		{
-			Log ($"Provisioning XM from {branch}.");
-			var github = new GitHubTool ("xamarin", "xamarin-macios", branch);
-			var latest = await github.GetLatestCommit ();
-			var package = github.GetPackageFromCommit (latest, "xamarin.mac");
-			Log ($"Got package url {package}.");
-			await InstallTool.InstallPackage (package);
-			Log ($"Successfully provisioned XM from {branch}.");
-		}
-
-		public static async Task ProvisionXA (string branch)
-		{
-			Log ($"Provisioning XA from {branch}.");
-			var github = new GitHubTool ("xamarin", "monodroid", branch);
-			var latest = await github.GetLatestCommit ();
-			var package = github.GetPackageFromCommit (latest, "xamarin.android");
-			Log ($"Got package url {package}.");
-			await InstallTool.InstallPackage (package);
-			Log ($"Successfully provisioned XA from {branch}.");
-		}
-
-		public static async Task<string> GetMonoVersion ()
-		{
-			var output = await ProcessHelper.RunCommandWithOutput (
-				"mono", "--version", CancellationToken.None).ConfigureAwait (false);
-			return output.Split ('\n')[0];
-		}
-
-		public static async Task PrintMonoVersion ()
-		{
-			var output = await ProcessHelper.RunCommandWithOutput (
-				"mono", "--version", CancellationToken.None).ConfigureAwait (false);
-			Log (output);
+			foreach (var product in products) {
+				var oldVersion = await product.PrintVersion (VersionFormat.Normal).ConfigureAwait (false);
+				Log ($"Provisioning {product.Name} from {product.Branch}.");
+				try {
+					await product.Provision ().ConfigureAwait (false);
+				} catch (Exception ex) {
+					LogError ($"Failed to provision {product.Name} from {product.Branch}:\n{ex}");
+					throw;
+				}
+				var newVersion = await product.PrintVersion (VersionFormat.Normal).ConfigureAwait (false);
+				Log ($"Old {product.Name} version: {oldVersion}");
+				Log ($"New {product.Name} version: {newVersion}");
+			}
 		}
 
 		internal const string ME = "AutoProvisionTool";
@@ -126,14 +203,40 @@ namespace AutoProvisionTool
 			Log (string.Format (format, args));
 		}
 
+		public static async Task<string> RunCommandWithOutput (
+			string command, string args, CancellationToken cancellationToken)
+		{
+			var output = await ProcessHelper.RunCommandWithOutput (
+				command, args, cancellationToken).ConfigureAwait (false);
+			LogOutput (output);
+			return output;
+		}
+
+		public static void LogOutput (string output)
+		{
+			using (var reader = new StringReader (output)) {
+				string line;
+				while ((line = reader.ReadLine ()) != null) {
+					Log ($"    {line}");
+				}
+			}
+		}
+
 		public static void Log (string message)
 		{
 			Console.Error.WriteLine ($"{ME}: {message}");
+			if (Output != null)
+				Output.WriteLine ($"{ME}: {message}");
 		}
 
 		public static void LogError (string message)
 		{
 			Console.Error.WriteLine ($"{ME} ERROR: {message}");
+			if (Output != null) {
+				Output.WriteLine ($"{ME} ERROR: {message}");
+				Output.Flush ();
+				Output.Dispose ();
+			}
 			Environment.Exit (1);
 		}
 	}

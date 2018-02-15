@@ -12,65 +12,63 @@ properties([
 ])
 
 def logParsingRuleFile = ""
+def gitCommitHash = ""
 
-def autoProvisionTool (String command, String branch)
+def provision ()
 {
+	def args = [ ]
+	if (params.USE_MONO_BRANCH != 'NONE' && params.USE_MONO_BRANCH != '') {
+		args << "--mono=${params.USE_MONO_BRANCH}"
+	}
+	if (params.USE_XI_BRANCH != 'NONE' && params.USE_XI_BRANCH != '') {
+		args << "--xi=${params.USE_XI_BRANCH}"
+	}
+	if (params.USE_XM_BRANCH != 'NONE' && params.USE_XM_BRANCH != '') {
+		args << "--xm=${params.USE_XM_BRANCH}"
+	}
+	if (params.USE_XA_BRANCH != 'NONE' && params.USE_XA_BRANCH != '') {
+		args << "--xa=${params.USE_XA_BRANCH}"
+	}
+	def summaryFile = "${env.WORKSPACE}/summary.txt"
+	def provisionOutput = "provision-output.txt"
+	args << "--summary=$summaryFile"
+	args << "--out=$provisionOutput"
+	def argList = args.join (" ")
 	dir ('web-tests/Tools/AutoProvisionTool') {
-		runShell ("nuget restore AutoProvisionTool.sln")
-		runShell ("msbuild AutoProvisionTool.sln")
-		withCredentials ([string(credentialsId: 'mono-webtests-github-token', variable: 'JENKINS_OAUTH_TOKEN')]) {
-			runShell ("mono --debug ./bin/Debug/AutoProvisionTool.exe $command $branch")
+		try {
+			runShell ("nuget restore AutoProvisionTool.sln")
+			runShell ("msbuild AutoProvisionTool.sln")
+			withCredentials ([string(credentialsId: 'mono-webtests-github-token', variable: 'JENKINS_OAUTH_TOKEN')]) {
+				runShell ("mono --debug ./bin/Debug/AutoProvisionTool.exe $argList provision")
+			}
+		} finally {
+			archiveArtifacts artifacts: provisionOutput, fingerprint: true, allowEmptyArchive: true
 		}
 	}
-}
-
-def provision (String product, String branch)
-{
-	if ("$branch" != 'NONE') {
-		autoProvisionTool ("provision-$product", branch)
-	} else {
-		echo "Skipping $product."
-	}
-}
-
-def provisionMono ()
-{
-	provision ('mono', params.USE_MONO_BRANCH)
-}
-
-def provisionXI ()
-{
-	provision ('ios', params.USE_XI_BRANCH)
-}
-
-def provisionXM ()
-{
-	provision ('mac', params.USE_XM_BRANCH)
-}
-
-def provisionXA ()
-{
-	provision ('android', params.USE_XA_BRANCH)
+	
+	def summary = readFile summaryFile
+	echo "Setting build summary: $summary"
+	currentBuild.description = summary
 }
 
 def enableMono ()
 {
-	return params.USE_MONO_BRANCH != 'NONE'
+	return params.USE_MONO_BRANCH != 'NONE' && params.USE_MONO_BRANCH != ''
 }
 
 def enableXI ()
 {
-	return params.USE_XI_BRANCH != 'NONE'
+	return params.USE_XI_BRANCH != 'NONE' && params.USE_XI_BRANCH != ''
 }
 
 def enableXM ()
 {
-	return params.USE_XM_BRANCH != 'NONE'
+	return params.USE_XM_BRANCH != 'NONE' && params.USE_XM_BRANCH != ''
 }
 
 def enableXA ()
 {
-	return params.USE_XA_BRANCH != 'NONE'
+	return params.USE_XA_BRANCH != 'NONE' && params.USE_XA_BRANCH != ''
 }
 
 def runShell (String command)
@@ -175,13 +173,12 @@ node ('felix-25-sierra') {
                 dir ('web-tests') {
                     git url: 'git@github.com:xamarin/web-tests.git', branch: 'master'
                     sh 'git clean -xffd'
+					gitCommitHash = sh (script: "git log -n 1 --pretty=format:'%h'", returnStdout: true)
+					currentBuild.displayName = "#$currentBuild.number:$gitCommitHash"
                 }
             }
             stage ('provision') {
-                provisionMono ()
-                provisionXI ()
-                provisionXM ()
-                provisionXA ()
+				provision ()
             }
             stage ('build') {
                 buildAll ()

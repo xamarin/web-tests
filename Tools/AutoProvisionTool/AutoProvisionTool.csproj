@@ -34,6 +34,7 @@
       <HintPath>packages\Octokit.0.28.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="System.Configuration" />
+    <Reference Include="Mono.Posix" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -50,6 +51,15 @@
       <Link>External\ExternalProcess.cs</Link>
     </Compile>
     <Compile Include="External\ProgramHelper.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.Console\NDeskOptions.cs">
+      <Link>NDeskOptions.cs</Link>
+    </Compile>
+    <Compile Include="Product.cs" />
+    <Compile Include="MonoProduct.cs" />
+    <Compile Include="IOSProduct.cs" />
+    <Compile Include="MacProduct.cs" />
+    <Compile Include="AndroidProduct.cs" />
+    <Compile Include="VersionFormat.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,10 +1,10 @@
 ﻿//
-// InstallTool.cs
+// AndroidProduct.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2018 Xamarin, Inc.
+// Copyright (c) 2018 
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,49 +24,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Xamarin.AsyncTests.Console;
 
 namespace AutoProvisionTool
 {
-	public static class InstallTool
+	public class AndroidProduct : Product
 	{
-		public static async Task DownloadFile (Uri uri, string filename)
+		public override string Name => "Xamarin.Android";
+
+		public override string ShortName => "XA";
+
+		public override string FrameworkName => "Xamarin.Android.framework";
+
+		public AndroidProduct (string branch)
+			: base (branch)
 		{
-			using (var client = new WebClient ()) {
-				await client.DownloadFileTaskAsync (
-					uri, filename).ConfigureAwait (false);
-			}
 		}
 
-		public static async Task InstallPackage (Uri uri)
+		public override async Task<string> GetVersion (CancellationToken cancellationToken)
 		{
-			Program.Log ($"Installing package from {uri}.");
-			var package = await DownloadPackage (uri).ConfigureAwait (false);
-			var packagePath = Path.GetFullPath (package);
-
-			try {
-				await ProcessHelper.RunCommand ("/usr/bin/sudo", $"/usr/sbin/installer -verboseR -target / -pkg {packagePath}", CancellationToken.None);
-				Program.Log ($"Installed {package}.");
-			} catch (Exception ex) {
-				Program.LogError ($"Failed to install package: {ex.Message}\n{ex}");
-			}
+			cancellationToken.ThrowIfCancellationRequested ();
+			var mtouch = Path.Combine (GetFrameworkDirectory (), "bin", "smcs");
+			if (!File.Exists (mtouch))
+				return null;
+			var output = await Program.RunCommandWithOutput (
+				mtouch, "/version", cancellationToken).ConfigureAwait (false);
+			return output.Split ('\n')[0];
 		}
 
-		public static async Task<string> DownloadPackage (Uri uri)
+		public override string GetShortVersion (
+			string versionString, out string branch, out string commit)
 		{
-			var filename = Path.GetFileName (uri.LocalPath);
-			if (File.Exists (filename)) {
-				Program.Log ($"Package {filename} already exists.");
-				return filename;
-			}
-			Program.Log ($"Trying to download {uri}");
-			await DownloadFile (uri, filename).ConfigureAwait (false);
-			Program.Log ($"Done downloading {uri}");
-			return filename;
+			branch = commit = null;
+			return null;
+		}
+
+		public override async Task Provision ()
+		{
+			var github = new GitHubTool ("xamarin", "monodroid", Branch);
+			var latest = await github.GetLatestCommit ().ConfigureAwait (false);
+			var package = github.GetPackageFromCommit (latest, "xamarin.android");
+			await InstallTool.InstallPackage (package);
 		}
 	}
 }
