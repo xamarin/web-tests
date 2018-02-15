@@ -84,8 +84,10 @@ namespace AutoProvisionTool
 					continue;
 
 				var selected = filter (combined);
-				if (selected != null)
-					return selected;
+				if (selected == null)
+					Program.Debug ($"Commit {combined.Sha} does not have any packages.");
+
+				return selected;
 			}
 
 			Program.LogError ("Failed to found a successful commit.");
