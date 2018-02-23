@@ -65,6 +65,9 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			children = new LinkedList<Tuple<TestPathTreeNode, TestInvoker>> ();
 			foreach (var child in Node.GetChildren ()) {
+				if (!child.RunFilter (ctx))
+					continue;
+
 				var invoker = child.CreateChildInvoker (ctx);
 				children.AddLast (new Tuple<TestPathTreeNode, TestInvoker> (child, invoker));
 			}
