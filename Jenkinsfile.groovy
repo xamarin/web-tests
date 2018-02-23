@@ -182,7 +182,9 @@ def run (String target, String testCategory, String outputDir, String resultOutp
 		def extraParamValue = params.EXTRA_JENKINS_ARGUMENTS
 		extraParams = ",JenkinsExtraArguments=\"$extraParamValue\""
 	}
-	runShell ("msbuild /verbosity:minimal Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,OutputDir=$outputDir,$iosParams,$resultParams,$outputParams$extraParams")
+	withEnv (['MONO_ENV_OPTIONS=--debug']) {
+		runShell ("msbuild /verbosity:minimal Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,OutputDir=$outputDir,$iosParams,$resultParams,$outputParams$extraParams")
+	}
 }
 
 def runTests (String target, String category, Boolean unstable = false, Integer timeoutValue = 15)
