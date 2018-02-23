@@ -145,6 +145,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			{
 				return Member.GetCustomAttributes<T> ();
 			}
+
+			public override string ToString ()
+			{
+				return $"[PropertyInfo: {Type.Name}.{Name}]";
+			}
 		}
 
 		class _MethodInfo : IMemberInfo
@@ -179,6 +184,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			{
 				return Member.GetCustomAttributes<T> ();
 			}
+
+			public override string ToString ()
+			{
+				return $"[MethodInfo: {Type.Name}.{Name}]";
+			}
 		}
 
 		class _TypeInfo : IMemberInfo {
@@ -210,6 +220,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			public IEnumerable<T> GetCustomAttributes<T> () where T : Attribute
 			{
 				return Member.GetCustomAttributes<T> ();
+			}
+
+			public override string ToString ()
+			{
+				return $"[TypeInfo: {Name}]";
 			}
 		}
 
