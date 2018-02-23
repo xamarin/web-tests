@@ -51,13 +51,11 @@ namespace Xamarin.WebTests.Tests {
 		readonly static IPortableEndPoint address;
 		readonly static X509Certificate serverCertificate;
 		readonly static ConnectionParameters serverParameters;
-		readonly static bool hasNetwork;
 
 		static TestProxy ()
 		{
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			address = support.GetEndpoint (0);
-			hasNetwork = !address.IsLoopback;
 
 			serverCertificate = ResourceManager.SelfSignedServerCertificate;
 			serverParameters = new ConnectionParameters ("proxy", serverCertificate);
@@ -107,17 +105,12 @@ namespace Xamarin.WebTests.Tests {
 
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			if (!hasNetwork)
-				throw new InvalidOperationException ();
-
 			return CreateBackend (ctx);
 		}
 
 		public IEnumerable<Handler> GetParameters (TestContext ctx, string filter)
 		{
 			var list = new List<Handler> ();
-			if (!hasNetwork)
-				return list;
 
 			switch (filter) {
 			case "martin":
