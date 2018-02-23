@@ -33,23 +33,19 @@ namespace AutoProvisionTool
 {
 	public class GitHubTool
 	{
-		public string Owner {
+		public Product Product {
 			get;
 		}
 
-		public string Name {
-			get;
-		}
+		public string Owner => Product.RepoOwner;
 
-		public string Branch {
-			get;
-		}
+		public string Name => Product.RepoName;
 
-		public GitHubTool (string owner, string name, string branch)
+		public string Branch => Product.Branch;
+
+		public GitHubTool (Product product)
 		{
-			Owner = owner;
-			Name = name;
-			Branch = branch;
+			Product = product;
 
 			Initialize ();
 		}
@@ -68,11 +64,10 @@ namespace AutoProvisionTool
 			}
 		}
 
-		public async Task<T> GetLatestCommit<T> (Func<CombinedCommitStatus,T> filter)
-			where T : class
+		public async Task<Package> GetLatestCommit (Product product, Func<CombinedCommitStatus,CommitStatus> filter)
 		{
 			Program.Log ($"Getting latest commit from {Owner}/{Name}:{Branch}");
-			for (int goBack = 0; goBack < 25; goBack++) {
+			for (int goBack = 0; goBack < Program.MaxFallback+1; goBack++) {
 				var commit = goBack == 0 ? Branch : $"{Branch}~{goBack}";
 				Program.Log ($"Trying {commit}");
 				var combined = await client.Repository.Status.GetCombined (
@@ -85,7 +80,7 @@ namespace AutoProvisionTool
 
 				var selected = filter (combined);
 				if (selected != null)
-					return selected;
+					return new Package (product, combined, selected);
 
 				Program.Debug ($"Commit {combined.Sha} does not have any packages.");
 			}
@@ -94,21 +89,21 @@ namespace AutoProvisionTool
 			return null;
 		}
 
-		public async Task<Uri> GetLatestPackage (string product)
+		public async Task<Package> GetLatestPackage (Product product)
 		{
-			var status = await GetLatestCommit (Filter).ConfigureAwait (false);
+			var status = await GetLatestCommit (product, Filter).ConfigureAwait (false);
 			if (status == null) {
-				Program.LogError ($"Unable to find a package for {product}.");
+				Program.LogError ($"Unable to find a package for {product.PackageName}.");
 				return null;
 			}
 
-			Program.Log ($"Got package url {status.TargetUrl}");
-			return new Uri (status.TargetUrl);
+			Program.Log ($"Got package url {status.TargetUri}");
+			return status;
 
 			CommitStatus Filter (CombinedCommitStatus commit)
 			{
 				Program.Log ($"Getting package from commit {commit.Sha} {commit.State} {commit.TotalCount}");
-				var context = $"PKG-{product}";
+				var context = $"PKG-{product.PackageName}";
 				var package = commit.Statuses.FirstOrDefault (
 					s => string.Equals (s.Context, context, StringComparison.Ordinal));
 				if (package == null)

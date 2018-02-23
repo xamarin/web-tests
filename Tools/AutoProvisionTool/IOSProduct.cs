@@ -39,6 +39,12 @@ namespace AutoProvisionTool
 
 		public override string FrameworkName => "Xamarin.iOS.framework";
 
+		public override string PackageName => "xamarin.ios";
+
+		public override string RepoOwner => "xamarin";
+
+		public override string RepoName => "xamarin-macios";
+
 		public IOSProduct (string branch)
 			: base (branch)
 		{
@@ -70,11 +76,12 @@ namespace AutoProvisionTool
 			return match.Groups[1].Value;
 		}
 
-		public override async Task Provision ()
+		public override async Task<Package> Provision ()
 		{
-			var github = new GitHubTool ("xamarin", "xamarin-macios", Branch);
-			var package = await github.GetLatestPackage ("xamarin.ios").ConfigureAwait (false);
+			var github = new GitHubTool (this);
+			var package = await github.GetLatestPackage (this).ConfigureAwait (false);
 			await InstallTool.InstallPackage (package);
+			return package;
 		}
 	}
 }

@@ -1,10 +1,10 @@
 ﻿//
-// VersionFormat.cs
+// Package.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2018 Xamarin, Inc.
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,13 +24,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Octokit;
+
 namespace AutoProvisionTool
 {
-	public enum VersionFormat
+	public class Package
 	{
-		Full,
-		Verbose,
-		Normal,
-		Summary
+		public Product Product {
+			get;
+		}
+
+		public CombinedCommitStatus Commit {
+			get;
+		}
+
+		public CommitStatus Status {
+			get;
+		}
+
+		public Uri TargetUri {
+			get;
+		}
+
+		public Package (Product product, CombinedCommitStatus commit, CommitStatus status)
+		{
+			Product = product;
+			Commit = commit;
+			Status = status;
+			TargetUri = new Uri (status.TargetUrl);
+		}
 	}
 }

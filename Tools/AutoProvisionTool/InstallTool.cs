@@ -42,15 +42,16 @@ namespace AutoProvisionTool
 			}
 		}
 
-		public static async Task InstallPackage (Uri uri)
+		public static async Task InstallPackage (Package package)
 		{
+			var uri = package.TargetUri;
 			Program.Log ($"Installing package from {uri}.");
-			var package = await DownloadPackage (uri).ConfigureAwait (false);
-			var packagePath = Path.GetFullPath (package);
+			var packageFile = await DownloadPackage (uri).ConfigureAwait (false);
+			var packagePath = Path.GetFullPath (packageFile);
 
 			try {
 				await ProcessHelper.RunCommand ("/usr/bin/sudo", $"/usr/sbin/installer -verboseR -target / -pkg {packagePath}", CancellationToken.None);
-				Program.Log ($"Installed {package}.");
+				Program.Log ($"Installed {packageFile}.");
 			} catch (Exception ex) {
 				Program.LogError ($"Failed to install package: {ex.Message}\n{ex}");
 			}

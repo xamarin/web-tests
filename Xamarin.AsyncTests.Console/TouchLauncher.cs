@@ -135,10 +135,10 @@ namespace Xamarin.AsyncTests.Console
 			}
 
 			args.AppendFormat (" --setenv=\"XAMARIN_ASYNCTESTS_OPTIONS={0}\"", options);
-			if (!string.IsNullOrWhiteSpace (Options.StdOut))
+			if (!string.IsNullOrWhiteSpace (Options.StdOut)) {
 				args.AppendFormat (" --stdout={0}", Options.StdOut);
-			if (!string.IsNullOrWhiteSpace (Options.StdErr))
-				args.AppendFormat (" --stderr={0}", Options.StdErr);
+				args.AppendFormat (" --stderr={0}", Options.StdOut);
+			}
 			args.AppendFormat (" --sdkroot={0}", Options.SdkRoot);
 			args.AppendFormat (" --device=\"{0}\"", DeviceName);
 

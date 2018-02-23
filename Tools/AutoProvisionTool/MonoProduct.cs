@@ -38,6 +38,12 @@ namespace AutoProvisionTool
 
 		public override string FrameworkName => "Mono.framework";
 
+		public override string PackageName => "mono";
+
+		public override string RepoOwner => "mono";
+
+		public override string RepoName => "mono";
+
 		public MonoProduct (string branch)
 			: base (branch)
 		{
@@ -66,11 +72,12 @@ namespace AutoProvisionTool
 			return match.Groups[1].Value;
 		}
 
-		public override async Task Provision ()
+		public override async Task<Package> Provision ()
 		{
-			var github = new GitHubTool ("mono", "mono", Branch);
-			var package = await github.GetLatestPackage ("mono").ConfigureAwait (false);
+			var github = new GitHubTool (this);
+			var package = await github.GetLatestPackage (this).ConfigureAwait (false);
 			await InstallTool.InstallPackage (package);
+			return package;
 		}
 	}
 }

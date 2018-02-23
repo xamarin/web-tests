@@ -1,87 +1,145 @@
 #!/bin/groovy
 properties([
 	parameters([
-		choice (name: 'USE_MONO_BRANCH', choices: 'NONE\n2017-12\n2018-02\nmaster', description: 'Mono branch'),
-		choice (name: 'USE_XI_BRANCH', choices: 'NONE\nmaster\nd15-6\nmono-2018-02', description: 'XI branch'),
-		choice (name: 'USE_XM_BRANCH', choices: 'NONE\nmaster\nd15-6\nmono-2018-02', description: 'XM branch'),
-		choice (name: 'USE_XA_BRANCH', choices: 'NONE\nmaster\nd15-6\nmono-2018-02', description: 'XA branch'),
+		choice (name: 'MONO_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\n2017-12\n2018-02\nmaster', description: 'Mono branch'),
+		choice (name: 'XI_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nd15-6\nmono-2018-02', description: 'XI branch'),
+		choice (name: 'XM_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nd15-6\nmono-2018-02', description: 'XM branch'),
+		choice (name: 'XA_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nd15-6\nmono-2018-02', description: 'XA branch'),
 		choice (name: 'IOS_DEVICE_TYPE', choices: 'iPhone-5s', description: ''),
 		choice (name: 'IOS_RUNTIME', choices: 'iOS-10-0\niOS-10-3', description: ''),
-		string (defaultValue: '', description: '', name: 'EXTRA_JENKINS_ARGUMENTS')
+		string (name: 'MONO_COMMIT', defaultValue: '', description: 'Use specific Mono commit'),
+		string (name: 'XI_COMMIT', defaultValue: '', description: 'Use specific XI commit'),
+		string (name: 'XM_COMMIT', defaultValue: '', description: 'Use specific XM commit'),
+		string (name: 'XA_COMMIT', defaultValue: '', description: 'Use specific Android commit'),
+		string (name: 'EXTRA_JENKINS_ARGUMENTS', defaultValue: '', description: ''),
+		booleanParam (name: 'SPECIFIC_COMMIT', defaultValue: false, description: 'Use specific commit')
 	])
 ])
+
+//
+// Specifying branches and commits:
+// * NONE - skip this product
+// * CURRENT - keep what's currently installed on the bot
+// * SPECIFIC - use specific commit (which needs to be set in the corresponding '_COMMIT' parameter)
+//
+// If you put anything into the '_COMMIT' parameter without using "SPECIFIC", then it will be appended
+// to the branch name using the @{commit} syntax - for instance "master@{yesterday}"
+//
+// By default, the AutoProvisionTool will go back up to 25 commits from the one specified until it
+// finds one that has a package set as github status.  Set the 'SPECIFIC_COMMIT' parameter to disable this.
+//
 
 def logParsingRuleFile = ""
 def gitCommitHash = ""
 
+def getBranchAndCommit (String name, String branch, String commit)
+{
+	if (branch == 'NONE' || branch == '' || branch == null) {
+		return null
+	}
+	if (branch == 'SPECIFIC') {
+		if (commit == '') {
+			error "Must set $name commit."
+			return null
+		}
+		return commit
+	}
+	if (commit != '') {
+		return "$branch@{$commit}"
+	}
+	return branch
+}
+
 def provision ()
 {
+	final String OUTPUT_DIRECTORY = 'artifacts'
+
 	def args = [ ]
-	if (params.USE_MONO_BRANCH != 'NONE' && params.USE_MONO_BRANCH != '') {
-		args << "--mono=${params.USE_MONO_BRANCH}"
+	def monoBranch = getBranchAndCommit ('Mono', params.MONO_BRANCH, params.MONO_COMMIT)
+	if (monoBranch != null) {
+		args << "--mono=$monoBranch"
 	}
-	if (params.USE_XI_BRANCH != 'NONE' && params.USE_XI_BRANCH != '') {
-		args << "--xi=${params.USE_XI_BRANCH}"
+	
+	def xiBranch = getBranchAndCommit ('XI', params.XI_BRANCH, params.XI_COMMIT)
+	if (xiBranch != null) {
+		args << "--xi=$xiBranch"
 	}
-	if (params.USE_XM_BRANCH != 'NONE' && params.USE_XM_BRANCH != '') {
-		args << "--xm=${params.USE_XM_BRANCH}"
+	
+	def xmBranch = getBranchAndCommit ('XM', params.XM_BRANCH, params.XM_COMMIT)
+	if (xmBranch != null) {
+		args << "--xm=$xmBranch"
 	}
-	if (params.USE_XA_BRANCH != 'NONE' && params.USE_XA_BRANCH != '') {
-		args << "--xa=${params.USE_XA_BRANCH}"
+	
+	def xaBranch = getBranchAndCommit ('XA', params.XA_BRANCH, params.XA_COMMIT)
+	if (xaBranch != null) {
+		args << "--xa=$xaBranch"
 	}
-	def summaryFile = "${env.WORKSPACE}/summary.txt"
+	
+	if (params.SPECIFIC_COMMIT) {
+		args << "--specific"
+	}
+	
+	def buildPath = new URI (env.BUILD_URL).getPath()
+	env.WEB_TESTS_BUILD_PATH = buildPath
+	
+	def summaryFile = "summary.txt"
 	def provisionOutput = "provision-output.txt"
-	args << "--summary=$summaryFile"
-	args << "--out=$provisionOutput"
+	def provisionHtml = "provision-output.html"
+	args << "--summary=$OUTPUT_DIRECTORY/$summaryFile"
+	args << "--out=$OUTPUT_DIRECTORY/$provisionOutput"
+	args << "--html=$OUTPUT_DIRECTORY/$provisionHtml"
+	args << "--jenkins-job=$buildPath"
 	def argList = args.join (" ")
 	dir ('web-tests/Tools/AutoProvisionTool') {
 		try {
+			runShell ("mkdir -p $OUTPUT_DIRECTORY")
 			runShell ("nuget restore AutoProvisionTool.sln")
-			runShell ("msbuild AutoProvisionTool.sln")
+			runShell ("msbuild /verbosity:minimal AutoProvisionTool.sln")
 			withCredentials ([string(credentialsId: 'mono-webtests-github-token', variable: 'JENKINS_OAUTH_TOKEN')]) {
 				runShell ("mono --debug ./bin/Debug/AutoProvisionTool.exe $argList provision")
 			}
 		} finally {
-			archiveArtifacts artifacts: provisionOutput, fingerprint: true, allowEmptyArchive: true
+			dir (OUTPUT_DIRECTORY) {
+				archiveArtifacts artifacts: "provision-output.*", fingerprint: true, allowEmptyArchive: true
+				rtp nullAction: '1', parserName: 'html', stableText: "\${FILE:$provisionHtml}"
+				def summary = readFile summaryFile
+				echo "Setting build summary: $summary"
+				currentBuild.description = summary
+				env.WEB_TESTS_PROVISION_SUMMARY = summary
+			}
 		}
 	}
-	
-	def summary = readFile summaryFile
-	echo "Setting build summary: $summary"
-	currentBuild.description = summary
 }
 
 def enableMono ()
 {
-	return params.USE_MONO_BRANCH != 'NONE' && params.USE_MONO_BRANCH != ''
+	return params.MONO_BRANCH != 'NONE' && params.MONO_BRANCH != ''
 }
 
 def enableXI ()
 {
-	return params.USE_XI_BRANCH != 'NONE' && params.USE_XI_BRANCH != ''
+	return params.XI_BRANCH != 'NONE' && params.XI_BRANCH != ''
 }
 
 def enableXM ()
 {
-	return params.USE_XM_BRANCH != 'NONE' && params.USE_XM_BRANCH != ''
+	return params.XM_BRANCH != 'NONE' && params.XM_BRANCH != ''
 }
 
 def enableXA ()
 {
-	return params.USE_XA_BRANCH != 'NONE' && params.USE_XA_BRANCH != ''
+	return params.XA_BRANCH != 'NONE' && params.XA_BRANCH != ''
 }
 
 def runShell (String command)
 {
-    def dir = pwd()
-    echo "SHELL ($dir): $command"
     sh command
 }
 
 def build (String targets)
 {
 	dir ('web-tests') {
-		runShell ("msbuild Jenkinsfile.targets /t:MultiBuild /p:JenkinsTargets=$targets")
+		runShell ("msbuild /verbosity:minimal Jenkinsfile.targets /t:MultiBuild /p:JenkinsTargets=$targets")
 	}
 }
 
@@ -113,33 +171,34 @@ def buildAll ()
 	build (targetList)
 }
 
-def run (String target, String testCategory, String resultOutput, String junitResultOutput, String stdOut, String stdErr)
+def run (String target, String testCategory, String outputDir, String resultOutput, String junitResultOutput, String stdOut, String jenkinsHtml)
 {
+	def buildPath = new URI (env.BUILD_URL).getPath()
 	def iosParams = "IosRuntime=$IOS_RUNTIME,IosDeviceType=$IOS_DEVICE_TYPE"
 	def resultParams = "ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
-	def outputParams = "StdOut=$stdOut,StdErr=$stdErr"
+	def outputParams = "StdOut=$stdOut,JenkinsHtml=$jenkinsHtml,JenkinsJob=$buildPath"
 	def extraParams = ""
 	if (params.EXTRA_JENKINS_ARGUMENTS != '') {
 		def extraParamValue = params.EXTRA_JENKINS_ARGUMENTS
 		extraParams = ",JenkinsExtraArguments=\"$extraParamValue\""
 	}
-	runShell ("msbuild Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,$iosParams,$resultParams,$outputParams$extraParams")
+	runShell ("msbuild /verbosity:minimal Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,OutputDir=$outputDir,$iosParams,$resultParams,$outputParams$extraParams")
 }
 
 def runTests (String target, String category, Boolean unstable = false, Integer timeoutValue = 15)
 {
+	final String OUTPUT_DIRECTORY = 'artifacts'
+
 	dir ('web-tests') {
-		def outputDir = "out/" + target + "/" + category
-		def outputDirAbs = pwd() + "/" + outputDir
-		sh "mkdir -p $outputDirAbs"
-		def resultOutput = "$outputDirAbs/TestResult-${target}-${category}.xml"
-		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${target}-${category}.xml"
-        def stdOutLog = "$outputDirAbs/stdout-${target}-${category}.log"
-        def stdErrLog = "$outputDirAbs/stderr-${target}-${category}.log"
+		def outputDir = target + "/" + category
+		def resultOutput = "$outputDir/TestResult-${target}-${category}.xml"
+		def junitResultOutput = "$outputDir/JUnitTestResult-${target}-${category}.xml"
+        def outputLog = "$outputDir/output-${target}-${category}.log"
+		def jenkinsHtmlLog = "$outputDir/jenkins-summary-${target}-${category}.html"
 		Boolean error = false
 		try {
 			timeout (timeoutValue) {
-				run (target, category, resultOutput, junitResultOutput, stdOutLog, stdErrLog)
+				run (target, category, OUTPUT_DIRECTORY, resultOutput, junitResultOutput, outputLog, jenkinsHtmlLog)
 			}
 		} catch (exception) {
 			def result = currentBuild.result
@@ -150,10 +209,17 @@ def runTests (String target, String category, Boolean unstable = false, Integer 
 				error = true
 			}
 		} finally {
-			archiveArtifacts artifacts: "$outputDir/*.log", fingerprint: true, allowEmptyArchive: true
-			if (!error) {
-				junit keepLongStdio: true, testResults: "$outputDir/*.xml"
-				archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
+			dir (OUTPUT_DIRECTORY) {
+				if (fileExists (outputLog))
+					archiveArtifacts artifacts: outputLog, fingerprint: true, allowEmptyArchive: true
+				if (fileExists (jenkinsHtmlLog)) {
+					archiveArtifacts artifacts: jenkinsHtmlLog, fingerprint: true, allowEmptyArchive: true
+					rtp nullAction: '1', parserName: 'html', stableText: "\${FILE:$jenkinsHtmlLog}"
+				}
+				if (!error) {
+					junit keepLongStdio: true, testResults: "$outputDir/*.xml"
+					archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
+				}
 			}
 		}
 	}
@@ -175,6 +241,8 @@ node ('felix-25-sierra') {
                     sh 'git clean -xffd'
 					gitCommitHash = sh (script: "git log -n 1 --pretty=format:'%h'", returnStdout: true)
 					currentBuild.displayName = "#$currentBuild.number:$gitCommitHash"
+					env.WEB_TESTS_COMMIT = gitCommitHash
+					env.WEB_TESTS_BUILD = currentBuild.displayName
                 }
             }
             stage ('provision') {

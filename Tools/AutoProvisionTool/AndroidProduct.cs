@@ -4,7 +4,7 @@
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2018 
+// Copyright (c) 2018 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,12 @@ namespace AutoProvisionTool
 
 		public override string FrameworkName => "Xamarin.Android.framework";
 
+		public override string PackageName => "xamarin.android";
+
+		public override string RepoOwner => "xamarin";
+
+		public override string RepoName => "monodroid";
+
 		public AndroidProduct (string branch)
 			: base (branch)
 		{
@@ -61,11 +67,12 @@ namespace AutoProvisionTool
 			return null;
 		}
 
-		public override async Task Provision ()
+		public override async Task<Package> Provision ()
 		{
-			var github = new GitHubTool ("xamarin", "monodroid", Branch);
-			var package = await github.GetLatestPackage ("xamarin.android").ConfigureAwait (false);
+			var github = new GitHubTool (this);
+			var package = await github.GetLatestPackage (this).ConfigureAwait (false);
 			await InstallTool.InstallPackage (package);
+			return package;
 		}
 	}
 }

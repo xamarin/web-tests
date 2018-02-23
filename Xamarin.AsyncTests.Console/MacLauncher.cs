@@ -60,10 +60,11 @@ namespace Xamarin.AsyncTests.Console
 			var psi = new ProcessStartInfo ("/usr/bin/open");
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
+			psi.RedirectStandardError = true;
 			psi.Arguments = "-F -W -n " + Program.Options.Application;
 			psi.EnvironmentVariables.Add ("XAMARIN_ASYNCTESTS_OPTIONS", options);
 
-			return ProcessHelper.StartCommand (psi, cancellationToken);
+			return ProcessHelper.StartCommand (psi, Program.StdOut, cancellationToken);
 		}
 	}
 }

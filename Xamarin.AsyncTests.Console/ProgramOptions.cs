@@ -80,6 +80,11 @@ namespace Xamarin.AsyncTests.Console {
 			private set;
 		}
 
+		public string JenkinsHtml {
+			get;
+			private set;
+		}
+
 		public string OutputDirectory {
 			get;
 		}
@@ -121,7 +126,7 @@ namespace Xamarin.AsyncTests.Console {
 			get;
 		}
 
-		public string StdErr {
+		public string JenkinsStdOutLink {
 			get;
 		}
 
@@ -153,6 +158,11 @@ namespace Xamarin.AsyncTests.Console {
 			private set;
 		}
 
+		public string JenkinsJobPath {
+			get;
+			private set;
+		}
+
 		public IList<string> Arguments {
 			get;
 		}
@@ -174,7 +184,7 @@ namespace Xamarin.AsyncTests.Console {
 			var junitResultOutput = "JUnitTestResult.xml";
 			string packageName = null;
 
-			string outputDir = null, stdout = null, stderr = null;
+			string outputDir = null, stdout = null;
 			string customSettings = null;
 			string sdkRoot = null, iosDeviceType = null, iosRuntime = null;
 			string androidSdkRoot = null;
@@ -212,14 +222,15 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("ios-device-type=", v => iosDeviceType = v);
 			p.Add ("ios-runtime=", v => iosRuntime = v);
 			p.Add ("stdout=", v => stdout = v);
-			p.Add ("stderr=", v => stderr = v);
 			p.Add ("sdkroot=", v => sdkRoot = v);
 			p.Add ("android-sdkroot=", v => androidSdkRoot = v);
 			p.Add ("save-logcat=", v => SaveLogCat = v);
 			p.Add ("jenkins", v => Jenkins = true);
+			p.Add ("jenkins-html=", v => JenkinsHtml = v);
 			p.Add ("output-dir=", v => outputDir = v);
 			p.Add ("repeat=", v => repeat = int.Parse (v));
 			p.Add ("dont-save-logging", v => dontSaveLogging = true);
+			p.Add ("jenkins-job=", "Jenkins Job Path", v => JenkinsJobPath = v);
 			var arguments = p.Parse (args);
 
 			PackageName = packageName;
@@ -257,7 +268,7 @@ namespace Xamarin.AsyncTests.Console {
 			case Command.Local:
 				if (assembly != null) {
 					if (arguments.Count != 0) {
-						arguments.ForEach (a => Program.Error ("Unexpected remaining argument: {0}", a));
+						arguments.ForEach (a => Program.PrintError ($"Unexpected remaining argument: {a}"));
 						throw new ProgramException ("Unexpected extra argument.");
 					}
 					Assembly = assembly;
@@ -279,7 +290,7 @@ namespace Xamarin.AsyncTests.Console {
 					if (EndPoint == null)
 						throw new ProgramException ("Missing endpoint");
 				} else {
-					arguments.ForEach (a => Program.Error ("Unexpected remaining argument: {0}", a));
+					arguments.ForEach (a => Program.PrintError ($"Unexpected remaining argument: {a}"));
 					throw new ProgramException ("Unexpected extra argument.");
 				}
 				break;
@@ -341,11 +352,18 @@ namespace Xamarin.AsyncTests.Console {
 			if (!string.IsNullOrEmpty (OutputDirectory) && !Directory.Exists (OutputDirectory))
 				Directory.CreateDirectory (OutputDirectory);
 
+			if (stdout != null) {
+				var fullPath = Path.Combine ("artifact", stdout);
+				if (JenkinsJobPath != null)
+					fullPath = Path.Combine (JenkinsJobPath, fullPath);
+				JenkinsStdOutLink = $"<a href=\"{fullPath}\">{stdout}</a>";
+			}
+
 			StdOut = MakeAbsolute (OutputDirectory, stdout);
-			StdErr = MakeAbsolute (OutputDirectory, stderr);
 			ResultOutput = MakeAbsolute (OutputDirectory, resultOutput);
 			if (!noJUnit)
 				JUnitResultOutput = MakeAbsolute (OutputDirectory, junitResultOutput);
+			JenkinsHtml = MakeAbsolute (OutputDirectory, JenkinsHtml);
 
 			if (settingsFile != null) {
 				if (saveSettings == null)
@@ -486,9 +504,16 @@ namespace Xamarin.AsyncTests.Console {
 
 		static string MakeAbsolute (string directory, string file)
 		{
+			string fullName;
 			if (string.IsNullOrEmpty (directory) || string.IsNullOrEmpty (file) || Path.IsPathRooted (file))
-				return file;
-			return Path.Combine (directory, file);
+				fullName = file;
+			else
+				fullName = Path.Combine (directory, file);
+
+			var fullDir = Path.GetDirectoryName (fullName);
+			if (!string.IsNullOrEmpty (fullDir) && !Directory.Exists (fullDir))
+				Directory.CreateDirectory (fullDir);
+			return fullName;
 		}
 
 		static void ParseSettings (SettingsBag settings, string arg)

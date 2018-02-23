@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Collections.Generic;
@@ -71,6 +72,21 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
+		internal static bool Jenkins {
+			get;
+			private set;
+		}
+
+		internal static TextWriter JenkinsHtml {
+			get;
+			private set;
+		}
+
+		internal static TextWriter StdOut {
+			get;
+			private set;
+		}
+
 		TestSession session;
 		TestResult result;
 		DateTime startTime, endTime;
@@ -82,16 +98,25 @@ namespace Xamarin.AsyncTests.Console
 
 			DependencyInjector.RegisterAssembly (typeof(PortableSupportImpl).Assembly);
 
+			Program program = null;
+			int result;
 			try {
-				var program = new Program (assembly, args);
-
-				var task = program.Run (CancellationToken.None);
-				task.Wait ();
-				Environment.Exit (task.Result);
+				program = new Program (assembly, args);
 			} catch (Exception ex) {
 				PrintException (ex);
 				Environment.Exit (-1);
 			}
+
+			try {
+				var task = program.Run (CancellationToken.None);
+				task.Wait ();
+				result = task.Result;
+			} catch (Exception ex) {
+				PrintException (ex);
+				result = -1;
+			}
+			program.Finish ();
+			Environment.Exit (result);
 		}
 
 		static void PrintException (Exception ex)
@@ -105,13 +130,13 @@ namespace Xamarin.AsyncTests.Console
 			var toolEx = ex as ExternalToolException;
 			if (toolEx != null) {
 				if (!string.IsNullOrEmpty (toolEx.ErrorOutput))
-					Debug ("ERROR: External tool '{0}' failed:\n{1}\n", toolEx.Tool, toolEx.ErrorOutput);
+					PrintError ($"External tool '{toolEx.Tool}' failed:\n{toolEx.ErrorOutput}\n");
 				else
-					Debug ("ERROR: External tool '{0}' failed:\n{1}\n", toolEx.Tool, toolEx);
+					PrintError ($"External tool '{toolEx.Tool}' failed:\n{toolEx}\n");
 				return;
 			}
 
-			Debug ("ERROR: {0}", ex);
+			PrintError (ex.ToString ());
 		}
 
 		static void Main (string[] args)
@@ -130,6 +155,8 @@ namespace Xamarin.AsyncTests.Console
 				Launcher = new TouchLauncher (this);
 				break;
 			case Command.Mac:
+				if (Options.StdOut != null)
+					StdOut = new StreamWriter (Options.StdOut);
 				Launcher = new MacLauncher (this);
 				break;
 			case Command.Android:
@@ -141,9 +168,21 @@ namespace Xamarin.AsyncTests.Console
 			case Command.Apk:
 				DroidHelper = new DroidHelper (this);
 				break;
+			default:
+				if (Options.StdOut != null)
+					StdOut = new StreamWriter (Options.StdOut);
+				break;
 			}
 
+			if (StdOut != null)
+				SD.Debug.Listeners.Add (new SD.TextWriterTraceListener (StdOut));
+
+			Jenkins = Options.Jenkins;
+
 			Logger = new TestLogger (new ConsoleLogger (this));
+
+			if (Options.JenkinsHtml != null)
+				JenkinsHtml = new StreamWriter (Options.JenkinsHtml);
 
 			if (Launcher != null) {
 				LauncherOptions = new LauncherOptions {
@@ -152,14 +191,65 @@ namespace Xamarin.AsyncTests.Console
 			}
 		}
 
+		void Finish ()
+		{
+			if (JenkinsHtml != null) {
+				if (Options.StdOut != null)
+					JenkinsHtml.WriteLine ($"<p>Output: {Options.JenkinsStdOutLink}.");
+				JenkinsHtml.Flush ();
+				JenkinsHtml.Dispose ();
+			}
+			if (StdOut != null) {
+				StdOut.Flush ();
+				StdOut.Dispose ();
+			}
+		}
+
+		void LogInfo (string message)
+		{
+			if (Options.Jenkins)
+				System.Console.WriteLine ($"[info] {message}");
+			Debug (message);
+		}
+
+		internal static void PrintError (string message, Exception error = null)
+		{
+			if (Jenkins) {
+				WriteLine ($"[error] {message}");
+				if (error != null)
+					WriteLine ($"[error] {error}");
+			} else {
+				WriteLine ($"ERROR: {message}");
+				if (error != null)
+					WriteLine (error.ToString ());
+			}
+
+			if (JenkinsHtml != null) {
+				JenkinsHtml.WriteLine ("<p><b>{message}</b></p>");
+				if (error != null)
+					JenkinsHtml.WriteLine ("<pre>{error}</pre>");
+			}
+
+			void WriteLine (string text)
+			{
+				System.Console.Error.WriteLine (text);
+				if (StdOut != null)
+					StdOut.WriteLine (text);
+			}
+		}
+
 		internal static void WriteLine ()
 		{
-			global::System.Console.WriteLine();
+			System.Console.WriteLine ();
+			if (StdOut != null)
+				StdOut.WriteLine ();
 		}
 
 		internal static void WriteLine (string message, params object[] args)
 		{
-			global::System.Console.WriteLine (message, args);
+			System.Console.WriteLine (message, args);
+			if (StdOut != null)
+				StdOut.WriteLine (message, args);
 		}
 
 		internal static void Debug (string message)
@@ -170,30 +260,6 @@ namespace Xamarin.AsyncTests.Console
 		internal static void Debug (string message, params object[] args)
 		{
 			Debug (string.Format (message, args));
-		}
-
-		internal static void Error (string message, params object[] args)
-		{
-			System.Console.Error.WriteLine (string.Format (message, args));
-		}
-
-		internal void WriteSummary (string format, params object[] args)
-		{
-			WriteSummary (string.Format (format, args));
-		}
-
-		internal void WriteSummary (string message)
-		{
-			Debug (message);
-			if (Options.Jenkins)
-				global::System.Console.WriteLine ("[info] {0}", message);
-		}
-
-		internal void WriteErrorSummary (string message)
-		{
-			Debug ("ERROR: {0}", message);
-			if (Options.Jenkins)
-				global::System.Console.WriteLine ("[error] {0}", message);
 		}
 
 		internal static IPEndPoint GetEndPoint (string text)
@@ -231,8 +297,7 @@ namespace Xamarin.AsyncTests.Console
 
 		async Task<int> Run (CancellationToken cancellationToken)
 		{
-			if (Options.Jenkins)
-				global::System.Console.WriteLine ("[start] Running test suite.");
+			LogInfo ("Running test suite.");
 
 			bool success = false;
 			int? exitCode = null;
@@ -322,6 +387,8 @@ namespace Xamarin.AsyncTests.Console
 			session = TestSession.CreateLocal (this, framework);
 			Options.UpdateConfiguration (session);
 
+			PrintSummary ();
+
 			var test = session.RootTestCase;
 
 			Debug ("Got test: {0}", test.Path.FullName);
@@ -344,6 +411,8 @@ namespace Xamarin.AsyncTests.Console
 			session = server.Session;
 			if (Options.UpdateConfiguration (session))
 				await session.UpdateSettings (cancellationToken);
+
+			PrintSummary ();
 
 			var test = session.RootTestCase;
 			cancellationToken.ThrowIfCancellationRequested ();
@@ -370,7 +439,7 @@ namespace Xamarin.AsyncTests.Console
 			try {
 				server = await TestServer.LaunchApplication (this, endpoint, Launcher, LauncherOptions, cancellationToken);
 			} catch (LauncherErrorException ex) {
-				WriteErrorSummary (ex.Message);
+				PrintException (ex);
 				Environment.Exit (255);
 				throw;
 			}
@@ -401,6 +470,8 @@ namespace Xamarin.AsyncTests.Console
 			if (Options.UpdateConfiguration (session))
 				await session.UpdateSettings (cancellationToken);
 
+			PrintSummary ();
+
 			var test = session.RootTestCase;
 			cancellationToken.ThrowIfCancellationRequested ();
 
@@ -418,11 +489,49 @@ namespace Xamarin.AsyncTests.Console
 			return ExitCodeForResult;
 		}
 
+		void PrintSummary ()
+		{
+			var config = session.Configuration;
+			var category = config.CurrentCategory.Name;
+			var shortText = new StringBuilder ();
+			var detailedText = new List<string> ();
+			detailedText.Add ($"Test Category: {category}");
+			foreach (var feature in config.Features) {
+				if (!feature.CanModify || feature.Constant != null)
+					continue;
+				var defaultValue = feature.DefaultValue ?? false;
+				var enabled = config.IsEnabled (feature);
+				if (enabled == defaultValue)
+					continue;
+				var prefix = enabled ? "+" : "-";
+				detailedText.Add ($"Test Feature: {prefix}{feature.Name}");
+				if (shortText.Length > 0)
+					shortText.Append (", ");
+				shortText.Append ($"{prefix}{feature.Name}");
+			}
+			var categoryText = category;
+			if (shortText.Length > 0)
+				categoryText += $" ({shortText})";
+
+			var header = $"Test Suite: {session.App.PackageName ?? session.Name} - {categoryText}";
+			if (JenkinsHtml != null)
+				JenkinsHtml.WriteLine ($"<h2>{header}</h2>");
+			LogInfo (header);
+
+			foreach (var line in detailedText)
+				LogInfo (line);
+		}
+
 		void SaveResult ()
 		{
-			WriteSummary ("{0} tests, {1} passed, {2} errors, {3} unstable, {4} ignored.",
-			              countTests, countSuccess, countErrors, countUnstable, countIgnored);
-			WriteSummary ("Total time: {0}.", endTime - startTime);
+			LogInfo ($"Test Result: {result.Status}");
+			LogInfo ($"{countTests} tests, {countSuccess} passed, {countErrors} errors, {countUnstable} unstable, {countIgnored} ignored.");
+			LogInfo ($"Total time: {endTime - startTime}.");
+			if (JenkinsHtml != null) {
+				JenkinsHtml.WriteLine ($"<p>Test Result: {result.Status}");
+				JenkinsHtml.WriteLine ($"<br>{countTests} tests, {countSuccess} passed, {countErrors} errors, {countUnstable} unstable, {countIgnored} ignored.");
+				JenkinsHtml.WriteLine ($"<br>Total time: {endTime - startTime}.</p>");
+			}
 
 			if (Options.ResultOutput != null) {
 				var serialized = TestSerializer.WriteTestResult (result);
@@ -438,8 +547,13 @@ namespace Xamarin.AsyncTests.Console
 				Debug ("JUnit result written to {0}.", Options.JUnitResultOutput);
 			}
 
-			var printer = new ResultPrinter (global::System.Console.Out, result);
+			var printer = new ResultPrinter (System.Console.Out, result);
 			printer.Print ();
+
+			if (StdOut != null) {
+				var stdoutPrinter = new ResultPrinter (StdOut, result);
+				stdoutPrinter.Print ();
+			}
 		}
 
 		async Task<bool> ShowResult (CancellationToken cancellationToken)

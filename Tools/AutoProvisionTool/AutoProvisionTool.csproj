@@ -60,6 +60,7 @@
     <Compile Include="MacProduct.cs" />
     <Compile Include="AndroidProduct.cs" />
     <Compile Include="VersionFormat.cs" />
+    <Compile Include="Package.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
