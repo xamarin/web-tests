@@ -7,7 +7,6 @@ def XM_BRANCH = "NONE"
 def XA_BRANCH = "NONE"
 def IOS_DEVICE_TYPE = "iPhone-5s"
 def IOS_RUNTIME = "iOS-10-3"
-def EXTRA_JENKINS_ARGUMENTS = ""
 
 def profileSetup ()
 {
@@ -17,7 +16,6 @@ def profileSetup ()
 		XI_BRANCH = 'NONE'
 		XM_BRANCH = 'NONE'
 		XA_BRANCH = 'NONE'
-		EXTRA_JENKINS_ARGUMENTS = 'MARTIN'
 		IOS_DEVICE_TYPE = 'iPhone-5s'
 		IOS_RUNTIME = "iOS-10-0"
 	} else if (profile == '2017-12') {
@@ -49,13 +47,7 @@ def profileSetup ()
 		IOS_DEVICE_TYPE = "iPhone-5s"
 		IOS_RUNTIME = "iOS-10-0"
 	} else {
-		MONO_BRANCH = params.MONO_BRANCH
-		XI_BRANCH = params.XI_BRANCH
-		XM_BRANCH = params.XM_BRANCH
-		XA_BRANCH = params.XA_BRANCH
-		IOS_DEVICE_TYPE = params.IOS_DEVICE_TYPE
-		IOS_RUNTIME = params.IOS_RUNTIME
-		EXTRA_JENKINS_ARGUMENTS = params.EXTRA_JENKINS_ARGUMENTS
+		error "Unknown Jenkins configuration: $profile"
 	}
 }
 
@@ -68,7 +60,6 @@ def triggerJob ()
 		string (name: 'XA_BRANCH', value: XA_BRANCH),
 		string (name: 'IOS_DEVICE_TYPE', value: IOS_DEVICE_TYPE),
 		string (name: 'IOS_RUNTIME', value: IOS_RUNTIME),
-		string (name: 'EXTRA_JENKINS_ARGUMENTS', value: EXTRA_JENKINS_ARGUMENTS),
 	], wait: true, propagate: false
 	currentBuild.result = triggeredBuild.result
 	echo "Build status: ${currentBuild.result}"
