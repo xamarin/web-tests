@@ -122,9 +122,9 @@
 		<JenkinsArguments>--jenkins --package-name=$(JenkinsPackageName)</JenkinsArguments>
 		<ResultArguments>--result=$(ResultOutput) --junit-result=$(JUnitResultOutput)</ResultArguments>
 		<CategoryArguments>--category=$(TestCategory)</CategoryArguments>
-		<StdOutArguments Condition="'(StdOut)' != ''">--stdout=$(StdOut)</StdOutArguments>
-		<JenkinsHtmlArguments Condition="'(JenkinsHtml)' != ''">--jenkins-html=$(JenkinsHtml)</JenkinsHtmlArguments>
-		<JenkinsJobArguments Condition="'(JenkinsJob)' != ''">--jenkins-job=$(JenkinsJob)</JenkinsJobArguments>
+		<StdOutArguments Condition="'$(StdOut)' != ''">--stdout=$(StdOut)</StdOutArguments>
+		<JenkinsHtmlArguments Condition="'$(JenkinsHtml)' != ''">--jenkins-html=$(JenkinsHtml)</JenkinsHtmlArguments>
+		<JenkinsJobArguments Condition="'$(JenkinsJob)' != ''">--jenkins-job=$(JenkinsJob)</JenkinsJobArguments>
 		<IosDeviceTypeArgument Condition="'$(IosDeviceType)' != ''">--ios-device-type=$(IosDeviceType)</IosDeviceTypeArgument>
 		<IosRuntimeArgument Condition="'$(IosRuntime)' != ''">--ios-runtime=$(IosRuntime)</IosRuntimeArgument>
 		<IosArguments Condition="'$(JenkinsPlatform)' == 'IOS'">$(IosDeviceTypeArgument) $(IosRuntimeArgument)</IosArguments>
