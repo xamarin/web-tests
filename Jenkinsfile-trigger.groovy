@@ -135,6 +135,8 @@ node ('felix-25-sierra') {
 					slackSend ("danger", "${currentBuild.result}")
 				}
 			} catch (exception) {
+				currentBuild.result = "FAILURE"
+				echo "Caught unhandled exception: $exception"
 				slackSend ("danger", "ERROR: $exception")
 			}
 		}
