@@ -103,11 +103,6 @@ namespace Xamarin.AsyncTests.Framework
 				return true;
 			}
 
-			if (false && Categories.Count > 0 || Features.Count > 0) {
-				enabled = false;
-				return true;
-			}
-
 			enabled = false;
 			return false;
 		}
