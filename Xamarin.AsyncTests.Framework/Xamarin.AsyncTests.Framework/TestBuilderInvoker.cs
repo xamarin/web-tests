@@ -55,7 +55,7 @@ namespace Xamarin.AsyncTests.Framework
 			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
-				if (!Host.Builder.RunFilter (ctx)) {
+				if (!Filter (ctx, Host.Builder)) {
 					ctx.OnTestIgnored ();
 					return null;
 				}

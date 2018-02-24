@@ -253,16 +253,6 @@ namespace Xamarin.AsyncTests.Framework
 			return invoker;
 		}
 
-		internal bool RunFilter (TestContext ctx)
-		{
-			Resolve (ctx);
-
-			if (innerNode != null)
-				return true;
-			else
-				return Tree.Builder.RunFilter (ctx);
-		}
-
 		public override string ToString ()
 		{
 			return string.Format ("[TestPathNode: Tree={0}, Path={1}]", Tree, Path);

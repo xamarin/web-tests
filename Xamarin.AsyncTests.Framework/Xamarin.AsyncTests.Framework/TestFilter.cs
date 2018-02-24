@@ -42,10 +42,6 @@ namespace Xamarin.AsyncTests.Framework
 			this.features = features;
 		}
 
-		public bool MustMatch {
-			get { return parent != null; }
-		}
-
 		public bool Filter (TestContext ctx, out bool enabled)
 		{
 			if (categories.Any (attr => attr.Category == TestCategory.Global)) {

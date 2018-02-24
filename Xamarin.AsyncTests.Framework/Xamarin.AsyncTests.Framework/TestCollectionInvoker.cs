@@ -49,23 +49,13 @@ namespace Xamarin.AsyncTests.Framework
 			Node = node;
 		}
 
-		bool Filter (TestContext ctx, TestFilter filter)
-		{
-			bool enabled;
-			var matched = filter.Filter (ctx, out enabled);
-			if (!matched)
-				enabled = !filter.MustMatch;
-
-			return enabled;
-		}
-
 		LinkedList<Tuple<TestPathTreeNode,TestInvoker>> children;
 
 		internal void ResolveChildren (TestContext ctx)
 		{
 			children = new LinkedList<Tuple<TestPathTreeNode, TestInvoker>> ();
 			foreach (var child in Node.GetChildren ()) {
-				if (!child.RunFilter (ctx))
+				if (!Filter (ctx, child.Tree.Builder))
 					continue;
 
 				var invoker = child.CreateChildInvoker (ctx);
