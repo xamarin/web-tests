@@ -33,15 +33,6 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public abstract Task<bool> Invoke (TestContext ctx, TestInstance instance, CancellationToken cancellationToken);
 
-		protected bool Filter (TestContext ctx, TestBuilder builder)
-		{
-			if (builder.Filter == null)
-				return true;
-			if (builder.Filter.Filter (ctx, out bool enabled))
-				return enabled;
-			return true;
-		}
-
 		public override string ToString ()
 		{
 			return string.Format ("[{0}]", GetType ().Name);

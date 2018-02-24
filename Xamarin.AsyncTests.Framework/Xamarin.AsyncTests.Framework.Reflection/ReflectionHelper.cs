@@ -657,7 +657,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		#region Misc
 
-		static IList<TestCategoryAttribute> GetCategories (IMemberInfo member)
+		static IReadOnlyCollection<TestCategoryAttribute> GetCategories (IMemberInfo member)
 		{
 			return member.GetCustomAttributes<TestCategoryAttribute> ().ToList ();
 		}
@@ -671,7 +671,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		internal static TestFilter CreateTestFilter (TestFilter parent, IMemberInfo member)
 		{
 			var categories = GetCategories (member);
-			var features = GetFeatures (member);
+			var features = GetFeatures (member).ToList ();
 
 			return new TestFilter (parent, categories, features);
 		}

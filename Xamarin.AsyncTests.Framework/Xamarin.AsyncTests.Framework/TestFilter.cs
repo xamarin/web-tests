@@ -31,32 +31,42 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class TestFilter
 	{
-		readonly TestFilter parent;
-		readonly IList<TestCategoryAttribute> categories;
-		readonly IEnumerable<TestFeature> features;
+		public TestFilter Parent {
+			get;
+		}
 
-		public TestFilter (TestFilter parent, IList<TestCategoryAttribute> categories, IEnumerable<TestFeature> features)
+		public IReadOnlyCollection<TestCategoryAttribute> Categories {
+			get;
+		}
+
+		public IReadOnlyCollection<TestFeature> Features {
+			get;
+		}
+
+		public TestFilter (TestFilter parent,
+		                   IReadOnlyCollection<TestCategoryAttribute> categories,
+		                   IReadOnlyCollection<TestFeature> features)
 		{
-			this.parent = parent;
-			this.categories = categories;
-			this.features = features;
+			Parent = parent;
+			Categories = categories;
+			Features = features;
 		}
 
 		public bool Filter (TestContext ctx, out bool enabled)
 		{
-			if (categories.Any (attr => attr.Category == TestCategory.Global)) {
+			if (Categories.Any (attr => attr.Category == TestCategory.Global)) {
 				enabled = true;
 				return true;
 			}
 
-			foreach (var feature in features) {
+			foreach (var feature in Features) {
 				if (!ctx.IsEnabled (feature)) {
 					enabled = false;
 					return true;
 				}
 			}
 
-			foreach (var attr in categories) {
+			foreach (var attr in Categories) {
 				if (attr is MartinAttribute martin) {
 					if (ctx.CurrentCategory != TestCategory.Martin) {
 						enabled = false;
@@ -85,11 +95,16 @@ namespace Xamarin.AsyncTests.Framework
 				}
 			}
 
-			if (parent != null && parent.Filter (ctx, out enabled))
+			if (Parent != null && Parent.Filter (ctx, out enabled))
 				return enabled;
 
 			if (ctx.CurrentCategory == TestCategory.All) {
 				enabled = true;
+				return true;
+			}
+
+			if (false && Categories.Count > 0 || Features.Count > 0) {
+				enabled = false;
 				return true;
 			}
 

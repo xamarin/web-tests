@@ -50,12 +50,23 @@ namespace Xamarin.AsyncTests.Framework
 			Inner = inner;
 		}
 
+		bool Filter (TestContext ctx)
+		{
+			if (Host.Builder.Filter == null)
+				return true;
+			if (Host.Builder.Filter.Filter (ctx, out bool enabled))
+				return enabled;
+			if (Host.Builder.Parent?.Filter == null)
+				return true;
+			return false;
+		}
+
 		TestBuilderInstance SetUp (TestContext ctx, TestInstance instance)
 		{
 			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
-				if (!Filter (ctx, Host.Builder)) {
+				if (!Filter (ctx)) {
 					ctx.OnTestIgnored ();
 					return null;
 				}
