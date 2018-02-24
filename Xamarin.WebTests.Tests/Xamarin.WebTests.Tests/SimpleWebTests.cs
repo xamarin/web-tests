@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.WebTests.TestFramework;
+using Xamarin.WebTests.TestAttributes;
 using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.HttpHandlers;
 using Xamarin.WebTests.HttpOperations;

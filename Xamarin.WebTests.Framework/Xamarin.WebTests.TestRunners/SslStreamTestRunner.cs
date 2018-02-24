@@ -31,6 +31,7 @@ using System.Net.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
@@ -40,6 +41,7 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.TestRunners
 {
 	using ConnectionFramework;
+	using TestAttributes;
 	using TestFramework;
 	using Resources;
 
@@ -60,7 +62,63 @@ namespace Xamarin.WebTests.TestRunners
 			return new DefaultConnectionHandler (this);
 		}
 
-		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object[] args)
+		public static IEnumerable<SslStreamTestType> GetTests (TestContext ctx, ConnectionTestCategory category)
+		{
+			switch (category) {
+			case ConnectionTestCategory.Https:
+				yield return SslStreamTestType.Default;
+				yield return SslStreamTestType.AcceptFromLocalCA;
+				yield return SslStreamTestType.NoValidator;
+				yield return SslStreamTestType.RejectAll;
+				yield return SslStreamTestType.RequestClientCertificate;
+				yield return SslStreamTestType.RequireClientCertificate;
+				yield return SslStreamTestType.RejectClientCertificate;
+				yield return SslStreamTestType.UnrequestedClientCertificate;
+				yield return SslStreamTestType.OptionalClientCertificate;
+				yield return SslStreamTestType.RejectClientCertificate;
+				yield return SslStreamTestType.MissingClientCertificate;
+				yield break;
+
+			case ConnectionTestCategory.HttpsWithMono:
+				yield return SslStreamTestType.Default;
+				yield return SslStreamTestType.AcceptFromLocalCA;
+				yield return SslStreamTestType.RejectAll;
+				yield break;
+
+			case ConnectionTestCategory.HttpsWithDotNet:
+				yield return SslStreamTestType.NoValidator;
+				yield return SslStreamTestType.RequestClientCertificate;
+				yield return SslStreamTestType.RequireClientCertificate;
+				yield return SslStreamTestType.RejectClientCertificate;
+				yield return SslStreamTestType.UnrequestedClientCertificate;
+				yield return SslStreamTestType.OptionalClientCertificate;
+				yield return SslStreamTestType.RejectClientCertificate;
+				yield return SslStreamTestType.MissingClientCertificate;
+				yield break;
+
+			case ConnectionTestCategory.SslStreamWithTls12:
+				yield return SslStreamTestType.Default;
+				yield return SslStreamTestType.AcceptFromLocalCA;
+				yield return SslStreamTestType.RequireClientCertificate;
+				yield return SslStreamTestType.SyncAuthenticate;
+				yield break;
+
+			case ConnectionTestCategory.SslStreamCertificateValidators:
+				yield return SslStreamTestType.MustNotInvokeGlobalValidator;
+				yield return SslStreamTestType.MustNotInvokeGlobalValidator2;
+				yield break;
+
+			case ConnectionTestCategory.MartinTest:
+				yield return SslStreamTestType.MartinTest;
+				yield break;
+
+			default:
+				ctx.AssertFail ("Unsupported test category: '{0}'.", category);
+				throw new InternalErrorException ();
+			}
+		}
+
+		static string GetTestName (ConnectionTestCategory category, SslStreamTestType type, params object[] args)
 		{
 			var sb = new StringBuilder ();
 			sb.Append (type);
@@ -70,7 +128,7 @@ namespace Xamarin.WebTests.TestRunners
 			return sb.ToString ();
 		}
 
-		public static SslStreamTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category, ConnectionTestType type)
+		public static SslStreamTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category, SslStreamTestType type)
 		{
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 			var acceptAll = certificateProvider.AcceptAll ();
@@ -82,36 +140,36 @@ namespace Xamarin.WebTests.TestRunners
 			var name = GetTestName (category, type);
 
 			switch (type) {
-			case ConnectionTestType.Default:
+			case SslStreamTestType.Default:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptAll
 				};
 
-			case ConnectionTestType.AcceptFromLocalCA:
+			case SslStreamTestType.AcceptFromLocalCA:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
 					ClientCertificateValidator = acceptFromLocalCA
 				};
 
-			case ConnectionTestType.NoValidator:
+			case SslStreamTestType.NoValidator:
 				// The default validator only allows ResourceManager.SelfSignedServerCertificate.
 				return new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
 					ExpectClientException = true
 				};
 
-			case ConnectionTestType.RejectAll:
+			case SslStreamTestType.RejectAll:
 				// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ExpectClientException = true, ClientCertificateValidator = rejectAll
 				};
 
-			case ConnectionTestType.UnrequestedClientCertificate:
+			case SslStreamTestType.UnrequestedClientCertificate:
 				// Provide a client certificate, but do not require it.
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.PenguinCertificate, ClientCertificateValidator = acceptSelfSigned,
 					ServerCertificateValidator = acceptNull
 				};
 
-			case ConnectionTestType.RequestClientCertificate:
+			case SslStreamTestType.RequestClientCertificate:
 				/*
 				 * Request client certificate, but do not require it.
 				 *
@@ -123,7 +181,7 @@ namespace Xamarin.WebTests.TestRunners
 					AskForClientCertificate = true, ServerCertificateValidator = acceptFromLocalCA
 				};
 
-			case ConnectionTestType.RequireClientCertificate:
+			case SslStreamTestType.RequireClientCertificate:
 				// Require client certificate.
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
@@ -131,7 +189,7 @@ namespace Xamarin.WebTests.TestRunners
 					ServerCertificateValidator = acceptFromLocalCA
 				};
 
-			case ConnectionTestType.OptionalClientCertificate:
+			case SslStreamTestType.OptionalClientCertificate:
 				/*
 				 * Request client certificate without requiring one and do not provide it.
 				 *
@@ -146,7 +204,7 @@ namespace Xamarin.WebTests.TestRunners
 					ServerCertificateValidator = acceptNull
 				};
 
-			case ConnectionTestType.RejectClientCertificate:
+			case SslStreamTestType.RejectClientCertificate:
 				// Reject client certificate.
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
@@ -154,7 +212,7 @@ namespace Xamarin.WebTests.TestRunners
 					ExpectClientException = true, ExpectServerException = true
 				};
 
-			case ConnectionTestType.MissingClientCertificate:
+			case SslStreamTestType.MissingClientCertificate:
 				// Missing client certificate.
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptSelfSigned,
@@ -162,25 +220,25 @@ namespace Xamarin.WebTests.TestRunners
 					ExpectClientException = true, ExpectServerException = true
 				};
 
-			case ConnectionTestType.MustNotInvokeGlobalValidator:
+			case SslStreamTestType.MustNotInvokeGlobalValidator:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptAll,
 					GlobalValidationFlags = GlobalValidationFlags.MustNotInvoke
 				};
 
-			case ConnectionTestType.MustNotInvokeGlobalValidator2:
+			case SslStreamTestType.MustNotInvokeGlobalValidator2:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					GlobalValidationFlags = GlobalValidationFlags.MustNotInvoke,
 					ExpectClientException = true
 				};
 
-			case ConnectionTestType.SyncAuthenticate:
+			case SslStreamTestType.SyncAuthenticate:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptAll, SslStreamFlags = SslStreamFlags.SyncAuthenticate
 				};
 
 			default:
-				throw ctx.AssertFail ("Invalid ConnectionTestType: `{0}'.", type);
+				throw ctx.AssertFail ("Invalid SslStreamTestType: `{0}'.", type);
 			}
 		}
 

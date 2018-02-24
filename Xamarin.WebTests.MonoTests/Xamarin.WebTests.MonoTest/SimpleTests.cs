@@ -32,7 +32,7 @@ using Xamarin.WebTests.TestFramework;
 
 namespace Xamarin.WebTests.MonoTests
 {
-	using MonoConnectionFramework;
+	using TestAttributes;
 	using MonoTestFramework;
 	using MonoTestFeatures;
 

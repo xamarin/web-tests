@@ -33,6 +33,7 @@ using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.TestFramework;
+using Xamarin.WebTests.TestRunners;
 using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.HttpHandlers

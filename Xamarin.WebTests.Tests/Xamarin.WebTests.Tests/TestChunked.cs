@@ -37,9 +37,8 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Tests
 {
-	using HttpHandlers;
 	using HttpFramework;
-	using TestFramework;
+	using TestAttributes;
 	using HttpOperations;
 
 	[AsyncTestFixture (Timeout = 5000)]

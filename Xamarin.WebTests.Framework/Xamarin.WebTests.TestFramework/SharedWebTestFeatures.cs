@@ -29,6 +29,7 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests.TestFramework;
+using Xamarin.WebTests.TestAttributes;
 
 [assembly: DependencyProvider (typeof (SharedWebTestFeatures.Provider))]
 

@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests.TestFramework;
+using Xamarin.WebTests.TestAttributes;
 
 namespace Xamarin.WebTests.Tests
 {

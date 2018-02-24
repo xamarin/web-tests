@@ -37,7 +37,7 @@ using Mono.Security.Interface;
 
 namespace Xamarin.WebTests.MonoTests
 {
-	using MonoConnectionFramework;
+	using TestAttributes;
 	using MonoTestFramework;
 	using MonoTestFeatures;
 

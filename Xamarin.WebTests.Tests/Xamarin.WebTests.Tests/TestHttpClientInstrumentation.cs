@@ -30,24 +30,22 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.HttpFramework;
-using Xamarin.WebTests.HttpHandlers;
+using Xamarin.WebTests.TestAttributes;
 using Xamarin.WebTests.TestRunners;
 
 namespace Xamarin.WebTests
 {
+	[Tls12]
 	[AsyncTestFixture]
 	public class TestHttpClientInstrumentation
 	{
 		[Work]
 		[AsyncTest]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpClient)]
+		[HttpServerTestCategory (HttpServerTestCategory.Default)]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-				 ConnectionTestProvider provider,
-		                 HttpClientTestParameters parameters,
+		                 HttpServerProvider provider,
+		                 HttpClientTestType type,
 		                 HttpClientTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
@@ -55,23 +53,21 @@ namespace Xamarin.WebTests
 
 		[AsyncTest]
 		[NewWebStack]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpClientNewWebStack)]
+		[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
 		public Task RunNewWebStack (TestContext ctx, CancellationToken cancellationToken,
-					    ConnectionTestProvider provider,
-		                            HttpClientTestParameters parameters,
+		                            HttpServerProvider provider,
+		                            HttpClientTestType type,
 		                            HttpClientTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
 		}
 
 		[Martin ("HttpClientInstrumentation")]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
-		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
+		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
 		[AsyncTest (Unstable = true)]
 		public Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
-					ConnectionTestProvider provider,
-		                        HttpClientTestParameters parameters,
+		                        HttpServerProvider provider,
+		                        HttpClientTestType type,
 		                        HttpClientTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);

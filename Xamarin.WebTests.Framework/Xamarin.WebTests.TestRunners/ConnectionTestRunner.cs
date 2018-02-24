@@ -63,93 +63,6 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = CreateConnectionHandler ();
 		}
 
-		public static IEnumerable<ConnectionTestType> GetConnectionTestTypes (TestContext ctx, ConnectionTestCategory category)
-		{
-			switch (category) {
-			case ConnectionTestCategory.Https:
-				yield return ConnectionTestType.Default;
-				yield return ConnectionTestType.AcceptFromLocalCA;
-				yield return ConnectionTestType.NoValidator;
-				yield return ConnectionTestType.RejectAll;
-				yield return ConnectionTestType.RequestClientCertificate;
-				yield return ConnectionTestType.RequireClientCertificate;
-				yield return ConnectionTestType.RejectClientCertificate;
-				yield return ConnectionTestType.UnrequestedClientCertificate;
-				yield return ConnectionTestType.OptionalClientCertificate;
-				yield return ConnectionTestType.RejectClientCertificate;
-				yield return ConnectionTestType.MissingClientCertificate;
-				yield break;
-
-			case ConnectionTestCategory.HttpsWithMono:
-				yield return ConnectionTestType.Default;
-				yield return ConnectionTestType.AcceptFromLocalCA;
-				yield return ConnectionTestType.RejectAll;
-				yield break;
-
-			case ConnectionTestCategory.HttpsWithDotNet:
-				yield return ConnectionTestType.NoValidator;
-				yield return ConnectionTestType.RequestClientCertificate;
-				yield return ConnectionTestType.RequireClientCertificate;
-				yield return ConnectionTestType.RejectClientCertificate;
-				yield return ConnectionTestType.UnrequestedClientCertificate;
-				yield return ConnectionTestType.OptionalClientCertificate;
-				yield return ConnectionTestType.RejectClientCertificate;
-				yield return ConnectionTestType.MissingClientCertificate;
-				yield break;
-
-			case ConnectionTestCategory.SslStreamWithTls12:
-				yield return ConnectionTestType.Default;
-				yield return ConnectionTestType.AcceptFromLocalCA;
-				yield return ConnectionTestType.RequireClientCertificate;
-				yield return ConnectionTestType.SyncAuthenticate;
-				yield break;
-
-			case ConnectionTestCategory.InvalidCertificatesInTls12:
-				yield return ConnectionTestType.InvalidServerCertificate;
-				yield break;
-
-			case ConnectionTestCategory.HttpsCertificateValidators:
-				yield return ConnectionTestType.DontInvokeGlobalValidator;
-				yield return ConnectionTestType.DontInvokeGlobalValidator2;
-				yield return ConnectionTestType.GlobalValidatorIsNull;
-				yield return ConnectionTestType.MustInvokeGlobalValidator;
-				yield break;
-
-			case ConnectionTestCategory.NotYetWorking:
-				yield return ConnectionTestType.ExternalServer;
-				yield return ConnectionTestType.CheckChain;
-				yield break;
-
-			case ConnectionTestCategory.SslStreamCertificateValidators:
-				yield return ConnectionTestType.MustNotInvokeGlobalValidator;
-				yield return ConnectionTestType.MustNotInvokeGlobalValidator2;
-				yield break;
-
-			case ConnectionTestCategory.TrustedRoots:
-				yield return ConnectionTestType.ServerCertificateWithCA;
-				yield return ConnectionTestType.TrustedRootCA;
-				yield return ConnectionTestType.TrustedIntermediateCA;
-				yield return ConnectionTestType.TrustedSelfSigned;
-				yield return ConnectionTestType.HostNameMismatch;
-				yield return ConnectionTestType.IntermediateServerCertificate;
-				yield return ConnectionTestType.IntermediateServerCertificateFull;
-				yield return ConnectionTestType.IntermediateServerCertificateBare;
-				yield break;
-
-			case ConnectionTestCategory.CertificateStore:
-				yield return ConnectionTestType.CertificateStore;
-				yield break;
-
-			case ConnectionTestCategory.MartinTest:
-				yield return ConnectionTestType.MartinTest;
-				yield break;
-
-			default:
-				ctx.AssertFail ("Unsupported test category: '{0}'.", category);
-				throw new InternalErrorException ();
-			}
-		}
-
 		public static ConnectionTestFlags GetConnectionFlags (TestContext ctx, ConnectionTestCategory category)
 		{
 			switch (category) {
@@ -193,19 +106,9 @@ namespace Xamarin.WebTests.TestRunners
 				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12;
 			case ConnectionTestCategory.SslStreamInstrumentationNewWebStack:
 				return ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12;
-			case ConnectionTestCategory.HttpInstrumentation:
-			case ConnectionTestCategory.HttpInstrumentationNoSSL:
-			case ConnectionTestCategory.HttpInstrumentationStress:
-			case ConnectionTestCategory.HttpInstrumentationNewWebStack:
-			case ConnectionTestCategory.HttpInstrumentationNewWebStackNoSSL:
-			case ConnectionTestCategory.HttpInstrumentationExperimental:
 			case ConnectionTestCategory.HttpStress:
 			case ConnectionTestCategory.HttpStressExperimental:
-			case ConnectionTestCategory.HttpClient:
-			case ConnectionTestCategory.HttpClientNewWebStack:
 				return ConnectionTestFlags.RequireHttp | ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12;
-			case ConnectionTestCategory.HttpListener:
-				return ConnectionTestFlags.RequireHttpListener | ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12;
 			case ConnectionTestCategory.MartinTest:
 				return ConnectionTestFlags.AssumeSupportedByTest;
 			default:

@@ -90,7 +90,7 @@ namespace Xamarin.WebTests.TestFramework
 			} else if (parameters.ListenAddress != null)
 				parameters.EndPoint = parameters.ListenAddress;
 			else
-				parameters.EndPoint = GetEndPoint (ctx);
+				parameters.EndPoint = GetEndPoint ();
 
 			var server = provider.CreateServer (parameters);
 
@@ -99,7 +99,7 @@ namespace Xamarin.WebTests.TestFramework
 			return constructor (server, client, provider, parameters);
 		}
 
-		public static IPortableEndPoint GetEndPoint (TestContext ctx)
+		public static IPortableEndPoint GetEndPoint ()
 		{
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			var port = TestContext.GetUniquePort ();

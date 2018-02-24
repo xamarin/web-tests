@@ -32,9 +32,8 @@ namespace Xamarin.WebTests.TestFramework
 		Working,
 		WorkingRequireSSL,
 		NewWebStack,
-		NewWebStackMono,
 		NewWebStackRequireSSL,
-		GZip,
+//		GZip,
 		Stress,
 		Unstable,
 		Ignore

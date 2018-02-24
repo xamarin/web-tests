@@ -181,6 +181,27 @@ namespace Xamarin.WebTests.ConnectionFramework
 			});
 		}
 
+		public IEnumerable<ConnectionProvider> GetSupportedServers (TestContext ctx, string filter)
+		{
+			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
+			var providers = factory.GetProviders (p => IsSupported (p)).ToList ();
+			if (providers.Count == 0)
+				return new ConnectionProvider[0];
+
+			var supportedProviders = providers.Where (p => IsServerSupported (p)).ToList ();
+			if (supportedProviders.Count == 0)
+				return new ConnectionProvider[0];
+
+			var filteredProviders = supportedProviders.Where (p => IsSupported (ctx, p, filter)).ToList ();
+
+			if (filter != null) {
+				if (filteredProviders.Count == 0)
+					ctx.LogMessage ($"WARNING: No TLS Provider matches server filter '{filter}'");
+			}
+
+			return filteredProviders;
+		}
+
 		public ConnectionProvider GetDefaultServer (TestContext ctx, string filter)
 		{
 			var supported = GetSupportedProviders (ctx, filter).ToList ();

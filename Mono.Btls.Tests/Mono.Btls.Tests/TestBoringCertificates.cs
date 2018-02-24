@@ -30,7 +30,7 @@ using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Mono.Btls.TestFramework;
 using Xamarin.WebTests.Resources;
-using Xamarin.WebTests.TestFramework;
+using Xamarin.WebTests.TestAttributes;
 using Xamarin.WebTests.TestRunners;
 using Mono.Btls.Interface;
 

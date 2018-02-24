@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.Tests {
 	using ConnectionFramework;
 	using HttpHandlers;
 	using HttpFramework;
-	using TestFramework;
+	using TestAttributes;
 	using HttpOperations;
 	using Resources;
 

@@ -35,7 +35,7 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.TestFramework;
+using Xamarin.WebTests.TestAttributes;
 using Xamarin.WebTests.HttpHandlers;
 using Xamarin.WebTests.Server;
 

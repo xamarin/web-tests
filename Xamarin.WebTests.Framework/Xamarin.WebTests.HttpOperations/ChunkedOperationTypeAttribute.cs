@@ -30,7 +30,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.HttpOperations
 {
-	using TestFramework;
+	using TestAttributes;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 	public class ChunkedOperationTypeAttribute : TestParameterAttribute, ITestParameterSource<ChunkedOperationType>

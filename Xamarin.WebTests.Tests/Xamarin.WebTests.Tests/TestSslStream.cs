@@ -39,6 +39,7 @@ namespace Xamarin.WebTests.Tests
 {
 	using ConnectionFramework;
 	using TestFramework;
+	using TestAttributes;
 	using TestRunners;
 
 	[AsyncTestFixture (Timeout = 5000)]

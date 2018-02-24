@@ -34,6 +34,7 @@ using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests;
 using Xamarin.WebTests.HttpClient;
 using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.TestAttributes;
 using Xamarin.WebTests.TestFramework;
 
 [assembly: AsyncTestSuite (typeof (WebTestFeatures), "Tests", typeof (SharedWebTestFeatures))]

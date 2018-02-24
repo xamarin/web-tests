@@ -4,7 +4,7 @@
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,41 +23,43 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
+using Xamarin.WebTests.TestFramework;
+using Xamarin.WebTests.TestAttributes;
+using Xamarin.WebTests.TestRunners;
 
-namespace Xamarin.WebTests.Tests {
-	using ConnectionFramework;
-	using TestFramework;
-	using HttpFramework;
-	using HttpHandlers;
-	using HttpOperations;
-
+namespace Xamarin.WebTests
+{
+	[New]
 	[AsyncTestFixture]
-	public class TestHttpListener : ITestParameterSource<HttpListenerHandler> {
-		public IEnumerable<HttpListenerHandler> GetParameters (TestContext ctx, string filter)
+	public class TestHttpListener
+	{
+		[Work]
+		[AsyncTest]
+		[HttpServerTestCategory (HttpServerTestCategory.HttpListener)]
+		public Task Run (TestContext ctx, CancellationToken cancellationToken,
+		                 HttpServerProvider provider,
+		                 HttpListenerTestType type,
+				 HttpListenerTestRunner runner)
 		{
-			switch (filter) {
-			case "martin":
-				yield return new HttpListenerHandler (HttpListenerTestType.MartinTest);
-				break;
-			}
+			return runner.Run (ctx, cancellationToken);
 		}
 
-		[Martin ("HttpListener")]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireMonoServer)]
-		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		public async Task MartinTest (TestContext ctx, HttpServer server, HttpListenerHandler handler,
-		                              CancellationToken cancellationToken)
+		[Martin ("HttpListenerInstrumentation")]
+		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
+		[AsyncTest (Unstable = true)]
+		public Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
+		                        HttpServerProvider provider,
+		                        HttpListenerTestType type,
+					HttpListenerTestRunner runner)
 		{
-			using (var operation = new HttpListenerOperation (server, handler)) {
-				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
-			}
+			return runner.Run (ctx, cancellationToken);
 		}
 	}
 }

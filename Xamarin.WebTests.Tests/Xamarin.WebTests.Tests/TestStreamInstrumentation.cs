@@ -38,10 +38,10 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.Tests
 {
 	using ConnectionFramework;
+	using TestAttributes;
 	using TestFramework;
 	using TestRunners;
 
-	[New]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestStreamInstrumentation
 	{

@@ -27,26 +27,23 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.HttpFramework;
-using Xamarin.WebTests.HttpHandlers;
+using Xamarin.WebTests.TestAttributes;
 using Xamarin.WebTests.TestRunners;
 
 namespace Xamarin.WebTests.Tests
 {
+	[Tls12]
 	[AsyncTestFixture]
 	public class TestHttpInstrumentation
 	{
 		[Work]
 		[AsyncTest]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpInstrumentation)]
+		[HttpServerTestCategory (HttpServerTestCategory.Default)]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-				 ConnectionTestProvider provider,
-				 HttpInstrumentationTestParameters parameters,
+		                 HttpServerProvider provider,
+		                 HttpInstrumentationTestType type,
 				 HttpInstrumentationTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
@@ -54,24 +51,23 @@ namespace Xamarin.WebTests.Tests
 
 		[Work]
 		[AsyncTest]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpInstrumentationNoSSL)]
-		public Task RunNoSSL (TestContext ctx, CancellationToken cancellationToken,
-		                      ConnectionTestProvider provider,
-		                      HttpInstrumentationTestParameters parameters,
-		                      [HttpInstrumentationTestRunner (HttpServerFlags.NoSSL)] HttpInstrumentationTestRunner runner)
+		[HttpServerTestCategory (HttpServerTestCategory.Instrumentation)]
+		public Task RunInstrumentation (
+			TestContext ctx, CancellationToken cancellationToken,
+			HttpServerProvider provider,
+			HttpInstrumentationTestType type,
+			HttpInstrumentationTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
 		}
 
 		[Stress]
 		[AsyncTest]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpInstrumentationStress)]
+		[HttpServerTestCategory (HttpServerTestCategory.Stress)]
 		public Task RunStress (TestContext ctx, CancellationToken cancellationToken,
-		                       ConnectionTestProvider provider,
+		                       HttpServerProvider provider,
 				       [Repeat (50)] int repeat,
-				       HttpInstrumentationTestParameters parameters,
+		                       HttpInstrumentationTestType type,
 		                       HttpInstrumentationTestRunner runner)
 		{
 			ctx.LogDebug (1, $"RunStress: {repeat}");
@@ -80,11 +76,10 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		[NewWebStack]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpInstrumentationNewWebStack)]
+		[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
 		public Task RunNewWebStack (TestContext ctx, CancellationToken cancellationToken,
-					    ConnectionTestProvider provider,
-					    HttpInstrumentationTestParameters parameters,
+		                            HttpServerProvider provider,
+		                            HttpInstrumentationTestType type,
 					    HttpInstrumentationTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
@@ -92,12 +87,12 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		[NewWebStack]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpInstrumentationNewWebStack)]
-		public Task RunNewWebStackNoSSL (TestContext ctx, CancellationToken cancellationToken,
-		                                 ConnectionTestProvider provider,
-		                                 HttpInstrumentationTestParameters parameters,
-		                                 [HttpInstrumentationTestRunner (HttpServerFlags.NoSSL)] HttpInstrumentationTestRunner runner)
+		[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
+		public Task RunNewWebStackInstrumentation (
+			TestContext ctx, CancellationToken cancellationToken,
+			HttpServerProvider provider,
+			HttpInstrumentationTestType type,
+			HttpInstrumentationTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
 		}
@@ -105,36 +100,22 @@ namespace Xamarin.WebTests.Tests
 		[Work]
 		[AsyncTest]
 		[Experimental]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpInstrumentationExperimental)]
+		[HttpServerTestCategory (HttpServerTestCategory.Experimental)]
 		public Task RunExperimental (TestContext ctx, CancellationToken cancellationToken,
-		                             ConnectionTestProvider provider,
-		                             HttpInstrumentationTestParameters parameters,
+		                             HttpServerProvider provider,
+		                             HttpInstrumentationTestType type,
 		                             HttpInstrumentationTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
 		}
 
 		[Martin ("HttpInstrumentation")]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
-		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
+		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
 		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
 		public Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
-		                        ConnectionTestProvider provider,
-		                        HttpInstrumentationTestParameters parameters,
+		                        HttpServerProvider provider,
+		                        HttpInstrumentationTestType type,
 		                        HttpInstrumentationTestRunner runner)
-		{
-			return runner.Run (ctx, cancellationToken);
-		}
-
-		[Martin ("HttpInstrumentationNoSSL")]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
-		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
-		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		public Task MartinTestNoSSL (TestContext ctx, CancellationToken cancellationToken,
-		                             ConnectionTestProvider provider,
-		                             HttpInstrumentationTestParameters parameters,
-		                             [HttpInstrumentationTestRunner (HttpServerFlags.NoSSL)] HttpInstrumentationTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
 		}

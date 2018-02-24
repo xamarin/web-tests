@@ -31,19 +31,19 @@
     <Compile Include="Xamarin.WebTests.Tests\TestHttpClient.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestFork.cs" />
     <Compile Include="Xamarin.WebTests.Tests\RedirectStatusAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestHttps.cs" />
+    <Compile Include="Xamarin.WebTests.Tests\TestHttpValidation.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestSslStream.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestChunked.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestCertificates.cs" />
     <Compile Include="Xamarin.WebTests.Tests\NetworkTests.cs" />
     <Compile Include="Xamarin.WebTests.Tests\SimpleWebTests.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestHttpListener.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestStreamInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.Tests\MartinTest.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpStress.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpClientInstrumentation.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestHttpListenerInstrumentation.cs" />
+    <Compile Include="Xamarin.WebTests.Tests\TestHttpListener.cs" />
+    <Compile Include="Xamarin.WebTests.Tests\TestHttpRequests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

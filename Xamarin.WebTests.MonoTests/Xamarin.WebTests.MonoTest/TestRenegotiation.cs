@@ -32,6 +32,7 @@ namespace Xamarin.WebTests.MonoTests
 {
 	using MonoTestFramework;
 	using MonoTestFeatures;
+	using TestAttributes;
 	using TestFramework;
 
 	[Renegotiation]

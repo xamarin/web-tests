@@ -36,6 +36,7 @@ using Xamarin.WebTests.MonoTestFramework;
 using Mono.Btls.Interface;
 using Mono.Btls.TestFramework;
 using Mono.Security.Interface;
+using Xamarin.WebTests.TestAttributes;
 using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.TestRunners;
 using Xamarin.WebTests.ConnectionFramework;
@@ -135,7 +136,7 @@ namespace Mono.Btls.Tests
 		public Task TestWeb (
 			TestContext ctx, CancellationToken cancellationToken,
 			[ConnectionTestProvider ("btls")] ConnectionTestProvider provider,
-			HttpsTestParameters parameters, HttpsTestRunner runner)
+			HttpValidationTestParameters parameters, HttpValidationTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
 		}

@@ -35,10 +35,8 @@ namespace Xamarin.WebTests.Tests
 {
 	using HttpFramework;
 	using HttpHandlers;
-	using TestFramework;
-	using TestRunners;
+	using TestAttributes;
 	using HttpOperations;
-	using System.Collections.Specialized;
 
 	[Martin ("MartinTest")]
 	[AsyncTestFixture]

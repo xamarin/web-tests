@@ -37,27 +37,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public abstract class AbstractConnection : ITestInstance, IDisposable
 	{
-		public IPortableEndPoint PortableEndPoint {
-			get;
-		}
-
-		public IPEndPoint EndPoint {
-			get;
-		}
-
-		public ConnectionParameters Parameters {
-			get;
-		}
-
-		protected AbstractConnection (IPortableEndPoint endpoint, ConnectionParameters parameters)
-		{
-			PortableEndPoint = endpoint;
-			Parameters = parameters;
-
-			if (PortableEndPoint != null)
-				EndPoint = new IPEndPoint (IPAddress.Parse (PortableEndPoint.Address), PortableEndPoint.Port);
-		}
-
 		protected internal static Task FinishedTask {
 			get { return Task.FromResult<object> (null); }
 		}

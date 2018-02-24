@@ -29,16 +29,17 @@ using System.Security.Cryptography.X509Certificates;
 namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
+	using TestAttributes;
+	using TestRunners;
 
 	[SslStreamTestParameters]
 	public class SslStreamTestParameters : ConnectionTestParameters
 	{
-		public ConnectionTestType Type {
+		public SslStreamTestType Type {
 			get;
-			private set;
 		}
 
-		public SslStreamTestParameters (ConnectionTestCategory category, ConnectionTestType type, string identifier, X509Certificate certificate)
+		public SslStreamTestParameters (ConnectionTestCategory category, SslStreamTestType type, string identifier, X509Certificate certificate)
 			: base (category, identifier, certificate)
 		{
 			Type = type;

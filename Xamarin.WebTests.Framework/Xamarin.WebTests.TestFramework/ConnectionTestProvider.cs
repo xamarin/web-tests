@@ -29,6 +29,7 @@ using System.Text;
 namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
+	using TestAttributes;
 
 	[ConnectionTestProvider (Identifier = "ClientAndServerProvider")]
 	public class ConnectionTestProvider : ClientAndServerProvider

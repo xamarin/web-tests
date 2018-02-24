@@ -43,17 +43,17 @@ namespace Xamarin.WebTests.TestRunners
 	using HttpFramework;
 	using HttpHandlers;
 	using TestFramework;
+	using TestAttributes;
 	using HttpClient;
-	using Resources;
 
 	[HttpClientTestRunner]
 	public class HttpClientTestRunner : InstrumentationTestRunner
 	{
-		new public HttpClientTestParameters Parameters {
-			get { return (HttpClientTestParameters)base.Parameters; }
+		public HttpClientTestType Type {
+			get;
 		}
 
-		public HttpClientTestType EffectiveType => GetEffectiveType (Parameters.Type);
+		public HttpClientTestType EffectiveType => GetEffectiveType (Type);
 
 		static HttpClientTestType GetEffectiveType (HttpClientTestType type)
 		{
@@ -62,15 +62,10 @@ namespace Xamarin.WebTests.TestRunners
 			return type;
 		}
 
-		public sealed override string ME {
-			get;
-		}
-
-		public HttpClientTestRunner (IPortableEndPoint endpoint, HttpClientTestParameters parameters,
-					     ConnectionTestProvider provider, Uri uri, HttpServerFlags flags)
-			: base (endpoint, parameters, provider, uri, flags)
+		public HttpClientTestRunner (HttpServerProvider provider, HttpClientTestType type)
+			: base (provider, type.ToString ())
 		{
-			ME = $"{GetType ().Name}({EffectiveType})";
+			Type = type;
 		}
 
 		const HttpClientTestType MartinTest = HttpClientTestType.ReuseHandlerGZip;
@@ -111,9 +106,9 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpClientTestType.ReuseHandlerGZip, HttpClientTestFlags.Ignore),
 		};
 
-		public static IList<HttpClientTestType> GetTestTypes (TestContext ctx, ConnectionTestCategory category)
+		public static IList<HttpClientTestType> GetTestTypes (TestContext ctx, HttpServerTestCategory category)
 		{
-			if (category == ConnectionTestCategory.MartinTest)
+			if (category == HttpServerTestCategory.MartinTest)
 				return new[] { MartinTest };
 
 			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
@@ -128,88 +123,21 @@ namespace Xamarin.WebTests.TestRunners
 				}
 
 				switch (category) {
-				case ConnectionTestCategory.MartinTest:
+				case HttpServerTestCategory.MartinTest:
 					return false;
-				case ConnectionTestCategory.HttpClient:
+				case HttpServerTestCategory.Default:
+				case HttpServerTestCategory.Instrumentation:
 					if (flags == HttpClientTestFlags.Working)
 						return true;
 					if (setup.UsingDotNet || setup.InternalVersion >= 1)
 						return flags == HttpClientTestFlags.WorkingMaster;
 					return false;
-				case ConnectionTestCategory.HttpClientNewWebStack:
+				case HttpServerTestCategory.NewWebStack:
 					return flags == HttpClientTestFlags.NewWebStack;
 				default:
 					throw ctx.AssertFail (category);
 				}
 			}
-		}
-
-		static string GetTestName (ConnectionTestCategory category, HttpClientTestType type, params object[] args)
-		{
-			var sb = new StringBuilder ();
-			sb.Append (type);
-			foreach (var arg in args) {
-				sb.AppendFormat (":{0}", arg);
-			}
-			return sb.ToString ();
-		}
-
-		public static HttpClientTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category,
-								      HttpClientTestType type)
-		{
-			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
-			var acceptAll = certificateProvider.AcceptAll ();
-
-			var name = GetTestName (category, type);
-
-			var parameters = new HttpClientTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificateValidator = acceptAll
-			};
-
-			switch (GetEffectiveType (type)) {
-			case HttpClientTestType.GetError:
-				parameters.ExpectedError = WebExceptionStatus.Success;
-				parameters.ExpectedStatus = HttpStatusCode.InternalServerError;
-				break;
-			case HttpClientTestType.ParallelRequests:
-				parameters.HasReadHandler = true;
-				parameters.ExpectedError = WebExceptionStatus.Success;
-				parameters.ExpectedStatus = HttpStatusCode.OK;
-				break;
-			case HttpClientTestType.SimpleQueuedRequest:
-				parameters.NeedsServicePoint = true;
-				parameters.HasReadHandler = true;
-				parameters.ConnectionLimit = 1;
-				parameters.ExpectedError = WebExceptionStatus.Success;
-				parameters.ExpectedStatus = HttpStatusCode.OK;
-				break;
-			case HttpClientTestType.ParallelGZip:
-			case HttpClientTestType.ParallelGZipNoClose:
-				parameters.NeedsServicePoint = true;
-				parameters.HasReadHandler = true;
-				parameters.ConnectionLimit = 1;
-				parameters.ExpectedError = WebExceptionStatus.Success;
-				parameters.ExpectedStatus = HttpStatusCode.OK;
-				break;
-			case HttpClientTestType.SequentialRequests:
-			case HttpClientTestType.SequentialChunked:
-			case HttpClientTestType.SequentialGZip:
-			case HttpClientTestType.ReuseHandler:
-			case HttpClientTestType.ReuseHandlerNoClose:
-			case HttpClientTestType.ReuseHandlerChunked:
-			case HttpClientTestType.ReuseHandlerGZip:
-				parameters.NeedsServicePoint = true;
-				parameters.ConnectionLimit = 1;
-				parameters.ExpectedError = WebExceptionStatus.Success;
-				parameters.ExpectedStatus = HttpStatusCode.OK;
-				break;
-			default:
-				parameters.ExpectedError = WebExceptionStatus.Success;
-				parameters.ExpectedStatus = HttpStatusCode.OK;
-				break;
-			}
-
-			return parameters;
 		}
 
 		protected override async Task RunSecondary (TestContext ctx, CancellationToken cancellationToken)
@@ -253,7 +181,7 @@ namespace Xamarin.WebTests.TestRunners
 				var (handler, flags) = CreateHandler (ctx, false);
 				var operation = new Operation (
 					this, handler, InstrumentationOperationType.Parallel, flags,
-					Parameters.ExpectedStatus, Parameters.ExpectedError);
+					HttpStatusCode.OK, WebExceptionStatus.Success);
 				operation.Start (ctx, cancellationToken);
 				return operation;
 			}
@@ -475,9 +403,23 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		protected override InstrumentationOperation CreateOperation (
-			TestContext ctx, Handler handler, InstrumentationOperationType type, HttpOperationFlags flags,
-			HttpStatusCode expectedStatus, WebExceptionStatus expectedError)
+			TestContext ctx, Handler handler, InstrumentationOperationType type,
+			HttpOperationFlags flags)
 		{
+			HttpStatusCode expectedStatus;
+			WebExceptionStatus expectedError;
+
+			switch (EffectiveType) {
+			case HttpClientTestType.GetError:
+				expectedError = WebExceptionStatus.Success;
+				expectedStatus = HttpStatusCode.InternalServerError;
+				break;
+			default:
+				expectedError = WebExceptionStatus.Success;
+				expectedStatus = HttpStatusCode.OK;
+				break;
+			}
+
 			return new Operation (this, handler, type, flags, expectedStatus, expectedError);
 		}
 
@@ -525,10 +467,21 @@ namespace Xamarin.WebTests.TestRunners
 			protected override void ConfigureRequest (TestContext ctx, Uri uri, Request request)
 			{
 				if (Type == InstrumentationOperationType.Primary) {
-					if (Parent.Parameters.NeedsServicePoint)
+					switch (Parent.EffectiveType) {
+					case HttpClientTestType.SimpleQueuedRequest:
+					case HttpClientTestType.ParallelGZip:
+					case HttpClientTestType.ParallelGZipNoClose:
+					case HttpClientTestType.SequentialRequests:
+					case HttpClientTestType.SequentialChunked:
+					case HttpClientTestType.SequentialGZip:
+					case HttpClientTestType.ReuseHandler:
+					case HttpClientTestType.ReuseHandlerNoClose:
+					case HttpClientTestType.ReuseHandlerChunked:
+					case HttpClientTestType.ReuseHandlerGZip:
 						ServicePoint = ServicePointManager.FindServicePoint (uri);
-					if (Parent.Parameters.ConnectionLimit != 0)
-						ServicePoint.ConnectionLimit = Parent.Parameters.ConnectionLimit;
+						ServicePoint.ConnectionLimit = 1;
+						break;
+					}
 				}
 
 				if (request is HttpClientInstrumentationRequest instrumentationRequest) {
@@ -642,6 +595,18 @@ namespace Xamarin.WebTests.TestRunners
 					return request.GetString (ctx, cancellationToken);
 				default:
 					throw ctx.AssertFail (Parent.EffectiveType);
+				}
+			}
+
+			protected override void ConfigureNetworkStream (TestContext ctx, StreamInstrumentation instrumentation)
+			{
+				switch (Parent.EffectiveType) {
+				case HttpClientTestType.ParallelRequests:
+				case HttpClientTestType.SimpleQueuedRequest:
+				case HttpClientTestType.ParallelGZip:
+				case HttpClientTestType.ParallelGZipNoClose:
+					InstallReadHandler (ctx);
+					break;
 				}
 			}
 

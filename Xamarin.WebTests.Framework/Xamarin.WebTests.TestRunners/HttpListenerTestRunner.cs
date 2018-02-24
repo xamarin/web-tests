@@ -43,17 +43,17 @@ namespace Xamarin.WebTests.TestRunners
 	using HttpFramework;
 	using HttpHandlers;
 	using TestFramework;
-	using Resources;
+	using TestAttributes;
 	using Server;
 
 	[HttpListenerTestRunner]
 	public class HttpListenerTestRunner : InstrumentationTestRunner
 	{
-		new public HttpListenerTestParameters Parameters {
-			get { return (HttpListenerTestParameters)base.Parameters; }
+		public HttpListenerTestType Type {
+			get;
 		}
 
-		public HttpListenerTestType EffectiveType => GetEffectiveType (Parameters.Type);
+		public HttpListenerTestType EffectiveType => GetEffectiveType (Type);
 
 		static HttpListenerTestType GetEffectiveType (HttpListenerTestType type)
 		{
@@ -62,27 +62,22 @@ namespace Xamarin.WebTests.TestRunners
 			return type;
 		}
 
-		public sealed override string ME {
-			get;
-		}
-
-		public HttpListenerTestRunner (IPortableEndPoint endpoint, HttpListenerTestParameters parameters,
-		                               ConnectionTestProvider provider, Uri uri, HttpServerFlags flags)
-			: base (endpoint, parameters, provider, uri, flags)
+		public HttpListenerTestRunner (HttpServerProvider provider, HttpListenerTestType type)
+			: base (provider, type.ToString ())
 		{
-			ME = $"{GetType ().Name}({EffectiveType})";
+			Type = type;
 		}
 
 		const HttpListenerTestType MartinTest = HttpListenerTestType.SimpleInstrumentation;
 
 		static readonly (HttpListenerTestType type, HttpListenerTestFlags flags)[] TestRegistration = {
 			(HttpListenerTestType.Simple, HttpListenerTestFlags.Working),
-			(HttpListenerTestType.SimpleInstrumentation, HttpListenerTestFlags.Working),
+			(HttpListenerTestType.SimpleInstrumentation, HttpListenerTestFlags.Ignore),
 		};
 
-		public static IList<HttpListenerTestType> GetTestTypes (TestContext ctx, ConnectionTestCategory category)
+		public static IList<HttpListenerTestType> GetTestTypes (TestContext ctx, HttpServerTestCategory category)
 		{
-			if (category == ConnectionTestCategory.MartinTest)
+			if (category == HttpServerTestCategory.MartinTest)
 				return new[] { MartinTest };
 
 			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
@@ -91,9 +86,9 @@ namespace Xamarin.WebTests.TestRunners
 			bool Filter (HttpListenerTestFlags flags)
 			{
 				switch (category) {
-				case ConnectionTestCategory.MartinTest:
+				case HttpServerTestCategory.MartinTest:
 					return false;
-				case ConnectionTestCategory.HttpListener:
+				case HttpServerTestCategory.HttpListener:
 					if (flags == HttpListenerTestFlags.Working)
 						return true;
 					return false;
@@ -101,38 +96,6 @@ namespace Xamarin.WebTests.TestRunners
 					throw ctx.AssertFail (category);
 				}
 			}
-		}
-
-		static string GetTestName (ConnectionTestCategory category, HttpListenerTestType type, params object[] args)
-		{
-			var sb = new StringBuilder ();
-			sb.Append (type);
-			foreach (var arg in args) {
-				sb.AppendFormat (":{0}", arg);
-			}
-			return sb.ToString ();
-		}
-
-		public static HttpListenerTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category,
-		                                                        HttpListenerTestType type)
-		{
-			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
-			var acceptAll = certificateProvider.AcceptAll ();
-
-			var name = GetTestName (category, type);
-
-			var parameters = new HttpListenerTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificateValidator = acceptAll
-			};
-
-			switch (GetEffectiveType (type)) {
-			default:
-				parameters.ExpectedError = WebExceptionStatus.Success;
-				parameters.ExpectedStatus = HttpStatusCode.OK;
-				break;
-			}
-
-			return parameters;
 		}
 
 		protected override (Handler handler, HttpOperationFlags flags) CreateHandler (TestContext ctx, bool primary)
@@ -161,10 +124,12 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		protected override InstrumentationOperation CreateOperation (
-			TestContext ctx, Handler handler, InstrumentationOperationType type, HttpOperationFlags flags,
-			HttpStatusCode expectedStatus, WebExceptionStatus expectedError)
+			TestContext ctx, Handler handler, InstrumentationOperationType type,
+			HttpOperationFlags flags)
 		{
-			return new Operation (this, handler, type, flags, expectedStatus, expectedError);
+			return new Operation (
+				this, handler, type, flags,
+				HttpStatusCode.OK, WebExceptionStatus.Success);
 		}
 
 		class Operation : InstrumentationOperation
@@ -201,6 +166,10 @@ namespace Xamarin.WebTests.TestRunners
 			{
 				ctx.LogDebug (2, $"{ME} RUN INNER");
 				return request.SendAsync (ctx, cancellationToken);
+			}
+
+			protected override void ConfigureNetworkStream (TestContext ctx, StreamInstrumentation instrumentation)
+			{
 			}
 
 			protected override void Destroy ()

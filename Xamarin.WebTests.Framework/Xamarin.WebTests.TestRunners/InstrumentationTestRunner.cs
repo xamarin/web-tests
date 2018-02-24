@@ -46,41 +46,54 @@ namespace Xamarin.WebTests.TestRunners
 	using HttpClient;
 	using Resources;
 
-	public abstract class InstrumentationTestRunner : AbstractConnection {
-		public ConnectionTestProvider Provider {
+	public abstract class InstrumentationTestRunner : AbstractConnection
+	{
+		public HttpServerProvider Provider {
 			get;
 		}
 
-		protected Uri Uri {
+		internal Uri Uri {
 			get;
 		}
 
-		protected HttpServerFlags ServerFlags {
+		internal HttpServerFlags ServerFlags {
 			get;
-		}
-
-		new public InstrumentationTestParameters Parameters {
-			get { return (InstrumentationTestParameters)base.Parameters; }
 		}
 
 		public HttpServer Server {
 			get;
 		}
 
-		public abstract string ME {
+		public string ME {
 			get;
 		}
 
-		public InstrumentationTestRunner (IPortableEndPoint endpoint, InstrumentationTestParameters parameters,
-						  ConnectionTestProvider provider, Uri uri, HttpServerFlags flags)
-			: base (endpoint, parameters)
+		public InstrumentationTestRunner (HttpServerProvider provider, string identifier)
 		{
 			Provider = provider;
-			Uri = uri;
+			ServerFlags = provider.ServerFlags | HttpServerFlags.InstrumentationListener;
+			ME = $"{GetType ().Name}({identifier})";
 
-			ServerFlags = flags | HttpServerFlags.InstrumentationListener;
+			var endPoint = ConnectionTestHelper.GetEndPoint ();
 
-			Server = new BuiltinHttpServer (uri, endpoint, ServerFlags, parameters, null);
+			var proto = (ServerFlags & HttpServerFlags.NoSSL) != 0 ? "http" : "https";
+			Uri = new Uri ($"{proto}://{endPoint.Address}:{endPoint.Port}/");
+
+			var parameters = GetParameters (identifier);
+
+			Server = new BuiltinHttpServer (
+				Uri, endPoint, ServerFlags, parameters,
+				provider.SslStreamProvider);
+		}
+
+		static ConnectionParameters GetParameters (string identifier)
+		{
+			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
+			var acceptAll = certificateProvider.AcceptAll ();
+
+			return new ConnectionParameters (identifier, ResourceManager.SelfSignedServerCertificate) {
+				ClientCertificateValidator = acceptAll
+			};
 		}
 
 		InstrumentationOperation currentOperation;
@@ -101,8 +114,7 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.LogDebug (2, $"{me}");
 
 			currentOperation = CreateOperation (
-				ctx, handler, InstrumentationOperationType.Primary, flags,
-				Parameters.ExpectedStatus, Parameters.ExpectedError);
+				ctx, handler, InstrumentationOperationType.Primary, flags);
 
 			currentOperation.Start (ctx, cancellationToken);
 
@@ -138,15 +150,12 @@ namespace Xamarin.WebTests.TestRunners
 		protected abstract (Handler handler, HttpOperationFlags flags) CreateHandler (TestContext ctx, bool primary);
 
 		protected abstract InstrumentationOperation CreateOperation (TestContext ctx, Handler handler, InstrumentationOperationType type,
-									     HttpOperationFlags flags, HttpStatusCode expectedStatus,
-									     WebExceptionStatus expectedError);
+									     HttpOperationFlags flags);
 
 		protected InstrumentationOperation StartOperation (TestContext ctx, CancellationToken cancellationToken, Handler handler,
-								   InstrumentationOperationType type, HttpOperationFlags flags,
-		                                                   HttpStatusCode expectedStatus = HttpStatusCode.OK,
-								   WebExceptionStatus expectedError = WebExceptionStatus.Success)
+		                                                   InstrumentationOperationType type, HttpOperationFlags flags)
 		{
-			var operation = CreateOperation (ctx, handler, type, flags, expectedStatus, expectedError);
+			var operation = CreateOperation (ctx, handler, type, flags);
 			if (type == InstrumentationOperationType.Queued) {
 				if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 					throw new InvalidOperationException ("Invalid nested call.");
@@ -225,14 +234,12 @@ namespace Xamarin.WebTests.TestRunners
 			{
 				instrumentation = new StreamInstrumentation (ctx, ME, socket, ownsSocket);
 
-				if (Parent.Parameters.IgnoreStreamErrors)
-					instrumentation.IgnoreErrors = true;
-
-				if (Parent.Parameters.HasReadHandler)
-					InstallReadHandler (ctx);
+				ConfigureNetworkStream (ctx, instrumentation);
 
 				return instrumentation;
 			}
+
+			protected abstract void ConfigureNetworkStream (TestContext ctx, StreamInstrumentation instrumentation);
 
 			protected void InstallReadHandler (TestContext ctx)
 			{
