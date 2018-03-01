@@ -177,7 +177,7 @@ namespace Xamarin.AsyncTests.Console
 		internal async Task<bool> WaitForEmulator (CancellationToken cancellationToken)
 		{
 			bool running;
-			var endtime = DateTime.Now + TimeSpan.FromMinutes (5);
+			var endtime = DateTime.Now + TimeSpan.FromMinutes (15);
 			Program.Debug ("Started to wait for emulator at {0} (will abort at {1}).", DateTime.Now, endtime);
 			do {
 				await Task.Delay (5000);
