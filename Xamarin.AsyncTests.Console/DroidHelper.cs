@@ -227,7 +227,9 @@ namespace Xamarin.AsyncTests.Console
 			args.Append ("shell am start ");
 			args.Append ("-W -S ");
 			args.AppendFormat (" -e XAMARIN_ASYNCTESTS_OPTIONS \\'{0}\\' ", options);
-			args.Append (Program.Options.Application);
+
+			var activity = Program.Options.AndroidActivity ?? "com.xamarin.webtests.android/com.xamarin.webtests.android.MainActivity";
+			args.Append (activity);
 
 			Program.Debug ("Launching apk: {0}", args);
 

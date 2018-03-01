@@ -97,6 +97,11 @@ namespace Xamarin.AsyncTests.Console {
 			get;
 		}
 
+		public string AndroidActivity {
+			get;
+			private set;
+		}
+
 		public string ExtraLauncherArgs {
 			get;
 			private set;
@@ -221,6 +226,7 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("show-config", v => ShowCategories = ShowFeatures = true);
 			p.Add ("ios-device-type=", v => iosDeviceType = v);
 			p.Add ("ios-runtime=", v => iosRuntime = v);
+			p.Add ("android-activity=", v => AndroidActivity = v);
 			p.Add ("stdout=", v => stdout = v);
 			p.Add ("sdkroot=", v => sdkRoot = v);
 			p.Add ("android-sdkroot=", v => androidSdkRoot = v);
@@ -315,11 +321,8 @@ namespace Xamarin.AsyncTests.Console {
 					EndPoint = Program.GetLocalEndPoint ();
 				break;
 			case Command.Android:
-				if (arguments.Count < 1)
-					throw new ProgramException ("Expected activity argument");
-
-				Application = arguments[0];
-				arguments.RemoveAt (0);
+				if (arguments.Count != 0)
+					throw new ProgramException ("Unexpected extra arguments");
 
 				if (EndPoint == null)
 					EndPoint = Program.GetLocalEndPoint ();

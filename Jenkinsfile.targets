@@ -149,9 +149,7 @@
 			<_HasRunCommandLine>true</_HasRunCommandLine>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(JenkinsPlatform)' == 'Android'">
-			<WebTestsAndroidPackageName>com.xamarin.webtests.android</WebTestsAndroidPackageName>
-			<WebTestsAndroidMainActivity>$(WebTestsAndroidPackageName)/$(WebTestsAndroidPackageName).MainActivity</WebTestsAndroidMainActivity>
-			<RunCommandLine>$(AsyncTestsConsoleOutput) $(AsyncTestsArguments) android $(WebTestsAndroidMainActivity)</RunCommandLine>
+			<RunCommandLine>$(AsyncTestsConsoleOutput) $(AsyncTestsArguments) android</RunCommandLine>
 			<_HasRunCommandLine>true</_HasRunCommandLine>
 		</PropertyGroup>
 		
