@@ -312,7 +312,7 @@ node ('felix-25-sierra') {
                     runTests ('Android-Btls', 'New', true)
                 }
                 stage ('android-btls-all') {
-                    runTests ('Android-Btls', 'All', true, 30)
+                    runTests ('Android-Btls', 'All', true, 60)
                 }
             }
         }
