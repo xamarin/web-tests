@@ -102,6 +102,11 @@ namespace Xamarin.AsyncTests.Console {
 			private set;
 		}
 
+		public string AndroidSerial {
+			get;
+			private set;
+		}
+
 		public string ExtraLauncherArgs {
 			get;
 			private set;
@@ -227,6 +232,7 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("ios-device-type=", v => iosDeviceType = v);
 			p.Add ("ios-runtime=", v => iosRuntime = v);
 			p.Add ("android-activity=", v => AndroidActivity = v);
+			p.Add ("android-serial=", v => AndroidSerial = v);
 			p.Add ("stdout=", v => stdout = v);
 			p.Add ("sdkroot=", v => sdkRoot = v);
 			p.Add ("android-sdkroot=", v => androidSdkRoot = v);

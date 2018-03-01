@@ -92,6 +92,13 @@ namespace Xamarin.AsyncTests.Console
 			return list.ToArray ();
 		}
 
+		string AdbCommandLine (string arguments)
+		{
+			if (Options.AndroidSerial != null)
+				return $"-s {Options.AndroidSerial} {arguments}";
+			return arguments;
+		}
+
 		internal async Task<string[]> GetAvds (CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
@@ -139,7 +146,8 @@ namespace Xamarin.AsyncTests.Console
 		internal async Task<bool> CheckEmulatorRunning (CancellationToken cancellationToken)
 		{
 			Program.Debug ("Checking for running emulator");
-			var output = await ProcessHelper.RunCommandWithOutput (Adb, "devices", cancellationToken);
+			var output = await ProcessHelper.RunCommandWithOutput (
+				Adb, AdbCommandLine ("devices"), cancellationToken).ConfigureAwait (false);
 			var re = new Regex ("(emulator-\\d+)\\s+(device|offline)");
 			foreach (var line in SplitOutputLines (output)) {
 				// Program.Debug ("ADB DEVICES: {0}", line);
@@ -159,7 +167,7 @@ namespace Xamarin.AsyncTests.Console
 
 				var id = match.Groups [1].Value;
 
-				var getPropArgs = string.Format ("-s {0} shell getprop sys.boot_completed", id);
+				var getPropArgs = $"-s {id} shell getprop sys.boot_completed";
 				var getProp = await ProcessHelper.RunCommandWithOutput (Adb, getPropArgs, cancellationToken);
 				getProp = getProp.Trim ();
 
@@ -199,18 +207,20 @@ namespace Xamarin.AsyncTests.Console
 
 		internal Task InstallApk (string apk, CancellationToken cancellationToken)
 		{
-			var args = string.Format ("install -r -d {0}", apk);
+			var args = AdbCommandLine ($"install -r -d {apk}");
 			return ProcessHelper.RunCommand (Adb, args, cancellationToken);
 		}
 
 		internal Task ClearLogCat (CancellationToken cancellationToken)
 		{
-			return ProcessHelper.RunCommand (Adb, "logcat -c", cancellationToken);
+			var args = AdbCommandLine ("logcat -c");
+			return ProcessHelper.RunCommand (Adb, args, cancellationToken);
 		}
 
 		internal Task<ExternalProcess> StartLogCat (StreamWriter output, CancellationToken cancellationToken)
 		{
-			return ProcessHelper.StartCommand (Adb, "logcat", output, cancellationToken);
+			var args = AdbCommandLine ("logcat");
+			return ProcessHelper.StartCommand (Adb, args, output, cancellationToken);
 		}
 
 		internal async Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
@@ -224,9 +234,8 @@ namespace Xamarin.AsyncTests.Console
 			}
 
 			var args = new StringBuilder ();
-			args.Append ("shell am start ");
-			args.Append ("-W -S ");
-			args.AppendFormat (" -e XAMARIN_ASYNCTESTS_OPTIONS \\'{0}\\' ", options);
+			args.Append (AdbCommandLine ("shell am start -W -S"));
+			args.Append ($" -e XAMARIN_ASYNCTESTS_OPTIONS \\'{options}\\' ");
 
 			var activity = Program.Options.AndroidActivity ?? "com.xamarin.webtests.android/com.xamarin.webtests.android.MainActivity";
 			args.Append (activity);
