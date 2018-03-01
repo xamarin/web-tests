@@ -189,7 +189,7 @@ namespace Xamarin.AsyncTests.Mobile
 
 		async Task<bool> StartServer (CancellationToken cancellationToken)
 		{
-			Debug ($"Start Server: {SessionMode} {EndPoint.Address}:{EndPoint.Port}");
+			Debug ($"Start Server: {SessionMode} {EndPoint?.Address}:{EndPoint?.Port}");
 			switch (SessionMode) {
 			case MobileSessionMode.Local:
 				server = await TestServer.StartLocal (this, Framework, cancellationToken);
