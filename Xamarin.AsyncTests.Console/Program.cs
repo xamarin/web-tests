@@ -160,6 +160,8 @@ namespace Xamarin.AsyncTests.Console
 				Launcher = new MacLauncher (this);
 				break;
 			case Command.Android:
+				if (Options.StdOut != null)
+					StdOut = new StreamWriter (Options.StdOut);
 				DroidHelper = new DroidHelper (this);
 				Launcher = new DroidLauncher (this);
 				break;
