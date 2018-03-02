@@ -131,10 +131,6 @@
 		<AsyncTestsArguments>$(OutputDirArgument) $(JenkinsArguments) $(IosArguments) $(CategoryArguments) $(ResultArguments) $(StdOutArguments) $(JenkinsHtmlArguments) $(JenkinsJobArguments) $(ExtraJenkinsArguments)</AsyncTestsArguments>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(JenkinsPlatform)' == 'Android'">
-		<RunDependsOn>$(RunDependsOn); _AndroidInstall</RunDependsOn>
-	</PropertyGroup>
-	
 	<Target Name="_PrepareRun">
 		<PropertyGroup Condition="'$(JenkinsPlatform)' == 'Console'">
 			<RunCommandLine>$(MainAssemblyOutput) $(AsyncTestsArguments)</RunCommandLine>
@@ -156,7 +152,7 @@
 		<Error Condition="'$(_HasRunCommandLine)' != 'true'" Text="Unknown platform '$(JenkinsPlatform)'." />
 	</Target>
 	
-	<Target Name="_AndroidInstall" DependsOnTargets="Build; _PrepareRun">
+	<Target Name="AndroidInstall" DependsOnTargets="Build; _PrepareRun">
 		<Message Importance="High" Text="ANDROID INSTALL!" />
 		
 		<Exec Command="$(AsyncTestsConsoleOutput) avd" />

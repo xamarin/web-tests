@@ -187,6 +187,39 @@ def run (String target, String testCategory, String outputDir, String resultOutp
 	}
 }
 
+def androidInstall (String target, Integer timeoutValue = 15)
+{
+	final String OUTPUT_DIRECTORY = 'artifacts'
+
+	dir ('web-tests') {
+        def outputLog = "install-${target}.log"
+		def buildPath = new URI (env.BUILD_URL).getPath()
+		def extraParams = ""
+		if (params.EXTRA_JENKINS_ARGUMENTS != '') {
+			def extraParamValue = params.EXTRA_JENKINS_ARGUMENTS
+			extraParams = ",JenkinsExtraArguments=\"$extraParamValue\""
+		}
+		try {
+			timeout (timeoutValue) {
+				withEnv (['MONO_ENV_OPTIONS=--debug']) {
+					runShell ("msbuild /verbosity:minimal Jenkinsfile.targets /t:AndroidInstall /p:JenkinsTarget=$target,StdOut=$outputLog$extraParams")
+				}
+			}
+		} catch (exception) {
+			def result = currentBuild.result
+			echo "RUN FAILED: $exception $result"
+			currentBuild.result = "UNSTABLE"
+			echo "SETTING TO UNSTABLE"
+			error = true
+		} finally {
+			dir (OUTPUT_DIRECTORY) {
+				if (fileExists (outputLog))
+					archiveArtifacts artifacts: outputLog, fingerprint: true, allowEmptyArchive: true
+			}
+		}
+	}
+}
+
 def runTests (String target, String category, Boolean unstable = false, Integer timeoutValue = 15)
 {
 	final String OUTPUT_DIRECTORY = 'artifacts'
@@ -305,6 +338,9 @@ node ('felix-25-sierra') {
                 }
             }
             if (enableXA ()) {
+				stage ('android-install') {
+					androidInstall ('Android-Btls', 15)
+				}
                 stage ('android-btls-work') {
                     runTests ('Android-Btls', 'Work', true)
                 }
