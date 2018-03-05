@@ -28,7 +28,6 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
@@ -299,7 +298,7 @@ namespace Xamarin.WebTests.TestRunners
 			return (handler, flags);
 		}
 
-		void HandleRequest (
+		internal void HandleRequest (
 			TestContext ctx, HttpClientInstrumentationHandler handler,
 			HttpConnection connection, HttpRequest request)
 		{
@@ -883,116 +882,5 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		class HttpClientInstrumentationHandler : Handler
-		{
-			public HttpClientTestRunner TestRunner {
-				get;
-			}
-
-			public string ME {
-				get;
-			}
-
-			public bool CloseConnection {
-				get;
-			}
-
-			public IPEndPoint RemoteEndPoint {
-				get;
-				private set;
-			}
-
-			public HttpClientInstrumentationHandler (HttpClientTestRunner parent, bool closeConnection)
-
-				: base (parent.EffectiveType.ToString ())
-			{
-				TestRunner = parent;
-				ME = $"{GetType ().Name}({parent.EffectiveType})";
-				CloseConnection = closeConnection;
-
-				Flags = RequestFlags.KeepAlive;
-				if (CloseConnection)
-					Flags |= RequestFlags.CloseConnection;
-			}
-
-			HttpClientInstrumentationHandler (HttpClientInstrumentationHandler other)
-				: base (other.Value)
-			{
-				TestRunner = other.TestRunner;
-				ME = other.ME;
-				CloseConnection = other.CloseConnection;
-				Flags = other.Flags;
-			}
-
-			public override object Clone ()
-			{
-				return new HttpClientInstrumentationHandler (this);
-			}
-
-			protected internal override async Task<HttpResponse> HandleRequest (
-				TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
-				RequestFlags effectiveFlags, CancellationToken cancellationToken)
-			{
-				await FinishedTask.ConfigureAwait (false);
-
-				RemoteEndPoint = connection.RemoteEndPoint;
-
-				TestRunner.HandleRequest (ctx, this, connection, request);
-
-				HttpContent content;
-				switch (TestRunner.EffectiveType) {
-				case HttpClientTestType.SimpleGZip:
-				case HttpClientTestType.ParallelGZip:
-				case HttpClientTestType.ParallelGZipNoClose:
-				case HttpClientTestType.SequentialGZip:
-				case HttpClientTestType.ReuseHandlerGZip:
-					content = new GZipContent (ConnectionHandler.TheQuickBrownFoxBuffer);
-					break;
-
-				case HttpClientTestType.SequentialRequests:
-				case HttpClientTestType.ReuseHandler:
-				case HttpClientTestType.ReuseHandlerNoClose:
-					content = HttpContent.TheQuickBrownFox;
-					break;
-
-				case HttpClientTestType.ReuseHandlerChunked:
-				case HttpClientTestType.SequentialChunked:
-					content = new ChunkedContent (ConnectionHandler.TheQuickBrownFox);
-					break;
-
-				default:
-					throw ctx.AssertFail (TestRunner.EffectiveType);
-				}
-
-				return new HttpResponse (HttpStatusCode.OK, content);
-			}
-
-			public override bool CheckResponse (TestContext ctx, Response response)
-			{
-				HttpContent expectedContent;
-				switch (TestRunner.EffectiveType) {
-				case HttpClientTestType.SimpleGZip:
-				case HttpClientTestType.ParallelGZip:
-				case HttpClientTestType.ParallelGZipNoClose:
-				case HttpClientTestType.SequentialRequests:
-				case HttpClientTestType.SequentialChunked:
-				case HttpClientTestType.SequentialGZip:
-				case HttpClientTestType.ReuseHandler:
-				case HttpClientTestType.ReuseHandlerNoClose:
-				case HttpClientTestType.ReuseHandlerChunked:
-				case HttpClientTestType.ReuseHandlerGZip:
-					expectedContent = HttpContent.TheQuickBrownFox;
-					break;
-				default:
-					expectedContent = new StringContent (ME);
-					break;
-				}
-
-				if (!ctx.Expect (response.Content, Is.Not.Null, "response.Content != null"))
-					return false;
-
-				return HttpContent.Compare (ctx, response.Content, expectedContent, false, "response.Content");
-			}
-		}
 	}
 }
