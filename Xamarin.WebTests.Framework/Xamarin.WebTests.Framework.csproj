@@ -248,6 +248,7 @@
     <Compile Include="Xamarin.WebTests.TestRunners\HttpListenerTestType.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\HttpStressTestType.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\SslStreamTestType.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

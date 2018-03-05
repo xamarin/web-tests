@@ -46,11 +46,9 @@ namespace Xamarin.WebTests.TestRunners
 	using Resources;
 	using Xamarin.WebTests.Server;
 
-	public class HttpInstrumentationHandler : Handler
+	public class HttpInstrumentationHandler : InstrumentationHandler
 	{
-		public HttpInstrumentationTestRunner TestRunner {
-			get;
-		}
+		new public HttpInstrumentationTestRunner TestRunner => (HttpInstrumentationTestRunner)base.TestRunner;
 
 		public bool CloseConnection {
 			get;
@@ -86,17 +84,11 @@ namespace Xamarin.WebTests.TestRunners
 			private set;
 		}
 
-		public string ME {
-			get;
-		}
-
 		TaskCompletionSource<bool> readyTcs;
 
 		public HttpInstrumentationHandler (HttpInstrumentationTestRunner parent, bool primary)
-			: base (parent.EffectiveType.ToString ())
+			: base (parent, parent.EffectiveType.ToString ())
 		{
-			TestRunner = parent;
-			ME = $"{GetType ().Name}({parent.EffectiveType})";
 			readyTcs = new TaskCompletionSource<bool> ();
 			Flags = RequestFlags.KeepAlive;
 
@@ -159,12 +151,10 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		HttpInstrumentationHandler (HttpInstrumentationHandler other)
-			: base (other.Value)
+			: base (other)
 		{
-			TestRunner = other.TestRunner;
 			Content = other.Content;
 			CloseConnection = CloseConnection;
-			ME = other.ME;
 			Flags = other.Flags;
 			Target = other.Target;
 			AuthManager = other.AuthManager;
