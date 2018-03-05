@@ -298,49 +298,6 @@ namespace Xamarin.WebTests.TestRunners
 			return (handler, flags);
 		}
 
-		internal void HandleRequest (
-			TestContext ctx, HttpClientInstrumentationHandler handler,
-			HttpConnection connection, HttpRequest request)
-		{
-			switch (EffectiveType) {
-			case HttpClientTestType.SequentialRequests:
-			case HttpClientTestType.SequentialChunked:
-			case HttpClientTestType.SequentialGZip:
-			case HttpClientTestType.ParallelGZip:
-			case HttpClientTestType.ParallelGZipNoClose:
-				MustNotReuseConnection ();
-				break;
-			case HttpClientTestType.ReuseHandler:
-			case HttpClientTestType.ReuseHandlerNoClose:
-			case HttpClientTestType.ReuseHandlerChunked:
-			case HttpClientTestType.ReuseHandlerGZip:
-				MustReuseConnection ();
-				break;
-			case HttpClientTestType.SimpleGZip:
-				break;
-			default:
-				throw ctx.AssertFail (EffectiveType);
-			}
-
-			void MustNotReuseConnection ()
-			{
-				var firstHandler = (HttpClientInstrumentationHandler)PrimaryOperation.Handler;
-				ctx.LogDebug (2, $"{handler.ME}: {handler == firstHandler} {handler.RemoteEndPoint}");
-				if (handler == firstHandler)
-					return;
-				ctx.Assert (connection.RemoteEndPoint, Is.Not.EqualTo (firstHandler.RemoteEndPoint), "RemoteEndPoint");
-			}
-
-			void MustReuseConnection ()
-			{
-				var firstHandler = (HttpClientInstrumentationHandler)PrimaryOperation.Handler;
-				ctx.LogDebug (2, $"{handler.ME}: {handler == firstHandler} {handler.RemoteEndPoint}");
-				if (handler == firstHandler)
-					return;
-				ctx.Assert (connection.RemoteEndPoint, Is.EqualTo (firstHandler.RemoteEndPoint), "RemoteEndPoint");
-			}
-		}
-
 		protected override async Task PrimaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
 		{
 			switch (EffectiveType) {

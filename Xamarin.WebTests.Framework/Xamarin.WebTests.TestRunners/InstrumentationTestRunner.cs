@@ -104,6 +104,8 @@ namespace Xamarin.WebTests.TestRunners
 		protected InstrumentationOperation QueuedOperation => queuedOperation;
 		protected int ReadHandlerCalled => readHandlerCalled;
 
+		internal InstrumentationHandler PrimaryHandler => (InstrumentationHandler)PrimaryOperation.Handler;
+
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}.{nameof (Run)}()";

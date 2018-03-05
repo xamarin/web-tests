@@ -53,11 +53,6 @@ namespace Xamarin.WebTests.TestRunners
 			get;
 		}
 
-		public IPEndPoint RemoteEndPoint {
-			get;
-			private set;
-		}
-
 		public HttpClientInstrumentationHandler (HttpClientTestRunner parent, bool closeConnection)
 			: base (parent, parent.EffectiveType.ToString ())
 		{
@@ -84,33 +79,42 @@ namespace Xamarin.WebTests.TestRunners
 			TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
+			if (RemoteEndPoint == null)
+				RemoteEndPoint = connection.RemoteEndPoint;
+
 			await AbstractConnection.FinishedTask.ConfigureAwait (false);
-
-			RemoteEndPoint = connection.RemoteEndPoint;
-
-			TestRunner.HandleRequest (ctx, this, connection, request);
 
 			HttpContent content;
 			switch (TestRunner.EffectiveType) {
 			case HttpClientTestType.SimpleGZip:
-			case HttpClientTestType.ParallelGZip:
-			case HttpClientTestType.ParallelGZipNoClose:
-			case HttpClientTestType.SequentialGZip:
+				content = new GZipContent (ConnectionHandler.TheQuickBrownFoxBuffer);
+				break;
 			case HttpClientTestType.ReuseHandlerGZip:
 				content = new GZipContent (ConnectionHandler.TheQuickBrownFoxBuffer);
 				break;
-
+			case HttpClientTestType.SequentialGZip:
+			case HttpClientTestType.ParallelGZip:
+			case HttpClientTestType.ParallelGZipNoClose:
+				AssertNotReusingConnection (ctx, connection);
+				content = new GZipContent (ConnectionHandler.TheQuickBrownFoxBuffer);
+				break;
 			case HttpClientTestType.SequentialRequests:
-			case HttpClientTestType.ReuseHandler:
-			case HttpClientTestType.ReuseHandlerNoClose:
+				AssertNotReusingConnection (ctx, connection);
 				content = HttpContent.TheQuickBrownFox;
 				break;
-
+			case HttpClientTestType.ReuseHandler:
+			case HttpClientTestType.ReuseHandlerNoClose:
+				AssertReusingConnection (ctx, connection);
+				content = HttpContent.TheQuickBrownFox;
+				break;
 			case HttpClientTestType.ReuseHandlerChunked:
-			case HttpClientTestType.SequentialChunked:
+				AssertReusingConnection (ctx, connection);
 				content = new ChunkedContent (ConnectionHandler.TheQuickBrownFox);
 				break;
-
+			case HttpClientTestType.SequentialChunked:
+				AssertNotReusingConnection (ctx, connection);
+				content = new ChunkedContent (ConnectionHandler.TheQuickBrownFox);
+				break;
 			default:
 				throw ctx.AssertFail (TestRunner.EffectiveType);
 			}

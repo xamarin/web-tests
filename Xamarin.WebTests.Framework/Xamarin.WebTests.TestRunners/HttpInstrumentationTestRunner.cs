@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.TestRunners
 			Type = type;
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NtlmWhileQueued;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NtlmInstrumentation;
 
 		static readonly (HttpInstrumentationTestType type, HttpInstrumentationTestFlags flags) [] TestRegistration = {
 			(HttpInstrumentationTestType.InvalidDataDuringHandshake, HttpInstrumentationTestFlags.Working),
@@ -275,67 +275,21 @@ namespace Xamarin.WebTests.TestRunners
 			return new Operation (this, handler, type, flags, expectedStatus, expectedError);
 		}
 
-		internal async Task HandleRequest (
+		internal HttpOperation StartParallelNtlm (
 			TestContext ctx, HttpInstrumentationHandler handler,
-			HttpConnection connection, HttpRequest request,
 			AuthenticationState state, CancellationToken cancellationToken)
 		{
-			switch (EffectiveType) {
-			case HttpInstrumentationTestType.ReuseConnection:
-			case HttpInstrumentationTestType.ReuseCustomConnectionGroup:
-			case HttpInstrumentationTestType.RedirectOnSameConnection:
-				MustReuseConnection ();
-				break;
+			var firstHandler = (HttpInstrumentationHandler)PrimaryOperation.Handler;
+			ctx.LogDebug (2, $"{handler.ME}: {handler == firstHandler} {state}");
+			if (handler != firstHandler || state != AuthenticationState.Challenge)
+				return null;
 
-			case HttpInstrumentationTestType.ParallelNtlm:
-				await ParallelNtlm ().ConfigureAwait (false);
-				break;
+			var newHandler = (HttpInstrumentationHandler)firstHandler.Clone ();
+			var flags = PrimaryOperation.Flags;
 
-			case HttpInstrumentationTestType.ReuseAfterPartialRead:
-				// We can't reuse the connection because we did not read the entire response.
-				MustNotReuseConnection ();
-				break;
-
-			case HttpInstrumentationTestType.CustomConnectionGroup:
-				// We can't reuse the connection because we're in a different connection group.
-				MustNotReuseConnection ();
-				break;
-
-			case HttpInstrumentationTestType.NtlmInstrumentation:
-				break;
-			}
-
-			async Task ParallelNtlm ()
-			{
-				var firstHandler = (HttpInstrumentationHandler)PrimaryOperation.Handler;
-				ctx.LogDebug (2, $"{handler.ME}: {handler == firstHandler} {state}");
-				if (handler != firstHandler || state != AuthenticationState.Challenge)
-					return;
-
-				var newHandler = (HttpInstrumentationHandler)firstHandler.Clone ();
-				var flags = PrimaryOperation.Flags;
-
-				var operation = StartOperation (ctx, cancellationToken, newHandler, InstrumentationOperationType.Queued, flags);
-				await operation.WaitForRequest ();
-			}
-
-			void MustNotReuseConnection ()
-			{
-				var firstHandler = (HttpInstrumentationHandler)PrimaryOperation.Handler;
-				ctx.LogDebug (2, $"{handler.ME}: {handler == firstHandler} {handler.RemoteEndPoint}");
-				if (handler == firstHandler)
-					return;
-				ctx.Assert (connection.RemoteEndPoint, Is.Not.EqualTo (firstHandler.RemoteEndPoint), "RemoteEndPoint");
-			}
-
-			void MustReuseConnection ()
-			{
-				var firstHandler = (HttpInstrumentationHandler)PrimaryOperation.Handler;
-				ctx.LogDebug (2, $"{handler.ME}: {handler == firstHandler} {handler.RemoteEndPoint}");
-				if (handler == firstHandler)
-					return;
-				ctx.Assert (connection.RemoteEndPoint, Is.EqualTo (firstHandler.RemoteEndPoint), "RemoteEndPoint");
-			}
+			return StartOperation (
+				ctx, cancellationToken, newHandler,
+				InstrumentationOperationType.Queued, flags);
 		}
 
 		Operation StartSecond (TestContext ctx, CancellationToken cancellationToken,

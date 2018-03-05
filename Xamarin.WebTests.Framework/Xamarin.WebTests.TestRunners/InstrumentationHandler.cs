@@ -24,9 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.TestRunners
 {
+	using HttpFramework;
 	using HttpHandlers;
 
 	public abstract class InstrumentationHandler : Handler
@@ -51,6 +55,29 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			ME = other.ME;
 			TestRunner = other.TestRunner;
+		}
+
+		public IPEndPoint RemoteEndPoint {
+			get;
+			protected set;
+		}
+
+		protected void AssertNotReusingConnection (TestContext ctx, HttpConnection connection)
+		{
+			var firstHandler = TestRunner.PrimaryHandler;
+			ctx.LogDebug (2, $"{ME}: {this == firstHandler} {RemoteEndPoint}");
+			if (this == firstHandler)
+				return;
+			ctx.Assert (connection.RemoteEndPoint, Is.Not.EqualTo (firstHandler.RemoteEndPoint), "RemoteEndPoint");
+		}
+
+		protected void AssertReusingConnection (TestContext ctx, HttpConnection connection)
+		{
+			var firstHandler = TestRunner.PrimaryHandler;
+			ctx.LogDebug (2, $"{ME}: {this == firstHandler} {RemoteEndPoint}");
+			if (this == firstHandler)
+				return;
+			ctx.Assert (connection.RemoteEndPoint, Is.EqualTo (firstHandler.RemoteEndPoint), "RemoteEndPoint");
 		}
 	}
 }
