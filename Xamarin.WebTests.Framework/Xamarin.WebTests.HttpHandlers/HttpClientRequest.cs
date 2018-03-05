@@ -142,7 +142,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			if (Content is ICustomHttpContent httpContent)
 				message.SetCustomContent (httpContent);
 			else
-				message.Content = Handler.CreateStringContent (Content.AsString ());
+				message.Content = Provider.CreateStringContent (Content.AsString ());
 
 			if (contentLength != null)
 				message.Content.ContentLength = contentLength;
@@ -157,7 +157,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public async Task<Response> PutString (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var content = Handler.CreateStringContent (Content != null ? Content.AsString () : string.Empty);
+			var content = Provider.CreateStringContent (Content != null ? Content.AsString () : string.Empty);
 
 			var response = await Client.PutAsync (RequestUri, content, cancellationToken).ConfigureAwait (false);
 
@@ -177,7 +177,7 @@ namespace Xamarin.WebTests.HttpHandlers
 				request.SendChunked ();
 
 			if (Content != null)
-				request.Content = Handler.CreateStringContent (Content.AsString ());
+				request.Content = Provider.CreateStringContent (Content.AsString ());
 
 			var response = await Client.SendAsync (
 				request, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait (false);
@@ -187,7 +187,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public async Task<Response> PutDataAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var content = Handler.CreateBinaryContent (Content != null ? Content.AsByteArray () : null);
+			var content = Provider.CreateBinaryContent (Content != null ? Content.AsByteArray () : null);
 
 			var response = await Client.PutAsync (RequestUri, content, cancellationToken).ConfigureAwait (false);
 

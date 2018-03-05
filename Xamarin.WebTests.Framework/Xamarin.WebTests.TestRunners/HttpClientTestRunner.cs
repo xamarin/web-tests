@@ -635,6 +635,10 @@ namespace Xamarin.WebTests.TestRunners
 				get;
 			}
 
+			protected IHttpClientProvider Provider {
+				get;
+			}
+
 			protected IHttpClient Client {
 				get;
 			}
@@ -652,8 +656,8 @@ namespace Xamarin.WebTests.TestRunners
 				Parent = handler;
 				RequestUri = requestUri;
 
-				var provider = DependencyInjector.Get<IHttpClientProvider> ();
-				Handler = provider.Create ();
+				Provider = DependencyInjector.Get<IHttpClientProvider> ();
+				Handler = Provider.Create ();
 				Client = Handler.CreateHttpClient ();
 			}
 

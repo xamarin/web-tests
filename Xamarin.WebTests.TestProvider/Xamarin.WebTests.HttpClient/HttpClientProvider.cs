@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
 using Http = System.Net.Http;
 
@@ -35,6 +36,23 @@ namespace Xamarin.WebTests.HttpClient
 		{
 			var handler = new Http.HttpClientHandler ();
 			return new HttpClientHandler (handler);
+		}
+
+		public IHttpContent CreateStringContent (string content)
+		{
+			return new StringContent (new Http.StringContent (content));
+		}
+
+		public IHttpContent CreateBinaryContent (byte[] content)
+		{
+			var binary = new BinaryContent (new Http.ByteArrayContent (content));
+			binary.ContentType = "application/octet-stream";
+			return binary;
+		}
+
+		public IHttpContent CreateStreamContent (Stream stream)
+		{
+			return new StreamContent (new Http.StreamContent (stream));
 		}
 	}
 }
