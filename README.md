@@ -161,6 +161,33 @@ For mobile, a custom platform-specific test app is required for each platform an
 
 To run the tests, first launch the `Xamarin.WebTests.Android` / `Xamarin.WebTests.iOS` project.  Then start the GUI, select the correct server mode and start.
 
+###Android Automation steps
+
+The source from the `master` branch should be used as the default test suite revision.
+
+Assuming you have a device or emulator running and properly registered with `adb`, the following set of commands can be used to run on Android:
+
+```
+nuget restore Xamarin.WebTests.Android.sln
+```
+```
+msbuild Xamarin.AsyncTests.Console/Xamarin.AsyncTests.Console.csproj
+```
+```
+msbuild /t:SignAndroidPackage /p:Configuration=$(Configuration) web-tests/Xamarin.WebTests.Android.sln /p:OutputPath=bin/$(Configuration)
+```
+```
+$(AndroidSdk)/platform-tools/adb -s $(DeviceSerial) install Android/Xamarin.WebTests.Android/bin/$(Configuration)/com.xamarin.webtests.android-Signed.apk
+```
+```
+Xamarin.AsyncTests.Console/bin/Debug/Xamarin.AsyncTests.Console.exe --android-sdkroot=$(AndroidSdk) --android-serial=$(DeviceSerial) android
+```
+
+If the Console application can't automatically detect your computers IP address, you may need to also include the `--endpoint=$(LocalIP):11111` argument. An example is shown below:
+
+```
+Xamarin.AsyncTests.Console/bin/Debug/Xamarin.AsyncTests.Console.exe --android-sdkroot=$(AndroidSdk) --android-serial=$(DeviceSerial) --endpoint=10.1.10.101:11111 android
+```
 
 Last changed March 13th, 2015
 Martin Baulig <martin.baulig@xamarin.com>
