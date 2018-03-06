@@ -75,6 +75,52 @@ namespace Xamarin.WebTests.TestRunners
 			return new HttpClientInstrumentationHandler (this);
 		}
 
+		internal Request CreateRequest (InstrumentationOperation operation, Uri uri)
+		{
+			bool ReuseHandler ()
+			{
+				if (operation.Type == InstrumentationOperationType.Primary)
+					return false;
+
+				switch (TestRunner.EffectiveType) {
+				case HttpClientTestType.ReuseHandler:
+				case HttpClientTestType.ReuseHandlerNoClose:
+				case HttpClientTestType.ReuseHandlerChunked:
+				case HttpClientTestType.ReuseHandlerGZip:
+					return true;
+				default:
+					return false;
+				}
+			}
+
+			if (!ReuseHandler ())
+				return new HttpClientInstrumentationRequest (
+					operation, this, uri);
+
+			var primaryRequest = (HttpClientInstrumentationRequest)TestRunner.PrimaryOperation.Request;
+			return new HttpClientInstrumentationRequest (
+				operation, this, primaryRequest, uri);
+		}
+
+		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
+		{
+			if (request is HttpClientInstrumentationRequest instrumentationRequest) {
+				instrumentationRequest.ConfigureRequest (ctx, uri);
+				return;
+			}
+
+			base.ConfigureRequest (ctx, request, uri);
+		}
+
+		internal async Task<Response> SendAsync (TestContext ctx, Request request, CancellationToken cancellationToken)
+		{
+			var instrumentationRequest = (HttpClientInstrumentationRequest)request;
+			using (var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken)) {
+				cts.Token.Register (() => instrumentationRequest.Abort ());
+				return await instrumentationRequest.SendAsync (ctx, cts.Token).ConfigureAwait (false);
+			}
+		}
+
 		protected internal override async Task<HttpResponse> HandleRequest (
 			TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)

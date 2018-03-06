@@ -78,6 +78,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected void InstallReadHandler (TestContext ctx)
 		{
+			ctx.Assert (Server.UseSSL, "must use SSL");
 			instrumentation.OnNextRead ((b, o, s, f, c) => ReadHandler (ctx, b, o, s, f, c));
 		}
 
@@ -98,10 +99,10 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected virtual Task<bool> ReadHandler (
 			TestContext ctx,
-			byte[] buffer, int offset, int size, int ret,
+			byte[] buffer, int offset, int size, int bytesRead,
 			CancellationToken cancellationToken)
 		{
-			return Parent.ReadHandler (ctx, Type, ret, cancellationToken);
+			return Parent.ReadHandler (ctx, Type, bytesRead, cancellationToken);
 		}
 
 		protected override void Destroy ()

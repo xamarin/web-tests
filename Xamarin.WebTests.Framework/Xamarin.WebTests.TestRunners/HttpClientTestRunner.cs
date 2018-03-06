@@ -399,33 +399,12 @@ namespace Xamarin.WebTests.TestRunners
 			{
 			}
 
-			bool ReuseHandler {
-				get {
-					switch (Parent.EffectiveType) {
-					case HttpClientTestType.ReuseHandler:
-					case HttpClientTestType.ReuseHandlerNoClose:
-					case HttpClientTestType.ReuseHandlerChunked:
-					case HttpClientTestType.ReuseHandlerGZip:
-						return true;
-					default:
-						return false;
-					}
-				}
-			}
-
 			protected override Request CreateRequest (TestContext ctx, Uri uri)
 			{
-				var instrumentationHandler = Handler as HttpClientInstrumentationHandler;
-				if (instrumentationHandler == null)
-					return new HttpClientRequest (uri);
+				if (Handler is HttpClientInstrumentationHandler instrumentationHandler)
+					return instrumentationHandler.CreateRequest (this, uri);
 
-				if (Type == InstrumentationOperationType.Primary || !ReuseHandler)
-					return new HttpClientInstrumentationRequest (
-						this, instrumentationHandler, uri);
-
-				var primaryRequest = (HttpClientInstrumentationRequest)Parent.PrimaryOperation.Request;
-				return new HttpClientInstrumentationRequest (
-					this, instrumentationHandler, primaryRequest, uri);
+				return new HttpClientRequest (uri);
 			}
 
 			protected override void ConfigureRequest (TestContext ctx, Uri uri, Request request)
@@ -446,11 +425,6 @@ namespace Xamarin.WebTests.TestRunners
 						ServicePoint.ConnectionLimit = 1;
 						break;
 					}
-				}
-
-				if (request is HttpClientInstrumentationRequest instrumentationRequest) {
-					instrumentationRequest.ConfigureRequest (ctx, uri);
-					return;
 				}
 
 				if (request is HttpClientRequest httpClientRequest) {
@@ -516,12 +490,9 @@ namespace Xamarin.WebTests.TestRunners
 			{
 				ctx.LogDebug (2, $"{ME} RUN INNER");
 
-				if (request is HttpClientInstrumentationRequest instrumentationRequest) {
-					using (var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken)) {
-						cts.Token.Register (() => instrumentationRequest.Abort ());
-						return await instrumentationRequest.SendAsync (ctx, cts.Token).ConfigureAwait (false);
-					}
-				}
+				if (Handler is HttpClientInstrumentationHandler instrumentationHandler)
+					return await instrumentationHandler.SendAsync (
+						ctx, request, cancellationToken).ConfigureAwait (false);
 
 				var httpClientRequest = (HttpClientRequest)request;
 				return await Run (ctx, httpClientRequest, cancellationToken).ConfigureAwait (false);
