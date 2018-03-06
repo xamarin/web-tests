@@ -53,10 +53,10 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		TraditionalRequest clientRequest;
 
-		public override void ConfigureRequest (Request request, Uri uri)
+		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
 		{
 			clientRequest = (TraditionalRequest)request;
-			base.ConfigureRequest (request, uri);
+			base.ConfigureRequest (ctx, request, uri);
 		}
 
 		internal protected override Task<HttpResponse> HandleRequest (

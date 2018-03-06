@@ -458,7 +458,7 @@ namespace Xamarin.WebTests.TestRunners
 						ConfigureParallelRequest (ctx, httpClientRequest);
 				}
 
-				Handler.ConfigureRequest (request, uri);
+				Handler.ConfigureRequest (ctx, request, uri);
 
 				request.SetProxy (Parent.Server.GetProxy ());
 			}

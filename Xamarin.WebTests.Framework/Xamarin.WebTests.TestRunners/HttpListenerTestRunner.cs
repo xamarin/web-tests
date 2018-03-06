@@ -158,7 +158,7 @@ namespace Xamarin.WebTests.TestRunners
 					break;
 				}
 
-				Handler.ConfigureRequest (request, uri);
+				Handler.ConfigureRequest (ctx, request, uri);
 
 				request.SetProxy (Parent.Server.GetProxy ());
 			}

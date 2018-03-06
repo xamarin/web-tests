@@ -238,7 +238,7 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		public override void ConfigureRequest (Request request, Uri uri)
+		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
 		{
 			if (request is HttpRequestRequest instrumentationRequest) {
 				if (Interlocked.CompareExchange (ref currentRequest, instrumentationRequest, null) != null)
@@ -292,7 +292,7 @@ namespace Xamarin.WebTests.TestRunners
 				break;
 			}
 
-			base.ConfigureRequest (request, uri);
+			base.ConfigureRequest (ctx, request, uri);
 		}
 
 		async Task<HttpResponse> HandlePostChunked (

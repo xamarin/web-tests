@@ -173,9 +173,9 @@ namespace Xamarin.WebTests.HttpHandlers
 			return HttpResponse.CreateRedirect (HttpStatusCode.TemporaryRedirect, redirect);
 		}
 
-		public override void ConfigureRequest (Request request, Uri uri)
+		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
 		{
-			base.ConfigureRequest (request, uri);
+			base.ConfigureRequest (ctx, request, uri);
 			switch (Type) {
 			case HttpClientOperationType.GetString:
 				request.Method = "GET";
