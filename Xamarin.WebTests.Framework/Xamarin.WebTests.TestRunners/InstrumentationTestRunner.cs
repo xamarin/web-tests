@@ -197,25 +197,27 @@ namespace Xamarin.WebTests.TestRunners
 		{
 		}
 
-		internal Task ReadHandler (
+		internal Task<bool> ReadHandler (
 			TestContext ctx, InstrumentationOperationType type,
-			CancellationToken cancellationToken)
+			int bytesRead, CancellationToken cancellationToken)
 		{
 			Interlocked.Increment (ref readHandlerCalled);
 
 			if (type == InstrumentationOperationType.Primary)
-				return PrimaryReadHandler (ctx, cancellationToken);
-			return SecondaryReadHandler (ctx, cancellationToken);
+				return PrimaryReadHandler (ctx, bytesRead, cancellationToken);
+			return SecondaryReadHandler (ctx, bytesRead, cancellationToken);
 		}
 
-		internal virtual Task PrimaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal virtual Task<bool> PrimaryReadHandler (
+			TestContext ctx, int bytesRead, CancellationToken cancellationToken)
 		{
-			return FinishedTask;
+			return Task.FromResult (false);
 		}
 
-		internal virtual Task SecondaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal virtual Task<bool> SecondaryReadHandler (
+			TestContext ctx, int bytesRead, CancellationToken cancellationToken)
 		{
-			return FinishedTask;
+			return Task.FromResult (false);
 		}
 	}
 }

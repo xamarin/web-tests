@@ -90,17 +90,18 @@ namespace Xamarin.WebTests.TestRunners
 
 			var ret = await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
 
-			await ReadHandler (ctx, buffer, offset, size, ret, cancellationToken);
+			if (await ReadHandler (ctx, buffer, offset, size, ret, cancellationToken))
+				InstallReadHandler (ctx);
 
 			return ret;
 		}
 
-		protected virtual Task ReadHandler (
+		protected virtual Task<bool> ReadHandler (
 			TestContext ctx,
 			byte[] buffer, int offset, int size, int ret,
 			CancellationToken cancellationToken)
 		{
-			return Parent.ReadHandler (ctx, Type, cancellationToken);
+			return Parent.ReadHandler (ctx, Type, ret, cancellationToken);
 		}
 
 		protected override void Destroy ()

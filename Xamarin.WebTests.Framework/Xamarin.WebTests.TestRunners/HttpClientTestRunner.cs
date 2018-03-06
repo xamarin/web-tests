@@ -298,20 +298,21 @@ namespace Xamarin.WebTests.TestRunners
 			return (handler, flags);
 		}
 
-		internal override async Task PrimaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal override async Task<bool> PrimaryReadHandler (
+			TestContext ctx, int bytesRead, CancellationToken cancellationToken)
 		{
 			switch (EffectiveType) {
 			case HttpClientTestType.ParallelRequests:
 			case HttpClientTestType.SimpleQueuedRequest:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
 				await RunSimpleHello ().ConfigureAwait (false);
-				break;
+				return false;
 
 			case HttpClientTestType.ParallelGZip:
 			case HttpClientTestType.ParallelGZipNoClose:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
 				await RunParallelGZip ().ConfigureAwait (false);
-				break;
+				return false;
 
 			default:
 				throw ctx.AssertFail (EffectiveType);
@@ -332,24 +333,25 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		internal override async Task SecondaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal override async Task<bool> SecondaryReadHandler (
+			TestContext ctx, int bytesRead, CancellationToken cancellationToken)
 		{
 			switch (EffectiveType) {
 			case HttpClientTestType.ParallelRequests:
 			case HttpClientTestType.ParallelGZip:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
-				break;
+				return false;
 
 			case HttpClientTestType.SimpleQueuedRequest:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
 				ctx.Assert (PrimaryOperation.ServicePoint.CurrentConnections, Is.EqualTo (2), "ServicePoint.CurrentConnections");
-				break;
+				return false;
 
 			case HttpClientTestType.ParallelGZipNoClose:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
 				if (ReadHandlerCalled == 2)
 					await RunParallelGZip ().ConfigureAwait (false);
-				break;
+				return false;
 
 			default:
 				throw ctx.AssertFail (EffectiveType);
