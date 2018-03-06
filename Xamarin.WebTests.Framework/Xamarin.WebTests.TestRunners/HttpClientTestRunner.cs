@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.TestRunners
 			Type = type;
 		}
 
-		const HttpClientTestType MartinTest = HttpClientTestType.ReuseHandlerGZip;
+		const HttpClientTestType MartinTest = HttpClientTestType.CancelPostWhileWriting;
 
 		static readonly (HttpClientTestType type, HttpClientTestFlags flags)[] TestRegistration = {
 			(HttpClientTestType.Simple, HttpClientTestFlags.Working),
@@ -103,6 +103,8 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpClientTestType.ReuseHandlerChunked, HttpClientTestFlags.Working),
 
 			(HttpClientTestType.ReuseHandlerGZip, HttpClientTestFlags.Ignore),
+			(HttpClientTestType.CancelPost, HttpClientTestFlags.Ignore),
+			(HttpClientTestType.CancelPostWhileWriting, HttpClientTestFlags.Ignore),
 		};
 
 		public static IList<HttpClientTestType> GetTestTypes (TestContext ctx, HttpServerTestCategory category)
@@ -291,6 +293,14 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpClientTestType.ReuseHandlerGZip:
 				handler = new HttpClientInstrumentationHandler (this, !primary);
 				break;
+			case HttpClientTestType.CancelPost:
+				handler = new HttpClientInstrumentationHandler (this, !primary);
+				flags = HttpOperationFlags.ServerAbortsHandshake;
+				break;
+			case HttpClientTestType.CancelPostWhileWriting:
+				handler = new HttpClientInstrumentationHandler (this, !primary);
+				flags = HttpOperationFlags.DontReadRequestBody | HttpOperationFlags.DontWriteResponse;
+				break;
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -313,6 +323,12 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
 				await RunParallelGZip ().ConfigureAwait (false);
 				return false;
+
+			case HttpClientTestType.CancelPost:
+			case HttpClientTestType.CancelPostWhileWriting:
+				ctx.Assert (PrimaryOperation.HasRequest, "current request");
+				var request = (HttpClientInstrumentationRequest)PrimaryOperation.Request;
+				return request.CancelPostFromReadHandler (ctx, bytesRead);
 
 			default:
 				throw ctx.AssertFail (EffectiveType);
@@ -540,6 +556,11 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpClientTestType.SimpleQueuedRequest:
 				case HttpClientTestType.ParallelGZip:
 				case HttpClientTestType.ParallelGZipNoClose:
+					InstallReadHandler (ctx);
+					break;
+				case HttpClientTestType.CancelPost:
+				case HttpClientTestType.CancelPostWhileWriting:
+					instrumentation.IgnoreErrors = true;
 					InstallReadHandler (ctx);
 					break;
 				}

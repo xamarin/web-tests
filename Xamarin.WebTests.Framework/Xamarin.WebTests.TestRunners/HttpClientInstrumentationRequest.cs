@@ -97,6 +97,9 @@ namespace Xamarin.WebTests.TestRunners
 			Client = primaryRequest.Client;
 		}
 
+		CancellationTokenSource cts;
+		int totalRead;
+
 		public override string Method {
 			get => throw new NotSupportedException ();
 			set => throw new NotSupportedException ();
@@ -125,6 +128,8 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpClientTestType.ReuseHandler:
 			case HttpClientTestType.ReuseHandlerNoClose:
 			case HttpClientTestType.ReuseHandlerChunked:
+			case HttpClientTestType.CancelPost:
+			case HttpClientTestType.CancelPostWhileWriting:
 				break;
 			default:
 				throw ctx.AssertFail (Parent.TestRunner.EffectiveType);
@@ -146,6 +151,9 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpClientTestType.ReuseHandlerChunked:
 			case HttpClientTestType.ReuseHandlerGZip:
 				return GetStringNoClose (ctx, cancellationToken);
+			case HttpClientTestType.CancelPost:
+			case HttpClientTestType.CancelPostWhileWriting:
+				return CancelPost (ctx, cancellationToken);
 			default:
 				throw ctx.AssertFail (Parent.TestRunner.EffectiveType);
 			}
@@ -196,6 +204,52 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.Assert (response.IsSuccessStatusCode, "success");
 			var content = await response.Content.ReadAsStringAsync ();
 			return new SimpleResponse (this, HttpStatusCode.OK, StringContent.CreateMaybeNull (content));
+		}
+
+		async Task<Response> CancelPost (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var data = new byte[6000 * 1024];
+			using (var stream = new MemoryStream (data))
+			using (cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken)) {
+				var content = Provider.CreateStreamContent (stream);
+				content.ContentType = "application/octet-stream";
+				await ctx.AssertException<TaskCanceledException> (
+					() => Client.PostAsync (RequestUri, content, cts.Token),
+					"expecting cancellation").ConfigureAwait (false);
+				return new SimpleResponse (this, HttpStatusCode.OK, null);
+			}
+		}
+
+		internal bool CancelPostFromReadHandler (TestContext ctx, int bytesRead)
+		{
+			if (Parent.TestRunner.EffectiveType == HttpClientTestType.CancelPost) {
+				// Cancel during the handshake.
+				cts.Cancel ();
+				return false;
+			}
+
+			if (bytesRead > 0)
+				totalRead += bytesRead;
+
+			if (bytesRead <= 0 || totalRead > 10000) {
+				/*
+				 * Wait until HttpClient.PostAsync is writing the
+				 * request body.
+				 */
+				cts.Cancel ();
+				return false;
+			}
+
+			return true;
+		}
+
+		internal async Task HandleCancelPost (
+			TestContext ctx, HttpConnection connection,
+			HttpRequest request, CancellationToken cancellationToken)
+		{
+			await ctx.AssertException (
+				() => request.Read (ctx, cancellationToken),
+				Is.Not.Null, "expecting exception").ConfigureAwait (false);
 		}
 	}
 }

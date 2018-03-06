@@ -161,6 +161,11 @@ namespace Xamarin.WebTests.TestRunners
 				AssertNotReusingConnection (ctx, connection);
 				content = new ChunkedContent (ConnectionHandler.TheQuickBrownFox);
 				break;
+			case HttpClientTestType.CancelPostWhileWriting:
+				var currentRequest = (HttpClientInstrumentationRequest)operation.Request;
+				await currentRequest.HandleCancelPost (
+					ctx, connection, request, cancellationToken).ConfigureAwait (false);
+				return new HttpResponse (HttpStatusCode.OK, null);
 			default:
 				throw ctx.AssertFail (TestRunner.EffectiveType);
 			}
@@ -184,6 +189,9 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpClientTestType.ReuseHandlerGZip:
 				expectedContent = HttpContent.TheQuickBrownFox;
 				break;
+			case HttpClientTestType.CancelPost:
+			case HttpClientTestType.CancelPostWhileWriting:
+				return ctx.Expect (response.Content, Is.Null);
 			default:
 				expectedContent = new StringContent (ME);
 				break;

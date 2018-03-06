@@ -373,7 +373,9 @@ namespace Xamarin.WebTests.Server
 					keepAlive = false;
 				}
 
-				await connection.WriteResponse (ctx, response, cancellationToken).ConfigureAwait (false);
+				if (!Operation.Operation.HasAnyFlags (HttpOperationFlags.DontWriteResponse))
+					await connection.WriteResponse (ctx, response, cancellationToken).ConfigureAwait (false);
+
 				return keepAlive;
 			}
 

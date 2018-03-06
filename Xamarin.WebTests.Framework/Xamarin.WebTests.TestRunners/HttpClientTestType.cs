@@ -67,6 +67,9 @@ namespace Xamarin.WebTests.TestRunners
 		ReuseHandlerChunked,
 		ReuseHandlerGZip,
 
+		CancelPost,
+		CancelPostWhileWriting,
+
 		MartinTest
 	}
 }
