@@ -235,7 +235,7 @@ namespace Xamarin.AsyncTests.Console
 
 			var args = new StringBuilder ();
 			args.Append (AdbCommandLine ("shell am start -W -S"));
-			args.Append ($" -e XAMARIN_ASYNCTESTS_OPTIONS \\'{options}\\' ");
+			args.Append ($" -e XAMARIN_ASYNCTESTS_OPTIONS \"'{options}'\" ");
 
 			var activity = Program.Options.AndroidActivity ?? "com.xamarin.webtests.android/com.xamarin.webtests.android.MainActivity";
 			args.Append (activity);
