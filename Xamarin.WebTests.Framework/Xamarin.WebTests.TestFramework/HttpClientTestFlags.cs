@@ -29,8 +29,10 @@ namespace Xamarin.WebTests.TestFramework
 	public enum HttpClientTestFlags
 	{
 		Working,
+		Instrumentation,
 		WorkingMaster,
 		NewWebStack,
+		NewWebStackInstrumentation,
 		GZip,
 		Ignore
 	}

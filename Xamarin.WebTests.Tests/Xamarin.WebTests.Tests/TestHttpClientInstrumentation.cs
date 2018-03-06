@@ -51,8 +51,19 @@ namespace Xamarin.WebTests
 			return runner.Run (ctx, cancellationToken);
 		}
 
+		[Work]
 		[AsyncTest]
-		[NewWebStack]
+		[HttpServerTestCategory (HttpServerTestCategory.Instrumentation)]
+		public Task RunInstrumentation (TestContext ctx, CancellationToken cancellationToken,
+		                                HttpServerProvider provider,
+		                                HttpClientTestType type,
+		                                HttpClientTestRunner runner)
+		{
+			return runner.Run (ctx, cancellationToken);
+		}
+
+		[AsyncTest]
+		[Work] [NewWebStack]
 		[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
 		public Task RunNewWebStack (TestContext ctx, CancellationToken cancellationToken,
 		                            HttpServerProvider provider,

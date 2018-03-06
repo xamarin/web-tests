@@ -30,10 +30,7 @@ namespace Xamarin.WebTests.TestFramework
 	public enum HttpInstrumentationTestFlags
 	{
 		Working,
-		WorkingRequireSSL,
 		NewWebStack,
-		NewWebStackRequireSSL,
-//		GZip,
 		Stress,
 		Unstable,
 		Ignore

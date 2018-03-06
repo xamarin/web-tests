@@ -90,8 +90,8 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpClientTestType.SendAsyncObscureVerb, HttpClientTestFlags.WorkingMaster),
 			(HttpClientTestType.GetError, HttpClientTestFlags.Working),
 
-			(HttpClientTestType.ParallelRequests, HttpClientTestFlags.Working),
-			(HttpClientTestType.SimpleQueuedRequest, HttpClientTestFlags.Working),
+			(HttpClientTestType.ParallelRequests, HttpClientTestFlags.Instrumentation),
+			(HttpClientTestType.SimpleQueuedRequest, HttpClientTestFlags.Instrumentation),
 			(HttpClientTestType.SimpleGZip, HttpClientTestFlags.GZip),
 			(HttpClientTestType.ParallelGZip, HttpClientTestFlags.GZip),
 			(HttpClientTestType.SequentialRequests, HttpClientTestFlags.Working),
@@ -119,15 +119,20 @@ namespace Xamarin.WebTests.TestRunners
 				if (flags == HttpClientTestFlags.GZip) {
 					if (!setup.SupportsGZip)
 						return false;
-					flags = HttpClientTestFlags.Working;
+					flags = HttpClientTestFlags.Instrumentation;
 				}
 
 				switch (category) {
 				case HttpServerTestCategory.MartinTest:
 					return false;
 				case HttpServerTestCategory.Default:
-				case HttpServerTestCategory.Instrumentation:
 					if (flags == HttpClientTestFlags.Working)
+						return true;
+					if (setup.UsingDotNet || setup.InternalVersion >= 1)
+						return flags == HttpClientTestFlags.WorkingMaster;
+					return false;
+				case HttpServerTestCategory.Instrumentation:
+					if (flags == HttpClientTestFlags.Instrumentation)
 						return true;
 					if (setup.UsingDotNet || setup.InternalVersion >= 1)
 						return flags == HttpClientTestFlags.WorkingMaster;

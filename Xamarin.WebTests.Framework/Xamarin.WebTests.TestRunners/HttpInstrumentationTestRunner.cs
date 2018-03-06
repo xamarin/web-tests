@@ -70,8 +70,8 @@ namespace Xamarin.WebTests.TestRunners
 		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NtlmWhileQueued;
 
 		static readonly (HttpInstrumentationTestType type, HttpInstrumentationTestFlags flags) [] TestRegistration = {
-			(HttpInstrumentationTestType.InvalidDataDuringHandshake, HttpInstrumentationTestFlags.WorkingRequireSSL),
-			(HttpInstrumentationTestType.AbortDuringHandshake, HttpInstrumentationTestFlags.WorkingRequireSSL),
+			(HttpInstrumentationTestType.InvalidDataDuringHandshake, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.AbortDuringHandshake, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.ParallelRequests, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.ThreeParallelRequests, HttpInstrumentationTestFlags.Stress),
 			(HttpInstrumentationTestType.ParallelRequestsSomeQueued, HttpInstrumentationTestFlags.Stress),
@@ -79,10 +79,10 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpInstrumentationTestType.ManyParallelRequestsStress, HttpInstrumentationTestFlags.Stress),
 			(HttpInstrumentationTestType.SimpleQueuedRequest, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.CancelQueuedRequest, HttpInstrumentationTestFlags.Working),
-			(HttpInstrumentationTestType.CancelMainWhileQueued, HttpInstrumentationTestFlags.WorkingRequireSSL),
+			(HttpInstrumentationTestType.CancelMainWhileQueued, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.SimpleNtlm, HttpInstrumentationTestFlags.Working),
-			(HttpInstrumentationTestType.NtlmWhileQueued, HttpInstrumentationTestFlags.NewWebStackRequireSSL),
-			(HttpInstrumentationTestType.NtlmWhileQueued2, HttpInstrumentationTestFlags.NewWebStackRequireSSL),
+			(HttpInstrumentationTestType.NtlmWhileQueued, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.NtlmWhileQueued2, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.ReuseConnection, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.PostNtlm, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.NtlmChunked, HttpInstrumentationTestFlags.Working),
@@ -92,7 +92,7 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpInstrumentationTestType.NtlmClosesConnection, HttpInstrumentationTestFlags.NewWebStack),
 			(HttpInstrumentationTestType.NtlmReusesConnection, HttpInstrumentationTestFlags.NewWebStack),
 			(HttpInstrumentationTestType.ParallelNtlm, HttpInstrumentationTestFlags.NewWebStack),
-			(HttpInstrumentationTestType.ReuseAfterPartialRead, HttpInstrumentationTestFlags.WorkingRequireSSL),
+			(HttpInstrumentationTestType.ReuseAfterPartialRead, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.CustomConnectionGroup, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.ReuseCustomConnectionGroup, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.CloseCustomConnectionGroup, HttpInstrumentationTestFlags.Working),
@@ -113,15 +113,11 @@ namespace Xamarin.WebTests.TestRunners
 				switch (category) {
 				case HttpServerTestCategory.MartinTest:
 					return false;
-				case HttpServerTestCategory.Default:
-					return flags == HttpInstrumentationTestFlags.Working;
 				case HttpServerTestCategory.Instrumentation:
-					return flags == HttpInstrumentationTestFlags.WorkingRequireSSL;
+					return flags == HttpInstrumentationTestFlags.Working;
 				case HttpServerTestCategory.Stress:
 					return flags == HttpInstrumentationTestFlags.Stress;
 				case HttpServerTestCategory.NewWebStackInstrumentation:
-					return flags == HttpInstrumentationTestFlags.NewWebStackRequireSSL;
-				case HttpServerTestCategory.NewWebStack:
 					return flags == HttpInstrumentationTestFlags.NewWebStack;
 				case HttpServerTestCategory.Experimental:
 					return flags == HttpInstrumentationTestFlags.Unstable;

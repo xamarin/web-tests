@@ -243,6 +243,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			protected void InstallReadHandler (TestContext ctx)
 			{
+				ctx.Assert (Server.UseSSL, "must use SSL");
 				instrumentation.OnNextRead ((b, o, s, f, c) => ReadHandler (ctx, b, o, s, f, c));
 			}
 
