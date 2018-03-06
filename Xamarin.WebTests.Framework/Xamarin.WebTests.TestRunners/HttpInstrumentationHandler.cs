@@ -361,22 +361,6 @@ namespace Xamarin.WebTests.TestRunners
 			default:
 				return HttpResponse.CreateSuccess (ME);
 			}
-
-#if FIXME
-			async Task ParallelNtlm (AuthenticationState state)
-			{
-				var firstHandler = TestRunner.PrimaryHandler;
-				ctx.LogDebug (2, $"{ME}: {this == firstHandler} {state}");
-				if (this != firstHandler || state != AuthenticationState.Challenge)
-					return;
-
-				var newHandler = (HttpInstrumentationHandler)firstHandler.Clone ();
-				var flags = PrimaryOperation.Flags;
-
-				var operation = StartOperation (ctx, cancellationToken, newHandler, InstrumentationOperationType.Queued, flags);
-				await operation.WaitForRequest ();
-			}
-#endif
 		}
 
 		public override bool CheckResponse (TestContext ctx, Response response)
