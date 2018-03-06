@@ -231,8 +231,10 @@ namespace Xamarin.WebTests.TestRunners
 			return QueuedOperation.StartDelayedListener (ctx);
 		}
 
-		protected override InstrumentationOperation CreateOperation (
-			TestContext ctx, Handler handler, InstrumentationOperationType type, HttpOperationFlags flags)
+		internal override InstrumentationOperation CreateOperation (
+			TestContext ctx, Handler handler,
+			InstrumentationOperationType type,
+			HttpOperationFlags flags)
 		{
 			HttpStatusCode expectedStatus;
 			WebExceptionStatus expectedError;
@@ -302,7 +304,7 @@ namespace Xamarin.WebTests.TestRunners
 			return operation;
 		}
 
-		protected override async Task PrimaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal override async Task PrimaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
 		{
 			Request request;
 			InstrumentationOperation operation;
@@ -417,7 +419,7 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		protected override async Task SecondaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal override async Task SecondaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
 		{
 			await FinishedTask.ConfigureAwait (false);
 

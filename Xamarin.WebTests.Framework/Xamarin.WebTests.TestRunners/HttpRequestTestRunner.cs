@@ -175,8 +175,10 @@ namespace Xamarin.WebTests.TestRunners
 			return old ?? manager;
 		}
 
-		protected override InstrumentationOperation CreateOperation (
-			TestContext ctx, Handler handler, InstrumentationOperationType type, HttpOperationFlags flags)
+		internal override InstrumentationOperation CreateOperation (
+			TestContext ctx, Handler handler,
+			InstrumentationOperationType type,
+			HttpOperationFlags flags)
 		{
 			HttpStatusCode expectedStatus;
 			WebExceptionStatus expectedError;

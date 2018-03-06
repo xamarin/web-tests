@@ -298,7 +298,7 @@ namespace Xamarin.WebTests.TestRunners
 			return (handler, flags);
 		}
 
-		protected override async Task PrimaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal override async Task PrimaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
 		{
 			switch (EffectiveType) {
 			case HttpClientTestType.ParallelRequests:
@@ -332,7 +332,7 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		protected override async Task SecondaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal override async Task SecondaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
 		{
 			switch (EffectiveType) {
 			case HttpClientTestType.ParallelRequests:
@@ -363,8 +363,9 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		protected override InstrumentationOperation CreateOperation (
-			TestContext ctx, Handler handler, InstrumentationOperationType type,
+		internal override InstrumentationOperation CreateOperation (
+			TestContext ctx, Handler handler,
+			InstrumentationOperationType type,
 			HttpOperationFlags flags)
 		{
 			HttpStatusCode expectedStatus;

@@ -43,7 +43,6 @@ namespace Xamarin.WebTests.TestRunners
 	using HttpFramework;
 	using HttpHandlers;
 	using TestFramework;
-	using HttpClient;
 	using Resources;
 
 	public abstract class InstrumentationTestRunner : AbstractConnection
@@ -100,8 +99,8 @@ namespace Xamarin.WebTests.TestRunners
 		InstrumentationOperation queuedOperation;
 		volatile int readHandlerCalled;
 
-		protected InstrumentationOperation PrimaryOperation => currentOperation;
-		protected InstrumentationOperation QueuedOperation => queuedOperation;
+		internal InstrumentationOperation PrimaryOperation => currentOperation;
+		internal InstrumentationOperation QueuedOperation => queuedOperation;
 		protected int ReadHandlerCalled => readHandlerCalled;
 
 		internal InstrumentationHandler PrimaryHandler => (InstrumentationHandler)PrimaryOperation.Handler;
@@ -151,11 +150,15 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected abstract (Handler handler, HttpOperationFlags flags) CreateHandler (TestContext ctx, bool primary);
 
-		protected abstract InstrumentationOperation CreateOperation (TestContext ctx, Handler handler, InstrumentationOperationType type,
-									     HttpOperationFlags flags);
+		internal abstract InstrumentationOperation CreateOperation (
+			TestContext ctx, Handler handler,
+			InstrumentationOperationType type,
+			HttpOperationFlags flags);
 
-		protected InstrumentationOperation StartOperation (TestContext ctx, CancellationToken cancellationToken, Handler handler,
-		                                                   InstrumentationOperationType type, HttpOperationFlags flags)
+		internal InstrumentationOperation StartOperation (
+			TestContext ctx, CancellationToken cancellationToken,
+			Handler handler, InstrumentationOperationType type,
+			HttpOperationFlags flags)
 		{
 			var operation = CreateOperation (ctx, handler, type, flags);
 			if (type == InstrumentationOperationType.Queued) {
@@ -194,87 +197,25 @@ namespace Xamarin.WebTests.TestRunners
 		{
 		}
 
-		protected virtual Task PrimaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal Task ReadHandler (
+			TestContext ctx, InstrumentationOperationType type,
+			CancellationToken cancellationToken)
+		{
+			Interlocked.Increment (ref readHandlerCalled);
+
+			if (type == InstrumentationOperationType.Primary)
+				return PrimaryReadHandler (ctx, cancellationToken);
+			return SecondaryReadHandler (ctx, cancellationToken);
+		}
+
+		internal virtual Task PrimaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return FinishedTask;
 		}
 
-		protected virtual Task SecondaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal virtual Task SecondaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return FinishedTask;
-		}
-
-		protected enum InstrumentationOperationType
-		{
-			Primary,
-			Queued,
-			Parallel
-		}
-
-		protected abstract class InstrumentationOperation : HttpOperation
-		{
-			public InstrumentationTestRunner Parent {
-				get;
-			}
-
-			public InstrumentationOperationType Type {
-				get;
-			}
-
-			public InstrumentationOperation (InstrumentationTestRunner parent, string me, Handler handler,
-			                                 InstrumentationOperationType type, HttpOperationFlags flags,
-			                                 HttpStatusCode expectedStatus, WebExceptionStatus expectedError)
-				: base (parent.Server, me, handler, flags, expectedStatus, expectedError)
-			{
-				Parent = parent;
-				Type = type;
-			}
-
-			StreamInstrumentation instrumentation;
-
-			internal override Stream CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket)
-			{
-				instrumentation = new StreamInstrumentation (ctx, ME, socket, ownsSocket);
-
-				ConfigureNetworkStream (ctx, instrumentation);
-
-				return instrumentation;
-			}
-
-			protected abstract void ConfigureNetworkStream (TestContext ctx, StreamInstrumentation instrumentation);
-
-			protected void InstallReadHandler (TestContext ctx)
-			{
-				ctx.Assert (Server.UseSSL, "must use SSL");
-				instrumentation.OnNextRead ((b, o, s, f, c) => ReadHandler (ctx, b, o, s, f, c));
-			}
-
-			async Task<int> ReadHandler (TestContext ctx,
-						     byte [] buffer, int offset, int size,
-						     StreamInstrumentation.AsyncReadFunc func,
-						     CancellationToken cancellationToken)
-			{
-				cancellationToken.ThrowIfCancellationRequested ();
-
-				var ret = await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
-
-				Interlocked.Increment (ref Parent.readHandlerCalled);
-
-				await ReadHandler (ctx, buffer, offset, size, ret, cancellationToken);
-
-				return ret;
-			}
-
-			protected virtual Task ReadHandler (TestContext ctx, byte [] buffer, int offset, int size, int ret, CancellationToken cancellationToken)
-			{
-				return Type == InstrumentationOperationType.Primary ? Parent.PrimaryReadHandler (ctx, cancellationToken) : Parent.SecondaryReadHandler (ctx, cancellationToken);
-			}
-
-			protected override void Destroy ()
-			{
-				instrumentation?.Dispose ();
-				instrumentation = null;
-			}
 		}
 	}
 }
