@@ -40,7 +40,7 @@
     <Compile Include="Xamarin.WebTests.Tests\TestHttpInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.Tests\MartinTest.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpStress.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestHttpClientInstrumentation.cs" />
+    <Compile Include="Xamarin.WebTests.Tests\TestHttpClient.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpListener.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpRequests.cs" />
   </ItemGroup>

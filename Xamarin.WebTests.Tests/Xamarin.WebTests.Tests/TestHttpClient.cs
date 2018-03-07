@@ -1,5 +1,5 @@
 ﻿//
-// TestHttpClientInstrumentation.cs
+// TestHttpClient.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -38,7 +38,7 @@ namespace Xamarin.WebTests
 {
 	[Tls12]
 	[AsyncTestFixture]
-	public class TestHttpClientInstrumentation
+	public class TestHttpClient
 	{
 		[Work]
 		[AsyncTest]
