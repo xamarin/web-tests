@@ -97,11 +97,10 @@ namespace Xamarin.WebTests.TestRunners
 			ME = $"{GetType ().Name}({EffectiveType})";
 		}
 
-		const HttpStressTestType MartinTest = HttpStressTestType.RepeatedHttpClient;
+		const HttpStressTestType MartinTest = HttpStressTestType.Simple;
 
 		static readonly (HttpStressTestType type, HttpStressTestFlags flags)[] TestRegistration = {
 			(HttpStressTestType.Simple, HttpStressTestFlags.Unstable),
-			(HttpStressTestType.RepeatedHttpClient, HttpStressTestFlags.Ignore),
 		};
 
 		public static IList<HttpStressTestType> GetStressTypes (TestContext ctx, ConnectionTestCategory category)
@@ -155,9 +154,6 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.CountParallelTasks = 75;
 				parameters.RepeatCount = 2500;
 				break;
-			case HttpStressTestType.RepeatedHttpClient:
-				parameters.RepeatCount = 5000;
-				break;
 			default:
 				throw ctx.AssertFail (GetEffectiveType (type));
 			}
@@ -172,7 +168,6 @@ namespace Xamarin.WebTests.TestRunners
 
 			switch (EffectiveType) {
 			case HttpStressTestType.Simple:
-			case HttpStressTestType.RepeatedHttpClient:
 				await RunSimple ().ConfigureAwait (false);
 				break;
 			default:
@@ -217,12 +212,6 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpStressTestType.Simple:
 					handler = HelloWorldHandler.GetSimple (me);
 					loopOperation = new TraditionalOperation (Server, handler, true);
-					break;
-
-				case HttpStressTestType.RepeatedHttpClient:
-					handler = new HttpClientHandler (
-						me, HttpClientOperationType.GetString, null, HttpContent.HelloWorld);
-					loopOperation = new HttpClientOperation (Server, handler);
 					break;
 
 				default:

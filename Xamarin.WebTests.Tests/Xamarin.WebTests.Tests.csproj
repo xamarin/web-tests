@@ -28,7 +28,6 @@
     <Compile Include="Xamarin.WebTests.Tests\TestAuthentication.cs" />
     <Compile Include="Xamarin.WebTests.Tests\ProxyKind.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestGet.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestHttpClient.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestFork.cs" />
     <Compile Include="Xamarin.WebTests.Tests\RedirectStatusAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpValidation.cs" />
