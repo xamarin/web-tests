@@ -1,5 +1,5 @@
 ﻿//
-// HttpClientInstrumentationHandler.cs
+// HttpClientHandler.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.TestRunners
 	using TestAttributes;
 	using HttpClient;
 
-	class HttpClientInstrumentationHandler : InstrumentationHandler
+	class HttpClientHandler : InstrumentationHandler
 	{
 		new public HttpClientTestRunner TestRunner => (HttpClientTestRunner)base.TestRunner;
 
@@ -53,7 +53,7 @@ namespace Xamarin.WebTests.TestRunners
 			get;
 		}
 
-		public HttpClientInstrumentationHandler (HttpClientTestRunner parent, bool closeConnection)
+		public HttpClientHandler (HttpClientTestRunner parent, bool closeConnection)
 			: base (parent, parent.EffectiveType.ToString ())
 		{
 			CloseConnection = closeConnection;
@@ -63,7 +63,7 @@ namespace Xamarin.WebTests.TestRunners
 				Flags |= RequestFlags.CloseConnection;
 		}
 
-		HttpClientInstrumentationHandler (HttpClientInstrumentationHandler other)
+		HttpClientHandler (HttpClientHandler other)
 			: base (other)
 		{
 			CloseConnection = other.CloseConnection;
@@ -72,7 +72,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		public override object Clone ()
 		{
-			return new HttpClientInstrumentationHandler (this);
+			return new HttpClientHandler (this);
 		}
 
 		internal Request CreateRequest (InstrumentationOperation operation, Uri uri)
@@ -94,17 +94,17 @@ namespace Xamarin.WebTests.TestRunners
 			}
 
 			if (!ReuseHandler ())
-				return new HttpClientInstrumentationRequest (
+				return new HttpClientRequest (
 					operation, this, uri);
 
-			var primaryRequest = (HttpClientInstrumentationRequest)TestRunner.PrimaryOperation.Request;
-			return new HttpClientInstrumentationRequest (
+			var primaryRequest = (HttpClientRequest)TestRunner.PrimaryOperation.Request;
+			return new HttpClientRequest (
 				operation, this, primaryRequest, uri);
 		}
 
 		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
 		{
-			if (request is HttpClientInstrumentationRequest instrumentationRequest) {
+			if (request is HttpClientRequest instrumentationRequest) {
 				instrumentationRequest.ConfigureRequest (ctx, uri);
 				return;
 			}
@@ -114,7 +114,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		internal async Task<Response> SendAsync (TestContext ctx, Request request, CancellationToken cancellationToken)
 		{
-			var instrumentationRequest = (HttpClientInstrumentationRequest)request;
+			var instrumentationRequest = (HttpClientRequest)request;
 			using (var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken)) {
 				cts.Token.Register (() => instrumentationRequest.Abort ());
 				return await instrumentationRequest.SendAsync (ctx, cts.Token).ConfigureAwait (false);
@@ -162,7 +162,7 @@ namespace Xamarin.WebTests.TestRunners
 				content = new ChunkedContent (ConnectionHandler.TheQuickBrownFox);
 				break;
 			case HttpClientTestType.CancelPostWhileWriting:
-				var currentRequest = (HttpClientInstrumentationRequest)operation.Request;
+				var currentRequest = (HttpClientRequest)operation.Request;
 				await currentRequest.HandleCancelPost (
 					ctx, connection, request, cancellationToken).ConfigureAwait (false);
 				return new HttpResponse (HttpStatusCode.OK, null);

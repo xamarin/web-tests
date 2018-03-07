@@ -284,21 +284,21 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpClientTestType.SequentialRequests:
 			case HttpClientTestType.SequentialChunked:
 			case HttpClientTestType.SequentialGZip:
-				handler = new HttpClientInstrumentationHandler (this, true);
+				handler = new HttpClientHandler (this, true);
 				flags = HttpOperationFlags.DontReuseConnection;
 				break;
 			case HttpClientTestType.ReuseHandler:
 			case HttpClientTestType.ReuseHandlerNoClose:
 			case HttpClientTestType.ReuseHandlerChunked:
 			case HttpClientTestType.ReuseHandlerGZip:
-				handler = new HttpClientInstrumentationHandler (this, !primary);
+				handler = new HttpClientHandler (this, !primary);
 				break;
 			case HttpClientTestType.CancelPost:
-				handler = new HttpClientInstrumentationHandler (this, !primary);
+				handler = new HttpClientHandler (this, !primary);
 				flags = HttpOperationFlags.ServerAbortsHandshake;
 				break;
 			case HttpClientTestType.CancelPostWhileWriting:
-				handler = new HttpClientInstrumentationHandler (this, !primary);
+				handler = new HttpClientHandler (this, !primary);
 				flags = HttpOperationFlags.DontReadRequestBody | HttpOperationFlags.DontWriteResponse;
 				break;
 			default:
@@ -327,7 +327,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpClientTestType.CancelPost:
 			case HttpClientTestType.CancelPostWhileWriting:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
-				var request = (HttpClientInstrumentationRequest)PrimaryOperation.Request;
+				var request = (HttpClientRequest)PrimaryOperation.Request;
 				return request.CancelPostFromReadHandler (ctx, bytesRead);
 
 			default:
@@ -344,7 +344,7 @@ namespace Xamarin.WebTests.TestRunners
 			Task RunParallelGZip ()
 			{
 				return StartOperation (
-					ctx, cancellationToken, new HttpClientInstrumentationHandler (this, true),
+					ctx, cancellationToken, new HttpClientHandler (this, true),
 					InstrumentationOperationType.Parallel, HttpOperationFlags.None).WaitForCompletion ();
 			}
 		}
@@ -376,7 +376,7 @@ namespace Xamarin.WebTests.TestRunners
 			Task RunParallelGZip ()
 			{
 				return StartOperation (
-					ctx, cancellationToken, new HttpClientInstrumentationHandler (this, true),
+					ctx, cancellationToken, new HttpClientHandler (this, true),
 					InstrumentationOperationType.Parallel, HttpOperationFlags.None).WaitForCompletion ();
 			}
 		}
@@ -417,10 +417,10 @@ namespace Xamarin.WebTests.TestRunners
 
 			protected override Request CreateRequest (TestContext ctx, Uri uri)
 			{
-				if (Handler is HttpClientInstrumentationHandler instrumentationHandler)
+				if (Handler is HttpClientHandler instrumentationHandler)
 					return instrumentationHandler.CreateRequest (this, uri);
 
-				return new HttpClientRequest (uri);
+				return new HttpHandlers.HttpClientRequest (uri);
 			}
 
 			protected override void ConfigureRequest (TestContext ctx, Uri uri, Request request)
@@ -443,7 +443,7 @@ namespace Xamarin.WebTests.TestRunners
 					}
 				}
 
-				if (request is HttpClientRequest httpClientRequest) {
+				if (request is HttpHandlers.HttpClientRequest httpClientRequest) {
 					if (Type == InstrumentationOperationType.Primary)
 						ConfigurePrimaryRequest (ctx, httpClientRequest);
 					else
@@ -455,7 +455,7 @@ namespace Xamarin.WebTests.TestRunners
 				request.SetProxy (Parent.Server.GetProxy ());
 			}
 
-			void ConfigurePrimaryRequest (TestContext ctx, HttpClientRequest request)
+			void ConfigurePrimaryRequest (TestContext ctx, HttpHandlers.HttpClientRequest request)
 			{
 				switch (Parent.EffectiveType) {
 				case HttpClientTestType.Simple:
@@ -491,7 +491,7 @@ namespace Xamarin.WebTests.TestRunners
 				}
 			}
 
-			void ConfigureParallelRequest (TestContext ctx, HttpClientRequest request)
+			void ConfigureParallelRequest (TestContext ctx, HttpHandlers.HttpClientRequest request)
 			{
 				switch (Parent.EffectiveType) {
 				case HttpClientTestType.ParallelRequests:
@@ -506,15 +506,15 @@ namespace Xamarin.WebTests.TestRunners
 			{
 				ctx.LogDebug (2, $"{ME} RUN INNER");
 
-				if (Handler is HttpClientInstrumentationHandler instrumentationHandler)
+				if (Handler is HttpClientHandler instrumentationHandler)
 					return await instrumentationHandler.SendAsync (
 						ctx, request, cancellationToken).ConfigureAwait (false);
 
-				var httpClientRequest = (HttpClientRequest)request;
+				var httpClientRequest = (HttpHandlers.HttpClientRequest)request;
 				return await Run (ctx, httpClientRequest, cancellationToken).ConfigureAwait (false);
 			}
 
-			Task<Response> Run (TestContext ctx, HttpClientRequest request, CancellationToken cancellationToken)
+			Task<Response> Run (TestContext ctx, HttpHandlers.HttpClientRequest request, CancellationToken cancellationToken)
 			{
 				switch (Parent.EffectiveType) {
 				case HttpClientTestType.Simple:

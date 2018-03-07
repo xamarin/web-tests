@@ -1,5 +1,5 @@
 ﻿//
-// HttpClientInstrumentationRequest.cs
+// HttpClientRequest.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -43,13 +43,13 @@ namespace Xamarin.WebTests.TestRunners
 	using HttpHandlers;
 	using HttpClient;
 
-	class HttpClientInstrumentationRequest : Request
+	class HttpClientRequest : Request
 	{
 		public InstrumentationOperation Operation {
 			get;
 		}
 
-		public HttpClientInstrumentationHandler Parent {
+		public HttpClientHandler Parent {
 			get;
 		}
 
@@ -69,9 +69,9 @@ namespace Xamarin.WebTests.TestRunners
 			get;
 		}
 
-		public HttpClientInstrumentationRequest (
+		public HttpClientRequest (
 			InstrumentationOperation operation,
-			HttpClientInstrumentationHandler handler,
+			HttpClientHandler handler,
 			Uri requestUri)
 		{
 			Operation = operation;
@@ -83,10 +83,10 @@ namespace Xamarin.WebTests.TestRunners
 			Client = Handler.CreateHttpClient ();
 		}
 
-		public HttpClientInstrumentationRequest (
+		public HttpClientRequest (
 			InstrumentationOperation operation,
-			HttpClientInstrumentationHandler handler,
-			HttpClientInstrumentationRequest primaryRequest,
+			HttpClientHandler handler,
+			HttpClientRequest primaryRequest,
 			Uri requestUri)
 		{
 			Operation = operation;
