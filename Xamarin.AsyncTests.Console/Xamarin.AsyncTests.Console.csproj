@@ -6,7 +6,7 @@
     <ProjectGuid>{8FA04E17-8E60-45C4-A9A7-51C5047CCABF}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Xamarin.AsyncTests.Client</RootNamespace>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Xamarin.AsyncTests.snk</AssemblyOriginatorKeyFile>
     <AssemblyName>Xamarin.AsyncTests.Console</AssemblyName>
