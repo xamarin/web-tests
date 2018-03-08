@@ -84,6 +84,8 @@ namespace Xamarin.WebTests.TestFramework
 				return SupportsHttpListener (provider);
 			case HttpServerTestCategory.MartinTest:
 				return SupportsSsl (provider);
+			case HttpServerTestCategory.RecentlyFixed:
+				return HasNewWebStack () && SupportsSsl (provider);
 			default:
 				throw ctx.AssertFail (Category);
 			}
@@ -114,6 +116,7 @@ namespace Xamarin.WebTests.TestFramework
 				switch (Category) {
 				case HttpServerTestCategory.Instrumentation:
 				case HttpServerTestCategory.NewWebStackInstrumentation:
+				case HttpServerTestCategory.RecentlyFixed:
 					return true;
 				default:
 					return false;

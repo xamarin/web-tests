@@ -73,6 +73,18 @@ namespace Xamarin.WebTests
 			return runner.Run (ctx, cancellationToken);
 		}
 
+		[AsyncTest]
+		[RecentlyFixed]
+		[NewWebStack]
+		[HttpServerTestCategory (HttpServerTestCategory.RecentlyFixed)]
+		public Task RunRecentlyFixed (TestContext ctx, CancellationToken cancellationToken,
+		                              HttpServerProvider provider,
+		                              HttpClientTestType type,
+		                              HttpClientTestRunner runner)
+		{
+			return runner.Run (ctx, cancellationToken);
+		}
+
 		[Martin ("HttpClientInstrumentation")]
 		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
 		[AsyncTest (Unstable = true)]

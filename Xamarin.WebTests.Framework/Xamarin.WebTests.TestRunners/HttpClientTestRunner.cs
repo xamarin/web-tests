@@ -103,8 +103,8 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpClientTestType.ReuseHandlerChunked, HttpClientTestFlags.Working),
 
 			(HttpClientTestType.ReuseHandlerGZip, HttpClientTestFlags.Ignore),
-			(HttpClientTestType.CancelPost, HttpClientTestFlags.Ignore),
-			(HttpClientTestType.CancelPostWhileWriting, HttpClientTestFlags.Ignore),
+			(HttpClientTestType.CancelPost, HttpClientTestFlags.RecentlyFixed),
+			(HttpClientTestType.CancelPostWhileWriting, HttpClientTestFlags.RecentlyFixed),
 		};
 
 		public static IList<HttpClientTestType> GetTestTypes (TestContext ctx, HttpServerTestCategory category)
@@ -140,6 +140,8 @@ namespace Xamarin.WebTests.TestRunners
 					return false;
 				case HttpServerTestCategory.NewWebStack:
 					return flags == HttpClientTestFlags.NewWebStack;
+				case HttpServerTestCategory.RecentlyFixed:
+					return flags == HttpClientTestFlags.RecentlyFixed;
 				default:
 					throw ctx.AssertFail (category);
 				}

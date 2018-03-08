@@ -35,6 +35,7 @@ namespace Xamarin.WebTests.TestFramework
 		Stress,
 		NewWebStack,
 		NewWebStackInstrumentation,
+		RecentlyFixed,
 		Experimental,
 		HttpListener,
 
