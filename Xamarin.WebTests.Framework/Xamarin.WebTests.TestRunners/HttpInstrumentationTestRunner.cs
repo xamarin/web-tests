@@ -67,11 +67,11 @@ namespace Xamarin.WebTests.TestRunners
 			Type = type;
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NtlmWhileQueued;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NtlmInstrumentation;
 
 		static readonly (HttpInstrumentationTestType type, HttpInstrumentationTestFlags flags) [] TestRegistration = {
-			(HttpInstrumentationTestType.InvalidDataDuringHandshake, HttpInstrumentationTestFlags.WorkingRequireSSL),
-			(HttpInstrumentationTestType.AbortDuringHandshake, HttpInstrumentationTestFlags.WorkingRequireSSL),
+			(HttpInstrumentationTestType.InvalidDataDuringHandshake, HttpInstrumentationTestFlags.Working),
+			(HttpInstrumentationTestType.AbortDuringHandshake, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.ParallelRequests, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.ThreeParallelRequests, HttpInstrumentationTestFlags.Stress),
 			(HttpInstrumentationTestType.ParallelRequestsSomeQueued, HttpInstrumentationTestFlags.Stress),
@@ -79,10 +79,10 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpInstrumentationTestType.ManyParallelRequestsStress, HttpInstrumentationTestFlags.Stress),
 			(HttpInstrumentationTestType.SimpleQueuedRequest, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.CancelQueuedRequest, HttpInstrumentationTestFlags.Working),
-			(HttpInstrumentationTestType.CancelMainWhileQueued, HttpInstrumentationTestFlags.WorkingRequireSSL),
+			(HttpInstrumentationTestType.CancelMainWhileQueued, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.SimpleNtlm, HttpInstrumentationTestFlags.Working),
-			(HttpInstrumentationTestType.NtlmWhileQueued, HttpInstrumentationTestFlags.NewWebStackRequireSSL),
-			(HttpInstrumentationTestType.NtlmWhileQueued2, HttpInstrumentationTestFlags.NewWebStackRequireSSL),
+			(HttpInstrumentationTestType.NtlmWhileQueued, HttpInstrumentationTestFlags.NewWebStack),
+			(HttpInstrumentationTestType.NtlmWhileQueued2, HttpInstrumentationTestFlags.NewWebStack),
 			(HttpInstrumentationTestType.ReuseConnection, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.PostNtlm, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.NtlmChunked, HttpInstrumentationTestFlags.Working),
@@ -92,7 +92,7 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpInstrumentationTestType.NtlmClosesConnection, HttpInstrumentationTestFlags.NewWebStack),
 			(HttpInstrumentationTestType.NtlmReusesConnection, HttpInstrumentationTestFlags.NewWebStack),
 			(HttpInstrumentationTestType.ParallelNtlm, HttpInstrumentationTestFlags.NewWebStack),
-			(HttpInstrumentationTestType.ReuseAfterPartialRead, HttpInstrumentationTestFlags.WorkingRequireSSL),
+			(HttpInstrumentationTestType.ReuseAfterPartialRead, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.CustomConnectionGroup, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.ReuseCustomConnectionGroup, HttpInstrumentationTestFlags.Working),
 			(HttpInstrumentationTestType.CloseCustomConnectionGroup, HttpInstrumentationTestFlags.Working),
@@ -113,15 +113,11 @@ namespace Xamarin.WebTests.TestRunners
 				switch (category) {
 				case HttpServerTestCategory.MartinTest:
 					return false;
-				case HttpServerTestCategory.Default:
-					return flags == HttpInstrumentationTestFlags.Working;
 				case HttpServerTestCategory.Instrumentation:
-					return flags == HttpInstrumentationTestFlags.WorkingRequireSSL;
+					return flags == HttpInstrumentationTestFlags.Working;
 				case HttpServerTestCategory.Stress:
 					return flags == HttpInstrumentationTestFlags.Stress;
 				case HttpServerTestCategory.NewWebStackInstrumentation:
-					return flags == HttpInstrumentationTestFlags.NewWebStackRequireSSL;
-				case HttpServerTestCategory.NewWebStack:
 					return flags == HttpInstrumentationTestFlags.NewWebStack;
 				case HttpServerTestCategory.Experimental:
 					return flags == HttpInstrumentationTestFlags.Unstable;
@@ -235,8 +231,10 @@ namespace Xamarin.WebTests.TestRunners
 			return QueuedOperation.StartDelayedListener (ctx);
 		}
 
-		protected override InstrumentationOperation CreateOperation (
-			TestContext ctx, Handler handler, InstrumentationOperationType type, HttpOperationFlags flags)
+		internal override InstrumentationOperation CreateOperation (
+			TestContext ctx, Handler handler,
+			InstrumentationOperationType type,
+			HttpOperationFlags flags)
 		{
 			HttpStatusCode expectedStatus;
 			WebExceptionStatus expectedError;
@@ -279,67 +277,21 @@ namespace Xamarin.WebTests.TestRunners
 			return new Operation (this, handler, type, flags, expectedStatus, expectedError);
 		}
 
-		internal async Task HandleRequest (
+		internal HttpOperation StartParallelNtlm (
 			TestContext ctx, HttpInstrumentationHandler handler,
-			HttpConnection connection, HttpRequest request,
 			AuthenticationState state, CancellationToken cancellationToken)
 		{
-			switch (EffectiveType) {
-			case HttpInstrumentationTestType.ReuseConnection:
-			case HttpInstrumentationTestType.ReuseCustomConnectionGroup:
-			case HttpInstrumentationTestType.RedirectOnSameConnection:
-				MustReuseConnection ();
-				break;
+			var firstHandler = (HttpInstrumentationHandler)PrimaryOperation.Handler;
+			ctx.LogDebug (2, $"{handler.ME}: {handler == firstHandler} {state}");
+			if (handler != firstHandler || state != AuthenticationState.Challenge)
+				return null;
 
-			case HttpInstrumentationTestType.ParallelNtlm:
-				await ParallelNtlm ().ConfigureAwait (false);
-				break;
+			var newHandler = (HttpInstrumentationHandler)firstHandler.Clone ();
+			var flags = PrimaryOperation.Flags;
 
-			case HttpInstrumentationTestType.ReuseAfterPartialRead:
-				// We can't reuse the connection because we did not read the entire response.
-				MustNotReuseConnection ();
-				break;
-
-			case HttpInstrumentationTestType.CustomConnectionGroup:
-				// We can't reuse the connection because we're in a different connection group.
-				MustNotReuseConnection ();
-				break;
-
-			case HttpInstrumentationTestType.NtlmInstrumentation:
-				break;
-			}
-
-			async Task ParallelNtlm ()
-			{
-				var firstHandler = (HttpInstrumentationHandler)PrimaryOperation.Handler;
-				ctx.LogDebug (2, $"{handler.ME}: {handler == firstHandler} {state}");
-				if (handler != firstHandler || state != AuthenticationState.Challenge)
-					return;
-
-				var newHandler = (HttpInstrumentationHandler)firstHandler.Clone ();
-				var flags = PrimaryOperation.Flags;
-
-				var operation = StartOperation (ctx, cancellationToken, newHandler, InstrumentationOperationType.Queued, flags);
-				await operation.WaitForRequest ();
-			}
-
-			void MustNotReuseConnection ()
-			{
-				var firstHandler = (HttpInstrumentationHandler)PrimaryOperation.Handler;
-				ctx.LogDebug (2, $"{handler.ME}: {handler == firstHandler} {handler.RemoteEndPoint}");
-				if (handler == firstHandler)
-					return;
-				ctx.Assert (connection.RemoteEndPoint, Is.Not.EqualTo (firstHandler.RemoteEndPoint), "RemoteEndPoint");
-			}
-
-			void MustReuseConnection ()
-			{
-				var firstHandler = (HttpInstrumentationHandler)PrimaryOperation.Handler;
-				ctx.LogDebug (2, $"{handler.ME}: {handler == firstHandler} {handler.RemoteEndPoint}");
-				if (handler == firstHandler)
-					return;
-				ctx.Assert (connection.RemoteEndPoint, Is.EqualTo (firstHandler.RemoteEndPoint), "RemoteEndPoint");
-			}
+			return StartOperation (
+				ctx, cancellationToken, newHandler,
+				InstrumentationOperationType.Queued, flags);
 		}
 
 		Operation StartSecond (TestContext ctx, CancellationToken cancellationToken,
@@ -352,7 +304,8 @@ namespace Xamarin.WebTests.TestRunners
 			return operation;
 		}
 
-		protected override async Task PrimaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal override async Task<bool> PrimaryReadHandler (
+			TestContext ctx, int bytesRead, CancellationToken cancellationToken)
 		{
 			Request request;
 			InstrumentationOperation operation;
@@ -360,21 +313,21 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.ParallelRequests:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
 				await RunSimpleHello ().ConfigureAwait (false);
-				break;
+				return false;
 
 			case HttpInstrumentationTestType.SimpleQueuedRequest:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
 				StartOperation (
 					ctx, cancellationToken, HelloWorldHandler.GetSimple (),
 					InstrumentationOperationType.Queued, HttpOperationFlags.None);
-				break;
+				return false;
 
 			case HttpInstrumentationTestType.ThreeParallelRequests:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
 				var secondTask = RunSimpleHello ();
 				var thirdTask = RunSimpleHello ();
 				await Task.WhenAll (secondTask, thirdTask).ConfigureAwait (false);
-				break;
+				return false;
 
 			case HttpInstrumentationTestType.ParallelRequestsSomeQueued:
 			case HttpInstrumentationTestType.ManyParallelRequests:
@@ -390,14 +343,14 @@ namespace Xamarin.WebTests.TestRunners
 				for (int i = 0; i < parallelTasks.Length; i++)
 					parallelTasks [i] = parallelOperations [i].WaitForCompletion ();
 				await Task.WhenAll (parallelTasks).ConfigureAwait (false);
-				break;
+				return false;
 
 			case HttpInstrumentationTestType.AbortDuringHandshake:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
 				PrimaryOperation.Request.Abort ();
 				// Wait until the client request finished, to make sure we are actually aboring.
 				await PrimaryOperation.WaitForCompletion ().ConfigureAwait (false);
-				break;
+				return false;
 
 			case HttpInstrumentationTestType.CancelQueuedRequest:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
@@ -408,7 +361,7 @@ namespace Xamarin.WebTests.TestRunners
 				// Wait a bit to make sure the request has been queued.
 				await Task.Delay (500).ConfigureAwait (false);
 				request.Abort ();
-				break;
+				return false;
 
 			case HttpInstrumentationTestType.CancelMainWhileQueued:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
@@ -419,7 +372,7 @@ namespace Xamarin.WebTests.TestRunners
 				// Wait a bit to make sure the request has been queued.
 				await Task.Delay (2500).ConfigureAwait (false);
 				PrimaryOperation.Request.Abort ();
-				break;
+				return false;
 
 			case HttpInstrumentationTestType.NtlmWhileQueued:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
@@ -429,7 +382,7 @@ namespace Xamarin.WebTests.TestRunners
 						InstrumentationOperationType.Queued,
 						HttpOperationFlags.DelayedListenerContext | HttpOperationFlags.ClientAbortsRequest);
 				}
-				break;
+				return false;
 
 			case HttpInstrumentationTestType.NtlmWhileQueued2:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
@@ -439,7 +392,7 @@ namespace Xamarin.WebTests.TestRunners
 						InstrumentationOperationType.Queued,
 						HttpOperationFlags.DelayedListenerContext);
 				}
-				break;
+				return false;
 
 			default:
 				throw ctx.AssertFail (EffectiveType);
@@ -467,7 +420,8 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		protected override async Task SecondaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal override async Task<bool> SecondaryReadHandler (
+			TestContext ctx, int bytesRead, CancellationToken cancellationToken)
 		{
 			await FinishedTask.ConfigureAwait (false);
 
@@ -475,7 +429,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.ParallelRequests:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
 				ctx.Assert (PrimaryOperation.ServicePoint.CurrentConnections, Is.EqualTo (2), "ServicePoint.CurrentConnections");
-				break;
+				return false;
 
 			case HttpInstrumentationTestType.SimpleQueuedRequest:
 			case HttpInstrumentationTestType.ThreeParallelRequests:
@@ -487,7 +441,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.NtlmWhileQueued:
 			case HttpInstrumentationTestType.NtlmWhileQueued2:
 				ctx.Assert (PrimaryOperation.HasRequest, "current request");
-				break;
+				return false;
 
 			default:
 				throw ctx.AssertFail (EffectiveType);
@@ -528,7 +482,7 @@ namespace Xamarin.WebTests.TestRunners
 				else
 					ConfigureParallelRequest (ctx, traditionalRequest);
 
-				Handler.ConfigureRequest (request, uri);
+				Handler.ConfigureRequest (ctx, request, uri);
 
 				request.SetProxy (Parent.Server.GetProxy ());
 			}
@@ -631,19 +585,18 @@ namespace Xamarin.WebTests.TestRunners
 				}
 			}
 
-			protected override async Task ReadHandler (TestContext ctx, byte[] buffer, int offset, int size, int ret, CancellationToken cancellationToken)
+			protected override async Task<bool> ReadHandler (TestContext ctx, byte[] buffer, int offset, int size, int ret, CancellationToken cancellationToken)
 			{
 				if (EffectiveType == HttpInstrumentationTestType.InvalidDataDuringHandshake) {
 					ctx.Assert (Type, Is.EqualTo (InstrumentationOperationType.Primary), "Primary request");
-					InstallReadHandler (ctx);
 					if (ret > 50) {
 						for (int i = 10; i < 40; i++)
 							buffer [i] = 0xAA;
 					}
-					return;
+					return true;
 				}
 
-				await base.ReadHandler (ctx, buffer, offset, size, ret, cancellationToken).ConfigureAwait (false);
+				return await base.ReadHandler (ctx, buffer, offset, size, ret, cancellationToken).ConfigureAwait (false);
 			}
 		}
 

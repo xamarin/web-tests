@@ -44,6 +44,7 @@ namespace Xamarin.WebTests.HttpFramework
 		RedirectOnNewConnection		= 1024,
 		DontReadRequestBody		= 2048,
 		ClientAbortsRequest		= 4096,
-		DelayedListenerContext		= 8192
+		DelayedListenerContext		= 8192,
+		DontWriteResponse		= 16384
 	}
 }

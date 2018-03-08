@@ -43,7 +43,6 @@ namespace Xamarin.WebTests.TestRunners
 	using HttpFramework;
 	using HttpHandlers;
 	using TestFramework;
-	using HttpClient;
 	using Resources;
 
 	public abstract class InstrumentationTestRunner : AbstractConnection
@@ -100,9 +99,11 @@ namespace Xamarin.WebTests.TestRunners
 		InstrumentationOperation queuedOperation;
 		volatile int readHandlerCalled;
 
-		protected InstrumentationOperation PrimaryOperation => currentOperation;
-		protected InstrumentationOperation QueuedOperation => queuedOperation;
+		internal InstrumentationOperation PrimaryOperation => currentOperation;
+		internal InstrumentationOperation QueuedOperation => queuedOperation;
 		protected int ReadHandlerCalled => readHandlerCalled;
+
+		internal InstrumentationHandler PrimaryHandler => (InstrumentationHandler)PrimaryOperation.Handler;
 
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
@@ -149,11 +150,15 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected abstract (Handler handler, HttpOperationFlags flags) CreateHandler (TestContext ctx, bool primary);
 
-		protected abstract InstrumentationOperation CreateOperation (TestContext ctx, Handler handler, InstrumentationOperationType type,
-									     HttpOperationFlags flags);
+		internal abstract InstrumentationOperation CreateOperation (
+			TestContext ctx, Handler handler,
+			InstrumentationOperationType type,
+			HttpOperationFlags flags);
 
-		protected InstrumentationOperation StartOperation (TestContext ctx, CancellationToken cancellationToken, Handler handler,
-		                                                   InstrumentationOperationType type, HttpOperationFlags flags)
+		internal InstrumentationOperation StartOperation (
+			TestContext ctx, CancellationToken cancellationToken,
+			Handler handler, InstrumentationOperationType type,
+			HttpOperationFlags flags)
 		{
 			var operation = CreateOperation (ctx, handler, type, flags);
 			if (type == InstrumentationOperationType.Queued) {
@@ -192,86 +197,27 @@ namespace Xamarin.WebTests.TestRunners
 		{
 		}
 
-		protected virtual Task PrimaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal Task<bool> ReadHandler (
+			TestContext ctx, InstrumentationOperationType type,
+			int bytesRead, CancellationToken cancellationToken)
 		{
-			return FinishedTask;
+			Interlocked.Increment (ref readHandlerCalled);
+
+			if (type == InstrumentationOperationType.Primary)
+				return PrimaryReadHandler (ctx, bytesRead, cancellationToken);
+			return SecondaryReadHandler (ctx, bytesRead, cancellationToken);
 		}
 
-		protected virtual Task SecondaryReadHandler (TestContext ctx, CancellationToken cancellationToken)
+		internal virtual Task<bool> PrimaryReadHandler (
+			TestContext ctx, int bytesRead, CancellationToken cancellationToken)
 		{
-			return FinishedTask;
+			return Task.FromResult (false);
 		}
 
-		protected enum InstrumentationOperationType
+		internal virtual Task<bool> SecondaryReadHandler (
+			TestContext ctx, int bytesRead, CancellationToken cancellationToken)
 		{
-			Primary,
-			Queued,
-			Parallel
-		}
-
-		protected abstract class InstrumentationOperation : HttpOperation
-		{
-			public InstrumentationTestRunner Parent {
-				get;
-			}
-
-			public InstrumentationOperationType Type {
-				get;
-			}
-
-			public InstrumentationOperation (InstrumentationTestRunner parent, string me, Handler handler,
-			                                 InstrumentationOperationType type, HttpOperationFlags flags,
-			                                 HttpStatusCode expectedStatus, WebExceptionStatus expectedError)
-				: base (parent.Server, me, handler, flags, expectedStatus, expectedError)
-			{
-				Parent = parent;
-				Type = type;
-			}
-
-			StreamInstrumentation instrumentation;
-
-			internal override Stream CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket)
-			{
-				instrumentation = new StreamInstrumentation (ctx, ME, socket, ownsSocket);
-
-				ConfigureNetworkStream (ctx, instrumentation);
-
-				return instrumentation;
-			}
-
-			protected abstract void ConfigureNetworkStream (TestContext ctx, StreamInstrumentation instrumentation);
-
-			protected void InstallReadHandler (TestContext ctx)
-			{
-				instrumentation.OnNextRead ((b, o, s, f, c) => ReadHandler (ctx, b, o, s, f, c));
-			}
-
-			async Task<int> ReadHandler (TestContext ctx,
-						     byte [] buffer, int offset, int size,
-						     StreamInstrumentation.AsyncReadFunc func,
-						     CancellationToken cancellationToken)
-			{
-				cancellationToken.ThrowIfCancellationRequested ();
-
-				var ret = await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
-
-				Interlocked.Increment (ref Parent.readHandlerCalled);
-
-				await ReadHandler (ctx, buffer, offset, size, ret, cancellationToken);
-
-				return ret;
-			}
-
-			protected virtual Task ReadHandler (TestContext ctx, byte [] buffer, int offset, int size, int ret, CancellationToken cancellationToken)
-			{
-				return Type == InstrumentationOperationType.Primary ? Parent.PrimaryReadHandler (ctx, cancellationToken) : Parent.SecondaryReadHandler (ctx, cancellationToken);
-			}
-
-			protected override void Destroy ()
-			{
-				instrumentation?.Dispose ();
-				instrumentation = null;
-			}
+			return Task.FromResult (false);
 		}
 	}
 }

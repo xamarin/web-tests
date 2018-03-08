@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpClient
@@ -31,6 +32,12 @@ namespace Xamarin.WebTests.HttpClient
 	public interface IHttpClientProvider : ISingletonInstance
 	{
 		IHttpClientHandler Create ();
+
+		IHttpContent CreateStringContent (string content);
+
+		IHttpContent CreateBinaryContent (byte[] content);
+
+		IHttpContent CreateStreamContent (Stream stream);
 	}
 }
 

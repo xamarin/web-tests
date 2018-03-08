@@ -40,23 +40,11 @@ namespace Xamarin.WebTests.Tests
 	{
 		[Work]
 		[AsyncTest]
-		[HttpServerTestCategory (HttpServerTestCategory.Default)]
+		[HttpServerTestCategory (HttpServerTestCategory.Instrumentation)]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
 		                 HttpServerProvider provider,
 		                 HttpInstrumentationTestType type,
 				 HttpInstrumentationTestRunner runner)
-		{
-			return runner.Run (ctx, cancellationToken);
-		}
-
-		[Work]
-		[AsyncTest]
-		[HttpServerTestCategory (HttpServerTestCategory.Instrumentation)]
-		public Task RunInstrumentation (
-			TestContext ctx, CancellationToken cancellationToken,
-			HttpServerProvider provider,
-			HttpInstrumentationTestType type,
-			HttpInstrumentationTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
 		}
@@ -76,23 +64,11 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		[NewWebStack]
-		[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
+		[HttpServerTestCategory (HttpServerTestCategory.NewWebStackInstrumentation)]
 		public Task RunNewWebStack (TestContext ctx, CancellationToken cancellationToken,
 		                            HttpServerProvider provider,
 		                            HttpInstrumentationTestType type,
 					    HttpInstrumentationTestRunner runner)
-		{
-			return runner.Run (ctx, cancellationToken);
-		}
-
-		[AsyncTest]
-		[NewWebStack]
-		[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
-		public Task RunNewWebStackInstrumentation (
-			TestContext ctx, CancellationToken cancellationToken,
-			HttpServerProvider provider,
-			HttpInstrumentationTestType type,
-			HttpInstrumentationTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
 		}

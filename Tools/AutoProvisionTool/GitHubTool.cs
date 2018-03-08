@@ -75,14 +75,13 @@ namespace AutoProvisionTool
 
 				Program.Log ($"Found commit {combined.Sha}: {combined.State}");
 
-				if (combined.State.Value != CommitState.Success)
+				if (combined.State.Value == CommitState.Pending)
 					continue;
-
 				var selected = filter (combined);
 				if (selected != null)
 					return new Package (product, combined, selected);
 
-				Program.Debug ($"Commit {combined.Sha} does not have any packages.");
+				Program.Debug ($"Commit {combined.Sha} ({combined.State.Value}) does not have any packages.");
 			}
 
 			Program.LogError ("Failed to found a successful commit.");

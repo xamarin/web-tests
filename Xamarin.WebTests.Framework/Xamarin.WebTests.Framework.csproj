@@ -48,7 +48,6 @@
     <Compile Include="Xamarin.WebTests.HttpHandlers\GetHandler.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\Handler.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\HelloWorldHandler.cs" />
-    <Compile Include="Xamarin.WebTests.HttpHandlers\HttpClientHandler.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\HttpClientRequest.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\PostHandler.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\RedirectHandler.cs" />
@@ -161,8 +160,6 @@
     <Compile Include="Xamarin.WebTests.HttpOperations\ChunkedOperationTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.HttpOperations\WebClientOperation.cs" />
     <Compile Include="Xamarin.WebTests.HttpOperations\WebClientOperationType.cs" />
-    <Compile Include="Xamarin.WebTests.HttpOperations\HttpClientOperation.cs" />
-    <Compile Include="Xamarin.WebTests.HttpOperations\HttpClientOperationType.cs" />
     <Compile Include="Xamarin.WebTests.Server\ProxyConnection.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\HttpStressTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\HttpStressTestParameters.cs" />
@@ -248,6 +245,11 @@
     <Compile Include="Xamarin.WebTests.TestRunners\HttpListenerTestType.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\HttpStressTestType.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\SslStreamTestType.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationHandler.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\HttpClientHandler.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationOperation.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationOperationType.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\HttpClientRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

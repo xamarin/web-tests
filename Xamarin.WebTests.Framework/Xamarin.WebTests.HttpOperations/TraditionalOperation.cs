@@ -52,7 +52,7 @@ namespace Xamarin.WebTests.HttpOperations
 
 		protected override void ConfigureRequest (TestContext ctx, Uri uri, Request request)
 		{
-			Handler.ConfigureRequest (request, uri);
+			Handler.ConfigureRequest (ctx, request, uri);
 
 			request.SetProxy (Server.GetProxy ());
 		}

@@ -40,6 +40,8 @@ namespace Xamarin.WebTests.HttpClient
 		Task<IHttpResponseMessage> SendAsync (IHttpRequestMessage request, HttpCompletionOption completionOption, CancellationToken cancellationToken);
 
 		Task<IHttpResponseMessage> PutAsync (Uri requestUri, IHttpContent content, CancellationToken cancellationToken);
+
+		Task<IHttpResponseMessage> PostAsync (Uri requestUri, IHttpContent content, CancellationToken cancellationToken);
 	}
 }
 

@@ -123,8 +123,9 @@ namespace Xamarin.WebTests.TestRunners
 			return (handler, flags);
 		}
 
-		protected override InstrumentationOperation CreateOperation (
-			TestContext ctx, Handler handler, InstrumentationOperationType type,
+		internal override InstrumentationOperation CreateOperation (
+			TestContext ctx, Handler handler,
+			InstrumentationOperationType type,
 			HttpOperationFlags flags)
 		{
 			return new Operation (
@@ -157,7 +158,7 @@ namespace Xamarin.WebTests.TestRunners
 					break;
 				}
 
-				Handler.ConfigureRequest (request, uri);
+				Handler.ConfigureRequest (ctx, request, uri);
 
 				request.SetProxy (Parent.Server.GetProxy ());
 			}

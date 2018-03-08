@@ -44,10 +44,6 @@ namespace Xamarin.WebTests.HttpClient
 
 		IHttpRequestMessage CreateRequestMessage (HttpMethod method, Uri requestUri);
 
-		IHttpContent CreateStringContent (string content);
-
-		IHttpContent CreateBinaryContent (byte[] content);
-
 		bool AutomaticDecompression {
 			get; set;
 		}

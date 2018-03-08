@@ -75,6 +75,16 @@ namespace Xamarin.WebTests.HttpClient
 			var response = await client.PutAsync (requestUri, httpContent, cancellationToken);
 			return new HttpResponseMessage (response);
 		}
+
+		public async Task<IHttpResponseMessage> PostAsync (Uri requestUri, IHttpContent content, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+			Http.HttpContent httpContent = null;
+			if (content != null)
+				httpContent = ((HttpClientContent)content).Content;
+			var response = await client.PostAsync (requestUri, httpContent, cancellationToken);
+			return new HttpResponseMessage (response);
+		}
 	}
 }
 

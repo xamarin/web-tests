@@ -28,7 +28,6 @@
     <Compile Include="Xamarin.WebTests.Tests\TestAuthentication.cs" />
     <Compile Include="Xamarin.WebTests.Tests\ProxyKind.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestGet.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestHttpClient.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestFork.cs" />
     <Compile Include="Xamarin.WebTests.Tests\RedirectStatusAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpValidation.cs" />
@@ -41,7 +40,7 @@
     <Compile Include="Xamarin.WebTests.Tests\TestHttpInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.Tests\MartinTest.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpStress.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestHttpClientInstrumentation.cs" />
+    <Compile Include="Xamarin.WebTests.Tests\TestHttpClient.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpListener.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpRequests.cs" />
   </ItemGroup>

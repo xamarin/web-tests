@@ -50,10 +50,10 @@ namespace Xamarin.WebTests.HttpHandlers
 				Flags |= RequestFlags.KeepAlive;
 		}
 
-		public override void ConfigureRequest (Request request, Uri uri)
+		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
 		{
-			base.ConfigureRequest (request, uri);
-			Target.ConfigureRequest (request, uri);
+			base.ConfigureRequest (ctx, request, uri);
+			Target.ConfigureRequest (ctx, request, uri);
 		}
 	}
 }
