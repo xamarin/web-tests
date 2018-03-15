@@ -1,10 +1,10 @@
 ﻿//
-// CertificateResourceType.cs
+// ExternalHandler.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,42 +24,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Globalization;
+using System.Collections.Generic;
 
-namespace Xamarin.WebTests.Resources
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
+
+namespace Xamarin.WebTests.HttpHandlers
 {
-	public enum CertificateResourceType
+	using HttpFramework;
+
+	public class ExternalHandler : Handler
 	{
-		Invalid,
-		HamillerTubeCA,
-		HamillerTubeIM,
-		ServerCertificateFromLocalCA,
-		SelfSignedServerCertificate,
-		TlsTestXamDevNew,
-		TlsTestXamDevExpired,
-		TlsTestXamDevExpired2,
-		TlsTestXamDevOldCA,
-		TlsTestXamDevNewCA,
-		TlsTestInternal,
-		TlsTestInternalCA,
-		IntermediateCA,
-		IntermediateServer,
-		ServerCertificateWithCA,
+		public ExternalHandler (string identifier, HttpStatusCode status = HttpStatusCode.OK)
+			: base (identifier)
+		{
+			Status = status;
+		}
 
-		// Just the certificate
-		IntermediateServerCertificateBare,
-		// Same but without the private key
-		IntermediateServerCertificateNoKey,
-		// Certificate and Intermediate CA
-		IntermediateServerCertificate,
-		// Certificate, Intermediate CA and Root CA
-		IntermediateServerCertificateFull,
+		public HttpStatusCode Status {
+			get;
+		}
 
-		// Install this in the local certificate trust store.
-		TrustedIntermediateCA,
-		// Server certificate from TrustedIntermediateCA
-		ServerFromTrustedIntermediataCA,
-		// Same, but without including the CA certificate in the .pfx
-		ServerFromTrustedIntermediateCABare
+		public override object Clone ()
+		{
+			return new ExternalHandler (Value, Status);
+		}
+
+		internal protected override Task<HttpResponse> HandleRequest (
+			TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
+		{
+			throw ctx.AssertFail ("Should never happen.");
+		}
+
+		public override bool CheckResponse (TestContext ctx, Response response)
+		{
+			return true;
+		}
 	}
 }
 

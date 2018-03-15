@@ -43,6 +43,7 @@ namespace Mono.Btls.TestFramework
 		IntermediateServer,
 		IntermediateServerChain,
 		SelfSignedServer,
+		CertificateExpired,
 
 		MartinTest
 	}

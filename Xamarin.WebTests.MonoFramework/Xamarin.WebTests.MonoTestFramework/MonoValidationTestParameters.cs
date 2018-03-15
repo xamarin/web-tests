@@ -39,8 +39,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 			private set;
 		}
 
-		public MonoValidationTestParameters (ValidationTestCategory category, MonoValidationTestType type, string identifier)
-			: base (category, identifier)
+		public MonoValidationTestParameters (ValidationTestCategory category, MonoValidationTestType type)
+			: base (category, type.ToString ())
 		{
 			Type = type;
 		}

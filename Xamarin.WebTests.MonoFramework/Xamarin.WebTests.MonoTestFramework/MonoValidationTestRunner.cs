@@ -50,6 +50,15 @@ namespace Xamarin.WebTests.MonoTestFramework
 			}
 		}
 
+		public MonoValidationTestType EffectiveType => GetEffectiveType (Type);
+
+		static MonoValidationTestType GetEffectiveType (MonoValidationTestType type)
+		{
+			if (type == MonoValidationTestType.MartinTest)
+				return MartinTest;
+			return type;
+		}
+
 		public MonoValidationTestType Type {
 			get { return Parameters.Type; }
 		}
@@ -58,6 +67,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 			: base (parameters)
 		{
 		}
+
+		const MonoValidationTestType MartinTest = MonoValidationTestType.Success;
 
 		public static IEnumerable<MonoValidationTestType> GetTestTypes (TestContext ctx, ValidationTestCategory category)
 		{
@@ -70,6 +81,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				yield return MonoValidationTestType.RejectSelfSigned;
 				yield return MonoValidationTestType.RejectHamillerTube;
 				yield return MonoValidationTestType.TestRunnerCallback;
+				yield return MonoValidationTestType.CertificateExpired;
 				yield break;
 
 			case ValidationTestCategory.AppleTls:
@@ -91,42 +103,23 @@ namespace Xamarin.WebTests.MonoTestFramework
 			return GetTestTypes (ctx, category).Select (t => Create (ctx, category, t));
 		}
 
-		static MonoValidationTestParameters CreateParameters (ValidationTestCategory category, MonoValidationTestType type, params object[] args)
-		{
-			var sb = new StringBuilder ();
-			sb.Append (type);
-			foreach (var arg in args) {
-				sb.AppendFormat (":{0}", arg);
-			}
-			var name = sb.ToString ();
-
-			return new MonoValidationTestParameters (category, type, name);
-		}
-
 		static MonoValidationTestParameters Create (TestContext ctx, ValidationTestCategory category, MonoValidationTestType type)
 		{
-			var parameters = CreateParameters (category, type);
+			var effectiveType = GetEffectiveType (type);
+			var parameters = new MonoValidationTestParameters (category, effectiveType);
 
-			switch (type) {
-			case MonoValidationTestType.MartinTest:
-				parameters.Host = "tlstest-1.xamdev.com";
-				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
-				parameters.UseTestRunnerCallback = true;
-				parameters.ExpectSuccess = true;
-				break;
-
+			switch (effectiveType) {
 			case MonoValidationTestType.NoHost:
 				parameters.Host = null;
-				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
+				parameters.Add (CertificateResourceType.TlsTestInternal);
+				parameters.Add (CertificateResourceType.TlsTestInternalCA);
 				parameters.ExpectSuccess = true;
 				break;
 
 			case MonoValidationTestType.EmptyHost:
 				parameters.Host = string.Empty;
-				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
+				parameters.Add (CertificateResourceType.TlsTestInternal);
+				parameters.Add (CertificateResourceType.TlsTestInternalCA);
 				/*
 				 * Older versions of AppleTls prior to Xamarin.iOS 10 incorrectly
 				 * returned success.
@@ -136,15 +129,15 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 			case MonoValidationTestType.WrongHost:
 				parameters.Host = "invalid.xamdev-error.com";
-				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
+				parameters.Add (CertificateResourceType.TlsTestInternal);
+				parameters.Add (CertificateResourceType.TlsTestInternalCA);
 				parameters.ExpectSuccess = false;
 				break;
 
 			case MonoValidationTestType.Success:
-				parameters.Host = "tlstest-1.xamdev.com";
-				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
+				parameters.Host = ResourceManager.TlsTest11Uri.Host;
+				parameters.Add (CertificateResourceType.TlsTestInternal);
+				parameters.Add (CertificateResourceType.TlsTestInternalCA);
 				parameters.ExpectSuccess = true;
 				break;
 
@@ -162,25 +155,32 @@ namespace Xamarin.WebTests.MonoTestFramework
 				break;
 
 			case MonoValidationTestType.TestRunnerCallback:
-				parameters.Host = "tlstest-1.xamdev.com";
-				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
+				parameters.Host = ResourceManager.TlsTest11Uri.Host;
+				parameters.Add (CertificateResourceType.TlsTestInternal);
+				parameters.Add (CertificateResourceType.TlsTestInternalCA);
 				parameters.UseTestRunnerCallback = true;
 				parameters.ExpectSuccess = true;
 				break;
 
 			case MonoValidationTestType.TestRunnerCallbackChain:
-				parameters.Host = "tlstest-1.xamdev.com";
-				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
-				parameters.AddExpectedChainEntry (CertificateResourceType.TlsTestXamDevNew);
-				parameters.AddExpectedChainEntry (CertificateResourceType.TlsTestXamDevNewCA);
+				parameters.Host = ResourceManager.TlsTest11Uri.Host;
+				parameters.Add (CertificateResourceType.TlsTestInternal);
+				parameters.Add (CertificateResourceType.TlsTestInternalCA);
+				parameters.AddExpectedChainEntry (CertificateResourceType.TlsTestInternal);
+				parameters.AddExpectedChainEntry (CertificateResourceType.TlsTestInternalCA);
 				parameters.UseTestRunnerCallback = true;
 				parameters.ExpectSuccess = true;
 				break;
 
+			case MonoValidationTestType.CertificateExpired:
+				parameters.Host = ResourceManager.TlsTest11Uri.Host;
+				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
+				parameters.ExpectSuccess = false;
+				break;
+
 			default:
-				ctx.AssertFail ("Unsupported validation type: '{0}'.", type);
+				ctx.AssertFail ($"Unsupported validation type: '{effectiveType}'.");
 				break;
 			}
 

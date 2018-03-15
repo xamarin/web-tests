@@ -41,6 +41,10 @@ namespace Xamarin.WebTests.Resources
 		static readonly X509Certificate tlsTestXamDevOldCA;
 		static readonly byte[] tlsTestXamDevNewCAData;
 		static readonly X509Certificate tlsTestXamDevNewCA;
+		static readonly byte[] tlsTestInternalxData;
+		static readonly X509Certificate tlsTestInternalx;
+		static readonly byte[] tlsTestInternalxCAData;
+		static readonly X509Certificate tlsTestInternalxCA;
 
 		static readonly byte[] intermediateCAData;
 		static readonly X509Certificate intermediateCA;
@@ -55,6 +59,8 @@ namespace Xamarin.WebTests.Resources
 		static readonly TlsTestXamDevNewData tlsTestXamDevNewInfo;
 		static readonly TlsTestXamDevExpiredData tlsTestXamDevExpiredInfo;
 		static readonly TlsTestXamDevOldCAData tlsTestXamDevOldCAInfo;
+		static readonly TlsTestInternalData tlsTestInternalxInfo;
+		static readonly TlsTestInternalDataCA tlsTestInternalxInfoCA;
 		static readonly SelfSignedServerData selfSignedServerInfo;
 		static readonly IntermediateCAData intermediateCAInfo;
 		static readonly IntermediateServerData intermediateServerInfo;
@@ -85,13 +91,13 @@ namespace Xamarin.WebTests.Resources
 		static ResourceManager ()
 		{
 			provider = DependencyInjector.Get<ICertificateProvider> ();
-			cacertData = ResourceManager.ReadResource ("CA.Hamiller-Tube-CA.pem");
+			cacertData = ReadResource ("CA.Hamiller-Tube-CA.pem");
 			cacert = provider.GetCertificateFromData (cacertData);
-			hamillerTubeIMData = ResourceManager.ReadResource ("CA.Hamiller-Tube-IM.pem");
+			hamillerTubeIMData = ReadResource ("CA.Hamiller-Tube-IM.pem");
 			hamillerTubeIM = provider.GetCertificateFromData (hamillerTubeIMData);
-			serverCertNoKeyData = ResourceManager.ReadResource ("CA.server-cert.pem");
+			serverCertNoKeyData = ReadResource ("CA.server-cert.pem");
 			serverCertNoKey = provider.GetCertificateFromData (serverCertNoKeyData);
-			selfServerCertNoKeyData = ResourceManager.ReadResource ("CA.server-self.pem");
+			selfServerCertNoKeyData = ReadResource ("CA.server-self.pem");
 			selfServerCertNoKey = provider.GetCertificateFromData (selfServerCertNoKeyData);
 			selfServerCert = provider.GetCertificateWithKey (ReadResource ("CA.server-self.pfx"), "monkey");
 			serverCert = provider.GetCertificateWithKey (ReadResource ("CA.server-cert.pfx"), "monkey");
@@ -107,24 +113,29 @@ namespace Xamarin.WebTests.Resources
 			clientCertRsaOnly = provider.GetCertificateWithKey (ReadResource ("CA.client-cert-rsaonly.pfx"), "monkey");
 			clientCertDheOnly = provider.GetCertificateWithKey (ReadResource ("CA.client-cert-dheonly.pfx"), "monkey");
 
-			tlsTestXamDevExpiredData = ResourceManager.ReadResource ("CA.tlstest-xamdev-expired.pem");
+			tlsTestXamDevExpiredData = ReadResource ("CA.tlstest-xamdev-expired.pem");
 			tlsTestXamDevExpired = provider.GetCertificateFromData (tlsTestXamDevExpiredData);
 
-			tlsTestXamDevExpired2Data = ResourceManager.ReadResource ("CA.tlstest-xamdev-expired2.pem");
+			tlsTestXamDevExpired2Data = ReadResource ("CA.tlstest-xamdev-expired2.pem");
 			tlsTestXamDevExpired2 = provider.GetCertificateFromData (tlsTestXamDevExpired2Data);
 
-			tlsTestXamDevNewData = ResourceManager.ReadResource ("CA.tlstest-xamdev-new.pem");
+			tlsTestXamDevNewData = ReadResource ("CA.tlstest-xamdev-new.pem");
 			tlsTestXamDevNew = provider.GetCertificateFromData (tlsTestXamDevNewData);
-			tlsTestXamDevNewCAData = ResourceManager.ReadResource ("CA.tlstest-xamdev-new-ca.pem");
+			tlsTestXamDevNewCAData = ReadResource ("CA.tlstest-xamdev-new-ca.pem");
 			tlsTestXamDevNewCA = provider.GetCertificateFromData (tlsTestXamDevNewCAData);
 
-			tlsTestXamDevOldCAData = ResourceManager.ReadResource ("CA.tlstest-xamdev-old-ca.pem");
+			tlsTestXamDevOldCAData = ReadResource ("CA.tlstest-xamdev-old-ca.pem");
 			tlsTestXamDevOldCA = provider.GetCertificateFromData (tlsTestXamDevOldCAData);
 
-			intermediateCAData = ResourceManager.ReadResource ("CA.intermediate-ca.pem");
+			tlsTestInternalxData = ReadResource ("CA.tlstest-internalx.pem");
+			tlsTestInternalx = provider.GetCertificateFromData (tlsTestInternalxData);
+			tlsTestInternalxCAData = ReadResource ("CA.tlstest-internalx-ca.pem");
+			tlsTestInternalxCA = provider.GetCertificateFromData (tlsTestInternalxCAData);
+
+			intermediateCAData = ReadResource ("CA.intermediate-ca.pem");
 			intermediateCA = provider.GetCertificateFromData (intermediateCAData);
-			intermediateServerData = ResourceManager.ReadResource ("CA.intermediate-server.pem");
-			intermediateServer = provider.GetCertificateWithKey (ResourceManager.ReadResource ("CA.intermediate-server.pfx"), "monkey");
+			intermediateServerData = ReadResource ("CA.intermediate-server.pem");
+			intermediateServer = provider.GetCertificateWithKey (ReadResource ("CA.intermediate-server.pfx"), "monkey");
 
 			hamillerTubeCAInfo = new HamillerTubeCAData (cacertData);
 			selfSignedServerInfo = new SelfSignedServerData (selfServerCertNoKeyData);
@@ -132,27 +143,29 @@ namespace Xamarin.WebTests.Resources
 			tlsTestXamDevNewInfo = new TlsTestXamDevNewData (tlsTestXamDevNewData);
 			tlsTestXamDevExpiredInfo = new TlsTestXamDevExpiredData (tlsTestXamDevExpiredData);
 			tlsTestXamDevOldCAInfo = new TlsTestXamDevOldCAData (tlsTestXamDevOldCAData);
+			tlsTestInternalxInfo = new TlsTestInternalData (tlsTestInternalxData);
+			tlsTestInternalxInfoCA = new TlsTestInternalDataCA (tlsTestInternalxCAData);
 			intermediateCAInfo = new IntermediateCAData (intermediateCAData);
 			intermediateServerInfo = new IntermediateServerData (intermediateServerData);
 
-			serverCertWithCAData = ResourceManager.ReadResource ("CA.server-cert-with-ca.pfx");
+			serverCertWithCAData = ReadResource ("CA.server-cert-with-ca.pfx");
 			serverCertWithCA = provider.GetCertificateWithKey (serverCertWithCAData, "monkey");
 
-			intermediateServerCertData = ResourceManager.ReadResource ("CA.server-cert-im.pfx");
+			intermediateServerCertData = ReadResource ("CA.server-cert-im.pfx");
 			intermediateServerCert = provider.GetCertificateWithKey (intermediateServerCertData, "monkey");
-			intermediateServerCertNoKeyData = ResourceManager.ReadResource ("CA.server-cert-im.pem");
+			intermediateServerCertNoKeyData = ReadResource ("CA.server-cert-im.pem");
 			intermediateServerCertNoKey = provider.GetCertificateFromData (intermediateServerCertNoKeyData);
-			intermediateServerCertBareData = ResourceManager.ReadResource ("CA.server-cert-im-bare.pfx");
+			intermediateServerCertBareData = ReadResource ("CA.server-cert-im-bare.pfx");
 			intermediateServerCertBare = provider.GetCertificateWithKey (intermediateServerCertBareData, "monkey");
-			intermediateServerCertFullData = ResourceManager.ReadResource ("CA.server-cert-im-full.pfx");
+			intermediateServerCertFullData = ReadResource ("CA.server-cert-im-full.pfx");
 			intermediateServerCertFull = provider.GetCertificateWithKey (intermediateServerCertFullData, "monkey");
 
-			trustedIMCAData = ResourceManager.ReadResource ("CA.trusted-im-ca.pem");
+			trustedIMCAData = ReadResource ("CA.trusted-im-ca.pem");
 			trustedIMCA = provider.GetCertificateFromData (trustedIMCAData);
 
-			serverCertTrustedIMBareData = ResourceManager.ReadResource ("CA.server-cert-trusted-im-bare.pfx");
+			serverCertTrustedIMBareData = ReadResource ("CA.server-cert-trusted-im-bare.pfx");
 			serverCertTrustedIMBare = provider.GetCertificateWithKey (serverCertTrustedIMBareData, "monkey");
-			serverCertTrustedIMData = ResourceManager.ReadResource ("CA.server-cert-trusted-im.pfx");
+			serverCertTrustedIMData = ReadResource ("CA.server-cert-trusted-im.pfx");
 			serverCertTrustedIM = provider.GetCertificateWithKey (serverCertTrustedIMData, "monkey");
 		}
 
@@ -249,6 +262,10 @@ namespace Xamarin.WebTests.Resources
 				return tlsTestXamDevOldCA;
 			case CertificateResourceType.TlsTestXamDevNewCA:
 				return tlsTestXamDevNewCA;
+			case CertificateResourceType.TlsTestInternal:
+				return tlsTestInternalx;
+			case CertificateResourceType.TlsTestInternalCA:
+				return tlsTestInternalxCA;
 			case CertificateResourceType.IntermediateCA:
 				return intermediateCA;
 			case CertificateResourceType.IntermediateServer:
@@ -295,6 +312,10 @@ namespace Xamarin.WebTests.Resources
 				return tlsTestXamDevOldCAData;
 			case CertificateResourceType.TlsTestXamDevNewCA:
 				return tlsTestXamDevNewCAData;
+			case CertificateResourceType.TlsTestInternal:
+				return tlsTestInternalxData;
+			case CertificateResourceType.TlsTestInternalCA:
+				return tlsTestInternalxCAData;
 			case CertificateResourceType.IntermediateCA:
 				return intermediateCAData;
 			case CertificateResourceType.IntermediateServer:
@@ -349,6 +370,10 @@ namespace Xamarin.WebTests.Resources
 				return tlsTestXamDevNewInfo;
 			case CertificateResourceType.TlsTestXamDevOldCA:
 				return tlsTestXamDevOldCAInfo;
+			case CertificateResourceType.TlsTestInternal:
+				return tlsTestInternalxInfo;
+			case CertificateResourceType.TlsTestInternalCA:
+				return tlsTestInternalxInfoCA;
 			case CertificateResourceType.IntermediateCA:
 				return intermediateCAInfo;
 			case CertificateResourceType.IntermediateServer:
@@ -388,6 +413,10 @@ namespace Xamarin.WebTests.Resources
 				return data;
 			}
 		}
+
+		public static Uri TlsTestUri => new Uri ("https://tlstest.internalx.com/");
+		public static Uri TlsTest1Uri => new Uri ("https://tlstest.internalx.com/");
+		public static Uri TlsTest11Uri => new Uri ("https://tlstest.internalx.com/");
+		public static Uri TlsTest12Uri => new Uri ("https://tlstest.internalx.com/");
 	}
 }
-

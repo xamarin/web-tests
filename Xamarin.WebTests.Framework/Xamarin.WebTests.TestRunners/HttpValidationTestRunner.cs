@@ -106,7 +106,7 @@ namespace Xamarin.WebTests.TestRunners
 			return sb.ToString ();
 		}
 
-		const HttpValidationTestType MartinTest = HttpValidationTestType.RejectClientCertificate;
+		const HttpValidationTestType MartinTest = HttpValidationTestType.ExternalServer;
 
 		public static IEnumerable<HttpValidationTestType> GetTests (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -321,8 +321,8 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case HttpValidationTestType.ExternalServer:
-				return new HttpValidationTestParameters (category, type, name, CertificateResourceType.TlsTestXamDevNew) {
-					ExternalServer = new Uri ("https://tlstest-1.xamdev.com/"),
+				return new HttpValidationTestParameters (category, type, name, CertificateResourceType.TlsTestInternal) {
+					ExternalServer = ResourceManager.TlsTest1Uri,
 					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
 					ExpectPolicyErrors = SslPolicyErrors.None
 				};
@@ -463,7 +463,7 @@ namespace Xamarin.WebTests.TestRunners
 		Handler CreateHandler (TestContext ctx)
 		{
 			if (ExternalServer)
-				return null;
+				return new ExternalHandler ("external", HttpStatusCode.OK);
 			if (EffectiveType == HttpValidationTestType.Abort)
 				return new AbortHandler ("abort");
 			if (Parameters.ChunkedResponse)
@@ -477,10 +477,8 @@ namespace Xamarin.WebTests.TestRunners
 
 			var operation = new Operation (this, handler);
 
-			if (ExternalServer) {
-				throw new NotImplementedException ();
-				// return operation.RunExternal (ctx, cancellationToken, Uri);
-			}
+			if (ExternalServer)
+				return operation.RunExternal (ctx, Uri, cancellationToken);
 
 			return operation.Run (ctx, cancellationToken);
 		}

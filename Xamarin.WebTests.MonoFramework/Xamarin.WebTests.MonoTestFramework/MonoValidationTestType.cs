@@ -33,13 +33,16 @@ namespace Xamarin.WebTests.MonoTestFramework
 		EmptyHost,
 		WrongHost,
 
-		MartinTest,
 		Success,
 		RejectSelfSigned,
 		RejectHamillerTube,
 
 		TestRunnerCallback,
-		TestRunnerCallbackChain
+		TestRunnerCallbackChain,
+
+		CertificateExpired,
+
+		MartinTest
 	}
 }
 

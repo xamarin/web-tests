@@ -137,14 +137,27 @@ namespace Xamarin.WebTests.HttpFramework
 			await WaitForCompletion ().ConfigureAwait (false);
 		}
 
-		public async void Start (TestContext ctx, CancellationToken cancellationToken)
+		public async Task RunExternal (TestContext ctx, Uri externalUri, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+			Start (ctx, externalUri, cancellationToken);
+
+			await WaitForCompletion ().ConfigureAwait (false);
+		}
+
+		public void Start (TestContext ctx, CancellationToken cancellationToken)
+		{
+			Start (ctx, null, cancellationToken);
+		}
+
+		async void Start (TestContext ctx, Uri externalUri, CancellationToken cancellationToken)
 		{
 			if (Interlocked.CompareExchange (ref requestStarted, 1, 0) != 0)
 				throw new InternalErrorException ();
 
 			var linkedCts = CancellationTokenSource.CreateLinkedTokenSource (cts.Token, cancellationToken);
 			try {
-				var response = await RunListener (ctx, linkedCts.Token).ConfigureAwait (false);
+				var response = await RunListener (ctx, externalUri, linkedCts.Token).ConfigureAwait (false);
 				requestDoneTask.TrySetResult (response);
 			} catch (OperationCanceledException) {
 				requestDoneTask.TrySetCanceled ();
@@ -185,13 +198,22 @@ namespace Xamarin.WebTests.HttpFramework
 			ctx.LogDebug (level, sb.ToString ());
 		}
 
-		async Task<Response> RunListener (TestContext ctx, CancellationToken cancellationToken)
+		async Task<Response> RunListener (TestContext ctx, Uri externalUri, CancellationToken cancellationToken)
 		{
 			var me = $"{ME} RUN LISTENER";
 			ctx.LogDebug (1, me);
 
-			var operation = Server.Listener.RegisterOperation (ctx, this, Handler, null);
-			var request = CreateRequest (ctx, operation.Uri);
+			Uri uri;
+			ListenerOperation operation;
+			if (externalUri != null) {
+				operation = null;
+				uri = externalUri;
+			} else {
+				operation = Server.Listener.RegisterOperation (ctx, this, Handler, null);
+				uri = operation.Uri;
+			}
+
+			var request = CreateRequest (ctx, uri);
 
 			listenerOperation = operation;
 			currentRequest = request;
@@ -199,14 +221,18 @@ namespace Xamarin.WebTests.HttpFramework
 			if (request is TraditionalRequest traditionalRequest)
 				servicePoint = traditionalRequest.RequestExt.ServicePoint;
 
-			ConfigureRequest (ctx, operation.Uri, request);
+			ConfigureRequest (ctx, uri, request);
 
 			requestTask.SetResult (request);
 
-			ctx.LogDebug (2, $"{me} #1: {operation.Uri} {request}");
+			ctx.LogDebug (2, $"{me} #1: {uri} {request}");
 
-			var response = await Server.Listener.RunWithContext (
-				ctx, operation, request, RunInner, cancellationToken).ConfigureAwait (false);
+			Response response;
+			if (externalUri != null)
+				response = await RunInner (ctx, request, cancellationToken).ConfigureAwait (false);
+			else
+				response = await Server.Listener.RunWithContext (
+					ctx, operation, request, RunInner, cancellationToken).ConfigureAwait (false);
 
 			ctx.LogDebug (2, $"{me} DONE: {response}");
 

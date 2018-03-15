@@ -250,6 +250,9 @@
     <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationOperation.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationOperationType.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\HttpClientRequest.cs" />
+    <Compile Include="Xamarin.WebTests.HttpHandlers\ExternalHandler.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\TlsTestInternalData.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\TlsTestInternalDataCA.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
@@ -356,6 +359,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="..\CA\tlstest-xamdev-new-ca.pem">
       <Link>CA\tlstest-xamdev-new-ca.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\tlstest-internalx.pem">
+      <Link>CA\tlstest-internalx.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\tlstest-internalx-ca.pem">
+      <Link>CA\tlstest-internalx-ca.pem</Link>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

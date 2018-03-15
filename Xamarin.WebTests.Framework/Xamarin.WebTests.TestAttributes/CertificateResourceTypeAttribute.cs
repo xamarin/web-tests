@@ -62,6 +62,8 @@ namespace Xamarin.WebTests.TestAttributes
 			yield return CertificateResourceType.TlsTestXamDevNew;
 			yield return CertificateResourceType.TlsTestXamDevExpired;
 			yield return CertificateResourceType.TlsTestXamDevOldCA;
+			yield return CertificateResourceType.TlsTestInternal;
+			yield return CertificateResourceType.TlsTestInternalCA;
 			yield return CertificateResourceType.SelfSignedServerCertificate;
 		}
 	}

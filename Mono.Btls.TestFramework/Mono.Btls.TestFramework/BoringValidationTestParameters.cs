@@ -39,8 +39,8 @@ namespace Mono.Btls.TestFramework
 			private set;
 		}
 
-		public BoringValidationTestParameters (ValidationTestCategory category, BoringValidationTestType type, string identifier)
-			: base (category, identifier)
+		public BoringValidationTestParameters (ValidationTestCategory category, BoringValidationTestType type)
+			: base (category, type.ToString ())
 		{
 			Type = type;
 		}

@@ -51,9 +51,20 @@ namespace Mono.Btls.TestFramework
 			}
 		}
 
+		public BoringValidationTestType EffectiveType => GetEffectiveType (Type);
+
+		static BoringValidationTestType GetEffectiveType (BoringValidationTestType type)
+		{
+			if (type == BoringValidationTestType.MartinTest)
+				return MartinTest;
+			return type;
+		}
+
 		public BoringValidationTestType Type {
 			get { return Parameters.Type; }
 		}
+
+		const BoringValidationTestType MartinTest = BoringValidationTestType.CertificateExpired;
 
 		public BoringValidationTestRunner (BoringValidationTestParameters parameters)
 			: base (parameters)
@@ -78,6 +89,10 @@ namespace Mono.Btls.TestFramework
 				yield return BoringValidationTestType.IntermediateServer;
 				yield return BoringValidationTestType.IntermediateServerChain;
 				yield return BoringValidationTestType.SelfSignedServer;
+				yield return BoringValidationTestType.CertificateExpired;
+				yield break;
+
+			case ValidationTestCategory.MartinTest:
 				yield return BoringValidationTestType.MartinTest;
 				yield break;
 
@@ -92,42 +107,31 @@ namespace Mono.Btls.TestFramework
 			return GetTestTypes (ctx, category).Select (t => Create (ctx, category, t));
 		}
 
-		static BoringValidationTestParameters CreateParameters (ValidationTestCategory category, BoringValidationTestType type, params object[] args)
-		{
-			var sb = new StringBuilder ();
-			sb.Append (type);
-			foreach (var arg in args) {
-				sb.AppendFormat (":{0}", arg);
-			}
-			var name = sb.ToString ();
-
-			return new BoringValidationTestParameters (category, type, name);
-		}
-
 		static BoringValidationTestParameters Create (TestContext ctx, ValidationTestCategory category, BoringValidationTestType type)
 		{
-			var parameters = CreateParameters (category, type);
+			var effectiveType = GetEffectiveType (type);
+			var parameters = new BoringValidationTestParameters (category, effectiveType);
 
-			switch (type) {
+			switch (effectiveType) {
 			case BoringValidationTestType.Simple:
-				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
+				parameters.Add (CertificateResourceType.TlsTestInternal);
+				parameters.Add (CertificateResourceType.TlsTestInternalCA);
 				parameters.VerifyParamType = BoringVerifyParamType.None;
 				parameters.AddTrustedRoots = true;
 				parameters.ExpectSuccess = true;
 				break;
 
 			case BoringValidationTestType.SslClientParameters:
-				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
+				parameters.Add (CertificateResourceType.TlsTestInternal);
+				parameters.Add (CertificateResourceType.TlsTestInternalCA);
 				parameters.VerifyParamType = BoringVerifyParamType.SslClient;
 				parameters.AddTrustedRoots = true;
 				parameters.ExpectSuccess = true;
 				break;
 
 			case BoringValidationTestType.NoTrustedRoots:
-				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
-				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
+				parameters.Add (CertificateResourceType.TlsTestInternal);
+				parameters.Add (CertificateResourceType.TlsTestInternalCA);
 				parameters.AddTrustedRoots = false;
 				parameters.ExpectedResult = BtlsX509Error.UNABLE_TO_GET_ISSUER_CERT_LOCALLY;
 				break;
@@ -223,15 +227,16 @@ namespace Mono.Btls.TestFramework
 				parameters.ExpectedResult = BtlsX509Error.DEPTH_ZERO_SELF_SIGNED_CERT;
 				break;
 
-			case BoringValidationTestType.MartinTest:
+			case BoringValidationTestType.CertificateExpired:
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
 				parameters.Add (CertificateResourceType.TlsTestXamDevNewCA);
+				parameters.VerifyParamType = BoringVerifyParamType.None;
+				parameters.ExpectedResult = BtlsX509Error.CERT_HAS_EXPIRED;
 				parameters.AddTrustedRoots = true;
-				parameters.ExpectSuccess = true;
 				break;
 
 			default:
-				ctx.AssertFail ("Unsupported validation type: '{0}'.", type);
+				ctx.AssertFail ($"Unsupported validation type: '{effectiveType}'.");
 				break;
 			}
 

@@ -36,33 +36,41 @@ using Mono.Btls.Interface;
 
 namespace Mono.Btls.Tests
 {
+	[New]
 	[AsyncTestFixture]
 	public class TestBoringCertificates
 	{
-		[CertificateResourceType]
-		public CertificateResourceType ResourceType {
-			get; set;
-		}
-
-		public bool Managed {
-			get;
-			private set;
-		}
-
 		[AsyncTest]
-		public void Run (TestContext ctx, BoringX509Host x509)
+		public void Run (TestContext ctx, bool managed,
+		                 [CertificateResourceType] CertificateResourceType type,
+		                 BoringX509Host x509)
 		{
-			var data = ResourceManager.GetCertificateData (ResourceType);
-			var info = ResourceManager.GetCertificateInfo (ResourceType);
+			var data = ResourceManager.GetCertificateData (type);
+			var info = ResourceManager.GetCertificateInfo (type);
 
-
-			if (!Managed) {
+			if (!managed) {
 				BoringCertificateInfoTestRunner.TestNativeCertificate (ctx, x509.Instance, info);
 				return;
 			}
 
 			using (var cert = BtlsProvider.CreateCertificate2 (data, BtlsX509Format.PEM, true)) {
 				CertificateInfoTestRunner.TestManagedCertificate (ctx, cert, info);
+			}
+		}
+
+		[AsyncTest]
+		[Martin ("BoringCertificates")]
+		public void MartinTest (TestContext ctx,
+		                        [CertificateResourceType (CertificateResourceType.TlsTestInternal)] CertificateResourceType type,
+		                        BoringX509Host x509)
+		{
+			var data = ResourceManager.GetCertificateData (type);
+			var info = ResourceManager.GetCertificateInfo (type);
+
+			BoringCertificateInfoTestRunner.TestNativeCertificate (ctx, x509.Instance, info, true);
+
+			using (var cert = BtlsProvider.CreateCertificate2 (data, BtlsX509Format.PEM, true)) {
+				CertificateInfoTestRunner.TestManagedCertificate (ctx, cert, info, true);
 			}
 		}
 	}
