@@ -64,15 +64,6 @@ namespace Xamarin.WebTests.Tests
 			var result = await wc.DownloadStringTaskAsync (ResourceManager.TlsTest11Uri).ConfigureAwait (false);
 			ctx.Assert (result.Length, Is.GreaterThan (0), "result");
 		}
-
-		[Tls12]
-		[AsyncTest]
-		public async Task TestWebClient12 (TestContext ctx, CancellationToken cancellationToken)
-		{
-			var wc = new WebClient ();
-			var result = await wc.DownloadStringTaskAsync (ResourceManager.TlsTest12Uri).ConfigureAwait (false);
-			ctx.Assert (result.Length, Is.GreaterThan (0), "result");
-		}
 	}
 }
 

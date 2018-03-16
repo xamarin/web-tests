@@ -414,9 +414,8 @@ namespace Xamarin.WebTests.Resources
 			}
 		}
 
-		public static Uri TlsTestUri => new Uri ("https://tlstest.internalx.com/");
-		public static Uri TlsTest1Uri => new Uri ("https://tlstest.internalx.com/");
-		public static Uri TlsTest11Uri => new Uri ("https://tlstest.internalx.com/");
-		public static Uri TlsTest12Uri => new Uri ("https://tlstest.internalx.com/");
+		public static Uri TlsTestUri => new Uri ("https://tls-test.internalx.com/");
+		public static Uri TlsTest1Uri => new Uri ("https://tls-test-1.internalx.com/");
+		public static Uri TlsTest11Uri => new Uri ("https://tls-test-11.internalx.com/");
 	}
 }
