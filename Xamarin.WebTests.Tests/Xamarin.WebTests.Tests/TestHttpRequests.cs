@@ -83,7 +83,7 @@ namespace Xamarin.WebTests.Tests
 			return runner.Run (ctx, cancellationToken);
 		}
 
-		[Martin ("HttpRequest")]
+		[Martin ("HttpRequests")]
 		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
 		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
 		public Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
