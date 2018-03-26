@@ -38,6 +38,10 @@ namespace Xamarin.AsyncTests.Sample
 			get { return Name; }
 		}
 
+		string ITestParameter.FriendlyValue {
+			get { return Name; }
+		}
+
 		public Foo (string name)
 		{
 			Name = name;

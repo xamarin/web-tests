@@ -98,7 +98,7 @@ namespace Xamarin.AsyncTests.Sample
 		[NotWorking]
 		public void HelloFoo (TestContext context, [Repeat (20)] int index, [Foo ("New York")] Foo foo, [Foo (null, TestFlags.None)] Foo bar)
 		{
-			context.LogMessage ("HELLO FOO: {0} {1} {2}", context.Name, foo, bar);
+			context.LogMessage ("HELLO FOO: {0} {1} {2}", context.FriendlyName, foo, bar);
 			if (index > 5)
 				throw new NotSupportedException ();
 		}

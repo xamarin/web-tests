@@ -29,10 +29,10 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Sample;
 
 [assembly: AsyncTestSuite (typeof (SampleFeatures))]
+[assembly: DependencyProvider (typeof (SampleDependencyProvider))]
 
 namespace Xamarin.AsyncTests.Sample
 {
-
 	public class NotWorkingAttribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {
@@ -47,7 +47,15 @@ namespace Xamarin.AsyncTests.Sample
 		}
 	}
 
-	public class SampleFeatures : ITestConfigurationProvider
+	public class SampleDependencyProvider : IDependencyProvider
+	{
+		public void Initialize ()
+		{
+			DependencyInjector.RegisterDependency (() => new SampleFeatures ());
+		}
+	}
+
+	public class SampleFeatures : ITestConfigurationProvider, ISingletonInstance
 	{
 		public static readonly SampleFeatures Instance;
 
