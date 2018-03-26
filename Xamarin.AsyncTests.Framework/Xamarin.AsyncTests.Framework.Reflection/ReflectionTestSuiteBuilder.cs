@@ -51,6 +51,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return null; }
 		}
 
+		internal override bool NeedFixtureInstance => true;
+
+		internal override bool SkipThisTest => false;
+
 		protected override IEnumerable<TestBuilder> CreateChildren ()
 		{
 			foreach (var assembly in Assemblies) {
@@ -58,9 +62,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 		}
 
-		protected override IEnumerable<TestHost> CreateParameterHosts ()
+		protected override IEnumerable<TestHost> CreateParameterHosts (bool needFixtureInstance)
 		{
 			yield break;
+		}
+
+		internal override bool RunFilter (TestContext ctx, TestInstance instance)
+		{
+			return true;
 		}
 
 		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)

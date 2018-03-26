@@ -1,10 +1,10 @@
 ﻿//
-// ReflectionPropertyHost.cs
+// ReflectionFixtureHost.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,42 +24,58 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
+using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionPropertyHost : ParameterizedTestHost
+	class ReflectionFixtureHost : HeavyTestHost
 	{
-		public ReflectionTestFixtureBuilder Fixture {
+		public ReflectionTestFixtureBuilder Builder {
 			get;
 		}
 
-		public PropertyInfo Property {
+		public ConstructorInfo Constructor {
 			get;
 		}
 
-		public ParameterizedTestHost Host {
+		public override ITestParameter Parameter => null;
+
+		internal IReadOnlyList<TestHost> ParameterHosts {
 			get;
 		}
 
-		public ReflectionPropertyHost (ReflectionTestFixtureBuilder fixture,
-			PropertyInfo prop, ParameterizedTestHost host)
-			: base (prop.Name, prop.PropertyType.GetTypeInfo (), host.Serializer, host.Flags)
+		public ReflectionFixtureHost (
+			ReflectionTestFixtureBuilder builder, ConstructorInfo ctor,
+			ICollection<TestHost> parameterHosts)
+			: base (TestPathType.Instance, null, TestPath.GetFriendlyName (builder.Type.AsType ()),
+				builder.Type.AsType (), builder.Type.AsType (),
+				TestFlags.ContinueOnError | TestFlags.Hidden | TestFlags.PathHidden)
 		{
-			Fixture = fixture;
-			Property = prop;
-			Host = host;
+			Builder = builder;
+			Constructor = ctor;
+			ParameterHosts = parameterHosts?.ToArray () ?? new TestHost[0];
 		}
 
 		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 		{
-			var instance = (ParameterizedTestInstance)Host.CreateInstance (node, parent);
-			return new ReflectionPropertyInstance (this, instance, parent);
+			return new ReflectionFixtureInstance (this, node, parent);
+		}
+
+		internal void Unwind (ref TestInstance instance)
+		{
+			if (!(instance is ReflectionFixtureInstance))
+				throw new InternalErrorException ();
+			instance = instance.Parent;
+
+			for (int i = 0; i < ParameterHosts.Count; i++) {
+				if (instance == null)
+					throw new InternalErrorException ();
+				if (instance.Host != ParameterHosts[i])
+					throw new InternalErrorException ();
+				instance = instance.Parent;
+			}
 		}
 	}
 }
-

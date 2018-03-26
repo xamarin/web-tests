@@ -103,7 +103,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override string ToString ()
 		{
-			return string.Format ("[{0}: Flags={1}]", GetType ().Name, Flags);
+			return $"[{DebugHelper.FormatType (this)}: Flags={Flags}]";
 		}
 	}
 }

@@ -1,10 +1,10 @@
 ﻿//
-// ForkedTestInstance.cs
+// FixtureParameterAttribute.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,50 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests
 {
-	class ForkedTestInstance : TestInstance, IFork
+	[AttributeUsage (AttributeTargets.Property, AllowMultiple = false)]
+	public class FixtureParameterAttribute : Attribute
 	{
-		new public long ID {
-			get;
-		}
-
-		public int Delay {
-			get;
-		}
-
-		public TestInvoker Invoker {
-			get;
-		}
-
-		new public ForkedTestHost Host {
-			get { return (ForkedTestHost)base.Host; }
-		}
-
-		public ForkedTestInstance (ForkedTestHost host, TestNode node, TestInstance parent, long id, int delay, TestInvoker invoker)
-			: base (host, node, parent)
-		{
-			ID = id;
-			Delay = delay;
-			Invoker = invoker;
-		}
-
-		internal sealed override TestParameterValue GetCurrentParameter ()
-		{
-			return null;
-		}
-
-		public async Task<bool> Start (TestContext ctx, CancellationToken cancellationToken)
-		{
-			if (Delay == 0)
-				await Task.Yield ();
-			else
-				await Task.Delay (Delay).ConfigureAwait (false);
-			return await Invoker.Invoke (ctx, this, cancellationToken);
-		}
 	}
 }
-

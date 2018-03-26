@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	[AttributeUsage (AttributeTargets.Method, AllowMultiple = true)]
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
 	public abstract class FixedTestParameterAttribute : Attribute
 	{
 		public virtual TestFlags TestFlags {

@@ -43,6 +43,10 @@ namespace Xamarin.AsyncTests
 			set { isExplicit = value; }
 		}
 
+		public bool UseFixtureName {
+			get; set;
+		}
+
 		bool isExplicit = true;
 
 		public MartinAttribute (string parameter)

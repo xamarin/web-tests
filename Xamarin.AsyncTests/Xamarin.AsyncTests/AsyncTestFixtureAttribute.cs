@@ -32,6 +32,10 @@ using System.Threading;
 namespace Xamarin.AsyncTests
 {
 	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
-	public class AsyncTestFixtureAttribute : AsyncTestAttribute {
+	public class AsyncTestFixtureAttribute : AsyncTestAttribute
+	{
+		public string Prefix {
+			get; set;
+		}
 	}
 }

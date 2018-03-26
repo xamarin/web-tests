@@ -1,10 +1,10 @@
 ﻿//
-// ForkedTestInstance.cs
+// DebugHelper.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,50 +24,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Reflection;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class ForkedTestInstance : TestInstance, IFork
+	static class DebugHelper
 	{
-		new public long ID {
-			get;
-		}
+		static IPortableSupport Portable => DependencyInjector.Get<IPortableSupport> ();
 
-		public int Delay {
-			get;
-		}
-
-		public TestInvoker Invoker {
-			get;
-		}
-
-		new public ForkedTestHost Host {
-			get { return (ForkedTestHost)base.Host; }
-		}
-
-		public ForkedTestInstance (ForkedTestHost host, TestNode node, TestInstance parent, long id, int delay, TestInvoker invoker)
-			: base (host, node, parent)
+		public static string FormatType (object instance)
 		{
-			ID = id;
-			Delay = delay;
-			Invoker = invoker;
+			return FormatType (instance.GetType ());
 		}
 
-		internal sealed override TestParameterValue GetCurrentParameter ()
+		public static string FormatType (Type type, bool includeNamespace = false)
 		{
-			return null;
+			return Portable.FormatType (type, includeNamespace);
 		}
 
-		public async Task<bool> Start (TestContext ctx, CancellationToken cancellationToken)
+		public static string FormatMethod (MethodBase method, bool includeNamespace = false)
 		{
-			if (Delay == 0)
-				await Task.Yield ();
-			else
-				await Task.Delay (Delay).ConfigureAwait (false);
-			return await Invoker.Invoke (ctx, this, cancellationToken);
+			return Portable.FormatMethod (method, includeNamespace);
 		}
 	}
 }
-

@@ -65,24 +65,48 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
+		internal override bool NeedFixtureInstance => true;
+
+		internal override bool SkipThisTest => false;
+
 		protected override IEnumerable<TestBuilder> CreateChildren ()
 		{
 			var instance = DependencyInjector.Get (Assembly.Attribute.Type);
 			AssemblyInstance = instance as IAsyncTestAssembly;
 
+			var seenTypes = new Dictionary<TypeInfo, TestBuilder> ();
+
 			foreach (var type in Assembly.Assembly.ExportedTypes) {
 				var tinfo = type.GetTypeInfo ();
-				var attr = tinfo.GetCustomAttribute<AsyncTestFixtureAttribute> (true);
+				var attr = ResolveType (tinfo);
 				if (attr == null)
 					continue;
 
 				yield return new ReflectionTestFixtureBuilder (this, attr, tinfo);
 			}
+
+			AsyncTestFixtureAttribute ResolveType (TypeInfo type)
+			{
+				var attr = type.GetCustomAttribute<AsyncTestFixtureAttribute> (true);
+				if (attr != null)
+					return attr;
+
+				var baseType = type.BaseType?.GetTypeInfo ();
+				if (baseType != null)
+					return ResolveType (baseType);
+
+				return null;
+			}
 		}
 
-		protected override IEnumerable<TestHost> CreateParameterHosts ()
+		protected override IEnumerable<TestHost> CreateParameterHosts (bool needFixtureInstance)
 		{
 			yield break;
+		}
+
+		internal override bool RunFilter (TestContext ctx, TestInstance instance)
+		{
+			return true;
 		}
 
 		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)

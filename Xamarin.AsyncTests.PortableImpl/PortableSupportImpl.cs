@@ -222,24 +222,7 @@ namespace Xamarin.AsyncTests.Portable
 
 			var method = frame.GetMethod ();
 			if (method != null) {
-				FormatType (sb, method.DeclaringType);
-				sb.Append (".");
-				sb.Append (method.Name);
-				sb.Append ("(");
-
-				var p = method.GetParameters ();
-				for (int j = 0; j < p.Length; ++j) {
-					if (j > 0)
-						sb.Append (", ");
-					Type pt = p [j].ParameterType;
-					bool byref = pt.IsByRef;
-					if (byref)
-						pt = pt.GetElementType ();
-					if (byref)
-						sb.Append ("&");
-					FormatType (sb, pt);
-				}
-				sb.Append (")");
+				FormatMethod (sb, method, true);
 			} else {
 				sb.Append ("<unknown method>");
 			}
@@ -253,10 +236,39 @@ namespace Xamarin.AsyncTests.Portable
 			return sb.ToString ();
 		}
 
-		string FormatType (Type type)
+		public string FormatMethod (MethodBase method, bool includeNamespace)
 		{
 			var sb = new StringBuilder ();
-			FormatType (sb, type);
+			FormatMethod (sb, method, includeNamespace);
+			return sb.ToString ();
+		}
+
+		void FormatMethod (StringBuilder sb, MethodBase method, bool includeNamespace)
+		{
+			FormatType (sb, method.DeclaringType, includeNamespace);
+			sb.Append (".");
+			sb.Append (method.Name);
+			sb.Append ("(");
+
+			var p = method.GetParameters ();
+			for (int j = 0; j < p.Length; ++j) {
+				if (j > 0)
+					sb.Append (", ");
+				Type pt = p[j].ParameterType;
+				bool byref = pt.IsByRef;
+				if (byref)
+					pt = pt.GetElementType ();
+				if (byref)
+					sb.Append ("&");
+				FormatType (sb, pt, includeNamespace);
+			}
+			sb.Append (")");
+		}
+
+		public string FormatType (Type type, bool includeNamespace)
+		{
+			var sb = new StringBuilder ();
+			FormatType (sb, type, includeNamespace);
 			return sb.ToString ();
 		}
 
@@ -294,7 +306,7 @@ namespace Xamarin.AsyncTests.Portable
 			}
 		}
 
-		void FormatType (StringBuilder sb, Type type)
+		void FormatType (StringBuilder sb, Type type, bool includeNamespace)
 		{
 			var builtin = FormatBuiltinType (type);
 			if (builtin != null) {
@@ -302,11 +314,16 @@ namespace Xamarin.AsyncTests.Portable
 				return;
 			}
 
-			if (!string.IsNullOrEmpty (type.Namespace)) {
+			if (includeNamespace && !string.IsNullOrEmpty (type.Namespace)) {
 				sb.Append (type.Namespace);
 				sb.Append (".");
 			}
-			sb.Append (type.Name);
+
+			int pos = type.Name.IndexOf ("`", StringComparison.Ordinal);
+			if (pos > 0)
+				sb.Append (type.Name.Substring (0, pos));
+			else
+				sb.Append (type.Name);
 
 			var args = type.GetGenericArguments ();
 			if (args == null || args.Length == 0)
@@ -316,7 +333,7 @@ namespace Xamarin.AsyncTests.Portable
 			for (int i = 0; i < args.Length; i++) {
 				if (i > 0)
 					sb.Append (",");
-				FormatType (sb, args [i]);
+				FormatType (sb, args [i], includeNamespace);
 			}
 			sb.Append (">");
 		}

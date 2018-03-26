@@ -40,6 +40,7 @@ namespace Xamarin.AsyncTests {
 		readonly TestLogger logger;
 		readonly SettingsBag settings;
 		readonly ITestConfiguration config;
+		List<IDisposable> autoDisposeBag;
 		bool isCanceled;
 
 		public string FriendlyName => CurrentPath.FullFriendlyName;
@@ -542,6 +543,82 @@ namespace Xamarin.AsyncTests {
 
 		#endregion
 
+		#region Auto Dispose
+
+		internal TestContext CreateDisposable ()
+		{
+			var childContext = new TestContext (this, CurrentPath, null);
+			childContext.autoDisposeBag = new List<IDisposable> ();
+			return childContext;
+		}
+
+		internal void ClearAutoDisposeBag ()
+		{
+			if (autoDisposeBag == null)
+				throw new InternalErrorException ();
+			for (int i = 0; i < autoDisposeBag.Count; i++) {
+				try {
+					autoDisposeBag[i].Dispose ();
+				} catch {
+					;
+				} finally {
+					autoDisposeBag[i] = null;
+				}
+			}
+			autoDisposeBag = null;
+		}
+
+		public T RegisterDispose<T> (T disposable)
+			where T : IDisposable
+		{
+			if (autoDisposeBag == null)
+				throw new InternalErrorException ();
+			autoDisposeBag.Add (disposable);
+			return disposable;
+		}
+
+		public T RegisterDispose<T> ()
+			where T : IDisposable, new ()
+		{
+			if (autoDisposeBag == null)
+				throw new InternalErrorException ();
+			var disposable = new T ();
+			autoDisposeBag.Add (disposable);
+			return disposable;
+		}
+
+		public void RunWithDisposableContext (Action<TestContext> action)
+		{
+			var disposableContext = CreateDisposable ();
+			try {
+				action (disposableContext);
+			} finally {
+				disposableContext.ClearAutoDisposeBag ();
+			}
+		}
+
+		public async Task<T> RunWithDisposableContext<T> (Func<TestContext,Task<T>> func)
+		{
+			var disposableContext = CreateDisposable ();
+			try {
+				return await func (disposableContext).ConfigureAwait (false);
+			} finally {
+				disposableContext.ClearAutoDisposeBag ();
+			}
+		}
+
+		public async Task RunWithDisposableContext (Func<TestContext,Task> func)
+		{
+			var disposableContext = CreateDisposable ();
+			try {
+				await func (disposableContext).ConfigureAwait (false);
+			} finally {
+				disposableContext.ClearAutoDisposeBag ();
+			}
+		}
+
+		#endregion
+
 		[HideStackFrame]
 		public string GetStackTrace ()
 		{
@@ -564,12 +641,38 @@ namespace Xamarin.AsyncTests {
 
 		public object GetFixtureInstance ()
 		{
-			object value;
-			if (TryGetParameter<object> (out value, "instance"))
-				return value;
+			if (TryGetFixtureInstance (out object instance))
+				return instance;
 
 			AssertFail ("Unable to get fixture instance.");
 			throw new SkipRestOfThisTestException ();
+		}
+
+		public bool TryGetFixtureInstance<T> (out T value)
+		{
+			var path = CurrentPath;
+			if (path == null) {
+				AssertFail ("Should never happen!");
+				throw new SkipRestOfThisTestException ();
+			}
+
+			while (path != null) {
+				if (path.Node.PathType != TestPathType.Instance) {
+					path = path.Parent;
+					continue;
+				}
+
+				var parameter = (ITestParameterWrapper)path.Node.Parameter;
+				if (parameter.Value is T tvalue) {
+					value = tvalue;
+					return true;
+				}
+
+				break;
+			}
+
+			value = default (T);
+			return false;
 		}
 
 		public bool TryGetParameter<T> (out T value, string name = null)

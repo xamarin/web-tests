@@ -30,7 +30,7 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = false)]
 	public class AsyncTestAttribute : Attribute {
 		public int Repeat {
 			get; set;

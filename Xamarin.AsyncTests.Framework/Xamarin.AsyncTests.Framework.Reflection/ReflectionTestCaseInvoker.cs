@@ -54,130 +54,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			if (Builder.ExpectedExceptionType != null)
 				return ExpectingException (ctx, instance, Builder.ExpectedExceptionType, cancellationToken);
-			else
-				return ExpectingSuccess (ctx, instance, cancellationToken);
-		}
-
-		int GetTimeout (TestContext ctx)
-		{
-			if (ctx.Settings.DisableTimeouts)
-				return -1;
-			if (Builder.Attribute.Timeout != 0)
-				return Builder.Attribute.Timeout;
-			else if (Builder.Fixture.Attribute.Timeout != 0)
-				return Builder.Fixture.Attribute.Timeout;
-			else
-				return 30000;
-		}
-
-		object InvokeInner (TestContext ctx, TestInstance instance, bool expectException, CancellationToken cancellationToken)
-		{
-			var args = new LinkedList<object> ();
-
-			int timeout = GetTimeout (ctx);
-			CancellationTokenSource timeoutCts = null;
-			CancellationTokenSource methodCts = null;
-			CancellationToken methodToken;
-
-			if (timeout > 0) {
-				timeoutCts = new CancellationTokenSource (timeout);
-				methodCts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken, timeoutCts.Token);
-				methodCts.CancelAfter (timeout);
-				methodToken = methodCts.Token;
-			} else {
-				methodToken = cancellationToken;
-			}
-
-			var parameters = Builder.Method.GetParameters ();
-
-			ctx.LogDebug (10, "INVOKE: {0} {1} {2} {3}", Builder.Name, Builder.Method, instance, timeout);
-
-			var index = parameters.Length - 1;
-			while (index >= 0) {
-				if (instance is TestBuilderInstance) {
-					instance = instance.Parent;
-					continue;
-				}
-
-				var param = parameters [index];
-				var paramType = param.ParameterType;
-				index--;
-
-				if (paramType.Equals (typeof(CancellationToken))) {
-					args.AddFirst (methodToken);
-					continue;
-				} else if (paramType.Equals (typeof(TestContext))) {
-					args.AddFirst (ctx);
-					continue;
-				}
-
-				var forkedInstance = instance as ForkedTestInstance;
-				if (forkedInstance != null) {
-					args.AddFirst (forkedInstance);
-					instance = instance.Parent;
-					continue;
-				}
-
-				var heavyInstance = instance as HeavyTestInstance;
-				if (heavyInstance != null) {
-					args.AddFirst (heavyInstance.Current);
-					instance = instance.Parent;
-					continue;
-				}
-
-				var parameterizedInstance = instance as ParameterizedTestInstance;
-				if (parameterizedInstance == null)
-					throw new InternalErrorException ();
-
-				if (!paramType.GetTypeInfo ().IsAssignableFrom (parameterizedInstance.Host.ParameterTypeInfo))
-					throw new InternalErrorException ();
-
-				var current = parameterizedInstance.Current;
-				args.AddFirst (current.Value); 
-
-				instance = instance.Parent;
-			}
-
-			while (instance != null) {
-				if (instance is FixtureTestInstance)
-					break;
-				var host = instance.Host;
-				if (!(host is RepeatedTestHost || host is ReflectionPropertyHost || host is TestBuilderHost || ReflectionHelper.IsFixedTestHost (host)))
-					throw new InternalErrorException ();
-				instance = instance.Parent;
-			}
-
-			object thisInstance = null;
-			if (!Builder.Method.IsStatic) {
-				var fixtureInstance = instance as FixtureTestInstance;
-				if (fixtureInstance == null)
-					throw new InternalErrorException ();
-				thisInstance = fixtureInstance.Instance;
-				instance = null;
-			}
-
-			if (instance != null)
-				throw new InternalErrorException ();
-
-			try {
-				return DoInvokeInner (ctx, thisInstance, args.ToArray (), expectException);
-			} finally {
-				if (timeoutCts != null)
-					timeoutCts.Dispose ();
-			}
-		}
-
-		[StackTraceEntryPoint]
-		object DoInvokeInner (TestContext ctx, object instance, object[] args, bool expectException)
-		{
-			try {
-				return Builder.Method.Invoke (instance, args);
-			} catch (TargetInvocationException ex) {
-				if (expectException)
-					throw;
-				ctx.OnError (ex.InnerException);
-				return null;
-			}
+			return ExpectingSuccess (ctx, instance, cancellationToken);
 		}
 
 		bool CheckFinalStatus (TestContext ctx)
@@ -190,19 +67,20 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				else
 					ctx.OnTestFinished (TestStatus.Error, elapsedTime);
 				return false;
-			} else if (ctx.IsCanceled) {
-				return false;
-			} else {
-				ctx.OnTestFinished (TestStatus.Success, elapsedTime);
-				return true;
 			}
+			if (ctx.IsCanceled)
+				return false;
+			ctx.OnTestFinished (TestStatus.Success, elapsedTime);
+			return true;
 		}
 
 		async Task<bool> ExpectingSuccess (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			object retval;
 			try {
-				retval = InvokeInner (ctx, instance, false, cancellationToken);
+				retval = ReflectionMethodInvoker.Invoke (
+					ctx, Builder, instance, Builder.Method,
+					false, cancellationToken);
 			} catch (Exception ex) {
 				ctx.OnError (ex);
 				return false;
@@ -230,7 +108,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			TypeInfo expectedException, CancellationToken cancellationToken)
 		{
 			try {
-				var retval = InvokeInner (ctx, instance, true, cancellationToken);
+				var retval = ReflectionMethodInvoker.Invoke (
+					ctx, Builder, instance, Builder.Method,
+					true, cancellationToken);
 				var task = retval as Task;
 				if (task != null)
 					await task;

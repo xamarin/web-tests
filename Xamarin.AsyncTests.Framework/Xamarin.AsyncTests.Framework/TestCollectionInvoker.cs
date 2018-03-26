@@ -53,18 +53,14 @@ namespace Xamarin.AsyncTests.Framework
 
 		bool Filter (TestContext ctx, TestFilter filter)
 		{
-			if (filter == null)
-				return true;
-			if (filter.Filter (ctx, out bool enabled))
-				return enabled;
-			return true;
+			return filter?.Filter (ctx, null) ?? true;
 		}
 
-		internal void ResolveChildren (TestContext ctx)
+		void ResolveChildren (TestContext ctx, TestInstance instance)
 		{
 			children = new LinkedList<Tuple<TestPathTreeNode, TestInvoker>> ();
 			foreach (var child in Node.GetChildren ()) {
-				if (!Filter (ctx, child.Tree.Builder.Filter))
+				if (!child.Tree.Builder.RunFilter (ctx, instance))
 					continue;
 
 				var invoker = child.CreateChildInvoker (ctx);
@@ -77,7 +73,7 @@ namespace Xamarin.AsyncTests.Framework
 			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Builder), TestLogger.Print (instance));
 
 			try {
-				ResolveChildren (ctx);
+				ResolveChildren (ctx, instance);
 				return true;
 			} catch (OperationCanceledException) {
 				ctx.OnTestCanceled ();

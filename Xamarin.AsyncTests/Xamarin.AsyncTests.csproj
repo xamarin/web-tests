@@ -112,6 +112,7 @@
     <Compile Include="Xamarin.AsyncTests.Portable\IPortableTaskSupport.cs" />
     <Compile Include="Xamarin.AsyncTests\MartinAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\IAsyncTestAssembly.cs" />
+    <Compile Include="Xamarin.AsyncTests\FixtureParameterAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

@@ -1,10 +1,10 @@
 ﻿//
-// ForkedTestInstance.cs
+// FixturePropertyHost.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,49 +24,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
+using System.Reflection;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ForkedTestInstance : TestInstance, IFork
+	class FixturePropertyHost : ParameterizedTestHost
 	{
-		new public long ID {
+		public ReflectionTestFixtureBuilder Fixture {
 			get;
 		}
 
-		public int Delay {
+		public PropertyInfo Property {
 			get;
 		}
 
-		public TestInvoker Invoker {
-			get;
-		}
-
-		new public ForkedTestHost Host {
-			get { return (ForkedTestHost)base.Host; }
-		}
-
-		public ForkedTestInstance (ForkedTestHost host, TestNode node, TestInstance parent, long id, int delay, TestInvoker invoker)
-			: base (host, node, parent)
+		public FixturePropertyHost (
+			ReflectionTestFixtureBuilder fixture, PropertyInfo property,
+			IParameterSerializer serializer, TestFlags flags)
+			: base (property.Name, property.PropertyType.GetTypeInfo (),
+			        serializer, flags)
 		{
-			ID = id;
-			Delay = delay;
-			Invoker = invoker;
+			Fixture = fixture;
+			Property = property;
 		}
 
-		internal sealed override TestParameterValue GetCurrentParameter ()
+		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
 		{
-			return null;
-		}
-
-		public async Task<bool> Start (TestContext ctx, CancellationToken cancellationToken)
-		{
-			if (Delay == 0)
-				await Task.Yield ();
-			else
-				await Task.Delay (Delay).ConfigureAwait (false);
-			return await Invoker.Invoke (ctx, this, cancellationToken);
+			return new FixturePropertyInstance (this, node, parent);
 		}
 	}
 }

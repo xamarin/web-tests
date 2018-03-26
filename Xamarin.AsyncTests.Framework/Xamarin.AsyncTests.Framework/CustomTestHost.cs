@@ -77,8 +77,8 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override string ToString ()
 		{
-			return string.Format ("[CustomTestHost: Type={0}, HostType={1}, UseFixtureInstance={2}]",
-				Type.Name, HostType != null ? HostType.Name : "<null>", UseFixtureInstance);
+			var hostType = HostType?.Name ?? "<null>";
+			return $"[CustomTestHost({DebugHelper.FormatType (this)}): HostType={hostType}, UseFixtureInstance={UseFixtureInstance}]";
 		}
 	}
 }

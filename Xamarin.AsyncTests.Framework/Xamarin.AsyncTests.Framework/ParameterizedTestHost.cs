@@ -71,7 +71,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override string ToString ()
 		{
-			return string.Format ("[{0}: ParameterName={1}, ParameterType={2}]", GetType ().Name, ParameterName, ParameterTypeInfo);
+			return $"[{DebugHelper.FormatType (this)}: Name={ParameterName}, Type={DebugHelper.FormatType (ParameterTypeInfo)}]";
 		}
 	}
 }

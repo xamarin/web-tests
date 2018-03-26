@@ -1,10 +1,10 @@
 ﻿//
-// ForkedTestInstance.cs
+// ReflectionPropertyInstance.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,50 +24,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ForkedTestInstance : TestInstance, IFork
+	class ReflectionPropertyInstance : ParameterizedTestInstance
 	{
-		new public long ID {
+		new public ReflectionPropertyHost Host {
+			get { return (ReflectionPropertyHost)base.Host; }
+		}
+
+		public ParameterizedTestInstance Instance {
 			get;
 		}
 
-		public int Delay {
-			get;
-		}
+		ParameterizedTestValue current;
 
-		public TestInvoker Invoker {
-			get;
-		}
-
-		new public ForkedTestHost Host {
-			get { return (ForkedTestHost)base.Host; }
-		}
-
-		public ForkedTestInstance (ForkedTestHost host, TestNode node, TestInstance parent, long id, int delay, TestInvoker invoker)
-			: base (host, node, parent)
+		public ReflectionPropertyInstance (ReflectionPropertyHost host, ParameterizedTestInstance instance, TestInstance parent)
+			: base (host, instance.Node, parent)
 		{
-			ID = id;
-			Delay = delay;
-			Invoker = invoker;
+			Instance = instance;
 		}
 
-		internal sealed override TestParameterValue GetCurrentParameter ()
+		public override void Initialize (TestContext ctx)
 		{
-			return null;
+			Instance.Initialize (ctx);
 		}
 
-		public async Task<bool> Start (TestContext ctx, CancellationToken cancellationToken)
+		public override bool HasNext ()
 		{
-			if (Delay == 0)
-				await Task.Yield ();
-			else
-				await Task.Delay (Delay).ConfigureAwait (false);
-			return await Invoker.Invoke (ctx, this, cancellationToken);
+			return Instance.HasNext ();
+		}
+
+		public override bool MoveNext (TestContext ctx)
+		{
+			if (!Instance.MoveNext (ctx))
+				return false;
+			current = Instance.Current;
+
+			Host.Property.SetValue (GetFixtureInstance ().Instance, current.Value);
+			return true;
+		}
+
+		public override ParameterizedTestValue Current {
+			get { return current; }
 		}
 	}
 }
-

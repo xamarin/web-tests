@@ -246,11 +246,7 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			Resolve (ctx);
 
-			var invoker = Tree.Builder.CreateInnerInvoker (this);
-			var collectionInvoker = invoker as TestCollectionInvoker;
-			if (collectionInvoker != null)
-				collectionInvoker.ResolveChildren (ctx);
-			return invoker;
+			return Tree.Builder.CreateInnerInvoker (this);
 		}
 
 		public override string ToString ()

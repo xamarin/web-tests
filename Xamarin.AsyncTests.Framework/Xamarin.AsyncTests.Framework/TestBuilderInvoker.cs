@@ -50,23 +50,12 @@ namespace Xamarin.AsyncTests.Framework
 			Inner = inner;
 		}
 
-		bool Filter (TestContext ctx)
-		{
-			if (Host.Builder.Filter == null)
-				return true;
-			if (Host.Builder.Filter.Filter (ctx, out bool enabled))
-				return enabled;
-			if (Host.Builder.Parent?.Filter == null)
-				return true;
-			return false;
-		}
-
 		TestBuilderInstance SetUp (TestContext ctx, TestInstance instance)
 		{
 			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
-				if (!Filter (ctx)) {
+				if (!Host.Builder.RunFilter (ctx, instance)) {
 					ctx.OnTestIgnored ();
 					return null;
 				}
@@ -105,6 +94,8 @@ namespace Xamarin.AsyncTests.Framework
 
 			var innerPath = innerInstance.GetCurrentPath ();
 			var innerCtx = ctx.CreateChild (innerPath);
+
+			ctx.LogDebug (10, $"Invoke({ctx.FriendlyName}): {TestLogger.Print (innerInstance)}");
 
 			var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
 

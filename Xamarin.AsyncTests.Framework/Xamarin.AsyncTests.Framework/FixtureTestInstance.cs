@@ -23,56 +23,17 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Xamarin.AsyncTests.Framework
 {
-	class FixtureTestInstance : HeavyTestInstance
+	abstract class FixtureTestInstance : HeavyTestInstance
 	{
-		public object Instance {
+		public abstract object Instance {
 			get;
 		}
 
-		public FixtureTestInstance (HeavyTestHost host, TestNode node, object instance, TestInstance parent)
+		public FixtureTestInstance (HeavyTestHost host, TestNode node, TestInstance parent)
 			: base (host, node, parent)
 		{
-			Instance = instance;
-		}
-
-		public override object Current {
-			get { return Instance; }
-		}
-
-		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
-		{
-			var instance = Instance as ITestInstance;
-			if (instance != null)
-				await instance.Initialize (ctx, cancellationToken);
-		}
-
-		public override async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
-		{
-			var instance = Instance as ITestInstance;
-			if (instance != null)
-				await instance.PreRun (ctx, cancellationToken);
-		}
-
-		public override async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
-		{
-			var instance = Instance as ITestInstance;
-			if (instance != null)
-				await instance.PostRun (ctx, cancellationToken);
-		}
-
-		public override async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
-		{
-			var instance = Instance as ITestInstance;
-			if (instance != null)
-				await instance.Destroy (ctx, cancellationToken);
 		}
 	}
 }
-

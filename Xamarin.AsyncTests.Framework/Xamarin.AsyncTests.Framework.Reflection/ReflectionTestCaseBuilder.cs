@@ -67,6 +67,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		TestFilter filter;
 		ExpectedExceptionAttribute expectedException;
 		TypeInfo expectedExceptionType;
+		bool skipThisTest;
 
 		public ReflectionTestCaseBuilder (ReflectionTestFixtureBuilder fixture, AsyncTestAttribute attr, MethodInfo method)
 			: base (TestPathType.Test, null, method.Name, GetParameter (method))
@@ -74,7 +75,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Fixture = fixture;
 			Attribute = attr;
 			Method = method;
-			filter = ReflectionHelper.CreateTestFilter (fixture.Filter, ReflectionHelper.GetMethodInfo (method));
+			filter = ReflectionHelper.CreateTestFilter (this, fixture.Filter, ReflectionHelper.GetMethodInfo (method));
 		}
 
 		static ITestParameter GetParameter (MethodInfo method)
@@ -103,10 +104,20 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var returnType = Method.ReturnType;
 			if (returnType.Equals (typeof(void)))
 				return true;
-			else if (returnType.Equals (typeof(Task)))
+			if (returnType.Equals (typeof(Task)))
 				return true;
 
 			return false;
+		}
+
+		internal override bool NeedFixtureInstance => !Method.IsStatic;
+
+		internal override bool SkipThisTest {
+			get {
+				if (!ResolvedTree)
+					throw new InternalErrorException ();
+				return skipThisTest;
+			}
 		}
 
 		protected override IEnumerable<TestBuilder> CreateChildren ()
@@ -114,52 +125,29 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			yield break;
 		}
 
-		protected override IEnumerable<TestHost> CreateParameterHosts ()
+		protected override IEnumerable<TestHost> CreateParameterHosts (bool needFixtureInstance)
 		{
-			bool seenCtx = false;
-			bool seenToken = false;
+			var list = ReflectionHelper.ResolveParameters (
+				Fixture, Attribute, Method);
+			if (list != null)
+				return list;
 
-			var fixedParameters = Method.GetCustomAttributes<FixedTestParameterAttribute> ();
-			foreach (var fixedParameter in fixedParameters) {
-				yield return ReflectionHelper.CreateFixedParameterHost (Fixture.Type, fixedParameter);
-			}
+			skipThisTest = true;
+			return new TestHost[0];
+		}
 
-			var parameters = Method.GetParameters ();
-			for (int i = 0; i < parameters.Length; i++) {
-				var paramType = parameters [i].ParameterType;
-				var paramName = parameters [i].Name;
-
-				var fork = parameters [i].GetCustomAttribute<ForkAttribute> ();
-				if (fork != null) {
-					if (!paramType.Equals (typeof(IFork)))
-						throw new InternalErrorException ();
-					yield return new ForkedTestHost (paramName, fork);
-					continue;
-				}
-
-				if (paramType.Equals (typeof(CancellationToken))) {
-					if (seenToken)
-						throw new InternalErrorException ();
-					seenToken = true;
-					continue;
-				} else if (paramType.Equals (typeof(TestContext))) {
-					if (seenCtx)
-						throw new InternalErrorException ();
-					seenCtx = true;
-					continue;
-				} else if (paramType.Equals (typeof(IFork))) {
-					throw new InternalErrorException ();
-				}
-
-				yield return ReflectionHelper.ResolveParameter (this, parameters [i]);
-			}
-
-			if (Attribute.Repeat != 0)
-				yield return ReflectionHelper.CreateRepeatHost (Attribute.Repeat);
+		internal override bool RunFilter (TestContext ctx, TestInstance instance)
+		{
+			if (SkipThisTest)
+				return false;
+			return Filter.Filter (ctx, instance);
 		}
 
 		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)
 		{
+			if (skipThisTest)
+				throw new InternalErrorException ();
+
 			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
 
 			invoker = new PrePostRunTestInvoker (invoker);

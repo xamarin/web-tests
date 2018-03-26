@@ -45,7 +45,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get;
 		}
 
-		public AsyncTestAttribute Attribute {
+		public AsyncTestFixtureAttribute Attribute {
 			get;
 		}
 
@@ -55,14 +55,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		TestFilter filter;
 
-		public ReflectionTestFixtureBuilder (ReflectionTestAssemblyBuilder assembly, AsyncTestAttribute attr, TypeInfo type)
-			: base (TestPathType.Fixture, null, type.Name, TestSerializer.GetStringParameter (type.FullName))
+		public ReflectionTestFixtureBuilder (ReflectionTestAssemblyBuilder assembly, AsyncTestFixtureAttribute attr, TypeInfo type)
+			: base (TestPathType.Fixture, null,
+			        attr.Prefix != null ? attr.Prefix + "." + type.Name : type.Name,
+			        TestSerializer.GetStringParameter (type.FullName))
 		{
 			AssemblyBuilder = assembly;
 			Type = type;
 			Attribute = attr;
 
-			filter = ReflectionHelper.CreateTestFilter (null, ReflectionHelper.GetTypeInfo (type));
+			filter = ReflectionHelper.CreateTestFilter (this, null, ReflectionHelper.GetTypeInfo (type));
 		}
 
 		public override TestFilter Filter {
@@ -71,62 +73,90 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		protected override IEnumerable<TestBuilder> CreateChildren ()
 		{
-			foreach (var method in Type.DeclaredMethods) {
-				if (method.IsStatic || !method.IsPublic)
-					continue;
+			var seenAnyStatic = false;
+			var seenAnyInstance = false;
+
+			var list = new List<TestBuilder> ();
+			ResolveMembers (Type);
+			return list;
+
+			void ResolveMembers (TypeInfo type)
+			{
+				foreach (var method in type.DeclaredMethods) {
+					ResolveMethod (method);
+				}
+
+				var baseType = type.BaseType?.GetTypeInfo ();
+				if (baseType != null)
+					ResolveMembers (baseType);
+			}
+
+			void ResolveMethod (MethodInfo method)
+			{
+				if (!method.IsPublic || method.IsAbstract)
+					return;
+				if (Type.IsAbstract && !method.IsStatic)
+					return;
 				var attr = method.GetCustomAttribute<AsyncTestAttribute> (true);
 				if (attr == null)
-					continue;
+					return;
 
-				yield return new ReflectionTestCaseBuilder (this, attr, method);
+				if (method.IsStatic) {
+					if (seenAnyInstance)
+						CannotMixStaticAndInstance ();
+					seenAnyStatic = true;
+				} else {
+					if (seenAnyStatic)
+						CannotMixStaticAndInstance ();
+					seenAnyInstance = true;
+				}
+
+				list.Add (new ReflectionTestCaseBuilder (this, attr, method));
+			}
+
+			void CannotMixStaticAndInstance ()
+			{
+				throw new InternalErrorException (
+					$"Cannot mix static and instance methods in fixture `{Type}'.");
 			}
 		}
 
-		protected override IEnumerable<TestHost> CreateParameterHosts ()
+		protected override IEnumerable<TestHost> CreateParameterHosts (bool needFixtureInstance)
 		{
-			yield return new FixtureInstanceTestHost (this);
-
-			var properties = Type.DeclaredProperties.ToArray ();
-			for (int i = 0; i < properties.Length; i++) {
-				var host = (ParameterizedTestHost)ReflectionHelper.ResolveParameter (this, properties [i]);
-				if (host.Serializer == null) {
-					ReflectionHelper.ResolveParameter (this, properties [i]);
-				}
-				yield return new ReflectionPropertyHost (this, properties [i], host);
+			var list = new List<TestHost> ();
+			var fixedParameters = Type.GetCustomAttributes<FixedTestParameterAttribute> ();
+			foreach (var fixedParameter in fixedParameters) {
+				list.Add (ReflectionHelper.CreateFixedParameterHost (Type, fixedParameter));
 			}
 
-			if (Attribute.Repeat != 0)
-				yield return ReflectionHelper.CreateRepeatHost (Attribute.Repeat);
+			if (needFixtureInstance)
+				list.AddRange (ReflectionHelper.ResolveFixtureParameterHosts (this));
+
+			return list;
+		}
+
+		internal override bool NeedFixtureInstance => true;
+
+		internal override bool SkipThisTest {
+			get {
+				if (!ResolvedTree)
+					throw new InternalErrorException ();
+				return Children.Count == 0;
+			}
+		}
+
+		internal override bool RunFilter (TestContext ctx, TestInstance instance)
+		{
+			if (SkipThisTest || Children.Count == 0)
+				return false;
+			if (!Filter.Filter (ctx, instance))
+				return false;
+			return Children.Any (c => c.RunFilter (ctx, instance));
 		}
 
 		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)
 		{
 			return new TestCollectionInvoker (this, node);
-		}
-
-		class FixtureInstanceTestHost : HeavyTestHost
-		{
-			public ReflectionTestFixtureBuilder Builder {
-				get;
-			}
-
-			public override ITestParameter Parameter {
-				get { return null; }
-			}
-
-			public FixtureInstanceTestHost (ReflectionTestFixtureBuilder builder)
-				: base (TestPathType.Instance, null, TestPath.GetFriendlyName (builder.Type.AsType ()),
-					builder.Type.AsType (), builder.Type.AsType (),
-				        TestFlags.ContinueOnError | TestFlags.Hidden | TestFlags.PathHidden)
-			{
-				Builder = builder;
-			}
-
-			internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
-			{
-				var instance = Activator.CreateInstance (Builder.Type.AsType ());
-				return new FixtureTestInstance (this, node, instance, parent);
-			}
 		}
 	}
 }

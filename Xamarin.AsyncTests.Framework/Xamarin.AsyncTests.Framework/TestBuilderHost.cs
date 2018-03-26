@@ -71,7 +71,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override string ToString ()
 		{
-			return string.Format ("[TestBuilderHost: Name={0}, Builder={1}]", Builder.Name, Builder.GetType ().Name);
+			return $"[TestBuilderHost: Name={Builder.Name}, Builder={DebugHelper.FormatType (Builder)}]";
 		}
 	}
 }

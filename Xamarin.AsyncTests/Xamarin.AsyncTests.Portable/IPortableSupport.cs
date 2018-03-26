@@ -26,12 +26,17 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Reflection;
 
 namespace Xamarin.AsyncTests.Portable
 {
 	public interface IPortableSupport : ISingletonInstance
 	{
 		string GetStackTrace (bool full);
+
+		string FormatType (Type type, bool includeNamespace);
+
+		string FormatMethod (MethodBase method, bool includeNamespace);
 
 		string CurrentThreadId {
 			get;

@@ -124,6 +124,8 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
+		protected bool ResolvedTree => resolvedTree;
+
 		bool resolving;
 		bool resolved;
 		bool resolvedTree;
@@ -151,7 +153,9 @@ namespace Xamarin.AsyncTests.Framework
 			if (Parent != null)
 				parentTree = Parent.Tree;
 
-			children = CreateChildren ().ToList ();
+			var unresolvedChildren = CreateChildren ().ToList ();
+
+			var needFixtureInstance = unresolvedChildren.Any (c => c.NeedFixtureInstance);
 
 			host = CreateHost ();
 
@@ -159,7 +163,7 @@ namespace Xamarin.AsyncTests.Framework
 
 			tree = treeRoot = new TestPathTree (this, host, parentTree);
 
-			foreach (var current in CreateParameterHosts ()) {
+			foreach (var current in CreateParameterHosts (needFixtureInstance)) {
 				parameterHosts.AddFirst (current);
 			}
 
@@ -171,25 +175,37 @@ namespace Xamarin.AsyncTests.Framework
 
 			resolvedTree = true;
 
-			foreach (var child in children) {
+			foreach (var child in unresolvedChildren) {
 				child.Resolve ();
 			}
+
+			children = unresolvedChildren.Where (c => !c.SkipThisTest).ToList ();
 
 			resolvedChildren = true;
 
 			resolved = true;
 		}
 
+		internal abstract bool NeedFixtureInstance {
+			get;
+		}
+
+		internal abstract bool SkipThisTest {
+			get;
+		}
+
 		internal abstract TestInvoker CreateInnerInvoker (TestPathTreeNode node);
 
 		protected abstract IEnumerable<TestBuilder> CreateChildren ();
 
-		protected abstract IEnumerable<TestHost> CreateParameterHosts ();
+		protected abstract IEnumerable<TestHost> CreateParameterHosts (bool needFixtureInstance);
 
 		protected TestBuilderHost CreateHost ()
 		{
 			return new TestBuilderHost (this);
 		}
+
+		internal abstract bool RunFilter (TestContext ctx, TestInstance instance);
 	}
 }
 

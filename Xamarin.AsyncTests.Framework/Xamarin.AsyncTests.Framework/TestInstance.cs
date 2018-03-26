@@ -53,16 +53,19 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		internal int ID {
+			get;
+		}
+
+		static int nextId;
+
 		protected TestInstance (TestHost host, TestNode node, TestInstance parent)
 		{
-			if (host == null)
-				throw new ArgumentNullException ("host");
-			if (node == null)
-				throw new ArgumentNullException ("node");
-
-			Host = host;
-			Node = node;
+			Host = host ?? throw new ArgumentNullException (nameof (host));
+			Node = node ?? throw new ArgumentNullException (nameof (node));
 			Parent = parent;
+
+			ID = Interlocked.Increment (ref nextId);
 
 			ParentPath = Parent?.GetCurrentPath ();
 			Path = new TestPath (ParentPath, Node);
@@ -101,9 +104,28 @@ namespace Xamarin.AsyncTests.Framework
 			return parameter.GetCurrentPath ();
 		}
 
+		internal static void LogDebug (
+			TestContext ctx, TestInstance instance,
+			int level, string category = null)
+		{
+			while (instance != null) {
+				Log ($"    {instance}");
+				instance = instance.Parent;
+			}
+
+			void Log (string message)
+			{
+				if (category != null)
+					ctx.LogDebug (category, level, message);
+				else
+					ctx.LogDebug (level, message);
+			}
+		}
+
 		public override string ToString ()
 		{
-			return string.Format ("[{0}: Host={1}, Parent={2}]", GetType ().Name, Host, Parent);
+			var parent = Parent != null ? $", Parent={Parent.ID}" : string.Empty;
+			return $"[{DebugHelper.FormatType (this)}({ID}): Host={Host}{parent}]";
 		}
 	}
 }
