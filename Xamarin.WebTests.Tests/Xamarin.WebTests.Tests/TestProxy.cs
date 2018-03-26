@@ -173,6 +173,7 @@ namespace Xamarin.WebTests.Tests {
 		}
 
 		[AsyncTest]
+		[NotWorking]
 		[WebTestFeatures.UseProxyKind (ProxyKind.SSL)]
 		public async Task RunSsl (
 			TestContext ctx, HttpServer server, Handler handler,

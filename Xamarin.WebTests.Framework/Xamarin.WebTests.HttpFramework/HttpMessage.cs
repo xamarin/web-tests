@@ -53,11 +53,11 @@ namespace Xamarin.WebTests.HttpFramework
 			get; protected set;
 		}
 
-		internal IReadOnlyDictionary<string,string> Headers {
+		public IReadOnlyDictionary<string,string> Headers {
 			get { return headers; }
 		}
 
-		internal void AddHeader (string header, object value)
+		public void AddHeader (string header, object value)
 		{
 			headers.Add (header, value.ToString ());
 		}

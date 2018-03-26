@@ -39,10 +39,22 @@ namespace Xamarin.WebTests.HttpHandlers
 
 	public class HttpClientRequest : Request
 	{
-		public readonly Uri RequestUri;
-		public readonly IHttpClientHandler Handler;
-		public readonly IHttpClient Client;
-		readonly IHttpClientProvider Provider;
+		public Uri RequestUri {
+			get;
+		}
+
+		public IHttpClientHandler Handler {
+			get;
+		}
+
+		public IHttpClient Client {
+			get;
+		}
+
+		public IHttpClientProvider Provider {
+			get;
+		}
+
 		HttpMethod method = HttpMethod.Get;
 		string contentType;
 		string obscureMethod;

@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.HttpHandlers
 	public abstract class Handler : Xamarin.AsyncTests.ICloneable, ITestParameter
 	{
 		static int next_id;
-		public readonly int ID = Interlocked.Increment (ref next_id);
+		public int ID => Interlocked.Increment (ref next_id);
 
 		public RequestFlags Flags {
 			get { return flags; }

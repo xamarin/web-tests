@@ -50,7 +50,7 @@ namespace Xamarin.WebTests.Server {
 			get { return sslStream; }
 		}
 
-		internal override IPEndPoint RemoteEndPoint => remoteEndPoint;
+		public override IPEndPoint RemoteEndPoint => remoteEndPoint;
 
 		SslStream sslStream;
 		IPEndPoint remoteEndPoint;

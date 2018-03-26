@@ -248,6 +248,12 @@ namespace Xamarin.WebTests.HttpFramework
 			return Server.Listener.RegisterOperation (ctx, this, handler, path);
 		}
 
+		public HttpResponse CreateRedirect (TestContext ctx, HttpStatusCode code, Handler target)
+		{
+			var redirect = RegisterRedirect (ctx, target);
+			return HttpResponse.CreateRedirect (code, redirect);
+		}
+
 		internal async Task StartDelayedListener (TestContext ctx)
 		{
 			/*

@@ -65,6 +65,12 @@ namespace Xamarin.WebTests.TestFramework
 			return setup.UsingDotNet || setup.HasNewWebStack;
 		}
 
+		bool SupportsGZip ()
+		{
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+			return setup.SupportsGZip;
+		}
+
 		bool IsSupported (TestContext ctx, ConnectionProvider provider)
 		{
 			if (!provider.HasFlag (ConnectionProviderFlags.SupportsHttp))
@@ -86,6 +92,12 @@ namespace Xamarin.WebTests.TestFramework
 				return SupportsSsl (provider);
 			case HttpServerTestCategory.RecentlyFixed:
 				return HasNewWebStack () && SupportsSsl (provider);
+			case HttpServerTestCategory.GZip:
+				return SupportsGZip ();
+			case HttpServerTestCategory.GZipInstrumentation:
+				return SupportsGZip () && SupportsSsl (provider);
+			case HttpServerTestCategory.Ignore:
+				return false;
 			default:
 				throw ctx.AssertFail (Category);
 			}
@@ -95,9 +107,22 @@ namespace Xamarin.WebTests.TestFramework
 		{
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 			var providers = factory.GetProviders (p => IsSupported (ctx, p)).ToList ();
-			if (providers.Count == 0)
+			if (providers.Count == 0 && !Optional)
 				throw ctx.AssertFail ($"No supported ConnectionProvider for `{Category}'.");
 			return providers;
+		}
+
+		bool Optional {
+			get {
+				switch (Category) {
+				case HttpServerTestCategory.GZip:
+				case HttpServerTestCategory.GZipInstrumentation:
+				case HttpServerTestCategory.Ignore:
+					return true;
+				default:
+					return false;
+				}
+			}
 		}
 
 		bool UsingSsl {
@@ -117,6 +142,7 @@ namespace Xamarin.WebTests.TestFramework
 				case HttpServerTestCategory.Instrumentation:
 				case HttpServerTestCategory.NewWebStackInstrumentation:
 				case HttpServerTestCategory.RecentlyFixed:
+				case HttpServerTestCategory.GZipInstrumentation:
 					return true;
 				default:
 					return false;
@@ -146,6 +172,23 @@ namespace Xamarin.WebTests.TestFramework
 			}
 		}
 
+		bool SupportsHttp {
+			get {
+				switch (Category) {
+				case HttpServerTestCategory.Default:
+					return true;
+				case HttpServerTestCategory.NewWebStack:
+					return HasNewWebStack ();
+				case HttpServerTestCategory.GZip:
+					return SupportsGZip ();
+				case HttpServerTestCategory.Ignore:
+					return false;
+				default:
+					return false;
+				}
+			}
+		}
+
 		public IEnumerable<HttpServerProvider> GetProviders (TestContext ctx)
 		{
 			HttpServerFlags serverFlags = HttpServerFlags.None;
@@ -157,16 +200,16 @@ namespace Xamarin.WebTests.TestFramework
 				yield break;
 			}
 
-			if (!RequireSsl) {
-				serverFlags |= HttpServerFlags.NoSSL;
-				yield return new HttpServerProvider ("http", serverFlags, null);
+			if (!RequireSsl && SupportsHttp) {
+				yield return new HttpServerProvider (
+					"http", serverFlags | HttpServerFlags.NoSSL, null);
 			}
 
 			if (!UsingSsl)
 				yield break;
 
 			var supportedProviders = GetSupportedProviders (ctx);
-			if (supportedProviders.Count () == 0)
+			if (supportedProviders.Count () == 0 && !Optional)
 				ctx.AssertFail ("Could not find any supported HttpServerProvider.");
 
 			serverFlags |= HttpServerFlags.SSL;

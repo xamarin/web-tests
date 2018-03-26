@@ -101,9 +101,9 @@ namespace Xamarin.WebTests.TestRunners
 
 		internal InstrumentationOperation PrimaryOperation => currentOperation;
 		internal InstrumentationOperation QueuedOperation => queuedOperation;
-		protected int ReadHandlerCalled => readHandlerCalled;
+		public int ReadHandlerCalled => readHandlerCalled;
 
-		internal InstrumentationHandler PrimaryHandler => (InstrumentationHandler)PrimaryOperation.Handler;
+		public Handler PrimaryHandler => PrimaryOperation.Handler;
 
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
@@ -167,6 +167,15 @@ namespace Xamarin.WebTests.TestRunners
 			}
 			operation.Start (ctx, cancellationToken);
 			return operation;
+		}
+
+		public Task RunParallelOperation (
+			TestContext ctx, Handler handler, HttpOperationFlags flags,
+			CancellationToken cancellationToken)
+		{
+			return StartOperation (
+				ctx, cancellationToken, handler,
+				InstrumentationOperationType.Parallel, flags).WaitForCompletion ();
 		}
 
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)

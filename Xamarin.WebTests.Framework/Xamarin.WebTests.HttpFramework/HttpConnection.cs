@@ -65,7 +65,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public event EventHandler ClosedEvent;
 
-		internal abstract IPEndPoint RemoteEndPoint {
+		public abstract IPEndPoint RemoteEndPoint {
 			get;
 		}
 

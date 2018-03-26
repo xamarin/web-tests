@@ -64,7 +64,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected void AssertNotReusingConnection (TestContext ctx, HttpConnection connection)
 		{
-			var firstHandler = TestRunner.PrimaryHandler;
+			var firstHandler = (InstrumentationHandler)TestRunner.PrimaryHandler;
 			ctx.LogDebug (2, $"{ME}: {this == firstHandler} {RemoteEndPoint}");
 			if (this == firstHandler)
 				return;
@@ -73,7 +73,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected void AssertReusingConnection (TestContext ctx, HttpConnection connection)
 		{
-			var firstHandler = TestRunner.PrimaryHandler;
+			var firstHandler = (InstrumentationHandler)TestRunner.PrimaryHandler;
 			ctx.LogDebug (2, $"{ME}: {this == firstHandler} {RemoteEndPoint}");
 			if (this == firstHandler)
 				return;

@@ -35,9 +35,12 @@ namespace Xamarin.WebTests.TestFramework
 		Stress,
 		NewWebStack,
 		NewWebStackInstrumentation,
+		GZip,
+		GZipInstrumentation,
 		RecentlyFixed,
 		Experimental,
 		HttpListener,
+		Ignore,
 
 		MartinTest
 	}

@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return Task.FromResult<object> (null); }
 		}
 
-		internal static async Task WaitWithTimeout (TestContext ctx, int timeout, params Task[] tasks)
+		public static async Task WaitWithTimeout (TestContext ctx, int timeout, params Task[] tasks)
 		{
 			var timeoutTask = Task.Delay (timeout);
 			var allTasks = new Task[tasks.Length + 1];

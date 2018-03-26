@@ -89,6 +89,8 @@ namespace Xamarin.WebTests.HttpHandlers
 			RequestExt.SetSendChunked (true);
 		}
 
+		public virtual bool HasContent => Content != null;
+
 		public async Task<Response> Send (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
@@ -118,7 +120,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			cts.Token.Register (() => Request.Abort ());
 
 			try {
-				if (Content != null)
+				if (HasContent)
 					await WriteBody (ctx, cancellationToken).ConfigureAwait (false);
 
 				var response = await RequestExt.GetResponseAsync ().ConfigureAwait (false);
@@ -157,7 +159,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		TraditionalResponse Send (TestContext ctx)
 		{
 			try {
-				if (Content != null) {
+				if (HasContent) {
 					using (var stream = RequestExt.GetRequestStream ())
 						Content.WriteToAsync (ctx, stream, CancellationToken.None).Wait ();
 				}
