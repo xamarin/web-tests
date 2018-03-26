@@ -30,7 +30,7 @@ namespace Xamarin.WebTests.TestAttributes
 {
 	using TestFramework;
 
-	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public sealed class HttpServerTestCategoryAttribute: FixedTestParameterAttribute
 	{
 		public override Type Type => typeof (HttpServerTestCategory);

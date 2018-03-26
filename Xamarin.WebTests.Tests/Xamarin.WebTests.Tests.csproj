@@ -40,9 +40,64 @@
     <Compile Include="Xamarin.WebTests.Tests\TestHttpInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.Tests\MartinTest.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpStress.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestHttpClient.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpListener.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestHttpRequests.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\Simple.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\RequestTestFixture.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\TraditionalHandlerFixture.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\SimplePost.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\SimpleRedirect.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\PostRedirect.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\Get404.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\RedirectNoReuse.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\GetChunked.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\LargeHeader.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\SendResponseAsBlob.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\CustomHandlerFixture.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\PutChunked.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\PostContentLength.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\CustomHandler.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\PostChunked.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\LargeChunkRead.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\CloseRequestStream.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\CustomHost.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\SimpleGZip.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\GetNoLength.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\TestResponseStream.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\RedirectNoLength.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\ReadTimeout.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\ServerAbortsPost.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\ClientAbortsPost.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\EntityTooBig.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\LargeGZipRead.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\GZipWithLength.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\ResponseStreamCheckLength.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\WritingBodyThrows.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\ChunkedTrailingHeaders.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\HttpClientTestFixture.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\Simple.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\TraditionalHandlerFixture.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\GetString.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\SendAsync.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\PostString.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\PutString.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\PutData.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\GetError.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\ChunkSizeWithLeadingZero.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\RedirectCustomContent.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\SimpleGZip.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\CustomHandlerFixture.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\CustomHandler.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\CancelPost.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\CustomRequest.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\CancelPostWhileWriting.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\ParallelRequests.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\ParallelGZip.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\SimpleQueuedRequest.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\SequentialRequests.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\InstrumentationFixture.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\SequentialChunked.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\SequentialGZip.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientTests\ReuseHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
@@ -65,5 +120,9 @@
     <Reference Include="Xamarin.WebTests.PortableSecurity">
       <HintPath>..\PCL\Xamarin.WebTests.PortableSecurity.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Xamarin.WebTests.HttpRequestTests\" />
+    <Folder Include="Xamarin.WebTests.HttpClientTests\" />
   </ItemGroup>
 </Project>

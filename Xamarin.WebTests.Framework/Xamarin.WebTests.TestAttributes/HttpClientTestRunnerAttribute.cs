@@ -43,9 +43,12 @@ namespace Xamarin.WebTests.TestAttributes
 		{
 			var provider = ctx.GetParameter<HttpServerProvider> ();
 
-			var type = ctx.GetParameter<HttpClientTestType> ();
+			IHttpClientTestFixture instance;
+			if (!ctx.TryGetFixtureInstance (out instance))
+				instance = ctx.GetParameter<IHttpClientTestFixture> ();
 
-			return new HttpClientTestRunner (provider, type);
+			return new HttpClientTestRunner (provider, instance);
+
 		}
 	}
 }
