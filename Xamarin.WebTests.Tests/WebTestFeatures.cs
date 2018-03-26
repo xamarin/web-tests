@@ -45,12 +45,13 @@ using Xamarin.WebTests.TestFramework;
 namespace Xamarin.WebTests
 {
 	using HttpFramework;
+	using HttpHandlers;
 	using TestFramework;
 	using Resources;
 	using Server;
 	using Tests;
 
-	public class WebTestFeatures : ITestConfigurationProvider, ISingletonInstance
+	public class WebTestFeatures : IAsyncTestAssembly, ISingletonInstance
 	{
 		public static WebTestFeatures Instance {
 			get { return DependencyInjector.Get<WebTestFeatures> (); }
@@ -259,6 +260,17 @@ namespace Xamarin.WebTests
 			{
 				DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
 			}
+		}
+
+		public void GlobalSetUp (TestContext ctx)
+		{
+			ctx.LogMessage ($"{Name} GLOBAL SET UP!");
+		}
+
+		public void GlobalTearDown (TestContext ctx)
+		{
+			ctx.LogMessage ($"{Name} GLOBAL TEAR DOWN!");
+			Response.CheckLeakingInstances (ctx);
 		}
 	}
 }

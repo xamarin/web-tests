@@ -415,7 +415,7 @@ namespace Xamarin.WebTests.TestRunners
 				ME = $"{GetType ().Name}({TestRunner.EffectiveType})";
 			}
 
-			protected override async Task<Response> GetResponseFromHttp (
+			protected override async Task<TraditionalResponse> GetResponseFromHttp (
 				TestContext ctx, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
 			{
 				cancellationToken.ThrowIfCancellationRequested ();
@@ -441,13 +441,10 @@ namespace Xamarin.WebTests.TestRunners
 					}
 				}
 
-				var status = response.StatusCode;
-
-				response.Dispose ();
 				finishedTcs.TrySetResult (true);
-				return new SimpleResponse (this, status, content, error);
+				return new TraditionalResponse (this, response, content, error);
 
-				async Task<Response> ReadWithTimeout (int timeout, WebExceptionStatus expectedStatus)
+				async Task<TraditionalResponse> ReadWithTimeout (int timeout, WebExceptionStatus expectedStatus)
 				{
 					StreamReader reader = null;
 					try {
@@ -464,7 +461,7 @@ namespace Xamarin.WebTests.TestRunners
 						throw ctx.AssertFail ("Expected exception.");
 					} catch (WebException wexc) {
 						ctx.Assert ((WebExceptionStatus)wexc.Status, Is.EqualTo (expectedStatus));
-						return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, wexc);
+						return new TraditionalResponse (this, HttpStatusCode.InternalServerError, wexc);
 					} finally {
 						finishedTcs.TrySetResult (true);
 					}

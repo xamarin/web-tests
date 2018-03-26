@@ -153,7 +153,7 @@ namespace Xamarin.WebTests.HttpFramework
 				await response.InternalRead (ctx, reader, cancellationToken).ConfigureAwait (false);
 				return response;
 			} catch (Exception ex) {
-				return CreateError (ex);
+				return CreateError ("Failed to read response", ex);
 			}
 		}
 
@@ -318,14 +318,14 @@ namespace Xamarin.WebTests.HttpFramework
 			return new HttpResponse (HttpStatusCode.OK, body != null ? new StringContent (body) : null);
 		}
 
-		public static HttpResponse CreateError (string message, params object[] args)
+		public static HttpResponse CreateError (string message)
 		{
-			return new HttpResponse (HttpStatusCode.InternalServerError, new StringContent (string.Format (message, args)));
+			return new HttpResponse (HttpStatusCode.InternalServerError, new StringContent (message));
 		}
 
-		public static HttpResponse CreateError (Exception error)
+		public static HttpResponse CreateError (string message, Exception error)
 		{
-			return new HttpResponse (HttpStatusCode.InternalServerError, new StringContent (string.Format ("Got exception: {0}", error)));
+			return new HttpResponse (HttpStatusCode.InternalServerError, new StringContent ($"Got exception: {error}"));
 		}
 
 		public override string ToString ()

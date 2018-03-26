@@ -1,10 +1,10 @@
 ﻿//
-// Response.cs
+// TraditionalResponse.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,64 +24,71 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
+	using ConnectionFramework;
 	using HttpFramework;
 
-	public abstract class Response : IDisposable
+	public class TraditionalResponse : Response
 	{
-		public Request Request {
+		public HttpWebResponse Response {
 			get;
-			private set;
 		}
 
-		public Response (Request request)
+		public TraditionalResponse (
+			TraditionalRequest request, HttpWebResponse response,
+			HttpContent content, Exception error = null)
+			: base (request)
 		{
-			Request = request;
-			Interlocked.Increment (ref countInstances);
+			Response = response;
+			Status = response.StatusCode;
+			Content = content;
+			Error = error;
+
+			// FIXME: .NET does not allow accessing StatusCode after the
+			// response has been disposed.
+			var contentType = response.ContentType;
+			if (string.Equals (contentType, "SHOULD-NEVER-HAPPEN"))
+				throw new InvalidOperationException ();
 		}
 
-		public abstract HttpStatusCode Status {
-			get;
-		}
-
-		public abstract bool IsSuccess {
-			get;
-		}
-
-		public abstract Exception Error {
-			get;
-		}
-
-		public abstract HttpContent Content {
-			get;
-		}
-
-		int disposed;
-		static int countInstances;
-
-		protected virtual void Close ()
+		public TraditionalResponse (
+			TraditionalRequest request, HttpStatusCode status,
+			Exception error)
+			: base (request)
 		{
-			Interlocked.Decrement (ref countInstances);
+			Status = status;
+			Error = error;
+
+			if (error is WebException webException)
+				Response = (HttpWebResponse)webException.Response;
 		}
 
-		public static void CheckLeakingInstances (TestContext ctx)
-		{
-			ctx.LogMessage ($"LEAKING RESPONSE INSTANCES: {countInstances}");
+		public sealed override HttpStatusCode Status {
+			get;
 		}
 
-		public void Dispose ()
-		{
-			if (Interlocked.CompareExchange (ref disposed, 1, 0) != 0)
-				return;
+		public override bool IsSuccess => Error == null;
 
-			Close ();
+		public sealed override Exception Error {
+			get;
+		}
+
+		public sealed override HttpContent Content {
+			get;
+		}
+
+		protected override void Close ()
+		{
+			Response?.Dispose ();
+			base.Close ();
 		}
 	}
 }
-

@@ -40,26 +40,57 @@ namespace Xamarin.WebTests.HttpFramework
 
 	public class ChunkedContent : HttpContent
 	{
-		List<string> chunks;
+		byte[][] chunkArray;
+		string contentAsString;
+		Dictionary<string, string> headers;
+
+		public bool WriteAsBlob {
+			get; set;
+		}
+
+		internal IReadOnlyDictionary<string, string> ExtraHeaders {
+			get { return headers; }
+		}
 
 		public ChunkedContent (params string[] chunks)
 		{
-			this.chunks = new List<string> (chunks);
+			chunkArray = CreateChunkArray (chunks);
+			Length = chunkArray.Sum (c => c.Length);
+			contentAsString = string.Concat (chunks);
 		}
 
-		public ChunkedContent (IEnumerable<string> chunks)
+		public ChunkedContent (IReadOnlyList<string> chunks)
 		{
-			this.chunks = new List<string> (chunks);
+			chunkArray = CreateChunkArray (chunks);
+			Length = chunkArray.Sum (c => c.Length);
+			contentAsString = string.Concat (chunks);
+		}
+
+		static byte[][] CreateChunkArray (IReadOnlyList<string> chunks)
+		{
+			var array = new byte[chunks.Count][];
+			for (int i = 0; i < chunks.Count; i++) {
+				array[i] = Encoding.UTF8.GetBytes (chunks[i]);
+			}
+			return array;
+		}
+
+		public ChunkedContent (ICollection<byte[]> chunks)
+		{
+			chunkArray = chunks.ToArray ();
+			Length = chunkArray.Sum (c => c.Length);
+		}
+
+		public void AddExtraHeader (string header, string value)
+		{
+			if (headers == null)
+				headers = new Dictionary<string, string> ();
+			headers.Add (header, value);
 		}
 
 		internal IReadOnlyList<byte[]> CopyChunks ()
 		{
-			var list = new List<byte[]> ();
-			foreach (var chunk in chunks) {
-				var bytes = Encoding.UTF8.GetBytes (chunk);
-				list.Add (bytes);
-			}
-			return list;
+			return chunkArray;
 		}
 
 		public static async Task<ChunkedContent> ReadNonChunked (HttpStreamReader reader, CancellationToken cancellationToken)
@@ -127,41 +158,54 @@ namespace Xamarin.WebTests.HttpFramework
 			return buffer;
 		}
 
-		public static async Task WriteChunk (Stream stream, byte[] chunk, CancellationToken cancellationToken)
+		static async Task WriteChunk (Stream stream, byte[] chunk, CancellationToken cancellationToken)
 		{
 			await stream.WriteAsync ($"{chunk.Length:x}\r\n", cancellationToken).ConfigureAwait (false);
 			await stream.WriteAsync (chunk, cancellationToken);
 			await stream.WriteAsync ("\r\n", cancellationToken);
 		}
 
-		public static async Task WriteChunkAsBlob (Stream stream, byte[] chunk, CancellationToken cancellationToken)
+		static async Task WriteChunkAsBlob (Stream stream, byte[] chunk, CancellationToken cancellationToken)
 		{
 			using (var ms = new MemoryStream ()) {
 				var header = Encoding.UTF8.GetBytes ($"{chunk.Length:x}\r\n");
-				var newline = Encoding.UTF8.GetBytes ("\n\r");
+				var newline = Encoding.UTF8.GetBytes ("\r\n");
 				ms.Write (header, 0, header.Length);
 				ms.Write (chunk, 0, chunk.Length);
 				ms.Write (newline, 0, newline.Length);
 				await stream.WriteAsync (ms.ToArray (), cancellationToken).ConfigureAwait (false);
+				await stream.FlushAsync ().ConfigureAwait (false);
 			}
 		}
 
-		public static Task WriteChunkTrailer (Stream stream, CancellationToken cancellationToken)
+		async Task WriteChunkTrailer (Stream stream, CancellationToken cancellationToken)
 		{
-			return stream.WriteAsync ("0\r\n\r\n", cancellationToken);
+			if (ExtraHeaders == null) {
+				await stream.WriteAsync ("0\r\n\r\n", cancellationToken).ConfigureAwait (false);
+				return;
+			}
+
+			await stream.WriteAsync ("0\r\n").ConfigureAwait (false);
+			foreach (var entry in ExtraHeaders) {
+				await stream.WriteAsync ($"{entry.Key}: {entry.Value}\r\n", cancellationToken);
+			}
+
+			await stream.WriteAsync ("\r\n");
 		}
 
 		public override bool HasLength {
 			get { return true; }
 		}
 
-		public override int Length {
-			get { return chunks.Sum (c => c.Length); }
+		public sealed override int Length {
+			get;
 		}
 
 		public override string AsString ()
 		{
-			return string.Join (string.Empty, chunks);
+			if (contentAsString == null)
+				throw new NotSupportedException ();
+			return contentAsString;
 		}
 
 		public override byte[] AsByteArray ()
@@ -176,10 +220,14 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public override async Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
-			foreach (var chunk in chunks) {
-				var bytes = Encoding.UTF8.GetBytes (chunk);
-				await WriteChunk (stream, bytes, cancellationToken).ConfigureAwait (false);
+			foreach (var chunk in chunkArray) {
+				cancellationToken.ThrowIfCancellationRequested ();
+				if (WriteAsBlob)
+					await WriteChunkAsBlob (stream, chunk, cancellationToken).ConfigureAwait (false);
+				else
+					await WriteChunk (stream, chunk, cancellationToken).ConfigureAwait (false);
 			}
+			cancellationToken.ThrowIfCancellationRequested ();
 			await WriteChunkTrailer (stream, cancellationToken).ConfigureAwait (false);
 		}
 	}

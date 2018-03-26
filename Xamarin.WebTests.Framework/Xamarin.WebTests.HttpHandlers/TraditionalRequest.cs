@@ -126,22 +126,22 @@ namespace Xamarin.WebTests.HttpHandlers
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
 				if (response == null)
-					return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, wexc);
+					return new TraditionalResponse (this, HttpStatusCode.InternalServerError, wexc);
 
 				return await GetResponseFromHttp (ctx, response, wexc, cancellationToken);
 			} catch (Exception ex) {
-				return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, ex);
+				return new TraditionalResponse (this, HttpStatusCode.InternalServerError, ex);
 			} finally {
 				cts.Dispose ();
 			}
 		}
 
-		Response GetResponseFromHttpSync (TestContext ctx, HttpWebResponse response, WebException error)
+		TraditionalResponse GetResponseFromHttpSync (TestContext ctx, HttpWebResponse response, WebException error)
 		{
 			return GetResponseFromHttp (ctx, response, error, CancellationToken.None).Result;
 		}
 
-		protected async virtual Task<Response> GetResponseFromHttp (TestContext ctx, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
+		protected async virtual Task<TraditionalResponse> GetResponseFromHttp (TestContext ctx, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
 		{
 			string content = null;
 			var status = response.StatusCode;
@@ -150,12 +150,11 @@ namespace Xamarin.WebTests.HttpHandlers
 				if (!reader.EndOfStream)
 					content = await reader.ReadToEndAsync ().ConfigureAwait (false);
 			}
-			response.Dispose ();
 
-			return new SimpleResponse (this, status, StringContent.CreateMaybeNull (content), error);
+			return new TraditionalResponse (this, response, StringContent.CreateMaybeNull (content), error);
 		}
 
-		Response Send (TestContext ctx)
+		TraditionalResponse Send (TestContext ctx)
 		{
 			try {
 				if (Content != null) {
@@ -168,11 +167,11 @@ namespace Xamarin.WebTests.HttpHandlers
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;
 				if (response == null)
-					return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, wexc);
+					return new TraditionalResponse (this, HttpStatusCode.InternalServerError, wexc);
 
 				return GetResponseFromHttpSync (ctx, response, wexc);
 			} catch (Exception ex) {
-				return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, ex);
+				return new TraditionalResponse (this, HttpStatusCode.InternalServerError, ex);
 			}
 		}
 

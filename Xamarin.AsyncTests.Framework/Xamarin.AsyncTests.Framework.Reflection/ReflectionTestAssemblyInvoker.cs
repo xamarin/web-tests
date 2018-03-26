@@ -1,5 +1,5 @@
 ﻿//
-// HttpRequestTestType.cs
+// ReflectionTestAssemblyInvoker.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -23,51 +23,51 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Xamarin.WebTests.TestRunners
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	using TestAttributes;
-
-	[HttpRequestTestType]
-	public enum HttpRequestTestType
+	class ReflectionTestAssemblyInvoker : AggregatedTestInvoker
 	{
-		Simple,
-		SimplePost,
-		SimpleRedirect,
-		PostRedirect,
-		Get404,
-		LargeHeader,
-		LargeHeader2,
-		SendResponseAsBlob,
-		CloseRequestStream,
-		ReadTimeout,
+		public ReflectionTestAssemblyBuilder Builder {
+			get;
+		}
 
-		RedirectNoReuse,
-		RedirectNoLength,
-		PutChunked,
-		PutChunkDontCloseRequest,
-		ServerAbortsRedirect,
-		ServerAbortsPost,
-		PostChunked,
-		EntityTooBig,
-		PostContentLength,
-		ClientAbortsPost,
-		GetChunked,
-		SimpleGZip,
-		TestResponseStream,
-		LargeChunkRead,
-		LargeGZipRead,
-		GZipWithLength,
-		ResponseStreamCheckLength,
-		ResponseStreamCheckLength2,
-		ChunkedTrailingHeaders,
-		WritingBodyThrows,
-		GetNoLength,
+		public TestPathTreeNode Node {
+			get;
+		}
 
-		ImplicitHost,
-		CustomHost,
-		CustomHostWithPort,
-		CustomHostDefaultPort,
+		public TestInvoker Inner {
+			get;
+		}
 
-		MartinTest
+		public ReflectionTestAssemblyInvoker (
+			ReflectionTestAssemblyBuilder builder, TestPathTreeNode node,
+			TestFlags flags = TestFlags.ContinueOnError)
+			: base (flags)
+		{
+			Builder = builder;
+			Node = node;
+
+			Inner = new TestCollectionInvoker (Builder, node);
+		}
+
+		public override async Task<bool> Invoke (
+			TestContext ctx, TestInstance instance,
+			CancellationToken cancellationToken)
+		{
+			if (Builder.AssemblyInstance != null)
+				Builder.AssemblyInstance.GlobalSetUp (ctx);
+
+			try {
+				return await InvokeInner (
+					ctx, instance, Inner, cancellationToken).ConfigureAwait (false);
+			} finally {
+				if (Builder.AssemblyInstance != null)
+					Builder.AssemblyInstance.GlobalTearDown (ctx);
+			}
+		}
 	}
 }

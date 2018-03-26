@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.WebTests;
 using Xamarin.WebTests.TestFramework;
+using Xamarin.WebTests.HttpHandlers;
 using Xamarin.WebTests.MonoTests;
 using Xamarin.WebTests.MonoConnectionFramework;
 using Xamarin.WebTests.MonoTestFeatures;
@@ -37,7 +38,7 @@ using Xamarin.WebTests.MonoTestFeatures;
 
 namespace Xamarin.WebTests.MonoTests
 {
-	public class MonoWebTestFeatures : ITestConfigurationProvider, ISingletonInstance
+	public class MonoWebTestFeatures : IAsyncTestAssembly, ISingletonInstance
 	{
 		public static MonoWebTestFeatures Instance {
 			get { return DependencyInjector.Get<MonoWebTestFeatures> (); }
@@ -71,6 +72,17 @@ namespace Xamarin.WebTests.MonoTests
 
 		public string Name {
 			get { return "MonoTestFeatures"; }
+		}
+
+		public void GlobalSetUp (TestContext ctx)
+		{
+			ctx.LogMessage ($"{Name} GLOBAL SET UP!");
+		}
+
+		public void GlobalTearDown (TestContext ctx)
+		{
+			ctx.LogMessage ($"{Name} GLOBAL TEAR DOWN!");
+			Response.CheckLeakingInstances (ctx);
 		}
 	}
 }

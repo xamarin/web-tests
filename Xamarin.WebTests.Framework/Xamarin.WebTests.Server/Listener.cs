@@ -521,6 +521,9 @@ namespace Xamarin.WebTests.Server
 				}
 			}
 
+			if (throwMe == null)
+				throwMe = operation.PendingError;
+
 			if (throwMe != null) {
 				ctx.LogDebug (2, $"{me} THROWING {throwMe.SourceException.Message}");
 				lock (this) {

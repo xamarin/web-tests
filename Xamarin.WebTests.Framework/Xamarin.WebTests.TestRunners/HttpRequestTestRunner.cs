@@ -62,7 +62,7 @@ namespace Xamarin.WebTests.TestRunners
 			Type = type;
 		}
 
-		const HttpRequestTestType MartinTest = HttpRequestTestType.Simple;
+		const HttpRequestTestType MartinTest = HttpRequestTestType.ChunkedTrailingHeaders;
 
 		static readonly (HttpRequestTestType type, HttpRequestTestFlags flags)[] TestRegistration = {
 			(HttpRequestTestType.Simple, HttpRequestTestFlags.Working),
@@ -98,6 +98,8 @@ namespace Xamarin.WebTests.TestRunners
 			(HttpRequestTestType.CustomHost, HttpRequestTestFlags.Working),
 			(HttpRequestTestType.CustomHostWithPort, HttpRequestTestFlags.Working),
 			(HttpRequestTestType.CustomHostDefaultPort, HttpRequestTestFlags.Working),
+			(HttpRequestTestType.ChunkedTrailingHeaders, HttpRequestTestFlags.Ignore),
+			(HttpRequestTestType.WritingBodyThrows, HttpRequestTestFlags.Ignore)
 		};
 
 		public static IList<HttpRequestTestType> GetInstrumentationTypes (TestContext ctx, HttpServerTestCategory category)

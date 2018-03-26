@@ -126,13 +126,13 @@ namespace Xamarin.WebTests.HttpOperations
 				Runner = runner;
 			}
 
-			protected override Task<Response> GetResponseFromHttp (TestContext ctx, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
+			protected override Task<TraditionalResponse> GetResponseFromHttp (TestContext ctx, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
 			{
 				return Runner.GetResponseFromHttp (ctx, this, response, error, cancellationToken);
 			}
 		}
 
-		async Task<Response> GetResponseFromHttp (TestContext ctx, ChunkedRequest request, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
+		async Task<TraditionalResponse> GetResponseFromHttp (TestContext ctx, ChunkedRequest request, HttpWebResponse response, WebException error, CancellationToken cancellationToken)
 		{
 			var content = string.Empty;
 			var status = response.StatusCode;
@@ -191,10 +191,9 @@ namespace Xamarin.WebTests.HttpOperations
 				content = null;
 			} finally {
 				stream.Dispose ();
-				response.Dispose ();
 			}
 
-			return new SimpleResponse (request, status, StringContent.CreateMaybeNull (content), error);
+			return new TraditionalResponse (request, response, StringContent.CreateMaybeNull (content), error);
 		}
 
 		static string ChunkTypeName (ChunkedOperationType type)

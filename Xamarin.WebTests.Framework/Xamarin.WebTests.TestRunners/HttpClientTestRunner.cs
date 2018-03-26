@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.TestRunners
 			Type = type;
 		}
 
-		const HttpClientTestType MartinTest = HttpClientTestType.CancelPostWhileWriting;
+		const HttpClientTestType MartinTest = HttpClientTestType.Simple;
 
 		static readonly (HttpClientTestType type, HttpClientTestFlags flags)[] TestRegistration = {
 			(HttpClientTestType.Simple, HttpClientTestFlags.Working),

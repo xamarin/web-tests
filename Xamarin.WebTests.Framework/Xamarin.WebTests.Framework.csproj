@@ -253,6 +253,8 @@
     <Compile Include="Xamarin.WebTests.HttpHandlers\ExternalHandler.cs" />
     <Compile Include="Xamarin.WebTests.Resources\TlsTestInternalData.cs" />
     <Compile Include="Xamarin.WebTests.Resources\TlsTestInternalDataCA.cs" />
+    <Compile Include="Xamarin.WebTests.HttpFramework\MultipleBinaryContent.cs" />
+    <Compile Include="Xamarin.WebTests.HttpHandlers\TraditionalResponse.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

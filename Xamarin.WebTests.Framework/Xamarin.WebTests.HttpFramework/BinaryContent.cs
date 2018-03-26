@@ -25,8 +25,10 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
@@ -37,12 +39,12 @@ namespace Xamarin.WebTests.HttpFramework
 	{
 		public byte[] Data {
 			get;
-			private set;
 		}
 
 		public BinaryContent (byte[] data)
 		{
 			Data = data;
+			Length = data.Length;
 		}
 
 		public static BinaryContent CreateRandom (int size)
@@ -53,12 +55,10 @@ namespace Xamarin.WebTests.HttpFramework
 			return new BinaryContent (data);
 		}
 
-		public override bool HasLength {
-			get { return true; }
-		}
+		public override bool HasLength => true;
 
-		public override int Length {
-			get { return Data.Length; }
+		public sealed override int Length {
+			get;
 		}
 
 		public override string AsString ()
@@ -84,7 +84,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public override Task WriteToAsync (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException ();
 		}
 
 		protected override bool IsNullOrEmpty ()

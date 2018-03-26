@@ -60,8 +60,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return null; }
 		}
 
+		public IAsyncTestAssembly AssemblyInstance {
+			get;
+			private set;
+		}
+
 		protected override IEnumerable<TestBuilder> CreateChildren ()
 		{
+			var instance = DependencyInjector.Get (Assembly.Attribute.Type);
+			AssemblyInstance = instance as IAsyncTestAssembly;
+
 			foreach (var type in Assembly.Assembly.ExportedTypes) {
 				var tinfo = type.GetTypeInfo ();
 				var attr = tinfo.GetCustomAttribute<AsyncTestFixtureAttribute> (true);
@@ -79,7 +87,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)
 		{
-			return new TestCollectionInvoker (this, node);
+			return new ReflectionTestAssemblyInvoker (this, node);
 		}
 	}
 }

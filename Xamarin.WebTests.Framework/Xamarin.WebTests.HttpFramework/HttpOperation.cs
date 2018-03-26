@@ -82,7 +82,7 @@ namespace Xamarin.WebTests.HttpFramework
 			ME = $"[{GetType ().Name}({ID}:{me})]";
 
 			requestTask = Listener.TaskSupport.CreateAsyncCompletionSource<Request> ();
-			requestDoneTask = Listener.TaskSupport.CreateAsyncCompletionSource<Response> ();
+			requestDoneTask = Listener.TaskSupport.CreateAsyncCompletionSource<object> ();
 			cts = new CancellationTokenSource ();
 		}
 
@@ -114,7 +114,7 @@ namespace Xamarin.WebTests.HttpFramework
 		ServicePoint servicePoint;
 		ListenerOperation listenerOperation;
 		TaskCompletionSource<Request> requestTask;
-		TaskCompletionSource<Response> requestDoneTask;
+		TaskCompletionSource<object> requestDoneTask;
 		CancellationTokenSource cts;
 		int requestStarted;
 
@@ -157,8 +157,8 @@ namespace Xamarin.WebTests.HttpFramework
 
 			var linkedCts = CancellationTokenSource.CreateLinkedTokenSource (cts.Token, cancellationToken);
 			try {
-				var response = await RunListener (ctx, externalUri, linkedCts.Token).ConfigureAwait (false);
-				requestDoneTask.TrySetResult (response);
+				await RunListener (ctx, externalUri, linkedCts.Token).ConfigureAwait (false);
+				requestDoneTask.TrySetResult (null);
 			} catch (OperationCanceledException) {
 				requestDoneTask.TrySetCanceled ();
 			} catch (Exception ex) {
@@ -174,7 +174,7 @@ namespace Xamarin.WebTests.HttpFramework
 			return requestTask.Task;
 		}
 
-		public Task<Response> WaitForCompletion ()
+		public Task WaitForCompletion ()
 		{
 			return requestDoneTask.Task;
 		}
@@ -198,7 +198,7 @@ namespace Xamarin.WebTests.HttpFramework
 			ctx.LogDebug (level, sb.ToString ());
 		}
 
-		async Task<Response> RunListener (TestContext ctx, Uri externalUri, CancellationToken cancellationToken)
+		async Task RunListener (TestContext ctx, Uri externalUri, CancellationToken cancellationToken)
 		{
 			var me = $"{ME} RUN LISTENER";
 			ctx.LogDebug (1, me);
@@ -236,9 +236,11 @@ namespace Xamarin.WebTests.HttpFramework
 
 			ctx.LogDebug (2, $"{me} DONE: {response}");
 
-			await Handler.CheckResponse (ctx, response, cancellationToken, ExpectedStatus, ExpectedError).ConfigureAwait (false);
-
-			return response;
+			try {
+				await Handler.CheckResponse (ctx, response, cancellationToken, ExpectedStatus, ExpectedError).ConfigureAwait (false);
+			} finally {
+				response.Dispose ();
+			}
 		}
 
 		internal ListenerOperation RegisterRedirect (TestContext ctx, Handler handler, string path = null)

@@ -1,5 +1,5 @@
 ﻿//
-// HttpRequestTestType.cs
+// IAsyncTestAssembly.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -23,51 +23,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Xamarin.WebTests.TestRunners
+namespace Xamarin.AsyncTests
 {
-	using TestAttributes;
-
-	[HttpRequestTestType]
-	public enum HttpRequestTestType
+	public interface IAsyncTestAssembly : ITestConfigurationProvider
 	{
-		Simple,
-		SimplePost,
-		SimpleRedirect,
-		PostRedirect,
-		Get404,
-		LargeHeader,
-		LargeHeader2,
-		SendResponseAsBlob,
-		CloseRequestStream,
-		ReadTimeout,
+		void GlobalSetUp (TestContext ctx);
 
-		RedirectNoReuse,
-		RedirectNoLength,
-		PutChunked,
-		PutChunkDontCloseRequest,
-		ServerAbortsRedirect,
-		ServerAbortsPost,
-		PostChunked,
-		EntityTooBig,
-		PostContentLength,
-		ClientAbortsPost,
-		GetChunked,
-		SimpleGZip,
-		TestResponseStream,
-		LargeChunkRead,
-		LargeGZipRead,
-		GZipWithLength,
-		ResponseStreamCheckLength,
-		ResponseStreamCheckLength2,
-		ChunkedTrailingHeaders,
-		WritingBodyThrows,
-		GetNoLength,
-
-		ImplicitHost,
-		CustomHost,
-		CustomHostWithPort,
-		CustomHostDefaultPort,
-
-		MartinTest
+		void GlobalTearDown (TestContext ctx);
 	}
 }

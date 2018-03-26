@@ -26,6 +26,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.ExceptionServices;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Server
@@ -63,6 +64,7 @@ namespace Xamarin.WebTests.Server
 		TaskCompletionSource<ListenerContext> contextTask;
 		TaskCompletionSource<object> finishedTask;
 		ListenerOperation parentOperation;
+		ExceptionDispatchInfo pendingError;
 		bool hasInstrumentation;
 
 		public ListenerOperation (Listener listener, HttpOperation operation, Handler handler, Uri uri)
@@ -88,6 +90,8 @@ namespace Xamarin.WebTests.Server
 			get;
 			private set;
 		}
+
+		internal ExceptionDispatchInfo PendingError => pendingError;
 
 		internal void AssignContext (ListenerContext context)
 		{
@@ -209,6 +213,9 @@ namespace Xamarin.WebTests.Server
 
 		void OnCanceled ()
 		{
+			var error = new OperationCanceledException ();
+			var captured = ExceptionDispatchInfo.Capture (error);
+			Interlocked.CompareExchange (ref pendingError, captured, null);
 			serverInitTask.TrySetCanceled ();
 			serverFinishedTask.TrySetCanceled ();
 			parentOperation?.OnCanceled ();
@@ -216,6 +223,8 @@ namespace Xamarin.WebTests.Server
 
 		internal void OnError (Exception error)
 		{
+			var captured = ExceptionDispatchInfo.Capture (error);
+			Interlocked.CompareExchange (ref pendingError, captured, null);
 			serverInitTask.TrySetException (error);
 			serverFinishedTask.TrySetException (error);
 			parentOperation?.OnCanceled ();

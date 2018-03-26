@@ -64,7 +64,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			await CompletedTask.ConfigureAwait (false);
 
 			if (!request.Method.Equals ("DELETE"))
-				return HttpResponse.CreateError ("Wrong method: {0}", request.Method);
+				return HttpResponse.CreateError ($"Wrong method: {request.Method}");
 
 			var hasExplicitLength = (Flags & RequestFlags.ExplicitlySetLength) != 0;
 
