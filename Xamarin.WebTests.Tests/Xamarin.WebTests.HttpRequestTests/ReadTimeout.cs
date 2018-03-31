@@ -34,51 +34,54 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.HttpRequestTests
 {
 	using TestFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class ReadTimeout : CustomHandlerFixture
+	[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
+	public class ReadTimeout : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.NewWebStack;
-
 		public override HttpStatusCode ExpectedStatus => HttpStatusCode.InternalServerError;
 
 		public override WebExceptionStatus ExpectedError => WebExceptionStatus.Timeout;
 
 		public override bool HasRequestBody => false;
 
-		public override bool CloseConnection => false;
+		public override RequestFlags RequestFlags => RequestFlags.KeepAlive;
+
+		TaskCompletionSource<bool> finishedTcs;
 
 		protected override void ConfigureRequest (
-			TestContext ctx, Uri uri, CustomHandler handler,
+			TestContext ctx, InstrumentationOperation operation,
 			TraditionalRequest request)
 		{
+			finishedTcs = new TaskCompletionSource<bool> ();
 			request.RequestExt.ReadWriteTimeout = 100;
-			base.ConfigureRequest (ctx, uri, handler, request);
+			base.ConfigureRequest (ctx, operation, request);
 		}
 
 		public override HttpResponse HandleRequest(
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
-			var content = new CustomContent (this, handler);
+			var content = new CustomContent (this);
 			return new HttpResponse (HttpStatusCode.OK, content);
 		}
 
 		protected override Task<TraditionalResponse> ReadResponse (
 			TestContext ctx, TraditionalRequest request,
-			CustomHandler handler, HttpWebResponse response,
-			WebException error, CancellationToken cancellationToken)
+			HttpWebResponse response, WebException error,
+			CancellationToken cancellationToken)
 		{
 			return ReadWithTimeout (
-				ctx, request, handler, response,
-				5000, WebExceptionStatus.Timeout);
+				ctx, request, response, 5000, WebExceptionStatus.Timeout);
 		}
 
 		async Task<TraditionalResponse> ReadWithTimeout (
 			TestContext ctx, TraditionalRequest request,
-			CustomHandler handler, HttpWebResponse response,
-			int timeout, WebExceptionStatus expectedStatus)
+			HttpWebResponse response, int timeout,
+			WebExceptionStatus expectedStatus)
 		{
 			StreamReader reader = null;
 			try
@@ -98,12 +101,11 @@ namespace Xamarin.WebTests.HttpRequestTests
 				ctx.Assert ((WebExceptionStatus)wexc.Status, Is.EqualTo (expectedStatus));
 				return new TraditionalResponse (request, HttpStatusCode.InternalServerError, wexc);
 			} finally {
-				handler.SetCompleted ();
+				finishedTcs.TrySetResult (true);
 			}
 		}
 
-		public override bool CheckResponse (
-			TestContext ctx, TraditionalResponse response)
+		public override bool CheckResponse (TestContext ctx, Response response)
 		{
 			return ctx.Expect (response.Status, Is.EqualTo (HttpStatusCode.OK), "response.StatusCode");
 		}
@@ -114,14 +116,9 @@ namespace Xamarin.WebTests.HttpRequestTests
 				get;
 			}
 
-			public CustomHandler Handler {
-				get;
-			}
-
-			public CustomContent (ReadTimeout parent, CustomHandler handler)
+			public CustomContent (ReadTimeout parent)
 			{
 				Parent = parent;
-				Handler = handler;
 			}
 
 			public override bool HasLength => true;
@@ -150,7 +147,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 			{
 				await stream.WriteAsync (ConnectionHandler.TheQuickBrownFoxBuffer, cancellationToken).ConfigureAwait (false);
 				await stream.FlushAsync (cancellationToken);
-				await Task.WhenAny (Handler.WaitForCompletion (), Task.Delay (10000));
+				await Task.WhenAny (Parent.finishedTcs.Task, Task.Delay (10000));
 			}
 		}
 	}

@@ -50,6 +50,10 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
+		public abstract HttpListenerContext ListenerContext {
+			get;
+		}
+
 		static int nextId;
 		public readonly int ID = ++nextId;
 

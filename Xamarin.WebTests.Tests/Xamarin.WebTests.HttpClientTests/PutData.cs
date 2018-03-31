@@ -34,10 +34,34 @@ namespace Xamarin.WebTests.HttpClientTests
 	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
 	[HttpServerTestCategory (HttpServerTestCategory.Default)]
-	public class PutData : TraditionalHandlerFixture
+	public class PutData : HttpClientTestFixture
 	{
+		public PutDataType Type {
+			get;
+		}
+
+		public HttpContent Content {
+			get;
+		}
+
+		[AsyncTest]
+		public PutData (PutDataType type)
+		{
+			Type = type;
+
+			switch (type) {
+			case PutDataType.SendLargeBlob:
+				Content = BinaryContent.CreateRandom (102400);
+				break;
+			case PutDataType.SendLargeBlobOddSize:
+				Content = BinaryContent.CreateRandom (102431);
+				break;
+			}
+		}
+
 		public enum PutDataType
 		{
 			// Bug 41206
@@ -45,27 +69,24 @@ namespace Xamarin.WebTests.HttpClientTests
 			SendLargeBlobOddSize,
 		}
 
-		public PutDataType Type {
-			get; set;
-		}
-
 		public override Handler CreateHandler (TestContext ctx)
 		{
 			switch (Type) {
 			case PutDataType.SendLargeBlob:
-				return new PostHandler (ME, BinaryContent.CreateRandom (102400));
+				return new PostHandler (ME, Content);
 			case PutDataType.SendLargeBlobOddSize:
-				return new PostHandler (ME, BinaryContent.CreateRandom (102431));
+				return new PostHandler (ME, Content);
 			default:
 				throw ctx.AssertFail (Type);
 			}
 		}
 
-		public override void ConfigureRequest (
-			TestContext ctx, Handler handler, Request request)
+		protected override void ConfigureRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			Request request, Uri uri)
 		{
-			request.Content = ((PostHandler)handler).Content;
-			base.ConfigureRequest (ctx, handler, request);
+			request.Content = Content;
+			base.ConfigureRequest (ctx, operation, request, uri);
 		}
 
 		public override Task<Response> Run (

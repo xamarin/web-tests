@@ -33,13 +33,14 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.HttpRequestTests
 {
 	using TestFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class ServerAbortsPost : CustomHandlerFixture
+	[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
+	public class ServerAbortsPost : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.NewWebStack;
-
 		public override HttpStatusCode ExpectedStatus => HttpStatusCode.BadRequest;
 
 		public override WebExceptionStatus ExpectedError => WebExceptionStatus.ProtocolError;
@@ -50,16 +51,16 @@ namespace Xamarin.WebTests.HttpRequestTests
 
 		public override HttpContent ExpectedContent => throw new InvalidOperationException ();
 
-		public override bool CloseConnection => true;
+		public override RequestFlags RequestFlags => RequestFlags.CloseConnection;
 
 		protected override void ConfigureRequest (
-			TestContext ctx, Uri uri, CustomHandler handler,
+			TestContext ctx, InstrumentationOperation operation,
 			TraditionalRequest request)
 		{
 			request.Method = "POST";
 			request.SetContentType ("application/x-www-form-urlencoded");
 			request.Content = new FormContent (("foo", "bar"), ("hello", "world"), ("escape", "this needs % escaping"));
-			base.ConfigureRequest (ctx, uri, handler, request);
+			base.ConfigureRequest (ctx, operation, request);
 		}
 
 		protected override Task<Response> SendRequest (
@@ -70,8 +71,8 @@ namespace Xamarin.WebTests.HttpRequestTests
 		}
 
 		public override HttpResponse HandleRequest (
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
 			ctx.Assert (request.Method, Is.EqualTo ("POST"), "method");
 			return new HttpResponse (HttpStatusCode.BadRequest, null);

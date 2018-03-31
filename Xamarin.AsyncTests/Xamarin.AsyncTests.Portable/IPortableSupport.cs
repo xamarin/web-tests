@@ -34,6 +34,8 @@ namespace Xamarin.AsyncTests.Portable
 	{
 		string GetStackTrace (bool full);
 
+		string GetStackTrace (Exception error, bool full);
+
 		string FormatType (Type type, bool includeNamespace);
 
 		string FormatMethod (MethodBase method, bool includeNamespace);

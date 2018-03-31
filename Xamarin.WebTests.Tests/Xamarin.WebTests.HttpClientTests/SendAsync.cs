@@ -35,10 +35,31 @@ namespace Xamarin.WebTests.HttpClientTests
 	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
 	[HttpServerTestCategory (HttpServerTestCategory.Default)]
-	public class SendAsync : TraditionalHandlerFixture
+	public class SendAsync : HttpClientTestFixture
 	{
+		public SendAsyncType Type {
+			get;
+		}
+
+		public HttpContent Content {
+			get;
+		}
+
+		[AsyncTest]
+		public SendAsync (SendAsyncType type)
+		{
+			Type = type;
+
+			switch (type) {
+			case SendAsyncType.PutChunked:
+				Content = ConnectionHandler.GetLargeChunkedContent (50);
+				break;
+			}
+		}
+
 		public enum SendAsyncType {
 			SendAsyncGet,
 			SendAsyncHead,
@@ -46,10 +67,6 @@ namespace Xamarin.WebTests.HttpClientTests
 			// Bug 31830. Fixed in PR #6059 / #6068.
 			SendAsyncObscureVerb,
 			PutChunked
-		}
-
-		public SendAsyncType Type {
-			get; set;
 		}
 
 		public override Handler CreateHandler (TestContext ctx)
@@ -64,7 +81,7 @@ namespace Xamarin.WebTests.HttpClientTests
 			case SendAsyncType.SendAsyncHead:
 				return new PostHandler (ME, null) { Method = "HEAD" };
 			case SendAsyncType.PutChunked:
-				return new PostHandler (ME, ConnectionHandler.GetLargeChunkedContent (50), TransferMode.Chunked) {
+				return new PostHandler (ME, Content, TransferMode.Chunked) {
 					Method = "PUT"
 				};
 			default:
@@ -72,14 +89,15 @@ namespace Xamarin.WebTests.HttpClientTests
 			}
 		}
 
-		public override void ConfigureRequest (
-			TestContext ctx, Handler handler, Request request)
+		protected override void ConfigureRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			Request request, Uri uri)
 		{
 			if (Type == SendAsyncType.PutChunked) {
-				request.Content = ((PostHandler)handler).Content.RemoveTransferEncoding ();
+				request.Content = Content.RemoveTransferEncoding ();
 				request.SendChunked ();
 			}
-			base.ConfigureRequest (ctx, handler, request);
+			base.ConfigureRequest (ctx, operation, request, uri);
 		}
 
 		public override Task<Response> Run (

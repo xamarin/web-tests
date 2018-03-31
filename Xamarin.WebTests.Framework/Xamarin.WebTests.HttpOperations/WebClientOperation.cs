@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.HttpOperations
 	using HttpFramework;
 	using HttpHandlers;
 
-	public class WebClientOperation : HttpOperation
+	public class WebClientOperation : HttpHandlerOperation
 	{
 		public WebClientOperationType Type {
 			get;

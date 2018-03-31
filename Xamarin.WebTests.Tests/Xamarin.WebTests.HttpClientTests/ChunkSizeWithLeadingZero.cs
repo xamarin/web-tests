@@ -36,23 +36,39 @@ namespace Xamarin.WebTests.HttpClientTests
 	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
 	[HttpServerTestCategory (HttpServerTestCategory.Default)]
-	public class ChunkSizeWithLeadingZero : TraditionalHandlerFixture
+	public class ChunkSizeWithLeadingZero : HttpClientTestFixture
 	{
+		public HttpContent Content {
+			get;
+		}
+
+		public HttpContent ReturnContent {
+			get;
+		}
+
+		public ChunkSizeWithLeadingZero ()
+		{
+			Content = HttpContent.HelloWorld;
+			ReturnContent = new Bug20583Content ();
+		}
+
 		public override Handler CreateHandler (TestContext ctx)
 		{
 			// Bug 20583
-			return new PostHandler (ME, HttpContent.HelloWorld) {
-				ReturnContent = new Bug20583Content ()
+			return new PostHandler (ME, Content) {
+				ReturnContent = ReturnContent
 			};
 		}
 
-		public override void ConfigureRequest (
-			TestContext ctx, Handler handler, Request request)
+		protected override void ConfigureRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			Request request, Uri uri)
 		{
-			request.Content = ((PostHandler)handler).Content;
-			base.ConfigureRequest (ctx, handler, request);
+			request.Content = Content;
+			base.ConfigureRequest (ctx, operation, request, uri);
 		}
 
 		public override Task<Response> Run (

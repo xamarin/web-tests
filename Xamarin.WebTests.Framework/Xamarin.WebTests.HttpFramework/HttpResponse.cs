@@ -34,6 +34,7 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.HttpFramework
 {
 	using TestFramework;
+	using HttpHandlers;
 	using Server;
 
 	public class HttpResponse : HttpMessage
@@ -289,6 +290,14 @@ namespace Xamarin.WebTests.HttpFramework
 			await stream.FlushAsync ();
 		}
 
+		public void RegisterRedirect (
+			TestContext ctx, HttpOperation operation, string path = null)
+		{
+			if (headersResolved)
+				throw new InvalidOperationException ();
+			redirect = operation.RegisterRedirect (ctx, operation.ListenerHandler, path);
+		}
+
 		public static HttpResponse CreateSimple (HttpStatusCode status, string body = null)
 		{
 			return new HttpResponse (status, body != null ? new StringContent (body) : null);
@@ -298,6 +307,16 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			var response = new HttpResponse (code);
 			response.AddHeader ("Location", uri);
+			return response;
+		}
+
+		public static HttpResponse CreateRedirect (
+			TestContext ctx, HttpStatusCode code, HttpOperation operation,
+			Handler target, string path = null)
+		{
+			var redirect = operation.RegisterRedirect (ctx, target, path);
+			var response = CreateRedirect (code, redirect.Uri);
+			response.redirect = redirect;
 			return response;
 		}
 

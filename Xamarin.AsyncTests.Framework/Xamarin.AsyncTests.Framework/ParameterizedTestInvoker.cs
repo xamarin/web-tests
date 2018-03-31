@@ -52,9 +52,9 @@ namespace Xamarin.AsyncTests.Framework
 			Inner = inner;
 		}
 
-		protected virtual ParameterizedTestInstance CreateInstance (TestInstance parent)
+		protected virtual ParameterizedTestInstance CreateInstance (TestContext ctx, TestInstance parent)
 		{
-			return (ParameterizedTestInstance)Host.CreateInstance (Node, parent);
+			return (ParameterizedTestInstance)Host.CreateInstance (ctx, Node, parent);
 		}
 
 		ParameterizedTestInstance SetUp (TestContext ctx, TestInstance instance)
@@ -62,7 +62,7 @@ namespace Xamarin.AsyncTests.Framework
 			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
-				var parameterizedInstance = CreateInstance (instance);
+				var parameterizedInstance = CreateInstance (ctx, instance);
 				parameterizedInstance.Initialize (ctx);
 				return parameterizedInstance;
 			} catch (OperationCanceledException) {

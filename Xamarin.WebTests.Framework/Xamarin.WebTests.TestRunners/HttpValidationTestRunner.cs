@@ -652,7 +652,7 @@ namespace Xamarin.WebTests.TestRunners
 			return response;
 		}
 
-		class Operation : HttpOperation
+		class Operation : HttpHandlerOperation
 		{
 			public HttpValidationTestRunner Parent {
 				get;

@@ -37,28 +37,22 @@ namespace Xamarin.WebTests.HttpRequestTests
 {
 	using ConnectionFramework;
 	using TestFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class LargeChunkRead : CustomHandlerFixture
+	public class LargeChunkRead : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.Default;
-
 		public override HttpContent ExpectedContent => HttpContent.TheQuickBrownFox;
 
 		public override bool HasRequestBody => false;
 
-		public override bool CloseConnection => false;
-
-		protected override void ConfigureRequest (
-			TestContext ctx, Uri uri,
-			CustomHandler handler, TraditionalRequest request)
-		{
-		}
+		public override RequestFlags RequestFlags => RequestFlags.KeepAlive;
 
 		public override HttpResponse HandleRequest (
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
 			var chunks = new List<byte[]> ();
 			chunks.Add (ConnectionHandler.TheQuickBrownFoxBuffer);

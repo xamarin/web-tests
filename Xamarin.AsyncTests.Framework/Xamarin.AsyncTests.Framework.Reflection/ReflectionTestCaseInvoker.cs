@@ -74,6 +74,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return true;
 		}
 
+		[StackTraceEntryPoint]
 		async Task<bool> ExpectingSuccess (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			object retval;
@@ -103,6 +104,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			}
 		}
 
+		[StackTraceEntryPoint]
 		async Task<bool> ExpectingException (
 			TestContext ctx, TestInstance instance,
 			TypeInfo expectedException, CancellationToken cancellationToken)
@@ -128,7 +130,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				}
 				var message = string.Format ("Expected an exception of type {0}, but got {1}",
 					expectedException, ex.GetType ());
-				ctx.OnError (new AssertionException (message, ex, ctx.GetStackTrace ()));
+				ctx.OnError (new AssertionException (message, ex, ctx.GetStackTrace (ex)));
 				return false;
 			}
 		}

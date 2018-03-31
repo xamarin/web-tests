@@ -34,9 +34,10 @@ namespace Xamarin.WebTests.HttpClientTests
 	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
 	[HttpServerTestCategory (HttpServerTestCategory.Default)]
-	public class PostString : TraditionalHandlerFixture
+	public class PostString : HttpClientTestFixture
 	{
 		public enum PostStringType
 		{
@@ -62,11 +63,12 @@ namespace Xamarin.WebTests.HttpClientTests
 			}
 		}
 
-		public override void ConfigureRequest (
-			TestContext ctx, Handler handler, Request request)
+		protected override void ConfigureRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			Request request, Uri uri)
 		{
 			request.Content = HttpContent.HelloWorld;
-			base.ConfigureRequest (ctx, handler, request);
+			base.ConfigureRequest (ctx, operation, request, uri);
 		}
 
 		public override Task<Response> Run (

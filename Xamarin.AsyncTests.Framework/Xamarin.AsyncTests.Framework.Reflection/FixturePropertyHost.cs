@@ -52,7 +52,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Property = property;
 		}
 
-		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
+		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
 		{
 			return new FixturePropertyInstance (this, node, parent);
 		}

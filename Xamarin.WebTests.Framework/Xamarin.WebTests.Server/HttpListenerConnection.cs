@@ -36,7 +36,8 @@ using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.HttpHandlers;
 
 namespace Xamarin.WebTests.Server {
-	class HttpListenerConnection : HttpConnection {
+	class HttpListenerConnection : HttpConnection
+	{
 		public HttpListener Listener {
 			get;
 		}
@@ -49,6 +50,8 @@ namespace Xamarin.WebTests.Server {
 		public override SslStream SslStream {
 			get { return sslStream; }
 		}
+
+		public override HttpListenerContext ListenerContext => Context;
 
 		public override IPEndPoint RemoteEndPoint => remoteEndPoint;
 

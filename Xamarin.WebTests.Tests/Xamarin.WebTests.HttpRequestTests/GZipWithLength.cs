@@ -34,13 +34,14 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.HttpRequestTests
 {
 	using TestFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class GZipWithLength : CustomHandlerFixture
+	[HttpServerTestCategory (HttpServerTestCategory.GZip)]
+	public class GZipWithLength : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.GZip;
-
 		HttpContent Content {
 			get;
 		}
@@ -57,19 +58,19 @@ namespace Xamarin.WebTests.HttpRequestTests
 			ExpectedContent = Content.RemoveTransferEncoding ();
 		}
 
-		public override bool CloseConnection => false;
+		public override RequestFlags RequestFlags => RequestFlags.KeepAlive;
 
 		protected override void ConfigureRequest (
-			TestContext ctx, Uri uri, CustomHandler handler,
+			TestContext ctx, InstrumentationOperation operation,
 			TraditionalRequest request)
 		{
 			request.RequestExt.AutomaticDecompression = true;
-			base.ConfigureRequest (ctx, uri, handler, request);
+			base.ConfigureRequest (ctx, operation, request);
 		}
 
 		public override HttpResponse HandleRequest (
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
 			var gzipContent = new GZipContent ((StringContent)Content);
 			return new HttpResponse (HttpStatusCode.OK, gzipContent);

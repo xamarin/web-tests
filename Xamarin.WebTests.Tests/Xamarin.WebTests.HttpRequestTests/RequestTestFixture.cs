@@ -39,50 +39,58 @@ namespace Xamarin.WebTests.HttpRequestTests
 
 	[Work]
 	[AsyncTestFixture (Prefix = "HttpRequestTests")]
-	public abstract class RequestTestFixture : IHttpRequestTestInstance
+	public abstract class RequestTestFixture : InstrumentationTestRunner
 	{
-		[FixtureParameter]
-		public abstract HttpServerTestCategory Category {
-			get;
-		}
-
-		public string Value => GetType ().FullName;
-
-		public string FriendlyValue => GetType ().Name;
-
-		protected string ME => FriendlyValue;
-
 		[AsyncTest]
-		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-				 HttpServerProvider provider,
-				 HttpRequestTestRunner runner)
+		public static Task Run (
+			TestContext ctx, CancellationToken cancellationToken,
+			HttpServerProvider provider,
+			RequestTestFixture fixture)
 		{
-			return runner.Run (ctx, cancellationToken);
+			return fixture.Run (ctx, cancellationToken);
 		}
 
 		[AsyncTest]
 		[Martin (null, UseFixtureName = true)]
 		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
-		public Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
-		                        HttpServerProvider provider,
-		                        HttpRequestTestRunner runner)
+		public static Task MartinTest (
+			TestContext ctx, CancellationToken cancellationToken,
+			HttpServerProvider provider,
+			RequestTestFixture fixture)
 		{
-			return runner.Run (ctx, cancellationToken);
+			return fixture.Run (ctx, cancellationToken);
 		}
 
-		public virtual HttpStatusCode ExpectedStatus => HttpStatusCode.OK;
+		protected override void InitializeHandler (TestContext ctx)
+		{
+		}
 
-		public virtual WebExceptionStatus ExpectedError => WebExceptionStatus.Success;
+		protected override Request CreateRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			Uri uri)
+		{
+			return new InstrumentationRequest (this, uri);
+		}
 
-		public virtual HttpOperationFlags OperationFlags => HttpOperationFlags.None;
+		protected sealed override void ConfigureRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			Request request, Uri uri)
+		{
+			var traditionalRequest = (TraditionalRequest)request;
+			ConfigureRequest (ctx, operation, traditionalRequest);
+		}
 
-		public abstract Handler CreateHandler (
-			TestContext ctx, HttpRequestTestRunner runner);
+		protected virtual void ConfigureRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			TraditionalRequest request)
+		{
+		}
 
-		public abstract Request CreateRequest (
-			TestContext ctx, Uri uri, Handler handler);
-
-		public abstract void ConfigureRequest (
-			TestContext ctx, Uri uri, Handler handler, Request request);
+		protected override Task<Response> Run (
+			TestContext ctx, Request request,
+			CancellationToken cancellationToken)
+		{
+			return ((TraditionalRequest)request).SendAsync (ctx, cancellationToken);
+		}
 	}
 }

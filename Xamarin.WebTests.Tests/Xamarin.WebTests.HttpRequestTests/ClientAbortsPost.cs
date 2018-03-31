@@ -33,13 +33,14 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.HttpRequestTests
 {
 	using TestFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class ClientAbortsPost : CustomHandlerFixture
+	[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
+	public class ClientAbortsPost : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.NewWebStack;
-
 		public override HttpStatusCode ExpectedStatus => HttpStatusCode.InternalServerError;
 
 		public override WebExceptionStatus ExpectedError => WebExceptionStatus.AnyErrorStatus;
@@ -50,21 +51,21 @@ namespace Xamarin.WebTests.HttpRequestTests
 
 		public override HttpContent ExpectedContent => throw new InvalidOperationException ();
 
-		public override bool CloseConnection => false;
+		public override RequestFlags RequestFlags => RequestFlags.KeepAlive;
 
 		protected override void ConfigureRequest (
-			TestContext ctx, Uri uri, CustomHandler handler,
+			TestContext ctx, InstrumentationOperation operation,
 			TraditionalRequest request)
 		{
 			request.Method = "POST";
 			request.SetContentType ("text/plain");
 			request.SetContentLength (16);
-			base.ConfigureRequest (ctx, uri, handler, request);
+			base.ConfigureRequest (ctx, operation, request);
 		}
 
 		protected override async Task WriteRequestBody (
-			TestContext ctx, CustomHandler handler,
-			TraditionalRequest request, CancellationToken cancellationToken)
+			TestContext ctx, TraditionalRequest request,
+			CancellationToken cancellationToken)
 		{
 			var stream = await request.RequestExt.GetRequestStreamAsync ().ConfigureAwait (false);
 			try {
@@ -75,9 +76,10 @@ namespace Xamarin.WebTests.HttpRequestTests
 		}
 
 		public override async Task<HttpResponse> HandleRequest (
-			TestContext ctx, HttpOperation operation,
+			TestContext ctx, InstrumentationOperation operation,
 			HttpConnection connection, HttpRequest request,
-			CustomHandler handler, CancellationToken cancellationToken)
+			RequestFlags effectiveFlags,
+			CancellationToken cancellationToken)
 		{
 			await request.ReadHeaders (ctx, cancellationToken).ConfigureAwait (false);
 			await ctx.AssertException<IOException> (() => request.Read (ctx, cancellationToken), "client doesn't send any body");

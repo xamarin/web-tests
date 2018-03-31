@@ -32,40 +32,40 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.HttpRequestTests
 {
 	using TestFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class PutChunked : CustomHandlerFixture
+	[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
+	public class PutChunked : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.NewWebStack;
-
 		public override bool HasRequestBody => true;
 
 		HttpContent RequestContent => ConnectionHandler.GetLargeStringContent (50);
 
 		public override HttpContent ExpectedContent => RequestContent;
 
-		public override bool CloseConnection => true;
+		public override RequestFlags RequestFlags => RequestFlags.CloseConnection;
 
 		public bool CloseStreamWhenDone {
 			get; set;
 		}
 
 		protected override void ConfigureRequest (
-			TestContext ctx, Uri uri,
-			CustomHandler handler, TraditionalRequest request)
+			TestContext ctx, InstrumentationOperation operation,
+			TraditionalRequest request)
 		{
 			request.Method = "PUT";
 			request.SetContentType ("application/octet-stream");
 			request.SetContentLength (RequestContent.Length);
 			request.SendChunked ();
 
-			base.ConfigureRequest (ctx, uri, handler, request);
+			base.ConfigureRequest (ctx, operation, request);
 		}
 
 		protected override async Task WriteRequestBody (
-			TestContext ctx, CustomHandler handler,
-			TraditionalRequest request,
+			TestContext ctx, TraditionalRequest request,
 			CancellationToken cancellationToken)
 		{
 			var stream = await request.RequestExt.GetRequestStreamAsync ().ConfigureAwait (false);
@@ -79,8 +79,8 @@ namespace Xamarin.WebTests.HttpRequestTests
 		}
 
 		public override HttpResponse HandleRequest (
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
 			return new HttpResponse (HttpStatusCode.OK, RequestContent) {
 				WriteAsBlob = true

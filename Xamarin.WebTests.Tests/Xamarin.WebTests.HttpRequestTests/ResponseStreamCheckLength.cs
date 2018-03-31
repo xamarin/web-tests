@@ -35,13 +35,14 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.HttpRequestTests
 {
 	using TestFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class ResponseStreamCheckLength : CustomHandlerFixture
+	[HttpServerTestCategory (HttpServerTestCategory.GZip)]
+	public class ResponseStreamCheckLength : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.GZip;
-
 		public bool UseChunkedEncoding {
 			get; set;
 		}
@@ -53,19 +54,19 @@ namespace Xamarin.WebTests.HttpRequestTests
 
 		public override bool HasRequestBody => false;
 
-		public override bool CloseConnection => false;
+		public override RequestFlags RequestFlags => RequestFlags.KeepAlive;
 
 		protected override void ConfigureRequest (
-			TestContext ctx, Uri uri, CustomHandler handler,
+			TestContext ctx, InstrumentationOperation operation,
 			TraditionalRequest request)
 		{
 			request.RequestExt.AutomaticDecompression = true;
-			base.ConfigureRequest (ctx, uri, handler, request);
+			base.ConfigureRequest (ctx, operation, request);
 		}
 
 		public override HttpResponse HandleRequest (
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
 			return new HttpResponse (HttpStatusCode.OK, Content);
 		}

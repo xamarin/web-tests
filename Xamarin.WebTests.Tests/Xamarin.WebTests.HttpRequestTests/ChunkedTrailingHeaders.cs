@@ -35,13 +35,14 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.HttpRequestTests
 {
 	using TestFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class ChunkedTrailingHeaders : CustomHandlerFixture
+	[HttpServerTestCategory (HttpServerTestCategory.Ignore)]
+	public class ChunkedTrailingHeaders : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.Ignore;
-
 		HttpContent Content {
 			get;
 		}
@@ -60,19 +61,19 @@ namespace Xamarin.WebTests.HttpRequestTests
 
 		public override bool HasRequestBody => false;
 
-		public override bool CloseConnection => true;
+		public override RequestFlags RequestFlags => RequestFlags.CloseConnection;
 
 		public override HttpResponse HandleRequest (
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
 			return new HttpResponse (HttpStatusCode.OK, Content);
 		}
 
-		public override bool CheckResponse (
-			TestContext ctx, TraditionalResponse response)
+		public override bool CheckResponse (TestContext ctx, Response response)
 		{
-			var headers = response.Response.Headers;
+			var traditionalResponse = (TraditionalResponse)response;
+			var headers = traditionalResponse.Response.Headers;
 			if (!ctx.Expect (headers["Foo"], Is.EqualTo ("Bar"), "Foo header"))
 				return false;
 			return base.CheckResponse (ctx, response);

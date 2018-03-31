@@ -393,7 +393,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return typeof(BooleanTestSource);
 			} else if (member.TypeInfo.IsEnum) {
 				sourceInstance = null;
-				return typeof(EnumTestSource<>).MakeGenericType (member.Type);
+				return typeof(EnumParameterSource<>).MakeGenericType (member.Type);
 			}
 
 			throw new InternalErrorException ();
@@ -436,7 +436,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				throw new InternalErrorException ();
 
 			var type = member.Type;
-			var sourceType = typeof(EnumTestSource<>).MakeGenericType (type);
+			var sourceType = typeof(EnumParameterSource<>).MakeGenericType (type);
 			var hostType = typeof(ParameterSourceHost<>).MakeGenericType (type);
 
 			var serializerType = typeof(EnumSerializer<>).MakeGenericType (type);
@@ -444,7 +444,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var source = Activator.CreateInstance (sourceType);
 			return (ParameterizedTestHost)Activator.CreateInstance (
-				hostType, member.Name, source, serializer, null, false, TestFlags.ContinueOnError);
+				hostType, member.Name, source, serializer, null, false,
+				TestFlags.ContinueOnError | TestFlags.Browsable);
 		}
 
 		static ParameterizedTestHost CreateBoolean (IMemberInfo member)
@@ -460,15 +461,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			{
 				yield return false;
 				yield return true;
-			}
-		}
-
-		class EnumTestSource<T> : ITestParameterSource<T>
-		{
-			public IEnumerable<T> GetParameters (TestContext ctx, string filter)
-			{
-				foreach (var value in Enum.GetValues (typeof (T)))
-					yield return (T)value;
 			}
 		}
 
@@ -833,6 +825,72 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				list.Add (CreateRepeatHost (attribute.Repeat));
 
 			return list;
+		}
+
+		internal static EnumValueFilter GetEnumValueFilter (TestCategory category)
+		{
+			return new CategoryEnumValueFilter (category);
+		}
+
+		internal static EnumValueFilter GetEnumValueFilter (TestFeature feature)
+		{
+			return new FeatureEnumValueFilter (feature);
+		}
+
+		internal static EnumValueFilter GetEnumValueFilter (IReadOnlyList<EnumValueFilter> filters)
+		{
+			return new CombinedEnumValueFilter (filters);
+		}
+
+		class CategoryEnumValueFilter : EnumValueFilter
+		{
+			public TestCategory Category {
+				get;
+			}
+
+			public CategoryEnumValueFilter (TestCategory category)
+			{
+				Category = category;
+			}
+
+			public override bool Filter (TestContext ctx, object value)
+			{
+				return ctx.CurrentCategory == Category;
+			}
+		}
+
+		class FeatureEnumValueFilter : EnumValueFilter
+		{
+			public TestFeature Feature {
+				get;
+			}
+
+			public FeatureEnumValueFilter (TestFeature feature)
+			{
+				Feature = feature;
+			}
+
+			public override bool Filter (TestContext ctx, object value)
+			{
+				return ctx.IsEnabled (Feature);
+			}
+		}
+
+		class CombinedEnumValueFilter : EnumValueFilter
+		{
+			public IReadOnlyList<EnumValueFilter> Filters {
+				get;
+			}
+
+			public CombinedEnumValueFilter (IReadOnlyList<EnumValueFilter> filters)
+			{
+				Filters = filters;
+			}
+
+			public override bool Filter (TestContext ctx, object value)
+			{
+				return Filters.All (f => f.Filter (ctx, value));
+			}
 		}
 
 		#endregion

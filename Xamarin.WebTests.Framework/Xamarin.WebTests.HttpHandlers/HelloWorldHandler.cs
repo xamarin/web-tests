@@ -66,7 +66,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HelloWorldHandler (Value);
 		}
 
-		internal protected override Task<HttpResponse> HandleRequest (
+		public override Task<HttpResponse> HandleRequest (
 			TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{

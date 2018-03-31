@@ -51,6 +51,11 @@ namespace Xamarin.AsyncTests.Constraints
 			get { return Combine (new NullOrEmptyConstraint ()); }
 		}
 
+		public Constraint NotEqualTo (object expected)
+		{
+			return Combine (new NotExpression (new EqualConstraint (expected)));
+		}
+
 		public Constraint EqualTo (object expected)
 		{
 			return Combine (new EqualConstraint (expected));
@@ -63,7 +68,7 @@ namespace Xamarin.AsyncTests.Constraints
 
 		public Constraint InstanceOfType<T> (bool allowSubclasses = false)
 		{
-			return Combine (new InstanceOfTypeConstraint (typeof (T) , allowSubclasses));
+			return Combine (new InstanceOfTypeConstraint (typeof (T), allowSubclasses));
 		}
 	}
 }

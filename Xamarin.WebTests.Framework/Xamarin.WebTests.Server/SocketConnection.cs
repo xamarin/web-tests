@@ -56,6 +56,8 @@ namespace Xamarin.WebTests.Server
 			private set;
 		}
 
+		public override HttpListenerContext ListenerContext => throw new InvalidOperationException ();
+
 		public override SslStream SslStream => sslStream;
 
 		public override IPEndPoint RemoteEndPoint => remoteEndPoint;

@@ -33,14 +33,14 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.HttpRequestTests
 {
 	using TestFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class CustomHost : CustomHandlerFixture
+	public class CustomHost : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.Default;
-
-		public override bool CloseConnection => true;
+		public override RequestFlags RequestFlags => RequestFlags.CloseConnection;
 
 		public override bool HasRequestBody => false;
 
@@ -58,7 +58,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 		}
 
 		protected override void ConfigureRequest (
-			TestContext ctx, Uri uri, CustomHandler handler,
+			TestContext ctx, InstrumentationOperation operation,
 			TraditionalRequest request)
 		{
 			switch (Type) {
@@ -71,7 +71,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 				break;
 
 			case CustomHostType.DefaultPort:
-				var defaultPort = handler.TestRunner.Server.UseSSL ? 443 : 80;
+				var defaultPort = operation.Parent.Server.UseSSL ? 443 : 80;
 				request.RequestExt.Host = $"custom:{defaultPort}";
 				break;
 
@@ -82,12 +82,12 @@ namespace Xamarin.WebTests.HttpRequestTests
 				throw ctx.AssertFail (Type);
 			}
 
-			base.ConfigureRequest (ctx, uri, handler, request);
+			base.ConfigureRequest (ctx, operation, request);
 		}
 
 		public override HttpResponse HandleRequest (
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
 			switch (Type) {
 			case CustomHostType.Default:
@@ -99,12 +99,12 @@ namespace Xamarin.WebTests.HttpRequestTests
 				break;
 
 			case CustomHostType.DefaultPort:
-				var defaultPort = handler.TestRunner.Server.UseSSL ? 443 : 80;
+				var defaultPort = operation.Parent.Server.UseSSL ? 443 : 80;
 				ctx.Assert (request.Headers["Host"], Is.EqualTo ($"custom:{defaultPort}"), "host");
 				break;
 
 			case CustomHostType.ImplicitHost:
-				var uri = handler.TestRunner.Server.Uri;
+				var uri = operation.Parent.Server.Uri;
 				var hostAndPort = uri.GetComponents (UriComponents.HostAndPort, UriFormat.Unescaped);
 				ctx.Assert (request.Headers["Host"], Is.EqualTo (hostAndPort), "host");
 				break;

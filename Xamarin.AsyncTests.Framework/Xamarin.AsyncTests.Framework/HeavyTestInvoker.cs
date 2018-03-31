@@ -63,6 +63,8 @@ namespace Xamarin.AsyncTests.Framework
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
 				var childInstance = (HeavyTestInstance)Host.CreateInstance (ctx, Node, instance);
+				if (childInstance == null)
+					return null;
 				await childInstance.Initialize (ctx, cancellationToken);
 				return childInstance;
 			} catch (OperationCanceledException) {

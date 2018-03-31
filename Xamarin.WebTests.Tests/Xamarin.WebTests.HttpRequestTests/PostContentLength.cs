@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,12 +37,10 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using TestFramework;
 	using HttpFramework;
 	using HttpHandlers;
-	using System.IO;
+	using TestRunners;
 
-	public class PostContentLength : CustomHandlerFixture
+	public class PostContentLength : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.Default;
-
 		public override HttpOperationFlags OperationFlags => HttpOperationFlags.DontReadRequestBody;
 
 		public override bool HasRequestBody => true;
@@ -50,37 +49,40 @@ namespace Xamarin.WebTests.HttpRequestTests
 
 		byte[] ContentBuffer => ConnectionHandler.TheQuickBrownFoxBuffer;
 
-		public override bool CloseConnection => true;
+		public override RequestFlags RequestFlags => RequestFlags.CloseConnection;
+
+		TaskCompletionSource<bool> readyTcs;
 
 		protected override void ConfigureRequest (
-			TestContext ctx, Uri uri,
-			CustomHandler handler, TraditionalRequest request)
+			TestContext ctx, InstrumentationOperation operation,
+			TraditionalRequest request)
 		{
+			readyTcs = new TaskCompletionSource<bool> ();
 			request.Method = "POST";
 			request.SetContentType ("text/plain");
 			request.SetContentLength (ContentBuffer.Length);
 
-			base.ConfigureRequest (ctx, uri, handler, request);
+			base.ConfigureRequest (ctx, operation, request);
 		}
 
 		protected override async Task WriteRequestBody (
-			TestContext ctx, CustomHandler handler,
-			TraditionalRequest request, Stream stream,
+			TestContext ctx, TraditionalRequest request, Stream stream,
 			CancellationToken cancellationToken)
 		{
-			await AbstractConnection.WaitWithTimeout (ctx, 1500, handler.WaitUntilReady ()).ConfigureAwait (false);
+			await AbstractConnection.WaitWithTimeout (ctx, 1500, readyTcs.Task).ConfigureAwait (false);
 			await stream.WriteAsync (ContentBuffer, cancellationToken);
 			await stream.FlushAsync (cancellationToken);
 		}
 
 		public override async Task<HttpResponse> HandleRequest (
-			TestContext ctx, HttpOperation operation,
+			TestContext ctx, InstrumentationOperation operation,
 			HttpConnection connection, HttpRequest request,
-			CustomHandler handler, CancellationToken cancellationToken)
+			RequestFlags effectiveFlags,
+			CancellationToken cancellationToken)
 		{
 			await request.ReadHeaders (ctx, cancellationToken).ConfigureAwait (false);
 			ctx.Assert (request.ContentLength, Is.EqualTo (ContentBuffer.Length), "request.ContentLength");
-			handler.SetReady ();
+			readyTcs.TrySetResult (true);
 			await request.Read (ctx, cancellationToken);
 			return new HttpResponse (HttpStatusCode.OK, ExpectedContent);
 		}

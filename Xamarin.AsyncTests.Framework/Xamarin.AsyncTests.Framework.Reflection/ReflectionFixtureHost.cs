@@ -58,9 +58,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			ParameterHosts = parameterHosts?.ToArray () ?? new TestHost[0];
 		}
 
-		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
+		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
 		{
-			return new ReflectionFixtureInstance (this, node, parent);
+			var instance = new ReflectionFixtureInstance (this, node, parent);
+			if (!Builder.RunFilter (ctx, instance))
+				return null;
+			return instance;
 		}
 
 		internal void Unwind (ref TestInstance instance)

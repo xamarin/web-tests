@@ -35,11 +35,10 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using TestFramework;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class CloseRequestStream : CustomHandlerFixture
+	public class CloseRequestStream : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.Default;
-
 		public override bool HasRequestBody => false;
 
 		public override HttpOperationFlags OperationFlags => HttpOperationFlags.AbortAfterClientExits;
@@ -50,15 +49,15 @@ namespace Xamarin.WebTests.HttpRequestTests
 
 		public override HttpContent ExpectedContent => throw new NotImplementedException ();
 
-		public override bool CloseConnection => false;
+		public override RequestFlags RequestFlags => RequestFlags.KeepAlive;
 
 		protected override void ConfigureRequest (
-			TestContext ctx, Uri uri, CustomHandler handler,
+			TestContext ctx, InstrumentationOperation operation,
 			TraditionalRequest request)
 		{
 			request.Method = "POST";
 			request.SetContentLength (16384);
-			base.ConfigureRequest (ctx, uri, handler, request);
+			base.ConfigureRequest (ctx, operation, request);
 		}
 
 		protected override async Task<Response> SendRequest (
@@ -75,8 +74,8 @@ namespace Xamarin.WebTests.HttpRequestTests
 		}
 
 		public override HttpResponse HandleRequest (
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
 			throw ctx.AssertFail ("Should never happen.");
 		}

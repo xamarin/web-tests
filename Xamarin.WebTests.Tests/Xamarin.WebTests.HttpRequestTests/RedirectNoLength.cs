@@ -32,13 +32,14 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.HttpRequestTests
 {
 	using TestFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class RedirectNoLength : CustomHandlerFixture
+	[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
+	public class RedirectNoLength : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.NewWebStack;
-
 		public override HttpOperationFlags OperationFlags => HttpOperationFlags.RedirectOnNewConnection;
 
 		public override bool HasRequestBody => false;
@@ -51,7 +52,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 			get;
 		}
 
-		public override bool CloseConnection => false;
+		public override RequestFlags RequestFlags => RequestFlags.KeepAlive;
 
 		public RedirectNoLength ()
 		{
@@ -60,8 +61,8 @@ namespace Xamarin.WebTests.HttpRequestTests
 		}
 
 		public override HttpResponse HandleRequest (
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
 			var response = operation.CreateRedirect (
 				ctx, HttpStatusCode.Redirect, Target);

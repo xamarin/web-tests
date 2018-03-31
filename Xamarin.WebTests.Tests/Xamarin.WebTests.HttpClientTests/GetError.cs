@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.HttpClientTests
 	using HttpHandlers;
 
 	[HttpServerTestCategory (HttpServerTestCategory.Default)]
-	public class GetError : TraditionalHandlerFixture
+	public class GetError : HttpClientTestFixture
 	{
 		public override HttpStatusCode ExpectedStatus => HttpStatusCode.InternalServerError;
 

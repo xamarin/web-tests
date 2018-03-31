@@ -559,7 +559,9 @@ namespace Xamarin.WebTests.Server
 			TestContext.LogDebug (5, $"{ME}: {message}");
 		}
 
-		public ListenerOperation RegisterOperation (TestContext ctx, HttpOperation operation, Handler handler, string path)
+		public ListenerOperation RegisterOperation (
+			TestContext ctx, HttpOperation operation,
+			ListenerHandler handler, string path)
 		{
 			lock (this) {
 				if (TargetListener != null) {

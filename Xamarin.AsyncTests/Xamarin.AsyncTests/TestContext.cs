@@ -114,6 +114,8 @@ namespace Xamarin.AsyncTests {
 
 		#region Logging
 
+		public TestLogger Logger => logger;
+
 		public void OnError (Exception error)
 		{
 			if (error is SkipRestOfThisTestException)
@@ -624,6 +626,13 @@ namespace Xamarin.AsyncTests {
 		{
 			var support = DependencyInjector.Get<IPortableSupport> ();
 			return support.GetStackTrace (false);
+		}
+
+		[HideStackFrame]
+		public string GetStackTrace (Exception error)
+		{
+			var support = DependencyInjector.Get<IPortableSupport> ();
+			return support.GetStackTrace (error, false);
 		}
 
 		public T GetParameter<T> (string name = null)

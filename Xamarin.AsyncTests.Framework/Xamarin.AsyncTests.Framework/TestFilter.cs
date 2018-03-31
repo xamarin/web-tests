@@ -108,6 +108,9 @@ namespace Xamarin.AsyncTests.Framework
 			if (query.Length == 1 || instance == null)
 				return true;
 
+			ctx.LogDebug (10, $"MARTIN FILTER: {fixture.Name} {query}");
+			TestInstance.LogDebug (ctx, instance, 10);
+
 			for (int i = 1; i < query.Length; i++) {
 				var split = query[i].Split ('=');
 				if (split.Length != 2)
@@ -135,7 +138,7 @@ namespace Xamarin.AsyncTests.Framework
 					StringComparison.OrdinalIgnoreCase);
 			}
 
-			return false;
+			return true;
 		}
 
 		public bool Filter (TestContext ctx, TestInstance instance)

@@ -35,9 +35,10 @@ namespace Xamarin.WebTests.HttpClientTests
 	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
 	[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
-	public class PutString : TraditionalHandlerFixture
+	public class PutString : HttpClientTestFixture
 	{
 		public enum PutStringType {
 			PutString,
@@ -73,12 +74,13 @@ namespace Xamarin.WebTests.HttpClientTests
 			}
 		}
 
-		public override void ConfigureRequest (
-			TestContext ctx, Handler handler, Request request)
+		protected override void ConfigureRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			Request request, Uri uri)
 		{
 			if (Type == PutStringType.PutString)
 				request.Content = HttpContent.HelloWorld;
-			base.ConfigureRequest (ctx, handler, request);
+			base.ConfigureRequest (ctx, operation, request, uri);
 		}
 
 		public override Task<Response> Run (

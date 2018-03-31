@@ -37,11 +37,15 @@ namespace Xamarin.WebTests.HttpHandlers
 {
 	using ConnectionFramework;
 	using HttpFramework;
+	using Server;
 
-	public abstract class Handler : Xamarin.AsyncTests.ICloneable, ITestParameter
+	public abstract class Handler
+		: Xamarin.AsyncTests.ICloneable, ListenerHandler, ITestParameter
 	{
 		static int next_id;
 		public int ID => Interlocked.Increment (ref next_id);
+
+		RequestFlags ListenerHandler.RequestFlags => Flags;
 
 		public RequestFlags Flags {
 			get { return flags; }
@@ -86,127 +90,25 @@ namespace Xamarin.WebTests.HttpHandlers
 			ctx.LogDebug (level, sb.ToString ());
 		}
 
-		void DumpHeaders (TestContext ctx, HttpMessage message)
-		{
-			var sb = new StringBuilder ();
-			foreach (var header in message.Headers) {
-				sb.AppendFormat ("  {0} = {1}", header.Key, header.Value);
-				sb.AppendLine ();
-			}
-			ctx.LogDebug (2, sb.ToString ());
-		}
-
-		public async Task<HttpResponse> HandleRequest (TestContext ctx, HttpOperation operation,
-		                                               HttpConnection connection, HttpRequest request,
-		                                               CancellationToken cancellationToken)
-		{
-			Exception originalError;
-			HttpResponse response;
-
-			if (operation == null)
-				throw new ArgumentNullException (nameof (operation));
-			if (connection == null)
-				throw new ArgumentNullException (nameof (connection));
-
-			var expectServerError = operation.HasAnyFlags (HttpOperationFlags.ExpectServerException);
-
-			try {
-				Debug (ctx, 1, $"HANDLE REQUEST: {connection.RemoteEndPoint}");
-				DumpHeaders (ctx, request);
-				connection.Server.CheckEncryption (ctx, connection.SslStream);
-				response = await HandleRequest (ctx, operation, connection, request, Flags, cancellationToken);
-
-				if (response == null)
-					response = HttpResponse.CreateSuccess ();
-				if ((Flags & RequestFlags.CloseConnection) != 0)
-					response.CloseConnection = true;
-				if (!response.KeepAlive.HasValue && ((Flags & RequestFlags.KeepAlive) != 0))
-					response.KeepAlive = true;
-				response.ResolveHeaders ();
-
-				Debug (ctx, 1, $"HANDLE REQUEST DONE: {connection.RemoteEndPoint}", response);
-				DumpHeaders (ctx, response);
-				return response;
-			} catch (AssertionException ex) {
-				originalError = ex;
-				response = HttpResponse.CreateError (ex.Message);
-			} catch (OperationCanceledException) {
-				throw;
-			} catch (Exception ex) {
-				originalError = ex;
-				response = HttpResponse.CreateError ("Caught unhandled exception", ex);
-			}
-
-			if (ctx.IsCanceled || cancellationToken.IsCancellationRequested) {
-				Debug (ctx, 1, "HANDLE REQUEST - CANCELED");
-				throw new OperationCanceledException ();
-			}
-
-			if (originalError is AssertionException)
-				Debug (ctx, 1, "HANDLE REQUEST - ASSERTION FAILED", originalError);
-			else if (expectServerError)
-				Debug (ctx, 1, "HANDLE REQUEST - EXPECTED ERROR", originalError.GetType ());
-			else
-				Debug (ctx, 1, "HANDLE REQUEST - ERROR", originalError);
-
-			return response;
-		}
-
 		[StackTraceEntryPoint]
-		protected internal abstract Task<HttpResponse> HandleRequest (
+		public abstract Task<HttpResponse> HandleRequest (
 			TestContext ctx, HttpOperation operation, HttpConnection connection,
 			HttpRequest request, RequestFlags effectiveFlags,
 			CancellationToken cancellationToken);
 
-		public virtual void ConfigureRequest (TestContext ctx, Request request, Uri uri)
+		void ListenerHandler.ConfigureRequest (
+			TestContext ctx, HttpOperation operation,
+			Request request, Uri uri)
+		{
+			ConfigureRequest (ctx, request, uri);
+		}
+
+		public virtual void ConfigureRequest (
+			TestContext ctx, Request request, Uri uri)
 		{
 		}
 
 		public abstract object Clone ();
-
-		public virtual async Task CheckResponse (
-			TestContext ctx, Response response, CancellationToken cancellationToken,
-			HttpStatusCode expectedStatus = HttpStatusCode.OK, WebExceptionStatus expectedError = WebExceptionStatus.Success)
-		{
-			Debug (ctx, 1, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error?.Message);
-
-			await CompletedTask.ConfigureAwait (false);
-
-			if (ctx.HasPendingException)
-				return;
-
-			if (cancellationToken.IsCancellationRequested) {
-				ctx.OnTestCanceled ();
-				return;
-			}
-
-			if (expectedError != WebExceptionStatus.Success) {
-				ctx.Expect (response.Error, Is.Not.Null, "expecting exception");
-				ctx.Expect (response.Status, Is.EqualTo (expectedStatus));
-				var wexc = response.Error as WebException;
-				ctx.Expect (wexc, Is.Not.Null, "WebException");
-				if (expectedError != WebExceptionStatus.AnyErrorStatus)
-					ctx.Expect ((WebExceptionStatus)wexc.Status, Is.EqualTo (expectedError));
-				return;
-			}
-
-			if (response.Error != null) {
-				if (response.Content != null)
-					ctx.OnError (new WebException (response.Content.AsString (), response.Error));
-				else
-					ctx.OnError (response.Error);
-			} else {
-				var ok = ctx.Expect (response.Status, Is.EqualTo (expectedStatus), "status code");
-				if (ok)
-					ok &= ctx.Expect (response.IsSuccess, Is.True, "success status");
-
-				if (ok)
-					ok &= CheckResponse (ctx, response);
-			}
-
-			if (response.Content != null)
-				Debug (ctx, 5, "GOT RESPONSE BODY", response.Content);
-		}
 
 		public abstract bool CheckResponse (TestContext ctx, Response response);
 

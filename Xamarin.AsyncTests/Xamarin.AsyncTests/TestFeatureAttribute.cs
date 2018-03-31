@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = true)]
 	public abstract class TestFeatureAttribute : Attribute
 	{
 		public abstract TestFeature Feature {

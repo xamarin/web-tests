@@ -26,6 +26,8 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 
@@ -34,15 +36,11 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using TestFramework;
 	using HttpFramework;
 	using HttpHandlers;
-	using System.IO;
-	using System.Threading;
-	using System.Threading.Tasks;
+	using TestRunners;
 
-	public class GetNoLength : CustomHandlerFixture
+	public class GetNoLength : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.Default;
-
-		public override bool CloseConnection => true;
+		public override RequestFlags RequestFlags => RequestFlags.CloseConnection;
 
 		public override HttpContent ExpectedContent => HttpContent.TheQuickBrownFox;
 
@@ -51,8 +49,8 @@ namespace Xamarin.WebTests.HttpRequestTests
 		public override bool HasRequestBody => false;
 
 		public override HttpResponse HandleRequest (
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
 			var content = new CustomContent ();
 			return new HttpResponse (HttpStatusCode.OK, content);

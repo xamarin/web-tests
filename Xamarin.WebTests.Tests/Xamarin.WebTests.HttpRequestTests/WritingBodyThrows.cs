@@ -35,22 +35,23 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.HttpRequestTests
 {
 	using TestFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class WritingBodyThrows : CustomHandlerFixture
+	[HttpServerTestCategory (HttpServerTestCategory.Ignore)]
+	public class WritingBodyThrows : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.Ignore;
-
 		public sealed override HttpContent ExpectedContent => throw new InvalidOperationException ();
 
 		public override bool HasRequestBody => false;
 
-		public override bool CloseConnection => true;
+		public override RequestFlags RequestFlags => RequestFlags.CloseConnection;
 
 		public override HttpResponse HandleRequest (
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
 			return new HttpResponse (HttpStatusCode.OK, new CustomContent ());
 		}

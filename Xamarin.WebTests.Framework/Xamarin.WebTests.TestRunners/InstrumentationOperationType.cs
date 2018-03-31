@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 namespace Xamarin.WebTests.TestRunners
 {
-	enum InstrumentationOperationType
+	public enum InstrumentationOperationType
 	{
 		Primary,
 		Queued,

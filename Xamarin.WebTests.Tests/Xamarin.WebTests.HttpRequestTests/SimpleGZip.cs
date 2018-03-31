@@ -32,12 +32,11 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using TestFramework;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class SimpleGZip : CustomHandlerFixture
+	public class SimpleGZip : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.Default;
-
-		public override bool CloseConnection => true;
+		public override RequestFlags RequestFlags => RequestFlags.CloseConnection;
 
 		public override HttpContent ExpectedContent => HttpContent.TheQuickBrownFox;
 
@@ -46,16 +45,16 @@ namespace Xamarin.WebTests.HttpRequestTests
 		public override bool HasRequestBody => false;
 
 		protected override void ConfigureRequest (
-			TestContext ctx, Uri uri, CustomHandler handler,
+			TestContext ctx, InstrumentationOperation operation,
 			TraditionalRequest request)
 		{
 			request.RequestExt.AutomaticDecompression = true;
-			base.ConfigureRequest (ctx, uri, handler, request);
+			base.ConfigureRequest (ctx, operation, request);
 		}
 
 		public override HttpResponse HandleRequest (
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
 			var gzipContent = new GZipContent (ContentBuffer);
 			return new HttpResponse (HttpStatusCode.OK, gzipContent);

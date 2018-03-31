@@ -60,7 +60,8 @@ namespace Xamarin.AsyncTests.Framework
 			try {
 				success = await InvokeInner (innerCtx, instance, Inner, cancellationToken);
 			} finally {
-				ctx.Result.AddChild (innerResult);
+				if (innerResult.Status != TestStatus.None)
+					ctx.Result.AddChild (innerResult);
 			}
 
 			return success;

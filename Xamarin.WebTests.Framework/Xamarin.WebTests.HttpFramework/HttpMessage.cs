@@ -70,7 +70,7 @@ namespace Xamarin.WebTests.HttpFramework
 				headers.Add (header, value.ToString ());
 		}
 
-		internal void SetBody (HttpContent body)
+		public void SetBody (HttpContent body)
 		{
 			Body = body;
 		}

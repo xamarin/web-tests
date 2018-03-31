@@ -31,7 +31,12 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Framework {
-	public static class TestSerializer {
+	using Portable;
+
+	public static class TestSerializer
+	{
+		static IPortableSupport PortableSupport => DependencyInjector.Get<IPortableSupport> ();
+
 		internal static void Debug (string message, params object[] args)
 		{
 			System.Diagnostics.Debug.WriteLine (string.Format (message, args));
@@ -103,8 +108,9 @@ namespace Xamarin.AsyncTests.Framework {
 			var element = new XElement ("Error");
 			element.SetAttributeValue ("Type", error.GetType ().FullName);
 			element.SetAttributeValue ("Message", error.Message);
-			if (error.StackTrace != null)
-				element.SetAttributeValue ("StackTrace", error.StackTrace);
+			var stackTrace = PortableSupport.GetStackTrace (error, false);
+			if (!string.IsNullOrWhiteSpace (stackTrace))
+				element.SetAttributeValue ("StackTrace", stackTrace);
 			return element;
 		}
 
@@ -262,7 +268,9 @@ namespace Xamarin.AsyncTests.Framework {
 			if (instance.Error != null) {
 				var error = new XElement ("Error");
 				error.SetAttributeValue ("Text", instance.Error.Message);
-				error.SetAttributeValue ("StackTrace", instance.Error.StackTrace);
+				var stackTrace = PortableSupport.GetStackTrace (instance.Error, false);
+				if (!string.IsNullOrWhiteSpace (stackTrace))
+					error.SetAttributeValue ("StackTrace", stackTrace);
 				element.Add (error);
 			}
 

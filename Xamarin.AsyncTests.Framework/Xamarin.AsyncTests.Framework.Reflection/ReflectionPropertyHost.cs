@@ -55,9 +55,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Host = host;
 		}
 
-		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
+		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
 		{
-			var instance = (ParameterizedTestInstance)Host.CreateInstance (node, parent);
+			var instance = (ParameterizedTestInstance)Host.CreateInstance (ctx, node, parent);
 			return new ReflectionPropertyInstance (this, instance, parent);
 		}
 	}

@@ -36,20 +36,19 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using TestFramework;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class TestResponseStream : CustomHandlerFixture
+	public class TestResponseStream : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.Default;
-
-		public override bool CloseConnection => true;
+		public override RequestFlags RequestFlags => RequestFlags.CloseConnection;
 
 		public override HttpContent ExpectedContent => new StringContent ("AAAA");
 
 		public override bool HasRequestBody => false;
 
 		public override HttpResponse HandleRequest (
-			TestContext ctx, HttpOperation operation,
-			HttpRequest request, CustomHandler handler)
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
 		{
 			return new HttpResponse (HttpStatusCode.OK, ExpectedContent) {
 				WriteAsBlob = true

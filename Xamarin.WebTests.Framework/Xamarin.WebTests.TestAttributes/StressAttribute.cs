@@ -30,7 +30,7 @@ using Xamarin.WebTests.ConnectionFramework;
 
 namespace Xamarin.WebTests.TestAttributes
 {
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false)]
 	public class StressAttribute : TestCategoryAttribute
 	{
 		public static readonly TestCategory Instance = new TestCategory ("Stress") { IsExplicit = true };

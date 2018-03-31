@@ -47,7 +47,7 @@ namespace Xamarin.AsyncTests.Framework
 			return null;
 		}
 
-		internal override TestInstance CreateInstance (TestNode node, TestInstance parent)
+		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
 		{
 			throw new NotImplementedException ();
 		}

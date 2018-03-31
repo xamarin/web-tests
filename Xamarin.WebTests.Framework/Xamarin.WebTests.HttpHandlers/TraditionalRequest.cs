@@ -41,8 +41,13 @@ namespace Xamarin.WebTests.HttpHandlers
 		public readonly HttpWebRequest Request;
 		public readonly IHttpWebRequestExtension RequestExt;
 
+		public Uri Uri {
+			get;
+		}
+
 		public TraditionalRequest (Uri uri)
 		{
+			Uri = uri;
 			Request = (HttpWebRequest)HttpWebRequest.Create (uri);
 			RequestExt = DependencyInjector.GetExtension<HttpWebRequest,IHttpWebRequestExtension> (Request);
 
@@ -53,6 +58,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			Request = request;
 			RequestExt = DependencyInjector.GetExtension<HttpWebRequest,IHttpWebRequestExtension> (Request);
+			Uri = request.RequestUri;
 
 			RequestExt.SetKeepAlive (true);
 		}

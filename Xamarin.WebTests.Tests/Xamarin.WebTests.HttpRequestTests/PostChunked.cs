@@ -35,27 +35,31 @@ namespace Xamarin.WebTests.HttpRequestTests
 {
 	using ConnectionFramework;
 	using TestFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestRunners;
 
-	public class PostChunked : CustomHandlerFixture
+	[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
+	public class PostChunked : RequestTestFixture
 	{
-		public override HttpServerTestCategory Category => HttpServerTestCategory.NewWebStack;
-
 		public override bool HasRequestBody => true;
 
 		public override HttpContent ExpectedContent => new StringContent (ME);
 
 		public override HttpOperationFlags OperationFlags => HttpOperationFlags.DontReadRequestBody;
 
-		public override bool CloseConnection => false;
+		public override RequestFlags RequestFlags => RequestFlags.KeepAlive;
 
 		byte[] ContentBuffer => ConnectionHandler.TheQuickBrownFoxBuffer;
 
+		TaskCompletionSource<bool> readyTcs;
+
 		protected override void ConfigureRequest (
-			TestContext ctx, Uri uri,
-			CustomHandler handler, TraditionalRequest request)
+			TestContext ctx, InstrumentationOperation operation,
+			TraditionalRequest request)
 		{
+			readyTcs = new TaskCompletionSource<bool> ();
 			request.Method = "POST";
 			request.SetContentType ("text/plain");
 			request.SetContentLength (4096);
@@ -63,22 +67,22 @@ namespace Xamarin.WebTests.HttpRequestTests
 		}
 
 		protected override async Task WriteRequestBody (
-			TestContext ctx, CustomHandler handler,
-			TraditionalRequest request, Stream stream,
+			TestContext ctx, TraditionalRequest request, Stream stream,
 			CancellationToken cancellationToken)
 		{
 			await stream.WriteAsync (ContentBuffer, cancellationToken).ConfigureAwait (false);
 			await stream.FlushAsync (cancellationToken);
 
-			await AbstractConnection.WaitWithTimeout (ctx, 1500, handler.WaitUntilReady ());
+			await WaitWithTimeout (ctx, 1500, readyTcs.Task);
 
 			await stream.WriteAsync (ConnectionHandler.GetLargeTextBuffer (50), cancellationToken);
 		}
 
 		public async override Task<HttpResponse> HandleRequest (
-			TestContext ctx, HttpOperation operation,
+			TestContext ctx, InstrumentationOperation operation,
 			HttpConnection connection, HttpRequest request,
-			CustomHandler handler, CancellationToken cancellationToken)
+			RequestFlags effectiveFlags,
+			CancellationToken cancellationToken)
 		{
 			var me = $"{ME}.{nameof (HandleRequest)}";
 			ctx.LogDebug (3, $"{me}: {connection.RemoteEndPoint}");
@@ -88,7 +92,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 
 			ctx.Assert (firstChunk, Is.EqualTo (ConnectionHandler.TheQuickBrownFoxBuffer), "first chunk");
 
-			handler.SetReady ();
+			readyTcs.TrySetResult (true);
 
 			ctx.LogDebug (3, $"{me} reading remaining body");
 

@@ -40,9 +40,57 @@ namespace Xamarin.WebTests.TestFramework
 			get;
 		}
 
-		public HttpServerProviderFilter (HttpServerTestCategory category)
+		public HttpServerFlags ServerFlags {
+			get;
+		}
+
+		public HttpServerProviderFilter (TestContext ctx, HttpServerTestCategory category)
 		{
 			Category = category;
+
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+			HasNewWebStack = setup.UsingDotNet || setup.HasNewWebStack;
+			SupportsGZip = setup.SupportsGZip;
+
+			if (!ctx.TryGetParameter (out HttpServerFlags serverFlags))
+				serverFlags = HttpServerFlags.None;
+			ServerFlags = serverFlags;
+
+			if ((ServerFlags & HttpServerFlags.HttpListener) != 0)
+				UsingHttpListener = true;
+
+			switch (Category) {
+			case HttpServerTestCategory.HttpListener:
+				UsingHttpListener = true;
+				SupportsHttp = true;
+				DisableSsl = true;
+				break;
+			case HttpServerTestCategory.MartinTest:
+				IsMartinTest = true;
+				break;
+			case HttpServerTestCategory.GZip:
+				SupportsHttp = SupportsGZip;
+				Optional = true;
+				break;
+			case HttpServerTestCategory.GZipInstrumentation:
+				Optional = true;
+				RequireSsl = true;
+				break;
+			case HttpServerTestCategory.Ignore:
+				Optional = true;
+				break;
+			case HttpServerTestCategory.Default:
+				SupportsHttp = true;
+				break;
+			case HttpServerTestCategory.NewWebStack:
+				SupportsHttp = HasNewWebStack;
+				break;
+			case HttpServerTestCategory.Instrumentation:
+			case HttpServerTestCategory.NewWebStackInstrumentation:
+			case HttpServerTestCategory.RecentlyFixed:
+				RequireSsl = true;
+				break;
+			}
 		}
 
 		bool SupportsSsl (ConnectionProvider provider)
@@ -59,21 +107,11 @@ namespace Xamarin.WebTests.TestFramework
 			return provider.HasFlag (ConnectionProviderFlags.SupportsHttpListener);
 		}
 
-		bool HasNewWebStack ()
-		{
-			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
-			return setup.UsingDotNet || setup.HasNewWebStack;
-		}
-
-		bool SupportsGZip ()
-		{
-			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
-			return setup.SupportsGZip;
-		}
-
 		bool IsSupported (TestContext ctx, ConnectionProvider provider)
 		{
 			if (!provider.HasFlag (ConnectionProviderFlags.SupportsHttp))
+				return false;
+			if (UsingHttpListener && !provider.HasFlag (ConnectionProviderFlags.SupportsHttpListener))
 				return false;
 			switch (Category) {
 			case HttpServerTestCategory.Default:
@@ -83,19 +121,19 @@ namespace Xamarin.WebTests.TestFramework
 				return SupportsSsl (provider);
 			case HttpServerTestCategory.NewWebStackInstrumentation:
 			case HttpServerTestCategory.Experimental:
-				return HasNewWebStack () && SupportsSsl (provider);
+				return HasNewWebStack && SupportsSsl (provider);
 			case HttpServerTestCategory.NewWebStack:
-				return HasNewWebStack ();
+				return HasNewWebStack;
 			case HttpServerTestCategory.HttpListener:
 				return SupportsHttpListener (provider);
 			case HttpServerTestCategory.MartinTest:
 				return SupportsSsl (provider);
 			case HttpServerTestCategory.RecentlyFixed:
-				return HasNewWebStack () && SupportsSsl (provider);
+				return HasNewWebStack && SupportsSsl (provider);
 			case HttpServerTestCategory.GZip:
-				return SupportsGZip ();
+				return SupportsGZip;
 			case HttpServerTestCategory.GZipInstrumentation:
-				return SupportsGZip () && SupportsSsl (provider);
+				return SupportsGZip && SupportsSsl (provider);
 			case HttpServerTestCategory.Ignore:
 				return false;
 			default:
@@ -112,110 +150,56 @@ namespace Xamarin.WebTests.TestFramework
 			return providers;
 		}
 
-		bool Optional {
-			get {
-				switch (Category) {
-				case HttpServerTestCategory.GZip:
-				case HttpServerTestCategory.GZipInstrumentation:
-				case HttpServerTestCategory.Ignore:
-					return true;
-				default:
-					return false;
-				}
-			}
+		bool HasNewWebStack {
+			get;
 		}
 
-		bool UsingSsl {
-			get {
-				switch (Category) {
-				case HttpServerTestCategory.HttpListener:
-					return false;
-				default:
-					return true;
-				}
-			}
+		bool SupportsGZip {
+			get;
+		}
+
+		bool Optional {
+			get;
+		}
+
+		bool DisableSsl {
+			get;
 		}
 
 		bool RequireSsl {
-			get {
-				switch (Category) {
-				case HttpServerTestCategory.Instrumentation:
-				case HttpServerTestCategory.NewWebStackInstrumentation:
-				case HttpServerTestCategory.RecentlyFixed:
-				case HttpServerTestCategory.GZipInstrumentation:
-					return true;
-				default:
-					return false;
-				}
-			}
+			get;
 		}
 
 		bool UsingHttpListener {
-			get {
-				switch (Category) {
-				case HttpServerTestCategory.HttpListener:
-					return true;
-				default:
-					return false;
-				}
-			}
+			get;
 		}
 
 		bool IsMartinTest {
-			get {
-				switch (Category) {
-				case HttpServerTestCategory.MartinTest:
-					return true;
-				default:
-					return false;
-				}
-			}
+			get;
 		}
 
 		bool SupportsHttp {
-			get {
-				switch (Category) {
-				case HttpServerTestCategory.Default:
-					return true;
-				case HttpServerTestCategory.NewWebStack:
-					return HasNewWebStack ();
-				case HttpServerTestCategory.GZip:
-					return SupportsGZip ();
-				case HttpServerTestCategory.Ignore:
-					return false;
-				default:
-					return false;
-				}
-			}
+			get;
 		}
 
 		public IEnumerable<HttpServerProvider> GetProviders (TestContext ctx)
 		{
-			HttpServerFlags serverFlags = HttpServerFlags.None;
-			if (UsingHttpListener)
-				serverFlags |= HttpServerFlags.HttpListener;
-
-			if (IsMartinTest) {
-				yield return new HttpServerProvider ("https", serverFlags, null);
-				yield break;
-			}
-
-			if (!RequireSsl && SupportsHttp) {
+			if (!RequireSsl && !IsMartinTest && SupportsHttp) {
 				yield return new HttpServerProvider (
-					"http", serverFlags | HttpServerFlags.NoSSL, null);
+					"http", ServerFlags | HttpServerFlags.NoSSL, null);
 			}
 
-			if (!UsingSsl)
+			if (DisableSsl)
 				yield break;
 
 			var supportedProviders = GetSupportedProviders (ctx);
 			if (supportedProviders.Count () == 0 && !Optional)
 				ctx.AssertFail ("Could not find any supported HttpServerProvider.");
 
-			serverFlags |= HttpServerFlags.SSL;
 			foreach (var provider in supportedProviders) {
 				yield return new HttpServerProvider (
-					$"https:{provider.Name}", serverFlags,
+					$"https:{provider.Name}",
+					ServerFlags | HttpServerFlags.SSL,
 					provider.SslStreamProvider);
 			}
 		}

@@ -56,12 +56,16 @@ namespace Xamarin.WebTests.TestAttributes
 
 		public IEnumerable<HttpServerProvider> GetParameters (TestContext ctx, string argument)
 		{
-			var category = Category ?? ctx.GetParameter<HttpServerTestCategory> ();
+			HttpServerTestCategory category;
+			if (Category != null)
+				category = Category.Value;
+			else if (!ctx.TryGetParameter (out category))
+				category = HttpServerTestCategory.Default;
 
 			if (!string.IsNullOrEmpty (argument))
 				throw new NotSupportedException ();
 
-			var filter = new HttpServerProviderFilter (category);
+			var filter = new HttpServerProviderFilter (ctx, category);
 			return filter.GetProviders (ctx);
 		}
 	}

@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public abstract class AbstractConnection : ITestInstance, IDisposable
 	{
-		protected internal static Task FinishedTask {
+		public static Task FinishedTask {
 			get { return Task.FromResult<object> (null); }
 		}
 

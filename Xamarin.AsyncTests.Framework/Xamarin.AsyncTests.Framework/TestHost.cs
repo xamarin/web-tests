@@ -62,16 +62,6 @@ namespace Xamarin.AsyncTests.Framework
 			Flags = flags;
 		}
 
-		internal TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
-		{
-			if (node == null)
-				throw new ArgumentNullException ("node");
-
-			var instance = CreateInstance (node, parent);
-			instance.Initialize (ctx);
-			return instance;
-		}
-
 		internal TestNode CreateNode (ITestParameter parameter = null, TestFlags? flags = null)
 		{
 			return new TestNodeInternal (this, parameter, flags);
@@ -97,7 +87,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal abstract ITestParameter GetParameter (TestInstance instance);
 
-		internal abstract TestInstance CreateInstance (TestNode node, TestInstance parent);
+		internal abstract TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent);
 
 		internal abstract TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags);
 

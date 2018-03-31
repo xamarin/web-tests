@@ -36,26 +36,18 @@ namespace Xamarin.WebTests.HttpClientTests
 	using HttpFramework;
 	using HttpHandlers;
 	using TestRunners;
-	using Xamarin.WebTests.ConnectionFramework;
 
-	[New]
+	[Work]
 	[AsyncTestFixture (Prefix = "HttpClientTests")]
-	public abstract class HttpClientTestFixture : IHttpClientTestFixture
+	public abstract class HttpClientTestFixture : InstrumentationTestRunner
 	{
-		public string Value => GetType ().FullName;
-
-		public string FriendlyValue => GetType ().Name;
-
-		internal string ME => FriendlyValue;
-
 		[AsyncTest]
 		public static Task Run (
 			TestContext ctx, CancellationToken cancellationToken,
 			HttpServerProvider provider,
-			HttpClientTestFixture fixture,
-			HttpClientTestRunner runner)
+			HttpClientTestFixture fixture)
 		{
-			return runner.Run (ctx, cancellationToken);
+			return fixture.Run (ctx, cancellationToken);
 		}
 
 		[AsyncTest]
@@ -64,35 +56,64 @@ namespace Xamarin.WebTests.HttpClientTests
 		public static Task MartinTest (
 			TestContext ctx, CancellationToken cancellationToken,
 			HttpServerProvider provider,
-			HttpClientTestFixture fixture,
-			HttpClientTestRunner runner)
+			HttpClientTestFixture fixture)
 		{
-			return runner.Run (ctx, cancellationToken);
+			return fixture.Run (ctx, cancellationToken);
 		}
 
-		public virtual HttpStatusCode ExpectedStatus => HttpStatusCode.OK;
+		public override bool HasRequestBody => throw new InvalidOperationException ();
 
-		public virtual WebExceptionStatus ExpectedError => WebExceptionStatus.Success;
+		Handler handler;
 
-		public virtual HttpOperationFlags OperationFlags => HttpOperationFlags.None;
+		public sealed override RequestFlags RequestFlags => handler.Flags;
 
-		public abstract Handler CreateHandler (
-			TestContext ctx, HttpClientTestRunner runner, bool primary);
-
-		public abstract Request CreateRequest (
-			TestContext ctx, Uri uri, Handler handler);
-
-		public virtual void ConfigureRequest (
-			TestContext ctx, Handler handler, Request request)
+		protected sealed override void InitializeHandler (TestContext ctx)
 		{
+			handler = CreateHandler (ctx);
+		}
+
+		public abstract Handler CreateHandler (TestContext ctx);
+
+		protected override Request CreateRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			Uri uri)
+		{
+			return new HttpClientRequest (uri);
+		}
+
+		protected override void ConfigureRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			Request request, Uri uri)
+		{
+			handler.ConfigureRequest (ctx, request, uri);
+			base.ConfigureRequest (ctx, operation, request, uri);
+		}
+
+		protected override Task<Response> Run (
+			TestContext ctx, Request request,
+			CancellationToken cancellationToken)
+		{
+			return Run (ctx, (HttpClientRequest)request, cancellationToken);
 		}
 
 		public abstract Task<Response> Run (
-			TestContext ctx, Request request,
+			TestContext ctx, HttpClientRequest request,
 			CancellationToken cancellationToken);
 
-		public abstract HttpOperation RunSecondary (
-			TestContext ctx, HttpClientTestRunner runner,
-			CancellationToken cancellationToken);
+		public sealed override Task<HttpResponse> HandleRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
+		{
+			return handler.HandleRequest (
+				ctx, operation, connection, request,
+				effectiveFlags, cancellationToken);
+		}
+
+		public sealed override bool CheckResponse (
+			TestContext ctx, Response response)
+		{
+			return handler.CheckResponse (ctx, response);
+		}
 	}
 }

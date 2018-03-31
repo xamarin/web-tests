@@ -136,6 +136,7 @@
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionMethodInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionFixtureInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\DebugHelper.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\EnumParameterSource.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

@@ -68,7 +68,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			return icode == 301 || icode == 302 || icode == 303 || icode == 307;
 		}
 
-		internal protected override Task<HttpResponse> HandleRequest (
+		public override Task<HttpResponse> HandleRequest (
 			TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{

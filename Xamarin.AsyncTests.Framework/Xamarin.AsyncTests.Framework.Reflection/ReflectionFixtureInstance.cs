@@ -51,6 +51,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			fixtureInstance = ReflectionMethodInvoker.Invoke (
 				ctx, Host.Builder, Parent, Host.Constructor, false, cancellationToken);
+			if (fixtureInstance == null) {
+				ctx.OnTestFinished (TestStatus.Error);
+				throw ctx.IgnoreThisTest ();
+			}
 			if (fixtureInstance is ITestInstance testInstance)
 				await testInstance.Initialize (ctx, cancellationToken);
 		}

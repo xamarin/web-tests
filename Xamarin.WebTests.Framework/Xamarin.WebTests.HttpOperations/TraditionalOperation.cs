@@ -34,7 +34,7 @@ namespace Xamarin.WebTests.HttpOperations
 	using HttpFramework;
 	using HttpHandlers;
 
-	public class TraditionalOperation : HttpOperation
+	public class TraditionalOperation : HttpHandlerOperation
 	{
 		public TraditionalOperation (HttpServer server, Handler handler, bool sendAsync,
 		                             HttpOperationFlags flags = HttpOperationFlags.None,

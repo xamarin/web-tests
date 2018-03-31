@@ -159,9 +159,23 @@ namespace Xamarin.AsyncTests.Portable
 		#region Stack Trace
 
 		[HideStackFrame]
+		public string GetStackTrace (Exception error, bool full)
+		{
+			var trace = new StackTrace (error, true);
+			if (error is AssertionException)
+				return error.StackTrace;
+			return GetStackTrace (trace, full);
+		}
+
+		[HideStackFrame]
 		public string GetStackTrace (bool full)
 		{
 			var trace = new StackTrace (true);
+			return GetStackTrace (trace, full);
+		}
+
+		string GetStackTrace (StackTrace trace, bool full)
+		{
 			var frames = new List<string> ();
 			int top = 0;
 
@@ -185,9 +199,6 @@ namespace Xamarin.AsyncTests.Portable
 				case "System.Threading.Tasks":
 				case "System.Reflection":
 					continue;
-
-				default:
-					break;
 				}
 
 				frames.Add (formatted);

@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new DeleteHandler (Value, Body) { Flags = Flags };
 		}
 
-		internal protected override async Task<HttpResponse> HandleRequest (
+		public override async Task<HttpResponse> HandleRequest (
 			TestContext ctx, HttpOperation operation, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{

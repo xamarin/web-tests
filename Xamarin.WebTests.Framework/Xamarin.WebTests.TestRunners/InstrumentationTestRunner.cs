@@ -40,50 +40,22 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.TestRunners
 {
 	using ConnectionFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
 	using TestFramework;
+	using Server;
 	using Resources;
 
-	public abstract class InstrumentationTestRunner : AbstractConnection
+	public abstract class InstrumentationTestRunner
+		: AbstractConnection, ListenerHandler
 	{
-		public HttpServerProvider Provider {
-			get;
-		}
-
-		internal Uri Uri {
-			get;
-		}
-
-		internal HttpServerFlags ServerFlags {
-			get;
-		}
-
 		public HttpServer Server {
 			get;
+			private set;
 		}
 
-		public string ME {
-			get;
-		}
-
-		public InstrumentationTestRunner (HttpServerProvider provider, string identifier)
-		{
-			Provider = provider;
-			ServerFlags = provider.ServerFlags | HttpServerFlags.InstrumentationListener;
-			ME = $"{GetType ().Name}({identifier})";
-
-			var endPoint = ConnectionTestHelper.GetEndPoint ();
-
-			var proto = (ServerFlags & HttpServerFlags.NoSSL) != 0 ? "http" : "https";
-			Uri = new Uri ($"{proto}://{endPoint.Address}:{endPoint.Port}/");
-
-			var parameters = GetParameters (identifier);
-
-			Server = new BuiltinHttpServer (
-				Uri, endPoint, ServerFlags, parameters,
-				provider.SslStreamProvider);
-		}
+		public string ME => GetType ().Name;
 
 		static ConnectionParameters GetParameters (string identifier)
 		{
@@ -99,23 +71,53 @@ namespace Xamarin.WebTests.TestRunners
 		InstrumentationOperation queuedOperation;
 		volatile int readHandlerCalled;
 
-		internal InstrumentationOperation PrimaryOperation => currentOperation;
-		internal InstrumentationOperation QueuedOperation => queuedOperation;
-		public int ReadHandlerCalled => readHandlerCalled;
+		protected InstrumentationOperation PrimaryOperation => currentOperation;
+		protected HttpOperation QueuedOperation => queuedOperation;
+		protected int ReadHandlerCalled => readHandlerCalled;
 
-		public Handler PrimaryHandler => PrimaryOperation.Handler;
+		public virtual HttpStatusCode ExpectedStatus => HttpStatusCode.OK;
+
+		public virtual WebExceptionStatus ExpectedError => WebExceptionStatus.Success;
+
+		public virtual HttpOperationFlags OperationFlags => HttpOperationFlags.None;
+
+		public virtual HttpContent ExpectedContent {
+			get => new StringContent (GetType ().Name);
+		}
+
+		public virtual RequestFlags RequestFlags => RequestFlags.KeepAlive;
+
+		string ListenerHandler.Value => ME;
+
+		protected abstract void InitializeHandler (TestContext ctx);
+
+		protected internal abstract Request CreateRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			Uri uri);
+
+		void ListenerHandler.ConfigureRequest (
+			TestContext ctx, HttpOperation operation,
+			Request request, Uri uri) => ConfigureRequest (
+				ctx, (InstrumentationOperation)operation, request, uri);
+
+		protected internal virtual void ConfigureRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			Request request, Uri uri)
+		{
+		}
 
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}.{nameof (Run)}()";
 			ctx.LogDebug (2, $"{me}");
 
-			var (handler, flags) = CreateHandler (ctx, true);
+				InitializeHandler (ctx);
 
 			ctx.LogDebug (2, $"{me}");
 
-			currentOperation = CreateOperation (
-				ctx, handler, InstrumentationOperationType.Primary, flags);
+			currentOperation = new InstrumentationOperation (
+				this, InstrumentationOperationType.Primary,
+				OperationFlags);
 
 			currentOperation.Start (ctx, cancellationToken);
 
@@ -127,7 +129,19 @@ namespace Xamarin.WebTests.TestRunners
 				throw;
 			}
 
-			await RunSecondary (ctx, cancellationToken);
+			var secondOperation = await RunSecondary (
+				ctx, cancellationToken).ConfigureAwait (false);
+
+			if (secondOperation != null) {
+				ctx.LogDebug (2, $"{me} waiting for second operation.");
+				try {
+					await secondOperation.WaitForCompletion ().ConfigureAwait (false);
+					ctx.LogDebug (2, $"{me} done waiting for second operation.");
+				} catch (Exception ex) {
+					ctx.LogDebug (2, $"{me} waiting for second operation failed: {ex.Message}.");
+					throw;
+				}
+			}
 
 			if (QueuedOperation != null) {
 				ctx.LogDebug (2, $"{me} waiting for queued operations.");
@@ -143,25 +157,39 @@ namespace Xamarin.WebTests.TestRunners
 			Server.CloseAll ();
 		}
 
-		protected virtual Task RunSecondary (TestContext ctx, CancellationToken cancellationToken)
+		protected internal abstract Task<Response> Run (
+			TestContext ctx, Request request,
+			CancellationToken cancellationToken);
+
+		protected virtual Task<HttpOperation> RunSecondary (
+			TestContext ctx, CancellationToken cancellationToken)
 		{
-			return FinishedTask;
+			return Task.FromResult<HttpOperation> (null);
 		}
 
-		protected abstract (Handler handler, HttpOperationFlags flags) CreateHandler (TestContext ctx, bool primary);
-
-		internal abstract InstrumentationOperation CreateOperation (
-			TestContext ctx, Handler handler,
-			InstrumentationOperationType type,
-			HttpOperationFlags flags);
-
-		internal InstrumentationOperation StartOperation (
-			TestContext ctx, CancellationToken cancellationToken,
-			Handler handler, InstrumentationOperationType type,
-			HttpOperationFlags flags)
+		public InstrumentationOperation CreateOperation (
+			TestContext ctx, InstrumentationOperationType type,
+			HttpOperationFlags? flags = null,
+			HttpStatusCode? expectedStatus = null,
+			WebExceptionStatus? expectedError = null)
 		{
-			var operation = CreateOperation (ctx, handler, type, flags);
-			if (type == InstrumentationOperationType.Queued) {
+			return new InstrumentationOperation (
+				this, type, flags, expectedStatus, expectedError);
+		}
+
+		public InstrumentationOperation StartOperation (
+			TestContext ctx, CancellationToken cancellationToken,
+			InstrumentationOperationType type, HttpOperationFlags flags)
+		{
+			var operation = CreateOperation (ctx, type, flags);
+			return StartOperation (ctx, cancellationToken, operation);
+		}
+
+		public InstrumentationOperation StartOperation (
+			TestContext ctx, CancellationToken cancellationToken,
+			InstrumentationOperation operation)
+		{
+			if (operation.Type == InstrumentationOperationType.Queued) {
 				if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 					throw new InvalidOperationException ("Invalid nested call.");
 			}
@@ -169,21 +197,60 @@ namespace Xamarin.WebTests.TestRunners
 			return operation;
 		}
 
-		public Task RunParallelOperation (
-			TestContext ctx, Handler handler, HttpOperationFlags flags,
+		protected Task RunParallelOperation (
+			TestContext ctx, HttpOperationFlags flags,
+			CancellationToken cancellationToken)
+		{
+			return StartParallelOperation (
+				ctx, flags, cancellationToken).WaitForCompletion ();
+		}
+
+		protected HttpOperation StartParallelOperation (
+			TestContext ctx, HttpOperationFlags flags,
 			CancellationToken cancellationToken)
 		{
 			return StartOperation (
-				ctx, cancellationToken, handler,
-				InstrumentationOperationType.Parallel, flags).WaitForCompletion ();
+				ctx, cancellationToken,
+				InstrumentationOperationType.Parallel, flags);
 		}
 
-		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		protected HttpOperation StartSequentialRequest (
+			TestContext ctx, HttpOperationFlags flags,
+			CancellationToken cancellationToken)
 		{
+			var operation = CreateOperation (
+				ctx, InstrumentationOperationType.Parallel, flags,
+				HttpStatusCode.OK, WebExceptionStatus.Success);
+			operation.Start (ctx, cancellationToken);
+			return operation;
+		}
+
+		protected Task StartDelayedSecondaryOperation (TestContext ctx)
+		{
+			return QueuedOperation.StartDelayedListener (ctx);
+		}
+
+		protected sealed override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var provider = ctx.GetParameter<HttpServerProvider> ();
+
+			var serverFlags = provider.ServerFlags | HttpServerFlags.InstrumentationListener;
+
+			var endPoint = ConnectionTestHelper.GetEndPoint ();
+
+			var proto = (serverFlags & HttpServerFlags.NoSSL) != 0 ? "http" : "https";
+			var uri = new Uri ($"{proto}://{endPoint.Address}:{endPoint.Port}/");
+
+			var parameters = GetParameters (ME);
+
+			Server = new BuiltinHttpServer (
+				uri, endPoint, serverFlags, parameters,
+				provider.SslStreamProvider);
+
 			await Server.Initialize (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
-		protected override async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
+		protected sealed override async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
 		{
 			currentOperation?.Dispose ();
 			currentOperation = null;
@@ -192,39 +259,170 @@ namespace Xamarin.WebTests.TestRunners
 			await Server.Destroy (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
-		protected override async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		protected sealed override async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			await Server.PreRun (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
-		protected override async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		protected sealed override async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			await Server.PostRun (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
-		protected override void Stop ()
+		protected sealed override void Stop ()
 		{
+		}
+
+		Task<HttpResponse> ListenerHandler.HandleRequest (
+			TestContext ctx, HttpOperation operation,
+			HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags,
+			CancellationToken cancellationToken) => HandleRequest (
+				ctx, (InstrumentationOperation)operation,
+				connection, request, effectiveFlags, cancellationToken);
+
+		public virtual Task<HttpResponse> HandleRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags,
+			CancellationToken cancellationToken)
+		{
+			return Task.Run (() => HandleRequest (
+				ctx, operation, connection, request));
+		}
+
+		public virtual HttpResponse HandleRequest (
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection, HttpRequest request)
+		{
+			throw ctx.AssertFail ("Must override this.");
+		}
+
+		public abstract bool HasRequestBody {
+			get;
+		}
+
+		protected internal virtual async Task WriteRequestBody (
+			TestContext ctx, TraditionalRequest request,
+			CancellationToken cancellationToken)
+		{
+			using (var stream = await request.RequestExt.GetRequestStreamAsync ().ConfigureAwait (false)) {
+				await WriteRequestBody (ctx, request, stream, cancellationToken);
+			}
+		}
+
+		protected internal virtual Task WriteRequestBody (
+			TestContext ctx, TraditionalRequest request, Stream stream,
+			CancellationToken cancellationToken)
+		{
+			throw ctx.AssertFail ("Must override this.");
+		}
+
+		protected internal virtual Task<Response> SendRequest (
+			TestContext ctx, TraditionalRequest request,
+			CancellationToken cancellationToken)
+		{
+			return ((InstrumentationRequest)request).DefaultSendAsync (ctx, cancellationToken);
+		}
+
+		protected internal async virtual Task<TraditionalResponse> ReadResponse (
+			TestContext ctx, TraditionalRequest request,
+			HttpWebResponse response,
+			WebException error, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			HttpContent content;
+			var status = response.StatusCode;
+
+			using (var stream = response.GetResponseStream ()) {
+				content = await ReadResponseBody (
+					ctx, request, response, stream, cancellationToken).ConfigureAwait (false);
+			}
+
+			return new TraditionalResponse (request, response, content, error);
+		}
+
+		protected async virtual Task<HttpContent> ReadResponseBody (
+			TestContext ctx, TraditionalRequest request,
+			HttpWebResponse response, Stream stream,
+			CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			string body = null;
+			using (var reader = new StreamReader (stream)) {
+				if (!reader.EndOfStream)
+					body = await reader.ReadToEndAsync ().ConfigureAwait (false);
+			}
+
+			return StringContent.CreateMaybeNull (body);
+		}
+
+		public virtual bool CheckResponse (TestContext ctx, Response response)
+		{
+			if (!ctx.Expect (response.Content, Is.Not.Null, "response.Content != null"))
+				return false;
+
+			return HttpContent.Compare (ctx, response.Content, ExpectedContent, false, "response.Content");
+		}
+
+		protected void AssertNotReusingConnection (
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection)
+		{
+			ctx.LogDebug (2, $"{ME}: {operation == PrimaryOperation} {connection.RemoteEndPoint}");
+			if (operation == PrimaryOperation)
+				return;
+			ctx.Assert (connection.RemoteEndPoint,
+				    Is.Not.Null.And.NotEqualTo (PrimaryOperation.RemoteEndPoint),
+				    "RemoteEndPoint");
+		}
+
+		protected void AssertReusingConnection (
+			TestContext ctx, InstrumentationOperation operation,
+			HttpConnection connection)
+		{
+			ctx.LogDebug (2, $"{ME}: {operation == PrimaryOperation} {connection.RemoteEndPoint}");
+			if (operation == PrimaryOperation)
+				return;
+			ctx.Assert (connection.RemoteEndPoint,
+				    Is.Not.Null.And.EqualTo (PrimaryOperation.RemoteEndPoint),
+				    "RemoteEndPoint");
 		}
 
 		internal Task<bool> ReadHandler (
-			TestContext ctx, InstrumentationOperationType type,
-			int bytesRead, CancellationToken cancellationToken)
+			TestContext ctx, InstrumentationOperation operation,
+			byte[] buffer, int offset, int size, int bytesRead,
+			CancellationToken cancellationToken)
 		{
 			Interlocked.Increment (ref readHandlerCalled);
 
-			if (type == InstrumentationOperationType.Primary)
-				return PrimaryReadHandler (ctx, bytesRead, cancellationToken);
-			return SecondaryReadHandler (ctx, bytesRead, cancellationToken);
+			if (operation.Type == InstrumentationOperationType.Primary)
+				return PrimaryReadHandler (
+					ctx, operation, buffer, offset, size,
+					bytesRead, cancellationToken);
+			return SecondaryReadHandler (
+				ctx, operation, bytesRead, cancellationToken);
 		}
 
-		internal virtual Task<bool> PrimaryReadHandler (
-			TestContext ctx, int bytesRead, CancellationToken cancellationToken)
+		protected internal virtual bool ConfigureNetworkStream (
+			TestContext ctx, StreamInstrumentation instrumentation)
+		{
+			return false;
+		}
+
+		protected virtual Task<bool> PrimaryReadHandler (
+			TestContext ctx, InstrumentationOperation operation,
+			byte[] buffer, int offset, int size, int bytesRead,
+			CancellationToken cancellationToken)
 		{
 			return Task.FromResult (false);
 		}
 
-		internal virtual Task<bool> SecondaryReadHandler (
-			TestContext ctx, int bytesRead, CancellationToken cancellationToken)
+		protected virtual Task<bool> SecondaryReadHandler (
+			TestContext ctx, InstrumentationOperation operation,
+			int bytesRead, CancellationToken cancellationToken)
 		{
 			return Task.FromResult (false);
 		}

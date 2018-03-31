@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.ExceptionServices;
@@ -44,7 +45,7 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
-		public Handler Handler {
+		public ListenerHandler Handler {
 			get;
 		}
 
@@ -67,7 +68,9 @@ namespace Xamarin.WebTests.Server
 		ExceptionDispatchInfo pendingError;
 		bool hasInstrumentation;
 
-		public ListenerOperation (Listener listener, HttpOperation operation, Handler handler, Uri uri)
+		public ListenerOperation (
+			Listener listener, HttpOperation operation,
+			ListenerHandler handler, Uri uri)
 		{
 			Listener = listener;
 			Operation = operation;
@@ -163,11 +166,11 @@ namespace Xamarin.WebTests.Server
 					ctx.LogDebug (2, $"{me} REQUEST HEADERS READ");
 				}
 
-				response = await Handler.HandleRequest (
-					ctx, Operation, connection, request, cancellationToken).ConfigureAwait (false);
+				response = await HandleRequestInner (
+					ctx, Operation, connection, request,
+					Handler.RequestFlags, cancellationToken).ConfigureAwait (false);
 
 				ctx.LogDebug (2, $"{me} HANDLE REQUEST DONE: {response}");
-
 			} catch (OperationCanceledException) {
 				OnCanceled ();
 				throw;
@@ -182,6 +185,76 @@ namespace Xamarin.WebTests.Server
 			}
 
 			response.Redirect.parentOperation = this;
+
+			return response;
+		}
+
+		void DumpHeaders (TestContext ctx, HttpMessage message)
+		{
+			var sb = new StringBuilder ();
+			foreach (var header in message.Headers) {
+				sb.AppendFormat ("  {0} = {1}", header.Key, header.Value);
+				sb.AppendLine ();
+			}
+			ctx.LogDebug (2, sb.ToString ());
+		}
+
+		async Task<HttpResponse> HandleRequestInner (
+			TestContext ctx, HttpOperation operation,
+			HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags,
+			CancellationToken cancellationToken)
+		{
+			Exception originalError;
+			HttpResponse response;
+
+			if (operation == null)
+				throw new ArgumentNullException (nameof (operation));
+			if (connection == null)
+				throw new ArgumentNullException (nameof (connection));
+
+			var expectServerError = operation.HasAnyFlags (HttpOperationFlags.ExpectServerException);
+
+			try {
+				ctx.LogDebug (1, $"HANDLE REQUEST: {connection.RemoteEndPoint}");
+				DumpHeaders (ctx, request);
+				connection.Server.CheckEncryption (ctx, connection.SslStream);
+				response = await Handler.HandleRequest (
+					ctx, operation, connection, request,
+					effectiveFlags, cancellationToken);
+
+				if (response == null)
+					response = HttpResponse.CreateSuccess ();
+				if ((effectiveFlags & RequestFlags.CloseConnection) != 0)
+					response.CloseConnection = true;
+				if (!response.KeepAlive.HasValue && ((effectiveFlags & RequestFlags.KeepAlive) != 0))
+					response.KeepAlive = true;
+				response.ResolveHeaders ();
+
+				ctx.LogDebug (1, $"HANDLE REQUEST DONE: {connection.RemoteEndPoint}", response);
+				DumpHeaders (ctx, response);
+				return response;
+			} catch (AssertionException ex) {
+				originalError = ex;
+				response = HttpResponse.CreateError (ex.Message);
+			} catch (OperationCanceledException) {
+				throw;
+			} catch (Exception ex) {
+				originalError = ex;
+				response = HttpResponse.CreateError ("Caught unhandled exception", ex);
+			}
+
+			if (ctx.IsCanceled || cancellationToken.IsCancellationRequested) {
+				ctx.LogDebug (1, "HANDLE REQUEST - CANCELED");
+				throw new OperationCanceledException ();
+			}
+
+			if (originalError is AssertionException)
+				ctx.LogDebug (1, "HANDLE REQUEST - ASSERTION FAILED", originalError);
+			else if (expectServerError)
+				ctx.LogDebug (1, "HANDLE REQUEST - EXPECTED ERROR", originalError.GetType ());
+			else
+				ctx.LogDebug (1, "HANDLE REQUEST - ERROR", originalError);
 
 			return response;
 		}

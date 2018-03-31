@@ -209,7 +209,9 @@ namespace Xamarin.WebTests
 					yield break;
 
 				yield return ProxyKind.Simple;
-				yield return ProxyKind.SSL;
+
+				if (ctx.IsEnabled (ExperimentalAttribute.Instance))
+					yield return ProxyKind.SSL;
 
 				if (ctx.IsEnabled (ExperimentalAttribute.Instance) && ctx.IsEnabled (Instance.ProxyAuth)) {
 					yield return ProxyKind.BasicAuth;

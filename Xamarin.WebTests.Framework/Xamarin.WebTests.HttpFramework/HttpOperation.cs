@@ -51,7 +51,7 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
-		protected internal Handler Handler {
+		internal abstract ListenerHandler ListenerHandler {
 			get;
 		}
 
@@ -70,11 +70,11 @@ namespace Xamarin.WebTests.HttpFramework
 		static int nextID;
 		public readonly int ID = Interlocked.Increment (ref nextID);
 
-		public HttpOperation (HttpServer server, string me, Handler handler, HttpOperationFlags flags,
-				      HttpStatusCode expectedStatus, WebExceptionStatus expectedError)
+		internal HttpOperation (
+			HttpServer server, string me, HttpOperationFlags flags,
+			HttpStatusCode expectedStatus, WebExceptionStatus expectedError)
 		{
 			Server = server;
-			Handler = handler;
 			Flags = flags;
 			ExpectedStatus = expectedStatus;
 			ExpectedError = expectedError;
@@ -209,7 +209,7 @@ namespace Xamarin.WebTests.HttpFramework
 				operation = null;
 				uri = externalUri;
 			} else {
-				operation = Server.Listener.RegisterOperation (ctx, this, Handler, null);
+				operation = Server.Listener.RegisterOperation (ctx, this, ListenerHandler, null);
 				uri = operation.Uri;
 			}
 
@@ -237,13 +237,53 @@ namespace Xamarin.WebTests.HttpFramework
 			ctx.LogDebug (2, $"{me} DONE: {response}");
 
 			try {
-				await Handler.CheckResponse (ctx, response, cancellationToken, ExpectedStatus, ExpectedError).ConfigureAwait (false);
+				if (ctx.HasPendingException)
+					return;
+
+				if (cancellationToken.IsCancellationRequested) {
+					ctx.OnTestCanceled ();
+					return;
+				}
+
+				CheckResponse (ctx, response);
 			} finally {
 				response.Dispose ();
 			}
 		}
 
-		internal ListenerOperation RegisterRedirect (TestContext ctx, Handler handler, string path = null)
+		public void CheckResponse (TestContext ctx, Response response)
+		{
+			Debug (ctx, 1, "GOT RESPONSE", response.Status, response.IsSuccess, response.Error?.Message);
+
+			if (ExpectedError != WebExceptionStatus.Success) {
+				ctx.Expect (response.Error, Is.Not.Null, "expecting exception");
+				ctx.Expect (response.Status, Is.EqualTo (ExpectedStatus));
+				var wexc = response.Error as WebException;
+				ctx.Expect (wexc, Is.Not.Null, "WebException");
+				if (ExpectedError != WebExceptionStatus.AnyErrorStatus)
+					ctx.Expect ((WebExceptionStatus)wexc.Status, Is.EqualTo (ExpectedError));
+				return;
+			}
+
+			if (response.Error != null) {
+				if (response.Content != null)
+					ctx.OnError (new WebException (response.Content.AsString (), response.Error));
+				else
+					ctx.OnError (response.Error);
+			} else {
+				var ok = ctx.Expect (response.Status, Is.EqualTo (ExpectedStatus), "status code");
+				if (ok)
+					ok &= ctx.Expect (response.IsSuccess, Is.True, "success status");
+
+				if (ok)
+					ok &= ListenerHandler.CheckResponse (ctx, response);
+			}
+
+			if (response.Content != null)
+				Debug (ctx, 5, "GOT RESPONSE BODY", response.Content);
+		}
+
+		internal ListenerOperation RegisterRedirect (TestContext ctx, ListenerHandler handler, string path = null)
 		{
 			return Server.Listener.RegisterOperation (ctx, this, handler, path);
 		}
