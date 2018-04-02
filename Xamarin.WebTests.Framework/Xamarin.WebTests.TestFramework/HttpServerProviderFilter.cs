@@ -84,11 +84,15 @@ namespace Xamarin.WebTests.TestFramework
 				break;
 			case HttpServerTestCategory.NewWebStack:
 				SupportsHttp = HasNewWebStack;
+				Optional = true;
 				break;
 			case HttpServerTestCategory.Instrumentation:
+				RequireSsl = true;
+				break;
 			case HttpServerTestCategory.NewWebStackInstrumentation:
 			case HttpServerTestCategory.RecentlyFixed:
 				RequireSsl = true;
+				Optional = true;
 				break;
 			}
 		}
