@@ -51,6 +51,7 @@ namespace Xamarin.WebTests.TestFramework
 			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
 			HasNewWebStack = setup.UsingDotNet || setup.HasNewWebStack;
 			SupportsGZip = setup.SupportsGZip;
+			IsLegacy = !setup.SupportsTls12;
 
 			if (!ctx.TryGetParameter (out HttpServerFlags serverFlags))
 				serverFlags = HttpServerFlags.None;
@@ -149,7 +150,7 @@ namespace Xamarin.WebTests.TestFramework
 		{
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 			var providers = factory.GetProviders (p => IsSupported (ctx, p)).ToList ();
-			if (providers.Count == 0 && !Optional)
+			if (providers.Count == 0 && !Optional && !IsLegacy)
 				throw ctx.AssertFail ($"No supported ConnectionProvider for `{Category}'.");
 			return providers;
 		}
@@ -163,6 +164,10 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		bool Optional {
+			get;
+		}
+
+		bool IsLegacy {
 			get;
 		}
 
@@ -197,7 +202,7 @@ namespace Xamarin.WebTests.TestFramework
 				yield break;
 
 			var supportedProviders = GetSupportedProviders (ctx);
-			if (supportedProviders.Count () == 0 && !Optional)
+			if (!supportedProviders.Any () && !Optional && !IsLegacy)
 				ctx.AssertFail ("Could not find any supported HttpServerProvider.");
 
 			foreach (var provider in supportedProviders) {
