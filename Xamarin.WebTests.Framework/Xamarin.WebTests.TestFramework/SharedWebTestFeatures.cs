@@ -58,6 +58,7 @@ namespace Xamarin.WebTests.TestFramework
 
 		public IEnumerable<TestFeature> Features {
 			get {
+				yield return TestFeature.ForkedSupport;
 				yield return ExperimentalAttribute.Instance;
 				yield return IncludeNotWorkingAttribute.Instance;
 				yield return CertificateStoreAttribute.Instance;
