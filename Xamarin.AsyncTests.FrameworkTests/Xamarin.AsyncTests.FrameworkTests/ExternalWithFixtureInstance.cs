@@ -62,12 +62,11 @@ namespace Xamarin.AsyncTests.FrameworkTests
 			private set;
 		}
 
-		public bool Serialize (TestContext ctx, XElement element)
+		public void Serialize (TestContext ctx, XElement element)
 		{
 			element.Add (new XElement ("Hello"));
 			element.Add (new XElement ("World"));
 			ctx.LogMessage ($"MY HOST SERIALIZE: {ID}");
-			return true;
 		}
 
 		public void Deserialize (TestContext ctx, XElement element)

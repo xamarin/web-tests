@@ -68,8 +68,8 @@ namespace Xamarin.AsyncTests.Framework
 					forked.Deserialize (ctx, CustomParameter);
 				} else {
 					var element = TestNode.CreateCustomParameterNode ();
-					if (forked.Serialize (ctx, element))
-						CustomParameter = element;
+					forked.Serialize (ctx, element);
+					CustomParameter = element;
 				}
 			}
 			CurrentParameter = new HeavyTestValue (this);

@@ -30,7 +30,7 @@ namespace Xamarin.AsyncTests
 {
 	public interface IForkedTestInstance
 	{
-		bool Serialize (TestContext ctx, XElement element);
+		void Serialize (TestContext ctx, XElement element);
 
 		void Deserialize (TestContext ctx, XElement element);
 	}
