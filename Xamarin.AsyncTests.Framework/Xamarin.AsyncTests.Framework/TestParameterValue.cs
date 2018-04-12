@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Framework
 {
@@ -37,6 +38,8 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		public virtual XElement CustomParameter => null;
+
 		public TestParameterValue (TestInstance instance)
 		{
 			Instance = instance;
@@ -49,7 +52,11 @@ namespace Xamarin.AsyncTests.Framework
 			if (currentPath != null)
 				return currentPath;
 
-			var node = new TestNodeInternal (Instance.Host, Parameter);
+			TestNodeInternal node;
+			if (CustomParameter != null)
+				node = new TestNodeInternal (Instance.Host, CustomParameter);
+			else
+				node = new TestNodeInternal (Instance.Host, Parameter);
 			currentPath = new TestPath (Instance.ParentPath, node);
 			return currentPath;
 		}

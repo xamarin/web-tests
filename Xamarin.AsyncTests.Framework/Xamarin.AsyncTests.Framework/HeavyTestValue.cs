@@ -24,35 +24,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.using System;
 using System;
+using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Framework
 {
 	class HeavyTestValue : TestParameterValue, ITestParameter, ITestParameterWrapper
 	{
-		readonly object current;
+		new public HeavyTestInstance Instance => (HeavyTestInstance)base.Instance;
 
-		public HeavyTestValue (HeavyTestInstance instance, object current)
+		public HeavyTestValue (HeavyTestInstance instance)
 			: base (instance)
 		{
-			this.current = current;
 		}
 
-		public override ITestParameter Parameter {
-			get {
-				return this;
-			}
-		}
+		public override ITestParameter Parameter => this;
 
-		object ITestParameterWrapper.Value {
-			get { return current; }
-		}
+		object ITestParameterWrapper.Value => null;
 
-		string ITestParameter.Value {
-			get { return Instance.Host.Name; }
-		}
+		string ITestParameter.Value => Instance.Host.Name;
 
-		string ITestParameter.FriendlyValue {
-			get { return Instance.Host.Name; }
-		}
+		string ITestParameter.FriendlyValue => Instance.Host.Name;
+
+		public override XElement CustomParameter => Instance.CustomParameter;
 	}
 }

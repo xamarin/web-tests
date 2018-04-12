@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Remoting;
 
 [assembly: DependencyProvider (typeof (Xamarin.AsyncTests.Portable.PortableDependencyProvider))]
 

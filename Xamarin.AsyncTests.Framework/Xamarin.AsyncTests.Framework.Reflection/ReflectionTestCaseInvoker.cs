@@ -79,10 +79,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			object retval;
 			try {
-				retval = ReflectionMethodInvoker.Invoke (
+				retval = ReflectionMethodInvoker.InvokeMethod (
 					ctx, Builder, instance, Builder.Method,
 					false, cancellationToken);
 			} catch (Exception ex) {
+				ctx.OnTestFinished (TestStatus.Error, DateTime.Now - startTime);
 				ctx.OnError (ex);
 				return false;
 			}
@@ -99,6 +100,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				ctx.OnTestCanceled ();
 				return false;
 			} catch (Exception ex) {
+				ctx.OnTestFinished (TestStatus.Error, DateTime.Now - startTime);
 				ctx.OnError (ex);
 				return false;
 			}
@@ -110,7 +112,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			TypeInfo expectedException, CancellationToken cancellationToken)
 		{
 			try {
-				var retval = ReflectionMethodInvoker.Invoke (
+				var retval = ReflectionMethodInvoker.InvokeMethod (
 					ctx, Builder, instance, Builder.Method,
 					true, cancellationToken);
 				var task = retval as Task;

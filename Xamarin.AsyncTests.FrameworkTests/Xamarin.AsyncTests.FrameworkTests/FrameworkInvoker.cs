@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,7 +37,6 @@ namespace Xamarin.AsyncTests.FrameworkTests
 	using Constraints;
 	using Console;
 
-	// [Martin ("Test")]
 	[AsyncTestFixture]
 	public abstract class FrameworkInvoker
 	{
@@ -54,11 +54,14 @@ namespace Xamarin.AsyncTests.FrameworkTests
 
 		const string Category = "framework-invoker";
 
+		protected virtual bool ForwardLogging => true;
+
 		[AsyncTest]
 		public async Task Invoke (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var settings = SettingsBag.CreateDefault ();
-			var app = new MyApp (PackageName, ctx.Logger, settings);
+			var logger = new FrameworkLogger (ForwardLogging ? ctx.Logger : null);
+			var app = new MyApp (PackageName, logger, settings);
 			
 			var session = TestSession.CreateLocal (app, Framework);
 
@@ -92,8 +95,14 @@ namespace Xamarin.AsyncTests.FrameworkTests
 
 			ctx.LogDebug (Category, 1, $"RUN DONE #5");
 
-			ctx.Assert (result.Status, Is.EqualTo (TestStatus.Success), "success result");
+			CheckLogging (ctx, logger);
+
+			ctx.LogDebug (Category, 1, $"RUN DONE #6");
+
+			ctx.Assert (result.Status, Is.EqualTo (ExpectedStatus), "expected status");
 		}
+
+		protected virtual TestStatus ExpectedStatus => TestStatus.Success;
 
 		protected abstract void SetupSession (
 			TestContext ctx, SettingsBag settings, TestSession session);
@@ -119,9 +128,18 @@ namespace Xamarin.AsyncTests.FrameworkTests
 		{
 		}
 
+		protected virtual void CheckLogging (TestContext ctx, FrameworkLogger logger)
+		{
+			
+		}
+
 		class MyApp : TestApp
 		{
 			public string PackageName {
+				get;
+			}
+
+			public FrameworkLogger LoggerBackend {
 				get;
 			}
 
@@ -133,11 +151,46 @@ namespace Xamarin.AsyncTests.FrameworkTests
 				get;
 			}
 
-			public MyApp (string name, TestLogger logger, SettingsBag settings)
+			public MyApp (string name, FrameworkLogger logger, SettingsBag settings)
 			{
 				PackageName = name;
-				Logger = logger;
+				LoggerBackend = logger;
+				Logger = new TestLogger (logger);
 				Settings = settings;
+			}
+		}
+
+		protected class FrameworkLogger : TestLoggerBackend
+		{
+			public TestLogger Parent {
+				get;
+			}
+
+			public List<LogEntry> Events {
+				get;
+			}
+
+			public List<StatisticsEventArgs> Statistics {
+				get;
+			}
+
+			public FrameworkLogger (TestLogger parent)
+			{
+				Parent = parent;
+				Events = new List<LogEntry> ();
+				Statistics = new List<StatisticsEventArgs> ();
+			}
+
+			protected override void OnLogEvent (LogEntry entry)
+			{
+				Events.Add (entry);
+				Parent?.LogEvent (entry);
+			}
+
+			protected override void OnStatisticsEvent (StatisticsEventArgs args)
+			{
+				Statistics.Add (args);
+				Parent?.LogStatisticsEvent (args);
 			}
 		}
 	}

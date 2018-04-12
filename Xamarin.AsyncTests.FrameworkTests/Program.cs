@@ -26,6 +26,7 @@
 using System;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Console;
+using Xamarin.AsyncTests.Remoting;
 
 namespace Xamarin.AsyncTests.Test
 {
@@ -34,6 +35,7 @@ namespace Xamarin.AsyncTests.Test
 		static void Main (string[] args)
 		{
 			DependencyInjector.RegisterAssembly (typeof (MainClass).Assembly);
+			DependencyInjector.RegisterDependency<IForkedProcessLauncher> (() => new ForkedProcessLauncher ());
 
 			Program.Run (typeof (MainClass).Assembly, args);
 		}

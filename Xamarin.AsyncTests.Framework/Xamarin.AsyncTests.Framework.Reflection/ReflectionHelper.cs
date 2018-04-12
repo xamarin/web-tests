@@ -251,7 +251,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					builder, property, serializer, TestFlags.Browsable);
 			}
 
-			if (!property.CanWrite || !property.GetMethod.IsPublic)
+			if (!property.CanWrite || !property.GetMethod.IsPublic ||
+			    !property.SetMethod.IsPublic)
 				return null;
 
 			var host = ResolveFixtureParameter (builder, member);

@@ -134,6 +134,12 @@ namespace Xamarin.AsyncTests
 			return new TestPath (Parent, parameterized);
 		}
 
+		internal TestPath Parameterize (XElement customParameter)
+		{
+			var parameterized = Node.Parameterize (customParameter);
+			return new TestPath (Parent, parameterized);
+		}
+
 		internal TestPath Clone ()
 		{
 			var clonedNode = Node.Clone ();

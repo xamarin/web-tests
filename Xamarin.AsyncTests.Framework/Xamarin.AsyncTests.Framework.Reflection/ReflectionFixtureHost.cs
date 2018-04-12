@@ -40,8 +40,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get;
 		}
 
-		public override ITestParameter Parameter => null;
-
 		internal IReadOnlyList<TestHost> ParameterHosts {
 			get;
 		}

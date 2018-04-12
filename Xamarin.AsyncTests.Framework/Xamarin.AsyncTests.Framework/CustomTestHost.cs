@@ -42,10 +42,6 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public override ITestParameter Parameter {
-			get { return this; }
-		}
-
 		public string Value {
 			get { return TestPath.GetFriendlyName (Type); }
 		}

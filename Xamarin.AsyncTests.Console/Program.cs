@@ -191,6 +191,16 @@ namespace Xamarin.AsyncTests.Console
 					Category = Options.Category, Features = Options.Features
 				};
 			}
+
+			ExternalDomainSupport domainSupport = null;
+			switch (Options.Command) {
+			case Command.Local:
+				domainSupport = new ExternalDomainSupport (this);
+				break;
+			}
+
+			if (domainSupport != null)
+				DependencyInjector.RegisterDependency<IExternalDomainSupport> (() => domainSupport);
 		}
 
 		void Finish ()
@@ -317,6 +327,9 @@ namespace Xamarin.AsyncTests.Console
 			case Command.Listen:
 				exitCode = await WaitForConnection (cancellationToken).ConfigureAwait (false);
 				break;
+			case Command.Fork:
+				exitCode = await ConnectToForkedParent (cancellationToken).ConfigureAwait (false);
+				break;
 			case Command.Simulator:
 			case Command.Device:
 			case Command.Mac:
@@ -368,6 +381,8 @@ namespace Xamarin.AsyncTests.Console
 
 		int ExitCodeForResult {
 			get {
+				if (result == null)
+					return 4;
 				switch (result.Status) {
 				case TestStatus.Success:
 					return 0;
@@ -391,7 +406,13 @@ namespace Xamarin.AsyncTests.Console
 
 			PrintSummary ();
 
-			var test = session.RootTestCase;
+			TestCase test;
+			if (Options.RootPath != null) {
+				var doc = XDocument.Load (Options.RootPath);
+				test = await session.ResolveFromPath (doc.Root, cancellationToken);
+			} else {
+				test = session.RootTestCase;
+			}
 
 			Debug ("Got test: {0}", test.Path.FullName);
 			startTime = DateTime.Now;
@@ -431,6 +452,26 @@ namespace Xamarin.AsyncTests.Console
 			await server.Stop (cancellationToken);
 
 			return ExitCodeForResult;
+		}
+
+		async Task<int> ConnectToForkedParent (CancellationToken cancellationToken)
+		{
+			var framework = TestFramework.GetLocalFramework (PackageName, Assembly, Options.Dependencies);
+			var endpoint = GetPortableEndPoint (Options.EndPoint);
+			var server = await TestServer.ConnectToForkedParent (this, endpoint, framework, cancellationToken);
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			Debug ($"Connected to forked parent."); 
+
+			await server.WaitForExit (cancellationToken);
+
+			Debug ($"Forked child done.");
+
+			await server.Stop (cancellationToken);
+
+			Debug ($"Forked child exiting.");
+
+			return 0;
 		}
 
 		async Task<int> LaunchApplication (CancellationToken cancellationToken)

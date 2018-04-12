@@ -81,6 +81,15 @@
     <Compile Include="Xamarin.AsyncTests.TestSuite\TestEnumCategoryFilter.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\SimpleMartinTest.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunSimpleMartinTest.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunSimpleExternal.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\SimpleExternal.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\SimpleExternalError.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunSimpleExternalError.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalWithParameter.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalWithParameter.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalWithHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalWithFixtureInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalDomain.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">

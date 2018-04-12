@@ -79,6 +79,10 @@ namespace Xamarin.AsyncTests
 			get;
 		}
 
+		public abstract XElement CustomParameter {
+			get;
+		}
+
 		public bool Matches (TestNode node)
 		{
 			if (node.PathType != PathType)
@@ -102,15 +106,17 @@ namespace Xamarin.AsyncTests
 				if (PathType != TestPathType.Parameter)
 					return false;
 				return Identifier.Equals (name);
-			} else {
-				var friendlyName = TestPath.GetFriendlyName (typeof (T));
-				return friendlyName.Equals (ParameterType);
 			}
+
+			var friendlyName = TestPath.GetFriendlyName (typeof (T));
+			return friendlyName.Equals (ParameterType);
 		}
 
 		public abstract T GetParameter<T> ();
 
 		public abstract TestNode Parameterize (ITestParameter parameter);
+
+		internal abstract TestNode Parameterize (XElement customParameter);
 
 		public abstract bool HasParameters {
 			get;
@@ -133,7 +139,16 @@ namespace Xamarin.AsyncTests
 				element.Add (new XAttribute ("FriendlyParameter", FriendlyParameterValue));
 			if (Flags != TestFlags.None)
 				element.Add (new XAttribute ("Flags", WriteTestFlags (Flags)));
+			if (CustomParameter != null)
+				element.Add (CustomParameter);
 		}
+
+		internal static XElement CreateCustomParameterNode ()
+		{
+			return new XElement (CustomParameterName);
+		}
+
+		static readonly XName CustomParameterName = "CustomParameter";
 
 		static readonly XName ElementName = "TestParameter";
 
@@ -205,6 +220,9 @@ namespace Xamarin.AsyncTests
 			public override string FriendlyParameterValue {
 				get;
 			}
+			public override XElement CustomParameter {
+				get;
+			}
 
 			public PathNodeWrapper (XElement element)
 			{
@@ -223,6 +241,8 @@ namespace Xamarin.AsyncTests
 				ParameterValue = element.Attribute ("Parameter")?.Value;
 
 				FriendlyParameterValue = element.Attribute ("FriendlyParameter")?.Value;
+
+				CustomParameter = element.Element (CustomParameterName);
 			}
 
 			PathNodeWrapper (TestNode other)
@@ -236,9 +256,7 @@ namespace Xamarin.AsyncTests
 				FriendlyParameterValue = other.FriendlyParameterValue;
 			}
 
-			public override bool HasParameter {
-				get { return false; }
-			}
+			public override bool HasParameter => false;
 
 			public override ITestParameter Parameter {
 				get {
@@ -252,6 +270,11 @@ namespace Xamarin.AsyncTests
 			}
 
 			public override TestNode Parameterize (ITestParameter parameter)
+			{
+				throw new InternalErrorException ();
+			}
+
+			internal override TestNode Parameterize (XElement customParameter)
 			{
 				throw new InternalErrorException ();
 			}

@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -40,13 +41,39 @@ namespace Xamarin.AsyncTests.Framework
 		{
 		}
 
-		public abstract object Current {
+		public abstract object Instance {
 			get;
+		}
+
+		internal TestParameterValue CurrentParameter {
+			get;
+			private set;
+		}
+
+		internal XElement CustomParameter {
+			get;
+			private set;
 		}
 
 		internal sealed override TestParameterValue GetCurrentParameter ()
 		{
-			return new HeavyTestValue (this, Current);
+			return CurrentParameter;
+		}
+
+		public override void Initialize (TestContext ctx)
+		{
+			if (Instance is IForkedTestInstance forked) {
+				if (Node.CustomParameter != null) {
+					CustomParameter = Node.CustomParameter;
+					forked.Deserialize (ctx, CustomParameter);
+				} else {
+					var element = TestNode.CreateCustomParameterNode ();
+					if (forked.Serialize (ctx, element))
+						CustomParameter = element;
+				}
+			}
+			CurrentParameter = new HeavyTestValue (this);
+			base.Initialize (ctx);
 		}
 
 		[StackTraceEntryPoint]

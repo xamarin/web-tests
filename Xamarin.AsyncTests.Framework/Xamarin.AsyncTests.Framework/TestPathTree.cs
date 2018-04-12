@@ -74,7 +74,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal TestPathTreeNode GetRootNode ()
 		{
-			var rootNode = Host.CreateNode (Builder.Parameter);
+			var rootNode = new TestNodeInternal (Host, Builder.Parameter);
 			var rootPath = new TestPath (null, rootNode);
 			return new TestPathTreeNode (this, rootPath);
 		}

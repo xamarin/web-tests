@@ -26,6 +26,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization;
 
 namespace Xamarin.AsyncTests.Portable
 {
@@ -80,7 +81,8 @@ namespace Xamarin.AsyncTests.Portable
 			throw new InvalidOperationException (string.Format ("Failed to resolve host '{0}'.", host));
 		}
 
-		class PortableEndpoint : IPortableEndPoint
+		[Serializable]
+		class PortableEndpoint : IPortableEndPoint, ISerializable
 		{
 			readonly IPEndPoint endpoint;
 			readonly string hostName;
@@ -120,6 +122,18 @@ namespace Xamarin.AsyncTests.Portable
 			public override string ToString ()
 			{
 				return string.Format ("[PortableEndpoint {0}]", endpoint);
+			}
+
+			public void GetObjectData (SerializationInfo info, StreamingContext context)
+			{
+				info.AddValue ("address", endpoint);
+				info.AddValue ("host", hostName);
+			}
+
+			protected PortableEndpoint (SerializationInfo info, StreamingContext context)
+			{
+				endpoint = (IPEndPoint)info.GetValue ("address", typeof (IPEndPoint));
+				hostName = info.GetString ("host");
 			}
 		}
 	}

@@ -70,7 +70,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			provider = framework.ConfigurationProvider;
 			configuration = new TestConfiguration (provider, app.Settings);
 			name = framework.Name;
-			suite = new ReflectionTestSuite (framework);
+			suite = new ReflectionTestSuite (this, framework);
 		}
 
 		public override Task<TestCase> ResolveFromPath (XElement node, CancellationToken cancellationToken)

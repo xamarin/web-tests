@@ -49,6 +49,24 @@ namespace Xamarin.AsyncTests.Remoting
 			base.OnShutdown ();
 			process.Dispose ();
 		}
+
+		public override void Stop ()
+		{
+			try {
+				base.Stop ();
+			} catch {
+				;
+			}
+
+			try {
+				if (process != null) {
+					process.Dispose ();
+					process = null;
+				}
+			} catch {
+				;
+			}
+		}
 	}
 }
 

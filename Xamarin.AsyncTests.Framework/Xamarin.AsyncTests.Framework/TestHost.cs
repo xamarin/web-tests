@@ -62,11 +62,6 @@ namespace Xamarin.AsyncTests.Framework
 			Flags = flags;
 		}
 
-		internal TestNode CreateNode (ITestParameter parameter = null, TestFlags? flags = null)
-		{
-			return new TestNodeInternal (this, parameter, flags);
-		}
-
 		internal virtual bool HasFixedParameter {
 			get { return false; }
 		}
@@ -84,8 +79,6 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			yield break;
 		}
-
-		internal abstract ITestParameter GetParameter (TestInstance instance);
 
 		internal abstract TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent);
 

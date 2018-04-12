@@ -27,7 +27,6 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.ComponentModel;
 
 namespace Xamarin.AsyncTests.Remoting
 {
@@ -36,11 +35,13 @@ namespace Xamarin.AsyncTests.Remoting
 
 	public class ClientConnection : Connection
 	{
+		IServerConnection connection;
 		TaskCompletionSource<object> startTcs;
 
 		public ClientConnection (TestApp app, Stream stream, IServerConnection connection)
 			: base (app, stream)
 		{
+			this.connection = connection;
 			startTcs = new TaskCompletionSource<object> ();
 		}
 
@@ -61,6 +62,24 @@ namespace Xamarin.AsyncTests.Remoting
 			await RemoteObjectManager.Handshake (this, App.Logger.Backend, handshake, cancellationToken);
 
 			await base.Start (cancellationToken);
+		}
+
+		public override void Stop ()
+		{
+			try {
+				base.Stop ();
+			} catch {
+				;
+			}
+
+			try {
+				if (connection != null) {
+					connection.Close ();
+					connection = null;
+				}
+			} catch {
+				;
+			}
 		}
 	}
 }

@@ -43,18 +43,19 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 		}
 
-		public override object Current {
-			get { return Instance; }
-		}
-
-		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		public override void Initialize (TestContext ctx)
 		{
-			fixtureInstance = ReflectionMethodInvoker.Invoke (
-				ctx, Host.Builder, Parent, Host.Constructor, false, cancellationToken);
+			fixtureInstance = ReflectionMethodInvoker.InvokeConstructor (
+				ctx, Host, Parent);
 			if (fixtureInstance == null) {
 				ctx.OnTestFinished (TestStatus.Error);
 				throw ctx.IgnoreThisTest ();
 			}
+			base.Initialize (ctx);
+		}
+
+		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		{
 			if (fixtureInstance is ITestInstance testInstance)
 				await testInstance.Initialize (ctx, cancellationToken);
 		}

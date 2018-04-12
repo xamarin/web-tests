@@ -27,10 +27,6 @@ namespace Xamarin.AsyncTests.Framework
 {
 	abstract class FixtureTestInstance : HeavyTestInstance
 	{
-		public abstract object Instance {
-			get;
-		}
-
 		public FixtureTestInstance (HeavyTestHost host, TestNode node, TestInstance parent)
 			: base (host, node, parent)
 		{

@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestSuiteBuilder : TestBuilder
+	class ReflectionTestSuiteBuilder : TestSuiteBuilder
 	{
 		public List<ReflectionTestAssembly> Assemblies {
 			get;
@@ -40,7 +40,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		public ReflectionTestSuiteBuilder (ReflectionTestSuite suite)
 			: base (TestPathType.Suite, null, suite.Framework.Name,
-			        TestSerializer.GetStringParameter (suite.Framework.Name))
+			        TestSerializer.GetStringParameter (suite.Framework.Name),
+			        suite, suite.Session.App, suite.Framework)
 		{
 			Assemblies = suite.Assemblies;
 

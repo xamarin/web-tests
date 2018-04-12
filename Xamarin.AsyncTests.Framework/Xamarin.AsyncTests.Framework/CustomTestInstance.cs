@@ -43,11 +43,11 @@ namespace Xamarin.AsyncTests.Framework
 		{
 		}
 
-		public override object Current {
+		public override object Instance {
 			get { return instance; }
 		}
 
-		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		public override void Initialize (TestContext ctx)
 		{
 			if (Host.UseFixtureInstance)
 				customHost = (ITestHost<ITestInstance>)GetFixtureInstance ().Instance;
@@ -59,23 +59,33 @@ namespace Xamarin.AsyncTests.Framework
 				throw new InternalErrorException ();
 
 			instance = customHost.CreateInstance (ctx);
+			base.Initialize (ctx);
+		}
+
+		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		{
 			await instance.Initialize (ctx, cancellationToken);
 		}
 
-		public override async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		public override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			await instance.PreRun (ctx, cancellationToken);
+			return instance.PreRun (ctx, cancellationToken);
 		}
 
-		public override async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		public override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			await instance.PostRun (ctx, cancellationToken);
+			return instance.PostRun (ctx, cancellationToken);
 		}
 
 		public override async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
 		{
-			await instance.Destroy (ctx, cancellationToken);
+			try {
+				await instance.Destroy (ctx, cancellationToken).ConfigureAwait (false);
+			} finally {
+				if (instance is IDisposable disposable)
+					disposable.Dispose ();
+				instance = null;
+			}
 		}
 	}
 }
-

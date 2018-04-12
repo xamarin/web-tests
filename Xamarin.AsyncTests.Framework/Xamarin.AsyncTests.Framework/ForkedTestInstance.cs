@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class ForkedTestInstance : TestInstance, IFork
+	class ForkedTestInstance : TestInstance, ITestParameter, IFork
 	{
 		new public long ID {
 			get;
@@ -47,6 +47,10 @@ namespace Xamarin.AsyncTests.Framework
 			get { return (ForkedTestHost)base.Host; }
 		}
 
+		string ITestParameter.Value => ID.ToString ();
+
+		string ITestParameter.FriendlyValue => ID.ToString ();
+
 		public ForkedTestInstance (ForkedTestHost host, TestNode node, TestInstance parent, long id, int delay, TestInvoker invoker)
 			: base (host, node, parent)
 		{
@@ -57,7 +61,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal sealed override TestParameterValue GetCurrentParameter ()
 		{
-			return null;
+			return new ForkedParameterValue (this);
 		}
 
 		public async Task<bool> Start (TestContext ctx, CancellationToken cancellationToken)
@@ -67,6 +71,16 @@ namespace Xamarin.AsyncTests.Framework
 			else
 				await Task.Delay (Delay).ConfigureAwait (false);
 			return await Invoker.Invoke (ctx, this, cancellationToken);
+		}
+
+		class ForkedParameterValue : TestParameterValue
+		{
+			public ForkedParameterValue (ForkedTestInstance instance)
+				: base (instance)
+			{
+			}
+
+			public override ITestParameter Parameter => (ITestParameter)Instance;
 		}
 	}
 }

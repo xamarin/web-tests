@@ -36,19 +36,10 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public abstract ITestParameter Parameter {
-			get;
-		}
-
 		public HeavyTestHost (TestPathType pathType, string identifier, string name, Type type, Type hostType, TestFlags flags)
 			: base (pathType, identifier, name, TestPath.GetFriendlyName (hostType), flags)
 		{
 			Type = type;
-		}
-
-		internal override ITestParameter GetParameter (TestInstance instance)
-		{
-			return Parameter;
 		}
 
 		internal sealed override TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags)

@@ -58,12 +58,23 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override string ParameterType => Host.ParameterType;
 
+		public override XElement CustomParameter {
+			get;
+		}
+
 		internal TestNodeInternal (TestHost host, ITestParameter parameter = null, TestFlags? flags = null)
 		{
 			Host = host;
 			Flags = flags ?? host.Flags;
 
 			Parameter = host.HasFixedParameter ? host.GetFixedParameter () : parameter;
+		}
+
+		internal TestNodeInternal (TestHost host, XElement customParameter, TestFlags? flags = null)
+		{
+			Host = host;
+			Flags = flags ?? host.Flags;
+			CustomParameter = customParameter;
 		}
 
 		internal override TestNode Clone ()
@@ -76,6 +87,13 @@ namespace Xamarin.AsyncTests.Framework
 			if (!IsParameterized)
 				throw new InternalErrorException ();
 			return new TestNodeInternal (Host, parameter, Flags);
+		}
+
+		internal override TestNode Parameterize (XElement customParameter)
+		{
+			if (!IsParameterized)
+				throw new InternalErrorException ();
+			return new TestNodeInternal (Host, customParameter, Flags);
 		}
 
 		public static bool Matches (TestNode first, TestNode second)

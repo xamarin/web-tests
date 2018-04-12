@@ -50,7 +50,25 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			return 30000;
 		}
 
-		internal static object Invoke (
+		internal static object InvokeMethod (
+			TestContext ctx, TestBuilder builder, TestInstance instance,
+			MethodInfo method, bool expectException,
+			CancellationToken cancellationToken)
+		{
+			return Invoke (
+				ctx, builder, instance, method, expectException, cancellationToken);
+		}
+
+		internal static object InvokeConstructor (
+			TestContext ctx, ReflectionFixtureHost host,
+			TestInstance instance)
+		{
+			return Invoke (
+				ctx, host.Builder, instance, host.Constructor,
+				false, CancellationToken.None);
+		}
+
+		static object Invoke (
 			TestContext ctx, TestBuilder builder, TestInstance instance,
 			MethodBase method, bool expectException,
 			CancellationToken cancellationToken)
@@ -64,7 +82,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var disposableContext = ctx.CreateDisposable ();
 
 			var timeout = GetTimeout (ctx, builder);
-			if (timeout > 0) {
+			if (method is ConstructorInfo) {
+				methodToken = CancellationToken.None;
+			} else if (timeout > 0) {
 				timeoutCts = new CancellationTokenSource (timeout);
 				methodCts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken, timeoutCts.Token);
 				methodCts.CancelAfter (timeout);
@@ -104,6 +124,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				index--;
 
 				if (paramType.Equals (typeof (CancellationToken))) {
+					if (method is ConstructorInfo)
+						throw new InternalErrorException ();
 					args.AddFirst (methodToken);
 					continue;
 				}
@@ -115,9 +137,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (instance is ReflectionFixtureInstance fixtureInstance) {
 					if (!paramTypeInfo.IsAssignableFrom (fixtureInstance.Host.Builder.Type))
 						throw new InternalErrorException ();
-					if (fixtureInstance.Current == null)
+					if (fixtureInstance.Instance == null)
 						throw new InternalErrorException ();
-					args.AddFirst (fixtureInstance.Current);
+					args.AddFirst (fixtureInstance.Instance);
 					fixtureInstance.Host.Unwind (ref instance);
 					continue;
 				}
@@ -129,7 +151,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				}
 
 				if (instance is HeavyTestInstance heavyInstance) {
-					args.AddFirst (heavyInstance.Current);
+					args.AddFirst (heavyInstance.Instance);
 					instance = instance.Parent;
 					continue;
 				}
@@ -160,7 +182,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (instance is ReflectionFixtureInstance fixtureInstance) {
 					fixtureInstance.Host.Unwind (ref instance);
 					if (!method.IsStatic)
-						thisInstance = fixtureInstance.Current ?? throw new InternalErrorException ();
+						thisInstance = fixtureInstance.Instance ?? throw new InternalErrorException ();
 					seenFixtureInstance = true;
 					continue;
 				}

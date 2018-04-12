@@ -168,6 +168,11 @@ namespace Xamarin.AsyncTests.Console {
 			private set;
 		}
 
+		public string RootPath {
+			get;
+			private set;
+		}
+
 		public string JenkinsJobPath {
 			get;
 			private set;
@@ -243,6 +248,7 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("repeat=", v => repeat = int.Parse (v));
 			p.Add ("dont-save-logging", v => dontSaveLogging = true);
 			p.Add ("jenkins-job=", "Jenkins Job Path", v => JenkinsJobPath = v);
+			p.Add ("root-path=", v => RootPath = v);
 			var arguments = p.Parse (args);
 
 			PackageName = packageName;
@@ -250,8 +256,11 @@ namespace Xamarin.AsyncTests.Console {
 			if (assembly != null) {
 				Command = Command.Local;
 
-				if (arguments.Count > 0 && arguments[0].Equals ("local"))
+				if (arguments.Count > 0 && Enum.TryParse (arguments[0], true, out Command command)) {
 					arguments.RemoveAt (0);
+					Command = command;
+
+				}
 			} else {
 				if (arguments.Count < 1)
 					throw new ProgramException ("Missing argument.");
@@ -295,6 +304,18 @@ namespace Xamarin.AsyncTests.Console {
 			case Command.Connect:
 				if (assembly != null)
 					throw new ProgramException ("Cannot use 'connect' with assembly.");
+				if (arguments.Count == 1) {
+					EndPoint = Program.GetEndPoint (arguments[0]);
+					arguments.RemoveAt (0);
+				} else if (arguments.Count == 0) {
+					if (EndPoint == null)
+						throw new ProgramException ("Missing endpoint");
+				} else {
+					arguments.ForEach (a => Program.PrintError ($"Unexpected remaining argument: {a}"));
+					throw new ProgramException ("Unexpected extra argument.");
+				}
+				break;
+			case Command.Fork:
 				if (arguments.Count == 1) {
 					EndPoint = Program.GetEndPoint (arguments[0]);
 					arguments.RemoveAt (0);

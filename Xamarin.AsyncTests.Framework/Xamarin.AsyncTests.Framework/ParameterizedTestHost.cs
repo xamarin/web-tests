@@ -56,12 +56,6 @@ namespace Xamarin.AsyncTests.Framework
 			Serializer = serializer;
 		}
 
-		internal override ITestParameter GetParameter (TestInstance instance)
-		{
-			var parameterizedInstance = (ParameterizedTestInstance)instance;
-			return parameterizedInstance.Current.Parameter;
-		}
-
 		internal override TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags)
 		{
 			if ((flags & TestFlags.Browsable) != 0)

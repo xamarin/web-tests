@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
@@ -122,6 +123,11 @@ namespace Xamarin.AsyncTests.Framework
 
 		TestPathTreeNode Parameterize (string value)
 		{
+			if (Node.PathType == TestPathType.Fork) {
+				var parameter = TestSerializer.GetStringParameter (value);
+				return Parameterize (parameter);
+			}
+
 			if (parameters == null || parameters.Count == 0)
 				return this;
 
@@ -131,6 +137,14 @@ namespace Xamarin.AsyncTests.Framework
 			}
 
 			return this;
+		}
+
+		TestPathTreeNode Parameterize (XElement customValue)
+		{
+			var newPath = Path.Parameterize (customValue);
+			var newNode = new TestPathTreeNode (Tree, newPath, (TestNodeInternal)newPath.Node);
+			newNode.parameterized = true;
+			return newNode;
 		}
 
 		public IEnumerable<TestPathTreeNode> GetParameters (TestContext ctx)
@@ -175,6 +189,8 @@ namespace Xamarin.AsyncTests.Framework
 
 				if (!TestNodeInternal.Matches (innerNode.Tree.Host, node))
 					throw new InternalErrorException ();
+				if (node.CustomParameter != null)
+					return innerNode.Parameterize (node.CustomParameter);
 				if (node.ParameterValue != null)
 					return innerNode.Parameterize (node.ParameterValue);
 				return innerNode;

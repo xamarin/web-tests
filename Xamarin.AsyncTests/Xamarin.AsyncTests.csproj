@@ -114,6 +114,8 @@
     <Compile Include="Xamarin.AsyncTests\IAsyncTestAssembly.cs" />
     <Compile Include="Xamarin.AsyncTests\FixtureParameterAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\EnumValueFilter.cs" />
+    <Compile Include="Xamarin.AsyncTests\ForkType.cs" />
+    <Compile Include="Xamarin.AsyncTests\IForkedTestInstance.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

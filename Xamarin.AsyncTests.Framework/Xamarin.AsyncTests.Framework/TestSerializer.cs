@@ -24,11 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Framework {
 	using Portable;
@@ -373,6 +375,23 @@ namespace Xamarin.AsyncTests.Framework {
 			}
 
 			return element;
+		}
+
+		public static string Serialize (XElement element)
+		{
+			var output = new StringBuilder ();
+			using (var writer = XmlWriter.Create (output))
+				element.WriteTo (writer);
+			return output.ToString ();
+		}
+
+		public static XElement Deserialize (string input)
+		{
+			using (var reader = new StringReader (input))
+			using (var xreader = XmlReader.Create (reader)) {
+				var doc = XDocument.Load (xreader);
+				return doc.Root;
+			}
 		}
 
 		public static ITestConfigurationProvider ReadConfiguration (XElement node)

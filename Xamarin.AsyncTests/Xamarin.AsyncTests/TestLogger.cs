@@ -29,7 +29,7 @@ namespace Xamarin.AsyncTests
 {
 	public sealed class TestLogger
 	{
-		internal TestLoggerBackend Backend {
+		public TestLoggerBackend Backend {
 			get;
 		}
 
@@ -83,6 +83,16 @@ namespace Xamarin.AsyncTests
 		public void LogError (Exception error)
 		{
 			OnLogEvent (new TestLoggerBackend.LogEntry (TestLoggerBackend.EntryKind.Error, 0, error.Message, error));
+		}
+
+		public void LogEvent (TestLoggerBackend.LogEntry entry)
+		{
+			Backend.OnLogEvent (entry);
+		}
+
+		public void LogStatisticsEvent (TestLoggerBackend.StatisticsEventArgs args)
+		{
+			Backend.OnStatisticsEvent (args);
 		}
 
 		public static string Print (object obj)

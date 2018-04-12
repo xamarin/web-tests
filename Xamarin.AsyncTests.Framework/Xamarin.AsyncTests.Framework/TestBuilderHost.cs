@@ -42,11 +42,6 @@ namespace Xamarin.AsyncTests.Framework
 			Builder = builder;
 		}
 
-		internal override ITestParameter GetParameter (TestInstance instance)
-		{
-			return Builder.Parameter;
-		}
-
 		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
 		{
 			return new TestBuilderInstance (this, node, parent);

@@ -32,7 +32,10 @@ namespace Xamarin.AsyncTests
 	{
 		public int Count {
 			get;
-			private set;
+		}
+
+		public ForkType Type {
+			get;
 		}
 
 		public int RandomDelay {
@@ -42,12 +45,17 @@ namespace Xamarin.AsyncTests
 		public ForkAttribute (int count)
 		{
 			Count = count;
+			Type = ForkType.Task;
+		}
+
+		public ForkAttribute (ForkType type)
+		{
+			Type = type;
 		}
 
 		public override string ToString ()
 		{
-			return string.Format ("[ForkAttribute: Count={0}, RandomDelay={1}]", Count, RandomDelay);
+			return $"[ForkAttribute({Type}): Count={Count}, RandomDelay={RandomDelay}]";
 		}
 	}
 }
-

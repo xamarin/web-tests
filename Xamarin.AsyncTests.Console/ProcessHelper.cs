@@ -209,14 +209,16 @@ namespace Xamarin.AsyncTests.Console {
 
 		protected override void Stop ()
 		{
-			if (process != null) {
+			var proc = Interlocked.Exchange (ref process, null);
+			if (proc != null) {
+				Program.Debug ("PROCES STOP");
 				try {
-					process.Kill ();
+					if (!proc.HasExited)
+						proc.Kill ();
 				} catch {
 					;
 				}
-				process.Dispose ();
-				process = null;
+				proc.Dispose ();
 			}
 			if (cts != null) {
 				cts.Dispose ();

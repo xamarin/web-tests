@@ -137,6 +137,13 @@
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionFixtureInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\DebugHelper.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\EnumParameterSource.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\IForkedProcessLauncher.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ForkedServerConnection.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ForkedClientConnection.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestSuiteBuilder.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\IExternalDomainSupport.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\IExternalDomainHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ExternalDomainConnection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

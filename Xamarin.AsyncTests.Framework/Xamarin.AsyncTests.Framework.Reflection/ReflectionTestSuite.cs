@@ -37,7 +37,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 	{
 		public TestFramework Framework {
 			get;
-			private set;
+		}
+
+		public TestSession Session {
+			get;
 		}
 
 		public List<ReflectionTestAssembly> Assemblies {
@@ -60,9 +63,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		internal ReflectionTestSuite (ReflectionTestFramework framework)
+		internal ReflectionTestSuite (ReflectionTestSession session, ReflectionTestFramework framework)
 		{
 			Framework = framework;
+			Session = session;
 			Assemblies = framework.Assemblies;
 			Builder = new ReflectionTestSuiteBuilder (this);
 
