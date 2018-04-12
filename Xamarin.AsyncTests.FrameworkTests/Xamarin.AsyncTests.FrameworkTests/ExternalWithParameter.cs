@@ -26,6 +26,7 @@
 using System;
 namespace Xamarin.AsyncTests.FrameworkTests
 {
+	[ForkedSupport]
 	[AsyncTestFixture (Prefix = "FrameworkTests")]
 	public class ExternalWithParameter
 	{

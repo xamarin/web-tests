@@ -89,6 +89,9 @@ namespace Xamarin.AsyncTests
 			Constant = constant;
 		}
 
+		public static readonly TestFeature ForkedSupport = new TestFeature (
+			"ForkedSupport", "Experimental support for [Forked]");
+
 		public override string ToString ()
 		{
 			var constant = string.Empty;

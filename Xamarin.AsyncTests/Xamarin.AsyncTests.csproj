@@ -116,6 +116,7 @@
     <Compile Include="Xamarin.AsyncTests\EnumValueFilter.cs" />
     <Compile Include="Xamarin.AsyncTests\ForkType.cs" />
     <Compile Include="Xamarin.AsyncTests\IForkedTestInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests\ForkedSupportAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

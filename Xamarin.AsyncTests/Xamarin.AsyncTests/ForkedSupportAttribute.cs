@@ -1,5 +1,5 @@
 ﻿//
-// ExternalDomain.cs
+// ForkedSupportAttribute.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,18 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-namespace Xamarin.AsyncTests.FrameworkTests
+namespace Xamarin.AsyncTests
 {
-	[Martin ("Test")]
-	[ForkedSupport]
-	[AsyncTestFixture (Prefix = "FrameworkTests")]
-	public class ExternalDomain
+	public class ForkedSupportAttribute : TestFeatureAttribute
 	{
-		[AsyncTest]
-		// [Martin (null, UseFixtureName = true)]
-		public static void Test (TestContext ctx, [Fork (ForkType.Domain)] IFork fork)
-		{
-			ctx.LogMessage ($"Martin Test: {ctx.FriendlyName} {AppDomain.CurrentDomain}");
-		}
+		public override TestFeature Feature => TestFeature.ForkedSupport;
 	}
 }

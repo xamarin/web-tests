@@ -32,6 +32,7 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.AsyncTests.FrameworkTests
 {
 	// [Martin ("Test")]
+	[ForkedSupport]
 	public class RunExternalWithParameter : FrameworkInvoker
 	{
 		protected override void SetupSession (

@@ -31,6 +31,7 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.AsyncTests.FrameworkTests
 {
+	[ForkedSupport]
 	[AsyncTestFixture (Prefix = "FrameworkTests")]
 	public class ExternalWithFixtureInstance : IForkedTestInstance
 	{

@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 namespace Xamarin.AsyncTests.FrameworkTests
 {
 	// [Martin ("Test")]
+	[ForkedSupport]
 	[AsyncTestFixture (Prefix = "FrameworkTests")]
 	public class ExternalWithHost
 	{

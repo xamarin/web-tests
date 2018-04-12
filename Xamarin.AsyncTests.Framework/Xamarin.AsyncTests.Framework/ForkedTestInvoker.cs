@@ -62,6 +62,9 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override Task<bool> Invoke (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
+			if (!ctx.IsEnabled (TestFeature.ForkedSupport))
+				throw ctx.IgnoreThisTest ();
+
 			switch (ForkType) {
 			case ForkType.Task:
 				return ForkTasks (ctx, instance, cancellationToken);

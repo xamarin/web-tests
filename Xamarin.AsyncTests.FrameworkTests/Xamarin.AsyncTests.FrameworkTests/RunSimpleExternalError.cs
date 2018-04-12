@@ -31,6 +31,7 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.AsyncTests.FrameworkTests
 {
+	[ForkedSupport]
 	public class RunSimpleExternalError : FrameworkInvoker
 	{
 		protected override void SetupSession (

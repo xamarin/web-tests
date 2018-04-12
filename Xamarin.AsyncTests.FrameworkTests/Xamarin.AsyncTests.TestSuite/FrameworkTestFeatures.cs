@@ -49,7 +49,8 @@ namespace Xamarin.AsyncTests.TestSuite
 		public string Name => "FrameworkTestFeatures";
 
 		public IEnumerable<TestFeature> Features => new[] {
-			IgnoreAttribute.Instance
+			IgnoreAttribute.Instance,
+			TestFeature.ForkedSupport
 		};
 
 		public IEnumerable<TestCategory> Categories => new[] {
