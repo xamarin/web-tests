@@ -120,9 +120,9 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		public static TestLoggerBackend CreateForResult (TestResult result, TestLogger parent)
+		public static TestLoggerBackend CreateForResult (TestResult result, bool saveLogging, TestLogger parent)
 		{
-			return new TestResultBackend (result, parent != null ? parent.Backend : null);
+			return new TestResultBackend (result, saveLogging, parent != null ? parent.Backend : null);
 		}
 
 		public TestLoggerBackend CreateSynchronized ()
@@ -143,9 +143,16 @@ namespace Xamarin.AsyncTests
 				get;
 			}
 
-			public TestResultBackend (TestResult result, TestLoggerBackend parent = null)
+			public bool SaveLogging {
+				get;
+			}
+
+			public TestResultBackend (
+				TestResult result, bool saveLogging,
+				TestLoggerBackend parent = null)
 			{
 				Result = result;
+				SaveLogging = saveLogging;
 				Parent = parent;
 			}
 
@@ -157,10 +164,11 @@ namespace Xamarin.AsyncTests
 							Result.AddError (entry.Error);
 						else
 							Result.AddError (new AssertionException (entry.Text, null));
-					} else if (entry.Kind == EntryKind.Message) {
-						Result.AddMessage (entry.Text);
-					} else {
-						Result.AddLogMessage (entry);
+					} else if (SaveLogging) {
+						if (entry.Kind == EntryKind.Message)
+							Result.AddMessage (entry.Text);
+						else
+							Result.AddLogMessage (entry);
 					}
 
 					entry.AddedToResult = true;

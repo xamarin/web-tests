@@ -65,8 +65,8 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public async Task Shutdown ()
 		{
-			await new ShutdownCommand ().Send (this, CancellationToken.None);
 			shutdownRequested = true;
+			await new ShutdownCommand ().Send (this, CancellationToken.None);
 		}
 
 		#endregion

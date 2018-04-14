@@ -65,7 +65,7 @@ namespace Xamarin.AsyncTests.Remoting
 		public ServerConnection (TestApp app, TestFramework framework, Stream stream, IServerConnection connection)
 			: base (app, stream)
 		{
-			LocalLogger = app.Logger.Backend;
+			LocalLogger = app.Logger?.Backend;
 			this.framework = framework;
 			this.connection = connection;
 			helloTcs = new TaskCompletionSource<EventSinkClient> ();

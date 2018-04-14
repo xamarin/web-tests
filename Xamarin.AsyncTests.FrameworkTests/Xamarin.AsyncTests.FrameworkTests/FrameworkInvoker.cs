@@ -60,6 +60,8 @@ namespace Xamarin.AsyncTests.FrameworkTests
 		public async Task Invoke (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var settings = SettingsBag.CreateDefault ();
+			settings.Merge (ctx.Settings);
+
 			var logger = new FrameworkLogger (ForwardLogging ? ctx.Logger : null);
 			var app = new MyApp (PackageName, logger, settings);
 			
@@ -67,9 +69,11 @@ namespace Xamarin.AsyncTests.FrameworkTests
 
 			SetupSession (ctx, settings, session);
 
+			await session.UpdateSettings (cancellationToken).ConfigureAwait (false);
+
 			var test = session.RootTestCase;
 
-			ctx.LogDebug (Category, 1, $"RUN: {test}");
+			ctx.LogDebug (Category, 1, $"RUN: {session} {test}");
 
 			var result = await session.Run (test, cancellationToken).ConfigureAwait (false);
 

@@ -1,5 +1,5 @@
 ﻿//
-// RunSimpleExternalError.cs
+// RunExternalDomain.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -32,19 +32,17 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.AsyncTests.FrameworkTests
 {
 	[ForkedSupport]
-	public class RunSimpleExternalError : FrameworkInvoker
+	public class RunExternalDomain : FrameworkInvoker
 	{
 		protected override void SetupSession (
 			TestContext ctx, SettingsBag settings, TestSession session)
 		{
 			session.Configuration.CurrentCategory = TestCategory.Martin;
 			session.Configuration.SetIsEnabled (TestFeature.ForkedSupport, true);
-			settings.MartinTest = "FrameworkTests.SimpleExternalError";
+			settings.MartinTest = "FrameworkTests.ExternalDomain";
 		}
 
 		bool hasResult;
-
-		protected override TestStatus ExpectedStatus => TestStatus.Error;
 
 		protected override bool ForwardLogging => false;
 
@@ -53,9 +51,7 @@ namespace Xamarin.AsyncTests.FrameworkTests
 			base.VisitResult (ctx, result);
 			ctx.Assert (hasResult, Is.False);
 			hasResult = true;
-			ctx.Assert (result.Status, Is.EqualTo (TestStatus.Error));
-			ctx.Assert (result.HasErrors);
-			ctx.Assert (result.Errors.Count, Is.EqualTo (1));
+			ctx.Assert (result.Status, Is.EqualTo (TestStatus.Success));
 			ctx.Assert (result.Path, Is.Not.Null);
 			ctx.Assert (result.Path.Node.PathType, Is.EqualTo (TestPathType.Fork));
 		}
@@ -69,18 +65,25 @@ namespace Xamarin.AsyncTests.FrameworkTests
 		protected override void CheckLogging (TestContext ctx, FrameworkLogger logger)
 		{
 			ctx.Assert (logger.Events.Count, Is.GreaterThan (0));
-			var filteredEvents = logger.Events.Where (
+			var errorEvents = logger.Events.Where (
 				e => e.Kind == TestLoggerBackend.EntryKind.Error);
-			ctx.Assert (filteredEvents.Count, Is.EqualTo (1));
+			ctx.Assert (errorEvents.Count, Is.EqualTo (0));
+
+			var messageEvents = logger.Events.Where (
+				e => e.Kind == TestLoggerBackend.EntryKind.Message).ToList ();
+			ctx.Assert (messageEvents.Count, Is.EqualTo (1));
+			ctx.Assert (messageEvents[0].Text, Is.EqualTo (ExternalDomain.HelloMessage));
+
 			ctx.Assert (logger.Statistics.Count, Is.EqualTo (2));
 			ctx.Assert (logger.Statistics[0].Type,
-			            Is.EqualTo (TestLoggerBackend.StatisticsEventType.Running));
+				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Running));
 			ctx.Assert (logger.Statistics[0].Status,
-			            Is.EqualTo (TestStatus.Success));
+				    Is.EqualTo (TestStatus.Success));
 			ctx.Assert (logger.Statistics[1].Type,
-			            Is.EqualTo (TestLoggerBackend.StatisticsEventType.Finished));
+				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Finished));
 			ctx.Assert (logger.Statistics[1].Status,
-			            Is.EqualTo (TestStatus.Error));
+				    Is.EqualTo (TestStatus.Success));
+
 			base.CheckLogging (ctx, logger);
 		}
 	}

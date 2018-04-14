@@ -66,7 +66,9 @@ namespace Xamarin.AsyncTests.Console {
 
 			process.EnableRaisingEvents = true;
 			process.Exited += (sender, e) => {
-				Program.Debug ("TOOL EXITED: {0}", process.ExitCode);
+				if (this.process == null) {
+					return;
+				}
 				OnExited (process.ExitCode);
 				if (cts.IsCancellationRequested) {
 					tcs.TrySetCanceled ();
@@ -211,7 +213,6 @@ namespace Xamarin.AsyncTests.Console {
 		{
 			var proc = Interlocked.Exchange (ref process, null);
 			if (proc != null) {
-				Program.Debug ("PROCES STOP");
 				try {
 					if (!proc.HasExited)
 						proc.Kill ();

@@ -235,7 +235,6 @@ namespace Xamarin.AsyncTests.Portable
 			{
 				try {
 					if (socket != null) {
-						socket.Shutdown (SocketShutdown.Both);
 						socket.Dispose ();
 						socket = null;
 					}

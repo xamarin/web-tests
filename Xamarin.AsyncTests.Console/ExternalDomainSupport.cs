@@ -36,10 +36,6 @@ namespace Xamarin.AsyncTests.Console
 
 	class ExternalDomainSupport : MarshalByRefObject, IExternalDomainSupport
 	{
-		public string PackageName {
-			get;
-		}
-
 		public Assembly Assembly {
 			get;
 		}
@@ -50,7 +46,6 @@ namespace Xamarin.AsyncTests.Console
 
 		public ExternalDomainSupport (Program program)
 		{
-			PackageName = program.PackageName;
 			Assembly = program.Assembly;
 			Dependencies = program.Options.Dependencies;
 		}

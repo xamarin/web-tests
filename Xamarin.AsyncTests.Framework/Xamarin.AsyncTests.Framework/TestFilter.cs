@@ -143,6 +143,16 @@ namespace Xamarin.AsyncTests.Framework
 
 		public bool Filter (TestContext ctx, TestInstance instance)
 		{
+			var result = RunFilter (ctx, instance);
+			if (result)
+				return true;
+			ctx.LogDebug (10, $"FILTER: {ctx.FriendlyName} {instance} {result}");
+			RunFilter (ctx, instance);
+			return result;
+		}
+
+		bool RunFilter (TestContext ctx, TestInstance instance)
+		{
 			if (Filter (ctx, instance, out bool enabled))
 				return enabled;
 

@@ -80,7 +80,7 @@ namespace Xamarin.AsyncTests.Framework
 			return new ReflectionTestSession (app, (ReflectionTestFramework)framework, rootCtx);
 		}
 
-		public abstract Task<TestCase> ResolveFromPath (XElement path, CancellationToken cancellationToken);
+		public abstract Task<TestCase> ResolveFromPath (XElement node, CancellationToken cancellationToken);
 
 		public abstract Task<IReadOnlyCollection<TestCase>> GetTestParameters (TestCase test, CancellationToken cancellationToken);
 

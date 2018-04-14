@@ -71,8 +71,8 @@ namespace Xamarin.AsyncTests {
 
 			CurrentPath = path;
 
-			if (result != null && !Settings.DontSaveLogging)
-				logger = new TestLogger (TestLoggerBackend.CreateForResult (result, parent.logger));
+			if (result != null)
+				logger = new TestLogger (TestLoggerBackend.CreateForResult (result, !Settings.DontSaveLogging, parent.logger));
 			else
 				logger = parent.logger;
 

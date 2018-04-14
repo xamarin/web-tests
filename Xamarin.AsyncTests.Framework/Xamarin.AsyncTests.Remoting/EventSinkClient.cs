@@ -91,14 +91,14 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public async Task LogEvent (TestLoggerBackend.LogEntry entry, CancellationToken cancellationToken)
 		{
-			LocalLogger.OnLogEvent (entry);
+			LocalLogger?.OnLogEvent (entry);
 			var command = new LogCommand ();
 			await command.Send (this, entry, cancellationToken);
 		}
 
 		public async Task StatisticsEvent (TestLoggerBackend.StatisticsEventArgs args, CancellationToken cancellationToken)
 		{
-			LocalLogger.OnStatisticsEvent (args);
+			LocalLogger?.OnStatisticsEvent (args);
 			var command = new StatisticsCommand ();
 			await command.Send (this, args, cancellationToken);
 		}

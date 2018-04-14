@@ -27,7 +27,7 @@ using System;
 namespace Xamarin.AsyncTests.FrameworkTests
 {
 	[AsyncTestFixture (Prefix = "FrameworkTests")]
-	public class SimpleExternal
+	public static class SimpleExternal
 	{
 		[AsyncTest]
 		[Martin (null, UseFixtureName = true)]

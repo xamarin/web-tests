@@ -205,20 +205,13 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
-		public static async Task<TestServer> ForkApplication (TestApp app, IPortableEndPoint address, LauncherOptions options, CancellationToken cancellationToken)
+		public static async Task<TestServer> ForkApplication (TestApp app, IPortableEndPoint address, CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IServerHost> ();
 			var connection = await support.Listen (address, cancellationToken).ConfigureAwait (false);
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var sb = new StringBuilder ();
-
-			if (options != null) {
-				if (options.Category != null)
-					sb.Append ($"--category={options.Category} ");
-				if (options.Features != null)
-					sb.Append ($"--features={options.Features} ");
-			}
 
 			if (!string.IsNullOrWhiteSpace (app.PackageName))
 				sb.Append ($"--package-name={app.PackageName} ");
@@ -239,14 +232,16 @@ namespace Xamarin.AsyncTests.Remoting
 			return client;
 		}
 
-		public static async Task<TestServer> ForkAppDomain (TestApp app, IPortableEndPoint address, LauncherOptions options, CancellationToken cancellationToken)
+		public static async Task<TestServer> ForkAppDomain (
+			TestApp app, IPortableEndPoint address, string domainName,
+			CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IServerHost> ();
 			var connection = await support.Listen (address, cancellationToken).ConfigureAwait (false);
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var launcher = DependencyInjector.Get<IExternalDomainSupport> ();
-			var host = launcher.Create (app, "ExternalDomain");
+			var host = launcher.Create (app, domainName);
 
 			await host.Start (address, cancellationToken).ConfigureAwait (false);
 
@@ -281,17 +276,11 @@ namespace Xamarin.AsyncTests.Remoting
 
 		protected virtual async Task Initialize (CancellationToken cancellationToken)
 		{
-			Connection.Debug ("INITIALIZE");
-
 			cancellationToken.ThrowIfCancellationRequested ();
 			Session = await GetTestSession (cancellationToken);
 
-			Connection.Debug ("GOT SESSION: {0}", Session);
-
 			cancellationToken.ThrowIfCancellationRequested ();
 			TestSuite = Session.Suite;
-
-			Connection.Debug ("GOT TEST SUITE: {0}", TestSuite);
 		}
 
 		public abstract Task<bool> WaitForExit (CancellationToken cancellationToken);

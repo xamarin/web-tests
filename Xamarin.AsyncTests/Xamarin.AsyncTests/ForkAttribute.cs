@@ -42,6 +42,20 @@ namespace Xamarin.AsyncTests
 			get; set;
 		}
 
+		public string DomainName {
+			get; set;
+		}
+
+		public void SanityCheck (TestContext ctx)
+		{
+			if (DomainName != null && Type != ForkType.Domain)
+				throw ctx.AssertFail ($"Cannot use 'DomainName' with '{Type}'.");
+			if (RandomDelay != 0 && Type != ForkType.Fork)
+				throw ctx.AssertFail ($"Cannot use 'RandomDelay' with '{Type}'.");
+			if (Count != 0 && Type != ForkType.Fork)
+				throw ctx.AssertFail ($"Cannot use 'Count' with '{Type}'.");
+		}
+
 		public ForkAttribute (int count)
 		{
 			Count = count;

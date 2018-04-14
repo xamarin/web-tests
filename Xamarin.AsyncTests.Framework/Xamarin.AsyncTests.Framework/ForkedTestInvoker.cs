@@ -62,6 +62,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		public override Task<bool> Invoke (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
+			Host.Attribute.SanityCheck (ctx);
 			if (!ctx.IsEnabled (TestFeature.ForkedSupport))
 				throw ctx.IgnoreThisTest ();
 
@@ -136,7 +137,7 @@ namespace Xamarin.AsyncTests.Framework
 					continue;
 				}
 				ctx.LogDebug (Category, 5, $"{me}: UNKNOWN {instance.GetType ()}");
-				throw new InvalidTimeZoneException ($"{me}: UNKNOWN {instance.GetType ()}");
+				throw ctx.AssertFail ($"Invalid instance '{instance}' on stack.");
 			}
 			ctx.LogDebug (Category, 5, $"CHECK INSTANCE STACK DONE");
 		}
@@ -175,13 +176,14 @@ namespace Xamarin.AsyncTests.Framework
 				break;
 			case ForkType.Domain:
 				server = await TestServer.ForkAppDomain (
-					builder.App, GetEndPoint (), null,
+					builder.App, GetEndPoint (),
+					Host.Attribute.DomainName ?? "ExternalDomain",
 					cancellationToken).ConfigureAwait (false);
 				session = server.Session;
 				break;
 			case ForkType.Fork:
 				server = await TestServer.ForkApplication (
-					builder.App, GetEndPoint (), null,
+					builder.App, GetEndPoint (),
 					cancellationToken).ConfigureAwait (false);
 				session = server.Session;
 				break;

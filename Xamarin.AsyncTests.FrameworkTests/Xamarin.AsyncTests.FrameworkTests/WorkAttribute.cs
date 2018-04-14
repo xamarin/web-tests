@@ -1,5 +1,5 @@
 ﻿//
-// SimpleExternalError.cs
+// WorkAttribute.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,16 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+
 namespace Xamarin.AsyncTests.FrameworkTests
 {
-	[AsyncTestFixture (Prefix = "FrameworkTests")]
-	public static class SimpleExternalError
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class WorkAttribute : TestCategoryAttribute
 	{
-		[AsyncTest]
-		[Martin (null, UseFixtureName = true)]
-		public static void Test (TestContext ctx, [Fork (ForkType.Fork)] IFork fork)
-		{
-			throw ctx.AssertFail ($"Martin Test: {ctx.FriendlyName}");
+		public static readonly TestCategory Instance = new TestCategory ("Work");
+
+		public override TestCategory Category {
+			get { return Instance; }
 		}
 	}
 }
+

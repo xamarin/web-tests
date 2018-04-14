@@ -26,16 +26,23 @@
 using System;
 namespace Xamarin.AsyncTests.FrameworkTests
 {
-	[Martin ("Test")]
+	using Constraints;
+
 	[ForkedSupport]
 	[AsyncTestFixture (Prefix = "FrameworkTests")]
-	public class ExternalDomain
+	public static class ExternalDomain
 	{
+		const string DomainName = "TestDomain";
+		internal const string HelloMessage = "Hello from external domain!";
+
 		[AsyncTest]
-		// [Martin (null, UseFixtureName = true)]
-		public static void Test (TestContext ctx, [Fork (ForkType.Domain)] IFork fork)
+		[Martin (null, UseFixtureName = true)]
+		public static void Test (
+			TestContext ctx,
+			[Fork (ForkType.Domain, DomainName = DomainName)] IFork fork)
 		{
-			ctx.LogMessage ($"Martin Test: {ctx.FriendlyName} {AppDomain.CurrentDomain}");
+			ctx.LogMessage (HelloMessage);
+			ctx.Assert (AppDomain.CurrentDomain.FriendlyName, Is.EqualTo (DomainName), "domain name");
 		}
 	}
 }

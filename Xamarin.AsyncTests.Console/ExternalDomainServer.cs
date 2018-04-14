@@ -43,11 +43,9 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
-		public string PackageName => Support.PackageName;
+		public string PackageName => Host.PackageName;
 
-		public TestLogger Logger {
-			get;
-		}
+		TestLogger TestApp.Logger => null;
 
 		public SettingsBag Settings {
 			get;
@@ -59,7 +57,6 @@ namespace Xamarin.AsyncTests.Console
 		{
 			Support = support;
 			Host = eventSink;
-			Logger = new TestLogger (new CrossDomainLogger (this));
 			Settings = SettingsBag.CreateDefault ();
 			cts = new CancellationTokenSource ();
 		}
@@ -82,7 +79,7 @@ namespace Xamarin.AsyncTests.Console
 			DependencyInjector.RegisterAssembly (Support.Assembly);
 
 			framework = TestFramework.GetLocalFramework (
-				Support.PackageName, Support.Assembly,
+				PackageName, Support.Assembly,
 				Support.Dependencies);
 
 			Program.Debug ($"START: {AppDomain.CurrentDomain.FriendlyName} {framework}!");
@@ -121,32 +118,6 @@ namespace Xamarin.AsyncTests.Console
 				Host.OnCanceled ();
 			} catch (Exception error) {
 				Host.OnError (error);
-			}
-		}
-
-		class CrossDomainLogger : TestLoggerBackend
-		{
-			public ExternalDomainServer Host {
-				get;
-			}
-
-			public CrossDomainLogger (ExternalDomainServer host)
-			{
-				Host = host;
-			}
-
-			protected override void OnLogEvent (LogEntry entry)
-			{
-				var element = TestSerializer.WriteLogEntry (entry);
-				var serialized = TestSerializer.Serialize (element);
-				Host.Host.OnLogEvent (serialized);
-			}
-
-			protected override void OnStatisticsEvent (StatisticsEventArgs args)
-			{
-				var element = TestSerializer.WriteStatisticsEvent (args);
-				var serialized = TestSerializer.Serialize (element);
-				Host.Host.OnStatisticsEvent (serialized);
 			}
 		}
 	}

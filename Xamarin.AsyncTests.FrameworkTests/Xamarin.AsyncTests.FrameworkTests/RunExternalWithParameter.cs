@@ -31,7 +31,6 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.AsyncTests.FrameworkTests
 {
-	// [Martin ("Test")]
 	[ForkedSupport]
 	public class RunExternalWithParameter : FrameworkInvoker
 	{
@@ -39,6 +38,7 @@ namespace Xamarin.AsyncTests.FrameworkTests
 			TestContext ctx, SettingsBag settings, TestSession session)
 		{
 			session.Configuration.CurrentCategory = TestCategory.Martin;
+			session.Configuration.SetIsEnabled (TestFeature.ForkedSupport, true);
 			settings.MartinTest = "FrameworkTests.ExternalWithParameter";
 		}
 

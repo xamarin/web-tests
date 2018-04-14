@@ -39,6 +39,8 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
+		public string PackageName => App.PackageName;
+
 		public ExternalDomainHost (TestApp app)
 		{
 			App = app;
@@ -78,20 +80,6 @@ namespace Xamarin.AsyncTests.Console
 		{
 			startTcs.TrySetException (error);
 			tcs.TrySetException (error);
-		}
-
-		internal void OnLogEvent (string serialized)
-		{
-			var element = TestSerializer.Deserialize (serialized);
-			var entry = TestSerializer.ReadLogEntry (element);
-			App.Logger.LogEvent (entry);
-		}
-
-		internal void OnStatisticsEvent (string serialized)
-		{
-			var element = TestSerializer.Deserialize (serialized);
-			var args = TestSerializer.ReadStatisticsEvent (element);
-			App.Logger.LogStatisticsEvent (args);
 		}
 
 		public async Task Start (IPortableEndPoint address, CancellationToken cancellationToken)

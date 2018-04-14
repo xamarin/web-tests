@@ -56,18 +56,17 @@ namespace Xamarin.AsyncTests.TestSuite
 		public IEnumerable<TestCategory> Categories => new[] {
 			ConditionalAttribute.Instance,
 			SingleCategoryAttribute.Instance,
-			SingleWithParametersAttribute.Instance
+			SingleWithParametersAttribute.Instance,
+			WorkAttribute.Instance
 		};
 
 		public void GlobalSetUp (TestContext ctx)
 		{
-			ctx.LogMessage ($"Global setup: {ctx.CurrentCategory}");
 			invocationCounterStack.Push (new InvocationCounters ());
 		}
 
 		public void GlobalTearDown (TestContext ctx)
 		{
-			ctx.LogMessage ($"Global tear down: {ctx.CurrentCategory}");
 			var counters = invocationCounterStack.Pop ();
 			if (ctx.CurrentCategory == TestCategory.All)
 				counters.CheckInvocationCounts (ctx);

@@ -41,6 +41,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.AsyncTests.Portable
 {
+	using System.Runtime.CompilerServices;
 	using Framework;
 
 	class PortableSupportImpl : IPortableSupport
@@ -181,13 +182,13 @@ namespace Xamarin.AsyncTests.Portable
 
 			for (int i = 0; i < trace.FrameCount; i++) {
 				var frame = trace.GetFrame (i);
-				var formatted = FormatFrame (frame);
+				var method = frame.GetMethod ();
+				var formatted = FormatFrame (frame, method);
 				if (full) {
 					frames.Add (formatted);
 					continue;
 				}
 
-				var method = frame.GetMethod ();
 				if (method == null) {
 					frames.Add (formatted);
 					continue;
@@ -201,37 +202,71 @@ namespace Xamarin.AsyncTests.Portable
 					continue;
 				}
 
+				CheckAsyncContinuation (frame, ref method, ref formatted);
+
 				frames.Add (formatted);
 
-				var hideAttr = method.GetCustomAttributes (typeof(HideStackFrameAttribute), true);
+				var hideAttr = method.GetCustomAttributes (typeof (HideStackFrameAttribute), true);
 				if (hideAttr.Length > 0) {
 					top = i + 1;
 					continue;
 				}
 
-				var asyncAttr = method.GetCustomAttributes (typeof(AsyncTestAttribute), true);
+				var asyncAttr = method.GetCustomAttributes (typeof (AsyncTestAttribute), true);
 				if (asyncAttr.Length > 0)
 					break;
 
-				var entryPointAttr = method.GetCustomAttributes (typeof(StackTraceEntryPointAttribute), true);
+				var entryPointAttr = method.GetCustomAttributes (typeof (StackTraceEntryPointAttribute), true);
 				if (entryPointAttr.Length > 0)
 					break;
 			}
 
 			var sb = new StringBuilder ();
 			for (int i = top; i < frames.Count; i++) {
-				sb.Append (frames [i]);
+				sb.Append (frames[i]);
 				sb.AppendLine ();
 			}
 			return sb.ToString ();
 		}
 
-		string FormatFrame (StackFrame frame)
+		void CheckAsyncContinuation (StackFrame frame, ref MethodBase method, ref string formatted)
+		{
+			if (method.DeclaringType.GetCustomAttribute<CompilerGeneratedAttribute> () == null)
+				return;
+			// Try to detect async task continuations.
+			var match = Regex.Match (method.DeclaringType.FullName, @"(.*)\+\<(.*)\>d__\d+");
+			Debug.WriteLine ($"MATCH: {match} {match.Success}");
+			if (!match.Success)
+				return;
+			var type = method.DeclaringType.Assembly.GetType (match.Groups[1].Value);
+			if (type == null)
+				return;
+
+			var fields = method.DeclaringType.GetFields ();
+			if (fields.Length < 3)
+				return;
+
+			if (fields[0].FieldType != typeof (int))
+				return;
+			if (fields[1].FieldType != typeof (AsyncTaskMethodBuilder))
+				return;
+
+			var arguments = new List<Type> ();
+			for (var i = 2; i < fields.Length - 1; i++) {
+				arguments.Add (fields[i].FieldType);
+			}
+
+			method = type.GetMethod (match.Groups[2].Value, arguments.ToArray ());
+			if (method == null)
+				return;
+			formatted = FormatFrame (frame, method);
+		}
+
+		string FormatFrame (StackFrame frame, MethodBase method)
 		{
 			var sb = new StringBuilder ();
 			sb.Append ("   at ");
 
-			var method = frame.GetMethod ();
 			if (method != null) {
 				FormatMethod (sb, method, true);
 			} else {

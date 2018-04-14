@@ -86,7 +86,6 @@ namespace Xamarin.AsyncTests.Remoting
 			instance.WantStatisticsEvents = bool.Parse (node.Attribute ("WantStatisticsEvents").Value);
 
 			var settings = node.Element ("Settings");
-			Connection.Debug ("Handshake: {0}", settings);
 			instance.Settings = TestSerializer.ReadSettings (settings);
 
 			var logger = node.Element ("EventSink");
@@ -129,16 +128,12 @@ namespace Xamarin.AsyncTests.Remoting
 
 		internal static async Task Handshake (ClientConnection connection, TestLoggerBackend logger, Handshake handshake, CancellationToken cancellationToken)
 		{
-			Connection.Debug ("Client Handshake: {0}", handshake);
-
 			handshake.EventSink = new EventSinkServant (connection, logger);
 
 			var handshakeCommand = new HandshakeCommand ();
 			await handshakeCommand.Send (connection, handshake, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-
-			Connection.Debug ("Client Handshake done");
 		}
 
 		class GetRemoteTestSessionCommand : Command<object,ObjectProxy>
@@ -250,7 +245,6 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			protected override Task<object> Run (Connection connection, RemoteTestSession proxy, XElement argument, CancellationToken cancellationToken)
 			{
-				Connection.Debug ("Update settings: {0}", argument);
 				proxy.Servant.UpdateSettings (argument);
 				return Task.FromResult<object> (null);
 			}
