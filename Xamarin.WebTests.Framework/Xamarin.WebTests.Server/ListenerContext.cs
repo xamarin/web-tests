@@ -275,12 +275,19 @@ namespace Xamarin.WebTests.Server
 				return ConnectionState.ConnectToTarget;
 			}
 
+			EndPoint GetTargetEndPoint (Uri uri)
+			{
+				if (IPAddress.TryParse (uri.Host, out var address))
+					return new IPEndPoint (address, uri.Port);
+				return new DnsEndPoint (uri.Host, uri.Port);
+			}
+
 			async Task ConnectToTarget ()
 			{
 				ctx.LogDebug (5, $"{me} CONNECT TO TARGET");
 
 				targetConnection = new SocketConnection (Listener.TargetListener.Server);
-				var targetEndPoint = new DnsEndPoint (currentOperation.Uri.Host, currentOperation.Uri.Port);
+				var targetEndPoint = GetTargetEndPoint (currentOperation.Uri);
 				ctx.LogDebug (5, $"{me} CONNECT TO TARGET #1: {targetEndPoint}");
 
 				cancellationToken.ThrowIfCancellationRequested ();
