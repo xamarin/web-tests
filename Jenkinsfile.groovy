@@ -182,9 +182,9 @@ def run (String target, String testCategory, String outputDir, String resultOutp
 	def extraParams = ""
 	if (params.EXTRA_JENKINS_ARGUMENTS != '') {
 		def extraParamValue = params.EXTRA_JENKINS_ARGUMENTS
-		extraParams = ",JenkinsExtraArguments=\"$extraParamValue\""
+		extraParams = ",ExtraJenkinsArguments=\"$extraParamValue\""
     } else {
-        extraParams = ",JenkinsExtraArguments=\"$localExtraJenkinsArguments\""
+        extraParams = ",ExtraJenkinsArguments=\"$localExtraJenkinsArguments\""
     }
 	withEnv (['MONO_ENV_OPTIONS=--debug']) {
 		runShell ("msbuild /verbosity:minimal Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,OutputDir=$outputDir,$iosParams,$resultParams,$outputParams$extraParams")
@@ -201,7 +201,7 @@ def androidInstall (String target, Integer timeoutValue = 15)
 		def extraParams = ""
 		if (params.EXTRA_JENKINS_ARGUMENTS != '') {
 			def extraParamValue = params.EXTRA_JENKINS_ARGUMENTS
-			extraParams = ",JenkinsExtraArguments=\"$extraParamValue\""
+			extraParams = ",ExtraJenkinsArguments=\"$extraParamValue\""
 		}
 		try {
 			timeout (timeoutValue) {
