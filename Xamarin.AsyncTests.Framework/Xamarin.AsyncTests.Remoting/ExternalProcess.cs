@@ -1,4 +1,4 @@
-﻿//
+//
 // ExternalProcess.cs
 //
 // Author:
