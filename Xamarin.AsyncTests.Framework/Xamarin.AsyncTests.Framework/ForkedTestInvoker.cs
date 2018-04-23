@@ -89,15 +89,24 @@ namespace Xamarin.AsyncTests.Framework
 				int delay = 0;
 				if (Host.Attribute.RandomDelay > 0)
 					delay = random.Next (Host.Attribute.RandomDelay);
-				var fork = forks[i] = new ForkedTestInstance (Host, Node, instance, i, delay, Inner);
+				var fork = forks[i] = new ForkedTestInstance (Host, Node, instance, i);
 
 				tasks[i] = Task.Factory.StartNew (
-					() => fork.Start (ctx, cancellationToken).Result,
+					() => StartForked (fork, delay).Result,
 					cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 			}
 
 			var retval = await Task.WhenAll (tasks).ConfigureAwait (false);
 			return retval.All (r => r);
+
+			async Task<bool> StartForked (ForkedTestInstance forkedInstance, int delay)
+			{
+				if (delay == 0)
+					await Task.Yield ();
+				else
+					await Task.Delay (delay).ConfigureAwait (false);
+				return await Inner.Invoke (ctx, forkedInstance, cancellationToken);
+			}
 		}
 
 		const string Category = "forked-invoker";
@@ -149,10 +158,31 @@ namespace Xamarin.AsyncTests.Framework
 			return support.GetLoopbackEndpoint (port);
 		}
 
+		TestInstance CreateInstance (TestContext ctx, TestInstance parent)
+		{
+			return Host.CreateInstance (ctx, Node, parent);
+		}
+
+		TestInstance SetUp (TestContext ctx, TestInstance instance)
+		{
+			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
+
+			try {
+				var innerInstance = CreateInstance (ctx, instance);
+				innerInstance.Initialize (ctx);
+				return innerInstance;
+			} catch (OperationCanceledException) {
+				ctx.OnTestCanceled ();
+				return null;
+			} catch (Exception ex) {
+				ctx.OnError (ex);
+				return null;
+			}
+		}
+
 		Task<bool> RunInner (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			var id = long.Parse (Node.Parameter.Value);
-			var forkedInstance = new ForkedTestInstance (Host, Node, instance, id, 0, Inner);
+			var forkedInstance = SetUp (ctx, instance);
 			return InvokeInner (ctx, forkedInstance, Inner, cancellationToken);
 		}
 
@@ -177,8 +207,7 @@ namespace Xamarin.AsyncTests.Framework
 			case ForkType.Domain:
 				server = await TestServer.ForkAppDomain (
 					builder.App, GetEndPoint (),
-					Host.Attribute.DomainName ?? "ExternalDomain",
-					cancellationToken).ConfigureAwait (false);
+					Host.Attribute.DomainName, cancellationToken).ConfigureAwait (false);
 				session = server.Session;
 				break;
 			case ForkType.Fork:
@@ -194,7 +223,7 @@ namespace Xamarin.AsyncTests.Framework
 			try {
 				await session.UpdateSettings (cancellationToken);
 
-				var forkedInstance = new ForkedTestInstance (Host, Node, instance, 0, -1, Inner);
+				var forkedInstance = new ForkedTestInstance (Host, Node, instance, 0);
 				var path = forkedInstance.GetCurrentPath ();
 
 				TestInstance.LogDebug (ctx, instance, 5, Category);

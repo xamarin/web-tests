@@ -1,5 +1,5 @@
 ﻿//
-// RunSimpleExternal.cs
+// ExternalStaticFixture.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,48 +24,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
-using System.Collections.Generic;
-using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.AsyncTests.FrameworkTests
 {
 	[ForkedSupport]
-	public class RunSimpleExternal : FrameworkInvoker
+	[Fork (ForkType.Domain)]
+	[AsyncTestFixture (Prefix = "FrameworkTests")]
+	public class ExternalStaticFixture
 	{
-		protected override void SetupSession (
-			TestContext ctx, SettingsBag settings, TestSession session)
+		[AsyncTest]
+		[Martin (null, UseFixtureName = true)]
+		public static void Run (TestContext ctx)
 		{
-			session.Configuration.CurrentCategory = TestCategory.Martin;
-			session.Configuration.SetIsEnabled (TestFeature.ForkedSupport, true);
-			settings.MartinTest = "FrameworkTests.SimpleExternal";
-		}
-
-		bool hasResult;
-
-		protected override bool ForwardLogging => false;
-
-		protected override void VisitResult (TestContext ctx, TestResult result)
-		{
-			base.VisitResult (ctx, result);
-			ctx.Assert (hasResult, Is.False);
-			hasResult = true;
-			ctx.Assert (result.Status, Is.EqualTo (TestStatus.Success));
-			ctx.Assert (result.Path, Is.Not.Null);
-			ctx.Assert (result.Path.Node.PathType, Is.EqualTo (TestPathType.Fork));
-		}
-
-		protected override void CheckFinalStatus (TestContext ctx)
-		{
-			ctx.Assert (hasResult);
-			base.CheckFinalStatus (ctx);
-		}
-
-		protected override void CheckLogging (TestContext ctx, FrameworkLogger logger)
-		{
-			CheckStartAndFinish (ctx, logger);
-			base.CheckLogging (ctx, logger);
+			ctx.Assert (RunExternalStaticFixture.StaticVariable, Is.EqualTo (0), "static variable");
+			RunExternalStaticFixture.StaticVariable = 2;
 		}
 	}
 }

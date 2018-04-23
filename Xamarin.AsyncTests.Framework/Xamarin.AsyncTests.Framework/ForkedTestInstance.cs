@@ -35,14 +35,6 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public int Delay {
-			get;
-		}
-
-		public TestInvoker Invoker {
-			get;
-		}
-
 		new public ForkedTestHost Host {
 			get { return (ForkedTestHost)base.Host; }
 		}
@@ -51,26 +43,15 @@ namespace Xamarin.AsyncTests.Framework
 
 		string ITestParameter.FriendlyValue => ID.ToString ();
 
-		public ForkedTestInstance (ForkedTestHost host, TestNode node, TestInstance parent, long id, int delay, TestInvoker invoker)
+		public ForkedTestInstance (ForkedTestHost host, TestNode node, TestInstance parent, long id)
 			: base (host, node, parent)
 		{
 			ID = id;
-			Delay = delay;
-			Invoker = invoker;
 		}
 
 		internal sealed override TestParameterValue GetCurrentParameter ()
 		{
 			return new ForkedParameterValue (this);
-		}
-
-		public async Task<bool> Start (TestContext ctx, CancellationToken cancellationToken)
-		{
-			if (Delay == 0)
-				await Task.Yield ();
-			else
-				await Task.Delay (Delay).ConfigureAwait (false);
-			return await Invoker.Invoke (ctx, this, cancellationToken);
 		}
 
 		class ForkedParameterValue : TestParameterValue

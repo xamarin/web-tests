@@ -34,17 +34,37 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public ForkedTestHost (string name, ForkAttribute attr)
+		public TestHost ParameterHost {
+			get;
+		}
+
+		public ForkedTestHost (string name, ForkAttribute attr, TestHost host = null)
 			: base (TestPathType.Fork, name, name, "IFork")
 		{
 			Attribute = attr;
+			ParameterHost = host;
+		}
+
+		internal static object GetInstance (ref TestInstance instance)
+		{
+			var forkedInstance = (ForkedTestInstance)instance;
+			instance = instance.Parent;
+
+			if (forkedInstance.Host.ParameterHost == null)
+				return forkedInstance;
+
+			var heavyInstance = (HeavyTestInstance)instance;
+			instance = instance.Parent;
+			return heavyInstance.Instance;
 		}
 
 		#region implemented abstract members of TestHost
 
 		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
 		{
-			throw new InternalErrorException ();
+			var id = long.Parse (node.Parameter.Value);
+			var forkedInstance = new ForkedTestInstance (this, node, parent, id);
+			return forkedInstance;
 		}
 
 		internal override TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags)

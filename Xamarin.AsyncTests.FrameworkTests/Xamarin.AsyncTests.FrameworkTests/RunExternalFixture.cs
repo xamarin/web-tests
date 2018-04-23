@@ -1,5 +1,5 @@
 ﻿//
-// RunSimpleExternal.cs
+// RunExternalFixture.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -32,15 +32,19 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.AsyncTests.FrameworkTests
 {
 	[ForkedSupport]
-	public class RunSimpleExternal : FrameworkInvoker
+	public class RunExternalFixture : FrameworkInvoker
 	{
 		protected override void SetupSession (
 			TestContext ctx, SettingsBag settings, TestSession session)
 		{
 			session.Configuration.CurrentCategory = TestCategory.Martin;
 			session.Configuration.SetIsEnabled (TestFeature.ForkedSupport, true);
-			settings.MartinTest = "FrameworkTests.SimpleExternal";
+			settings.MartinTest = "FrameworkTests.ExternalFixture";
+			settings.DontSaveLogging = true;
+			StaticVariable = 1;
 		}
+
+		internal static int StaticVariable;
 
 		bool hasResult;
 
@@ -53,12 +57,14 @@ namespace Xamarin.AsyncTests.FrameworkTests
 			hasResult = true;
 			ctx.Assert (result.Status, Is.EqualTo (TestStatus.Success));
 			ctx.Assert (result.Path, Is.Not.Null);
-			ctx.Assert (result.Path.Node.PathType, Is.EqualTo (TestPathType.Fork));
+			ctx.Assert (result.Path.Node.PathType, Is.EqualTo (TestPathType.Test));
 		}
 
 		protected override void CheckFinalStatus (TestContext ctx)
 		{
 			ctx.Assert (hasResult);
+			ctx.Assert (StaticVariable, Is.EqualTo (1), "variable unmodified");
+			ctx.Assert (ExternalFixture.StaticVariable, Is.EqualTo (0), "test variable unmodified");
 			base.CheckFinalStatus (ctx);
 		}
 

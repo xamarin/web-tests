@@ -87,6 +87,9 @@ namespace Xamarin.AsyncTests.Framework
 			if (fixture == null)
 				return false;
 
+			if (string.IsNullOrEmpty (searchString))
+				return false;
+
 			var query = searchString.Split (':');
 			string fixtureQuery;
 			string parameterQuery;

@@ -68,6 +68,7 @@ namespace Xamarin.WebTests.TestFramework
 				break;
 			case HttpServerTestCategory.MartinTest:
 				IsMartinTest = true;
+				Optional = true;
 				break;
 			case HttpServerTestCategory.GZip:
 				SupportsHttp = SupportsGZip;

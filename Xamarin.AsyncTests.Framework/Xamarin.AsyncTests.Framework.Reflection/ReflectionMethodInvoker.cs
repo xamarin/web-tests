@@ -144,9 +144,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					continue;
 				}
 
-				if (instance is ForkedTestInstance forkedInstance) {
+				if (instance is ForkedTestInstance) {
+					var forkedInstance = ForkedTestHost.GetInstance (ref instance);
 					args.AddFirst (forkedInstance);
-					instance = instance.Parent;
 					continue;
 				}
 
@@ -199,6 +199,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				}
 
 				if (host is RepeatedTestHost) {
+					instance = instance.Parent;
+					continue;
+				}
+
+				if (host is ForkedTestHost) {
 					instance = instance.Parent;
 					continue;
 				}

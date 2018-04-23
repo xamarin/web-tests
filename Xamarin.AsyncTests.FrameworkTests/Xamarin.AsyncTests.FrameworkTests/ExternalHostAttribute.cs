@@ -1,10 +1,10 @@
 ﻿//
-// InvokableTestInstance.cs
+// ExternalHostAttribute.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,19 +25,17 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests.FrameworkTests
 {
-	class InvokableTestInstance : TestInstance
+	public class ExternalHostAttribute : TestHostAttribute, ITestHost<ExternalHost>
 	{
-		public InvokableTestInstance (InvokableTestHost host, TestInstance parent)
-			: base (host, parent)
+		public ExternalHostAttribute () : base (typeof (ExternalHostAttribute))
 		{
 		}
 
-		public override TestHost CaptureContext ()
+		public ExternalHost CreateInstance (TestContext context)
 		{
-			return Host;
+			return new ExternalHost ();
 		}
 	}
 }
-

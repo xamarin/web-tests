@@ -27,7 +27,7 @@ using System;
 
 namespace Xamarin.AsyncTests
 {
-	[AttributeUsage (AttributeTargets.Parameter, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, AllowMultiple = false)]
 	public class ForkAttribute : Attribute
 	{
 		public int Count {

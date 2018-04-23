@@ -1,5 +1,5 @@
 ﻿//
-// RunSimpleExternal.cs
+// RunExternalTest.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -32,15 +32,19 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.AsyncTests.FrameworkTests
 {
 	[ForkedSupport]
-	public class RunSimpleExternal : FrameworkInvoker
+	public class RunExternalTest : FrameworkInvoker
 	{
 		protected override void SetupSession (
 			TestContext ctx, SettingsBag settings, TestSession session)
 		{
 			session.Configuration.CurrentCategory = TestCategory.Martin;
 			session.Configuration.SetIsEnabled (TestFeature.ForkedSupport, true);
-			settings.MartinTest = "FrameworkTests.SimpleExternal";
+			settings.MartinTest = "FrameworkTests.ExternalTest";
+			settings.DontSaveLogging = true;
+			StaticVariable = 1;
 		}
+
+		internal static int StaticVariable;
 
 		bool hasResult;
 
@@ -59,6 +63,7 @@ namespace Xamarin.AsyncTests.FrameworkTests
 		protected override void CheckFinalStatus (TestContext ctx)
 		{
 			ctx.Assert (hasResult);
+			ctx.Assert (StaticVariable, Is.EqualTo (1), "variable unmodified");
 			base.CheckFinalStatus (ctx);
 		}
 

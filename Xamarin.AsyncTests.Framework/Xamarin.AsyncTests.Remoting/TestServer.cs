@@ -232,6 +232,8 @@ namespace Xamarin.AsyncTests.Remoting
 			return client;
 		}
 
+		static int nextDomainId;
+
 		public static async Task<TestServer> ForkAppDomain (
 			TestApp app, IPortableEndPoint address, string domainName,
 			CancellationToken cancellationToken)
@@ -239,6 +241,9 @@ namespace Xamarin.AsyncTests.Remoting
 			var support = DependencyInjector.Get<IServerHost> ();
 			var connection = await support.Listen (address, cancellationToken).ConfigureAwait (false);
 			cancellationToken.ThrowIfCancellationRequested ();
+
+			if (string.IsNullOrEmpty (domainName))
+				domainName = $"ExternalDomain{++nextDomainId}";
 
 			var launcher = DependencyInjector.Get<IExternalDomainSupport> ();
 			var host = launcher.Create (app, domainName);

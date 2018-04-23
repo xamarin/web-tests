@@ -1,5 +1,5 @@
 ﻿//
-// MartinsPlayground.cs
+// ExternalTest.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,27 +24,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.AsyncTests.TestSuite
+namespace Xamarin.AsyncTests.FrameworkTests
 {
-	[Martin ("Test")]
-	[AsyncTestFixture]
-	public class MartinsPlayground
+	[ForkedSupport]
+	[AsyncTestFixture (Prefix = "FrameworkTests")]
+	public class ExternalTest
 	{
-		public enum SimpleEnum
-		{
-			First,
-			Second,
-			Third
-		}
-
 		[AsyncTest]
-		public static void Test (
-			TestContext ctx, SimpleEnum test,
-			[Fork (ForkType.Internal)] IFork fork)
+		[Fork (ForkType.Domain)]
+		[Martin (null, UseFixtureName = true)]
+		public static void Run (TestContext ctx)
 		{
-			ctx.LogMessage ($"Martin Test: {ctx.FriendlyName} {test} {fork}");
+			ctx.Assert (RunExternalTest.StaticVariable, Is.EqualTo (0), "static variable");
+			RunExternalTest.StaticVariable = 2;
 		}
 	}
 }

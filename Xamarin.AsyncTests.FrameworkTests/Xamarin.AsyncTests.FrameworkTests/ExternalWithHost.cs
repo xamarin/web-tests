@@ -27,87 +27,22 @@ using System;
 using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.AsyncTests.FrameworkTests
 {
 	[ForkedSupport]
 	[AsyncTestFixture (Prefix = "FrameworkTests")]
-	public class ExternalWithHost
+	public static class ExternalWithHost
 	{
-		public ExternalWithHost ()
-		{
-			System.Diagnostics.Debug.WriteLine ($"CONSTRUCTOR!");
-		}
-
 		[AsyncTest]
-		// [Martin (null, UseFixtureName = true)]
+		[Martin (null, UseFixtureName = true)]
 		public static void Test (
-			TestContext ctx, MyHost host,
-			[Fork (ForkType.Internal)] IFork fork)
+			TestContext ctx, ExternalHost host,
+			[Fork (ForkType.Domain)] IFork fork)
 		{
 			ctx.LogMessage ($"Martin Test: {ctx.FriendlyName} {host} {fork}");
-			ctx.Assert (host.IsForked);
-		}
-
-		static Task FinishedTask => Task.FromResult<object> (null);
-
-		class MyHostAttribute : TestHostAttribute, ITestHost<MyHost>
-		{
-			public MyHostAttribute () : base (typeof (MyHostAttribute))
-			{
-				
-			}
-
-			public MyHost CreateInstance (TestContext context)
-			{
-				return new MyHost ();
-			}
-		}
-
-		[MyHost]
-		public class MyHost : ITestInstance, IForkedTestInstance
-		{
-			public bool IsForked {
-				get;
-				private set;
-			}
-
-			public void Serialize (TestContext ctx, XElement element)
-			{
-				element.Add (new XElement ("Hello"));
-				element.Add (new XElement ("World"));
-				ctx.LogMessage ($"MY HOST SERIALIZE");
-			}
-
-			public void Deserialize (TestContext ctx, XElement element)
-			{
-				IsForked = true;
-				ctx.LogMessage ($"MY HOST DESERIALIZE: {element}");
-			}
-
-			public Task Initialize (TestContext ctx, CancellationToken cancellationToken)
-			{
-				ctx.LogMessage ($"MY HOST INIT");
-				return FinishedTask;
-			}
-
-			public Task PreRun (TestContext ctx, CancellationToken cancellationToken)
-			{
-				ctx.LogMessage ($"MY HOST PRE RUN");
-				return FinishedTask;
-			}
-
-			public Task PostRun (TestContext ctx, CancellationToken cancellationToken)
-			{
-				ctx.LogMessage ($"MY HOST POST RUN");
-				return FinishedTask;
-			}
-
-			public Task Destroy (TestContext ctx, CancellationToken cancellationToken)
-			{
-				ctx.LogMessage ($"MY HOST DESTROY");
-				return FinishedTask;
-			}
+			ctx.Assert (host.IsForked, Is.EqualTo (2));
 		}
 	}
 }

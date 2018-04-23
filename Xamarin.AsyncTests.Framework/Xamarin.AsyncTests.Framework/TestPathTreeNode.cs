@@ -178,8 +178,6 @@ namespace Xamarin.AsyncTests.Framework
 						throw new InternalErrorException ();
 					return children[0];
 				}
-			} else if (IsPathHidden) {
-				throw new InternalErrorException ();
 			}
 
 			if (node.ParameterValue == null && node.CustomParameter == null)

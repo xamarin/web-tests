@@ -1,10 +1,10 @@
 ﻿//
-// InvokableTestHost.cs
+// ExternalFixture.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,43 +24,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.AsyncTests.Framework
+namespace Xamarin.AsyncTests.FrameworkTests
 {
-	abstract class InvokableTestHost : TestHost
+	[ForkedSupport]
+	[Fork (ForkType.Domain)]
+	[AsyncTestFixture (Prefix = "FrameworkTests")]
+	public class ExternalFixture
 	{
-		public TestBuilder Builder {
-			get;
-			private set;
-		}
-
-		public InvokableTestHost (TestHost parent, TestBuilder builder)
-			: base (parent)
+		public ExternalFixture ()
 		{
-			Builder = builder;
+			Interlocked.Increment (ref StaticVariable);
 		}
 
-		internal sealed override TestInstance CreateInstance (TestInstance parent)
+		public static int StaticVariable;
+
+		[AsyncTest]
+		[Martin (null, UseFixtureName = true)]
+		public void Run (TestContext ctx)
 		{
-			return new InvokableTestInstance (this, parent);
+			ctx.Assert (RunExternalFixture.StaticVariable, Is.EqualTo (0), "extern static variable");
+			ctx.Assert (StaticVariable, Is.EqualTo (1), "our static variable");
+			RunExternalFixture.StaticVariable = 2;
+			ctx.LogMessage ($"RUN: {StaticVariable}");
 		}
-
-		internal override TestInvoker CreateInvoker (TestInvoker invoker)
-		{
-			throw new InternalErrorException ();
-		}
-
-		public TestInvoker CreateInvoker ()
-		{
-			var invoker = CreateInnerInvoker ();
-
-			for (var host = Parent; host != null; host = host.Parent)
-				invoker = host.CreateInvoker (invoker);
-
-			return invoker;
-		}
-
-		protected abstract TestInvoker CreateInnerInvoker ();
 	}
 }
-

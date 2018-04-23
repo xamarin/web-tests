@@ -48,9 +48,9 @@ namespace Xamarin.AsyncTests.FrameworkTests
 		}
 
 		[AsyncTest]
-		// [Martin (null, UseFixtureName = true)]
+		[Martin (null, UseFixtureName = true)]
 		public void Test (
-			TestContext ctx, [Fork (ForkType.Internal)] IFork fork)
+			TestContext ctx, [Fork (ForkType.Domain)] IFork fork)
 		{
 			ctx.LogMessage ($"Martin Test: {ctx.FriendlyName} {fork}");
 			ctx.LogMessage ($"INSTANCE: {ID} {IsForked}");

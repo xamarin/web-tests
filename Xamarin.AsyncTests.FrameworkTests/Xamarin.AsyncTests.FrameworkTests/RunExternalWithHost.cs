@@ -1,5 +1,5 @@
 ﻿//
-// RunSimpleExternal.cs
+// RunExternalWithHost.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -32,15 +32,18 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.AsyncTests.FrameworkTests
 {
 	[ForkedSupport]
-	public class RunSimpleExternal : FrameworkInvoker
+	public class RunExternalWithHost : FrameworkInvoker
 	{
 		protected override void SetupSession (
 			TestContext ctx, SettingsBag settings, TestSession session)
 		{
 			session.Configuration.CurrentCategory = TestCategory.Martin;
 			session.Configuration.SetIsEnabled (TestFeature.ForkedSupport, true);
-			settings.MartinTest = "FrameworkTests.SimpleExternal";
+			settings.MartinTest = "FrameworkTests.ExternalWithHost";
+			StaticVariable = 1;
 		}
+
+		internal static int StaticVariable;
 
 		bool hasResult;
 
@@ -59,12 +62,36 @@ namespace Xamarin.AsyncTests.FrameworkTests
 		protected override void CheckFinalStatus (TestContext ctx)
 		{
 			ctx.Assert (hasResult);
+			ctx.Assert (StaticVariable, Is.EqualTo (1), "variable unmodified");
 			base.CheckFinalStatus (ctx);
 		}
 
 		protected override void CheckLogging (TestContext ctx, FrameworkLogger logger)
 		{
 			CheckStartAndFinish (ctx, logger);
+
+			var messageEvents = logger.Events.Where (
+				e => e.Kind == TestLoggerBackend.EntryKind.Message).ToList ();
+
+			ctx.Assert (messageEvents.Count, Is.GreaterThanOrEqualTo (8));
+
+			ctx.Assert (messageEvents[0].Text, Is.EqualTo ($"{ExternalHost.ME} SERIALIZE: 1"));
+			ctx.Assert (messageEvents[1].Text, Is.EqualTo ($"{ExternalHost.ME} INIT: 1"));
+			ctx.Assert (messageEvents[2].Text, Is.EqualTo ($"{ExternalHost.ME} DESERIALIZE: 1"));
+			ctx.Assert (messageEvents[3].Text, Is.EqualTo ($"{ExternalHost.ME} INIT: 2"));
+			ctx.Assert (messageEvents[4].Text, Is.EqualTo ($"{ExternalHost.ME} PRE RUN: 2"));
+
+			int pos = 4;
+			while (pos++ < messageEvents.Count) {
+				var message = messageEvents[pos].Text;
+				if (message.StartsWith (ExternalHost.ME, StringComparison.Ordinal))
+					break;
+			}
+
+			ctx.Assert (messageEvents[pos++].Text, Is.EqualTo ($"{ExternalHost.ME} POST RUN: 2"));
+			ctx.Assert (messageEvents[pos++].Text, Is.EqualTo ($"{ExternalHost.ME} DESTROY: 2"));
+			ctx.Assert (messageEvents[pos++].Text, Is.EqualTo ($"{ExternalHost.ME} DESTROY: 1"));
+
 			base.CheckLogging (ctx, logger);
 		}
 	}

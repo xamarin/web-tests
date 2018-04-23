@@ -92,7 +92,17 @@
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalDomain.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalDomain.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\WorkAttribute.cs" />
-    <Compile Include="Xamarin.AsyncTests.TestSuite\MartinsPlayground.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalStaticFixture.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalStaticFixture.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalTest.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalTest.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalFixture.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalFixture.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalHostAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalWithHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalWithHost2.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalWithHost2.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
