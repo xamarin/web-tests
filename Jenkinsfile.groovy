@@ -11,7 +11,7 @@ properties([
 		string (name: 'XI_COMMIT', defaultValue: '', description: 'Use specific XI commit'),
 		string (name: 'XM_COMMIT', defaultValue: '', description: 'Use specific XM commit'),
 		string (name: 'XA_COMMIT', defaultValue: '', description: 'Use specific Android commit'),
-		string (name: 'EXTRA_JENKINS_ARGUMENTS', defaultValue: '--features=-Networking', description: ''),
+		string (name: 'EXTRA_JENKINS_ARGUMENTS', defaultValue: '', description: ''),
 		booleanParam (name: 'SPECIFIC_COMMIT', defaultValue: false, description: 'Use specific commit')
 	])
 ])
@@ -31,6 +31,8 @@ properties([
 
 def logParsingRuleFile = ""
 def gitCommitHash = ""
+
+def localExtraJenkinsArguments = "--features=-Networking"
 
 def getBranchAndCommit (String name, String branch, String commit)
 {
@@ -181,7 +183,9 @@ def run (String target, String testCategory, String outputDir, String resultOutp
 	if (params.EXTRA_JENKINS_ARGUMENTS != '') {
 		def extraParamValue = params.EXTRA_JENKINS_ARGUMENTS
 		extraParams = ",JenkinsExtraArguments=\"$extraParamValue\""
-	}
+    } else {
+        extraParams = ",JenkinsExtraArguments=\"$localExtraJenkinsArguments\""
+    }
 	withEnv (['MONO_ENV_OPTIONS=--debug']) {
 		runShell ("msbuild /verbosity:minimal Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,OutputDir=$outputDir,$iosParams,$resultParams,$outputParams$extraParams")
 	}
