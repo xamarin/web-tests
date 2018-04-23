@@ -102,19 +102,6 @@ namespace Xamarin.WebTests.Tests
 
 		}
 
-		[New]
-		[AsyncTest]
-		public async Task RunMartinTest (
-			TestContext ctx, HttpServer server,
-			[AuthenticationType] AuthenticationType authType, Handler handler,
-			CancellationToken cancellationToken)
-		{
-			var authHandler = new AuthenticationHandler (authType, handler);
-			using (var operation = new TraditionalOperation (server, authHandler, true))
-				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
-
-		}
-
 		[AsyncTest]
 		public async Task MustClearAuthOnRedirect (
 			TestContext ctx, HttpServer server,
