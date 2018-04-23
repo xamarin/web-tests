@@ -32,8 +32,6 @@ properties([
 def logParsingRuleFile = ""
 def gitCommitHash = ""
 
-def localExtraJenkinsArguments = "--features=-Networking"
-
 def getBranchAndCommit (String name, String branch, String commit)
 {
 	if (branch == 'NONE' || branch == '' || branch == null) {
@@ -175,6 +173,8 @@ def buildAll ()
 
 def run (String target, String testCategory, String outputDir, String resultOutput, String junitResultOutput, String stdOut, String jenkinsHtml)
 {
+    final String localExtraJenkinsArguments = "--features=-Networking"
+
 	def buildPath = new URI (env.BUILD_URL).getPath()
 	def iosParams = "IosRuntime=$IOS_RUNTIME,IosDeviceType=$IOS_DEVICE_TYPE"
 	def resultParams = "ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
