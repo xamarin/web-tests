@@ -36,28 +36,32 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get;
 		}
 
+		public ReflectionTestInstanceBuilder InstanceBuilder {
+			get;
+		}
+
+		public TestHost UnwindBase => InstanceBuilder.UnwindBase.Host;
+
 		public ConstructorInfo Constructor {
 			get;
 		}
 
-		internal IReadOnlyList<TestHost> ParameterHosts {
-			get;
-		}
-
 		public ReflectionFixtureHost (
-			ReflectionTestFixtureBuilder builder, ConstructorInfo ctor,
-			ICollection<TestHost> parameterHosts)
+			ReflectionTestFixtureBuilder builder,
+			ReflectionTestInstanceBuilder instanceBuilder,
+			ConstructorInfo ctor)
 			: base (TestPathType.Instance, null, TestPath.GetFriendlyName (builder.Type.AsType ()),
 				builder.Type.AsType (), builder.Type.AsType (),
-				TestFlags.ContinueOnError | TestFlags.Hidden | TestFlags.PathHidden)
+				TestFlags.ContinueOnError | TestFlags.Hidden)
 		{
 			Builder = builder;
+			InstanceBuilder = instanceBuilder;
 			Constructor = ctor;
-			ParameterHosts = parameterHosts?.ToArray () ?? new TestHost[0];
 		}
 
 		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
 		{
+			ctx.LogDebug (10, $"{this} CREATE INSTANCE: {InstanceBuilder}");
 			var instance = new ReflectionFixtureInstance (this, node, parent);
 			if (!Builder.RunFilter (ctx, instance))
 				return null;
@@ -70,11 +74,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				throw new InternalErrorException ();
 			instance = instance.Parent;
 
-			for (int i = 0; i < ParameterHosts.Count; i++) {
-				if (instance == null)
-					throw new InternalErrorException ();
-				if (instance.Host != ParameterHosts[i])
-					throw new InternalErrorException ();
+			while (instance != null) {
+				if (instance.Host == UnwindBase)
+					break;
 				instance = instance.Parent;
 			}
 		}

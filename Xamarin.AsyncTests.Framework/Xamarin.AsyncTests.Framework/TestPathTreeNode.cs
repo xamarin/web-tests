@@ -60,35 +60,25 @@ namespace Xamarin.AsyncTests.Framework
 		bool resolved;
 		bool resolvedContext;
 		bool parameterized;
-		TestPathTreeNode innerNode;
 		List<TestPathTreeNode> parameters;
 		List<TestPathTreeNode> children;
 
-		public bool HasParameters {
-			get { return Node.HasParameters; }
-		}
+		public bool HasParameters => Node.HasParameters;
 
-		public bool HasChildren {
-			get { return Tree.Builder.HasChildren; }
-		}
+		public bool HasChildren => Tree.Builder.HasChildren;
+
+		public bool IsPathHidden => (Node.Flags & TestFlags.PathHidden) != 0;
 
 		public void Resolve ()
 		{
 			if (resolved)
 				return;
 
-			if (Tree.Inner != null) {
-				var node = new TestNodeInternal (Tree.Inner.Host);
-				var innerPath = new TestPath (Path, node);
-				innerNode = new TestPathTreeNode (Tree.Inner, innerPath, node);
-				return;
-			}
-
 			children = new List<TestPathTreeNode> ();
 			foreach (var child in Tree.Builder.Children) {
 				var node = new TestNodeInternal (child.Host, child.Parameter);
 				var childPath = new TestPath (Path, node);
-				children.Add (new TestPathTreeNode (child.TreeRoot, childPath, node));
+				children.Add (new TestPathTreeNode (child.Tree, childPath, node));
 			}
 
 			resolved = true;
@@ -147,33 +137,24 @@ namespace Xamarin.AsyncTests.Framework
 			return newNode;
 		}
 
-		public IEnumerable<TestPathTreeNode> GetParameters (TestContext ctx)
+		public IReadOnlyList<TestPathTreeNode> GetParameters (TestContext ctx)
 		{
 			Resolve (ctx);
 
 			if (parameterized || parameters == null || parameters.Count == 0)
-				yield break;
+				return new TestPathTreeNode[0];
 
-			foreach (var parameter in parameters.ToArray ()) {
-				yield return parameter;
-			}
+			return parameters;
 		}
 
-		public IEnumerable<TestPathTreeNode> GetChildren ()
+		public IReadOnlyList<TestPathTreeNode> GetChildren ()
 		{
 			Resolve ();
 
-			if (parameterized)
-				yield break;
+			if (parameterized && Node.PathType != TestPathType.Fork)
+				return new TestPathTreeNode[0];
 
-			if (innerNode != null) {
-				yield return innerNode;
-				yield break;
-			}
-
-			foreach (var child in children) {
-				yield return child;
-			}
+			return children;
 		}
 
 		TestPathTreeNode IPathResolver.Node {
@@ -182,26 +163,43 @@ namespace Xamarin.AsyncTests.Framework
 
 		public IPathResolver Resolve (TestContext ctx, TestNode node)
 		{
+			return Resolve (ctx, node, false);
+		}
+
+		IPathResolver Resolve (TestContext ctx, TestNode node, bool recursive)
+		{
 			Resolve (ctx);
 
-			if (innerNode != null) {
-				innerNode.Resolve (ctx);
-
-				if (!TestNodeInternal.Matches (innerNode.Tree.Host, node))
-					throw new InternalErrorException ();
-				if (node.CustomParameter != null)
-					return innerNode.Parameterize (node.CustomParameter);
-				if (node.ParameterValue != null)
-					return innerNode.Parameterize (node.ParameterValue);
-				return innerNode;
+			if (children.Count == 1) {
+				if (children[0].IsPathHidden)
+					return children[0].Resolve (ctx, node, true);
+				if (IsPathHidden) {
+					if (!recursive)
+						throw new InternalErrorException ();
+					return children[0];
+				}
+			} else if (IsPathHidden) {
+				throw new InternalErrorException ();
 			}
 
-			if (node.ParameterValue == null)
+			if (node.ParameterValue == null && node.CustomParameter == null)
 				throw new InternalErrorException ();
 
 			foreach (var child in children) {
+				child.Resolve (ctx);
+
+				if (child.IsPathHidden)
+					throw new InternalErrorException ();
 				if (!TestNodeInternal.Matches (child.Node, node))
 					throw new InternalErrorException ();
+				if (!TestNodeInternal.Matches (child.Tree.Host, node))
+					throw new InternalErrorException ();
+
+				if (node.CustomParameter != null)
+					return child.Parameterize (node.CustomParameter);
+
+				if (child.Node.Parameter == null)
+					return child.Parameterize (node.ParameterValue);
 
 				if (!node.ParameterValue.Equals (child.Node.Parameter.Value))
 					continue;
@@ -245,24 +243,13 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			Resolve (ctx);
 
-			TestInvoker invoker = null;
-			if (innerNode != null)
-				invoker = innerNode.CreateInvoker (ctx, root, false);
-			else
-				invoker = CreateInnerInvoker (ctx);
+			var invoker = Tree.Builder.CreateInnerInvoker (this);
 
 			var flags = Node.Flags;
 			if (flattenHierarchy)
 				flags |= TestFlags.FlattenHierarchy;
 			invoker = Node.CreateInvoker (invoker, flags);
 			return invoker;
-		}
-
-		TestInvoker CreateInnerInvoker (TestContext ctx)
-		{
-			Resolve (ctx);
-
-			return Tree.Builder.CreateInnerInvoker (this);
 		}
 
 		public override string ToString ()

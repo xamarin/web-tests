@@ -1,5 +1,5 @@
 ﻿//
-// FixturePropertyHost.cs
+// MartinsPlayground.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,32 +24,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
-using System.Reflection;
-using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Reflection
+namespace Xamarin.AsyncTests.TestSuite
 {
-	class FixturePropertyHost : ParameterizedTestHost
+	[Martin ("Test")]
+	[AsyncTestFixture]
+	public class MartinsPlayground
 	{
-		public PropertyInfo Property {
-			get;
+		public enum SimpleEnum
+		{
+			First,
+			Second,
+			Third
 		}
 
-		public FixturePropertyHost (
-			PropertyInfo property, IParameterSerializer serializer, TestFlags flags)
-			: base (property.Name, property.PropertyType.GetTypeInfo (),
-			        serializer, flags)
+		[AsyncTest]
+		public static void Test (
+			TestContext ctx, SimpleEnum test,
+			[Fork (ForkType.Internal)] IFork fork)
 		{
-			Property = property;
-		}
-
-		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
-		{
-			return new FixturePropertyInstance (this, node, parent);
+			ctx.LogMessage ($"Martin Test: {ctx.FriendlyName} {test} {fork}");
 		}
 	}
 }
-

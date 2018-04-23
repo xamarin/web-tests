@@ -1,5 +1,5 @@
 ﻿//
-// FixturePropertyHost.cs
+// ReflectionTestCollectionBuilder.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,32 +24,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class FixturePropertyHost : ParameterizedTestHost
+	class ReflectionTestCollectionBuilder : ReflectionTestBuilder
 	{
-		public PropertyInfo Property {
+		public IReadOnlyList<ReflectionMethodEntry> Methods {
 			get;
 		}
 
-		public FixturePropertyHost (
-			PropertyInfo property, IParameterSerializer serializer, TestFlags flags)
-			: base (property.Name, property.PropertyType.GetTypeInfo (),
-			        serializer, flags)
+		public ReflectionTestCollectionBuilder (TestBuilder parent, IReadOnlyList<ReflectionMethodEntry> methods)
+			: base (parent, TestPathType.Collection, null, null, null,
+			        TestFlags.Hidden | TestFlags.PathHidden)
 		{
-			Property = property;
+			Methods = methods;
 		}
 
-		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
+		public override TestFilter Filter => null;
+
+		protected override IList<TestBuilder> CreateChildren ()
 		{
-			return new FixturePropertyInstance (this, node, parent);
+			var children = new List<TestBuilder> ();
+			foreach (var entry in Methods)
+				children.Add (new ReflectionTestCaseBuilder (this, entry));
+			return children;
 		}
 	}
 }
-

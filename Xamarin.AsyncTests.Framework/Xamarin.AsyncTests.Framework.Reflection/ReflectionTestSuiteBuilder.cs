@@ -52,25 +52,15 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get { return null; }
 		}
 
-		internal override bool NeedFixtureInstance => true;
+		protected override bool SkipThisTest => false;
 
-		internal override bool SkipThisTest => false;
-
-		protected override IEnumerable<TestBuilder> CreateChildren ()
+		protected override IList<TestBuilder> CreateChildren ()
 		{
+			var children = new List<TestBuilder> ();
 			foreach (var assembly in Assemblies) {
-				yield return new ReflectionTestAssemblyBuilder (this, assembly);
+				children.Add (new ReflectionTestAssemblyBuilder (this, assembly));
 			}
-		}
-
-		protected override IEnumerable<TestHost> CreateParameterHosts (bool needFixtureInstance)
-		{
-			yield break;
-		}
-
-		internal override bool RunFilter (TestContext ctx, TestInstance instance)
-		{
-			return true;
+			return children;
 		}
 
 		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)

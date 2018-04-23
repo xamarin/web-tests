@@ -55,6 +55,7 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			return Value;
 		}
+
+		protected override string MyToString () => $"{Host.PathType}:{Host.Name}";
 	}
 }
-

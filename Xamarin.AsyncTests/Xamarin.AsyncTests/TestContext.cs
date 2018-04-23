@@ -534,6 +534,8 @@ namespace Xamarin.AsyncTests {
 
 		#region Config Snapshot
 
+		public ITestConfiguration Configuration => config;
+
 		public TestCategory CurrentCategory {
 			get { return config.CurrentCategory; }
 		}

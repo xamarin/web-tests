@@ -55,7 +55,7 @@ namespace Xamarin.AsyncTests.TestSuite
 			}
 		}
 
-		[AsyncTest]
+		// [AsyncTest]
 		public void TestContextParameter (TestContext ctx)
 		{
 			var parameter = ctx.GetParameter<SimpleEnum> ();

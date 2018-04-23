@@ -1,5 +1,5 @@
 ﻿//
-// FixturePropertyHost.cs
+// ReflectionTestForkedBuilder.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,32 +24,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class FixturePropertyHost : ParameterizedTestHost
+	class ReflectionTestForkedBuilder : ReflectionTestBuilder
 	{
-		public PropertyInfo Property {
+		public ForkedTestHost ParameterHost {
 			get;
 		}
 
-		public FixturePropertyHost (
-			PropertyInfo property, IParameterSerializer serializer, TestFlags flags)
-			: base (property.Name, property.PropertyType.GetTypeInfo (),
-			        serializer, flags)
+		public ReflectionTestForkedBuilder (TestBuilder parent, ForkedTestHost host)
+			: base (parent, TestPathType.Argument, host.Identifier, host.Name, null)
 		{
-			Property = property;
+			ParameterHost = host;
 		}
 
-		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
+		public override TestFilter Filter => null;
+
+		protected override TestHost CreateHost () => ParameterHost;
+
+		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)
 		{
-			return new FixturePropertyInstance (this, node, parent);
+			return new TestCollectionInvoker (this, node);
 		}
 	}
 }
-

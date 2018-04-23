@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class TestBuilderInvoker : AggregatedTestInvoker
+	sealed class TestBuilderInvoker : AggregatedTestInvoker
 	{
 		public TestBuilderHost Host {
 			get;
@@ -43,22 +43,24 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		internal string ME {
+			get;
+		}
+
 		public TestBuilderInvoker (TestBuilderHost host, TestNode node, TestInvoker inner)
 		{
 			Host = host;
 			Node = node;
 			Inner = inner;
+
+			ME = $"TestBuilderInvoker({host.Builder})";
 		}
 
 		TestBuilderInstance SetUp (TestContext ctx, TestInstance instance)
 		{
-			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
+			ctx.LogDebug (10, $"{ME}.SetUp({TestLogger.Print (instance)})");
 
 			try {
-				if (!Host.Builder.RunFilter (ctx, instance)) {
-					ctx.OnTestIgnored ();
-					return null;
-				}
 				return (TestBuilderInstance)Host.CreateInstance (ctx, Node, instance);
 			} catch (OperationCanceledException) {
 				ctx.OnTestCanceled ();
@@ -71,7 +73,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		bool TearDown (TestContext ctx, TestBuilderInstance instance)
 		{
-			ctx.LogDebug (10, "TearDown({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
+			ctx.LogDebug (10, $"{ME}.TearDown({TestLogger.Print (instance)})");
 
 			try {
 				instance.Destroy (ctx);
@@ -95,7 +97,8 @@ namespace Xamarin.AsyncTests.Framework
 			var innerPath = innerInstance.GetCurrentPath ();
 			var innerCtx = ctx.CreateChild (innerPath);
 
-			ctx.LogDebug (10, $"Invoke({ctx.FriendlyName}): {TestLogger.Print (innerInstance)}");
+			ctx.LogDebug (10, $"{ME}.Invoke({TestLogger.Print (instance)}): {innerInstance}");
+			TestInstance.LogDebug (ctx, innerInstance, 10);
 
 			var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
 

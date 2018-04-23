@@ -26,11 +26,12 @@
 using System;
 using System.Linq;
 using System.Xml.Linq;
+using SD = System.Diagnostics;
 using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class TestBuilder
+	abstract class TestBuilder : ITestFilter
 	{
 		public string Name {
 			get;
@@ -84,7 +85,7 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public TestBuilderHost Host {
+		public TestHost Host {
 			get {
 				if (!resolved)
 					throw new InternalErrorException ();
@@ -108,14 +109,6 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		internal TestPathTree TreeRoot {
-			get {
-				if (!resolvedTree)
-					throw new InternalErrorException ();
-				return treeRoot;
-			}
-		}
-
 		internal TestPathTree Tree {
 			get {
 				if (!resolvedTree)
@@ -124,26 +117,25 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		protected bool ResolvedTree => resolvedTree;
-
 		bool resolving;
 		bool resolved;
 		bool resolvedTree;
 		bool resolvedChildren;
 
-		TestBuilderHost host;
+		TestHost host;
 		IList<TestBuilder> children;
 		TestPathTree tree;
-		TestPathTree treeRoot;
 
 		protected virtual void ResolveMembers ()
 		{
 		}
 
-		protected void Resolve ()
+		protected bool Resolve ()
 		{
-			if (resolved || resolving)
-				return;
+			if (resolved)
+				return !SkipThisTest;
+			if (resolving)
+				throw new InternalErrorException ();
 
 			resolving = true;
 
@@ -153,59 +145,92 @@ namespace Xamarin.AsyncTests.Framework
 			if (Parent != null)
 				parentTree = Parent.Tree;
 
-			var unresolvedChildren = CreateChildren ().ToList ();
-
-			var needFixtureInstance = unresolvedChildren.Any (c => c.NeedFixtureInstance);
+			IList<TestBuilder> unresolvedChildren = null;
+			if (!SkipThisTest)
+				unresolvedChildren = CreateChildren ();
+			if (unresolvedChildren == null)
+				unresolvedChildren = new TestBuilder[0];
 
 			host = CreateHost ();
 
-			var parameterHosts = new LinkedList<TestHost> ();
-
-			tree = treeRoot = new TestPathTree (this, host, parentTree);
-
-			foreach (var current in CreateParameterHosts (needFixtureInstance)) {
-				parameterHosts.AddFirst (current);
-			}
-
-			var parameterIter = parameterHosts.Last;
-			while (parameterIter != null) {
-				tree = tree.Add (parameterIter.Value);
-				parameterIter = parameterIter.Previous;
-			}
+			tree = new TestPathTree (this, host, Parameter, parentTree);
 
 			resolvedTree = true;
 
-			foreach (var child in unresolvedChildren) {
-				child.Resolve ();
-			}
+			children = new List<TestBuilder> ();
 
-			children = unresolvedChildren.Where (c => !c.SkipThisTest).ToList ();
+			foreach (var child in unresolvedChildren) {
+				if (child.Parent != this)
+					throw new InternalErrorException ($"Child {child} in {this} has wrong parent {child.Parent}.");
+				if (child.Resolve ())
+					children.Add (child);
+			}
 
 			resolvedChildren = true;
 
 			resolved = true;
+
+			return !SkipThisTest;
 		}
 
-		internal abstract bool NeedFixtureInstance {
+		protected abstract bool SkipThisTest {
 			get;
 		}
 
-		internal abstract bool SkipThisTest {
-			get;
+		internal virtual TestInvoker CreateInnerInvoker (TestPathTreeNode node)
+		{
+			return new TestCollectionInvoker (this, node);
 		}
 
-		internal abstract TestInvoker CreateInnerInvoker (TestPathTreeNode node);
+		protected abstract IList<TestBuilder> CreateChildren ();
 
-		protected abstract IEnumerable<TestBuilder> CreateChildren ();
-
-		protected abstract IEnumerable<TestHost> CreateParameterHosts (bool needFixtureInstance);
-
-		protected TestBuilderHost CreateHost ()
+		protected virtual TestHost CreateHost ()
 		{
 			return new TestBuilderHost (this);
 		}
 
-		internal abstract bool RunFilter (TestContext ctx, TestInstance instance);
+		bool ITestFilter.Filter (TestContext ctx, TestInstance instance)
+		{
+			return RunFilter (ctx, instance);
+		}
+
+		internal bool RunFilter (TestContext ctx, TestInstance instance)
+		{
+			if (SkipThisTest)
+				throw new InternalErrorException ();
+			if (Filter != null) {
+				if (Filter.Filter (ctx, instance, out var enabled))
+					return enabled;
+			}
+			if (!HasChildren)
+				return true;
+			foreach (var child in Children) {
+				if (child.RunFilter (ctx, instance))
+					return true;
+			}
+			return false;
+		}
+
+		internal static TestBuilder GetFixtureBuilder (TestBuilder builder)
+		{
+			while (builder != null) {
+				if (builder.PathType == TestPathType.Fixture)
+					return builder;
+				builder = builder.Parent;
+			}
+			return null;
+		}
+
+		internal static TestBuilder GetCaseBuilder (TestBuilder builder)
+		{
+			while (builder != null) {
+				if (builder.PathType == TestPathType.Test)
+					return builder;
+				builder = builder.Parent;
+			}
+			return null;
+		}
+
+		public override string ToString () => $"[{GetType ().Name}:{PathType}:{Name}]";
 	}
 }
-

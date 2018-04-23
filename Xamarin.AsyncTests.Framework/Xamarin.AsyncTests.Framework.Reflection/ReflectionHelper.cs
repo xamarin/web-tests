@@ -34,7 +34,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	public static class ReflectionHelper
+	static class ReflectionHelper
 	{
 		#region Type Info
 
@@ -79,6 +79,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		public static IMemberInfo GetTypeInfo (TypeInfo member)
 		{
 			return new _TypeInfo (member);
+		}
+
+		public static IMemberInfo GetParameterInfo (ParameterInfo member)
+		{
+			return new _ParameterInfo (member);
 		}
 
 		class _ParameterInfo : IMemberInfo
@@ -235,7 +240,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		#region Test Hosts
 
 		internal static TestHost ResolveFixtureProperty (
-			ReflectionTestFixtureBuilder builder, PropertyInfo property)
+			TypeInfo fixtureType, PropertyInfo property)
 		{
 			if (!property.CanRead)
 				return null;
@@ -248,18 +253,18 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					throw new InternalErrorException ();
 
 				return new FixturePropertyHost (
-					builder, property, serializer, TestFlags.Browsable);
+					property, serializer, TestFlags.Browsable);
 			}
 
 			if (!property.CanWrite || !property.GetMethod.IsPublic ||
 			    !property.SetMethod.IsPublic)
 				return null;
 
-			var host = ResolveFixtureParameter (builder, member);
+			var host = ResolveFixtureParameter (fixtureType, member);
 			if (host == null)
 				throw new InternalErrorException ();
 
-			return new ReflectionPropertyHost (builder, property, host);
+			return new ReflectionPropertyHost (property, host);
 		}
 
 		static T GetCustomAttributeForType<T> (TypeInfo type)
@@ -281,17 +286,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		static ParameterizedTestHost ResolveFixtureParameter (
-			ReflectionTestFixtureBuilder fixture, IMemberInfo member)
+			TypeInfo fixtureType, IMemberInfo member)
 		{
 			var paramAttrs = member.GetCustomAttributes<TestParameterAttribute> ().ToArray ();
 			if (paramAttrs.Length == 1)
-				return CreateParameterAttributeHost (fixture.Type, member, paramAttrs[0]);
+				return CreateParameterAttributeHost (member, paramAttrs[0]);
 			if (paramAttrs.Length > 1) 
 				throw new InternalErrorException ();
 
 			var typeAttr = GetCustomAttributeForType<TestParameterAttribute> (member.TypeInfo);
 			if (typeAttr != null)
-				return CreateParameterAttributeHost (fixture.Type, member, typeAttr);
+				return CreateParameterAttributeHost (member, typeAttr);
 
 			if (member.Type.Equals (typeof (bool)))
 				return CreateBoolean (member);
@@ -303,7 +308,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		internal static TestHost ResolveParameter (
-			ReflectionTestFixtureBuilder fixture, IMemberInfo member,
+			TypeInfo fixtureType, IMemberInfo member,
 			string parameterFilter)
 		{
 			if (typeof (ITestInstance).GetTypeInfo ().IsAssignableFrom (member.TypeInfo)) {
@@ -314,7 +319,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					throw new InternalErrorException ();
 
 				var hostType = GetCustomHostType (
-					fixture.Type, member, hostAttr,
+					fixtureType, member, hostAttr,
 					out var staticHost, out var useFixtureInstance);
 
 				return new CustomTestHost (
@@ -323,12 +328,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					staticHost, useFixtureInstance);
 			}
 
-			var host = ResolveFixtureParameter (fixture, member);
+			var host = ResolveFixtureParameter (fixtureType, member);
 			if (host != null)
 				return host;
 
 			var parameterSourceType = typeof (ITestParameterSource<>).MakeGenericType (member.Type).GetTypeInfo ();
-			if (parameterSourceType.IsAssignableFrom (fixture.Type)) {
+			if (parameterSourceType.IsAssignableFrom (fixtureType)) {
 				if (!GetParameterSerializer (member.TypeInfo, out var serializer))
 					throw new InternalErrorException ();
 
@@ -401,13 +406,11 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		static ParameterizedTestHost CreateParameterAttributeHost (
-			TypeInfo fixtureType, IMemberInfo member, TestParameterAttribute attr)
+			IMemberInfo member, TestParameterAttribute attr)
 		{
-			object sourceInstance;
-			var sourceType = GetParameterHostType (member, attr, out sourceInstance);
+			var sourceType = GetParameterHostType (member, attr, out object sourceInstance);
 
-			IParameterSerializer serializer;
-			if (!GetParameterSerializer (member.TypeInfo, out serializer))
+			if (!GetParameterSerializer (member.TypeInfo, out IParameterSerializer serializer))
 				throw new InternalErrorException ();
 
 			if (sourceInstance == null)
@@ -418,7 +421,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				type, attr.Identifier ?? member.Name, sourceInstance, serializer, attr.Filter, false, attr.Flags);
 		}
 
-		internal static TestHost CreateFixedParameterHost (TypeInfo fixtureType, FixedTestParameterAttribute attr)
+		internal static TestHost CreateFixedParameterHost (FixedTestParameterAttribute attr)
 		{
 			var typeInfo = attr.Type.GetTypeInfo ();
 
@@ -666,12 +669,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				yield return cattr.Feature;
 		}
 
-		internal static TestFilter CreateTestFilter (TestBuilder builder, TestFilter parent, IMemberInfo member)
+		internal static TestFilter CreateTestFilter (TestBuilder builder, TestFilter parent, bool mustMatch, IMemberInfo member)
 		{
 			var categories = GetCategories (member);
 			var features = GetFeatures (member).ToList ();
 
-			return new TestFilter (builder, parent, categories, features);
+			return new TestFilter (builder, parent, mustMatch, categories, features);
 		}
 
 		internal static TestHost CreateRepeatHost (int repeat)
@@ -687,145 +690,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var genericType = typeInfo.GetGenericTypeDefinition ();
 			return genericType == typeof(FixedParameterHost<>);
-		}
-
-		internal static ICollection<TestHost> ResolveFixtureParameterHosts (
-			ReflectionTestFixtureBuilder fixture)
-		{
-			var list = new List<TestHost> ();
-
-			if (fixture.Type.IsAbstract)
-				throw new InternalErrorException ();
-
-			list.AddRange (ResolveConstructor (fixture));
-
-			foreach (var property in fixture.Type.DeclaredProperties) {
-				var host = ResolveFixtureProperty (fixture, property);
-				if (host != null)
-					list.Add (host);
-			}
-
-			if (fixture.Attribute.Repeat != 0)
-				list.Add (CreateRepeatHost (fixture.Attribute.Repeat));
-
-			return list;
-		}
-
-		static IList<TestHost> ResolveConstructor (
-			ReflectionTestFixtureBuilder fixture)
-		{
-			ConstructorInfo defaultCtor = null;
-			ConstructorInfo customCtor = null;
-
-			var ctorHosts = new List<TestHost> ();
-
-			foreach (var ctor in fixture.Type.DeclaredConstructors) {
-				if (ctor.IsStatic || ctor.IsAbstract || !ctor.IsPublic)
-					continue;
-				var parameters = ctor.GetParameters ();
-				if (parameters.Length == 0) {
-					if (customCtor != null)
-						CannotHaveBothDefaultAndCustom ();
-					defaultCtor = ctor;
-					ctorHosts.Add (new ReflectionFixtureHost (fixture, ctor, null));
-					continue;
-				}
-				var attr = ctor.GetCustomAttribute<AsyncTestAttribute> ();
-				if (attr == null)
-					continue;
-				if (defaultCtor != null)
-					CannotHaveBothDefaultAndCustom ();
-				if (customCtor != null)
-					CannotHaveMultipleCustom ();
-				customCtor = ctor;
-
-				var ctorParams = ResolveParameters (fixture, attr, ctor);
-				ctorHosts.AddRange (ctorParams);
-				ctorHosts.Add (new ReflectionFixtureHost (fixture, ctor, ctorParams));
-			}
-
-			if (ctorHosts.Count > 0)
-				return ctorHosts;
-
-			throw new InternalErrorException ($"Missing default .ctor in type `{fixture.Type}'.");
-
-			void CannotHaveMultipleCustom ()
-			{
-				throw new InternalErrorException ($"Type `{fixture.Type}' has more than one [AsyncTest] constructor.");
-			}
-
-			void CannotHaveBothDefaultAndCustom ()
-			{
-				throw new InternalErrorException ($"Cannot have both a default and a custom [AsyncTest] constructor in `{fixture.Type}'.");
-			}
-		}
-
-		internal static IList<TestHost> ResolveParameters (
-			ReflectionTestFixtureBuilder fixture,
-			AsyncTestAttribute attribute, MethodBase method)
-		{
-			bool seenCtx = false;
-			bool seenToken = false;
-			bool seenFixtureInstance = !method.IsStatic;
-			var list = new List<TestHost> ();
-
-			var fixedParameters = method.GetCustomAttributes<FixedTestParameterAttribute> ();
-			foreach (var fixedParameter in fixedParameters) {
-				list.Add (CreateFixedParameterHost (fixture.Type, fixedParameter));
-			}
-
-			var parameters = method.GetParameters ();
-			for (int i = 0; i < parameters.Length; i++) {
-				var paramInfo = new _ParameterInfo (parameters[i]);
-				var paramType = paramInfo.Type;
-				var paramTypeInfo = paramInfo.TypeInfo;
-				var paramName = paramInfo.Name;
-
-				var fork = parameters[i].GetCustomAttribute<ForkAttribute> ();
-				if (fork != null) {
-					if (!paramType.Equals (typeof (IFork)))
-						throw new InternalErrorException ();
-					list.Add (new ForkedTestHost (paramName, fork));
-					continue;
-				}
-
-				if (paramType.Equals (typeof (CancellationToken))) {
-					if (seenToken)
-						throw new InternalErrorException ();
-					seenToken = true;
-					continue;
-				}
-
-				if (paramType.Equals (typeof (TestContext))) {
-					if (seenCtx)
-						throw new InternalErrorException ();
-					seenCtx = true;
-					continue;
-				}
-
-				if (paramType.Equals (typeof (IFork)))
-					throw new InternalErrorException ();
-
-				if (paramTypeInfo.IsAssignableFrom (fixture.Type)) {
-					if (seenFixtureInstance)
-						throw new InternalErrorException ();
-					seenFixtureInstance = true;
-					if (fixture.Type.IsAbstract)
-						return null;
-
-					list.AddRange (ResolveFixtureParameterHosts (fixture));
-					continue;
-				}
-
-				var parameter = ResolveParameter (
-					fixture, paramInfo, attribute.ParameterFilter);
-				list.Add (parameter);
-			}
-
-			if (attribute.Repeat != 0)
-				list.Add (CreateRepeatHost (attribute.Repeat));
-
-			return list;
 		}
 
 		internal static EnumValueFilter GetEnumValueFilter (TestCategory category)

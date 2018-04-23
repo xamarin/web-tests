@@ -108,8 +108,10 @@ namespace Xamarin.AsyncTests
 			}
 
 			while (path != null) {
-				var element = TestNode.WriteNode (path.Node);
-				node.AddFirst (element);
+				if ((path.Node.Flags & TestFlags.PathHidden) == 0) {
+					var element = TestNode.WriteNode (path.Node);
+					node.AddFirst (element);
+				}
 				path = path.Parent;
 			}
 

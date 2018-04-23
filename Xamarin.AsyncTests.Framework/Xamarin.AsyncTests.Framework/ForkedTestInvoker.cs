@@ -197,10 +197,14 @@ namespace Xamarin.AsyncTests.Framework
 				var forkedInstance = new ForkedTestInstance (Host, Node, instance, 0, -1, Inner);
 				var path = forkedInstance.GetCurrentPath ();
 
+				TestInstance.LogDebug (ctx, instance, 5, Category);
+
 				var serialized = path.SerializePath (true);
+				ctx.LogDebug (Category, 1, $"RUN\n{serialized}\n");
+
 				var test = await session.ResolveFromPath (serialized, cancellationToken);
 
-				ctx.LogDebug (Category, 1, $"RUN: {serialized}\n{test}");
+				ctx.LogDebug (Category, 1, $"RUN #1: {serialized}\n{test}");
 
 				var result = await session.Run (test, cancellationToken).ConfigureAwait (false);
 

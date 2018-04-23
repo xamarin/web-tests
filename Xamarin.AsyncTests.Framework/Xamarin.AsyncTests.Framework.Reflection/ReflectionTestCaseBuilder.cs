@@ -31,51 +31,37 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestCaseBuilder : TestBuilder
+	sealed class ReflectionTestCaseBuilder : ReflectionTestBuilder
 	{
-		public ReflectionTestFixtureBuilder Fixture {
-			get;
-			private set;
-		}
-
-		public override TestBuilder Parent {
-			get { return Fixture; }
-		}
-
 		public override TestFilter Filter {
-			get { return filter; }
+			get;
 		}
 
 		public AsyncTestAttribute Attribute {
 			get;
-			private set;
 		}
 
 		public MethodInfo Method {
 			get;
-			private set;
 		}
 
-		public override string FullName {
-			get { return Parameter.Value; }
-		}
+		public override string FullName => Parameter.Value;
 
 		public TypeInfo ExpectedExceptionType {
 			get { return expectedExceptionType; }
 		}
 
-		TestFilter filter;
 		ExpectedExceptionAttribute expectedException;
 		TypeInfo expectedExceptionType;
-		bool skipThisTest;
 
-		public ReflectionTestCaseBuilder (ReflectionTestFixtureBuilder fixture, AsyncTestAttribute attr, MethodInfo method)
-			: base (TestPathType.Test, null, method.Name, GetParameter (method))
+		public ReflectionTestCaseBuilder (
+			TestBuilder parent, ReflectionMethodEntry method)
+			: base (parent, TestPathType.Test, null, method.Method.Name,
+			        GetParameter (method.Method), TestFlags.Browsable)
 		{
-			Fixture = fixture;
-			Attribute = attr;
-			Method = method;
-			filter = ReflectionHelper.CreateTestFilter (this, fixture.Filter, ReflectionHelper.GetMethodInfo (method));
+			Attribute = method.Attribute;
+			Method = method.Method;
+			Filter = ReflectionHelper.CreateTestFilter (this, Fixture.Filter, true, method.MemberInfo);
 		}
 
 		static ITestParameter GetParameter (MethodInfo method)
@@ -86,6 +72,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		protected override void ResolveMembers ()
 		{
+			base.ResolveMembers ();
+
 			expectedException = Method.GetCustomAttribute<ExpectedExceptionAttribute> ();
 			if (expectedException != null)
 				expectedExceptionType = expectedException.ExceptionType.GetTypeInfo ();
@@ -93,68 +81,21 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (!CheckReturnType ()) {
 				var declaringType = ReflectionHelper.GetTypeFullName (Method.DeclaringType.GetTypeInfo ());
 				var returnType = ReflectionHelper.GetTypeFullName (Method.ReturnType.GetTypeInfo ());
-				throw new InternalErrorException ("Method '{0}.{1}' has invalid return type '{2}'.", declaringType, FullName, returnType);
+				throw new InternalErrorException ($"Method '{declaringType}.{FullName}' has invalid return type '{returnType}'.");
 			}
 
-			base.ResolveMembers ();
+			ResolveChildren (Method, Attribute, true);
 		}
 
 		bool CheckReturnType ()
 		{
 			var returnType = Method.ReturnType;
-			if (returnType.Equals (typeof(void)))
+			if (returnType.Equals (typeof (void)))
 				return true;
-			if (returnType.Equals (typeof(Task)))
+			if (returnType.Equals (typeof (Task)))
 				return true;
 
 			return false;
-		}
-
-		internal override bool NeedFixtureInstance => !Method.IsStatic;
-
-		internal override bool SkipThisTest {
-			get {
-				if (!ResolvedTree)
-					throw new InternalErrorException ();
-				return skipThisTest;
-			}
-		}
-
-		protected override IEnumerable<TestBuilder> CreateChildren ()
-		{
-			yield break;
-		}
-
-		protected override IEnumerable<TestHost> CreateParameterHosts (bool needFixtureInstance)
-		{
-			var list = ReflectionHelper.ResolveParameters (
-				Fixture, Attribute, Method);
-			if (list != null)
-				return list;
-
-			skipThisTest = true;
-			return new TestHost[0];
-		}
-
-		internal override bool RunFilter (TestContext ctx, TestInstance instance)
-		{
-			if (SkipThisTest)
-				return false;
-			return Filter.Filter (ctx, instance);
-		}
-
-		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)
-		{
-			if (skipThisTest)
-				throw new InternalErrorException ();
-
-			TestInvoker invoker = new ReflectionTestCaseInvoker (this);
-
-			invoker = new PrePostRunTestInvoker (invoker);
-
-			invoker = new ResultGroupTestInvoker (node.Path.Node.Flags | TestFlags.PathHidden, invoker);
-
-			return invoker;
 		}
 	}
 }

@@ -38,6 +38,9 @@ namespace Xamarin.AsyncTests
 		Instance,
 		Fork,
 		Parameter,
-		Group
+		Group,
+		Argument,
+		Collection,
+		Method
 	}
 }

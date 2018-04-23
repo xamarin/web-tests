@@ -92,6 +92,7 @@
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalDomain.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalDomain.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\WorkAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests.TestSuite\MartinsPlayground.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">

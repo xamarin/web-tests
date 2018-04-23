@@ -34,10 +34,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	class ReflectionPropertyHost : ParameterizedTestHost
 	{
-		public ReflectionTestFixtureBuilder Fixture {
-			get;
-		}
-
 		public PropertyInfo Property {
 			get;
 		}
@@ -46,11 +42,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get;
 		}
 
-		public ReflectionPropertyHost (ReflectionTestFixtureBuilder fixture,
-			PropertyInfo prop, ParameterizedTestHost host)
+		public ReflectionPropertyHost (PropertyInfo prop, ParameterizedTestHost host)
 			: base (prop.Name, prop.PropertyType.GetTypeInfo (), host.Serializer, host.Flags)
 		{
-			Fixture = fixture;
 			Property = prop;
 			Host = host;
 		}

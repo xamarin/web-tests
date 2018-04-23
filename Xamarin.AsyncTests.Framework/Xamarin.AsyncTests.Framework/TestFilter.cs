@@ -39,6 +39,14 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
+		public bool MustMatch {
+			get;
+		}
+
+		public ITestConfiguration Configuration {
+			get;
+		}
+
 		public IReadOnlyCollection<TestCategoryAttribute> Categories {
 			get;
 		}
@@ -47,49 +55,38 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public TestFilter (TestBuilder builder, TestFilter parent,
+		public TestFilter (TestBuilder builder, TestFilter parent, bool mustMatch,
 				   IReadOnlyCollection<TestCategoryAttribute> categories,
 				   IReadOnlyCollection<TestFeature> features)
 		{
 			Builder = builder;
 			Parent = parent;
+			MustMatch = mustMatch;
 			Categories = categories;
 			Features = features;
 		}
 
-		TestBuilder GetFixtureBuilder ()
+		bool HandleMartinAttr (ITestConfiguration config, string searchString, TestInstance instance, MartinAttribute attr)
 		{
-			TestBuilder builder = Builder;
-			while (builder != null) {
-				if (builder.PathType == TestPathType.Fixture)
-					return builder;
-				builder = builder.Parent;
-			}
-			return null;
-		}
-
-		bool HandleMartinAttr (TestContext ctx, TestInstance instance, MartinAttribute attr)
-		{
-			if (ctx.CurrentCategory != TestCategory.Martin)
+			if (config.CurrentCategory != TestCategory.Martin)
 				return false;
 			if (attr.UseFixtureName)
-				return HandleMartinFixtureFilter (ctx, instance, attr);
-			if (attr.IsExplicit && !string.Equals (ctx.Settings.MartinTest, attr.Parameter, StringComparison.OrdinalIgnoreCase))
+				return HandleMartinFixtureFilter (searchString, instance);
+			if (attr.IsExplicit && !string.Equals (searchString, attr.Parameter, StringComparison.OrdinalIgnoreCase))
 				return false;
-			if (string.IsNullOrEmpty (ctx.Settings.MartinTest) ||
-			   string.Equals (ctx.Settings.MartinTest, "all", StringComparison.OrdinalIgnoreCase) ||
-			    string.Equals (ctx.Settings.MartinTest, attr.Parameter, StringComparison.OrdinalIgnoreCase))
+			if (string.IsNullOrEmpty (searchString) ||
+			   string.Equals (searchString, "all", StringComparison.OrdinalIgnoreCase) ||
+			    string.Equals (searchString, attr.Parameter, StringComparison.OrdinalIgnoreCase))
 				return true;
 			return false;
 		}
 
-		bool HandleMartinFixtureFilter (TestContext ctx, TestInstance instance, MartinAttribute attr)
+		bool HandleMartinFixtureFilter (string searchString, TestInstance instance)
 		{
-			var fixture = GetFixtureBuilder ();
+			var fixture = TestBuilder.GetFixtureBuilder (Builder);
 			if (fixture == null)
 				return false;
 
-			var searchString = ctx.Settings.MartinTest;
 			var query = searchString.Split (':');
 			string fixtureQuery;
 			string parameterQuery;
@@ -108,15 +105,12 @@ namespace Xamarin.AsyncTests.Framework
 			if (query.Length == 1 || instance == null)
 				return true;
 
-			ctx.LogDebug (10, $"MARTIN FILTER: {fixture.Name} {query}");
-			TestInstance.LogDebug (ctx, instance, 10);
-
 			for (int i = 1; i < query.Length; i++) {
 				var split = query[i].Split ('=');
 				if (split.Length != 2)
-					throw ctx.AssertFail ($"Invalid query: '{query}'");
+					throw new InvalidOperationException ($"Invalid query: '{query}'");
 
-				var matches = FilterParameter (ctx, instance, split[0], split[1]);
+				var matches = FilterParameter (instance, split[0], split[1]);
 				if (!matches)
 					return false;
 			}
@@ -124,8 +118,7 @@ namespace Xamarin.AsyncTests.Framework
 			return true;
 		}
 
-		bool FilterParameter (TestContext ctx, TestInstance instance,
-				      string key, string value)
+		bool FilterParameter (TestInstance instance, string key, string value)
 		{
 			for (; instance != null; instance = instance.Parent) {
 				if (instance.Node.PathType != TestPathType.Parameter)
@@ -141,31 +134,33 @@ namespace Xamarin.AsyncTests.Framework
 			return true;
 		}
 
-		public bool Filter (TestContext ctx, TestInstance instance)
+		public bool Filter (TestContext ctx, TestInstance instance, out bool enabled)
 		{
-			var result = RunFilter (ctx, instance);
-			if (result)
-				return true;
-			ctx.LogDebug (10, $"FILTER: {ctx.FriendlyName} {instance} {result}");
-			RunFilter (ctx, instance);
-			return result;
+			return Filter (ctx.Configuration, ctx.Settings, instance, out enabled);
 		}
 
-		bool RunFilter (TestContext ctx, TestInstance instance)
+		bool Filter (ITestConfiguration config, SettingsBag settings, TestInstance instance, out bool enabled)
 		{
-			if (Filter (ctx, instance, out bool enabled))
-				return enabled;
-
-			if (Parent != null && Parent.Filter (ctx, instance, out enabled))
-				return enabled;
-
-			if (ctx.CurrentCategory == TestCategory.All)
+			if (RunFilter (config, settings, instance, out enabled))
 				return true;
 
-			return Parent == null;
+			if (Parent != null && Parent.Filter (config, settings, instance, out enabled))
+				return true;
+
+			if (config.CurrentCategory == TestCategory.All) {
+				enabled = true;
+				return true;
+			}
+
+			if (MustMatch) {
+				enabled = false;
+				return true;
+			}
+
+			return false;
 		}
 
-		bool Filter (TestContext ctx, TestInstance instance, out bool enabled)
+		bool RunFilter (ITestConfiguration config, SettingsBag settings, TestInstance instance, out bool enabled)
 		{
 			if (Categories.Any (attr => attr.Category == TestCategory.Global)) {
 				enabled = true;
@@ -173,7 +168,7 @@ namespace Xamarin.AsyncTests.Framework
 			}
 
 			foreach (var feature in Features) {
-				if (!ctx.IsEnabled (feature)) {
+				if (!config.IsEnabled (feature)) {
 					enabled = false;
 					return true;
 				}
@@ -181,10 +176,10 @@ namespace Xamarin.AsyncTests.Framework
 
 			foreach (var attr in Categories) {
 				if (attr is MartinAttribute martin) {
-					enabled = HandleMartinAttr (ctx, instance, martin);
+					enabled = HandleMartinAttr (config, settings.MartinTest, instance, martin);
 					return true;
 				}
-				if (ctx.CurrentCategory == attr.Category) {
+				if (config.CurrentCategory == attr.Category) {
 					enabled = true;
 					return true;
 				}
@@ -194,7 +189,7 @@ namespace Xamarin.AsyncTests.Framework
 				}
 			}
 
-			if (ctx.CurrentCategory == TestCategory.All) {
+			if (config.CurrentCategory == TestCategory.All) {
 				enabled = true;
 				return true;
 			}

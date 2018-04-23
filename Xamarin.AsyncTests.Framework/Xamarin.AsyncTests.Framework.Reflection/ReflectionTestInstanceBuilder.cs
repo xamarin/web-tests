@@ -1,5 +1,5 @@
 ﻿//
-// FixturePropertyHost.cs
+// ReflectionTestInstanceBuilder.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,32 +24,66 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class FixturePropertyHost : ParameterizedTestHost
+	class ReflectionTestInstanceBuilder : ReflectionTestBuilder
 	{
-		public PropertyInfo Property {
+		public TestBuilder UnwindBase {
 			get;
 		}
 
-		public FixturePropertyHost (
-			PropertyInfo property, IParameterSerializer serializer, TestFlags flags)
-			: base (property.Name, property.PropertyType.GetTypeInfo (),
-			        serializer, flags)
-		{
-			Property = property;
+		public ConstructorInfo Constructor {
+			get;
 		}
 
-		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
+		public bool IsShared {
+			get;
+		}
+
+		public TypeInfo FixtureType => Fixture.Type;
+
+		protected ReflectionFixtureHost FixtureHost {
+			get;
+		}
+
+		public ReflectionTestInstanceBuilder (
+			TestBuilder parent, TestBuilder unwindBase, ConstructorInfo ctor, bool shared)
+			: base (parent, TestPathType.Instance, null, GetFixtureName (parent), null)
 		{
-			return new FixturePropertyInstance (this, node, parent);
+			UnwindBase = unwindBase;
+			Constructor = ctor;
+			IsShared = shared;
+
+			Filter = new TestFilter (this, parent.Filter, false, new TestCategoryAttribute[0], new TestFeature[0]);
+
+			FixtureHost = new ReflectionFixtureHost (Fixture, this, ctor);
+		}
+
+		static string GetFixtureName (TestBuilder builder)
+		{
+			var fixtureBuilder = (ReflectionTestFixtureBuilder)GetFixtureBuilder (builder);
+			return TestPath.GetFriendlyName (fixtureBuilder.Type.AsType ());
+		}
+
+		public sealed override TestFilter Filter {
+			get;
+		}
+
+		protected override void ResolveMembers ()
+		{
+			base.ResolveMembers ();
+
+			ResolveFixtureProperties ();
+
+			AddMethods (Fixture.InstanceMethods);
+		}
+
+		protected override TestHost CreateHost ()
+		{
+			return FixtureHost;
 		}
 	}
 }
-

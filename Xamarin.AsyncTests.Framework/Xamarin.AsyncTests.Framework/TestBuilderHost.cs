@@ -57,6 +57,8 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal override TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags)
 		{
+			invoker = new TestFilterInvoker (Builder, invoker);
+
 			invoker = CreateResultGroup (invoker, flags);
 
 			invoker = new TestBuilderInvoker (this, node, invoker);

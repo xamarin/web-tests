@@ -235,7 +235,6 @@ namespace Xamarin.AsyncTests.Portable
 				return;
 			// Try to detect async task continuations.
 			var match = Regex.Match (method.DeclaringType.FullName, @"(.*)\+\<(.*)\>d__\d+");
-			Debug.WriteLine ($"MATCH: {match} {match.Success}");
 			if (!match.Success)
 				return;
 			var type = method.DeclaringType.Assembly.GetType (match.Groups[1].Value);

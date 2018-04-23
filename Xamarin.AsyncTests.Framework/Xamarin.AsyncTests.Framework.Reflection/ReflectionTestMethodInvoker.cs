@@ -1,10 +1,10 @@
 ﻿//
-// ReflectionTestCaseInvoker.cs
+// ReflectionTestMethodInvoker.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,16 +32,17 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestCaseInvoker : TestInvoker
+	class ReflectionTestMethodInvoker : TestInvoker
 	{
-		public ReflectionTestCaseBuilder Builder {
+		public ReflectionTestMethodBuilder Parent {
 			get;
-			private set;
 		}
 
-		public ReflectionTestCaseInvoker (ReflectionTestCaseBuilder builder)
+		public ReflectionTestCaseBuilder Builder => Parent.Builder;
+
+		public ReflectionTestMethodInvoker (ReflectionTestMethodBuilder builder)
 		{
-			Builder = builder;
+			Parent = builder;
 		}
 
 		DateTime startTime;

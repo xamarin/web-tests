@@ -1,5 +1,5 @@
 ﻿//
-// FixturePropertyHost.cs
+// ReflectionMethodEntry.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,32 +24,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
 using System.Reflection;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class FixturePropertyHost : ParameterizedTestHost
+	class ReflectionMethodEntry
 	{
-		public PropertyInfo Property {
+		public MethodInfo Method {
 			get;
 		}
 
-		public FixturePropertyHost (
-			PropertyInfo property, IParameterSerializer serializer, TestFlags flags)
-			: base (property.Name, property.PropertyType.GetTypeInfo (),
-			        serializer, flags)
-		{
-			Property = property;
+		public AsyncTestAttribute Attribute {
+			get;
 		}
 
-		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
-		{
-			return new FixturePropertyInstance (this, node, parent);
+		public IMemberInfo MemberInfo {
+			get;
 		}
+
+		public ReflectionMethodEntry (MethodInfo method, AsyncTestAttribute attr)
+		{
+			Method = method;
+			Attribute = attr;
+			MemberInfo = ReflectionHelper.GetMethodInfo (method);
+		}
+
+		public override string ToString () => $"[ReflectionMethodEntry: {DebugHelper.FormatMethod (Method)}]";
 	}
 }
-

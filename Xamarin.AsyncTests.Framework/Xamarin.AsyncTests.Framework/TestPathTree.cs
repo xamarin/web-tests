@@ -32,51 +32,43 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public TestBuilder Builder {
 			get;
-			private set;
+		}
+
+		public ITestParameter Parameter {
+			get;
 		}
 
 		public TestHost Host {
 			get;
-			private set;
 		}
 
 		public TestPathTree Parent {
 			get;
-			private set;
 		}
 
-		public TestPathTree Outer {
-			get;
-			private set;
-		}
+		TestPathTreeNode currentNode;
 
-		public TestPathTree Inner {
-			get;
-			internal set;
-		}
-
-		internal TestPathTree (TestBuilder builder, TestHost host, TestPathTree parent)
+		internal TestPathTree (TestBuilder builder, TestHost host, ITestParameter parameter, TestPathTree parent)
 		{
 			Builder = builder;
 			Host = host;
+			Parameter = parameter;
 			Parent = parent;
 		}
 
-		internal TestPathTree Add (TestHost host)
+		internal TestPathTreeNode GetCurrentNode ()
 		{
-			var next = new TestPathTree (Builder, host, null);
-			if (Inner != null)
-				throw new InternalErrorException ();
-			Inner = next;
-			next.Outer = this;
-			return next;
-		}
-
-		internal TestPathTreeNode GetRootNode ()
-		{
-			var rootNode = new TestNodeInternal (Host, Builder.Parameter);
-			var rootPath = new TestPath (null, rootNode);
-			return new TestPathTreeNode (this, rootPath);
+			if (currentNode != null)
+				return currentNode;
+			var thisNode = new TestNodeInternal (Host, Parameter);
+			TestPathTreeNode parentNode;
+			if (Parent != null)
+				parentNode = Parent.GetCurrentNode ();
+			else
+				parentNode = null;
+			var currentPath = new TestPath (parentNode?.Path, thisNode);
+			currentNode = new TestPathTreeNode (this, currentPath);
+			return currentNode;
 		}
 
 		static int next_id;
@@ -85,10 +77,8 @@ namespace Xamarin.AsyncTests.Framework
 		public override string ToString ()
 		{
 			var builderName = Builder.GetType ().Name;
-			var outer = Outer != null ? string.Format (", Outer={0}", Outer.ID) : string.Empty;
-			var inner = Inner != null ? string.Format (", Inner={0}", Inner.ID) : string.Empty;
 			var parent = Parent != null ? string.Format (", Parent={0}", Parent.ID) : string.Empty;
-			return string.Format ("[TestPathTree({0}): Builder={1}, Host={2}{3}{4}{5}]", ID, builderName, Host, parent, outer, inner);
+			return string.Format ("[TestPathTree({0}): Builder={1}, Host={2}{3}]", ID, builderName, Host, parent);
 		}
 	}
 }

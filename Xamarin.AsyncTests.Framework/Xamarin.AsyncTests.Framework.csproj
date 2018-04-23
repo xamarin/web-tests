@@ -58,7 +58,6 @@
     <Compile Include="Xamarin.AsyncTests.Framework\TestBuilder.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestCaseBuilder.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestFixtureBuilder.cs" />
-    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestCaseInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestBuilderHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestFilter.cs" />
@@ -144,6 +143,16 @@
     <Compile Include="Xamarin.AsyncTests.Remoting\IExternalDomainSupport.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\IExternalDomainHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\ExternalDomainConnection.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestInstanceBuilder.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionMethodEntry.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestMethodBuilder.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestMethodInvoker.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestParameterBuilder.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestForkedBuilder.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestBuilder.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestCollectionBuilder.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\TestFilterInvoker.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\ITestFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

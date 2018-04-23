@@ -31,7 +31,7 @@ using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestFixtureBuilder : TestBuilder
+	class ReflectionTestFixtureBuilder : ReflectionTestBuilder
 	{
 		public ReflectionTestAssemblyBuilder AssemblyBuilder {
 			get;
@@ -49,36 +49,53 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			get;
 		}
 
-		public override TestBuilder Parent {
-			get { return AssemblyBuilder; }
-		}
-
 		TestFilter filter;
 
 		public ReflectionTestFixtureBuilder (ReflectionTestAssemblyBuilder assembly, AsyncTestFixtureAttribute attr, TypeInfo type)
-			: base (TestPathType.Fixture, null,
+			: base (assembly, TestPathType.Fixture, null,
 			        attr.Prefix != null ? attr.Prefix + "." + type.Name : type.Name,
-			        TestSerializer.GetStringParameter (type.FullName))
+			        TestSerializer.GetStringParameter (type.FullName), TestFlags.Browsable)
 		{
 			AssemblyBuilder = assembly;
 			Type = type;
 			Attribute = attr;
 
-			filter = ReflectionHelper.CreateTestFilter (this, null, ReflectionHelper.GetTypeInfo (type));
+			filter = ReflectionHelper.CreateTestFilter (this, null, false, ReflectionHelper.GetTypeInfo (type));
 		}
 
 		public override TestFilter Filter {
 			get { return filter; }
 		}
 
-		protected override IEnumerable<TestBuilder> CreateChildren ()
-		{
-			var seenAnyStatic = false;
-			var seenAnyInstance = false;
+		bool resolvedMembers;
+		List<ReflectionMethodEntry> instanceMethods;
+		List<ReflectionMethodEntry> staticMethods;
 
-			var list = new List<TestBuilder> ();
+		public IReadOnlyList<ReflectionMethodEntry> InstanceMethods {
+			get {
+				if (!resolvedMembers)
+					throw new InternalErrorException ();
+				return instanceMethods;
+			}
+		}
+
+		protected override void ResolveMembers ()
+		{
+			base.ResolveMembers ();
+
+			ResolveFixedParameters ();
+
+			instanceMethods = new List<ReflectionMethodEntry> ();
+			staticMethods = new List<ReflectionMethodEntry> ();
+
 			ResolveMembers (Type);
-			return list;
+
+			if (instanceMethods.Count > 0)
+				ResolveConstructor (true);
+
+			AddMethods (staticMethods);
+
+			resolvedMembers = true;
 
 			void ResolveMembers (TypeInfo type)
 			{
@@ -102,16 +119,14 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					return;
 
 				if (method.IsStatic) {
-					if (seenAnyInstance)
+					if (instanceMethods.Count > 0)
 						CannotMixStaticAndInstance ();
-					seenAnyStatic = true;
+					staticMethods.Add (new ReflectionMethodEntry (method, attr));
 				} else {
-					if (seenAnyStatic)
+					if (staticMethods.Count > 0)
 						CannotMixStaticAndInstance ();
-					seenAnyInstance = true;
+					instanceMethods.Add (new ReflectionMethodEntry (method, attr));
 				}
-
-				list.Add (new ReflectionTestCaseBuilder (this, attr, method));
 			}
 
 			void CannotMixStaticAndInstance ()
@@ -119,44 +134,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				throw new InternalErrorException (
 					$"Cannot mix static and instance methods in fixture `{Type}'.");
 			}
-		}
-
-		protected override IEnumerable<TestHost> CreateParameterHosts (bool needFixtureInstance)
-		{
-			var list = new List<TestHost> ();
-			var fixedParameters = Type.GetCustomAttributes<FixedTestParameterAttribute> ();
-			foreach (var fixedParameter in fixedParameters) {
-				list.Add (ReflectionHelper.CreateFixedParameterHost (Type, fixedParameter));
-			}
-
-			if (needFixtureInstance)
-				list.AddRange (ReflectionHelper.ResolveFixtureParameterHosts (this));
-
-			return list;
-		}
-
-		internal override bool NeedFixtureInstance => true;
-
-		internal override bool SkipThisTest {
-			get {
-				if (!ResolvedTree)
-					throw new InternalErrorException ();
-				return Children.Count == 0;
-			}
-		}
-
-		internal override bool RunFilter (TestContext ctx, TestInstance instance)
-		{
-			if (SkipThisTest || Children.Count == 0)
-				return false;
-			if (!Filter.Filter (ctx, instance))
-				return false;
-			return Children.Any (c => c.RunFilter (ctx, instance));
-		}
-
-		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)
-		{
-			return new TestCollectionInvoker (this, node);
 		}
 	}
 }

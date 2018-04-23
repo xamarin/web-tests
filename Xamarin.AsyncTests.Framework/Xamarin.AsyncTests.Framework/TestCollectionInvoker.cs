@@ -51,11 +51,6 @@ namespace Xamarin.AsyncTests.Framework
 
 		LinkedList<Tuple<TestPathTreeNode,TestInvoker>> children;
 
-		bool Filter (TestContext ctx, TestFilter filter)
-		{
-			return filter?.Filter (ctx, null) ?? true;
-		}
-
 		void ResolveChildren (TestContext ctx, TestInstance instance)
 		{
 			children = new LinkedList<Tuple<TestPathTreeNode, TestInvoker>> ();

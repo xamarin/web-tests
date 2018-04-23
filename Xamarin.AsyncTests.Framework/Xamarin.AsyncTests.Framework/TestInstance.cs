@@ -122,10 +122,15 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
+		protected virtual string MyToString () => null;
+
 		public override string ToString ()
 		{
 			var parent = Parent != null ? $", Parent={Parent.ID}" : string.Empty;
-			return $"[{DebugHelper.FormatType (this)}({ID}): Host={Host}{parent}]";
+			var my = MyToString ();
+			if (my != null)
+				my = ":" + my;
+			return $"[{DebugHelper.FormatType (this)}({ID}{my}): Host={Host}{parent}]";
 		}
 	}
 }

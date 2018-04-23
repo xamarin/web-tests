@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
 		{
-			throw new NotImplementedException ();
+			throw new InternalErrorException ();
 		}
 
 		internal override TestInvoker CreateInvoker (TestNode node, TestInvoker invoker, TestFlags flags)

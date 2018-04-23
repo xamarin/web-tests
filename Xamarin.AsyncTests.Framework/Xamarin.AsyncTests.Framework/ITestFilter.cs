@@ -1,5 +1,5 @@
 ﻿//
-// FixturePropertyHost.cs
+// ITestFilter.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,32 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Xamarin.AsyncTests.Framework.Reflection
+namespace Xamarin.AsyncTests.Framework
 {
-	class FixturePropertyHost : ParameterizedTestHost
+	interface ITestFilter
 	{
-		public PropertyInfo Property {
-			get;
-		}
-
-		public FixturePropertyHost (
-			PropertyInfo property, IParameterSerializer serializer, TestFlags flags)
-			: base (property.Name, property.PropertyType.GetTypeInfo (),
-			        serializer, flags)
-		{
-			Property = property;
-		}
-
-		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
-		{
-			return new FixturePropertyInstance (this, node, parent);
-		}
+		bool Filter (TestContext ctx, TestInstance instance);
 	}
 }
-

@@ -1,5 +1,5 @@
 ﻿//
-// FixturePropertyHost.cs
+// TestFilterInvoker.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,32 +24,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
-using System.Reflection;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Reflection
+namespace Xamarin.AsyncTests.Framework
 {
-	class FixturePropertyHost : ParameterizedTestHost
+	class TestFilterInvoker : AggregatedTestInvoker
 	{
-		public PropertyInfo Property {
+		public ITestFilter Filter {
 			get;
 		}
 
-		public FixturePropertyHost (
-			PropertyInfo property, IParameterSerializer serializer, TestFlags flags)
-			: base (property.Name, property.PropertyType.GetTypeInfo (),
-			        serializer, flags)
-		{
-			Property = property;
+		public TestInvoker Inner {
+			get;
 		}
 
-		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
+		public TestFilterInvoker (ITestFilter filter, TestInvoker inner)
 		{
-			return new FixturePropertyInstance (this, node, parent);
+			Filter = filter;
+			Inner = inner;
+		}
+
+		public override async Task<bool> Invoke  (
+			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
+		{
+			if (!Filter.Filter (ctx, instance))
+				return false;
+
+			return await InvokeInner (
+				ctx, instance, Inner, cancellationToken).ConfigureAwait (false);
 		}
 	}
 }
-

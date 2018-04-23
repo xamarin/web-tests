@@ -1,5 +1,5 @@
 ﻿//
-// FixturePropertyHost.cs
+// ReflectionTestMethodBuilder.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,32 +24,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class FixturePropertyHost : ParameterizedTestHost
+	class ReflectionTestMethodBuilder : ReflectionTestBuilder
 	{
-		public PropertyInfo Property {
+		public ReflectionTestCaseBuilder Builder {
 			get;
 		}
 
-		public FixturePropertyHost (
-			PropertyInfo property, IParameterSerializer serializer, TestFlags flags)
-			: base (property.Name, property.PropertyType.GetTypeInfo (),
-			        serializer, flags)
+		public ReflectionTestMethodBuilder (
+			TestBuilder parent, ReflectionTestCaseBuilder builder)
+			: base (parent, TestPathType.Method, null, builder.Name, builder.Parameter,
+			        TestFlags.Hidden | TestFlags.PathHidden)
 		{
-			Property = property;
+			Builder = builder;
 		}
 
-		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
+		public override TestFilter Filter => null;
+
+		protected override IList<TestBuilder> CreateChildren () => null;
+
+		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)
 		{
-			return new FixturePropertyInstance (this, node, parent);
+			TestInvoker invoker = new ReflectionTestMethodInvoker (this);
+
+			invoker = new PrePostRunTestInvoker (invoker);
+
+			invoker = new ResultGroupTestInvoker (node.Path.Node.Flags | TestFlags.PathHidden, invoker);
+
+			return invoker;
 		}
 	}
 }
-
