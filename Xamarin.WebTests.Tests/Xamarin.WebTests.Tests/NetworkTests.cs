@@ -36,7 +36,7 @@ namespace Xamarin.WebTests.Tests
 	using Resources;
 
 	[Network]
-	[AsyncTestFixture]
+	[AsyncTestFixture (Timeout = 5000)]
 	public class NetworkTests
 	{
 		[Tls12]
@@ -44,6 +44,7 @@ namespace Xamarin.WebTests.Tests
 		public async Task TestWebClient (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var wc = new WebClient ();
+			cancellationToken.Register (() => wc.CancelAsync ());
 			var result = await wc.DownloadStringTaskAsync (ResourceManager.TlsTestUri).ConfigureAwait (false);
 			ctx.Assert (result.Length, Is.GreaterThan (0), "result");
 		}
@@ -52,6 +53,7 @@ namespace Xamarin.WebTests.Tests
 		public async Task TestWebClient10 (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var wc = new WebClient ();
+			cancellationToken.Register (() => wc.CancelAsync ());
 			var result = await wc.DownloadStringTaskAsync (ResourceManager.TlsTest1Uri).ConfigureAwait (false);
 			ctx.Assert (result.Length, Is.GreaterThan (0), "result");
 		}
@@ -61,6 +63,7 @@ namespace Xamarin.WebTests.Tests
 		public async Task TestWebClient11 (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var wc = new WebClient ();
+			cancellationToken.Register (() => wc.CancelAsync ());
 			var result = await wc.DownloadStringTaskAsync (ResourceManager.TlsTest11Uri).ConfigureAwait (false);
 			ctx.Assert (result.Length, Is.GreaterThan (0), "result");
 		}
