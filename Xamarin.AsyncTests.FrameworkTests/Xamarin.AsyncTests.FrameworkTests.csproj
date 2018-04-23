@@ -105,6 +105,9 @@
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalWithHost2.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\FixturePropertyResult.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunFixturePropertyResult.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\FixtureParameterSource.cs" />
+    <Compile Include="Xamarin.AsyncTests.TestSuite\CustomParameterType.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunFixtureParameterSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">

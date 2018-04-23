@@ -1,5 +1,5 @@
 //
-// ReflectionTestParameterBuilder.cs
+// FixtureParameterSource.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -25,32 +25,30 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.AsyncTests.Framework.Reflection
+namespace Xamarin.AsyncTests.FrameworkTests
 {
-	class ReflectionTestParameterBuilder : ReflectionTestBuilder
+	using TestSuite;
+
+	[AsyncTestFixture (Prefix = "FrameworkTests")]
+	public class FixtureParameterSource : ITestParameterSource<CustomParameterType>
 	{
-		public TestHost ParameterHost {
-			get;
+		public SimpleEnum Property {
+			get; set;
 		}
 
-		public ReflectionTestParameterBuilder (TestBuilder parent, TestHost host)
-			: base (parent, TestPathType.Argument, host.Identifier, host.Name, null)
+		public IEnumerable<CustomParameterType> GetParameters (TestContext ctx, string filter)
 		{
-			ParameterHost = host;
+			yield return new CustomParameterType ("First");
+			yield return new CustomParameterType ("Second");
 		}
 
-		public override TestFilter Filter => null;
-
-		protected override TestHost CreateHost () => ParameterHost;
-
-		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)
+		[AsyncTest]
+		[Martin (null, UseFixtureName = true)]
+		public void Run (TestContext ctx, CustomParameterType value)
 		{
-			var invoker = base.CreateInnerInvoker (node);
-
-			invoker = new ResultGroupTestInvoker (Host.Flags, invoker);
-
-			return invoker;
+			ctx.LogMessage ($"{ctx.FriendlyName}: {Property} {value}");
 		}
 	}
 }

@@ -1,5 +1,5 @@
 //
-// ReflectionTestParameterBuilder.cs
+// CustomParameterType.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,33 +24,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
-
-namespace Xamarin.AsyncTests.Framework.Reflection
+namespace Xamarin.AsyncTests.FrameworkTests
 {
-	class ReflectionTestParameterBuilder : ReflectionTestBuilder
+	public class CustomParameterType : ITestParameter
 	{
-		public TestHost ParameterHost {
+		public string Name {
 			get;
 		}
 
-		public ReflectionTestParameterBuilder (TestBuilder parent, TestHost host)
-			: base (parent, TestPathType.Argument, host.Identifier, host.Name, null)
+		public string Value => Name;
+
+		public string FriendlyValue => Name;
+
+		public CustomParameterType (string name)
 		{
-			ParameterHost = host;
+			Name = name;
 		}
 
-		public override TestFilter Filter => null;
-
-		protected override TestHost CreateHost () => ParameterHost;
-
-		internal override TestInvoker CreateInnerInvoker (TestPathTreeNode node)
-		{
-			var invoker = base.CreateInnerInvoker (node);
-
-			invoker = new ResultGroupTestInvoker (Host.Flags, invoker);
-
-			return invoker;
-		}
+		public override string ToString () => $"[CustomParameterType {Name}]";
 	}
 }
