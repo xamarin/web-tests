@@ -38,6 +38,7 @@ namespace Xamarin.WebTests.Tests
 {
 	using HttpHandlers;
 	using HttpFramework;
+	using TestAttributes;
 	using TestFramework;
 	using HttpOperations;
 
@@ -91,6 +92,19 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public async Task Run (
+			TestContext ctx, HttpServer server,
+			[AuthenticationType] AuthenticationType authType, Handler handler,
+			CancellationToken cancellationToken)
+		{
+			var authHandler = new AuthenticationHandler (authType, handler);
+			using (var operation = new TraditionalOperation (server, authHandler, true))
+				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
+
+		}
+
+		[New]
+		[AsyncTest]
+		public async Task RunMartinTest (
 			TestContext ctx, HttpServer server,
 			[AuthenticationType] AuthenticationType authType, Handler handler,
 			CancellationToken cancellationToken)
