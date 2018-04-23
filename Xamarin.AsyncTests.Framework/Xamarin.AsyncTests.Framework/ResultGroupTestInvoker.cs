@@ -45,7 +45,7 @@ namespace Xamarin.AsyncTests.Framework
 		public override async Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			if ((Flags & (TestFlags.Hidden | TestFlags.FlattenHierarchy)) != 0)
+			if ((Flags & (TestFlags.Hidden | TestFlags.PathHidden | TestFlags.FlattenHierarchy)) != 0)
 				return await InvokeInner (ctx, instance, Inner, cancellationToken);
 
 			TestContext innerCtx;

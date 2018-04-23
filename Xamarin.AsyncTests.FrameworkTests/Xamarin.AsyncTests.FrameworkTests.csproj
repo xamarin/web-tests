@@ -103,6 +103,8 @@
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalWithHost.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalWithHost2.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalWithHost2.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\FixturePropertyResult.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunFixturePropertyResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
