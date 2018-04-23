@@ -11,7 +11,7 @@ properties([
 		string (name: 'XI_COMMIT', defaultValue: '', description: 'Use specific XI commit'),
 		string (name: 'XM_COMMIT', defaultValue: '', description: 'Use specific XM commit'),
 		string (name: 'XA_COMMIT', defaultValue: '', description: 'Use specific Android commit'),
-		string (name: 'EXTRA_JENKINS_ARGUMENTS', defaultValue: '', description: ''),
+		string (name: 'EXTRA_JENKINS_ARGUMENTS', defaultValue: '--features=-Networking', description: ''),
 		booleanParam (name: 'SPECIFIC_COMMIT', defaultValue: false, description: 'Use specific commit')
 	])
 ])
