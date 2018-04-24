@@ -459,57 +459,39 @@ namespace Xamarin.WebTests.Server
 			var me = $"{ME}({connection.ME}:{ReusingConnection}) ACCEPT";
 			ctx.LogDebug (2, $"{me}");
 
-			try {
-				if (ReusingConnection) {
-					serverStartTask.TrySetResult (null);
-					assignedOperation?.Finish ();
-				} else {
-					cancellationToken.ThrowIfCancellationRequested ();
-					var acceptTask = connection.AcceptAsync (ctx, cancellationToken);
+			if (ReusingConnection) {
+				serverStartTask.TrySetResult (null);
+				assignedOperation?.Finish ();
+			} else {
+				cancellationToken.ThrowIfCancellationRequested ();
+				var acceptTask = connection.AcceptAsync (ctx, cancellationToken);
 
-					serverStartTask.TrySetResult (null);
+				serverStartTask.TrySetResult (null);
 
-					await acceptTask.ConfigureAwait (false);
+				await acceptTask.ConfigureAwait (false);
 
-					ctx.LogDebug (2, $"{me} DONE: {connection.RemoteEndPoint} {assignedOperation?.ME}");
+				ctx.LogDebug (2, $"{me} DONE: {connection.RemoteEndPoint} {assignedOperation?.ME}");
 
-					assignedOperation?.Finish ();
-				}
-			} catch (OperationCanceledException) {
-				// OnCanceled ();
-				throw;
-			} catch (Exception ex) {
-				ctx.LogDebug (2, $"{me} FAILED: {ex.Message}");
-				// OnError (ex);
-				throw;
+				assignedOperation?.Finish ();
 			}
 		}
 
 		public async Task<(bool complete, bool success)> Initialize (
 			TestContext ctx, HttpOperation operation, CancellationToken cancellationToken)
 		{
-			try {
-				(bool complete, bool success) result;
-				if (ReusingConnection) {
-					if (await ReuseConnection (ctx, operation, cancellationToken).ConfigureAwait (false))
-						result = (true, true);
-					else
-						result = (false, false);
-				} else {
-					if (await InitConnection (ctx, operation, cancellationToken).ConfigureAwait (false))
-						result = (true, true);
-					else
-						result = (true, false);
-				}
-				return result;
-			} catch (OperationCanceledException) {
-				// OnCanceled ();
-				throw;
-			} catch (Exception ex) {
-				ctx.LogDebug (2, $"{ME} INIT FAILED: {ex.Message}");
-				// OnError (ex);
-				throw;
+			(bool complete, bool success) result;
+			if (ReusingConnection) {
+				if (await ReuseConnection (ctx, operation, cancellationToken).ConfigureAwait (false))
+					result = (true, true);
+				else
+					result = (false, false);
+			} else {
+				if (await InitConnection (ctx, operation, cancellationToken).ConfigureAwait (false))
+					result = (true, true);
+				else
+					result = (true, false);
 			}
+			return result;
 		}
 
 		internal void OnCanceled ()
