@@ -95,7 +95,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			var fork = Fixture.Type.GetCustomAttribute<ForkAttribute> ();
 			if (fork != null) {
-				var forkedHost = new ForkedTestHost (Fixture.Name, fork);
+				var forkedHost = new ForkedTestHost (Fixture.Name, fork, false);
 				Add (new ReflectionTestForkedBuilder (current, forkedHost));
 			}
 
@@ -125,7 +125,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (method.IsConstructor)
 					throw new InternalErrorException (
 						$"Cannot use `[Fork]' on constructor `{DebugHelper.FormatMethod (method)}'.");
-				var forkedHost = new ForkedTestHost (method.Name, fork);
+				var forkedHost = new ForkedTestHost (method.Name, fork, false);
 				Add (new ReflectionTestForkedBuilder (current, forkedHost));
 			}
 
@@ -137,20 +137,23 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var parameters = method.GetParameters ();
 			for (int i = 0; i < parameters.Length; i++) {
-				fork = parameters[i].GetCustomAttribute<ForkAttribute> ();
-				if (fork != null) {
-					HandleForkedParameter (parameters[i], fork);
-					continue;
-				}
-
 				var paramInfo = ReflectionHelper.GetParameterInfo (parameters[i]);
 				var paramType = paramInfo.Type;
 				var paramTypeInfo = paramInfo.TypeInfo;
 				var paramName = paramInfo.Name;
 
+				fork = paramInfo.GetCustomAttribute<ForkAttribute> ();
+				if (fork != null && paramType.Equals (typeof (IFork))) {
+					var forkedHost = new ForkedTestHost (paramName, fork, false);
+					Add (new ReflectionTestForkedBuilder (current, forkedHost));
+					continue;
+				}
+
 				if (paramType.Equals (typeof (CancellationToken))) {
 					if (seenToken)
 						throw new InternalErrorException ();
+					if (fork != null)
+						throw InvalidForkedAttribute ();
 					seenToken = true;
 					continue;
 				}
@@ -158,6 +161,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (paramType.Equals (typeof (TestContext))) {
 					if (seenCtx)
 						throw new InternalErrorException ();
+					if (fork != null)
+						throw InvalidForkedAttribute ();
 					seenCtx = true;
 					continue;
 				}
@@ -177,12 +182,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					}
 
 					ResolveConstructor (false);
-					continue;
+				} else {
+					var parameter = ReflectionHelper.ResolveParameter (
+						Fixture.Type, paramInfo, attribute.ParameterFilter);
+					Add (new ReflectionTestParameterBuilder (current, parameter));
 				}
 
-				var parameter = ReflectionHelper.ResolveParameter (
-					Fixture.Type, paramInfo, attribute.ParameterFilter);
-				Add (new ReflectionTestParameterBuilder (current, parameter));
+				if (fork != null) {
+					var forkedHost = new ForkedTestHost (paramName, fork, true);
+					Add (new ReflectionTestForkedBuilder (current, forkedHost));
+				}
 			}
 
 			if (method is ConstructorInfo constructor) {
@@ -193,33 +202,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				Add (new ReflectionTestMethodBuilder (current, caseBuilder));
 			} else {
 				throw new InternalErrorException ();
-			}
-
-			void HandleForkedParameter (ParameterInfo parameter, ForkAttribute attr)
-			{
-				if (parameter.ParameterType.Equals (typeof (IFork))) {
-					var forkedHost = new ForkedTestHost (parameter.Name, fork);
-					Add (new ReflectionTestForkedBuilder (current, forkedHost));
-					return;
-				}
-				var paramType = parameter.ParameterType.GetTypeInfo ();
-				if (paramType.IsAssignableFrom (Fixture.Type))
-					throw InvalidForkedAttribute ();
-
-				var forkedType = typeof (IForkedTestInstance).GetTypeInfo ();
-				if (forkedType.IsAssignableFrom (paramType)) {
-					var member = ReflectionHelper.GetParameterInfo (parameter);
-					var host = ReflectionHelper.ResolveParameter (
-						Fixture.Type, member, attribute.ParameterFilter);
-					Add (new ReflectionTestParameterBuilder (current, host));
-
-					var forkedHost = new ForkedTestHost (parameter.Name, fork, host);
-					Add (new ReflectionTestForkedBuilder (current, forkedHost));
-
-					return;
-				}
-
-				throw InvalidForkedAttribute ();
 			}
 
 			Exception InvalidForkedAttribute ()

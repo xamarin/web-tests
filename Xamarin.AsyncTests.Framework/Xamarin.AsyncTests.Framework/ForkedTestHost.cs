@@ -34,15 +34,15 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public TestHost ParameterHost {
+		public bool HasParameterHost {
 			get;
 		}
 
-		public ForkedTestHost (string name, ForkAttribute attr, TestHost host = null)
+		public ForkedTestHost (string name, ForkAttribute attr, bool hasParameterHost)
 			: base (TestPathType.Fork, name, name, "IFork")
 		{
 			Attribute = attr;
-			ParameterHost = host;
+			HasParameterHost = hasParameterHost;
 		}
 
 		internal static object GetInstance (ref TestInstance instance)
@@ -50,7 +50,7 @@ namespace Xamarin.AsyncTests.Framework
 			var forkedInstance = (ForkedTestInstance)instance;
 			instance = instance.Parent;
 
-			if (forkedInstance.Host.ParameterHost == null)
+			if (!forkedInstance.Host.HasParameterHost)
 				return forkedInstance;
 
 			var heavyInstance = (HeavyTestInstance)instance;

@@ -108,6 +108,8 @@
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\FixtureParameterSource.cs" />
     <Compile Include="Xamarin.AsyncTests.TestSuite\CustomParameterType.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunFixtureParameterSource.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalFixtureParameter.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalFixtureParameter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
