@@ -95,11 +95,6 @@ namespace Xamarin.WebTests.TestRunners
 			TestContext ctx, InstrumentationOperation operation,
 			Uri uri);
 
-		void ListenerHandler.ConfigureRequest (
-			TestContext ctx, HttpOperation operation,
-			Request request, Uri uri) => ConfigureRequest (
-				ctx, (InstrumentationOperation)operation, request, uri);
-
 		protected internal virtual void ConfigureRequest (
 			TestContext ctx, InstrumentationOperation operation,
 			Request request, Uri uri)

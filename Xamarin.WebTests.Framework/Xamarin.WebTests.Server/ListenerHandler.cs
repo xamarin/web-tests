@@ -43,10 +43,6 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
-		void ConfigureRequest (
-			TestContext ctx, HttpOperation operation,
-			Request request, Uri uri);
-
 		[StackTraceEntryPoint]
 		Task<HttpResponse> HandleRequest (
 			TestContext ctx, HttpOperation operation,

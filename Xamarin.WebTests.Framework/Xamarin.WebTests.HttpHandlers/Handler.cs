@@ -96,13 +96,6 @@ namespace Xamarin.WebTests.HttpHandlers
 			HttpRequest request, RequestFlags effectiveFlags,
 			CancellationToken cancellationToken);
 
-		void ListenerHandler.ConfigureRequest (
-			TestContext ctx, HttpOperation operation,
-			Request request, Uri uri)
-		{
-			ConfigureRequest (ctx, request, uri);
-		}
-
 		public virtual void ConfigureRequest (
 			TestContext ctx, Request request, Uri uri)
 		{
