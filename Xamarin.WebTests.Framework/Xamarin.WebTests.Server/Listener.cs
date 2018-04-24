@@ -561,22 +561,30 @@ namespace Xamarin.WebTests.Server
 
 		public ListenerOperation RegisterOperation (
 			TestContext ctx, HttpOperation operation,
+			ListenerHandler handler, string path) => RegisterOperation (ctx, operation, operation.Flags, handler, path);
+
+		public ListenerOperation RegisterOperation (
+			TestContext ctx, HttpOperationFlags flags,
+			ListenerHandler handler, string path) => RegisterOperation (ctx, null, flags, handler, path);
+
+		ListenerOperation RegisterOperation (
+			TestContext ctx, HttpOperation operation, HttpOperationFlags flags,
 			ListenerHandler handler, string path)
 		{
 			lock (this) {
 				if (TargetListener != null) {
-					var targetOperation = TargetListener.RegisterOperation (ctx, operation, handler, path);
+					var targetOperation = TargetListener.RegisterOperation (ctx, operation, flags, handler, path);
 					registry.Add (targetOperation.Uri.LocalPath, targetOperation);
 					return targetOperation.CreateProxy (this);
 				}
 				if (path == null) {
 					var id = Interlocked.Increment (ref nextRequestID);
-					path = $"/id/{operation.ID}/{handler.GetType ().Name}/";
+					path = $"/id/{operation?.ID}/{handler.GetType ().Name}/";
 				}
 				var me = $"{nameof (RegisterOperation)}({handler.Value})";
 				Debug ($"{me} {path}");
 				var uri = new Uri (Server.TargetUri, path);
-				var listenerOperation = new ListenerOperation (this, operation, handler, uri);
+				var listenerOperation = new ListenerOperation (this, operation, flags, handler, uri);
 				registry.Add (path, listenerOperation);
 				return listenerOperation;
 			}

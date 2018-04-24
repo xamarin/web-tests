@@ -380,7 +380,7 @@ namespace Xamarin.WebTests.Server
 					keepAlive = false;
 				}
 
-				if (!Operation.Operation.HasAnyFlags (HttpOperationFlags.DontWriteResponse))
+				if (!Operation.HasAnyFlags (HttpOperationFlags.DontWriteResponse))
 					await connection.WriteResponse (ctx, response, cancellationToken).ConfigureAwait (false);
 
 				return keepAlive;
@@ -392,7 +392,7 @@ namespace Xamarin.WebTests.Server
 				var operation = Interlocked.Exchange (ref currentOperation, null);
 				var redirect = Interlocked.Exchange (ref redirectRequested, null);
 
-				if (redirect != null && (operation?.Operation.HasAnyFlags (HttpOperationFlags.RedirectOnNewConnection) ?? false))
+				if (redirect != null && operation.HasAnyFlags (HttpOperationFlags.RedirectOnNewConnection))
 					return ConnectionState.WaitForClose;
 
 				if (!keepAlive)
@@ -401,7 +401,7 @@ namespace Xamarin.WebTests.Server
 				if (redirect == null)
 					return ConnectionState.ReuseConnection;
 
-				if (operation?.Operation.HasAnyFlags (HttpOperationFlags.ServerAbortsRedirection) ?? false)
+				if (operation.HasAnyFlags (HttpOperationFlags.ServerAbortsRedirection))
 					connection.Dispose ();
 
 				return ConnectionState.WaitingForRequest;

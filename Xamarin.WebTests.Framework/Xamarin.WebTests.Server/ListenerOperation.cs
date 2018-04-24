@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +46,10 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
+		public HttpOperationFlags OperationFlags {
+			get;
+		}
+
 		public ListenerHandler Handler {
 			get;
 		}
@@ -60,6 +65,8 @@ namespace Xamarin.WebTests.Server
 		static int nextID;
 		public readonly int ID = Interlocked.Increment (ref nextID);
 
+		internal bool HasAnyFlags (params HttpOperationFlags[] flags) => flags.Any (f => (OperationFlags & f) != 0);
+
 		TaskCompletionSource<object> serverInitTask;
 		TaskCompletionSource<object> serverFinishedTask;
 		TaskCompletionSource<ListenerContext> contextTask;
@@ -68,16 +75,17 @@ namespace Xamarin.WebTests.Server
 		ExceptionDispatchInfo pendingError;
 		bool hasInstrumentation;
 
-		public ListenerOperation (
-			Listener listener, HttpOperation operation,
+		internal ListenerOperation (
+			Listener listener, HttpOperation operation, HttpOperationFlags flags,
 			ListenerHandler handler, Uri uri)
 		{
 			Listener = listener;
 			Operation = operation;
+			OperationFlags = flags;
 			Handler = handler;
 			Uri = uri;
 
-			ME = $"[{ID}:{GetType ().Name}:{operation.ME}]";
+			ME = $"[{ID}:{GetType ().Name}:{operation?.ME}]";
 			serverInitTask = Listener.TaskSupport.CreateAsyncCompletionSource<object> ();
 			serverFinishedTask = Listener.TaskSupport.CreateAsyncCompletionSource<object> ();
 			contextTask = Listener.TaskSupport.CreateAsyncCompletionSource<ListenerContext> ();
@@ -158,7 +166,7 @@ namespace Xamarin.WebTests.Server
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				if (!Operation.HasAnyFlags (HttpOperationFlags.DontReadRequestBody)) {
+				if (!HasAnyFlags (HttpOperationFlags.DontReadRequestBody)) {
 					await request.Read (ctx, cancellationToken).ConfigureAwait (false);
 					ctx.LogDebug (2, $"{me} REQUEST FULLY READ");
 				} else {
@@ -167,8 +175,7 @@ namespace Xamarin.WebTests.Server
 				}
 
 				response = await HandleRequestInner (
-					ctx, Operation, connection, request,
-					Handler.RequestFlags, cancellationToken).ConfigureAwait (false);
+					ctx, connection, request, cancellationToken).ConfigureAwait (false);
 
 				ctx.LogDebug (2, $"{me} HANDLE REQUEST DONE: {response}");
 			} catch (OperationCanceledException) {
@@ -200,34 +207,29 @@ namespace Xamarin.WebTests.Server
 		}
 
 		async Task<HttpResponse> HandleRequestInner (
-			TestContext ctx, HttpOperation operation,
-			HttpConnection connection, HttpRequest request,
-			RequestFlags effectiveFlags,
+			TestContext ctx, HttpConnection connection, HttpRequest request,
 			CancellationToken cancellationToken)
 		{
 			Exception originalError;
 			HttpResponse response;
 
-			if (operation == null)
-				throw new ArgumentNullException (nameof (operation));
 			if (connection == null)
 				throw new ArgumentNullException (nameof (connection));
 
-			var expectServerError = operation.HasAnyFlags (HttpOperationFlags.ExpectServerException);
+			var expectServerError = HasAnyFlags (HttpOperationFlags.ExpectServerException);
 
 			try {
 				ctx.LogDebug (1, $"HANDLE REQUEST: {connection.RemoteEndPoint}");
 				DumpHeaders (ctx, request);
 				connection.Server.CheckEncryption (ctx, connection.SslStream);
 				response = await Handler.HandleRequest (
-					ctx, operation, connection, request,
-					effectiveFlags, cancellationToken);
+					ctx, Operation, connection, request, Handler.RequestFlags, cancellationToken).ConfigureAwait (false);
 
 				if (response == null)
 					response = HttpResponse.CreateSuccess ();
-				if ((effectiveFlags & RequestFlags.CloseConnection) != 0)
+				if ((Handler.RequestFlags & RequestFlags.CloseConnection) != 0)
 					response.CloseConnection = true;
-				if (!response.KeepAlive.HasValue && ((effectiveFlags & RequestFlags.KeepAlive) != 0))
+				if (!response.KeepAlive.HasValue && ((Handler.RequestFlags & RequestFlags.KeepAlive) != 0))
 					response.KeepAlive = true;
 				response.ResolveHeaders ();
 
@@ -266,7 +268,7 @@ namespace Xamarin.WebTests.Server
 
 		internal ListenerOperation CreateProxy (Listener listener)
 		{
-			var proxy = new ListenerOperation (listener, Operation, Handler, Uri);
+			var proxy = new ListenerOperation (listener, Operation, OperationFlags, Handler, Uri);
 			proxy.TargetOperation = this;
 			parentOperation = proxy;
 			return proxy;
