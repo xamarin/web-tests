@@ -211,6 +211,8 @@ namespace Xamarin.WebTests.TestFramework
 					$"https:{provider.Name}",
 					ServerFlags | HttpServerFlags.SSL,
 					provider.SslStreamProvider);
+				if (IsMartinTest)
+					yield break;
 			}
 		}
 	}
