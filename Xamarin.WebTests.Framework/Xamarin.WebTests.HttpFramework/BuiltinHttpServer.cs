@@ -109,6 +109,8 @@ namespace Xamarin.WebTests.HttpFramework {
 					throw;
 			} finally {
 				currentBackend = null;
+				started = 0;
+				initialized = 0;
 			}
 		}
 
