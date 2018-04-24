@@ -79,5 +79,7 @@ namespace Xamarin.WebTests.HttpOperations
 
 			return response;
 		}
+
+		protected override bool CheckResponseInner (TestContext ctx, Response response) => Handler.CheckResponse (ctx, response);
 	}
 }

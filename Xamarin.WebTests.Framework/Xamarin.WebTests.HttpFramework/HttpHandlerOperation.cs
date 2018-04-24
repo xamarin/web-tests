@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -48,5 +49,7 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			Handler = handler;
 		}
+
+		protected override bool CheckResponseInner (TestContext ctx, Response response) => Handler.CheckResponse (ctx, response);
 	}
 }

@@ -49,7 +49,5 @@ namespace Xamarin.WebTests.Server
 			HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags,
 			CancellationToken cancellationToken);
-
-		bool CheckResponse (TestContext ctx, Response response);
 	}
 }

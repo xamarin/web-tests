@@ -276,12 +276,14 @@ namespace Xamarin.WebTests.HttpFramework
 					ok &= ctx.Expect (response.IsSuccess, Is.True, "success status");
 
 				if (ok)
-					ok &= ListenerHandler.CheckResponse (ctx, response);
+					ok &= CheckResponseInner (ctx, response);
 			}
 
 			if (response.Content != null)
 				Debug (ctx, 5, "GOT RESPONSE BODY", response.Content);
 		}
+
+		protected abstract bool CheckResponseInner (TestContext ctx, Response response);
 
 		internal ListenerOperation RegisterRedirect (TestContext ctx, ListenerHandler handler, string path = null)
 		{
