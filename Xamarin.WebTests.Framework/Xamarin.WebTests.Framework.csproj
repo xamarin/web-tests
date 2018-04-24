@@ -233,6 +233,7 @@
     <Compile Include="Xamarin.WebTests.Server\ListenerHandler.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpHandlerOperation.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationRequest.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\ParallelServerTestRunner.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

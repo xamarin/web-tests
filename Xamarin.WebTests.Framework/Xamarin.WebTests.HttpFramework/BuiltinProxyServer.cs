@@ -119,7 +119,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			}
 		}
 
-		public override void CloseAll ()
+		internal override void CloseAll ()
 		{
 			currentListener.Dispose ();
 			Target.CloseAll ();

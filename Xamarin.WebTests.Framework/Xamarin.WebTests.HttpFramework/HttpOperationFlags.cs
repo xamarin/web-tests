@@ -45,6 +45,7 @@ namespace Xamarin.WebTests.HttpFramework
 		DontReadRequestBody		= 2048,
 		ClientAbortsRequest		= 4096,
 		DelayedListenerContext		= 8192,
-		DontWriteResponse		= 16384
+		DontWriteResponse		= 16384,
+		PersistentHandler		= 32768
 	}
 }

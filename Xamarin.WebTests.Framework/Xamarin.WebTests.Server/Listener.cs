@@ -603,7 +603,8 @@ namespace Xamarin.WebTests.Server
 				}
 
 				operation = registry[request.Path];
-				registry.Remove (request.Path);
+				if (!operation.HasAnyFlags (HttpOperationFlags.PersistentHandler))
+					registry.Remove (request.Path);
 				Server.BumpRequestCount ();
 			}
 			ParentListener?.UnregisterOperation (operation);

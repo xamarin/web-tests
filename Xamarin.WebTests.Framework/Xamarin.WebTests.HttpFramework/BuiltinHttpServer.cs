@@ -42,7 +42,7 @@ namespace Xamarin.WebTests.HttpFramework {
 					  ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
 			: base (listenAddress, flags, parameters, sslStreamProvider)
 		{
-			Uri = new Uri (string.Format ("http{0}://{1}:{2}/", SslStreamProvider != null ? "s" : "", clientEndPoint.Address, clientEndPoint.Port));
+			Uri = new Uri ($"http{(SslStreamProvider != null ? "s" : "")}://{clientEndPoint.Address}:{clientEndPoint.Port}/");
 		}
 
 		public BuiltinHttpServer (Uri uri, IPortableEndPoint listenAddress, HttpServerFlags flags,
@@ -65,23 +65,33 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		Listener currentListener;
 		ListenerBackend currentBackend;
+		int initialized;
+		int started;
 
-		public override Task Start (TestContext ctx, CancellationToken cancellationToken)
+		public void Initialize (TestContext ctx)
 		{
-			ListenerBackend backend;
+			if (Interlocked.CompareExchange (ref initialized, 1, 0) != 0)
+				return;
+
 			if ((Flags & HttpServerFlags.HttpListener) != 0)
-				backend = new HttpListenerBackend (ctx, this);
+				currentBackend = new HttpListenerBackend (ctx, this);
 			else
-				backend = new SocketBackend (ctx, this);
-			if (Interlocked.CompareExchange (ref currentBackend, backend, null) != null)
-				throw new InternalErrorException ();
+				currentBackend = new SocketBackend (ctx, this);
 
 			var type = (Flags & HttpServerFlags.ParallelListener) != 0 ?
 				ListenerType.Parallel : ListenerType.Instrumentation;
 
-			var listener = new Listener (ctx, this, type, backend);
-			listener.Start ();
-			currentListener = listener;
+			currentListener = new Listener (ctx, this, type, currentBackend);
+		}
+
+		public override Task Start (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (Interlocked.CompareExchange (ref started, 1, 0) != 0)
+				throw new InternalErrorException ();
+
+			Initialize (ctx);
+
+			currentListener.Start ();
 
 			return Handler.CompletedTask;
 		}
@@ -106,7 +116,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			get { return currentListener; }
 		}
 
-		public override void CloseAll ()
+		internal override void CloseAll ()
 		{
 			currentListener.Dispose ();
 		}

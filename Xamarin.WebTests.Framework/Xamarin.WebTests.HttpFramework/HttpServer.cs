@@ -154,7 +154,7 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		public abstract Task Stop (TestContext ctx, CancellationToken cancellationToken);
 
-		public abstract void CloseAll ();
+		internal abstract void CloseAll ();
 
 		#endregion
 
@@ -174,7 +174,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			Interlocked.Increment (ref countRequests);
 		}
 
-		public void CheckEncryption (TestContext ctx, SslStream sslStream)
+		internal void CheckEncryption (TestContext ctx, SslStream sslStream)
 		{
 			if ((Flags & (HttpServerFlags.SSL | HttpServerFlags.ForceTls12)) == 0)
 				return;
