@@ -240,9 +240,15 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		#region Test Hosts
 
 		internal static TestHost ResolveFixtureProperty (
-			TypeInfo fixtureType, PropertyInfo property)
+			TypeInfo fixtureType, PropertyInfo property, bool instance)
 		{
 			if (!property.CanRead)
+				return null;
+
+			var isStatic = property.GetMethod.IsStatic;
+			if (instance && isStatic)
+				return null;
+			if (!instance && !isStatic)
 				return null;
 
 			var member = new _PropertyInfo (property);
@@ -253,7 +259,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					throw new InternalErrorException ();
 
 				return new FixturePropertyHost (
-					property, serializer, TestFlags.Browsable);
+					property, serializer, TestFlags.Browsable, isStatic);
 			}
 
 			if (!property.CanWrite || !property.GetMethod.IsPublic ||

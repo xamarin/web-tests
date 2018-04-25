@@ -32,6 +32,10 @@ namespace Xamarin.AsyncTests
 		long ID {
 			get;
 		}
+
+		ForkType Type {
+			get;
+		}
 	}
 }
 

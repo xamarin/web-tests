@@ -50,8 +50,6 @@ namespace Xamarin.AsyncTests.Framework
 			get;
 		}
 
-		public ForkType ForkType => Host.Attribute.Type;
-
 		public ForkedTestInvoker (ForkedTestHost host, TestNode node, TestInvoker inner)
 			: base (host.Flags)
 		{
@@ -66,15 +64,19 @@ namespace Xamarin.AsyncTests.Framework
 			if (!ctx.IsEnabled (TestFeature.ForkedSupport))
 				throw ctx.IgnoreThisTest ();
 
-			switch (ForkType) {
+			var effectiveForkType = Host.GetEffectiveForkType (ctx);
+
+			switch (effectiveForkType) {
 			case ForkType.Task:
 				return ForkTasks (ctx, instance, cancellationToken);
 			case ForkType.Fork:
 			case ForkType.Domain:
 			case ForkType.Internal:
 				return ExternalFork (ctx, instance, cancellationToken);
+			case ForkType.None:
+				return RunInner (ctx, instance, cancellationToken);
 			default:
-				throw ctx.AssertFail ($"Invalid fork type: {ForkType}");
+				throw ctx.AssertFail ($"Invalid fork type: {effectiveForkType}");
 			}
 		}
 
@@ -89,7 +91,7 @@ namespace Xamarin.AsyncTests.Framework
 				int delay = 0;
 				if (Host.Attribute.RandomDelay > 0)
 					delay = random.Next (Host.Attribute.RandomDelay);
-				var fork = forks[i] = new ForkedTestInstance (Host, Node, instance, i);
+				var fork = forks[i] = new ForkedTestInstance (Host, Node, instance, ForkType.Task, i);
 
 				tasks[i] = Task.Factory.StartNew (
 					() => StartForked (fork, delay).Result,
@@ -200,7 +202,9 @@ namespace Xamarin.AsyncTests.Framework
 			TestServer server = null;
 			TestSession session;
 
-			switch (ForkType) {
+			var effectiveForkType = Host.GetEffectiveForkType (ctx);
+
+			switch (effectiveForkType) {
 			case ForkType.Internal:
 				session = TestSession.CreateLocal (builder.App, builder.Framework);
 				break;
@@ -217,13 +221,13 @@ namespace Xamarin.AsyncTests.Framework
 				session = server.Session;
 				break;
 			default:
-				throw ctx.AssertFail (ForkType);
+				throw ctx.AssertFail (effectiveForkType);
 			}
 
 			try {
 				await session.UpdateSettings (cancellationToken);
 
-				var forkedInstance = new ForkedTestInstance (Host, Node, instance, 0);
+				var forkedInstance = new ForkedTestInstance (Host, Node, instance, effectiveForkType, 0);
 				var path = forkedInstance.GetCurrentPath ();
 
 				TestInstance.LogDebug (ctx, instance, 5, Category);

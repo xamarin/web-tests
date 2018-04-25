@@ -149,6 +149,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					continue;
 				}
 
+				var fork2 = paramTypeInfo.GetCustomAttribute<ForkAttribute> ();
+				if (fork2 != null) {
+					if (fork != null)
+						throw InvalidForkedAttribute ();
+					fork = fork2;
+				}
+
 				if (paramType.Equals (typeof (CancellationToken))) {
 					if (seenToken)
 						throw new InternalErrorException ();
@@ -197,7 +204,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (method is ConstructorInfo constructor) {
 				Add (new ReflectionTestInstanceBuilder (current, unwindBase, constructor, shared));
 				if (!shared)
-					ResolveFixtureProperties ();
+					ResolveFixtureProperties (true);
 			} else if (this is ReflectionTestCaseBuilder caseBuilder) {
 				Add (new ReflectionTestMethodBuilder (current, caseBuilder));
 			} else {
@@ -261,10 +268,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			Add (new ReflectionTestCollectionBuilder (current, methods));
 		}
 
-		protected void ResolveFixtureProperties ()
+		protected void ResolveFixtureProperties (bool instance)
 		{
 			foreach (var property in Fixture.Type.DeclaredProperties) {
-				var host = ReflectionHelper.ResolveFixtureProperty (Fixture.Type, property);
+				var host = ReflectionHelper.ResolveFixtureProperty (Fixture.Type, property, instance);
 				if (host == null)
 					continue;
 				Add (new ReflectionTestParameterBuilder (current, host));

@@ -28,9 +28,11 @@ namespace Xamarin.AsyncTests
 {
 	public enum ForkType
 	{
+		None,
 		Task,
 		Internal,
 		Domain,
-		Fork
+		Fork,
+		FromContext
 	}
 }

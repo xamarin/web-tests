@@ -58,12 +58,20 @@ namespace Xamarin.AsyncTests.Framework
 			return heavyInstance.Instance;
 		}
 
+		internal ForkType GetEffectiveForkType (TestContext ctx)
+		{
+			if (Attribute.Type != ForkType.FromContext)
+				return Attribute.Type;
+			return ctx.GetParameter<ForkType> ();
+		}
+
 		#region implemented abstract members of TestHost
 
 		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
 		{
-			var id = long.Parse (node.Parameter.Value);
-			var forkedInstance = new ForkedTestInstance (this, node, parent, id);
+			var effectiveType = GetEffectiveForkType (ctx);
+			var id = effectiveType != ForkType.None ? long.Parse (node.Parameter.Value) : -1;
+			var forkedInstance = new ForkedTestInstance (this, node, parent, effectiveType, id);
 			return forkedInstance;
 		}
 

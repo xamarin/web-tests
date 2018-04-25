@@ -1,5 +1,5 @@
 ﻿//
-// FixturePropertyHost.cs
+// ForkedHostAttribute.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,37 +24,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Framework.Reflection
+namespace Xamarin.AsyncTests.FrameworkTests
 {
-	class FixturePropertyHost : ParameterizedTestHost
+	public class ForkedHostAttribute : TestHostAttribute, ITestHost<ForkedHost>
 	{
-		public PropertyInfo Property {
-			get;
-		}
-
-		public bool IsStatic {
-			get;
-		}
-
-		public FixturePropertyHost (
-			PropertyInfo property, IParameterSerializer serializer, TestFlags flags, bool isStatic)
-			: base (property.Name, property.PropertyType.GetTypeInfo (),
-			        serializer, flags)
+		public ForkedHostAttribute () : base (typeof (ForkedHostAttribute))
 		{
-			Property = property;
-			IsStatic = isStatic;
 		}
 
-		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
+		public ForkedHost CreateInstance (TestContext context)
 		{
-			return new FixturePropertyInstance (this, node, parent);
+			return new ForkedHost ();
 		}
 	}
 }
-

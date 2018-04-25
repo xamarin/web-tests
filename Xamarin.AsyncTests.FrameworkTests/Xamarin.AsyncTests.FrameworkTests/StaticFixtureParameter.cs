@@ -1,5 +1,5 @@
 ﻿//
-// FixturePropertyHost.cs
+// StaticFixtureParameter.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,37 +24,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.AsyncTests.Framework.Reflection
+namespace Xamarin.AsyncTests.FrameworkTests
 {
-	class FixturePropertyHost : ParameterizedTestHost
+	using TestSuite;
+
+	[AsyncTestFixture (Prefix = "FrameworkTests")]
+	public static class StaticFixtureParameter
 	{
-		public PropertyInfo Property {
-			get;
-		}
+		[FixtureParameter]
+		public static TripleValue Value => TripleValue.Two;
 
-		public bool IsStatic {
-			get;
-		}
+		public static SimpleEnum IgnoredValue => SimpleEnum.Foo;
 
-		public FixturePropertyHost (
-			PropertyInfo property, IParameterSerializer serializer, TestFlags flags, bool isStatic)
-			: base (property.Name, property.PropertyType.GetTypeInfo (),
-			        serializer, flags)
+		[AsyncTest]
+		[Martin (null, UseFixtureName = true)]
+		public static void Run (TestContext ctx)
 		{
-			Property = property;
-			IsStatic = isStatic;
-		}
+			ctx.LogMessage ($"{ctx.FriendlyName}: {Value}");
+			ctx.Assert (Value, Is.EqualTo (TripleValue.Two));
 
-		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
-		{
-			return new FixturePropertyInstance (this, node, parent);
+			ctx.Assert (ctx.TryGetParameter<SimpleEnum> (out var _), Is.False, "No SimpleEnum parameter");
+			ctx.Assert (ctx.TryGetParameter<TripleValue> (out var value), Is.True, "Has TripleValue parameter");
+			ctx.Assert (value, Is.EqualTo (TripleValue.Two));
 		}
 	}
 }
-

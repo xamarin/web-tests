@@ -57,8 +57,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return false;
 			hasNext = false;
 
-			var fixtureInstance = GetFixtureInstance ();
-			var value = Host.Property.GetValue (fixtureInstance.Instance);
+			object instance = null;
+			if (!Host.IsStatic) {
+				var fixtureInstance = GetFixtureInstance ();
+				instance = fixtureInstance.Instance;
+			}
+
+			var value = Host.Property.GetValue (instance);
 			var serialized = Host.Serializer.ObjectToParameter (value);
 
 			current = new FixturePropertyValue (this, serialized, value);

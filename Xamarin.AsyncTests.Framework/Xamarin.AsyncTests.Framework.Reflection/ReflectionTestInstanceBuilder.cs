@@ -76,7 +76,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			base.ResolveMembers ();
 
-			ResolveFixtureProperties ();
+			ResolveFixtureProperties (true);
 
 			AddMethods (Fixture.InstanceMethods);
 		}

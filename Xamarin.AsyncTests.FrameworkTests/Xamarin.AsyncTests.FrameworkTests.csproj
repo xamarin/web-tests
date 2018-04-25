@@ -110,6 +110,23 @@
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunFixtureParameterSource.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalFixtureParameter.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalFixtureParameter.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalWithNonForkedHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalWithNonForkedHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ExternalWithCustomForkedHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\FixtureParameter.cs" />
+    <Compile Include="Xamarin.AsyncTests.TestSuite\TripleValue.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunFixtureParameter.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\StaticFixtureParameter.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunStaticFixtureParameter.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunExternalWithCustomForkedHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ForkedHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ForkedHostAttribute.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ForkedWithNonForkedHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\StaticFixtureParameter2.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunStaticFixtureParameter2.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\ForkedWithDomainForkedHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunForkedWithNonForkedHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunForkedWithDomainForkedHost.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">

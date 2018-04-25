@@ -1,5 +1,5 @@
 ﻿//
-// FixturePropertyHost.cs
+// TripleValue.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,37 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Xml.Linq;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Xamarin.AsyncTests.Framework.Reflection
+namespace Xamarin.AsyncTests.TestSuite
 {
-	class FixturePropertyHost : ParameterizedTestHost
+	public enum TripleValue
 	{
-		public PropertyInfo Property {
-			get;
-		}
-
-		public bool IsStatic {
-			get;
-		}
-
-		public FixturePropertyHost (
-			PropertyInfo property, IParameterSerializer serializer, TestFlags flags, bool isStatic)
-			: base (property.Name, property.PropertyType.GetTypeInfo (),
-			        serializer, flags)
-		{
-			Property = property;
-			IsStatic = isStatic;
-		}
-
-		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
-		{
-			return new FixturePropertyInstance (this, node, parent);
-		}
+		One,
+		Two,
+		Three
 	}
 }
-

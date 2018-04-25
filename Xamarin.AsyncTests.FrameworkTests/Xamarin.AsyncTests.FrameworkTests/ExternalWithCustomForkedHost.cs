@@ -1,5 +1,5 @@
 ﻿//
-// FixturePropertyHost.cs
+// ExternalWithCustomForkedHost.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -25,36 +25,29 @@
 // THE SOFTWARE.
 using System;
 using System.Xml.Linq;
-using System.Reflection;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.AsyncTests.Framework.Reflection
+namespace Xamarin.AsyncTests.FrameworkTests
 {
-	class FixturePropertyHost : ParameterizedTestHost
+	[ForkedSupport]
+	[AsyncTestFixture (Prefix = "FrameworkTests")]
+	public static class ExternalWithCustomForkedHost
 	{
-		public PropertyInfo Property {
-			get;
-		}
-
-		public bool IsStatic {
-			get;
-		}
-
-		public FixturePropertyHost (
-			PropertyInfo property, IParameterSerializer serializer, TestFlags flags, bool isStatic)
-			: base (property.Name, property.PropertyType.GetTypeInfo (),
-			        serializer, flags)
+		[FixtureParameter]
+		public static ForkType Type => ForkType.Domain;
+		
+		[AsyncTest]
+		[Martin (null, UseFixtureName = true)]
+		public static void Test (
+			TestContext ctx, [Fork (ForkType.FromContext)] ExternalHost host)
 		{
-			Property = property;
-			IsStatic = isStatic;
-		}
-
-		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
-		{
-			return new FixturePropertyInstance (this, node, parent);
+			var fork = ctx.GetParameter<IFork> ();
+			ctx.LogMessage ($"Martin Test: {ctx.FriendlyName} {host} {fork.ID} {fork.Type}");
+			ctx.Assert (fork.ID, Is.GreaterThanOrEqualTo (0L));
+			ctx.Assert (fork.Type, Is.EqualTo (Type));
+			ctx.Assert (host.IsForked, Is.EqualTo (2));
 		}
 	}
 }
-

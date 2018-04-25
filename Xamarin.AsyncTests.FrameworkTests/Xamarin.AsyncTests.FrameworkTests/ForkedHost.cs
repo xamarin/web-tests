@@ -1,5 +1,5 @@
-//
-// ExternalHost.cs
+﻿//
+// ForkedHost.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -31,15 +31,16 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.AsyncTests.FrameworkTests
 {
-	[ExternalHost]
-	public class ExternalHost : ITestInstance, IForkedTestInstance
+	[ForkedHost]
+	[Fork (ForkType.FromContext)]
+	public class ForkedHost : ITestInstance, IForkedTestInstance
 	{
 		public int IsForked {
 			get;
 			private set;
 		}
 
-		public ExternalHost ()
+		public ForkedHost ()
 		{
 			IsForked = 1;
 		}
@@ -66,7 +67,7 @@ namespace Xamarin.AsyncTests.FrameworkTests
 			IsForked = 2;
 		}
 
-		internal static string ME = "EXTERNAL HOST";
+		internal static string ME = "FORKED HOST";
 
 		static Task FinishedTask => Task.FromResult<object> (null);
 

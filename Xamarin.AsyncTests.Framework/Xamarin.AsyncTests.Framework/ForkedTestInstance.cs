@@ -31,6 +31,10 @@ namespace Xamarin.AsyncTests.Framework
 {
 	class ForkedTestInstance : TestInstance, ITestParameter, IFork
 	{
+		public ForkType Type {
+			get;
+		}
+
 		new public long ID {
 			get;
 		}
@@ -43,9 +47,10 @@ namespace Xamarin.AsyncTests.Framework
 
 		string ITestParameter.FriendlyValue => ID.ToString ();
 
-		public ForkedTestInstance (ForkedTestHost host, TestNode node, TestInstance parent, long id)
+		public ForkedTestInstance (ForkedTestHost host, TestNode node, TestInstance parent, ForkType type, long id)
 			: base (host, node, parent)
 		{
+			Type = type;
 			ID = id;
 		}
 

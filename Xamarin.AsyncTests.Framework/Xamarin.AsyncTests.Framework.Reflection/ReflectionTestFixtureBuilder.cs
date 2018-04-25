@@ -85,6 +85,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			ResolveFixedParameters ();
 
+			ResolveFixtureProperties (false);
+
 			instanceMethods = new List<ReflectionMethodEntry> ();
 			staticMethods = new List<ReflectionMethodEntry> ();
 

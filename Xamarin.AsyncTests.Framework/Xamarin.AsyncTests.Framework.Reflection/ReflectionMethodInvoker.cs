@@ -208,10 +208,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					continue;
 				}
 
+				if (host is FixturePropertyHost propertyHost) {
+					if (seenFixtureInstance && !propertyHost.IsStatic)
+						throw new InternalErrorException ($"Unexpected non-static fixture property on stack after seeing fixture instance: `{instance}'.");
+					instance = instance.Parent;
+					continue;
+				}
+
 				if (seenFixtureInstance)
 					throw new InternalErrorException ($"Unexpected instance on stack after seeing fixture instance: `{instance}'.");
 
-				if (host is ReflectionPropertyHost || host is FixturePropertyHost) {
+				if (host is ReflectionPropertyHost) {
 					instance = instance.Parent;
 					continue;
 				}
