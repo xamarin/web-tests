@@ -1,5 +1,5 @@
 [*]
-end_of_line = crlf
+end_of_line = lf
 
 [*.xml]
 indent_style = space
@@ -10,4 +10,4 @@ indent_size = 8
 tab_width = 8
 
 trim_trailing_whitespace = true
-	
+
