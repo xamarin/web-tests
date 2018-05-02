@@ -1,4 +1,4 @@
-﻿//
+//
 // TraditionalOperation.cs
 //
 // Author:
