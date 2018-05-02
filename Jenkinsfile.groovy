@@ -173,7 +173,7 @@ def buildAll ()
 
 def run (String target, String testCategory, String outputDir, String resultOutput, String junitResultOutput, String stdOut, String jenkinsHtml)
 {
-    final String localExtraJenkinsArguments = "--features=-Network"
+    final String localExtraJenkinsArguments = ""
 
 	def buildPath = new URI (env.BUILD_URL).getPath()
 	def iosParams = "IosRuntime=$IOS_RUNTIME,IosDeviceType=$IOS_DEVICE_TYPE"
