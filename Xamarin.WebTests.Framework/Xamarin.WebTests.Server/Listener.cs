@@ -579,7 +579,7 @@ namespace Xamarin.WebTests.Server
 				}
 				if (path == null) {
 					var id = Interlocked.Increment (ref nextRequestID);
-					path = $"/id/{operation?.ID}/{handler.GetType ().Name}/";
+					path = $"/{id}/{operation?.ID}/{handler.GetType ().Name}/";
 				}
 				var me = $"{nameof (RegisterOperation)}({handler.Value})";
 				Debug ($"{me} {path}");
