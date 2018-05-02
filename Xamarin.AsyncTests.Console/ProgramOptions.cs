@@ -610,6 +610,8 @@ namespace Xamarin.AsyncTests.Console {
 						}
 					} else {
 						var feature = config.Features.First (f => f.Name.Equals (name));
+						if (!feature.CanModify)
+							throw new ProgramException ($"Cannot modify TestFeature '{feature.Name}'.");
 						config.SetIsEnabled (feature, enable);
 					}
 				}
