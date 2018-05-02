@@ -625,14 +625,7 @@ namespace Xamarin.AsyncTests.Console
 
 		void OnLogMessage (string format, params object[] args)
 		{
-			OnLogMessage (string.Format (format, args));
-		}
-
-		void OnLogDebug (int level, string message)
-		{
-			if (Settings.LocalLogLevel >= 0 && level > Settings.LocalLogLevel)
-				return;
-			Debug (message);
+			Debug (string.Format (format, args));
 		}
 
 		int countTests;
@@ -685,7 +678,7 @@ namespace Xamarin.AsyncTests.Console
 			{
 				switch (entry.Kind) {
 				case EntryKind.Debug:
-					Program.OnLogDebug (entry.LogLevel, entry.Text);
+					Program.OnLogMessage (entry.Text);
 					break;
 
 				case EntryKind.Error:
