@@ -277,7 +277,6 @@ namespace Xamarin.AsyncTests.Mobile
 
 				var categories = new List<string> ();
 				categories.Add ("All");
-				categories.Add ("Global");
 				categories.Add ("Martin");
 
 				var selected = 0;
@@ -291,10 +290,8 @@ namespace Xamarin.AsyncTests.Mobile
 
 				Options.ModifyConfiguration (session.Configuration);
 
-				if (session.Configuration.CurrentCategory == TestCategory.Global)
+				if (session.Configuration.CurrentCategory == TestCategory.Martin)
 					selected = 1;
-				else if (session.Configuration.CurrentCategory == TestCategory.Martin)
-					selected = 2;
 
 				foreach (var item in session.Configuration.Categories) {
 					categories.Add (item.Name);
@@ -317,10 +314,6 @@ namespace Xamarin.AsyncTests.Mobile
 				return;
 			}
 			if (selectedIdx == 1) {
-				session.Configuration.CurrentCategory = TestCategory.Global;
-				return;
-			}
-			if (selectedIdx == 2) {
 				session.Configuration.CurrentCategory = TestCategory.Martin;
 				return;
 			}

@@ -165,11 +165,6 @@ namespace Xamarin.AsyncTests.Framework
 
 		bool RunFilter (ITestConfiguration config, SettingsBag settings, TestInstance instance, out bool enabled)
 		{
-			if (Categories.Any (attr => attr.Category == TestCategory.Global)) {
-				enabled = true;
-				return true;
-			}
-
 			foreach (var feature in Features) {
 				if (!config.IsEnabled (feature)) {
 					enabled = false;

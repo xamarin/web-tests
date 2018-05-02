@@ -582,8 +582,6 @@ namespace Xamarin.AsyncTests.Console {
 			if (Category != null) {
 				if (string.Equals (Category, "all", StringComparison.OrdinalIgnoreCase))
 					config.CurrentCategory = TestCategory.All;
-				else if (string.Equals (Category, "global", StringComparison.OrdinalIgnoreCase))
-					config.CurrentCategory = TestCategory.Global;
 				else if (string.Equals (Category, "martin", StringComparison.OrdinalIgnoreCase))
 					config.CurrentCategory = TestCategory.Martin;
 				else

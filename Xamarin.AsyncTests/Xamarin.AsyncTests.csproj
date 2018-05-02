@@ -105,7 +105,6 @@
     <Compile Include="Xamarin.AsyncTests\ISingletonInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\IsEqualBlob.cs" />
     <Compile Include="Xamarin.AsyncTests\VersionInfo.cs" />
-    <Compile Include="Xamarin.AsyncTests\GlobalAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\TestPathType.cs" />
     <Compile Include="Xamarin.AsyncTests\TestNode.cs" />
     <Compile Include="Xamarin.AsyncTests\InternalErrorException.cs" />

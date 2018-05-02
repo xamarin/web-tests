@@ -18,7 +18,6 @@ namespace Xamarin.AsyncTests.MacUI
 		NSMutableArray testFeaturesArray;
 		TestCategoryModel currentCategory;
 		TestCategoryModel allCategory;
-		TestCategoryModel globalCategory;
 		TestCategoryModel martinCategory;
 		bool fullyLoaded;
 
@@ -79,11 +78,9 @@ namespace Xamarin.AsyncTests.MacUI
 
 			testCategoriesArray = new NSMutableArray ();
 			allCategory = new TestCategoryModel (TestCategory.All);
-			globalCategory = new TestCategoryModel (TestCategory.Global);
 			martinCategory = new TestCategoryModel (TestCategory.Martin);
 			currentCategory = allCategory;
 			testCategoriesArray.Add (allCategory);
-			testCategoriesArray.Add (globalCategory);
 			testCategoriesArray.Add (martinCategory);
 
 			testFeaturesArray = new NSMutableArray ();
@@ -107,7 +104,6 @@ namespace Xamarin.AsyncTests.MacUI
 		{
 			var newCategoriesArray = new NSMutableArray ();
 			newCategoriesArray.Add (allCategory);
-			newCategoriesArray.Add (globalCategory);
 			newCategoriesArray.Add (martinCategory);
 			var newCurrentCategory = allCategory;
 
