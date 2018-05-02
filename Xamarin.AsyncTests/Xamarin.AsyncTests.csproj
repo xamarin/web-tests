@@ -119,6 +119,7 @@
     <Compile Include="Xamarin.AsyncTests\ForkedSupportAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\IForkedObject.cs" />
     <Compile Include="Xamarin.AsyncTests\IForkedObjectClient.cs" />
+    <Compile Include="Xamarin.AsyncTests\IForkedSupport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

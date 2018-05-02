@@ -90,7 +90,8 @@ namespace Xamarin.AsyncTests
 		}
 
 		public static readonly TestFeature ForkedSupport = new TestFeature (
-			"ForkedSupport", "Experimental support for [Forked]");
+			"ForkedSupport", "Support for [Forked] tests",
+			() => DependencyInjector.TryGet<IForkedSupport> (out var support));
 
 		public override string ToString ()
 		{

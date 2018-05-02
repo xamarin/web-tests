@@ -18,8 +18,10 @@ using Xamarin.WebTests.MonoTestProvider;
 namespace Xamarin.WebTests.Console
 {
 	[Serializable]
-	public class ConsoleMain : IForkedDomainSetup
+	public class ConsoleMain : IForkedDomainSetup, IForkedSupport
 	{
+		public bool SupportsProcessForks => true;
+
 		static void Main (string[] args)
 		{
 			var main = new ConsoleMain ();
@@ -29,6 +31,7 @@ namespace Xamarin.WebTests.Console
 		void Run (string[] args)
 		{
 			DependencyInjector.RegisterDependency<IForkedProcessLauncher> (() => new ForkedProcessLauncher ());
+			DependencyInjector.RegisterDependency<IForkedSupport> (() => this);
 			DependencyInjector.RegisterDependency<IForkedDomainSetup> (() => this);
 
 			Initialize ();

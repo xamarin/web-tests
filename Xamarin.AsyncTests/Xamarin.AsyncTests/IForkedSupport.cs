@@ -1,5 +1,5 @@
 ﻿//
-// Program.cs
+// IForkedSupport.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,30 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Console;
-using Xamarin.AsyncTests.Remoting;
-
-namespace Xamarin.AsyncTests.Test
+namespace Xamarin.AsyncTests
 {
-	class MainClass : IForkedSupport
+	public interface IForkedSupport : ISingletonInstance
 	{
-		public bool SupportsProcessForks => true;
-
-		static void Main (string[] args)
-		{
-			var main = new MainClass ();
-			main.Run (args);
-		}
-
-		void Run (string[] args)
-		{
-			DependencyInjector.RegisterAssembly (typeof (MainClass).Assembly);
-			DependencyInjector.RegisterDependency<IForkedSupport> (() => this);
-			DependencyInjector.RegisterDependency<IForkedProcessLauncher> (() => new ForkedProcessLauncher ());
-
-			Program.Run (typeof (MainClass).Assembly, args);
+		bool SupportsProcessForks {
+			get;
 		}
 	}
 }
-
