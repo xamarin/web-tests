@@ -73,7 +73,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public static void CheckLeakingInstances (TestContext ctx)
 		{
-			ctx.Assert (countInstances, Is.EqualTo (1), $"Leaking `{typeof (Response)}' instances.");
+			ctx.Assert (countInstances, Is.EqualTo (0), $"Leaking `{typeof (Response)}' instances.");
 		}
 
 		public void Dispose ()
