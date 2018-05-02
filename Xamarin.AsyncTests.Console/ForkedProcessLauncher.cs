@@ -41,7 +41,8 @@ namespace Xamarin.AsyncTests.Console
 			var assembly = Assembly.GetEntryAssembly ();
 			var psi = new ProcessStartInfo (assembly.Location, options);
 			psi.UseShellExecute = false;
-			psi.EnvironmentVariables.Add ("MONO_ENV_OPTIONS", "--debug");
+			if (!psi.EnvironmentVariables.ContainsKey ("MONO_ENV_OPTIONS"))
+				psi.EnvironmentVariables.Add ("MONO_ENV_OPTIONS", "--debug");
 			return ProcessHelper.StartCommand (psi, cancellationToken);
 		}
 	}
