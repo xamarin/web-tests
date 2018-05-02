@@ -64,6 +64,8 @@ namespace Xamarin.WebTests.TestFramework
 				yield return CertificateStoreAttribute.Instance;
 
 				yield return ManualSslStreamAttribute.Instance;
+
+				yield return ManualSelectAttribute.Instance;
 			}
 		}
 

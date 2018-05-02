@@ -238,6 +238,7 @@
     <Compile Include="Xamarin.WebTests.ExternalServer\ExternalServerHandler.cs" />
     <Compile Include="Xamarin.WebTests.ExternalServer\ExternalServerHandlerDelegate.cs" />
     <Compile Include="Xamarin.WebTests.ExternalServer\Registry.cs" />
+    <Compile Include="Xamarin.WebTests.TestAttributes\ManualSelectAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
