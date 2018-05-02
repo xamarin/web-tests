@@ -37,5 +37,6 @@ namespace Xamarin.WebTests.TestFramework
 		public const string Validation = "validation";
 		public const string StreamInstrumentationTestRunner = "stream-instrumentation-test";
 		public const string StreamInstrumentation = "stream-instrumentation";
+		public const string ExternalServer = "external-server";
 	}
 }

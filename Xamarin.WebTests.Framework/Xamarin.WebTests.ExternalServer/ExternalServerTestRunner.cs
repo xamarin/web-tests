@@ -73,7 +73,7 @@ namespace Xamarin.WebTests.ExternalServer
 			private set;
 		}
 
-		const string LogCategory = "ParallelServer";
+		const string LogCategory = LogCategories.ExternalServer;
 
 		static ConnectionParameters GetParameters (string identifier)
 		{
