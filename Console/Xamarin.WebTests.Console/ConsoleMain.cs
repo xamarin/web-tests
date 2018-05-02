@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.Console
 		public void Initialize ()
 		{
 			var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.Console");
+			DependencyInjector.RegisterDependency<IForkedSupport> (() => this);
 			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
 			DependencyInjector.RegisterDependency<IMonoConnectionFrameworkSetup> (() => setup);
 
