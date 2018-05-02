@@ -26,12 +26,14 @@
 using System;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests;
 using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.HttpHandlers;
 using Xamarin.WebTests.MonoTests;
 using Xamarin.WebTests.MonoConnectionFramework;
 using Xamarin.WebTests.MonoTestFeatures;
+using Mono.Security.Interface;
 
 [assembly: AsyncTestSuite (typeof (MonoWebTestFeatures), "MonoTests", typeof (SharedWebTestFeatures))]
 [assembly: DependencyProvider (typeof (MonoWebTestFeatures.Provider))]
@@ -76,6 +78,10 @@ namespace Xamarin.WebTests.MonoTests
 
 		public void GlobalSetUp (TestContext ctx)
 		{
+			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
+			var provider = MonoTlsProviderFactory.GetProvider ();
+
+			ctx.Assert (provider.ID, Is.EqualTo (setup.TlsProviderId), "Default TLS Provider");
 		}
 
 		public void GlobalTearDown (TestContext ctx)
