@@ -94,6 +94,10 @@ namespace Xamarin.WebTests.ExternalServer
 
 		protected abstract void Initialize (TestContext ctx);
 
+		protected virtual void RemoteInitialize (TestContext ctx)
+		{
+		}
+
 		protected ExternalServerRegistration RegisterServer (string name, int parallel = 0, HttpServerFlags flags = HttpServerFlags.None)
 		{
 			var registration = new ExternalServerRegistration (name, parallel, flags);
@@ -113,7 +117,7 @@ namespace Xamarin.WebTests.ExternalServer
 			if (Interlocked.CompareExchange (ref initialized, 1, 0) != 0)
 				return;
 
-			ctx.LogDebug (LogCategory, 2, $"INITIALIZE: {ctx.FriendlyName} {IsForked}");
+			ctx.LogDebug (LogCategory, 2, $"RUN INITIALIZE: {ctx.FriendlyName} {IsForked}");
 
 			if (IsReverseFork) {
 				if (!IsForked)
@@ -157,13 +161,16 @@ namespace Xamarin.WebTests.ExternalServer
 
 				server.Initialized = true;
 
-				ctx.LogDebug (LogCategory, 2, $"INITIALIZE: {server.Uri}");
+				ctx.LogDebug (LogCategory, 2, $"RUN INITIALIZE: {server.Uri}");
 			}
 		}
 
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
 			ctx.LogDebug (LogCategory, 2, $"INITIALIZE: {ctx.FriendlyName} {IsForked}");
+
+			if (!IsReverseFork && IsForked)
+				RemoteInitialize (ctx);
 
 			if (IsReverseFork != IsForked)
 				return;
@@ -225,6 +232,16 @@ namespace Xamarin.WebTests.ExternalServer
 			foreach (var serverElement in element.Elements ("Server")) {
 				var registration = new ExternalServerRegistration (serverElement);
 				ServerRegistry.Add (registration.Name, registration);
+			}
+		}
+
+		protected async Task TraditionalSend (TestContext ctx, ExternalServerHandler handler, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			var request = new TraditionalRequest (handler.Uri);
+			using (var response = await request.Send (ctx, cancellationToken).ConfigureAwait (false)) {
+				ctx.Assert (response.Status, Is.EqualTo (HttpStatusCode.OK));
 			}
 		}
 	}

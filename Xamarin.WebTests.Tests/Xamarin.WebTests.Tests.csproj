@@ -112,6 +112,7 @@
     <Compile Include="Xamarin.WebTests.ExternalTests\TestExternalServer.cs" />
     <Compile Include="Xamarin.WebTests.ExternalTests\ExternalTestFixture.cs" />
     <Compile Include="Xamarin.WebTests.ExternalTests\TestReverseFork.cs" />
+    <Compile Include="Xamarin.WebTests.ExternalTests\ServicePointLimit.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
