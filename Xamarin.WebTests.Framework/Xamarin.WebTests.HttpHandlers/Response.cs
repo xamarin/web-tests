@@ -28,6 +28,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
@@ -72,7 +73,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public static void CheckLeakingInstances (TestContext ctx)
 		{
-			ctx.LogMessage ($"LEAKING RESPONSE INSTANCES: {countInstances}");
+			ctx.Assert (countInstances, Is.EqualTo (1), $"Leaking `{typeof (Response)}' instances.");
 		}
 
 		public void Dispose ()
