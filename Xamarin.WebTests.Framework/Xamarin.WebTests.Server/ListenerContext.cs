@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,8 +37,8 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Server
 {
+	using TestFramework;
 	using HttpFramework;
-	using System.Text;
 
 	class ListenerContext : IDisposable
 	{
@@ -144,7 +145,7 @@ namespace Xamarin.WebTests.Server
 				}
 			}
 
-			ctx.LogDebug (5, $"{me} {State}");
+			ctx.LogDebug (LogCategories.Listener, 5, $"{me} {State}");
 
 			currentListenerTask = StartListenerTask ();
 			currentListenerTask.Start ();
@@ -196,7 +197,7 @@ namespace Xamarin.WebTests.Server
 
 			ConnectionState Initialized (bool completed, bool success)
 			{
-				ctx.LogDebug (5, $"{me} INITIALIZED: {completed} {success}");
+				ctx.LogDebug (LogCategories.Listener, 5, $"{me} INITIALIZED: {completed} {success}");
 
 				if (!completed)
 					return ConnectionState.CannotReuseConnection;
@@ -209,7 +210,7 @@ namespace Xamarin.WebTests.Server
 
 			Task<HttpRequest> ReadRequestHeader ()
 			{
-				ctx.LogDebug (5, $"{me} READ REQUEST HEADER");
+				ctx.LogDebug (LogCategories.Listener, 5, $"{me} READ REQUEST HEADER");
 
 				return Connection.ReadRequestHeader (ctx, cancellationToken);
 			}
@@ -225,12 +226,12 @@ namespace Xamarin.WebTests.Server
 
 				var operation = Listener.GetOperation (this, request);
 				if (operation == null) {
-					ctx.LogDebug (5, $"{me} INVALID REQUEST: {request.Path}");
+					ctx.LogDebug (LogCategories.Listener, 5, $"{me} INVALID REQUEST: {request.Path}");
 					return ConnectionState.Closed;
 				}
 
 				currentOperation = operation;
-				ctx.LogDebug (5, $"{me} GOT REQUEST");
+				ctx.LogDebug (LogCategories.Listener, 5, $"{me} GOT REQUEST");
 
 				if (Listener.TargetListener == null)
 					return ConnectionState.HasRequest;
@@ -284,21 +285,21 @@ namespace Xamarin.WebTests.Server
 
 			async Task ConnectToTarget ()
 			{
-				ctx.LogDebug (5, $"{me} CONNECT TO TARGET");
+				ctx.LogDebug (LogCategories.Listener, 5, $"{me} CONNECT TO TARGET");
 
 				targetConnection = new SocketConnection (Listener.TargetListener.Server);
 				var targetEndPoint = GetTargetEndPoint (currentOperation.Uri);
-				ctx.LogDebug (5, $"{me} CONNECT TO TARGET #1: {targetEndPoint}");
+				ctx.LogDebug (LogCategories.Listener, 5, $"{me} CONNECT TO TARGET #1: {targetEndPoint}");
 
 				cancellationToken.ThrowIfCancellationRequested ();
 				await targetConnection.ConnectAsync (ctx, targetEndPoint, cancellationToken);
 
-				ctx.LogDebug (5, $"{me} CONNECT TO TARGET #2");
+				ctx.LogDebug (LogCategories.Listener, 5, $"{me} CONNECT TO TARGET #2");
 
 				cancellationToken.ThrowIfCancellationRequested ();
 				await targetConnection.Initialize (ctx, currentOperation.Operation, cancellationToken);
 
-				ctx.LogDebug (5, $"{me} CONNECT TO TARGET #3");
+				ctx.LogDebug (LogCategories.Listener, 5, $"{me} CONNECT TO TARGET #3");
 			}
 
 			ConnectionState ProxyConnectionEstablished ()
@@ -313,12 +314,12 @@ namespace Xamarin.WebTests.Server
 				cancellationToken.ThrowIfCancellationRequested ();
 				await targetConnection.WriteRequest (ctx, currentRequest, cancellationToken);
 
-				ctx.LogDebug (5, $"{me} HANDLE PROXY CONNECTION");
+				ctx.LogDebug (LogCategories.Listener, 5, $"{me} HANDLE PROXY CONNECTION");
 
 				cancellationToken.ThrowIfCancellationRequested ();
 				var response = await copyResponseTask.ConfigureAwait (false);
 
-				ctx.LogDebug (5, $"{me} HANDLE PROXY CONNECTION #1");
+				ctx.LogDebug (LogCategories.Listener, 5, $"{me} HANDLE PROXY CONNECTION #1");
 				return response;
 			}
 
@@ -352,7 +353,7 @@ namespace Xamarin.WebTests.Server
 
 			ConnectionState RequestComplete (HttpResponse response)
 			{
-				ctx.LogDebug (5, $"{me}: {response} {response.Redirect?.ME}");
+				ctx.LogDebug (LogCategories.Listener, 5, $"{me}: {response} {response.Redirect?.ME}");
 
 				currentResponse = response;
 
@@ -374,9 +375,9 @@ namespace Xamarin.WebTests.Server
 				var keepAlive = (response.KeepAlive ?? false) && !response.CloseConnection;
 
 				if (redirect != null) {
-					ctx.LogDebug (5, $"{me} REDIRECT ON NEW CONTEXT: {redirect.ME}!");
+					ctx.LogDebug (LogCategories.Listener, 5, $"{me} REDIRECT ON NEW CONTEXT: {redirect.ME}!");
 					await redirect.ServerStartTask.ConfigureAwait (false);
-					ctx.LogDebug (5, $"{me} REDIRECT ON NEW CONTEXT #1: {redirect.ME}!");
+					ctx.LogDebug (LogCategories.Listener, 5, $"{me} REDIRECT ON NEW CONTEXT #1: {redirect.ME}!");
 					keepAlive = false;
 				}
 
@@ -410,7 +411,7 @@ namespace Xamarin.WebTests.Server
 			async Task<bool> WaitForClose ()
 			{
 				var result = await Connection.WaitForRequest (2500, cancellationToken).ConfigureAwait (false);
-				ctx.LogDebug (5, $"{me} WAIT FOR CLOSE #1: {result}");
+				ctx.LogDebug (LogCategories.Listener, 5, $"{me} WAIT FOR CLOSE #1: {result}");
 				return ctx.Expect (result, Is.False, "expected client to close the connection");
 			}
 
@@ -426,7 +427,7 @@ namespace Xamarin.WebTests.Server
 
 			var task = Interlocked.Exchange (ref currentListenerTask, null);
 
-			ctx.LogDebug (5, $"{me}: {task.Task.Status} {State}");
+			ctx.LogDebug (LogCategories.Listener, 5, $"{me}: {task.Task.Status} {State}");
 
 			var canceled = cancellationToken.IsCancellationRequested || task.Task.Status == TaskStatus.Created;
 			if (canceled || task.Task.Status == TaskStatus.Faulted) {
@@ -444,7 +445,7 @@ namespace Xamarin.WebTests.Server
 
 			var nextState = task.Continue ();
 
-			ctx.LogDebug (5, $"{me} DONE: {State} -> {nextState}");
+			ctx.LogDebug (LogCategories.Listener, 5, $"{me} DONE: {State} -> {nextState}");
 
 			State = nextState;
 			return true;
@@ -457,7 +458,7 @@ namespace Xamarin.WebTests.Server
 		public async Task Accept (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}({connection.ME}:{ReusingConnection}) ACCEPT";
-			ctx.LogDebug (2, $"{me}");
+			ctx.LogDebug (LogCategories.Listener, 2, $"{me}");
 
 			if (ReusingConnection) {
 				serverStartTask.TrySetResult (null);
@@ -470,7 +471,7 @@ namespace Xamarin.WebTests.Server
 
 				await acceptTask.ConfigureAwait (false);
 
-				ctx.LogDebug (2, $"{me} DONE: {connection.RemoteEndPoint} {assignedOperation?.ME}");
+				ctx.LogDebug (LogCategories.Listener, 2, $"{me} DONE: {connection.RemoteEndPoint} {assignedOperation?.ME}");
 
 				assignedOperation?.Finish ();
 			}
@@ -507,12 +508,12 @@ namespace Xamarin.WebTests.Server
 		async Task<bool> ReuseConnection (TestContext ctx, HttpOperation operation, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}({connection.ME}) REUSE";
-			ctx.LogDebug (2, $"{me}");
+			ctx.LogDebug (LogCategories.Listener, 2, $"{me}");
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			var reusable = await connection.ReuseConnection (ctx, cancellationToken).ConfigureAwait (false);
 
-			ctx.LogDebug (2, $"{me} #1: {reusable}");
+			ctx.LogDebug (LogCategories.Listener, 2, $"{me} #1: {reusable}");
 
 			if (reusable && (operation?.HasAnyFlags (HttpOperationFlags.ClientUsesNewConnection) ?? false)) {
 				try {
@@ -521,7 +522,7 @@ namespace Xamarin.WebTests.Server
 				} catch (OperationCanceledException) {
 					throw;
 				} catch (Exception ex) {
-					ctx.LogDebug (2, $"{ME} EXPECTED EXCEPTION: {ex.GetType ()} {ex.Message}");
+					ctx.LogDebug (LogCategories.Listener, 2, $"{ME} EXPECTED EXCEPTION: {ex.GetType ()} {ex.Message}");
 				}
 				connection.Dispose ();
 				return false;
@@ -533,14 +534,14 @@ namespace Xamarin.WebTests.Server
 		async Task<bool> InitConnection (TestContext ctx, HttpOperation operation, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}({connection.ME}) INIT";
-			ctx.LogDebug (2, $"{me}");
+			ctx.LogDebug (LogCategories.Listener, 2, $"{me}");
 
 			bool haveRequest;
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			try {
 				await connection.Initialize (ctx, operation, cancellationToken);
-				ctx.LogDebug (2, $"{me} #1 {connection.RemoteEndPoint}");
+				ctx.LogDebug (LogCategories.Listener, 2, $"{me} #1 {connection.RemoteEndPoint}");
 
 				if (operation != null && operation.HasAnyFlags (HttpOperationFlags.ServerAbortsHandshake))
 					throw ctx.AssertFail ("Expected server to abort handshake.");
@@ -554,14 +555,14 @@ namespace Xamarin.WebTests.Server
 				 *
 				 */
 				haveRequest = await connection.WaitForRequest (cancellationToken);
-				ctx.LogDebug (2, $"{me} #2 {haveRequest}");
+				ctx.LogDebug (LogCategories.Listener, 2, $"{me} #2 {haveRequest}");
 
 				if (operation != null && operation.HasAnyFlags (HttpOperationFlags.ClientAbortsHandshake))
 					throw ctx.AssertFail ("Expected client to abort handshake.");
 			} catch (Exception ex) {
 				if (operation.HasAnyFlags (HttpOperationFlags.ServerAbortsHandshake, HttpOperationFlags.ClientAbortsHandshake))
 					return false;
-				ctx.LogDebug (2, $"{me} FAILED: {ex.Message}\n{ex}");
+				ctx.LogDebug (LogCategories.Listener, 2, $"{me} FAILED: {ex.Message}\n{ex}");
 				throw;
 			}
 
@@ -576,7 +577,7 @@ namespace Xamarin.WebTests.Server
 					ctx.Assert (connection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
 			}
 
-			ctx.LogDebug (2, $"{me} DONE");
+			ctx.LogDebug (LogCategories.Listener, 2, $"{me} DONE");
 			return true;
 		}
 
@@ -632,7 +633,7 @@ namespace Xamarin.WebTests.Server
 			while (!doneReading && !doneSending) {
 				cancellationToken.ThrowIfCancellationRequested ();
 
-				ctx.LogDebug (5, "RUN TUNNEL: {0} {1} {2} {3}",
+				ctx.LogDebug (LogCategories.Listener, 5, "RUN TUNNEL: {0} {1} {2} {3}",
 					      doneReading, doneSending, inputTask != null, outputTask != null);
 
 				if (!doneReading && inputTask == null)
@@ -646,20 +647,20 @@ namespace Xamarin.WebTests.Server
 				if (outputTask != null)
 					tasks.Add (outputTask);
 
-				ctx.LogDebug (5, "RUN TUNNEL #1: {0}", tasks.Count);
+				ctx.LogDebug (LogCategories.Listener, 5, "RUN TUNNEL #1: {0}", tasks.Count);
 				var result = await Task.WhenAny (tasks).ConfigureAwait (false);
-				ctx.LogDebug (5, "RUN TUNNEL #2: {0} {1} {2}", result, result == inputTask, result == outputTask);
+				ctx.LogDebug (LogCategories.Listener, 5, "RUN TUNNEL #2: {0} {1} {2}", result, result == inputTask, result == outputTask);
 
 				if (result.IsCanceled) {
-					ctx.LogDebug (5, "RUN TUNNEL - CANCEL");
+					ctx.LogDebug (LogCategories.Listener, 5, "RUN TUNNEL - CANCEL");
 					throw new TaskCanceledException ();
 				}
 				if (result.IsFaulted) {
-					ctx.LogDebug (5, "RUN TUNNEL - ERROR: {0}", result.Exception);
+					ctx.LogDebug (LogCategories.Listener, 5, "RUN TUNNEL - ERROR: {0}", result.Exception);
 					throw result.Exception;
 				}
 
-				ctx.LogDebug (5, "RUN TUNNEL #3: {0}", result.Result);
+				ctx.LogDebug (LogCategories.Listener, 5, "RUN TUNNEL #3: {0}", result.Result);
 
 				if (result == inputTask) {
 					if (!result.Result)

@@ -31,7 +31,10 @@ namespace Xamarin.WebTests.TestFramework
 		public const string BoringValidator = "boring-validator";
 		public const string CertificateValidator = "validator";
 		public const string SimpleConnections = "simple-connection";
-		public const string Https = "https";
+		public const string Listener = "listener";
+		public const string Instrumentation = "instrumentation";
+		public const string Stress = "stress";
+		public const string Validation = "validation";
 		public const string StreamInstrumentationTestRunner = "stream-instrumentation-test";
 		public const string StreamInstrumentation = "stream-instrumentation";
 	}

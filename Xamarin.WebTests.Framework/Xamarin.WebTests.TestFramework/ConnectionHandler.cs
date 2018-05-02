@@ -108,7 +108,7 @@ namespace Xamarin.WebTests.TestFramework
 				sb.Append (arg);
 			}
 			var formatted = sb.ToString ();
-			ctx.LogDebug (level, formatted);
+			ctx.LogDebug (LogCategories.Listener, level, formatted);
 		}
 
 		internal Task ExpectBlob (TestContext ctx, Connection connection, CancellationToken cancellationToken)

@@ -238,7 +238,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				sb.Append (arg);
 			}
 			var formatted = sb.ToString ();
-			ctx.LogDebug (level, formatted);
+			ctx.LogDebug (LogCategories.Listener, level, formatted);
 		}
 
 		protected sealed override Task MainLoop (TestContext ctx, CancellationToken cancellationToken)

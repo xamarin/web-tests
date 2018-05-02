@@ -58,7 +58,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		TestBuilderInstance SetUp (TestContext ctx, TestInstance instance)
 		{
-			ctx.LogDebug (10, $"{ME}.SetUp({TestLogger.Print (instance)})");
+			ctx.LogDebug (LogCategory, 10, $"{ME}.SetUp({TestLogger.Print (instance)})");
 
 			try {
 				return (TestBuilderInstance)Host.CreateInstance (ctx, Node, instance);
@@ -73,7 +73,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		bool TearDown (TestContext ctx, TestBuilderInstance instance)
 		{
-			ctx.LogDebug (10, $"{ME}.TearDown({TestLogger.Print (instance)})");
+			ctx.LogDebug (LogCategory, 10, $"{ME}.TearDown({TestLogger.Print (instance)})");
 
 			try {
 				instance.Destroy (ctx);
@@ -97,7 +97,7 @@ namespace Xamarin.AsyncTests.Framework
 			var innerPath = innerInstance.GetCurrentPath ();
 			var innerCtx = ctx.CreateChild (innerPath);
 
-			ctx.LogDebug (10, $"{ME}.Invoke({TestLogger.Print (instance)}): {innerInstance}");
+			ctx.LogDebug (LogCategory, 10, $"{ME}.Invoke({TestLogger.Print (instance)}): {innerInstance}");
 			TestInstance.LogDebug (ctx, innerInstance, 10);
 
 			var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);

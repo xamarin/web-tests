@@ -65,7 +65,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		bool SetUp (TestContext ctx, TestInstance instance)
 		{
-			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Builder), TestLogger.Print (instance));
+			ctx.LogDebug (LogCategory, 10, $"SetUp({ctx.FriendlyName}): {TestLogger.Print (Builder)} {TestLogger.Print (instance)}");
 
 			try {
 				ResolveChildren (ctx, instance);
@@ -88,7 +88,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (!SetUp (ctx, instance))
 				return false;
 
-			ctx.LogDebug (10, "Invoke({0}): {1} {2} {3}", ctx.FriendlyName,
+			ctx.LogDebug (LogCategory, 10, "Invoke({0}): {1} {2} {3}", ctx.FriendlyName,
 				Flags, TestLogger.Print (instance), children.Count);
 
 			bool success = true;
@@ -96,21 +96,19 @@ namespace Xamarin.AsyncTests.Framework
 				if (cancellationToken.IsCancellationRequested)
 					break;
 
-				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2}", ctx.FriendlyName,
-					TestLogger.Print (instance), child);
+				ctx.LogDebug (LogCategory, 10, $"InnerInvoke({ctx.FriendlyName}): {TestLogger.Print (instance)} {child}");
 
 				var invoker = child.Item2;
 
 				success = await InvokeInner (ctx, instance, invoker, cancellationToken);
 
-				ctx.LogDebug (10, "InnerInvoke({0}) done: {1} {2}", ctx.FriendlyName,
-					TestLogger.Print (instance), success);
+				ctx.LogDebug (LogCategory, 10, $"InnerInvoke({ctx.FriendlyName}) done: {TestLogger.Print (instance)} {success}");
 
 				if (!success)
 					break;
 			}
 
-			ctx.LogDebug (10, "Invoke({0}) done: {1} {2} - {3}", ctx.FriendlyName,
+			ctx.LogDebug (LogCategory, 10, "Invoke({0}) done: {1} {2} - {3}", ctx.FriendlyName,
 				Flags, TestLogger.Print (instance), success);
 
 			return success;

@@ -15,6 +15,8 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	using TestFramework;
+
 	public class DotNetServer : DotNetConnection
 	{
 		public override ConnectionType ConnectionType => ConnectionType.Server;
@@ -41,28 +43,28 @@ namespace Xamarin.WebTests.ConnectionFramework
 			string function;
 			if (HasFlag (SslStreamFlags.SyncAuthenticate)) {
 				function = "SslStream.AuthenticateAsServer()";
-				ctx.LogDebug (1, "Calling {0} synchronously.", function);
+				ctx.LogDebug (LogCategories.Listener, 1, $"Calling {function} synchronously.");
 				task = Task.Run (() => sslStream.AuthenticateAsServer (certificate, askForCert, protocol, false));
 			} else if (HasFlag (SslStreamFlags.BeginEndAuthenticate)) {
 				function = "SslStream.BeginAuthenticateAsServer()";
-				ctx.LogDebug (1, "Calling {0}.", function);
+				ctx.LogDebug (LogCategories.Listener, 1, $"Calling {function}.");
 				task = Task.Factory.FromAsync (
 					(callback, state) => sslStream.BeginAuthenticateAsServer (certificate, askForCert, protocol, false, callback, state),
 					(result) => sslStream.EndAuthenticateAsServer (result), null);
 			} else {
 				function = "SslStream.AuthenticateAsServerAsync()";
-				ctx.LogDebug (1, "Calling {0} async.", function);
+				ctx.LogDebug (LogCategories.Listener, 1, $"Calling {function} async.");
 				task = sslStream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false);
 			}
 
 			try {
 				await task.ConfigureAwait (false);
-				ctx.LogDebug (1, "{0} completed successfully.", function);
+				ctx.LogDebug (LogCategories.Listener, 1, $"{function} completed successfully.");
 			} catch (Exception ex) {
 				if (Parameters.ExpectClientException || Parameters.ExpectServerException)
-					ctx.LogDebug (1, "{0} failed (expected exception): {1}", function, ex.GetType ().Name);
+					ctx.LogDebug (LogCategories.Listener, 1, $"{function} failed (expected exception): {ex.GetType ().Name}");
 				else
-					ctx.LogDebug (1, "{0} failed: {1}.", function, ex);
+					ctx.LogDebug (LogCategories.Listener, 1, $"{function} failed: {ex}.");
 				throw;
 			}
 		}

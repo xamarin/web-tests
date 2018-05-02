@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.Framework
 		async Task<bool> PreRun (
 			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			ctx.LogDebug (10, "PreRun({0}): {1}", ctx.FriendlyName, TestLogger.Print (instance));
+			ctx.LogDebug (LogCategory, 10, $"PreRun({ctx.FriendlyName}): {TestLogger.Print (instance)}");
 
 			try {
 				for (var current = instance; current != null; current = current.Parent) {
@@ -66,7 +66,7 @@ namespace Xamarin.AsyncTests.Framework
 		async Task<bool> PostRun (
 			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			ctx.LogDebug (10, "PostRun({0}): {1}", ctx.FriendlyName, TestLogger.Print (instance));
+			ctx.LogDebug (LogCategory, 10, $"PostRun({ctx.FriendlyName}): {TestLogger.Print (instance)}");
 
 			try {
 				for (var current = instance; current != null; current = current.Parent) {

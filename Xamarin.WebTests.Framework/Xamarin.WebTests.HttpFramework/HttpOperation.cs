@@ -34,6 +34,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
+using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.HttpHandlers;
 using Xamarin.WebTests.TestRunners;
 using Xamarin.WebTests.Server;
@@ -162,7 +163,7 @@ namespace Xamarin.WebTests.HttpFramework
 			} catch (OperationCanceledException) {
 				requestDoneTask.TrySetCanceled ();
 			} catch (Exception ex) {
-				ctx.LogDebug (5, $"{ME} FAILED: {ex.Message}");
+				ctx.LogDebug (LogCategories.Listener, 5, $"{ME} FAILED: {ex.Message}");
 				requestDoneTask.TrySetException (ex);
 			} finally {
 				linkedCts.Dispose ();
@@ -195,13 +196,13 @@ namespace Xamarin.WebTests.HttpFramework
 				sb.Append (args[i] != null ? args[i].ToString () : "<null>");
 			}
 
-			ctx.LogDebug (level, sb.ToString ());
+			ctx.LogDebug (LogCategories.Listener, level, sb.ToString ());
 		}
 
 		async Task RunListener (TestContext ctx, Uri externalUri, CancellationToken cancellationToken)
 		{
 			var me = $"{ME} RUN LISTENER";
-			ctx.LogDebug (1, me);
+			ctx.LogDebug (LogCategories.Listener, 1, me);
 
 			Uri uri;
 			ListenerOperation operation;
@@ -225,7 +226,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 			requestTask.SetResult (request);
 
-			ctx.LogDebug (2, $"{me} #1: {uri} {request}");
+			ctx.LogDebug (LogCategories.Listener, 2, $"{me} #1: {uri} {request}");
 
 			Response response;
 			if (externalUri != null)
@@ -234,7 +235,7 @@ namespace Xamarin.WebTests.HttpFramework
 				response = await Server.Listener.RunWithContext (
 					ctx, operation, request, RunInner, cancellationToken).ConfigureAwait (false);
 
-			ctx.LogDebug (2, $"{me} DONE: {response}");
+			ctx.LogDebug (LogCategories.Listener, 2, $"{me} DONE: {response}");
 
 			try {
 				if (ctx.HasPendingException)
@@ -309,7 +310,7 @@ namespace Xamarin.WebTests.HttpFramework
 			if (!listenerOperation.Operation.HasAnyFlags (HttpOperationFlags.DelayedListenerContext))
 				throw new InvalidOperationException ();
 			var context = await Server.Listener.FindContext (ctx, listenerOperation, false).ConfigureAwait (false);
-			ctx.LogDebug (2, $"{ME} GOT CONTEXT: {context.ID}");
+			ctx.LogDebug (LogCategories.Listener, 2, $"{ME} GOT CONTEXT: {context.ID}");
 			listenerOperation.AssignContext (context);
 		}
 

@@ -34,7 +34,7 @@ using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.AsyncTests.Constraints;
-using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.Server
@@ -80,12 +80,12 @@ namespace Xamarin.WebTests.Server
 
 		public override async Task AcceptAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
-			ctx.LogDebug (5, $"{ME} ACCEPT: {ListenSocket.LocalEndPoint}");
+			ctx.LogDebug (LogCategories.Listener, 5, $"{ME} ACCEPT: {ListenSocket.LocalEndPoint}");
 			if (Socket != null)
 				throw new NotSupportedException ();
 			Socket = await ListenSocket.AcceptAsync (cancellationToken).ConfigureAwait (false);
 			remoteEndPoint = (IPEndPoint)Socket.RemoteEndPoint;
-			ctx.LogDebug (5, $"{ME} ACCEPT #1: {ListenSocket.LocalEndPoint} {remoteEndPoint}");
+			ctx.LogDebug (LogCategories.Listener, 5, $"{ME} ACCEPT #1: {ListenSocket.LocalEndPoint} {remoteEndPoint}");
 		}
 
 		public async Task ConnectAsync (TestContext ctx, EndPoint endpoint, CancellationToken cancellationToken)
@@ -98,7 +98,7 @@ namespace Xamarin.WebTests.Server
 		public override async Task Initialize (TestContext ctx, HttpOperation operation, CancellationToken cancellationToken)
 		{
 			remoteEndPoint = (IPEndPoint)Socket.RemoteEndPoint;
-			ctx.LogDebug (5, $"{ME} INITIALIZE: {ListenSocket?.LocalEndPoint} {remoteEndPoint} {operation?.ME}");
+			ctx.LogDebug (LogCategories.Listener, 5, $"{ME} INITIALIZE: {ListenSocket?.LocalEndPoint} {remoteEndPoint} {operation?.ME}");
 			if (operation != null)
 				networkStream = operation.CreateNetworkStream (ctx, Socket, true);
 			if (networkStream == null)
@@ -112,7 +112,7 @@ namespace Xamarin.WebTests.Server
 			}
 
 			reader = new HttpStreamReader (Stream);
-			ctx.LogDebug (5, $"{ME} INITIALIZE DONE: {ListenSocket?.LocalEndPoint} {remoteEndPoint}");
+			ctx.LogDebug (LogCategories.Listener, 5, $"{ME} INITIALIZE DONE: {ListenSocket?.LocalEndPoint} {remoteEndPoint}");
 		}
 
 		async Task<SslStream> CreateSslStream (TestContext ctx, Stream innerStream, CancellationToken cancellationToken)
@@ -135,9 +135,9 @@ namespace Xamarin.WebTests.Server
 			if (!socket.Connected)
 				return false;
 
-			ctx.LogDebug (5, $"{ME}: REUSE CONNECTION: {socket.Connected} {socket.Available} {socket.Blocking} {socket.IsBound}");
+			ctx.LogDebug (LogCategories.Listener, 5, $"{ME}: REUSE CONNECTION: {socket.Connected} {socket.Available} {socket.Blocking} {socket.IsBound}");
 			var reusable = await socket.PollAsync (cancellationToken).ConfigureAwait (false);
-			ctx.LogDebug (5, $"{ME}: REUSE CONNECTION #1: {reusable} {socket.Connected} {socket.Available} {socket.Blocking} {socket.IsBound}");
+			ctx.LogDebug (LogCategories.Listener, 5, $"{ME}: REUSE CONNECTION #1: {reusable} {socket.Connected} {socket.Available} {socket.Blocking} {socket.IsBound}");
 			if (!reusable)
 				return false;
 
@@ -163,15 +163,15 @@ namespace Xamarin.WebTests.Server
 		public override async Task<HttpRequest> ReadRequestHeader (TestContext ctx, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			ctx.LogDebug (5, $"{ME} READ REQUEST: {ListenSocket?.LocalEndPoint} {remoteEndPoint}");
+			ctx.LogDebug (LogCategories.Listener, 5, $"{ME} READ REQUEST: {ListenSocket?.LocalEndPoint} {remoteEndPoint}");
 			var header = await reader.ReadLineAsync (cancellationToken);
 			if (header == null) {
-				ctx.LogDebug (5, $"{ME} READ REQUEST - CLOSED CONNECTION!");
+				ctx.LogDebug (LogCategories.Listener, 5, $"{ME} READ REQUEST - CLOSED CONNECTION!");
 				throw new IOException ();
 			}
 			var (method, protocol, path) = HttpMessage.ReadHttpHeader (header);
-			ctx.LogDebug (5, $"{ME} READ REQUEST #1: {ListenSocket?.LocalEndPoint} {remoteEndPoint} - {method} {protocol} {path}");
-			ctx.LogDebug (5, $"{ME} READ REQUEST DONE: {method} {protocol} {path}");
+			ctx.LogDebug (LogCategories.Listener, 5, $"{ME} READ REQUEST #1: {ListenSocket?.LocalEndPoint} {remoteEndPoint} - {method} {protocol} {path}");
+			ctx.LogDebug (LogCategories.Listener, 5, $"{ME} READ REQUEST DONE: {method} {protocol} {path}");
 
 			return new HttpRequest (protocol, method, path, reader);
 		}

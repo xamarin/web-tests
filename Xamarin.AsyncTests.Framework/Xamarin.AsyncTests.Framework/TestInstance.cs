@@ -104,21 +104,11 @@ namespace Xamarin.AsyncTests.Framework
 			return parameter.GetCurrentPath ();
 		}
 
-		internal static void LogDebug (
-			TestContext ctx, TestInstance instance,
-			int level, string category = null)
+		internal static void LogDebug (TestContext ctx, TestInstance instance, int level)
 		{
 			while (instance != null) {
-				Log ($"    {instance}");
+				ctx.LogDebug (TestInvoker.LogCategory, level, $"    {instance}");
 				instance = instance.Parent;
-			}
-
-			void Log (string message)
-			{
-				if (category != null)
-					ctx.LogDebug (category, level, message);
-				else
-					ctx.LogDebug (level, message);
 			}
 		}
 

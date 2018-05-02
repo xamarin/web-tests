@@ -33,6 +33,8 @@ namespace Xamarin.AsyncTests.Framework
 	{
 		public abstract Task<bool> Invoke (TestContext ctx, TestInstance instance, CancellationToken cancellationToken);
 
+		internal const string LogCategory = "invoker";
+
 		public override string ToString ()
 		{
 			return string.Format ("[{0}]", GetType ().Name);

@@ -61,7 +61,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		internal override TestInstance CreateInstance (TestContext ctx, TestNode node, TestInstance parent)
 		{
-			ctx.LogDebug (10, $"{this} CREATE INSTANCE: {InstanceBuilder}");
+			ctx.LogDebug (TestInvoker.LogCategory, 10, $"{this} CREATE INSTANCE: {InstanceBuilder}");
 			var instance = new ReflectionFixtureInstance (this, node, parent);
 			if (!Builder.RunFilter (ctx, instance))
 				return null;

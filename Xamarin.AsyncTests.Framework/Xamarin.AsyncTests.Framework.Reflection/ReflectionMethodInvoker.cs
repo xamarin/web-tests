@@ -103,12 +103,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 			var me = $"{DebugHelper.FormatType (builder)}({builderName}) INVOKE";
 
-			ctx.LogDebug (10, $"{me}: {DebugHelper.FormatMethod (method)} {timeout}");
+			ctx.LogDebug (TestInvoker.LogCategory, 10, $"{me}: {DebugHelper.FormatMethod (method)} {timeout}");
 			TestInstance.LogDebug (ctx, instance, 10);
 
 			var index = parameters.Length - 1;
 			while (index >= 0) {
-				ctx.LogDebug (10, $"{me} #1: {index} {instance}");
+				ctx.LogDebug (TestInvoker.LogCategory, 10, $"{me} #1: {index} {instance}");
 				var param = parameters[index];
 				var paramType = param.ParameterType;
 				var paramTypeInfo = paramType.GetTypeInfo ();
@@ -179,7 +179,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				instance = instance.Parent;
 			}
 
-			ctx.LogDebug (10, $"{me} #2");
+			ctx.LogDebug (TestInvoker.LogCategory, 10, $"{me} #2");
 			TestInstance.LogDebug (ctx, instance, 10);
 
 			object thisInstance = null;

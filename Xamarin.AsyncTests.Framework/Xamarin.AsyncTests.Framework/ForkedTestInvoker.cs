@@ -113,8 +113,6 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		const string Category = "forked-invoker";
-
 		TestSuiteBuilder GetSuiteBuilder (TestInstance instance)
 		{
 			while (instance != null) {
@@ -143,7 +141,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		TestInstance SetUp (TestContext ctx, TestInstance instance)
 		{
-			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
+			ctx.LogDebug (LogCategory, 10, "SetUp({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
 
 			try {
 				var innerInstance = CreateInstance (ctx, instance);
@@ -178,7 +176,7 @@ namespace Xamarin.AsyncTests.Framework
 		async Task<bool> RunExternalFork (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			if (Node.HasParameter) {
-				ctx.LogDebug (Category, 1, $"RUN FORKED: {Node.Parameter}");
+				ctx.LogDebug (LogCategory, 1, $"RUN FORKED: {Node.Parameter}");
 				return await RunInner (ctx, instance, cancellationToken).ConfigureAwait (false);
 			}
 
@@ -242,30 +240,30 @@ namespace Xamarin.AsyncTests.Framework
 				if (server != null)
 					WalkStackAndRegister (servantCtx, server.Connection, forkedInstance);
 
-				TestInstance.LogDebug (ctx, instance, 5, Category);
+				TestInstance.LogDebug (ctx, instance, 5);
 
 				var serialized = path.SerializePath (true);
-				ctx.LogDebug (Category, 1, $"RUN\n{serialized}\n");
+				ctx.LogDebug (LogCategory, 1, $"RUN\n{serialized}\n");
 
 				var test = await session.ResolveFromPath (serialized, cancellationToken);
 
-				ctx.LogDebug (Category, 1, $"RUN #1: {serialized}\n{test}");
+				ctx.LogDebug (LogCategory, 1, $"RUN #1: {serialized}\n{test}");
 
 				var result = await session.Run (test, cancellationToken).ConfigureAwait (false);
 
-				ctx.LogDebug (Category, 1, $"RUN DONE: {result}");
+				ctx.LogDebug (LogCategory, 1, $"RUN DONE: {result}");
 
 				ctx.Result.AddChild (result);
 
 				await session.Shutdown (cancellationToken).ConfigureAwait (false);
 
-				ctx.LogDebug (Category, 1, $"RUN DONE #1");
+				ctx.LogDebug (LogCategory, 1, $"RUN DONE #1");
 			} finally {
 				if (server != null)
 					await server.Stop (cancellationToken);
 			}
 
-			ctx.LogDebug (Category, 1, $"RUN DONE #2");
+			ctx.LogDebug (LogCategory, 1, $"RUN DONE #2");
 		}
 	}
 }

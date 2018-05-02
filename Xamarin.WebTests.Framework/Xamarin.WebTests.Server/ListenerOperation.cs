@@ -33,6 +33,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Server
 {
+	using TestFramework;
 	using HttpFramework;
 	using HttpHandlers;
 
@@ -158,7 +159,7 @@ namespace Xamarin.WebTests.Server
 			HttpRequest request, CancellationToken cancellationToken)
 		{
 			var me = $"{ME} HANDLE REQUEST";
-			ctx.LogDebug (2, $"{me} {connection.ME} {request}");
+			ctx.LogDebug (LogCategories.Listener, 2, $"{me} {connection.ME} {request}");
 
 			OnInit ();
 
@@ -168,16 +169,16 @@ namespace Xamarin.WebTests.Server
 				cancellationToken.ThrowIfCancellationRequested ();
 				if (!HasAnyFlags (HttpOperationFlags.DontReadRequestBody)) {
 					await request.Read (ctx, cancellationToken).ConfigureAwait (false);
-					ctx.LogDebug (2, $"{me} REQUEST FULLY READ");
+					ctx.LogDebug (LogCategories.Listener, 2, $"{me} REQUEST FULLY READ");
 				} else {
 					await request.ReadHeaders (ctx, cancellationToken).ConfigureAwait (false);
-					ctx.LogDebug (2, $"{me} REQUEST HEADERS READ");
+					ctx.LogDebug (LogCategories.Listener, 2, $"{me} REQUEST HEADERS READ");
 				}
 
 				response = await HandleRequestInner (
 					ctx, connection, request, cancellationToken).ConfigureAwait (false);
 
-				ctx.LogDebug (2, $"{me} HANDLE REQUEST DONE: {response}");
+				ctx.LogDebug (LogCategories.Listener, 2, $"{me} HANDLE REQUEST DONE: {response}");
 			} catch (OperationCanceledException) {
 				OnCanceled ();
 				throw;
@@ -203,7 +204,7 @@ namespace Xamarin.WebTests.Server
 				sb.AppendFormat ("  {0} = {1}", header.Key, header.Value);
 				sb.AppendLine ();
 			}
-			ctx.LogDebug (2, sb.ToString ());
+			ctx.LogDebug (LogCategories.Listener, 2, sb.ToString ());
 		}
 
 		async Task<HttpResponse> HandleRequestInner (
@@ -219,7 +220,7 @@ namespace Xamarin.WebTests.Server
 			var expectServerError = HasAnyFlags (HttpOperationFlags.ExpectServerException);
 
 			try {
-				ctx.LogDebug (1, $"HANDLE REQUEST: {connection.RemoteEndPoint}");
+				ctx.LogDebug (LogCategories.Listener, 1, $"HANDLE REQUEST: {connection.RemoteEndPoint}");
 				DumpHeaders (ctx, request);
 				connection.Server.CheckEncryption (ctx, connection.SslStream);
 				response = await Handler.HandleRequest (
@@ -233,7 +234,7 @@ namespace Xamarin.WebTests.Server
 					response.KeepAlive = true;
 				response.ResolveHeaders ();
 
-				ctx.LogDebug (1, $"HANDLE REQUEST DONE: {connection.RemoteEndPoint}", response);
+				ctx.LogDebug (LogCategories.Listener, 1, $"HANDLE REQUEST DONE: {connection.RemoteEndPoint}", response);
 				DumpHeaders (ctx, response);
 				return response;
 			} catch (AssertionException ex) {
@@ -247,16 +248,16 @@ namespace Xamarin.WebTests.Server
 			}
 
 			if (ctx.IsCanceled || cancellationToken.IsCancellationRequested) {
-				ctx.LogDebug (1, "HANDLE REQUEST - CANCELED");
+				ctx.LogDebug (LogCategories.Listener, 1, "HANDLE REQUEST - CANCELED");
 				throw new OperationCanceledException ();
 			}
 
 			if (originalError is AssertionException)
-				ctx.LogDebug (1, "HANDLE REQUEST - ASSERTION FAILED", originalError);
+				ctx.LogDebug (LogCategories.Listener, 1, "HANDLE REQUEST - ASSERTION FAILED", originalError);
 			else if (expectServerError)
-				ctx.LogDebug (1, "HANDLE REQUEST - EXPECTED ERROR", originalError.GetType ());
+				ctx.LogDebug (LogCategories.Listener, 1, "HANDLE REQUEST - EXPECTED ERROR", originalError.GetType ());
 			else
-				ctx.LogDebug (1, "HANDLE REQUEST - ERROR", originalError);
+				ctx.LogDebug (LogCategories.Listener, 1, "HANDLE REQUEST - ERROR", originalError);
 
 			return response;
 		}

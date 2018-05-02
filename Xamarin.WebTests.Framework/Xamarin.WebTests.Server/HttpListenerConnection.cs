@@ -31,11 +31,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.HttpFramework;
-using Xamarin.WebTests.HttpHandlers;
 
-namespace Xamarin.WebTests.Server {
+namespace Xamarin.WebTests.Server
+{
+	using ConnectionFramework;
+	using TestFramework;
+	using HttpFramework;
+	using HttpHandlers;
+
 	class HttpListenerConnection : HttpConnection
 	{
 		public HttpListener Listener {
@@ -98,7 +101,7 @@ namespace Xamarin.WebTests.Server {
 			var listenerRequest = Context.Request;
 			var protocol = GetProtocol (listenerRequest.ProtocolVersion);
 			var request = new HttpRequest (protocol, listenerRequest);
-			ctx.LogDebug (5, "GOT REQUEST: {0} {1}", request, listenerRequest.HasEntityBody);
+			ctx.LogDebug (LogCategories.Listener, 5, $"GOT REQUEST: {request} {listenerRequest.HasEntityBody}");
 			return Task.FromResult (request);
 		}
 
@@ -112,7 +115,7 @@ namespace Xamarin.WebTests.Server {
 			await Task.Yield ();
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			ctx.LogDebug (5, "WRITE RESPONSE: {0}", response);
+			ctx.LogDebug (LogCategories.Listener, 5, $"WRITE RESPONSE: {response}");
 
 			if (response.HttpListenerResponse != null) {
 				if (response.HttpListenerResponse != Context.Response)

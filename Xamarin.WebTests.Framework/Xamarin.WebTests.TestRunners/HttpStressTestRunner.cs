@@ -84,6 +84,8 @@ namespace Xamarin.WebTests.TestRunners
 			get;
 		}
 
+		internal const string LogCategory = LogCategories.Stress;
+
 		public HttpStressTestRunner (IPortableEndPoint endpoint, HttpStressTestParameters parameters,
 					     ConnectionTestProvider provider, Uri uri, HttpServerFlags flags)
 		{
@@ -164,7 +166,7 @@ namespace Xamarin.WebTests.TestRunners
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}.{nameof (Run)}({EffectiveType})";
-			ctx.LogDebug (2, $"{me}");
+			ctx.LogDebug (LogCategory, 2, $"{me}");
 
 			switch (EffectiveType) {
 			case HttpStressTestType.Simple:
@@ -174,7 +176,7 @@ namespace Xamarin.WebTests.TestRunners
 				throw ctx.AssertFail (EffectiveType);
 			}
 
-			ctx.LogDebug (2, $"{me} DONE");
+			ctx.LogDebug (LogCategory, 2, $"{me} DONE");
 
 			async Task RunSimple ()
 			{
@@ -186,7 +188,7 @@ namespace Xamarin.WebTests.TestRunners
 					tasks[i] = RunLoop (i);
 				}
 
-				ctx.LogDebug (2, $"{me} GOT TASKS");
+				ctx.LogDebug (LogCategory, 2, $"{me} GOT TASKS");
 
 				await Task.WhenAll (tasks);
 

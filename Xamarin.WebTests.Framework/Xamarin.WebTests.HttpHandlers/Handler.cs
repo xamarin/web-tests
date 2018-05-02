@@ -35,7 +35,7 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
-	using ConnectionFramework;
+	using TestFramework;
 	using HttpFramework;
 	using Server;
 
@@ -87,7 +87,7 @@ namespace Xamarin.WebTests.HttpHandlers
 				sb.Append (" ");
 				sb.Append (args [i] != null ? args [i].ToString () : "<null>");
 			}
-			ctx.LogDebug (level, sb.ToString ());
+			ctx.LogDebug (LogCategories.Listener, level, sb.ToString ());
 		}
 
 		[StackTraceEntryPoint]

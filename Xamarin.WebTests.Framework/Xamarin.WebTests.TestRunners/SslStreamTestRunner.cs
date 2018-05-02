@@ -40,9 +40,9 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.TestRunners
 {
+	using TestFramework;
 	using ConnectionFramework;
 	using TestAttributes;
-	using TestFramework;
 	using Resources;
 
 	[SslStreamTestRunner]
@@ -255,7 +255,7 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Expect (Server.SslStream.IsAuthenticated, "server is authenticated");
 
 				if (Server.Parameters.RequireClientCertificate) {
-					ctx.LogDebug (1, "Client certificate required: {0} {1}", Server.SslStream.IsMutuallyAuthenticated, Server.SslStream.RemoteCertificate != null);
+					ctx.LogDebug (LogCategories.Listener, 1, "Client certificate required: {0} {1}", Server.SslStream.IsMutuallyAuthenticated, Server.SslStream.RemoteCertificate != null);
 					ctx.Expect (Server.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
 					ctx.Expect (Server.SslStream.RemoteCertificate, Is.Not.Null, "server has client certificate");
 				}

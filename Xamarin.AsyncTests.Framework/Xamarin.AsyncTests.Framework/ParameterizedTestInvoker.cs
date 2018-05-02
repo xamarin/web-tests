@@ -59,7 +59,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		ParameterizedTestInstance SetUp (TestContext ctx, TestInstance instance)
 		{
-			ctx.LogDebug (10, "SetUp({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
+			ctx.LogDebug (LogCategory, 10, $"SetUp({ctx.FriendlyName}): {TestLogger.Print (instance)}");
 
 			try {
 				var parameterizedInstance = CreateInstance (ctx, instance);
@@ -76,7 +76,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		bool MoveNext (TestContext ctx, TestInstance instance)
 		{
-			ctx.LogDebug (10, "MoveNext({0}): {1} {2}", ctx.FriendlyName, TestLogger.Print (Host), TestLogger.Print (instance));
+			ctx.LogDebug (LogCategory, 10, $"MoveNext({ctx.FriendlyName}): {TestLogger.Print (Host)} {TestLogger.Print (instance)}");
 
 			try {
 				return ((ParameterizedTestInstance)instance).MoveNext (ctx);
@@ -112,12 +112,12 @@ namespace Xamarin.AsyncTests.Framework
 
 				var innerCtx = ctx.CreateChild (path, ctx.Result);
 
-				ctx.LogDebug (10, "InnerInvoke({0}): {1} {2} {3}", path.FullName,
+				ctx.LogDebug (LogCategory, 10, "InnerInvoke({0}): {1} {2} {3}", path.FullName,
 					TestLogger.Print (Host), TestLogger.Print (parameterizedInstance), Inner);
 
 				success = await InvokeInner (innerCtx, parameterizedInstance, Inner, cancellationToken);
 
-				ctx.LogDebug (10, "InnerInvoke({0}) done: {1} {2} {3}", path.FullName,
+				ctx.LogDebug (LogCategory, 10, "InnerInvoke({0}) done: {1} {2} {3}", path.FullName,
 					TestLogger.Print (Host), TestLogger.Print (parameterizedInstance), success);
 			}
 

@@ -55,7 +55,7 @@ namespace Xamarin.AsyncTests.Framework
 			TestContext ctx, TestInstance instance, TestInvoker invoker,
 			CancellationToken cancellationToken)
 		{
-			ctx.LogDebug (10, "Running({0}): {1}", ctx.FriendlyName, invoker);
+			ctx.LogDebug (LogCategory, 10, $"Running({ctx.FriendlyName}): {invoker}");
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();

@@ -101,14 +101,16 @@ namespace Xamarin.WebTests.TestRunners
 		{
 		}
 
+		internal const string LogCategory = LogCategories.Instrumentation;
+
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}.{nameof (Run)}()";
-			ctx.LogDebug (2, $"{me}");
+			ctx.LogDebug (LogCategory, 2, $"{me}");
 
-				InitializeHandler (ctx);
+			InitializeHandler (ctx);
 
-			ctx.LogDebug (2, $"{me}");
+			ctx.LogDebug (LogCategory, 2, $"{me}");
 
 			currentOperation = new InstrumentationOperation (
 				this, InstrumentationOperationType.Primary,
@@ -118,9 +120,9 @@ namespace Xamarin.WebTests.TestRunners
 
 			try {
 				await currentOperation.WaitForCompletion ().ConfigureAwait (false);
-				ctx.LogDebug (2, $"{me} operation done");
+				ctx.LogDebug (LogCategory, 2, $"{me} operation done");
 			} catch (Exception ex) {
-				ctx.LogDebug (2, $"{me} operation failed: {ex.Message}");
+				ctx.LogDebug (LogCategory, 2, $"{me} operation failed: {ex.Message}");
 				throw;
 			}
 
@@ -128,23 +130,23 @@ namespace Xamarin.WebTests.TestRunners
 				ctx, cancellationToken).ConfigureAwait (false);
 
 			if (secondOperation != null) {
-				ctx.LogDebug (2, $"{me} waiting for second operation.");
+				ctx.LogDebug (LogCategory, 2, $"{me} waiting for second operation.");
 				try {
 					await secondOperation.WaitForCompletion ().ConfigureAwait (false);
-					ctx.LogDebug (2, $"{me} done waiting for second operation.");
+					ctx.LogDebug (LogCategory, 2, $"{me} done waiting for second operation.");
 				} catch (Exception ex) {
-					ctx.LogDebug (2, $"{me} waiting for second operation failed: {ex.Message}.");
+					ctx.LogDebug (LogCategory, 2, $"{me} waiting for second operation failed: {ex.Message}.");
 					throw;
 				}
 			}
 
 			if (QueuedOperation != null) {
-				ctx.LogDebug (2, $"{me} waiting for queued operations.");
+				ctx.LogDebug (LogCategory, 2, $"{me} waiting for queued operations.");
 				try {
 					await QueuedOperation.WaitForCompletion ().ConfigureAwait (false);
-					ctx.LogDebug (2, $"{me} done waiting for queued operations.");
+					ctx.LogDebug (LogCategory, 2, $"{me} done waiting for queued operations.");
 				} catch (Exception ex) {
-					ctx.LogDebug (2, $"{me} waiting for queued operations failed: {ex.Message}.");
+					ctx.LogDebug (LogCategory, 2, $"{me} waiting for queued operations failed: {ex.Message}.");
 					throw;
 				}
 			}
@@ -366,7 +368,7 @@ namespace Xamarin.WebTests.TestRunners
 			TestContext ctx, InstrumentationOperation operation,
 			HttpConnection connection)
 		{
-			ctx.LogDebug (2, $"{ME}: {operation == PrimaryOperation} {connection.RemoteEndPoint}");
+			ctx.LogDebug (LogCategory, 2, $"{ME}: {operation == PrimaryOperation} {connection.RemoteEndPoint}");
 			if (operation == PrimaryOperation)
 				return;
 			ctx.Assert (connection.RemoteEndPoint,
@@ -378,7 +380,7 @@ namespace Xamarin.WebTests.TestRunners
 			TestContext ctx, InstrumentationOperation operation,
 			HttpConnection connection)
 		{
-			ctx.LogDebug (2, $"{ME}: {operation == PrimaryOperation} {connection.RemoteEndPoint}");
+			ctx.LogDebug (LogCategory, 2, $"{ME}: {operation == PrimaryOperation} {connection.RemoteEndPoint}");
 			if (operation == PrimaryOperation)
 				return;
 			ctx.Assert (connection.RemoteEndPoint,

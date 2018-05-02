@@ -437,6 +437,8 @@ namespace Xamarin.AsyncTests.Console {
 				Settings.LogLevel = defaultLevel;
 				foreach (var entry in categories)
 					Settings.SetLogLevel (entry.Key, entry.Value);
+				if (localLogLevel == null)
+					Settings.LocalLogLevel = defaultLevel;
 			}
 			if (localLogLevel != null)
 				Settings.LocalLogLevel = localLogLevel.Value;

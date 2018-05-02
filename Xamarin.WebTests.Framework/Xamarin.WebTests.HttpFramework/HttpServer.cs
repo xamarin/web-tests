@@ -34,12 +34,14 @@ using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.AsyncTests.Constraints;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.TestAttributes;
-using Xamarin.WebTests.HttpHandlers;
-using Xamarin.WebTests.Server;
 
-namespace Xamarin.WebTests.HttpFramework {
+namespace Xamarin.WebTests.HttpFramework
+{
+	using ConnectionFramework;
+	using TestFramework;
+	using TestAttributes;
+	using Server;
+
 	[HttpServer]
 	[FriendlyName ("HttpServer")]
 	public abstract class HttpServer : ITestInstance {
@@ -122,7 +124,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			if (Interlocked.CompareExchange (ref initialized, 1, 0) != 0)
 				throw new InternalErrorException ();
 
-			ctx.LogDebug (5, "Initialize {0}: {1}", this, Flags);
+			ctx.LogDebug (LogCategories.Listener, 5, $"Initialize {this}: {Flags}");
 
 			if (ReuseConnection)
 				await Start (ctx, cancellationToken);
@@ -145,7 +147,7 @@ namespace Xamarin.WebTests.HttpFramework {
 			if (ReuseConnection)
 				await Stop (ctx, cancellationToken);
 
-			ctx.LogDebug (5, "Destroy {0}: {1}", this, Flags);
+			ctx.LogDebug (LogCategories.Listener, 5, $"Destroy {this}: {Flags}");
 
 			Interlocked.Exchange (ref initialized, 0);
 		}

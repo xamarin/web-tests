@@ -165,9 +165,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 		protected sealed override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}.{nameof (MainLoop)}";
-			ctx.LogDebug (4, $"{me}");
+			ctx.LogDebug (LogCategories.Listener, 4, $"{me}");
 
-			ctx.LogDebug (4, $"{me} - client={MonoClient.Provider} server={MonoServer.Provider} - {MonoServer.CanRenegotiate}");
+			ctx.LogDebug (LogCategories.Listener, 4, $"{me} - client={MonoClient.Provider} server={MonoServer.Provider} - {MonoServer.CanRenegotiate}");
 			ctx.Assert (MonoServer.CanRenegotiate, "MonoServer.CanRenegotiate");
 
 			var buffer = new byte[16];
@@ -193,7 +193,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				ctx.Assert (exception, Is.InstanceOf<IOException> (), message);
 			});
 
-			ctx.LogDebug (4, $"{me} - called Renegotiate()");
+			ctx.LogDebug (LogCategories.Listener, 4, $"{me} - called Renegotiate()");
 
 			await Task.WhenAll (readTask, renegotiateTask).ConfigureAwait (false);
 

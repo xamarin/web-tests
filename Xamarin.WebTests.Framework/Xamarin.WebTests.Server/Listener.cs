@@ -408,7 +408,7 @@ namespace Xamarin.WebTests.Server
 					oldInstrumentation = Interlocked.CompareExchange (ref currentOperation, instrumentation, null);
 					if (oldInstrumentation == null)
 						break;
-					ctx.LogDebug (2, $"{me} - WAITING FOR OPERATION {oldInstrumentation.Operation.ME}");
+					ctx.LogDebug (LogCategories.Listener, 2, $"{me} - WAITING FOR OPERATION {oldInstrumentation.Operation.ME}");
 				}
 
 				await oldInstrumentation.Wait ().ConfigureAwait (false);
@@ -437,16 +437,16 @@ namespace Xamarin.WebTests.Server
 				context = await FindContext (ctx, operation, reusing);
 				reusing = context.ReusingConnection;
 
-				ctx.LogDebug (2, $"{me} - CREATE CONTEXT: {reusing} {context.ME}");
+				ctx.LogDebug (LogCategories.Listener, 2, $"{me} - CREATE CONTEXT: {reusing} {context.ME}");
 
 				await context.ServerStartTask.ConfigureAwait (false);
 
-				ctx.LogDebug (2, $"{me} - CREATE CONTEXT #1: {reusing} {context.ME}");
+				ctx.LogDebug (LogCategories.Listener, 2, $"{me} - CREATE CONTEXT #1: {reusing} {context.ME}");
 			}
 
 			if (TargetListener?.UsingInstrumentation ?? false) {
 				targetContext = await TargetListener.FindContext (ctx, operation.TargetOperation, false);
-				ctx.LogDebug (2, $"{me} - CREATE TARGET CONTEXT: {reusing} {targetContext.ME}");
+				ctx.LogDebug (LogCategories.Listener, 2, $"{me} - CREATE TARGET CONTEXT: {reusing} {targetContext.ME}");
 				try {
 					await targetContext.ServerStartTask.ConfigureAwait (false);
 				} catch {
@@ -463,17 +463,17 @@ namespace Xamarin.WebTests.Server
 			bool initDone = false, serverDone = false, clientDone = false;
 
 			while (!initDone || !serverDone || !clientDone) {
-				ctx.LogDebug (2, $"{me} LOOP: init={initDone} server={serverDone} client={clientDone}");
+				ctx.LogDebug (LogCategories.Listener, 2, $"{me} LOOP: init={initDone} server={serverDone} client={clientDone}");
 
 				if (clientDone) {
 					if (operation.Operation.HasAnyFlags (
 						HttpOperationFlags.AbortAfterClientExits, HttpOperationFlags.ServerAbortsHandshake,
 						HttpOperationFlags.ClientAbortsHandshake)) {
-						ctx.LogDebug (2, $"{me} - ABORTING");
+						ctx.LogDebug (LogCategories.Listener, 2, $"{me} - ABORTING");
 						break;
 					}
 					if (!initDone) {
-						ctx.LogDebug (2, $"{me} - ERROR: {clientTask.Result}");
+						ctx.LogDebug (LogCategories.Listener, 2, $"{me} - ERROR: {clientTask.Result}");
 						throwMe = ExceptionDispatchInfo.Capture (new ConnectionException (
 							$"{me} client exited before server accepted connection."));
 						break;
@@ -504,17 +504,17 @@ namespace Xamarin.WebTests.Server
 					break;
 				}
 
-				ctx.LogDebug (2, $"{me} #4: {which} exited - {finished.Status}");
+				ctx.LogDebug (LogCategories.Listener, 2, $"{me} #4: {which} exited - {finished.Status}");
 				if (finished.Status == TaskStatus.Faulted || finished.Status == TaskStatus.Canceled) {
 					if (operation.Operation.HasAnyFlags (HttpOperationFlags.ExpectServerException) &&
 					    (finished == serverFinishedTask || finished == serverInitTask))
-						ctx.LogDebug (2, $"{me} EXPECTED EXCEPTION {finished.Exception.GetType ()}");
+						ctx.LogDebug (LogCategories.Listener, 2, $"{me} EXPECTED EXCEPTION {finished.Exception.GetType ()}");
 					else if (finished.Status == TaskStatus.Canceled) {
-						ctx.LogDebug (2, $"{me} CANCELED");
+						ctx.LogDebug (LogCategories.Listener, 2, $"{me} CANCELED");
 						throwMe = ExceptionDispatchInfo.Capture (new OperationCanceledException ());
 						break;
 					} else {
-						ctx.LogDebug (2, $"{me} FAILED: {finished.Exception.Message}");
+						ctx.LogDebug (LogCategories.Listener, 2, $"{me} FAILED: {finished.Exception.Message}");
 						throwMe = ExceptionDispatchInfo.Capture (finished.Exception);
 						break;
 					}
@@ -525,7 +525,7 @@ namespace Xamarin.WebTests.Server
 				throwMe = operation.PendingError;
 
 			if (throwMe != null) {
-				ctx.LogDebug (2, $"{me} THROWING {throwMe.SourceException.Message}");
+				ctx.LogDebug (LogCategories.Listener, 2, $"{me} THROWING {throwMe.SourceException.Message}");
 				lock (this) {
 					operation.OnError (throwMe.SourceException);
 					if (context != null)
@@ -556,7 +556,7 @@ namespace Xamarin.WebTests.Server
 
 		void Debug (string message)
 		{
-			TestContext.LogDebug (5, $"{ME}: {message}");
+			TestContext.LogDebug (LogCategories.Listener, 5, $"{ME}: {message}");
 		}
 
 		public ListenerOperation RegisterOperation (

@@ -88,7 +88,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected sealed override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
 		{
-			ctx.LogDebug (2, $"{ME} RUN INNER");
+			ctx.LogDebug (InstrumentationTestRunner.LogCategory, 2, $"{ME} RUN INNER");
 
 			return ctx.RunWithDisposableContext (
 				innerCtx => Parent.Run (
