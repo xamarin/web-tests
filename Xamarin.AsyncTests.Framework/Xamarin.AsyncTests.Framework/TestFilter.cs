@@ -137,6 +137,11 @@ namespace Xamarin.AsyncTests.Framework
 			return true;
 		}
 
+		bool SelectTest (ITestConfiguration config, string searchString, TestInstance instance)
+		{
+			return HandleMartinFixtureFilter (searchString, instance);
+		}
+
 		public bool Filter (TestContext ctx, TestInstance instance, out bool enabled)
 		{
 			return Filter (ctx.Configuration, ctx.Settings, instance, out enabled);
@@ -165,6 +170,11 @@ namespace Xamarin.AsyncTests.Framework
 
 		bool RunFilter (ITestConfiguration config, SettingsBag settings, TestInstance instance, out bool enabled)
 		{
+			if (settings.SelectTest != null) {
+				enabled = SelectTest (config, settings.SelectTest, instance);
+				return true;
+			}
+
 			foreach (var feature in Features) {
 				if (!config.IsEnabled (feature)) {
 					enabled = false;

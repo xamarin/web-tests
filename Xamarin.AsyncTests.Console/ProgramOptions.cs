@@ -168,6 +168,11 @@ namespace Xamarin.AsyncTests.Console {
 			private set;
 		}
 
+		public string SelectTest {
+			get;
+			private set;
+		}
+
 		public string RootPath {
 			get;
 			private set;
@@ -229,6 +234,7 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("category=", v => Category = v);
 			p.Add ("features=", v => Features = v);
 			p.Add ("martin=", v => MartinTest = v);
+			p.Add ("select=", v => SelectTest = v);
 			p.Add ("debug", v => debugMode = true);
 			p.Add ("save-options", v => saveSettings = true);
 			p.Add ("show-categories", v => ShowCategories = true);
@@ -449,11 +455,20 @@ namespace Xamarin.AsyncTests.Console {
 			if (dontSaveLogging)
 				Settings.DontSaveLogging = true;
 
+			if (MartinTest != null && SelectTest != null)
+				throw new ProgramException ("Cannot use both --martin and --select");
+
 			if (MartinTest != null) {
 				if (Category != null)
 					throw new ProgramException ("Cannot use both --category and --martin");
 				Category = "martin";
 				Settings.MartinTest = MartinTest;
+			}
+
+			if (SelectTest != null) {
+				if (Category != null)
+					throw new ProgramException ("Cannot use both --category and --select");
+				Settings.SelectTest = SelectTest;
 			}
 
 			bool needSdk = false, needAndroidSdk = false;
