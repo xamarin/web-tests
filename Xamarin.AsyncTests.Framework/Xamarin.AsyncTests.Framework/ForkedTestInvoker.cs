@@ -74,7 +74,7 @@ namespace Xamarin.AsyncTests.Framework
 			case ForkType.Internal:
 			case ForkType.ReverseFork:
 			case ForkType.ReverseDomain:
-				return ExternalFork (ctx, instance, cancellationToken);
+				return RunExternalFork (ctx, instance, cancellationToken);
 			case ForkType.None:
 				return RunInner (ctx, instance, cancellationToken);
 			default:
@@ -175,13 +175,32 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		async Task<bool> ExternalFork (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
+		async Task<bool> RunExternalFork (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			if (Node.HasParameter) {
 				ctx.LogDebug (Category, 1, $"RUN FORKED: {Node.Parameter}");
 				return await RunInner (ctx, instance, cancellationToken).ConfigureAwait (false);
 			}
 
+			var startTime = DateTime.Now;
+
+			ctx.OnTestRunning ();
+
+			try {
+				await ExternalFork (ctx, instance, cancellationToken);
+				ctx.OnTestFinished (TestStatus.Success, DateTime.Now - startTime);
+				return true;
+			} catch (OperationCanceledException) {
+				ctx.OnTestCanceled ();
+				return false;
+			} catch (Exception ex) {
+				ctx.OnError (ex, DateTime.Now - startTime);
+				return false;
+			}
+		}
+
+		async Task ExternalFork (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
+		{
 			var builder = GetSuiteBuilder (instance);
 
 			TestServer server = null;
@@ -247,8 +266,6 @@ namespace Xamarin.AsyncTests.Framework
 			}
 
 			ctx.LogDebug (Category, 1, $"RUN DONE #2");
-
-			return true;
 		}
 	}
 }
