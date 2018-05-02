@@ -31,7 +31,7 @@ namespace Xamarin.AsyncTests.FrameworkTests
 	[ForkedSupport]
 	[Fork (ForkType.Domain)]
 	[AsyncTestFixture (Prefix = "FrameworkTests")]
-	public class ExternalStaticFixture
+	public static class ExternalStaticFixture
 	{
 		[AsyncTest]
 		[Martin (null, UseFixtureName = true)]

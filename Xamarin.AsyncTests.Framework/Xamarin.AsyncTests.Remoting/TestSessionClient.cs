@@ -76,6 +76,7 @@ namespace Xamarin.AsyncTests.Remoting
 		string name;
 		ITestConfigurationProvider provider;
 		TestConfiguration configuration;
+		TaskCompletionSource<object> shutdownTcs;
 		TestSuiteClient suite;
 		TestCaseClient root;
 
@@ -84,6 +85,7 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			Connection = connection;
 			ObjectID = objectID;
+			shutdownTcs = new TaskCompletionSource<object> ();
 		}
 
 		TestSessionClient RemoteObject<TestSessionClient, TestSessionServant>.Client {
@@ -133,6 +135,36 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			await RemoteObjectManager.UpdateSettings (this, cancellationToken);
 			OnConfigurationChanged ();
+		}
+
+		public override Task WaitForShutdown (CancellationToken cancellationToken)
+		{
+			return shutdownTcs.Task;
+		}
+
+		public override async Task Shutdown (CancellationToken cancellationToken)
+		{
+			var command = new SessionShutdownCommand ();
+			try {
+				await command.Send (this, null, cancellationToken).ConfigureAwait (false);
+				shutdownTcs.TrySetResult (null);
+			} catch (OperationCanceledException) {
+				shutdownTcs.TrySetCanceled ();
+			} catch (Exception ex) {
+				shutdownTcs.TrySetException (ex);
+			}
+		}
+
+		internal class SessionShutdownCommand : RemoteObjectCommand<RemoteTestSession, object, object>
+		{
+			public override bool IsOneWay => false;
+
+			protected override async Task<object> Run (
+				Connection connection, RemoteTestSession proxy, object argument, CancellationToken cancellationToken)
+			{
+				await proxy.Servant.Shutdown (cancellationToken).ConfigureAwait (false);
+				return null;
+			}
 		}
 	}
 }

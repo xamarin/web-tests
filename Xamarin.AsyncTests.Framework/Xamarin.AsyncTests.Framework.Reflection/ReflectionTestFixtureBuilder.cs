@@ -83,14 +83,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		{
 			base.ResolveMembers ();
 
-			ResolveFixedParameters ();
-
-			ResolveFixtureProperties (false);
-
 			instanceMethods = new List<ReflectionMethodEntry> ();
 			staticMethods = new List<ReflectionMethodEntry> ();
 
 			ResolveMembers (Type);
+
+			ResolveFixedParameters ();
+
+			ResolveFixtureProperties (false);
+
+			if (instanceMethods.Count > 0 || (Type.IsAbstract && Type.IsSealed))
+				ResolveForkedFixture ();
 
 			if (instanceMethods.Count > 0)
 				ResolveConstructor (true);

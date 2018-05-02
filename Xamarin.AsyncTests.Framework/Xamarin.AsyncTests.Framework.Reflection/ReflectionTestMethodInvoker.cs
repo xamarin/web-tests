@@ -47,15 +47,39 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		DateTime startTime;
 
-		public override Task<bool> Invoke (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
+		public override async Task<bool> Invoke (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			startTime = DateTime.Now;
 
 			ctx.OnTestRunning ();
 
+			var result = await CheckReverseFork (ctx, instance, cancellationToken).ConfigureAwait (false);
+			if (result != null) {
+				ctx.Result.AddChild (result);
+				return CheckFinalStatus (ctx);
+			}
+
 			if (Builder.ExpectedExceptionType != null)
-				return ExpectingException (ctx, instance, Builder.ExpectedExceptionType, cancellationToken);
-			return ExpectingSuccess (ctx, instance, cancellationToken);
+				return await ExpectingException (ctx, instance, Builder.ExpectedExceptionType, cancellationToken);
+			return await ExpectingSuccess (ctx, instance, cancellationToken);
+		}
+
+		async Task<TestResult> CheckReverseFork (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
+		{
+			TestInstance.LogDebug (ctx, instance, 5);
+			while (instance != null) {
+				if (instance is ForkedTestInstance forked) {
+					if (forked.Type != ForkType.ReverseDomain && forked.Type != ForkType.ReverseFork)
+						return null;
+					if (forked.IsForked || forked.ObjectClient == null)
+						return null;
+					return await forked.HandleReverseFork (ctx, instance, cancellationToken).ConfigureAwait (false);
+				}
+
+				instance = instance.Parent;
+			}
+
+			return null;
 		}
 
 		bool CheckFinalStatus (TestContext ctx)

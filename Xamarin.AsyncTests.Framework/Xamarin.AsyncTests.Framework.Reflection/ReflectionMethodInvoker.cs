@@ -1,4 +1,4 @@
-﻿//
+//
 // ReflectionMethodInvoker.cs
 //
 // Author:
@@ -109,6 +109,23 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			var index = parameters.Length - 1;
 			while (index >= 0) {
 				ctx.LogDebug (10, $"{me} #1: {index} {instance}");
+				var param = parameters[index];
+				var paramType = param.ParameterType;
+				var paramTypeInfo = paramType.GetTypeInfo ();
+
+				if (paramType.Equals (typeof (CancellationToken))) {
+					if (method is ConstructorInfo)
+						throw new InternalErrorException ();
+					args.AddFirst (methodToken);
+					index--;
+					continue;
+				}
+				if (paramType.Equals (typeof (TestContext))) {
+					args.AddFirst (disposableContext);
+					index--;
+					continue;
+				}
+
 				if (instance is TestBuilderInstance) {
 					instance = instance.Parent;
 					continue;
@@ -117,22 +134,21 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					instance = instance.Parent;
 					continue;
 				}
+				if (instance is FixturePropertyInstance) {
+					instance = instance.Parent;
+					continue;
+				}
 
-				var param = parameters[index];
-				var paramType = param.ParameterType;
-				var paramTypeInfo = paramType.GetTypeInfo ();
+				if (instance is ForkedTestInstance forkedTestInstance) {
+					instance = instance.Parent;
+					if (!forkedTestInstance.Host.HasParameterHost) {
+						args.AddFirst (forkedTestInstance);
+						index--;
+					}
+					continue;
+				}
+
 				index--;
-
-				if (paramType.Equals (typeof (CancellationToken))) {
-					if (method is ConstructorInfo)
-						throw new InternalErrorException ();
-					args.AddFirst (methodToken);
-					continue;
-				}
-				if (paramType.Equals (typeof (TestContext))) {
-					args.AddFirst (disposableContext);
-					continue;
-				}
 
 				if (instance is ReflectionFixtureInstance fixtureInstance) {
 					if (!paramTypeInfo.IsAssignableFrom (fixtureInstance.Host.Builder.Type))
@@ -141,12 +157,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 						throw new InternalErrorException ();
 					args.AddFirst (fixtureInstance.Instance);
 					fixtureInstance.Host.Unwind (ref instance);
-					continue;
-				}
-
-				if (instance is ForkedTestInstance) {
-					var forkedInstance = ForkedTestHost.GetInstance (ref instance);
-					args.AddFirst (forkedInstance);
 					continue;
 				}
 

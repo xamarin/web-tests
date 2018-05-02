@@ -29,31 +29,41 @@ namespace Xamarin.AsyncTests
 {
 	public class SavedException : Exception
 	{
-		readonly string type;
-		readonly string stackTrace;
-
 		public SavedException (string message, string stackTrace = null)
 			: base (message)
 		{
-			this.stackTrace = stackTrace;
+			StackTrace = stackTrace ?? base.StackTrace;
 		}
 
 		public SavedException (string type, string message, string stackTrace)
 			: base (message)
 		{
-			this.type = type;
-			this.stackTrace = stackTrace;
+			Type = type;
+			StackTrace = stackTrace ?? base.StackTrace;
 		}
 
 		public string Type {
-			get { return type; }
+			get;
 		}
 
-		public override string StackTrace {
-			get {
-				return stackTrace ?? base.StackTrace;
-			}
+		public sealed override string StackTrace {
+			get;
 		}
+
+		public override string ToString ()
+		{
+			string s = Message;
+
+			if (InnerException != null)
+				s = s + " ---> " + InnerException + Environment.NewLine +
+				"   --- End of inner exception stack trace ---";
+
+			if (StackTrace != null)
+				s += Environment.NewLine + StackTrace;
+
+			return s;
+		}
+
 	}
 }
 

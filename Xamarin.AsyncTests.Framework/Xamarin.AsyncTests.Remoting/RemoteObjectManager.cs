@@ -33,6 +33,10 @@ namespace Xamarin.AsyncTests.Remoting
 {
 	using Framework;
 
+	interface RemoteForkedObject : RemoteObject<ForkedObjectClient,ForkedObjectServant>
+	{
+	}
+
 	interface RemoteEventSink : RemoteObject<EventSinkClient,EventSinkServant>
 	{
 	}
@@ -55,9 +59,11 @@ namespace Xamarin.AsyncTests.Remoting
 			where C : class, ObjectProxy
 		{
 			var objectID = long.Parse (node.Attribute ("ObjectID").Value);
+			if (objectID < 0)
+				throw new InternalErrorException ();
 
-			C client;
-			if (connection.TryGetRemoteObject (objectID, out client))
+			var clientObjectID = -objectID;
+			if (connection.TryGetRemoteObject (-objectID, out C client))
 				return client;
 
 			client = createClientFunc (objectID);
@@ -67,6 +73,8 @@ namespace Xamarin.AsyncTests.Remoting
 
 		internal static XElement WriteProxy (ObjectProxy proxy)
 		{
+			if (proxy.ObjectID < 0)
+				throw new InternalErrorException ();
 			var element = new XElement (proxy.Type);
 			element.SetAttributeValue ("ObjectID", proxy.ObjectID);
 			return element;

@@ -248,9 +248,10 @@ namespace Xamarin.AsyncTests.Framework {
 			Exception exception = null;
 			var error = node.Element ("Error");
 			if (error != null) {
+				var type = error.Attribute ("Type").Value;
 				var errorMessage = error.Attribute ("Text").Value;
 				var stackTrace = error.Attribute ("StackTrace");
-				exception = new SavedException (errorMessage, stackTrace != null ? stackTrace.Value : null);
+				exception = new SavedException (type, errorMessage, stackTrace?.Value);
 			}
 
 			var category = node.Attribute ("Category")?.Value;
@@ -269,6 +270,7 @@ namespace Xamarin.AsyncTests.Framework {
 
 			if (instance.Error != null) {
 				var error = new XElement ("Error");
+				error.SetAttributeValue ("Type", instance.Error.GetType ().FullName);
 				error.SetAttributeValue ("Text", instance.Error.Message);
 				var stackTrace = PortableSupport.GetStackTrace (instance.Error, false);
 				if (!string.IsNullOrWhiteSpace (stackTrace))

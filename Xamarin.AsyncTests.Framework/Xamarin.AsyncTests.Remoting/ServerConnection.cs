@@ -79,7 +79,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 		internal async Task Initialize (Handshake handshake, CancellationToken cancellationToken)
 		{
-			Debug ("Server Handshake: {0}", handshake);
+			Debug ($"Server Handshake: {handshake}");
 
 			eventSink = await EventSinkClient.FromProxy (handshake.EventSink, cancellationToken);
 

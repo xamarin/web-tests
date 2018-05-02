@@ -31,52 +31,59 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestSession : TestSession
+	using Remoting;
+
+	sealed class ReflectionTestSession : TestSession
 	{
 		public override string Name {
-			get { return name; }
+			get;
 		}
 
 		public override ITestConfigurationProvider ConfigurationProvider {
-			get { return provider; }
+			get;
 		}
 
 		public override TestConfiguration Configuration {
-			get { return configuration; }
+			get;
 		}
 
 		public override TestSuite Suite {
-			get { return suite; }
+			get;
 		}
 
-		public override TestCase RootTestCase {
-			get { return suite.RootTestCase; }
-		}
+		public override TestCase RootTestCase => Suite.RootTestCase;
 
 		internal TestContext RootContext {
 			get;
-			private set;
 		}
 
-		string name;
-		ITestConfigurationProvider provider;
-		TestConfiguration configuration;
-		ReflectionTestSuite suite;
+		internal Connection RemoteConnection {
+			get;
+		}
+
+		TaskCompletionSource<object> shutdownTcs;
 
 		public ReflectionTestSession (TestApp app, ReflectionTestFramework framework, TestContext rootCtx)
 			: base (app)
 		{
 			RootContext = rootCtx;
-			provider = framework.ConfigurationProvider;
-			configuration = new TestConfiguration (provider, app.Settings);
-			name = framework.Name;
-			suite = new ReflectionTestSuite (this, framework);
+			ConfigurationProvider = framework.ConfigurationProvider;
+			Configuration = new TestConfiguration (ConfigurationProvider, app.Settings);
+			Name = framework.Name;
+			Suite = new ReflectionTestSuite (this, framework);
+			shutdownTcs = new TaskCompletionSource<object> ();
+		}
+
+		internal ReflectionTestSession (TestApp app, ReflectionTestFramework framework, TestContext rootCtx, Connection connection)
+			: this (app, framework, rootCtx)
+		{
+			RemoteConnection = connection;
 		}
 
 		public override Task<TestCase> ResolveFromPath (XElement node, CancellationToken cancellationToken)
 		{
 			return Task.Run<TestCase> (() => {
-				var path = TestSerializer.DeserializePath (suite, RootContext, node);
+				var path = TestSerializer.DeserializePath (Suite, RootContext, node);
 				return new ReflectionTestCase (path);
 			});
 		}
@@ -102,6 +109,17 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				Configuration.Reload ();
 				OnConfigurationChanged ();
 			});
+		}
+
+		public override Task WaitForShutdown (CancellationToken cancellationToken)
+		{
+			return shutdownTcs.Task;
+		}
+
+		public override Task Shutdown (CancellationToken cancellationToken)
+		{
+			shutdownTcs.TrySetResult (null);
+			return Task.FromResult<object> (null);
 		}
 	}
 }

@@ -136,9 +136,9 @@ namespace Xamarin.AsyncTests
 			return new TestPath (Parent, parameterized);
 		}
 
-		internal TestPath Parameterize (XElement customParameter)
+		internal TestPath Parameterize (ITestParameter parameter, XElement customParameter)
 		{
-			var parameterized = Node.Parameterize (customParameter);
+			var parameterized = Node.Parameterize (parameter, customParameter);
 			return new TestPath (Parent, parameterized);
 		}
 

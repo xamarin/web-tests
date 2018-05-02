@@ -30,7 +30,10 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class HeavyTestInstance : TestInstance
+	using Reflection;
+	using Remoting;
+
+	abstract class HeavyTestInstance : RemoteTestInstance
 	{
 		new public HeavyTestHost Host {
 			get { return (HeavyTestHost)base.Host; }
@@ -39,41 +42,34 @@ namespace Xamarin.AsyncTests.Framework
 		public HeavyTestInstance (HeavyTestHost host, TestNode node, TestInstance parent)
 			: base (host, node, parent)
 		{
+			CurrentParameter = new RemoteTestValue (this, host.Name, null);
 		}
 
 		public abstract object Instance {
 			get;
 		}
 
-		internal TestParameterValue CurrentParameter {
+		internal sealed override RemoteTestValue CurrentParameter {
 			get;
-			private set;
 		}
 
-		internal XElement CustomParameter {
-			get;
-			private set;
-		}
-
-		internal sealed override TestParameterValue GetCurrentParameter ()
+		[StackTraceEntryPoint]
+		protected override void Serialize (TestContext ctx)
 		{
-			return CurrentParameter;
+			base.Deserialize (ctx);
+			if (Instance is IForkedTestInstance forked)
+				forked.Serialize (ctx, CustomParameter);
 		}
 
-		public override void Initialize (TestContext ctx)
+		[StackTraceEntryPoint]
+		protected override void Deserialize (TestContext ctx)
 		{
+			base.Serialize (ctx);
 			if (Instance is IForkedTestInstance forked) {
-				if (Node.CustomParameter != null) {
-					CustomParameter = Node.CustomParameter;
-					forked.Deserialize (ctx, CustomParameter);
-				} else {
-					var element = TestNode.CreateCustomParameterNode ();
-					forked.Serialize (ctx, element);
-					CustomParameter = element;
-				}
+				forked.Deserialize (ctx, CustomParameter);
+				if (forked is IForkedObject forkedObject)
+					forkedObject.ObjectClient = ObjectClient;
 			}
-			CurrentParameter = new HeavyTestValue (this);
-			base.Initialize (ctx);
 		}
 
 		[StackTraceEntryPoint]

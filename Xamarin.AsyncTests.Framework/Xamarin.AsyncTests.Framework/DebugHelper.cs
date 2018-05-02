@@ -29,13 +29,18 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	static class DebugHelper
+	public static class DebugHelper
 	{
 		static IPortableSupport Portable => DependencyInjector.Get<IPortableSupport> ();
 
 		public static string FormatType (object instance)
 		{
 			return FormatType (instance.GetType ());
+		}
+
+		public static string FormatType (TypeInfo type, bool includeNamespace = false)
+		{
+			return Portable.FormatType (type.AsType (), includeNamespace);
 		}
 
 		public static string FormatType (Type type, bool includeNamespace = false)

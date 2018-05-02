@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 namespace Xamarin.AsyncTests.Framework
 {
 	using Reflection;
+	using Remoting;
 
 	public abstract class TestSession
 	{
@@ -80,6 +81,11 @@ namespace Xamarin.AsyncTests.Framework
 			return new ReflectionTestSession (app, (ReflectionTestFramework)framework, rootCtx);
 		}
 
+		internal static TestSession CreateLocal (TestApp app, TestFramework framework, TestContext rootCtx, Connection connection)
+		{
+			return new ReflectionTestSession (app, (ReflectionTestFramework)framework, rootCtx, connection);
+		}
+
 		public abstract Task<TestCase> ResolveFromPath (XElement node, CancellationToken cancellationToken);
 
 		public abstract Task<IReadOnlyCollection<TestCase>> GetTestParameters (TestCase test, CancellationToken cancellationToken);
@@ -89,6 +95,10 @@ namespace Xamarin.AsyncTests.Framework
 		public abstract Task<TestResult> Run (TestCase test, CancellationToken cancellationToken);
 
 		public abstract Task UpdateSettings (CancellationToken cancellationToken);
+
+		public abstract Task WaitForShutdown (CancellationToken cancellationToken);
+
+		public abstract Task Shutdown (CancellationToken cancellationToken);
 
 		internal void OnConfigurationChanged ()
 		{

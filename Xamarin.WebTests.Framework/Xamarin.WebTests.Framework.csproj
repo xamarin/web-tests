@@ -233,7 +233,11 @@
     <Compile Include="Xamarin.WebTests.Server\ListenerHandler.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpHandlerOperation.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationRequest.cs" />
-    <Compile Include="Xamarin.WebTests.TestRunners\ParallelServerTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.ExternalServer\ExternalServerTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.ExternalServer\ExternalServerRegistration.cs" />
+    <Compile Include="Xamarin.WebTests.ExternalServer\ExternalServerHandler.cs" />
+    <Compile Include="Xamarin.WebTests.ExternalServer\ExternalServerHandlerDelegate.cs" />
+    <Compile Include="Xamarin.WebTests.ExternalServer\Registry.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
@@ -358,6 +362,7 @@
     <Folder Include="Xamarin.WebTests.Server\" />
     <Folder Include="Xamarin.WebTests.HttpOperations\" />
     <Folder Include="Xamarin.WebTests.TestAttributes\" />
+    <Folder Include="Xamarin.WebTests.ExternalServer\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">

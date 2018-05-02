@@ -1,4 +1,4 @@
-﻿//
+//
 // ForkedTestHost.cs
 //
 // Author:
@@ -28,7 +28,7 @@ using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class ForkedTestHost : TestHost
+	class ForkedTestHost : RemoteTestHost
 	{
 		public ForkAttribute Attribute {
 			get;
@@ -43,19 +43,6 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			Attribute = attr;
 			HasParameterHost = hasParameterHost;
-		}
-
-		internal static object GetInstance (ref TestInstance instance)
-		{
-			var forkedInstance = (ForkedTestInstance)instance;
-			instance = instance.Parent;
-
-			if (!forkedInstance.Host.HasParameterHost)
-				return forkedInstance;
-
-			var heavyInstance = (HeavyTestInstance)instance;
-			instance = instance.Parent;
-			return heavyInstance.Instance;
 		}
 
 		internal ForkType GetEffectiveForkType (TestContext ctx)

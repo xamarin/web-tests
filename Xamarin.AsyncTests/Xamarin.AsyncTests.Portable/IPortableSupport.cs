@@ -44,6 +44,14 @@ namespace Xamarin.AsyncTests.Portable
 			get;
 		}
 
+		string CurrentDomain {
+			get;
+		}
+
+		string CurrentProcess {
+			get;
+		}
+
 		bool IsMicrosoftRuntime {
 			get;
 		}

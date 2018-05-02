@@ -43,5 +43,9 @@ namespace Xamarin.AsyncTests.Framework
 		TestCase RootTestCase {
 			get;
 		}
+
+		TestSession Session {
+			get;
+		}
 	}
 }

@@ -30,13 +30,13 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	abstract class HeavyTestHost : TestHost
+	abstract class HeavyTestHost : RemoteTestHost
 	{
 		public Type Type {
 			get;
 		}
 
-		public HeavyTestHost (TestPathType pathType, string identifier, string name, Type type, Type hostType, TestFlags flags)
+		protected HeavyTestHost (TestPathType pathType, string identifier, string name, Type type, Type hostType, TestFlags flags)
 			: base (pathType, identifier, name, TestPath.GetFriendlyName (hostType), flags)
 		{
 			Type = type;

@@ -1,4 +1,4 @@
-﻿//
+//
 // ReflectionTestBuilder.cs
 //
 // Author:
@@ -91,14 +91,74 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			membersResolved = true;
 		}
 
-		protected void ResolveFixedParameters ()
+		void WalkStackForForked ()
+		{
+			var forkedInstanceType = typeof (IForkedTestInstance).GetTypeInfo ();
+			for (TestBuilder builder = current; builder != null; builder = builder.Parent) {
+				switch (builder.PathType) {
+				case TestPathType.Suite:
+				case TestPathType.Assembly:
+				case TestPathType.Fixture:
+				case TestPathType.Test:
+				case TestPathType.Collection:
+					continue;
+				case TestPathType.Parameter:
+				case TestPathType.Argument:
+					CheckParameterBuilder ();
+					continue;
+				case TestPathType.Instance:
+					CheckInstanceBuilder ();
+					continue;
+				default:
+					throw ThrowInvalidBuilder ();
+				}
+
+				void CheckInstanceBuilder ()
+				{
+					if (!(builder is ReflectionTestInstanceBuilder instanceBuilder))
+						throw ThrowInvalidBuilder ();
+					if (forkedInstanceType.IsAssignableFrom (instanceBuilder.FixtureType))
+						return;
+					throw new InternalErrorException ($"Fixture type '{DebugHelper.FormatType (instanceBuilder.FixtureType)}' must implement IForkedTestInstance.");
+				}
+
+				void CheckParameterBuilder ()
+				{
+					if (!(builder is ReflectionTestParameterBuilder parameterBuilder))
+						throw ThrowInvalidBuilder ();
+					if (parameterBuilder.ParameterHost is ParameterizedTestHost)
+						return;
+					if (parameterBuilder.ParameterHost is HeavyTestHost heavy) {
+						if (forkedInstanceType.IsAssignableFrom (heavy.Type.GetTypeInfo ()))
+							return;
+						throw new InternalErrorException ($"Test host '{DebugHelper.FormatType (heavy.Type)}' must implement IForkedTestInstance.");
+					}
+				}
+
+				Exception ThrowInvalidBuilder ()
+				{
+					throw new InternalErrorException ($"Invalid builder '{builder}' on stack for [Forked].");
+				}
+			}
+		}
+
+		void ResolveForked (string name, ForkAttribute attribute, bool hasParameterHost)
+		{
+			if (attribute.Type != ForkType.Task)
+				WalkStackForForked ();
+			var forkedHost = new ForkedTestHost (name, attribute, hasParameterHost);
+			Add (new ReflectionTestForkedBuilder (current, forkedHost));
+		}
+
+		protected void ResolveForkedFixture ()
 		{
 			var fork = Fixture.Type.GetCustomAttribute<ForkAttribute> ();
-			if (fork != null) {
-				var forkedHost = new ForkedTestHost (Fixture.Name, fork, false);
-				Add (new ReflectionTestForkedBuilder (current, forkedHost));
-			}
+			if (fork != null)
+				ResolveForked (Fixture.Name, fork, false);
+		}
 
+		protected void ResolveFixedParameters ()
+		{
 			var fixedParameters = Fixture.Type.GetCustomAttributes<FixedTestParameterAttribute> ();
 			foreach (var fixedParameter in fixedParameters) {
 				var parameter = ReflectionHelper.CreateFixedParameterHost (fixedParameter);
@@ -125,8 +185,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				if (method.IsConstructor)
 					throw new InternalErrorException (
 						$"Cannot use `[Fork]' on constructor `{DebugHelper.FormatMethod (method)}'.");
-				var forkedHost = new ForkedTestHost (method.Name, fork, false);
-				Add (new ReflectionTestForkedBuilder (current, forkedHost));
+				ResolveForked (method.Name, fork, false);
 			}
 
 			var fixedParameters = method.GetCustomAttributes<FixedTestParameterAttribute> ();
@@ -144,8 +203,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 				fork = paramInfo.GetCustomAttribute<ForkAttribute> ();
 				if (fork != null && paramType.Equals (typeof (IFork))) {
-					var forkedHost = new ForkedTestHost (paramName, fork, false);
-					Add (new ReflectionTestForkedBuilder (current, forkedHost));
+					ResolveForked (paramName, fork, false);
 					continue;
 				}
 
@@ -195,10 +253,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					Add (new ReflectionTestParameterBuilder (current, parameter));
 				}
 
-				if (fork != null) {
-					var forkedHost = new ForkedTestHost (paramName, fork, true);
-					Add (new ReflectionTestForkedBuilder (current, forkedHost));
-				}
+				if (fork != null)
+					ResolveForked (paramName, fork, true);
 			}
 
 			if (method is ConstructorInfo constructor) {

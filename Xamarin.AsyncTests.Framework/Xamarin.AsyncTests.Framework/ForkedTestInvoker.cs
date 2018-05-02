@@ -72,6 +72,8 @@ namespace Xamarin.AsyncTests.Framework
 			case ForkType.Fork:
 			case ForkType.Domain:
 			case ForkType.Internal:
+			case ForkType.ReverseFork:
+			case ForkType.ReverseDomain:
 				return ExternalFork (ctx, instance, cancellationToken);
 			case ForkType.None:
 				return RunInner (ctx, instance, cancellationToken);
@@ -127,32 +129,6 @@ namespace Xamarin.AsyncTests.Framework
 			throw new InternalErrorException ();
 		}
 
-		void CheckInstanceStack (TestContext ctx, TestInstance instance)
-		{
-			ctx.LogDebug (Category, 5, $"CHECK INSTANCE STACK");
-			TestInstance.LogDebug (ctx, instance, 5, Category);
-			for (; instance != null; instance = instance.Parent) {
-				var me = $"  STACK({instance.ID})";
-				ctx.LogDebug (Category, 5, $"{me}");
-				if (instance is TestBuilderInstance) {
-					ctx.LogDebug (Category, 5, $"{me}: BUILDER");
-					continue;
-				}
-				if (instance is ParameterizedTestInstance) {
-					ctx.LogDebug (Category, 5, $"{me}: PARAMETER");
-					continue;
-				}
-				if (instance is HeavyTestInstance heavy &&
-				    heavy.Instance is IForkedTestInstance forked) {
-					ctx.LogDebug (Category, 5, $"{me}: FORKED");
-					continue;
-				}
-				ctx.LogDebug (Category, 5, $"{me}: UNKNOWN {instance.GetType ()}");
-				throw ctx.AssertFail ($"Invalid instance '{instance}' on stack.");
-			}
-			ctx.LogDebug (Category, 5, $"CHECK INSTANCE STACK DONE");
-		}
-
 		IPortableEndPoint GetEndPoint ()
 		{
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
@@ -188,14 +164,23 @@ namespace Xamarin.AsyncTests.Framework
 			return InvokeInner (ctx, forkedInstance, Inner, cancellationToken);
 		}
 
+		void WalkStackAndRegister (TestContext ctx, Connection connection, TestInstance instance)
+		{
+			while (instance != null) {
+				if (instance is HeavyTestInstance heavy)
+					heavy.RegisterForkedServant (ctx, connection);
+				if (instance is ForkedTestInstance forked)
+					forked.RegisterForkedServant (ctx, connection);
+				instance = instance.Parent;
+			}
+		}
+
 		async Task<bool> ExternalFork (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			if (Node.HasParameter) {
 				ctx.LogDebug (Category, 1, $"RUN FORKED: {Node.Parameter}");
 				return await RunInner (ctx, instance, cancellationToken).ConfigureAwait (false);
 			}
-
-			CheckInstanceStack (ctx, instance);
 
 			var builder = GetSuiteBuilder (instance);
 
@@ -209,12 +194,14 @@ namespace Xamarin.AsyncTests.Framework
 				session = TestSession.CreateLocal (builder.App, builder.Framework);
 				break;
 			case ForkType.Domain:
+			case ForkType.ReverseDomain:
 				server = await TestServer.ForkAppDomain (
 					builder.App, GetEndPoint (),
 					Host.Attribute.DomainName, cancellationToken).ConfigureAwait (false);
 				session = server.Session;
 				break;
 			case ForkType.Fork:
+			case ForkType.ReverseFork:
 				server = await TestServer.ForkApplication (
 					builder.App, GetEndPoint (),
 					cancellationToken).ConfigureAwait (false);
@@ -228,7 +215,13 @@ namespace Xamarin.AsyncTests.Framework
 				await session.UpdateSettings (cancellationToken);
 
 				var forkedInstance = new ForkedTestInstance (Host, Node, instance, effectiveForkType, 0);
+				forkedInstance.Initialize (ctx);
+
 				var path = forkedInstance.GetCurrentPath ();
+
+				var servantCtx = ctx.CreateChild (path);
+				if (server != null)
+					WalkStackAndRegister (servantCtx, server.Connection, forkedInstance);
 
 				TestInstance.LogDebug (ctx, instance, 5, Category);
 
@@ -244,12 +237,16 @@ namespace Xamarin.AsyncTests.Framework
 				ctx.LogDebug (Category, 1, $"RUN DONE: {result}");
 
 				ctx.Result.AddChild (result);
+
+				await session.Shutdown (cancellationToken).ConfigureAwait (false);
+
+				ctx.LogDebug (Category, 1, $"RUN DONE #1");
 			} finally {
 				if (server != null)
 					await server.Stop (cancellationToken);
 			}
 
-			ctx.LogDebug (Category, 1, $"RUN DONE #3");
+			ctx.LogDebug (Category, 1, $"RUN DONE #2");
 
 			return true;
 		}

@@ -122,7 +122,7 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			var runCommand = new RunCommand ();
 			var result = await runCommand.Send (this, null, cancellationToken);
-			Connection.Debug ("RUN: {0}", result);
+			Connection.Debug ($"RUN: {result}");
 			return result;
 		}
 

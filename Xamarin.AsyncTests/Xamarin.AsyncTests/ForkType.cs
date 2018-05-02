@@ -33,6 +33,8 @@ namespace Xamarin.AsyncTests
 		Internal,
 		Domain,
 		Fork,
-		FromContext
+		FromContext,
+		ReverseDomain,
+		ReverseFork
 	}
 }

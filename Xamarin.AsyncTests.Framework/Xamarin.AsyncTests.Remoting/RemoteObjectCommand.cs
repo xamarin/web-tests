@@ -64,6 +64,9 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			base.Write (connection, node);
 
+			if (proxy.ObjectID < 0)
+				throw new InternalErrorException ();
+
 			node.SetAttributeValue ("InstanceID", proxy.ObjectID);
 		}
 

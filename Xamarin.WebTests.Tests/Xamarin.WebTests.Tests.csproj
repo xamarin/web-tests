@@ -109,6 +109,9 @@
     <Compile Include="Xamarin.WebTests.HttpListenerTests\Simple.cs" />
     <Compile Include="Xamarin.WebTests.HttpListenerTests\SimpleInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.HttpListenerTests\CloseOutputStream.cs" />
+    <Compile Include="Xamarin.WebTests.ExternalTests\TestExternalServer.cs" />
+    <Compile Include="Xamarin.WebTests.ExternalTests\ExternalTestFixture.cs" />
+    <Compile Include="Xamarin.WebTests.ExternalTests\TestReverseFork.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
@@ -139,5 +142,6 @@
     <Folder Include="Xamarin.WebTests.TraditionalTests\" />
     <Folder Include="Xamarin.WebTests.HttpClientInstrumentation\" />
     <Folder Include="Xamarin.WebTests.HttpListenerTests\" />
+    <Folder Include="Xamarin.WebTests.ExternalTests\" />
   </ItemGroup>
 </Project>

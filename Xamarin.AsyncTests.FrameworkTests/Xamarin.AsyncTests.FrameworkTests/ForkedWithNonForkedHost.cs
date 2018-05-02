@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests.FrameworkTests
 
 		[AsyncTest]
 		[Martin (null, UseFixtureName = true)]
-		public void Test (TestContext ctx, ForkedHost host)
+		public static void Test (TestContext ctx, ForkedHost host)
 		{
 			ctx.LogMessage ($"Martin Test: {ctx.FriendlyName} {host}");
 			ctx.Assert (host.IsForked, Is.EqualTo (1));

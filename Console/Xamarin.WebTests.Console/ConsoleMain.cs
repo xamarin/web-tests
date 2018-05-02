@@ -1,6 +1,7 @@
 ﻿using System;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Console;
+using Xamarin.AsyncTests.Remoting;
 using Mono.Btls.Tests;
 using Xamarin.WebTests;
 using Xamarin.WebTests.MonoTests;
@@ -16,9 +17,26 @@ using Xamarin.WebTests.MonoTestProvider;
 
 namespace Xamarin.WebTests.Console
 {
-	public class ConsoleMain
+	[Serializable]
+	public class ConsoleMain : IForkedDomainSetup
 	{
 		static void Main (string[] args)
+		{
+			var main = new ConsoleMain ();
+			main.Run (args);
+		}
+
+		void Run (string[] args)
+		{
+			DependencyInjector.RegisterDependency<IForkedProcessLauncher> (() => new ForkedProcessLauncher ());
+			DependencyInjector.RegisterDependency<IForkedDomainSetup> (() => this);
+
+			Initialize ();
+
+			Program.Run (typeof (ConsoleMain).Assembly, args);
+		}
+
+		public void Initialize ()
 		{
 			var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.Console");
 			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
@@ -26,8 +44,6 @@ namespace Xamarin.WebTests.Console
 
 			DependencyInjector.RegisterAssembly (typeof(ConsoleMain).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
-
-			Program.Run (typeof (ConsoleMain).Assembly, args);
 		}
 	}
 }

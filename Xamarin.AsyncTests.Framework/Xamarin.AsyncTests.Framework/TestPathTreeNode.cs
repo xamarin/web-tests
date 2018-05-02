@@ -111,27 +111,30 @@ namespace Xamarin.AsyncTests.Framework
 			return newNode;
 		}
 
-		TestPathTreeNode Parameterize (string value)
+		ITestParameter GetParameter (string value)
 		{
-			if (Node.PathType == TestPathType.Fork) {
-				var parameter = TestSerializer.GetStringParameter (value);
-				return Parameterize (parameter);
-			}
+			if (string.IsNullOrEmpty (value))
+				return null;
+			if (Node.PathType == TestPathType.Fork)
+				return TestSerializer.GetStringParameter (value);
 
 			if (parameters == null || parameters.Count == 0)
-				return this;
+				return null;
 
 			foreach (var parameter in parameters.ToArray ()) {
 				if (parameter.Node.Parameter.Value == value)
-					return parameter;
+					return parameter.Node.Parameter;
 			}
 
-			return this;
+			return null;
 		}
 
-		TestPathTreeNode Parameterize (XElement customValue)
+		TestPathTreeNode Parameterize (string value, XElement customValue)
 		{
-			var newPath = Path.Parameterize (customValue);
+			var parameter = GetParameter (value);
+			if (customValue == null)
+				return Parameterize (parameter);
+			var newPath = Path.Parameterize (parameter, customValue);
 			var newNode = new TestPathTreeNode (Tree, newPath, (TestNodeInternal)newPath.Node);
 			newNode.parameterized = true;
 			return newNode;
@@ -193,16 +196,13 @@ namespace Xamarin.AsyncTests.Framework
 				if (!TestNodeInternal.Matches (child.Tree.Host, node))
 					throw new InternalErrorException ();
 
-				if (node.CustomParameter != null)
-					return child.Parameterize (node.CustomParameter);
+				if (child.Node.Parameter != null) {
+					if (!node.ParameterValue.Equals (child.Node.Parameter.Value))
+						continue;
+					return child;
+				}
 
-				if (child.Node.Parameter == null)
-					return child.Parameterize (node.ParameterValue);
-
-				if (!node.ParameterValue.Equals (child.Node.Parameter.Value))
-					continue;
-
-				return child;
+				return child.Parameterize (node.ParameterValue, node.CustomParameter);
 			}
 
 			throw new InternalErrorException ();

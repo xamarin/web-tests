@@ -251,6 +251,9 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (!instance && !isStatic)
 				return null;
 
+			if (property.PropertyType.Equals (typeof (IForkedObjectClient)))
+				return null;
+
 			var member = new _PropertyInfo (property);
 			var fixtureParamAttr = property.GetCustomAttribute<FixtureParameterAttribute> ();
 			if (fixtureParamAttr != null) {

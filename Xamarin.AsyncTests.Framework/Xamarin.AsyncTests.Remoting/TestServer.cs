@@ -51,6 +51,10 @@ namespace Xamarin.AsyncTests.Remoting
 			private set;
 		}
 
+		internal abstract Connection Connection {
+			get;
+		}
+
 		protected TestServer (TestApp app)
 		{
 			App = app;
@@ -298,8 +302,9 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			public TestFramework Framework {
 				get;
-				private set;
 			}
+
+			internal override Connection Connection => throw new InternalErrorException ();
 
 			public LocalTestServer (TestApp app, TestFramework framework)
 				: base (app)
@@ -328,6 +333,8 @@ namespace Xamarin.AsyncTests.Remoting
 			readonly TestFramework framework;
 			ServerConnection server;
 			Task serverTask;
+
+			internal override Connection Connection => server;
 
 			public Server (TestApp app, TestFramework framework, ServerConnection server)
 				: base (app)
@@ -374,6 +381,8 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			ClientConnection client;
 			Task clientTask;
+
+			internal override Connection Connection => client;
 
 			public Client (TestApp app, ClientConnection client)
 				: base (app)

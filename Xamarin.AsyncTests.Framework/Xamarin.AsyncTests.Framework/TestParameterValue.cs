@@ -52,11 +52,7 @@ namespace Xamarin.AsyncTests.Framework
 			if (currentPath != null)
 				return currentPath;
 
-			TestNodeInternal node;
-			if (CustomParameter != null)
-				node = new TestNodeInternal (Instance.Host, CustomParameter);
-			else
-				node = new TestNodeInternal (Instance.Host, Parameter);
+			var node = new TestNodeInternal (Instance.Host, Parameter, CustomParameter);
 			currentPath = new TestPath (Instance.ParentPath, node);
 			return currentPath;
 		}

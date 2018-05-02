@@ -24,36 +24,60 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
 
 namespace Xamarin.AsyncTests
 {
+	using Portable;
+
 	public class AssertionException : Exception
 	{
-		static long next_id;
-		readonly long id = ++next_id;
-
-		readonly string stackTrace;
+		static long nextId;
 
 		internal AssertionException (string message, string stackTrace)
 			: base (message)
 		{
-			this.stackTrace = stackTrace;
+			StackTrace = stackTrace ?? base.StackTrace;
+			ID = Interlocked.Increment (ref nextId);
 		}
 
 		internal AssertionException (string message, Exception inner, string stackTrace)
 			: base (message, inner)
 		{
-			this.stackTrace = stackTrace;
+			StackTrace = stackTrace ?? base.StackTrace;
+			ID = Interlocked.Increment (ref nextId);
 		}
 
-		public override string StackTrace {
-			get {
-				return stackTrace ?? base.StackTrace;
-			}
+		public AssertionException (string message)
+			: this (message, GetStackTrace ())
+		{
+		}
+
+		public AssertionException (string message, Exception inner)
+			: this (message, inner, GetStackTrace ())
+		{
+		}
+
+		[HideStackFrame]
+		public static string GetStackTrace ()
+		{
+			var support = DependencyInjector.Get<IPortableSupport> ();
+			return support.GetStackTrace (false);
+		}
+
+		[HideStackFrame]
+		public static string GetStackTrace (Exception error)
+		{
+			var support = DependencyInjector.Get<IPortableSupport> ();
+			return support.GetStackTrace (error, false);
+		}
+
+		public sealed override string StackTrace {
+			get;
 		}
 
 		public long ID {
-			get { return id; }
+			get;
 		}
 
 		public override string ToString ()

@@ -177,7 +177,7 @@ namespace Xamarin.AsyncTests.Remoting
 				response.Success = true;
 			} catch (Exception ex) {
 				response.Error = ex.ToString ();
-				Connection.Debug ("COMMAND FAILED: {0}", ex);
+				connection.Debug ($"COMMAND FAILED: {ex}");
 			}
 
 			return response;

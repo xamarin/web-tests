@@ -463,6 +463,10 @@ namespace Xamarin.AsyncTests.Console
 
 			Debug ($"Connected to forked parent."); 
 
+			await server.Session.WaitForShutdown (cancellationToken).ConfigureAwait (false);
+
+			Debug ($"Forked child session exited.");
+
 			await server.WaitForExit (cancellationToken);
 
 			Debug ($"Forked child done.");

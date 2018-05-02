@@ -67,7 +67,7 @@ namespace Xamarin.AsyncTests.Remoting
 				connection.App.Settings, connection.EventSink.LoggerClient, Configuration,
 				connection.Framework.Name);
 
-			LocalSession = TestSession.CreateLocal (connection.App, connection.Framework, RootContext);
+			LocalSession = TestSession.CreateLocal (connection.App, connection.Framework, RootContext, connection);
 		}
 
 		TestSessionClient RemoteObject<TestSessionClient, TestSessionServant>.Client {
@@ -86,7 +86,6 @@ namespace Xamarin.AsyncTests.Remoting
 		public XElement GetConfiguration ()
 		{
 			return TestSerializer.WriteConfiguration (LocalSession.ConfigurationProvider);
-			
 		}
 
 		public void UpdateSettings (XElement settings)
@@ -95,6 +94,11 @@ namespace Xamarin.AsyncTests.Remoting
 			Connection.App.Settings.Merge (remoteSettings);
 			Configuration.Reload ();
 			LocalSession.OnConfigurationChanged ();
+		}
+
+		public Task Shutdown (CancellationToken cancellationToken)
+		{
+			return LocalSession.Shutdown (cancellationToken);
 		}
 	}
 }

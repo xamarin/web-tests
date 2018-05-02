@@ -48,8 +48,15 @@ namespace Xamarin.AsyncTests.Portable
 	{
 		#region Misc
 
-		public string CurrentThreadId {
-			get { return Thread.CurrentThread.ManagedThreadId.ToString (); }
+		public string CurrentThreadId => Thread.CurrentThread.ManagedThreadId.ToString ();
+
+		public string CurrentDomain => AppDomain.CurrentDomain.FriendlyName;
+
+		public string CurrentProcess {
+			get {
+				var process = Process.GetCurrentProcess ();
+				return $"{process.ProcessName}:{process.Id}";
+			}
 		}
 
 		public bool IsMicrosoftRuntime {

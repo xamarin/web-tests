@@ -24,12 +24,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework
 {
-	class ForkedTestInstance : TestInstance, ITestParameter, IFork
+	using Remoting;
+
+	class ForkedTestInstance : RemoteTestInstance, ITestParameter, IFork
 	{
 		public ForkType Type {
 			get;
@@ -52,21 +55,31 @@ namespace Xamarin.AsyncTests.Framework
 		{
 			Type = type;
 			ID = id;
+
+			CurrentParameter = new RemoteTestValue (this, id.ToString (), this);
 		}
 
-		internal sealed override TestParameterValue GetCurrentParameter ()
-		{
-			return new ForkedParameterValue (this);
+		internal sealed override RemoteTestValue CurrentParameter {
+			get;
 		}
 
-		class ForkedParameterValue : TestParameterValue
+		internal async Task<TestResult> HandleReverseFork (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			public ForkedParameterValue (ForkedTestInstance instance)
-				: base (instance)
-			{
-			}
+			var me = $"ForkedTestInstance ({this})";
 
-			public override ITestParameter Parameter => (ITestParameter)Instance;
+			WalkStackAndSerialize (ctx, instance);
+
+			var path = instance.GetCurrentPath ();
+			var serialized = path.SerializePath (true);
+
+			return await ObjectClient.RunRemoteTest (path, cancellationToken).ConfigureAwait (false);
+		}
+
+		internal async Task<TestResult> RunRemoteCommand (TestSession session, XElement node, CancellationToken cancellationToken)
+		{
+			var test = await session.ResolveFromPath (node, cancellationToken).ConfigureAwait (false);
+
+			return await session.Run (test, cancellationToken).ConfigureAwait (false);
 		}
 	}
 }

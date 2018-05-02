@@ -39,6 +39,8 @@ namespace Xamarin.AsyncTests.Remoting
 			private set;
 		}
 
+		TestSession TestSuite.Session => Session;
+
 		public Connection Connection {
 			get;
 			private set;

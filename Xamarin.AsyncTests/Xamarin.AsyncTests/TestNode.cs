@@ -116,7 +116,7 @@ namespace Xamarin.AsyncTests
 
 		public abstract TestNode Parameterize (ITestParameter parameter);
 
-		internal abstract TestNode Parameterize (XElement customParameter);
+		internal abstract TestNode Parameterize (ITestParameter parameter, XElement customParameter);
 
 		public abstract bool HasParameters {
 			get;
@@ -274,7 +274,7 @@ namespace Xamarin.AsyncTests
 				throw new InternalErrorException ();
 			}
 
-			internal override TestNode Parameterize (XElement customParameter)
+			internal override TestNode Parameterize (ITestParameter parameter, XElement customParameter)
 			{
 				throw new InternalErrorException ();
 			}

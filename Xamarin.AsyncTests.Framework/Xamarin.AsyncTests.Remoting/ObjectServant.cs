@@ -29,15 +29,12 @@ namespace Xamarin.AsyncTests.Remoting
 {
 	abstract class ObjectServant : ObjectProxy
 	{
-		readonly Connection connection;
-		readonly long objectID;
-
 		public Connection Connection {
-			get { return connection; }
+			get;
 		}
 
 		public long ObjectID {
-			get { return objectID; }
+			get;
 		}
 
 		public abstract string Type {
@@ -46,8 +43,14 @@ namespace Xamarin.AsyncTests.Remoting
 
 		protected ObjectServant (Connection connection)
 		{
-			this.connection = connection;
-			this.objectID = connection.RegisterObjectServant (this);
+			Connection = connection;
+			ObjectID = connection.RegisterObjectServant (this);
+		}
+
+		protected ObjectServant (Connection connection, long objectID)
+		{
+			Connection = connection;
+			ObjectID = objectID;
 		}
 	}
 }

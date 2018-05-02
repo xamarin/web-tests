@@ -44,10 +44,16 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
+		public IForkedDomainSetup DomainSetup {
+			get;
+		}
+
 		public ExternalDomainSupport (Program program)
 		{
 			Assembly = program.Assembly;
 			Dependencies = program.Options.Dependencies;
+			if (DependencyInjector.TryGet<IForkedDomainSetup> (out var setup))
+				DomainSetup = setup;
 		}
 
 		public IExternalDomainHost Create (TestApp app, string name)

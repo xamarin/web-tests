@@ -84,30 +84,23 @@ namespace Xamarin.AsyncTests.Remoting
 			get { throw new ServerErrorException (); }
 		}
 
-		public Task LogMessage (string message)
-		{
-			return LogEvent (new TestLoggerBackend.LogEntry (TestLoggerBackend.EntryKind.Message, 0, message), CancellationToken.None);
-		}
-
-		public async Task LogEvent (TestLoggerBackend.LogEntry entry, CancellationToken cancellationToken)
+		public void LogEvent (TestLoggerBackend.LogEntry entry, CancellationToken cancellationToken)
 		{
 			LocalLogger?.OnLogEvent (entry);
 			var command = new LogCommand ();
-			await command.Send (this, entry, cancellationToken);
+			command.Send (this, entry, cancellationToken).Wait ();
 		}
 
-		public async Task StatisticsEvent (TestLoggerBackend.StatisticsEventArgs args, CancellationToken cancellationToken)
+		public void StatisticsEvent (TestLoggerBackend.StatisticsEventArgs args, CancellationToken cancellationToken)
 		{
 			LocalLogger?.OnStatisticsEvent (args);
 			var command = new StatisticsCommand ();
-			await command.Send (this, args, cancellationToken);
+			command.Send (this, args, cancellationToken).Wait ();
 		}
 
 		class LogCommand : RemoteObjectCommand<RemoteEventSink,TestLoggerBackend.LogEntry,object>
 		{
-			public override bool IsOneWay {
-				get { return true; }
-			}
+			public override bool IsOneWay => true;
 
 			protected override Task<object> Run (
 				Connection connection, RemoteEventSink proxy,
@@ -120,6 +113,8 @@ namespace Xamarin.AsyncTests.Remoting
 
 		class StatisticsCommand : RemoteObjectCommand<RemoteEventSink,TestLoggerBackend.StatisticsEventArgs,object>
 		{
+			public override bool IsOneWay => true;
+
 			protected override Task<object> Run (
 				Connection connection, RemoteEventSink proxy,
 				TestLoggerBackend.StatisticsEventArgs argument, CancellationToken cancellationToken)
@@ -149,12 +144,12 @@ namespace Xamarin.AsyncTests.Remoting
 
 			protected internal override void OnLogEvent (LogEntry entry)
 			{
-				client.LogEvent (entry, CancellationToken.None).Wait ();
+				client.LogEvent (entry, CancellationToken.None);
 			}
 
 			protected internal override void OnStatisticsEvent (StatisticsEventArgs args)
 			{
-				client.StatisticsEvent (args, CancellationToken.None).Wait ();
+				client.StatisticsEvent (args, CancellationToken.None);
 			}
 		}
 	}

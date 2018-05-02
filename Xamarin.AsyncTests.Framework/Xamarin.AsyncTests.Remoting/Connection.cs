@@ -30,6 +30,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +38,7 @@ using System.Threading.Tasks;
 namespace Xamarin.AsyncTests.Remoting
 {
 	using Framework;
+	using Portable;
 
 	public abstract class Connection
 	{
@@ -51,6 +53,15 @@ namespace Xamarin.AsyncTests.Remoting
 			this.app = app;
 			this.stream = stream;
 			cancelCts = new CancellationTokenSource ();
+
+#if CONNECTION_DEBUG
+			var portable = DependencyInjector.Get<IPortableSupport> ();
+			ME = $"[{DebugHelper.FormatType (this)}:{portable.CurrentProcess}:{portable.CurrentDomain}]";
+#endif
+		}
+
+		internal string ME {
+			get;
 		}
 
 		public TestApp App {
@@ -61,17 +72,23 @@ namespace Xamarin.AsyncTests.Remoting
 			get;
 		}
 
-		#region Public Client API
+#region Public Client API
 
 		public async Task Shutdown ()
 		{
+			if (shutdownRequested) {
+				Debug ($"DUPLICATED SHUTDOWN");
+				return;
+			}
+			Debug ($"SHUTDOWN");
 			shutdownRequested = true;
-			await new ShutdownCommand ().Send (this, CancellationToken.None);
+			await new ShutdownCommand ().Send (this, CancellationToken.None).ConfigureAwait (false);
+			Debug ($"SHUTDOWN DONE");
 		}
 
-		#endregion
+#endregion
 
-		#region Command Handlers
+#region Command Handlers
 
 		protected internal virtual void OnShutdown ()
 		{
@@ -88,23 +105,21 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
-		#endregion
+#endregion
 
-		#region Helper Methods
+#region Helper Methods
 
-		protected internal static void Debug (string message)
+		[Conditional ("CONNECTION_DEBUG")]
+		protected internal void Debug (string message)
 		{
-			System.Diagnostics.Debug.WriteLine (message);
+			System.Diagnostics.Debug.WriteLine ($"{ME}: {message}");
 		}
 
-		protected internal static void Debug (string message, params object[] args)
-		{
-			System.Diagnostics.Debug.WriteLine (message, args);
-		}
+#endregion
 
-		#endregion
+#region Start and Stop
 
-		#region Start and Stop
+		int mainLoopRunning;
 
 		public async Task Start (CancellationToken cancellationToken)
 		{
@@ -125,11 +140,19 @@ namespace Xamarin.AsyncTests.Remoting
 
 			await Task.Factory.StartNew (async () => {
 				try {
-					await MainLoop ();
+					Debug ($"MAIN LOOP START");
+					if (Interlocked.CompareExchange (ref mainLoopRunning, 1, 0) != 0) {
+						Debug ($"MAIN LOOP ALREADY RUNNING!");
+						throw new InternalErrorException ();
+					}
+					await MainLoop ().ConfigureAwait (false);
+					Debug ($"MAIN LOOP COMPLETE");
 					mainTcs.SetResult (null);
 				} catch (OperationCanceledException) {
+					Debug ($"MAIN LOOP CANCELED");
 					mainTcs.SetCanceled ();
 				} catch (Exception ex) {
+					Debug ($"MAIN LOOP ERROR: {ex}");
 					mainTcs.SetException (ex);
 				}
 			}, CancellationToken.None, TaskCreationOptions.None, scheduler);
@@ -150,7 +173,7 @@ namespace Xamarin.AsyncTests.Remoting
 				await mainTcs.Task;
 			} catch (Exception ex) {
 				if (!shutdownRequested) {
-					Debug ("SERVER ERROR: {0} {1}", this, ex);
+					Debug ($"SERVER ERROR: {this} {ex}");
 					throw;
 				}
 			}
@@ -169,28 +192,34 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
-		#endregion
+#endregion
 
-		#region Sending Commands and Main Loop
+#region Sending Commands and Main Loop
 
 		internal async Task<bool> SendCommand (Command command, Response response, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
+
+			Debug ($"SEND COMMAND: {command}");
 
 			Task<bool> responseTask = null;
 			if (!command.IsOneWay)
 				responseTask = RegisterResponse (command, response, cancellationToken);
 
 			try {
-				await SendMessage (command);
+				await SendMessage (command).ConfigureAwait (false);
+
+				Debug ($"SEND COMMAND #1: {command} {responseTask != null}");
 
 				if (responseTask == null)
 					return false;
 
 				return await responseTask;
 			} catch (Exception ex) {
-				Debug ("SEND COMMAND EX: {0} {1}", command, ex);
+				Debug ($"SEND COMMAND EX: {command} {ex}");
 				throw;
+			} finally {
+				Debug ($"SEND COMMAND DONE: {command}");
 			}
 		}
 
@@ -198,17 +227,23 @@ namespace Xamarin.AsyncTests.Remoting
 
 		async Task SendMessage (Message message)
 		{
+			Debug ($"SEND MESSAGE: {message}");
+
 			var queued = new QueuedMessage (message);
 
 			while (!cancelCts.IsCancellationRequested) {
 				var old = Interlocked.CompareExchange (ref currentMessage, queued, null);
+				Debug ($"SEND MESSAGE QUEUE: {message} {old != null}");
+
 				if (old == null)
 					break;
 
-				await old.Task.Task;
+				await old.Task.Task.ConfigureAwait (false);
 			}
 
 			cancelCts.Token.ThrowIfCancellationRequested ();
+
+			Debug ($"SEND MESSAGE #1: {message}");
 
 			var doc = message.Write (this);
 
@@ -233,11 +268,15 @@ namespace Xamarin.AsyncTests.Remoting
 
 			await stream.FlushAsync ();
 
+			Debug ($"SEND MESSAGE #2: {message}");
+
 			var old2 = Interlocked.CompareExchange (ref currentMessage, null, queued);
 			if (old2 != queued)
 				throw new ServerErrorException ();
 
 			queued.Task.SetResult (true);
+
+			Debug ($"SEND MESSAGE #3: {message}");
 		}
 
 		async Task<byte[]> ReadBuffer (int length)
@@ -255,9 +294,12 @@ namespace Xamarin.AsyncTests.Remoting
 
 		async Task MainLoop ()
 		{
-			while (!shutdownRequested && !cancelCts.IsCancellationRequested) {
+			while (!cancelCts.IsCancellationRequested) {
+				Debug ($"MAIN LOOP: {shutdownRequested}");
+
 				var header = await ReadBuffer (4);
 				var len = BitConverter.ToInt32 (header, 0);
+				Debug ($"MAIN LOOP #0: {shutdownRequested} {len}");
 				if (len == 0)
 					return;
 
@@ -267,24 +309,33 @@ namespace Xamarin.AsyncTests.Remoting
 				var doc = XDocument.Load (new StringReader (content));
 				var element = doc.Root;
 
+				Debug ($"MAIN LOOP: {element}");
+
 				if (element.Name.LocalName.Equals ("Response")) {
 					var objectID = element.Attribute ("ObjectID").Value;
 					var operation = GetResponse (long.Parse (objectID));
 					operation.Response.Read (this, element);
 					operation.Task.SetResult (true);
+					if (operation.Command is TestSessionClient.SessionShutdownCommand)
+						return;
 					continue;
 				}
 
 				var command = Command.Create (this, element);
 
+				Debug ($"MAIN LOOP #1: {command} {command.IsOneWay}");
+
 				cancelCts.Token.ThrowIfCancellationRequested ();
 
-				if (command.IsOneWay) {
+				if (command.IsOneWay)
 					await command.Run (this, cancelCts.Token);
-					continue;
-				}
+				else
+					HandleCommand (command);
 
-				HandleCommand (command);
+				Debug ($"MAIN LOOP #2: {command} {command.IsOneWay}");
+
+				if (command is ShutdownCommand)
+					return;
 			}
 		}
 
@@ -308,6 +359,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 			Response response;
 			try {
+				Debug ($"HANDLE COMMAND: {command}");
 				response = await command.Run (this, token);
 			} catch (Exception ex) {
 				response = new Response {
@@ -316,13 +368,15 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 
 			try {
+				Debug ($"HANDLE COMMAND #1: {command}");
 				if (command.IsOneWay || command.ResponseID == 0 || response == null)
 					return;
 
 				await SendMessage (response);
 			} catch (Exception ex) {
-				Debug ("ERROR WHILE SENDING RESPONSE: {0}", ex);
+				Debug ($"ERROR WHILE SENDING RESPONSE: {ex}");
 			} finally {
+				Debug ($"HANDLE COMMAND DONE: {command}");
 				lock (this) {
 					if (operation != null) {
 						operation.CancelCts.Dispose ();
@@ -330,18 +384,19 @@ namespace Xamarin.AsyncTests.Remoting
 						serverOperations.Remove (operation.ObjectID);
 					}
 				}
+				Debug ($"HANDLE COMMAND DONE #1: {command}");
 			}
 		}
 
-		#endregion
+#endregion
 
-		#region Serializer
+#region Serializer
 
-		static long next_id;
-		long GetNextObjectId ()
+		static long nextId;
+
+		internal static long GetNextObjectId ()
 		{
-			var id = ++next_id;
-			return IsServer ? id : -id;
+			return Interlocked.Increment (ref nextId);
 		}
 
 		Dictionary<long, ClientOperation> clientOperations = new Dictionary<long, ClientOperation> ();
@@ -352,7 +407,7 @@ namespace Xamarin.AsyncTests.Remoting
 			ClientOperation operation;
 			lock (this) {
 				var objectID = GetNextObjectId ();
-				operation = new ClientOperation (objectID, response);
+				operation = new ClientOperation (objectID, command, response);
 				clientOperations.Add (objectID, operation);
 				command.ResponseID = objectID;
 			}
@@ -366,7 +421,7 @@ namespace Xamarin.AsyncTests.Remoting
 				} catch (Exception ex) {
 					if (shutdownRequested)
 						return;
-					Debug ("CANCEL COMMAND EX: {0}", ex);
+					Debug ($"CANCEL COMMAND EX: {ex}");
 					throw;
 				}
 			});
@@ -398,12 +453,14 @@ namespace Xamarin.AsyncTests.Remoting
 		class ClientOperation
 		{
 			public readonly long ObjectID;
+			public readonly Command Command;
 			public readonly Response Response;
 			public TaskCompletionSource<bool> Task;
 
-			public ClientOperation (long objectID, Response response)
+			public ClientOperation (long objectID, Command command, Response response)
 			{
 				ObjectID = objectID;
+				Command = command;
 				Response = response;
 				Task = new TaskCompletionSource<bool> ();
 			}
@@ -435,12 +492,24 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
+		internal void RegisterObjectServant (ObjectServant servant, long objectID)
+		{
+			lock (this) {
+				if (remoteObjects.ContainsValue (servant))
+					throw new ServerErrorException ();
+				if (remoteObjects.ContainsKey (objectID))
+					throw new ServerErrorException ();
+
+				remoteObjects.Add (objectID, servant);
+			}
+		}
+
 		internal void RegisterObjectClient (ObjectProxy proxy)
 		{
 			lock (this) {
-				if (remoteObjects.ContainsKey (proxy.ObjectID))
+				if (remoteObjects.ContainsKey (-proxy.ObjectID))
 					throw new ServerErrorException ();
-				remoteObjects.Add (proxy.ObjectID, proxy);
+				remoteObjects.Add (-proxy.ObjectID, proxy);
 			}
 		}
 
@@ -459,7 +528,7 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
-		#endregion
+#endregion
 	}
 }
 

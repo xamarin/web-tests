@@ -768,6 +768,13 @@ namespace Xamarin.AsyncTests {
 
 		static int nextPort;
 		static int nextId;
+		static Random random;
+
+		public static int GetRandomPort ()
+		{
+			Interlocked.CompareExchange (ref random, new Random (), null);
+			return random.Next (9000, 61000);
+		}
 
 		public static int GetUniquePort ()
 		{

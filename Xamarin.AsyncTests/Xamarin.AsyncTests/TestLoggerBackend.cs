@@ -163,7 +163,7 @@ namespace Xamarin.AsyncTests
 						if (entry.Error != null)
 							Result.AddError (entry.Error);
 						else
-							Result.AddError (new AssertionException (entry.Text, null));
+							Result.AddError (new AssertionException (entry.Text, (string)null));
 					} else if (SaveLogging) {
 						if (entry.Kind == EntryKind.Message)
 							Result.AddMessage (entry.Text);

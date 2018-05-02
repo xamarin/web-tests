@@ -82,7 +82,6 @@
     <Compile Include="Xamarin.AsyncTests.Remoting\EventSinkClient.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\EventSinkServant.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\Handshake.cs" />
-    <Compile Include="Xamarin.AsyncTests.Remoting\IRemoteObject.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\Message.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\ObjectClient.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\ObjectProxy.cs" />
@@ -153,6 +152,12 @@
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestCollectionBuilder.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestFilterInvoker.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\ITestFilter.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\IForkedDomainSetup.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ForkedObjectClient.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ForkedObjectServant.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\RemoteTestHost.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\RemoteTestInstance.cs" />
+    <Compile Include="Xamarin.AsyncTests.Framework\RemoteTestValue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

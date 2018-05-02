@@ -26,6 +26,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using SD = System.Diagnostics;
 
 namespace Xamarin.AsyncTests.Console
 {
@@ -75,14 +76,18 @@ namespace Xamarin.AsyncTests.Console
 			if (framework != null)
 				throw new InternalErrorException ();
 
+			SD.Debug.AutoFlush = true;
+			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
+
 			DependencyInjector.RegisterAssembly (typeof (PortableSupportImpl).Assembly);
 			DependencyInjector.RegisterAssembly (Support.Assembly);
+
+			if (Support.DomainSetup != null)
+				Support.DomainSetup.Initialize ();
 
 			framework = TestFramework.GetLocalFramework (
 				PackageName, Support.Assembly,
 				Support.Dependencies);
-
-			Program.Debug ($"START: {AppDomain.CurrentDomain.FriendlyName} {framework}!");
 
 			TestServer.ConnectToForkedParent (
 				this, address, framework, cts.Token).ContinueWith (OnStarted);
@@ -104,6 +109,10 @@ namespace Xamarin.AsyncTests.Console
 
 			try {
 				cts.Token.ThrowIfCancellationRequested ();
+
+				await server.Session.WaitForShutdown (cts.Token).ConfigureAwait (false);
+
+				Program.Debug ($"Forked child session exited.");
 
 				await server.WaitForExit (cts.Token);
 
