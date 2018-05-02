@@ -297,7 +297,6 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				method (ctx);
 				return true;
 			} catch (Exception ex) {
-				ctx.OnTestFinished (TestStatus.Error);
 				ctx.OnError (ex);
 				return false;
 			}

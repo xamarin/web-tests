@@ -116,11 +116,12 @@ namespace Xamarin.AsyncTests {
 
 		public TestLogger Logger => logger;
 
-		public void OnError (Exception error)
+		public void OnError (Exception error, TimeSpan? elapsedTime = null)
 		{
 			if (error is SkipRestOfThisTestException)
 				return;
 
+			OnTestFinished (TestStatus.Error, elapsedTime);
 			LogError (error);
 		}
 
