@@ -213,6 +213,9 @@ namespace Xamarin.AsyncTests.Portable
 
 				frames.Add (formatted);
 
+				if (method == null)
+					continue;
+
 				var hideAttr = method.GetCustomAttributes (typeof (HideStackFrameAttribute), true);
 				if (hideAttr.Length > 0) {
 					top = i + 1;
@@ -262,7 +265,8 @@ namespace Xamarin.AsyncTests.Portable
 				arguments.Add (fields[i].FieldType);
 			}
 
-			method = type.GetMethod (match.Groups[2].Value, arguments.ToArray ());
+			var bf = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+			method = type.GetMethod (match.Groups[2].Value, bf, null, arguments.ToArray (), null);
 			if (method == null)
 				return;
 			formatted = FormatFrame (frame, method);
