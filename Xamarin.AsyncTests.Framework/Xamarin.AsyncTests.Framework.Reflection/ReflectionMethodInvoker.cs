@@ -289,5 +289,18 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				return null;
 			}
 		}
+
+		[StackTraceEntryPoint]
+		internal static bool InvokeGlobalMethod (TestContext ctx, Action<TestContext> method)
+		{
+			try {
+				method (ctx);
+				return true;
+			} catch (Exception ex) {
+				ctx.OnTestFinished (TestStatus.Error);
+				ctx.OnError (ex);
+				return false;
+			}
+		}
 	}
 }

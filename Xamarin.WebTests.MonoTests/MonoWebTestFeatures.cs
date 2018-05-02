@@ -76,12 +76,10 @@ namespace Xamarin.WebTests.MonoTests
 
 		public void GlobalSetUp (TestContext ctx)
 		{
-			ctx.LogMessage ($"{Name} GLOBAL SET UP!");
 		}
 
 		public void GlobalTearDown (TestContext ctx)
 		{
-			ctx.LogMessage ($"{Name} GLOBAL TEAR DOWN!");
 			Response.CheckLeakingInstances (ctx);
 		}
 	}

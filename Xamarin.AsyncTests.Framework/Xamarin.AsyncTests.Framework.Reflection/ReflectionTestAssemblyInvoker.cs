@@ -58,15 +58,16 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			TestContext ctx, TestInstance instance,
 			CancellationToken cancellationToken)
 		{
-			if (Builder.AssemblyInstance != null)
-				Builder.AssemblyInstance.GlobalSetUp (ctx);
+			if (Builder.AssemblyInstance != null &&
+			    !ReflectionMethodInvoker.InvokeGlobalMethod (ctx, Builder.AssemblyInstance.GlobalSetUp))
+				return false;
 
 			try {
 				return await InvokeInner (
 					ctx, instance, Inner, cancellationToken).ConfigureAwait (false);
 			} finally {
 				if (Builder.AssemblyInstance != null)
-					Builder.AssemblyInstance.GlobalTearDown (ctx);
+					ReflectionMethodInvoker.InvokeGlobalMethod (ctx, Builder.AssemblyInstance.GlobalTearDown);
 			}
 		}
 	}
