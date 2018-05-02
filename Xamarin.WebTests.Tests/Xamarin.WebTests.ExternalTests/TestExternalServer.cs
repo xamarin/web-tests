@@ -56,9 +56,8 @@ namespace Xamarin.WebTests.ExternalTests
 				ctx.LogDebug (2, $"{me} ITERATION #{i + 1}: {handler} {handler.Uri}");
 
 				var request = new TraditionalRequest (handler.Uri);
-				var response = await request.Send (ctx, cancellationToken).ConfigureAwait (false);
-
-				ctx.LogDebug (2, $"{me} ITERATION #{i + 1} DONE: {response.Status}");
+				using (var response = await request.Send (ctx, cancellationToken).ConfigureAwait (false))
+					ctx.LogDebug (2, $"{me} ITERATION #{i + 1} DONE: {response.Status}");
 			}
 		}
 	}
