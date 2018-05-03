@@ -29,7 +29,7 @@ using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.TestAttributes
 {
-	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class HttpServerFlagsAttribute : FixedTestParameterAttribute
 	{
 		public override Type Type => typeof(HttpServerFlags);
