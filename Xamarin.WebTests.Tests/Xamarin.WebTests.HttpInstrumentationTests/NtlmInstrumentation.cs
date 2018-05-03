@@ -40,6 +40,7 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 	using TestRunners;
 	using System.IO;
 
+	[HttpServerFlags (HttpServerFlags.RequireMono)]
 	[HttpServerTestCategory (HttpServerTestCategory.NewWebStackInstrumentation)]
 	public class NtlmInstrumentation : HttpInstrumentationTestFixture
 	{

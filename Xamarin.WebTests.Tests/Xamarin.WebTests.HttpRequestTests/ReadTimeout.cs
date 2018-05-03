@@ -39,6 +39,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using HttpHandlers;
 	using TestRunners;
 
+	[HttpServerFlags (HttpServerFlags.RequireMono)]
 	[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
 	public class ReadTimeout : RequestTestFixture
 	{

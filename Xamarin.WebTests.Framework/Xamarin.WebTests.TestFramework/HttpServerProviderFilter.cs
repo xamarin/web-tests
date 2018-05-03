@@ -1,4 +1,4 @@
-﻿//
+//
 // HttpServerProviderFilter.cs
 //
 // Author:
@@ -194,11 +194,14 @@ namespace Xamarin.WebTests.TestFramework
 
 		public IEnumerable<HttpServerProvider> GetProviders (TestContext ctx)
 		{
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
 			if ((ServerFlags & HttpServerFlags.InternalVersionTwo) != 0) {
-				var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
 				if (!setup.UsingDotNet && setup.InternalVersion < 2)
 					yield break;
 			}
+
+			if (setup.UsingDotNet && (ServerFlags & HttpServerFlags.RequireMono) != 0)
+				yield break;
 
 			if (!RequireSsl && !IsMartinTest && SupportsHttp) {
 				yield return new HttpServerProvider (

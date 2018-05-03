@@ -40,6 +40,7 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 	using HttpHandlers;
 	using TestRunners;
 
+	[HttpServerFlags (HttpServerFlags.RequireMono)]
 	[HttpServerTestCategory (HttpServerTestCategory.Stress)]
 	public class MultipleParallelRequests : HttpInstrumentationTestFixture
 	{

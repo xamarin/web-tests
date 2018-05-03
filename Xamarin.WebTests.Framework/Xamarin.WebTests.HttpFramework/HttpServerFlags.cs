@@ -1,4 +1,4 @@
-﻿//
+//
 // HttpServerFlags.cs
 //
 // Author:
@@ -43,6 +43,7 @@ namespace Xamarin.WebTests.HttpFramework
 		ParallelListener		= 512,
 		InstrumentationListener		= 1024,
 		NoSSL				= 2048,
-		InternalVersionTwo		= 4096
+		InternalVersionTwo		= 4096,
+		RequireMono			= 8192
 	}
 }
