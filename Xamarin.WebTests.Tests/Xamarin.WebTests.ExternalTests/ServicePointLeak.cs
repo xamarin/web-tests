@@ -34,9 +34,8 @@ namespace Xamarin.WebTests.ExternalTests
 {
 	using TestAttributes;
 	using HttpFramework;
-	using HttpHandlers;
 
-	[ManualSelect]
+	[HttpServerFlags (HttpServerFlags.InternalVersionTwo)]
 	public class ServicePointLeak : ExternalTestFixture
 	{
 		public override ForkType ForkType => ForkType.Domain;
