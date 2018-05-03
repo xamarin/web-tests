@@ -15,12 +15,6 @@
 		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
 		<JenkinsPlatform>Console</JenkinsPlatform>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Console-Legacy'">
-		<ProjectConfiguration>DebugLegacy</ProjectConfiguration>
-		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
-		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
-		<JenkinsPlatform>Console</JenkinsPlatform>
-	</PropertyGroup>
 	<PropertyGroup Condition="'$(JenkinsTarget)' == 'DotNet'">
 		<ProjectConfiguration>Debug</ProjectConfiguration>
 		<SolutionFile>Xamarin.WebTests.DotNet.sln</SolutionFile>
@@ -101,7 +95,7 @@
 
 	<Target Name="MultiBuild">
 		<PropertyGroup Condition="'$(JenkinsTargets)' == 'all' OR '$(JenkinsTargets)' == ''">
-			<JenkinsTargets>Console:Console-AppleTls:Console-Legacy:DotNet:Mac:IOS:Android-Btls</JenkinsTargets>
+			<JenkinsTargets>Console:Console-AppleTls:DotNet:Mac:IOS:Android-Btls</JenkinsTargets>
 		</PropertyGroup>
 		<ItemGroup>
 			<JenkinsTargets Include="$(JenkinsTargets.Split(':'))" />

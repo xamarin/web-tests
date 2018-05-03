@@ -149,7 +149,6 @@ def buildAll ()
 	if (enableMono ()) {
 		targets << "Console"
 		targets << "Console-AppleTls"
-		targets << "Console-Legacy"
 	}
 	if (enableXI ()) {
 		targets << "IOS"
@@ -308,15 +307,6 @@ node ('felix-25-sierra') {
                 }
                 stage ('console-appletls-all') {
                     runTests ('Console-AppleTls', 'All')
-                }
-                stage ('console-legacy-work') {
-                    runTests ('Console-Legacy', 'Work')
-                }
-                stage ('console-legacy-new') {
-                    runTests ('Console-Legacy', 'New')
-                }
-                stage ('console-legacy-all') {
-                    runTests ('Console-Legacy', 'All')
                 }
             }
             if (enableXI ()) {
