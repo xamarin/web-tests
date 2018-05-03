@@ -36,49 +36,15 @@ namespace Xamarin.WebTests.tvOS
 
 	class MobileFrameworkSetup : MonoConnectionFrameworkSetup
 	{
-		public override string Name {
-			get { return "Xamarin.WebTests.tvOS"; }
-		}
+		public override string Name => "Xamarin.WebTests.tvOS";
 
-		public override bool UsingAppleTls {
-			get {
-#if APPLETLS
-				return true;
-#else
-				return false;
-#endif
-			}
-		}
+		public override bool UsingAppleTls => true;
 
-		public override string TlsProviderName {
-			get {
-#if APPLETLS
-				return "appletls";
-#else
-				return "old";
-#endif
-			}
-		}
+		public override string TlsProviderName => "appletls";
 
-		public override Guid TlsProvider {
-			get {
-#if APPLETLS
-				return ConnectionProviderFactory.AppleTlsGuid;
-#else
-				return ConnectionProviderFactory.LegacyTlsGuid;
-#endif
-			}
-		}
+		public override Guid TlsProvider => ConnectionProviderFactory.AppleTlsGuid;
 
-		public override bool SupportsTls12 {
-			get {
-#if APPLETLS
-				return true;
-#else
-				return false;
-#endif
-			}
-		}
+		public override bool SupportsTls12 => true;
 	}
 }
 
