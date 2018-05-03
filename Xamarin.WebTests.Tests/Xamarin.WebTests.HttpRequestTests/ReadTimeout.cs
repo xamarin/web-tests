@@ -39,6 +39,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using HttpHandlers;
 	using TestRunners;
 
+	// .NET does not support read/write timeouts on HttpWebRequest.
 	[HttpServerFlags (HttpServerFlags.RequireMono)]
 	[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
 	public class ReadTimeout : RequestTestFixture
