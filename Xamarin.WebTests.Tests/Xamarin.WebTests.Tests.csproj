@@ -115,6 +115,7 @@
     <Compile Include="Xamarin.WebTests.ExternalTests\ServicePointLimit.cs" />
     <Compile Include="Xamarin.WebTests.ExternalTests\ServicePointLeak.cs" />
     <Compile Include="Xamarin.WebTests.ExternalTests\ServicePointZeroIdleTime.cs" />
+    <Compile Include="Xamarin.WebTests.HttpInstrumentationTests\CloseConnectionGroup.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
