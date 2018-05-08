@@ -1,10 +1,10 @@
 #!/bin/groovy
 properties([
 	parameters([
-		choice (name: 'MONO_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\n2017-12\n2018-02\nmaster', description: 'Mono branch'),
-		choice (name: 'XI_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nd15-6\nmono-2018-02', description: 'XI branch'),
-		choice (name: 'XM_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nd15-6\nmono-2018-02', description: 'XM branch'),
-		choice (name: 'XA_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nd15-6\nmono-2018-02', description: 'XA branch'),
+		choice (name: 'MONO_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\n2017-12\n2018-02\n2018-04\nmaster', description: 'Mono branch'),
+		choice (name: 'XI_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nd15-6\nmono-2018-02\n2018-04', description: 'XI branch'),
+		choice (name: 'XM_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nd15-6\nmono-2018-02\n2018-04', description: 'XM branch'),
+		choice (name: 'XA_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nd15-6\nmono-2018-02\n2018-04', description: 'XA branch'),
 		choice (name: 'IOS_DEVICE_TYPE', choices: 'iPhone-5s', description: ''),
 		choice (name: 'IOS_RUNTIME', choices: 'iOS-10-0\niOS-10-3', description: ''),
 		string (name: 'MONO_COMMIT', defaultValue: '', description: 'Use specific Mono commit'),
@@ -149,7 +149,7 @@ def buildAll ()
 	if (enableMono ()) {
 		targets << "Console"
 		targets << "Console-AppleTls"
-	}
+    }
 	if (enableXI ()) {
 		targets << "IOS"
 	}
