@@ -33,10 +33,8 @@ namespace Xamarin.WebTests.ExternalTests
 {
 	using TestFramework;
 	using TestAttributes;
-	using HttpFramework;
 	using ExternalServer;
 
-	[New]
 	[AsyncTestFixture (Prefix = "ExternalTests")]
 	public abstract class ExternalTestFixture : ExternalServerTestRunner
 	{
