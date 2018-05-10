@@ -34,8 +34,16 @@ namespace Xamarin.WebTests.MonoTestFramework
 	using TestFramework;
 	using ConnectionFramework;
 
-	public abstract class MonoConnectionTestParameters : MonoConnectionParameters
+	public abstract class MonoConnectionTestParameters : MonoConnectionParameters, ITestParameter
 	{
+		public string Identifier {
+			get;
+		}
+
+		string ITestParameter.Value => Identifier;
+
+		string ITestParameter.FriendlyValue => Identifier;
+
 		public ConnectionTestCategory Category {
 			get;
 		}
@@ -45,9 +53,10 @@ namespace Xamarin.WebTests.MonoTestFramework
 		}
 
 		public MonoConnectionTestParameters (ConnectionTestCategory category, string identifier, X509Certificate certificate)
-			: base (identifier, certificate)
+			: base (certificate)
 		{
 			Category = category;
+			Identifier = identifier;
 		}
 
 		protected MonoConnectionTestParameters (MonoConnectionTestParameters other)

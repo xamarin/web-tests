@@ -40,46 +40,20 @@ namespace Xamarin.WebTests.ConnectionFramework
 	{
 		public Connection Server {
 			get;
+			private set;
 		}
 
 		public Connection Client {
 			get;
+			private set;
 		}
 
 		public ConnectionParameters Parameters {
 			get;
+			private set;
 		}
 
-		public ProtocolVersions SupportedProtocols {
-			get { return Server.SupportedProtocols & Client.SupportedProtocols; }
-		}
-
-		public ProtocolVersions? GetRequestedProtocol ()
-		{
-			var supported = SupportedProtocols;
-			var requested = Parameters.ProtocolVersion;
-
-			if (requested != null) {
-				requested &= supported;
-				return requested;
-			}
-
-			return null;
-		}
-
-		public ClientAndServer (Connection server, Connection client, ConnectionParameters parameters)
-		{
-			Server = server;
-			Client = client;
-			Parameters = parameters;
-
-			var requested = GetRequestedProtocol ();
-			if (requested != null) {
-				if (requested == ProtocolVersions.Unspecified)
-					throw new NotSupportedException ("Incompatible protocol versions between client and server.");
-				Parameters.ProtocolVersion = requested.Value;
-			}
-		}
+		protected abstract ConnectionParameters CreateParameters (TestContext ctx);
 
 		public bool IsManualClient {
 			get { return Client.Provider.Type == ConnectionProviderType.Manual; }
@@ -93,8 +67,53 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return IsManualClient || IsManualServer; }
 		}
 
+		void Initialize (TestContext ctx)
+		{
+			Parameters = CreateParameters (ctx);
+
+			if (ctx.TryGetParameter<ProtocolVersions> (out var protocolVersion))
+				Parameters.ProtocolVersion = protocolVersion;
+
+			var provider = ctx.GetParameter<ConnectionTestProvider> ();
+
+			if (provider.IsManual) {
+				if (ctx.Settings.TryGetValue ("ServerAddress", out var serverAddress)) {
+					var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+					Parameters.ListenAddress = support.ParseEndpoint (serverAddress, 443, true);
+
+					if (ctx.Settings.TryGetValue ("ServerHost", out var serverHost))
+						Parameters.TargetHost = serverHost;
+				}
+			}
+
+			if (Parameters.EndPoint != null) {
+				if (Parameters.TargetHost == null)
+					Parameters.TargetHost = Parameters.EndPoint.HostName;
+			} else if (provider.IsManual) {
+				var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+				Parameters.ListenAddress = support.GetEndpoint ("0.0.0.0", 4433);
+			} else if (Parameters.ListenAddress != null)
+				Parameters.EndPoint = Parameters.ListenAddress;
+			else
+				Parameters.EndPoint = ConnectionTestHelper.GetEndPoint ();
+
+			Server = provider.CreateServer (Parameters);
+
+			Client = provider.CreateClient (Parameters);
+
+			var supported = Server.SupportedProtocols & Client.SupportedProtocols;
+			if (Parameters.ProtocolVersion != null) {
+				var requested = Parameters.ProtocolVersion & supported;
+				if (requested == ProtocolVersions.Unspecified)
+					throw new NotSupportedException ("Incompatible protocol versions between client and server.");
+
+				Parameters.ProtocolVersion = requested;
+			}
+		}
+
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
+			Initialize (ctx);
 			ctx.LogDebug (LogCategories.SimpleConnections, 1, $"Starting client and server: {Client} {Server} {Server.PortableEndPoint}");
 			InitializeConnection (ctx);
 			await StartServer (ctx, cancellationToken);

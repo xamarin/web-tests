@@ -58,7 +58,7 @@ namespace Xamarin.WebTests.Tests {
 			address = support.GetEndpoint (0);
 
 			serverCertificate = ResourceManager.SelfSignedServerCertificate;
-			serverParameters = new ConnectionParameters ("proxy", serverCertificate);
+			serverParameters = new ConnectionParameters (serverCertificate);
 		}
 
 		BuiltinProxyServer CreateBackend (int port, int proxyPort, ConnectionParameters parameters = null,

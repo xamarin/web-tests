@@ -80,7 +80,7 @@ namespace Xamarin.WebTests.ExternalServer
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 			var acceptAll = certificateProvider.AcceptAll ();
 
-			return new ConnectionParameters (identifier, ResourceManager.SelfSignedServerCertificate) {
+			return new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
 				ClientCertificateValidator = acceptAll
 			};
 		}

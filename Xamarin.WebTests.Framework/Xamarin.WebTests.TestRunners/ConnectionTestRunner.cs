@@ -28,39 +28,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
 
 namespace Xamarin.WebTests.TestRunners
 {
 	using ConnectionFramework;
 	using TestFramework;
-	using Resources;
 
 	public abstract class ConnectionTestRunner : ClientAndServer
 	{
-		new public ConnectionTestParameters Parameters {
-			get { return (ConnectionTestParameters)base.Parameters; }
-		}
-
-		public ConnectionTestCategory Category {
-			get { return Parameters.Category; }
-		}
-
-		public ConnectionTestProvider Provider {
+		public ConnectionHandler ConnectionHandler {
 			get;
 			private set;
 		}
 
-		public ConnectionHandler ConnectionHandler {
-			get;
-		}
-
-		public ConnectionTestRunner (Connection server, Connection client, ConnectionTestProvider provider, ConnectionTestParameters parameters)
-			: base (server, client, parameters)
+		protected ConnectionTestRunner ()
 		{
-			Provider = provider;
-
-			ConnectionHandler = CreateConnectionHandler ();
 		}
 
 		public static ConnectionTestFlags GetConnectionFlags (TestContext ctx, ConnectionTestCategory category)
@@ -139,6 +121,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override void InitializeConnection (TestContext ctx)
 		{
+			ConnectionHandler = CreateConnectionHandler ();
 			ConnectionHandler.InitializeConnection (ctx);
 			base.InitializeConnection (ctx);
 		}

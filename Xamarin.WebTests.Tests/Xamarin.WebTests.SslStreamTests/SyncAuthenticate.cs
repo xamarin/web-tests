@@ -1,10 +1,10 @@
 ﻿//
-// SslStreamTestRunnerAttribute.cs
+// SyncAuthenticate.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,30 +25,19 @@
 // THE SOFTWARE.
 using System;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.TestAttributes
+namespace Xamarin.WebTests.SslStreamTests
 {
-	using TestRunners;
-	using TestFramework;
-	using HttpFramework;
+	using ConnectionFramework;
 	using Resources;
 
-	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
-	public class SslStreamTestRunnerAttribute : TestHostAttribute, ITestHost<SslStreamTestRunner>
+	public class SyncAuthenticate : SslStreamTestFixture
 	{
-		public SslStreamTestRunnerAttribute ()
-			: base (typeof (SslStreamTestRunnerAttribute), TestFlags.Hidden)
+		protected override ConnectionParameters CreateParameters (TestContext ctx)
 		{
-		}
-
-		public SslStreamTestRunner CreateInstance (TestContext ctx)
-		{
-			return ConnectionTestHelper.CreateTestRunner<ConnectionTestProvider,SslStreamTestParameters,SslStreamTestRunner> (
-				ctx, (s, c, t, p) => new SslStreamTestRunner (s, c, t, p));
+			return new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
+				ClientCertificateValidator = AcceptAll, SslStreamFlags = SslStreamFlags.SyncAuthenticate
+			};
 		}
 	}
 }
-

@@ -31,7 +31,6 @@
     <Compile Include="Xamarin.WebTests.Tests\TestFork.cs" />
     <Compile Include="Xamarin.WebTests.Tests\RedirectStatusAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpValidation.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestSslStream.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestChunked.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestCertificates.cs" />
     <Compile Include="Xamarin.WebTests.Tests\NetworkTests.cs" />
@@ -116,6 +115,20 @@
     <Compile Include="Xamarin.WebTests.ExternalTests\ServicePointLeak.cs" />
     <Compile Include="Xamarin.WebTests.ExternalTests\ServicePointZeroIdleTime.cs" />
     <Compile Include="Xamarin.WebTests.HttpInstrumentationTests\CloseConnectionGroup.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\SslStreamTestFixture.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\Default.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\AcceptFromLocalCA.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\NoValidator.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\RejectAll.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\UnrequestedClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\RequestClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\RequireClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\OptionalClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\RejectClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\MissingClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\MustNotInvokeGlobalValidator.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\MustNotInvokeGlobalValidator2.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\SyncAuthenticate.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
@@ -147,5 +160,6 @@
     <Folder Include="Xamarin.WebTests.HttpClientInstrumentation\" />
     <Folder Include="Xamarin.WebTests.HttpListenerTests\" />
     <Folder Include="Xamarin.WebTests.ExternalTests\" />
+    <Folder Include="Xamarin.WebTests.SslStreamTests\" />
   </ItemGroup>
 </Project>

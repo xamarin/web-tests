@@ -1,10 +1,10 @@
 ﻿//
-// SslStreamTestParameters.cs
+// MissingClientCertificate.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,37 +24,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.TestFramework
+namespace Xamarin.WebTests.SslStreamTests
 {
 	using ConnectionFramework;
-	using TestAttributes;
-	using TestRunners;
+	using Resources;
 
-	[SslStreamTestParameters]
-	public class SslStreamTestParameters : ConnectionTestParameters
+	public class MissingClientCertificate : SslStreamTestFixture
 	{
-		public SslStreamTestType Type {
-			get;
-		}
-
-		public SslStreamTestParameters (ConnectionTestCategory category, SslStreamTestType type, string identifier, X509Certificate certificate)
-			: base (category, identifier, certificate)
+		protected override ConnectionParameters CreateParameters (TestContext ctx)
 		{
-			Type = type;
-		}
-
-		protected SslStreamTestParameters (SslStreamTestParameters other)
-			: base (other)
-		{
-			Type = other.Type;
-		}
-
-		public override ConnectionParameters DeepClone ()
-		{
-			return new SslStreamTestParameters (this);
+			// Missing client certificate.
+			return new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
+				ClientCertificateValidator = AcceptSelfSigned,
+				AskForClientCertificate = true, RequireClientCertificate = true,
+				ExpectClientException = true, ExpectServerException = true
+			};
 		}
 	}
 }
-

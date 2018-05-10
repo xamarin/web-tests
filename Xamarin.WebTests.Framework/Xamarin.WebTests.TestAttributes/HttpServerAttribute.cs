@@ -93,7 +93,7 @@ namespace Xamarin.WebTests.TestAttributes {
 			}
 
 			var certificate = ResourceManager.SelfSignedServerCertificate;
-			parameters = new ConnectionParameters ("http", certificate);
+			parameters = new ConnectionParameters (certificate);
 			return true;
 		}
 

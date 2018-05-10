@@ -33,19 +33,14 @@ namespace Xamarin.WebTests.TestFramework
 
 	public class ConnectionTestProviderFilter : ConnectionProviderFilter
 	{
-		public ConnectionTestCategory Category {
-			get;
-		}
-
-		public ConnectionTestProviderFilter (ConnectionTestCategory category, ConnectionTestFlags flags)
+		public ConnectionTestProviderFilter (ConnectionTestFlags flags)
 			: base (flags)
 		{
-			Category = category;
 		}
 
 		protected override ClientAndServerProvider Create (ConnectionProvider client, ConnectionProvider server)
 		{
-			return new ConnectionTestProvider (client, server, Category, Flags);
+			return new ConnectionTestProvider (client, server, Flags);
 		}
 	}
 }

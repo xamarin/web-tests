@@ -25,17 +25,10 @@
 // THE SOFTWARE.
 using System;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.TestAttributes
 {
 	using TestRunners;
-	using TestFramework;
-	using ConnectionFramework;
-	using HttpFramework;
-	using Resources;
 
 	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
 	public class StreamInstrumentationTestRunnerAttribute : TestHostAttribute, ITestHost<StreamInstrumentationTestRunner>
@@ -47,8 +40,7 @@ namespace Xamarin.WebTests.TestAttributes
 
 		public StreamInstrumentationTestRunner CreateInstance (TestContext ctx)
 		{
-			return ConnectionTestHelper.CreateTestRunner<ConnectionTestProvider, StreamInstrumentationParameters, StreamInstrumentationTestRunner> (
-				ctx, (s, c, t, p) => new StreamInstrumentationTestRunner (s, c, t, p));
+			return new StreamInstrumentationTestRunner ();
 		}
 	}
 }

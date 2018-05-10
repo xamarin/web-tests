@@ -82,7 +82,6 @@
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestParameters.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestProvider.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\HttpValidationTestParameters.cs" />
-    <Compile Include="Xamarin.WebTests.TestFramework\SslStreamTestParameters.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestProviderFilter.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestFlags.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestHelper.cs" />
@@ -200,8 +199,6 @@
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpStressTestParametersAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpStressTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpValidationTestRunnerAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestAttributes\SslStreamTestParametersAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestAttributes\SslStreamTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\StreamInstrumentationParametersAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\StreamInstrumentationTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpServerAttribute.cs" />
@@ -221,7 +218,6 @@
     <Compile Include="Xamarin.WebTests.TestAttributes\WorkAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\HttpValidationTestType.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\HttpStressTestType.cs" />
-    <Compile Include="Xamarin.WebTests.TestRunners\SslStreamTestType.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationOperation.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationOperationType.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\ExternalHandler.cs" />

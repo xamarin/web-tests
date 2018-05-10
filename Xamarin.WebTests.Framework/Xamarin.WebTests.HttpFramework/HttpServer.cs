@@ -102,11 +102,8 @@ namespace Xamarin.WebTests.HttpFramework
 			var description = FormatFlags (Flags);
 			if (!string.IsNullOrEmpty (description))
 				description = ": " + description;
-			var identifier = parameters?.Identifier;
-			if (identifier != null)
-				identifier = ": " + identifier;
 
-			ME = $"[{GetType ().Name}:{ID}{identifier}{description}]";
+			ME = $"[{GetType ().Name}:{ID}{description}]";
 		}
 
 		public abstract IWebProxy GetProxy ();

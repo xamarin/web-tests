@@ -25,20 +25,28 @@
 // THE SOFTWARE.
 using System;
 using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
 
-	public abstract class ConnectionTestParameters : ConnectionParameters
+	public abstract class ConnectionTestParameters : ConnectionParameters, ITestParameter
 	{
-		public ConnectionTestCategory Category {
+		public string Identifier {
 			get;
-			private set;
 		}
 
-		public ConnectionTestParameters (ConnectionTestCategory category, string identifier, X509Certificate certificate)
-			: base (identifier, certificate)
+		string ITestParameter.Value => Identifier;
+
+		string ITestParameter.FriendlyValue => Identifier;
+
+		public ConnectionTestCategory Category {
+			get;
+		}
+
+		protected ConnectionTestParameters (ConnectionTestCategory category, string identifier, X509Certificate certificate)
+			: base (certificate)
 		{
 			Category = category;
 		}

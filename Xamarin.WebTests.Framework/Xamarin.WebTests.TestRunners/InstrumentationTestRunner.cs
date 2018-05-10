@@ -47,8 +47,7 @@ namespace Xamarin.WebTests.TestRunners
 	using Server;
 	using Resources;
 
-	public abstract class InstrumentationTestRunner
-		: AbstractConnection, ListenerHandler
+	public abstract class InstrumentationTestRunner : AbstractConnection, ListenerHandler
 	{
 		public HttpServer Server {
 			get;
@@ -62,7 +61,7 @@ namespace Xamarin.WebTests.TestRunners
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 			var acceptAll = certificateProvider.AcceptAll ();
 
-			return new ConnectionParameters (identifier, ResourceManager.SelfSignedServerCertificate) {
+			return new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
 				ClientCertificateValidator = acceptAll
 			};
 		}

@@ -34,8 +34,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 {
 	public abstract class MonoConnectionParameters : ConnectionParameters
 	{
-		public MonoConnectionParameters (string identifier, X509Certificate certificate)
-			: base (identifier, certificate)
+		public MonoConnectionParameters (X509Certificate certificate)
+			: base (certificate)
 		{
 		}
 

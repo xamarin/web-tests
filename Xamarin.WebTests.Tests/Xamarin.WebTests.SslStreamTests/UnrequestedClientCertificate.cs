@@ -1,5 +1,5 @@
 ﻿//
-// SslStreamTestType.cs
+// UnrequestedClientCertificate.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -23,24 +23,23 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Xamarin.WebTests.TestRunners
-{
-	public enum SslStreamTestType
-	{
-		Default,
-		AcceptFromLocalCA,
-		NoValidator,
-		RejectAll,
-		UnrequestedClientCertificate,
-		RequestClientCertificate,
-		RequireClientCertificate,
-		OptionalClientCertificate,
-		RejectClientCertificate,
-		MissingClientCertificate,
-		MustNotInvokeGlobalValidator,
-		MustNotInvokeGlobalValidator2,
-		SyncAuthenticate,
+using System;
+using Xamarin.AsyncTests;
 
-		MartinTest
+namespace Xamarin.WebTests.SslStreamTests
+{
+	using ConnectionFramework;
+	using Resources;
+
+	public class UnrequestedClientCertificate : SslStreamTestFixture
+	{
+		protected override ConnectionParameters CreateParameters (TestContext ctx)
+		{
+			// Provide a client certificate, but do not require it.
+			return new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
+				ClientCertificate = ResourceManager.PenguinCertificate, ClientCertificateValidator = AcceptSelfSigned,
+				ServerCertificateValidator = AcceptNull
+			};
+		}
 	}
 }

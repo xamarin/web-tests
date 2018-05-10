@@ -45,8 +45,7 @@ namespace Xamarin.WebTests.MonoTestFeatures
 
 		public SimpleConnectionTestRunner CreateInstance (TestContext ctx)
 		{
-			return ConnectionTestHelper.CreateTestRunner<ConnectionTestProvider,SimpleConnectionParameters,SimpleConnectionTestRunner> (
-				ctx, (s, c, p, a) => new SimpleConnectionTestRunner (s, c, p, a));
+			return new SimpleConnectionTestRunner ();
 		}
 	}
 }

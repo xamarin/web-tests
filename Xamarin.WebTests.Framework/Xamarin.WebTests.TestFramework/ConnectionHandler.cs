@@ -53,10 +53,6 @@ namespace Xamarin.WebTests.TestFramework
 			get { return Runner.Server; }
 		}
 
-		protected ConnectionParameters Parameters {
-			get { return Runner.Parameters; }
-		}
-
 		public ConnectionHandler (ClientAndServer runner)
 		{
 			Runner = runner;
@@ -74,23 +70,6 @@ namespace Xamarin.WebTests.TestFramework
 
 		public void InitializeConnection (TestContext ctx)
 		{
-			if (NeedCustomCertificateSelectionCallback) {
-				var provider = DependencyInjector.Get<ICertificateProvider> ();
-				var selector = provider.GetCustomCertificateSelector ((s, t, lc, rc, ai) => OnCertificateSelectionCallback (ctx, t, lc, rc, ai));
-				Parameters.ClientCertificateSelector = selector;
-			}
-		}
-
-		protected virtual bool NeedCustomCertificateSelectionCallback {
-			get { return false; }
-		}
-
-		protected virtual X509Certificate OnCertificateSelectionCallback (
-			TestContext ctx, string targetHost, X509CertificateCollection localCertificates,
-			X509Certificate remoteCertificate, string[] acceptableIssuers)
-		{
-			// Derived classes must override this when using 'NeedCustomCertificateSelectionCallback'.
-			throw new NotImplementedException ();
 		}
 
 		protected static Task FinishedTask {
@@ -324,7 +303,7 @@ namespace Xamarin.WebTests.TestFramework
 		{
 			var clientStream = new StreamWrapper (Client.Stream);
 
-			LogDebug (ctx, 3, "HandleClientWithManualServer", Parameters.TargetHost ?? "<null>");
+			LogDebug (ctx, 3, "HandleClientWithManualServer");
 
 			await clientStream.WriteLineAsync ("Hello World!");
 

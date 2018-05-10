@@ -45,17 +45,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 {
 	public abstract class MonoConnectionTestRunner : ClientAndServer
 	{
-		new public MonoConnectionTestParameters Parameters {
-			get { return (MonoConnectionTestParameters)base.Parameters; }
-		}
+		new public MonoConnectionTestParameters Parameters => (MonoConnectionTestParameters)base.Parameters;
 
-		public ConnectionTestCategory Category {
-			get { return Parameters.Category; }
-		}
-
-		public ConnectionTestFlags ConnectionFlags {
-			get { return Provider.Flags; }
-		}
+		public ConnectionTestFlags ConnectionFlags => Provider.Flags;
 
 		public ConnectionTestProvider Provider {
 			get;
@@ -64,12 +56,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 		public ConnectionHandler ConnectionHandler {
 			get;
 			private set;
-		}
-
-		protected MonoConnectionTestRunner (Connection server, Connection client, ConnectionTestProvider provider, MonoConnectionTestParameters parameters)
-			: base (server, client, parameters)
-		{
-			Provider = provider;
 		}
 
 		public static ConnectionTestFlags GetConnectionFlags (TestContext ctx, ConnectionTestCategory category)
@@ -86,7 +72,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 			case ConnectionTestCategory.SecurityFramework:
 				return ConnectionTestFlags.RequireMono;
 			case ConnectionTestCategory.MartinTest:
-				// return ConnectionTestFlags.RequireMono | ConnectionTestFlags.RequireTls12;
 				return ConnectionTestFlags.None;
 			default:
 				ctx.AssertFail ("Unsupported instrumentation category: '{0}'.", category);

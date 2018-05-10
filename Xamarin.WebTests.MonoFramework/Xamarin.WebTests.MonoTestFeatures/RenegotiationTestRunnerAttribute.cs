@@ -28,12 +28,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.MonoTestFeatures
 {
-	using TestRunners;
-	using TestFramework;
 	using MonoTestFramework;
-	using ConnectionFramework;
-	using HttpFramework;
-	using Resources;
 
 	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
 	public class RenegotiationTestRunnerAttribute : TestHostAttribute, ITestHost<RenegotiationTestRunner>
@@ -45,8 +40,7 @@ namespace Xamarin.WebTests.MonoTestFeatures
 
 		public RenegotiationTestRunner CreateInstance (TestContext ctx)
 		{
-			return ConnectionTestHelper.CreateTestRunner<ConnectionTestProvider, RenegotiationTestParameters, RenegotiationTestRunner> (
-				ctx, (s, c, t, p) => new RenegotiationTestRunner (s, c, t, p));
+			return new RenegotiationTestRunner ();
 		}
 	}
 }

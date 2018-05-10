@@ -45,18 +45,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 	[SimpleConnectionTestRunner]
 	public class SimpleConnectionTestRunner : MonoConnectionTestRunner
 	{
-		new public SimpleConnectionParameters Parameters {
-			get { return (SimpleConnectionParameters)base.Parameters; }
-		}
-
-		public SimpleConnectionType Type {
-			get { return Parameters.Type; }
-		}
-
-		public SimpleConnectionTestRunner (Connection server, Connection client, ConnectionTestProvider provider, SimpleConnectionParameters parameters)
-			: base (server, client, provider, parameters)
-		{
-		}
+		protected override ConnectionParameters CreateParameters (TestContext ctx) => ctx.GetParameter<SimpleConnectionParameters> ();
 
 		protected override ConnectionHandler CreateConnectionHandler ()
 		{

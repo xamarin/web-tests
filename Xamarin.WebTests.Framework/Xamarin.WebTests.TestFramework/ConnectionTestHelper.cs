@@ -50,55 +50,6 @@ namespace Xamarin.WebTests.TestFramework
 			return Factory.GetProviderFlags (type);
 		}
 
-		public static R CreateTestRunner<P, A, R> (TestContext ctx, Func<Connection, Connection, P, A, R> constructor)
-			where P : ClientAndServerProvider
-			where A : ConnectionParameters
-			where R : ClientAndServer
-		{
-			var parameters = ctx.GetParameter<A> ();
-			var provider = ctx.GetParameter<P> ();
-			return CreateTestRunner (ctx, provider, parameters, constructor);
-		}
-
-		public static R CreateTestRunner<P, A, R> (TestContext ctx, P provider, A parameters, Func<Connection, Connection, P, A, R> constructor)
-			where P : ClientAndServerProvider
-			where A : ConnectionParameters
-			where R : ClientAndServer
-		{
-			ProtocolVersions protocolVersion;
-			if (ctx.TryGetParameter<ProtocolVersions> (out protocolVersion))
-				parameters.ProtocolVersion = protocolVersion;
-
-			if (provider.IsManual) {
-				string serverAddress;
-				if (ctx.Settings.TryGetValue ("ServerAddress", out serverAddress)) {
-					var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-					parameters.ListenAddress = support.ParseEndpoint (serverAddress, 443, true);
-
-					string serverHost;
-					if (ctx.Settings.TryGetValue ("ServerHost", out serverHost))
-						parameters.TargetHost = serverHost;
-				}
-			}
-
-			if (parameters.EndPoint != null) {
-				if (parameters.TargetHost == null)
-					parameters.TargetHost = parameters.EndPoint.HostName;
-			} else if (provider.IsManual) {
-				var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-				parameters.ListenAddress = support.GetEndpoint ("0.0.0.0", 4433);
-			} else if (parameters.ListenAddress != null)
-				parameters.EndPoint = parameters.ListenAddress;
-			else
-				parameters.EndPoint = GetEndPoint ();
-
-			var server = provider.CreateServer (parameters);
-
-			var client = provider.CreateClient (parameters);
-
-			return constructor (server, client, provider, parameters);
-		}
-
 		public static IPortableEndPoint GetEndPoint ()
 		{
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();

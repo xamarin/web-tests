@@ -51,17 +51,15 @@ namespace Xamarin.WebTests.TestAttributes
 
 		public IEnumerable<ConnectionTestProvider> GetParameters (TestContext ctx, string argument)
 		{
-			var category = ctx.GetParameter<ConnectionTestCategory> ();
+			if (!ctx.TryGetParameter<ConnectionProviderFilter> (out var filter)) {
+				ConnectionTestFlags flags = ConnectionTestFlags.None;
+				if (ctx.TryGetParameter<ConnectionTestCategory> (out var category))
+					flags = ConnectionTestRunner.GetConnectionFlags (ctx, category);
 
-			ConnectionProviderFilter filter;
-			if (!ctx.TryGetParameter<ConnectionProviderFilter> (out filter)) {
-				var flags = ConnectionTestRunner.GetConnectionFlags (ctx, category);
-
-				ConnectionTestFlags explicitFlags;
-				if (ctx.TryGetParameter<ConnectionTestFlags> (out explicitFlags))
+				if (ctx.TryGetParameter<ConnectionTestFlags> (out var explicitFlags))
 					flags |= explicitFlags;
 
-				filter = new ConnectionTestProviderFilter (category, flags);
+				filter = new ConnectionTestProviderFilter (flags);
 			}
 
 			var supportedProviders = filter.GetSupportedProviders (ctx, argument).Cast<ConnectionTestProvider> ().ToList ();

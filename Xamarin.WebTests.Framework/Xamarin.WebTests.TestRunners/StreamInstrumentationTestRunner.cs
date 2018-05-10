@@ -50,9 +50,7 @@ namespace Xamarin.WebTests.TestRunners
 	[StreamInstrumentationTestRunner]
 	public class StreamInstrumentationTestRunner : ClientAndServer, IConnectionInstrumentation
 	{
-		new public StreamInstrumentationParameters Parameters {
-			get { return (StreamInstrumentationParameters)base.Parameters; }
-		}
+		new public StreamInstrumentationParameters Parameters => (StreamInstrumentationParameters)base.Parameters;
 
 		public StreamInstrumentationType EffectiveType {
 			get {
@@ -70,14 +68,19 @@ namespace Xamarin.WebTests.TestRunners
 
 		public string ME {
 			get;
+			private set;
 		}
 
-		public StreamInstrumentationTestRunner (Connection server, Connection client, ConnectionTestProvider provider,
-							StreamInstrumentationParameters parameters)
-			: base (server, client, parameters)
+		public StreamInstrumentationTestRunner ()
 		{
-			ME = $"StreamInstrumentationTestRunner({EffectiveType})";
 			ConnectionHandler = new DefaultConnectionHandler (this);
+		}
+
+		protected override ConnectionParameters CreateParameters (TestContext ctx)
+		{
+			var parameters = ctx.GetParameter<StreamInstrumentationParameters> ();
+			ME = $"StreamInstrumentationTestRunner({parameters.Type})";
+			return parameters;
 		}
 
 		const StreamInstrumentationType MartinTest = StreamInstrumentationType.VerifyAsyncStreamCalls;

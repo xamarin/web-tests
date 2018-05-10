@@ -1,10 +1,10 @@
 ﻿//
-// ConnectionTestCategoryAttribute.cs
+// OptionalClientCertificate.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,41 +23,31 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
 using System;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.TestAttributes
+namespace Xamarin.WebTests.SslStreamTests
 {
-	using TestFramework;
+	using ConnectionFramework;
+	using Resources;
 
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class ConnectionTestCategoryAttribute : FixedTestParameterAttribute
+	public class OptionalClientCertificate : SslStreamTestFixture
 	{
-		public override Type Type {
-			get { return typeof(ConnectionTestCategory); }
-		}
-
-		public override object Value {
-			get { return Category; }
-		}
-
-		public override string Identifier {
-			get { return identifier; }
-		}
-
-		public ConnectionTestCategory Category {
-			get { return category; }
-		}
-
-		readonly string identifier;
-		readonly ConnectionTestCategory category;
-
-		public ConnectionTestCategoryAttribute (ConnectionTestCategory category)
+		protected override ConnectionParameters CreateParameters (TestContext ctx)
 		{
-			this.category = category;
-			this.identifier = Type.Name;
+			/*
+			 * Request client certificate without requiring one and do not provide it.
+			 *
+			 * To ask for an optional client certificate (without requiring it), you need to specify a custom validation
+			 * callback and then accept the null certificate with `SslPolicyErrors.RemoteCertificateNotAvailable' in it.
+			 *
+			 * FIXME:
+			 * Mono with the old TLS implementation throws SecureChannelFailure.
+			 */
+			return new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
+				ClientCertificateValidator = AcceptSelfSigned, AskForClientCertificate = true,
+				ServerCertificateValidator = AcceptNull
+			};
 		}
 	}
 }
-

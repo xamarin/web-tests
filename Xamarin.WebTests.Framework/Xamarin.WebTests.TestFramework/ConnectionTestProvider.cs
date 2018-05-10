@@ -34,30 +34,22 @@ namespace Xamarin.WebTests.TestFramework
 	[ConnectionTestProvider (Identifier = "ClientAndServerProvider")]
 	public class ConnectionTestProvider : ClientAndServerProvider
 	{
-		public ConnectionTestCategory Category {
-			get;
-			private set;
-		}
-
 		public ConnectionTestFlags Flags {
 			get;
-			private set;
 		}
 
 		static string GetFlagsName (ConnectionTestFlags flags)
 		{
 			if ((flags & ConnectionTestFlags.ManualClient) != 0)
 				return ":ManualClient";
-			else if ((flags & ConnectionTestFlags.ManualServer) != 0)
+			if ((flags & ConnectionTestFlags.ManualServer) != 0)
 				return ":ManuelServer";
-			else
-				return string.Empty;
+			return string.Empty;
 		}
 
-		public ConnectionTestProvider (ConnectionProvider client, ConnectionProvider server, ConnectionTestCategory category, ConnectionTestFlags flags)
-			: base (client, server, string.Format ("{0}:{1}:{2}{3}", client.Name, server.Name, category, GetFlagsName (flags)))
+		public ConnectionTestProvider (ConnectionProvider client, ConnectionProvider server, ConnectionTestFlags flags)
+			: base (client, server, $"{client.Name}:{server.Name}:{GetFlagsName (flags)}")
 		{
-			Category = category;
 			Flags = flags;
 		}
 	}

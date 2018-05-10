@@ -6,25 +6,15 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class ConnectionParameters : ITestParameter, ICloneable
+	public class ConnectionParameters : ICloneable
 	{
-		public string Identifier {
-			get;
-		}
-
-		string ITestParameter.Value => Identifier;
-
-		string ITestParameter.FriendlyValue => Identifier;
-
-		public ConnectionParameters (string identifier, X509Certificate serverCertificate)
+		public ConnectionParameters (X509Certificate serverCertificate)
 		{
-			Identifier = identifier;
 			ServerCertificate = serverCertificate;
 		}
 
 		protected ConnectionParameters (ConnectionParameters other)
 		{
-			Identifier = other.Identifier;
 			EndPoint = other.EndPoint;
 			ListenAddress = other.ListenAddress;
 			ProtocolVersion = other.ProtocolVersion;

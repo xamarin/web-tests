@@ -64,17 +64,12 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get;
 		}
 
-		public string ME {
-			get;
-		}
-
-		public RenegotiationTestRunner (Connection server, Connection client, ConnectionTestProvider provider,
-		                                RenegotiationTestParameters parameters)
-			: base (server, client, parameters)
+		public RenegotiationTestRunner ()
 		{
 			ConnectionHandler = new DefaultConnectionHandler (this);
-			ME = $"{GetType ().Name}({EffectiveType})";
 		}
+
+		protected override ConnectionParameters CreateParameters (TestContext ctx) => ctx.GetParameter<RenegotiationTestParameters> ();
 
 		const RenegotiationTestType MartinTest = RenegotiationTestType.MartinTest;
 
@@ -164,7 +159,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		protected sealed override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var me = $"{ME}.{nameof (MainLoop)}";
+			var me = $"{GetType ().Name}({EffectiveType}).{nameof (MainLoop)}";
 			ctx.LogDebug (LogCategories.Listener, 4, $"{me}");
 
 			ctx.LogDebug (LogCategories.Listener, 4, $"{me} - client={MonoClient.Provider} server={MonoServer.Provider} - {MonoServer.CanRenegotiate}");

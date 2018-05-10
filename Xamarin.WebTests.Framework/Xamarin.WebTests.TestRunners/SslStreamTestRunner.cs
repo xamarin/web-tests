@@ -42,205 +42,26 @@ namespace Xamarin.WebTests.TestRunners
 {
 	using TestFramework;
 	using ConnectionFramework;
-	using TestAttributes;
 	using Resources;
 
-	[SslStreamTestRunner]
-	public class SslStreamTestRunner : ConnectionTestRunner
+	public abstract class SslStreamTestRunner : ConnectionTestRunner
 	{
-		new public SslStreamTestParameters Parameters {
-			get { return (SslStreamTestParameters)base.Parameters; }
-		}
-
-		public SslStreamTestRunner (Connection server, Connection client, ConnectionTestProvider provider, SslStreamTestParameters parameters)
-			: base (server, client, provider, parameters)
-		{
-		}
-
 		protected override ConnectionHandler CreateConnectionHandler ()
 		{
 			return new DefaultConnectionHandler (this);
 		}
 
-		public static IEnumerable<SslStreamTestType> GetTests (TestContext ctx, ConnectionTestCategory category)
-		{
-			switch (category) {
-			case ConnectionTestCategory.Https:
-				yield return SslStreamTestType.Default;
-				yield return SslStreamTestType.AcceptFromLocalCA;
-				yield return SslStreamTestType.NoValidator;
-				yield return SslStreamTestType.RejectAll;
-				yield return SslStreamTestType.RequestClientCertificate;
-				yield return SslStreamTestType.RequireClientCertificate;
-				yield return SslStreamTestType.RejectClientCertificate;
-				yield return SslStreamTestType.UnrequestedClientCertificate;
-				yield return SslStreamTestType.OptionalClientCertificate;
-				yield return SslStreamTestType.RejectClientCertificate;
-				yield return SslStreamTestType.MissingClientCertificate;
-				yield break;
+		protected static ICertificateProvider CertificateProvider => DependencyInjector.Get<ICertificateProvider> ();
 
-			case ConnectionTestCategory.HttpsWithMono:
-				yield return SslStreamTestType.Default;
-				yield return SslStreamTestType.AcceptFromLocalCA;
-				yield return SslStreamTestType.RejectAll;
-				yield break;
+		protected CertificateValidator AcceptAll => CertificateProvider.AcceptAll ();
 
-			case ConnectionTestCategory.HttpsWithDotNet:
-				yield return SslStreamTestType.NoValidator;
-				yield return SslStreamTestType.RequestClientCertificate;
-				yield return SslStreamTestType.RequireClientCertificate;
-				yield return SslStreamTestType.RejectClientCertificate;
-				yield return SslStreamTestType.UnrequestedClientCertificate;
-				yield return SslStreamTestType.OptionalClientCertificate;
-				yield return SslStreamTestType.RejectClientCertificate;
-				yield return SslStreamTestType.MissingClientCertificate;
-				yield break;
+		protected CertificateValidator RejectAll => CertificateProvider.RejectAll ();
 
-			case ConnectionTestCategory.SslStreamWithTls12:
-				yield return SslStreamTestType.Default;
-				yield return SslStreamTestType.AcceptFromLocalCA;
-				yield return SslStreamTestType.RequireClientCertificate;
-				yield return SslStreamTestType.SyncAuthenticate;
-				yield break;
+		protected CertificateValidator AcceptNull => CertificateProvider.AcceptNull ();
 
-			case ConnectionTestCategory.SslStreamCertificateValidators:
-				yield return SslStreamTestType.MustNotInvokeGlobalValidator;
-				yield return SslStreamTestType.MustNotInvokeGlobalValidator2;
-				yield break;
+		protected CertificateValidator AcceptSelfSigned => CertificateProvider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
 
-			case ConnectionTestCategory.MartinTest:
-				yield return SslStreamTestType.MartinTest;
-				yield break;
-
-			default:
-				ctx.AssertFail ("Unsupported test category: '{0}'.", category);
-				throw new InternalErrorException ();
-			}
-		}
-
-		static string GetTestName (ConnectionTestCategory category, SslStreamTestType type, params object[] args)
-		{
-			var sb = new StringBuilder ();
-			sb.Append (type);
-			foreach (var arg in args) {
-				sb.AppendFormat (":{0}", arg);
-			}
-			return sb.ToString ();
-		}
-
-		public static SslStreamTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category, SslStreamTestType type)
-		{
-			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
-			var acceptAll = certificateProvider.AcceptAll ();
-			var rejectAll = certificateProvider.RejectAll ();
-			var acceptNull = certificateProvider.AcceptNull ();
-			var acceptSelfSigned = certificateProvider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
-			var acceptFromLocalCA = certificateProvider.AcceptFromCA (ResourceManager.LocalCACertificate);
-
-			var name = GetTestName (category, type);
-
-			switch (type) {
-			case SslStreamTestType.Default:
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptAll
-				};
-
-			case SslStreamTestType.AcceptFromLocalCA:
-				return new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
-					ClientCertificateValidator = acceptFromLocalCA
-				};
-
-			case SslStreamTestType.NoValidator:
-				// The default validator only allows ResourceManager.SelfSignedServerCertificate.
-				return new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
-					ExpectClientException = true
-				};
-
-			case SslStreamTestType.RejectAll:
-				// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ExpectClientException = true, ClientCertificateValidator = rejectAll
-				};
-
-			case SslStreamTestType.UnrequestedClientCertificate:
-				// Provide a client certificate, but do not require it.
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificate = ResourceManager.PenguinCertificate, ClientCertificateValidator = acceptSelfSigned,
-					ServerCertificateValidator = acceptNull
-				};
-
-			case SslStreamTestType.RequestClientCertificate:
-				/*
-				 * Request client certificate, but do not require it.
-				 *
-				 * FIXME:
-				 * SslStream with Mono's old implementation fails here.
-				 */
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
-					AskForClientCertificate = true, ServerCertificateValidator = acceptFromLocalCA
-				};
-
-			case SslStreamTestType.RequireClientCertificate:
-				// Require client certificate.
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
-					AskForClientCertificate = true, RequireClientCertificate = true,
-					ServerCertificateValidator = acceptFromLocalCA
-				};
-
-			case SslStreamTestType.OptionalClientCertificate:
-				/*
-				 * Request client certificate without requiring one and do not provide it.
-				 *
-				 * To ask for an optional client certificate (without requiring it), you need to specify a custom validation
-				 * callback and then accept the null certificate with `SslPolicyErrors.RemoteCertificateNotAvailable' in it.
-				 *
-				 * FIXME:
-				 * Mono with the old TLS implementation throws SecureChannelFailure.
-				 */
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptSelfSigned, AskForClientCertificate = true,
-					ServerCertificateValidator = acceptNull
-				};
-
-			case SslStreamTestType.RejectClientCertificate:
-				// Reject client certificate.
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificate = ResourceManager.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
-					ServerCertificateValidator = rejectAll, AskForClientCertificate = true,
-					ExpectClientException = true, ExpectServerException = true
-				};
-
-			case SslStreamTestType.MissingClientCertificate:
-				// Missing client certificate.
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptSelfSigned,
-					AskForClientCertificate = true, RequireClientCertificate = true,
-					ExpectClientException = true, ExpectServerException = true
-				};
-
-			case SslStreamTestType.MustNotInvokeGlobalValidator:
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptAll,
-					GlobalValidationFlags = GlobalValidationFlags.MustNotInvoke
-				};
-
-			case SslStreamTestType.MustNotInvokeGlobalValidator2:
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					GlobalValidationFlags = GlobalValidationFlags.MustNotInvoke,
-					ExpectClientException = true
-				};
-
-			case SslStreamTestType.SyncAuthenticate:
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptAll, SslStreamFlags = SslStreamFlags.SyncAuthenticate
-				};
-
-			default:
-				throw ctx.AssertFail ("Invalid SslStreamTestType: `{0}'.", type);
-			}
-		}
+		protected CertificateValidator AcceptFromLocalCA => CertificateProvider.AcceptFromCA (ResourceManager.LocalCACertificate);
 
 		protected override async Task OnRun (TestContext ctx, CancellationToken cancellationToken)
 		{
