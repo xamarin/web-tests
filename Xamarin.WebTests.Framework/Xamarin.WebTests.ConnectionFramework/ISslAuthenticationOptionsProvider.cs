@@ -1,5 +1,5 @@
 ﻿//
-// SyncAuthenticate.cs
+// ISslAuthenticationOptionsProvider.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,21 +24,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net.Security;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.SslStreamTests
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	using ConnectionFramework;
-	using Resources;
-
-	public class SyncAuthenticate : SslStreamTestFixture
+	public interface ISslAuthenticationOptionsProvider : ISingletonInstance
 	{
-		protected override ConnectionParameters CreateParameters (TestContext ctx)
-		{
-			return new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificateValidator = AcceptAll,
-				ClientApiType = SslStreamApiType.Sync, ServerApiType = SslStreamApiType.Sync
-			};
+		bool IsSupported {
+			get;
 		}
+
+		ISslClientAuthenticationOptions CreateClientOptions ();
+
+		ISslServerAuthenticationOptions CreateServerOptions ();
+
+		Task AuthenticateAsClientAsync (ISslClientAuthenticationOptions options, SslStream stream, CancellationToken cancellationToken);
+
+		Task AuthenticateAsServerAsync (ISslServerAuthenticationOptions options, SslStream stream, CancellationToken cancellationToken);
 	}
 }

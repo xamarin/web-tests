@@ -37,6 +37,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\WebClientExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\CustomContent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\GZipProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\SslAuthenticationOptionsProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.TestProvider.Ntlm\" />

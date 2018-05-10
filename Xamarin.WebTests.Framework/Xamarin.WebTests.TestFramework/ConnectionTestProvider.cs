@@ -48,7 +48,7 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		public ConnectionTestProvider (ConnectionProvider client, ConnectionProvider server, ConnectionTestFlags flags)
-			: base (client, server, $"{client.Name}:{server.Name}:{GetFlagsName (flags)}")
+			: base (client, server, $"{client.Name}:{server.Name}{GetFlagsName (flags)}")
 		{
 			Flags = flags;
 		}

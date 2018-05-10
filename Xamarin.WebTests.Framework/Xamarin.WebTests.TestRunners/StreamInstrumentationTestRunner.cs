@@ -172,12 +172,12 @@ namespace Xamarin.WebTests.TestRunners
 			switch (effectiveType) {
 			case StreamInstrumentationType.ServerRequestsShutdown:
 			case StreamInstrumentationType.ServerRequestsShutdownDuringWrite:
-				parameters.SslStreamFlags |= SslStreamFlags.CleanShutdown;
+				parameters.CleanShutdown = true;
 				break;
 			}
 
 			if (category == ConnectionTestCategory.SslStreamInstrumentationShutdown)
-				parameters.SslStreamFlags = SslStreamFlags.CleanShutdown;
+				parameters.CleanShutdown = true;
 
 			return parameters;
 		}

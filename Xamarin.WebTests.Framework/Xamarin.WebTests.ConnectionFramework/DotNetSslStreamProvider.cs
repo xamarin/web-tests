@@ -43,7 +43,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return (SslProtocols)ServicePointManager.SecurityProtocol;
 		}
 
-		static RemoteCertificateValidationCallback GetServerValidationCallback (ConnectionParameters parameters)
+		internal static RemoteCertificateValidationCallback GetServerValidationCallback (ConnectionParameters parameters)
 		{
 			var validator = parameters.ServerCertificateValidator;
 			if (validator == null)
@@ -52,7 +52,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return validator.ValidationCallback;
 		}
 
-		static RemoteCertificateValidationCallback GetClientValidationCallback (ConnectionParameters parameters)
+		internal static RemoteCertificateValidationCallback GetClientValidationCallback (ConnectionParameters parameters)
 		{
 			var validator = parameters.ClientCertificateValidator;
 			if (validator == null)
@@ -108,9 +108,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public SslStream CreateSslStream (TestContext ctx, Stream stream, ConnectionParameters parameters, bool server)
 		{
 			if (server) {
+				if (parameters.ServerApiType == SslStreamApiType.AuthenticationOptionsWithCallbacks)
+					return new SslStream (stream, false);
 				var validator = GetServerValidationCallback (parameters);
 				return new SslStream (stream, false, validator);
 			} else {
+				if (parameters.ClientApiType == SslStreamApiType.AuthenticationOptionsWithCallbacks)
+					return new SslStream (stream, false);
 				var validator = GetClientValidationCallback (parameters);
 				var selector = GetSelectionCallback (parameters);
 				return new SslStream (stream, false, validator, selector);

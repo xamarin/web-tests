@@ -31,7 +31,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 			ExpectChainStatus = other.ExpectChainStatus;
 			ExpectClientException = other.ExpectClientException;
 			ExpectServerException = other.ExpectServerException;
-			SslStreamFlags = other.SslStreamFlags;
+			CleanShutdown = other.CleanShutdown;
+			ClientApiType = other.ClientApiType;
+			ServerApiType = other.ServerApiType;
 			GlobalValidationFlags = other.GlobalValidationFlags;
 			if (other.ValidationParameters != null)
 				ValidationParameters = other.ValidationParameters.DeepClone ();
@@ -120,7 +122,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		public SslStreamFlags SslStreamFlags {
+		public bool CleanShutdown {
+			get; set;
+		}
+
+		public SslStreamApiType ClientApiType {
+			get; set;
+		}
+
+		public SslStreamApiType ServerApiType {
 			get; set;
 		}
 	}

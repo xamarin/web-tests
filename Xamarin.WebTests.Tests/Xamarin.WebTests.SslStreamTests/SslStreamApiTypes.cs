@@ -1,5 +1,5 @@
 ﻿//
-// SyncAuthenticate.cs
+// SslStreamApiTypes.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -31,13 +31,28 @@ namespace Xamarin.WebTests.SslStreamTests
 	using ConnectionFramework;
 	using Resources;
 
-	public class SyncAuthenticate : SslStreamTestFixture
+	public class SslStreamApiTypes : SslStreamTestFixture
 	{
+		public SslStreamApiType ClientApiType {
+			get;
+		}
+
+		public SslStreamApiType ServerApiType {
+			get;
+		}
+
+		[AsyncTest]
+		public SslStreamApiTypes ([SslStreamApiTypeParameterSource] SslStreamApiType clientApi,
+		                          [SslStreamApiTypeParameterSource] SslStreamApiType serverApi)
+		{
+			ClientApiType = clientApi;
+			ServerApiType = serverApi;
+		}
+
 		protected override ConnectionParameters CreateParameters (TestContext ctx)
 		{
 			return new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificateValidator = AcceptAll,
-				ClientApiType = SslStreamApiType.Sync, ServerApiType = SslStreamApiType.Sync
+				ClientCertificateValidator = AcceptAll
 			};
 		}
 	}

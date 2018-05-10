@@ -53,6 +53,7 @@ namespace Xamarin.WebTests.TestProvider
 			DependencyInjector.RegisterExtension<HttpWebRequest> ((request) => new HttpWebRequestExtension (request));
 			DependencyInjector.RegisterExtension<WebClient> ((client) => new WebClientExtension (client));
 			DependencyInjector.RegisterDependency<IGZipProvider> (() => new GZipProvider ());
+			DependencyInjector.RegisterDependency<ISslAuthenticationOptionsProvider> (() => new SslAuthenticationOptionsProvider ());
 		}
 	}
 }

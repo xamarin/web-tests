@@ -128,7 +128,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 					settings.TrustAnchors.Add (trustedRootCert);
 				}
 			}
-			if ((parameters.SslStreamFlags & SslStreamFlags.CleanShutdown) != 0) {
+			if (parameters.CleanShutdown) {
 				if (settings == null)
 					settings = MSI.MonoTlsSettings.CopyDefaultSettings ();
 				var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();

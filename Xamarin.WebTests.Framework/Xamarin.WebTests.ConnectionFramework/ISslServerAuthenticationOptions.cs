@@ -1,10 +1,10 @@
 ﻿//
-// SslStreamTestFlags.cs
+// ISslServerAuthenticationOptions.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,15 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Security.Cryptography.X509Certificates;
+
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	[Flags]
-	public enum SslStreamFlags
+	public interface ISslServerAuthenticationOptions : ISslAuthenticationOptions
 	{
-		None = 0,
-		SyncAuthenticate = 1,
-		BeginEndAuthenticate = 2,
-		CleanShutdown = 4,
-		MartinTest = 8
+		X509Certificate ServerCertificate { get; set; }
 	}
 }

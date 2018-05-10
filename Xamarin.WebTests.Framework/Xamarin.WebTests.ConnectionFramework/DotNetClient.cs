@@ -45,20 +45,34 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			Task task;
 			string function;
-			if (HasFlag (SslStreamFlags.SyncAuthenticate)) {
+
+			switch (Parameters.ClientApiType) {
+			case SslStreamApiType.Sync:
 				function = "SslStream.AuthenticateAsClient()";
 				ctx.LogDebug (LogCategories.Listener, 1, "Calling {0} synchronously.", function);
 				task = Task.Run (() => sslStream.AuthenticateAsClient (targetHost, clientCertificates, protocol, false));
-			} else if (HasFlag (SslStreamFlags.BeginEndAuthenticate)) {
+				break;
+			case SslStreamApiType.BeginEnd:
 				function = "SslStream.BeginAuthenticateAsClient()";
 				ctx.LogDebug (LogCategories.Listener, 1, "Calling {0}.", function);
 				task = Task.Factory.FromAsync (
 					(callback, state) => sslStream.BeginAuthenticateAsClient (targetHost, clientCertificates, protocol, false, callback, state),
 					(result) => sslStream.EndAuthenticateAsClient (result), null);
-			} else {
+				break;
+			case SslStreamApiType.AuthenticationOptions:
+			case SslStreamApiType.AuthenticationOptionsWithCallbacks:
+				function = "SslStream.AuthenticateAsClientAsync(SslClientAuthenticationOptions)";
+				ctx.LogDebug (LogCategories.Listener, 1, $"Calling {function} async.");
+				task = HandleAuthenticationOptions (ctx, sslStream, cancellationToken);
+				break;
+			case SslStreamApiType.TaskAsync:
+			case SslStreamApiType.Default:
 				function = "SslStream.AuthenticateAsClientAsync()";
 				ctx.LogDebug (LogCategories.Listener, 1, "Calling {0} async.", function);
 				task = sslStream.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false);
+				break;
+			default:
+				throw ctx.AssertFail (Parameters.ClientApiType);
 			}
 
 			try {
@@ -71,6 +85,23 @@ namespace Xamarin.WebTests.ConnectionFramework
 					ctx.LogDebug (LogCategories.Listener, 1, "{0} failed: {1}.", function, ex);
 				throw;
 			}
+		}
+
+		Task HandleAuthenticationOptions (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken)
+		{
+			var provider = DependencyInjector.Get<ISslAuthenticationOptionsProvider> ();
+			if (!provider.IsSupported)
+				throw new NotSupportedException ("SslClientAuthenticationOptions is not supported.");
+
+			var options = provider.CreateClientOptions ();
+			options.TargetHost = Parameters.TargetHost ?? PortableEndPoint.HostName ?? PortableEndPoint.Address;
+
+			if (Parameters.ClientApiType == SslStreamApiType.AuthenticationOptionsWithCallbacks) {
+				var validator = DotNetSslStreamProvider.GetClientValidationCallback (Parameters);
+				options.RemoteCertificateValidationCallback = validator;
+			}
+
+			return provider.AuthenticateAsClientAsync (options, sslStream, cancellationToken);
 		}
 	}
 }

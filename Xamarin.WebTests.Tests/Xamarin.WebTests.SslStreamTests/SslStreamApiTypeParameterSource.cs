@@ -1,5 +1,5 @@
 ﻿//
-// SyncAuthenticate.cs
+// SslStreamApiTypeParameterSource.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,21 +24,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.SslStreamTests
 {
 	using ConnectionFramework;
-	using Resources;
 
-	public class SyncAuthenticate : SslStreamTestFixture
+	public class SslStreamApiTypeParameterSource : TestParameterAttribute, ITestParameterSource<SslStreamApiType>
 	{
-		protected override ConnectionParameters CreateParameters (TestContext ctx)
+		public IEnumerable<SslStreamApiType> GetParameters (TestContext ctx, string filter)
 		{
-			return new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificateValidator = AcceptAll,
-				ClientApiType = SslStreamApiType.Sync, ServerApiType = SslStreamApiType.Sync
-			};
+			yield return SslStreamApiType.Sync;
+			yield return SslStreamApiType.BeginEnd;
+			yield return SslStreamApiType.TaskAsync;
+
+			if (DependencyInjector.TryGet<ISslAuthenticationOptionsProvider> (out var provider) && provider.IsSupported) {
+				yield return SslStreamApiType.AuthenticationOptions;
+				yield return SslStreamApiType.AuthenticationOptionsWithCallbacks;
+			}
 		}
 	}
 }

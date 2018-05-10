@@ -41,20 +41,34 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			Task task;
 			string function;
-			if (HasFlag (SslStreamFlags.SyncAuthenticate)) {
+
+			switch (Parameters.ServerApiType) {
+			case SslStreamApiType.Sync:
 				function = "SslStream.AuthenticateAsServer()";
 				ctx.LogDebug (LogCategories.Listener, 1, $"Calling {function} synchronously.");
 				task = Task.Run (() => sslStream.AuthenticateAsServer (certificate, askForCert, protocol, false));
-			} else if (HasFlag (SslStreamFlags.BeginEndAuthenticate)) {
+				break;
+			case SslStreamApiType.BeginEnd:
 				function = "SslStream.BeginAuthenticateAsServer()";
 				ctx.LogDebug (LogCategories.Listener, 1, $"Calling {function}.");
 				task = Task.Factory.FromAsync (
 					(callback, state) => sslStream.BeginAuthenticateAsServer (certificate, askForCert, protocol, false, callback, state),
 					(result) => sslStream.EndAuthenticateAsServer (result), null);
-			} else {
+				break;
+			case SslStreamApiType.AuthenticationOptions:
+			case SslStreamApiType.AuthenticationOptionsWithCallbacks:
+				function = "SslStream.AuthenticateAsServerAsync(SslServerAuthenticationOptions)";
+				ctx.LogDebug (LogCategories.Listener, 1, $"Calling {function} async.");
+				task = HandleAuthenticationOptions (ctx, sslStream, cancellationToken);
+				break;
+			case SslStreamApiType.Default:
+			case SslStreamApiType.TaskAsync:
 				function = "SslStream.AuthenticateAsServerAsync()";
 				ctx.LogDebug (LogCategories.Listener, 1, $"Calling {function} async.");
 				task = sslStream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false);
+				break;
+			default:
+				throw ctx.AssertFail (Parameters.ServerApiType);
 			}
 
 			try {
@@ -67,6 +81,18 @@ namespace Xamarin.WebTests.ConnectionFramework
 					ctx.LogDebug (LogCategories.Listener, 1, $"{function} failed: {ex}.");
 				throw;
 			}
+		}
+
+		Task HandleAuthenticationOptions (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken)
+		{
+			var provider = DependencyInjector.Get<ISslAuthenticationOptionsProvider> ();
+			if (!provider.IsSupported)
+				throw new NotSupportedException ("SslServerAuthenticationOptions is not supported.");
+
+			var options = provider.CreateServerOptions ();
+			options.ServerCertificate = Parameters.ServerCertificate;
+
+			return provider.AuthenticateAsServerAsync (options, sslStream, cancellationToken);
 		}
 	}
 }

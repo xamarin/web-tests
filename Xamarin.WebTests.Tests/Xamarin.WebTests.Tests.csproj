@@ -129,6 +129,9 @@
     <Compile Include="Xamarin.WebTests.SslStreamTests\MustNotInvokeGlobalValidator.cs" />
     <Compile Include="Xamarin.WebTests.SslStreamTests\MustNotInvokeGlobalValidator2.cs" />
     <Compile Include="Xamarin.WebTests.SslStreamTests\SyncAuthenticate.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\ServerAuthenticationOptions.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\SslStreamApiTypes.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\SslStreamApiTypeParameterSource.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
