@@ -35,7 +35,6 @@
     <Compile Include="Xamarin.WebTests.Tests\TestCertificates.cs" />
     <Compile Include="Xamarin.WebTests.Tests\NetworkTests.cs" />
     <Compile Include="Xamarin.WebTests.Tests\SimpleWebTests.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestStreamInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.Tests\MartinTest.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestHttpStress.cs" />
     <Compile Include="Xamarin.WebTests.HttpRequestTests\RequestTestFixture.cs" />
@@ -132,6 +131,22 @@
     <Compile Include="Xamarin.WebTests.SslStreamTests\ServerAuthenticationOptions.cs" />
     <Compile Include="Xamarin.WebTests.SslStreamTests\SslStreamApiTypes.cs" />
     <Compile Include="Xamarin.WebTests.SslStreamTests\SslStreamApiTypeParameterSource.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\StreamInstrumentationTestFixture.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\ClientHandshake.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\VerifyAsyncStreamCalls.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\ReadDuringClientAuth.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\ShortReadDuringClientAuth.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\CloseBeforeClientAuth.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\InvalidDataDuringClientAuth.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\CloseDuringClientAuth.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\DisposeDuringClientAuth.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\ShortReadAndClose.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\CleanShutdown.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\ConnectionReuse.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\RemoteClosesConnectionDuringRead.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\ServerRequestsShutdown.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\FlushInstrumentation.cs" />
+    <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\DisposeInstrumentation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
@@ -164,5 +179,6 @@
     <Folder Include="Xamarin.WebTests.HttpListenerTests\" />
     <Folder Include="Xamarin.WebTests.ExternalTests\" />
     <Folder Include="Xamarin.WebTests.SslStreamTests\" />
+    <Folder Include="Xamarin.WebTests.StreamInstrumentationTests\" />
   </ItemGroup>
 </Project>

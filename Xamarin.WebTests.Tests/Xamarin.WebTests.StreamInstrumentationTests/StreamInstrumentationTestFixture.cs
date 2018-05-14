@@ -1,10 +1,10 @@
 ﻿//
-// StreamInstrumentationParameters.cs
+// StreamInstrumentationTestFixture.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,36 +24,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Security.Cryptography.X509Certificates;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.TestFramework
+namespace Xamarin.WebTests.StreamInstrumentationTests
 {
-	using ConnectionFramework;
+	using TestFramework;
 	using TestAttributes;
+	using HttpFramework;
+	using HttpHandlers;
+	using TestRunners;
 
-	[StreamInstrumentationParameters]
-	public class StreamInstrumentationParameters : ConnectionTestParameters
+	[New]
+	[AsyncTestFixture (Prefix = "StreamInstrumentationTests")]
+	[ConnectionTestFlags (ConnectionTestFlags.RequireSslStream)]
+	public abstract class StreamInstrumentationTestFixture : StreamInstrumentationTestRunner
 	{
-		public StreamInstrumentationType Type {
-			get;
+		protected const string LogCategory = LogCategories.StreamInstrumentationTestRunner;
+
+		[AsyncTest]
+		public static Task Run (
+			TestContext ctx, CancellationToken cancellationToken,
+			ConnectionTestProvider provider,
+			StreamInstrumentationTestFixture fixture)
+		{
+			return fixture.Run (ctx, cancellationToken);
 		}
 
-		public StreamInstrumentationParameters (ConnectionTestCategory category, StreamInstrumentationType type,
-		                                        string identifier, X509Certificate certificate)
-			: base (category, identifier, certificate)
+		[AsyncTest]
+		[Martin (null, UseFixtureName = true)]
+		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
+		public static Task MartinTest (
+			TestContext ctx, CancellationToken cancellationToken,
+			ConnectionTestProvider provider,
+			StreamInstrumentationTestFixture fixture)
 		{
-			Type = type;
-		}
-
-		protected StreamInstrumentationParameters (StreamInstrumentationParameters other)
-			: base (other)
-		{
-			Type = other.Type;
-		}
-
-		public override ConnectionParameters DeepClone ()
-		{
-			return new StreamInstrumentationParameters (this);
+			return fixture.Run (ctx, cancellationToken);
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// SslStreamTestFixture.cs
+// ClientHandshake.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,41 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.TestRunners;
 
-namespace Xamarin.WebTests.SslStreamTests
+namespace Xamarin.WebTests.StreamInstrumentationTests
 {
-	using TestFramework;
-	using TestAttributes;
-	using HttpFramework;
-	using HttpHandlers;
-	using TestRunners;
-
-	[AsyncTestFixture (Prefix = "SslStreamTests")]
-	[ConnectionTestFlags (ConnectionTestFlags.RequireSslStream)]
-	public abstract class SslStreamTestFixture : SslStreamTestRunner
+	public class ClientHandshake : StreamInstrumentationTestFixture
 	{
-		[AsyncTest]
-		public static Task Run (
-			TestContext ctx, CancellationToken cancellationToken,
-			ConnectionTestProvider provider,
-			SslStreamTestFixture fixture)
-		{
-			return fixture.Run (ctx, cancellationToken);
-		}
-
-		[AsyncTest]
-		[Martin (null, UseFixtureName = true)]
-		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
-		public static Task MartinTest (
-			TestContext ctx, CancellationToken cancellationToken,
-			ConnectionTestProvider provider,
-			SslStreamTestFixture fixture)
-		{
-			return fixture.Run (ctx, cancellationToken);
-		}
 	}
 }

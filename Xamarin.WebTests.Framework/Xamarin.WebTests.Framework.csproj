@@ -142,9 +142,6 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpStreamReader.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionType.cs" />
-    <Compile Include="Xamarin.WebTests.TestRunners\StreamInstrumentationTestRunner.cs" />
-    <Compile Include="Xamarin.WebTests.TestFramework\StreamInstrumentationParameters.cs" />
-    <Compile Include="Xamarin.WebTests.TestFramework\StreamInstrumentationType.cs" />
     <Compile Include="ReferenceSource\TaskToApm.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\DelayHandler.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\AbortHandler.cs" />
@@ -198,8 +195,6 @@
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpStressTestParametersAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpStressTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpValidationTestRunnerAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestAttributes\StreamInstrumentationParametersAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestAttributes\StreamInstrumentationTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpServerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\IncludeNotWorkingAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\LongRunningAttribute.cs" />
@@ -240,6 +235,7 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ISslServerAuthenticationOptions.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\SslAuthenticationOptionsAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\SslStreamApiType.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\StreamInstrumentationTestRunner.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

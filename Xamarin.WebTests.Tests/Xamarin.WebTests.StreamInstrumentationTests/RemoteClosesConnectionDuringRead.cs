@@ -1,5 +1,5 @@
 ﻿//
-// SslStreamTestFixture.cs
+// RemoteClosesConnectionDuringRead.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,41 +24,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.SslStreamTests
+namespace Xamarin.WebTests.StreamInstrumentationTests
 {
-	using TestFramework;
+	using ConnectionFramework;
 	using TestAttributes;
-	using HttpFramework;
-	using HttpHandlers;
+	using TestFramework;
 	using TestRunners;
 
-	[AsyncTestFixture (Prefix = "SslStreamTests")]
-	[ConnectionTestFlags (ConnectionTestFlags.RequireSslStream)]
-	public abstract class SslStreamTestFixture : SslStreamTestRunner
+	[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationShutdown)]
+	public class RemoteClosesConnectionDuringRead : StreamInstrumentationTestFixture
 	{
-		[AsyncTest]
-		public static Task Run (
-			TestContext ctx, CancellationToken cancellationToken,
-			ConnectionTestProvider provider,
-			SslStreamTestFixture fixture)
+		protected override bool UseCleanShutdown => true;
+
+		protected override bool NeedClientInstrumentation => true;
+
+		protected override async Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return fixture.Run (ctx, cancellationToken);
+			ClientInstrumentation.OnNextRead ((buffer, offset, count, func, innerCancellationToken) => {
+				return ctx.Assert (
+					() => func (buffer, offset, count, innerCancellationToken),
+					Is.EqualTo (0), "inner read returns zero");
+			});
+
+			var outerCts = new CancellationTokenSource (5000);
+
+			var readBuffer = new byte[256];
+			var readTask = Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, outerCts.Token);
+
+			Server.Close ();
+
+			await ctx.Assert (() => readTask, Is.EqualTo (0), "read returns zero").ConfigureAwait (false);
 		}
 
-		[AsyncTest]
-		[Martin (null, UseFixtureName = true)]
-		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
-		public static Task MartinTest (
-			TestContext ctx, CancellationToken cancellationToken,
-			ConnectionTestProvider provider,
-			SslStreamTestFixture fixture)
+		protected override Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return fixture.Run (ctx, cancellationToken);
+			return FinishedTask;
 		}
 	}
 }

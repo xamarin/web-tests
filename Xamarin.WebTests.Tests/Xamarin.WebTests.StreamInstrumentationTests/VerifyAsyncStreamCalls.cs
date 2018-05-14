@@ -1,5 +1,5 @@
 ﻿//
-// SslStreamTestFixture.cs
+// VerifyAsyncStreamCalls.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,41 +24,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.SslStreamTests
+namespace Xamarin.WebTests.StreamInstrumentationTests
 {
-	using TestFramework;
+	using ConnectionFramework;
 	using TestAttributes;
-	using HttpFramework;
-	using HttpHandlers;
-	using TestRunners;
+	using TestFramework;
 
-	[AsyncTestFixture (Prefix = "SslStreamTests")]
-	[ConnectionTestFlags (ConnectionTestFlags.RequireSslStream)]
-	public abstract class SslStreamTestFixture : SslStreamTestRunner
+	[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationNewWebStack)]
+	public class VerifyAsyncStreamCalls : StreamInstrumentationTestFixture
 	{
-		[AsyncTest]
-		public static Task Run (
-			TestContext ctx, CancellationToken cancellationToken,
-			ConnectionTestProvider provider,
-			SslStreamTestFixture fixture)
+		protected override void ConfigureClientStream (TestContext ctx, StreamInstrumentation instrumentation)
 		{
-			return fixture.Run (ctx, cancellationToken);
-		}
-
-		[AsyncTest]
-		[Martin (null, UseFixtureName = true)]
-		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
-		public static Task MartinTest (
-			TestContext ctx, CancellationToken cancellationToken,
-			ConnectionTestProvider provider,
-			SslStreamTestFixture fixture)
-		{
-			return fixture.Run (ctx, cancellationToken);
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+			instrumentation.RequireAsync = true;
+			if (setup.UsingDotNet) {
+				instrumentation.AllowBeginEndAsync = true;
+				instrumentation.AllowSyncFlush = true;
+			}
 		}
 	}
 }

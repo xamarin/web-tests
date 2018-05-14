@@ -1,10 +1,10 @@
 ﻿//
-// StreamInstrumentationType.cs
+// ReadDuringClientAuth.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,39 +24,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-namespace Xamarin.WebTests.TestFramework
+using System.Threading;
+using System.Threading.Tasks;
+using Xamarin.AsyncTests;
+
+namespace Xamarin.WebTests.StreamInstrumentationTests
 {
-	public enum StreamInstrumentationType
+	using ConnectionFramework;
+
+	public class ReadDuringClientAuth : StreamInstrumentationTestFixture
 	{
-		ClientHandshake,
-		ReadDuringClientAuth,
-		CloseBeforeClientAuth,
-		CloseDuringClientAuth,
-		DisposeDuringClientAuth,
-		InvalidDataDuringClientAuth,
-		ShortReadDuringClientAuth,
-		ShortReadAndClose,
-		RemoteClosesConnectionDuringRead,
-		Flush,
-		WriteDoesNotFlush,
-		FlushAfterDispose,
-		DisposeClosesInnerStream,
-		PropertiesAfterDispose,
+		protected override void ConfigureClientStream (TestContext ctx, StreamInstrumentation instrumentation)
+		{
+			instrumentation.OnNextRead (async (buffer, offset, count, func, cancellationToken) => {
+				await ctx.AssertException<InvalidOperationException> (ReadClient).ConfigureAwait (false);
+				return await func (buffer, offset, count, cancellationToken);
+			});
 
-		CleanShutdown,
-		DoubleShutdown,
-		WriteAfterShutdown,
-		ReadAfterShutdown,
-		WaitForShutdown,
-
-		ConnectionReuse,
-		ConnectionReuseWithShutdown,
-
-		ServerRequestsShutdown,
-		ServerRequestsShutdownDuringWrite,
-
-		VerifyAsyncStreamCalls,
-
-		MartinTest
+			Task<int> ReadClient ()
+			{
+				const int bufferSize = 100;
+				return Client.Stream.ReadAsync (new byte[bufferSize], 0, bufferSize);
+			}
+		}
 	}
 }

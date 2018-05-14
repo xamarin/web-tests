@@ -1,10 +1,10 @@
 ﻿//
-// StreamInstrumentationTestRunnerAttribute.cs
+// CloseBeforeClientAuth.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,23 +24,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.TestAttributes
+namespace Xamarin.WebTests.StreamInstrumentationTests
 {
-	using TestRunners;
+	using ConnectionFramework;
 
-	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
-	public class StreamInstrumentationTestRunnerAttribute : TestHostAttribute, ITestHost<StreamInstrumentationTestRunner>
+	public class CloseBeforeClientAuth : StreamInstrumentationTestFixture
 	{
-		public StreamInstrumentationTestRunnerAttribute ()
-			: base (typeof (StreamInstrumentationTestRunnerAttribute), TestFlags.Hidden)
+		protected override bool HandshakeFails => true;
+
+		protected override async Task<bool> ClientHandshake (TestContext ctx, Func<Task> handshake, StreamInstrumentation instrumentation)
 		{
+			instrumentation.OnNextRead ((buffer, offset, count, func, cancellationToken) => Task.FromResult (0));
+
+			await ctx.AssertException<IOException> (handshake, "client handshake").ConfigureAwait (false);
+
+			Server.Dispose ();
+
+			return true;
 		}
 
-		public StreamInstrumentationTestRunner CreateInstance (TestContext ctx)
+		protected override async Task<bool> ServerHandshake (TestContext ctx, Func<Task> handshake, StreamInstrumentation instrumentation)
 		{
-			return new StreamInstrumentationTestRunner ();
+			await ctx.AssertException<ObjectDisposedException> (handshake, "server handshake").ConfigureAwait (false);
+
+			Client.Close ();
+
+			return true;
+		}
+
+		protected override Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return FinishedTask;
 		}
 	}
 }
