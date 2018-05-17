@@ -47,7 +47,6 @@
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\ProtocolVersionsAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\IAppleCertificateProvider.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\MobileAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFeatures\SecurityFrameworkAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\AppleCertificateHost.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\AppleCertificateHostAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\IOSAttribute.cs" />
