@@ -36,20 +36,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 		SimpleTls11,
 		SimpleTls12,
 
-		DefaultCipherTls10,
-		DefaultCipherTls11,
-		DefaultCipherTls12,
-
-		SelectCiphersTls10,
-		SelectCiphersTls11,
-		SelectCiphersTls12,
-
 		RequestClientCertificate,
 		RequireClientCertificateRSA,
 		RequireClientCertificateDHE,
-
-		CipherSelectionOrder,
-		CipherSelectionOrder2,
 
 		MartinTest
 	}

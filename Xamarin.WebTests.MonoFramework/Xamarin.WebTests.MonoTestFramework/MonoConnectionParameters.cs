@@ -42,44 +42,15 @@ namespace Xamarin.WebTests.MonoTestFramework
 		protected MonoConnectionParameters (MonoConnectionParameters other)
 			: base (other)
 		{
-			if (other.ClientCiphers != null)
-				ClientCiphers = new List<CipherSuiteCode> (other.ClientCiphers);
-
-			ExpectedClientCipher = other.ExpectedClientCipher;
 			ExpectClientAlert = other.ExpectClientAlert;
-
-			if (other.ServerCiphers != null)
-				ServerCiphers = new List<CipherSuiteCode> (other.ServerCiphers);
-			ExpectedServerCipher = other.ExpectedServerCipher;
 			ExpectServerAlert = other.ExpectServerAlert;
-			ExpectedCipher = other.ExpectedCipher;
-		}
-
-		public IList<CipherSuiteCode> ClientCiphers {
-			get; set;
-		}
-
-		public CipherSuiteCode? ExpectedClientCipher {
-			get; set;
 		}
 
 		public AlertDescription? ExpectClientAlert {
 			get; set;
 		}
 
-		public ICollection<CipherSuiteCode> ServerCiphers {
-			get; set;
-		}
-
-		public CipherSuiteCode? ExpectedServerCipher {
-			get; set;
-		}
-
 		public AlertDescription? ExpectServerAlert {
-			get; set;
-		}
-
-		public CipherSuiteCode? ExpectedCipher {
 			get; set;
 		}
 	}

@@ -192,11 +192,6 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		public SslStream CreateSslStream (TestContext ctx, Stream stream, ConnectionParameters parameters, bool server)
 		{
 			var settings = GetSettings (parameters, true, server);
-			if (parameters is MonoConnectionParameters monoParams) {
-				if (monoParams.ClientCiphers != null)
-					settings.EnabledCiphers = monoParams.ClientCiphers.ToArray ();
-			}
-
 			var monoSslStream = tlsProvider.CreateSslStream (stream, false, settings);
 			return monoSslStream.SslStream;
 		}

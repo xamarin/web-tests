@@ -46,11 +46,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		const ConnectionProviderFlags LegacyFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp;
 		const ConnectionProviderFlags AppleTlsFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp |
-			ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers | ConnectionProviderFlags.SupportsEcDheCiphers |
-			ConnectionProviderFlags.OverridesCipherSelection | ConnectionProviderFlags.SupportsTrustedRoots;
+			ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsTrustedRoots;
 		const ConnectionProviderFlags BoringTlsFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp |
-			ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers | ConnectionProviderFlags.SupportsEcDheCiphers |
-			ConnectionProviderFlags.OverridesCipherSelection | ConnectionProviderFlags.SupportsTrustedRoots;
+			ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsTrustedRoots;
 
 		readonly Dictionary<ConnectionProviderType,ConnectionProvider> providers;
 		readonly DotNetSslStreamProvider dotNetSslStreamProvider;

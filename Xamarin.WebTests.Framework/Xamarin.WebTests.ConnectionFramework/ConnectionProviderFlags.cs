@@ -34,19 +34,16 @@ namespace Xamarin.WebTests.ConnectionFramework
 		SupportsSslStream		= 1,
 		SupportsHttp			= 2,
 		SupportsTls12			= 4,
-		SupportsAeadCiphers		= 8,
-		SupportsEcDheCiphers		= 16,
-		SupportsClientCertificates	= 32,
-		IsExplicit			= 64,
-		OverridesCipherSelection	= 128,
-		SupportsTrustedRoots		= 256,
-		SupportsMonoExtensions		= 512,
-		SupportsHttpListener		= 1024,
-		SupportsCleanShutdown		= 2048,
-		DisableMonoExtensions		= 4096,
-		AllowWildcardMatches		= 8192,
-		SupportsClientRenegotiation	= 16384,
-		SupportsServerRenegotiation	= 32768
+		SupportsClientCertificates	= 8,
+		IsExplicit			= 16,
+		AllowWildcardMatches		= 32,
+		SupportsTrustedRoots		= 64,
+		SupportsMonoExtensions		= 128,
+		SupportsHttpListener		= 256,
+		SupportsCleanShutdown		= 512,
+		DisableMonoExtensions		= 1024,
+		SupportsClientRenegotiation	= 2048,
+		SupportsServerRenegotiation	= 4096
 	}
 }
 

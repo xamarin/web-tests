@@ -64,11 +64,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 		{
 			Category = other.Category;
 			ConnectionFlags = other.ConnectionFlags;
-			ValidateCipherList = other.ValidateCipherList;
-		}
-
-		public bool ValidateCipherList {
-			get; set;
 		}
 	}
 }

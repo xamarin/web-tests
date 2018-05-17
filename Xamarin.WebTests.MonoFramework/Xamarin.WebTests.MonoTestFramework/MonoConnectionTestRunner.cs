@@ -76,37 +76,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 			}
 		}
 
-		protected override void InitializeConnection (TestContext ctx)
-		{
-			var provider = ctx.GetParameter<ClientAndServerProvider> ("ClientAndServerProvider");
-
-			var clientOverridesCipher = (provider.Client.Flags & ConnectionProviderFlags.OverridesCipherSelection) != 0;
-			var serverOverridesCipher = (provider.Server.Flags & ConnectionProviderFlags.OverridesCipherSelection) != 0;
-
-			if (Parameters.ValidateCipherList) {
-				if (!CipherList.ValidateCipherList (provider, Parameters.ClientCiphers))
-					ctx.IgnoreThisTest ();
-				if (!CipherList.ValidateCipherList (provider, Parameters.ServerCiphers))
-					ctx.IgnoreThisTest ();
-			}
-
-			if (serverOverridesCipher) {
-				if ((Parameters.ExpectedServerCipher != null || Parameters.ExpectedCipher != null) &&
-				    (Parameters.ClientCiphers == null || Parameters.ClientCiphers.Count > 1))
-					ctx.IgnoreThisTest ();
-			}
-
-			if (clientOverridesCipher) {
-				if ((Parameters.ExpectedClientCipher != null || Parameters.ExpectedCipher != null) &&
-				    (Parameters.ServerCiphers == null || Parameters.ServerCiphers.Count > 2))
-					ctx.IgnoreThisTest ();
-				if (Parameters.ClientCiphers == null && Parameters.ServerCiphers != null)
-					ctx.IgnoreThisTest ();
-			}
-
-			base.InitializeConnection (ctx);
-		}
-
 		public static IEnumerable<R> Join<T,U,R> (IEnumerable<T> first, IEnumerable<U> second, Func<T, U, R> resultSelector) {
 			foreach (var e1 in first) {
 				foreach (var e2 in second) {
@@ -144,33 +113,10 @@ namespace Xamarin.WebTests.MonoTestFramework
 			base.OnWaitForServerConnectionCompleted (ctx, task);
 		}
 
-		protected bool CheckCipher (TestContext ctx, IMonoConnection connection, CipherSuiteCode cipher)
-		{
-			ctx.Assert (connection.SupportsConnectionInfo, "supports connection info");
-			var connectionInfo = connection.GetConnectionInfo ();
-
-			if (!ctx.Expect (connectionInfo, Is.Not.Null, "connection info"))
-				return false;
-			return ctx.Expect (connectionInfo.CipherSuiteCode, Is.EqualTo (cipher), "expected cipher");
-		}
-
 		protected override Task OnRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var monoClient = Client as IMonoConnection;
 			var monoServer = Server as IMonoConnection;
-
-			bool ok = true;
-			if (monoClient != null) {
-				var expectedCipher = Parameters.ExpectedClientCipher ?? Parameters.ExpectedCipher;
-				if (expectedCipher != null)
-					ok &= CheckCipher (ctx, monoClient, expectedCipher.Value);
-			}
-
-			if (ok && monoServer != null) {
-				var expectedCipher = Parameters.ExpectedServerCipher ?? Parameters.ExpectedCipher;
-				if (expectedCipher != null)
-					ok &= CheckCipher (ctx, monoServer, expectedCipher.Value);
-			}
 
 			if (!IsManualConnection && Parameters.ProtocolVersion != null) {
 				if (ctx.Expect (Client.ProtocolVersion, Is.EqualTo (Parameters.ProtocolVersion), "client protocol version"))
