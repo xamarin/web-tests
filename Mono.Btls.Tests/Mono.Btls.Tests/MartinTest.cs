@@ -50,17 +50,6 @@ namespace Mono.Btls.Tests
 	[AsyncTestFixture]
 	public class MartinTest
 	{
-		[Work]
-		[AsyncTest]
-		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
-		public async Task TestClient (TestContext ctx, CancellationToken cancellationToken,
-			ConnectionTestProvider provider,
-			SimpleConnectionParameters parameters,
-			SimpleConnectionTestRunner runner)
-		{
-			await runner.Run (ctx, cancellationToken);
-		}
-
 		// [AsyncTest]
 		[CertificateResourceCollection (CertificateResourceCollectionType.TlsTestXamDev)]
 		public void TestStore (TestContext ctx,
