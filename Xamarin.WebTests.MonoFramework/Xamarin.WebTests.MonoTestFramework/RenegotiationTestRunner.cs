@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 			var acceptAll = certificateProvider.AcceptAll ();
 
-			var parameters = new MonoConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
+			var parameters = new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
 				ClientCertificateValidator = acceptAll,
 				ExpectClientException = HandshakeFails, ExpectServerException = HandshakeFails,
 				ClientApiType = SslStreamApiType.AuthenticationOptions,
@@ -66,7 +66,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			return parameters;
 		}
 
-		protected virtual void CreateParameters (TestContext ctx, MonoConnectionParameters parameters)
+		protected virtual void CreateParameters (TestContext ctx, ConnectionParameters parameters)
 		{
 		}
 

@@ -41,9 +41,6 @@
     <Compile Include="Xamarin.WebTests.MonoTestFramework\ConnectionType.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\IMonoConnection.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionHelper.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionParameters.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionTestRunner.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionTestParameters.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\ProtocolVersionsAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\IAppleCertificateProvider.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\MobileAttribute.cs" />
