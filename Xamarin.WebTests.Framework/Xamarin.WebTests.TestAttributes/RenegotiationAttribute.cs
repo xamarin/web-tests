@@ -26,20 +26,18 @@
 using System;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.MonoTestFeatures
+namespace Xamarin.WebTests.TestAttributes
 {
-	using MonoConnectionFramework;
+	using ConnectionFramework;
 
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false)]
 	public class RenegotiationAttribute : TestFeatureAttribute
 	{
-		public override TestFeature Feature {
-			get { return Instance; }
-		}
+		public override TestFeature Feature => Instance;
 
 		static bool SupportsRenegotiation ()
 		{
-			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
 			return setup.SupportsRenegotiation;
 		}
 

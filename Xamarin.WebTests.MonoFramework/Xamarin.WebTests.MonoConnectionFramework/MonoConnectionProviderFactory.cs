@@ -42,10 +42,13 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		{
 			var type = ConnectionProviderFactory.GetConnectionProviderType (provider.ID);
 			var flags = ConnectionProviderFactory.GetConnectionProviderFlags (type);
+			flags |= ConnectionProviderFlags.AllowWildcardMatches;
 			if (second)
 				flags |= ConnectionProviderFlags.IsExplicit;
 			if (!setup.SupportsMonoExtensions)
 				flags |= ConnectionProviderFlags.DisableMonoExtensions;
+			if (setup.SupportsClientCertificateIssuers)
+				flags |= ConnectionProviderFlags.SupportsClientCertificates;
 			var mcp = new MonoConnectionProvider (factory, type, flags, provider.Name, provider);
 			factory.Install (mcp);
 			return mcp;

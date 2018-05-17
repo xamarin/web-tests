@@ -30,6 +30,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public interface ISslServerAuthenticationOptions : ISslAuthenticationOptions
 	{
+		bool ClientCertificateRequired { get; set; }
+
 		X509Certificate ServerCertificate { get; set; }
 	}
 }

@@ -26,6 +26,7 @@
 using System;
 using System.Net;
 using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
@@ -59,6 +60,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (IsMicrosoftRuntime || (flags & ConnectionProviderFlags.SupportsTls12) != 0 || setup.SupportsTls12)
 				flags |= ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers |
 					ConnectionProviderFlags.SupportsEcDheCiphers;
+			if (IsMicrosoftRuntime)
+				flags |= ConnectionProviderFlags.SupportsClientCertificates;
 			return flags;
 		}
 
@@ -79,6 +82,21 @@ namespace Xamarin.WebTests.ConnectionFramework
 		protected override ISslStreamProvider GetSslStreamProvider ()
 		{
 			return sslStreamProvider;
+		}
+
+		public static X509CertificateCollection GetClientCertificates (ConnectionParameters parameters)
+		{
+			if (parameters.ClientCertificates != null)
+				return parameters.ClientCertificates;
+
+			if (parameters.ClientCertificate == null)
+				return null;
+
+			var clientCertificateCollection = new X509CertificateCollection ();
+			var certificate = parameters.ClientCertificate;
+			clientCertificateCollection.Add (certificate);
+
+			return clientCertificateCollection;
 		}
 	}
 }

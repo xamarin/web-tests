@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.HttpClientInstrumentation
 	using HttpClient;
 	using TestRunners;
 
+	[HttpClientUsesServicePoint]
 	[HttpServerTestCategory (HttpServerTestCategory.Instrumentation)]
 	public class SequentialRequests : HttpClientInstrumentationFixture
 	{

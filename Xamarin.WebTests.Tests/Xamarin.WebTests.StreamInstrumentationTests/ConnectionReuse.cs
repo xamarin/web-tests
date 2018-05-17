@@ -72,11 +72,11 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 		protected override async Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}({nameof (ClientShutdown)})";
-			ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, me);
+			LogDebug (ctx, 4, me);
 
 			if (CleanShutdown) {
 				await Client.Shutdown (ctx, cancellationToken).ConfigureAwait (false);
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - client shutdown done");
+				LogDebug (ctx, 4, $"{me} - client shutdown done");
 			}
 
 			Client.Close ();
@@ -84,14 +84,14 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 			ClearClientInstrumentation ();
 
 			await serverTcs.Task.ConfigureAwait (false);
-			ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - server ready");
+			LogDebug (ctx, 4, $"{me} - server ready");
 
 			try {
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - restarting client");
+				LogDebug (ctx, 4, $"{me} - restarting client");
 				await ((DotNetConnection)Client).Restart (ctx, cancellationToken).ConfigureAwait (false);
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - done restarting client");
+				LogDebug (ctx, 4, $"{me} - done restarting client");
 			} catch (Exception ex) {
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - restarting client failed: {ex.Message}");
+				LogDebug (ctx, 4, $"{me} - restarting client failed: {ex.Message}");
 				throw;
 			}
 
@@ -103,7 +103,7 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 		protected async override Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}({nameof (ServerShutdown)})";
-			ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, me);
+			LogDebug (ctx, 4, me);
 
 			Task<int> serverRead;
 			if (CleanShutdown) {
@@ -117,7 +117,7 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 
 			Server.Close ();
 
-			ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - restarting: {ServerInstrumentation.Socket.LocalEndPoint}");
+			LogDebug (ctx, 4, $"{me} - restarting: {ServerInstrumentation.Socket.LocalEndPoint}");
 
 			ClearServerInstrumentation ();
 
@@ -125,9 +125,9 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 
 			try {
 				await ((DotNetConnection)Server).Restart (ctx, cancellationToken).ConfigureAwait (false);
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - done restarting");
+				LogDebug (ctx, 4, $"{me} - done restarting");
 			} catch (Exception ex) {
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - failed to restart: {ex.Message}");
+				LogDebug (ctx, 4, $"{me} - failed to restart: {ex.Message}");
 				throw;
 			}
 
@@ -135,7 +135,7 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 
 			Server.Close ();
 
-			ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - done");
+			LogDebug (ctx, 4, $"{me} - done");
 		}
 	}
 }

@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 		protected async override Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}({nameof (ClientShutdown)})";
-			ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, me);
+			LogDebug (ctx, 4, me);
 
 			bool readDone = false;
 
@@ -59,17 +59,17 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 
 			Server.Close ();
 
-			ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - closed server");
+			LogDebug (ctx, 4, $"{me} - closed server");
 
 			await ctx.Assert (() => readTask, Is.EqualTo (writeBuffer.Length), "first client read").ConfigureAwait (false);
 
-			ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - first read done");
+			LogDebug (ctx, 4, $"{me} - first read done");
 
 			readDone = true;
 
 			await ctx.Assert (ClientRead, Is.EqualTo (0), "second client read").ConfigureAwait (false);
 
-			ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - second read done");
+			LogDebug (ctx, 4, $"{me} - second read done");
 
 			async Task<int> ReadHandler (byte[] buffer, int offset, int size,
 						     StreamInstrumentation.AsyncReadFunc func,
@@ -77,9 +77,9 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 			{
 				ClientInstrumentation.OnNextRead (ReadHandler);
 
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - read handler: {offset} {size}");
+				LogDebug (ctx, 4, $"{me} - read handler: {offset} {size}");
 				var ret = await func (buffer, offset, size, innerCancellationToken).ConfigureAwait (false);
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - read handler done: {ret}");
+				LogDebug (ctx, 4, $"{me} - read handler done: {ret}");
 
 				if (readDone)
 					ctx.Assert (ret, Is.EqualTo (0), "inner read returns zero");

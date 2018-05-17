@@ -37,7 +37,6 @@ namespace Xamarin.WebTests.TraditionalTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[Work]
 	[AsyncTestFixture (Prefix = "TraditionalTests")]
 	public abstract class TraditionalTestFixture : InstrumentationTestRunner
 	{

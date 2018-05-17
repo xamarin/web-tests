@@ -28,7 +28,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.TestAttributes
 {
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false)]
 	public class NotWorkingAttribute : TestCategoryAttribute
 	{
 		public static readonly TestCategory Instance = new TestCategory ("NotWorking") { IsExplicit = true };

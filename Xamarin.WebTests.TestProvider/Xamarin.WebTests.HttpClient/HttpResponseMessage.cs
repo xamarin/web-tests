@@ -62,13 +62,7 @@ namespace Xamarin.WebTests.HttpClient
 				return;
 			}
 
-			var streamContent = message.Content as Http.StreamContent;
-			if (streamContent != null) {
-				content = new StreamContent (streamContent);
-				return;
-			}
-
-			throw new NotImplementedException ();
+			content = new StreamContent (message.Content);
 		}
 
 		public IHttpContent Content {

@@ -40,6 +40,7 @@ namespace Xamarin.WebTests.HttpClientInstrumentation
 	using HttpHandlers;
 	using TestRunners;
 
+	[HttpClientUsesServicePoint]
 	[HttpServerTestCategory (HttpServerTestCategory.GZipInstrumentation)]
 	public class ParallelGZip : HttpClientInstrumentationFixture
 	{

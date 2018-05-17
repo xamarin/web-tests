@@ -2,15 +2,10 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net;
-// using System.Net.Sockets;
 using System.Net.Security;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
@@ -43,6 +38,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var protocol = sslStreamProvider.GetProtocol (Parameters, IsServer);
 			var clientCertificates = sslStreamProvider.GetClientCertificates (Parameters);
 
+			SanityCheckParameters ();
+
 			Task task;
 			string function;
 
@@ -63,7 +60,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			case SslStreamApiType.AuthenticationOptionsWithCallbacks:
 				function = "SslStream.AuthenticateAsClientAsync(SslClientAuthenticationOptions)";
 				ctx.LogDebug (LogCategories.Listener, 1, $"Calling {function} async.");
-				task = HandleAuthenticationOptions (ctx, sslStream, cancellationToken);
+				task = HandleAuthenticationOptions ();
 				break;
 			case SslStreamApiType.TaskAsync:
 			case SslStreamApiType.Default:
@@ -85,23 +82,36 @@ namespace Xamarin.WebTests.ConnectionFramework
 					ctx.LogDebug (LogCategories.Listener, 1, "{0} failed: {1}.", function, ex);
 				throw;
 			}
-		}
 
-		Task HandleAuthenticationOptions (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken)
-		{
-			var provider = DependencyInjector.Get<ISslAuthenticationOptionsProvider> ();
-			if (!provider.IsSupported)
-				throw new NotSupportedException ("SslClientAuthenticationOptions is not supported.");
-
-			var options = provider.CreateClientOptions ();
-			options.TargetHost = Parameters.TargetHost ?? PortableEndPoint.HostName ?? PortableEndPoint.Address;
-
-			if (Parameters.ClientApiType == SslStreamApiType.AuthenticationOptionsWithCallbacks) {
-				var validator = DotNetSslStreamProvider.GetClientValidationCallback (Parameters);
-				options.RemoteCertificateValidationCallback = validator;
+			void SanityCheckParameters ()
+			{
+				if (Parameters.AllowRenegotiation != null &&
+				    Parameters.ClientApiType != SslStreamApiType.AuthenticationOptions && Parameters.ClientApiType != SslStreamApiType.AuthenticationOptionsWithCallbacks)
+					throw ctx.AssertFail ($"{nameof (Parameters.AllowRenegotiation)} not supported with {Parameters.ClientApiType}");
 			}
 
-			return provider.AuthenticateAsClientAsync (options, sslStream, cancellationToken);
+			Task HandleAuthenticationOptions ()
+			{
+				var provider = DependencyInjector.Get<ISslAuthenticationOptionsProvider> ();
+				if (!provider.IsSupported)
+					throw new NotSupportedException ("SslClientAuthenticationOptions is not supported.");
+
+				var options = provider.CreateClientOptions ();
+				options.TargetHost = targetHost;
+				if (Parameters.AllowRenegotiation != null)
+					options.AllowRenegotiation = Parameters.AllowRenegotiation.Value;
+
+				if (Parameters.ClientApiType == SslStreamApiType.AuthenticationOptionsWithCallbacks) {
+					var validator = DotNetSslStreamProvider.GetClientValidationCallback (Parameters);
+					options.RemoteCertificateValidationCallback = validator;
+				}
+
+				options.ClientCertificates = clientCertificates;
+				if (Parameters.ClientCertificateSelector != null)
+					options.LocalCertificateSelectionCallback = Parameters.ClientCertificateSelector.SelectionCallback;
+
+				return provider.AuthenticateAsClientAsync (options, sslStream, cancellationToken);
+			}
 		}
 	}
 }

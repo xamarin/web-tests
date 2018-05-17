@@ -1,10 +1,10 @@
 ﻿//
-// TestRenegotiation.cs
+// HttpClientUsesServicePointAttribute.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,32 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.MonoTests
+namespace Xamarin.WebTests.TestAttributes
 {
-	using MonoTestFramework;
-	using MonoTestFeatures;
-	using TestAttributes;
-	using TestFramework;
+	using ConnectionFramework;
 
-	[Renegotiation]
-	[CleanShutdown]
-	[AsyncTestFixture (Timeout = 5000)]
-	public class TestRenegotiation
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false)]
+	public class HttpClientUsesServicePointAttribute : TestFeatureAttribute
 	{
-		[AsyncTest]
-		[Martin ("Renegotiation")]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireMono)]
-		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
-		public async Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
-		                              [ConnectionTestProvider ("*:apple-tls")] ConnectionTestProvider provider,
-		                              RenegotiationTestParameters parameters,
-		                              RenegotiationTestRunner runner)
+		public override TestFeature Feature => Instance;
+
+		static bool UsesServicePoint ()
 		{
-			await runner.Run (ctx, cancellationToken);
+			var provider = DependencyInjector.Get<IHttpProvider> ();
+			return provider.UsesServicePoint;
 		}
+
+		public static readonly TestFeature Instance = new TestFeature (
+			"HttpClientUsesServicePoint", "Whether HttpClient uses the ServicePoint API", () => UsesServicePoint ());
 	}
 }

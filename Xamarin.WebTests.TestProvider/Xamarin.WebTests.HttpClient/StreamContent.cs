@@ -33,9 +33,7 @@ namespace Xamarin.WebTests.HttpClient
 
 	class StreamContent : HttpClientContent
 	{
-		new public Http.StreamContent Content => (Http.StreamContent)base.Content;
-
-		public StreamContent (Http.StreamContent content)
+		public StreamContent (Http.HttpContent content)
 			: base (content)
 		{
 		}

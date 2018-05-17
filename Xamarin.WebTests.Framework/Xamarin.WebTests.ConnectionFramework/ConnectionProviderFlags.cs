@@ -43,7 +43,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		SupportsMonoExtensions		= 512,
 		SupportsHttpListener		= 1024,
 		SupportsCleanShutdown		= 2048,
-		DisableMonoExtensions		= 4096
+		DisableMonoExtensions		= 4096,
+		AllowWildcardMatches		= 8192,
+		SupportsClientRenegotiation	= 16384,
+		SupportsServerRenegotiation	= 32768
 	}
 }
 

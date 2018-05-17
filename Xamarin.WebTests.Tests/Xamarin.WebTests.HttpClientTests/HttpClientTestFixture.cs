@@ -37,7 +37,6 @@ namespace Xamarin.WebTests.HttpClientTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[Work]
 	[AsyncTestFixture (Prefix = "HttpClientTests")]
 	public abstract class HttpClientTestFixture : InstrumentationTestRunner
 	{

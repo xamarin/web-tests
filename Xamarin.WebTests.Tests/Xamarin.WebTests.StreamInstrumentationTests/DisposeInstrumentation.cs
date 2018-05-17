@@ -73,7 +73,7 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 		protected override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}({nameof (MainLoop)})";
-			ctx.LogDebug (LogCategory, 4, me);
+			LogDebug (ctx, 4, me);
 
 			await FinishedTask;
 

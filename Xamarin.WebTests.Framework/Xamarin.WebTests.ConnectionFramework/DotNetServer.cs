@@ -42,6 +42,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			Task task;
 			string function;
 
+			SanityCheckParameters (ctx);
+
 			switch (Parameters.ServerApiType) {
 			case SslStreamApiType.Sync:
 				function = "SslStream.AuthenticateAsServer()";
@@ -83,6 +85,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
+		void SanityCheckParameters (TestContext ctx)
+		{
+			if (Parameters.AllowRenegotiation != null &&
+			    Parameters.ServerApiType != SslStreamApiType.AuthenticationOptions && Parameters.ServerApiType != SslStreamApiType.AuthenticationOptionsWithCallbacks)
+				throw ctx.AssertFail ($"{nameof (Parameters.AllowRenegotiation)} not supported with {Parameters.ServerApiType}");
+		}
+
 		Task HandleAuthenticationOptions (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken)
 		{
 			var provider = DependencyInjector.Get<ISslAuthenticationOptionsProvider> ();
@@ -90,7 +99,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new NotSupportedException ("SslServerAuthenticationOptions is not supported.");
 
 			var options = provider.CreateServerOptions ();
+			options.ClientCertificateRequired = Parameters.RequireClientCertificate;
 			options.ServerCertificate = Parameters.ServerCertificate;
+			if (Parameters.AllowRenegotiation != null)
+				options.AllowRenegotiation = Parameters.AllowRenegotiation.Value;
 
 			return provider.AuthenticateAsServerAsync (options, sslStream, cancellationToken);
 		}

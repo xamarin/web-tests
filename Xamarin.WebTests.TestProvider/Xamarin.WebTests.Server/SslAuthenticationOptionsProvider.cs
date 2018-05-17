@@ -49,8 +49,13 @@ namespace Xamarin.WebTests.TestProvider
 			ClientAuthMethod = SslStreamType.GetMethod ("AuthenticateAsClientAsync", new[] { ClientType, typeof (CancellationToken) });
 			ServerAuthMethod = SslStreamType.GetMethod ("AuthenticateAsServerAsync", new[] { ServerType, typeof (CancellationToken) });
 			TargetHost = ClientType.GetProperty ("TargetHost");
+			ClientCertificates = ClientType.GetProperty ("ClientCertificates");
+			LocalCertificateSelectionCallback = ClientType.GetProperty ("LocalCertificateSelectionCallback");
 			RemoteCertificateValidationCallback = ClientType.GetProperty ("RemoteCertificateValidationCallback");
+			ClientCertificateRequired = ServerType.GetProperty ("ClientCertificateRequired");
 			ServerCertificate = ServerType.GetProperty ("ServerCertificate");
+			AllowClientRenegotiation = ClientType.GetProperty ("AllowRenegotiation");
+			AllowServerRenegotiation = ServerType.GetProperty ("AllowRenegotiation");
 		}
 
 		public Type SslStreamType {
@@ -73,11 +78,31 @@ namespace Xamarin.WebTests.TestProvider
 			get;
 		}
 
+		public PropertyInfo AllowClientRenegotiation {
+			get;
+		}
+
+		public PropertyInfo AllowServerRenegotiation {
+			get;
+		}
+
 		public PropertyInfo TargetHost {
 			get;
 		}
 
+		public PropertyInfo ClientCertificates {
+			get;
+		}
+
+		public PropertyInfo LocalCertificateSelectionCallback {
+			get;
+		}
+
 		public PropertyInfo RemoteCertificateValidationCallback {
+			get;
+		}
+
+		public PropertyInfo ClientCertificateRequired {
 			get;
 		}
 
@@ -127,6 +152,10 @@ namespace Xamarin.WebTests.TestProvider
 				get;
 			}
 
+			public abstract bool AllowRenegotiation {
+				get; set;
+			}
+
 			protected Options (SslAuthenticationOptionsProvider provider, object instance)
 			{
 				Provider = provider;
@@ -151,9 +180,24 @@ namespace Xamarin.WebTests.TestProvider
 			{
 			}
 
+			public override bool AllowRenegotiation {
+				get => GetProperty<bool> (Provider.AllowClientRenegotiation);
+				set => SetProperty (Provider.AllowClientRenegotiation, value);
+			}
+
 			public string TargetHost {
 				get => GetProperty<string> (Provider.TargetHost);
 				set => SetProperty (Provider.TargetHost, value);
+			}
+
+			public X509CertificateCollection ClientCertificates {
+				get => GetProperty<X509CertificateCollection> (Provider.ClientCertificates);
+				set => SetProperty (Provider.ClientCertificates, value);
+			}
+
+			public LocalCertificateSelectionCallback LocalCertificateSelectionCallback {
+				get => GetProperty<LocalCertificateSelectionCallback> (Provider.LocalCertificateSelectionCallback);
+				set => SetProperty (Provider.LocalCertificateSelectionCallback, value);
 			}
 
 			public RemoteCertificateValidationCallback RemoteCertificateValidationCallback {
@@ -167,6 +211,16 @@ namespace Xamarin.WebTests.TestProvider
 			public ServerOptions (SslAuthenticationOptionsProvider provider, object instance)
 				: base (provider, instance)
 			{
+			}
+
+			public override bool AllowRenegotiation {
+				get => GetProperty<bool> (Provider.AllowServerRenegotiation);
+				set => SetProperty (Provider.AllowServerRenegotiation, value);
+			}
+
+			public bool ClientCertificateRequired {
+				get => GetProperty<bool> (Provider.ClientCertificateRequired);
+				set => SetProperty (Provider.ClientCertificateRequired, value);
 			}
 
 			public X509Certificate ServerCertificate {

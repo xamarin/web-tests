@@ -26,6 +26,8 @@
 using System;
 using System.Net;
 using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -33,13 +35,21 @@ namespace Xamarin.WebTests.ConnectionFramework
 	{
 		public LocalCertificateSelectionCallback SelectionCallback {
 			get;
-			private set;
 		}
 
 		public CertificateSelector (LocalCertificateSelectionCallback callback)
 		{
 			SelectionCallback = callback;
 		}
+
+		public CertificateSelector (TestContext ctx, Callback callback)
+		{
+			SelectionCallback = (s, t, lc, rc, ai) => callback (ctx, t, lc, rc, ai);
+		}
+
+		public delegate X509Certificate Callback (
+			TestContext ctx, string targetHost, X509CertificateCollection localCertificates,
+			X509Certificate remoteCertificate, string[] acceptableIssuers);
 	}
 }
 

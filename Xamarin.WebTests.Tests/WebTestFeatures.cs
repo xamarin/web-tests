@@ -88,6 +88,8 @@ namespace Xamarin.WebTests
 				yield return Tls12Attribute.Instance;
 				yield return CleanShutdownAttribute.Instance;
 				yield return SslAuthenticationOptionsAttribute.Instance;
+				yield return HttpClientUsesServicePointAttribute.Instance;
+				yield return RenegotiationAttribute.Instance;
 			}
 		}
 

@@ -56,14 +56,21 @@ namespace Xamarin.WebTests.TestRunners
 
 		public string ME => GetType ().Name;
 
-		static ConnectionParameters GetParameters (string identifier)
+		ConnectionParameters GetParameters (TestContext ctx)
 		{
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 			var acceptAll = certificateProvider.AcceptAll ();
 
-			return new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
+			var parameters = new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
 				ClientCertificateValidator = acceptAll
 			};
+
+			CreateParameters (ctx, parameters);
+			return parameters;
+		}
+
+		protected virtual void CreateParameters (TestContext ctx, ConnectionParameters parameters)
+		{
 		}
 
 		InstrumentationOperation currentOperation;
@@ -237,7 +244,7 @@ namespace Xamarin.WebTests.TestRunners
 			var proto = (serverFlags & HttpServerFlags.NoSSL) != 0 ? "http" : "https";
 			var uri = new Uri ($"{proto}://{endPoint.Address}:{endPoint.Port}/");
 
-			var parameters = GetParameters (ME);
+			var parameters = GetParameters (ctx);
 
 			Server = new BuiltinHttpServer (
 				uri, endPoint, serverFlags, parameters,

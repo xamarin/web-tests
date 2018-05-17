@@ -28,5 +28,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public interface ISslAuthenticationOptions
 	{
+		bool AllowRenegotiation {
+			get; set;
+		}
 	}
 }

@@ -47,32 +47,8 @@ namespace Xamarin.WebTests.TestRunners
 	using TestFramework;
 	using Resources;
 
-	public abstract class StreamInstrumentationTestRunner : ClientAndServer, IConnectionInstrumentation
+	public abstract class StreamInstrumentationTestRunner : ConnectionTestRunner, IConnectionInstrumentation
 	{
-		public ConnectionHandler ConnectionHandler {
-			get;
-		}
-
-		public string ME => GetType ().Name;
-
-		protected StreamInstrumentationTestRunner ()
-		{
-			ConnectionHandler = new DefaultConnectionHandler (this);
-		}
-
-		protected sealed override ConnectionParameters CreateParameters (TestContext ctx)
-		{
-			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
-			var acceptAll = certificateProvider.AcceptAll ();
-
-			var parameters = new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificateValidator = acceptAll, CleanShutdown = UseCleanShutdown,
-				ExpectClientException = HandshakeFails, ExpectServerException = HandshakeFails
-			};
-
-			return parameters;
-		}
-
 		StreamInstrumentation clientInstrumentation;
 		StreamInstrumentation serverInstrumentation;
 
@@ -98,28 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			return base.PostRun (ctx, cancellationToken);
 		}
 
-		protected override void InitializeConnection (TestContext ctx)
-		{
-			ConnectionHandler.InitializeConnection (ctx);
-			base.InitializeConnection (ctx);
-		}
-
-		protected override Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return ConnectionHandler.MainLoop (ctx, cancellationToken);
-		}
-
-		void LogDebug (TestContext ctx, int level, string message, params object[] args)
-		{
-			LogDebug (ctx, level, string.Format (message, args));
-		}
-
-		void LogDebug (TestContext ctx, int level, string message)
-		{
-			ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, level, $"{ME}: {message}");
-		}
-
-		protected virtual bool UseCleanShutdown => false;
+		protected override string LogCategory => LogCategories.StreamInstrumentationTestRunner;
 
 		protected virtual bool HandshakeFails => false;
 
@@ -186,7 +141,7 @@ namespace Xamarin.WebTests.TestRunners
 			if (Interlocked.CompareExchange (ref clientInstrumentation, instrumentation, null) != null)
 				throw new InternalErrorException ();
 
-			LogDebug (ctx, 4, "CreateClientStream()");
+			ctx.LogDebug (LogCategory, 4, $"{ME}.{nameof (CreateClientStream)}");
 
 			ConfigureClientStream (ctx, instrumentation);
 
@@ -200,7 +155,7 @@ namespace Xamarin.WebTests.TestRunners
 			if (Interlocked.CompareExchange (ref serverInstrumentation, instrumentation, null) != null)
 				throw new InternalErrorException ();
 
-			LogDebug (ctx, 4, "CreateServerStream()");
+			ctx.LogDebug (LogCategory, 4, $"{ME}.{nameof (CreateServerStream)}");
 
 			return instrumentation;
 		}

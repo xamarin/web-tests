@@ -72,7 +72,7 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 		protected override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}({nameof (MainLoop)})";
-			ctx.LogDebug (LogCategory, 4, me);
+			LogDebug (ctx, 4, me);
 
 			int flushCalled = 0;
 			ClientInstrumentation.OnNextFlush (FlushHandler);
@@ -89,12 +89,12 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 			await Client.SslStream.FlushAsync ().ConfigureAwait (false);
 			ctx.Assert (flushCalled, Is.EqualTo (1), "Flush() called on inner stream");
 
-			ctx.LogDebug (LogCategory, 4, $"{me} done");
+			LogDebug (ctx, 4, $"{me} done");
 
 			Task FlushHandler (StreamInstrumentation.AsyncFlushFunc func,
 					   CancellationToken innerCancellationToken)
 			{
-				ctx.LogDebug (LogCategory, 4, $"FLUSH HANDLER!");
+				LogDebug (ctx, 4, $"FLUSH HANDLER!");
 				Interlocked.Increment (ref flushCalled);
 				return FinishedTask;
 			}

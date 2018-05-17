@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Security.Authentication;
 using System.Net.Security;
 using Http = System.Net.Http;
@@ -40,8 +41,21 @@ namespace Xamarin.WebTests.Server
 
 	class HttpProviderImpl : IHttpProvider
 	{
-		public bool SupportsHttpClient {
-			get { return true; }
+		public bool SupportsHttpClient => true;
+
+		public bool UsesServicePoint {
+			get;
+		}
+
+		public HttpProviderImpl ()
+		{
+			if (PortableSupportImpl.IsMicrosoftRuntime)
+				UsesServicePoint = true;
+			else {
+				var type = typeof (Http.HttpClientHandler);
+				var method = type.GetMethod ("CreateWebRequest", BindingFlags.Instance | BindingFlags.NonPublic);
+				UsesServicePoint = method != null;
+			}
 		}
 
 		public IHttpClientHandler CreateHttpClient ()

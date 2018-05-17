@@ -39,6 +39,7 @@ namespace Xamarin.WebTests.HttpClientInstrumentation
 	using HttpHandlers;
 	using TestRunners;
 
+	[HttpClientUsesServicePoint]
 	[HttpServerTestCategory (HttpServerTestCategory.Instrumentation)]
 	public class SimpleQueuedRequest : HttpClientInstrumentationFixture
 	{

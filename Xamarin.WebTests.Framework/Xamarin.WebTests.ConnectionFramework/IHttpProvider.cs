@@ -39,6 +39,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
+		bool UsesServicePoint {
+			get;
+		}
+
 		IHttpClientHandler CreateHttpClient ();
 	}
 }

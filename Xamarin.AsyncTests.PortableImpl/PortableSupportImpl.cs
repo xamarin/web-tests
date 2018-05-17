@@ -59,7 +59,9 @@ namespace Xamarin.AsyncTests.Portable
 			}
 		}
 
-		public bool IsMicrosoftRuntime {
+		bool IPortableSupport.IsMicrosoftRuntime => IsMicrosoftRuntime;
+
+		public static bool IsMicrosoftRuntime {
 			get { return isMsRuntime; }
 		}
 

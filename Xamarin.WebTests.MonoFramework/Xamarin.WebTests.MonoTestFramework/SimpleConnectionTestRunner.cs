@@ -47,11 +47,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 	{
 		protected override ConnectionParameters CreateParameters (TestContext ctx) => ctx.GetParameter<SimpleConnectionParameters> ();
 
-		protected override ConnectionHandler CreateConnectionHandler ()
-		{
-			return new DefaultConnectionHandler (this);
-		}
-
 		public static IEnumerable<SimpleConnectionType> GetTestTypes (TestContext ctx, ConnectionTestCategory category)
 		{
 			switch (category) {

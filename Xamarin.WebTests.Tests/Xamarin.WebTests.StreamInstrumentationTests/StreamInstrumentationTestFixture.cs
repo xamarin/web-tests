@@ -31,18 +31,32 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.StreamInstrumentationTests
 {
+	using ConnectionFramework;
 	using TestFramework;
 	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
 	using TestRunners;
+	using Resources;
 
-	[New]
 	[AsyncTestFixture (Prefix = "StreamInstrumentationTests")]
 	[ConnectionTestFlags (ConnectionTestFlags.RequireSslStream)]
 	public abstract class StreamInstrumentationTestFixture : StreamInstrumentationTestRunner
 	{
-		protected const string LogCategory = LogCategories.StreamInstrumentationTestRunner;
+		protected virtual bool UseCleanShutdown => false;
+
+		protected override ConnectionParameters CreateParameters (TestContext ctx)
+		{
+			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
+			var acceptAll = certificateProvider.AcceptAll ();
+
+			var parameters = new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
+				ClientCertificateValidator = acceptAll, CleanShutdown = UseCleanShutdown,
+				ExpectClientException = HandshakeFails, ExpectServerException = HandshakeFails
+			};
+
+			return parameters;
+		}
 
 		[AsyncTest]
 		public static Task Run (

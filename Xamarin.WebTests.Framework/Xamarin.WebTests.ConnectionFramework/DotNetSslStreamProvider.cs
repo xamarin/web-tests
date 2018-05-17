@@ -72,14 +72,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public X509CertificateCollection GetClientCertificates (ConnectionParameters parameters)
 		{
-			if (parameters.ClientCertificate == null)
-				return null;
-
-			var clientCertificateCollection = new X509CertificateCollection ();
-			var certificate = parameters.ClientCertificate;
-			clientCertificateCollection.Add (certificate);
-
-			return clientCertificateCollection;
+			return DotNetConnectionProvider.GetClientCertificates (parameters);
 		}
 
 		public ProtocolVersions SupportedProtocols {

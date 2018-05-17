@@ -22,7 +22,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 {
 	using MonoTestFramework;
 
-	class MonoServer : DotNetServer, IMonoConnection
+	public class MonoServer : DotNetServer, IMonoConnection
 	{
 		public MonoServer (MonoConnectionProvider provider, ConnectionParameters parameters)
 			: base (provider, parameters, provider)
@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		public bool CanRenegotiate {
 			get {
 				var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
-				return setup.CanRenegotiate (GetMonoSslStream ());
+				return setup.CanRenegotiate (SslStream);
 			}
 		}
 
@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			if (!CanRenegotiate)
 				throw new NotSupportedException ();
 			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
-			return setup.RenegotiateAsync (GetMonoSslStream (), cancellationToken);
+			return setup.RenegotiateAsync (SslStream, cancellationToken);
 		}
 	}
 }

@@ -46,11 +46,6 @@ namespace Xamarin.WebTests.TestRunners
 
 	public abstract class SslStreamTestRunner : ConnectionTestRunner
 	{
-		protected override ConnectionHandler CreateConnectionHandler ()
-		{
-			return new DefaultConnectionHandler (this);
-		}
-
 		protected static ICertificateProvider CertificateProvider => DependencyInjector.Get<ICertificateProvider> ();
 
 		protected CertificateValidator AcceptAll => CertificateProvider.AcceptAll ();

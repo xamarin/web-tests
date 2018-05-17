@@ -43,7 +43,7 @@ using Xamarin.WebTests.TestFramework;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
-	public abstract class MonoConnectionTestRunner : ClientAndServer
+	public abstract class MonoConnectionTestRunner : ConnectionTestRunner
 	{
 		new public MonoConnectionTestParameters Parameters => (MonoConnectionTestParameters)base.Parameters;
 
@@ -53,10 +53,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get;
 		}
 
-		public ConnectionHandler ConnectionHandler {
-			get;
-			private set;
-		}
+		protected override string LogCategory => LogCategories.Listener;
 
 		public static ConnectionTestFlags GetConnectionFlags (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -77,26 +74,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 				ctx.AssertFail ("Unsupported instrumentation category: '{0}'.", category);
 				return ConnectionTestFlags.None;
 			}
-		}
-
-		protected override Task StartClient (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Client.Start (ctx, null, cancellationToken);
-		}
-
-		protected override Task StartServer (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Server.Start (ctx, null, cancellationToken);
-		}
-
-		protected override Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Client.Shutdown (ctx, cancellationToken);
-		}
-
-		protected override Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Server.Shutdown (ctx, cancellationToken);
 		}
 
 		protected override void InitializeConnection (TestContext ctx)
@@ -127,12 +104,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 					ctx.IgnoreThisTest ();
 			}
 
-			ConnectionHandler = CreateConnectionHandler ();
-			ConnectionHandler.InitializeConnection (ctx);
 			base.InitializeConnection (ctx);
 		}
-
-		protected abstract ConnectionHandler CreateConnectionHandler ();
 
 		public static IEnumerable<R> Join<T,U,R> (IEnumerable<T> first, IEnumerable<U> second, Func<T, U, R> resultSelector) {
 			foreach (var e1 in first) {
@@ -210,25 +183,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 			}
 
 			return base.OnRun (ctx, cancellationToken);
-		}
-
-		protected void LogDebug (TestContext ctx, int level, string message, params object[] args)
-		{
-			var sb = new StringBuilder ();
-			sb.AppendFormat ("[{0}]: {1}", GetType ().Name, message);
-			if (args.Length > 0)
-				sb.Append (" -");
-			foreach (var arg in args) {
-				sb.Append (" ");
-				sb.Append (arg);
-			}
-			var formatted = sb.ToString ();
-			ctx.LogDebug (LogCategories.Listener, level, formatted);
-		}
-
-		protected sealed override Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return ConnectionHandler.MainLoop (ctx, cancellationToken);
 		}
 	}
 }

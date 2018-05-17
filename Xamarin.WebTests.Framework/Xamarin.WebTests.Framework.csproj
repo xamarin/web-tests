@@ -115,7 +115,6 @@
     <Compile Include="Xamarin.WebTests.Resources\CertificateResourceType.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\GlobalValidationFlags.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionHandler.cs" />
-    <Compile Include="Xamarin.WebTests.TestFramework\DefaultConnectionHandler.cs" />
     <Compile Include="Xamarin.WebTests.Resources\CertificateInfo.cs" />
     <Compile Include="Xamarin.WebTests.Resources\HamillerTubeCAData.cs" />
     <Compile Include="Xamarin.WebTests.Resources\SelfSignedServerData.cs" />
@@ -236,6 +235,8 @@
     <Compile Include="Xamarin.WebTests.TestAttributes\SslAuthenticationOptionsAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\SslStreamApiType.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\StreamInstrumentationTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.TestAttributes\RenegotiationAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestAttributes\HttpClientUsesServicePointAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

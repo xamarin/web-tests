@@ -26,6 +26,7 @@
 using System;
 using System.Net;
 using System.Net.Security;
+using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 
@@ -76,6 +77,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 		void Initialize (ConnectionProviderFactory factory);
 
 		Task ShutdownAsync (SslStream stream);
+
+		bool SupportsRenegotiation {
+			get;
+		}
+
+		bool CanRenegotiate (SslStream stream);
+
+		Task RenegotiateAsync (SslStream stream, CancellationToken cancellationToken);
 	}
 }
 

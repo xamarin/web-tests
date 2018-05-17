@@ -25,17 +25,18 @@
 // THE SOFTWARE.
 using System;
 using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	public interface ISslClientAuthenticationOptions : ISslAuthenticationOptions
 	{
-		string TargetHost {
-			get; set;
-		}
+		string TargetHost { get; set; }
 
-		RemoteCertificateValidationCallback RemoteCertificateValidationCallback {
-			get; set;
-		}
+		X509CertificateCollection ClientCertificates { get; set; }
+
+		LocalCertificateSelectionCallback LocalCertificateSelectionCallback { get; set; }
+
+		RemoteCertificateValidationCallback RemoteCertificateValidationCallback { get; set; }
 	}
 }

@@ -48,6 +48,12 @@ namespace Xamarin.WebTests.TestRunners
 			TestRunner = fixture;
 		}
 
+		public InstrumentationRequest (InstrumentationTestRunner fixture, HttpWebRequest request)
+			: base (request)
+		{
+			TestRunner = fixture;
+		}
+
 		public override bool HasContent => TestRunner.HasRequestBody;
 
 		internal Task<Response> DefaultSendAsync (TestContext ctx, CancellationToken cancellationToken)

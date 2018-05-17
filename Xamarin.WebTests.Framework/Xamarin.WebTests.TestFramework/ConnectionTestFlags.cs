@@ -52,7 +52,11 @@ namespace Xamarin.WebTests.TestFramework
 		RequireCleanServerShutdown = 8192,
 		RequireCleanShutdown = RequireCleanClientShutdown | RequireCleanServerShutdown,
 
-		AllowWildcardMatches = 16384
+		AllowWildcardMatches = 16384,
+
+		RequireClientRenegotiation = 32768,
+		RequireServerRenegotiation = 65536,
+		RequireRenegotiation = RequireClientRenegotiation | RequireServerRenegotiation
 	}
 }
 

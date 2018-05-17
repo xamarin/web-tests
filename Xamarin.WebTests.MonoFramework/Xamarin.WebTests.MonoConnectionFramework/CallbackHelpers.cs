@@ -44,32 +44,12 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		internal static RemoteCertificateValidationCallback GetServerValidationCallback (ConnectionParameters parameters)
 		{
-			var validator = parameters.ServerCertificateValidator;
-			if (validator == null)
-				return null;
-
-			return ((CertificateValidator)validator).ValidationCallback;
+			return parameters.ServerCertificateValidator?.ValidationCallback;
 		}
 
 		internal static RemoteCertificateValidationCallback GetClientValidationCallback (ConnectionParameters parameters)
 		{
-			var validator = parameters.ClientCertificateValidator;
-			if (validator == null)
-				return null;
-
-			return ((CertificateValidator)validator).ValidationCallback;
-		}
-
-		internal static X509CertificateCollection GetClientCertificates (ConnectionParameters parameters)
-		{
-			if (parameters.ClientCertificate == null)
-				return null;
-
-			var clientCertificateCollection = new X509CertificateCollection ();
-			var certificate = parameters.ClientCertificate;
-			clientCertificateCollection.Add (certificate);
-
-			return clientCertificateCollection;
+			return parameters.ClientCertificateValidator?.ValidationCallback;
 		}
 
 		internal static void AddCertificateValidator (MSI.MonoTlsSettings settings, CertificateValidator validator)

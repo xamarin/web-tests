@@ -20,10 +20,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			ProtocolVersion = other.ProtocolVersion;
 			TargetHost = other.TargetHost;
 			ClientCertificate = other.ClientCertificate;
+			if (other.ClientCertificates != null)
+				ClientCertificates = new X509CertificateCollection (other.ClientCertificates);
 			ClientCertificateValidator = other.ClientCertificateValidator;
 			ClientCertificateSelector = other.ClientCertificateSelector;
+			ClientCertificateIssuers = other.ClientCertificateIssuers;
 			ServerCertificate = other.ServerCertificate;
 			ServerCertificateValidator = other.ServerCertificateValidator;
+			AllowRenegotiation = other.AllowRenegotiation;
 			AskForClientCertificate = other.AskForClientCertificate;
 			RequireClientCertificate = other.RequireClientCertificate;
 			EnableDebugging = other.EnableDebugging;
@@ -69,6 +73,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
+		public X509CertificateCollection ClientCertificates {
+			get; set;
+		}
+
 		public CertificateValidator ClientCertificateValidator {
 			get; set;
 		}
@@ -77,11 +85,19 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
+		public string[] ClientCertificateIssuers {
+			get; set;
+		}
+
 		public X509Certificate ServerCertificate {
 			get; set;
 		}
 
 		public CertificateValidator ServerCertificateValidator {
+			get; set;
+		}
+
+		public bool? AllowRenegotiation {
 			get; set;
 		}
 

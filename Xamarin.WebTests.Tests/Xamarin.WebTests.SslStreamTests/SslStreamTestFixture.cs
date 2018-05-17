@@ -41,6 +41,8 @@ namespace Xamarin.WebTests.SslStreamTests
 	[ConnectionTestFlags (ConnectionTestFlags.RequireSslStream)]
 	public abstract class SslStreamTestFixture : SslStreamTestRunner
 	{
+		protected override string LogCategory => LogCategories.StreamInstrumentationTestRunner;
+
 		[AsyncTest]
 		public static Task Run (
 			TestContext ctx, CancellationToken cancellationToken,

@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.HttpClientInstrumentation
 	using HttpClient;
 	using TestRunners;
 
+	[HttpClientUsesServicePoint]
 	[HttpServerTestCategory (HttpServerTestCategory.Default)]
 	public class ReuseHandler : HttpClientInstrumentationFixture
 	{

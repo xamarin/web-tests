@@ -26,6 +26,8 @@
 using System;
 using System.Net;
 using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -40,6 +42,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			ValidationCallback = callback;
 		}
+
+		public CertificateValidator (TestContext ctx, Callback callback)
+		{
+			ValidationCallback = (s, c, ch, e) => callback (ctx, c, ch, e);
+		}
+
+		public delegate bool Callback (
+			TestContext ctx, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors);
 	}
 }
 

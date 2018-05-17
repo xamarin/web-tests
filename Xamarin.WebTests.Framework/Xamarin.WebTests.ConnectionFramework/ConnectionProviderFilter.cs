@@ -53,6 +53,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 				return false;
 			if (HasFlag (ConnectionTestFlags.RequireCleanClientShutdown) && !provider.HasFlag (ConnectionProviderFlags.SupportsCleanShutdown))
 				return false;
+			if (HasFlag (ConnectionTestFlags.RequireClientRenegotiation) && !provider.HasFlag (ConnectionProviderFlags.SupportsClientRenegotiation))
+				return false;
 
 			return true;
 		}
@@ -66,6 +68,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (HasFlag (ConnectionTestFlags.RequireDotNet) && provider.Type != ConnectionProviderType.DotNet)
 				return false;
 			if (HasFlag (ConnectionTestFlags.RequireCleanServerShutdown) && !provider.HasFlag (ConnectionProviderFlags.SupportsCleanShutdown))
+				return false;
+			if (HasFlag (ConnectionTestFlags.RequireServerRenegotiation) && !provider.HasFlag (ConnectionProviderFlags.SupportsServerRenegotiation))
 				return false;
 
 			return true;
@@ -124,16 +128,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (match) {
 				if (!success)
 					return false;
-				if (wildcard && !HasFlag (ConnectionTestFlags.AllowWildcardMatches) && provider.HasFlag (ConnectionProviderFlags.IsExplicit))
-					return false;
-				return true;
+				if (!wildcard)
+					return true;
 			}
-
-			if (provider.HasFlag (ConnectionProviderFlags.IsExplicit))
-				return false;
 
 			if ((Flags & ConnectionTestFlags.AssumeSupportedByTest) != 0)
 				return true;
+
+			if (provider.HasFlag (ConnectionProviderFlags.IsExplicit))
+				return provider.HasFlag (ConnectionProviderFlags.AllowWildcardMatches) && HasFlag (ConnectionTestFlags.AllowWildcardMatches);
 
 			return true;
 		}

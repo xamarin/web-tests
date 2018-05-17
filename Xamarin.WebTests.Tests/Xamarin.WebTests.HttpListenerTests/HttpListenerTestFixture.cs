@@ -37,7 +37,6 @@ namespace Xamarin.WebTests.HttpListenerTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[Work]
 	[AsyncTestFixture (Prefix = "HttpListenerTests")]
 	[HttpServerTestCategory (HttpServerTestCategory.HttpListener)]
 	public abstract class HttpListenerTestFixture : InstrumentationTestRunner

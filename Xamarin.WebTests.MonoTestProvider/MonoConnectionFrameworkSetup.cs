@@ -268,21 +268,23 @@ namespace Xamarin.WebTests.MonoTestProvider
 #endif
 		}
 
-		public bool CanRenegotiate (IMonoSslStream stream)
+		public bool CanRenegotiate (SslStream stream)
 		{
 #if __IOS__ || __MOBILE__
 			throw new NotSupportedException ();
 #else
-			return (bool)getCanRenegotiate.Invoke (stream, null);
+			var monoSslStream = MonoTlsProviderFactory.GetMonoSslStream (stream);
+			return (bool)getCanRenegotiate.Invoke (monoSslStream, null);
 #endif
 		}
 
-		public Task RenegotiateAsync (IMonoSslStream stream, CancellationToken cancellationToken)
+		public Task RenegotiateAsync (SslStream stream, CancellationToken cancellationToken)
 		{
 #if __IOS__ || __MOBILE__
 			throw new NotSupportedException ();
 #else
-			return (Task)renegotiateAsync.Invoke (stream, new object[] { cancellationToken });
+			var monoSslStream = MonoTlsProviderFactory.GetMonoSslStream (stream);
+			return (Task)renegotiateAsync.Invoke (monoSslStream, new object[] { cancellationToken });
 #endif
 		}
 

@@ -30,196 +30,60 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Security.Authentication;
+using Mono.Security.Interface;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
-	using MonoTestFeatures;
 	using MonoConnectionFramework;
 	using ConnectionFramework;
 	using TestFramework;
+	using TestRunners;
 	using Resources;
-	using System.Security.Authentication;
-	using Mono.Security.Interface;
 
-	[RenegotiationTestRunner]
-	public class RenegotiationTestRunner : ClientAndServer
+	public abstract class RenegotiationTestRunner : StreamInstrumentationTestRunner
 	{
-		new public RenegotiationTestParameters Parameters => (RenegotiationTestParameters)base.Parameters;
+		protected MonoServer MonoServer => (MonoServer)Server;
 
-		internal MonoServer MonoServer => (MonoServer)Server;
+		protected MonoClient MonoClient => (MonoClient)Client;
 
-		internal MonoClient MonoClient => (MonoClient)Client;
-
-		public RenegotiationTestType EffectiveType {
-			get {
-				if (Parameters.Type == RenegotiationTestType.MartinTest)
-					return MartinTest;
-				return Parameters.Type;
-			}
-		}
-
-		public ConnectionHandler ConnectionHandler {
-			get;
-		}
-
-		public RenegotiationTestRunner ()
-		{
-			ConnectionHandler = new DefaultConnectionHandler (this);
-		}
-
-		protected override ConnectionParameters CreateParameters (TestContext ctx) => ctx.GetParameter<RenegotiationTestParameters> ();
-
-		const RenegotiationTestType MartinTest = RenegotiationTestType.MartinTest;
-
-		public static IEnumerable<RenegotiationTestType> GetRenegotiationTestTypes (TestContext ctx, ConnectionTestCategory category)
-		{
-			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
-
-			switch (category) {
-			case ConnectionTestCategory.MartinTest:
-				yield return RenegotiationTestType.MartinTest;
-				yield break;
-
-			default:
-				throw ctx.AssertFail (category);
-			}
-		}
-
-		static string GetTestName (ConnectionTestCategory category, RenegotiationTestType type, params object[] args)
-		{
-			var sb = new StringBuilder ();
-			sb.Append (type);
-			foreach (var arg in args) {
-				sb.AppendFormat (":{0}", arg);
-			}
-			return sb.ToString ();
-		}
-
-		public static RenegotiationTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category,
-		                                                         RenegotiationTestType type)
+		protected sealed override ConnectionParameters CreateParameters (TestContext ctx)
 		{
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 			var acceptAll = certificateProvider.AcceptAll ();
 
-			var name = GetTestName (category, type);
-
-			return new RenegotiationTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificateValidator = acceptAll
+			var parameters = new MonoConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
+				ClientCertificateValidator = acceptAll,
+				ExpectClientException = HandshakeFails, ExpectServerException = HandshakeFails,
+				ClientApiType = SslStreamApiType.AuthenticationOptions,
+				ServerApiType = SslStreamApiType.AuthenticationOptions
 			};
+
+			CreateParameters (ctx, parameters);
+
+			return parameters;
 		}
 
-		[Flags]
-		internal enum InstrumentationFlags
+		protected virtual void CreateParameters (TestContext ctx, MonoConnectionParameters parameters)
 		{
-			None = 0,
-			ExpectClientException = 1,
-			ExpectServerException = 2,
-			SkipMainLoop = 4
-		}
-
-		static InstrumentationFlags GetFlags (RenegotiationTestType type)
-		{
-			switch (type) {
-			case RenegotiationTestType.MartinTest:
-				return InstrumentationFlags.ExpectClientException | InstrumentationFlags.ExpectServerException |
-					InstrumentationFlags.SkipMainLoop;
-			default:
-				throw new InternalErrorException ();
-			}
-		}
-
-		bool HasFlag (InstrumentationFlags flag)
-		{
-			var flags = GetFlags (EffectiveType);
-			return (flags & flag) == flag;
-		}
-
-		bool HasAnyFlag (params InstrumentationFlags[] flags)
-		{
-			return flags.Any (f => HasFlag (f));
-		}
-
-		protected override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return base.PreRun (ctx, cancellationToken);
-		}
-
-		protected override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return base.PostRun (ctx, cancellationToken);
-		}
-
-		protected override void InitializeConnection (TestContext ctx)
-		{
-			ConnectionHandler.InitializeConnection (ctx);
-			base.InitializeConnection (ctx);
 		}
 
 		protected sealed override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var me = $"{GetType ().Name}({EffectiveType}).{nameof (MainLoop)}";
-			ctx.LogDebug (LogCategories.Listener, 4, $"{me}");
+			var me = $"{ME}.{nameof (MainLoop)}";
+			ctx.LogDebug (LogCategory, 4, $"{me}");
 
-			ctx.LogDebug (LogCategories.Listener, 4, $"{me} - client={MonoClient.Provider} server={MonoServer.Provider} - {MonoServer.CanRenegotiate}");
+			ctx.LogDebug (LogCategory, 4, $"{me} - client={MonoClient.Provider} server={MonoServer.Provider} - {MonoServer.CanRenegotiate}");
 			ctx.Assert (MonoServer.CanRenegotiate, "MonoServer.CanRenegotiate");
 
-			var buffer = new byte[16];
-			var readTask = Client.Stream.ReadAsync (buffer, 0, buffer.Length, cancellationToken).ContinueWith (t => {
-				Client.Dispose ();
-
-				var message = "Expected client to throw AuthenticationException(NoRenegotiate)";
-				ctx.Assert (t.Status, Is.EqualTo (TaskStatus.Faulted), message);
-				var exception = TestContext.CleanupException (t.Exception);
-
-				if (ctx.Expect (exception, Is.Not.Null, message) &&
-				    ctx.Expect (exception, Is.InstanceOf<AuthenticationException> (), message) &&
-				    ctx.Expect (exception.InnerException, Is.InstanceOf<TlsException> (), message)) {
-					var tlsExc = (TlsException)exception.InnerException;
-					ctx.Assert (tlsExc.Alert.Description, Is.EqualTo (AlertDescription.NoRenegotiation), message);
-				}
-			});
-
-			var renegotiateTask = MonoServer.RenegotiateAsync (cancellationToken).ContinueWith (t => {
-				var message = "Expected server to throw IOException.";
-				ctx.Assert (t.Status, Is.EqualTo (TaskStatus.Faulted), message);
-				var exception = TestContext.CleanupException (t.Exception);
-				ctx.Assert (exception, Is.InstanceOf<IOException> (), message);
-			});
-
-			ctx.LogDebug (LogCategories.Listener, 4, $"{me} - called Renegotiate()");
-
-			await Task.WhenAll (readTask, renegotiateTask).ConfigureAwait (false);
-
-			if (HasFlag (InstrumentationFlags.SkipMainLoop))
-				return;
-
-			await ConnectionHandler.MainLoop (ctx, cancellationToken);
-		}
-
-		protected override Task StartClient (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Client.Start (ctx, null, cancellationToken);
-		}
-
-		protected override Task StartServer (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Server.Start (ctx, null, cancellationToken);
-		}
-
-		protected override Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
-		{
-			if (HasFlag (InstrumentationFlags.ExpectClientException))
-				return FinishedTask;
-			return Client.Shutdown (ctx, cancellationToken);
-		}
-
-		protected override Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
-		{
-			if (HasFlag (InstrumentationFlags.ExpectServerException))
-			return FinishedTask;
-			return Server.Shutdown (ctx, cancellationToken);
+			try {
+				await base.MainLoop (ctx, cancellationToken).ConfigureAwait (false);
+				ctx.LogDebug (LogCategory, 4, $"{me} - complete.");
+			} catch (Exception ex) {
+				ctx.LogDebug (LogCategory, 4, $"{me} - failed: {ex.Message}");
+			}
 		}
 	}
 }

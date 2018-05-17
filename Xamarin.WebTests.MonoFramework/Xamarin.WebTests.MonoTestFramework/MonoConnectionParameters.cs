@@ -32,7 +32,7 @@ using Xamarin.WebTests.ConnectionFramework;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
-	public abstract class MonoConnectionParameters : ConnectionParameters
+	public class MonoConnectionParameters : ConnectionParameters
 	{
 		public MonoConnectionParameters (X509Certificate certificate)
 			: base (certificate)
@@ -53,8 +53,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 			ExpectedServerCipher = other.ExpectedServerCipher;
 			ExpectServerAlert = other.ExpectServerAlert;
 			ExpectedCipher = other.ExpectedCipher;
-
-			ClientCertificateIssuers = other.ClientCertificateIssuers;
 		}
 
 		public IList<CipherSuiteCode> ClientCiphers {
@@ -82,10 +80,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 		}
 
 		public CipherSuiteCode? ExpectedCipher {
-			get; set;
-		}
-
-		public string[] ClientCertificateIssuers {
 			get; set;
 		}
 	}

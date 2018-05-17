@@ -57,8 +57,9 @@ namespace Xamarin.WebTests.TestFramework
 				serverFlags = HttpServerFlags.None;
 			ServerFlags = serverFlags;
 
-			if ((ServerFlags & HttpServerFlags.HttpListener) != 0)
-				UsingHttpListener = true;
+			UsingHttpListener |= (ServerFlags & HttpServerFlags.HttpListener) != 0;
+			RequireRenegotiation = (ServerFlags & HttpServerFlags.RequireRenegotiation) != 0;
+			RequireSsl |= RequireRenegotiation;
 
 			switch (Category) {
 			case HttpServerTestCategory.HttpListener:
@@ -118,6 +119,8 @@ namespace Xamarin.WebTests.TestFramework
 			if (!provider.HasFlag (ConnectionProviderFlags.SupportsHttp))
 				return false;
 			if (UsingHttpListener && !provider.HasFlag (ConnectionProviderFlags.SupportsHttpListener))
+				return false;
+			if (RequireRenegotiation && !provider.HasFlag (ConnectionProviderFlags.SupportsServerRenegotiation))
 				return false;
 			switch (Category) {
 			case HttpServerTestCategory.Default:
@@ -189,6 +192,10 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		bool SupportsHttp {
+			get;
+		}
+
+		bool RequireRenegotiation {
 			get;
 		}
 

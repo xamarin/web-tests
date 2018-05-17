@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Security;
-using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.WebTests.ConnectionFramework;
 
@@ -38,5 +38,11 @@ namespace Xamarin.WebTests.DotNet
 		{
 			return stream.ShutdownAsync ();
 		}
+
+		public bool SupportsRenegotiation => false;
+
+		public bool CanRenegotiate (SslStream stream) => false;
+
+		public Task RenegotiateAsync (SslStream stream, CancellationToken cancellationToken) => throw new NotSupportedException ();
 	}
 }

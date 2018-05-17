@@ -66,7 +66,7 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 		protected override async Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}({nameof (ClientShutdown)})";
-			ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, me);
+			LogDebug (ctx, 4, me);
 
 			int bytesWritten = 0;
 
@@ -75,13 +75,13 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
 				await Client.Shutdown (ctx, cancellationToken).ConfigureAwait (false);
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} done");
+				LogDebug (ctx, 4, $"{me} done");
 			} catch (OperationCanceledException) {
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} canceled");
+				LogDebug (ctx, 4, $"{me} canceled");
 				clientTcs.TrySetCanceled ();
 				throw;
 			} catch (Exception ex) {
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} error: {ex.Message}");
+				LogDebug (ctx, 4, $"{me} error: {ex.Message}");
 				clientTcs.TrySetException (ex);
 				throw;
 			}
@@ -121,14 +121,14 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 
 			Task WriteAfterShutdown ()
 			{
-				return ctx.AssertException<InvalidOperationException> (() => ConnectionHandler.WriteBlob (ctx, Client, cancellationToken));
+				return ctx.AssertException<InvalidOperationException> (() => WriteBlob (ctx, Client, cancellationToken));
 			}
 
 			async Task ReadAfterShutdown ()
 			{
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} reading");
-				await ConnectionHandler.ExpectBlob (ctx, Client, cancellationToken).ConfigureAwait (false);
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} reading done");
+				LogDebug (ctx, 4, $"{me} reading");
+				await ExpectBlob (ctx, Client, cancellationToken).ConfigureAwait (false);
+				LogDebug (ctx, 4, $"{me} reading done");
 			}
 
 			async Task WriteHandler (byte[] buffer, int offset, int size,
@@ -137,9 +137,9 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 			{
 				cancellationToken.ThrowIfCancellationRequested ();
 				innerCancellationToken.ThrowIfCancellationRequested ();
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} write handler: {offset} {size}");
+				LogDebug (ctx, 4, $"{me} write handler: {offset} {size}");
 				await func (buffer, offset, size, innerCancellationToken).ConfigureAwait (false);
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} write handler done");
+				LogDebug (ctx, 4, $"{me} write handler done");
 				bytesWritten += size;
 			}
 		}
@@ -147,7 +147,7 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 		protected override async Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}({nameof (ServerShutdown)})";
-			ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, me);
+			LogDebug (ctx, 4, me);
 
 			switch (Type) {
 			case ShutdownType.CleanShutdown:
@@ -168,19 +168,19 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 			{
 				cancellationToken.ThrowIfCancellationRequested ();
 				var ok = await clientTcs.Task.ConfigureAwait (false);
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - client finished {ok}");
+				LogDebug (ctx, 4, $"{me} - client finished {ok}");
 
 				cancellationToken.ThrowIfCancellationRequested ();
 
-				await ConnectionHandler.WriteBlob (ctx, Server, cancellationToken).ConfigureAwait (false);
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - write done");
+				await WriteBlob (ctx, Server, cancellationToken).ConfigureAwait (false);
+				LogDebug (ctx, 4, $"{me} - write done");
 			}
 
 			async Task WaitForShutdown ()
 			{
 				cancellationToken.ThrowIfCancellationRequested ();
 				var ok = await clientTcs.Task.ConfigureAwait (false);
-				ctx.LogDebug (LogCategories.StreamInstrumentationTestRunner, 4, $"{me} - client finished {ok}");
+				LogDebug (ctx, 4, $"{me} - client finished {ok}");
 
 				cancellationToken.ThrowIfCancellationRequested ();
 

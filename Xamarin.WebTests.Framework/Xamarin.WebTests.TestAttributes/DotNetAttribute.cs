@@ -29,7 +29,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.TestAttributes
 {
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false)]
 	public class DotNetAttribute : TestFeatureAttribute
 	{
 		public override TestFeature Feature {

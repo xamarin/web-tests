@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 		protected override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{ME}({nameof (MainLoop)})";
-			ctx.LogDebug (LogCategory, 4, me);
+			LogDebug (ctx, 4, me);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
@@ -85,25 +85,25 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 				var largeBlob = Encoding.UTF8.GetBytes (largeBuffer);
 
 				totalBytes = largeBlob.Length;
-				ctx.LogDebug (LogCategory, 4, $"{me} writing {totalBytes} bytes");
+				LogDebug (ctx, 4, $"{me} writing {totalBytes} bytes");
 				var writeTask = Client.SslStream.WriteAsync (largeBlob, 0, largeBlob.Length, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();
 				await writeEvent.Task.ConfigureAwait (false);
-				ctx.LogDebug (LogCategory, 4, $"{me} done writing");
+				LogDebug (ctx, 4, $"{me} done writing");
 			}
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			ctx.LogDebug (LogCategory, 4, $"{me}: server shutdown");
+			LogDebug (ctx, 4, $"{me}: server shutdown");
 			await Server.Shutdown (ctx, cancellationToken).ConfigureAwait (false);
-			ctx.LogDebug (LogCategory, 4, $"{me}: server shutdown done");
+			LogDebug (ctx, 4, $"{me}: server shutdown done");
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var readBuffer = new byte[32768];
 			var ret = await Client.SslStream.ReadAsync (readBuffer, 0, readBuffer.Length, cancellationToken);
-			ctx.LogDebug (LogCategory, 4, $"{me}: client read: {ret}");
+			LogDebug (ctx, 4, $"{me}: client read: {ret}");
 
 			shutdownEvent.TrySetResult (null);
 
@@ -111,10 +111,10 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 
 			int remainingBytes = totalBytes;
 			while (remainingBytes > 0) {
-				ctx.LogDebug (LogCategory, 4, $"{me}: server read - {remainingBytes} / {totalBytes} remaining.");
+				LogDebug (ctx, 4, $"{me}: server read - {remainingBytes} / {totalBytes} remaining.");
 
 				ret = await Server.SslStream.ReadAsync (readBuffer, 0, readBuffer.Length, cancellationToken);
-				ctx.LogDebug (LogCategory, 4, $"{me}: server read returned: {ret}");
+				LogDebug (ctx, 4, $"{me}: server read returned: {ret}");
 
 				if (ret <= 0)
 					break;
@@ -123,9 +123,9 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 			}
 
 			if (remainingBytes > 0)
-				ctx.LogDebug (LogCategory, 4, $"{me} server read - connection closed with {remainingBytes} bytes remaining.");
+				LogDebug (ctx, 4, $"{me} server read - connection closed with {remainingBytes} bytes remaining.");
 			else
-				ctx.LogDebug (LogCategory, 4, $"{me} server read complete.");
+				LogDebug (ctx, 4, $"{me} server read complete.");
 
 			async Task WriteHandler (byte[] buffer, int offset, int count,
 						 StreamInstrumentation.AsyncWriteFunc func,
@@ -134,7 +134,7 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 				innerCancellationToken.ThrowIfCancellationRequested ();
 
 				var writeMe = $"{me}: write handler ({ctx.GetUniqueId ()})";
-				ctx.LogDebug (LogCategory, 4, $"{writeMe}: {offset} {count}");
+				LogDebug (ctx, 4, $"{writeMe}: {offset} {count}");
 
 				ClientInstrumentation.OnNextWrite (WriteHandler);
 
@@ -144,16 +144,16 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 					offset += shortWrite;
 					count -= shortWrite;
 
-					ctx.LogDebug (LogCategory, 4, $"{writeMe}: short write done");
+					LogDebug (ctx, 4, $"{writeMe}: short write done");
 					writeEvent.TrySetResult (null);
 
 					await shutdownEvent.Task;
 
-					ctx.LogDebug (LogCategory, 4, $"{writeMe}: remaining {offset} {count}");
+					LogDebug (ctx, 4, $"{writeMe}: remaining {offset} {count}");
 				}
 
 				await func (buffer, offset, count, innerCancellationToken).ConfigureAwait (false);
-				ctx.LogDebug (LogCategory, 4, $"{writeMe}: done");
+				LogDebug (ctx, 4, $"{writeMe}: done");
 
 				await FinishedTask;
 			}

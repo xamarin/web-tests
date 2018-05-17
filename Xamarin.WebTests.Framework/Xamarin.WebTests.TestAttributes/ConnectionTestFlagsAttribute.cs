@@ -33,29 +33,24 @@ namespace Xamarin.WebTests.TestAttributes
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class ConnectionTestFlagsAttribute : FixedTestParameterAttribute
 	{
-		public override Type Type {
-			get { return typeof(ConnectionTestFlags); }
-		}
+		public override Type Type => typeof(ConnectionTestFlags);
 
-		public override object Value {
-			get { return flags; }
-		}
+		public override object Value => Flags;
 
-		public override string Identifier {
-			get { return identifier; }
+		public sealed override string Identifier {
+			get;
 		}
 
 		public ConnectionTestFlags Flags {
-			get { return flags; }
+			get;
 		}
 
-		readonly string identifier;
-		readonly ConnectionTestFlags flags;
+		public override TestFlags TestFlags => TestFlags.Hidden;
 
 		public ConnectionTestFlagsAttribute (ConnectionTestFlags flags)
 		{
-			this.flags = flags;
-			this.identifier = Type.Name;
+			Flags = flags;
+			Identifier = Type.Name;
 		}
 	}
 }
