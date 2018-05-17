@@ -147,6 +147,10 @@
     <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\ServerRequestsShutdown.cs" />
     <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\FlushInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.StreamInstrumentationTests\DisposeInstrumentation.cs" />
+    <Compile Include="Xamarin.WebTests.SslStreamTests\ClientCertificateSelector.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\RequestClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\Renegotiate.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\RenegotiateWithCustomCallback.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

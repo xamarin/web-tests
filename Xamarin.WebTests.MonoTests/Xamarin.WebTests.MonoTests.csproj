@@ -35,6 +35,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MonoWebTestFeatures.cs" />
     <Compile Include="Xamarin.WebTests.MonoTest\TestValidator.cs" />
+    <Compile Include="Xamarin.WebTests.RenegotiationTests\RenegotiationTestFixture.cs" />
+    <Compile Include="Xamarin.WebTests.RenegotiationTests\Simple.cs" />
+    <Compile Include="Xamarin.WebTests.RenegotiationTests\ServerRenegotiation.cs" />
+    <Compile Include="Xamarin.WebTests.RenegotiationTests\NoRenegotiation.cs" />
+    <Compile Include="Xamarin.WebTests.RenegotiationTests\AskForClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.RenegotiationTests\ClientCertificateSelector.cs" />
+    <Compile Include="Xamarin.WebTests.RenegotiationTests\AcceptableIssuers.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
@@ -66,5 +73,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Xamarin.WebTests.MonoTest\" />
+    <Folder Include="Xamarin.WebTests.RenegotiationTests\" />
   </ItemGroup>
 </Project>
