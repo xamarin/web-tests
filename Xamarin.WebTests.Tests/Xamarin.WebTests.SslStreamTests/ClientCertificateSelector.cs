@@ -38,7 +38,7 @@ namespace Xamarin.WebTests.SslStreamTests
 	using TestFramework;
 	using Resources;
 
-	[New]
+	[Work]
 	[ConnectionTestFlags (ConnectionTestFlags.AllowWildcardMatches | ConnectionTestFlags.RequireClientCertificates)]
 	public class ClientCertificateSelector : SslStreamTestFixture
 	{
