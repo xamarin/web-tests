@@ -385,6 +385,7 @@ namespace Xamarin.AsyncTests.Console
 					return 4;
 				switch (result.Status) {
 				case TestStatus.Success:
+				case TestStatus.None:
 					return 0;
 				case TestStatus.Unstable:
 					return 2;
