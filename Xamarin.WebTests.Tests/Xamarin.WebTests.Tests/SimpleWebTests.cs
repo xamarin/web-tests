@@ -80,6 +80,16 @@ namespace Xamarin.WebTests.Tests
 				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 
 		}
+
+		[AsyncTest] [New]
+		public void EmptyNewCategory ()
+		{
+		}
+
+		[AsyncTest] [Work]
+		public void EmptyWorkCategory ()
+		{
+		}
 	}
 }
 
