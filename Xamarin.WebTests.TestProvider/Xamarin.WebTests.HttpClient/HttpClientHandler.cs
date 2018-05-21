@@ -27,6 +27,7 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 using Http = System.Net.Http;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.HttpClient;
@@ -59,6 +60,10 @@ namespace Xamarin.WebTests.HttpClient
 		{
 			var message = new Http.HttpRequestMessage (HttpRequestMessage.GetMethod (method), requestUri);
 			return new HttpRequestMessage (message);
+		}
+
+		public X509CertificateCollection ClientCertificates {
+			get => handler.ClientCertificates;
 		}
 
 		public ICredentials Credentials {

@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.HttpClient
 {
@@ -43,6 +44,10 @@ namespace Xamarin.WebTests.HttpClient
 		IHttpRequestMessage CreateRequestMessage ();
 
 		IHttpRequestMessage CreateRequestMessage (HttpMethod method, Uri requestUri);
+
+		X509CertificateCollection ClientCertificates {
+			get;
+		}
 
 		bool AutomaticDecompression {
 			get; set;
