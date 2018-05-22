@@ -30,7 +30,8 @@ using Xamarin.AsyncTests.Remoting;
 
 namespace Xamarin.AsyncTests.Test
 {
-	class MainClass : IForkedSupport
+	[Serializable]
+	class MainClass : IForkedDomainSetup, IForkedSupport
 	{
 		public bool SupportsProcessForks => true;
 
@@ -40,10 +41,16 @@ namespace Xamarin.AsyncTests.Test
 			main.Run (args);
 		}
 
+		public void Initialize ()
+		{
+			DependencyInjector.RegisterDependency<IForkedSupport> (() => this);
+		}
+
 		void Run (string[] args)
 		{
 			DependencyInjector.RegisterAssembly (typeof (MainClass).Assembly);
 			DependencyInjector.RegisterDependency<IForkedSupport> (() => this);
+			DependencyInjector.RegisterDependency<IForkedDomainSetup> (() => this);
 			DependencyInjector.RegisterDependency<IForkedProcessLauncher> (() => new ForkedProcessLauncher ());
 
 			Program.Run (typeof (MainClass).Assembly, args);
