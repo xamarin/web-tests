@@ -137,6 +137,9 @@
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\ReverseForkedHost.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\ReverseForkedHostAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunReverseFork.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\AbstractForkedFixture.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\AbstractForkedFixtureImpl.cs" />
+    <Compile Include="Xamarin.AsyncTests.FrameworkTests\RunAbstractForkedFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">

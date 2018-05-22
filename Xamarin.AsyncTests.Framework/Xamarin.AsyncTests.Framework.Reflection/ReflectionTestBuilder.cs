@@ -326,11 +326,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		protected void ResolveFixtureProperties (bool instance)
 		{
-			foreach (var property in Fixture.Type.DeclaredProperties) {
-				var host = ReflectionHelper.ResolveFixtureProperty (Fixture.Type, property, instance);
-				if (host == null)
-					continue;
-				Add (new ReflectionTestParameterBuilder (current, host));
+			for (var type = Fixture.Type; type != null; type = type.BaseType?.GetTypeInfo ()) {
+				foreach (var property in type.DeclaredProperties) {
+					var host = ReflectionHelper.ResolveFixtureProperty (Fixture.Type, property, instance);
+					if (host == null)
+						continue;
+					Add (new ReflectionTestParameterBuilder (current, host));
+				}
 			}
 		}
 	}
