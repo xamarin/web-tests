@@ -151,6 +151,7 @@
     <Compile Include="Xamarin.WebTests.HttpRequestTests\RequestClientCertificate.cs" />
     <Compile Include="Xamarin.WebTests.HttpRequestTests\Renegotiate.cs" />
     <Compile Include="Xamarin.WebTests.HttpRequestTests\RenegotiateWithCustomCallback.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientInstrumentation\RequestClientCertificate.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
