@@ -55,6 +55,10 @@ namespace Xamarin.AsyncTests.Remoting
 			get;
 		}
 
+		internal abstract IPortableEndPoint EndPoint {
+			get;
+		}
+
 		protected TestServer (TestApp app)
 		{
 			App = app;
@@ -209,16 +213,18 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
-		public static async Task<TestServer> ForkApplication (TestApp app, IPortableEndPoint address, CancellationToken cancellationToken)
+		public static async Task<TestServer> ForkApplication (TestApp app, CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IServerHost> ();
-			var connection = await support.Listen (address, cancellationToken).ConfigureAwait (false);
+			var connection = await support.Listen (null, cancellationToken).ConfigureAwait (false);
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var sb = new StringBuilder ();
 
 			if (!string.IsNullOrWhiteSpace (app.PackageName))
 				sb.Append ($"--package-name={app.PackageName} ");
+
+			var address = connection.EndPoint;
 
 			sb.AppendFormat ($"fork {address.Address}:{address.Port}");
 
@@ -239,11 +245,10 @@ namespace Xamarin.AsyncTests.Remoting
 		static int nextDomainId;
 
 		public static async Task<TestServer> ForkAppDomain (
-			TestApp app, IPortableEndPoint address, string domainName,
-			CancellationToken cancellationToken)
+			TestApp app, string domainName, CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IServerHost> ();
-			var connection = await support.Listen (address, cancellationToken).ConfigureAwait (false);
+			var connection = await support.Listen (null, cancellationToken).ConfigureAwait (false);
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			if (string.IsNullOrEmpty (domainName))
@@ -252,7 +257,7 @@ namespace Xamarin.AsyncTests.Remoting
 			var launcher = DependencyInjector.Get<IExternalDomainSupport> ();
 			var host = launcher.Create (app, domainName);
 
-			await host.Start (address, cancellationToken).ConfigureAwait (false);
+			await host.Start (connection.EndPoint, cancellationToken).ConfigureAwait (false);
 
 			var stream = await connection.Open (cancellationToken);
 			cancellationToken.ThrowIfCancellationRequested ();
@@ -306,6 +311,8 @@ namespace Xamarin.AsyncTests.Remoting
 
 			internal override Connection Connection => throw new InternalErrorException ();
 
+			internal override IPortableEndPoint EndPoint => throw new InternalErrorException ();
+
 			public LocalTestServer (TestApp app, TestFramework framework)
 				: base (app)
 			{
@@ -335,6 +342,8 @@ namespace Xamarin.AsyncTests.Remoting
 			Task serverTask;
 
 			internal override Connection Connection => server;
+
+			internal override IPortableEndPoint EndPoint => throw new InternalErrorException ();
 
 			public Server (TestApp app, TestFramework framework, ServerConnection server)
 				: base (app)
@@ -383,6 +392,8 @@ namespace Xamarin.AsyncTests.Remoting
 			Task clientTask;
 
 			internal override Connection Connection => client;
+
+			internal override IPortableEndPoint EndPoint => throw new InternalErrorException ();
 
 			public Client (TestApp app, ClientConnection client)
 				: base (app)

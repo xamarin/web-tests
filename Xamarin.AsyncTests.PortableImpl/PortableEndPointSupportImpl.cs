@@ -48,8 +48,15 @@ namespace Xamarin.AsyncTests.Portable
 			return new PortableEndpoint (new IPEndPoint (ip, port));
 		}
 
+		public static IPortableEndPoint GetEndpoint (IPEndPoint endpoint)
+		{
+			return new PortableEndpoint (endpoint);
+		}
+
 		public static IPEndPoint GetEndpoint (IPortableEndPoint endpoint)
 		{
+			if (endpoint == null)
+				return null;
 			if (endpoint is PortableEndpoint portable)
 				return portable;
 			var address = IPAddress.Parse (endpoint.Address);

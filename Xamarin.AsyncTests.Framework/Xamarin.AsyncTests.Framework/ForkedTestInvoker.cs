@@ -127,13 +127,6 @@ namespace Xamarin.AsyncTests.Framework
 			throw new InternalErrorException ();
 		}
 
-		IPortableEndPoint GetEndPoint ()
-		{
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			var port = TestContext.GetUniquePort ();
-			return support.GetLoopbackEndpoint (port);
-		}
-
 		TestInstance CreateInstance (TestContext ctx, TestInstance parent)
 		{
 			return Host.CreateInstance (ctx, Node, parent);
@@ -213,15 +206,13 @@ namespace Xamarin.AsyncTests.Framework
 			case ForkType.Domain:
 			case ForkType.ReverseDomain:
 				server = await TestServer.ForkAppDomain (
-					builder.App, GetEndPoint (),
-					Host.Attribute.DomainName, cancellationToken).ConfigureAwait (false);
+					builder.App, Host.Attribute.DomainName, cancellationToken).ConfigureAwait (false);
 				session = server.Session;
 				break;
 			case ForkType.Fork:
 			case ForkType.ReverseFork:
 				server = await TestServer.ForkApplication (
-					builder.App, GetEndPoint (),
-					cancellationToken).ConfigureAwait (false);
+					builder.App, cancellationToken).ConfigureAwait (false);
 				session = server.Session;
 				break;
 			default:

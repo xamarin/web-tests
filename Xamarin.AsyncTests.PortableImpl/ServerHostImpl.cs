@@ -46,9 +46,9 @@ namespace Xamarin.AsyncTests.Portable
 		{
 			return Task.Run<IServerConnection> (() => {
 				var networkEndpoint = PortableEndPointSupportImpl.GetEndpoint (endpoint);
-				var listener = new TcpListener (networkEndpoint);
-				listener.Start ();
-				Debug.WriteLine ("Server started: {0}", listener.LocalEndpoint);
+				var listener = new SocketListener ();
+				listener.Start (networkEndpoint);
+				Debug.WriteLine ("Server started: {0}", listener.LocalEndPoint);
 				return new ServerConnection (listener);
 			});
 		}
@@ -66,8 +66,8 @@ namespace Xamarin.AsyncTests.Portable
 #if !__TVOS__
 			return Task.Run<IPipeConnection> (() => {
 				var networkEndpoint = PortableEndPointSupportImpl.GetEndpoint (endpoint);
-				var listener = new TcpListener (networkEndpoint);
-				listener.Start ();
+				var listener = new SocketListener ();
+				listener.Start (networkEndpoint);
 
 				var monoPath = Path.Combine (arguments.MonoPrefix, "bin", "mono");
 
@@ -117,7 +117,7 @@ namespace Xamarin.AsyncTests.Portable
 				private set;
 			}
 
-			public PipeConnection (TcpListener listener, Process process)
+			public PipeConnection (SocketListener listener, Process process)
 				: base (listener)
 			{
 				Process = process;
@@ -164,6 +164,8 @@ namespace Xamarin.AsyncTests.Portable
 				private set;
 			}
 
+			IPortableEndPoint IServerConnection.EndPoint => throw new InternalErrorException ();
+
 			public Task<Stream> Open (CancellationToken cancellationToken)
 			{
 				return Task.Run<Stream> (() => {
@@ -197,14 +199,15 @@ namespace Xamarin.AsyncTests.Portable
 
 		class ServerConnection : IServerConnection
 		{
-			TcpListener listener;
+			SocketListener listener;
 			Socket socket;
 			NetworkStream stream;
 
-			public ServerConnection (TcpListener listener)
+			public ServerConnection (SocketListener listener)
 			{
 				this.listener = listener;
-				Name = listener.LocalEndpoint.ToString ();
+				Name = listener.LocalEndPoint.ToString ();
+				EndPoint = PortableEndPointSupportImpl.GetEndpoint (listener.LocalEndPoint);
 			}
 
 			public string Name {
@@ -212,13 +215,17 @@ namespace Xamarin.AsyncTests.Portable
 				private set;
 			}
 
+			public IPortableEndPoint EndPoint {
+				get;
+			}
+
 			public async Task<Stream> Open (CancellationToken cancellationToken)
 			{
 				var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-				cts.Token.Register (() => listener.Stop ());
+				cts.Token.Register (() => listener.Dispose ());
 
 				try {
-					socket = await listener.AcceptSocketAsync ();
+					socket = await listener.AcceptSocketAsync (cancellationToken).ConfigureAwait (false);
 					cts.Token.ThrowIfCancellationRequested ();
 				} catch (Exception ex) {
 					if (!cancellationToken.IsCancellationRequested)
@@ -250,7 +257,7 @@ namespace Xamarin.AsyncTests.Portable
 					;
 				}
 				try {
-					listener.Stop ();
+					listener.Dispose ();
 				} catch {
 					;
 				}

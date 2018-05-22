@@ -36,6 +36,10 @@ namespace Xamarin.AsyncTests.Portable
 			get;
 		}
 
+		IPortableEndPoint EndPoint {
+			get;
+		}
+
 		Task<Stream> Open (CancellationToken cancellationToken);
 
 		void Close ();
