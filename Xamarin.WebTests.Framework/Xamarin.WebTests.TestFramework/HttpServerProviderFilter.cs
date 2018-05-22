@@ -62,6 +62,8 @@ namespace Xamarin.WebTests.TestFramework
 			RequireCleanShutdown = (ServerFlags & HttpServerFlags.RequireCleanShutdown) != 0;
 			RequireSsl |= RequireRenegotiation;
 
+			Optional |= RequireRenegotiation | RequireCleanShutdown;
+
 			switch (Category) {
 			case HttpServerTestCategory.HttpListener:
 				UsingHttpListener = true;
@@ -215,6 +217,12 @@ namespace Xamarin.WebTests.TestFramework
 			}
 
 			if (setup.UsingDotNet && (ServerFlags & HttpServerFlags.RequireMono) != 0)
+				yield break;
+
+			if (RequireCleanShutdown && !setup.SupportsCleanShutdown)
+				yield break;
+
+			if (RequireRenegotiation && !setup.SupportsRenegotiation)
 				yield break;
 
 			if (!RequireSsl && !IsMartinTest && SupportsHttp) {

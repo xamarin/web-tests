@@ -34,10 +34,8 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 	using ConnectionFramework;
 	using TestAttributes;
 	using TestFramework;
-	using HttpFramework;
-	using TestRunners;
 
-	[HttpServerFlags (HttpServerFlags.RequireCleanShutdown)]
+	[ConnectionTestFlags (ConnectionTestFlags.RequireCleanShutdown)]
 	public class DisposeInstrumentation : StreamInstrumentationTestFixture
 	{
 		protected override bool UseCleanShutdown => true;
