@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
@@ -33,15 +34,22 @@ namespace Xamarin.WebTests.SslStreamTests
 {
 	using TestFramework;
 	using TestAttributes;
-	using HttpFramework;
-	using HttpHandlers;
 	using TestRunners;
 
 	[AsyncTestFixture (Prefix = "SslStreamTests")]
+	[Fork (ForkType.FromContext)]
 	[ConnectionTestFlags (ConnectionTestFlags.RequireSslStream)]
-	public abstract class SslStreamTestFixture : SslStreamTestRunner
+	public abstract class SslStreamTestFixture : SslStreamTestRunner, IForkedTestInstance
 	{
 		protected override string LogCategory => LogCategories.StreamInstrumentationTestRunner;
+
+		[FixtureParameter]
+		public virtual ForkType ForkType => ForkType.None;
+
+		protected bool IsForked {
+			get;
+			private set;
+		}
 
 		[AsyncTest]
 		public static Task Run (
@@ -61,6 +69,69 @@ namespace Xamarin.WebTests.SslStreamTests
 			SslStreamTestFixture fixture)
 		{
 			return fixture.Run (ctx, cancellationToken);
+		}
+
+		protected virtual void Serialize (TestContext ctx, XElement element)
+		{
+		}
+
+		protected virtual void Deserialize (TestContext ctx, XElement element)
+		{
+			IsForked = true;
+		}
+
+		void IForkedTestInstance.Serialize (TestContext ctx, XElement element) => Serialize (ctx, element);
+
+		void IForkedTestInstance.Deserialize (TestContext ctx, XElement element) => Deserialize (ctx, element);
+
+		protected override Task StartClient (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return base.StartClient (ctx, cancellationToken);
+		}
+
+		protected override Task StartServer (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return base.StartServer (ctx, cancellationToken);
+		}
+
+		bool CheckForkedContext ()
+		{
+			if (ForkType != ForkType.None && !IsForked)
+				return false;
+			return true;
+		}
+
+		protected override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (!CheckForkedContext ())
+				return FinishedTask;
+			return base.PreRun (ctx, cancellationToken);
+		}
+
+		protected override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (!CheckForkedContext ())
+				return FinishedTask;
+			return base.PostRun (ctx, cancellationToken);
+		}
+
+		protected sealed override Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (!CheckForkedContext ())
+				return FinishedTask;
+			return base.Initialize (ctx, cancellationToken);
+		}
+
+		protected override Task Destroy (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (!CheckForkedContext ())
+				return FinishedTask;
+			return base.Destroy (ctx, cancellationToken);
+		}
+
+		protected override void Stop ()
+		{
+			base.Stop ();
 		}
 	}
 }

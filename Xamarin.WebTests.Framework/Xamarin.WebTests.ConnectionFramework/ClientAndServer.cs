@@ -237,8 +237,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (Interlocked.CompareExchange (ref stopCalled, 1, 0) != 0)
 				throw new InternalErrorException ();
 
-			Client.Dispose ();
-			Server.Dispose ();
+			Client?.Dispose ();
+			Server?.Dispose ();
 		}
 
 		public async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)

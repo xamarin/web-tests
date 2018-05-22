@@ -38,7 +38,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			CleanShutdown = other.CleanShutdown;
 			ClientApiType = other.ClientApiType;
 			ServerApiType = other.ServerApiType;
-			GlobalValidationFlags = other.GlobalValidationFlags;
 			if (other.ValidationParameters != null)
 				ValidationParameters = other.ValidationParameters.DeepClone ();
 		}
@@ -112,10 +111,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public bool EnableDebugging {
 			get;
 			set;
-		}
-
-		public GlobalValidationFlags GlobalValidationFlags {
-			get; set;
 		}
 
 		public SslPolicyErrors? ExpectPolicyErrors {

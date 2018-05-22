@@ -66,6 +66,7 @@ namespace Xamarin.WebTests.TestFramework
 			ChunkedResponse = other.ChunkedResponse;
 			ExpectedStatus = other.ExpectedStatus;
 			ExpectedError = other.ExpectedError;
+			GlobalValidationFlags = other.GlobalValidationFlags;
 			Flags = other.Flags;
 		}
 
@@ -105,6 +106,10 @@ namespace Xamarin.WebTests.TestFramework
 		public WebExceptionStatus ExpectedError {
 			get { return exepectedError; }
 			set { exepectedError = value; }
+		}
+
+		public GlobalValidationFlags GlobalValidationFlags {
+			get; set;
 		}
 
 		public HttpOperationFlags Flags {

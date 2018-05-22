@@ -115,33 +115,8 @@ namespace Xamarin.WebTests.TestRunners
 			base.OnWaitForClientConnectionCompleted (ctx, task);
 		}
 
-		RemoteCertificateValidationCallback savedGlobalCallback;
-		TestContext savedContext;
-		bool restoreGlobalCallback;
-
-		void SetGlobalValidationCallback (TestContext ctx, RemoteCertificateValidationCallback callback)
-		{
-			savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
-			ServicePointManager.ServerCertificateValidationCallback = callback;
-			savedContext = ctx;
-			restoreGlobalCallback = true;
-		}
-
-		bool GlobalValidator (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
-		{
-			savedContext.AssertFail ("Global validator has been invoked!");
-			return false;
-		}
-
 		protected override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
-
-			if (Parameters.GlobalValidationFlags == GlobalValidationFlags.MustNotInvoke)
-				SetGlobalValidationCallback (ctx, GlobalValidator);
-			else if (Parameters.GlobalValidationFlags != 0)
-				ctx.AssertFail ("Invalid GlobalValidationFlags");
-
 			ctx.Assert (Parameters.ExpectChainStatus, Is.Null, "Parameters.ExpectChainStatus");
 			ctx.Assert (Parameters.ExpectPolicyErrors, Is.Null, "Parameters.ExpectPolicyErrors");
 
@@ -150,9 +125,6 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (restoreGlobalCallback)
-				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
-
 			return base.PostRun (ctx, cancellationToken);
 		}
 	}

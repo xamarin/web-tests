@@ -24,21 +24,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.SslStreamTests
 {
 	using ConnectionFramework;
+	using TestAttributes;
 	using Resources;
 
+	[New]
 	public class MustNotInvokeGlobalValidator2 : SslStreamTestFixture
 	{
+		public override ForkType ForkType => ForkType.Domain;
+
 		protected override ConnectionParameters CreateParameters (TestContext ctx)
 		{
 			return new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
-				GlobalValidationFlags = GlobalValidationFlags.MustNotInvoke,
 				ExpectClientException = true
 			};
+		}
+
+		protected override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			ServicePointManager.ServerCertificateValidationCallback = (s, c, ch, e) => throw ctx.AssertFail ("Global validator has been invoked!");
+			return base.PreRun (ctx, cancellationToken);
 		}
 	}
 }
