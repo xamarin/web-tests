@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 	using HttpFramework;
 	using TestRunners;
 
-	[HttpServerFlags (HttpServerFlags.InternalVersionTwo)]
+	[HttpServerFlags (HttpServerFlags.RequireCleanShutdown)]
 	public class DisposeInstrumentation : StreamInstrumentationTestFixture
 	{
 		protected override bool UseCleanShutdown => true;
