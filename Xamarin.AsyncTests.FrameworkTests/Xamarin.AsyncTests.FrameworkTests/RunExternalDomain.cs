@@ -74,14 +74,22 @@ namespace Xamarin.AsyncTests.FrameworkTests
 			ctx.Assert (messageEvents.Count, Is.EqualTo (1));
 			ctx.Assert (messageEvents[0].Text, Is.EqualTo (ExternalDomain.HelloMessage));
 
-			ctx.Assert (logger.Statistics.Count, Is.EqualTo (2));
+			ctx.Assert (logger.Statistics.Count, Is.EqualTo (4));
 			ctx.Assert (logger.Statistics[0].Type,
 				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Running));
 			ctx.Assert (logger.Statistics[0].Status,
 				    Is.EqualTo (TestStatus.Success));
 			ctx.Assert (logger.Statistics[1].Type,
-				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Finished));
+				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Running));
 			ctx.Assert (logger.Statistics[1].Status,
+				    Is.EqualTo (TestStatus.Success));
+			ctx.Assert (logger.Statistics[2].Type,
+				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Finished));
+			ctx.Assert (logger.Statistics[2].Status,
+				    Is.EqualTo (TestStatus.Success));
+			ctx.Assert (logger.Statistics[3].Type,
+				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Finished));
+			ctx.Assert (logger.Statistics[3].Status,
 				    Is.EqualTo (TestStatus.Success));
 
 			base.CheckLogging (ctx, logger);

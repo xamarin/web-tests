@@ -185,8 +185,8 @@ namespace Xamarin.AsyncTests.Framework
 			ctx.OnTestRunning ();
 
 			try {
-				await ExternalFork (ctx, instance, cancellationToken);
-				ctx.OnTestFinished (TestStatus.Success, DateTime.Now - startTime);
+				var result = await ExternalFork (ctx, instance, cancellationToken).ConfigureAwait (false);
+				ctx.OnTestFinished (result.Status, DateTime.Now - startTime);
 				return true;
 			} catch (OperationCanceledException) {
 				ctx.OnTestCanceled ();
@@ -197,7 +197,7 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		async Task ExternalFork (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
+		async Task<TestResult> ExternalFork (TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
 			var builder = GetSuiteBuilder (instance);
 
@@ -258,12 +258,12 @@ namespace Xamarin.AsyncTests.Framework
 				await session.Shutdown (cancellationToken).ConfigureAwait (false);
 
 				ctx.LogDebug (LogCategory, 1, $"RUN DONE #1");
+
+				return result;
 			} finally {
 				if (server != null)
 					await server.Stop (cancellationToken);
 			}
-
-			ctx.LogDebug (LogCategory, 1, $"RUN DONE #2");
 		}
 	}
 }

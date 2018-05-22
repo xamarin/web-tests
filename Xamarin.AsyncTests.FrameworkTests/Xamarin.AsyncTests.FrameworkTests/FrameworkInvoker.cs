@@ -143,6 +143,30 @@ namespace Xamarin.AsyncTests.FrameworkTests
 			var filteredEvents = logger.Events.Where (
 				e => e.Kind == TestLoggerBackend.EntryKind.Error);
 			ctx.Assert (filteredEvents.Count, Is.EqualTo (0));
+			ctx.Assert (logger.Statistics.Count, Is.EqualTo (4));
+			ctx.Assert (logger.Statistics[0].Type,
+				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Running));
+			ctx.Assert (logger.Statistics[0].Status,
+				    Is.EqualTo (TestStatus.Success));
+			ctx.Assert (logger.Statistics[1].Type,
+				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Running));
+			ctx.Assert (logger.Statistics[1].Status,
+				    Is.EqualTo (TestStatus.Success));
+			ctx.Assert (logger.Statistics[2].Type,
+				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Finished));
+			ctx.Assert (logger.Statistics[2].Status,
+				    Is.EqualTo (TestStatus.Success));
+			ctx.Assert (logger.Statistics[3].Type,
+				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Finished));
+			ctx.Assert (logger.Statistics[3].Status,
+				    Is.EqualTo (TestStatus.Success));
+		}
+
+		protected void CheckStartAndFinishNonForked (TestContext ctx, FrameworkLogger logger)
+		{
+			var filteredEvents = logger.Events.Where (
+				e => e.Kind == TestLoggerBackend.EntryKind.Error);
+			ctx.Assert (filteredEvents.Count, Is.EqualTo (0));
 			ctx.Assert (logger.Statistics.Count, Is.EqualTo (2));
 			ctx.Assert (logger.Statistics[0].Type,
 				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Running));
@@ -159,15 +183,27 @@ namespace Xamarin.AsyncTests.FrameworkTests
 			var filteredEvents = logger.Events.Where (
 				e => e.Kind == TestLoggerBackend.EntryKind.Error);
 			ctx.Assert (filteredEvents.Count, Is.EqualTo (1));
-			ctx.Assert (logger.Statistics.Count, Is.EqualTo (2));
+			ctx.Assert (logger.Statistics.Count, Is.EqualTo (5));
 			ctx.Assert (logger.Statistics[0].Type,
 				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Running));
 			ctx.Assert (logger.Statistics[0].Status,
 				    Is.EqualTo (TestStatus.Success));
 			ctx.Assert (logger.Statistics[1].Type,
-				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Finished));
+			            Is.EqualTo (TestLoggerBackend.StatisticsEventType.Running));
 			ctx.Assert (logger.Statistics[1].Status,
+				    Is.EqualTo (TestStatus.Success));
+			ctx.Assert (logger.Statistics[2].Type,
+				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Finished));
+			ctx.Assert (logger.Statistics[2].Status,
 			            Is.EqualTo (TestStatus.Error));
+			ctx.Assert (logger.Statistics[3].Type,
+				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Finished));
+			ctx.Assert (logger.Statistics[3].Status,
+				    Is.EqualTo (TestStatus.Error));
+			ctx.Assert (logger.Statistics[4].Type,
+				    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Finished));
+			ctx.Assert (logger.Statistics[4].Status,
+				    Is.EqualTo (TestStatus.Error));
 		}
 
 		class MyApp : TestApp

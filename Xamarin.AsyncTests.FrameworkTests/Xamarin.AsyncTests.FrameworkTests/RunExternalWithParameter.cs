@@ -93,15 +93,23 @@ namespace Xamarin.AsyncTests.FrameworkTests
 			var filteredEvents = logger.Events.Where (
 				e => e.Kind == TestLoggerBackend.EntryKind.Error);
 			ctx.Assert (filteredEvents.Count, Is.EqualTo (0));
-			ctx.Assert (logger.Statistics.Count, Is.EqualTo (6));
+			ctx.Assert (logger.Statistics.Count, Is.EqualTo (12));
 			for (int i = 0; i < 3; i++) {
-				ctx.Assert (logger.Statistics[i << 1].Type,
+				ctx.Assert (logger.Statistics[i << 2].Type,
 					    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Running));
-				ctx.Assert (logger.Statistics[i << 1].Status,
+				ctx.Assert (logger.Statistics[i << 2].Status,
 					    Is.EqualTo (TestStatus.Success));
-				ctx.Assert (logger.Statistics[(i << 1) + 1].Type,
+				ctx.Assert (logger.Statistics[(i << 2) + 1].Type,
+					    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Running));
+				ctx.Assert (logger.Statistics[(i << 2) + 1].Status,
+					    Is.EqualTo (TestStatus.Success));
+				ctx.Assert (logger.Statistics[(i << 2) + 2].Type,
 					    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Finished));
-				ctx.Assert (logger.Statistics[(i << 1) + 1].Status,
+				ctx.Assert (logger.Statistics[(i << 2) + 2].Status,
+					    Is.EqualTo (TestStatus.Success));
+				ctx.Assert (logger.Statistics[(i << 2) + 3].Type,
+					    Is.EqualTo (TestLoggerBackend.StatisticsEventType.Finished));
+				ctx.Assert (logger.Statistics[(i << 2) + 3].Status,
 					    Is.EqualTo (TestStatus.Success));
 			}
 			base.CheckLogging (ctx, logger);

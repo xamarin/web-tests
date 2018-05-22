@@ -68,7 +68,7 @@ namespace Xamarin.AsyncTests.FrameworkTests
 
 		protected override void CheckLogging (TestContext ctx, FrameworkLogger logger)
 		{
-			CheckStartAndFinish (ctx, logger);
+			CheckStartAndFinishNonForked (ctx, logger);
 
 			var messageEvents = logger.Events.Where (
 				e => e.Kind == TestLoggerBackend.EntryKind.Message).ToList ();
