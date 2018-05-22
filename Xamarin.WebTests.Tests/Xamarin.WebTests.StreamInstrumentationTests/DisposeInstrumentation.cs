@@ -34,9 +34,10 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 	using ConnectionFramework;
 	using TestAttributes;
 	using TestFramework;
+	using HttpFramework;
 	using TestRunners;
 
-	[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationNewWebStack)]
+	[HttpServerFlags (HttpServerFlags.InternalVersionTwo)]
 	public class DisposeInstrumentation : StreamInstrumentationTestFixture
 	{
 		protected override bool UseCleanShutdown => true;

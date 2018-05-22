@@ -32,9 +32,12 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.StreamInstrumentationTests
 {
 	using ConnectionFramework;
+	using TestAttributes;
 	using TestFramework;
+	using HttpFramework;
 	using TestRunners;
 
+	[HttpServerFlags (HttpServerFlags.InternalVersionTwo)]
 	public class ShortReadAndClose : StreamInstrumentationTestFixture
 	{
 		protected override bool UseCleanShutdown => true;
