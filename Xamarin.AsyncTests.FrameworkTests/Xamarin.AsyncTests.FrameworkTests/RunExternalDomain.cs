@@ -31,6 +31,7 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.AsyncTests.FrameworkTests
 {
+	[Martin ("Test")]
 	[ForkedSupport]
 	public class RunExternalDomain : FrameworkInvoker
 	{

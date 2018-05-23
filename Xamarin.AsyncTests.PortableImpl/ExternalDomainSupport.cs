@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Reflection;
 
-namespace Xamarin.AsyncTests.Console
+namespace Xamarin.AsyncTests.Portable
 {
 	using Framework;
 	using Remoting;
@@ -48,10 +48,10 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
-		public ExternalDomainSupport (Program program)
+		public ExternalDomainSupport (Assembly assembly, Assembly[] dependencies)
 		{
-			Assembly = program.Assembly;
-			Dependencies = program.Options.Dependencies;
+			Assembly = assembly;
+			Dependencies = dependencies;
 			if (DependencyInjector.TryGet<IForkedDomainSetup> (out var setup))
 				DomainSetup = setup;
 		}

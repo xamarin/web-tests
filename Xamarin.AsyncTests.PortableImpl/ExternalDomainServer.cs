@@ -28,10 +28,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using SD = System.Diagnostics;
 
-namespace Xamarin.AsyncTests.Console
+namespace Xamarin.AsyncTests.Portable
 {
 	using Framework;
-	using Portable;
 	using Remoting;
 
 	class ExternalDomainServer : MarshalByRefObject, TestApp
@@ -64,7 +63,13 @@ namespace Xamarin.AsyncTests.Console
 
 		TestServer server;
 		TestFramework framework;
+		TestSession session;
 		CancellationTokenSource cts;
+
+		static void Debug (string message)
+		{
+			System.Console.Error.WriteLine (message);
+		}
 
 		public void Cancel ()
 		{
@@ -89,6 +94,8 @@ namespace Xamarin.AsyncTests.Console
 				PackageName, Support.Assembly,
 				Support.Dependencies);
 
+			session = TestSession.CreateLocal (this, framework);
+
 			TestServer.ConnectToForkedParent (
 				this, address, framework, cts.Token).ContinueWith (OnStarted);
 		}
@@ -104,7 +111,7 @@ namespace Xamarin.AsyncTests.Console
 				return;
 			}
 			server = task.Result;
-			Program.Debug ($"Connected to forked parent.");
+			Debug ($"Connected to forked parent.");
 			Host.OnServerStarted ();
 
 			try {
@@ -112,15 +119,15 @@ namespace Xamarin.AsyncTests.Console
 
 				await server.Session.WaitForShutdown (cts.Token).ConfigureAwait (false);
 
-				Program.Debug ($"Forked child session exited.");
+				Debug ($"Forked child session exited.");
 
 				await server.WaitForExit (cts.Token);
 
-				Program.Debug ($"Forked child done.");
+				Debug ($"Forked child done.");
 
 				await server.Stop (cts.Token);
 
-				Program.Debug ($"Forked child exiting.");
+				Debug ($"Forked child exiting.");
 
 				Host.OnCompleted ();
 			} catch (OperationCanceledException) {

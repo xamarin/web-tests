@@ -27,7 +27,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Console
+namespace Xamarin.AsyncTests.Portable
 {
 	using Framework;
 	using Portable;

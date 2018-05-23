@@ -54,9 +54,6 @@
     <Compile Include="ProgramOptions.cs" />
     <Compile Include="ProgramException.cs" />
     <Compile Include="ForkedProcessLauncher.cs" />
-    <Compile Include="ExternalDomainSupport.cs" />
-    <Compile Include="ExternalDomainServer.cs" />
-    <Compile Include="ExternalDomainHost.cs" />
   </ItemGroup>
   <Import Project="..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

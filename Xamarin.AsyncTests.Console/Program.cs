@@ -195,7 +195,7 @@ namespace Xamarin.AsyncTests.Console
 			ExternalDomainSupport domainSupport = null;
 			switch (Options.Command) {
 			case Command.Local:
-				domainSupport = new ExternalDomainSupport (this);
+				domainSupport = new ExternalDomainSupport (Options.Assembly, Options.Dependencies);
 				break;
 			}
 

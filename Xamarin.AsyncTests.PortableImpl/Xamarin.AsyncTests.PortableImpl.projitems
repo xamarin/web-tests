@@ -15,5 +15,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)PortableDependencyProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PortableTaskSupportImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SocketListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExternalDomainHost.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExternalDomainServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExternalDomainSupport.cs" />
   </ItemGroup>
 </Project>
