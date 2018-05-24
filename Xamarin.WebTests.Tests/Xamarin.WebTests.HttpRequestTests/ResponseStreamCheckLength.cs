@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.GZip)]
+	[HttpServerFlags (HttpServerFlags.RequireGZip)]
 	public class ResponseStreamCheckLength : RequestTestFixture
 	{
 		public bool UseChunkedEncoding {

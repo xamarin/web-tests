@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.Instrumentation)]
+	[HttpServerFlags (HttpServerFlags.RequireInstrumentation)]
 	[AsyncTestFixture (Prefix = "HttpInstrumentationTests")]
 	public abstract class HttpInstrumentationTestFixture
 		: InstrumentationTestRunner
@@ -55,7 +55,6 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 
 		[AsyncTest]
 		[Martin (null, UseFixtureName = true)]
-		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
 		public static Task MartinTest (
 			TestContext ctx, CancellationToken cancellationToken,
 			HttpServerProvider provider,

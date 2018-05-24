@@ -40,7 +40,6 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.Ignore)]
 	public class WritingBodyThrows : RequestTestFixture
 	{
 		public sealed override HttpContent ExpectedContent => throw new InvalidOperationException ();

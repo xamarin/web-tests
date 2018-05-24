@@ -38,7 +38,6 @@ namespace Xamarin.WebTests.HttpClientTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.Default)]
 	public class ChunkSizeWithLeadingZero : HttpClientTestFixture
 	{
 		public HttpContent Content {

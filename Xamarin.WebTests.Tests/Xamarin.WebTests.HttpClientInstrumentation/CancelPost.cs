@@ -40,7 +40,6 @@ namespace Xamarin.WebTests.HttpClientInstrumentation
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.RecentlyFixed)]
 	public class CancelPost : HttpClientInstrumentationFixture
 	{
 		public override HttpOperationFlags OperationFlags => HttpOperationFlags.ServerAbortsHandshake;

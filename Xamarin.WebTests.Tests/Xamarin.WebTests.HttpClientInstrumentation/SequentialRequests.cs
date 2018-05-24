@@ -42,7 +42,7 @@ namespace Xamarin.WebTests.HttpClientInstrumentation
 	using TestRunners;
 
 	[HttpClientUsesServicePoint]
-	[HttpServerTestCategory (HttpServerTestCategory.Instrumentation)]
+	[HttpServerFlags (HttpServerFlags.RequireInstrumentation)]
 	public class SequentialRequests : HttpClientInstrumentationFixture
 	{
 		public override HttpContent ExpectedContent => HttpContent.TheQuickBrownFox;

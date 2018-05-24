@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.GZip)]
+	[HttpServerFlags (HttpServerFlags.RequireGZip)]
 	public class GZipWithLength : RequestTestFixture
 	{
 		HttpContent Content {

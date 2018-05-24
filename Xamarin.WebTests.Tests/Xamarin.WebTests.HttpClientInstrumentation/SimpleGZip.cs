@@ -38,7 +38,7 @@ namespace Xamarin.WebTests.HttpClientInstrumentation
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.GZip)]
+	[HttpServerFlags (HttpServerFlags.RequireGZip)]
 	public class SimpleGZip : HttpClientInstrumentationFixture
 	{
 		public override HttpContent ExpectedContent => HttpContent.TheQuickBrownFox;

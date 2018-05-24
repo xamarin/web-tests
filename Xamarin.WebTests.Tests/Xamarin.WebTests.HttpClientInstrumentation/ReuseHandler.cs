@@ -43,7 +43,6 @@ namespace Xamarin.WebTests.HttpClientInstrumentation
 	using TestRunners;
 
 	[HttpClientUsesServicePoint]
-	[HttpServerTestCategory (HttpServerTestCategory.Default)]
 	public class ReuseHandler : HttpClientInstrumentationFixture
 	{
 		public override HttpContent ExpectedContent => HttpContent.TheQuickBrownFox;

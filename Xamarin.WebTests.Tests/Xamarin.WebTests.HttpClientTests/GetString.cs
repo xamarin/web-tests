@@ -35,7 +35,6 @@ namespace Xamarin.WebTests.HttpClientTests
 	using HttpFramework;
 	using HttpHandlers;
 
-	[HttpServerTestCategory (HttpServerTestCategory.Default)]
 	public class GetString : HttpClientTestFixture
 	{
 		public override Handler CreateHandler (TestContext ctx)

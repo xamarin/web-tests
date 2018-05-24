@@ -38,7 +38,7 @@ namespace Xamarin.WebTests.HttpListenerTests
 	using TestRunners;
 
 	[AsyncTestFixture (Prefix = "HttpListenerTests")]
-	[HttpServerTestCategory (HttpServerTestCategory.HttpListener)]
+	[HttpServerFlags (HttpServerFlags.HttpListener)]
 	public abstract class HttpListenerTestFixture : InstrumentationTestRunner
 	{
 		[AsyncTest]
@@ -54,7 +54,6 @@ namespace Xamarin.WebTests.HttpListenerTests
 		[AsyncTest]
 		[Martin (null, UseFixtureName = true)]
 		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
 		public static Task MartinTest (
 			TestContext ctx, CancellationToken cancellationToken,
 			HttpServerProvider provider,

@@ -62,7 +62,6 @@ namespace Xamarin.WebTests.SslStreamTests
 
 		[AsyncTest]
 		[Martin (null, UseFixtureName = true)]
-		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
 		public static Task MartinTest (
 			TestContext ctx, CancellationToken cancellationToken,
 			ConnectionTestProvider provider,

@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.HttpClientInstrumentation
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.Instrumentation)]
+	[HttpServerFlags (HttpServerFlags.RequireInstrumentation)]
 	public class ParallelRequests : HttpClientInstrumentationFixture
 	{
 		protected override bool ConfigureNetworkStream (

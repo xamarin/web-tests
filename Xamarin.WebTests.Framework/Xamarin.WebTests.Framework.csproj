@@ -176,9 +176,7 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\GZipContent.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IGZipProvider.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\HttpServerProvider.cs" />
-    <Compile Include="Xamarin.WebTests.TestFramework\HttpServerTestCategory.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\HttpServerProviderFilter.cs" />
-    <Compile Include="Xamarin.WebTests.TestAttributes\HttpServerTestCategoryAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\CertificateResourceTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\CertificateStoreAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\CleanShutdownAttribute.cs" />

@@ -37,7 +37,6 @@ namespace Xamarin.WebTests.HttpClientTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.Default)]
 	public class SendAsync : HttpClientTestFixture
 	{
 		public SendAsyncType Type {

@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.HttpClientInstrumentation
 	using TestRunners;
 
 	[HttpClientUsesServicePoint]
-	[HttpServerTestCategory (HttpServerTestCategory.GZipInstrumentation)]
+	[HttpServerFlags (HttpServerFlags.RequireInstrumentation | HttpServerFlags.RequireGZip)]
 	public class ParallelGZip : HttpClientInstrumentationFixture
 	{
 		public override HttpOperationFlags OperationFlags => HttpOperationFlags.DontReuseConnection;

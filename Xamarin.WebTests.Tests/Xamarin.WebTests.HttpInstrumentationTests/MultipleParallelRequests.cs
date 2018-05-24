@@ -40,8 +40,8 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 	using HttpHandlers;
 	using TestRunners;
 
+	[Stress]
 	[HttpServerFlags (HttpServerFlags.RequireMono)]
-	[HttpServerTestCategory (HttpServerTestCategory.Stress)]
 	public class MultipleParallelRequests : HttpInstrumentationTestFixture
 	{
 		public override RequestFlags RequestFlags => RequestFlags.KeepAlive | RequestFlags.CloseConnection;

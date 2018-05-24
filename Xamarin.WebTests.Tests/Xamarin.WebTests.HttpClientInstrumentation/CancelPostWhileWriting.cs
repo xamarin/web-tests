@@ -40,7 +40,6 @@ namespace Xamarin.WebTests.HttpClientInstrumentation
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.RecentlyFixed)]
 	public class CancelPostWhileWriting : HttpClientInstrumentationFixture
 	{
 		public override HttpOperationFlags OperationFlags => HttpOperationFlags.DontReadRequestBody | HttpOperationFlags.DontWriteResponse;

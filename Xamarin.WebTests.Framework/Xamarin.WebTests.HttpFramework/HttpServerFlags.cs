@@ -48,6 +48,7 @@ namespace Xamarin.WebTests.HttpFramework
 		RequireRenegotiation		= 16384,
 		RequireCleanShutdown		= 32768,
 		RequireNewWebStack		= 65536,
-		RequireInstrumentation		= 131072
+		RequireInstrumentation		= 131072,
+		RequireGZip			= 262144
 	}
 }

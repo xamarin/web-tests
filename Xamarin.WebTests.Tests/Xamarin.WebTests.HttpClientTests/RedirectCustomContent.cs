@@ -39,7 +39,6 @@ namespace Xamarin.WebTests.HttpClientTests
 	using HttpClient;
 
 	[NotWorking]
-	[HttpServerTestCategory (HttpServerTestCategory.Ignore)]
 	public class RedirectCustomContent : HttpClientTestFixture
 	{
 		byte[] ContentBuffer => ConnectionHandler.GetTextBuffer (ME);

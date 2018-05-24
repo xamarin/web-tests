@@ -36,7 +36,6 @@ namespace Xamarin.WebTests.HttpClientTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.Default)]
 	public class PutData : HttpClientTestFixture
 	{
 		public PutDataType Type {

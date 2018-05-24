@@ -42,7 +42,7 @@ namespace Xamarin.WebTests.HttpClientInstrumentation
 	using TestRunners;
 
 	[HttpClientUsesServicePoint]
-	[HttpServerTestCategory (HttpServerTestCategory.GZip)]
+	[HttpServerFlags (HttpServerFlags.RequireGZip)]
 	public class SequentialGZip : HttpClientInstrumentationFixture
 	{
 		public override HttpContent ExpectedContent => HttpContent.TheQuickBrownFox;

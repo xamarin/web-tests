@@ -48,7 +48,6 @@ namespace Xamarin.WebTests.ExternalTests
 
 		[AsyncTest]
 		[Martin (null, UseFixtureName = true)]
-		[HttpServerTestCategory (HttpServerTestCategory.MartinTest)]
 		public static Task MartinTest (
 			TestContext ctx, CancellationToken cancellationToken,
 			HttpServerProvider provider, ExternalTestFixture fixture)

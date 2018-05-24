@@ -39,33 +39,17 @@ namespace Xamarin.WebTests.TestAttributes
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
 	public class HttpServerProviderAttribute : TestParameterAttribute, ITestParameterSource<HttpServerProvider>
 	{
-		public HttpServerTestCategory? Category {
-			get;
-		}
-
 		public HttpServerProviderAttribute ()
 			: base (null, TestFlags.Browsable)
 		{
 		}
 
-		public HttpServerProviderAttribute (HttpServerTestCategory category)
-			: base (null, TestFlags.Browsable)
-		{
-			Category = category;
-		}
-
 		public IEnumerable<HttpServerProvider> GetParameters (TestContext ctx, string argument)
 		{
-			HttpServerTestCategory category;
-			if (Category != null)
-				category = Category.Value;
-			else if (!ctx.TryGetParameter (out category))
-				category = HttpServerTestCategory.Default;
-
 			if (!string.IsNullOrEmpty (argument))
 				throw new NotSupportedException ();
 
-			var filter = new HttpServerProviderFilter (ctx, category);
+			var filter = new HttpServerProviderFilter (ctx);
 			return filter.GetProviders (ctx);
 		}
 	}

@@ -34,7 +34,6 @@ namespace Xamarin.WebTests.HttpClientTests
 	using TestAttributes;
 	using HttpHandlers;
 
-	[HttpServerTestCategory (HttpServerTestCategory.Default)]
 	public class Simple : HttpClientTestFixture
 	{
 		public override Handler CreateHandler (TestContext ctx)

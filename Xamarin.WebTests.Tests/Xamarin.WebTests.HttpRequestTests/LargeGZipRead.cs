@@ -38,7 +38,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.GZip)]
+	[HttpServerFlags (HttpServerFlags.RequireGZip)]
 	public class LargeGZipRead : RequestTestFixture
 	{
 		HttpContent Content {
