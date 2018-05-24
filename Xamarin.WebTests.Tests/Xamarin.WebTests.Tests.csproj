@@ -58,7 +58,6 @@
     <Compile Include="Xamarin.WebTests.HttpRequestTests\GZipWithLength.cs" />
     <Compile Include="Xamarin.WebTests.HttpRequestTests\ResponseStreamCheckLength.cs" />
     <Compile Include="Xamarin.WebTests.HttpRequestTests\WritingBodyThrows.cs" />
-    <Compile Include="Xamarin.WebTests.HttpRequestTests\ChunkedTrailingHeaders.cs" />
     <Compile Include="Xamarin.WebTests.HttpClientTests\HttpClientTestFixture.cs" />
     <Compile Include="Xamarin.WebTests.HttpClientTests\Simple.cs" />
     <Compile Include="Xamarin.WebTests.HttpClientTests\GetString.cs" />
