@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
+	[HttpServerFlags (HttpServerFlags.RequireNewWebStack)]
 	public class CloseIdleConnection : HttpInstrumentationTestFixture
 	{
 		const int IdleTime = 750;

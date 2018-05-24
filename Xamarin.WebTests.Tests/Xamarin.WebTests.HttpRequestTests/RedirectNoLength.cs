@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
+	[HttpServerFlags (HttpServerFlags.RequireNewWebStack)]
 	public class RedirectNoLength : RequestTestFixture
 	{
 		public override HttpOperationFlags OperationFlags => HttpOperationFlags.RedirectOnNewConnection;

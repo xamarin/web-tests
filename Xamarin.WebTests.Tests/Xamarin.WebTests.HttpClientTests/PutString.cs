@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.HttpClientTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
+	[HttpServerFlags (HttpServerFlags.RequireNewWebStack)]
 	public class PutString : HttpClientTestFixture
 	{
 		public enum PutStringType {

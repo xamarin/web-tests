@@ -60,9 +60,10 @@ namespace Xamarin.WebTests.TestFramework
 			UsingHttpListener |= (ServerFlags & HttpServerFlags.HttpListener) != 0;
 			RequireRenegotiation = (ServerFlags & HttpServerFlags.RequireRenegotiation) != 0;
 			RequireCleanShutdown = (ServerFlags & HttpServerFlags.RequireCleanShutdown) != 0;
+			RequireNewWebStack = (ServerFlags & HttpServerFlags.RequireNewWebStack) != 0;
 			RequireSsl |= RequireRenegotiation;
 
-			Optional |= RequireRenegotiation | RequireCleanShutdown;
+			Optional |= RequireRenegotiation | RequireCleanShutdown | RequireNewWebStack;
 
 			switch (Category) {
 			case HttpServerTestCategory.HttpListener:
@@ -208,6 +209,10 @@ namespace Xamarin.WebTests.TestFramework
 			get;
 		}
 
+		bool RequireNewWebStack {
+			get;
+		}
+
 		public IEnumerable<HttpServerProvider> GetProviders (TestContext ctx)
 		{
 			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
@@ -223,6 +228,9 @@ namespace Xamarin.WebTests.TestFramework
 				yield break;
 
 			if (RequireRenegotiation && !setup.SupportsRenegotiation)
+				yield break;
+
+			if (RequireNewWebStack && !setup.HasNewWebStack)
 				yield break;
 
 			if (!RequireSsl && !IsMartinTest && SupportsHttp) {

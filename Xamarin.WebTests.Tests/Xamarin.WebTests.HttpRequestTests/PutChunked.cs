@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using HttpHandlers;
 	using TestRunners;
 
-	[HttpServerTestCategory (HttpServerTestCategory.NewWebStack)]
+	[HttpServerFlags (HttpServerFlags.RequireNewWebStack)]
 	public class PutChunked : RequestTestFixture
 	{
 		public override bool HasRequestBody => true;

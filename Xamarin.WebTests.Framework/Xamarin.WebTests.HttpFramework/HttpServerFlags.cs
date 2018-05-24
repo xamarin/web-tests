@@ -46,6 +46,7 @@ namespace Xamarin.WebTests.HttpFramework
 		InternalVersionTwo		= 4096,
 		RequireMono			= 8192,
 		RequireRenegotiation		= 16384,
-		RequireCleanShutdown		= 32768
+		RequireCleanShutdown		= 32768,
+		RequireNewWebStack		= 65536
 	}
 }
