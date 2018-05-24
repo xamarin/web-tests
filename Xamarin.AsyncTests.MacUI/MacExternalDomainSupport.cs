@@ -1,5 +1,5 @@
 ﻿//
-// ForkedClientConnection.cs
+// MacExternalDomainSupport.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,18 +24,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.Portable;
+using System.Reflection;
 
-namespace Xamarin.AsyncTests.Remoting
+namespace Xamarin.AsyncTests.MacUI
 {
-	class ForkedClientConnection : LauncherConnection
+	using Framework;
+	using Remoting;
+	using Portable;
+
+	class MacExternalDomainSupport : ExternalDomainSupport
 	{
-		public ForkedClientConnection (
-			TestApp app, Stream stream, IServerConnection connection,
-			ExternalProcess process) : base (app, stream, connection, process)
+		public AppDelegate AppDelegate {
+			get;
+		}
+
+		public MacExternalDomainSupport (AppDelegate app)
+			: base (typeof (MacExternalDomainSupport).Assembly, null)
 		{
+			AppDelegate = app;
+		}
+
+		public override IExternalDomainHost Create (TestApp app, string name)
+		{
+			if (AppDelegate.CurrentParameters == null)
+				throw new NotSupportedException ();
+			if (AppDelegate.Settings.CurrentServerMode.Mode != ServerMode.Builtin)
+				throw new NotSupportedException ();
+
+			return base.Create (app, name);
 		}
 	}
 }

@@ -102,8 +102,7 @@ namespace Xamarin.AsyncTests.Framework
 
 		internal void OnConfigurationChanged ()
 		{
-			if (ConfigurationChangedEvent != null)
-				ConfigurationChangedEvent (this, EventArgs.Empty);
+			ConfigurationChangedEvent?.Invoke (this, EventArgs.Empty);
 		}
 	}
 }

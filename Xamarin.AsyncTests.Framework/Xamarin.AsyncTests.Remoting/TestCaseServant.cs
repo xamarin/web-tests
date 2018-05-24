@@ -49,7 +49,7 @@ namespace Xamarin.AsyncTests.Remoting
 			get { return "TestCase"; }
 		}
 
-		public TestCaseServant (ServerConnection connection, TestSessionServant session, TestCase test)
+		public TestCaseServant (Connection connection, TestSessionServant session, TestCase test)
 			: base (connection)
 		{
 			Session = session;
@@ -75,7 +75,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 			parameters = new List<TestCaseServant> ();
 			foreach (var parameter in await Session.LocalSession.GetTestParameters (Test, cancellationToken)) {
-				var parameterServant = new TestCaseServant ((ServerConnection)Connection, Session, parameter);
+				var parameterServant = new TestCaseServant (Connection, Session, parameter);
 				parameters.Add (parameterServant);
 			}
 

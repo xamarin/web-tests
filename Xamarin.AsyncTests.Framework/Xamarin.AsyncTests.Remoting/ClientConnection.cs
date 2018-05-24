@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,15 +34,25 @@ namespace Xamarin.AsyncTests.Remoting
 	using Portable;
 	using Framework;
 
-	public class ClientConnection : Connection
+	class ClientConnection : SocketConnection, IClientConnection
 	{
-		IServerConnection connection;
+		SocketListener listener;
+		SocketClient client;
 		TaskCompletionSource<object> startTcs;
 
-		public ClientConnection (TestApp app, Stream stream, IServerConnection connection)
-			: base (app, stream)
+		Connection IClientConnection.Connection => this;
+
+		public ClientConnection (TestApp app, SocketListener listener)
+			: base (app, listener.Stream)
 		{
-			this.connection = connection;
+			this.listener = listener;
+			startTcs = new TaskCompletionSource<object> ();
+		}
+
+		public ClientConnection (TestApp app, SocketClient client)
+			: base (app, client.Stream)
+		{
+			this.client = client;
 			startTcs = new TaskCompletionSource<object> ();
 		}
 
@@ -60,8 +71,6 @@ namespace Xamarin.AsyncTests.Remoting
 			var handshake = new Handshake { WantStatisticsEvents = true, Settings = App.Settings };
 
 			await RemoteObjectManager.Handshake (this, App.Logger.Backend, handshake, cancellationToken);
-
-			await base.Start (cancellationToken);
 		}
 
 		public override void Stop ()
@@ -73,9 +82,13 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 
 			try {
-				if (connection != null) {
-					connection.Close ();
-					connection = null;
+				if (listener != null) {
+					listener.Dispose ();
+					listener = null;
+				}
+				if (client != null) {
+					client.Dispose ();
+					client = null;
 				}
 			} catch {
 				;

@@ -33,9 +33,11 @@ namespace Xamarin.AsyncTests.Remoting
 {
 	class ForkedObjectClient : ObjectClient<ForkedObjectClient>, RemoteForkedObject, IForkedObjectClient
 	{
-		public Connection Connection {
+		public IServerConnection ServerConnection {
 			get;
 		}
+
+		public Connection Connection => ServerConnection.Connection;
 
 		public long ObjectID {
 			get;
@@ -47,9 +49,9 @@ namespace Xamarin.AsyncTests.Remoting
 
 		ForkedObjectServant RemoteObject<ForkedObjectClient, ForkedObjectServant>.Servant => throw new ServerErrorException ();
 
-		internal ForkedObjectClient (ServerConnection connection, long objectID)
+		internal ForkedObjectClient (IServerConnection connection, long objectID)
 		{
-			Connection = connection;
+			ServerConnection = connection;
 			ObjectID = objectID;
 		}
 

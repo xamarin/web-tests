@@ -31,14 +31,14 @@ namespace Xamarin.AsyncTests.Remoting
 {
 	class EventSinkClient : ObjectClient<EventSinkClient>, RemoteEventSink
 	{
-		public Connection Connection {
+		public IServerConnection ServerConnection {
 			get;
-			private set;
 		}
+
+		public Connection Connection => ServerConnection.Connection;
 
 		public long ObjectID {
 			get;
-			private set;
 		}
 
 		public TestLoggerBackend LoggerBackend {
@@ -53,16 +53,15 @@ namespace Xamarin.AsyncTests.Remoting
 
 		public TestLoggerBackend LocalLogger {
 			get;
-			private set;
 		}
 
 		public string Type {
 			get { return "EventSink"; }
 		}
 
-		internal EventSinkClient (ServerConnection connection, long objectID)
+		internal EventSinkClient (IServerConnection connection, long objectID)
 		{
-			Connection = connection;
+			ServerConnection = connection;
 			ObjectID = objectID;
 			LocalLogger = connection.LocalLogger;
 		}

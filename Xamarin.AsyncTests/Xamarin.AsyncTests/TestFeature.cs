@@ -93,6 +93,10 @@ namespace Xamarin.AsyncTests
 			"ForkedSupport", "Support for [Forked] tests",
 			() => DependencyInjector.TryGet<IForkedSupport> (out var support));
 
+		public static readonly TestFeature ForkedProcessSupport = new TestFeature (
+			"ForkedProcessSupport", "Support for [Forked] tests using external processes.",
+			() => DependencyInjector.TryGet<IForkedSupport> (out var support) && support.SupportsProcessForks);
+
 		public override string ToString ()
 		{
 			var constant = string.Empty;

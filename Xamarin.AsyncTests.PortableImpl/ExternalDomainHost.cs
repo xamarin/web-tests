@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -49,15 +50,18 @@ namespace Xamarin.AsyncTests.Portable
 		public void Initialize (AppDomain domain, ExternalDomainServer server)
 		{
 			this.domain = domain;
-			this.server = server;
+			this.domainServer = server;
 			startTcs = new TaskCompletionSource<object> ();
 			tcs = new TaskCompletionSource<object> ();
+			cts = new CancellationTokenSource ();
 		}
 
 		AppDomain domain;
-		ExternalDomainServer server;
+		TestServer localServer;
+		ExternalDomainServer domainServer;
 		TaskCompletionSource<object> startTcs;
 		TaskCompletionSource<object> tcs;
+		CancellationTokenSource cts;
 
 		internal void OnServerStarted ()
 		{
@@ -72,6 +76,7 @@ namespace Xamarin.AsyncTests.Portable
 
 		internal void OnCanceled ()
 		{
+			cts.Cancel ();
 			startTcs.TrySetCanceled ();
 			tcs.TrySetCanceled ();
 		}
@@ -82,11 +87,32 @@ namespace Xamarin.AsyncTests.Portable
 			tcs.TrySetException (error);
 		}
 
-		public async Task Start (IPortableEndPoint address, CancellationToken cancellationToken)
+		public string HandleMessage (string message)
+		{
+			var task = RemotingHelper.HandleMessage (localServer, message, cts.Token);
+			task.Wait ();
+			return task.Result;
+		}
+
+		public async Task<XElement> SendMessage (XElement element, CancellationToken cancellationToken)
 		{
 			using (var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken)) {
-				cts.Token.Register (() => server.Cancel ());
-				server.Start (address);
+				cts.Token.Register (domainServer.Cancel);
+				var serialized = TestSerializer.Serialize (element);
+
+				var response = await Task.Run (() => domainServer.HandleMessage (serialized)).ConfigureAwait (false);
+				if (response == null)
+					return null;
+				return TestSerializer.Deserialize (response);
+			}
+		}
+
+		public async Task Start (TestServer server, CancellationToken cancellationToken)
+		{
+			localServer = server;
+			using (var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken)) {
+				cts.Token.Register (domainServer.Cancel);
+				domainServer.Start ();
 				await startTcs.Task.ConfigureAwait (false);
 			}
 		}
@@ -94,14 +120,15 @@ namespace Xamarin.AsyncTests.Portable
 		public async Task WaitForCompletion (CancellationToken cancellationToken)
 		{
 			using (var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken)) {
-				cts.Token.Register (() => server.Cancel ());
+				cts.Token.Register (domainServer.Cancel);
 				await tcs.Task.ConfigureAwait (false);
 			}
 		}
 
 		public void Cancel ()
 		{
-			server.Cancel (); 
+			cts.Cancel ();
+			domainServer.Cancel (); 
 		}
 
 		bool disposed;
@@ -112,9 +139,13 @@ namespace Xamarin.AsyncTests.Portable
 				return;
 			disposed = true;
 
-			if (server != null) {
-				server.Cancel ();
-				server = null;
+			if (domainServer != null) {
+				domainServer.Cancel ();
+				domainServer = null;
+			}
+			if (cts != null) {
+				cts.Dispose ();
+				cts = null;
 			}
 			if (domain != null) {
 				AppDomain.Unload (domain);

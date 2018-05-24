@@ -131,6 +131,7 @@
     <Compile Include="UISettings.cs" />
     <Compile Include="IAppDelegate.cs" />
     <Compile Include="IBuiltinTestServer.cs" />
+    <Compile Include="MacExternalDomainSupport.cs" />
   </ItemGroup>
   <Import Project="..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />

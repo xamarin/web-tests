@@ -35,8 +35,8 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Constraints;
-using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ExternalServer
 {
@@ -44,12 +44,10 @@ namespace Xamarin.WebTests.ExternalServer
 	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
-	using HttpOperations;
 	using TestFramework;
 	using Resources;
-	using Server;
-	using Xamarin.AsyncTests.Framework;
 
+	[ForkedSupport]
 	[Fork (ForkType.FromContext)]
 	public abstract class ExternalServerTestRunner : AbstractConnection, IForkedTestInstance
 	{

@@ -88,7 +88,7 @@ namespace Xamarin.AsyncTests.Framework
 				ObjectID = long.Parse (Node.CustomParameter.Attribute ("ObjectID").Value);
 				Connection = GetRemoteConnection (ctx, this);
 				if (Connection != null)
-					ObjectClient = new ForkedObjectClient ((ServerConnection)Connection, ObjectID);
+					ObjectClient = new ForkedObjectClient ((IServerConnection)Connection, ObjectID);
 			} else {
 				CustomParameter = TestNode.CreateCustomParameterNode ();
 				ObjectID = Connection.GetNextObjectId ();

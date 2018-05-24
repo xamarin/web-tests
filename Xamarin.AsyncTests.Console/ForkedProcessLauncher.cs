@@ -35,15 +35,30 @@ namespace Xamarin.AsyncTests.Console
 
 	public class ForkedProcessLauncher : IForkedProcessLauncher
 	{
-		public Task<ExternalProcess> LaunchApplication (
-			string options, CancellationToken cancellationToken)
+		public Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
 		{
 			var assembly = Assembly.GetEntryAssembly ();
-			var psi = new ProcessStartInfo (assembly.Location, options);
-			psi.UseShellExecute = false;
+			var psi = new ProcessStartInfo (assembly.Location, options) {
+				UseShellExecute = false
+			};
 			if (!psi.EnvironmentVariables.ContainsKey ("MONO_ENV_OPTIONS"))
 				psi.EnvironmentVariables.Add ("MONO_ENV_OPTIONS", "--debug");
 			return ProcessHelper.StartCommand (psi, cancellationToken);
 		}
+
+		public Task<ExternalProcess> LaunchApplication (string application, string arguments, CancellationToken cancellationToken)
+		{
+			var psi = new ProcessStartInfo (application, arguments) {
+				UseShellExecute = false
+			};
+
+			foreach (var reserved in ReservedNames) {
+				psi.EnvironmentVariables.Remove (reserved);
+			}
+
+			return ProcessHelper.StartCommand (psi, cancellationToken);
+		}
+
+		static readonly string[] ReservedNames = { "MONO_RUNTIME", "MONO_PATH", "MONO_GAC_PREFIX" };
 	}
 }

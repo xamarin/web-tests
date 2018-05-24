@@ -2,6 +2,7 @@
 using AppKit;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.MacUI;
+using Xamarin.AsyncTests.Remoting;
 using Xamarin.WebTests;
 using Xamarin.WebTests.MonoTests;
 using Xamarin.WebTests.MonoTestFramework;
@@ -15,22 +16,40 @@ using Xamarin.WebTests.MonoTestProvider;
 
 namespace Xamarin.WebTests.MacUI
 {
-	public class MacMain : ISingletonInstance
+	[Serializable]
+	public class MacMain : ISingletonInstance, IForkedDomainSetup, IForkedSupport
 	{
+		public bool SupportsProcessForks => false;
+
 		static void Main (string[] args)
 		{
 			NSApplication.Init ();
 
-			var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.Mac");
-			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
-			DependencyInjector.RegisterDependency<IMonoConnectionFrameworkSetup> (() => setup);
+			var main = new MacMain ();
+			main.Run (args);
+		}
 
-			DependencyInjector.RegisterAssembly (typeof(MacMain).Assembly);
-			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
-			DependencyInjector.RegisterDependency<IBuiltinTestServer> (() => new BuiltinTestServer ());
+		void Run (string[] args)
+		{
+			Initialize ();
+
+			DependencyInjector.RegisterDependency<IForkedDomainSetup> (() => this);
 
 			NSApplication.Main (args);
 		}
+
+		public void Initialize ()
+		{
+			var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.Mac");
+			DependencyInjector.RegisterDependency<IForkedSupport> (() => this);
+			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
+			DependencyInjector.RegisterDependency<IMonoConnectionFrameworkSetup> (() => setup);
+
+			DependencyInjector.RegisterAssembly (typeof (MacMain).Assembly);
+			DependencyInjector.RegisterAssembly (typeof (WebDependencyProvider).Assembly);
+			DependencyInjector.RegisterDependency<IBuiltinTestServer> (() => new BuiltinTestServer ());
+		}
+
 	}
 }
 

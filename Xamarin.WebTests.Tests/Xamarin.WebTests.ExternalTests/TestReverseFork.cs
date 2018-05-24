@@ -34,6 +34,7 @@ namespace Xamarin.WebTests.ExternalTests
 	using HttpFramework;
 	using HttpHandlers;
 
+	[ForkedProcessSupport]
 	public class TestReverseFork : ExternalTestFixture
 	{
 		public override ForkType ForkType => ForkType.ReverseFork;

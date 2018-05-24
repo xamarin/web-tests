@@ -34,6 +34,9 @@ namespace Xamarin.AsyncTests.Portable
 	using Framework;
 	using Remoting;
 
+#if __IOS__
+	[Foundation.Preserve (AllMembers = true)]
+#endif
 	class ExternalDomainSupport : MarshalByRefObject, IExternalDomainSupport
 	{
 		public Assembly Assembly {
@@ -56,7 +59,7 @@ namespace Xamarin.AsyncTests.Portable
 				DomainSetup = setup;
 		}
 
-		public IExternalDomainHost Create (TestApp app, string name)
+		public virtual IExternalDomainHost Create (TestApp app, string name)
 		{
 			var domain = AppDomain.CreateDomain (name);
 			var host = new ExternalDomainHost (app);

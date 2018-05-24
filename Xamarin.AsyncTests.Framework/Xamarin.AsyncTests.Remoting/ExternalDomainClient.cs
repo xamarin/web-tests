@@ -1,10 +1,10 @@
 ﻿//
-// LauncherConnection.cs
+// ExternalDomainClient.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014-2016 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,30 +25,41 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Net.Sockets;
+using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.ComponentModel;
 
 namespace Xamarin.AsyncTests.Remoting
 {
 	using Portable;
 	using Framework;
 
-	class LauncherConnection : ClientConnection
+	class ExternalDomainClient : Connection, IClientConnection
 	{
-		ExternalProcess process;
+		IExternalDomainHost host;
 
-		public LauncherConnection (TestApp app, SocketListener listener, ExternalProcess process)
-			: base (app, listener)
+		protected override bool IsServer => false;
+
+		Connection IClientConnection.Connection => this;
+
+		public ExternalDomainClient (TestApp app, IExternalDomainHost host)
+			: base (app)
 		{
-			this.process = process;
+			this.host = host;
 		}
 
-		protected internal override void OnShutdown ()
+		protected override Task MainLoop ()
 		{
-			base.OnShutdown ();
-			process.Dispose ();
+			return host.WaitForCompletion (cancelCts.Token);
+		}
+
+		internal override async Task OnStart (CancellationToken cancellationToken)
+		{
+			var handshake = new Handshake { WantStatisticsEvents = true, Settings = App.Settings };
+
+			await RemoteObjectManager.Handshake (this, App.Logger.Backend, handshake, cancellationToken);
 		}
 
 		public override void Stop ()
@@ -60,14 +71,27 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 
 			try {
-				if (process != null) {
-					process.Dispose ();
-					process = null;
+				if (host != null) {
+					host.Dispose ();
+					host = null;
 				}
 			} catch {
 				;
 			}
 		}
+
+		protected override async Task SendMessage (Message message)
+		{
+			var element = message.Write (this);
+
+			var response = await host.SendMessage (element, cancelCts.Token).ConfigureAwait (false);
+			if (response == null)
+				return;
+
+			var objectID = response.Attribute ("ObjectID").Value;
+			var operation = GetResponse (long.Parse (objectID));
+			operation.Response.Read (this, response);
+			operation.Task.SetResult (true);
+		}
 	}
 }
-

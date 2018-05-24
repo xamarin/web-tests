@@ -31,7 +31,8 @@ namespace Xamarin.AsyncTests.Remoting
 {
 	public interface IForkedProcessLauncher : ISingletonInstance
 	{
-		Task<ExternalProcess> LaunchApplication (
-			string options, CancellationToken cancellationToken);
+		Task<ExternalProcess> LaunchApplication (string application, string arguments, CancellationToken cancellationToken);
+
+		Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken);
 	}
 }

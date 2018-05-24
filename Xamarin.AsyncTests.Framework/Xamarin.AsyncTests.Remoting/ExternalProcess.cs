@@ -41,6 +41,10 @@ namespace Xamarin.AsyncTests.Remoting {
 
 		public event EventHandler<int> ExitedEvent;
 
+		public abstract bool HasExited {
+			get;
+		}
+
 		protected virtual void OnExited (int exitCode)
 		{
 			ExitedEvent?.Invoke (this, exitCode);

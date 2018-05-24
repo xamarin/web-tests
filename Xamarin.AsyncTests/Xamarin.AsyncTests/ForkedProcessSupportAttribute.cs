@@ -1,10 +1,10 @@
 ﻿//
-// IServerConnection.cs
+// ForkedProcessSupportAttribute.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,25 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Xamarin.AsyncTests.Portable
+namespace Xamarin.AsyncTests
 {
-	public interface IServerConnection
+	public class ForkedProcessSupportAttribute : TestFeatureAttribute
 	{
-		string Name {
-			get;
-		}
-
-		IPortableEndPoint EndPoint {
-			get;
-		}
-
-		Task<Stream> Open (CancellationToken cancellationToken);
-
-		void Close ();
+		public override TestFeature Feature => TestFeature.ForkedProcessSupport;
 	}
 }
-

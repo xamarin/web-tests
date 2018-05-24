@@ -154,6 +154,10 @@
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>Xamarin.AsyncTests.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Console\Xamarin.WebTests.PortableSecurity.Console\Xamarin.WebTests.PortableSecurity.Console.csproj">
+      <Project>{926ED252-2819-43C0-A534-F662F4E4F87B}</Project>
+      <Name>Xamarin.WebTests.PortableSecurity.Console</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Xamarin.AsyncTests.TestSuite\" />

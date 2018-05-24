@@ -25,6 +25,9 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
+    <Reference Include="Xamarin.WebTests.PortableSecurity">
+      <HintPath>..\PCL\Xamarin.WebTests.PortableSecurity.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -136,12 +139,10 @@
     <Compile Include="Xamarin.AsyncTests.Framework\DebugHelper.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\EnumParameterSource.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\IForkedProcessLauncher.cs" />
-    <Compile Include="Xamarin.AsyncTests.Remoting\ForkedServerConnection.cs" />
-    <Compile Include="Xamarin.AsyncTests.Remoting\ForkedClientConnection.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\TestSuiteBuilder.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\IExternalDomainSupport.cs" />
     <Compile Include="Xamarin.AsyncTests.Remoting\IExternalDomainHost.cs" />
-    <Compile Include="Xamarin.AsyncTests.Remoting\ExternalDomainConnection.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ExternalDomainClient.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestInstanceBuilder.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionMethodEntry.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework.Reflection\ReflectionTestMethodBuilder.cs" />
@@ -158,6 +159,14 @@
     <Compile Include="Xamarin.AsyncTests.Framework\RemoteTestHost.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\RemoteTestInstance.cs" />
     <Compile Include="Xamarin.AsyncTests.Framework\RemoteTestValue.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\SocketConnection.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\ExternalDomainServer.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\IExternalDomainServer.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\SocketListener.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\SocketClient.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\RemotingHelper.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\IServerConnection.cs" />
+    <Compile Include="Xamarin.AsyncTests.Remoting\IClientConnection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

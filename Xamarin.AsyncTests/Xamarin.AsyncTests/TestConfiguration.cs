@@ -56,7 +56,7 @@ namespace Xamarin.AsyncTests
 			settings.PropertyChanged += (sender, e) => Load (true);
 		}
 
-		internal void Reload ()
+		public void Reload ()
 		{
 			Load (false);
 		}

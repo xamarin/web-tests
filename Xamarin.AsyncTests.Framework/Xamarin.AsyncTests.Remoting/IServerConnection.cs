@@ -1,10 +1,10 @@
 ﻿//
-// IServerHost.cs
+// IServerConnection.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,19 +24,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Portable
+namespace Xamarin.AsyncTests.Remoting
 {
-	public interface IServerHost : ISingletonInstance
+	using Framework;
+
+	interface IServerConnection
 	{
-		Task<IServerConnection> Listen (IPortableEndPoint address, CancellationToken cancellationToken);
+		Connection Connection {
+			get;
+		}
 
-		Task<IServerConnection> Connect (IPortableEndPoint address, CancellationToken cancellationToken);
+		SettingsBag Settings {
+			get;
+		}
 
-		Task<IPipeConnection> CreatePipe (IPortableEndPoint endpoint, PipeArguments arguments, CancellationToken cancellationToken);
+		EventSinkClient EventSink {
+			get;
+		}
+
+		TestFramework Framework {
+			get;
+		}
+
+		TestLoggerBackend LocalLogger {
+			get;
+		}
+
+		Task Initialize (Handshake handshake, CancellationToken cancellationToken);
 	}
 }
-

@@ -48,7 +48,7 @@ namespace Xamarin.AsyncTests.Remoting
 			get { return "TestSuite"; }
 		}
 
-		public TestSuiteServant (ServerConnection connection, TestSessionServant session)
+		public TestSuiteServant (Connection connection, TestSessionServant session)
 			: base (connection)
 		{
 			Session = session;

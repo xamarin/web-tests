@@ -1,5 +1,5 @@
 ﻿//
-// ForkedServerConnection.cs
+// IClientConnection.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,19 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.Portable;
-
 namespace Xamarin.AsyncTests.Remoting
 {
-	class ForkedServerConnection : ServerConnection
+	interface IClientConnection
 	{
-		public ForkedServerConnection (
-			TestApp app, TestFramework framework, Stream stream,
-			IServerConnection connection)
-			: base (app, framework, stream, connection)
-		{
+		Connection Connection {
+			get;
 		}
 	}
 }

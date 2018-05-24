@@ -36,6 +36,7 @@ using AppKit;
 namespace Xamarin.AsyncTests.MacUI
 {
 	using Portable;
+	using Remoting;
 	using Framework;
 
 	public class MacUI : TestApp

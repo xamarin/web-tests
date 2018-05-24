@@ -35,18 +35,14 @@ namespace Xamarin.AsyncTests.Remoting
 
 	class TestSessionClient : TestSession, ObjectClient<TestSessionClient>, RemoteTestSession
 	{
-		public ClientConnection Connection {
+		public IClientConnection ClientConnection {
 			get;
-			private set;
 		}
 
-		Connection ObjectProxy.Connection {
-			get { return Connection; }
-		}
+		public Connection Connection => ClientConnection.Connection;
 
 		public long ObjectID {
 			get;
-			private set;
 		}
 
 		public string Type {
@@ -80,10 +76,10 @@ namespace Xamarin.AsyncTests.Remoting
 		TestSuiteClient suite;
 		TestCaseClient root;
 
-		public TestSessionClient (ClientConnection connection, long objectID)
-			: base (connection.App)
+		public TestSessionClient (IClientConnection connection, long objectID)
+			: base (connection.Connection.App)
 		{
-			Connection = connection;
+			ClientConnection = connection;
 			ObjectID = objectID;
 			shutdownTcs = new TaskCompletionSource<object> ();
 		}

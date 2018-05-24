@@ -97,7 +97,7 @@ namespace Xamarin.AsyncTests.Remoting
 			instance.Settings = TestSerializer.ReadSettings (settings);
 
 			var logger = node.Element ("EventSink");
-			instance.EventSink = ReadProxy (connection, logger, (objectID) => new EventSinkClient ((ServerConnection)connection, objectID));
+			instance.EventSink = ReadProxy (connection, logger, (objectID) => new EventSinkClient ((IServerConnection)connection, objectID));
 
 			return instance;
 		}
@@ -128,13 +128,13 @@ namespace Xamarin.AsyncTests.Remoting
 
 			protected async override Task<object> Run (Connection connection, Handshake argument, CancellationToken cancellationToken)
 			{
-				var serverConnection = (ServerConnection)connection;
+				var serverConnection = (IServerConnection)connection;
 				await serverConnection.Initialize (argument, cancellationToken);
 				return null;
 			}
 		}
 
-		internal static async Task Handshake (ClientConnection connection, TestLoggerBackend logger, Handshake handshake, CancellationToken cancellationToken)
+		internal static async Task Handshake (Connection connection, TestLoggerBackend logger, Handshake handshake, CancellationToken cancellationToken)
 		{
 			handshake.EventSink = new EventSinkServant (connection, logger);
 
@@ -148,18 +148,17 @@ namespace Xamarin.AsyncTests.Remoting
 		{
 			protected override ObjectProxy ReadResponse (Connection connection, XElement node)
 			{
-				var clientConnection = (ClientConnection)connection;
+				var clientConnection = (IClientConnection)connection;
 				return ReadProxy (connection, node, (objectID) => new TestSessionClient (clientConnection, objectID));
 			}
 
 			protected override Task<ObjectProxy> Run (Connection connection, object argument, CancellationToken cancellationToken)
 			{
-				return Task.FromResult<ObjectProxy> (new TestSessionServant ((ServerConnection)connection));
+				return Task.FromResult<ObjectProxy> (new TestSessionServant ((IServerConnection)connection));
 			}
 		}
 
-		public static async Task<TestSession> GetRemoteTestSession (
-			ClientConnection connection, CancellationToken cancellationToken)
+		public static async Task<TestSession> GetRemoteTestSession (Connection connection, CancellationToken cancellationToken)
 		{
 			var command = new GetRemoteTestSessionCommand ();
 			var proxy = await command.Send (connection, cancellationToken);
@@ -175,7 +174,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 			protected override Task<ObjectProxy> Run (Connection connection, RemoteTestSession proxy, object argument, CancellationToken cancellationToken)
 			{
-				return Task.FromResult<ObjectProxy> (new TestSuiteServant ((ServerConnection)connection, proxy.Servant));
+				return Task.FromResult<ObjectProxy> (new TestSuiteServant (connection, proxy.Servant));
 			}
 		}
 
@@ -212,7 +211,7 @@ namespace Xamarin.AsyncTests.Remoting
 			protected override Task<ObjectProxy> Run (
 				Connection connection, RemoteTestSession proxy, object argument, CancellationToken cancellationToken)
 			{
-				var servant = new TestCaseServant ((ServerConnection)connection, proxy.Servant, proxy.Servant.RootTestCase);
+				var servant = new TestCaseServant (connection, proxy.Servant, proxy.Servant.RootTestCase);
 				return Task.FromResult<ObjectProxy> (servant);
 			}
 		}
@@ -236,7 +235,7 @@ namespace Xamarin.AsyncTests.Remoting
 				Connection connection, RemoteTestSession proxy, XElement argument, CancellationToken cancellationToken)
 			{
 				var test = await proxy.Servant.ResolveFromPath (argument, cancellationToken);
-				return new TestCaseServant ((ServerConnection)connection, proxy.Servant, test);
+				return new TestCaseServant (connection, proxy.Servant, test);
 			}
 		}
 

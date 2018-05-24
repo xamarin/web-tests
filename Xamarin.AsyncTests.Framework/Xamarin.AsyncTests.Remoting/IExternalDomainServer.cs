@@ -1,5 +1,5 @@
 ﻿//
-// ExternalDomainConnection.cs
+// IExternalDomainServer.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,49 +24,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Remoting
 {
-	using Portable;
-	using Framework;
-
-	class ExternalDomainConnection : ClientConnection
+	public interface IExternalDomainServer : IDisposable
 	{
-		IExternalDomainHost host;
+		Task<XElement> SendMessage (XElement element, CancellationToken cancellationToken);
 
-		public ExternalDomainConnection (
-			TestApp app, Stream stream, IServerConnection connection,
-			IExternalDomainHost host)
-			: base (app, stream, connection)
-		{
-			this.host = host;
-		}
-
-		protected internal override void OnShutdown ()
-		{
-			base.OnShutdown ();
-			host.Dispose ();
-		}
-
-		public override void Stop ()
-		{
-			try {
-				base.Stop ();
-			} catch {
-				;
-			}
-
-			try {
-				if (host != null) {
-					host.Dispose ();
-					host = null;
-				}
-			} catch {
-				;
-			}
-		}
+		Task WaitForCompletion ();
 	}
 }

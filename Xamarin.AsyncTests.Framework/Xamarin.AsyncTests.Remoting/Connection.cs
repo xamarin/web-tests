@@ -40,18 +40,15 @@ namespace Xamarin.AsyncTests.Remoting
 	using Framework;
 	using Portable;
 
-	public abstract class Connection
+	abstract class Connection
 	{
-		readonly Stream stream;
-		readonly TestApp app;
-		CancellationTokenSource cancelCts;
 		TaskCompletionSource<object> mainTcs;
-		bool shutdownRequested;
+		protected readonly CancellationTokenSource cancelCts;
+		protected bool shutdownRequested;
 
-		internal Connection (TestApp app, Stream stream)
+		internal Connection (TestApp app)
 		{
-			this.app = app;
-			this.stream = stream;
+			App = app;
 			cancelCts = new CancellationTokenSource ();
 
 #if CONNECTION_DEBUG
@@ -65,7 +62,7 @@ namespace Xamarin.AsyncTests.Remoting
 		}
 
 		public TestApp App {
-			get { return app; }
+			get;
 		}
 
 		protected abstract bool IsServer {
@@ -115,9 +112,9 @@ namespace Xamarin.AsyncTests.Remoting
 			System.Diagnostics.Debug.WriteLine ($"{ME}: {message}");
 		}
 
-#endregion
+		#endregion
 
-#region Start and Stop
+		#region Sending Commands and Main Loop
 
 		int mainLoopRunning;
 
@@ -179,6 +176,8 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
+		protected abstract Task MainLoop ();
+
 		public virtual void Stop ()
 		{
 			lock (this) {
@@ -191,10 +190,6 @@ namespace Xamarin.AsyncTests.Remoting
 					operation.Task.TrySetCanceled ();
 			}
 		}
-
-#endregion
-
-#region Sending Commands and Main Loop
 
 		internal async Task<bool> SendCommand (Command command, Response response, CancellationToken cancellationToken)
 		{
@@ -223,123 +218,9 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
-		QueuedMessage currentMessage;
+		protected abstract Task SendMessage (Message message);
 
-		async Task SendMessage (Message message)
-		{
-			Debug ($"SEND MESSAGE: {message}");
-
-			var queued = new QueuedMessage (message);
-
-			while (!cancelCts.IsCancellationRequested) {
-				var old = Interlocked.CompareExchange (ref currentMessage, queued, null);
-				Debug ($"SEND MESSAGE QUEUE: {message} {old != null}");
-
-				if (old == null)
-					break;
-
-				await old.Task.Task.ConfigureAwait (false);
-			}
-
-			cancelCts.Token.ThrowIfCancellationRequested ();
-
-			Debug ($"SEND MESSAGE #1: {message}");
-
-			var doc = message.Write (this);
-
-			var sb = new StringBuilder ();
-			var settings = new XmlWriterSettings ();
-			settings.OmitXmlDeclaration = true;
-
-			using (var writer = XmlWriter.Create (sb, settings)) {
-				doc.WriteTo (writer);
-			}
-
-			var bytes = new UTF8Encoding ().GetBytes (sb.ToString ());
-
-			var header = BitConverter.GetBytes (bytes.Length);
-			if (bytes.Length == 0)
-				throw new ServerErrorException ();
-
-			await stream.WriteAsync (header, 0, 4).ConfigureAwait (false);
-			await stream.FlushAsync ();
-
-			await stream.WriteAsync (bytes, 0, bytes.Length);
-
-			await stream.FlushAsync ();
-
-			Debug ($"SEND MESSAGE #2: {message}");
-
-			var old2 = Interlocked.CompareExchange (ref currentMessage, null, queued);
-			if (old2 != queued)
-				throw new ServerErrorException ();
-
-			queued.Task.SetResult (true);
-
-			Debug ($"SEND MESSAGE #3: {message}");
-		}
-
-		async Task<byte[]> ReadBuffer (int length)
-		{
-			var buffer = new byte [length];
-			int pos = 0;
-			while (pos < length) {
-				var ret = await stream.ReadAsync (buffer, pos, length-pos, cancelCts.Token);
-				if (ret <= 0)
-					throw new IOException ("Read failed");
-				pos += ret;
-			}
-			return buffer;
-		}
-
-		async Task MainLoop ()
-		{
-			while (!cancelCts.IsCancellationRequested) {
-				Debug ($"MAIN LOOP: {shutdownRequested}");
-
-				var header = await ReadBuffer (4);
-				var len = BitConverter.ToInt32 (header, 0);
-				Debug ($"MAIN LOOP #0: {shutdownRequested} {len}");
-				if (len == 0)
-					return;
-
-				var body = await ReadBuffer (len);
-				var content = new UTF8Encoding ().GetString (body, 0, body.Length);
-
-				var doc = XDocument.Load (new StringReader (content));
-				var element = doc.Root;
-
-				Debug ($"MAIN LOOP: {element}");
-
-				if (element.Name.LocalName.Equals ("Response")) {
-					var objectID = element.Attribute ("ObjectID").Value;
-					var operation = GetResponse (long.Parse (objectID));
-					operation.Response.Read (this, element);
-					operation.Task.SetResult (true);
-					if (operation.Command is TestSessionClient.SessionShutdownCommand)
-						return;
-					continue;
-				}
-
-				var command = Command.Create (this, element);
-
-				Debug ($"MAIN LOOP #1: {command} {command.IsOneWay}");
-
-				cancelCts.Token.ThrowIfCancellationRequested ();
-
-				if (command.IsOneWay)
-					await command.Run (this, cancelCts.Token);
-				else
-					HandleCommand (command);
-
-				Debug ($"MAIN LOOP #2: {command} {command.IsOneWay}");
-
-				if (command is ShutdownCommand)
-					return;
-			}
-		}
-
-		async void HandleCommand (Command command)
+		protected async void HandleCommand (Command command)
 		{
 			cancelCts.Token.ThrowIfCancellationRequested ();
 
@@ -399,10 +280,10 @@ namespace Xamarin.AsyncTests.Remoting
 			return Interlocked.Increment (ref nextId);
 		}
 
-		Dictionary<long, ClientOperation> clientOperations = new Dictionary<long, ClientOperation> ();
-		Dictionary<long, ServerOperation> serverOperations = new Dictionary<long, ServerOperation> ();
+		readonly Dictionary<long, ClientOperation> clientOperations = new Dictionary<long, ClientOperation> ();
+		readonly Dictionary<long, ServerOperation> serverOperations = new Dictionary<long, ServerOperation> ();
 
-		internal Task<bool> RegisterResponse (Command command, Response response, CancellationToken cancellationToken)
+		protected Task<bool> RegisterResponse (Command command, Response response, CancellationToken cancellationToken)
 		{
 			ClientOperation operation;
 			lock (this) {
@@ -429,7 +310,7 @@ namespace Xamarin.AsyncTests.Remoting
 			return operation.Task.Task;
 		}
 
-		ClientOperation GetResponse (long objectID)
+		protected ClientOperation GetResponse (long objectID)
 		{
 			lock (this) {
 				var operation = clientOperations [objectID];
@@ -438,7 +319,7 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
-		class ServerOperation
+		protected class ServerOperation
 		{
 			public readonly long ObjectID;
 			public CancellationTokenSource CancelCts;
@@ -450,7 +331,7 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
-		class ClientOperation
+		protected class ClientOperation
 		{
 			public readonly long ObjectID;
 			public readonly Command Command;
@@ -466,7 +347,7 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
-		class QueuedMessage
+		protected class QueuedMessage
 		{
 			public readonly Message Message;
 			public readonly TaskCompletionSource<bool> Task;
@@ -478,7 +359,7 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 		}
 
-		Dictionary<long,object> remoteObjects = new Dictionary<long,object> ();
+		readonly Dictionary<long, object> remoteObjects = new Dictionary<long, object>();
 
 		internal long RegisterObjectServant (ObjectServant servant)
 		{

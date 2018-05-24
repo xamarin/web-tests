@@ -1,10 +1,10 @@
 ﻿//
-// EventSinkServant.cs
+// RemotingHelper.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,44 +25,37 @@
 // THE SOFTWARE.
 using System;
 using System.Threading;
-using SD = System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Remoting
 {
-	class EventSinkServant : ObjectServant, RemoteEventSink
+	using Framework;
+
+	public static class RemotingHelper
 	{
-		public TestLoggerBackend Logger {
-			get;
-			private set;
-		}
-
-		public override string Type {
-			get { return "EventSink"; }
-		}
-
-		public EventSinkServant (Connection connection, TestLoggerBackend logger)
-			: base (connection)
+		public static async Task<string> HandleMessage (TestServer server, string message, CancellationToken cancellationToken)
 		{
-			Logger = logger;
-		}
+			var element = TestSerializer.Deserialize (message);
+			var command = Command.Create (server.Connection, element);
+			server.Connection.Debug ($"HANDLE MESSAGE: {message} {command}");
 
-		public void LogEvent (TestLoggerBackend.LogEntry entry)
-		{
-			Logger.OnLogEvent (entry);
-		}
+			Response response;
+			try {
+				response = await command.Run (server.Connection, cancellationToken).ConfigureAwait (false);
+			} catch (Exception ex) {
+				response = new Response {
+					ObjectID = command.ResponseID, Success = false, Error = ex.ToString ()
+				};
+			}
 
-		public void StatisticsEvent (TestLoggerBackend.StatisticsEventArgs args)
-		{
-			Logger.OnStatisticsEvent (args);
-		}
+			server.Connection.Debug ($"HANDLE MESSAGE DONE: {message} {response}");
 
-		EventSinkClient RemoteObject<EventSinkClient,EventSinkServant>.Client {
-			get { throw new ServerErrorException (); }
-		}
+			if (command.IsOneWay || command.ResponseID == 0 || response == null)
+				return null;
 
-		EventSinkServant RemoteObject<EventSinkClient,EventSinkServant>.Servant {
-			get { return this; }
+			var responseElement = response.Write (server.Connection);
+			var serialized = TestSerializer.Serialize (responseElement);
+			return serialized;
 		}
 	}
 }
-

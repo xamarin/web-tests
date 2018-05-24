@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="Xamarin.Mac" />
     <Reference Include="Mono.Security" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -132,6 +133,7 @@
     <Compile Include="..\..\Xamarin.AsyncTests.MacUI\UISettings.cs" />
     <Compile Include="..\..\Xamarin.AsyncTests.MacUI\IAppDelegate.cs" />
     <Compile Include="..\..\Xamarin.AsyncTests.MacUI\IBuiltinTestServer.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\MacExternalDomainSupport.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="..\..\Xamarin.AsyncTests.MacUI\MainWindow.xib" />
@@ -155,10 +157,6 @@
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
       <Name>Xamarin.WebTests.Tests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.WebTests.TestProvider.Mac\Xamarin.WebTests.TestProvider.Mac.csproj">
-      <Project>{9390670C-C319-4817-95FC-7C83E9B708E3}</Project>
-      <Name>Xamarin.WebTests.TestProvider.Mac</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Xamarin.WebTests.PortableSecurity.Mac\Xamarin.WebTests.PortableSecurity.Mac.csproj">
       <Project>{BC0385D6-52A8-41D1-9E72-3AF768C42661}</Project>
       <Name>Xamarin.WebTests.PortableSecurity.Mac</Name>
@@ -176,5 +174,7 @@
       <Name>Mono.Security.Interface</Name>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="..\..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
+  <Import Project="..\..\Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

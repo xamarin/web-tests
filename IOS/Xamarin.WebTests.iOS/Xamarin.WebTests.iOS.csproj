@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems')" />
+  <Import Project="..\..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
   <Import Project="..\..\packages\Xamarin.Forms.2.4.0.282\build\netstandard1.0\Xamarin.Forms.props" Condition="Exists('..\..\packages\Xamarin.Forms.2.4.0.282\build\netstandard1.0\Xamarin.Forms.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -20,7 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <MtouchArch>i386</MtouchArch>
+    <MtouchArch>i386, x86_64</MtouchArch>
     <MtouchLink>SdkOnly</MtouchLink>
     <MtouchDebug>true</MtouchDebug>
     <MtouchProfiling>true</MtouchProfiling>
@@ -89,6 +91,8 @@
     </Reference>
     <Reference Include="Xamarin.iOS" />
     <Reference Include="Mono.Security" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Contents.json">
@@ -137,10 +141,6 @@
     <ProjectReference Include="..\..\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
       <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>
       <Name>Xamarin.WebTests.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xamarin.WebTests.TestProvider.iOS\Xamarin.WebTests.TestProvider.iOS.csproj">
-      <Project>{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}</Project>
-      <Name>Xamarin.WebTests.TestProvider.iOS</Name>
     </ProjectReference>
     <ProjectReference Include="..\Xamarin.WebTests.PortableSecurity.iOS\Xamarin.WebTests.PortableSecurity.iOS.csproj">
       <Project>{D2ADF33E-0152-4AFB-BF71-588BCCB5DEE7}</Project>

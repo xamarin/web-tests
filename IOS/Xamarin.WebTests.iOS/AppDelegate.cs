@@ -31,19 +31,12 @@ using System.Collections.Generic;
 using Foundation;
 using UIKit;
 using ObjCRuntime;
-using Xamarin.WebTests.TestProvider;
-using Xamarin.WebTests.MonoTestProvider;
-using Xamarin.WebTests.MonoTestFramework;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.MonoConnectionFramework;
 
 namespace Xamarin.WebTests.iOS
 {
 	using Forms;
 	using Forms.Platform.iOS;
-	using AsyncTests;
 	using AsyncTests.Framework;
-	using AsyncTests.Portable;
 	using AsyncTests.Mobile;
 
 	// The UIApplicationDelegate for the application. This class is responsible for launching the
@@ -75,13 +68,6 @@ namespace Xamarin.WebTests.iOS
 		public override bool FinishedLaunching (UIApplication app, NSDictionary dict)
 		{
 			Forms.Init ();
-
-			var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.iOS");
-			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
-			DependencyInjector.RegisterDependency<IMonoConnectionFrameworkSetup> (() => setup);
-
-			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
-			DependencyInjector.RegisterAssembly (typeof(AppDelegate).Assembly);
 
 			var options = new MobileTestOptions (Environment.GetEnvironmentVariable ("XAMARIN_ASYNCTESTS_OPTIONS"));
 

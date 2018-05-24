@@ -27,13 +27,17 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using SD = System.Diagnostics;
+using System.Xml.Linq;
 
 namespace Xamarin.AsyncTests.Portable
 {
 	using Framework;
 	using Remoting;
 
-	class ExternalDomainServer : MarshalByRefObject, TestApp
+#if __IOS__
+	[Foundation.Preserve (AllMembers = true)]
+#endif
+	class ExternalDomainServer : MarshalByRefObject, TestApp, IExternalDomainServer
 	{
 		public ExternalDomainSupport Support {
 			get;
@@ -51,6 +55,18 @@ namespace Xamarin.AsyncTests.Portable
 			get;
 		}
 
+		public TestFramework Framework {
+			get;
+		}
+
+		public TestConfiguration Configuration {
+			get;
+		}
+
+		public TestSession Session {
+			get;
+		}
+
 		internal ExternalDomainServer (
 			ExternalDomainSupport support,
 			ExternalDomainHost eventSink)
@@ -59,13 +75,31 @@ namespace Xamarin.AsyncTests.Portable
 			Host = eventSink;
 			Settings = SettingsBag.CreateDefault ();
 			cts = new CancellationTokenSource ();
+			mainTcs = new TaskCompletionSource<object> ();
+
+#if !__MOBILE__ && !__UNIFIED__ && !__IOS__
+			SD.Debug.AutoFlush = true;
+			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
+#endif
+
+			DependencyInjector.RegisterAssembly (typeof (PortableSupportImpl).Assembly);
+			DependencyInjector.RegisterAssembly (Support.Assembly);
+
+			if (Support.DomainSetup != null)
+				Support.DomainSetup.Initialize ();
+
+			Framework = TestFramework.GetLocalFramework (PackageName, Support.Assembly, Support.Dependencies);
+
+			Configuration = new TestConfiguration (Framework.ConfigurationProvider, Settings);
+
+			Session = TestSession.CreateLocal (this, Framework);
 		}
 
 		TestServer server;
-		TestFramework framework;
-		TestSession session;
 		CancellationTokenSource cts;
+		TaskCompletionSource<object> mainTcs;
 
+		[SD.Conditional ("CONNECTION_DEBUG")]
 		static void Debug (string message)
 		{
 			System.Console.Error.WriteLine (message);
@@ -76,28 +110,14 @@ namespace Xamarin.AsyncTests.Portable
 			cts.Cancel ();
 		}
 
-		public void Start (IPortableEndPoint address)
+		public void Start ()
 		{
-			if (framework != null)
-				throw new InternalErrorException ();
+			TestServer.ConnectToForkedDomain (this, Framework, this, cts.Token).ContinueWith (OnStarted);
+		}
 
-			SD.Debug.AutoFlush = true;
-			SD.Debug.Listeners.Add (new SD.ConsoleTraceListener ());
-
-			DependencyInjector.RegisterAssembly (typeof (PortableSupportImpl).Assembly);
-			DependencyInjector.RegisterAssembly (Support.Assembly);
-
-			if (Support.DomainSetup != null)
-				Support.DomainSetup.Initialize ();
-
-			framework = TestFramework.GetLocalFramework (
-				PackageName, Support.Assembly,
-				Support.Dependencies);
-
-			session = TestSession.CreateLocal (this, framework);
-
-			TestServer.ConnectToForkedParent (
-				this, address, framework, cts.Token).ContinueWith (OnStarted);
+		public Task WaitForCompletion ()
+		{
+			return mainTcs.Task;
 		}
 
 		async void OnStarted (Task<TestServer> task)
@@ -131,10 +151,49 @@ namespace Xamarin.AsyncTests.Portable
 
 				Host.OnCompleted ();
 			} catch (OperationCanceledException) {
+				mainTcs.TrySetCanceled ();
 				Host.OnCanceled ();
 			} catch (Exception error) {
 				Host.OnError (error);
+			} finally {
+				mainTcs.TrySetResult (null);
 			}
+		}
+
+		public string HandleMessage (string message)
+		{
+			var task = RemotingHelper.HandleMessage (server, message, cts.Token);
+			task.Wait ();
+			return task.Result;
+		}
+
+		public async Task<XElement> SendMessage (XElement element, CancellationToken cancellationToken)
+		{
+			using (var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken)) {
+				cts.Token.Register (Cancel);
+				var serialized = TestSerializer.Serialize (element);
+
+				var response = await Task.Run (() => Host.HandleMessage (serialized)).ConfigureAwait (false);
+				if (response == null)
+					return null;
+				return TestSerializer.Deserialize (response);
+			}
+		}
+
+		bool disposed;
+
+		void Dispose (bool disposing)
+		{
+			if (disposed)
+				return;
+			disposed = true;
+
+			Cancel ();
+		}
+
+		public void Dispose ()
+		{
+			Dispose (true);
 		}
 	}
 }

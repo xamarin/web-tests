@@ -1,10 +1,10 @@
 ﻿//
-// ServerConnection.cs
+// ExternalDomainServer.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,66 +25,48 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Net;
+using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.ComponentModel;
 
 namespace Xamarin.AsyncTests.Remoting
 {
-	using Portable;
 	using Framework;
 
-	class ServerConnection : SocketConnection, IServerConnection
+	class ExternalDomainServer : Connection, IServerConnection
 	{
-		TestFramework framework;
-		SocketListener listener;
-		SocketClient client;
+		IExternalDomainServer server;
 		EventSinkClient eventSink;
+
+		protected override bool IsServer => true;
 
 		Connection IServerConnection.Connection => this;
 
-		EventSinkClient IServerConnection.EventSink => eventSink;
-
 		SettingsBag IServerConnection.Settings => App.Settings;
 
-		internal EventSinkClient EventSink {
-			get { return eventSink; }
-		}
+		EventSinkClient IServerConnection.EventSink => eventSink;
 
 		public TestFramework Framework {
-			get { return framework; }
-		}
-
-		public TestLogger Logger {
-			get { return eventSink.LoggerClient; }
+			get;
 		}
 
 		public TestLoggerBackend LocalLogger {
 			get;
 		}
 
-		protected override bool IsServer {
-			get { return true; }
-		}
-
-		public ServerConnection (TestApp app, TestFramework framework, SocketListener listener)
-			: this (app, framework, listener.Stream)
+		public ExternalDomainServer (TestApp app, TestFramework framework, IExternalDomainServer server)
+			: base (app)
 		{
-			this.listener = listener;
-		}
-
-		public ServerConnection (TestApp app, TestFramework framework, SocketClient client)
-			: this (app, framework, client.Stream)
-		{
-			this.client = client;
-		}
-
-		ServerConnection (TestApp app, TestFramework framework, Stream stream)
-			: base (app, stream)
-		{
+			Framework = framework;
+			this.server = server;
 			LocalLogger = app.Logger?.Backend;
-			this.framework = framework;
+		}
+
+		protected override Task MainLoop ()
+		{
+			return server.WaitForCompletion ();
 		}
 
 		public async Task Initialize (Handshake handshake, CancellationToken cancellationToken)
@@ -108,18 +90,27 @@ namespace Xamarin.AsyncTests.Remoting
 			}
 
 			try {
-				if (listener != null) {
-					listener.Dispose ();
-					listener = null;
-				}
-				if (client != null) {
-					client.Dispose ();
-					client = null;
+				if (server != null) {
+					server.Dispose ();
+					server = null;
 				}
 			} catch {
 				;
 			}
 		}
+
+		protected override async Task SendMessage (Message message)
+		{
+			var element = message.Write (this);
+
+			var response = await server.SendMessage (element, cancelCts.Token).ConfigureAwait (false);
+			if (response == null)
+				return;
+
+			var objectID = response.Attribute ("ObjectID").Value;
+			var operation = GetResponse (long.Parse (objectID));
+			operation.Response.Read (this, response);
+			operation.Task.SetResult (true);
+		}
 	}
 }
-

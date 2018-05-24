@@ -19,8 +19,6 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Xamarin.WebTests.TestProvid
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.PortableSecurity.iOS", "IOS\Xamarin.WebTests.PortableSecurity.iOS\Xamarin.WebTests.PortableSecurity.iOS.csproj", "{D2ADF33E-0152-4AFB-BF71-588BCCB5DEE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.TestProvider.iOS", "IOS\Xamarin.WebTests.TestProvider.iOS\Xamarin.WebTests.TestProvider.iOS.csproj", "{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.AsyncTests.Console", "Xamarin.AsyncTests.Console\Xamarin.AsyncTests.Console.csproj", "{8FA04E17-8E60-45C4-A9A7-51C5047CCABF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.MonoFramework", "Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj", "{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}"
@@ -39,18 +37,6 @@ Global
 		Release|iPhone = Release|iPhone
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Release|iPhone.Build.0 = Release|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{1C192D5C-CD9D-41E4-8272-DC7A93E05E25}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{68C3567C-A1C1-4A0A-94E9-60BA4BD5CC39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{68C3567C-A1C1-4A0A-94E9-60BA4BD5CC39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68C3567C-A1C1-4A0A-94E9-60BA4BD5CC39}.Debug|iPhone.ActiveCfg = Debug|Any CPU

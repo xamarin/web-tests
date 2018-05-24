@@ -46,6 +46,8 @@ namespace Xamarin.AsyncTests.MacUI
 		SettingsDialogController settingsDialogController;
 		TestSession currentSession;
 		MobileTestOptions options;
+		ServerParameters currentParameters;
+		MacExternalDomainSupport domainSupport;
 		bool isStopped;
 		bool hasServer;
 		MacUI ui;
@@ -63,6 +65,8 @@ namespace Xamarin.AsyncTests.MacUI
 		public MacUI MacUI {
 			get { return ui; }
 		}
+
+		public ServerParameters CurrentParameters => currentParameters;
 
 		[Export ("MainController")]
 		public MainWindowController MainController {
@@ -106,6 +110,9 @@ namespace Xamarin.AsyncTests.MacUI
 			StartWithOptions ();
 
 			settingsDialogController.DidFinishLaunching ();
+
+			domainSupport = new MacExternalDomainSupport (this);
+			DependencyInjector.RegisterDependency<IExternalDomainSupport> (() => domainSupport);
 		}
 
 		ServerParameters GetParameters ()
@@ -239,6 +246,8 @@ namespace Xamarin.AsyncTests.MacUI
 				alert.RunModal ();
 				return;
 			}
+
+			currentParameters = parameters;
 
 			try {
 				await ui.ServerManager.Start.Execute (parameters);

@@ -30,14 +30,21 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xamarin.AsyncTests.Portable
+namespace Xamarin.AsyncTests.Remoting
 {
-	class SocketListener : IDisposable
+	public class SocketListener : IDisposable
 	{
 		Socket socket;
+		Socket accepted;
+		NetworkStream stream;
 		IPEndPoint endpoint;
+		TaskCompletionSource<Socket> tcs;
 
 		public IPEndPoint LocalEndPoint => endpoint;
+
+		public Socket AcceptedSocket => accepted;
+
+		public NetworkStream Stream => stream;
 
 		public SocketListener ()
 		{
@@ -61,7 +68,10 @@ namespace Xamarin.AsyncTests.Portable
 
 		public Task<Socket> AcceptSocketAsync (CancellationToken cancellationToken)
 		{
-			var tcs = new TaskCompletionSource<Socket> ();
+			var oldTcs = Interlocked.CompareExchange (ref tcs, new TaskCompletionSource<Socket> (), null);
+			if (oldTcs != null)
+				return oldTcs.Task;
+
 			if (cancellationToken.IsCancellationRequested) {
 				tcs.SetCanceled ();
 				return tcs.Task;
@@ -75,6 +85,8 @@ namespace Xamarin.AsyncTests.Portable
 					var error = new IOException ($"AcceptAsync() failed: {args.SocketError})");
 					tcs.TrySetException (error);
 				} else {
+					accepted = args.AcceptSocket;
+					stream = new NetworkStream (accepted);
 					tcs.TrySetResult (args.AcceptSocket);
 				}
 				args.Dispose ();
@@ -96,6 +108,24 @@ namespace Xamarin.AsyncTests.Portable
 		{
 			if (Interlocked.CompareExchange (ref disposed, 1, 0) != 0)
 				return;
+
+			if (accepted != null) {
+				try {
+					accepted.Dispose ();
+				} catch {
+					;
+				}
+				accepted = null;
+			}
+
+			if (stream != null) {
+				try {
+					stream.Dispose ();
+				} catch {
+					;
+				}
+				stream = null;
+			}
 
 			if (socket != null) {
 				try {

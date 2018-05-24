@@ -41,10 +41,13 @@ namespace Xamarin.AsyncTests.Console {
 		string commandLine;
 		CancellationTokenSource cts;
 		TaskCompletionSource<object> tcs;
+		bool exited;
 
 		public override string CommandLine {
 			get;
 		}
+
+		public override bool HasExited => exited;
 
 		ProcessHelper (Process process, TextWriter output, CancellationToken cancellationToken)
 		{
@@ -66,6 +69,7 @@ namespace Xamarin.AsyncTests.Console {
 
 			process.EnableRaisingEvents = true;
 			process.Exited += (sender, e) => {
+				exited = true;
 				if (this.process == null) {
 					return;
 				}

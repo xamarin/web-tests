@@ -31,22 +31,13 @@ namespace Xamarin.AsyncTests.Remoting
 {
 	abstract class Message
 	{
-		protected string GetElementName ()
-		{
-			if (this is Response)
-				return "Response";
-			else
-				return "Command";
-		}
+		protected string ElementName => this is Response ? "Response" : "Command";
 
-		public XDocument Write (Connection connection)
+		public XElement Write (Connection connection)
 		{
-			var doc = new XDocument ();
-			var element = new XElement (GetElementName ());
-			doc.Add (element);
-
+			var element = new XElement (ElementName);
 			Write (connection, element);
-			return doc;
+			return element;
 		}
 
 		public virtual void Write (Connection connection, XElement node)

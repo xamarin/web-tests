@@ -24,16 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Xml.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Remoting
 {
-	using Portable;
-
 	public interface IExternalDomainHost : IDisposable
 	{
-		Task Start (IPortableEndPoint address, CancellationToken cancellationToken);
+		Task<XElement> SendMessage (XElement element, CancellationToken cancellationToken);
+
+		Task Start (TestServer server, CancellationToken cancellationToken);
 
 		Task WaitForCompletion (CancellationToken cancellationToken);
 
