@@ -44,36 +44,12 @@ using UIKit;
 namespace Xamarin.WebTests.iOS
 {
 	[Serializable]
-	public class Application : IForkedDomainSetup, IForkedSupport
+	public class Application
 	{
 		public bool SupportsProcessForks => false;
 
 		// This is the main entry point of the application.
 		static void Main (string[] args)
-		{
-			var app = new Application ();
-			app.Run (args);
-		}
-
-		void Run (string[] args)
-		{
-			DependencyInjector.RegisterDependency<IForkedSupport> (() => this);
-			DependencyInjector.RegisterDependency<IForkedDomainSetup> (() => this);
-
-#if FIXME
-			// FIXME: AppDomain.Create() throws an Exception because some code is linked out.
-			var domainSupport = new ExternalDomainSupport (typeof (Application).Assembly, null);
-			DependencyInjector.RegisterDependency<IExternalDomainSupport> (() => domainSupport);
-#endif
-
-			Initialize ();
-
-			// if you want to use a different Application Delegate class from "AppDelegate"
-			// you can specify it here.
-			UIApplication.Main (args, null, "AppDelegate");
-		}
-
-		public void Initialize ()
 		{
 			var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.iOS");
 			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
@@ -81,7 +57,10 @@ namespace Xamarin.WebTests.iOS
 
 			DependencyInjector.RegisterAssembly (typeof (WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (AppDelegate).Assembly);
-		}
 
+			// if you want to use a different Application Delegate class from "AppDelegate"
+			// you can specify it here.
+			UIApplication.Main (args, null, "AppDelegate");
+		}
 	}
 }
