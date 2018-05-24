@@ -7,7 +7,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Xamarin.WebTests.DotNet</RootNamespace>
     <AssemblyName>Xamarin.WebTests.DotNet</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -31,6 +31,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -63,12 +65,10 @@
       <Project>{926ED252-2819-43C0-A534-F662F4E4F87B}</Project>
       <Name>Xamarin.WebTests.PortableSecurity.Console</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.WebTests.TestProvider.DotNet\Xamarin.WebTests.TestProvider.DotNet.csproj">
-      <Project>{E6EC6736-08D0-4065-BC20-80820E33F772}</Project>
-      <Name>Xamarin.WebTests.TestProvider.DotNet</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <Import Project="..\..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" />
+  <Import Project="..\..\Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems" Label="Shared" />
 </Project>

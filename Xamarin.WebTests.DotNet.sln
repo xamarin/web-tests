@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.AsyncTests", "Xamarin.AsyncTests\Xamarin.AsyncTests.csproj", "{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}"
 EndProject
@@ -19,8 +19,6 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Xamarin.WebTests.TestProvid
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.PortableSecurity.Console", "Console\Xamarin.WebTests.PortableSecurity.Console\Xamarin.WebTests.PortableSecurity.Console.csproj", "{926ED252-2819-43C0-A534-F662F4E4F87B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.TestProvider.DotNet", "DotNet\Xamarin.WebTests.TestProvider.DotNet\Xamarin.WebTests.TestProvider.DotNet.csproj", "{E6EC6736-08D0-4065-BC20-80820E33F772}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.DotNet", "DotNet\Xamarin.WebTests.DotNet\Xamarin.WebTests.DotNet.csproj", "{5454F80C-AD16-4A09-9721-91AEBDC62682}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{70102C3F-2CB3-4A47-8ED7-FB84178988A7}"
@@ -31,10 +29,10 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems*{4d53941a-abbe-4b89-a362-c56f7bc0b20a}*SharedItemsImports = 13
+		Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems*{5454f80c-ad16-4a09-9721-91aebdc62682}*SharedItemsImports = 4
+		Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems*{5454f80c-ad16-4a09-9721-91aebdc62682}*SharedItemsImports = 4
 		Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems*{8fa04e17-8e60-45c4-a9a7-51c5047ccabf}*SharedItemsImports = 4
 		Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems*{d578985a-b8c0-4083-8f3e-1ae2b680e85b}*SharedItemsImports = 13
-		Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems*{e6ec6736-08d0-4065-bc20-80820e33f772}*SharedItemsImports = 4
-		Xamarin.WebTests.TestProvider\Xamarin.WebTests.TestProvider.projitems*{e6ec6736-08d0-4065-bc20-80820e33f772}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Console|Any CPU = Console|Any CPU
@@ -187,26 +185,6 @@ Global
 		{926ED252-2819-43C0-A534-F662F4E4F87B}.Release|iPhone.Build.0 = Release|Any CPU
 		{926ED252-2819-43C0-A534-F662F4E4F87B}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{926ED252-2819-43C0-A534-F662F4E4F87B}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Console|Any CPU.ActiveCfg = Debug|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Console|Any CPU.Build.0 = Debug|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Console|iPhone.ActiveCfg = Release|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Console|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.DebugFull|Any CPU.ActiveCfg = Debug|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.DebugFull|Any CPU.Build.0 = Debug|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.DebugFull|iPhone.ActiveCfg = Debug|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.DebugFull|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Release|iPhone.Build.0 = Release|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{E6EC6736-08D0-4065-BC20-80820E33F772}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{5454F80C-AD16-4A09-9721-91AEBDC62682}.Console|Any CPU.ActiveCfg = Debug|Any CPU
 		{5454F80C-AD16-4A09-9721-91AEBDC62682}.Console|Any CPU.Build.0 = Debug|Any CPU
 		{5454F80C-AD16-4A09-9721-91AEBDC62682}.Console|iPhone.ActiveCfg = Release|Any CPU
@@ -230,5 +208,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C9045488-F8AE-4E51-A0F0-A76BCA762919}
 	EndGlobalSection
 EndGlobal
