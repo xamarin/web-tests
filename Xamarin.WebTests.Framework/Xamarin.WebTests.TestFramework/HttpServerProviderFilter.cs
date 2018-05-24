@@ -61,7 +61,8 @@ namespace Xamarin.WebTests.TestFramework
 			RequireRenegotiation = (ServerFlags & HttpServerFlags.RequireRenegotiation) != 0;
 			RequireCleanShutdown = (ServerFlags & HttpServerFlags.RequireCleanShutdown) != 0;
 			RequireNewWebStack = (ServerFlags & HttpServerFlags.RequireNewWebStack) != 0;
-			RequireSsl |= RequireRenegotiation;
+			RequireInstrumentation = (ServerFlags & HttpServerFlags.RequireInstrumentation) != 0;
+			RequireSsl |= RequireRenegotiation | RequireInstrumentation;
 
 			Optional |= RequireRenegotiation | RequireCleanShutdown | RequireNewWebStack;
 
@@ -210,6 +211,10 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		bool RequireNewWebStack {
+			get;
+		}
+
+		bool RequireInstrumentation {
 			get;
 		}
 

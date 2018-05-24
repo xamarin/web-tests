@@ -40,8 +40,7 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 	using TestRunners;
 	using System.IO;
 
-	[HttpServerFlags (HttpServerFlags.RequireMono)]
-	[HttpServerTestCategory (HttpServerTestCategory.NewWebStackInstrumentation)]
+	[HttpServerFlags (HttpServerFlags.RequireMono | HttpServerFlags.RequireNewWebStack | HttpServerFlags.RequireInstrumentation)]
 	public class NtlmInstrumentation : HttpInstrumentationTestFixture
 	{
 		public sealed override HttpStatusCode ExpectedStatus {
