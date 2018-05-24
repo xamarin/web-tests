@@ -19,8 +19,6 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Xamarin.WebTests.TestProvid
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.PortableSecurity.Android", "Android\Xamarin.WebTests.PortableSecurity.Android\Xamarin.WebTests.PortableSecurity.Android.csproj", "{435F3228-ECA3-44C3-BE2D-5BBA02741833}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.TestProvider.Android", "Android\Xamarin.WebTests.TestProvider.Android\Xamarin.WebTests.TestProvider.Android.csproj", "{0B572AC8-6EFC-4B64-BCAD-9384AACC0248}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.MonoFramework", "Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj", "{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Security.Interface", "Android\Mono.Security.Interface\Mono.Security.Interface.csproj", "{AA73A784-E623-4B67-86D7-5642449535F2}"
@@ -36,12 +34,6 @@ Global
 		DebugBtls|Any CPU = DebugBtls|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0B572AC8-6EFC-4B64-BCAD-9384AACC0248}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B572AC8-6EFC-4B64-BCAD-9384AACC0248}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B572AC8-6EFC-4B64-BCAD-9384AACC0248}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B572AC8-6EFC-4B64-BCAD-9384AACC0248}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0B572AC8-6EFC-4B64-BCAD-9384AACC0248}.DebugBtls|Any CPU.ActiveCfg = DebugBtls|Any CPU
-		{0B572AC8-6EFC-4B64-BCAD-9384AACC0248}.DebugBtls|Any CPU.Build.0 = DebugBtls|Any CPU
 		{435F3228-ECA3-44C3-BE2D-5BBA02741833}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{435F3228-ECA3-44C3-BE2D-5BBA02741833}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{435F3228-ECA3-44C3-BE2D-5BBA02741833}.Release|Any CPU.ActiveCfg = Release|Any CPU
