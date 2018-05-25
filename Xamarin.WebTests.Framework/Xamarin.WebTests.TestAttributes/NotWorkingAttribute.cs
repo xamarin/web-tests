@@ -29,11 +29,11 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.TestAttributes
 {
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false)]
-	public class NotWorkingAttribute : TestCategoryAttribute
+	public class NotWorkingAttribute : TestFeatureAttribute
 	{
-		public static readonly TestCategory Instance = new TestCategory ("NotWorking") { IsExplicit = true };
+		public static readonly TestFeature Instance = new TestFeature ("NotWorking", "Include not working tests");
 
-		public override TestCategory Category {
+		public override TestFeature Feature {
 			get { return Instance; }
 		}
 	}

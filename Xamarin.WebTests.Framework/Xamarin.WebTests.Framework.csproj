@@ -192,7 +192,7 @@
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpStressTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpValidationTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpServerAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestAttributes\IncludeNotWorkingAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestAttributes\NotWorkingAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\LongRunningAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\ManualClientAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\ManualServerAttribute.cs" />
@@ -200,7 +200,6 @@
     <Compile Include="Xamarin.WebTests.TestAttributes\NetworkAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\NewAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\NewWebStackAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestAttributes\NotWorkingAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\ProtocolVersionAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\RecentlyFixedAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\StressAttribute.cs" />

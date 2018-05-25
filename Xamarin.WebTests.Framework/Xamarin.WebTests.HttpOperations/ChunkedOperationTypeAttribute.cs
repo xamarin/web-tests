@@ -62,7 +62,7 @@ namespace Xamarin.WebTests.HttpOperations
 				yield break;
 			}
 
-			var includeNotWorking = ctx.IsEnabled (IncludeNotWorkingAttribute.Instance) || ctx.CurrentCategory == NotWorkingAttribute.Instance;
+			var includeNotWorking = ctx.IsEnabled (NotWorkingAttribute.Instance);
 
 			if (ServerError) {
 				if (includeNotWorking)

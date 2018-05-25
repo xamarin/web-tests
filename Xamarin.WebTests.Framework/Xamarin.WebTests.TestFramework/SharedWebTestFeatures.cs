@@ -61,7 +61,7 @@ namespace Xamarin.WebTests.TestFramework
 				yield return TestFeature.ForkedSupport;
 				yield return TestFeature.ForkedProcessSupport;
 				yield return ExperimentalAttribute.Instance;
-				yield return IncludeNotWorkingAttribute.Instance;
+				yield return NotWorkingAttribute.Instance;
 				yield return CertificateStoreAttribute.Instance;
 
 				yield return ManualSslStreamAttribute.Instance;
@@ -78,7 +78,6 @@ namespace Xamarin.WebTests.TestFramework
 				yield return StressAttribute.Instance;
 				yield return LongRunningAttribute.Instance;
 
-				yield return NotWorkingAttribute.Instance;
 				yield return ManualClientAttribute.Instance;
 				yield return ManualServerAttribute.Instance;
 			}
