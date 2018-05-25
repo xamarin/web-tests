@@ -47,9 +47,9 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		readonly MSI.MonoTlsProvider tlsProvider;
 		readonly string name;
 
-		internal MonoConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderType type, ConnectionProviderFlags flags,
+		internal MonoConnectionProvider (ConnectionProviderType type, ConnectionProviderFlags flags,
 		                                 string name, MSI.MonoTlsProvider tlsProvider)
-			: base (factory, type, GetFlags (flags, tlsProvider))
+			: base (type, GetFlags (flags, tlsProvider))
 		{
 			this.name = name;
 			this.tlsProvider = tlsProvider;

@@ -63,10 +63,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			providers = new Dictionary<ConnectionProviderType,ConnectionProvider> ();
 			dotNetSslStreamProvider = new DotNetSslStreamProvider ();
 
-			defaultConnectionProvider = new DotNetConnectionProvider (this, ConnectionProviderType.DotNet, dotNetSslStreamProvider);
+			defaultConnectionProvider = new DotNetConnectionProvider (ConnectionProviderType.DotNet, dotNetSslStreamProvider);
 			Install (defaultConnectionProvider);
 
-			manualConnectionProvider = new ManualConnectionProvider (this, ConnectionProviderFlags.IsExplicit);
+			manualConnectionProvider = new ManualConnectionProvider (ConnectionProviderFlags.IsExplicit);
 			Install (manualConnectionProvider);
 
 			Initialize ();

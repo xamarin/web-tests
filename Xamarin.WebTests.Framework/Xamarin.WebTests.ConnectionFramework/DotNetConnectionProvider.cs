@@ -39,8 +39,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		readonly ISslStreamProvider sslStreamProvider;
 		readonly ProtocolVersions protocols;
 
-		public DotNetConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderType type, ISslStreamProvider sslStreamProvider)
-			: base (factory, type, GetFlags ())
+		public DotNetConnectionProvider (ConnectionProviderType type, ISslStreamProvider sslStreamProvider)
+			: base (type, GetFlags ())
 		{
 			this.sslStreamProvider = sslStreamProvider;
 

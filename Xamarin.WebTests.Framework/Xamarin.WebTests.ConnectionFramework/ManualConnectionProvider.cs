@@ -33,8 +33,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public class ManualConnectionProvider : ConnectionProvider
 	{
-		public ManualConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderFlags flags)
-			: base (factory, ConnectionProviderType.Manual, flags)
+		public ManualConnectionProvider (ConnectionProviderFlags flags)
+			: base ( ConnectionProviderType.Manual, flags)
 		{
 		}
 
