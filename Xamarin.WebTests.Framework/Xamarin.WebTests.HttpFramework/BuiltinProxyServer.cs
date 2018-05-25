@@ -41,14 +41,14 @@ namespace Xamarin.WebTests.HttpFramework {
 			get;
 		}
 
-		public BuiltinProxyServer (HttpServer target, IPortableEndPoint listenAddress, HttpServerFlags flags,
+		public BuiltinProxyServer (HttpServer target, EndPoint listenAddress, HttpServerFlags flags,
 		                           AuthenticationType proxyAuth = AuthenticationType.None)
 			: base (listenAddress, GetFlags (flags, target, proxyAuth), null, null)
 		{
 			Target = target;
 			AuthenticationType = proxyAuth;
 
-			Uri = new Uri (string.Format ("http://{0}:{1}/", ListenAddress.Address, ListenAddress.Port));
+			Uri = new Uri (string.Format ("http://{0}/", ListenAddress));
 		}
 
 		static HttpServerFlags GetFlags (HttpServerFlags flags, HttpServer target, AuthenticationType proxyAuth)

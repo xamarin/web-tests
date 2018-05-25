@@ -44,7 +44,7 @@ namespace Xamarin.AsyncTests.Remoting
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 		}
 
-		public Task ConnectAsync (IPEndPoint address, CancellationToken cancellationToken)
+		public Task ConnectAsync (EndPoint address, CancellationToken cancellationToken)
 		{
 			var tcs = new TaskCompletionSource<Socket> ();
 			if (cancellationToken.IsCancellationRequested) {

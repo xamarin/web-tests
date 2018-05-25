@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -66,7 +67,7 @@ namespace Xamarin.AsyncTests.Mobile
 			get { return Options.SessionMode; }
 		}
 
-		public IPortableEndPoint EndPoint {
+		public EndPoint EndPoint {
 			get { return Options.EndPoint; }
 		}
 
@@ -189,7 +190,7 @@ namespace Xamarin.AsyncTests.Mobile
 
 		async Task<bool> StartServer (CancellationToken cancellationToken)
 		{
-			Debug ($"Start Server: {SessionMode} {EndPoint?.Address}:{EndPoint?.Port}");
+			Debug ($"Start Server: {SessionMode} {EndPoint}");
 			switch (SessionMode) {
 			case MobileSessionMode.Local:
 				server = await TestServer.StartLocal (this, Framework, cancellationToken);
@@ -197,12 +198,12 @@ namespace Xamarin.AsyncTests.Mobile
 				break;
 
 			case MobileSessionMode.Server:
-				Controller.Message ("Listening at is {0}:{1}.", EndPoint.Address, EndPoint.Port);
+				Controller.Message ($"Listening at is {EndPoint}.");
 				server = await TestServer.StartServer (this, EndPoint, Framework, cancellationToken);
 				break;
 
 			case MobileSessionMode.Connect:
-				Controller.Message ("Connecting to {0}:{1}.", EndPoint.Address, EndPoint.Port);
+				Controller.Message ($"Connecting to {EndPoint}.");
 				server = await TestServer.ConnectToRemote (this, EndPoint, Framework, cancellationToken);
 				break;
 

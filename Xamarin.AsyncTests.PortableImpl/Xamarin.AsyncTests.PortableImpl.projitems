@@ -10,7 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)PortableSupportImpl.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PortableEndPointSupportImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PortableDependencyProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PortableTaskSupportImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExternalDomainHost.cs" />

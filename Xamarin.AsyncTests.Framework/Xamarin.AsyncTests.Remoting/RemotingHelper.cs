@@ -24,11 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Remoting
 {
+	using System.Net.Sockets;
 	using Framework;
 
 	public static class RemotingHelper
@@ -56,6 +58,29 @@ namespace Xamarin.AsyncTests.Remoting
 			var responseElement = response.Write (server.Connection);
 			var serialized = TestSerializer.Serialize (responseElement);
 			return serialized;
+		}
+
+		public static EndPoint ParseEndpoint (string address, int defaultPort = 8888, bool dnsLookup = false)
+		{
+			int port;
+			string host;
+			var pos = address.IndexOf (":", StringComparison.Ordinal);
+			if (pos < 0) {
+				host = address;
+				port = defaultPort;
+			} else {
+				host = address.Substring (0, pos);
+				port = int.Parse (address.Substring (pos + 1));
+			}
+
+			IPAddress ip;
+			if (IPAddress.TryParse (host, out ip))
+				return new IPEndPoint (ip, port);
+
+			if (!dnsLookup)
+				throw new InvalidOperationException ($"Not a valid IP Address: '{host}'.");
+
+			return new DnsEndPoint (host, port);
 		}
 	}
 }

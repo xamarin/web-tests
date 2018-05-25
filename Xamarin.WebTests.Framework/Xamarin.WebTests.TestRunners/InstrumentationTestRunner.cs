@@ -242,7 +242,7 @@ namespace Xamarin.WebTests.TestRunners
 			var endPoint = ConnectionTestHelper.GetEndPoint ();
 
 			var proto = (serverFlags & HttpServerFlags.NoSSL) != 0 ? "http" : "https";
-			var uri = new Uri ($"{proto}://{endPoint.Address}:{endPoint.Port}/");
+			var uri = new Uri ($"{proto}://{endPoint}/");
 
 			var parameters = GetParameters (ctx);
 

@@ -41,10 +41,6 @@ namespace Xamarin.WebTests.Server
 {
 	class SocketBackend : ListenerBackend
 	{
-		public IPEndPoint NetworkEndPoint {
-			get;
-		}
-
 		protected Socket Socket {
 			get;
 		}
@@ -58,11 +54,8 @@ namespace Xamarin.WebTests.Server
 			if (ssl & (server.Flags & HttpServerFlags.Proxy) != 0)
 				throw new InternalErrorException ();
 
-			var address = IPAddress.Parse (server.ListenAddress.Address);
-			NetworkEndPoint = new IPEndPoint (address, server.ListenAddress.Port);
-
 			Socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			Socket.Bind (NetworkEndPoint);
+			Socket.Bind (server.ListenAddress);
 			Socket.Listen (128);
 
 			connections = new List<SocketConnection> ();

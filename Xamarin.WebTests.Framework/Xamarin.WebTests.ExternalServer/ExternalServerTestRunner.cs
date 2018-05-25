@@ -138,7 +138,7 @@ namespace Xamarin.WebTests.ExternalServer
 				server.EndPoint = ConnectionTestHelper.GetEndPoint ();
 				server.EffectiveFlags = server.Flags | providerFlags;
 				var proto = (server.EffectiveFlags & HttpServerFlags.NoSSL) != 0 ? "http" : "https";
-				server.Uri = new Uri ($"{proto}://{server.EndPoint.Address}:{server.EndPoint.Port}/");
+				server.Uri = new Uri ($"{proto}://{server.EndPoint}/");
 
 				var parameters = GetParameters (ME);
 

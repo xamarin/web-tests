@@ -83,7 +83,7 @@ namespace Xamarin.WebTests.TestRunners
 			get;
 		}
 
-		public HttpValidationTestRunner (IPortableEndPoint endpoint, HttpValidationTestParameters parameters,
+		public HttpValidationTestRunner (EndPoint endpoint, HttpValidationTestParameters parameters,
 		                                 ConnectionTestProvider provider, Uri uri, HttpServerFlags flags)
 		{
 			Parameters = parameters;

@@ -86,7 +86,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		internal const string LogCategory = LogCategories.Stress;
 
-		public HttpStressTestRunner (IPortableEndPoint endpoint, HttpStressTestParameters parameters,
+		public HttpStressTestRunner (EndPoint endpoint, HttpStressTestParameters parameters,
 					     ConnectionTestProvider provider, Uri uri, HttpServerFlags flags)
 		{
 			Parameters = parameters;

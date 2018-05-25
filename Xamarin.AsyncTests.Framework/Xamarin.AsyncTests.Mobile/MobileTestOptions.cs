@@ -24,8 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Linq;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Remoting;
 
 namespace Xamarin.AsyncTests.Mobile {
 	public class MobileTestOptions {
@@ -38,7 +40,7 @@ namespace Xamarin.AsyncTests.Mobile {
 			get;
 		}
 
-		public IPortableEndPoint EndPoint {
+		public EndPoint EndPoint {
 			get;
 		}
 
@@ -111,9 +113,9 @@ namespace Xamarin.AsyncTests.Mobile {
 			if (args [0] == "server") {
 				SessionMode = MobileSessionMode.Server;
 				if (args.Count == 2) {
-					EndPoint = DependencyInjector.Get<IPortableEndPointSupport> ().ParseEndpoint (args [1]);
+					EndPoint = RemotingHelper.ParseEndpoint (args[1]);
 				} else if (args.Count == 1) {
-					EndPoint = GetEndPoint ();
+					EndPoint = new IPEndPoint (IPAddress.Loopback, 8888);
 				} else {
 					throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
 				}
@@ -121,7 +123,7 @@ namespace Xamarin.AsyncTests.Mobile {
 				SessionMode = MobileSessionMode.Connect;
 				if (args.Count != 2)
 					throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
-				EndPoint = DependencyInjector.Get<IPortableEndPointSupport> ().ParseEndpoint (args [1]);
+				EndPoint = RemotingHelper.ParseEndpoint (args[1]);
 			} else if (args [0] == "local") {
 				SessionMode = MobileSessionMode.Local;
 				if (args.Count != 1)
@@ -130,12 +132,6 @@ namespace Xamarin.AsyncTests.Mobile {
 			} else {
 				throw new InvalidOperationException ("Invalid 'XAMARIN_ASYNCTESTS_OPTIONS' argument.");
 			}
-		}
-
-		static IPortableEndPoint GetEndPoint ()
-		{
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			return support.GetEndpoint (8888);
 		}
 
 		void ParseSettings (string arg)

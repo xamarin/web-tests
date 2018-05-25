@@ -32,7 +32,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			ctx.LogDebug (LogCategories.Listener, 1, "Connected.");
 
-			var targetHost = Parameters.TargetHost ?? PortableEndPoint.HostName ?? PortableEndPoint.Address;
+			var targetHost = Parameters.TargetHost ?? EndPoint.ToString ();
+			var pos = targetHost.IndexOf (':');
+			if (pos > 0)
+				targetHost = targetHost.Substring (0, pos);
+
 			ctx.LogDebug (LogCategories.Listener, 1, "Using '{0}' as target host.", targetHost);
 
 			var protocol = sslStreamProvider.GetProtocol (Parameters, IsServer);

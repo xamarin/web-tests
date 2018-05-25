@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Linq;
 using System.Xml.Linq;
 using System.Collections.Generic;
@@ -89,7 +90,7 @@ namespace Xamarin.WebTests.ExternalServer
 			internal set;
 		}
 
-		public IPortableEndPoint EndPoint {
+		public EndPoint EndPoint {
 			get;
 			internal set;
 		}

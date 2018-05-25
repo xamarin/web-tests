@@ -37,10 +37,10 @@ namespace Xamarin.AsyncTests.Remoting
 		Socket socket;
 		Socket accepted;
 		NetworkStream stream;
-		IPEndPoint endpoint;
+		EndPoint endpoint;
 		TaskCompletionSource<Socket> tcs;
 
-		public IPEndPoint LocalEndPoint => endpoint;
+		public EndPoint LocalEndPoint => endpoint;
 
 		public Socket AcceptedSocket => accepted;
 
@@ -53,7 +53,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 		static int nextPort = 11000;
 
-		public void Start (IPEndPoint requestedEndPoint)
+		public void Start (EndPoint requestedEndPoint)
 		{
 			if (requestedEndPoint != null)
 				endpoint = requestedEndPoint;

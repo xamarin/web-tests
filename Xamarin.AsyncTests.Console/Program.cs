@@ -301,12 +301,6 @@ namespace Xamarin.AsyncTests.Console
 			return string.Format ("{0}:{1}", endpoint.Address, endpoint.Port);
 		}
 
-		static IPortableEndPoint GetPortableEndPoint (IPEndPoint endpoint)
-		{
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			return support.GetEndpoint (endpoint.Address.ToString (), endpoint.Port);
-		}
-
 		async Task<int> Run (CancellationToken cancellationToken)
 		{
 			LogInfo ("Running test suite.");
@@ -363,8 +357,7 @@ namespace Xamarin.AsyncTests.Console
 
 			TestServer server;
 			try {
-				var endpoint = GetPortableEndPoint (Options.GuiEndPoint);
-				server = await TestServer.ConnectToGui (this, endpoint, framework, cancellationToken);
+				server = await TestServer.ConnectToGui (this, Options.GuiEndPoint, framework, cancellationToken);
 			} catch (SocketException ex) {
 				if (ex.SocketErrorCode == SocketError.ConnectionRefused && Options.OptionalGui) {
 					return await RunLocal (cancellationToken);
@@ -428,8 +421,7 @@ namespace Xamarin.AsyncTests.Console
 
 		async Task<int> ConnectToServer (CancellationToken cancellationToken)
 		{
-			var endpoint = GetPortableEndPoint (Options.EndPoint);
-			var server = await TestServer.ConnectToServer (this, endpoint, cancellationToken);
+			var server = await TestServer.ConnectToServer (this, Options.EndPoint, cancellationToken);
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			session = server.Session;
@@ -458,8 +450,7 @@ namespace Xamarin.AsyncTests.Console
 		async Task<int> ConnectToForkedParent (CancellationToken cancellationToken)
 		{
 			var framework = TestFramework.GetLocalFramework (PackageName, Assembly, Options.Dependencies);
-			var endpoint = GetPortableEndPoint (Options.EndPoint);
-			var server = await TestServer.ConnectToForkedParent (this, endpoint, framework, cancellationToken);
+			var server = await TestServer.ConnectToForkedParent (this, Options.EndPoint, framework, cancellationToken);
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			Debug ($"Connected to forked parent."); 
@@ -481,11 +472,9 @@ namespace Xamarin.AsyncTests.Console
 
 		async Task<int> LaunchApplication (CancellationToken cancellationToken)
 		{
-			var endpoint = GetPortableEndPoint (Options.EndPoint);
-
 			TestServer server;
 			try {
-				server = await TestServer.LaunchApplication (this, endpoint, Launcher, LauncherOptions, cancellationToken);
+				server = await TestServer.LaunchApplication (this, Options.EndPoint, Launcher, LauncherOptions, cancellationToken);
 			} catch (LauncherErrorException ex) {
 				PrintException (ex);
 				Environment.Exit (255);
@@ -504,8 +493,7 @@ namespace Xamarin.AsyncTests.Console
 
 		async Task<int> WaitForConnection (CancellationToken cancellationToken)
 		{
-			var endpoint = GetPortableEndPoint (Options.EndPoint);
-			var server = await TestServer.WaitForConnection (this, endpoint, cancellationToken);
+			var server = await TestServer.WaitForConnection (this, Options.EndPoint, cancellationToken);
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			Debug ("Got server connection.");

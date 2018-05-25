@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
@@ -53,11 +54,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return new ConnectionParameters (this);
 		}
 
-		public IPortableEndPoint EndPoint {
+		public EndPoint EndPoint {
 			get; set;
 		}
 
-		public IPortableEndPoint ListenAddress {
+		public EndPoint ListenAddress {
 			get; set;
 		}
 

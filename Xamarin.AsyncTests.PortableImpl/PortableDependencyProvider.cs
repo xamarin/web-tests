@@ -38,7 +38,6 @@ namespace Xamarin.AsyncTests.Portable
 		public void Initialize ()
 		{
 			DependencyInjector.RegisterDependency<IPortableSupport> (() => new PortableSupportImpl ());
-			DependencyInjector.RegisterDependency<IPortableEndPointSupport> (() => new PortableEndPointSupportImpl ());
 			DependencyInjector.RegisterDependency<IPortableTaskSupport> (() => new PortableTaskSupportImpl ());
 		}
 	}

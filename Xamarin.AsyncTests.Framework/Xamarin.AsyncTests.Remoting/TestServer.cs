@@ -56,7 +56,7 @@ namespace Xamarin.AsyncTests.Remoting
 			get;
 		}
 
-		internal abstract IPortableEndPoint EndPoint {
+		internal abstract EndPoint EndPoint {
 			get;
 		}
 
@@ -65,17 +65,10 @@ namespace Xamarin.AsyncTests.Remoting
 			App = app;
 		}
 
-		static IPEndPoint GetEndPoint (IPortableEndPoint endpoint)
-		{
-			if (endpoint == null)
-				return null;
-			return new IPEndPoint (IPAddress.Parse (endpoint.Address), endpoint.Port);
-		}
-
-		static SocketListener CreateListener (IPortableEndPoint endpoint)
+		static SocketListener CreateListener (EndPoint endpoint)
 		{
 			var listener = new SocketListener ();
-			listener.Start (GetEndPoint (endpoint));
+			listener.Start (endpoint);
 			return listener;
 		}
 
@@ -86,7 +79,7 @@ namespace Xamarin.AsyncTests.Remoting
 			return server;
 		}
 
-		public static async Task<TestServer> WaitForConnection (TestApp app, IPortableEndPoint address, CancellationToken cancellationToken)
+		public static async Task<TestServer> WaitForConnection (TestApp app, EndPoint address, CancellationToken cancellationToken)
 		{
 			var listener = CreateListener (address);
 			var socket = await listener.AcceptSocketAsync (cancellationToken).ConfigureAwait (false);
@@ -98,7 +91,7 @@ namespace Xamarin.AsyncTests.Remoting
 			return client;
 		}
 
-		public static async Task<TestServer> LaunchApplication (TestApp app, IPortableEndPoint address, ApplicationLauncher launcher, LauncherOptions options, CancellationToken cancellationToken)
+		public static async Task<TestServer> LaunchApplication (TestApp app, EndPoint address, ApplicationLauncher launcher, LauncherOptions options, CancellationToken cancellationToken)
 		{
 			var listener = CreateListener (address);
 
@@ -114,7 +107,7 @@ namespace Xamarin.AsyncTests.Remoting
 			if (!string.IsNullOrWhiteSpace (app.PackageName))
 				sb.AppendFormat ("--package-name={0} ", app.PackageName);
 
-			sb.AppendFormat ("connect {0}:{1}", address.Address, address.Port);
+			sb.Append ($"connect {address}");
 
 			var process = await launcher.LaunchApplication (sb.ToString (), cancellationToken);
 
@@ -129,10 +122,10 @@ namespace Xamarin.AsyncTests.Remoting
 			return client;
 		}
 
-		public static async Task<TestServer> ConnectToRemote (TestApp app, IPortableEndPoint address, TestFramework framework, CancellationToken cancellationToken)
+		public static async Task<TestServer> ConnectToRemote (TestApp app, EndPoint address, TestFramework framework, CancellationToken cancellationToken)
 		{
 			var client = new SocketClient ();
-			await client.ConnectAsync (GetEndPoint (address), cancellationToken).ConfigureAwait (false);
+			await client.ConnectAsync (address, cancellationToken).ConfigureAwait (false);
 
 			var serverConnection = new ServerConnection (app, framework, client);
 			var server = new Server (app, framework, serverConnection);
@@ -140,10 +133,10 @@ namespace Xamarin.AsyncTests.Remoting
 			return server;
 		}
 
-		public static async Task<TestServer> ConnectToGui (TestApp app, IPortableEndPoint address, TestFramework framework, CancellationToken cancellationToken)
+		public static async Task<TestServer> ConnectToGui (TestApp app, EndPoint address, TestFramework framework, CancellationToken cancellationToken)
 		{
 			var client = new SocketClient ();
-			await client.ConnectAsync (GetEndPoint (address), cancellationToken).ConfigureAwait (false);
+			await client.ConnectAsync (address, cancellationToken).ConfigureAwait (false);
 
 			var serverConnection = new ServerConnection (app, framework, client);
 			var server = new Server (app, framework, serverConnection);
@@ -151,7 +144,7 @@ namespace Xamarin.AsyncTests.Remoting
 			return server;
 		}
 
-		public static async Task<TestServer> StartServer (TestApp app, IPortableEndPoint address, TestFramework framework, CancellationToken cancellationToken)
+		public static async Task<TestServer> StartServer (TestApp app, EndPoint address, TestFramework framework, CancellationToken cancellationToken)
 		{
 			var listener = CreateListener (address);
 			await listener.AcceptSocketAsync (cancellationToken).ConfigureAwait (false);
@@ -163,10 +156,10 @@ namespace Xamarin.AsyncTests.Remoting
 			return server;
 		}
 
-		public static async Task<TestServer> ConnectToServer (TestApp app, IPortableEndPoint address, CancellationToken cancellationToken)
+		public static async Task<TestServer> ConnectToServer (TestApp app, EndPoint address, CancellationToken cancellationToken)
 		{
 			var connection = new SocketClient ();
-			await connection.ConnectAsync (GetEndPoint (address), cancellationToken).ConfigureAwait (false);
+			await connection.ConnectAsync (address, cancellationToken).ConfigureAwait (false);
 
 			var clientConnection = new ClientConnection (app, connection);
 			var client = new Client (app, clientConnection);
@@ -174,10 +167,10 @@ namespace Xamarin.AsyncTests.Remoting
 			return client;
 		}
 
-		public static async Task<TestServer> ConnectToForkedParent (TestApp app, IPortableEndPoint address, TestFramework framework, CancellationToken cancellationToken)
+		public static async Task<TestServer> ConnectToForkedParent (TestApp app, EndPoint address, TestFramework framework, CancellationToken cancellationToken)
 		{
 			var connection = new SocketClient ();
-			await connection.ConnectAsync (GetEndPoint (address), cancellationToken).ConfigureAwait (false);
+			await connection.ConnectAsync (address, cancellationToken).ConfigureAwait (false);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			var serverConnection = new ServerConnection (app, framework, connection);
@@ -196,7 +189,7 @@ namespace Xamarin.AsyncTests.Remoting
 			return testServer;
 		}
 
-		public static async Task<TestServer> CreatePipe (TestApp app, IPortableEndPoint endpoint, PipeArguments arguments, CancellationToken cancellationToken)
+		public static async Task<TestServer> CreatePipe (TestApp app, EndPoint endpoint, PipeArguments arguments, CancellationToken cancellationToken)
 		{
 			var listener = CreateListener (endpoint);
 
@@ -213,7 +206,7 @@ namespace Xamarin.AsyncTests.Remoting
 					cmd.AppendFormat (" --dependency={0}", dependency);
 				}
 			}
-			cmd.AppendFormat (" --gui={0}:{1}", listener.LocalEndPoint.Address, listener.LocalEndPoint.Port);
+			cmd.Append ($" --gui={listener.LocalEndPoint}");
 			if (arguments.ExtraArguments != null)
 				cmd.AppendFormat (" {0}", arguments.ExtraArguments);
 			if (arguments.ConsolePath != null) {
@@ -261,7 +254,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 			var address = listener.LocalEndPoint;
 
-			sb.AppendFormat ($"fork {address.Address}:{address.Port}");
+			sb.AppendFormat ($"fork {address}");
 
 			var launcher = DependencyInjector.Get<IForkedProcessLauncher> ();
 			var process = await launcher.LaunchApplication (sb.ToString (), cancellationToken);
@@ -323,7 +316,7 @@ namespace Xamarin.AsyncTests.Remoting
 
 			internal override Connection Connection => throw new InternalErrorException ();
 
-			internal override IPortableEndPoint EndPoint => throw new InternalErrorException ();
+			internal override EndPoint EndPoint => throw new InternalErrorException ();
 
 			public LocalTestServer (TestApp app, TestFramework framework)
 				: base (app)
@@ -359,7 +352,7 @@ namespace Xamarin.AsyncTests.Remoting
 				get;
 			}
 
-			internal override IPortableEndPoint EndPoint => throw new InternalErrorException ();
+			internal override EndPoint EndPoint => throw new InternalErrorException ();
 
 			public Server (TestApp app, TestFramework framework, Connection server)
 				: base (app)
@@ -410,7 +403,7 @@ namespace Xamarin.AsyncTests.Remoting
 				get;
 			}
 
-			internal override IPortableEndPoint EndPoint => throw new InternalErrorException ();
+			internal override EndPoint EndPoint => throw new InternalErrorException ();
 
 			public Client (TestApp app, Connection client)
 				: base (app)

@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
-		public IPortableEndPoint ListenAddress {
+		public EndPoint ListenAddress {
 			get;
 		}
 
@@ -75,7 +75,7 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
-		public HttpServer (IPortableEndPoint listenAddress, HttpServerFlags flags,
+		public HttpServer (EndPoint listenAddress, HttpServerFlags flags,
 				   ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
 		{
 			ListenAddress = listenAddress;

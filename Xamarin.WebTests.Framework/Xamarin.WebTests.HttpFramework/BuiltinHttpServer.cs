@@ -38,14 +38,14 @@ using Xamarin.WebTests.HttpHandlers;
 namespace Xamarin.WebTests.HttpFramework {
 	public sealed class BuiltinHttpServer : HttpServer
 	{
-		public BuiltinHttpServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, HttpServerFlags flags,
+		public BuiltinHttpServer (EndPoint clientEndPoint, EndPoint listenAddress, HttpServerFlags flags,
 					  ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
 			: base (listenAddress, flags, parameters, sslStreamProvider)
 		{
-			Uri = new Uri ($"http{(SslStreamProvider != null ? "s" : "")}://{clientEndPoint.Address}:{clientEndPoint.Port}/");
+			Uri = new Uri ($"http{(SslStreamProvider != null ? "s" : "")}://{clientEndPoint}/");
 		}
 
-		public BuiltinHttpServer (Uri uri, IPortableEndPoint listenAddress, HttpServerFlags flags,
+		public BuiltinHttpServer (Uri uri, EndPoint listenAddress, HttpServerFlags flags,
 					  ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)
 			: base (listenAddress, flags | HttpServerFlags.SSL, parameters, sslStreamProvider)
 		{

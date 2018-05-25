@@ -76,26 +76,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			var provider = ctx.GetParameter<ConnectionTestProvider> ();
 
-			if (provider.IsManual) {
-				if (ctx.Settings.TryGetValue ("ServerAddress", out var serverAddress)) {
-					var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-					Parameters.ListenAddress = support.ParseEndpoint (serverAddress, 443, true);
-
-					if (ctx.Settings.TryGetValue ("ServerHost", out var serverHost))
-						Parameters.TargetHost = serverHost;
-				}
+			if (Parameters.EndPoint == null) {
+				if (Parameters.ListenAddress != null)
+					Parameters.EndPoint = Parameters.ListenAddress;
+				else
+					Parameters.EndPoint = ConnectionTestHelper.GetEndPoint ();
 			}
-
-			if (Parameters.EndPoint != null) {
-				if (Parameters.TargetHost == null)
-					Parameters.TargetHost = Parameters.EndPoint.HostName;
-			} else if (provider.IsManual) {
-				var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-				Parameters.ListenAddress = support.GetEndpoint ("0.0.0.0", 4433);
-			} else if (Parameters.ListenAddress != null)
-				Parameters.EndPoint = Parameters.ListenAddress;
-			else
-				Parameters.EndPoint = ConnectionTestHelper.GetEndPoint ();
 
 			Server = provider.CreateServer (Parameters);
 
@@ -114,7 +100,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
 			Initialize (ctx);
-			ctx.LogDebug (LogCategories.SimpleConnections, 1, $"Starting client and server: {Client} {Server} {Server.PortableEndPoint}");
+			ctx.LogDebug (LogCategories.SimpleConnections, 1, $"Starting client and server: {Client} {Server} {Server.EndPoint}");
 			InitializeConnection (ctx);
 			await StartServer (ctx, cancellationToken);
 			await StartClient (ctx, cancellationToken);

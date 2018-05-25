@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -50,11 +51,10 @@ namespace Xamarin.WebTests.TestFramework
 			return Factory.GetProviderFlags (type);
 		}
 
-		public static IPortableEndPoint GetEndPoint ()
+		public static EndPoint GetEndPoint ()
 		{
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			var port = TestContext.GetUniquePort ();
-			return support.GetLoopbackEndpoint (port);
+			return new IPEndPoint (IPAddress.Loopback, port);
 		}
 
 		public static bool IsMicrosoftRuntime {

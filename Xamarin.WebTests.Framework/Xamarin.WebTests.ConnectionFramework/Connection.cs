@@ -16,11 +16,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		public IPortableEndPoint PortableEndPoint {
-			get;
-		}
-
-		public IPEndPoint EndPoint {
+		public EndPoint EndPoint {
 			get;
 		}
 
@@ -39,20 +35,16 @@ namespace Xamarin.WebTests.ConnectionFramework
 		protected Connection (ConnectionProvider provider, ConnectionParameters parameters)
 		{
 			Provider = provider;
-			PortableEndPoint = GetEndPoint (parameters);
+			EndPoint = GetEndPoint (parameters);
 			Parameters = parameters;
-
-			if (PortableEndPoint != null)
-				EndPoint = new IPEndPoint (IPAddress.Parse (PortableEndPoint.Address), PortableEndPoint.Port);
 		}
 
-		static IPortableEndPoint GetEndPoint (ConnectionParameters parameters)
+		static EndPoint GetEndPoint (ConnectionParameters parameters)
 		{
 			if (parameters.EndPoint != null)
 				return parameters.EndPoint;
 
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			return support.GetLoopbackEndpoint (4433);
+			return new IPEndPoint (IPAddress.Loopback, 4433);
 		}
 
 		public abstract Stream Stream {

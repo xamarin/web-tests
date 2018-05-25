@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Portable;
@@ -70,7 +71,7 @@ namespace Xamarin.WebTests.TestAttributes
 			if (ctx.TryGetParameter<ProtocolVersions> (out protocolVersion))
 				parameters.ProtocolVersion = protocolVersion;
 
-			IPortableEndPoint serverEndPoint;
+			EndPoint serverEndPoint;
 
 			if (parameters.ListenAddress != null)
 				serverEndPoint = parameters.ListenAddress;
@@ -95,8 +96,7 @@ namespace Xamarin.WebTests.TestAttributes
 				uri = parameters.ExternalServer;
 				flags |= HttpServerFlags.ExternalServer;
 			} else if (parameters.TargetHost == null) {
-				parameters.TargetHost = parameters.EndPoint.HostName;
-				uri = new Uri (string.Format ("https://{0}:{1}/", parameters.EndPoint.Address, parameters.EndPoint.Port));
+				uri = new Uri (string.Format ("https://{0}/", parameters.EndPoint));
 			} else {
 				uri = new Uri (string.Format ("https://{0}/", parameters.TargetHost));
 			}

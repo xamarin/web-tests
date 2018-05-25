@@ -27,6 +27,7 @@ using System;
 
 namespace Xamarin.AsyncTests.Portable
 {
+	[Obsolete ("KILL")]
 	public interface IPortableEndPoint
 	{
 		int Port {

@@ -48,14 +48,13 @@ namespace Xamarin.WebTests.Tests {
 	[WebTestFeatures.Proxy]
 	[AsyncTestFixture (Timeout = 30000)]
 	public class TestProxy : ITestHost<HttpServer>, ITestParameterSource<Handler> {
-		readonly static IPortableEndPoint address;
+		readonly static IPAddress address;
 		readonly static X509Certificate serverCertificate;
 		readonly static ConnectionParameters serverParameters;
 
 		static TestProxy ()
 		{
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			address = support.GetEndpoint (0);
+			address = IPAddress.Loopback;
 
 			serverCertificate = ResourceManager.SelfSignedServerCertificate;
 			serverParameters = new ConnectionParameters (serverCertificate);
@@ -65,8 +64,8 @@ namespace Xamarin.WebTests.Tests {
 		                                  AuthenticationType authType = AuthenticationType.None,
 		                                  ICredentials credentials = null)
 		{
-			var endpoint = address.CopyWithPort (port);
-			var proxyEndpoint = address.CopyWithPort (proxyPort);
+			var endpoint = new IPEndPoint (address, port);
+			var proxyEndpoint = new IPEndPoint (address, proxyPort);
 			var target = new BuiltinHttpServer (endpoint, endpoint, HttpServerFlags.InstrumentationListener, parameters, null);
 			return new BuiltinProxyServer (target, proxyEndpoint, HttpServerFlags.Proxy, authType) {
 				Credentials = credentials
@@ -190,7 +189,7 @@ namespace Xamarin.WebTests.Tests {
 		[ExpectedException (typeof (NotSupportedException))]
 		public void InvalidProxyScheme (TestContext ctx)
 		{
-			var url = string.Format ("https://{0}:8888/", address.Address);
+			var url = string.Format ("https://{0}:8888/", address);
 			var request = (HttpWebRequest)WebRequest.Create (url);
 			var requestExt = DependencyInjector.GetExtension<HttpWebRequest, IHttpWebRequestExtension> (request);
 			requestExt.SetProxy (BuiltinProxyServer.CreateSimpleProxy (new Uri (url)));

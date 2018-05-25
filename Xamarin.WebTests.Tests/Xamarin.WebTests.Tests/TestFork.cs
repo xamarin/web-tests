@@ -62,8 +62,7 @@ namespace Xamarin.WebTests.Tests
 	{
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			var endpoint = support.GetLoopbackEndpoint (9999);
+			var endpoint = new IPEndPoint (IPAddress.Loopback, 9999);
 			return new BuiltinHttpServer (endpoint, endpoint, HttpServerFlags.ReuseConnection, null, null);
 		}
 
