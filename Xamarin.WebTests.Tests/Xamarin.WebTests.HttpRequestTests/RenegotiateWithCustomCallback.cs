@@ -41,7 +41,6 @@ namespace Xamarin.WebTests.HttpRequestTests
 	using TestRunners;
 	using Resources;
 
-	[New]
 	[Renegotiation]
 	[HttpServerFlags (HttpServerFlags.RequireMono | HttpServerFlags.RequireRenegotiation)]
 	public class RenegotiateWithCustomCallback : RequestTestFixture

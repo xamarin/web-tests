@@ -94,23 +94,25 @@ namespace Xamarin.AsyncTests.Framework
 			}
 		}
 
-		public override async Task<bool> Invoke (
+		public override Task<bool> Invoke (
 			TestContext ctx, TestInstance instance, CancellationToken cancellationToken)
 		{
-			var innerInstance = await SetUp (ctx, instance, cancellationToken);
-			if (innerInstance == null)
-				return false;
+			return ctx.RunWithDisposableContext (async disposableCtx => {
+				var innerInstance = await SetUp (disposableCtx, instance, cancellationToken);
+				if (innerInstance == null)
+					return false;
 
-			var currentPath = innerInstance.GetCurrentPath ();
+				var currentPath = innerInstance.GetCurrentPath ();
 
-			var innerCtx = ctx.CreateChild (currentPath);
+				var innerCtx = disposableCtx.CreateChild (currentPath);
 
-			var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
+				var success = await InvokeInner (innerCtx, innerInstance, Inner, cancellationToken);
 
-			if (!await TearDown (ctx, innerInstance, cancellationToken))
-				success = false;
+				if (!await TearDown (disposableCtx, innerInstance, cancellationToken))
+					success = false;
 
-			return success;
+				return success;
+			});
 		}
 	}
 }

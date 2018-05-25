@@ -150,6 +150,8 @@
     <Compile Include="Xamarin.WebTests.HttpRequestTests\Renegotiate.cs" />
     <Compile Include="Xamarin.WebTests.HttpRequestTests\RenegotiateWithCustomCallback.cs" />
     <Compile Include="Xamarin.WebTests.HttpClientInstrumentation\RequestClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.SocketTests\SocketTestFixture.cs" />
+    <Compile Include="Xamarin.WebTests.SocketTests\BeginEndAsync.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
@@ -183,5 +185,6 @@
     <Folder Include="Xamarin.WebTests.ExternalTests\" />
     <Folder Include="Xamarin.WebTests.SslStreamTests\" />
     <Folder Include="Xamarin.WebTests.StreamInstrumentationTests\" />
+    <Folder Include="Xamarin.WebTests.SocketTests\" />
   </ItemGroup>
 </Project>

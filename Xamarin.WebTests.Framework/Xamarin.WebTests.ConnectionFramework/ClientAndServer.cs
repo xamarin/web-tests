@@ -67,6 +67,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return IsManualClient || IsManualServer; }
 		}
 
+		protected virtual ConnectionTestProvider GetProvider (TestContext ctx) => ctx.GetParameter<ConnectionTestProvider> ();
+
 		void Initialize (TestContext ctx)
 		{
 			Parameters = CreateParameters (ctx);
@@ -74,7 +76,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (ctx.TryGetParameter<ProtocolVersions> (out var protocolVersion))
 				Parameters.ProtocolVersion = protocolVersion;
 
-			var provider = ctx.GetParameter<ConnectionTestProvider> ();
+			var provider = GetProvider (ctx);
 
 			if (Parameters.EndPoint == null) {
 				if (Parameters.ListenAddress != null)
@@ -87,8 +89,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			Client = provider.CreateClient (Parameters);
 
-			var supported = Server.SupportedProtocols & Client.SupportedProtocols;
 			if (Parameters.ProtocolVersion != null) {
+				var supported = Server.SupportedProtocols & Client.SupportedProtocols;
 				var requested = Parameters.ProtocolVersion & supported;
 				if (requested == ProtocolVersions.Unspecified)
 					throw new NotSupportedException ("Incompatible protocol versions between client and server.");
