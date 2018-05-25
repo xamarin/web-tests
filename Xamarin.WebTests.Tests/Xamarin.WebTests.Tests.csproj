@@ -152,6 +152,7 @@
     <Compile Include="Xamarin.WebTests.HttpClientInstrumentation\RequestClientCertificate.cs" />
     <Compile Include="Xamarin.WebTests.SocketTests\SocketTestFixture.cs" />
     <Compile Include="Xamarin.WebTests.SocketTests\BeginEndAsync.cs" />
+    <Compile Include="Xamarin.WebTests.SocketTests\StaticConnectAsync.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
