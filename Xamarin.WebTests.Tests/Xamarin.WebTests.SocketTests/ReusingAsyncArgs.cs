@@ -1,5 +1,5 @@
 ﻿//
-// StaticConnectAsync.cs
+// ReusingAsyncArgs.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -36,49 +36,14 @@ namespace Xamarin.WebTests.SocketTests
 	using ConnectionFramework;
 	using TestAttributes;
 
-	public class StaticConnectAsync : SocketTestFixture
+	[NotWorking]
+	public class ReusingAsyncArgs : SocketTestFixture
 	{
-		public enum EndPointType
-		{
-			IPEndPoint,
-			DnsEndPoint,
-			[NotWorking]
-			ReusingArgs,
-			[NotWorking]
-			ReusingArgsWithDnsEndPoint
-		}
-
-		public EndPointType Type {
-			get;
-		}
-
-		public int Repeat {
-			get;
-		}
-
-		[AsyncTest]
-		public StaticConnectAsync (EndPointType type, [Repeat (2)] int repeat)
-		{
-			Type = type;
-			Repeat = repeat;
-		}
-
 		protected override void CreateParameters (TestContext ctx, ConnectionParameters parameters)
 		{
 			var port = TestContext.GetUniquePort ();
 			parameters.ListenAddress = new IPEndPoint (IPAddress.Loopback, port);
-			switch (Type) {
-			case EndPointType.DnsEndPoint:
-			case EndPointType.ReusingArgsWithDnsEndPoint:
-				parameters.EndPoint = new DnsEndPoint ("localhost", port);
-				break;
-			case EndPointType.IPEndPoint:
-			case EndPointType.ReusingArgs:
-				parameters.EndPoint = parameters.ListenAddress;
-				break;
-			default:
-				throw ctx.AssertFail (Type);
-			}
+			parameters.EndPoint = new DnsEndPoint ("localhost", port);
 			base.CreateParameters (ctx, parameters);
 		}
 
@@ -86,59 +51,66 @@ namespace Xamarin.WebTests.SocketTests
 		{
 			var socket = ctx.RegisterDispose (new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp));
 			socket.Bind (endPoint);
-			socket.Listen (1);
+			socket.Listen (2);
+
+			var me = $"{ME}.{nameof (StartServer)}";
+			ctx.LogMessage (me);
 
 			var tcs = new TaskCompletionSource<Socket> ();
 
-			socket.BeginAccept (ar => {
+			Task.Run (() => {
 				try {
-					var accepted = socket.EndAccept (ar);
-					cancellationToken.ThrowIfCancellationRequested ();
-					ctx.RegisterDispose (accepted);
-					tcs.SetResult (accepted);
+					var accepted = socket.Accept ();
+					ctx.LogDebug (LogCategory, 2, $"{me} accepted: {accepted.RemoteEndPoint}.");
+					accepted.Dispose ();
+
+					var accepted2 = socket.Accept ();
+					ctx.LogDebug (LogCategory, 2, $"{me} accepted again: {accepted2.RemoteEndPoint}.");
+
+					ctx.RegisterDispose (accepted2);
+					tcs.TrySetResult (accepted2);
 				} catch (Exception ex) {
-					tcs.SetException (ex);
+					tcs.TrySetException (ex);
 				}
-			}, null);
+			});
 
 			return tcs.Task;
 		}
-
-		static SocketAsyncEventArgs sharedArgs;
 
 		protected override Task<Socket> StartClient (TestContext ctx, EndPoint endPoint, CancellationToken cancellationToken)
 		{
 			var socket = ctx.RegisterDispose (new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp));
 
+			var me = $"{ME}.{nameof (StartClient)}";
+			ctx.LogMessage (me);
+
 			var tcs = new TaskCompletionSource<Socket> ();
 
-			ctx.LogMessage ($"{ME} START: {Type} {Repeat}");
+			SocketAsyncEventArgs e = new SocketAsyncEventArgs {
+				RemoteEndPoint = endPoint
+			};
 
-			SocketAsyncEventArgs e;
-			if (Type == EndPointType.ReusingArgs) {
-				if (Repeat == 1)
-					sharedArgs = new SocketAsyncEventArgs ();
-				e = sharedArgs;
-			} else {
-				e = new SocketAsyncEventArgs ();
-			}
+			bool secondConnect = false;
 
-			e.RemoteEndPoint = endPoint;
-			e.Completed += Completed;
+			e.Completed += (sender, _) => {
+				ctx.LogDebug (LogCategory, 2, $"{me} connected: {secondConnect} {tcs.Task.Status} {e.SocketError}");
+
+				if (secondConnect) {
+					if (e.SocketError != SocketError.Success)
+						tcs.SetException (new IOException ($"ConnectAsync() failed: {e.SocketError}"));
+					else
+						tcs.SetResult (e.ConnectSocket);
+					return;
+				}
+
+				secondConnect = true;
+
+				Socket.ConnectAsync (SocketType.Stream, ProtocolType.Tcp, e);
+			};
 
 			Socket.ConnectAsync (SocketType.Stream, ProtocolType.Tcp, e);
 
 			return tcs.Task;
-
-			void Completed (object sender, SocketAsyncEventArgs _)
-			{
-				ctx.LogMessage ($"{ME} START #1: {tcs.Task.Status} {e.SocketError}");
-				if (e.SocketError != SocketError.Success)
-					tcs.SetException (new IOException ($"ConnectAsync() failed: {e.SocketError}"));
-				else
-					tcs.SetResult (e.ConnectSocket);
-				e.Completed -= Completed;
-			}
 		}
 	}
 }
