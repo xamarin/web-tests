@@ -76,7 +76,13 @@ namespace Xamarin.WebTests.SocketTests
 
 		protected sealed override ConnectionParameters CreateParameters (TestContext ctx)
 		{
-			return new ConnectionParameters (null);
+			var parameters = new ConnectionParameters (null);
+			CreateParameters (ctx, parameters);
+			return parameters;
+		}
+
+		protected virtual void CreateParameters (TestContext ctx, ConnectionParameters parameters)
+		{
 		}
 
 		protected abstract Task<Socket> StartServer (TestContext ctx, EndPoint endPoint, CancellationToken cancellationToken);
@@ -90,7 +96,7 @@ namespace Xamarin.WebTests.SocketTests
 			}
 
 			internal SocketConnectionProvider (SocketTestFixture fixture)
-				: base (ConnectionProviderType.Custom, ConnectionProviderFlags.None)
+				: base (ConnectionProviderType.Custom, ConnectionProviderFlags.SupportsCleanShutdown)
 			{
 				Fixture = fixture;
 			}
@@ -124,11 +130,17 @@ namespace Xamarin.WebTests.SocketTests
 				get;
 			}
 
+			public string ME {
+				get;
+			}
+
 			public SocketConnection (SocketTestFixture fixture, ConnectionParameters parameters, bool isServer)
-				: base (fixture.ConnectionProvider, parameters)
+				: base (fixture.ConnectionProvider, parameters,
+				        isServer ? parameters.ListenAddress ?? parameters.EndPoint : parameters.EndPoint)
 			{
 				Fixture = fixture;
 				IsServer = isServer;
+				ME = $"{Fixture.ME}[SocketConnection {(IsServer ? "server" : "client")},{EndPoint}]";
 			}
 
 			Stream innerStream;
@@ -150,6 +162,9 @@ namespace Xamarin.WebTests.SocketTests
 				if (instrumentation != null)
 					throw new NotSupportedException ();
 
+				var me = $"{ME}.Start()";
+				ctx.LogDebug (Fixture.LogCategory, 1, me);
+
 				var startTask = IsServer ?
 					Fixture.StartServer (ctx, EndPoint, cancellationToken) :
 				               Fixture.StartClient (ctx, EndPoint, cancellationToken);
@@ -160,6 +175,7 @@ namespace Xamarin.WebTests.SocketTests
 
 				Socket Continuation (Task<Socket> task)
 				{
+					ctx.LogDebug (Fixture.LogCategory, 1, $"{me} done: {task.Status}");
 					cancellationToken.ThrowIfCancellationRequested ();
 					if (task.IsCanceled || task.IsFaulted)
 						throw task.Exception;
@@ -175,7 +191,9 @@ namespace Xamarin.WebTests.SocketTests
 
 			public sealed override Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 			{
-				throw new NotSupportedException ();
+				var me = $"{ME}.Shutdown()";
+				ctx.LogDebug (Fixture.LogCategory, 1, me);
+				return FinishedTask;
 			}
 
 			public override void Close ()

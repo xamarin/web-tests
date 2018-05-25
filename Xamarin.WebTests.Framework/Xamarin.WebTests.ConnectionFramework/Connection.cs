@@ -28,19 +28,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public ProtocolVersions SupportedProtocols => Provider.SupportedProtocols;
 
-		protected Connection (ConnectionProvider provider, ConnectionParameters parameters)
+		protected Connection (ConnectionProvider provider, ConnectionParameters parameters, EndPoint endPoint = null)
 		{
 			Provider = provider;
-			EndPoint = GetEndPoint (parameters);
+			EndPoint = endPoint ?? parameters.EndPoint ?? new IPEndPoint (IPAddress.Loopback, 4433);
 			Parameters = parameters;
-		}
-
-		static EndPoint GetEndPoint (ConnectionParameters parameters)
-		{
-			if (parameters.EndPoint != null)
-				return parameters.EndPoint;
-
-			return new IPEndPoint (IPAddress.Loopback, 4433);
 		}
 
 		public abstract Stream Stream {

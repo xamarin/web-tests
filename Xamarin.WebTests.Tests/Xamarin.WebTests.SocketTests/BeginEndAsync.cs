@@ -33,8 +33,33 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.SocketTests
 {
+	using ConnectionFramework;
+	using TestAttributes;
+
+	[NotWorking]
 	public class BeginEndAsync : SocketTestFixture
 	{
+		public bool UseDnsEndPoint {
+			get;
+		}
+
+		[AsyncTest]
+		public BeginEndAsync (bool useDnsEndPoint)
+		{
+			UseDnsEndPoint = useDnsEndPoint;
+		}
+
+		protected override void CreateParameters (TestContext ctx, ConnectionParameters parameters)
+		{
+			var port = TestContext.GetUniquePort ();
+			parameters.ListenAddress = new IPEndPoint (IPAddress.Loopback, port);
+			if (UseDnsEndPoint)
+				parameters.EndPoint = new DnsEndPoint ("localhost", port);
+			else
+				parameters.EndPoint = parameters.ListenAddress;
+			base.CreateParameters (ctx, parameters);
+		}
+
 		protected override Task<Socket> StartServer (TestContext ctx, EndPoint endPoint, CancellationToken cancellationToken)
 		{
 			var socket = ctx.RegisterDispose (new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp));
