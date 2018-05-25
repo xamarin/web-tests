@@ -36,27 +36,38 @@ namespace Xamarin.WebTests.SocketTests
 	using ConnectionFramework;
 	using TestAttributes;
 
-	[NotWorking]
 	public class BeginEndAsync : SocketTestFixture
 	{
-		public bool UseDnsEndPoint {
+		public enum EndPointType {
+			IPEndPoint,
+			[NotWorking]
+			DnsEndPoint
+		}
+
+		public EndPointType Type {
 			get;
 		}
 
 		[AsyncTest]
-		public BeginEndAsync (bool useDnsEndPoint)
+		public BeginEndAsync (EndPointType type)
 		{
-			UseDnsEndPoint = useDnsEndPoint;
+			Type = type;
 		}
 
 		protected override void CreateParameters (TestContext ctx, ConnectionParameters parameters)
 		{
 			var port = TestContext.GetUniquePort ();
 			parameters.ListenAddress = new IPEndPoint (IPAddress.Loopback, port);
-			if (UseDnsEndPoint)
+			switch (Type) {
+			case EndPointType.DnsEndPoint:
 				parameters.EndPoint = new DnsEndPoint ("localhost", port);
-			else
+				break;
+			case EndPointType.IPEndPoint:
 				parameters.EndPoint = parameters.ListenAddress;
+				break;
+			default:
+				throw ctx.AssertFail (Type);
+			}
 			base.CreateParameters (ctx, parameters);
 		}
 
