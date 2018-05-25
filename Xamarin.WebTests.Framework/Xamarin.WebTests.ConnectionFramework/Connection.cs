@@ -28,10 +28,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public ProtocolVersions SupportedProtocols => Provider.SupportedProtocols;
 
-		public abstract ConnectionType ConnectionType {
-			get;
-		}
-
 		protected Connection (ConnectionProvider provider, ConnectionParameters parameters)
 		{
 			Provider = provider;

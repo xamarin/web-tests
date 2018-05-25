@@ -14,8 +14,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 	public class DotNetClient : DotNetConnection
 	{
-		public override ConnectionType ConnectionType => ConnectionType.Client;
-
 		readonly ISslStreamProvider sslStreamProvider;
 
 		public DotNetClient (ConnectionProvider provider, ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)

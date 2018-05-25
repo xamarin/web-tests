@@ -140,7 +140,6 @@
     <Compile Include="Xamarin.WebTests.Server\SocketHelper.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpStreamReader.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionInstrumentation.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionType.cs" />
     <Compile Include="ReferenceSource\TaskToApm.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\DelayHandler.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\AbortHandler.cs" />

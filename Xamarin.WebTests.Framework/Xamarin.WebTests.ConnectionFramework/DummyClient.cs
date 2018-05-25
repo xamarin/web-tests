@@ -33,8 +33,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public class DummyClient : DummyConnection
 	{
-		public override ConnectionType ConnectionType => ConnectionType.Client;
-
 		public DummyClient (ConnectionProvider provider, ConnectionParameters parameters)
 			: base (provider, parameters)
 		{
