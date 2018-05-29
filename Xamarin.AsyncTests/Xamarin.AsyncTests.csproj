@@ -87,7 +87,6 @@
     <Compile Include="Xamarin.AsyncTests.Constraints\GreaterThanConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests.Constraints\LessThanConstraint.cs" />
     <Compile Include="Xamarin.AsyncTests\DependencyInjector.cs" />
-    <Compile Include="Xamarin.AsyncTests.Portable\IPortableEndPoint.cs" />
     <Compile Include="Xamarin.AsyncTests\IDependencyProvider.cs" />
     <Compile Include="Xamarin.AsyncTests\DependencyProviderAttribute.cs" />
     <Compile Include="Xamarin.AsyncTests\RequireDependencyAttribute.cs" />

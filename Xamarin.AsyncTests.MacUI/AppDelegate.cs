@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -213,11 +214,10 @@ namespace Xamarin.AsyncTests.MacUI
 			return outFile;
 		}
 
-		static IPortableEndPoint ParseEndPoint (string address)
+		static EndPoint ParseEndPoint (string address)
 		{
-			var endpointSupport = DependencyInjector.Get<IPortableEndPointSupport> ();
 			try {
-				return endpointSupport.ParseEndpoint (address);
+				return RemotingHelper.ParseEndpoint (address);
 			} catch {
 				throw new AlertException ("Failed to parse endpoint: '{0}'", address);
 			}
@@ -368,7 +368,7 @@ namespace Xamarin.AsyncTests.MacUI
 
 			var framework = TestFramework.GetLocalFramework (Options.PackageName ?? MacUI.PackageName, typeof(AppDelegate).Assembly);
 
-			Console.WriteLine ("Connecting to {0}:{1}.", Options.EndPoint.Address, options.EndPoint.Port);
+			Console.WriteLine ($"Connecting to {Options.EndPoint}.");
 
 			var server = await TestServer.ConnectToRemote (ui, Options.EndPoint, framework, CancellationToken.None);
 			var session = server.Session;

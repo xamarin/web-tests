@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -300,8 +301,7 @@ namespace Xamarin.AsyncTests.MacUI
 				string address;
 				if (SettingsBag.TryGetValue (ListenAddressKey, out address))
 					return address;
-				var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-				var endpoint = support.GetEndpoint (8888);
+				var endpoint = new IPEndPoint (IPAddress.Loopback, 8888);
 				address = string.Format ("{0}:{1}", endpoint.Address, endpoint.Port);
 				SettingsBag.SetValue (ListenAddressKey, address);
 				return address;
