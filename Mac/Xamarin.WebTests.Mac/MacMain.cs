@@ -17,7 +17,7 @@ using Xamarin.WebTests.MonoTestProvider;
 namespace Xamarin.WebTests.MacUI
 {
 	[Serializable]
-	public class MacMain : ISingletonInstance, IForkedDomainSetup, IForkedSupport
+	public class MacMain : ISingletonInstance
 	{
 		public bool SupportsProcessForks => false;
 
@@ -33,15 +33,12 @@ namespace Xamarin.WebTests.MacUI
 		{
 			Initialize ();
 
-			DependencyInjector.RegisterDependency<IForkedDomainSetup> (() => this);
-
 			NSApplication.Main (args);
 		}
 
 		public void Initialize ()
 		{
 			var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.Mac");
-			DependencyInjector.RegisterDependency<IForkedSupport> (() => this);
 			DependencyInjector.RegisterDependency<IConnectionFrameworkSetup> (() => setup);
 			DependencyInjector.RegisterDependency<IMonoConnectionFrameworkSetup> (() => setup);
 
