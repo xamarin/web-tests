@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Reflection;
 
@@ -77,6 +78,10 @@ namespace Xamarin.AsyncTests.Portable
 		}
 
 		void Close (Stream stream);
+
+		object LocalAddress {
+			get;
+		}
 	}
 }
 

@@ -54,7 +54,8 @@ namespace Xamarin.WebTests.Tests {
 
 		static TestProxy ()
 		{
-			address = IPAddress.Loopback;
+			var portable = DependencyInjector.Get<IPortableSupport> ();
+			address = portable.IsMicrosoftRuntime ? (IPAddress)portable.LocalAddress : IPAddress.Loopback;
 
 			serverCertificate = ResourceManager.SelfSignedServerCertificate;
 			serverParameters = new ConnectionParameters (serverCertificate);

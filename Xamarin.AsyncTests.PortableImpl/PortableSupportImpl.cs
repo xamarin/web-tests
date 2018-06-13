@@ -408,6 +408,8 @@ namespace Xamarin.AsyncTests.Portable
 			get { return address; }
 		}
 
+		object IPortableSupport.LocalAddress => LocalAddress;
+
 		static IPAddress LookupAddress ()
 		{
 			try {
