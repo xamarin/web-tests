@@ -224,7 +224,7 @@ namespace Xamarin.WebTests.TestRunners
 				// Provide a client certificate, but do not require it.
 				return new HttpValidationTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificate = ResourceManager.PenguinCertificate, ClientCertificateValidator = acceptSelfSigned,
-					ServerCertificateValidator = acceptNull
+					ServerCertificateValidator = acceptAll
 				};
 
 			case HttpValidationTestType.RequestClientCertificate:
