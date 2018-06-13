@@ -45,8 +45,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		bool IsClientSupported (ConnectionProvider provider)
 		{
-			if (HasFlag (ConnectionTestFlags.ManualClient))
-				return provider.Type == ConnectionProviderType.Manual;
+			if (provider.Type == ConnectionProviderType.Manual)
+				return HasFlag (ConnectionTestFlags.ManualClient);
 			if (HasFlag (ConnectionTestFlags.RequireMonoClient) && !provider.HasFlag (ConnectionProviderFlags.SupportsMonoExtensions))
 				return false;
 			if (HasFlag (ConnectionTestFlags.RequireDotNet) && provider.Type != ConnectionProviderType.DotNet)
@@ -61,8 +61,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		bool IsServerSupported (ConnectionProvider provider)
 		{
-			if (HasFlag (ConnectionTestFlags.ManualServer))
-				return provider.Type == ConnectionProviderType.Manual;
+			if (provider.Type == ConnectionProviderType.Manual)
+				return HasFlag (ConnectionTestFlags.ManualServer);
 			if (HasFlag (ConnectionTestFlags.RequireMonoServer) && !provider.HasFlag (ConnectionProviderFlags.SupportsMonoExtensions))
 				return false;
 			if (HasFlag (ConnectionTestFlags.RequireDotNet) && provider.Type != ConnectionProviderType.DotNet)
