@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 	{
 		public override bool HasRequestBody => false;
 
-		public override HttpOperationFlags OperationFlags => HttpOperationFlags.AbortAfterClientExits;
+		public override HttpOperationFlags OperationFlags => HttpOperationFlags.AbortAfterClientExits | HttpOperationFlags.ReadingRequestBodyThrows;
 
 		public override HttpStatusCode ExpectedStatus => HttpStatusCode.InternalServerError;
 

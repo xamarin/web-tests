@@ -423,7 +423,7 @@ namespace Xamarin.WebTests.Server
 
 		public bool MainLoopListenerTaskDone (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var me = $"{Listener.ME}({Connection.ME}) TASK DONE";
+			var me = $"{Listener.ME}({Connection?.ME}) TASK DONE";
 
 			var task = Interlocked.Exchange (ref currentListenerTask, null);
 

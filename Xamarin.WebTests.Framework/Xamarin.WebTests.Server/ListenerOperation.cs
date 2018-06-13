@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -167,7 +168,11 @@ namespace Xamarin.WebTests.Server
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				if (!HasAnyFlags (HttpOperationFlags.DontReadRequestBody)) {
+				if (HasAnyFlags (HttpOperationFlags.ReadingRequestBodyThrows)) {
+					await ctx.AssertException<IOException> (() => request.Read (ctx, cancellationToken)).ConfigureAwait (false);
+					ctx.LogDebug (LogCategories.Listener, 2, $"{me} REQUEST FULLY READ");
+					return null;
+				} else if (!HasAnyFlags (HttpOperationFlags.DontReadRequestBody)) {
 					await request.Read (ctx, cancellationToken).ConfigureAwait (false);
 					ctx.LogDebug (LogCategories.Listener, 2, $"{me} REQUEST FULLY READ");
 				} else {
