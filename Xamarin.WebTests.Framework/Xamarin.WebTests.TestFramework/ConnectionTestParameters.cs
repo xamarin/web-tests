@@ -49,6 +49,7 @@ namespace Xamarin.WebTests.TestFramework
 			: base (certificate)
 		{
 			Category = category;
+			Identifier = identifier;
 		}
 
 		protected ConnectionTestParameters (ConnectionTestParameters other)
