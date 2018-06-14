@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using System.Threading;
@@ -187,6 +188,8 @@ namespace Xamarin.WebTests.Server
 
 			ConnectionState Accepted ()
 			{
+				if (clientOperation.HasAnyFlags (HttpOperationFlags.StopListeningAfterAccept))
+					connection.StopListening (ctx);
 				return ConnectionState.InitializeConnection;
 			}
 
@@ -202,10 +205,15 @@ namespace Xamarin.WebTests.Server
 				if (!completed)
 					return ConnectionState.CannotReuseConnection;
 
-				if (!success)
-					return ConnectionState.Closed;
+				if (success)
+					return ConnectionState.WaitingForRequest;
 
-				return ConnectionState.WaitingForRequest;
+				if (clientOperation.HasAnyFlags (HttpOperationFlags.ClientRestartsConnection)) {
+					clientOperation.Flags &= ~HttpOperationFlags.ClientRestartsConnection;
+					return ConnectionState.Listening;
+				}
+
+				return ConnectionState.Closed;
 			}
 
 			Task<HttpRequest> ReadRequestHeader ()
@@ -560,6 +568,7 @@ namespace Xamarin.WebTests.Server
 				if (operation != null && operation.HasAnyFlags (HttpOperationFlags.ClientAbortsHandshake))
 					throw ctx.AssertFail ("Expected client to abort handshake.");
 			} catch (Exception ex) {
+				connection.Dispose ();
 				if (operation.HasAnyFlags (HttpOperationFlags.ServerAbortsHandshake, HttpOperationFlags.ClientAbortsHandshake))
 					return false;
 				ctx.LogDebug (LogCategories.Listener, 2, $"{me} FAILED: {ex.Message}\n{ex}");

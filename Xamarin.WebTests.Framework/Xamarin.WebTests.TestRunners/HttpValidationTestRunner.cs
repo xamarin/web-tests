@@ -106,7 +106,7 @@ namespace Xamarin.WebTests.TestRunners
 			return sb.ToString ();
 		}
 
-		const HttpValidationTestType MartinTest = HttpValidationTestType.ExternalServer;
+		const HttpValidationTestType MartinTest = HttpValidationTestType.RejectClientCertificate;
 
 		public static IEnumerable<HttpValidationTestType> GetTests (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -271,7 +271,7 @@ namespace Xamarin.WebTests.TestRunners
 					AskForClientCertificate = true,
 					ExpectedStatus = HttpStatusCode.InternalServerError,
 					ExpectedError = WebExceptionStatus.AnyErrorStatus,
-					Flags = HttpOperationFlags.ClientAbortsHandshake
+					Flags = HttpOperationFlags.ClientAbortsHandshake | HttpOperationFlags.StopListeningAfterAccept
 				};
 
 			case HttpValidationTestType.MissingClientCertificate:
@@ -281,7 +281,7 @@ namespace Xamarin.WebTests.TestRunners
 					AskForClientCertificate = true, RequireClientCertificate = true,
 					ExpectedStatus = HttpStatusCode.InternalServerError,
 					ExpectedError = WebExceptionStatus.AnyErrorStatus,
-					Flags = HttpOperationFlags.ClientAbortsHandshake | HttpOperationFlags.RequireClientCertificate
+					Flags = HttpOperationFlags.ClientAbortsHandshake | HttpOperationFlags.RequireClientCertificate | HttpOperationFlags.StopListeningAfterAccept
 				};
 
 			case HttpValidationTestType.DontInvokeGlobalValidator:

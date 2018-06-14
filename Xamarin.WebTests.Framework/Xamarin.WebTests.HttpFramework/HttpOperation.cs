@@ -58,6 +58,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public HttpOperationFlags Flags {
 			get;
+			internal set;
 		}
 
 		public HttpStatusCode ExpectedStatus {

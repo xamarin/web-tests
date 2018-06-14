@@ -86,6 +86,11 @@ namespace Xamarin.WebTests.Server
 			return Task.FromResult (false);
 		}
 
+		public override void StopListening (TestContext ctx)
+		{
+			throw new NotImplementedException ();
+		}
+
 		internal override bool IsStillConnected ()
 		{
 			return false;

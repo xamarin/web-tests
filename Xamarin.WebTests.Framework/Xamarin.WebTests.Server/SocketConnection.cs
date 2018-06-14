@@ -115,6 +115,13 @@ namespace Xamarin.WebTests.Server
 			ctx.LogDebug (LogCategories.Listener, 5, $"{ME} INITIALIZE DONE: {ListenSocket?.LocalEndPoint} {remoteEndPoint}");
 		}
 
+		public override void StopListening (TestContext ctx)
+		{
+			ctx.LogDebug (LogCategories.Listener, 5, $"{ME} STOP LISTENING: {ListenSocket?.LocalEndPoint}");
+			ListenSocket.Dispose ();
+			ListenSocket = null;
+		}
+
 		async Task<SslStream> CreateSslStream (TestContext ctx, Stream innerStream, CancellationToken cancellationToken)
 		{
 			var stream = Server.SslStreamProvider.CreateSslStream (ctx, innerStream, Server.Parameters, true);

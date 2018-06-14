@@ -79,6 +79,8 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public abstract Task Initialize (TestContext ctx, HttpOperation operation, CancellationToken cancellationToken);
 
+		public abstract void StopListening (TestContext ctx);
+
 		public abstract Task<bool> ReuseConnection (TestContext ctx, CancellationToken cancellationToken);
 
 		public async Task<bool> WaitForRequest (int timeout, CancellationToken cancellationToken)

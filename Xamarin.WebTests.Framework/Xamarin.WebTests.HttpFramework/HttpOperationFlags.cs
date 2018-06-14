@@ -47,6 +47,8 @@ namespace Xamarin.WebTests.HttpFramework
 		DelayedListenerContext		= 8192,
 		DontWriteResponse		= 16384,
 		PersistentHandler		= 32768,
-		ReadingRequestBodyThrows	= 65536
+		ReadingRequestBodyThrows	= 65536,
+		StopListeningAfterAccept	= 131072,
+		ClientRestartsConnection	= 262144
 	}
 }

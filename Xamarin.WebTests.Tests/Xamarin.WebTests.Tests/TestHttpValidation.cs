@@ -44,6 +44,7 @@ namespace Xamarin.WebTests.Tests
 	using HttpHandlers;
 	using HttpOperations;
 
+	[New]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestHttpValidation
 	{
