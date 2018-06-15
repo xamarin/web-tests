@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 	using TestFramework;
 	using TestRunners;
 
-	[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationServerShutdown)]
+	[ConnectionTestFlags (ConnectionTestFlags.RequireCleanShutdown)]
 	public class ServerRequestsShutdown : StreamInstrumentationTestFixture
 	{
 		protected override bool UseCleanShutdown => true;

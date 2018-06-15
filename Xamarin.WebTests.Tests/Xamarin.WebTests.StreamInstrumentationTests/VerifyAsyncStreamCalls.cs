@@ -32,7 +32,7 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 	using TestAttributes;
 	using TestFramework;
 
-	[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationNewWebStack)]
+	[ConnectionTestFlags (ConnectionTestFlags.RequireRenegotiation)]
 	public class VerifyAsyncStreamCalls : StreamInstrumentationTestFixture
 	{
 		protected override void ConfigureClientStream (TestContext ctx, StreamInstrumentation instrumentation)
