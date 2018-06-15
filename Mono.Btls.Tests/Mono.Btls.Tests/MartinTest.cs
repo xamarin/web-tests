@@ -132,7 +132,6 @@ namespace Mono.Btls.Tests
 		// [Martin]
 		// [AsyncTest]
 		[ProtocolVersion (ProtocolVersions.Tls12)]
-		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public void TestProvider (
 			TestContext ctx, CancellationToken cancellationToken,
 			[ConnectionTestProvider ("btls")] ConnectionTestProvider provider)

@@ -78,7 +78,6 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServer.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderFilter.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServerProvider.cs" />
-    <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestCategory.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestParameters.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestProvider.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestProviderFilter.cs" />
@@ -176,7 +175,6 @@
     <Compile Include="Xamarin.WebTests.TestAttributes\CertificateStoreAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\CleanShutdownAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\ConnectionProviderTypeAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestAttributes\ConnectionTestCategoryAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\ConnectionTestFlagsAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\ConnectionTestProviderAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpServerFlagsAttribute.cs" />

@@ -41,21 +41,15 @@ namespace Xamarin.WebTests.TestFramework
 
 		string ITestParameter.FriendlyValue => Identifier;
 
-		public ConnectionTestCategory Category {
-			get;
-		}
-
-		protected ConnectionTestParameters (ConnectionTestCategory category, string identifier, X509Certificate certificate)
+		protected ConnectionTestParameters (string identifier, X509Certificate certificate)
 			: base (certificate)
 		{
-			Category = category;
 			Identifier = identifier;
 		}
 
 		protected ConnectionTestParameters (ConnectionTestParameters other)
 			: base (other)
 		{
-			Category = other.Category;
 		}
 	}
 }

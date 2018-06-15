@@ -53,7 +53,6 @@ namespace Xamarin.WebTests.RenegotiationTests
 
 		[AsyncTest]
 		[Martin (null, UseFixtureName = true)]
-		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public static Task MartinTest (
 			TestContext ctx, CancellationToken cancellationToken,
 			ConnectionTestProvider provider,

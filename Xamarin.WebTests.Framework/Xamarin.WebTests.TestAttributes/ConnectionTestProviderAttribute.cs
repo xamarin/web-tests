@@ -53,9 +53,6 @@ namespace Xamarin.WebTests.TestAttributes
 		{
 			if (!ctx.TryGetParameter<ConnectionProviderFilter> (out var filter)) {
 				ConnectionTestFlags flags = ConnectionTestFlags.None;
-				if (ctx.TryGetParameter<ConnectionTestCategory> (out var category))
-					flags = ConnectionTestProviderFilter.GetConnectionFlags (ctx, category);
-
 				if (ctx.TryGetParameter<ConnectionTestFlags> (out var explicitFlags))
 					flags |= explicitFlags;
 

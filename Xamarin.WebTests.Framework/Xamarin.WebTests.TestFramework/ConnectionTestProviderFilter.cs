@@ -42,20 +42,6 @@ namespace Xamarin.WebTests.TestFramework
 		{
 			return new ConnectionTestProvider (client, server, Flags);
 		}
-
-		public static ConnectionTestFlags GetConnectionFlags (TestContext ctx, ConnectionTestCategory category)
-		{
-			switch (category) {
-			case ConnectionTestCategory.HttpStress:
-			case ConnectionTestCategory.HttpStressExperimental:
-				return ConnectionTestFlags.RequireHttp | ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12;
-			case ConnectionTestCategory.MartinTest:
-				return ConnectionTestFlags.AssumeSupportedByTest;
-			default:
-				ctx.AssertFail ("Unsupported instrumentation category: '{0}'.", category);
-				return ConnectionTestFlags.None;
-			}
-		}
 	}
 }
 
