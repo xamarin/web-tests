@@ -33,6 +33,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Portable;
@@ -56,13 +57,17 @@ namespace Xamarin.WebTests.TestRunners
 
 		public string ME => GetType ().Name;
 
+		protected virtual X509Certificate ServerCertificate => ResourceManager.SelfSignedServerCertificate;
+
+		protected virtual CertificateValidator ClientCertificateValidator => CertificateProvider.AcceptAll ();
+
+		protected virtual CertificateValidator ServerCertificateValidator => null;
+
 		ConnectionParameters GetParameters (TestContext ctx)
 		{
-			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
-			var acceptAll = certificateProvider.AcceptAll ();
-
-			var parameters = new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificateValidator = acceptAll
+			var parameters = new ConnectionParameters (ServerCertificate) {
+				ClientCertificateValidator = ClientCertificateValidator,
+				ServerCertificateValidator = ServerCertificateValidator
 			};
 
 			CreateParameters (ctx, parameters);
@@ -72,6 +77,8 @@ namespace Xamarin.WebTests.TestRunners
 		protected virtual void CreateParameters (TestContext ctx, ConnectionParameters parameters)
 		{
 		}
+
+		protected static readonly ICertificateProvider CertificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 
 		InstrumentationOperation currentOperation;
 		InstrumentationOperation queuedOperation;
@@ -235,9 +242,18 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected sealed override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var provider = ctx.GetParameter<HttpServerProvider> ();
+			HttpServerFlags serverFlags;
+			ISslStreamProvider sslStreamProvider;
 
-			var serverFlags = provider.ServerFlags | HttpServerFlags.InstrumentationListener;
+			if (ctx.TryGetParameter<HttpServerProvider> (out var provider)) {
+				serverFlags = provider.ServerFlags | HttpServerFlags.InstrumentationListener;
+				sslStreamProvider = provider.SslStreamProvider;
+			} else if (ctx.TryGetParameter<ConnectionTestProvider> (out var cprovider)) {
+				serverFlags = HttpServerFlags.InstrumentationListener;
+				sslStreamProvider = cprovider.Server.SslStreamProvider;
+			} else {
+				throw ctx.AssertFail ("Need either `HttpServerProvider` or `ConnectionTestProvider`.");
+			}
 
 			var endPoint = ConnectionTestHelper.GetEndPoint ();
 
@@ -246,9 +262,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			var parameters = GetParameters (ctx);
 
-			Server = new BuiltinHttpServer (
-				uri, endPoint, serverFlags, parameters,
-				provider.SslStreamProvider);
+			Server = new BuiltinHttpServer (uri, endPoint, serverFlags, parameters, sslStreamProvider);
 
 			await Server.Initialize (ctx, cancellationToken).ConfigureAwait (false);
 		}
@@ -262,12 +276,12 @@ namespace Xamarin.WebTests.TestRunners
 			await Server.Destroy (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
-		protected sealed override async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		protected override async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			await Server.PreRun (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
-		protected sealed override async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		protected override async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			await Server.PostRun (ctx, cancellationToken).ConfigureAwait (false);
 		}

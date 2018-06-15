@@ -81,7 +81,6 @@
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestCategory.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestParameters.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestProvider.cs" />
-    <Compile Include="Xamarin.WebTests.TestFramework\HttpValidationTestParameters.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestProviderFilter.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestFlags.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ConnectionTestHelper.cs" />
@@ -125,7 +124,6 @@
     <Compile Include="Xamarin.WebTests.Resources\TlsTestXamDevExpired2Data.cs" />
     <Compile Include="Xamarin.WebTests.Resources\IntermediateCAData.cs" />
     <Compile Include="Xamarin.WebTests.Resources\IntermediateServerData.cs" />
-    <Compile Include="Xamarin.WebTests.TestRunners\HttpValidationTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\AbstractConnection.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\BinaryContent.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionFrameworkSetup.cs" />
@@ -184,13 +182,11 @@
     <Compile Include="Xamarin.WebTests.TestAttributes\ConnectionTestFlagsAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\ConnectionTestProviderAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpServerFlagsAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestAttributes\HttpValidationTestParametersAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\DotNetAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\ExperimentalAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpServerProviderAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpStressTestParametersAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpStressTestRunnerAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestAttributes\HttpValidationTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpServerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\NotWorkingAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\LongRunningAttribute.cs" />
@@ -205,7 +201,6 @@
     <Compile Include="Xamarin.WebTests.TestAttributes\StressAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\Tls12Attribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\WorkAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestRunners\HttpValidationTestType.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\HttpStressTestType.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationOperation.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationOperationType.cs" />

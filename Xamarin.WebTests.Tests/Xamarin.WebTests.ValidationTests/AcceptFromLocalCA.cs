@@ -1,7 +1,7 @@
 ﻿//
-// HttpValidationTestType.cs
+// AcceptFromLocalCA.cs
 //
-// Author,
+// Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
 // Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
@@ -23,37 +23,18 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Xamarin.WebTests.TestRunners
-{
-	public enum HttpValidationTestType
-	{
-		Default,
-		AcceptFromLocalCA,
-		NoValidator,
-		RejectAll,
-		UnrequestedClientCertificate,
-		RequestClientCertificate,
-		RequireClientCertificate,
-		OptionalClientCertificate,
-		RejectClientCertificate,
-		MissingClientCertificate,
-		DontInvokeGlobalValidator,
-		DontInvokeGlobalValidator2,
-		GlobalValidatorIsNull,
-		MustInvokeGlobalValidator,
-		CheckChain,
-		ExternalServer,
-		ServerCertificateWithCA,
-		TrustedRootCA,
-		TrustedIntermediateCA,
-		TrustedSelfSigned,
-		HostNameMismatch,
-		IntermediateServerCertificate,
-		IntermediateServerCertificateFull,
-		IntermediateServerCertificateBare,
-		CertificateStore,
-		Abort,
+using System;
+using System.Security.Cryptography.X509Certificates;
 
-		MartinTest
+namespace Xamarin.WebTests.ValidationTests
+{
+	using ConnectionFramework;
+	using Resources;
+
+	public class AcceptFromLocalCA : ValidationTestFixture
+	{
+		protected override X509Certificate ServerCertificate => ResourceManager.ServerCertificateFromCA;
+
+		protected override CertificateValidator ClientCertificateValidator => CertificateProvider.AcceptFromCA (ResourceManager.LocalCACertificate);
 	}
 }

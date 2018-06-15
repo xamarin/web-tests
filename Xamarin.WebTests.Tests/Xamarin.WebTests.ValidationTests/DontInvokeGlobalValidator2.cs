@@ -1,10 +1,10 @@
 ﻿//
-// ConnectionTestProviderFilter.cs
+// DontInvokeGlobalValidator2.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,38 +24,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
-namespace Xamarin.WebTests.TestFramework
+namespace Xamarin.WebTests.ValidationTests
 {
 	using ConnectionFramework;
-	using TestRunners;
+	using HttpFramework;
+	using Resources;
 
-	public class ConnectionTestProviderFilter : ConnectionProviderFilter
+	public class DontInvokeGlobalValidator2 : ValidationTestFixture
 	{
-		public ConnectionTestProviderFilter (ConnectionTestFlags flags)
-			: base (flags)
-		{
-		}
+		protected override X509Certificate ServerCertificate => ResourceManager.SelfSignedServerCertificate;
 
-		protected override ClientAndServerProvider Create (ConnectionProvider client, ConnectionProvider server)
-		{
-			return new ConnectionTestProvider (client, server, Flags);
-		}
+		protected override CertificateValidator ClientCertificateValidator => CertificateProvider.RejectAll ();
 
-		public static ConnectionTestFlags GetConnectionFlags (TestContext ctx, ConnectionTestCategory category)
+		public override HttpStatusCode ExpectedStatus => HttpStatusCode.InternalServerError;
+
+		public override WebExceptionStatus ExpectedError => WebExceptionStatus.TrustFailure;
+
+		public override HttpOperationFlags OperationFlags => HttpOperationFlags.ClientAbortsHandshake;
+
+		protected override void CreateParameters (AsyncTests.TestContext ctx, ConnectionParameters parameters)
 		{
-			switch (category) {
-			case ConnectionTestCategory.HttpStress:
-			case ConnectionTestCategory.HttpStressExperimental:
-				return ConnectionTestFlags.RequireHttp | ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12;
-			case ConnectionTestCategory.MartinTest:
-				return ConnectionTestFlags.AssumeSupportedByTest;
-			default:
-				ctx.AssertFail ("Unsupported instrumentation category: '{0}'.", category);
-				return ConnectionTestFlags.None;
-			}
+			parameters.GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner | GlobalValidationFlags.MustNotInvoke;
+			base.CreateParameters (ctx, parameters);
 		}
 	}
 }
-

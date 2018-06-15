@@ -39,7 +39,6 @@ namespace Xamarin.WebTests.SocketTests
 	using TestRunners;
 	using Xamarin.AsyncTests;
 
-	[New]
 	[AsyncTestFixture (Prefix = "SocketTests")]
 	public abstract class SocketTestFixture : ConnectionTestRunner
 	{

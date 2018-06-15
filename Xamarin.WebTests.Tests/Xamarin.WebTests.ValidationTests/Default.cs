@@ -1,10 +1,10 @@
 ﻿//
-// ConnectionTestCategory.cs
+// Default.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,14 +25,9 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.TestFramework
+namespace Xamarin.WebTests.ValidationTests
 {
-	public enum ConnectionTestCategory
+	public class Default : ValidationTestFixture
 	{
-		HttpStress,
-		HttpStressExperimental,
-
-		MartinTest,
 	}
 }
-

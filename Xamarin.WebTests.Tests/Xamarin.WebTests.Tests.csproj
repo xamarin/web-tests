@@ -30,7 +30,6 @@
     <Compile Include="Xamarin.WebTests.Tests\TestGet.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestFork.cs" />
     <Compile Include="Xamarin.WebTests.Tests\RedirectStatusAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestHttpValidation.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestChunked.cs" />
     <Compile Include="Xamarin.WebTests.Tests\TestCertificates.cs" />
     <Compile Include="Xamarin.WebTests.Tests\NetworkTests.cs" />
@@ -154,6 +153,32 @@
     <Compile Include="Xamarin.WebTests.SocketTests\BeginEndAsync.cs" />
     <Compile Include="Xamarin.WebTests.SocketTests\StaticConnectAsync.cs" />
     <Compile Include="Xamarin.WebTests.SocketTests\ReusingAsyncArgs.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\ValidationTestFixture.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\Default.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\AcceptFromLocalCA.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\NoValidator.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\RejectAll.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\UnrequestedClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\RequestClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\RequireClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\OptionalClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\RejectClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\MissingClientCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\DontInvokeGlobalValidator.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\DontInvokeGlobalValidator2.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\GlobalValidatorIsNull.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\MustInvokeGlobalValidator.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\MustNotInvokeGlobalValidator.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\CheckChain.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\ServerCertificateWithCA.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\TrustedRootCA.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\TrustedIntermediateCA.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\TrustedSelfSigned.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\HostNameMismatch.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\IntermediateServerCertificate.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\IntermediateServerCertificateFull.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\IntermediateServerCertificateBare.cs" />
+    <Compile Include="Xamarin.WebTests.ValidationTests\CertificateStore.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
@@ -188,5 +213,6 @@
     <Folder Include="Xamarin.WebTests.SslStreamTests\" />
     <Folder Include="Xamarin.WebTests.StreamInstrumentationTests\" />
     <Folder Include="Xamarin.WebTests.SocketTests\" />
+    <Folder Include="Xamarin.WebTests.ValidationTests\" />
   </ItemGroup>
 </Project>

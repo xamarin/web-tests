@@ -120,18 +120,6 @@ namespace Mono.Btls.Tests
 
 		[Work]
 		[AsyncTest]
-		[ProtocolVersion (ProtocolVersions.Tls12)]
-		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
-		public Task TestWeb (
-			TestContext ctx, CancellationToken cancellationToken,
-			[ConnectionTestProvider ("btls")] ConnectionTestProvider provider,
-			HttpValidationTestParameters parameters, HttpValidationTestRunner runner)
-		{
-			return runner.Run (ctx, cancellationToken);
-		}
-
-		[Work]
-		[AsyncTest]
 		[HttpServerFlags (HttpServerFlags.SSL)]
 		public async Task TestWebServer (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{

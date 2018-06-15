@@ -103,7 +103,7 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		public static void CheckCallbackChain (TestContext ctx, ConnectionTestParameters parameters,
+		public static void CheckCallbackChain (TestContext ctx, ConnectionParameters parameters,
 		                                       X509Certificate certificate, X509Chain chain,
 		                                       SslPolicyErrors errors)
 		{

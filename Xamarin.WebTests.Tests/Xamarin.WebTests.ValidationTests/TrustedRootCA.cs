@@ -1,10 +1,10 @@
 ﻿//
-// ConnectionTestProviderFilter.cs
+// TrustedRootCA.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,38 +24,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.TestFramework
+namespace Xamarin.WebTests.ValidationTests
 {
 	using ConnectionFramework;
-	using TestRunners;
+	using TestAttributes;
+	using TestFramework;
+	using HttpFramework;
+	using Resources;
 
-	public class ConnectionTestProviderFilter : ConnectionProviderFilter
+	[ConnectionTestFlags (ConnectionTestFlags.RequireTrustedRoots)]
+	public class TrustedRootCA : ValidationTestFixture
 	{
-		public ConnectionTestProviderFilter (ConnectionTestFlags flags)
-			: base (flags)
-		{
-		}
+		protected override X509Certificate ServerCertificate => ResourceManager.ServerCertificateFromCA;
 
-		protected override ClientAndServerProvider Create (ConnectionProvider client, ConnectionProvider server)
-		{
-			return new ConnectionTestProvider (client, server, Flags);
-		}
+		protected override CertificateValidator ClientCertificateValidator => null;
 
-		public static ConnectionTestFlags GetConnectionFlags (TestContext ctx, ConnectionTestCategory category)
+		protected override void CreateParameters (TestContext ctx, ConnectionParameters parameters)
 		{
-			switch (category) {
-			case ConnectionTestCategory.HttpStress:
-			case ConnectionTestCategory.HttpStressExperimental:
-				return ConnectionTestFlags.RequireHttp | ConnectionTestFlags.RequireSslStream | ConnectionTestFlags.RequireTls12;
-			case ConnectionTestCategory.MartinTest:
-				return ConnectionTestFlags.AssumeSupportedByTest;
-			default:
-				ctx.AssertFail ("Unsupported instrumentation category: '{0}'.", category);
-				return ConnectionTestFlags.None;
-			}
+			parameters.GlobalValidationFlags = GlobalValidationFlags.CheckChain;
+			parameters.ExpectPolicyErrors = SslPolicyErrors.None;
+			parameters.TargetHost = "Hamiller-Tube.local";
+			parameters.ValidationParameters = new ValidationParameters ();
+			parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+			parameters.ValidationParameters.ExpectSuccess = true;
+			base.CreateParameters (ctx, parameters);
 		}
 	}
 }
-

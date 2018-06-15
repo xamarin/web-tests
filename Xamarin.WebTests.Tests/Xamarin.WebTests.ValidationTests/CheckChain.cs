@@ -1,10 +1,10 @@
 ﻿//
-// ConnectionTestCategory.cs
+// CheckChain.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,15 +24,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
-namespace Xamarin.WebTests.TestFramework
+namespace Xamarin.WebTests.ValidationTests
 {
-	public enum ConnectionTestCategory
-	{
-		HttpStress,
-		HttpStressExperimental,
+	using ConnectionFramework;
+	using TestAttributes;
+	using HttpFramework;
+	using Resources;
 
-		MartinTest,
+	[NotWorking]
+	public class CheckChain : ValidationTestFixture
+	{
+		protected override X509Certificate ServerCertificate => ResourceManager.SelfSignedServerCertificate;
+
+		protected override CertificateValidator ClientCertificateValidator => null;
+
+		protected override void CreateParameters (AsyncTests.TestContext ctx, ConnectionParameters parameters)
+		{
+			parameters.GlobalValidationFlags = GlobalValidationFlags.CheckChain;
+			parameters.ExpectPolicyErrors = SslPolicyErrors.RemoteCertificateChainErrors | SslPolicyErrors.RemoteCertificateNameMismatch;
+			parameters.ExpectChainStatus = X509ChainStatusFlags.UntrustedRoot;
+			base.CreateParameters (ctx, parameters);
+		}
 	}
 }
-

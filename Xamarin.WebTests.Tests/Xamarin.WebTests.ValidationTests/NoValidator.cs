@@ -1,10 +1,10 @@
 ﻿//
-// ConnectionTestCategory.cs
+// NoValidator.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,15 +24,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
-namespace Xamarin.WebTests.TestFramework
+namespace Xamarin.WebTests.ValidationTests
 {
-	public enum ConnectionTestCategory
-	{
-		HttpStress,
-		HttpStressExperimental,
+	using ConnectionFramework;
+	using HttpFramework;
+	using Resources;
 
-		MartinTest,
+	public class NoValidator : ValidationTestFixture
+	{
+		// The default validator only allows ResourceManager.SelfSignedServerCertificate.
+		protected override X509Certificate ServerCertificate => ResourceManager.ServerCertificateFromCA;
+
+		protected override CertificateValidator ClientCertificateValidator => null;
+
+		public override HttpOperationFlags OperationFlags => HttpOperationFlags.ClientAbortsHandshake;
+
+		public override HttpStatusCode ExpectedStatus => HttpStatusCode.InternalServerError;
+
+		public override WebExceptionStatus ExpectedError => WebExceptionStatus.TrustFailure;
 	}
 }
-
