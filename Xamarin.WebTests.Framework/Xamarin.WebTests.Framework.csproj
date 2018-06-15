@@ -150,8 +150,6 @@
     <Compile Include="Xamarin.WebTests.HttpOperations\WebClientOperation.cs" />
     <Compile Include="Xamarin.WebTests.HttpOperations\WebClientOperationType.cs" />
     <Compile Include="Xamarin.WebTests.Server\ProxyConnection.cs" />
-    <Compile Include="Xamarin.WebTests.TestRunners\HttpStressTestRunner.cs" />
-    <Compile Include="Xamarin.WebTests.TestFramework\HttpStressTestParameters.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\AsyncManualResetEvent.cs" />
     <Compile Include="Xamarin.WebTests.Server\ListenerBackend.cs" />
     <Compile Include="Xamarin.WebTests.Server\SocketBackend.cs" />
@@ -185,8 +183,6 @@
     <Compile Include="Xamarin.WebTests.TestAttributes\DotNetAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\ExperimentalAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpServerProviderAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestAttributes\HttpStressTestParametersAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestAttributes\HttpStressTestRunnerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpServerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\NotWorkingAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\LongRunningAttribute.cs" />
@@ -201,7 +197,6 @@
     <Compile Include="Xamarin.WebTests.TestAttributes\StressAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\Tls12Attribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\WorkAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.TestRunners\HttpStressTestType.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationOperation.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\InstrumentationOperationType.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\ExternalHandler.cs" />

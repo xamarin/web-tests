@@ -44,7 +44,6 @@ namespace Xamarin.WebTests.ValidationTests
 	using TestRunners;
 	using Resources;
 
-	[New]
 	[AsyncTestFixture (Prefix = "ValidationTests")]
 	public abstract class ValidationTestFixture : InstrumentationTestRunner
 	{

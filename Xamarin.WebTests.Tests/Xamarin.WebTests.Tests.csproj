@@ -35,7 +35,6 @@
     <Compile Include="Xamarin.WebTests.Tests\NetworkTests.cs" />
     <Compile Include="Xamarin.WebTests.Tests\SimpleWebTests.cs" />
     <Compile Include="Xamarin.WebTests.Tests\MartinTest.cs" />
-    <Compile Include="Xamarin.WebTests.Tests\TestHttpStress.cs" />
     <Compile Include="Xamarin.WebTests.HttpRequestTests\RequestTestFixture.cs" />
     <Compile Include="Xamarin.WebTests.HttpRequestTests\LargeHeader.cs" />
     <Compile Include="Xamarin.WebTests.HttpRequestTests\SendResponseAsBlob.cs" />
@@ -179,6 +178,8 @@
     <Compile Include="Xamarin.WebTests.ValidationTests\IntermediateServerCertificateFull.cs" />
     <Compile Include="Xamarin.WebTests.ValidationTests\IntermediateServerCertificateBare.cs" />
     <Compile Include="Xamarin.WebTests.ValidationTests\CertificateStore.cs" />
+    <Compile Include="Xamarin.WebTests.StressTests\StressTestFixture.cs" />
+    <Compile Include="Xamarin.WebTests.StressTests\Simple.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
@@ -214,5 +215,6 @@
     <Folder Include="Xamarin.WebTests.StreamInstrumentationTests\" />
     <Folder Include="Xamarin.WebTests.SocketTests\" />
     <Folder Include="Xamarin.WebTests.ValidationTests\" />
+    <Folder Include="Xamarin.WebTests.StressTests\" />
   </ItemGroup>
 </Project>

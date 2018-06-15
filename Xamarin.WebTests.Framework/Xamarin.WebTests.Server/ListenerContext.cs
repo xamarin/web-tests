@@ -188,7 +188,7 @@ namespace Xamarin.WebTests.Server
 
 			ConnectionState Accepted ()
 			{
-				if (clientOperation.HasAnyFlags (HttpOperationFlags.StopListeningAfterAccept))
+				if (clientOperation?.HasAnyFlags (HttpOperationFlags.StopListeningAfterAccept) ?? false)
 					connection.StopListening (ctx);
 				return ConnectionState.InitializeConnection;
 			}
