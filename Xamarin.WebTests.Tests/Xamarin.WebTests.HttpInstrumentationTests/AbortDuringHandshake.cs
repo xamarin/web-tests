@@ -33,33 +33,43 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.HttpInstrumentationTests
 {
 	using ConnectionFramework;
+	using TestAttributes;
 	using HttpFramework;
 	using HttpHandlers;
 	using TestRunners;
 
+	// See issue #9031 / PR #9212 for the [RecentlyFixed] values.
 	public class AbortDuringHandshake : HttpInstrumentationTestFixture
 	{
 		public enum ApiType {
+			[RecentlyFixed]
 			Sync,
+			[RecentlyFixed]
 			BeginEndAsync,
 			TaskAsync
+		}
+
+		public enum RequestType {
+			Get,
+			[RecentlyFixed]
+			Post
 		}
 
 		public ApiType Type {
 			get;
 		}
 
-		public bool UsePost {
+		public RequestType Method {
 			get;
 		}
 
-		public override bool HasRequestBody => UsePost;
+		public override bool HasRequestBody => Method != RequestType.Get;
 
 		[AsyncTest]
-		public AbortDuringHandshake (ApiType type, bool usePost)
+		public AbortDuringHandshake (ApiType type, RequestType requestType)
 		{
 			Type = type;
-			UsePost = usePost;
+			Method = requestType;
 		}
 
 		public override HttpOperationFlags OperationFlags => HttpOperationFlags.ServerAbortsHandshake | HttpOperationFlags.AbortAfterClientExits;
@@ -75,11 +85,17 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 
 		protected override void ConfigurePrimaryRequest (TestContext ctx, InstrumentationOperation operation, TraditionalRequest request)
 		{
-			if (UsePost) {
+			switch (Method) {
+			case RequestType.Get:
+				break;
+			case RequestType.Post:
 				request.Method = "POST";
 				request.Content = HttpContent.TheQuickBrownFox;
 				request.SetContentLength (request.Content.Length);
 				request.SetContentType ("text/plain");
+				break;
+			default:
+				throw ctx.AssertFail (Method);
 			}
 			base.ConfigurePrimaryRequest (ctx, operation, request);
 		}
