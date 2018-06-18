@@ -260,8 +260,9 @@ namespace Xamarin.WebTests.HttpFramework
 			if (ExpectedError != WebExceptionStatus.Success) {
 				ctx.Expect (response.Error, Is.Not.Null, "expecting exception");
 				ctx.Expect (response.Status, Is.EqualTo (ExpectedStatus));
-				var wexc = response.Error as WebException;
-				ctx.Expect (wexc, Is.Not.Null, "WebException");
+				if (!ctx.Expect (response.Error, Is.InstanceOf<WebException> (), "WebException"))
+					return;
+				var wexc = (WebException)response.Error;
 				if (ExpectedError != WebExceptionStatus.AnyErrorStatus)
 					ctx.Expect ((WebExceptionStatus)wexc.Status, Is.EqualTo (ExpectedError));
 				return;
