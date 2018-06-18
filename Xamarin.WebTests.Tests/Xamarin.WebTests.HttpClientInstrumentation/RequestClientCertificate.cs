@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.HttpClientInstrumentation
 	using Resources;
 
 	[Renegotiation]
+	[RecentlyFixed]
 	[HttpServerFlags (HttpServerFlags.RequireRenegotiation)]
 	public class RequestClientCertificate : HttpClientInstrumentationFixture
 	{
