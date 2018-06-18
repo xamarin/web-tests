@@ -28,13 +28,11 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.TestAttributes
 {
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class RecentlyFixedAttribute : TestCategoryAttribute
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false)]
+	public class RecentlyFixedAttribute : TestFeatureAttribute
 	{
-		public static readonly TestCategory Instance = new TestCategory ("RecentlyFixed") { IsExplicit = true };
+		public static readonly TestFeature Instance = new TestFeature ("RecentlyFixed", "Recently fixed things", false);
 
-		public override TestCategory Category {
-			get { return Instance; }
-		}
+		public override TestFeature Feature => Instance;
 	}
 }
