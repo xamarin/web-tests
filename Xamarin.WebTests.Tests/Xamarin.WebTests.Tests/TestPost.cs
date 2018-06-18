@@ -97,11 +97,6 @@ namespace Xamarin.WebTests.Tests
 			yield return GetBigChunkedHandler ();
 		}
 
-		static IEnumerable<PostHandler> GetRecentlyFixed ()
-		{
-			yield break;
-		}
-
 		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext ctx, string filter)
 		{
 			return GetParameters (ctx, filter, Flags);
@@ -120,7 +115,6 @@ namespace Xamarin.WebTests.Tests
 				list.Add (new HelloWorldHandler ("hello world"));
 				list.AddRange (GetPostTests (flags));
 				list.AddRange (GetDeleteTests ());
-				list.AddRange (GetRecentlyFixed ());
 				return list;
 			case "post":
 				return GetPostTests (flags);
@@ -128,8 +122,6 @@ namespace Xamarin.WebTests.Tests
 				return GetDeleteTests ();
 			case "chunked":
 				return GetChunkedTests ();
-			case "recently-fixed":
-				return GetRecentlyFixed ();
 			default:
 				throw ctx.AssertFail ("Invalid TestPost filter `{0}'.", filter);
 			}
@@ -289,15 +281,6 @@ namespace Xamarin.WebTests.Tests
 			handler.Method = "EXECUTE";
 			handler.AllowWriteStreamBuffering = writeStreamBuffering;
 			handler.Flags |= RequestFlags.NoContentLength;
-			using (var operation = new TraditionalOperation (server, handler, SendAsync))
-				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
-		}
-
-		[AsyncTest (ParameterFilter = "recently-fixed")]
-		[RecentlyFixed]
-		public async Task TestRecentlyFixed (TestContext ctx, HttpServer server, Handler handler,
-		                                     CancellationToken cancellationToken)
-		{
 			using (var operation = new TraditionalOperation (server, handler, SendAsync))
 				await operation.Run (ctx, cancellationToken).ConfigureAwait (false);
 		}
