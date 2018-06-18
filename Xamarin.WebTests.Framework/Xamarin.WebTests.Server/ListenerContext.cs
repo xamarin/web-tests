@@ -568,7 +568,7 @@ namespace Xamarin.WebTests.Server
 				if (operation != null && operation.HasAnyFlags (HttpOperationFlags.ClientAbortsHandshake))
 					throw ctx.AssertFail ("Expected client to abort handshake.");
 			} catch (Exception ex) {
-				connection.Dispose ();
+				connection?.Dispose ();
 				if (operation.HasAnyFlags (HttpOperationFlags.ServerAbortsHandshake, HttpOperationFlags.ClientAbortsHandshake))
 					return false;
 				ctx.LogDebug (LogCategories.Listener, 2, $"{me} FAILED: {ex.Message}\n{ex}");

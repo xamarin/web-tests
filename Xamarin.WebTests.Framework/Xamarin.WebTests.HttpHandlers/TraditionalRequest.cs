@@ -138,12 +138,15 @@ namespace Xamarin.WebTests.HttpHandlers
 			var tcs = new TaskCompletionSource<Response> ();
 
 			try {
-				if (HasContent)
-					throw new NotSupportedException ();
-
-				var ar = Request.BeginGetResponse (Callback, null);
-				if (ar.CompletedSynchronously)
-					Callback (ar);
+				if (HasContent) {
+					var ar = Request.BeginGetRequestStream (RequestCallback, null);
+					if (ar.CompletedSynchronously)
+						RequestCallback (ar);
+				} else {
+					var ar = Request.BeginGetResponse (ResponseCallback, null);
+					if (ar.CompletedSynchronously)
+						ResponseCallback (ar);
+				}
 			} catch (WebException wexc) {
 				var response = GetResponseFromError (ctx, wexc);
 				tcs.TrySetResult (response);
@@ -153,7 +156,24 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			return tcs.Task;
 
-			void Callback (IAsyncResult ar2)
+			void RequestCallback (IAsyncResult ares)
+			{
+				try {
+					using (var stream = Request.EndGetRequestStream (ares))
+						Content.WriteToAsync (ctx, stream, cancellationToken).Wait ();
+
+					var ar = Request.BeginGetResponse (ResponseCallback, null);
+					if (ar.CompletedSynchronously)
+						ResponseCallback (ar);
+				} catch (WebException wexc) {
+					var response = GetResponseFromError (ctx, wexc);
+					tcs.TrySetResult (response);
+				} catch (Exception ex) {
+					tcs.TrySetException (ex);
+				}
+			}
+
+			void ResponseCallback (IAsyncResult ar2)
 			{
 				try {
 					var wres = (HttpWebResponse)Request.EndGetResponse (ar2);

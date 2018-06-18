@@ -49,10 +49,17 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 			get;
 		}
 
+		public bool UsePost {
+			get;
+		}
+
+		public override bool HasRequestBody => UsePost;
+
 		[AsyncTest]
-		public AbortDuringHandshake (ApiType type)
+		public AbortDuringHandshake (ApiType type, bool usePost)
 		{
 			Type = type;
+			UsePost = usePost;
 		}
 
 		public override HttpOperationFlags OperationFlags => HttpOperationFlags.ServerAbortsHandshake | HttpOperationFlags.AbortAfterClientExits;
@@ -64,6 +71,17 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 		protected override Request CreateRequest (TestContext ctx, InstrumentationOperation operation, Uri uri)
 		{
 			return new InstrumentationRequest (this, uri);
+		}
+
+		protected override void ConfigurePrimaryRequest (TestContext ctx, InstrumentationOperation operation, TraditionalRequest request)
+		{
+			if (UsePost) {
+				request.Method = "POST";
+				request.Content = HttpContent.TheQuickBrownFox;
+				request.SetContentLength (request.Content.Length);
+				request.SetContentType ("text/plain");
+			}
+			base.ConfigurePrimaryRequest (ctx, operation, request);
 		}
 
 		protected override Task<Response> SendRequest (TestContext ctx, TraditionalRequest request, CancellationToken cancellationToken)
@@ -79,7 +97,6 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 			default:
 				throw ctx.AssertFail (Type);
 			}
-			return base.SendRequest (ctx, request, cancellationToken);
 		}
 
 		protected override bool ConfigureNetworkStream (
