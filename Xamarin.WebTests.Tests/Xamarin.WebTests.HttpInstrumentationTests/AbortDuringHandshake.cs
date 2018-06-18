@@ -39,11 +39,48 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 
 	public class AbortDuringHandshake : HttpInstrumentationTestFixture
 	{
+		public enum ApiType {
+			Sync,
+			BeginEndAsync,
+			TaskAsync
+		}
+
+		public ApiType Type {
+			get;
+		}
+
+		[AsyncTest]
+		public AbortDuringHandshake (ApiType type)
+		{
+			Type = type;
+		}
+
 		public override HttpOperationFlags OperationFlags => HttpOperationFlags.ServerAbortsHandshake | HttpOperationFlags.AbortAfterClientExits;
 
 		public override HttpStatusCode ExpectedStatus => HttpStatusCode.InternalServerError;
 
 		public override WebExceptionStatus ExpectedError => WebExceptionStatus.RequestCanceled;
+
+		protected override Request CreateRequest (TestContext ctx, InstrumentationOperation operation, Uri uri)
+		{
+			return new InstrumentationRequest (this, uri);
+		}
+
+		protected override Task<Response> SendRequest (TestContext ctx, TraditionalRequest request, CancellationToken cancellationToken)
+		{
+			var instrumentationRequest = (InstrumentationRequest)request;
+			switch (Type) {
+			case ApiType.Sync:
+				return instrumentationRequest.Send (ctx, cancellationToken);
+			case ApiType.TaskAsync:
+				return base.SendRequest (ctx, request, cancellationToken);
+			case ApiType.BeginEndAsync:
+				return instrumentationRequest.BeginEndSend (ctx, cancellationToken);
+			default:
+				throw ctx.AssertFail (Type);
+			}
+			return base.SendRequest (ctx, request, cancellationToken);
+		}
 
 		protected override bool ConfigureNetworkStream (
 			TestContext ctx, StreamInstrumentation instrumentation)

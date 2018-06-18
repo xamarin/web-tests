@@ -102,8 +102,25 @@ namespace Xamarin.WebTests.HttpHandlers
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.Token.Register (() => Request.Abort ());
 
-			var task = Task.Factory.StartNew (() => {
-				return Send (ctx);
+			var task = Task.Run (() => {
+				try {
+					if (HasContent) {
+						using (var stream = RequestExt.GetRequestStream ())
+							Content.WriteToAsync (ctx, stream, CancellationToken.None).Wait ();
+					}
+
+					var response = RequestExt.GetResponse ();
+					return GetResponseFromHttpSync (ctx, response, null);
+				} catch (WebException wexc) {
+					var response = (HttpWebResponse)wexc.Response;
+					if (response == null)
+						return new TraditionalResponse (this, HttpStatusCode.InternalServerError, wexc);
+
+					return GetResponseFromHttpSync (ctx, response, wexc);
+				} catch (Exception ex) {
+					return new TraditionalResponse (this, HttpStatusCode.InternalServerError, ex);
+				}
+
 			});
 
 			try {
@@ -111,6 +128,45 @@ namespace Xamarin.WebTests.HttpHandlers
 			} finally {
 				cts.Dispose ();
 			}
+		}
+
+		public Task<Response> BeginEndSend (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
+			cts.Token.Register (() => Request.Abort ());
+
+			var tcs = new TaskCompletionSource<Response> ();
+
+			try {
+				if (HasContent)
+					throw new NotSupportedException ();
+
+				var ar = Request.BeginGetResponse (Callback, null);
+				if (ar.CompletedSynchronously)
+					Callback (ar);
+			} catch (WebException wexc) {
+				var response = GetResponseFromError (ctx, wexc);
+				tcs.TrySetResult (response);
+			} catch (Exception ex) {
+				tcs.TrySetException (ex);
+			}
+
+			return tcs.Task;
+
+			void Callback (IAsyncResult ar2)
+			{
+				try {
+					var wres = (HttpWebResponse)Request.EndGetResponse (ar2);
+					var response = GetResponseFromHttpSync (ctx, wres, null);
+					tcs.TrySetResult (response);
+				} catch (WebException wexc) {
+					var response = GetResponseFromError (ctx, wexc);
+					tcs.TrySetResult (response);
+				} catch (Exception ex) {
+					tcs.TrySetException (ex);
+				}
+			}
+
 		}
 
 		protected virtual async Task WriteBody (TestContext ctx, CancellationToken cancellationToken)
@@ -144,6 +200,15 @@ namespace Xamarin.WebTests.HttpHandlers
 			}
 		}
 
+		TraditionalResponse GetResponseFromError (TestContext ctx, WebException error)
+		{
+			var wres = (HttpWebResponse)error.Response;
+			if (wres == null)
+				return new TraditionalResponse (this, HttpStatusCode.InternalServerError, error);
+			else
+				return GetResponseFromHttpSync (ctx, wres, error);
+		}
+
 		TraditionalResponse GetResponseFromHttpSync (TestContext ctx, HttpWebResponse response, WebException error)
 		{
 			return GetResponseFromHttp (ctx, response, error, CancellationToken.None).Result;
@@ -160,27 +225,6 @@ namespace Xamarin.WebTests.HttpHandlers
 			}
 
 			return new TraditionalResponse (this, response, StringContent.CreateMaybeNull (content), error);
-		}
-
-		TraditionalResponse Send (TestContext ctx)
-		{
-			try {
-				if (HasContent) {
-					using (var stream = RequestExt.GetRequestStream ())
-						Content.WriteToAsync (ctx, stream, CancellationToken.None).Wait ();
-				}
-
-				var response = RequestExt.GetResponse ();
-				return GetResponseFromHttpSync (ctx, response, null);
-			} catch (WebException wexc) {
-				var response = (HttpWebResponse)wexc.Response;
-				if (response == null)
-					return new TraditionalResponse (this, HttpStatusCode.InternalServerError, wexc);
-
-				return GetResponseFromHttpSync (ctx, response, wexc);
-			} catch (Exception ex) {
-				return new TraditionalResponse (this, HttpStatusCode.InternalServerError, ex);
-			}
 		}
 
 		public override void Abort ()
