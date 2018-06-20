@@ -52,7 +52,7 @@ namespace Xamarin.WebTests.HttpRequestTests
 			HttpConnection connection, HttpRequest request)
 		{
 			return new HttpResponse (HttpStatusCode.OK, ExpectedContent) {
-				WriteAsBlob = true
+				WriteAsBlob = WriteAsBlob
 			};
 		}
 	}

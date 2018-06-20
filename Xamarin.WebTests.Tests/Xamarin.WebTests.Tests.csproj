@@ -180,6 +180,7 @@
     <Compile Include="Xamarin.WebTests.ValidationTests\CertificateStore.cs" />
     <Compile Include="Xamarin.WebTests.StressTests\StressTestFixture.cs" />
     <Compile Include="Xamarin.WebTests.StressTests\Simple.cs" />
+    <Compile Include="Xamarin.WebTests.HttpRequestTests\LongResponseAsBlob.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />
