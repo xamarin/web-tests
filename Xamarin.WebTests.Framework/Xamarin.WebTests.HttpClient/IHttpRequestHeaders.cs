@@ -1,10 +1,10 @@
 ﻿//
-// IHttpClient.cs
+// IHttpRequestHeaders.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2018 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,28 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Xamarin.WebTests.HttpClient
 {
-	public interface IHttpClient
+	public interface IHttpRequestHeaders
 	{
-		void CancelPendingRequests ();
-
-		IHttpRequestHeaders DefaultRequestHeaders {
-			get;
-		}
-
-		Task<string> GetStringAsync (Uri requestUri);
-
-		Task<IHttpResponseMessage> GetAsync (Uri requestUri, HttpCompletionOption completionOption, CancellationToken cancellationToken);
-
-		Task<IHttpResponseMessage> SendAsync (IHttpRequestMessage request, HttpCompletionOption completionOption, CancellationToken cancellationToken);
-
-		Task<IHttpResponseMessage> PutAsync (Uri requestUri, IHttpContent content, CancellationToken cancellationToken);
-
-		Task<IHttpResponseMessage> PostAsync (Uri requestUri, IHttpContent content, CancellationToken cancellationToken);
+		void AddTransferEncoding (string encoding);
 	}
 }
-

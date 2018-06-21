@@ -182,6 +182,7 @@
     <Compile Include="Xamarin.WebTests.StressTests\Simple.cs" />
     <Compile Include="Xamarin.WebTests.HttpRequestTests\LongResponseAsBlob.cs" />
     <Compile Include="Xamarin.WebTests.HttpRequestTests\SimpleRequest.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClientInstrumentation\CustomTransferEncoding.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\Xamarin.WebTests.Common.targets" />

@@ -28,17 +28,23 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Http = System.Net.Http;
-using Xamarin.WebTests.HttpClient;
 
 namespace Xamarin.WebTests.HttpClient
 {
 	class HttpClient : IHttpClient
 	{
 		readonly Http.HttpClient client;
+		HttpRequestHeaders headers;
 
 		public HttpClient (Http.HttpClient client)
 		{
 			this.client = client;
+		}
+
+		public IHttpRequestHeaders DefaultRequestHeaders {
+			get {
+				return headers ?? (headers = new HttpRequestHeaders (client.DefaultRequestHeaders));
+			}
 		}
 
 		public void CancelPendingRequests ()

@@ -174,7 +174,7 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 			switch (Type) {
 			case NtlmType.NtlmWhileQueued:
 				StartQueuedOperation (
-					HttpOperationFlags.DelayedListenerContext | HttpOperationFlags.ClientAbortsRequest,
+					HttpOperationFlags.DelayedListenerContext,
 					HttpStatusCode.OK, WebExceptionStatus.Success);
 				break;
 			case NtlmType.NtlmWhileQueued2:

@@ -160,12 +160,19 @@ namespace Xamarin.WebTests.HttpFramework
 			var linkedCts = CancellationTokenSource.CreateLinkedTokenSource (cts.Token, cancellationToken);
 			try {
 				await RunListener (ctx, externalUri, linkedCts.Token).ConfigureAwait (false);
-				requestDoneTask.TrySetResult (null);
+				if (HasAnyFlags (HttpOperationFlags.ExpectClientException))
+					requestDoneTask.TrySetException (new AssertionException ("Expected client exception."));
+				else
+					requestDoneTask.TrySetResult (null);
 			} catch (OperationCanceledException) {
 				requestDoneTask.TrySetCanceled ();
 			} catch (Exception ex) {
-				ctx.LogDebug (LogCategories.Listener, 5, $"{ME} FAILED: {ex.Message}");
-				requestDoneTask.TrySetException (ex);
+				if (HasAnyFlags (HttpOperationFlags.ExpectClientException))
+					requestDoneTask.TrySetResult (null);
+				else {
+					ctx.LogDebug (LogCategories.Listener, 5, $"{ME} FAILED: {ex.Message}");
+					requestDoneTask.TrySetException (ex);
+				}
 			} finally {
 				linkedCts.Dispose ();
 			}

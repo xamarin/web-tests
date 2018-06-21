@@ -221,6 +221,7 @@
     <Compile Include="Xamarin.WebTests.TestRunners\StreamInstrumentationTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\RenegotiationAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestAttributes\HttpClientUsesServicePointAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.HttpClient\IHttpRequestHeaders.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
