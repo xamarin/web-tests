@@ -258,6 +258,8 @@ namespace Xamarin.WebTests.MonoTestProvider
 #if __IOS__ || __MOBILE__
 			return false;
 #else
+			if (Platform.IsMacOS && Environment.OSVersion.Version <= new Version (16, 6))
+				return false;
 			var type = typeof (IMonoSslStream);
 			canRenegotiate = type.GetProperty ("CanRenegotiate");
 			if (canRenegotiate == null)
