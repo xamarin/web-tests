@@ -223,20 +223,8 @@ namespace Xamarin.WebTests.MonoTestProvider
 
 		bool CheckAppleTls ()
 		{
-#if __IOS__
+#if __IOS__ || __XAMMAC__ || !__MOBILE__
 			return true;
-#elif __XAMMAC__ || !__MOBILE__
-			/*
-			 * AppleTls is unusable broken on Jenkins because it would hang the bots
-			 * prior to mono/master commit 1eb27c1df8ed29d84ca935496ffd6c230447895a.
-			 * 
-			 * This commit also added a new internal class called Mono.AppleTls.SecAccess;
-			 * we use reflection to check for its existance to determine whether our runtime
-			 * is recent enough.
-			 * 
-			 */
-			var assembly = typeof (HttpWebRequest).Assembly;
-			return assembly.GetType ("Mono.AppleTls.SecAccess", false) != null;
 #else
 			return false;
 #endif
