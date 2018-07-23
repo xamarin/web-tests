@@ -37,6 +37,7 @@ namespace Xamarin.WebTests.ValidationTests
 	using HttpFramework;
 	using Resources;
 
+	[NotWorking] // Does not work in AppleTLS yet.
 	[ConnectionTestFlags (ConnectionTestFlags.RequireTrustedRoots)]
 	public class TrustedIntermediateCA : ValidationTestFixture
 	{
