@@ -59,6 +59,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[Tls12]
+		[NotWorking]
 		[AsyncTest]
 		public async Task TestWebClient11 (TestContext ctx, CancellationToken cancellationToken)
 		{
