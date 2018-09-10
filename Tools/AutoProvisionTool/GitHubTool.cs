@@ -75,7 +75,7 @@ namespace AutoProvisionTool
 
 				Program.Log ($"Found commit {combined.Sha}: {combined.State}");
 
-				if (combined.State.Value == CommitState.Pending)
+				if (combined.State.Value != CommitState.Success)
 					continue;
 				var selected = filter (combined);
 				if (selected != null)
