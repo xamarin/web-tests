@@ -73,7 +73,7 @@ namespace AutoProvisionTool
 			p.Add ("xi=", "Xamarin.iOS branch", v => products.Add (new IOSProduct (v)));
 			p.Add ("xm=", "Xamarin.Mac branch", v => products.Add (new MacProduct (v)));
 			p.Add ("xa=", "Xamarin.Android branch", v => products.Add (new AndroidProduct (v)));
-			p.Add ("specific", "Use this specific commit", v => SpecificCommit = true);
+			p.Add ("specific=", "Use this specific commit", v => SpecificCommit = true);
 			p.Add ("max-fallback=", "Maximum number of fallback commits to try", v => maxFallback = int.Parse (v));
 
 			if (SpecificCommit)

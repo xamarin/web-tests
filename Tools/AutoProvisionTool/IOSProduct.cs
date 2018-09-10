@@ -39,7 +39,7 @@ namespace AutoProvisionTool
 
 		public override string FrameworkName => "Xamarin.iOS.framework";
 
-		public override string PackageName => "xamarin.ios";
+		public override string PackageName => "Xamarin.iOS";
 
 		public override string RepoOwner => "xamarin";
 

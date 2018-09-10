@@ -39,7 +39,7 @@ namespace AutoProvisionTool
 
 		public override string FrameworkName => "Xamarin.Mac.framework";
 
-		public override string PackageName => "xamarin.mac";
+		public override string PackageName => "Xamarin.Mac";
 
 		public override string RepoOwner => "xamarin";
 
