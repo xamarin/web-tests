@@ -39,6 +39,20 @@ def profileSetup ()
     	XA_BRANCH = 'NONE'
     	IOS_DEVICE_TYPE = 'iPhone-5s'
     	IOS_RUNTIME = "iOS-10-0"
+    } else if (profile == '2018-06') {
+    	MONO_BRANCH = '2018-06'
+    	XI_BRANCH = 'NONE'
+    	XM_BRANCH = 'NONE'
+    	XA_BRANCH = 'NONE'
+    	IOS_DEVICE_TYPE = 'iPhone-5s'
+    	IOS_RUNTIME = "iOS-10-0"
+    } else if (profile == '2018-08') {
+    	MONO_BRANCH = '2018-08'
+    	XI_BRANCH = 'NONE'
+    	XM_BRANCH = 'NONE'
+    	XA_BRANCH = 'NONE'
+    	IOS_DEVICE_TYPE = 'iPhone-5s'
+    	IOS_RUNTIME = "iOS-10-0"
 	} else if (profile == 'macios') {
 		MONO_BRANCH = 'NONE'
 		XI_BRANCH = 'master'
@@ -46,17 +60,24 @@ def profileSetup ()
 		XA_BRANCH = 'NONE'
 		IOS_DEVICE_TYPE = "iPhone-5s"
 		IOS_RUNTIME = "iOS-10-0"
-	} else if (profile == 'macios-2018-02') {
-		MONO_BRANCH = 'NONE'
-		XI_BRANCH = 'mono-2018-02'
-		XM_BRANCH = 'mono-2018-02'
-		XA_BRANCH = 'NONE'
-		IOS_DEVICE_TYPE = "iPhone-5s"
-		IOS_RUNTIME = "iOS-10-0"
 	} else if (profile == 'macios-2018-04') {
 		MONO_BRANCH = 'NONE'
 		XI_BRANCH = 'mono-2018-04'
 		XM_BRANCH = 'mono-2018-04'
+		XA_BRANCH = 'NONE'
+		IOS_DEVICE_TYPE = "iPhone-5s"
+		IOS_RUNTIME = "iOS-10-0"
+	} else if (profile == 'macios-2018-06') {
+		MONO_BRANCH = 'NONE'
+		XI_BRANCH = 'mono-2018-06'
+		XM_BRANCH = 'mono-2018-06'
+		XA_BRANCH = 'NONE'
+		IOS_DEVICE_TYPE = "iPhone-5s"
+		IOS_RUNTIME = "iOS-10-0"
+	} else if (profile == 'macios-2018-08') {
+		MONO_BRANCH = 'NONE'
+		XI_BRANCH = 'mono-2018-08'
+		XM_BRANCH = 'mono-2018-08'
 		XA_BRANCH = 'NONE'
 		IOS_DEVICE_TYPE = "iPhone-5s"
 		IOS_RUNTIME = "iOS-10-0"
