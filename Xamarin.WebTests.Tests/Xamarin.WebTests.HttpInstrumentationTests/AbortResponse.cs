@@ -83,11 +83,6 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 			return new HttpResponse (HttpStatusCode.OK, content);
 		}
 
-		public override bool CheckResponse (TestContext ctx, Response response)
-		{
-			return ctx.Expect (response.Status, Is.EqualTo (HttpStatusCode.OK), "response.StatusCode");
-		}
-
 		protected override Task<TraditionalResponse> ReadResponse (
 			TestContext ctx, TraditionalRequest request,
 			HttpWebResponse response, WebException error,

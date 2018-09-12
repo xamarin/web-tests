@@ -50,6 +50,6 @@ namespace Xamarin.WebTests.HttpFramework
 			Handler = handler;
 		}
 
-		protected override bool CheckResponseInner (TestContext ctx, Response response) => Handler.CheckResponse (ctx, response);
+		protected override void CheckResponseInner (TestContext ctx, Response response) => Handler.CheckResponse (ctx, response);
 	}
 }

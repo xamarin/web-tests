@@ -95,7 +95,7 @@ namespace Xamarin.WebTests.TestRunners
 					innerCtx, request, cancellationToken));
 		}
 
-		protected override bool CheckResponseInner (TestContext ctx, Response response) => Parent.CheckResponse (ctx, response);
+		protected override void CheckResponseInner (TestContext ctx, Response response) => Parent.CheckResponse (ctx, response);
 
 		internal IPEndPoint RemoteEndPoint {
 			get;

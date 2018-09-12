@@ -80,6 +80,10 @@ namespace Xamarin.WebTests.HttpOperations
 			return response;
 		}
 
-		protected override bool CheckResponseInner (TestContext ctx, Response response) => Handler.CheckResponse (ctx, response);
+		protected sealed override void CheckResponseInner (TestContext ctx, Response response)
+		{
+			if (ExpectedError == WebExceptionStatus.Success && response.Error == null)
+				Handler.CheckResponse (ctx, response);
+		}
 	}
 }

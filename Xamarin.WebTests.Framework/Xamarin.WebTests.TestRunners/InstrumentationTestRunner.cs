@@ -378,6 +378,9 @@ namespace Xamarin.WebTests.TestRunners
 
 		public virtual bool CheckResponse (TestContext ctx, Response response)
 		{
+			if (ExpectedError != WebExceptionStatus.Success || response.Error != null)
+				return true;
+
 			if (!ctx.Expect (response.Content, Is.Not.Null, "response.Content != null"))
 				return false;
 

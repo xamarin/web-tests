@@ -207,6 +207,7 @@ namespace Xamarin.WebTests.HttpFramework
 			ctx.LogDebug (LogCategories.Listener, level, sb.ToString ());
 		}
 
+		[StackTraceEntryPoint]
 		async Task RunListener (TestContext ctx, Uri externalUri, CancellationToken cancellationToken)
 		{
 			var me = $"{ME} RUN LISTENER";
@@ -272,6 +273,8 @@ namespace Xamarin.WebTests.HttpFramework
 				var wexc = (WebException)response.Error;
 				if (ExpectedError != WebExceptionStatus.AnyErrorStatus)
 					ctx.Expect ((WebExceptionStatus)wexc.Status, Is.EqualTo (ExpectedError));
+
+				CheckResponseInner (ctx, response);
 				return;
 			}
 
@@ -280,20 +283,22 @@ namespace Xamarin.WebTests.HttpFramework
 					ctx.OnError (new WebException (response.Content.AsString (), response.Error));
 				else
 					ctx.OnError (response.Error);
-			} else {
-				var ok = ctx.Expect (response.Status, Is.EqualTo (ExpectedStatus), "status code");
-				if (ok)
-					ok &= ctx.Expect (response.IsSuccess, Is.True, "success status");
 
-				if (ok)
-					ok &= CheckResponseInner (ctx, response);
+				CheckResponseInner (ctx, response);
+			} else {
+				if (!ctx.Expect (response.Status, Is.EqualTo (ExpectedStatus), "status code"))
+					return;
+				if (!ctx.Expect (response.IsSuccess, Is.True, "success status"))
+					return;
+
+				CheckResponseInner (ctx, response);
 			}
 
 			if (response.Content != null)
 				Debug (ctx, 5, "GOT RESPONSE BODY", response.Content);
 		}
 
-		protected abstract bool CheckResponseInner (TestContext ctx, Response response);
+		protected abstract void CheckResponseInner (TestContext ctx, Response response);
 
 		internal ListenerOperation RegisterRedirect (TestContext ctx, ListenerHandler handler, string path = null)
 		{

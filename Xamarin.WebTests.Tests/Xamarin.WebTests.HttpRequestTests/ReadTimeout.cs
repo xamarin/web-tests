@@ -106,11 +106,6 @@ namespace Xamarin.WebTests.HttpRequestTests
 			}
 		}
 
-		public override bool CheckResponse (TestContext ctx, Response response)
-		{
-			return ctx.Expect (response.Status, Is.EqualTo (HttpStatusCode.OK), "response.StatusCode");
-		}
-
 		class CustomContent : HttpContent
 		{
 			public ReadTimeout Parent {
