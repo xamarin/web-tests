@@ -161,7 +161,7 @@ For mobile, a custom platform-specific test app is required for each platform an
 
 To run the tests, first launch the `Xamarin.WebTests.Android` / `Xamarin.WebTests.iOS` project.  Then start the GUI, select the correct server mode and start.
 
-###Android Automation steps
+### Android Automation steps
 
 The source from the `master` branch should be used as the default test suite revision.
 
