@@ -40,6 +40,7 @@ namespace Xamarin.WebTests.HttpInstrumentationTests
 	using HttpHandlers;
 	using TestRunners;
 
+	[NotWorking] // This is causing problems on Jenkins
 	[HttpServerFlags (HttpServerFlags.RequireInstrumentation)]
 	public class CloseConnectionGroup : HttpInstrumentationTestFixture
 	{
