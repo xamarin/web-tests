@@ -36,6 +36,7 @@ namespace Xamarin.WebTests.Tests
 	using Resources;
 
 	[Network]
+	[NotWorking]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class NetworkTests
 	{
