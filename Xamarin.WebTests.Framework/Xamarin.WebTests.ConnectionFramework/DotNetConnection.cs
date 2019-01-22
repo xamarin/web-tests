@@ -243,7 +243,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 			innerSocket = accepted = socket = null;
 			innerStream = null;
-			instrumentation = null;
 		}
 	}
 }

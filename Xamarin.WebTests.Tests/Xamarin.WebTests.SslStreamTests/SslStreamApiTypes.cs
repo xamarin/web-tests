@@ -52,7 +52,8 @@ namespace Xamarin.WebTests.SslStreamTests
 		protected override ConnectionParameters CreateParameters (TestContext ctx)
 		{
 			return new ConnectionParameters (ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificateValidator = AcceptAll
+				ClientCertificateValidator = AcceptAll, ClientApiType = ClientApiType,
+				ServerApiType = ServerApiType
 			};
 		}
 	}

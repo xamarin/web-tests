@@ -45,6 +45,10 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 	{
 		protected virtual bool UseCleanShutdown => false;
 
+		protected override bool NeedClientInstrumentation => true;
+
+		protected override bool NeedServerInstrumentation => true;
+
 		protected override ConnectionParameters CreateParameters (TestContext ctx)
 		{
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();

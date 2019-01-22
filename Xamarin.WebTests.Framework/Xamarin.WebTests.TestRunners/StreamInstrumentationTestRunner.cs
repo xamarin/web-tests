@@ -124,6 +124,10 @@ namespace Xamarin.WebTests.TestRunners
 		{
 		}
 
+		protected virtual void ConfigureServerStream (TestContext ctx, StreamInstrumentation instrumentation)
+		{
+		}
+
 		protected virtual StreamInstrumentation CreateClientInstrumentation (TestContext ctx, Connection connection, Socket socket)
 		{
 			return new StreamInstrumentation (ctx, ME, socket, true);
@@ -156,6 +160,8 @@ namespace Xamarin.WebTests.TestRunners
 				throw new InternalErrorException ();
 
 			ctx.LogDebug (LogCategory, 4, $"{ME}.{nameof (CreateServerStream)}");
+
+			ConfigureServerStream (ctx, instrumentation);
 
 			return instrumentation;
 		}
