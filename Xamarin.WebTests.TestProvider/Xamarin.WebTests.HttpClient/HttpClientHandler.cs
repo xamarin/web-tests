@@ -1,4 +1,4 @@
-﻿//
+//
 // HttpClientHandler.cs
 //
 // Author:
@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 using Http = System.Net.Http;
+using Xamarin.AsyncTests;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.HttpClient;
 
@@ -42,7 +43,13 @@ namespace Xamarin.WebTests.HttpClient
 		public HttpClientHandler (Http.HttpClientHandler handler)
 		{
 			this.handler = handler;
+
+			if (UsingSocketsHandler)
+				handler.ServerCertificateCustomValidationCallback = (s, c, ch, e) =>
+				ServicePointManager.ServerCertificateValidationCallback(s, c, ch, e);
 		}
+
+		static bool UsingSocketsHandler = DependencyInjector.Get<IConnectionFrameworkSetup>().HasNewHttpClient;
 
 		public IHttpClient CreateHttpClient ()
 		{

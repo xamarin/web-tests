@@ -27,6 +27,8 @@ namespace Xamarin.WebTests.DotNet
 
 		public bool SupportsGZip => true;
 
+		public bool HasNewHttpClient => true;
+
 		public int InternalVersion => 0;
 
 		public void Initialize (ConnectionProviderFactory factory)

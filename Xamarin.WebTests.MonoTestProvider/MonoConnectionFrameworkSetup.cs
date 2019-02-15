@@ -1,4 +1,4 @@
-﻿//
+//
 // MonoConnectionFrameworkSetup.cs
 //
 // Author:
@@ -87,6 +87,10 @@ namespace Xamarin.WebTests.MonoTestProvider
 			get;
 		}
 
+		public bool HasNewHttpClient {
+			get;
+		}
+
 		public bool SupportsRenegotiation {
 			get;
 		}
@@ -146,6 +150,7 @@ namespace Xamarin.WebTests.MonoTestProvider
 			HasNewWebStack = CheckNewWebStack ();
 			SupportsRenegotiation = CheckRenegotiation ();
 			SupportsGZip = CheckSupportsGZip ();
+			HasNewHttpClient = CheckNewHttpClient ();
 
 #if !__IOS__ && !__MOBILE__ && !__XAMMAC__
 			SupportsMonoExtensions = true;
@@ -208,6 +213,18 @@ namespace Xamarin.WebTests.MonoTestProvider
 			setSendCloseNotify = sendCloseNotify.SetMethod;
 			return true;
 #endif
+		}
+
+		bool CheckNewHttpClient ()
+		{
+#if __IOS__ || __MOBILE__
+			return false;
+#else
+			var asm = typeof(System.Net.Http.HttpClient).Assembly;
+			var type = asm.GetType("System.Net.Http.SocketsHttpHandler");
+			return type != null;
+#endif
+
 		}
 
 		bool CheckNewWebStack ()

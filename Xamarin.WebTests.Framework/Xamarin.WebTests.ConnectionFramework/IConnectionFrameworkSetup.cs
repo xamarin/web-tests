@@ -1,4 +1,4 @@
-﻿//
+//
 // IConnectionFrameworkSetup.cs
 //
 // Author:
@@ -67,6 +67,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		bool SupportsGZip {
+			get;
+		}
+
+		bool HasNewHttpClient {
 			get;
 		}
 
