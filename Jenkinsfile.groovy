@@ -1,10 +1,10 @@
 #!/bin/groovy
 properties([
 	parameters([
-		choice (name: 'MONO_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\n2018-06\n2018-08\n2018-10\n2019-02\nmaster', description: 'Mono branch'),
-		choice (name: 'XI_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nd15-6\nmono-2018-06\nmono-2018-08\nmono-2018-10', description: 'XI branch'),
-		choice (name: 'XM_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nd15-6\nmono-2018-06\nmono-2018-08\nmono-2018-10', description: 'XM branch'),
-		choice (name: 'XA_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nd15-6\nmono-2018-06\nmono-2018-08\nmono-2018-10', description: 'XA branch'),
+		choice (name: 'MONO_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\n2018-08\n2018-10\n2019-02\n2019-06\nmaster', description: 'Mono branch'),
+		choice (name: 'XI_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nmono-2018-08\nmono-2018-10\nmono-2019-02\nmono-2019-06', description: 'XI branch'),
+		choice (name: 'XM_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nmono-2018-08\nmono-2018-10\nmono-2019-02\nmono-2019-06', description: 'XM branch'),
+		choice (name: 'XA_BRANCH', choices: 'NONE\nCURRENT\nSPECIFIC\nmaster\nmono-2018-08\nmono-2018-10\nmono-2019-02\nmono-2019-06', description: 'XA branch'),
 		choice (name: 'IOS_DEVICE_TYPE', choices: 'iPhone-5s', description: ''),
 		choice (name: 'IOS_RUNTIME', choices: 'iOS-10-0\niOS-10-3', description: ''),
 		string (name: 'MONO_COMMIT', defaultValue: '', description: 'Use specific Mono commit'),
