@@ -68,7 +68,9 @@ namespace Xamarin.WebTests.StreamInstrumentationTests
 
 		protected override async Task<bool> ServerHandshake (TestContext ctx, Func<Task> handshake, StreamInstrumentation instrumentation)
 		{
-			await ctx.AssertException<ObjectDisposedException> (handshake, "server handshake").ConfigureAwait (false);
+			var constraint = Is.InstanceOf<ObjectDisposedException> ().Or.InstanceOfType<IOException> ();
+
+			await ctx.AssertException (handshake, constraint, "server handshake").ConfigureAwait (false);
 
 			Client.Close ();
 
