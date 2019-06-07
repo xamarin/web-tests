@@ -208,12 +208,12 @@ def run (String target, String testCategory, String outputDir, String resultOutp
 		extraParams = ",ExtraJenkinsArguments=\"$localExtraJenkinsArguments\""
 	}
 	try {
-		createCustomKeyChain ("web-tests.keychain", "monkey")
+//		createCustomKeyChain ("web-tests.keychain", "monkey")
 		withEnv (['MONO_ENV_OPTIONS=--debug']) {
 			runShell ("msbuild /verbosity:minimal Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,OutputDir=$outputDir,$iosParams,$resultParams,$outputParams$extraParams")
 		}
 	} finally {
-		deleteCustomKeyChain ("web-tests.keychain")
+//		deleteCustomKeyChain ("web-tests.keychain")
 	}
 }
 
