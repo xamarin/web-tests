@@ -55,6 +55,7 @@ def provision ()
 	final String OUTPUT_DIRECTORY = 'artifacts'
 
 	def args = [ ]
+	def provisionMono = false
 	def monoBranch = getBranchAndCommit ('Mono', params.MONO_BRANCH, params.MONO_COMMIT)
 	if (monoBranch != null) {
 		args << "--mono=$monoBranch"
@@ -63,20 +64,27 @@ def provision ()
 	def xiBranch = getBranchAndCommit ('XI', params.XI_BRANCH, params.XI_COMMIT)
 	if (xiBranch != null) {
 		args << "--xi=$xiBranch"
+		provisionMono = true
 	}
 	
 	def xmBranch = getBranchAndCommit ('XM', params.XM_BRANCH, params.XM_COMMIT)
 	if (xmBranch != null) {
 		args << "--xm=$xmBranch"
+		provisionMono = true
 	}
 	
 	def xaBranch = getBranchAndCommit ('XA', params.XA_BRANCH, params.XA_COMMIT)
 	if (xaBranch != null) {
 		args << "--xa=$xaBranch"
+		provisionMono = true
 	}
 	
 	if (params.SPECIFIC_COMMIT) {
 		args << "--specific"
+	}
+
+	if (provisionMono) {
+		args << "--mono=2019-02"
 	}
 	
 	def buildPath = new URI (env.BUILD_URL).getPath()
