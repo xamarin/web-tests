@@ -181,6 +181,7 @@ def buildAll ()
 def createCustomKeyChain (String keychain, String password)
 {
 	runShell ("security create-keychain -p $password $keychain")
+	runShell ("security set-keychain-settings $keychain")
 	runShell ("security default-keychain -s $keychain")
 	runShell ("security unlock-keychain -p $password $keychain")
 }
