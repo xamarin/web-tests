@@ -178,6 +178,19 @@ def buildAll ()
 	build (targetList)
 }
 
+def createCustomKeyChain (String keychain, String password)
+{
+	runShell ("security create-keychain -p $password $keychain")
+	runShell ("security default-keychain -s $keychain")
+	runShell ("security unlock-keychain -p $password $keychain")
+}
+
+def deleteCustomKeyChain (String keychain)
+{
+	runShell ("security default-keychain -s login.keychain")
+	runShell ("security delete-keychain $keychain")
+}
+
 def run (String target, String testCategory, String outputDir, String resultOutput, String junitResultOutput, String stdOut, String jenkinsHtml)
 {
     final String localExtraJenkinsArguments = ""
@@ -190,11 +203,16 @@ def run (String target, String testCategory, String outputDir, String resultOutp
 	if (params.EXTRA_JENKINS_ARGUMENTS != '') {
 		def extraParamValue = params.EXTRA_JENKINS_ARGUMENTS
 		extraParams = ",ExtraJenkinsArguments=\"$extraParamValue\""
-    } else {
-        extraParams = ",ExtraJenkinsArguments=\"$localExtraJenkinsArguments\""
-    }
-	withEnv (['MONO_ENV_OPTIONS=--debug']) {
-		runShell ("msbuild /verbosity:minimal Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,OutputDir=$outputDir,$iosParams,$resultParams,$outputParams$extraParams")
+	} else {
+		extraParams = ",ExtraJenkinsArguments=\"$localExtraJenkinsArguments\""
+	}
+	try {
+		createCustomKeyChain ("web-tests.keychain", "monkey")
+		withEnv (['MONO_ENV_OPTIONS=--debug']) {
+			runShell ("msbuild /verbosity:minimal Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,OutputDir=$outputDir,$iosParams,$resultParams,$outputParams$extraParams")
+		}
+	} finally {
+		deleteCustomKeyChain ("web-tests.keychain")
 	}
 }
 
