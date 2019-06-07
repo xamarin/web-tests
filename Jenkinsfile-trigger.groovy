@@ -47,7 +47,7 @@ def profileSetup ()
 		IOS_DEVICE_TYPE = 'iPhone-5s'
 		IOS_RUNTIME = "iOS-10-0"
 	} else if (profile == 'macios') {
-		MONO_BRANCH = 'NONE'
+		MONO_BRANCH = '2019-02'
 		XI_BRANCH = 'master'
 		XM_BRANCH = 'master'
 		XA_BRANCH = 'NONE'
